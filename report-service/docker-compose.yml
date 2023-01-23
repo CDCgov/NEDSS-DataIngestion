@@ -1,0 +1,16 @@
+version: "3.7"
+services:
+  reportdb:
+    image: mongo:3
+    container_name: "reportdb"
+    restart: always
+    ports:
+      - 27017:27017
+  api:
+    build: .
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - reportdb
+

@@ -1,0 +1,2 @@
+rootProject.name = 'NEDDS-DataIngestion'
+include 'report-serive'
