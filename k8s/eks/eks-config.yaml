@@ -1,0 +1,16 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: EKS-DI-SandBox
+  region: us-east-1
+
+# ec2 creation
+# public key use for ssh access
+nodeGroups:
+  - name: di-node-1
+    instanceType: t2.small
+    # number of ec2 instance to be created
+    desiredCapacity: 1
+    ssh: # ec2 key
+      publicKeyName: <public-key-name-goes-here>
