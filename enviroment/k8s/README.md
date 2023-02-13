@@ -3,7 +3,9 @@ Requirement:
 - Docker + Kubernetes Desktop
 - Kubectl
 - AWS CLI
+    - AWS CLI need to be configured with approriate user
 - Ekscli
+    - AWS admin is needed to run Ekscli create cluster
 
 Installation:
 - N/A
@@ -24,7 +26,7 @@ Setup:
             - ```eksctl delete cluster -f eks-config.yaml```
 
 
-- On terminal, we need to be in ```NEDSS-DataIngestion\k8s\kafka``` directory
+- On terminal, we need to be in ```NEDSS-DataIngestion\...\k8s\..\kafka``` directory
 - Service creation
     - Review yaml files in service directory
     - These services are basically a way to expose a running pods on the network
