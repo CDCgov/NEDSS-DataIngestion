@@ -2,7 +2,6 @@ package gov.cdc.dataingestion.report.controller;
 
 import gov.cdc.dataingestion.report.integration.service.ReportService;
 import gov.cdc.dataingestion.report.model.ReportDetails;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -33,10 +32,9 @@ public final class ReportControllerTests {
      */
     @Test
     void shouldSaveReport() {
-        ReportDetails report  = new ReportDetails();
+        ReportDetails report  = new ReportDetails("report");
         report.setData("new report");
-
-        Assertions.assertNotNull(
-                this.reportController.save(report));
+        this.reportController.save("report");
     }
+
 }
