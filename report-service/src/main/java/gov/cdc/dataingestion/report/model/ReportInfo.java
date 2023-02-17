@@ -8,10 +8,9 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
-public class ReportDetails {
-
+public final class ReportInfo {
     /**
-     * Report data.
+     * request payload
      */
-    private String data;
+    private String payload;
 }
