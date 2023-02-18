@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: jwtgenerator
+
+logging:
+  file: logs/jwtgenerator.log
+  
+  pattern:
+    console: "%d %-5level %logger : %file-%line : %msg%n"
+    file:    "%d %-5level [%thread] %logger : [ramesh] : %msg%n"
+    
+  level:
+    com.apps.restfulApp.api.controller: ERROR
+
+---
+spring:
+  profiles: local
+
+hashivault:
+  enabled: true
+  authendpoint:    http://vault:8200/v1/auth/cert/login
+  secretsendpoint: http://vault:8200/v1/secrets/${spring.application.name}/${spring.profiles.active}
+
+jwt:
+  secret-for-algorithm: vault_jwt_secret_for_algorithm
+  claim-name: vault_jwt_claim_name
+  claim-email: vault_jwt_claim_email
+  claim-subject: vault_jwt_claim_subject
+  seed: vault_jwt_seed
+
+thread-pooling:
+  core-pool-size: 25
+  max-pool-size: 300
+
+server:
+  port: 8000
+  tomcat:
+    accept-count: 100
+    max-connections: 10000
+    max-threads: 200
