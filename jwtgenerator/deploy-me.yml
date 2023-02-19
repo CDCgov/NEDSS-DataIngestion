@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: jwtgenerator
+  name: jwtgenerator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jwtgenerator
+  template:
+    metadata:
+      labels:
+        app: jwtgenerator
+    spec:
+      containers:
+      - name: jwtgenerator
+        imagePullPolicy: IfNotPresent
+        image: jwtgenerator
+        ports:
+          - containerPort: 8000
+        env:
+          - name: HASHIVAULT_ENABLED
+            value: "false"
+
