@@ -23,4 +23,29 @@ spec:
         env:
           - name: HASHIVAULT_ENABLED
             value: "false"
+          - name: JWT_SECRETFORALGORITHM
+            valueFrom:
+              configMapKeyRef:
+                name: jwtgenerator-config
+                key: jwt_secret_for_algorithm
+          - name: JWT_CLAIMNAME
+            valueFrom:
+              configMapKeyRef:
+                name: jwtgenerator-config
+                key: jwt_claim_name
+          - name: JWT_CLAIMEMAIL
+            valueFrom:
+              configMapKeyRef:
+                name: jwtgenerator-config
+                key: jwt_claim_email
+          - name: JWT_CLAIMSUBJECT
+            valueFrom:
+              configMapKeyRef:
+                name: jwtgenerator-config
+                key: jwt_claim_subject
+          - name: JWT_SEED
+            valueFrom:
+              configMapKeyRef:
+                name: jwtgenerator-config
+                key: jwt_seed
 
