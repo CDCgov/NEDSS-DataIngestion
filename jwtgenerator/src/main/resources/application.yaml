@@ -22,10 +22,10 @@ hashivault:
   secretsendpoint: http://vault:8200/v1/secrets/${spring.application.name}/${spring.profiles.active}
 
 jwt:
-  secret-for-algorithm: vault_jwt_secret_for_algorithm
-  claim-name: vault_jwt_claim_name
-  claim-email: vault_jwt_claim_email
-  claim-subject: vault_jwt_claim_subject
+  secretforalgorithm: vault_jwt_secret_for_algorithm
+  claimname: vault_jwt_claim_name
+  claimemail: vault_jwt_claim_email
+  claimsubject: vault_jwt_claim_subject
   seed: vault_jwt_seed
 
 thread-pooling:

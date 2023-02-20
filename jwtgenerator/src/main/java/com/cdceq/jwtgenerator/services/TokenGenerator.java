@@ -32,16 +32,16 @@ public class TokenGenerator {
 	private static Logger logger = LoggerFactory.getLogger(TokenGenerator.class);
     private static HashMap<String, TokenInfoHolder> tokensMap = new HashMap<>();
 
-    @Value("${jwt.secret-for-algorithm}")
+    @Value("${jwt.secretforalgorithm}")
     private String vaultSecretForAlgorithm;
 
-    @Value("${jwt.claim-name}")
+    @Value("${jwt.claimname}")
     private String vaultClaimName;
 
-    @Value("${jwt.claim-email}")
+    @Value("${jwt.claimemail}")
     private String vaultClaimEmail;
 
-    @Value("${jwt.claim-subject}")
+    @Value("${jwt.claimsubject}")
     private String vaultClaimSubject;
 
     private long lAllowed = TOKEN_MAX_VALID_PERIOD * 3600 * 1000;
