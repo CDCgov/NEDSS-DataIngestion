@@ -1,0 +1,16 @@
+version: '3.7'
+services:
+  phinadapter:
+    image: phinadapter
+    ports:
+      - "8090:8090"
+    networks:
+      - apps_network
+
+networks:
+  apps_network:
+      external:
+        name: adapter_network
+
+
+
