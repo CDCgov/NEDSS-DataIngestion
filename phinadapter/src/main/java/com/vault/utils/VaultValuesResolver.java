@@ -1,8 +1,8 @@
 package	com.vault.utils;
 
-import org.springframework.beans.factory.annotation.Value;
 import  org.springframework.boot.context.properties.ConfigurationProperties;
 import  org.springframework.context.annotation.Configuration;
+import  org.springframework.beans.factory.annotation.Value;
 
 import  org.apache.http.HttpResponse;
 import  org.apache.http.HttpEntity;
@@ -32,7 +32,7 @@ import  org.slf4j.LoggerFactory;
 @Configuration
 @ConfigurationProperties(prefix="hashivault")
 public class VaultValuesResolver {
-	private static Logger logger = LoggerFactory.getLogger(VaultValuesResolver.class);
+	private static final Logger logger = LoggerFactory.getLogger(VaultValuesResolver.class);
 
 	private static final String PROPERTY_PKCS12_CERTIFICATE = "hvappname.p12";
 	private static final String PROPERTY_CERTIFICATE_STORE_TYPE = "PKCS12";
@@ -46,7 +46,7 @@ public class VaultValuesResolver {
 	// 50 minutes = 50 * 60 * 1000 = 3000000
 	private static final long TOKEN_VALIDITY_TIME_IN_MILLISECONDS = 3000000;
 
-    private static Gson gson = new Gson();
+    private static final Gson gson = new Gson();
     
 	private static HashMap<String, String> knownSecrets = null;
 	private static VaultValuesResolver instance = null;
@@ -83,8 +83,48 @@ public class VaultValuesResolver {
 		
 		return retValue;
 	}
-	
-	public VaultValuesResolver() {
+
+    public static CloseableHttpClient initNonSslClient() throws Exception {
+        CloseableHttpClient httpClient = null;
+
+        try {
+            httpClient = HttpClients.createDefault();
+            logger.info("Initialized non-ssl client to interface with HashiCorp vault");
+            return httpClient;
+        }
+        catch (Exception e) {
+            logger.error("Non-ssl client initialization error", e);
+            throw e;
+        }
+    }
+
+    public static String processResponse(HttpResponse response) throws Exception {
+        int statusCode = response.getStatusLine().getStatusCode();
+
+        String statusMsg = response.getStatusLine().getReasonPhrase();
+        if (statusCode != 200) {
+            String msg = String.format("Vault returned non 200 http status during auth, statusCode = %d, statusMsg = %s",
+                    statusCode,
+                    statusMsg);
+            throw new Exception(msg);
+        }
+
+        HttpEntity entity = response.getEntity();
+        InputStream is = entity.getContent();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is, "iso-8859-1"), 8);
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line + "\n");
+        }
+
+        String resString = sb.toString();
+        is.close();
+
+        return resString;
+    }
+
+    public VaultValuesResolver() {
 		instance = this;
 	}
 
@@ -141,32 +181,6 @@ public class VaultValuesResolver {
 
         return srh.data.data;
     }
-    
-    private String processResponse(HttpResponse response) throws Exception {
-        int statusCode = response.getStatusLine().getStatusCode();
-
-        String statusMsg = response.getStatusLine().getReasonPhrase();
-        if (statusCode != 200) {
-            String msg = String.format("Vault returned non 200 http status during auth, statusCode = %d, statusMsg = %s",
-                                statusCode,
-                                statusMsg);
-            throw new Exception(msg);
-        }
-
-        HttpEntity entity = response.getEntity();
-        InputStream is = entity.getContent();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is, "iso-8859-1"), 8);
-        StringBuilder sb = new StringBuilder();
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            sb.append(line + "\n");
-        }
-
-        String resString = sb.toString();
-        is.close();
-
-        return resString;
-    }    
     
 	private String getFixedClientToken() throws Exception {
 		return "nj101";
@@ -247,18 +261,4 @@ public class VaultValuesResolver {
 			throw new Exception(e);
 		}
 	}
-	
-	private CloseableHttpClient initNonSslClient() throws Exception {
-        CloseableHttpClient httpClient = null;
-
-        try {
-            httpClient = HttpClients.createDefault();
-            logger.info("Initialized non-ssl client to interface with HashiCorp vault");
-            return httpClient;
-        }
-        catch (Exception e) {
-        	logger.error("Non-ssl client initialization error", e);
-            throw e;
-        }
-    }
 }
