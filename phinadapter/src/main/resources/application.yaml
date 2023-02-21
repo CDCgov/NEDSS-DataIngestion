@@ -1,9 +1,9 @@
 spring:
   application:
-    name: jwtgenerator
+    name: phinadapter
 
 logging:
-  file: logs/jwtgenerator.log
+  file: logs/phinadapter.log
   
   pattern:
     console: "%d %-5level %logger : %file-%line : %msg%n"
@@ -15,6 +15,18 @@ logging:
 ---
 spring:
   profiles: local
+  
+  datasource:
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: vault_odsedb_url
+    username: vault_odsedb_username
+    password: vault_odsedb_password
+
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
 
 hashivault:
   enabled: true
@@ -22,10 +34,8 @@ hashivault:
   secretsendpoint: http://vault:8200/v1/secrets/${spring.application.name}/${spring.profiles.active}
 
 jwt:
-  secretforalgorithm: vault_jwt_secret_for_algorithm
-  claimname: vault_jwt_claim_name
-  claimemail: vault_jwt_claim_email
-  claimsubject: vault_jwt_claim_subject
+  enabled: vault_jwt_enabled
+  endpoint: vault_jwt_endpoint
   seed: vault_jwt_seed
 
 thread-pooling:
@@ -33,7 +43,7 @@ thread-pooling:
   max-pool-size: 300
 
 server:
-  port: 8000
+  port: 8090
   tomcat:
     accept-count: 100
     max-connections: 10000
