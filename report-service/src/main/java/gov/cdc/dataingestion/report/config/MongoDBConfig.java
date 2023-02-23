@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 
 /***
- *
+ *Mongo DB config.
  */
 @Configuration
 public class MongoDBConfig {
@@ -17,7 +17,7 @@ public class MongoDBConfig {
      *
      * @param databaseFactory factory
      * @param converter converter
-     * @return
+     * @return mongo template
      */
     @Bean
     public MongoTemplate mongoTemplate(
