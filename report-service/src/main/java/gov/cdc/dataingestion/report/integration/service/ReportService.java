@@ -40,6 +40,6 @@ public class ReportService {
      * @return list of reports.
      */
     public List<Report> findAll() {
-        return this.reportRepository.findAll();
+         return this.reportRepository.findAll();
     }
 }
