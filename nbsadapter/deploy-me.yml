@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: nbsadapter
+  name: nbsadapter 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nbsadapter 
+  template:
+    metadata:
+      labels:
+        app: nbsadapter 
+    spec:
+      containers:
+      - name: nbsadapter 
+        imagePullPolicy: IfNotPresent
+        image: raddanki64/eqartifacts:nbsadapter
+        ports:
+          - containerPort: 8000
+        env:
+          - name: HASHIVAULT_ENABLED
+            value: "false"
+          - name: SPRING_DATASOURCE_URL
+            valueFrom:
+              configMapKeyRef:
+                name: nbsadapter-config
+                key: nbsdb_url
+          - name: SPRING_DATASOURCE_USERNAME
+            valueFrom:
+              configMapKeyRef:
+                name: nbsadapter-config
+                key: nbsdb_username
+          - name: SPRING_DATASOURCE_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: nbsadapter-config
+                key: nbsdb_password
+          - name: MONGO_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: nbsadapter-config
+                key: mongo_host
+          - name: MONGO_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: nbsadapter-config
+                key: mongo_port
+          - name: MONGO_USERNAME
+            valueFrom:
+              configMapKeyRef:
+                name: nbsadapter-config
+                key: mongo_username
+          - name: MONGO_USERPASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: nbsadapter-config
+                key: mongo_userpassword
+          - name: MONGO_DBNAME
+            valueFrom:
+              configMapKeyRef:
+                name: nbsadapter-config
+                key: mongo_dbname
+          - name: REPORTSTREAM_HL7FILESDIRURL
+            valueFrom:
+              configMapKeyRef:
+                name: nbsadapter-config
+                key: hl7_files_directory
+          - name: KAFKA_OUTBOUND_HL7MESSAGESENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: nbsadapter-config
+                key: hl7_messages_endpoint
+          - name: KAFKA_OUTBOUND_XMLMESSAGESENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: nbsadapter-config
+                key: xml_messages_endpoint

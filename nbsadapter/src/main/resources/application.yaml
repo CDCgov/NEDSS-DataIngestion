@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: nbsadapter
+
+logging:
+  file: logs/nbsadapter.log
+  
+  pattern:
+    console: "%d %-5level %logger : %file-%line : %msg%n"
+    file:    "%d %-5level [%thread] %logger : [ramesh] : %msg%n"
+    
+  level:
+    com.apps.restfulApp.api.controller: ERROR
+
+---
+spring:
+  profiles: local
+  
+  datasource:
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: vault_nbsdb_url
+    username: vault_nbsdb_username
+    password: vault_nbsdb_password
+
+mongo:
+    host: vault_mongo_host
+    port: vault_mongo_port
+    username: vault_mongo_username
+    userpassword: vault_mongo_userpassword
+    dbname: vault_mongo_dbname
+
+reportstream:
+  hl7filesdirurl: vault_hl7_files_directory
+
+kafka:
+  outbound:
+    hl7messagesendpoint: vault_hl7_messages_endpoint
+    xmlmessagesendpoint: vault_xml_messages_endpoint
+
+hashivault:
+  enabled: true
+  authendpoint:    http://vault:8200/v1/auth/cert/login
+  secretsendpoint: http://vault:8200/v1/secrets/${spring.application.name}/${spring.profiles.active}
+  encryptendpoint: http://vault:8200/v1/transit/encrypt/msg-key
+    
+thread-pooling:
+  core-pool-size: 25
+  max-pool-size: 300
+
+server:
+  port: 8080
+  tomcat:
+    accept-count: 100
+    max-connections: 10000
+    max-threads: 200
