@@ -37,6 +37,6 @@ public final class ReportControllerTests {
         report.setData("new report");
 
         Assertions.assertNotNull(
-                this.reportController.save(report));
+                this.reportController.save(report.getData(), "simple_Report"));
     }
 }

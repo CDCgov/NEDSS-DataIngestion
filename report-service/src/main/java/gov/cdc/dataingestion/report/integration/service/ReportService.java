@@ -1,45 +1,75 @@
 package gov.cdc.dataingestion.report.integration.service;
 
-import gov.cdc.dataingestion.report.repository.IReportRepository;
-import gov.cdc.dataingestion.report.repository.model.Report;
+import gov.cdc.dataingestion.report.integration.service.convert.IConvertCsvToHl7Service;
+import gov.cdc.dataingestion.report.integration.service.convert.IConvertToFhirService;
+import gov.cdc.dataingestion.report.integration.service.schema.LoadSchemasService;
+import gov.cdc.dataingestion.report.model.Report;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * Report service.
  */
 @Service
-public class ReportService {
+@Slf4j
+public class ReportService implements IReportService {
 
     /**
-     * Report repository.
+     * Convert to Fhir Service.
      */
-    private final IReportRepository reportRepository;
+    private final IConvertToFhirService convertToFhirService;
+
+    /**
+     * Load schema service.
+     */
+    private final LoadSchemasService loadSchemasService;
+
+    /**
+     * Convert csv to Hl7 service.
+     */
+    private final IConvertCsvToHl7Service convertCsvToHl7Service;
 
     /**
      * Designated constructor.
-     * @param reportRepository report repository.
+     * @param convertToFhirService   Convert to Fhir Service.
+     * @param loadSchemasService     schema service
+     * @param convertCsvToHl7Service Convert csv to Hl7 service.
      */
-    public ReportService(final IReportRepository reportRepository) {
-        this.reportRepository = reportRepository;
+    public ReportService(
+            final IConvertToFhirService convertToFhirService,
+            final LoadSchemasService loadSchemasService,
+            final IConvertCsvToHl7Service convertCsvToHl7Service) {
+        this.convertToFhirService = convertToFhirService;
+        this.loadSchemasService = loadSchemasService;
+        this.convertCsvToHl7Service = convertCsvToHl7Service;
     }
 
     /**
      * Saves report.
-     *
-     * @param report
+     * @param input Report
      * @return report id.
      */
-    public String save(final Report report) {
-        return this.reportRepository.save(report).getId();
+    @Override
+    public String execute(final Report input) {
+
+        // Get schema for the requested client
+         var schemas = this.loadSchemasService.execute("");
+         input.setSchema(
+                 schemas.get(this.getSenderSchemaName(input.getClientName())));
+
+
+         // Map , convert to Hl7 message
+       var message =  this.convertCsvToHl7Service.execute(input);
+
+        // Convert to Fhir.
+         return this.convertToFhirService
+                    .execute(message);
     }
 
-    /**
-     * Retrieves all reports.
-     * @return list of reports.
-     */
-    public List<Report> findAll() {
-         return this.reportRepository.findAll();
+    @NotNull
+    private String getSenderSchemaName(@NotNull final String senderName) {
+        //TODO Integrate with sender details.
+        return "pdi-covid-19";
     }
 }
