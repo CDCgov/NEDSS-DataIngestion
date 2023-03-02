@@ -100,6 +100,8 @@ public class JwtController {
         JSONObject reply = new JSONObject();
         reply.put("valid", isValid);
 
+        logger.debug("Completed verification, and returning to the caller");
+
         return new ResponseEntity<>(reply.toString(), HttpStatus.OK);
     }
 }
