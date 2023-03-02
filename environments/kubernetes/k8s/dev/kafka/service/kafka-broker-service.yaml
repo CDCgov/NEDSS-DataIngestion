@@ -7,9 +7,7 @@ spec:
   - port: 9092
     name: external
     protocol: TCP
-  - port: 29092
-    name: internal
-    protocol: TCP
   selector:
     service: kafka
+  # used LoadBalancer for testing
   type: LoadBalancer

@@ -7,6 +7,9 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "22181:2181"
+    volumes:
+      - <DIRECTORY-GOES-HERE>:/var/lib/zookeeper/data
+      - <DIRECTORY-GOES-HERE>:/var/lib/zookeeper/log
     networks:
       - services_network
 
@@ -16,6 +19,8 @@ services:
       - zookeeper
     ports:
       - "29092:29092"
+    volumes:
+      - <DIRECTORY-GOES-HERE>::/var/lib/kafka/data
     environment:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_BROKER_ID: 1
