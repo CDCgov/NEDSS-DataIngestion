@@ -22,7 +22,6 @@ spec:
         imagePullPolicy: IfNotPresent
         image: confluentinc/cp-kafka:7.3.0
         ports:
-          - containerPort: 29092
           - containerPort: 9092
         env:
           - name: KAFKA_BROKER_ID
@@ -47,13 +46,13 @@ spec:
           - name: KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
             value: "1"
         # Mounting Persistence Storage
-        # volumeMounts:
-        #   - mountPath: /var/kafka
-        #     name: kafka-broker-storage
+        volumeMounts:
+          - mountPath: /var/lib/kafka/data
+            name: kafka-broker-storage
       hostname: kafka
       restartPolicy: Always
       # Getting Persistence Storage Claim
-      # volumes:
-      # - name: kafka-broker-storage
-      #   persistentVolumeClaim:
-      #     claimName: kafka-pv-claim
+      volumes:
+      - name: kafka-broker-storage
+        persistentVolumeClaim:
+          claimName: kafka-pv-claim
