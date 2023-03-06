@@ -6,4 +6,8 @@
 <suppressions>
     <suppress checks="HideUtilityClassConstructor" files="ReportServiceApplication.java"/>
     <suppress checks="VisibilityModifier" files=""/>
+    <suppress checks="Javadoc"  files="gov.cdc.dataingestion.report.model.*.java"/>
+    <suppress
+            checks="ParameterNumber"
+            files="gov.cdc.dataingestion.report.model.*.java" />
 </suppressions>
