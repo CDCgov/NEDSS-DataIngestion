@@ -1,4 +1,4 @@
-#This is a test env
+#This is a local test env
 #docker-compose up -d
 version: '2'
 services:

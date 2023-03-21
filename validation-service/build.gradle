@@ -14,12 +14,17 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
 
 	// https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
 	implementation 'org.springframework.kafka:spring-kafka'
 
 	// https://mvnrepository.com/artifact/ca.uhn.hapi/hapi-base
 	implementation 'ca.uhn.hapi:hapi-base:2.3'
+
+	// https://mvnrepository.com/artifact/com.google.code.gson/gson
+	implementation 'com.google.code.gson:gson:2.10.1'
+
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
