@@ -14,6 +14,16 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
+
+	// https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+
+	// https://mvnrepository.com/artifact/ca.uhn.hapi/hapi-base
+	implementation 'ca.uhn.hapi:hapi-base:2.3'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
