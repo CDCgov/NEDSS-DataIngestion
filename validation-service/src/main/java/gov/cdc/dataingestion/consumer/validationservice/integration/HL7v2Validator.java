@@ -17,6 +17,7 @@ public class HL7v2Validator {
 
     public MessageModel  MessageValidation(String message) throws HL7Exception {
 
+        // maybe conditionallay check for \n then replace
         String replaceSpecialCharacters = message.replaceAll("\n","\r");
         MessageModel model = new MessageModel();
         // Set validation

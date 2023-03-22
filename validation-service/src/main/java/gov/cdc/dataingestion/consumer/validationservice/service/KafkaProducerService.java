@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -18,6 +19,16 @@ public class KafkaProducerService {
     public void sendMessageFromController(String msg, String topic, String msgType) {
         String uniqueID = msgType + "_" + UUID.randomUUID();
         var record = new ProducerRecord<>(topic, uniqueID, msg);
+        record.headers().add(KafkaHeaderValue.MessageType, msgType.getBytes());
+        sendMessage(record);
+    }
+
+    public void sendMessageFromCSVController(List<List<String>> msg, String topic, String msgType) {
+        String uniqueID = msgType + "_" + UUID.randomUUID();
+        Gson gson = new Gson();
+        String json = gson.toJson(msg);
+
+        var record = new ProducerRecord<>(topic, uniqueID, json);
         record.headers().add(KafkaHeaderValue.MessageType, msgType.getBytes());
         sendMessage(record);
     }

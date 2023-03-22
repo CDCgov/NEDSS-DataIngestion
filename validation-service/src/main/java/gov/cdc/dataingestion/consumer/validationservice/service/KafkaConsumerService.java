@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.consumer.validationservice.service;
 
 import ca.uhn.hl7v2.DefaultHapiContext;
+import gov.cdc.dataingestion.consumer.validationservice.integration.CsvValidator;
 import gov.cdc.dataingestion.consumer.validationservice.integration.HL7v2Validator;
 import gov.cdc.dataingestion.consumer.validationservice.model.MessageModel;
 import gov.cdc.dataingestion.consumer.validationservice.model.constant.KafkaHeaderValue;
@@ -30,6 +31,7 @@ public class KafkaConsumerService {
     @Autowired
     KafkaProducerService kafkaProducerService;
     HL7v2Validator hl7v2Validator = new HL7v2Validator(new DefaultHapiContext());
+    CsvValidator csvValidator = new CsvValidator();
 
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
@@ -59,6 +61,11 @@ public class KafkaConsumerService {
                     MessageModel hl7ValidatedModel = hl7v2Validator.MessageValidation(message);
                     kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic);
                     // push this to another consumer for further queue down the line
+                    break;
+                case KafkaHeaderValue.MessageType_CSV:
+
+                    MessageModel csvValidatedModel = csvValidator.ValidateCSVAgainstCVSSchema(message);
+                    kafkaProducerService.sendMessageAfterValidatingMessage(csvValidatedModel, validatedTopic);
                     break;
                 default:
                     break;

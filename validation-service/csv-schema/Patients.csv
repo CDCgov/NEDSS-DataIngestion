@@ -1,0 +1,6 @@
+PatientId,GivenName,MiddleName,FamilyName,Sex,Ward,Room,Bed
+84568-4564,John,Quentin,Cardinal,M,9,1,1
+84502-7664,Bert,Patrick,Pudding,M,9,1,4
+87619-9902,Lila,Betty,Johnson,F,9,2,2
+84568-4341,Max,Philip,Headroom,M,9,3,1
+84568-3168,Theresa,,Green,F,9,2,3
