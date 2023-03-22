@@ -55,6 +55,10 @@ dependencies {
 	implementation 'ca.uhn.hapi:hapi-base:2.3'
 	implementation 'ca.uhn.hapi:hapi-structures-v251:2.3'
 	implementation 'io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19'
+
+	// https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
