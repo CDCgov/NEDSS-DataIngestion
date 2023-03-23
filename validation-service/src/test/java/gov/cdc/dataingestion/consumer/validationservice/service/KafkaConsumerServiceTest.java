@@ -1,28 +1,48 @@
 package gov.cdc.dataingestion.consumer.validationservice.service;
 
-import gov.cdc.dataingestion.consumer.validationservice.integration.CsvValidator;
-import gov.cdc.dataingestion.consumer.validationservice.integration.HL7v2Validator;
-import org.apache.kafka.clients.consumer.MockConsumer;
-import org.apache.kafka.clients.consumer.OffsetResetStrategy;
-import org.junit.Before;
-import org.mockito.InOrder;
-import static org.mockito.Mockito.*;
-import org.mockito.Mock;
+import gov.cdc.dataingestion.consumer.validationservice.model.constant.KafkaHeaderValue;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.concurrent.TimeUnit;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.test.annotation.DirtiesContext;
+
+@SpringBootTest
+@DirtiesContext
+@EmbeddedKafka(partitions = 1, brokerProperties = { "listeners=PLAINTEXT://localhost:9092", "port=9092" })
 public class KafkaConsumerServiceTest {
-    private KafkaConsumerService target;
-    private HL7v2Validator hl7v2Validator;
-    private CsvValidator csvValidator;
+
+    @Autowired
+    private KafkaConsumerService kafkaConsumerService;
+
+    @Autowired
     private KafkaProducerService kafkaProducerService;
 
-    private MockConsumer<String, String> consumer;
+    @Value("${kafka.consumer.topic}")
+    private String validatedTopic = "";
 
-    @Before
-    public void setupMock() {
-        consumer = new MockConsumer<>(OffsetResetStrategy.EARLIEST);
-        hl7v2Validator = mock(HL7v2Validator.class);
-        csvValidator = mock(CsvValidator.class);
-        kafkaProducerService = mock(KafkaProducerService.class);
-        target = new KafkaConsumerService(kafkaProducerService);
+    @Value("${kafka.topic}")
+    private String topicName;
 
+    @Test
+    public void handleMessage_consumedMessage_invalidTypeAndMessage() throws InterruptedException {
+        String data = "test data";
+        kafkaProducerService.sendMessageFromController(data, topicName, "test data");
+        var target = kafkaConsumerService;
+        boolean messageConsumed = target.getLatch().await(10, TimeUnit.SECONDS);
+        Assertions.assertTrue(messageConsumed);
+        Assertions.assertFalse(target.isMessageValid());
+        Assertions.assertEquals("None", target.getMessageType().name());
     }
+
 }
