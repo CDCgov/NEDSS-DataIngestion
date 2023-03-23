@@ -3,12 +3,13 @@ package gov.cdc.dataingestion.consumer.validationservice.service;
 import ca.uhn.hl7v2.DefaultHapiContext;
 import gov.cdc.dataingestion.consumer.validationservice.integration.CsvValidator;
 import gov.cdc.dataingestion.consumer.validationservice.integration.HL7v2Validator;
+import gov.cdc.dataingestion.consumer.validationservice.integration.interfaces.ICsvValidator;
+import gov.cdc.dataingestion.consumer.validationservice.integration.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.consumer.validationservice.model.MessageModel;
 import gov.cdc.dataingestion.consumer.validationservice.model.constant.KafkaHeaderValue;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.errors.SerializationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -24,14 +25,18 @@ import java.nio.charset.StandardCharsets;
 
 @Component
 @Slf4j
-public class KafkaConsumerService {
+public class KafkaConsumerService
+{
 
     @Value("${kafka.consumer.topic}")
     private String validatedTopic = "";
-    @Autowired
     KafkaProducerService kafkaProducerService;
-    HL7v2Validator hl7v2Validator = new HL7v2Validator(new DefaultHapiContext());
-    CsvValidator csvValidator = new CsvValidator();
+    IHL7v2Validator hl7v2Validator = new HL7v2Validator(new DefaultHapiContext());
+    ICsvValidator csvValidator = new CsvValidator();
+
+    public KafkaConsumerService(KafkaProducerService kafkaProducerService) {
+        this.kafkaProducerService = kafkaProducerService;
+    }
 
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",

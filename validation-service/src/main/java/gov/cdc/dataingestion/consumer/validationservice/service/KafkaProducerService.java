@@ -13,9 +13,11 @@ import java.util.UUID;
 
 @Component
 public class KafkaProducerService {
-    @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
 
+    public KafkaProducerService( KafkaTemplate<String, String> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
     public void sendMessageFromController(String msg, String topic, String msgType) {
         String uniqueID = msgType + "_" + UUID.randomUUID();
         var record = new ProducerRecord<>(topic, uniqueID, msg);

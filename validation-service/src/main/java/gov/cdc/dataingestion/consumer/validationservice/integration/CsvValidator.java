@@ -6,6 +6,7 @@ import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
+import gov.cdc.dataingestion.consumer.validationservice.integration.interfaces.ICsvValidator;
 import gov.cdc.dataingestion.consumer.validationservice.model.MessageModel;
 import gov.cdc.dataingestion.consumer.validationservice.model.enums.MessageType;
 
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class CsvValidator {
+public class CsvValidator implements ICsvValidator {
     String schemaPath = "./csv-schema/Patients.csv";
     Gson gson;
 

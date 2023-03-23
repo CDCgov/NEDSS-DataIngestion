@@ -25,8 +25,10 @@ public class KafkaController {
     @Value("${kafka.topic}")
     String topicName;
 
-    @Autowired
     KafkaProducerService kafkaProducerService;
+    public KafkaController(KafkaProducerService kafkaProducerService) {
+        this.kafkaProducerService = kafkaProducerService;
+    }
     @RequestMapping(value = "/simple-producer-hl7", method = RequestMethod.POST)
     public ResponseEntity<?> parsingHLv7WithHapi(@RequestBody String payload) {
         kafkaProducerService.sendMessageFromController(payload, topicName, KafkaHeaderValue.MessageType_HL7v2);

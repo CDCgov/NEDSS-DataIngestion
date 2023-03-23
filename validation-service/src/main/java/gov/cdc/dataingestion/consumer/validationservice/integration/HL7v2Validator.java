@@ -6,19 +6,23 @@ import ca.uhn.hl7v2.HapiContext;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
+import gov.cdc.dataingestion.consumer.validationservice.integration.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.consumer.validationservice.model.MessageModel;
 import gov.cdc.dataingestion.consumer.validationservice.model.enums.MessageType;
 
-public class HL7v2Validator {
+public class HL7v2Validator implements IHL7v2Validator {
     private HapiContext context;
     public HL7v2Validator(HapiContext context) {
         this.context = context;
     }
 
     public MessageModel  MessageValidation(String message) throws HL7Exception {
-
-        // maybe conditionallay check for \n then replace
-        String replaceSpecialCharacters = message.replaceAll("\n","\r");
+        String replaceSpecialCharacters;
+        if (message.contains("\n")) {
+            replaceSpecialCharacters = message.replaceAll("\n","\r");
+        } else {
+            replaceSpecialCharacters = message;
+        }
         MessageModel model = new MessageModel();
         // Set validation
         context.setValidationContext(ValidationContextFactory.defaultValidation());
