@@ -35,16 +35,18 @@ public class KafkaConsumerService
     @Value("${kafka.consumer.topic}")
     private String validatedTopic = "";
     KafkaProducerService kafkaProducerService;
-    IHL7v2Validator hl7v2Validator = new HL7v2Validator(new DefaultHapiContext());
-    ICsvValidator csvValidator = new CsvValidator();
+    IHL7v2Validator hl7v2Validator;// = new HL7v2Validator(new DefaultHapiContext());
+    ICsvValidator csvValidator;// = new CsvValidator();
 
     // test property
     private CountDownLatch latch = new CountDownLatch(1);
     private MessageType messageType = MessageType.None;
-    private boolean isMessageValid = false;
+    private boolean isMessageValid;
 
-    public KafkaConsumerService(KafkaProducerService kafkaProducerService) {
+    public KafkaConsumerService(KafkaProducerService kafkaProducerService, IHL7v2Validator ihl7v2Validator, ICsvValidator iCsvValidator) {
         this.kafkaProducerService = kafkaProducerService;
+        this.hl7v2Validator = ihl7v2Validator;
+        this.csvValidator = iCsvValidator;
     }
 
     @RetryableTopic(
@@ -69,7 +71,6 @@ public class KafkaConsumerService
                     messageType = new String(header.value(), StandardCharsets.UTF_8);
                 }
             }
-
             switch (messageType) {
                 case KafkaHeaderValue.MessageType_HL7v2:
                     this.messageType = MessageType.HL7v2;
@@ -88,6 +89,7 @@ public class KafkaConsumerService
             }
             latch.countDown();
         } catch (Exception e) {
+            latch.countDown();
             log.info("Retry queue");
             // run time error then -- do retry
             throw new RuntimeException(e.getMessage());
@@ -104,11 +106,21 @@ public class KafkaConsumerService
         return latch;
     }
 
+    public void resetLatch() {
+        latch = new CountDownLatch(1);
+    }
+
     public MessageType getMessageType() {
         return messageType;
+    }
+    public void resetMessageType() {
+        messageType = MessageType.None;
     }
 
     public boolean isMessageValid() {
         return isMessageValid;
+    }
+    public void resetIsMessageValid() {
+        isMessageValid = false;
     }
 }
