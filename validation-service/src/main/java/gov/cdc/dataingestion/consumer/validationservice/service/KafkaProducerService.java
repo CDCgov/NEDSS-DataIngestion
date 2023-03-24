@@ -4,16 +4,17 @@ import com.google.gson.Gson;
 import gov.cdc.dataingestion.consumer.validationservice.model.MessageModel;
 import gov.cdc.dataingestion.consumer.validationservice.model.constant.KafkaHeaderValue;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 
 @Component
 public class KafkaProducerService {
     private KafkaTemplate<String, String> kafkaTemplate;
+    private CountDownLatch latch = new CountDownLatch(1);
 
     public KafkaProducerService( KafkaTemplate<String, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
@@ -43,10 +44,19 @@ public class KafkaProducerService {
         record.headers().add(KafkaHeaderValue.MessageType, msg.getMessageType().toString().getBytes());
         record.headers().add(KafkaHeaderValue.MessageVersion, msg.getMessageVersion().getBytes());
         sendMessage(record);
+        latch.countDown();
     }
 
 
     private void sendMessage(ProducerRecord<String, String> record) {
         kafkaTemplate.send(record);
+    }
+
+    public CountDownLatch getLatch() {
+        return latch;
+    }
+
+    public void resetLatch() {
+        latch = new CountDownLatch(1);
     }
 }

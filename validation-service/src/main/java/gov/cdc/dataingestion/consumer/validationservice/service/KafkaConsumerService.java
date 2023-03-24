@@ -1,8 +1,5 @@
 package gov.cdc.dataingestion.consumer.validationservice.service;
 
-import ca.uhn.hl7v2.DefaultHapiContext;
-import gov.cdc.dataingestion.consumer.validationservice.integration.CsvValidator;
-import gov.cdc.dataingestion.consumer.validationservice.integration.HL7v2Validator;
 import gov.cdc.dataingestion.consumer.validationservice.integration.interfaces.ICsvValidator;
 import gov.cdc.dataingestion.consumer.validationservice.integration.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.consumer.validationservice.model.MessageModel;
@@ -10,13 +7,12 @@ import gov.cdc.dataingestion.consumer.validationservice.model.constant.KafkaHead
 import gov.cdc.dataingestion.consumer.validationservice.model.enums.MessageType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.errors.SerializationException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Scope;
 import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.RetryableTopic;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.retrytopic.TopicSuffixingStrategy;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.kafka.support.serializer.DeserializationException;
@@ -32,6 +28,7 @@ import java.util.concurrent.CountDownLatch;
 public class KafkaConsumerService
 {
 
+    private KafkaTemplate kafkaTemplate;
     @Value("${kafka.consumer.topic}")
     private String validatedTopic = "";
     KafkaProducerService kafkaProducerService;
@@ -43,10 +40,11 @@ public class KafkaConsumerService
     private MessageType messageType = MessageType.None;
     private boolean isMessageValid;
 
-    public KafkaConsumerService(KafkaProducerService kafkaProducerService, IHL7v2Validator ihl7v2Validator, ICsvValidator iCsvValidator) {
+    public KafkaConsumerService(KafkaTemplate kafkaTemplate, KafkaProducerService kafkaProducerService, IHL7v2Validator ihl7v2Validator, ICsvValidator iCsvValidator) {
         this.kafkaProducerService = kafkaProducerService;
         this.hl7v2Validator = ihl7v2Validator;
         this.csvValidator = iCsvValidator;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @RetryableTopic(
@@ -73,15 +71,15 @@ public class KafkaConsumerService
             }
             switch (messageType) {
                 case KafkaHeaderValue.MessageType_HL7v2:
-                    this.messageType = MessageType.HL7v2;
                     MessageModel hl7ValidatedModel = hl7v2Validator.MessageValidation(message);
                     kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic);
+                    this.messageType = MessageType.HL7v2;
                     this.isMessageValid = true;
                     break;
                 case KafkaHeaderValue.MessageType_CSV:
-                    this.messageType = MessageType.CSV;
                     MessageModel csvValidatedModel = csvValidator.ValidateCSVAgainstCVSSchema(message);
                     kafkaProducerService.sendMessageAfterValidatingMessage(csvValidatedModel, validatedTopic);
+                    this.messageType = MessageType.CSV;
                     this.isMessageValid = true;
                     break;
                 default:
@@ -89,7 +87,6 @@ public class KafkaConsumerService
             }
             latch.countDown();
         } catch (Exception e) {
-            latch.countDown();
             log.info("Retry queue");
             // run time error then -- do retry
             throw new RuntimeException(e.getMessage());
@@ -99,6 +96,7 @@ public class KafkaConsumerService
     @DltHandler
     public void handleDlt(String message, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         // Once in DLQ -- we can save message in actual db for further analyze
+        latch.countDown();
         log.info("Message: {} handled by dlq topic: {}", message, topic);
     }
 

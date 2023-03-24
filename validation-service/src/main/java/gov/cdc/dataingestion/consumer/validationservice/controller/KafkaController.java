@@ -1,20 +1,14 @@
 package gov.cdc.dataingestion.consumer.validationservice.controller;
 
-import ca.uhn.hl7v2.HL7Exception;
 import gov.cdc.dataingestion.consumer.validationservice.integration.CsvValidator;
 import gov.cdc.dataingestion.consumer.validationservice.model.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.consumer.validationservice.service.KafkaProducerService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
