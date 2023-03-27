@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.report.integration.service;
 import gov.cdc.dataingestion.report.integration.conversion.HL7ToFHIRConversion;
 import gov.cdc.dataingestion.report.integration.conversion.interfaces.IHL7ToFHIRConversion;
+import gov.cdc.dataingestion.report.model.HL7toFhirModel;
 import io.github.linuxforhealth.hl7.HL7ToFHIRConverter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,11 +17,20 @@ import org.springframework.kafka.support.serializer.DeserializationException;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Component;
+import org.springframework.kafka.core.KafkaTemplate;
+
+import java.nio.charset.StandardCharsets;
 
 @Component
+@Slf4j
 public class KafkaConsumerService {
 
-    IHL7ToFHIRConversion hl7ToFHIRConversion = new HL7ToFHIRConversion(new HL7ToFHIRConverter());
+    private IHL7ToFHIRConversion hl7ToFHIRConversion;
+    private String HL7v2 = "HL7v2";
+    public KafkaConsumerService(IHL7ToFHIRConversion hl7ToFHIRConversion) {
+        this.hl7ToFHIRConversion = hl7ToFHIRConversion;
+    }
+
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
             // retry topic name, such as topic-retry-1, topic-retry-2, etc
@@ -33,11 +43,31 @@ public class KafkaConsumerService {
     @KafkaListener(id = "${kafka.consumer.group-id}", topics = "${kafka.consumer.topic.fhir-conversion}")
     public void handleMessage(ConsumerRecord<String, String> consumerRecord, String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+        log.info("Received message: {} from topic: {}", message, topic);
         String messageType = null;
         try {
-            var hl7String = hl7ToFHIRConversion.ConvertHL7v2ToFhir(message);
+
+            var messageHeaders = consumerRecord.headers().toArray();
+            for(int i = 0; i < messageHeaders.length; i++) {
+                var header = messageHeaders[i];
+                if(header.key().equalsIgnoreCase(HL7v2)) {
+                    messageType = new String(header.value(), StandardCharsets.UTF_8);
+                }
+            }
+
+            if (messageType.equalsIgnoreCase(HL7v2)) {
+                HL7toFhirModel convertedModel = hl7ToFHIRConversion.ConvertHL7v2ToFhir(message);
+                // To be implemented
+                // possibly the following queue or whatever requirement is
+            } else {
+                throw new UnsupportedOperationException("Invalid Message");
+            }
+
+
+
 
         } catch (Exception e) {
+            log.info("Retry queue");
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -45,6 +75,7 @@ public class KafkaConsumerService {
     @DltHandler
     public void handleDlt(String message, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         // Once in DLQ -- we can save message in actual db for further analyze
-        // To be implemented
+        // Need specification with DLT - what do we do with these messages
+        log.info("Message: {} handled by dlq topic: {}", message, topic);
     }
 }

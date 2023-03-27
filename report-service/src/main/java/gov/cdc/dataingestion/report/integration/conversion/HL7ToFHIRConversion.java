@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.report.integration.conversion;
 
 import gov.cdc.dataingestion.report.integration.conversion.interfaces.IHL7ToFHIRConversion;
+import gov.cdc.dataingestion.report.model.HL7toFhirModel;
 import io.github.linuxforhealth.hl7.HL7ToFHIRConverter;
 
 public class HL7ToFHIRConversion implements IHL7ToFHIRConversion {
@@ -9,9 +10,11 @@ public class HL7ToFHIRConversion implements IHL7ToFHIRConversion {
         this.converter = converter;
     }
 
-    public String ConvertHL7v2ToFhir(String hl7Message) {
-        // converted string is in JSON format
+    public HL7toFhirModel ConvertHL7v2ToFhir(String hl7Message) throws UnsupportedOperationException {
+        HL7toFhirModel model = new HL7toFhirModel();
         String output = this.converter.convert(hl7Message);
-        return output;
+        model.setRawHL7Message(hl7Message);
+        model.setConvertedFhirMessage(output);
+        return model;
     }
 }
