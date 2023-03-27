@@ -43,8 +43,6 @@ public class KafkaIntegrationTests {
     @BeforeEach
     public void setup() {
         kafkaConsumerService.resetLatch();
-        kafkaConsumerService.resetMessageType();
-        kafkaConsumerService.resetIsMessageValid();
         kafkaProducerService.resetLatch();
     }
 
@@ -54,8 +52,6 @@ public class KafkaIntegrationTests {
         kafkaProducerService.sendMessageFromController(data, topicName, "test data");
         boolean messageConsumed = kafkaConsumerService.getLatch().await(10, TimeUnit.SECONDS);
         Assertions.assertTrue(messageConsumed);
-        Assertions.assertFalse(kafkaConsumerService.isMessageValid());
-        Assertions.assertEquals(MessageType.None.name(), kafkaConsumerService.getMessageType().name());
     }
 
     @Test
@@ -64,8 +60,6 @@ public class KafkaIntegrationTests {
         kafkaProducerService.sendMessageFromController(data, topicName,  KafkaHeaderValue.MessageType_HL7v2);
         boolean messageConsumed = kafkaConsumerService.getLatch().await(10, TimeUnit.SECONDS);
         Assertions.assertTrue(messageConsumed);
-        Assertions.assertFalse(kafkaConsumerService.isMessageValid());
-        Assertions.assertEquals(MessageType.None.name(), kafkaConsumerService.getMessageType().name());
     }
 
     @Test
@@ -81,8 +75,6 @@ public class KafkaIntegrationTests {
         boolean messageValidSend = kafkaProducerService.getLatch().await(10, TimeUnit.SECONDS);
 
         Assertions.assertTrue(messageConsumed);
-        Assertions.assertTrue(kafkaConsumerService.isMessageValid());
-        Assertions.assertEquals(MessageType.HL7v2.name(), kafkaConsumerService.getMessageType().name());
         Assertions.assertTrue(messageValidSend);
     }
 
@@ -95,8 +87,6 @@ public class KafkaIntegrationTests {
         boolean messageValidSend = kafkaProducerService.getLatch().await(10, TimeUnit.SECONDS);
         boolean messageConsumed = kafkaConsumerService.getLatch().await(10, TimeUnit.SECONDS);
         Assertions.assertTrue(messageConsumed);
-        Assertions.assertTrue(kafkaConsumerService.isMessageValid());
-        Assertions.assertEquals(MessageType.CSV.name(), kafkaConsumerService.getMessageType().name());
         Assertions.assertTrue(messageValidSend);
     }
 

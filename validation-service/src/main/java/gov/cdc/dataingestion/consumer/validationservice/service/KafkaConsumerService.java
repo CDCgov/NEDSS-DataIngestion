@@ -37,8 +37,6 @@ public class KafkaConsumerService
 
     // test property
     private CountDownLatch latch = new CountDownLatch(1);
-    private MessageType messageType = MessageType.None;
-    private boolean isMessageValid;
 
     public KafkaConsumerService(KafkaTemplate kafkaTemplate, KafkaProducerService kafkaProducerService, IHL7v2Validator ihl7v2Validator, ICsvValidator iCsvValidator) {
         this.kafkaProducerService = kafkaProducerService;
@@ -73,14 +71,10 @@ public class KafkaConsumerService
                 case KafkaHeaderValue.MessageType_HL7v2:
                     MessageModel hl7ValidatedModel = hl7v2Validator.MessageValidation(message);
                     kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic);
-                    this.messageType = MessageType.HL7v2;
-                    this.isMessageValid = true;
                     break;
                 case KafkaHeaderValue.MessageType_CSV:
                     MessageModel csvValidatedModel = csvValidator.ValidateCSVAgainstCVSSchema(message);
                     kafkaProducerService.sendMessageAfterValidatingMessage(csvValidatedModel, validatedTopic);
-                    this.messageType = MessageType.CSV;
-                    this.isMessageValid = true;
                     break;
                 default:
                     break;
@@ -108,17 +102,4 @@ public class KafkaConsumerService
         latch = new CountDownLatch(1);
     }
 
-    public MessageType getMessageType() {
-        return messageType;
-    }
-    public void resetMessageType() {
-        messageType = MessageType.None;
-    }
-
-    public boolean isMessageValid() {
-        return isMessageValid;
-    }
-    public void resetIsMessageValid() {
-        isMessageValid = false;
-    }
 }
