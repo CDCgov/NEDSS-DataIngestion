@@ -1,14 +1,12 @@
 package gov.cdc.dataingestion.report.integration.service;
 import gov.cdc.dataingestion.report.integration.conversion.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.report.repository.IConvertedFhirRepository;
-import gov.cdc.dataingestion.report.repository.IRawElrRepository;
-import gov.cdc.dataingestion.report.repository.IReportRepository;
-import gov.cdc.dataingestion.report.repository.IValidatedELRRepository;
+import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.HL7toFhirModel;
-import gov.cdc.dataingestion.report.repository.model.ValidatedELRModel;
+import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
+import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.errors.SerializationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.DltHandler;
@@ -21,7 +19,6 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 @Component
@@ -29,7 +26,7 @@ import java.util.Optional;
 public class KafkaConsumerService {
 
     private IConvertedFhirRepository iConvertedFhirRepository;
-    private IRawElrRepository iRawElrRepository;
+    private IRawELRRepository iRawElrRepository;
     private IValidatedELRRepository iValidatedELRRepository;
     private IHL7ToFHIRConversion hl7ToFHIRConversion;
 
@@ -39,7 +36,7 @@ public class KafkaConsumerService {
     private String convertedToFhirTopic = "";
     public KafkaConsumerService(IHL7ToFHIRConversion hl7ToFHIRConversion,
                                 IConvertedFhirRepository iConvertedFhirRepository,
-                                IRawElrRepository iRawElrRepository,
+                                IRawELRRepository iRawElrRepository,
                                 IValidatedELRRepository iValidatedELRRepository,
                                 KafkaProducerService kafkaProducerService) {
         this.hl7ToFHIRConversion = hl7ToFHIRConversion;
@@ -58,7 +55,7 @@ public class KafkaConsumerService {
             // if these exceptions occur, skip retry then push message to DLQ
             exclude = {SerializationException.class, DeserializationException.class}
     )
-    @KafkaListener(id = "${kafka.fhir-conversion.consumer.group-id}", topics = "${kafka.validation.producer.topic}")
+    @KafkaListener(id = "${kafka.group-id}", topics = "${kafka.validation.producer.topic}")
     public void handleMessage(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         log.info("Received message: {} from topic: {}", message, topic);

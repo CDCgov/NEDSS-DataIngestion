@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface IRawElrRepository extends JpaRepository<RawERLModel, String> {
+public interface IRawELRRepository extends JpaRepository<RawERLModel, String> {
 }

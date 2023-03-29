@@ -2,8 +2,7 @@ package gov.cdc.dataingestion.report.integration.unitTest;
 
 import gov.cdc.dataingestion.report.integration.conversion.HL7ToFHIRConversion;
 import gov.cdc.dataingestion.report.integration.conversion.interfaces.IHL7ToFHIRConversion;
-import gov.cdc.dataingestion.report.repository.model.HL7toFhirModel;
-import gov.cdc.dataingestion.report.repository.model.ValidatedELRModel;
+import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import io.github.linuxforhealth.hl7.HL7ToFHIRConverter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

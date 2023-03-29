@@ -1,16 +1,14 @@
 package gov.cdc.dataingestion.validation.integration.service;
 
+import gov.cdc.dataingestion.report.repository.IRawELRRepository;
+import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.ICsvValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
-import gov.cdc.dataingestion.validation.model.ValidatedELRModel;
-import gov.cdc.dataingestion.validation.model.RawERLModel;
+import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import gov.cdc.dataingestion.validation.model.constant.KafkaHeaderValue;
-import gov.cdc.dataingestion.validation.repository.RawELRRepository;
-import gov.cdc.dataingestion.validation.repository.ValidatedELRRepository;
+import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.errors.SerializationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -24,7 +22,6 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
 
 @Component
 @Slf4j
@@ -38,17 +35,17 @@ public class KafkaConsumerService
     private IHL7v2Validator hl7v2Validator;
     private ICsvValidator csvValidator;
 
-    private RawELRRepository rawELRRepository;
-    private ValidatedELRRepository validatedELRRepository;
+    private IRawELRRepository rawELRRepository;
+    private IValidatedELRRepository IValidatedELRRepository;
 
     public KafkaConsumerService(
-            ValidatedELRRepository validatedELRRepository,
-            RawELRRepository rawELRRepository,
+            IValidatedELRRepository IValidatedELRRepository,
+            IRawELRRepository rawELRRepository,
             KafkaTemplate kafkaTemplate,
             KafkaProducerService kafkaProducerService,
             IHL7v2Validator ihl7v2Validator,
             ICsvValidator iCsvValidator) {
-        this.validatedELRRepository = validatedELRRepository;
+        this.IValidatedELRRepository = IValidatedELRRepository;
         this.rawELRRepository = rawELRRepository;
         this.kafkaProducerService = kafkaProducerService;
         this.hl7v2Validator = ihl7v2Validator;
@@ -65,7 +62,7 @@ public class KafkaConsumerService
             // if these exceptions occur, skip retry then push message to DLQ
             exclude = {SerializationException.class, DeserializationException.class}
     )
-    @KafkaListener(id = "${kafka.validation.consumer.group-id}", topics = "#{'${kafka.validation.consumer.topics}'.split(',')}")
+    @KafkaListener(id = "${kafka.group-id}", topics = "#{'${kafka.validation.consumer.topics}'.split(',')}")
     public void handleMessage(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         log.info("Received message: {} from topic: {}", message, topic);
@@ -104,7 +101,7 @@ public class KafkaConsumerService
     }
 
     private void saveValidatedELRMessage(ValidatedELRModel model) {
-        validatedELRRepository.save(model);
+        IValidatedELRRepository.save(model);
     }
 
 

@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.report.repository.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -10,16 +11,27 @@ import java.sql.Timestamp;
 public class RawERLModel {
 
     @Id
+    @GenericGenerator(name = "generator", strategy = "guid", parameters = {})
+    @GeneratedValue(generator = "generator")
+    @Column(name = "id" , columnDefinition="uniqueidentifier")
     private String id;
 
     @Column(name = "message_type")
     private String type;
     private String payload;
 
-    private Timestamp created_on;
-    private Timestamp updated_on;
-    private String created_by;
-    private String updated_by;
+    @Transient
+    @Column(name = "created_on")
+    private Timestamp CreatedOn;
+
+    @Column(name = "updated_on")
+    private Timestamp updatedOn;
+
+    @Column(name = "created_by")
+    private String createdBy;
+
+    @Column(name = "updated_by")
+    private String updatedBy;
 
     public String getId() {
         return id;
@@ -45,35 +57,35 @@ public class RawERLModel {
         this.payload = payload;
     }
 
-    public Timestamp getCreated_on() {
-        return created_on;
+    public Timestamp getCreatedOn() {
+        return CreatedOn;
     }
 
-    public void setCreated_on(Timestamp created_on) {
-        this.created_on = created_on;
+    public void setCreatedOn(Timestamp createdOn) {
+        CreatedOn = createdOn;
     }
 
-    public Timestamp getUpdated_on() {
-        return updated_on;
+    public Timestamp getUpdatedOn() {
+        return updatedOn;
     }
 
-    public void setUpdated_on(Timestamp updated_on) {
-        this.updated_on = updated_on;
+    public void setUpdatedOn(Timestamp updatedOn) {
+        this.updatedOn = updatedOn;
     }
 
-    public String getCreated_by() {
-        return created_by;
+    public String getCreatedBy() {
+        return createdBy;
     }
 
-    public void setCreated_by(String created_by) {
-        this.created_by = created_by;
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 
-    public String getUpdated_by() {
-        return updated_by;
+    public String getUpdatedBy() {
+        return updatedBy;
     }
 
-    public void setUpdated_by(String updated_by) {
-        this.updated_by = updated_by;
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
     }
 }

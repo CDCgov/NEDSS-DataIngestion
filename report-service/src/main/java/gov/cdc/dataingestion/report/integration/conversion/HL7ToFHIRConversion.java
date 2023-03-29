@@ -2,7 +2,7 @@ package gov.cdc.dataingestion.report.integration.conversion;
 
 import gov.cdc.dataingestion.report.integration.conversion.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.report.repository.model.HL7toFhirModel;
-import gov.cdc.dataingestion.report.repository.model.ValidatedELRModel;
+import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import io.github.linuxforhealth.hl7.HL7ToFHIRConverter;
 
 import java.sql.Timestamp;
@@ -18,10 +18,9 @@ public class HL7ToFHIRConversion implements IHL7ToFHIRConversion {
         HL7toFhirModel model = new HL7toFhirModel();
         String output = this.converter.convert(validatedELRModel.getRawMessage());
         model.setId(IdPrefix + validatedELRModel.getRawId());
-        model.setRaw_id(validatedELRModel.getRawId());
+        model.setRawId(validatedELRModel.getRawId());
         model.setFhirMessage(output);
-        model.setCreated_by(topicName);
-        model.setCreated_on(new Timestamp(System.currentTimeMillis()));
+        model.setCreatedBy(topicName);
         return model;
     }
 }

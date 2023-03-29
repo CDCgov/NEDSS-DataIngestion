@@ -1,17 +1,14 @@
 package gov.cdc.dataingestion.validation.integration.service;
 
 import com.google.gson.Gson;
-import gov.cdc.dataingestion.validation.model.ValidatedELRModel;
+import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import gov.cdc.dataingestion.validation.model.constant.KafkaHeaderValue;
-import gov.cdc.dataingestion.validation.repository.ValidatedELRRepository;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
 
 @Component
 public class KafkaProducerService {
@@ -38,7 +35,7 @@ public class KafkaProducerService {
     }
 
     public void sendMessageAfterValidatingMessage(ValidatedELRModel msg, String topic) {
-        String uniqueID = "Valid_" + msg.getMessageType() + "_" + UUID.randomUUID();
+        String uniqueID = "VALID_" + msg.getMessageType() + "_" + UUID.randomUUID();
         var record = new ProducerRecord<>(topic, uniqueID, msg.getId());
         record.headers().add(KafkaHeaderValue.MessageType, msg.getMessageType().toString().getBytes());
         record.headers().add(KafkaHeaderValue.MessageVersion, msg.getMessageVersion().getBytes());

@@ -1,5 +1,6 @@
-package gov.cdc.dataingestion.report.repository;
-import gov.cdc.dataingestion.report.repository.model.ValidatedELRModel;
+package gov.cdc.dataingestion.validation.repository;
+
+import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

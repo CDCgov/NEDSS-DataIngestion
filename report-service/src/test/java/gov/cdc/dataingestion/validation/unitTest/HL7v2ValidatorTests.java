@@ -3,19 +3,15 @@ package gov.cdc.dataingestion.validation.unitTest;
 import ca.uhn.hl7v2.DefaultHapiContext;
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.HapiContext;
-import ca.uhn.hl7v2.parser.Parser;
-import ca.uhn.hl7v2.parser.PipeParser;
-import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
+import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.integration.validator.HL7v2Validator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
-import gov.cdc.dataingestion.validation.model.RawERLModel;
 import gov.cdc.dataingestion.validation.model.enums.MessageType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class HL7v2ValidatorTests
 {

@@ -1,4 +1,5 @@
-package gov.cdc.dataingestion.report.config;
+package gov.cdc.dataingestion.config;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -16,7 +17,7 @@ import java.util.Map;
 @EnableKafka
 @Configuration
 public class KafkaConfig {
-    @Value("${kafka.consumer.group-id}")
+    @Value("${kafka.group-id}")
     private String groupId = "";
 
     @Bean
