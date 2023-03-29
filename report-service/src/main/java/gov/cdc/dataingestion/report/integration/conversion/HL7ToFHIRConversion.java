@@ -10,9 +10,9 @@ public class HL7ToFHIRConversion implements IHL7ToFHIRConversion {
         this.converter = converter;
     }
 
-    public HL7toFhirModel ConvertHL7v2ToFhir(String hl7Message) throws UnsupportedOperationException {
+    public HL7toFhirModel ConvertHL7v2ToFhir(HL7toFhirModel hl7Message, String rawMessage) throws UnsupportedOperationException {
         HL7toFhirModel model = new HL7toFhirModel();
-        String output = this.converter.convert(hl7Message);
+        String output = this.converter.convert(rawMessage);
         model.setRawHL7Message(hl7Message);
         model.setConvertedFhirMessage(output);
         return model;

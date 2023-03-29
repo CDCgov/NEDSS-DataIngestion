@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class IntegrationClassConfig {
+public class ClassConfig {
     @Bean
     IHL7ToFHIRConversion hl7ToFHIRConversion() {
         return new HL7ToFHIRConversion(new HL7ToFHIRConverter());
