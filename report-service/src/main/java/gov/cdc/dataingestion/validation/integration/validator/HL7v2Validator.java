@@ -36,8 +36,8 @@ public class HL7v2Validator implements IHL7v2Validator {
         model.setRawMessage(replaceSpecialCharacters);
         model.setMessageType(MessageType.HL7.name());
         model.setMessageVersion(parsedMessage.getVersion());
-        model.setCreated_by(topicName);
-        model.setUpdated_by(topicName);
+        model.setCreatedBy(topicName);
+        model.setUpdatedBy(topicName);
         return model;
     }
 }
