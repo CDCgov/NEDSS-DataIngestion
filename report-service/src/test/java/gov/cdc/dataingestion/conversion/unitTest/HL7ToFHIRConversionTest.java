@@ -1,7 +1,7 @@
-package gov.cdc.dataingestion.report.integration.unitTest;
+package gov.cdc.dataingestion.conversion.unitTest;
 
-import gov.cdc.dataingestion.report.integration.conversion.HL7ToFHIRConversion;
-import gov.cdc.dataingestion.report.integration.conversion.interfaces.IHL7ToFHIRConversion;
+import gov.cdc.dataingestion.conversion.integration.HL7ToFHIRConversion;
+import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import io.github.linuxforhealth.hl7.HL7ToFHIRConverter;
 import org.junit.jupiter.api.Assertions;
@@ -26,13 +26,12 @@ public class HL7ToFHIRConversionTest {
                 + "OBX|1|ST|||Test Value";
 
         ValidatedELRModel model = new ValidatedELRModel();
-        model.setId("validated_test");
         model.setRawId("test");
         model.setMessageType("HL7");
         model.setRawMessage(data);
         var result = target.ConvertHL7v2ToFhir(model, "test");
 
-        Assertions.assertEquals("FHIR_test", result.getId());
+        Assertions.assertEquals("test", result.getRawId());
     }
 
     @Test

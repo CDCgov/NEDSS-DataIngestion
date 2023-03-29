@@ -1,8 +1,8 @@
 package gov.cdc.dataingestion.config;
 
 import ca.uhn.hl7v2.DefaultHapiContext;
-import gov.cdc.dataingestion.report.integration.conversion.HL7ToFHIRConversion;
-import gov.cdc.dataingestion.report.integration.conversion.interfaces.IHL7ToFHIRConversion;
+import gov.cdc.dataingestion.conversion.integration.HL7ToFHIRConversion;
+import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.validation.integration.validator.CsvValidator;
 import gov.cdc.dataingestion.validation.integration.validator.HL7v2Validator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.ICsvValidator;

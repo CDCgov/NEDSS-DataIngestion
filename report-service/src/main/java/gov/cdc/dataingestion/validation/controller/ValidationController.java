@@ -1,8 +1,8 @@
 package gov.cdc.dataingestion.validation.controller;
 
+import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
-import gov.cdc.dataingestion.validation.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.validation.model.constant.KafkaHeaderValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 @Controller
 public class ValidationController {
 
-    @Value("${kafka.raw.producer.topic}")
+    @Value("${kafka.raw.topic}")
     String topicName;
 
     @Autowired
