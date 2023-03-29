@@ -13,7 +13,6 @@ import gov.cdc.dataingestion.validation.model.enums.MessageType;
 import java.sql.Timestamp;
 
 public class HL7v2Validator implements IHL7v2Validator {
-    private String validatedKeyPrefix = "VALIDATED_";
     private HapiContext context;
     public HL7v2Validator(HapiContext context) {
         this.context = context;
@@ -33,12 +32,12 @@ public class HL7v2Validator implements IHL7v2Validator {
         // if invalid HL7, exception will be thrown
         Message parsedMessage = parser.parse(replaceSpecialCharacters);
 
-        model.setId(validatedKeyPrefix + id);
         model.setRawId(id);
         model.setRawMessage(replaceSpecialCharacters);
         model.setMessageType(MessageType.HL7.name());
         model.setMessageVersion(parsedMessage.getVersion());
         model.setCreated_by(topicName);
+        model.setUpdated_by(topicName);
         return model;
     }
 }

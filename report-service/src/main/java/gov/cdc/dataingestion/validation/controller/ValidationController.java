@@ -30,10 +30,10 @@ public class ValidationController {
     @RequestMapping(value = "/elr-simulator", method = RequestMethod.POST)
     public ResponseEntity<?> saveELRMessage(@RequestBody String payload) {
         RawERLModel model = new RawERLModel();
-        model.setId(UUID.randomUUID().toString());
         model.setType(KafkaHeaderValue.MessageType_HL7v2);
         model.setPayload(payload);
         model.setCreated_by("ELR-SIMULATOR");
+        model.setUpdated_by("ELR-SIMULATOR");
         rawELRRepository.save(model);
         kafkaProducerService.sendMessageFromController(model.getId(), topicName, model.getType());
         return ResponseEntity.ok("OK");

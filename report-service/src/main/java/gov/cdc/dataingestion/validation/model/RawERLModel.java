@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.validation.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -10,6 +11,9 @@ import java.sql.Timestamp;
 public class RawERLModel {
 
     @Id
+    @GenericGenerator(name = "generator", strategy = "guid", parameters = {})
+    @GeneratedValue(generator = "generator")
+    @Column(name = "id" , columnDefinition="uniqueidentifier")
     private String id;
 
     @Column(name = "message_type")

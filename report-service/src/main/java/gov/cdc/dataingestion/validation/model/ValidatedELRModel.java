@@ -1,13 +1,18 @@
 package gov.cdc.dataingestion.validation.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "elr_validated")
 public class ValidatedELRModel {
+
     @Id
+    @GenericGenerator(name = "generator", strategy = "guid", parameters = {})
+    @GeneratedValue(generator = "generator")
+    @Column(name = "id" , columnDefinition="uniqueidentifier")
     private String id;
 
     private String rawId;
