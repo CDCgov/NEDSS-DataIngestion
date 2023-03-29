@@ -34,7 +34,6 @@ public class ValidationController {
         model.setType(KafkaHeaderValue.MessageType_HL7v2);
         model.setPayload(payload);
         model.setCreated_by("ELR-SIMULATOR");
-        model.setCreated_on(new Timestamp(System.currentTimeMillis()));
         rawELRRepository.save(model);
         kafkaProducerService.sendMessageFromController(model.getId(), topicName, model.getType());
         return ResponseEntity.ok("OK");

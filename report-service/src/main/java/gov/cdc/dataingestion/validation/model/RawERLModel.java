@@ -16,6 +16,7 @@ public class RawERLModel {
     private String type;
     private String payload;
 
+    @Transient
     private Timestamp created_on;
     private Timestamp updated_on;
     private String created_by;
