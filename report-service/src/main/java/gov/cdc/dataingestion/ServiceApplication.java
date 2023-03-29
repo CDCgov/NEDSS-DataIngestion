@@ -1,4 +1,4 @@
-package gov.cdc.dataingestion.report;
+package gov.cdc.dataingestion;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -7,13 +7,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *  Report service application.
  */
 @SpringBootApplication
-public class ReportServiceApplication {
+public class ServiceApplication {
     /**
      * Main method for spring boot application.
      * @param args
      */
     public static void main(final String[] args) {
-        SpringApplication.run(ReportServiceApplication.class, args);
+        SpringApplication.run(gov.cdc.dataingestion.ServiceApplication.class, args);
     }
 
 }

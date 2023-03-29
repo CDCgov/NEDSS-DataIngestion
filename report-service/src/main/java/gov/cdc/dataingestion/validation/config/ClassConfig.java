@@ -6,8 +6,8 @@ import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2V
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.ICsvValidator;
 import gov.cdc.dataingestion.validation.integration.validator.HL7v2Validator;
 import gov.cdc.dataingestion.validation.integration.validator.CsvValidator;
-@Configuration
 
+@Configuration
 public class ClassConfig {
 
     @Bean
