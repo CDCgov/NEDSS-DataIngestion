@@ -43,7 +43,7 @@ public class HL7v2ValidatorTests
         RawERLModel model = new RawERLModel();
         model.setPayload(data);
         model.setId(id);
-        var result = target.MessageValidation(id, model);
+        var result = target.MessageValidation(id, model, "test");
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("2.5",result.getMessageVersion());
@@ -74,7 +74,7 @@ public class HL7v2ValidatorTests
         model.setPayload(data);
         model.setId(id);
 
-        var result = target.MessageValidation(id, model);
+        var result = target.MessageValidation(id, model, "test");
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("2.5",result.getMessageVersion());
@@ -94,7 +94,7 @@ public class HL7v2ValidatorTests
 
         Exception exception = Assertions.assertThrows(
                 HL7Exception.class, () -> {
-                    target.MessageValidation(id, model);
+                    target.MessageValidation(id, model, "test");
                 }
         );
 

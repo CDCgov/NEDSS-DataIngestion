@@ -77,7 +77,7 @@ public class KafkaConsumerService
             messageType = elrModel.getType();
             switch (messageType) {
                 case KafkaHeaderValue.MessageType_HL7v2:
-                    ValidatedELRModel hl7ValidatedModel = hl7v2Validator.MessageValidation(message, elrModel);
+                    ValidatedELRModel hl7ValidatedModel = hl7v2Validator.MessageValidation(message, elrModel, validatedTopic);
 
                     saveValidatedELRMessage(hl7ValidatedModel);
                     kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic);

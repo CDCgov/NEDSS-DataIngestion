@@ -10,13 +10,15 @@ import gov.cdc.dataingestion.validation.model.RawERLModel;
 import gov.cdc.dataingestion.validation.model.ValidatedELRModel;
 import gov.cdc.dataingestion.validation.model.enums.MessageType;
 
+import java.sql.Timestamp;
+
 public class HL7v2Validator implements IHL7v2Validator {
     private HapiContext context;
     public HL7v2Validator(HapiContext context) {
         this.context = context;
     }
 
-    public ValidatedELRModel MessageValidation(String id,  RawERLModel rawERLModel) throws HL7Exception {
+    public ValidatedELRModel MessageValidation(String id,  RawERLModel rawERLModel, String topicName) throws HL7Exception {
         String replaceSpecialCharacters;
         if (rawERLModel.getPayload().contains("\n")) {
             replaceSpecialCharacters = rawERLModel.getPayload().replaceAll("\n","\r");
@@ -30,11 +32,13 @@ public class HL7v2Validator implements IHL7v2Validator {
         // if invalid HL7, exception will be thrown
         Message parsedMessage = parser.parse(replaceSpecialCharacters);
 
-        model.setId(id);
+        model.setId("validated_" + id);
+        model.setRawId(id);
         model.setRawMessage(replaceSpecialCharacters);
         model.setMessageType(MessageType.HL7.name());
         model.setMessageVersion(parsedMessage.getVersion());
-
+        model.setCreated_by(topicName);
+        model.setCreated_on(new Timestamp(System.currentTimeMillis()));
         return model;
     }
 }
