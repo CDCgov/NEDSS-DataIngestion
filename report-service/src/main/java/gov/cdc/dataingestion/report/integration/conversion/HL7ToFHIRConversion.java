@@ -1,20 +1,27 @@
 package gov.cdc.dataingestion.report.integration.conversion;
 
 import gov.cdc.dataingestion.report.integration.conversion.interfaces.IHL7ToFHIRConversion;
-import gov.cdc.dataingestion.report.model.HL7toFhirModel;
+import gov.cdc.dataingestion.report.repository.model.HL7toFhirModel;
+import gov.cdc.dataingestion.report.repository.model.ValidatedELRModel;
 import io.github.linuxforhealth.hl7.HL7ToFHIRConverter;
 
+import java.sql.Timestamp;
+
 public class HL7ToFHIRConversion implements IHL7ToFHIRConversion {
+    private String IdPrefix = "FHIR_";
     private HL7ToFHIRConverter converter;
     public HL7ToFHIRConversion(HL7ToFHIRConverter converter) {
         this.converter = converter;
     }
 
-    public HL7toFhirModel ConvertHL7v2ToFhir(HL7toFhirModel hl7Message, String rawMessage) throws UnsupportedOperationException {
+    public HL7toFhirModel ConvertHL7v2ToFhir(ValidatedELRModel validatedELRModel, String topicName) throws UnsupportedOperationException {
         HL7toFhirModel model = new HL7toFhirModel();
-        String output = this.converter.convert(rawMessage);
-        model.setRawHL7Message(hl7Message);
-        model.setConvertedFhirMessage(output);
+        String output = this.converter.convert(validatedELRModel.getRawMessage());
+        model.setId(IdPrefix + validatedELRModel.getRawId());
+        model.setRaw_id(validatedELRModel.getRawId());
+        model.setFhirMessage(output);
+        model.setCreated_by(topicName);
+        model.setCreated_on(new Timestamp(System.currentTimeMillis()));
         return model;
     }
 }

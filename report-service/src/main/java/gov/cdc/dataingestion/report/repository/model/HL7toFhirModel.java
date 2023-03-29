@@ -1,4 +1,4 @@
-package gov.cdc.dataingestion.report.model;
+package gov.cdc.dataingestion.report.repository.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
