@@ -1,4 +1,0 @@
-package gov.cdc.dataingestion.consumer.validationservice.unitTest;
-
-public class CsvValidatorTests {
-}
