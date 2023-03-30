@@ -1,9 +1,9 @@
 package gov.cdc.dataingestion.rawmessage.service;
 
+import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
-import gov.cdc.dataingestion.validation.integration.service.KafkaProducerService;
-import gov.cdc.dataingestion.validation.model.RawERLModel;
-import gov.cdc.dataingestion.validation.repository.RawELRRepository;
+import gov.cdc.dataingestion.report.repository.IRawELRRepository;
+import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +21,7 @@ public class RawELRService {
     private static final String CREATED_BY = "admin";
     @Value("${kafka.raw.producer.topic}")
     String topicName;
-    private final RawELRRepository rawELRRepository;
+    private final IRawELRRepository rawELRRepository;
     private final KafkaProducerService kafkaProducerService;
 
 
