@@ -15,7 +15,7 @@ public class ValidatedELRModel {
     @Column(name = "id" , columnDefinition="uniqueidentifier")
     private String id;
 
-    @Column(name = "raw_id")
+    @Column(name = "raw_message_id")
     private String rawId;
 
     @Column(name = "validated_message")
