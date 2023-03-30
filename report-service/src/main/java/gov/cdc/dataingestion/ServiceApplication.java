@@ -13,7 +13,7 @@ public class ServiceApplication {
      * @param args
      */
     public static void main(final String[] args) {
-        SpringApplication.run(gov.cdc.dataingestion.ServiceApplication.class, args);
+        SpringApplication.run(ServiceApplication.class, args);
     }
 
 }
