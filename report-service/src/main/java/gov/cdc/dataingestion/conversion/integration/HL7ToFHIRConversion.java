@@ -17,6 +17,7 @@ public class HL7ToFHIRConversion implements IHL7ToFHIRConversion {
         model.setRawId(validatedELRModel.getRawId());
         model.setFhirMessage(output);
         model.setCreatedBy(topicName);
+        model.setUpdatedBy(topicName);
         return model;
     }
 }

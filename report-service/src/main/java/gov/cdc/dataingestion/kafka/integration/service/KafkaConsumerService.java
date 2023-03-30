@@ -117,8 +117,6 @@ public class KafkaConsumerService {
         String messageType = validatedELRModel.getMessageType();
         if (messageType.equalsIgnoreCase(KafkaHeaderValue.MessageType_HL7v2)) {
             HL7ToFHIRModel convertedModel = iHl7ToFHIRConversion.ConvertHL7v2ToFhir(validatedELRModel, convertedToFhirTopic);
-            // We can save off the fhir record to db here
-            // once data is persisted when can get id from db and push it to producer
             iHL7ToFHIRRepository.save(convertedModel);
             kafkaProducerService.sendMessageAfterConvertedToFhirMessage(convertedModel, convertedToFhirTopic);
         } else {
