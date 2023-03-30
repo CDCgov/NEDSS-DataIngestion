@@ -5,7 +5,7 @@ import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.ICsvValidator;
-import gov.cdc.dataingestion.validation.model.ValidatedELRModel;
+import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import gov.cdc.dataingestion.validation.model.enums.MessageType;
 
 import java.io.*;
