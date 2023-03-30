@@ -1,4 +1,4 @@
-package gov.cdc.dataingestion.validation.config;
+package gov.cdc.dataingestion.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 
 import java.util.HashMap;
@@ -17,23 +18,28 @@ import java.util.Map;
 @EnableKafka
 @Configuration
 public class KafkaConfig {
-    @Value("${kafka.validation.consumer.group-id}")
+    @Value("${kafka.group-id}")
     private String groupId = "";
 
+    @Value("${kafka.bootstrap-servers}")
+    private String bootstrapServers = "";
+
+    @Value("${kafka.consumer.maxPollIntervalMs}")
+    private String maxPollInterval = "";
+
     @Bean
-    public ConsumerFactory<String, String> consumerFactory(@Value("${kafka.bootstrap-servers}") final String bootstrapServers,
-                                                           @Value("${kafka.validation.consumer.maxPollIntervalMs}") final String maxPollIntervalMs) {
+    public ConsumerFactory<String, String> consumerFactory() {
         final Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        config.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, maxPollIntervalMs);
+        config.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, maxPollInterval);
         return new DefaultKafkaConsumerFactory<>(config);
     }
 
     @Bean
-    public ProducerFactory<String, String> producerFactory(@Value("${kafka.bootstrap-servers}") final String bootstrapServers) {
+    public ProducerFactory<String, String> producerFactory() {
         final Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -41,6 +47,7 @@ public class KafkaConfig {
         return new DefaultKafkaProducerFactory<>(config);
     }
 
+    // Config for kafka producer
     @Bean
     public KafkaTemplate<String, String> kafkaTemplate(final ProducerFactory<String, String> producerFactory,
                                                        final ConsumerFactory<String, String> consumerFactory) {
@@ -48,5 +55,16 @@ public class KafkaConfig {
         KafkaTemplate template = new KafkaTemplate<>(producerFactory);
         template.setConsumerFactory(consumerFactory);
         return template;
+    }
+
+
+    // Config for kafka listener aka consumer
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, String>
+    kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, String> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory());
+        return factory;
     }
 }

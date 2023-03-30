@@ -1,4 +1,4 @@
-package gov.cdc.dataingestion.report.config;
+package gov.cdc.dataingestion.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.MongoDatabaseFactory;

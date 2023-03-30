@@ -1,4 +1,4 @@
-package gov.cdc.dataingestion.validation.model;
+package gov.cdc.dataingestion.report.repository.model;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
