@@ -19,7 +19,7 @@ import java.util.UUID;
 public class RawELRService {
 
     private static final String CREATED_BY = "admin";
-    @Value("${kafka.raw.producer.topic}")
+    @Value("${kafka.raw.topic}")
     String topicName;
     private final IRawELRRepository rawELRRepository;
     private final KafkaProducerService kafkaProducerService;
