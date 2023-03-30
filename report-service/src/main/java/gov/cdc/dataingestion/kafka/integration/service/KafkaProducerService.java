@@ -1,7 +1,7 @@
 package gov.cdc.dataingestion.kafka.integration.service;
 
 import com.google.gson.Gson;
-import gov.cdc.dataingestion.conversion.repository.model.HL7toFhirModel;
+import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import gov.cdc.dataingestion.validation.model.constant.KafkaHeaderValue;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -47,7 +47,7 @@ public class KafkaProducerService {
         sendMessage(record);
     }
 
-    public void sendMessageAfterConvertedToFhirMessage(HL7toFhirModel msg, String topic) {
+    public void sendMessageAfterConvertedToFhirMessage(HL7ToFHIRModel msg, String topic) {
         String uniqueID = fhirMessageKeyPrefix + UUID.randomUUID();
         var record = new ProducerRecord<>(topic, uniqueID, msg.getId());
         sendMessage(record);

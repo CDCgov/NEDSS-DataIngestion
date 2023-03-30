@@ -7,17 +7,19 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "elr_fhir")
-public class HL7toFhirModel {
+public class HL7ToFHIRModel {
     @Id
     @GenericGenerator(name = "generator", strategy = "guid", parameters = {})
     @GeneratedValue(generator = "generator")
     @Column(name = "id" , columnDefinition="uniqueidentifier")
     private String id;
 
-    @Column(name = "raw_id")
-    private String rawId;
-    @Column(name = "fhir_msg")
+    @Column(name = "fhir_message")
     private String fhirMessage;
+
+    @Column(name = "raw_message_id")
+    private String rawId;
+
     @Transient
     @Column(name = "created_on")
     private Timestamp CreatedOn;
