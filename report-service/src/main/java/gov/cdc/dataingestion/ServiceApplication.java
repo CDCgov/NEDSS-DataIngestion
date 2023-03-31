@@ -13,7 +13,11 @@ public class ServiceApplication {
      * @param args
      */
     public static void main(final String[] args) {
-        SpringApplication.run(ServiceApplication.class, args);
+        try {
+            SpringApplication.run(ServiceApplication.class, args);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
