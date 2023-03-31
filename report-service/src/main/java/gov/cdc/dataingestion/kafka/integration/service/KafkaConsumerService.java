@@ -10,6 +10,10 @@ import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2V
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import gov.cdc.dataingestion.validation.model.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
+
+import gov.cdc.dataingestion.nbs.converters.Hl7ToXmlConverter;
+import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.SerializationException;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,12 +32,16 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class KafkaConsumerService {
+    //private static String HEADER = "MSH|^~\\&|||||20080925161613||ADT^A05||P|2.6|";
 
     @Value("${kafka.validation.topic}")
     private String validatedTopic = "";
 
     @Value("${kafka.fhir-conversion.topic}")
     private String convertedToFhirTopic = "";
+
+    @Value("${kafka.xml-conversion.topic}")
+    private String convertedToXmlTopic = "";
 
     @Value("${kafka.raw.topic}")
     private String rawTopic = "";
@@ -44,6 +52,8 @@ public class KafkaConsumerService {
     private IHL7ToFHIRConversion iHl7ToFHIRConversion;
     private IHL7ToFHIRRepository iHL7ToFHIRRepository;
 
+    private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
+
 
     public KafkaConsumerService(
             IValidatedELRRepository iValidatedELRRepository,
@@ -51,13 +61,15 @@ public class KafkaConsumerService {
             KafkaProducerService kafkaProducerService,
             IHL7v2Validator iHl7v2Validator,
             IHL7ToFHIRConversion ihl7ToFHIRConversion,
-            IHL7ToFHIRRepository iHL7ToFHIRepository) {
+            IHL7ToFHIRRepository iHL7ToFHIRepository,
+            NbsRepositoryServiceProvider nbsRepositoryServiceProvider) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.kafkaProducerService = kafkaProducerService;
         this.iHl7v2Validator = iHl7v2Validator;
         this.iHl7ToFHIRConversion = ihl7ToFHIRConversion;
         this.iHL7ToFHIRRepository = iHL7ToFHIRepository;
+        this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
     }
 
     @RetryableTopic(
@@ -78,7 +90,8 @@ public class KafkaConsumerService {
             if (topic.equalsIgnoreCase(rawTopic)) {
                 validationHandler(message);
             } else if (topic.equalsIgnoreCase(validatedTopic)) {
-                conversionHandler(message);
+                //conversionHandler(message);
+                xmlConversionHandler(message);
             }
         } catch (Exception e) {
             log.info("Retry queue");
@@ -91,6 +104,18 @@ public class KafkaConsumerService {
     public void handleDlt(String message, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         // Once in DLQ -- we can save message in actual db for further analyze
         log.info("Message: {} handled by dlq topic: {}", message, topic);
+    }
+
+    private void xmlConversionHandler(String message) throws Exception {
+        log.info("Received message id will be retrieved from db and associated hl7 will be converted to xml");
+
+        Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
+        String hl7AsXml = Hl7ToXmlConverter.getInstance().convertXl7ToXml(validatedElrResponse.get().getRawMessage());
+
+        log.info("Converted xml: {}", hl7AsXml);
+
+        nbsRepositoryServiceProvider.saveXmlMessage(hl7AsXml);
+        kafkaProducerService.sendMessageAfterConvertedToXml(hl7AsXml, convertedToXmlTopic);
     }
 
     private void validationHandler(String message) throws HL7Exception {
@@ -127,5 +152,4 @@ public class KafkaConsumerService {
     private void saveValidatedELRMessage(ValidatedELRModel model) {
         iValidatedELRRepository.save(model);
     }
-
 }
