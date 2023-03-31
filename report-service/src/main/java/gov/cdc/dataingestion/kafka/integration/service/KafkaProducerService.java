@@ -13,6 +13,8 @@ import java.util.UUID;
 
 @Component
 public class KafkaProducerService {
+    private String xmlMessageKeyPrefix = "XML_";
+
     private String fhirMessageKeyPrefix = "FHIR_";
     private String validMessageKeyPrefix = "VALID_";
 
@@ -53,6 +55,11 @@ public class KafkaProducerService {
         sendMessage(record);
     }
 
+    public void sendMessageAfterConvertedToXml(String xmlMsg, String topic) {
+        String uniqueID = xmlMessageKeyPrefix + UUID.randomUUID();
+        var record = new ProducerRecord<>(topic, uniqueID, xmlMsg);
+        sendMessage(record);
+    }
 
     private void sendMessage(ProducerRecord<String, String> record) {
         kafkaTemplate.send(record);
