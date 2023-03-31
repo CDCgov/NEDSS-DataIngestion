@@ -7,9 +7,32 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import  org.springframework.beans.factory.annotation.Qualifier;
+import  org.springframework.transaction.annotation.EnableTransactionManagement;
+import  org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import  org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
+import  org.springframework.transaction.PlatformTransactionManager;
+import  org.springframework.orm.jpa.JpaTransactionManager;
+import  org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+
+import  javax.sql.DataSource;
+import  jakarta.persistence.EntityManagerFactory;
+import  java.util.HashMap;
+
 import javax.sql.DataSource;
 
 @Configuration
+@EnableTransactionManagement
+@EnableJpaRepositories(
+        entityManagerFactoryRef = "ingestEntityManagerFactory",
+        transactionManagerRef = "ingestTransactionManager",
+        basePackages = {
+                "gov.cdc.dataingestion.validation.repository",
+                "gov.cdc.dataingestion.report.repository",
+                "gov.cdc.dataingestion.conversion.repository"
+        }
+)
 public class DataSourceConfig {
     private static Logger logger = LoggerFactory.getLogger(DataSourceConfig.class);
 
@@ -24,6 +47,7 @@ public class DataSourceConfig {
 
     @Value("${spring.datasource.password}")
     private String password;
+
     @Bean()
     public DataSource dataSource() {
         String driverClassName = this.className;
@@ -39,5 +63,29 @@ public class DataSourceConfig {
         dataSourceBuilder.password(dbUserPassword);
 
         return dataSourceBuilder.build();
+    }
+
+    @Bean
+    public EntityManagerFactoryBuilder ingestEntityManagerFactoryBuilder() {
+        return new EntityManagerFactoryBuilder(new HibernateJpaVendorAdapter(), new HashMap<>(), null);
+    }
+
+    @Bean(name = "ingestEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean ingestEntityManagerFactory(
+            EntityManagerFactoryBuilder ingestEntityManagerFactoryBuilder,
+            @Qualifier("dataSource") DataSource dataSource ) {
+        return ingestEntityManagerFactoryBuilder
+                .dataSource(dataSource)
+                .packages("gov.cdc.dataingestion.validation.repository.model",
+                          "gov.cdc.dataingestion.report.repository",
+                          "gov.cdc.dataingestion.conversion.repository.model")
+                .persistenceUnit("ingest")
+                .build();
+    }
+
+    @Bean(name = "ingestTransactionManager")
+    public PlatformTransactionManager ingestTransactionManager(
+            @Qualifier("ingestEntityManagerFactory") EntityManagerFactory ingestEntityManagerFactory ) {
+        return new JpaTransactionManager(ingestEntityManagerFactory);
     }
 }
