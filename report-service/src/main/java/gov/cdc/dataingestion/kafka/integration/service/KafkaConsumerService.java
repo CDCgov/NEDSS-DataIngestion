@@ -100,6 +100,15 @@ public class KafkaConsumerService {
         }
     }
 
+    // Topic needs to be updated from the app props
+    @KafkaListener(topics = "#{'${kafka.validation.topic}'}")
+    public void validateHL7Document(String message,
+                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+        log.info("Received message: {} from topic: {}", message, topic);
+
+        // Method to check the deduplication of the HL7 document received. Ref - CNDIT-232
+    }
+
     @DltHandler
     public void handleDlt(String message, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         // Once in DLQ -- we can save message in actual db for further analyze
