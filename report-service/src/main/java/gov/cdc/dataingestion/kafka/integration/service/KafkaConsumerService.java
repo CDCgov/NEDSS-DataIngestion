@@ -90,7 +90,7 @@ public class KafkaConsumerService {
             if (topic.equalsIgnoreCase(rawTopic)) {
                 validationHandler(message);
             } else if (topic.equalsIgnoreCase(validatedTopic)) {
-                //conversionHandler(message);
+                conversionHandler(message);
                 xmlConversionHandler(message);
             }
         } catch (Exception e) {
