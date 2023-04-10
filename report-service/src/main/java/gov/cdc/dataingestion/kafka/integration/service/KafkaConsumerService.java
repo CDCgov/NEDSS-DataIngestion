@@ -1,9 +1,8 @@
 package gov.cdc.dataingestion.kafka.integration.service;
-
-import ca.uhn.hl7v2.HL7Exception;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
+import gov.cdc.dataingestion.hl7.helper.integration.DiHL7Exception;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
@@ -118,7 +117,7 @@ public class KafkaConsumerService {
         kafkaProducerService.sendMessageAfterConvertedToXml(hl7AsXml, convertedToXmlTopic);
     }
 
-    private void validationHandler(String message) throws HL7Exception {
+    private void validationHandler(String message) throws DiHL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);
         RawERLModel elrModel = rawElrResponse.get();
         String messageType = elrModel.getType();

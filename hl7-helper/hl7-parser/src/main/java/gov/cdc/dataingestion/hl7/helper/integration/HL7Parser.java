@@ -4,7 +4,9 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.HapiContext;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory;
+import ca.uhn.hl7v2.parser.DefaultXMLParser;
 import ca.uhn.hl7v2.parser.PipeParser;
+import ca.uhn.hl7v2.parser.XMLParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
 import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser;
@@ -88,7 +90,7 @@ public class HL7Parser implements IHL7Parser {
     public void hl7MessageParser(HL7ParsedMessage parsedMessage) throws DiHL7Exception {
 
         try {
-            context = hl7GeneralizationContext();
+            context = hl7GeneralizationContext(context);
             PipeParser parser = context.getPipeParser();
 
             switch(parsedMessage.getType()) {
@@ -100,7 +102,22 @@ public class HL7Parser implements IHL7Parser {
 
     }
 
-    private HapiContext hl7GeneralizationContext() {
+    public String convertHL7ToXml(String hl7Message) throws DiHL7Exception {
+        try {
+            this.context.getParserConfiguration().setValidating(false);
+            this.context = hl7GeneralizationContext(this.context);
+
+            PipeParser parser = this.context.getPipeParser();
+            Message message = parser.parse(hl7Message);
+            XMLParser xmlParser = new DefaultXMLParser();
+            String hl7AsXml = xmlParser.encode(message);
+            return hl7AsXml;
+        } catch (Exception e) {
+            throw new DiHL7Exception(e.getMessage());
+        }
+    }
+
+    private HapiContext hl7GeneralizationContext(HapiContext context) {
         CanonicalModelClassFactory mcf = new CanonicalModelClassFactory(supportedHL7version);
         context.setModelClassFactory(mcf);
         return context;
