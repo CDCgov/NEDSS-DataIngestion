@@ -5,16 +5,14 @@ import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConvers
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
+import gov.cdc.dataingestion.nbs.converters.Hl7ToXmlConverter;
+import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
-import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import gov.cdc.dataingestion.validation.model.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
-
-import gov.cdc.dataingestion.nbs.converters.Hl7ToXmlConverter;
-import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
-
+import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.SerializationException;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,7 +29,6 @@ import org.springframework.stereotype.Component;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
-import java.util.UUID;
 
 @Component
 @Slf4j
