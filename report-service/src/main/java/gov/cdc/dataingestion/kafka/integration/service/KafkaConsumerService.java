@@ -89,8 +89,9 @@ public class KafkaConsumerService {
             if (topic.equalsIgnoreCase(rawTopic)) {
                 validationHandler(message);
             } else if (topic.equalsIgnoreCase(validatedTopic)) {
+                // parallel execution here would be nice
                 conversionHandler(message);
-                xmlConversionHandler(message);
+              //  xmlConversionHandler(message);
             }
         } catch (Exception e) {
             log.info("Retry queue");
