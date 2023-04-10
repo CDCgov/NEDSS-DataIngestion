@@ -108,50 +108,6 @@ public class KafkaConsumerService {
         }
     }
 
-    private String generateHashStringForValidatedHL7(String payload, ValidatedELRModel validatedELRModel) throws DuplicateHL7FileFoundException {
-        String hashedString = null;
-        try {
-            MessageDigest digestString = MessageDigest.getInstance("SHA-256");
-            byte[] encodedByteHash = digestString.digest(payload.getBytes());
-            StringBuilder hexString = new StringBuilder();
-            for(byte b : encodedByteHash) {
-                String hexTempString = Integer.toHexString(0xff & b);
-                if(hexTempString.length() == 1) {
-                    hexString.append(0);
-                }
-                hexString.append(hexTempString);
-            }
-            hashedString = hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-        if(checkForDuplicateHL7HashString(hashedString, validatedELRModel)) {
-            System.out.println("Hashed string inside if is..." + hashedString);
-            return hashedString;
-        }
-        else {
-            throw new DuplicateHL7FileFoundException("HL7 document already exists in the database. " +
-                    "Please check " + validatedElrDltTopic + " kafka topic to check for the failed document.");
-        }
-    }
-
-
-    private boolean checkForDuplicateHL7HashString(String hashedString, ValidatedELRModel validatedELRModel) {
-//        log.info("Received message: {} is being checked for duplicate already present in the database", validatedELRModel.getRawMessage());
-
-        log.info("Received HashString is being checked for duplicate already present in the database");
-        Optional<ValidatedELRModel> validatedELRResponseFromDatabase = iValidatedELRRepository.findByHashedHL7String(hashedString);
-        System.out.println("response from db is..." + validatedELRResponseFromDatabase);
-        if(!validatedELRResponseFromDatabase.isEmpty()) {
-            if(hashedString.equals(validatedELRResponseFromDatabase.get().getHashedHL7String())) {
-                log.error("Duplicate found and HL7 message already exists in the database");
-                kafkaProducerService.sendMessageAfterCheckingDuplicateHL7(validatedELRModel, validatedElrDltTopic);
-                return false;
-            }
-        }
-        return true;
-    }
-
     @DltHandler
     public void handleDlt(String message, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         // Once in DLQ -- we can save message in actual db for further analyze
@@ -190,6 +146,47 @@ public class KafkaConsumerService {
                 break;
         }
     }
+
+    private String generateHashStringForValidatedHL7(String payload, ValidatedELRModel validatedELRModel) throws DuplicateHL7FileFoundException {
+        String hashedString = null;
+        try {
+            MessageDigest digestString = MessageDigest.getInstance("SHA-256");
+            byte[] encodedByteHash = digestString.digest(payload.getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for(byte b : encodedByteHash) {
+                String intToHexString = Integer.toHexString(0xff & b);
+                if(intToHexString.length() == 1) {
+                    hexString.append(0);
+                }
+                hexString.append(intToHexString);
+            }
+            hashedString = hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        if(checkForDuplicateHL7HashString(hashedString, validatedELRModel)) {
+            return hashedString;
+        }
+        else {
+            throw new DuplicateHL7FileFoundException("HL7 document already exists in the database. " +
+                    "Please check " + validatedElrDltTopic + " kafka topic to check for the failed document.");
+        }
+    }
+
+    private boolean checkForDuplicateHL7HashString(String hashedString, ValidatedELRModel validatedELRModel) {
+        log.info("Generated HashString is being checked for duplicate if already present in the database");
+        Optional<ValidatedELRModel> validatedELRResponseFromDatabase = iValidatedELRRepository.findByHashedHL7String(hashedString);
+        if(!validatedELRResponseFromDatabase.isEmpty()) {
+            if(hashedString.equals(validatedELRResponseFromDatabase.get().getHashedHL7String())) {
+                log.error("Duplicate hashed string found for the HL7 message in the database. Sending details to kafka dlt topic.");
+                kafkaProducerService.sendMessageAfterCheckingDuplicateHL7(validatedELRModel, validatedElrDltTopic);
+                return false;
+            }
+        }
+        log.info("HashString doesn't exists in the database. Moving forward to FHIR conversion.");
+        return true;
+    }
+
     private void conversionHandler(String message) {
         Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
         ValidatedELRModel validatedELRModel = validatedElrResponse.get();

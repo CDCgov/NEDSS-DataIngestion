@@ -4,8 +4,9 @@ CREATE TABLE [NBS_DataIngest].[dbo].[elr_validated] (
     message_type nvarchar(255) not null,
     message_version nvarchar(255),
     validated_message ntext not null,
+    hashed_hl7_string varchar(32) null,
     created_by nvarchar(255) not null,
     updated_by nvarchar(255) not null,
-    created_on DATETIME  not null default getdate(),
+    created_on DATETIME not null default getdate(),
     updated_on DATETIME null
 )
