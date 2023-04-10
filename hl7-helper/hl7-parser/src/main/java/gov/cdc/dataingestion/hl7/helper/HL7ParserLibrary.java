@@ -14,10 +14,17 @@ public class HL7ParserLibrary {
 
     private IHL7Parser parser = new HL7Parser(new DefaultHapiContext());
 
+    /**
+    * HL7 string valicator, replacing "\n" by "\r"
+    * */
     public String hl7StringValidator(String message) throws DiHL7Exception {
         return parser.hl7MessageStringValidation(message);
     }
 
+    /**
+    * Generic Parser, return message version, type, and some demographic info such as patient name and address
+    * More can be added based on bussincess requirement
+    * */
     public HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception {
         return parser.hl7StringParser(message);
     }
