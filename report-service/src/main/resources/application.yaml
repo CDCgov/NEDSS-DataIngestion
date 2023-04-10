@@ -1,0 +1,105 @@
+spring:
+  application:
+    name: report-service
+
+logging:
+  file: logs/report-service.log
+  
+  pattern:
+    console: "%d %-5level %logger : %file-%line : %msg%n"
+    file:    "%d %-5level [%thread] %logger : [ramesh] : %msg%n"
+    
+  level:
+    com.apps.restfulApp.api.controller: ERROR
+
+---
+spring:
+  config:
+    activate:
+      on-profile: default
+
+  datasource:
+    url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_DBNAME};encrypt=true;trustServerCertificate=true;
+    username: ${DI_USERNAME}
+    password: ${DI_PASSWORD}
+    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+    nbs:
+      url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_NBS_DBNAME};encrypt=true;trustServerCertificate=true;
+      username: ${DI_USERNAME}
+      password: ${DI_PASSWORD}
+      driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    group-id: data-ingestion-group
+    consumer:
+      maxPollIntervalMs: 30000
+
+kafka:
+  consumer:
+    max-retry: 1
+  raw:
+    producer:
+      topic: elr_raw
+    topic: elr_raw
+  validation:
+    topic: elr_validated
+  fhir-conversion:
+    topic: fhir_converted
+  xml-conversion:
+    topic: xml_converted
+  topics: elr_raw,elr_validated
+
+---
+spring:
+  config:
+    activate:
+      on-profile: kubernetes
+
+  datasource:
+    url: db_di_url
+    username: db_di_username
+    password: db_di_password
+    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+    nbs:
+      url: db_nbs_url
+      username: db_nbs_username
+      password: db_nbs_password
+      driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+
+  kafka:
+    bootstrap-servers: kafka_bootstrap_servers
+    group-id: data-ingestion-group
+    consumer:
+      maxPollIntervalMs: 30000
+
+kafka:
+  consumer:
+    max-retry: 1
+  raw:
+    producer:
+      topic: elr_raw
+    topic: elr_raw
+  validation:
+    topic: elr_validated
+  fhir-conversion:
+    topic: fhir_converted
+  xml-conversion:
+    topic: xml_converted
+  topics: elr_raw,elr_validated
+
+
+
+
