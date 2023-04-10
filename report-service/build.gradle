@@ -59,6 +59,10 @@ dependencies {
 	implementation 'com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11'
 	implementation 'javax.persistence:javax.persistence-api:2.2'
 
+
+	implementation 'ca.uhn.hapi:hapi-base:2.3'
+	implementation 'ca.uhn.hapi:hapi-structures-v251:2.3'
+
 	// DI HL7 Wrapper
 	implementation files('libs/hl7-parser.jar')
 

@@ -29,10 +29,4 @@ public class HL7ParserLibrary {
         return parser.hl7StringParser(message);
     }
 
-    /**
-     * Convert hl7 message string into xml string via HAPI
-     * */
-    public String convertHL7ToXml(String message) throws DiHL7Exception {
-        return parser.convertHL7ToXml(message);
-    }
 }

@@ -102,21 +102,6 @@ public class HL7Parser implements IHL7Parser {
 
     }
 
-    public String convertHL7ToXml(String hl7Message) throws DiHL7Exception {
-        try {
-            this.context.getParserConfiguration().setValidating(false);
-            this.context = hl7GeneralizationContext(this.context);
-
-            PipeParser parser = this.context.getPipeParser();
-            Message message = parser.parse(hl7Message);
-            XMLParser xmlParser = new DefaultXMLParser();
-            String hl7AsXml = xmlParser.encode(message);
-            return hl7AsXml;
-        } catch (Exception e) {
-            throw new DiHL7Exception(e.getMessage());
-        }
-    }
-
     private HapiContext hl7GeneralizationContext(HapiContext context) {
         CanonicalModelClassFactory mcf = new CanonicalModelClassFactory(supportedHL7version);
         context.setModelClassFactory(mcf);
