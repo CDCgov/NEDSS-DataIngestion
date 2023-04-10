@@ -108,7 +108,7 @@ public class KafkaConsumerService {
         }
     }
 
-    private String generateRawHashString(String payload, ValidatedELRModel validatedELRModel) throws DuplicateHL7FileFoundException {
+    private String generateHashStringForValidatedHL7(String payload, ValidatedELRModel validatedELRModel) throws DuplicateHL7FileFoundException {
         String hashedString = null;
         try {
             MessageDigest digestString = MessageDigest.getInstance("SHA-256");
@@ -125,7 +125,7 @@ public class KafkaConsumerService {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
-        if(checkDuplicateHL7Hashcode(hashedString, validatedELRModel)) {
+        if(checkForDuplicateHL7HashString(hashedString, validatedELRModel)) {
             System.out.println("Hashed string inside if is..." + hashedString);
             return hashedString;
         }
@@ -136,16 +136,15 @@ public class KafkaConsumerService {
     }
 
 
-    private boolean checkDuplicateHL7Hashcode(String hashedString, ValidatedELRModel validatedELRModel) {
+    private boolean checkForDuplicateHL7HashString(String hashedString, ValidatedELRModel validatedELRModel) {
 //        log.info("Received message: {} is being checked for duplicate already present in the database", validatedELRModel.getRawMessage());
 
-        log.info("Received hashcode is being checked for duplicate already present in the database");
+        log.info("Received HashString is being checked for duplicate already present in the database");
         Optional<ValidatedELRModel> validatedELRResponseFromDatabase = iValidatedELRRepository.findByHashedHL7String(hashedString);
         System.out.println("response from db is..." + validatedELRResponseFromDatabase);
         if(!validatedELRResponseFromDatabase.isEmpty()) {
             if(hashedString.equals(validatedELRResponseFromDatabase.get().getHashedHL7String())) {
                 log.error("Duplicate found and HL7 message already exists in the database");
-                // TODO: Update the message type to generate dynamically
                 kafkaProducerService.sendMessageAfterCheckingDuplicateHL7(validatedELRModel, validatedElrDltTopic);
                 return false;
             }
@@ -178,9 +177,7 @@ public class KafkaConsumerService {
         switch (messageType) {
             case KafkaHeaderValue.MessageType_HL7v2:
                 ValidatedELRModel hl7ValidatedModel = iHl7v2Validator.MessageValidation(message, elrModel, validatedTopic);
-//                if(checkDuplicateHL7Handler(hl7ValidatedModel)) {
-                System.out.println("Validated model is..." + hl7ValidatedModel);
-                String hashValidatedHL7Message = generateRawHashString(hl7ValidatedModel.getRawMessage(), hl7ValidatedModel);
+                String hashValidatedHL7Message = generateHashStringForValidatedHL7(hl7ValidatedModel.getRawMessage(), hl7ValidatedModel);
                 hl7ValidatedModel.setHashedHL7String(hashValidatedHL7Message);
                 saveValidatedELRMessage(hl7ValidatedModel);
                 kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic);
