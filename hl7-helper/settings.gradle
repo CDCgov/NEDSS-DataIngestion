@@ -8,4 +8,4 @@
  */
 
 rootProject.name = 'hl7-helper'
-include('lib')
+include('hl7-parser')
