@@ -15,12 +15,9 @@ import static org.mockito.Mockito.mock;
 public class HL7v2ValidatorTests
 {
     private IHL7v2Validator target;
-    private HL7ParserLibrary context;
-
     @BeforeEach
     public void setUp() {
-        context = new HL7ParserLibrary();
-        target = new HL7v2Validator(this.context);
+        target = new HL7v2Validator();
     }
 
     @Test
@@ -93,7 +90,7 @@ public class HL7v2ValidatorTests
                 }
         );
 
-        String expectedMessage = "Determine encoding for message. The following is the first 50 chars of the message for reference, although this may not be where the issue is: Invalid Message";
+        String expectedMessage = "Incorrect raw message format";
         String actualMessage = exception.getMessage();
 
         Assertions.assertTrue(actualMessage.contains(expectedMessage));

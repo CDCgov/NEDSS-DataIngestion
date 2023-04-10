@@ -15,7 +15,7 @@ public class ClassConfig {
 
     @Bean
     IHL7v2Validator hl7v2Validator() {
-        return new HL7v2Validator(new HL7ParserLibrary());
+        return new HL7v2Validator();
     }
 
     @Bean

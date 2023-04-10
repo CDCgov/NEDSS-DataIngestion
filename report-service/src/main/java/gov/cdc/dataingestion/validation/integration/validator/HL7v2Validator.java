@@ -8,9 +8,8 @@ import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import gov.cdc.dataingestion.validation.model.enums.MessageType;
 import gov.cdc.dataingestion.hl7.helper.HL7ParserLibrary;
 public class HL7v2Validator implements IHL7v2Validator {
-    private HL7ParserLibrary hl7Parser;
-    public HL7v2Validator(HL7ParserLibrary hl7Parser) {
-        this.hl7Parser = hl7Parser;
+    private HL7ParserLibrary hl7Parser = new HL7ParserLibrary();
+    public HL7v2Validator() {
     }
 
     public ValidatedELRModel MessageValidation(String id, RawERLModel rawERLModel, String topicName) throws DiHL7Exception {
