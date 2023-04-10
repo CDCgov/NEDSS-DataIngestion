@@ -18,6 +18,8 @@ public class KafkaProducerService {
     private String fhirMessageKeyPrefix = "FHIR_";
     private String validMessageKeyPrefix = "VALID_";
 
+    private String hl7MessageKeyPrefix = "HL7_";
+
     private KafkaTemplate<String, String> kafkaTemplate;
     public KafkaProducerService( KafkaTemplate<String, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
@@ -66,4 +68,9 @@ public class KafkaProducerService {
     }
 
 
+    public void sendMessageAfterCheckingDuplicateHL7(ValidatedELRModel msg, String validatedElrDltTopic) {
+        String uniqueID = hl7MessageKeyPrefix + UUID.randomUUID();
+        var record = new ProducerRecord<>(validatedElrDltTopic, uniqueID, msg.getRawId());
+        sendMessage(record);
+    }
 }

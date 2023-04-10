@@ -36,6 +36,7 @@ public class HL7v2Validator implements IHL7v2Validator {
         model.setMessageVersion(parsedMessage.getVersion());
         model.setCreatedBy(topicName);
         model.setUpdatedBy(topicName);
+        model.setHashedHL7String(null);
         return model;
     }
 }

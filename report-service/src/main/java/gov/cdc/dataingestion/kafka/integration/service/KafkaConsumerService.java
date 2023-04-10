@@ -4,6 +4,7 @@ import ca.uhn.hl7v2.HL7Exception;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
+import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
@@ -27,7 +28,10 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Component;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @Slf4j
@@ -45,6 +49,10 @@ public class KafkaConsumerService {
 
     @Value("${kafka.raw.topic}")
     private String rawTopic = "";
+
+    @Value("${kafka.elr-validated-dlt.topic}")
+    private String validatedElrDltTopic = "";
+
     private KafkaProducerService kafkaProducerService;
     private IHL7v2Validator iHl7v2Validator;
     private IRawELRRepository iRawELRRepository;
@@ -84,13 +92,13 @@ public class KafkaConsumerService {
     @KafkaListener(topics = "#{'${kafka.topics}'.split(',')}")
     public void handleMessage(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
-        log.info("Received message: {} from topic: {}", message, topic);
+        log.info("Received ID: {} from topic: {}", message, topic);
 
         try {
             if (topic.equalsIgnoreCase(rawTopic)) {
                 validationHandler(message);
             } else if (topic.equalsIgnoreCase(validatedTopic)) {
-                //conversionHandler(message);
+                conversionHandler(message);
                 xmlConversionHandler(message);
             }
         } catch (Exception e) {
@@ -100,13 +108,49 @@ public class KafkaConsumerService {
         }
     }
 
-    // Topic needs to be updated from the app props
-    @KafkaListener(topics = "#{'${kafka.validation.topic}'}")
-    public void validateHL7Document(String message,
-                                    @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
-        log.info("Received message: {} from topic: {}", message, topic);
+    private String generateRawHashString(String payload, ValidatedELRModel validatedELRModel) throws DuplicateHL7FileFoundException {
+        String hashedString = null;
+        try {
+            MessageDigest digestString = MessageDigest.getInstance("SHA-256");
+            byte[] encodedByteHash = digestString.digest(payload.getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for(byte b : encodedByteHash) {
+                String hexTempString = Integer.toHexString(0xff & b);
+                if(hexTempString.length() == 1) {
+                    hexString.append(0);
+                }
+                hexString.append(hexTempString);
+            }
+            hashedString = hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        if(checkDuplicateHL7Hashcode(hashedString, validatedELRModel)) {
+            System.out.println("Hashed string inside if is..." + hashedString);
+            return hashedString;
+        }
+        else {
+            throw new DuplicateHL7FileFoundException("HL7 document already exists in the database. " +
+                    "Please check " + validatedElrDltTopic + " kafka topic to check for the failed document.");
+        }
+    }
 
-        // Method to check the deduplication of the HL7 document received. Ref - CNDIT-232
+
+    private boolean checkDuplicateHL7Hashcode(String hashedString, ValidatedELRModel validatedELRModel) {
+//        log.info("Received message: {} is being checked for duplicate already present in the database", validatedELRModel.getRawMessage());
+
+        log.info("Received hashcode is being checked for duplicate already present in the database");
+        Optional<ValidatedELRModel> validatedELRResponseFromDatabase = iValidatedELRRepository.findByHashedHL7String(hashedString);
+        System.out.println("response from db is..." + validatedELRResponseFromDatabase);
+        if(!validatedELRResponseFromDatabase.isEmpty()) {
+            if(hashedString.equals(validatedELRResponseFromDatabase.get().getHashedHL7String())) {
+                log.error("Duplicate found and HL7 message already exists in the database");
+                // TODO: Update the message type to generate dynamically
+                kafkaProducerService.sendMessageAfterCheckingDuplicateHL7(validatedELRModel, validatedElrDltTopic);
+                return false;
+            }
+        }
+        return true;
     }
 
     @DltHandler
@@ -127,13 +171,17 @@ public class KafkaConsumerService {
         kafkaProducerService.sendMessageAfterConvertedToXml(hl7AsXml, convertedToXmlTopic);
     }
 
-    private void validationHandler(String message) throws HL7Exception {
+    private void validationHandler(String message) throws HL7Exception, DuplicateHL7FileFoundException {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);
         RawERLModel elrModel = rawElrResponse.get();
         String messageType = elrModel.getType();
         switch (messageType) {
             case KafkaHeaderValue.MessageType_HL7v2:
                 ValidatedELRModel hl7ValidatedModel = iHl7v2Validator.MessageValidation(message, elrModel, validatedTopic);
+//                if(checkDuplicateHL7Handler(hl7ValidatedModel)) {
+                System.out.println("Validated model is..." + hl7ValidatedModel);
+                String hashValidatedHL7Message = generateRawHashString(hl7ValidatedModel.getRawMessage(), hl7ValidatedModel);
+                hl7ValidatedModel.setHashedHL7String(hashValidatedHL7Message);
                 saveValidatedELRMessage(hl7ValidatedModel);
                 kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic);
                 break;
