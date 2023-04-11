@@ -19,21 +19,33 @@ spring:
       on-profile: default
 
   datasource:
-    url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_DBNAME};encrypt=true;trustServerCertificate=true;
-    username: ${DI_USERNAME}
-    password: ${DI_PASSWORD}
+#    url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_DBNAME};encrypt=true;trustServerCertificate=true;
+#    username: ${DI_USERNAME}
+#    password: ${DI_PASSWORD}
+    url: jdbc:sqlserver://localhost:1433;databaseName=NBS_DataIngest;encrypt=true;trustServerCertificate=true;
+    username: sa
+    password: adminPassword123
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
     nbs:
-      url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_NBS_DBNAME};encrypt=true;trustServerCertificate=true;
-      username: ${DI_USERNAME}
-      password: ${DI_PASSWORD}
+#      url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_NBS_DBNAME};encrypt=true;trustServerCertificate=true;
+#      username: ${DI_USERNAME}
+#      password: ${DI_PASSWORD}
+      url: jdbc:sqlserver://localhost:1433;databaseName=NBS_DataIngest;encrypt=true;trustServerCertificate=true;
+      username: sa
+      password: adminPassword123
       driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: none
+
+  logging:
+    level:
+      org:
+      hibernate:
+        sql=debug
 
   kafka:
     bootstrap-servers: localhost:9092
@@ -54,6 +66,8 @@ kafka:
     topic: fhir_converted
   xml-conversion:
     topic: xml_converted
+  elr-validated-dlt:
+    topic: elr_validated-dlt
   topics: elr_raw,elr_validated
 
 ---
@@ -98,6 +112,8 @@ kafka:
     topic: fhir_converted
   xml-conversion:
     topic: xml_converted
+  hl7-duplicate-dlt:
+    topic: elr_validated-dlt
   topics: elr_raw,elr_validated
 
 
