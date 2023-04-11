@@ -5,11 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import  org.springframework.beans.factory.annotation.Qualifier;
-import  org.springframework.transaction.annotation.EnableTransactionManagement;
-import  org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import  org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import  org.springframework.transaction.PlatformTransactionManager;
@@ -18,11 +17,10 @@ import  org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import  javax.sql.DataSource;
 import  jakarta.persistence.EntityManagerFactory;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
 import  java.util.HashMap;
 
-import javax.sql.DataSource;
-
-@Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
         entityManagerFactoryRef = "ingestEntityManagerFactory",
@@ -33,6 +31,7 @@ import javax.sql.DataSource;
                 "gov.cdc.dataingestion.conversion.repository"
         }
 )
+@Configuration
 public class DataSourceConfig {
     private static Logger logger = LoggerFactory.getLogger(DataSourceConfig.class);
 
