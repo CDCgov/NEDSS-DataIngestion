@@ -52,7 +52,7 @@ public class HL7DuplicateValidator implements IHL7DuplicateValidator {
         }
     }
 
-    private boolean checkForDuplicateHL7HashString(String hashedString) {
+    public boolean checkForDuplicateHL7HashString(String hashedString) {
         log.info("Generated HashString is being checked for duplicate if already present in the database");
         Optional<ValidatedELRModel> validatedELRResponseFromDatabase = iValidatedELRRepository.findByHashedHL7String(hashedString);
         if (!validatedELRResponseFromDatabase.isEmpty()) {

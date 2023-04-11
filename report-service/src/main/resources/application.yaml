@@ -3,14 +3,14 @@ spring:
     name: report-service
 
 logging:
-  file: logs/report-service.log
-  
   pattern:
     console: "%d %-5level %logger : %file-%line : %msg%n"
     file:    "%d %-5level [%thread] %logger : [ramesh] : %msg%n"
     
   level:
     com.apps.restfulApp.api.controller: ERROR
+  file:
+    name: logs/report-service.log
 
 ---
 spring:
@@ -19,33 +19,21 @@ spring:
       on-profile: default
 
   datasource:
-#    url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_DBNAME};encrypt=true;trustServerCertificate=true;
-#    username: ${DI_USERNAME}
-#    password: ${DI_PASSWORD}
-    url: jdbc:sqlserver://localhost:1433;databaseName=NBS_DataIngest;encrypt=true;trustServerCertificate=true;
-    username: sa
-    password: adminPassword123
+    url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_DBNAME};encrypt=true;trustServerCertificate=true;
+    username: ${DI_USERNAME}
+    password: ${DI_PASSWORD}
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
     nbs:
-#      url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_NBS_DBNAME};encrypt=true;trustServerCertificate=true;
-#      username: ${DI_USERNAME}
-#      password: ${DI_PASSWORD}
-      url: jdbc:sqlserver://localhost:1433;databaseName=NBS_DataIngest;encrypt=true;trustServerCertificate=true;
-      username: sa
-      password: adminPassword123
+      url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_NBS_DBNAME};encrypt=true;trustServerCertificate=true;
+      username: ${DI_USERNAME}
+      password: ${DI_PASSWORD}
       driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: none
-
-  logging:
-    level:
-      org:
-      hibernate:
-        sql=debug
 
   kafka:
     bootstrap-servers: localhost:9092
@@ -69,6 +57,7 @@ kafka:
   elr-validated-dlt:
     topic: elr_validated-dlt
   topics: elr_raw,elr_validated
+
 
 ---
 spring:
@@ -112,7 +101,7 @@ kafka:
     topic: fhir_converted
   xml-conversion:
     topic: xml_converted
-  hl7-duplicate-dlt:
+  elr-validated-dlt:
     topic: elr_validated-dlt
   topics: elr_raw,elr_validated
 
