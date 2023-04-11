@@ -58,6 +58,7 @@ dependencies {
 	implementation 'com.opencsv:opencsv:5.7.1'
 	implementation 'com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11'
 	implementation 'javax.persistence:javax.persistence-api:2.2'
+	implementation 'com.zaxxer:HikariCP:5.0.1'
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'

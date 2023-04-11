@@ -23,7 +23,9 @@ spring:
     username: ${DI_USERNAME}
     password: ${DI_PASSWORD}
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-
+    hikari:
+      connection-timeout: 60000
+      maximum-pool-size: 5
     nbs:
       url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_NBS_DBNAME};encrypt=true;trustServerCertificate=true;
       username: ${DI_USERNAME}
