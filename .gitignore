@@ -38,3 +38,4 @@ report-service/data
 .gradle/buildOutputCleanup/outputFiles.bin
 .gradle/vcs-1/gc.properties
 .gradle/file-system.probe
+.gradle/7.6/checksums/checksums.lock
