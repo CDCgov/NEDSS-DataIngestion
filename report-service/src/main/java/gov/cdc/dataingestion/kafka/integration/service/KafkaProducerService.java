@@ -62,9 +62,9 @@ public class KafkaProducerService {
         sendMessage(record);
     }
 
-    public void sendMessageAfterCheckingDuplicateHL7(ValidatedELRModel msg, String validatedElrDltTopic) {
+    public void sendMessageAfterCheckingDuplicateHL7(ValidatedELRModel msg, String validatedElrDuplicateTopic) {
         String uniqueID = hl7MessageKeyPrefix + UUID.randomUUID();
-        var record = new ProducerRecord<>(validatedElrDltTopic, uniqueID, msg.getRawId());
+        var record = new ProducerRecord<>(validatedElrDuplicateTopic, uniqueID, msg.getRawId());
         sendMessage(record);
     }
 

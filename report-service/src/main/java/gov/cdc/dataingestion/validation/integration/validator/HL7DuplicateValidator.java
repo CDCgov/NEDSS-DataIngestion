@@ -18,15 +18,17 @@ import java.util.Optional;
 public class HL7DuplicateValidator implements IHL7DuplicateValidator {
 
     private IValidatedELRRepository iValidatedELRRepository;
-    @Value("${kafka.elr-validated-dlt.topic}")
-    private String validatedElrDltTopic = "";
+    private KafkaProducerService kafkaProducerService;
+    @Value("${kafka.elr-duplicate.topic}")
+    private String validatedElrDuplicateTopic = "";
 
-    public HL7DuplicateValidator(IValidatedELRRepository iValidatedELRRepository) {
+    public HL7DuplicateValidator(IValidatedELRRepository iValidatedELRRepository, KafkaProducerService kafkaProducerService) {
         this.iValidatedELRRepository = iValidatedELRRepository;
+        this.kafkaProducerService = kafkaProducerService;
     }
 
     @Override
-    public boolean ValidateHL7Document(ValidatedELRModel hl7ValidatedModel) throws DuplicateHL7FileFoundException {
+    public void ValidateHL7Document(ValidatedELRModel hl7ValidatedModel) throws DuplicateHL7FileFoundException {
         String hashedString = null;
         try {
             MessageDigest digestString = MessageDigest.getInstance("SHA-256");
@@ -45,10 +47,10 @@ public class HL7DuplicateValidator implements IHL7DuplicateValidator {
         }
         if (!checkForDuplicateHL7HashString(hashedString)) {
             hl7ValidatedModel.setHashedHL7String(hashedString);
-            return false;
         } else {
+            kafkaProducerService.sendMessageAfterCheckingDuplicateHL7(hl7ValidatedModel, validatedElrDuplicateTopic);
             throw new DuplicateHL7FileFoundException("HL7 document already exists in the database. " +
-                    "Please check " + validatedElrDltTopic + " kafka topic to check for the failed document.");
+                    "Please check " + validatedElrDuplicateTopic + " kafka topic for the failed document.");
         }
     }
 

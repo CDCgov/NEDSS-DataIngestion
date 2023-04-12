@@ -48,8 +48,8 @@ public class KafkaConsumerService {
     @Value("${kafka.raw.topic}")
     private String rawTopic = "";
 
-    @Value("${kafka.elr-validated-dlt.topic}")
-    private String validatedElrDltTopic = "";
+    @Value("${kafka.elr-duplicate.topic}")
+    private String validatedElrDuplicateTopic = "";
 
     private KafkaProducerService kafkaProducerService;
     private IHL7v2Validator iHl7v2Validator;
@@ -134,13 +134,13 @@ public class KafkaConsumerService {
         switch (messageType) {
             case KafkaHeaderValue.MessageType_HL7v2:
                 ValidatedELRModel hl7ValidatedModel = iHl7v2Validator.MessageValidation(message, elrModel, validatedTopic);
-                boolean isHL7DocumentDuplicate = iHL7DuplicateValidator.ValidateHL7Document(hl7ValidatedModel);
-                if(isHL7DocumentDuplicate) {
-                    kafkaProducerService.sendMessageAfterCheckingDuplicateHL7(hl7ValidatedModel, validatedElrDltTopic);
-                }
-                else {
+                try {
+                    iHL7DuplicateValidator.ValidateHL7Document(hl7ValidatedModel);
                     saveValidatedELRMessage(hl7ValidatedModel);
                     kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic);
+                }
+                catch (DuplicateHL7FileFoundException e) {
+                    e.printStackTrace();
                 }
                 break;
             case KafkaHeaderValue.MessageType_CSV:

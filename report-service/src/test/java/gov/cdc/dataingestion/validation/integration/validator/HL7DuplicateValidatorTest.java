@@ -1,9 +1,11 @@
 package gov.cdc.dataingestion.validation.integration.validator;
 
 import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
+import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -12,35 +14,40 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 class HL7DuplicateValidatorTest {
 
     HL7DuplicateValidator hl7DuplicateValidator;
     IValidatedELRRepository iValidatedELRRepositoryMock;
+    KafkaProducerService kafkaProducerServiceMock;
 
     @BeforeEach
     void setUp() {
         iValidatedELRRepositoryMock = mock(IValidatedELRRepository.class);
-        hl7DuplicateValidator = new HL7DuplicateValidator(iValidatedELRRepositoryMock);
+        kafkaProducerServiceMock = mock(KafkaProducerService.class);
+        hl7DuplicateValidator = new HL7DuplicateValidator(iValidatedELRRepositoryMock, kafkaProducerServiceMock);
+    }
+
+    @AfterEach
+    void tearDown() {
+        Mockito.reset(iValidatedELRRepositoryMock);
     }
 
     @Test
-    void validateHL7DocumentNoDuplicate() throws DuplicateHL7FileFoundException {
+    void testValidateHL7DocumentSuccess() throws DuplicateHL7FileFoundException {
         ValidatedELRModel validatedELRModel = getValidatedELRModel();
 
         Mockito.when(iValidatedELRRepositoryMock.findByHashedHL7String(any()))
                 .thenReturn(Optional.empty());
-        boolean isHL7Duplicate = hl7DuplicateValidator.ValidateHL7Document(validatedELRModel);
+        hl7DuplicateValidator.ValidateHL7Document(validatedELRModel);
 
-        assertEquals(isHL7Duplicate, false);
         assertNotNull(validatedELRModel.getHashedHL7String());
         verify(iValidatedELRRepositoryMock).findByHashedHL7String(any());
     }
 
     @Test
-    void validateHL7DocumentDuplicate() {
+    void testValidateHL7DocumentThrowsException() {
         String hashedString = "843588fcbfbdca29f9807f81455bbd3ae6935dae6152bcac6851e9568c885c66";
         ValidatedELRModel validatedELRModel = getValidatedELRModel();
 
@@ -48,12 +55,14 @@ class HL7DuplicateValidatorTest {
                 .thenReturn(Optional.of(validatedELRModel));
         validatedELRModel.setHashedHL7String(hashedString);
 
+        doNothing().when(kafkaProducerServiceMock).sendMessageAfterCheckingDuplicateHL7(any(ValidatedELRModel.class), anyString());
+
         assertThrows(DuplicateHL7FileFoundException.class, () -> hl7DuplicateValidator.ValidateHL7Document(validatedELRModel));
         verify(iValidatedELRRepositoryMock).findByHashedHL7String(hashedString);
     }
 
     @Test
-    void checkDuplicateHL7Exists() {
+    void testCheckDuplicateHL7Exists() {
         String hashedString = "843588fcbfbdca29f9807f81455bbd3ae6935dae6152bcac6851e9568c885c66";
         ValidatedELRModel validatedELRModel = getValidatedELRModel();
         validatedELRModel.setHashedHL7String(hashedString);
@@ -67,7 +76,7 @@ class HL7DuplicateValidatorTest {
     }
 
     @Test
-    void checkDuplicateHL7NotExists() {
+    void testCheckDuplicateHL7NotExists() {
         Mockito.when(iValidatedELRRepositoryMock.findByHashedHL7String(any()))
                 .thenReturn(Optional.empty());
         boolean result = hl7DuplicateValidator.checkForDuplicateHL7HashString(any());

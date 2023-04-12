@@ -54,8 +54,8 @@ kafka:
     topic: fhir_converted
   xml-conversion:
     topic: xml_converted
-  elr-validated-dlt:
-    topic: elr_validated-dlt
+  elr-duplicate:
+    topic: elr_duplicate
   topics: elr_raw,elr_validated
 
 
@@ -101,8 +101,8 @@ kafka:
     topic: fhir_converted
   xml-conversion:
     topic: xml_converted
-  elr-validated-dlt:
-    topic: elr_validated-dlt
+  elr-duplicate:
+    topic: elr_duplicate
   topics: elr_raw,elr_validated
 
 

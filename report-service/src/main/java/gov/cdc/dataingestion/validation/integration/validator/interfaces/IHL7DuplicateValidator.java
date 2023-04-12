@@ -4,5 +4,5 @@ import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 
 public interface IHL7DuplicateValidator {
-    boolean ValidateHL7Document(ValidatedELRModel hl7ValidatedModel) throws DuplicateHL7FileFoundException;
+     void ValidateHL7Document(ValidatedELRModel hl7ValidatedModel) throws DuplicateHL7FileFoundException;
 }
