@@ -39,3 +39,46 @@ report-service/data
 .gradle/vcs-1/gc.properties
 .gradle/file-system.probe
 .gradle/7.6/checksums/checksums.lock
+
+
+# HL7 Wrapper ignore 
+
+hl7-helper/HELP.md
+hl7-helper/.gradle
+hl7-helper/build/
+!hl7-helper/gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+hl7-helper/.idea/
+hl7-helper/.gradle/
+
+### STS ###
+hl7-helper/.apt_generated
+hl7-helper/.classpath
+hl7-helper/.factorypath
+hl7-helper/.project
+hl7-helper/.settings
+hl7-helper/.springBeans
+hl7-helper/.sts4-cache
+hl7-helper/bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+hl7-helper/.idea
+*.iws
+*.iml
+*.ipr
+hl7-helper/out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/hl7-helper/nbproject/private/
+/hl7-helper/nbbuild/
+hl7-helper/dist/
+hl7-helper/nbdist/
+hl7-helper/.nb-gradle/
+
+### VS Code ###
+hl7-helper/.vscode/
