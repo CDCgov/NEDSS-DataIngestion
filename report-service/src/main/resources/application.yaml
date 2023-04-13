@@ -3,14 +3,14 @@ spring:
     name: report-service
 
 logging:
-  file: logs/report-service.log
-  
   pattern:
     console: "%d %-5level %logger : %file-%line : %msg%n"
     file:    "%d %-5level [%thread] %logger : [ramesh] : %msg%n"
     
   level:
     com.apps.restfulApp.api.controller: ERROR
+  file:
+    name: logs/report-service.log
 
 ---
 spring:
@@ -23,7 +23,9 @@ spring:
     username: ${DI_USERNAME}
     password: ${DI_PASSWORD}
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-
+    hikari:
+      connection-timeout: 60000
+      maximum-pool-size: 5
     nbs:
       url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_NBS_DBNAME};encrypt=true;trustServerCertificate=true;
       username: ${DI_USERNAME}
@@ -54,7 +56,10 @@ kafka:
     topic: fhir_converted
   xml-conversion:
     topic: xml_converted
+  elr-duplicate:
+    topic: elr_duplicate
   topics: elr_raw,elr_validated
+
 
 ---
 spring:
@@ -98,6 +103,8 @@ kafka:
     topic: fhir_converted
   xml-conversion:
     topic: xml_converted
+  elr-duplicate:
+    topic: elr_duplicate
   topics: elr_raw,elr_validated
 
 

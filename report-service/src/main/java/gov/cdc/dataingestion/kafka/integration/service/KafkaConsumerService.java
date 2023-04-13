@@ -3,8 +3,10 @@ import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConvers
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.hl7.helper.integration.DiHL7Exception;
+import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
+import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import gov.cdc.dataingestion.validation.model.constant.KafkaHeaderValue;
@@ -44,12 +46,17 @@ public class KafkaConsumerService {
 
     @Value("${kafka.raw.topic}")
     private String rawTopic = "";
+
+    @Value("${kafka.elr-duplicate.topic}")
+    private String validatedElrDuplicateTopic = "";
+
     private KafkaProducerService kafkaProducerService;
     private IHL7v2Validator iHl7v2Validator;
     private IRawELRRepository iRawELRRepository;
     private IValidatedELRRepository iValidatedELRRepository;
     private IHL7ToFHIRConversion iHl7ToFHIRConversion;
     private IHL7ToFHIRRepository iHL7ToFHIRRepository;
+    private IHL7DuplicateValidator iHL7DuplicateValidator;
 
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
 
@@ -61,6 +68,7 @@ public class KafkaConsumerService {
             IHL7v2Validator iHl7v2Validator,
             IHL7ToFHIRConversion ihl7ToFHIRConversion,
             IHL7ToFHIRRepository iHL7ToFHIRepository,
+            IHL7DuplicateValidator iHL7DuplicateValidator,
             NbsRepositoryServiceProvider nbsRepositoryServiceProvider) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iRawELRRepository = iRawELRRepository;
@@ -68,6 +76,7 @@ public class KafkaConsumerService {
         this.iHl7v2Validator = iHl7v2Validator;
         this.iHl7ToFHIRConversion = ihl7ToFHIRConversion;
         this.iHL7ToFHIRRepository = iHL7ToFHIRepository;
+        this.iHL7DuplicateValidator = iHL7DuplicateValidator;
         this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
     }
 
@@ -83,7 +92,7 @@ public class KafkaConsumerService {
     @KafkaListener(topics = "#{'${kafka.topics}'.split(',')}")
     public void handleMessage(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
-        log.info("Received message: {} from topic: {}", message, topic);
+        log.info("Received message ID: {} from topic: {}", message, topic);
 
         try {
             if (topic.equalsIgnoreCase(rawTopic)) {
@@ -103,7 +112,7 @@ public class KafkaConsumerService {
     @DltHandler
     public void handleDlt(String message, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         // Once in DLQ -- we can save message in actual db for further analyze
-        log.info("Message: {} handled by dlq topic: {}", message, topic);
+        log.info("Message ID: {} handled by dlq topic: {}", message, topic);
     }
 
     private void xmlConversionHandler(String message) throws Exception {
@@ -118,15 +127,21 @@ public class KafkaConsumerService {
         kafkaProducerService.sendMessageAfterConvertedToXml(hl7AsXml, convertedToXmlTopic);
     }
 
-    private void validationHandler(String message) throws DiHL7Exception {
+    private void validationHandler(String message) throws DuplicateHL7FileFoundException, DiHL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);
         RawERLModel elrModel = rawElrResponse.get();
         String messageType = elrModel.getType();
         switch (messageType) {
             case KafkaHeaderValue.MessageType_HL7v2:
                 ValidatedELRModel hl7ValidatedModel = iHl7v2Validator.MessageValidation(message, elrModel, validatedTopic);
-                saveValidatedELRMessage(hl7ValidatedModel);
-                kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic);
+                try {
+                    iHL7DuplicateValidator.ValidateHL7Document(hl7ValidatedModel);
+                    saveValidatedELRMessage(hl7ValidatedModel);
+                    kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic);
+                }
+                catch (DuplicateHL7FileFoundException e) {
+                    e.printStackTrace();
+                }
                 break;
             case KafkaHeaderValue.MessageType_CSV:
                 // ValidatedELRModel csvValidatedModel = csvValidator.ValidateCSVAgainstCVSSchema(message);
