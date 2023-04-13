@@ -40,6 +40,17 @@ public class ValidatedELRModel {
     @Column(name = "updated_by")
     private String updatedBy;
 
+    @Column(name = "hashed_hl7_string")
+    private String hashedHL7String;
+
+    public String getHashedHL7String() {
+        return hashedHL7String;
+    }
+
+    public void setHashedHL7String(String hashedHL7String) {
+        this.hashedHL7String = hashedHL7String;
+    }
+
     public String getRawMessage() {
         return rawMessage;
     }
