@@ -1,4 +1,4 @@
-package gov.cdc.dataingestion.validation.unitTest;
+package gov.cdc.dataingestion.validation.integration.validator;
 
 import ca.uhn.hl7v2.DefaultHapiContext;
 import ca.uhn.hl7v2.HL7Exception;
