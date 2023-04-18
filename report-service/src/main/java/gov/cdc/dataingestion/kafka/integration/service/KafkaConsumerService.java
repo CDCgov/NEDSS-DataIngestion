@@ -88,7 +88,10 @@ public class KafkaConsumerService {
             // time to wait before attempting to retry
             backoff = @Backoff(delay = 1000, multiplier = 2.0),
             // if these exceptions occur, skip retry then push message to DLQ
-            exclude = {SerializationException.class, DeserializationException.class}
+            exclude = {
+                    SerializationException.class,
+                    DeserializationException.class,
+                    DuplicateHL7FileFoundException.class}
     )
     @KafkaListener(topics = "#{'${kafka.topics}'.split(',')}")
     public void handleMessage(String message,
@@ -110,9 +113,26 @@ public class KafkaConsumerService {
     }
 
     @DltHandler
-    public void handleDlt(String message, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+    public void handleDlt(
+            String message,
+            @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+            @Header(KafkaHeaders.EXCEPTION_STACKTRACE) String stacktrace
+    ) {
         // Once in DLQ -- we can save message in actual db for further analyze
         log.info("Message ID: {} handled by dlq topic: {}", message, topic);
+        log.info("Stack Trace: {}", stacktrace);
+        String erroredTopic;
+
+        // consuming bad data and persist data onto database
+        if (topic.equalsIgnoreCase(rawTopic + "-dlt")) {
+
+        } else if (topic.equalsIgnoreCase(validatedTopic  + "-dlt")) {
+
+        } else if (topic.equalsIgnoreCase(convertedToFhirTopic  + "-dlt")) {
+
+        } else if (topic.equalsIgnoreCase(convertedToXmlTopic + "-dlt")) {
+
+        }
     }
 
     private void xmlConversionHandler(String message) throws Exception {
