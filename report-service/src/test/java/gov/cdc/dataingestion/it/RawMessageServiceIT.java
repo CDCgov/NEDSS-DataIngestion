@@ -14,9 +14,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.TestPropertySourceUtils;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
+
+import java.util.Collections;
 
 
 @Testcontainers
@@ -30,8 +33,14 @@ public class RawMessageServiceIT {
     @Autowired
     private RawELRService rawELRService;
 
+    private static final DockerImageName taggedImageName = DockerImageName.parse("mcr.microsoft.com/azure-sql-edge")
+            .withTag("latest")
+            .asCompatibleSubstituteFor("mcr.microsoft.com/mssql/server");
     @Container
-    private static final PostgreSQLContainer<?> database = new PostgreSQLContainer<>("postgres:12.9-alpine");
+    private static final MSSQLServerContainer database = new MSSQLServerContainer<>(taggedImageName)
+            .withTmpFs(Collections.singletonMap("/testtmpfs", "rw"))
+            .withReuse(true)
+            .acceptLicense();
 
     public static class DataSourceInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
@@ -42,7 +51,10 @@ public class RawMessageServiceIT {
                     "spring.test.database.replace=none",
                     "spring.datasource.url=" + database.getJdbcUrl(),
                     "spring.datasource.username=" + database.getUsername(),
-                    "spring.datasource.password=" + database.getPassword()
+                    "spring.datasource.password=" + database.getPassword(),
+                    "spring.datasource.nbs.url=" + database.getJdbcUrl(),
+                    "spring.datasource.nbs.username=" + database.getUsername(),
+                    "spring.datasource.nbs.password=" + database.getPassword()
             );
         }
     }
@@ -52,7 +64,8 @@ public class RawMessageServiceIT {
     public void saveRawMessage(){
 
         RawERLDto entity = new RawERLDto();
-        entity.setId("Test1");
+
+        entity.setId("Test123");
         entity.setPayload("Content");
 
         String newEntityId = rawELRService.submission(entity);

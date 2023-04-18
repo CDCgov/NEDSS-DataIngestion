@@ -19,7 +19,7 @@ public class HL7DuplicateValidator implements IHL7DuplicateValidator {
 
     private IValidatedELRRepository iValidatedELRRepository;
     private KafkaProducerService kafkaProducerService;
-    @Value("${kafka.elr-duplicate.topic}")
+    @Value("${kafka.elr-duplicate.topic:}")
     private String validatedElrDuplicateTopic = "";
 
     public HL7DuplicateValidator(IValidatedELRRepository iValidatedELRRepository, KafkaProducerService kafkaProducerService) {

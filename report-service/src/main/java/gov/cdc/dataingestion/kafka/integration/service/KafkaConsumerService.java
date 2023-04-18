@@ -36,19 +36,19 @@ import java.util.Optional;
 public class KafkaConsumerService {
     //private static String HEADER = "MSH|^~\\&|||||20080925161613||ADT^A05||P|2.6|";
 
-    @Value("${kafka.validation.topic}")
+    @Value("${kafka.validation.topic:}")
     private String validatedTopic = "";
 
-    @Value("${kafka.fhir-conversion.topic}")
+    @Value("${kafka.fhir-conversion.topic:}")
     private String convertedToFhirTopic = "";
 
-    @Value("${kafka.xml-conversion.topic}")
+    @Value("${kafka.xml-conversion.topic:}")
     private String convertedToXmlTopic = "";
 
-    @Value("${kafka.raw.topic}")
+    @Value("${kafka.raw.topic:}")
     private String rawTopic = "";
 
-    @Value("${kafka.elr-duplicate.topic}")
+    @Value("${kafka.elr-duplicate.topic:}")
     private String validatedElrDuplicateTopic = "";
 
     private KafkaProducerService kafkaProducerService;
@@ -82,7 +82,7 @@ public class KafkaConsumerService {
     }
 
     @RetryableTopic(
-            attempts = "${kafka.consumer.max-retry}",
+            attempts = "${kafka.consumer.max-retry:5}",
             // retry topic name, such as topic-retry-1, topic-retry-2, etc
             topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE,
             // time to wait before attempting to retry
@@ -90,7 +90,7 @@ public class KafkaConsumerService {
             // if these exceptions occur, skip retry then push message to DLQ
             exclude = {SerializationException.class, DeserializationException.class}
     )
-    @KafkaListener(topics = "#{'${kafka.topics}'.split(',')}")
+    @KafkaListener(topics = "#{'${kafka.topics:}'.split(',')}")
     public void handleMessage(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         log.info("Received message ID: {} from topic: {}", message, topic);

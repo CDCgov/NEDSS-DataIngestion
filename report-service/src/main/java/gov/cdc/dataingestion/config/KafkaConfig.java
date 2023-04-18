@@ -18,13 +18,13 @@ import java.util.Map;
 @EnableKafka
 @Configuration
 public class KafkaConfig {
-    @Value("${spring.kafka.group-id}")
+    @Value("${spring.kafka.group-id:}")
     private String groupId = "";
 
-    @Value("${spring.kafka.bootstrap-servers}")
+    @Value("${spring.kafka.bootstrap-servers:}")
     private String bootstrapServers = "";
 
-    @Value("${spring.kafka.consumer.maxPollIntervalMs}")
+    @Value("${spring.kafka.consumer.maxPollIntervalMs:100}")
     private String maxPollInterval = "";
 
     @Bean
