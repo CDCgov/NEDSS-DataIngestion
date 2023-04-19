@@ -19,11 +19,11 @@ public class ElrDeadLetterService {
 
     private final IElrDeadLetterRepository dltRepository;
 
-    public List<ElrDeadLetterDto> getAllNewDltRecord() {
-        List<ElrDeadLetterModel> deadLetterELRModels = dltRepository.findAllNewDlt(Sort.by("updated_on"));
-        var dtoModels = convertModelToDto(deadLetterELRModels);
-        return dtoModels;
-    }
+//    public List<ElrDeadLetterDto> getAllNewDltRecord() {
+//        List<ElrDeadLetterModel> deadLetterELRModels = dltRepository.findAllNewDlt(Sort.by("updated_on"));
+//        var dtoModels = convertModelToDto(deadLetterELRModels);
+//        return dtoModels;
+//    }
 
     public ElrDeadLetterDto getDltRecordById(String id) {
         ElrDeadLetterModel model = dltRepository.getById(id);

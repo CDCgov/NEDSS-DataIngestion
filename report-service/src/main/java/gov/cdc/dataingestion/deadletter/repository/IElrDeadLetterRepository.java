@@ -7,10 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IElrDeadLetterRepository extends JpaRepository<ElrDeadLetterModel, String> {
-
-    @Query(value = "SELECT dlt FROM ElrDeadLetterModel dlt WHERE dlt.dltStatus = 'ERROR' ")
-    List<ElrDeadLetterModel> findAllNewDlt(Sort sort);
+    Optional<List<ElrDeadLetterModel>> findAllDltRecordByDltStatus (String dltStatus);
 }
