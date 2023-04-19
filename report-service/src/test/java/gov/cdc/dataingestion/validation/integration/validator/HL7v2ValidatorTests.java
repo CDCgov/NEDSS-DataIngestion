@@ -1,4 +1,4 @@
-package gov.cdc.dataingestion.validation.unitTest;
+package gov.cdc.dataingestion.validation.integration.validator;
 
 import gov.cdc.dataingestion.hl7.helper.HL7ParserLibrary;
 import gov.cdc.dataingestion.hl7.helper.integration.DiHL7Exception;
