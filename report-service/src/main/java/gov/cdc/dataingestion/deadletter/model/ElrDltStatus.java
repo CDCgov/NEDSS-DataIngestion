@@ -1,6 +1,6 @@
 package gov.cdc.dataingestion.deadletter.model;
 
-public enum DltStatus {
+public enum ElrDltStatus {
     ERROR,
     UPDATED,
     INJECTED
