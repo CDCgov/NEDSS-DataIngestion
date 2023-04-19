@@ -24,10 +24,11 @@ public class KafkaProducerService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendMessageFromController(String msg, String topic, String msgType) {
+    public void sendMessageFromController(String msg, String topic, String msgType, Integer dltOccurrence) {
         String uniqueID = msgType + "_" + UUID.randomUUID();
         var record = new ProducerRecord<>(topic, uniqueID, msg);
         record.headers().add(KafkaHeaderValue.MessageType, msgType.getBytes());
+        record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
         sendMessage(record);
     }
 
@@ -42,29 +43,33 @@ public class KafkaProducerService {
         sendMessage(record);
     }
 
-    public void sendMessageAfterValidatingMessage(ValidatedELRModel msg, String topic) {
+    public void sendMessageAfterValidatingMessage(ValidatedELRModel msg, String topic, Integer dltOccurrence) {
         String uniqueID =  validMessageKeyPrefix + msg.getMessageType() + "_" + UUID.randomUUID();
         var record = new ProducerRecord<>(topic, uniqueID, msg.getId());
         record.headers().add(KafkaHeaderValue.MessageType, msg.getMessageType().toString().getBytes());
         record.headers().add(KafkaHeaderValue.MessageVersion, msg.getMessageVersion().getBytes());
+        record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
         sendMessage(record);
     }
 
-    public void sendMessageAfterConvertedToFhirMessage(HL7ToFHIRModel msg, String topic) {
+    public void sendMessageAfterConvertedToFhirMessage(HL7ToFHIRModel msg, String topic, Integer dltOccurrence) {
         String uniqueID = fhirMessageKeyPrefix + UUID.randomUUID();
         var record = new ProducerRecord<>(topic, uniqueID, msg.getId());
+        record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
         sendMessage(record);
     }
 
-    public void sendMessageAfterConvertedToXml(String xmlMsg, String topic) {
+    public void sendMessageAfterConvertedToXml(String xmlMsg, String topic, Integer dltOccurrence) {
         String uniqueID = xmlMessageKeyPrefix + UUID.randomUUID();
         var record = new ProducerRecord<>(topic, uniqueID, xmlMsg);
+        record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
         sendMessage(record);
     }
 
-    public void sendMessageAfterCheckingDuplicateHL7(ValidatedELRModel msg, String validatedElrDuplicateTopic) {
+    public void sendMessageAfterCheckingDuplicateHL7(ValidatedELRModel msg, String validatedElrDuplicateTopic, Integer dltOccurrence) {
         String uniqueID = hl7MessageKeyPrefix + UUID.randomUUID();
         var record = new ProducerRecord<>(validatedElrDuplicateTopic, uniqueID, msg.getRawId());
+        record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
         sendMessage(record);
     }
 

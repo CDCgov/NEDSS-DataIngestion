@@ -32,7 +32,7 @@ public class ValidationController {
         model.setCreatedBy("ELR-SIMULATOR");
         model.setUpdatedBy("ELR-SIMULATOR");
         rawELRRepository.save(model);
-        kafkaProducerService.sendMessageFromController(model.getId(), topicName, model.getType());
+        kafkaProducerService.sendMessageFromController(model.getId(), topicName, model.getType(), 0);
         return ResponseEntity.ok("OK");
     }
 

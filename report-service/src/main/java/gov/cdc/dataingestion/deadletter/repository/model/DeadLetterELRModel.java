@@ -23,6 +23,12 @@ public class DeadLetterELRModel {
     @Column(name = "error_stack_trace")
     private String errorStackTrace;
 
+    @Column(name = "dlt_occurrence")
+    private Integer dltOccurrence;
+
+    @Column(name="dlt_status")
+    private String dltStatus;
+
     @Transient
     @Column(name = "created_on")
     private Timestamp createdOn;
@@ -35,6 +41,22 @@ public class DeadLetterELRModel {
 
     @Column(name = "updated_by")
     private String updatedBy;
+
+    public String getDltStatus() {
+        return dltStatus;
+    }
+
+    public void setDltStatus(String dltStatus) {
+        this.dltStatus = dltStatus;
+    }
+
+    public Integer getDltOccurrence() {
+        return dltOccurrence;
+    }
+
+    public void setDltOccurrence(Integer dltOccurrence) {
+        this.dltOccurrence = dltOccurrence;
+    }
 
     public String getErrorStackTrace() {
         return errorStackTrace;

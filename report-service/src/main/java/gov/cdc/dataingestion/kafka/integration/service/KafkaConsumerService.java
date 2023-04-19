@@ -116,22 +116,29 @@ public class KafkaConsumerService {
     public void handleDlt(
             String message,
             @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-            @Header(KafkaHeaders.EXCEPTION_STACKTRACE) String stacktrace
+            @Header(KafkaHeaders.EXCEPTION_STACKTRACE) String stacktrace,
+            @Header(KafkaHeaderValue.DltOccurrence) String dltOccurrence
     ) {
         // Once in DLQ -- we can save message in actual db for further analyze
         log.info("Message ID: {} handled by dlq topic: {}", message, topic);
         log.info("Stack Trace: {}", stacktrace);
-        String erroredTopic;
 
+        String dtlSuffix = "-dlt";
+
+        // use this for data re-injection
+        String erroredSource;
+        String errorStackTrace = stacktrace;
+        // increase by 1, indicate the dlt had been occurred
+        Integer dltCount = Integer.parseInt(dltOccurrence) + 1;
         // consuming bad data and persist data onto database
-        if (topic.equalsIgnoreCase(rawTopic + "-dlt")) {
-
-        } else if (topic.equalsIgnoreCase(validatedTopic  + "-dlt")) {
-
-        } else if (topic.equalsIgnoreCase(convertedToFhirTopic  + "-dlt")) {
-
-        } else if (topic.equalsIgnoreCase(convertedToXmlTopic + "-dlt")) {
-
+        if (topic.equalsIgnoreCase(rawTopic + dtlSuffix)) {
+            erroredSource = rawTopic;
+        } else if (topic.equalsIgnoreCase(validatedTopic + dtlSuffix)) {
+            erroredSource = validatedTopic;
+        } else if (topic.equalsIgnoreCase(convertedToFhirTopic + dtlSuffix)) {
+            erroredSource = convertedToFhirTopic;
+        } else if (topic.equalsIgnoreCase(convertedToXmlTopic + dtlSuffix)) {
+            erroredSource = convertedToXmlTopic;
         }
     }
 
@@ -144,7 +151,7 @@ public class KafkaConsumerService {
         log.info("Converted xml: {}", hl7AsXml);
 
         nbsRepositoryServiceProvider.saveXmlMessage(hl7AsXml);
-        kafkaProducerService.sendMessageAfterConvertedToXml(hl7AsXml, convertedToXmlTopic);
+        kafkaProducerService.sendMessageAfterConvertedToXml(hl7AsXml, convertedToXmlTopic, 0);
     }
 
     private void validationHandler(String message) throws HL7Exception, DuplicateHL7FileFoundException {
@@ -157,7 +164,7 @@ public class KafkaConsumerService {
                 try {
                     iHL7DuplicateValidator.ValidateHL7Document(hl7ValidatedModel);
                     saveValidatedELRMessage(hl7ValidatedModel);
-                    kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic);
+                    kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic, 0);
                 }
                 catch (DuplicateHL7FileFoundException e) {
                     e.printStackTrace();
@@ -178,7 +185,7 @@ public class KafkaConsumerService {
         if (messageType.equalsIgnoreCase(KafkaHeaderValue.MessageType_HL7v2)) {
             HL7ToFHIRModel convertedModel = iHl7ToFHIRConversion.ConvertHL7v2ToFhir(validatedELRModel, convertedToFhirTopic);
             iHL7ToFHIRRepository.save(convertedModel);
-            kafkaProducerService.sendMessageAfterConvertedToFhirMessage(convertedModel, convertedToFhirTopic);
+            kafkaProducerService.sendMessageAfterConvertedToFhirMessage(convertedModel, convertedToFhirTopic, 0);
         } else {
             throw new UnsupportedOperationException("Invalid Message");
         }
