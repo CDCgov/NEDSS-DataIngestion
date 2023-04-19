@@ -71,7 +71,7 @@ public class HL7Parser implements IHL7Parser {
             patientAddress.setCountry(terser.get("/PID-11-6"));
             patientAddress.setAddressType(terser.get("/PID-11-7"));
 
-            patientIdentification.setpId(terser.get("/PID-1"));
+            patientIdentification.setPId(terser.get("/PID-1"));
             patientIdentification.setId(terser.get("/PID-2"));
             patientIdentification.setPatientName(patientName);
             patientIdentification.setPatientAddress(patientAddress);

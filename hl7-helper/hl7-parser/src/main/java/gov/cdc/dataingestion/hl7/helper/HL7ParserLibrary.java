@@ -15,7 +15,7 @@ public class HL7ParserLibrary {
     private IHL7Parser parser = new HL7Parser(new DefaultHapiContext());
 
     /**
-    * HL7 string valicator, replacing "\n" by "\r"
+    * HL7 string validator, replacing "\n" by "\r"
     * */
     public String hl7StringValidator(String message) throws DiHL7Exception {
         return parser.hl7MessageStringValidation(message);

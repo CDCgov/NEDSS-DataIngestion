@@ -61,6 +61,7 @@ hl7-helper/.settings
 hl7-helper/.springBeans
 hl7-helper/.sts4-cache
 hl7-helper/bin/
+hl7-helper/hl7-parser/build/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
