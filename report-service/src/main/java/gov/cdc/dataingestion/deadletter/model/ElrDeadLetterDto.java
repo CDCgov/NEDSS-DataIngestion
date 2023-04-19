@@ -1,7 +1,7 @@
 package gov.cdc.dataingestion.deadletter.model;
 
 
-import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterELRModel;
+import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class ElrDeadLetterELRDto {
+public class ElrDeadLetterDto {
     private String id;
 
     private String errorMessageId;
@@ -30,7 +30,7 @@ public class ElrDeadLetterELRDto {
 
     private String updatedBy;
 
-    public ElrDeadLetterELRDto(ElrDeadLetterELRModel model) {
+    public ElrDeadLetterDto(ElrDeadLetterModel model) {
         this.id = model.getId();
         this.errorMessageSource = model.getErrorMessageSource();
         this.errorStackTrace = model.getErrorStackTrace();

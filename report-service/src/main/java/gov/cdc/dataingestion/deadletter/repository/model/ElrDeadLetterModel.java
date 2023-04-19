@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 @Setter
 @Entity
 @Table(name = "elr_dlt")
-public class ElrDeadLetterELRModel {
+public class ElrDeadLetterModel {
     @Id
     @GenericGenerator(name = "generator", strategy = "guid", parameters = {})
     @GeneratedValue(generator = "generator")
