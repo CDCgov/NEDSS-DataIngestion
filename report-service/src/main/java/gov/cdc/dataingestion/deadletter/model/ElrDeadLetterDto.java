@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.deadletter.model;
 
 
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
+import gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,6 +30,19 @@ public class ElrDeadLetterDto {
     private String createdBy;
 
     private String updatedBy;
+
+    public ElrDeadLetterDto(String errorMessageId, String errorMessageSource,
+                            String errorStackTrace,
+                            Integer dltOccurrence, String dltStatus,
+                            String createdBy, String updatedBy) {
+        this.errorMessageId = errorMessageId;
+        this.errorMessageSource = errorMessageSource;
+        this.dltOccurrence = dltOccurrence;
+        this.dltStatus = dltStatus;
+        this.createdBy = createdBy;
+        this.updatedBy = updatedBy;
+        this.errorStackTrace = errorStackTrace;
+    }
 
     public ElrDeadLetterDto(ElrDeadLetterModel model) {
         this.id = model.getId();

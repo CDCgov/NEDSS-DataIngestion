@@ -14,10 +14,10 @@ import java.util.UUID;
 @Component
 public class KafkaProducerService {
     private String xmlMessageKeyPrefix = "XML_";
-
     private String fhirMessageKeyPrefix = "FHIR_";
     private String validMessageKeyPrefix = "VALID_";
     private String hl7MessageKeyPrefix = "HL7_";
+    private String dltMessageKeyPrefix = "DLT_";
 
     private KafkaTemplate<String, String> kafkaTemplate;
     public KafkaProducerService( KafkaTemplate<String, String> kafkaTemplate) {
@@ -72,6 +72,9 @@ public class KafkaProducerService {
         record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
         sendMessage(record);
     }
+
+
+
 
     private void sendMessage(ProducerRecord<String, String> record) {
         kafkaTemplate.send(record);

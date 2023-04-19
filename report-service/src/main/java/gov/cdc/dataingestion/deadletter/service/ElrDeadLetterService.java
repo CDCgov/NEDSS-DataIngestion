@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.deadletter.service;
 
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
+import gov.cdc.dataingestion.deadletter.model.ElrDltStatus;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,11 +21,11 @@ public class ElrDeadLetterService {
 
     private final IElrDeadLetterRepository dltRepository;
 
-//    public List<ElrDeadLetterDto> getAllNewDltRecord() {
-//        List<ElrDeadLetterModel> deadLetterELRModels = dltRepository.findAllNewDlt(Sort.by("updated_on"));
-//        var dtoModels = convertModelToDto(deadLetterELRModels);
-//        return dtoModels;
-//    }
+    public List<ElrDeadLetterDto> getAllErrorDltRecord() {
+        Optional<List<ElrDeadLetterModel>> deadLetterELRModels = dltRepository.findAllDltRecordByDltStatus(ElrDltStatus.ERROR.name());
+        var dtoModels = convertModelToDto(deadLetterELRModels.get());
+        return dtoModels;
+    }
 
     public ElrDeadLetterDto getDltRecordById(String id) {
         ElrDeadLetterModel model = dltRepository.getById(id);

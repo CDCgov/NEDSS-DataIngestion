@@ -20,7 +20,7 @@ public class ElrDeadLetterController {
     private final ElrDeadLetterService elrDeadLetterService;
 
     @GetMapping(path = "/get-new-error-messages")
-    public ResponseEntity<ElrDeadLetterDto> getAllNewErrorMessage() {
-        return ResponseEntity.ok(elrDeadLetterService.getDltRecordById(""));
+    public ResponseEntity<List<ElrDeadLetterDto>> getAllNewErrorMessage() {
+        return ResponseEntity.ok(elrDeadLetterService.getAllErrorDltRecord());
     }
 }

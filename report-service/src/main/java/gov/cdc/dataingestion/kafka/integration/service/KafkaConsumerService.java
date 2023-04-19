@@ -4,6 +4,10 @@ import ca.uhn.hl7v2.HL7Exception;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
+import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
+import gov.cdc.dataingestion.deadletter.model.ElrDltStatus;
+import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
+import gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService;
 import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
@@ -60,6 +64,7 @@ public class KafkaConsumerService {
     private IHL7DuplicateValidator iHL7DuplicateValidator;
 
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
+    private ElrDeadLetterService elrDeadLetterService;
 
 
     public KafkaConsumerService(
@@ -70,7 +75,8 @@ public class KafkaConsumerService {
             IHL7ToFHIRConversion ihl7ToFHIRConversion,
             IHL7ToFHIRRepository iHL7ToFHIRepository,
             IHL7DuplicateValidator iHL7DuplicateValidator,
-            NbsRepositoryServiceProvider nbsRepositoryServiceProvider) {
+            NbsRepositoryServiceProvider nbsRepositoryServiceProvider,
+            ElrDeadLetterService elrDeadLetterService) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.kafkaProducerService = kafkaProducerService;
@@ -79,6 +85,7 @@ public class KafkaConsumerService {
         this.iHL7ToFHIRRepository = iHL7ToFHIRepository;
         this.iHL7DuplicateValidator = iHL7DuplicateValidator;
         this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
+        this.elrDeadLetterService = elrDeadLetterService;
     }
 
     @RetryableTopic(
@@ -126,7 +133,7 @@ public class KafkaConsumerService {
         String dtlSuffix = "-dlt";
 
         // use this for data re-injection
-        String erroredSource;
+        String erroredSource = "";
         String errorStackTrace = stacktrace;
         // increase by 1, indicate the dlt had been occurred
         Integer dltCount = Integer.parseInt(dltOccurrence) + 1;
@@ -140,6 +147,17 @@ public class KafkaConsumerService {
         } else if (topic.equalsIgnoreCase(convertedToXmlTopic + dtlSuffix)) {
             erroredSource = convertedToXmlTopic;
         }
+
+        ElrDeadLetterDto elrDeadLetterDto = new ElrDeadLetterDto(
+                message,erroredSource,
+                errorStackTrace,
+                dltCount,
+                ElrDltStatus.ERROR.name(),
+                erroredSource + dtlSuffix,
+                erroredSource + dtlSuffix
+        );
+
+        this.elrDeadLetterService.saveDltRecord(elrDeadLetterDto);
     }
 
     private void xmlConversionHandler(String message) throws Exception {
