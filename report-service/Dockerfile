@@ -1,4 +1,4 @@
-FROM openjdk:18
+FROM openjdk:17
 
 EXPOSE 8080
 RUN mkdir -p /app/

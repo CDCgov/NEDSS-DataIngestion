@@ -14,7 +14,6 @@ plugins {
 	id 'org.springframework.boot' version '3.0.0'
 	id 'io.spring.dependency-management' version '1.1.0'
 	id 'com.github.johnrengelman.shadow' version '7.1.2'
-	id 'checkstyle'
 }
 
 group = 'gov.cdc.dataingestion'
@@ -31,17 +30,11 @@ repositories {
 	mavenCentral()
 }
 
-
 jar {
 	manifest {
 		attributes(
 				'Main-Class': 'gov.cdc.dataingestion.ServiceApplication'
 		)
-	}
-	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-	from {
-		configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
 	}
 }
 
