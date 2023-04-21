@@ -17,6 +17,8 @@ public class ElrDeadLetterDto {
 
     private String errorMessageSource;
 
+    private String errorMessage;
+
     private String errorStackTrace;
 
     private Integer dltOccurrence;
@@ -34,7 +36,8 @@ public class ElrDeadLetterDto {
     public ElrDeadLetterDto(String errorMessageId, String errorMessageSource,
                             String errorStackTrace,
                             Integer dltOccurrence, String dltStatus,
-                            String createdBy, String updatedBy) {
+                            String createdBy, String updatedBy,
+                            String errorMessage) {
         this.errorMessageId = errorMessageId;
         this.errorMessageSource = errorMessageSource;
         this.dltOccurrence = dltOccurrence;
@@ -42,10 +45,12 @@ public class ElrDeadLetterDto {
         this.createdBy = createdBy;
         this.updatedBy = updatedBy;
         this.errorStackTrace = errorStackTrace;
+        this.errorMessage = errorMessage;
     }
 
     public ElrDeadLetterDto(ElrDeadLetterModel model) {
         this.id = model.getId();
+        this.errorMessageId = model.getErrorMessageId();
         this.errorMessageSource = model.getErrorMessageSource();
         this.errorStackTrace = model.getErrorStackTrace();
         this.dltOccurrence = model.getDltOccurrence();
@@ -54,6 +59,7 @@ public class ElrDeadLetterDto {
         this.updatedOn = model.getUpdatedOn();
         this.createdBy = model.getCreatedBy();
         this.updatedBy = model.getUpdatedBy();
+        this.errorMessage = model.getErrorMessage();
     }
 
 }

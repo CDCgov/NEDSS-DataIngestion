@@ -20,8 +20,14 @@ public class HL7v2Validator implements IHL7v2Validator {
         String replaceSpecialCharacters;
         if (rawERLModel.getPayload().contains("\n")) {
             replaceSpecialCharacters = rawERLModel.getPayload().replaceAll("\n","\r");
+        } else if (rawERLModel.getPayload().contains("\n\r")) {
+            replaceSpecialCharacters = rawERLModel.getPayload().replaceAll("\n\r","\r");
         } else {
-            replaceSpecialCharacters = rawERLModel.getPayload();
+            if (rawERLModel.getPayload().contains("\\n")) {
+                replaceSpecialCharacters = rawERLModel.getPayload().replaceAll("\\\\n","\r");
+            } else {
+                replaceSpecialCharacters = rawERLModel.getPayload();
+            }
         }
         ValidatedELRModel model = new ValidatedELRModel();
         // Set validation

@@ -33,6 +33,9 @@ public class ElrDeadLetterModel {
     @Column(name="dlt_status")
     private String dltStatus;
 
+    @Column(name="error_message")
+    private String errorMessage;
+
     @Transient
     @Column(name = "created_on")
     private Timestamp createdOn;

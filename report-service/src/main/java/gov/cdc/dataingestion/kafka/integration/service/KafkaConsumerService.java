@@ -135,26 +135,39 @@ public class KafkaConsumerService {
         // use this for data re-injection
         String erroredSource = "";
         String errorStackTrace = stacktrace;
+        String errorMessage = "";
         // increase by 1, indicate the dlt had been occurred
         Integer dltCount = Integer.parseInt(dltOccurrence) + 1;
         // consuming bad data and persist data onto database
         if (topic.equalsIgnoreCase(rawTopic + dtlSuffix)) {
             erroredSource = rawTopic;
+            // get payload
+            // prime this can be simplified by just passing payload in kafka message
+            Optional<RawERLModel> result = this.iRawELRRepository.findById(message);
+            errorMessage = result.get().getPayload();
         } else if (topic.equalsIgnoreCase(validatedTopic + dtlSuffix)) {
             erroredSource = validatedTopic;
+            Optional<ValidatedELRModel> result = this.iValidatedELRRepository.findById(message);
+            errorMessage = result.get().getRawMessage();
         } else if (topic.equalsIgnoreCase(convertedToFhirTopic + dtlSuffix)) {
             erroredSource = convertedToFhirTopic;
+            Optional<HL7ToFHIRModel> result = this.iHL7ToFHIRRepository.findById(message);
+            errorMessage = result.get().getFhirMessage();
         } else if (topic.equalsIgnoreCase(convertedToXmlTopic + dtlSuffix)) {
             erroredSource = convertedToXmlTopic;
+            // this one only pass actual message onto kafka message not id
+            errorMessage = message;
         }
 
         ElrDeadLetterDto elrDeadLetterDto = new ElrDeadLetterDto(
-                message,erroredSource,
+                message,
+                erroredSource,
                 errorStackTrace,
                 dltCount,
                 ElrDltStatus.ERROR.name(),
                 erroredSource + dtlSuffix,
-                erroredSource + dtlSuffix
+                erroredSource + dtlSuffix,
+                errorMessage
         );
 
         this.elrDeadLetterService.saveDltRecord(elrDeadLetterDto);
