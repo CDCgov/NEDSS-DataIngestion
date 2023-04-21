@@ -98,7 +98,8 @@ public class KafkaConsumerService {
             exclude = {
                     SerializationException.class,
                     DeserializationException.class,
-                    DuplicateHL7FileFoundException.class}
+                    DuplicateHL7FileFoundException.class,
+                    HL7Exception.class}
     )
     @KafkaListener(topics = "#{'${kafka.topics}'.split(',')}")
     public void handleMessage(String message,
@@ -137,7 +138,8 @@ public class KafkaConsumerService {
         String errorStackTrace = stacktrace;
         String errorMessage = "";
         // increase by 1, indicate the dlt had been occurred
-        Integer dltCount = Integer.parseInt(dltOccurrence) + 1;
+
+        Integer dltCount = Integer.parseInt(dltOccurrence)  == 0 ? 0 : Integer.parseInt(dltOccurrence) + 1;
         // consuming bad data and persist data onto database
         if (topic.equalsIgnoreCase(rawTopic + dtlSuffix)) {
             erroredSource = rawTopic;

@@ -29,6 +29,9 @@ public class HL7v2Validator implements IHL7v2Validator {
                 replaceSpecialCharacters = rawERLModel.getPayload();
             }
         }
+
+        replaceSpecialCharacters = replaceSpecialCharacters.replaceAll("\\\\+", "\\\\");
+
         ValidatedELRModel model = new ValidatedELRModel();
         // Set validation
         context.setValidationContext(ValidationContextFactory.defaultValidation());
