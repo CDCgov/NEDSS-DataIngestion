@@ -1,7 +1,6 @@
 package gov.cdc.dataingestion.hl7.helper.integration.interfaces;
 
-import ca.uhn.hl7v2.HL7Exception;
-import gov.cdc.dataingestion.hl7.helper.integration.DiHL7Exception;
+import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 
 public interface IHL7Parser {

@@ -4,15 +4,19 @@
 package gov.cdc.dataingestion.hl7.helper;
 
 import ca.uhn.hl7v2.DefaultHapiContext;
-import ca.uhn.hl7v2.HL7Exception;
-import gov.cdc.dataingestion.hl7.helper.integration.DiHL7Exception;
+import gov.cdc.dataingestion.hl7.helper.integration.FhirConverter;
+import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.integration.HL7Parser;
+import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IFhirConverter;
 import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser;
+import gov.cdc.dataingestion.hl7.helper.model.FhirConvertedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
+import io.github.linuxforhealth.hl7.HL7ToFHIRConverter;
 
 public class HL7ParserLibrary {
 
     private IHL7Parser parser = new HL7Parser(new DefaultHapiContext());
+    private IFhirConverter fhirConverter = new FhirConverter(new HL7ToFHIRConverter());
 
     /**
     * HL7 string validator, replacing "\n" by "\r"
@@ -23,10 +27,18 @@ public class HL7ParserLibrary {
 
     /**
     * Generic Parser, return message version, type, and some demographic info such as patient name and address
-    * More can be added based on bussincess requirement
+    * More can be added based on business requirement
     * */
     public HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception {
         return parser.hl7StringParser(message);
     }
+
+    /**
+     * Convert HL7 message into fhir
+     * */
+    public FhirConvertedMessage convertHl7ToFhir(String message) throws UnsupportedOperationException {
+        return fhirConverter.HL7ToFHIRConversion(message);
+    }
+
 
 }

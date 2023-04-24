@@ -1,14 +1,12 @@
 package gov.cdc.dataingestion.hl7.helper.integration;
 
-import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.HapiContext;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory;
-import ca.uhn.hl7v2.parser.DefaultXMLParser;
 import ca.uhn.hl7v2.parser.PipeParser;
-import ca.uhn.hl7v2.parser.XMLParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
+import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.PatientAddress;

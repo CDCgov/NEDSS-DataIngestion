@@ -27,6 +27,7 @@ dependencies {
 
     implementation 'ca.uhn.hapi:hapi-base:2.3'
     implementation 'ca.uhn.hapi:hapi-structures-v251:2.3'
+    implementation 'io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19'
 
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
     compileOnly 'org.projectlombok:lombok:1.18.26'
