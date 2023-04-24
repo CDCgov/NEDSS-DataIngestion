@@ -21,5 +21,5 @@ public class HL7ParsedMessage {
     private String eventTrigger;
     private String message;
 
-    private PatientIdentification patientIdentification;
+    // private PatientIdentification patientIdentification;
 }

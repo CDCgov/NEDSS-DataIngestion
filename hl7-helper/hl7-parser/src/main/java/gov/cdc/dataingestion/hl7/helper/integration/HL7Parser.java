@@ -43,7 +43,7 @@ public class HL7Parser implements IHL7Parser {
         return message;
     }
 
-    public HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception {
+    public HL7ParsedMessage hl7StringParserWithTerser(String message) throws DiHL7Exception {
 
         try {
             context.setValidationContext(ValidationContextFactory.defaultValidation());
@@ -83,7 +83,7 @@ public class HL7Parser implements IHL7Parser {
             patientIdentification.setPatientAddress(patientAddress);
 
             var parsedHL7Message = new HL7ParsedMessage(messageVersion, messageType, messageEventTrigger, message);
-            parsedHL7Message.setPatientIdentification(patientIdentification);
+            // parsedHL7Message.setPatientIdentification(patientIdentification);
             return parsedHL7Message;
         } catch (Exception e) {
             throw new DiHL7Exception(e.getMessage());
@@ -106,6 +106,53 @@ public class HL7Parser implements IHL7Parser {
             throw new DiHL7Exception(e.getMessage());
         }
 
+    }
+
+    public void hl7StringParser(String message) throws DiHL7Exception{
+        try {
+            var genericParsedMessage = hl7StringParseHelperWithTerser(message);
+            CanonicalModelClassFactory mcf = new CanonicalModelClassFactory(supportedHL7version);
+            context.setModelClassFactory(mcf);
+            PipeParser parser = context.getPipeParser();
+
+            switch(genericParsedMessage.getType()) {
+                case "ORU":
+                    switch (genericParsedMessage.getEventTrigger()){
+                        case "R01":
+                            ca.uhn.hl7v2.model.v251.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v251.message.ORU_R01) parser.parse(genericParsedMessage.getMessage());
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        } catch (Exception e) {
+            throw new DiHL7Exception(e.getMessage());
+        }
+    }
+
+    private HL7ParsedMessage hl7StringParseHelperWithTerser(String message) throws DiHL7Exception {
+        try {
+            context.setValidationContext(ValidationContextFactory.defaultValidation());
+            PipeParser parser = context.getPipeParser();
+            Message parsedMessage = parser.parse(message);
+
+            Terser terser = new Terser(parsedMessage);
+
+            String messageType = terser.get("/MSH-9-1");
+            String messageEventTrigger = terser.get("/MSH-9-2");
+            String messageVersion = parsedMessage.getVersion();
+
+            HL7ParsedMessage model = new HL7ParsedMessage();
+            model.setType(messageType);
+            model.setEventTrigger(messageEventTrigger);
+            model.setVersion(messageVersion);
+            return  model;
+        } catch (Exception e) {
+            throw new DiHL7Exception(e.getMessage());
+        }
     }
 
     private HapiContext hl7GeneralizationContext(HapiContext context) {

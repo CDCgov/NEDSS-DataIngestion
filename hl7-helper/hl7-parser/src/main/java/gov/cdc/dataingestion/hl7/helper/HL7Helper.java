@@ -31,7 +31,7 @@ public class HL7Helper {
     * More can be added based on business requirement
     * */
     public HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception {
-        return parser.hl7StringParser(message);
+        return parser.hl7StringParserWithTerser(message);
     }
 
     /**
