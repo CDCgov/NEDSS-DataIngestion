@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static gov.cdc.dataingestion.hl7.helper.unitTest.Hl7TestData.OruR1Message;
+import static gov.cdc.dataingestion.hl7.helper.unitTest.Hl7TestData.OruR1MessageSmall;
 
 public class HL7ParserTest {
     private HL7Helper target;

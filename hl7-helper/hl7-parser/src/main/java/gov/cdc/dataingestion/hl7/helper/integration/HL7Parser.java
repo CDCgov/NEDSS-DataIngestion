@@ -3,6 +3,7 @@ package gov.cdc.dataingestion.hl7.helper.integration;
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.HapiContext;
 import ca.uhn.hl7v2.model.Message;
+import ca.uhn.hl7v2.model.v251.message.ORU_R01;
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory;
 import ca.uhn.hl7v2.parser.DefaultModelClassFactory;
 import ca.uhn.hl7v2.parser.PipeParser;
@@ -13,12 +14,7 @@ import gov.cdc.dataingestion.hl7.helper.constant.hl7.MessageType;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
-import gov.cdc.dataingestion.hl7.helper.model.PatientAddress;
-import gov.cdc.dataingestion.hl7.helper.model.PatientName;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.container.Patient;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.container.PatientResult;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.patient.PatientIdentification;
 
 public class HL7Parser implements IHL7Parser {
 
@@ -67,15 +63,11 @@ public class HL7Parser implements IHL7Parser {
                 case  MessageType.ORU:
                     switch (genericParsedMessage.getEventTrigger()){
                         case EventTrigger.ORU_01:
-                            ca.uhn.hl7v2.model.v251.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v251.message.ORU_R01) parser.parse(genericParsedMessage.getMessage());
-                            OruR1 oru = new OruR1();
-                            PatientResult pr = new PatientResult();
-                            Patient patient = new Patient();
-                            PatientIdentification pid = new PatientIdentification();
-                            pid.setPid(msg.getPATIENT_RESULT().getPATIENT().getPID().getSetIDPID().toString());
-                            patient.setPatientIdentification(pid);
-                            pr.setPatient(patient);
-                            oru.setPatientResult(pr);
+                            ORU_R01 msg = (ca.uhn.hl7v2.model.v251.message.ORU_R01) parser.parse(genericParsedMessage.getMessage());
+
+                            var tad = msg.getPATIENT_RESULT().getPATIENT().getPID().getPatientName();
+
+                            OruR1 oru = new OruR1(msg);
                             parsedMessage.setParsedMessage(oru);
                             break;
                         default:
