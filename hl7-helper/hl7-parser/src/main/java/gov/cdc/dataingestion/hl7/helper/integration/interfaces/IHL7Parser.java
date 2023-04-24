@@ -5,5 +5,5 @@ import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 
 public interface IHL7Parser {
     String hl7MessageStringValidation(String message) throws DiHL7Exception;
-    HL7ParsedMessage hl7StringParserWithTerser(String message) throws DiHL7Exception;
+    HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception;
 }

@@ -27,11 +27,10 @@ public class HL7Helper {
     }
 
     /**
-    * Generic Parser, return message version, type, and some demographic info such as patient name and address
-    * More can be added based on business requirement
+    * Parser to be updated
     * */
     public HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception {
-        return parser.hl7StringParserWithTerser(message);
+        return parser.hl7StringParser(message);
     }
 
     /**
