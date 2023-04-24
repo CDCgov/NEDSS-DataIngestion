@@ -16,7 +16,7 @@ public class Xpn {
     String nameTypeCode;
     String nameRepresentationCode;
     NameContext nameContext;
-    String nameValidityRange;
+    Dr nameValidityRange;
     String nameAssemblyOrder;
     String effectiveDate;
     String expirationDate;

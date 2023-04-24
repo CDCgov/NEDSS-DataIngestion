@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.subModel.patientId;
 
+import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Dr;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Fn;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xpn;
 
@@ -19,11 +20,9 @@ public class PatientName extends Xpn {
         setDegree(patientName.getDegreeEgMD().getValue());
         setNameTypeCode(patientName.getNameTypeCode().getValue());
         setNameRepresentationCode(patientName.getNameRepresentationCode().getValue());
-      //  setNameContext(patientName.getNameContext().getValue());
-
-        NameContext nameContext = new NameContext(patientName.getNameContext().getMessage());
+        NameContext nameContext = new NameContext(patientName.getNameContext());
         setNameContext(nameContext);
 
-        nameContext.getIdentifier().
+        setNameValidityRange(new Dr(patientName.getNameValidityRange()));
     }
 }
