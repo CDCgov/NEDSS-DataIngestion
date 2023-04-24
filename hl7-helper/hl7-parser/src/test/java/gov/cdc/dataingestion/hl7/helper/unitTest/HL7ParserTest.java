@@ -1,13 +1,13 @@
 package gov.cdc.dataingestion.hl7.helper.unitTest;
 
-import gov.cdc.dataingestion.hl7.helper.HL7ParserLibrary;
+import gov.cdc.dataingestion.hl7.helper.HL7Helper;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class HL7ParserTest {
-    private HL7ParserLibrary target;
+    private HL7Helper target;
     private String data = "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5\n"
             + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\n"
             + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\n"
@@ -25,7 +25,7 @@ public class HL7ParserTest {
     private String invalidData = "TEST TEST";
     @BeforeEach
     public void setUp() {
-        target = new HL7ParserLibrary();
+        target = new HL7Helper();
     }
 
 

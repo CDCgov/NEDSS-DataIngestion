@@ -5,6 +5,7 @@ package gov.cdc.dataingestion.hl7.helper;
 
 import ca.uhn.hl7v2.DefaultHapiContext;
 import gov.cdc.dataingestion.hl7.helper.integration.FhirConverter;
+import gov.cdc.dataingestion.hl7.helper.integration.exception.DiFhirException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.integration.HL7Parser;
 import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IFhirConverter;
@@ -13,7 +14,7 @@ import gov.cdc.dataingestion.hl7.helper.model.FhirConvertedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 import io.github.linuxforhealth.hl7.HL7ToFHIRConverter;
 
-public class HL7ParserLibrary {
+public class HL7Helper {
 
     private IHL7Parser parser = new HL7Parser(new DefaultHapiContext());
     private IFhirConverter fhirConverter = new FhirConverter(new HL7ToFHIRConverter());
@@ -36,7 +37,7 @@ public class HL7ParserLibrary {
     /**
      * Convert HL7 message into fhir
      * */
-    public FhirConvertedMessage convertHl7ToFhir(String message) throws UnsupportedOperationException {
+    public FhirConvertedMessage convertHl7ToFhir(String message) throws DiFhirException {
         return fhirConverter.HL7ToFHIRConversion(message);
     }
 
