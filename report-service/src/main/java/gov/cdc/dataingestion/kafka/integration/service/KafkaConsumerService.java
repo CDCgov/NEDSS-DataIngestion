@@ -194,14 +194,9 @@ public class KafkaConsumerService {
         switch (messageType) {
             case KafkaHeaderValue.MessageType_HL7v2:
                 ValidatedELRModel hl7ValidatedModel = iHl7v2Validator.MessageValidation(message, elrModel, validatedTopic);
-                try {
-                    iHL7DuplicateValidator.ValidateHL7Document(hl7ValidatedModel);
-                    saveValidatedELRMessage(hl7ValidatedModel);
-                    kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic, 0);
-                }
-                catch (DuplicateHL7FileFoundException e) {
-                    e.printStackTrace();
-                }
+                iHL7DuplicateValidator.ValidateHL7Document(hl7ValidatedModel);
+                saveValidatedELRMessage(hl7ValidatedModel);
+                kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic, 0);
                 break;
             case KafkaHeaderValue.MessageType_CSV:
                 // ValidatedELRModel csvValidatedModel = csvValidator.ValidateCSVAgainstCVSSchema(message);

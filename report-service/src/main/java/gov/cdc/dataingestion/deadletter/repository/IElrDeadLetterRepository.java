@@ -11,5 +11,5 @@ import java.util.Optional;
 
 @Repository
 public interface IElrDeadLetterRepository extends JpaRepository<ElrDeadLetterModel, String> {
-    Optional<List<ElrDeadLetterModel>> findAllDltRecordByDltStatus (String dltStatus);
+    Optional<List<ElrDeadLetterModel>> findAllDltRecordByDltStatus (String dltStatus, Sort sort);
 }

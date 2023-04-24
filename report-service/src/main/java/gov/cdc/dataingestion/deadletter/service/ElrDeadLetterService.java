@@ -60,7 +60,7 @@ public class ElrDeadLetterService {
     }
 
     public List<ElrDeadLetterDto> getAllErrorDltRecord() {
-        Optional<List<ElrDeadLetterModel>> deadLetterELRModels = dltRepository.findAllDltRecordByDltStatus(ElrDltStatus.ERROR.name());
+        Optional<List<ElrDeadLetterModel>> deadLetterELRModels = dltRepository.findAllDltRecordByDltStatus(ElrDltStatus.ERROR.name(), Sort.by(Sort.Direction.DESC, "createdOn"));
         var dtoModels = convertModelToDto(deadLetterELRModels.get());
         return dtoModels;
     }

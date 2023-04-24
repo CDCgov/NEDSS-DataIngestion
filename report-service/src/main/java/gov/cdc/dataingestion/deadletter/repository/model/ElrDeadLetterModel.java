@@ -36,8 +36,7 @@ public class ElrDeadLetterModel {
     @Column(name="error_message")
     private String errorMessage;
 
-    @Transient
-    @Column(name = "created_on")
+    @Column(name = "created_on", columnDefinition = "default getdate()", nullable = false)
     private Timestamp createdOn;
 
     @Column(name = "updated_on")
