@@ -17,6 +17,7 @@ public class HL7Parser implements IHL7Parser {
 
     private HapiContext context;
     private final String newLine = "\n";
+    private final String newLineWithCarrier = "\n\r";
     private final String carrier = "\r";
 
     // this is the support hl7 structure
@@ -29,9 +30,18 @@ public class HL7Parser implements IHL7Parser {
     public String hl7MessageStringValidation(String message) throws DiHL7Exception {
         if(message.contains(newLine)) {
             message = message.replaceAll(newLine, carrier);
-        } else if (!message.contains(carrier)) {
-            throw new DiHL7Exception("Incorrect raw message format");
+        } else if (message.contains(newLineWithCarrier)) {
+            message = message.replaceAll(newLineWithCarrier, carrier);
+        } else {
+            if (message.contains("\\n")) {
+                message = message.replaceAll("\\\\n","\r");
+            } else {
+                message = message;
+            }
         }
+
+        // make sure message only contain `\` on MSH
+        message = message.replaceAll("\\\\+", "\\\\");
         return message;
     }
 
