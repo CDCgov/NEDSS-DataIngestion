@@ -77,6 +77,14 @@ public class modelListHelper {
         return lst;
     }
 
+    public static ArrayList<String> GetFtStringList(FT[] messages) {
+        var lst = new ArrayList<String>();
+        for(var data: messages) {
+            lst.add(data.getValue());
+        }
+        return lst;
+    }
+
     public static ArrayList<Cwe> GetCweList(CWE[] messages) {
         var lst = new ArrayList<Cwe>();
         for(var data: messages) {

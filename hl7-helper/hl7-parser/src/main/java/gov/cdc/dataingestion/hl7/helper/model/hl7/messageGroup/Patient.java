@@ -18,5 +18,6 @@ public class Patient {
     public Patient(ca.uhn.hl7v2.model.v251.group.ORU_R01_PATIENT oruR01Patient) {
         this.patientIdentification = new PatientIdentification(oruR01Patient.getPID());
         this.patientAdditionalDemographic = new PatientAdditionalDemographic(oruR01Patient.getPD1());
+        this.noteAndComment = new NoteAndComment(oruR01Patient.getNTE());
     }
 }
