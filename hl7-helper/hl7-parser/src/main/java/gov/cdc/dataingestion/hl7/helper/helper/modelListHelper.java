@@ -179,6 +179,15 @@ public class modelListHelper {
         return lst;
     }
 
+    public static ArrayList<Eip> GetEipList(EIP[] messages) {
+        var lst = new ArrayList<Eip>();
+        for(var data: messages) {
+            Eip item = new Eip(data);
+            lst.add(item);
+        }
+        return lst;
+    }
+
     public static ArrayList<Cq> GetCqList(CQ[] messages) {
         var lst = new ArrayList<Cq>();
         for(var data: messages) {
