@@ -60,6 +60,15 @@ public class modelListHelper {
         return lst;
     }
 
+    public static ArrayList<Pln> GetPlnList(PLN[] messages) {
+        var lst = new ArrayList<Pln>();
+        for(var data: messages) {
+            Pln item = new Pln(data);
+            lst.add(item);
+        }
+        return lst;
+    }
+
     public static ArrayList<Xtn> GetXtnList(XTN[] messages) {
         var lst = new ArrayList<Xtn>();
         for(var data: messages) {
