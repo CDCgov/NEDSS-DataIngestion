@@ -19,5 +19,6 @@ public class Patient {
         this.patientIdentification = new PatientIdentification(oruR01Patient.getPID());
         this.patientAdditionalDemographic = new PatientAdditionalDemographic(oruR01Patient.getPD1());
         this.noteAndComment = new NoteAndComment(oruR01Patient.getNTE());
+        this.nextOfKin = new NextOfKin(oruR01Patient.getNK1());
     }
 }
