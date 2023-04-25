@@ -42,6 +42,15 @@ public class modelListHelper {
         return lst;
     }
 
+    public static ArrayList<Tq> GetTqList(TQ[] messages) {
+        var lst = new ArrayList<Tq>();
+        for(var data: messages) {
+            Tq item = new Tq(data);
+            lst.add(item);
+        }
+        return lst;
+    }
+
     public static ArrayList<Xtn> GetXtnList(XTN[] messages) {
         var lst = new ArrayList<Xtn>();
         for(var data: messages) {
