@@ -104,6 +104,14 @@ public class modelListHelper {
         return lst;
     }
 
+    public static ArrayList<String> GetSiStringList(SI[] messages) {
+        var lst = new ArrayList<String>();
+        for(var data: messages) {
+            lst.add(data.getValue());
+        }
+        return lst;
+    }
+
     public static ArrayList<String> GetFtStringList(FT[] messages) {
         var lst = new ArrayList<String>();
         for(var data: messages) {
