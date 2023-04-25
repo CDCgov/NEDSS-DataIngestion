@@ -90,6 +90,7 @@ public class KafkaConsumerService {
 
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
+            autoCreateTopics = "false",
             // retry topic name, such as topic-retry-1, topic-retry-2, etc
             topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE,
             // time to wait before attempting to retry
@@ -99,7 +100,8 @@ public class KafkaConsumerService {
                     SerializationException.class,
                     DeserializationException.class,
                     DuplicateHL7FileFoundException.class,
-                    HL7Exception.class}
+                    //HL7Exception.class
+            }
     )
     @KafkaListener(topics = "#{'${kafka.topics}'.split(',')}")
     public void handleMessage(String message,
@@ -107,15 +109,16 @@ public class KafkaConsumerService {
         log.info("Received message ID: {} from topic: {}", message, topic);
 
         try {
-            if (topic.equalsIgnoreCase(rawTopic)) {
+            if (topic.equalsIgnoreCase(rawTopic) || topic.equalsIgnoreCase(rawTopic + "-retry-0")) {
                 validationHandler(message);
-            } else if (topic.equalsIgnoreCase(validatedTopic)) {
+            } else if (topic.equalsIgnoreCase(validatedTopic) || topic.equalsIgnoreCase(validatedTopic + "-retry-0")) {
                 //conversionHandler(message);
                 xmlConversionHandler(message);
             }
         } catch (Exception e) {
             log.info("Retry queue");
             // run time error then -- do retry
+            // get root message
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -139,7 +142,7 @@ public class KafkaConsumerService {
         String errorMessage = "";
         // increase by 1, indicate the dlt had been occurred
 
-        Integer dltCount = Integer.parseInt(dltOccurrence)  == 0 ? 0 : Integer.parseInt(dltOccurrence) + 1;
+        Integer dltCount = Integer.parseInt(dltOccurrence) + 1;
         // consuming bad data and persist data onto database
         if (topic.equalsIgnoreCase(rawTopic + dtlSuffix)) {
             erroredSource = rawTopic;
@@ -172,6 +175,7 @@ public class KafkaConsumerService {
                 errorMessage
         );
 
+        // better off write as log file
         this.elrDeadLetterService.saveDltRecord(elrDeadLetterDto);
     }
 

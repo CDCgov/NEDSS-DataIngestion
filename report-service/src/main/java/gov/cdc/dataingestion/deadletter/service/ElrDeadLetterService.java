@@ -73,7 +73,7 @@ public class ElrDeadLetterService {
     public ElrDeadLetterDto updateAndReprocessingMessage(String id, String body) throws Exception {
         var existingRecord = getDltRecordById(id);
         existingRecord.setDltStatus(ElrDltStatus.REINJECTED.name());
-        existingRecord.setDltOccurrence(existingRecord.getDltOccurrence() + 1);
+        existingRecord.setDltOccurrence(existingRecord.getDltOccurrence());
         if(existingRecord.getErrorMessageSource().equalsIgnoreCase(rawTopic)) {
             var rawRecord = rawELRRepository.findById(existingRecord.getErrorMessageId());
             RawERLModel rawModel = rawRecord.get();
