@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.hl7.helper.helper;
 
+import ca.uhn.hl7v2.model.Varies;
 import ca.uhn.hl7v2.model.v251.datatype.*;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
 
@@ -148,6 +149,22 @@ public class modelListHelper {
         var lst = new ArrayList<String>();
         for(var data: messages) {
             lst.add(data.getValue());
+        }
+        return lst;
+    }
+
+    public static ArrayList<String> GetIdStringList(ID[] messages) {
+        var lst = new ArrayList<String>();
+        for(var data: messages) {
+            lst.add(data.getValue());
+        }
+        return lst;
+    }
+
+    public static ArrayList<String> GetVariesStringList(Varies[] messages) {
+        var lst = new ArrayList<String>();
+        for(var data: messages) {
+            lst.add(data.getData().toString());
         }
         return lst;
     }
