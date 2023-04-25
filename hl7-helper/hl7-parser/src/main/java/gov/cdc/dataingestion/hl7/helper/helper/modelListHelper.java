@@ -144,11 +144,47 @@ public class modelListHelper {
         return lst;
     }
 
+    public static ArrayList<String> GetTmStringList(TM[] messages) {
+        var lst = new ArrayList<String>();
+        for(var data: messages) {
+            lst.add(data.getValue());
+        }
+        return lst;
+    }
+
 
     public static ArrayList<Cwe> GetCweList(CWE[] messages) {
         var lst = new ArrayList<Cwe>();
         for(var data: messages) {
             Cwe item = new Cwe(data);
+            lst.add(item);
+        }
+        return lst;
+    }
+
+    public static ArrayList<Cq> GetCqList(CQ[] messages) {
+        var lst = new ArrayList<Cq>();
+        for(var data: messages) {
+            Cq item = new Cq(data);
+            lst.add(item);
+        }
+        return lst;
+    }
+
+    public static ArrayList<Ei> GetEiList(EI[] messages) {
+        var lst = new ArrayList<Ei>();
+        for(var data: messages) {
+            Ei item = new Ei(data);
+            lst.add(item);
+        }
+        return lst;
+    }
+
+
+    public static ArrayList<Rpt> GetRptList(RPT[] messages) {
+        var lst = new ArrayList<Rpt>();
+        for(var data: messages) {
+            Rpt item = new Rpt(data);
             lst.add(item);
         }
         return lst;
