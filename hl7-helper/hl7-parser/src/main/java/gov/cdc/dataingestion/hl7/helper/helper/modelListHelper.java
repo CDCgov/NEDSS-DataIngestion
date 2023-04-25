@@ -51,6 +51,15 @@ public class modelListHelper {
         return lst;
     }
 
+    public static ArrayList<Ndl> GetNdlList(NDL[] messages) {
+        var lst = new ArrayList<Ndl>();
+        for(var data: messages) {
+            Ndl item = new Ndl(data);
+            lst.add(item);
+        }
+        return lst;
+    }
+
     public static ArrayList<Xtn> GetXtnList(XTN[] messages) {
         var lst = new ArrayList<Xtn>();
         for(var data: messages) {

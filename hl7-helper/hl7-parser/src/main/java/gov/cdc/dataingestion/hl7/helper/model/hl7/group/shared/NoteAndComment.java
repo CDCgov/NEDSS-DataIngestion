@@ -1,4 +1,4 @@
-package gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient;
+package gov.cdc.dataingestion.hl7.helper.model.hl7.group.shared;
 
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce;
 import lombok.Getter;
