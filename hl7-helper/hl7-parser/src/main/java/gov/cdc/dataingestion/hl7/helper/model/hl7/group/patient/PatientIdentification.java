@@ -7,6 +7,8 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
+
 @Getter
 @Setter
 public class PatientIdentification {
@@ -91,66 +93,5 @@ public class PatientIdentification {
         this.tribalCitizenship = GetCweList(pid.getTribalCitizenship());
     }
 
-    private ArrayList<Xpn> GetXpnList(XPN[] xpns) {
-        var lst = new ArrayList<Xpn>();
-        for(var data: xpns) {
-            Xpn item = new Xpn(data);
-            lst.add(item);
-        }
-        return lst;
-    }
-
-    private ArrayList<Cx> GetCxList(CX[] cxs) {
-        var lst = new ArrayList<Cx>();
-        for(var data: cxs) {
-            Cx item = new Cx(data);
-            lst.add(item);
-        }
-        return lst;
-    }
-
-    private ArrayList<Ce> GetCeList(CE[] ces) {
-        var lst = new ArrayList<Ce>();
-        for(var data: ces) {
-            Ce item = new Ce(data);
-            lst.add(item);
-        }
-        return lst;
-    }
-
-    private ArrayList<Xad> GetXadList(XAD[] messages) {
-        var lst = new ArrayList<Xad>();
-        for(var data: messages) {
-            Xad item = new Xad(data);
-            lst.add(item);
-        }
-        return lst;
-    }
-
-    private ArrayList<Xtn> GetXtnList(XTN[] messages) {
-        var lst = new ArrayList<Xtn>();
-        for(var data: messages) {
-            Xtn item = new Xtn(data);
-            lst.add(item);
-        }
-        return lst;
-    }
-
-    private ArrayList<String> GetIsStringList(IS[] messages) {
-        var lst = new ArrayList<String>();
-        for(var data: messages) {
-            lst.add(data.getValue());
-        }
-        return lst;
-    }
-
-    private ArrayList<Cwe> GetCweList(CWE[] messages) {
-        var lst = new ArrayList<Cwe>();
-        for(var data: messages) {
-            Cwe item = new Cwe(data);
-            lst.add(item);
-        }
-        return lst;
-    }
 
 }

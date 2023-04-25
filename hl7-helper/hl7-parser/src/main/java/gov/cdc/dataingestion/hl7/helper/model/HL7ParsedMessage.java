@@ -23,5 +23,4 @@ public class HL7ParsedMessage<T> {
     private String message;
     private T parsedMessage;
 
-    // private PatientIdentification patientIdentification;
 }
