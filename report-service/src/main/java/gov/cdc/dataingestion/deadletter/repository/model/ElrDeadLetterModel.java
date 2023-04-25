@@ -12,13 +12,9 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "elr_dlt")
 public class ElrDeadLetterModel {
-    @Id
-    @GenericGenerator(name = "generator", strategy = "guid", parameters = {})
-    @GeneratedValue(generator = "generator")
-    @Column(name = "id" , columnDefinition="uniqueidentifier")
-    private String id;
 
-    @Column(name = "error_message_id")
+    @Id
+    @Column(name = "error_message_id",  columnDefinition="uniqueidentifier")
     private String errorMessageId;
 
     @Column(name = "error_message_source")
@@ -36,7 +32,9 @@ public class ElrDeadLetterModel {
     @Column(name="error_message")
     private String errorMessage;
 
-    @Column(name = "created_on", columnDefinition = "default getdate()", nullable = false)
+    @Basic(optional = false)
+    @Column(name = "created_on",insertable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     private Timestamp createdOn;
 
     @Column(name = "updated_on")

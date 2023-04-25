@@ -11,7 +11,6 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 public class ElrDeadLetterDto {
-    private String id;
 
     private String errorMessageId;
 
@@ -49,7 +48,6 @@ public class ElrDeadLetterDto {
     }
 
     public ElrDeadLetterDto(ElrDeadLetterModel model) {
-        this.id = model.getId();
         this.errorMessageId = model.getErrorMessageId();
         this.errorMessageSource = model.getErrorMessageSource();
         this.errorStackTrace = model.getErrorStackTrace();
