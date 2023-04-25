@@ -85,10 +85,53 @@ public class modelListHelper {
         return lst;
     }
 
+    public static ArrayList<String> GetNmStringList(NM[] messages) {
+        var lst = new ArrayList<String>();
+        for(var data: messages) {
+            lst.add(data.getValue());
+        }
+        return lst;
+    }
+
+    public static ArrayList<String> GetDtStringList(DT[] messages) {
+        var lst = new ArrayList<String>();
+        for(var data: messages) {
+            lst.add(data.getValue());
+        }
+        return lst;
+    }
+
+    public static ArrayList<String> GetStStringList(ST[] messages) {
+        var lst = new ArrayList<String>();
+        for(var data: messages) {
+            lst.add(data.getValue());
+        }
+        return lst;
+    }
+
+
     public static ArrayList<Cwe> GetCweList(CWE[] messages) {
         var lst = new ArrayList<Cwe>();
         for(var data: messages) {
             Cwe item = new Cwe(data);
+            lst.add(item);
+        }
+        return lst;
+    }
+
+    public static ArrayList<Fc> GetFcList(FC[] messages) {
+        var lst = new ArrayList<Fc>();
+        for(var data: messages) {
+            Fc item = new Fc(data);
+            lst.add(item);
+        }
+        return lst;
+    }
+
+    public static ArrayList<Ts> GetTsList(TS[] messages) {
+        var lst = new ArrayList<Ts>();
+        for(var data: messages) {
+            Ts item = new Ts(data);
             lst.add(item);
         }
         return lst;

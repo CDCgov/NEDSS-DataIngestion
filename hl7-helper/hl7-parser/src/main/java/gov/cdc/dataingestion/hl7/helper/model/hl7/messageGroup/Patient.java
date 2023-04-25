@@ -14,11 +14,14 @@ public class Patient {
     PatientAdditionalDemographic patientAdditionalDemographic;
     NoteAndComment noteAndComment;
     NextOfKin nextOfKin;
+    Visit visit;
 
     public Patient(ca.uhn.hl7v2.model.v251.group.ORU_R01_PATIENT oruR01Patient) {
         this.patientIdentification = new PatientIdentification(oruR01Patient.getPID());
         this.patientAdditionalDemographic = new PatientAdditionalDemographic(oruR01Patient.getPD1());
         this.noteAndComment = new NoteAndComment(oruR01Patient.getNTE());
         this.nextOfKin = new NextOfKin(oruR01Patient.getNK1());
+        this.visit = new Visit(oruR01Patient.getVISIT());
+
     }
 }
