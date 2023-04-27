@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.hl7.helper.unitTest;
 
+import com.google.gson.Gson;
 import gov.cdc.dataingestion.hl7.helper.HL7Helper;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import org.junit.jupiter.api.Assertions;
@@ -54,20 +55,9 @@ public class HL7ParserTest {
     @Test
     public void hl7StringParser_ReturnValidMessage() throws  DiHL7Exception {
         var result = target.hl7StringParser(OruR1Message);
-       System.out.println("AAA");
-        // Assertions.assertEquals("RACHEL", result.getPatientIdentification().getPatientName().getGivenName());
+        Gson gson = new Gson();
+        String json = gson.toJson(result);
+        Assertions.assertEquals("R01", result.getEventTrigger());
     }
-//
-//    @Test
-//    public void hl7StringParser_ReturnException() {
-//        Exception exception = Assertions.assertThrows(
-//                DiHL7Exception.class, () -> {
-//                    target.hl7StringParser(data);
-//                }
-//        );
-//        String expectedMessage = "The HL7 version 2.5\n" +
-//                "PID is not recognized";
-//        String actualMessage = exception.getMessage();
-//        Assertions.assertTrue(actualMessage.contains(expectedMessage));
-//    }
+
 }
