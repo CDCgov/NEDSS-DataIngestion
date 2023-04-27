@@ -13,7 +13,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class d OruR1 {
+public class OruR1 {
     MessageHeader messageHeader;
     List<SoftwareSegment> softwareSegment;
     List<PatientResult> patientResult;
