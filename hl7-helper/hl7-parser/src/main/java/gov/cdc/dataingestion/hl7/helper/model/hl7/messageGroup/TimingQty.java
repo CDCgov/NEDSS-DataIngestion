@@ -4,13 +4,11 @@ import ca.uhn.hl7v2.HL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.timingQty.TimingQuantity;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.timingQty.TimingQuantityRelationship;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@Setter
 public class TimingQty {
     TimingQuantity timeQuantity;
     List<TimingQuantityRelationship> timeQuantityRelationship;

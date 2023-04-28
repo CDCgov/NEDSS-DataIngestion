@@ -2,14 +2,12 @@ package gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient;
 
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.List;
 
 import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
 
 @Getter
-@Setter
 public class NextOfKin {
 
     public NextOfKin(ca.uhn.hl7v2.model.v251.segment.NK1 nk1) {

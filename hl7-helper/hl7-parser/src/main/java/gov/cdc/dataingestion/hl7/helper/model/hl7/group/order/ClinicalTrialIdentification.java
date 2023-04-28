@@ -2,12 +2,9 @@ package gov.cdc.dataingestion.hl7.helper.model.hl7.group.order;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ei;
 import lombok.Getter;
-import lombok.Setter;
-import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
-import java.util.List;
+
 
 @Getter
-@Setter
 public class ClinicalTrialIdentification {
     Ei sponsorStudyId;
     Ce studyPhaseIdentifier;

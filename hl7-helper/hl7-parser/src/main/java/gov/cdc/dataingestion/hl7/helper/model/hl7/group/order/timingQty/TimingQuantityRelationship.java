@@ -2,13 +2,11 @@ package gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.timingQty;
 
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.List;
 import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
 
 @Getter
-@Setter
 public class TimingQuantityRelationship {
     String setIdTq2;
     String sequenceResultFlag;

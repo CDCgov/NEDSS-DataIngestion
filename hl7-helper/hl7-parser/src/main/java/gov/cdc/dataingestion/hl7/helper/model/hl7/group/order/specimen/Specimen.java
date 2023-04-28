@@ -2,12 +2,10 @@ package gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
 import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.List;
 
 @Getter
-@Setter
 public class Specimen {
     String setIdSpm;
     Eip specimenId;

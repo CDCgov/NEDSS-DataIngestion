@@ -2,13 +2,11 @@ package gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup;
 
 import ca.uhn.hl7v2.HL7Exception;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@Setter
 public class PatientResult {
     Patient patient;
     List<OrderObservation> orderObservation;
