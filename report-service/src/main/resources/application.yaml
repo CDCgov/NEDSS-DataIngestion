@@ -1,3 +1,12 @@
+rsa:
+  private-key: classpath:certs/private.pem
+  public-key: classpath:certs/public.pem
+server:
+  port: 8083
+app:
+  security:
+    username: admin
+    password: password
 spring:
   application:
     name: report-service
@@ -106,7 +115,3 @@ kafka:
   elr-duplicate:
     topic: elr_duplicate
   topics: elr_raw,elr_validated
-
-
-
-

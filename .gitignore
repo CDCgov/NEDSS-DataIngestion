@@ -36,3 +36,5 @@ report-service/data
 .gradle/buildOutputCleanup/cache.properties
 .gradle/vcs-1/gc.properties
 .gradle/7.6/checksums/checksums.lock
+
+report-service/logs
