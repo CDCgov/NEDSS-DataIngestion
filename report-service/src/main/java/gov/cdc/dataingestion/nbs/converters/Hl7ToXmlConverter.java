@@ -7,16 +7,11 @@ import 	ca.uhn.hl7v2.parser.CanonicalModelClassFactory;
 import 	ca.uhn.hl7v2.parser.PipeParser;
 import 	ca.uhn.hl7v2.parser.XMLParser;
 import 	ca.uhn.hl7v2.parser.DefaultXMLParser;
-import gov.cdc.dataingestion.hl7.helper.HL7ParserLibrary;
-import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
-
-import java.util.Optional;
 
 
 public class Hl7ToXmlConverter {
     private static String HEADER = "MSH|^~\\&|||||20080925161613||ADT^A05||P|2.6|";
     private static Hl7ToXmlConverter instance = new Hl7ToXmlConverter();
-    private static HL7ParserLibrary parser = new HL7ParserLibrary();
 
     public static Hl7ToXmlConverter getInstance() {
         return instance;

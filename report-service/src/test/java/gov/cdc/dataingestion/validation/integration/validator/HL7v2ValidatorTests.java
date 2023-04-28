@@ -1,7 +1,11 @@
 package gov.cdc.dataingestion.validation.integration.validator;
 
-import gov.cdc.dataingestion.hl7.helper.HL7ParserLibrary;
-import gov.cdc.dataingestion.hl7.helper.integration.DiHL7Exception;
+import ca.uhn.hl7v2.DefaultHapiContext;
+import ca.uhn.hl7v2.HL7Exception;
+import ca.uhn.hl7v2.HapiContext;
+import gov.cdc.dataingestion.report.repository.model.RawERLModel;
+import gov.cdc.dataingestion.validation.integration.validator.HL7v2Validator;
+import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.integration.validator.HL7v2Validator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
@@ -15,13 +19,16 @@ import static org.mockito.Mockito.mock;
 public class HL7v2ValidatorTests
 {
     private IHL7v2Validator target;
+    private HapiContext context;
+
     @BeforeEach
     public void setUp() {
-        target = new HL7v2Validator();
+        context = new DefaultHapiContext();
+        target = new HL7v2Validator(context);
     }
 
     @Test
-    public void MessageValidation_Success_ValidMessage_NotContainNewLine() throws DiHL7Exception {
+    public void MessageValidation_Success_ValidMessage_NotContainNewLine() throws HL7Exception {
 
         String data = "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5\r"
                 + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
@@ -44,7 +51,7 @@ public class HL7v2ValidatorTests
     }
 
     @Test
-    public void MessageValidation_Success_ValidMessage_ContainNewLine() throws DiHL7Exception {
+    public void MessageValidation_Success_ValidMessage_ContainNewLine() throws HL7Exception {
 
         String data = "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5\n"
                 + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\n"
@@ -85,13 +92,12 @@ public class HL7v2ValidatorTests
         model.setId(id);
 
         Exception exception = Assertions.assertThrows(
-                DiHL7Exception.class, () -> {
+                HL7Exception.class, () -> {
                     target.MessageValidation(id, model, "test");
                 }
         );
 
-        String expectedMessage = "Incorrect raw message format";
-        String actualMessage = exception.getMessage();
+        String expectedMessage = "Determine encoding for message. The following is the first 50 chars of the message for reference, although this may not be where the issue is: Invalid Message";        String actualMessage = exception.getMessage();
 
         Assertions.assertTrue(actualMessage.contains(expectedMessage));
     }

@@ -2,7 +2,6 @@ package gov.cdc.dataingestion.kafka.integration.service;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
-import gov.cdc.dataingestion.hl7.helper.integration.DiHL7Exception;
 import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
@@ -11,7 +10,7 @@ import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2V
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import gov.cdc.dataingestion.validation.model.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
-
+import ca.uhn.hl7v2.HL7Exception;
 import gov.cdc.dataingestion.nbs.converters.Hl7ToXmlConverter;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 
@@ -127,7 +126,7 @@ public class KafkaConsumerService {
         kafkaProducerService.sendMessageAfterConvertedToXml(hl7AsXml, convertedToXmlTopic);
     }
 
-    private void validationHandler(String message) throws DuplicateHL7FileFoundException, DiHL7Exception {
+    private void validationHandler(String message) throws DuplicateHL7FileFoundException, HL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);
         RawERLModel elrModel = rawElrResponse.get();
         String messageType = elrModel.getType();

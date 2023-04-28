@@ -63,7 +63,7 @@ dependencies {
 	implementation 'ca.uhn.hapi:hapi-structures-v251:2.3'
 
 	// DI HL7 Wrapper
-	implementation files('libs/hl7-parser.jar')
+	// implementation files('libs/hl7-parser.jar')
 
 
 	compileOnly 'org.projectlombok:lombok'

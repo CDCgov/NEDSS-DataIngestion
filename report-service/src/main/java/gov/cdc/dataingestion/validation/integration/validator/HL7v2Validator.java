@@ -1,23 +1,36 @@
 package gov.cdc.dataingestion.validation.integration.validator;
 
-import gov.cdc.dataingestion.hl7.helper.integration.DiHL7Exception;
-import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
+import ca.uhn.hl7v2.HL7Exception;
+import ca.uhn.hl7v2.HapiContext;
+import ca.uhn.hl7v2.model.Message;
+import ca.uhn.hl7v2.parser.PipeParser;
+import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import gov.cdc.dataingestion.validation.model.enums.MessageType;
-import gov.cdc.dataingestion.hl7.helper.HL7ParserLibrary;
 public class HL7v2Validator implements IHL7v2Validator {
-    private HL7ParserLibrary hl7Parser = new HL7ParserLibrary();
-    public HL7v2Validator() {
+    private HapiContext context;
+    public HL7v2Validator(HapiContext context) {
+        this.context = context;
     }
 
-    public ValidatedELRModel MessageValidation(String id, RawERLModel rawERLModel, String topicName) throws DiHL7Exception {
-        String validMessageString = this.hl7Parser.hl7StringValidator(rawERLModel.getPayload());
+    public ValidatedELRModel MessageValidation(String id, RawERLModel rawERLModel, String topicName) throws HL7Exception {
+        String replaceSpecialCharacters;
+        if (rawERLModel.getPayload().contains("\n")) {
+            replaceSpecialCharacters = rawERLModel.getPayload().replaceAll("\n","\r");
+        } else {
+            replaceSpecialCharacters = rawERLModel.getPayload();
+        }
         ValidatedELRModel model = new ValidatedELRModel();
-        HL7ParsedMessage parsedMessage = this.hl7Parser.hl7StringParser(validMessageString);
+        // Set validation
+        context.setValidationContext(ValidationContextFactory.defaultValidation());
+        PipeParser parser = context.getPipeParser();
+        // if invalid HL7, exception will be thrown
+        Message parsedMessage = parser.parse(replaceSpecialCharacters);
+
         model.setRawId(id);
-        model.setRawMessage(validMessageString);
+        model.setRawMessage(replaceSpecialCharacters);
         model.setMessageType(MessageType.HL7.name());
         model.setMessageVersion(parsedMessage.getVersion());
         model.setCreatedBy(topicName);
