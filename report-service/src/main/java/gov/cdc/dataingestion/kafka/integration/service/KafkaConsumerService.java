@@ -21,6 +21,7 @@ import gov.cdc.dataingestion.nbs.converters.Hl7ToXmlConverter;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.kafka.common.errors.SerializationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.DltHandler;
@@ -119,7 +120,7 @@ public class KafkaConsumerService {
             log.info("Retry queue");
             // run time error then -- do retry
             // get root message
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
         }
     }
 
