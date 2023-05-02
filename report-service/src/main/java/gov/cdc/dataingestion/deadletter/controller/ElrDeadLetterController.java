@@ -20,12 +20,12 @@ public class ElrDeadLetterController {
     private final ElrDeadLetterService elrDeadLetterService;
 
     @GetMapping(path = "/get-error-messages")
-    public ResponseEntity<List<ElrDeadLetterDto>> getAllNewErrorMessage() {
+    public ResponseEntity<List<ElrDeadLetterDto>> getAllNewErrorMessage() throws Exception {
         return ResponseEntity.ok(elrDeadLetterService.getAllErrorDltRecord());
     }
 
     @GetMapping(path = "/{id}")
-    public ResponseEntity<ElrDeadLetterDto> getErrorMessage(@PathVariable String id) {
+    public ResponseEntity<ElrDeadLetterDto> getErrorMessage(@PathVariable String id) throws Exception {
         return ResponseEntity.ok(elrDeadLetterService.getDltRecordById(id));
     }
 

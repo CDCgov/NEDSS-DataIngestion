@@ -59,15 +59,15 @@ public class ElrDeadLetterService {
         this.fhirRepository = fhirRepository;
     }
 
-    public List<ElrDeadLetterDto> getAllErrorDltRecord() {
+    public List<ElrDeadLetterDto> getAllErrorDltRecord() throws Exception {
         Optional<List<ElrDeadLetterModel>> deadLetterELRModels = dltRepository.findAllDltRecordByDltStatus(ElrDltStatus.ERROR.name(), Sort.by(Sort.Direction.DESC, "createdOn"));
-        var dtoModels = convertModelToDto(deadLetterELRModels.get());
+        var dtoModels = convertModelToDtoList(deadLetterELRModels.get());
         return dtoModels;
     }
 
-    public ElrDeadLetterDto getDltRecordById(String id) {
+    public ElrDeadLetterDto getDltRecordById(String id) throws Exception {
         Optional<ElrDeadLetterModel> model = dltRepository.findById(id);
-        return new ElrDeadLetterDto(model.get());
+        return convertModelToDto(model.get());
     }
 
     public ElrDeadLetterDto updateAndReprocessingMessage(String id, String body) throws Exception {
@@ -99,12 +99,23 @@ public class ElrDeadLetterService {
         return model;
     }
 
-    private List<ElrDeadLetterDto> convertModelToDto(List<ElrDeadLetterModel> models) {
+    private List<ElrDeadLetterDto> convertModelToDtoList(List<ElrDeadLetterModel> models) throws Exception {
         List<ElrDeadLetterDto>  dtlModels = new ArrayList<>() {};
         for(ElrDeadLetterModel model: models) {
-            dtlModels.add(new ElrDeadLetterDto(model));
+            dtlModels.add(convertModelToDto(model));
         }
         return dtlModels;
+    }
+
+    private ElrDeadLetterDto convertModelToDto(ElrDeadLetterModel model) throws Exception {
+        String errorMessage;
+        if (model.getErrorMessageSource().equalsIgnoreCase(rawTopic)) {
+            var rawMessageObject = rawELRRepository.findById(model.getErrorMessageId());
+            errorMessage = rawMessageObject.get().getPayload();
+        } else {
+            throw new Exception("Unsupported Operation");
+        }
+        return new ElrDeadLetterDto(model, errorMessage);
     }
 
     private ElrDeadLetterModel convertDtoToModel(ElrDeadLetterDto dtoModel) {
