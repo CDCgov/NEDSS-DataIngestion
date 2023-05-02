@@ -29,9 +29,6 @@ public class ElrDeadLetterModel {
     @Column(name="dlt_status")
     private String dltStatus;
 
-    @Column(name="error_message")
-    private String errorMessage;
-
     @Basic(optional = false)
     @Column(name = "created_on",insertable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)

@@ -109,7 +109,6 @@ public class ElrDeadLetterService {
 
     private ElrDeadLetterModel convertDtoToModel(ElrDeadLetterDto dtoModel) {
         ElrDeadLetterModel model = new ElrDeadLetterModel();
-        model.setErrorMessage(dtoModel.getErrorMessage());
         model.setErrorMessageId(dtoModel.getErrorMessageId());
         model.setErrorMessageSource(dtoModel.getErrorMessageSource());
         model.setErrorStackTrace(dtoModel.getErrorStackTrace());

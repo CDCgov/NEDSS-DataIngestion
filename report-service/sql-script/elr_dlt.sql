@@ -1,6 +1,5 @@
 CREATE TABLE [NBS_DataIngest].[dbo].[elr_dlt] (
     error_message_id UNIQUEIDENTIFIER PRIMARY KEY,
-    error_message nvarchar(max) not null,
     error_message_source nvarchar(255) not null,
     error_stack_trace nvarchar(max) not null,
     dlt_status nvarchar(10) not null,
