@@ -6,6 +6,7 @@ import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.model.ElrDltStatus;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
+import gov.cdc.dataingestion.exception.DeadLetterTopicException;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
@@ -59,18 +60,18 @@ public class ElrDeadLetterService {
         this.fhirRepository = fhirRepository;
     }
 
-    public List<ElrDeadLetterDto> getAllErrorDltRecord() throws Exception {
+    public List<ElrDeadLetterDto> getAllErrorDltRecord() throws DeadLetterTopicException {
         Optional<List<ElrDeadLetterModel>> deadLetterELRModels = dltRepository.findAllDltRecordByDltStatus(ElrDltStatus.ERROR.name(), Sort.by(Sort.Direction.DESC, "createdOn"));
         var dtoModels = convertModelToDtoList(deadLetterELRModels.get());
         return dtoModels;
     }
 
-    public ElrDeadLetterDto getDltRecordById(String id) throws Exception {
+    public ElrDeadLetterDto getDltRecordById(String id) throws DeadLetterTopicException {
         Optional<ElrDeadLetterModel> model = dltRepository.findById(id);
         return convertModelToDto(model.get());
     }
 
-    public ElrDeadLetterDto updateAndReprocessingMessage(String id, String body) throws Exception {
+    public ElrDeadLetterDto updateAndReprocessingMessage(String id, String body) throws DeadLetterTopicException {
         var existingRecord = getDltRecordById(id);
         existingRecord.setDltStatus(ElrDltStatus.REINJECTED.name());
         existingRecord.setDltOccurrence(existingRecord.getDltOccurrence());
@@ -87,7 +88,7 @@ public class ElrDeadLetterService {
         } else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(convertedToXmlTopic)) {
 
         } else {
-            throw new Exception("Provided Error Source is not supported");
+            throw new DeadLetterTopicException("Provided Error Source is not supported");
         }
 
         saveDltRecord(existingRecord);
@@ -99,7 +100,7 @@ public class ElrDeadLetterService {
         return model;
     }
 
-    private List<ElrDeadLetterDto> convertModelToDtoList(List<ElrDeadLetterModel> models) throws Exception {
+    private List<ElrDeadLetterDto> convertModelToDtoList(List<ElrDeadLetterModel> models) throws DeadLetterTopicException {
         List<ElrDeadLetterDto>  dtlModels = new ArrayList<>() {};
         for(ElrDeadLetterModel model: models) {
             dtlModels.add(convertModelToDto(model));
@@ -107,13 +108,17 @@ public class ElrDeadLetterService {
         return dtlModels;
     }
 
-    private ElrDeadLetterDto convertModelToDto(ElrDeadLetterModel model) throws Exception {
+    private ElrDeadLetterDto convertModelToDto(ElrDeadLetterModel model) throws DeadLetterTopicException {
         String errorMessage;
         if (model.getErrorMessageSource().equalsIgnoreCase(rawTopic)) {
             var rawMessageObject = rawELRRepository.findById(model.getErrorMessageId());
-            errorMessage = rawMessageObject.get().getPayload();
+            if (rawMessageObject.isPresent()) {
+                errorMessage = rawMessageObject.get().getPayload();
+            } else {
+                errorMessage = "Not Found";
+            }
         } else {
-            throw new Exception("Unsupported Operation");
+            throw new DeadLetterTopicException("Unsupported Operation");
         }
         return new ElrDeadLetterDto(model, errorMessage);
     }
