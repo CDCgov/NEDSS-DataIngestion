@@ -59,7 +59,10 @@ kafka:
   elr-duplicate:
     topic: elr_duplicate
   topics: elr_raw,elr_validated
-
+  retry:
+      suffix: _retry
+  dlt:
+      suffix: _dlt
 
 ---
 spring:
@@ -106,6 +109,10 @@ kafka:
   elr-duplicate:
     topic: elr_duplicate
   topics: elr_raw,elr_validated
+  retry:
+    suffix: _retry
+  dlt:
+    suffix: _dlt
 
 
 

@@ -24,6 +24,7 @@ hs_err_pid*
 
 # mongo data replica
 report-service/data
+report-service/dlt_records
 
 .DS_Store
 .gradle/7.6/dependencies-accessors/dependencies-accessors.lock
