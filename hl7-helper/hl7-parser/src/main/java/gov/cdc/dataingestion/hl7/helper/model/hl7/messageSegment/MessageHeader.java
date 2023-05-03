@@ -3,11 +3,14 @@ package gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment;
 import ca.uhn.hl7v2.model.v251.segment.MSH;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
 import lombok.Getter;
+import lombok.Setter;
+
 import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
 
 import java.util.List;
 
 @Getter
+@Setter
 public class MessageHeader {
     String fieldSeparator;
     String encodingCharacters;

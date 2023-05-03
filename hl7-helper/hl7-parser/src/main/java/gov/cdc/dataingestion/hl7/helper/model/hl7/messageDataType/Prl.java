@@ -2,8 +2,10 @@ package gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType;
 
 import ca.uhn.hl7v2.model.v251.datatype.PRL;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class Prl {
     Ce parentObservationIdentifier;
     String parentObservationSubIdentifier;

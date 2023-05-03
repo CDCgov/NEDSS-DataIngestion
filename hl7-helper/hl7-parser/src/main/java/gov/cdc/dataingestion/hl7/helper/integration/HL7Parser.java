@@ -25,6 +25,7 @@ public class HL7Parser implements IHL7Parser {
 
     // this is the support hl7 structure
     private final String supportedHL7version = "2.5.1";
+    private final String supportedHL7version231 = "2.3.1";
 
     public HL7Parser(HapiContext context) {
         this.context = context;
@@ -46,6 +47,24 @@ public class HL7Parser implements IHL7Parser {
         return message;
     }
 
+    public HL7ParsedMessage convert231To251(String message) throws DiHL7Exception {
+       try {
+           HL7ParsedMessage parsedMessage = hl7StringParser(message);
+
+           if (parsedMessage.getOriginalVersion().equalsIgnoreCase(supportedHL7version231)) {
+
+               OruR1 oru = (OruR1) parsedMessage.getParsedMessage();
+               oru.getSoftwareSegment();
+
+               return parsedMessage;
+           } else {
+               throw new DiHL7Exception("Unsupported message version. Please only specify HL7v2.3.1. Provided version is:\t" + parsedMessage.getOriginalVersion());
+           }
+       } catch (Exception e) {
+           throw new DiHL7Exception(e.getMessage());
+       }
+    }
+
     public HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception{
         try {
             HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
@@ -53,29 +72,35 @@ public class HL7Parser implements IHL7Parser {
             parsedMessage.setMessage(message);
             parsedMessage.setType(genericParsedMessage.getType());
             parsedMessage.setEventTrigger(genericParsedMessage.getEventTrigger());
-            parsedMessage.setVersion(genericParsedMessage.getVersion());
+            parsedMessage.setOriginalVersion(genericParsedMessage.getOriginalVersion());
 
             var context = hl7GeneralizationContext(this.context);
             PipeParser parser = context.getPipeParser();
 
 
-            switch(genericParsedMessage.getType()) {
-                case  MessageType.ORU:
-                    switch (genericParsedMessage.getEventTrigger()){
-                        case EventTrigger.ORU_01:
-                            ORU_R01 msg = (ca.uhn.hl7v2.model.v251.message.ORU_R01) parser.parse(genericParsedMessage.getMessage());
-                            OruR1 oru = new OruR1(msg);
-                            parsedMessage.setParsedMessage(oru);
-                            break;
-                        default:
-                            throw new DiHL7Exception("Unsupported Event Trigger\t\t" + genericParsedMessage.getEventTrigger());
-                    }
-                    break;
-                default:
-                    throw new DiHL7Exception("Unsupported Message Type\t\t" + genericParsedMessage.getType());
+            if (genericParsedMessage.getOriginalVersion().equalsIgnoreCase(this.supportedHL7version231) ||
+            genericParsedMessage.getOriginalVersion().equalsIgnoreCase(this.supportedHL7version)) {
+                switch(genericParsedMessage.getType()) {
+                    case  MessageType.ORU:
+                        switch (genericParsedMessage.getEventTrigger()){
+                            case EventTrigger.ORU_01:
+                                ORU_R01 msg = (ca.uhn.hl7v2.model.v251.message.ORU_R01) parser.parse(genericParsedMessage.getMessage());
+                                OruR1 oru = new OruR1(msg);
+                                parsedMessage.setParsedMessage(oru);
+                                break;
+                            default:
+                                throw new DiHL7Exception("Unsupported Event Trigger\t\t" + genericParsedMessage.getEventTrigger());
+                        }
+                        break;
+                    default:
+                        throw new DiHL7Exception("Unsupported Message Type\t\t" + genericParsedMessage.getType());
+                }
+
+                return parsedMessage;
+            } else {
+                throw new DiHL7Exception("Unsupported HL7 Version, please only specify either 2.3.1 or 2.5.1. Provided version is: \t\t" + genericParsedMessage.getOriginalVersion());
             }
 
-            return parsedMessage;
         } catch (Exception e) {
             throw new DiHL7Exception(e.getMessage());
         }
@@ -94,7 +119,7 @@ public class HL7Parser implements IHL7Parser {
             HL7ParsedMessage model = new HL7ParsedMessage();
             model.setType(messageType);
             model.setEventTrigger(messageEventTrigger);
-            model.setVersion(messageVersion);
+            model.setOriginalVersion(messageVersion);
             model.setMessage(message);
             return  model;
         } catch (Exception e) {

@@ -3,8 +3,10 @@ import ca.uhn.hl7v2.model.v251.segment.SFT;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class SoftwareSegment {
     Xon softwareVendorOrganization;
     String softwareCertifiedVersionOrReleaseNumber;

@@ -6,11 +6,13 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.ContinuationPoi
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 public class OruR1 {
     MessageHeader messageHeader;
     List<SoftwareSegment> softwareSegment;
