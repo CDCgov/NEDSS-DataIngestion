@@ -22,6 +22,8 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
 import java.util.ArrayList;
 import java.util.List;
 
+import static gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper.MapCxWithNullToCx;
+
 public class HL7Parser implements IHL7Parser {
 
     private HapiContext context;
@@ -100,8 +102,38 @@ public class HL7Parser implements IHL7Parser {
                var listSoftwareSegment = new ArrayList<SoftwareSegment>();
                listSoftwareSegment.add(sft);
                oru.setSoftwareSegment(listSoftwareSegment);
-                //endregion
+               //endregion
 
+               for (var patientResult : oru.getPatientResult()) {
+
+                   //region Patient Result - PATIENT - PID
+                   var pid = patientResult.getPatient().getPatientIdentification();
+                   pid.setSetPid("1");
+                   var listCx = pid.getPatientIdentifierList();
+                   for(int i = 0; i < listCx.size(); i++) {
+                       var cx=  MapCxWithNullToCx( listCx.get(i), "U");
+                       listCx.set(i, cx);
+                   }
+                   pid.setPatientIdentifierList(listCx);
+
+                   // TODO: revisit this one
+                   var patientId = MapCxWithNullToCx(pid.getPatientId(), "PT");
+                   pid.setPatientId(patientId);
+                   //endregion
+
+                   //region Patient Result - PATIENT - PD1
+                   //endregion
+
+                   //region Patient Result - PATIENT - NK1
+                   //endregion
+
+                   //region Patient Result - PATIENT - NTE
+                   //endregion
+
+                   //region Patient Result - PATIENT - VISIT
+                   //endregion
+
+                }
 
                return parsedMessage;
            } else {
