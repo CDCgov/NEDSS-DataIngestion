@@ -73,19 +73,19 @@ public class KafkaConsumerService {
     @Value("${kafka.elr-duplicate.topic}")
     private String validatedElrDuplicateTopic = "";
 
-    private String directory = "dlt_records";
+    private final String directory = "dlt_records";
 
 
-    private KafkaProducerService kafkaProducerService;
-    private IHL7v2Validator iHl7v2Validator;
-    private IRawELRRepository iRawELRRepository;
-    private IValidatedELRRepository iValidatedELRRepository;
-    private IHL7ToFHIRConversion iHl7ToFHIRConversion;
-    private IHL7ToFHIRRepository iHL7ToFHIRRepository;
-    private IHL7DuplicateValidator iHL7DuplicateValidator;
+    private final KafkaProducerService kafkaProducerService;
+    private final IHL7v2Validator iHl7v2Validator;
+    private final IRawELRRepository iRawELRRepository;
+    private final IValidatedELRRepository iValidatedELRRepository;
+    private final IHL7ToFHIRConversion iHl7ToFHIRConversion;
+    private final IHL7ToFHIRRepository iHL7ToFHIRRepository;
+    private final IHL7DuplicateValidator iHL7DuplicateValidator;
 
-    private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
-    private ElrDeadLetterService elrDeadLetterService;
+    private final NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
+    private final ElrDeadLetterService elrDeadLetterService;
 
 
     public KafkaConsumerService(

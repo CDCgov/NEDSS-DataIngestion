@@ -15,13 +15,13 @@ import java.util.UUID;
 
 @Service
 public class KafkaProducerService {
-    private String xmlMessageKeyPrefix = "XML_";
-    private String fhirMessageKeyPrefix = "FHIR_";
-    private String validMessageKeyPrefix = "VALID_";
-    private String hl7MessageKeyPrefix = "HL7_";
-    private String dltMessageKeyPrefix = "DLT_";
+    private final String xmlMessageKeyPrefix = "XML_";
+    private final String fhirMessageKeyPrefix = "FHIR_";
+    private final String validMessageKeyPrefix = "VALID_";
+    private final String hl7MessageKeyPrefix = "HL7_";
+    private final String dltMessageKeyPrefix = "DLT_";
 
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
     public KafkaProducerService( KafkaTemplate<String, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
@@ -48,7 +48,7 @@ public class KafkaProducerService {
     public void sendMessageAfterValidatingMessage(ValidatedELRModel msg, String topic, Integer dltOccurrence) {
         String uniqueID =  validMessageKeyPrefix + msg.getMessageType() + "_" + UUID.randomUUID();
         var record = new ProducerRecord<>(topic, uniqueID, msg.getId());
-        record.headers().add(KafkaHeaderValue.MessageType, msg.getMessageType().toString().getBytes());
+        record.headers().add(KafkaHeaderValue.MessageType, msg.getMessageType().getBytes());
         record.headers().add(KafkaHeaderValue.MessageVersion, msg.getMessageVersion().getBytes());
         record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
         sendMessage(record);

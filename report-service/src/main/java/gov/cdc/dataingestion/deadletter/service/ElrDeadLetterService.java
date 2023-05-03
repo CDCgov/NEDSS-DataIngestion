@@ -33,7 +33,7 @@ public class ElrDeadLetterService {
     private final IRawELRRepository rawELRRepository;
     private final IValidatedELRRepository validatedELRRepository;
     private final IHL7ToFHIRRepository fhirRepository;
-    private KafkaProducerService kafkaProducerService;
+    private final KafkaProducerService kafkaProducerService;
 
     @Value("${kafka.validation.topic}")
     private String validatedTopic = "";

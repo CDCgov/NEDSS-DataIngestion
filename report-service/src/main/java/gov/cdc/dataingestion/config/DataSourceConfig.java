@@ -34,7 +34,7 @@ import  java.util.HashMap;
 )
 @Configuration
 public class DataSourceConfig {
-    private static Logger logger = LoggerFactory.getLogger(DataSourceConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(DataSourceConfig.class);
 
     @Value("${spring.datasource.driverClassName}")
     private String className;

@@ -70,22 +70,20 @@ public class NbsInterfaceModel {
 
     @Override
     public String toString() {
-    	StringBuilder sb = new StringBuilder();
-    	sb.append(this.getNbsInterfaceUid())
-    	  .append(TOSTRING_COLUMN_SPACER)
-    	  .append(this.getImpExpIndCd())
-    	  .append(TOSTRING_COLUMN_SPACER)
-    	  .append(this.getRecordStatusCd())
-    	  .append(TOSTRING_COLUMN_SPACER)
-    	  .append(this.getSystemNm())
-    	  .append(TOSTRING_COLUMN_SPACER)
-    	  .append(this.getDocTypeCd())
-    	  .append(TOSTRING_COLUMN_SPACER)
-    	  .append(this.getRecordStatusTime().toString())
-    	  .append(TOSTRING_COLUMN_SPACER)
-    	  .append(this.getAddTime().toString())    	  
-    	  ;
+        String sb = this.getNbsInterfaceUid() +
+                TOSTRING_COLUMN_SPACER +
+                this.getImpExpIndCd() +
+                TOSTRING_COLUMN_SPACER +
+                this.getRecordStatusCd() +
+                TOSTRING_COLUMN_SPACER +
+                this.getSystemNm() +
+                TOSTRING_COLUMN_SPACER +
+                this.getDocTypeCd() +
+                TOSTRING_COLUMN_SPACER +
+                this.getRecordStatusTime().toString() +
+                TOSTRING_COLUMN_SPACER +
+                this.getAddTime().toString();
     	
-        return sb.toString();
+        return sb;
     }
 }

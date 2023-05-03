@@ -11,7 +11,7 @@ import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import gov.cdc.dataingestion.validation.model.enums.MessageType;
 
 public class HL7v2Validator implements IHL7v2Validator {
-    private HapiContext context;
+    private final HapiContext context;
     public HL7v2Validator(HapiContext context) {
         this.context = context;
     }
