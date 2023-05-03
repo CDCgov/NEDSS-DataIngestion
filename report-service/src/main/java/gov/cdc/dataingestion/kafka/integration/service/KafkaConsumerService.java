@@ -9,6 +9,7 @@ import gov.cdc.dataingestion.deadletter.model.ElrDltStatus;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService;
 import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
+import gov.cdc.dataingestion.exception.FhirConversionException;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
@@ -22,21 +23,29 @@ import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.errors.SerializationException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.RetryableTopic;
+import org.springframework.kafka.listener.ErrorHandler;
 import org.springframework.kafka.retrytopic.TopicSuffixingStrategy;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.kafka.support.serializer.DeserializationException;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-@Component
+@Service
 @Slf4j
 public class KafkaConsumerService {
     //private static String HEADER = "MSH|^~\\&|||||20080925161613||ADT^A05||P|2.6|";
@@ -104,18 +113,13 @@ public class KafkaConsumerService {
                     //HL7Exception.class
             }
     )
-    @KafkaListener(topics = "#{'${kafka.topics}'.split(',')}")
-    public void handleMessage(String message,
-                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+    @KafkaListener(topics = "${kafka.raw.topic}")
+    public void handleMessageForRawElr(String message,
+                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)  {
         log.info("Received message ID: {} from topic: {}", message, topic);
 
         try {
-            if (topic.equalsIgnoreCase(rawTopic) || topic.equalsIgnoreCase(rawTopic + "-retry-0")) {
-                validationHandler(message);
-            } else if (topic.equalsIgnoreCase(validatedTopic) || topic.equalsIgnoreCase(validatedTopic + "-retry-0")) {
-                //conversionHandler(message);
-                xmlConversionHandler(message);
-            }
+            validationHandler(message);
         } catch (Exception e) {
             log.info("Retry queue");
             // run time error then -- do retry
@@ -124,8 +128,49 @@ public class KafkaConsumerService {
         }
     }
 
+    @RetryableTopic(
+            attempts = "${kafka.consumer.max-retry}",
+            autoCreateTopics = "false",
+            // retry topic name, such as topic-retry-1, topic-retry-2, etc
+            topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE,
+            // time to wait before attempting to retry
+            backoff = @Backoff(delay = 1000, multiplier = 2.0),
+            // if these exceptions occur, skip retry then push message to DLQ
+            exclude = {
+                    SerializationException.class,
+                    DeserializationException.class,
+                    DuplicateHL7FileFoundException.class,
+                    //HL7Exception.class
+            }
+    )
+    @KafkaListener(topics = "${kafka.validation.topic}")
+    public void handleMessageForValidatedElr(String message,
+                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+        log.info("Received message ID: {} from topic: {}", message, topic);
+
+        CompletableFuture<Void> future1 = CompletableFuture.runAsync(() -> {
+            try {
+                conversionHandler(message);
+            } catch (Exception e) {
+                log.info("Retry queue");
+                throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
+            }
+        });
+        CompletableFuture<Void> future2 = CompletableFuture.runAsync(() -> {
+            try {
+                xmlConversionHandler(message);
+            } catch (Exception e) {
+                log.info("Retry queue");
+                throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
+            }
+        });
+        CompletableFuture.allOf(future1, future2).join();
+
+    }
+
     @DltHandler
     public void handleDlt(
+            ConsumerRecord<String, String> record,
             String message,
             @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
             @Header(KafkaHeaders.EXCEPTION_STACKTRACE) String stacktrace,
@@ -135,6 +180,7 @@ public class KafkaConsumerService {
         log.info("Message ID: {} handled by dlq topic: {}", message, topic);
         log.info("Stack Trace: {}", stacktrace);
 
+        var test = record;
         String dtlSuffix = "-dlt";
 
         // use this for data re-injection
@@ -199,16 +245,20 @@ public class KafkaConsumerService {
                 break;
         }
     }
-    private void conversionHandler(String message) {
+    private void conversionHandler(String message) throws FhirConversionException {
         Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
         ValidatedELRModel validatedELRModel = validatedElrResponse.get();
         String messageType = validatedELRModel.getMessageType();
         if (messageType.equalsIgnoreCase(KafkaHeaderValue.MessageType_HL7v2)) {
-            HL7ToFHIRModel convertedModel = iHl7ToFHIRConversion.ConvertHL7v2ToFhir(validatedELRModel, convertedToFhirTopic);
-            iHL7ToFHIRRepository.save(convertedModel);
-            kafkaProducerService.sendMessageAfterConvertedToFhirMessage(convertedModel, convertedToFhirTopic, 0);
+            try {
+                HL7ToFHIRModel convertedModel = iHl7ToFHIRConversion.ConvertHL7v2ToFhir(validatedELRModel, convertedToFhirTopic);
+                iHL7ToFHIRRepository.save(convertedModel);
+                kafkaProducerService.sendMessageAfterConvertedToFhirMessage(convertedModel, convertedToFhirTopic, 0);
+            } catch (Exception e) {
+                throw new FhirConversionException(e.getMessage());
+            }
         } else {
-            throw new UnsupportedOperationException("Invalid Message");
+            throw new FhirConversionException("Invalid Message");
         }
     }
 

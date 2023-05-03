@@ -5,13 +5,15 @@ import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import gov.cdc.dataingestion.validation.model.constant.KafkaHeaderValue;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
-@Component
+@Service
 public class KafkaProducerService {
     private String xmlMessageKeyPrefix = "XML_";
     private String fhirMessageKeyPrefix = "FHIR_";
