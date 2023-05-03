@@ -73,6 +73,9 @@ public class KafkaConsumerService {
     @Value("${kafka.elr-duplicate.topic}")
     private String validatedElrDuplicateTopic = "";
 
+    private String directory = "dlt_records";
+
+
     private KafkaProducerService kafkaProducerService;
     private IHL7v2Validator iHl7v2Validator;
     private IRawELRRepository iRawELRRepository;
@@ -197,12 +200,7 @@ public class KafkaConsumerService {
             @Header(KafkaHeaderValue.DltOccurrence) String dltOccurrence,
             @Header(KafkaHeaderValue.OriginalTopic) String originalTopic
     ) {
-        // Once in DLQ -- we can save message in actual db for further analyze
         log.info("Message ID: {} handled by dlq topic: {}", message, topic);
-        log.info("Stack Trace: {}", stacktrace);
-
-
-
 
         // use this for data re-injection
         String erroredSource = "";
@@ -231,15 +229,13 @@ public class KafkaConsumerService {
                 erroredSource + this.dltSuffix
         );
         try {
-        //    this.elrDeadLetterService.saveDltRecord(elrDeadLetterDto);
-            throw new Exception("A");
+            this.elrDeadLetterService.saveDltRecord(elrDeadLetterDto);
             // TODO: push notification to notify user, error happened, and it was saved of  into rds db
         } catch (Exception e) {
             String receivedTimeStamp = convertUnixTimeStampToReadable(timeStamp);
             Gson gson = new Gson();
             String data = gson.toJson(elrDeadLetterDto);
 
-            String directory = "dlt_records";
             File dir = new File(directory);
             if (!dir.exists()) {
                 dir.mkdir();
