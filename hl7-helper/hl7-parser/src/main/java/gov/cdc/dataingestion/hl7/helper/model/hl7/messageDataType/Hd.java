@@ -15,4 +15,8 @@ public class Hd {
         this.universalId = hd.getUniversalID().getValue();
         this.universalIdType = hd.getUniversalIDType().getValue();
     }
+
+    public Hd() {
+
+    }
 }

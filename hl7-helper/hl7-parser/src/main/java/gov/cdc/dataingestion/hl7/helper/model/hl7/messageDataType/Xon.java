@@ -29,4 +29,8 @@ public class Xon {
         this.nameRepresentationCode = xon.getNameRepresentationCode().getValue();
         this.organizationIdentifier = xon.getOrganizationIdentifier().getValue();
     }
+
+    public Xon() {
+
+    }
 }

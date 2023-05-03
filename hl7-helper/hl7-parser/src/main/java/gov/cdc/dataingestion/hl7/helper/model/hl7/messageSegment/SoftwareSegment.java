@@ -23,4 +23,7 @@ public class SoftwareSegment {
         this.softwareProductInformation = sft.getSoftwareProductInformation().getValue();
         this.softwareInstallDate = new Ts(sft.getSoftwareInstallDate());
     }
+
+    public SoftwareSegment() {
+    }
 }
