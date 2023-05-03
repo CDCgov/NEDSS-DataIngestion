@@ -2,6 +2,8 @@ package gov.cdc.dataingestion.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,11 +16,14 @@ import org.springframework.kafka.listener.CommonErrorHandler;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.util.backoff.BackOff;
 import org.springframework.util.backoff.FixedBackOff;
 
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiFunction;
+
 @Slf4j
 @EnableKafka
 @Configuration
@@ -32,7 +37,11 @@ public class KafkaConsumerConfig {
     @Value("${spring.kafka.consumer.maxPollIntervalMs}")
     private String maxPollInterval = "";
 
+    @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
+
+    @Autowired
+    private KafkaErrorHandlerConfig errorHandler;
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
         final Map<String, Object> config = new HashMap<>();
@@ -54,5 +63,15 @@ public class KafkaConsumerConfig {
         return  factory;
     }
 
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaBlockingRetryContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, String> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory());
+        factory.setCommonErrorHandler(new DefaultErrorHandler(
+                errorHandler.deadLetterPublishingRecoverer(kafkaTemplate))
+        );
+        return factory;
+    }
 
 }

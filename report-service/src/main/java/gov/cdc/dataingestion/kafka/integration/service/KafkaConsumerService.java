@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.kafka.integration.service;
 
 import ca.uhn.hl7v2.HL7Exception;
+import gov.cdc.dataingestion.config.KafkaConsumerConfig;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
@@ -25,10 +26,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.errors.SerializationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.RetryableTopic;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.retrytopic.DltStrategy;
 import org.springframework.kafka.retrytopic.TopicSuffixingStrategy;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.kafka.support.serializer.DeserializationException;
@@ -73,6 +78,7 @@ public class KafkaConsumerService {
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
     private ElrDeadLetterService elrDeadLetterService;
 
+    private final ConcurrentKafkaListenerContainerFactory<String, String> kafkaBlockingRetryContainerFactory;
 
     public KafkaConsumerService(
             IValidatedELRRepository iValidatedELRRepository,
@@ -83,7 +89,8 @@ public class KafkaConsumerService {
             IHL7ToFHIRRepository iHL7ToFHIRepository,
             IHL7DuplicateValidator iHL7DuplicateValidator,
             NbsRepositoryServiceProvider nbsRepositoryServiceProvider,
-            ElrDeadLetterService elrDeadLetterService) {
+            ElrDeadLetterService elrDeadLetterService,
+            @Qualifier("kafkaBlockingRetryContainerFactory") ConcurrentKafkaListenerContainerFactory<String, String> kafkaBlockingRetryContainerFactory) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.kafkaProducerService = kafkaProducerService;
@@ -93,11 +100,19 @@ public class KafkaConsumerService {
         this.iHL7DuplicateValidator = iHL7DuplicateValidator;
         this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
         this.elrDeadLetterService = elrDeadLetterService;
+        this.kafkaBlockingRetryContainerFactory = kafkaBlockingRetryContainerFactory;
+
+
     }
+
+
 
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
             autoCreateTopics = "false",
+            traversingCauses = "true",
+            dltStrategy = DltStrategy.FAIL_ON_ERROR,
+            listenerContainerFactory =  "kafkaBlockingRetryContainerFactory",
             // retry topic name, such as topic-retry-1, topic-retry-2, etc
             topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE,
             // time to wait before attempting to retry
@@ -109,8 +124,9 @@ public class KafkaConsumerService {
                     DuplicateHL7FileFoundException.class,
                     //HL7Exception.class
             }
+
     )
-    @KafkaListener(topics = "${kafka.raw.topic}")
+    @KafkaListener(topics = "${kafka.raw.topic}", containerFactory = "kafkaBlockingRetryContainerFactory")
     public void handleMessageForRawElr(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)  {
         log.info("Received message ID: {} from topic: {}", message, topic);
