@@ -16,4 +16,8 @@ public class Ei {
         this.universalId = ei.getUniversalID().getValue();
         this.universalIdType = ei.getUniversalIDType().getValue();
     }
+
+    public Ei() {
+
+    }
 }

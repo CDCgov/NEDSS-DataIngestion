@@ -17,4 +17,8 @@ public class Msg {
         this.triggerEvent = msg.getTriggerEvent().getValue();
         this.messageStructure = msg.getMessageStructure().getValue();
     }
+
+    public Msg() {
+
+    }
 }

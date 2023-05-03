@@ -15,4 +15,8 @@ public class Vid {
         this.internationalizationCode = new Ce(vid.getInternationalizationCode());
         this.internationalVersionId = new Ce(vid.getInternationalVersionID());
     }
+
+    public Vid() {
+
+    }
 }

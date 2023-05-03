@@ -14,8 +14,8 @@ import gov.cdc.dataingestion.hl7.helper.constant.hl7.MessageType;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
 
@@ -60,6 +60,29 @@ public class HL7Parser implements IHL7Parser {
            if (parsedMessage.getOriginalVersion().equalsIgnoreCase(supportedHL7version231)) {
 
                OruR1 oru = (OruR1) parsedMessage.getParsedMessage();
+
+               //region Message Header Conversion
+               MessageHeader msh = oru.getMessageHeader();
+               Msg messageType = new Msg();
+               messageType.setMessageCode("ORU");
+               messageType.setTriggerEvent("R01");
+               messageType.setMessageStructure("ORU_R01");
+               msh.setMessageType(messageType);
+               Vid versionId = new Vid();
+               versionId.setVersionId("2.5.1");
+               msh.setVersionId(versionId);
+               Ei messageProfileIdentifier = new Ei();
+               messageProfileIdentifier.setEntityIdentifier("PHLabReport-NoAck");
+               messageProfileIdentifier.setNameSpaceId("ELR_Receiver");
+               messageProfileIdentifier.setUniversalId("2.16.840.1.113883.9.11");
+               messageProfileIdentifier.setUniversalIdType("ISO");
+               List<Ei> listEi = new ArrayList<>();
+               listEi.add(messageProfileIdentifier);
+               msh.setMessageProfileIdentifier(listEi);
+               oru.setMessageHeader(msh);
+               //endregion
+
+               //region Software Segment conversion
                Xon softwareVendorOrg = new Xon();
                softwareVendorOrg.setOrganizationName("Rhapsody");
                softwareVendorOrg.setOrganizationNameTypeCode("L");
@@ -69,17 +92,17 @@ public class HL7Parser implements IHL7Parser {
                softwareVendorOrg.setAssignAuthority(assignAuthority);
                softwareVendorOrg.setIdentifierTypeCode("XX");
                softwareVendorOrg.setOrganizationIdentifier("Rhapsody Organization Identifier");
-
-
                SoftwareSegment sft = new SoftwareSegment();
                sft.setSoftwareVendorOrganization(softwareVendorOrg);
                sft.setSoftwareCertifiedVersionOrReleaseNumber("4.1.1");
                sft.setSoftwareProductName("Rhapsody");
                sft.setSoftwareBinaryId("Rhapsody Binary ID");
-
                var listSoftwareSegment = new ArrayList<SoftwareSegment>();
                listSoftwareSegment.add(sft);
                oru.setSoftwareSegment(listSoftwareSegment);
+                //endregion
+
+
                return parsedMessage;
            } else {
                throw new DiHL7Exception("Unsupported message version. Please only specify HL7v2.3.1. Provided version is:\t" + parsedMessage.getOriginalVersion());
