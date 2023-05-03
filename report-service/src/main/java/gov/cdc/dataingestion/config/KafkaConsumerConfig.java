@@ -20,6 +20,7 @@ import org.springframework.util.backoff.BackOff;
 import org.springframework.util.backoff.FixedBackOff;
 
 
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -40,8 +41,8 @@ public class KafkaConsumerConfig {
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
 
-    @Autowired
-    private KafkaErrorHandlerConfig errorHandler;
+//    @Autowired
+//    private KafkaErrorHandlerConfig errorHandler;
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
         final Map<String, Object> config = new HashMap<>();
@@ -63,15 +64,56 @@ public class KafkaConsumerConfig {
         return  factory;
     }
 
+//    @Bean
+//    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaBlockingRetryContainerFactory() {
+//        ConcurrentKafkaListenerContainerFactory<String, String> factory =
+//                new ConcurrentKafkaListenerContainerFactory<>();
+//        factory.setConsumerFactory(consumerFactory());
+//        factory.setCommonErrorHandler(new DefaultErrorHandler(
+//                errorHandler.deadLetterPublishingRecoverer(kafkaTemplate))
+//        );
+//        return factory;
+//    }
+
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaBlockingRetryContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, String> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, String> multiTypeKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        // Other configurations
         factory.setConsumerFactory(consumerFactory());
-        factory.setCommonErrorHandler(new DefaultErrorHandler(
-                errorHandler.deadLetterPublishingRecoverer(kafkaTemplate))
-        );
+        factory.setCommonErrorHandler(errorHandler());
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);
+        factory.afterPropertiesSet();
         return factory;
     }
+
+//    @Bean
+//    public DefaultErrorHandler errorHandler() {
+//        BackOff fixedBackOff = new FixedBackOff(1000, 1);
+//        DefaultErrorHandler errorHandler = new DefaultErrorHandler(
+//
+//                (consumerRecord, exception) -> {
+//                    System.out.println("Recovered: " + consumerRecord);
+//
+//                    // logic to execute when all the retry attemps are exhausted
+//                Headers headers = consumerRecord.headers();
+//                headers.add("TEST-TEST-TEST", "TEST-TEST-TEST".getBytes());
+//                System.out.println("TEST-TEST-TEST");
+//
+//                consumerRecord.headers().add("TEST-TEST-TEST", "TEST-TEST-TEST".getBytes());
+//            },
+//            fixedBackOff);
+//        errorHandler.addRetryableExceptions(Exception.class);
+//     //   errorHandler.addNotRetryableExceptions(NullPointerException.class);
+//        return errorHandler;
+//    }
+
+    @Bean
+    public DefaultErrorHandler errorHandler() {
+        return new DefaultErrorHandler((rec, ex) -> {
+            System.out.println("Recovered: " + rec);
+        }, new FixedBackOff(0L, 1));
+    }
+
+
 
 }

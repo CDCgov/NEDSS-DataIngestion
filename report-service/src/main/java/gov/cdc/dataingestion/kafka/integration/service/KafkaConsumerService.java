@@ -78,7 +78,7 @@ public class KafkaConsumerService {
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
     private ElrDeadLetterService elrDeadLetterService;
 
-    private final ConcurrentKafkaListenerContainerFactory<String, String> kafkaBlockingRetryContainerFactory;
+    private final ConcurrentKafkaListenerContainerFactory<String, String> multiTypeKafkaListenerContainerFactory;
 
     public KafkaConsumerService(
             IValidatedELRRepository iValidatedELRRepository,
@@ -90,7 +90,7 @@ public class KafkaConsumerService {
             IHL7DuplicateValidator iHL7DuplicateValidator,
             NbsRepositoryServiceProvider nbsRepositoryServiceProvider,
             ElrDeadLetterService elrDeadLetterService,
-            @Qualifier("kafkaBlockingRetryContainerFactory") ConcurrentKafkaListenerContainerFactory<String, String> kafkaBlockingRetryContainerFactory) {
+            @Qualifier("multiTypeKafkaListenerContainerFactory") ConcurrentKafkaListenerContainerFactory<String, String> multiTypeKafkaListenerContainerFactory) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.kafkaProducerService = kafkaProducerService;
@@ -100,7 +100,7 @@ public class KafkaConsumerService {
         this.iHL7DuplicateValidator = iHL7DuplicateValidator;
         this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
         this.elrDeadLetterService = elrDeadLetterService;
-        this.kafkaBlockingRetryContainerFactory = kafkaBlockingRetryContainerFactory;
+        this.multiTypeKafkaListenerContainerFactory = multiTypeKafkaListenerContainerFactory;
 
 
     }
@@ -108,15 +108,15 @@ public class KafkaConsumerService {
 
 
     @RetryableTopic(
-            attempts = "${kafka.consumer.max-retry}",
+//            attempts = "${kafka.consumer.max-retry}",
             autoCreateTopics = "false",
             traversingCauses = "true",
             dltStrategy = DltStrategy.FAIL_ON_ERROR,
-            listenerContainerFactory =  "kafkaBlockingRetryContainerFactory",
+            listenerContainerFactory =  "multiTypeKafkaListenerContainerFactory",
             // retry topic name, such as topic-retry-1, topic-retry-2, etc
             topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE,
             // time to wait before attempting to retry
-            backoff = @Backoff(delay = 1000, multiplier = 2.0),
+//            backoff = @Backoff(delay = 1000, multiplier = 2.0),
             // if these exceptions occur, skip retry then push message to DLQ
             exclude = {
                     SerializationException.class,
@@ -126,19 +126,23 @@ public class KafkaConsumerService {
             }
 
     )
-    @KafkaListener(topics = "${kafka.raw.topic}", containerFactory = "kafkaBlockingRetryContainerFactory")
+    @KafkaListener(
+            topics = "${kafka.raw.topic}",
+            errorHandler = "errorHandler"
+    )
     public void handleMessageForRawElr(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)  {
         log.info("Received message ID: {} from topic: {}", message, topic);
-
-        try {
-            validationHandler(message);
-        } catch (Exception e) {
-            log.info("Retry queue");
-            // run time error then -- do retry
-            // get root message
-            throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
-        }
+        throw new RuntimeException("test");
+//
+//        try {
+//            validationHandler(message);
+//        } catch (Exception e) {
+//            log.info("Retry queue");
+//            // run time error then -- do retry
+//            // get root message
+//            throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
+//        }
     }
 
     @RetryableTopic(
@@ -181,7 +185,8 @@ public class KafkaConsumerService {
 
     }
 
-    @DltHandler
+
+    @DltHandler()
     public void handleDlt(
             ConsumerRecord<String, String> record,
             String message,
