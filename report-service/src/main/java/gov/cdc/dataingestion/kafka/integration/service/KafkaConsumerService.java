@@ -202,6 +202,7 @@ public class KafkaConsumerService {
     ) {
         log.info("Message ID: {} handled by dlq topic: {}", message, topic);
 
+
         // use this for data re-injection
         String erroredSource = "";
         String regex = "^(.*\\n)*.*(?=java\\.lang\\.RuntimeException)";
