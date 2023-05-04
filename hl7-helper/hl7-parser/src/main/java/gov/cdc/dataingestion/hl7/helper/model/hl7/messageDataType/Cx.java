@@ -29,4 +29,8 @@ public class Cx {
         this.assignJurisdiction = new Cwe(cx.getAssigningJurisdiction());
         this.assignAgentOrDept = new Cwe(cx.getAssigningAgencyOrDepartment());
     }
+
+    public Cx() {
+
+    }
 }

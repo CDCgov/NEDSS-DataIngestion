@@ -21,4 +21,8 @@ public class Specimen {
             this.observationResult.add(new ObservationResult(item));
         }
     }
+
+    public Specimen(gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen specimen) {
+        this.specimen = specimen;
+    }
 }

@@ -14,6 +14,7 @@ import gov.cdc.dataingestion.hl7.helper.constant.hl7.MessageType;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment;
@@ -22,7 +23,7 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
 import java.util.ArrayList;
 import java.util.List;
 
-import static gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper.MapCxWithNullToCx;
+import static gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper.*;
 
 public class HL7Parser implements IHL7Parser {
 
@@ -58,10 +59,13 @@ public class HL7Parser implements IHL7Parser {
     public HL7ParsedMessage convert231To251(String message) throws DiHL7Exception {
        try {
            HL7ParsedMessage parsedMessage = hl7StringParser(message);
+//           var parsed231Message = hl7v231StringParser(message);
 
            if (parsedMessage.getOriginalVersion().equalsIgnoreCase(supportedHL7version231)) {
 
                OruR1 oru = (OruR1) parsedMessage.getParsedMessage();
+
+               Ts messageHeaderDateTime = oru.getMessageHeader().getDateTimeOfMessage();
 
                //region Message Header Conversion
                MessageHeader msh = oru.getMessageHeader();
@@ -104,35 +108,142 @@ public class HL7Parser implements IHL7Parser {
                oru.setSoftwareSegment(listSoftwareSegment);
                //endregion
 
-               for (var patientResult : oru.getPatientResult()) {
+               for (int a = 0; a < oru.getPatientResult().size(); a++) {
 
                    //region Patient Result - PATIENT - PID
-                   var pid = patientResult.getPatient().getPatientIdentification();
+                   var pid = oru.getPatientResult().get(a).getPatient().getPatientIdentification();
                    pid.setSetPid("1");
                    var listCx = pid.getPatientIdentifierList();
                    for(int i = 0; i < listCx.size(); i++) {
-                       var cx=  MapCxWithNullToCx( listCx.get(i), "U");
+                       Cx cx;
+                       if(listCx.get(i).getIdentifierTypeCode() == null || listCx.get(i).getIdentifierTypeCode().isEmpty()) {
+                           cx = MapCxWithNullToCx(listCx.get(i), listCx.get(i), "U");
+                       } else {
+                           cx = MapCxWithNullToCx(listCx.get(i), listCx.get(i), listCx.get(i).getIdentifierTypeCode());
+                       }
                        listCx.set(i, cx);
+
                    }
                    pid.setPatientIdentifierList(listCx);
 
-                   // TODO: revisit this one
-                   var patientId = MapCxWithNullToCx(pid.getPatientId(), "PT");
-                   pid.setPatientId(patientId);
+                   // Mapping PatientID to PatientIdentifierList
+                   if (pid.getPatientId() != null) {
+                       var newPatientIdCx = new Cx();
+                       var patientId = MapCxWithNullToCx(pid.getPatientId(), newPatientIdCx, "PT");
+                       pid.getPatientIdentifierList().add(patientId);
+                   }
+
+                   // Mapping AlternatePatientId to PatientIdentifierList
+                   for(int i = 0; i < pid.getAlternativePatientId().size(); i++) {
+                       if(pid.getPatientIdentifierList().get(i) != null) {
+                           var newPatientIdCx = new Cx();
+                           var patientId = MapCxWithNullToCx(pid.getPatientId(), newPatientIdCx, "APT");
+                           pid.getPatientIdentifierList().add(patientId);
+                       }
+                   }
+
+                   //FIXME: test - Mapping PatientName to PatientName
+                   //FIXME: test - Mapping MotherMaidenName to MotherMaidenName
+                   //FIXME: test - Mapping DateTimeOfBirth to DateTimeOfBirth
+
+                   //Mapping PatientAlias to PatientName
+                   for(int i = 0; i < pid.getPatientAlias().size(); i++) {
+                       if (pid.getPatientAlias().get(i) != null) {
+                           pid.getPatientName().add(MapXpnToXpn(pid.getPatientAlias().get(i), new Xpn(), "A"));
+                       }
+                   }
+
+                   //FIXME: test - Mapping Race to Race
+                   //FIXME: test - Mapping PatientAddress to PatientAddress
+                   //FIXME: test - Mapping HomePhoneNumber to HomePhoneNumber
+                   //FIXME: test - Mapping BusinessPhoneNumber to BusinessPhoneNumber
+                   //FIXME: test - Mapping PrimaryLanguage to PrimaryLanguage
+                   //FIXME: test - Mapping MartialStatus to MartialStatus
+                   //FIXME: test - Mapping Religion to Religion
+                   //FIXME: test - Mapping PatientAccountNumber to PatientAccountNumber
+                   //FIXME: test - Mapping MotherIdentifier to MotherIdentifier
+                   //FIXME: test - Mapping EthnicGroup to EthnicGroup
+                   //FIXME: test - Mapping Citizenship to Citizenship
+                   //FIXME: test - Mapping VeteranMilitaryStatus to VeteranMilitaryStatus
+                   //FIXME: test - Mapping Nationality to Nationality
+                   //FIXME: test - Mapping PatientDeathDateTime to PatientDeathDateTime
+
+                   // Mapping DriverLicenseNumber to PatientIdentifierList
+                   pid.getDriverLicenseNumberPatient();
+                   if (pid.getDriverLicenseNumberPatient() != null) {
+                       pid.getPatientIdentifierList().add(MapDlnToCx(pid.getDriverLicenseNumberPatient(), new Cx()));
+                   }
+                   oru.getPatientResult().get(a).getPatient().setPatientIdentification(pid);
                    //endregion
 
                    //region Patient Result - PATIENT - PD1
+                   //FIXME: test - mapping LivingDependency
+                   //FIXME: test - mapping PatientPrimaryFacility
+                   //FIXME: test - mapping DuplicatePatient
+                   //FIXME: test - mapping PatientPrimaryCareProviderNameAndIDNo
                    //endregion
 
                    //region Patient Result - PATIENT - NK1
+                   //FIXME - test mapping NK1
                    //endregion
 
                    //region Patient Result - PATIENT - NTE
+                   //FIXME - test mapping NTE
                    //endregion
 
                    //region Patient Result - PATIENT - VISIT
+                   //FIXME - test VISIT
                    //endregion
 
+                   //region Patient Result - ORDER OBSERVATION
+                   for(int c = 0; c < oru.getPatientResult().get(a).getOrderObservation().size(); c++) {
+                       //region OBSERVATION - OBX
+                       for (int d = 0; d < oru.getPatientResult().get(a).getOrderObservation().get(c).getObservation().size(); d++) {
+                           // Mapping OBX
+                           oru.getPatientResult().get(a).getOrderObservation()
+                                   .get(c).getObservation().get(d).setObservationResult(MapObservationResultToObservationResult(
+                                           oru.getPatientResult().get(a).getOrderObservation().get(c).getObservation().get(d).getObservationResult(),
+                                           oru.getPatientResult().get(a).getOrderObservation().get(c).getObservation().get(d).getObservationResult()
+                                   ));
+                           //FIXME: test - Mapping NTE
+                       }
+                       //endregion
+
+                       //region OBSERVATION - OBR
+                       oru.getPatientResult().get(a).getOrderObservation().get(c).setObservationRequest(
+                               ObservationRequestToObservationRequest(
+                                       oru.getPatientResult().get(a).getOrderObservation().get(c).getObservationRequest(),
+                                       oru.getPatientResult().get(a).getOrderObservation().get(c).getObservationRequest(),
+                                       messageHeaderDateTime
+                               )
+                       );
+                       //endregion
+
+                       //region OBSERVATION - NTE
+                       //FIXME - test - NTE
+                       //endregion
+
+                       //region OBSERVATION - CTI
+                       //FIXME - test - CTI
+                       //endregion
+
+                       //region OBSERVATION - OBR to SPM
+                       var spc =   ObservationRequestToSpecimen(oru.getPatientResult().get(a).getOrderObservation().get(c).getObservationRequest(),
+                               new Specimen());
+                       oru.getPatientResult().get(a).getOrderObservation().get(c).getSpecimen().add(
+                             new gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Specimen(spc)
+                       );
+                       //endregion
+
+
+                   }
+
+                   //region Common Order - ORC to ORC
+                    //FIXME - Map ORC to ORC -- noted on Rhapsody; only map the first record
+                   //endregion
+
+
+                   //endregion
                 }
 
                return parsedMessage;
@@ -144,6 +255,21 @@ public class HL7Parser implements IHL7Parser {
        }
     }
 
+    /**
+     * This should only take in 231
+     * then return hapi 231 ORU_R01 object
+     * */
+    public  ca.uhn.hl7v2.model.v231.message.ORU_R01 hl7v231StringParser(String message) throws DiHL7Exception {
+        try {
+            var context = hl7InitContext(this.context, this.supportedHL7version231);
+            PipeParser parser = context.getPipeParser();
+            ca.uhn.hl7v2.model.v231.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v231.message.ORU_R01) parser.parse(message);
+            return msg;
+        }catch (Exception e) {
+            throw new DiHL7Exception(e.getMessage());
+        }
+    }
+
     public HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception{
         try {
             HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
@@ -153,7 +279,7 @@ public class HL7Parser implements IHL7Parser {
             parsedMessage.setEventTrigger(genericParsedMessage.getEventTrigger());
             parsedMessage.setOriginalVersion(genericParsedMessage.getOriginalVersion());
 
-            var context = hl7GeneralizationContext(this.context);
+            var context = hl7InitContext(this.context, this.supportedHL7version);
             PipeParser parser = context.getPipeParser();
 
 
@@ -216,8 +342,8 @@ public class HL7Parser implements IHL7Parser {
     }
 
     // Context for parser with model factory
-    private HapiContext hl7GeneralizationContext(HapiContext context) {
-        CanonicalModelClassFactory mcf = new CanonicalModelClassFactory(supportedHL7version);
+    private HapiContext hl7InitContext(HapiContext context, String supportedVersion) {
+        CanonicalModelClassFactory mcf = new CanonicalModelClassFactory(supportedVersion);
         context.setModelClassFactory(mcf);
         return context;
     }

@@ -70,4 +70,8 @@ public class Specimen {
         this.containerCondition = new Cwe(spm.getContainerCondition());
         this.specimenChildRole = new Cwe(spm.getSpecimenChildRole());
     }
+
+    public Specimen() {
+
+    }
 }

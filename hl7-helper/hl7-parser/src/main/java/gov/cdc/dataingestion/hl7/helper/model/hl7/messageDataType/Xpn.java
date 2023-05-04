@@ -37,4 +37,7 @@ public class Xpn {
         this.expirationDate = new Ts(xpn.getExpirationDate());
         this.professionalSuffix = xpn.getProfessionalSuffix().getValue();
     }
+    public Xpn() {
+
+    }
 }
