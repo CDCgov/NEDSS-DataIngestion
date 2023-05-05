@@ -15,4 +15,8 @@ public class Jcc {
         this.jobClass = jcc.getJobClass().getValue();
         this.jobDescriptionText = jcc.getJobDescriptionText().getValue();
     }
+
+    public Jcc() {
+
+    }
 }

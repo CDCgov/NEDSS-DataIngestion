@@ -4,40 +4,41 @@ import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 public class Specimen {
     String setIdSpm;
-    Eip specimenId;
-    List<Eip> specimenParentId;
-    Cwe  specimenType;
-    List<Cwe> specimenTypeModifier;
-    List<Cwe> specimenAdditives;
-    Cwe specimenCollectionMethod;
-    Cwe specimenSourceSite;
-    List<Cwe> specimenSourceSiteModifier;
-    Cwe specimenCollectionSite;
-    List<Cwe> specimenRole;
-    Cq specimenCollectionAmount;
+    Eip specimenId = new Eip();
+    List<Eip> specimenParentId = new ArrayList<>();
+    Cwe  specimenType = new Cwe();
+    List<Cwe> specimenTypeModifier = new ArrayList<>();
+    List<Cwe> specimenAdditives= new ArrayList<>();
+    Cwe specimenCollectionMethod = new Cwe();
+    Cwe specimenSourceSite = new Cwe();
+    List<Cwe> specimenSourceSiteModifier = new ArrayList<>();
+    Cwe specimenCollectionSite = new Cwe();
+    List<Cwe> specimenRole = new ArrayList<>();
+    Cq specimenCollectionAmount = new Cq();
     String groupedSpecimenCount;
-    List<String> specimenDescription;
-    List<Cwe> specimenHandlingCode;
-    List<Cwe> specimenRiskCode;
-    Dr specimenCollectionDateTime;
-    Ts specimenReceivedDateTime;
-    Ts specimenExpirationDateTime;
+    List<String> specimenDescription= new ArrayList<>();
+    List<Cwe> specimenHandlingCode= new ArrayList<>();
+    List<Cwe> specimenRiskCode= new ArrayList<>();
+    Dr specimenCollectionDateTime = new Dr();
+    Ts specimenReceivedDateTime = new Ts();
+    Ts specimenExpirationDateTime = new Ts();
     String specimenAvailability;
-    List<Cwe> specimenRejectReason;
-    Cwe specimenQuality;
-    Cwe specimenAppropriateness;
-    List<Cwe> specimenCondition;
-    Cq specimenCurrentQuantity;
+    List<Cwe> specimenRejectReason = new ArrayList<>();
+    Cwe specimenQuality = new Cwe();
+    Cwe specimenAppropriateness = new Cwe();
+    List<Cwe> specimenCondition = new ArrayList<>();
+    Cq specimenCurrentQuantity = new Cq();
     String numberOfSpecimenContainers;
-    Cwe containerType;
-    Cwe containerCondition;
-    Cwe specimenChildRole;
+    Cwe containerType = new Cwe();
+    Cwe containerCondition = new Cwe();
+    Cwe specimenChildRole = new Cwe();
 
     public Specimen(ca.uhn.hl7v2.model.v251.segment.SPM spm) {
         this.setIdSpm = spm.getSetIDSPM().getValue();

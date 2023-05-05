@@ -32,4 +32,8 @@ public class Rpt {
         this.eventOffsetUnits = rpt.getEventOffsetUnits().getValue();
         this.generalTimingSpecification = rpt.getGeneralTimingSpecification().getValue();
     }
+
+    public Rpt() {
+
+    }
 }

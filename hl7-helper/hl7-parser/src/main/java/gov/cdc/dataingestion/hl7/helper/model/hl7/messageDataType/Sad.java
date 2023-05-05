@@ -16,4 +16,8 @@ public class Sad {
         this.streetName = sad.getStreetName().getValue();
         this.dwellingNumber = sad.getDwellingNumber().getValue();
     }
+
+    public Sad() {
+
+    }
 }

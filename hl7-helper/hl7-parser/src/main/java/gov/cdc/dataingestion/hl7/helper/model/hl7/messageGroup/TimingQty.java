@@ -12,8 +12,12 @@ import java.util.List;
 @Getter
 @Setter
 public class TimingQty {
-    TimingQuantity timeQuantity;
-    List<TimingQuantityRelationship> timeQuantityRelationship;
+    TimingQuantity timeQuantity = new TimingQuantity();
+    List<TimingQuantityRelationship> timeQuantityRelationship = new ArrayList<>();
+
+    public TimingQty() {
+
+    }
 
     public TimingQty(ca.uhn.hl7v2.model.v251.group.ORU_R01_TIMING_QTY oruR01TimingQty) throws HL7Exception {
         this.timeQuantity = new TimingQuantity(oruR01TimingQty.getTQ1());

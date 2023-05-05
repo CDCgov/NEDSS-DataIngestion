@@ -19,4 +19,8 @@ public class Fn {
         this.surnamePrefixFromPartner = fn.getSurnamePrefixFromPartnerSpouse().getValue();
         this.surnamePrefixFromPartner = fn.getSurnameFromPartnerSpouse().getValue();
     }
+
+    public Fn() {
+
+    }
 }

@@ -8,12 +8,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SoftwareSegment {
-    Xon softwareVendorOrganization;
+    Xon softwareVendorOrganization = new Xon();
     String softwareCertifiedVersionOrReleaseNumber;
     String softwareProductName;
     String softwareBinaryId;
     String softwareProductInformation;
-    Ts softwareInstallDate;
+    Ts softwareInstallDate = new Ts();
 
     public SoftwareSegment(SFT sft) {
         this.softwareVendorOrganization = new Xon(sft.getSoftwareVendorOrganization());

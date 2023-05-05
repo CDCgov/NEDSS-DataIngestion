@@ -7,10 +7,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Moc {
-    Mo monetaryAmount;
-    Ce chargeCode;
+    Mo monetaryAmount = new Mo();
+    Ce chargeCode = new Ce();
     public Moc(MOC moc) {
         this.monetaryAmount = new Mo(moc.getMonetaryAmount());
         this.chargeCode = new Ce(moc.getChargeCode());
+    }
+
+    public Moc() {
+
     }
 }

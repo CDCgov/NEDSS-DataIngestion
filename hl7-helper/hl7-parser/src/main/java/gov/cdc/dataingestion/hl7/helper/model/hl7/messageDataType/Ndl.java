@@ -7,13 +7,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Ndl {
-    Cnn name;
-    Ts startDateTime;
-    Ts endDateTime;
+    Cnn name = new Cnn();
+    Ts startDateTime = new Ts();
+    Ts endDateTime = new Ts();
     String pointOfCare;
     String room;
     String bed;
-    Hd facility;
+    Hd facility = new Hd();
     String locationStatus;
     String patientLocationType;
     String building;
@@ -30,5 +30,9 @@ public class Ndl {
         this.patientLocationType = ndl.getPatientLocationType().getValue();
         this.building = ndl.getBuilding().getValue();
         this.floor = ndl.getFloor().getValue();
+    }
+
+    public Ndl() {
+
     }
 }

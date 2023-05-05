@@ -11,8 +11,12 @@ import java.util.List;
 @Getter
 @Setter
 public class Specimen {
-    gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen specimen;
-    List<ObservationResult> observationResult;
+    gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen specimen = new gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen();
+    List<ObservationResult> observationResult = new ArrayList<>();
+
+    public Specimen() {
+
+    }
 
     public Specimen(ca.uhn.hl7v2.model.v251.group.ORU_R01_SPECIMEN specimen) throws HL7Exception {
         this.specimen = new gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen(specimen.getSPM());

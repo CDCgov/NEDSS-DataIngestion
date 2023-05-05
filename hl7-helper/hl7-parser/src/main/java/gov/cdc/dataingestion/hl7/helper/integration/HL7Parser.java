@@ -9,6 +9,7 @@ import ca.uhn.hl7v2.parser.DefaultModelClassFactory;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
+import com.google.gson.Gson;
 import gov.cdc.dataingestion.hl7.helper.constant.hl7.EventTrigger;
 import gov.cdc.dataingestion.hl7.helper.constant.hl7.MessageType;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
@@ -61,10 +62,13 @@ public class HL7Parser implements IHL7Parser {
            HL7ParsedMessage parsedMessage = hl7StringParser(message);
            var parsed231Message = hl7v231StringParser(message);
 
+           Gson gson = new Gson();
+           var str = gson.toJson(parsedMessage);
            // 231 Patient Result
            var patientResult231 = parsed231Message.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTIAll();
            var msh231 = parsed231Message.getMSH();
            var dsc231 = parsed231Message.getDSC();
+
 
            if (parsedMessage.getOriginalVersion().equalsIgnoreCase(supportedHL7version231)) {
 
@@ -80,10 +84,7 @@ public class HL7Parser implements IHL7Parser {
                oru.setSoftwareSegment(MapSoftwareSegment(oru.getSoftwareSegment()));
                //endregion
 
-
                for (int a = 0; a < oru.getPatientResult().size(); a++) {
-
-
                    //region Patient Result - PATIENT - PID
                    var pid231 = patientResult231.get(a).getPIDPD1NK1NTEPV1PV2().getPID();
                    var pid = oru.getPatientResult().get(a).getPatient().getPatientIdentification();
@@ -112,15 +113,16 @@ public class HL7Parser implements IHL7Parser {
 
                    //region Patient Result - ORDER OBSERVATION
                    for(int c = 0; c < oru.getPatientResult().get(a).getOrderObservation().size(); c++) {
-                       //region OBSERVATION - OBX
+                       //region OBSERVATION - Order - OBX
                        for (int d = 0; d < oru.getPatientResult().get(a).getOrderObservation().get(c).getObservation().size(); d++) {
                            // Mapping OBX
                            oru.getPatientResult().get(a).getOrderObservation()
-                                   .get(c).getObservation().get(d).setObservationResult(MapObservationResultToObservationResult(
-                                           oru.getPatientResult().get(a).getOrderObservation().get(c).getObservation().get(d).getObservationResult(),
-                                           oru.getPatientResult().get(a).getOrderObservation().get(c).getObservation().get(d).getObservationResult()
+                                   .get(c).getObservation().get(d).setObservationResult(
+                                           MapObservationResultToObservationResult(
+                                            oru.getPatientResult().get(a).getOrderObservation().get(c).getObservation().get(d).getObservationResult(),
+                                            oru.getPatientResult().get(a).getOrderObservation().get(c).getObservation().get(d).getObservationResult()
                                    ));
-                           //FIXME: test - Mapping NTE
+                           //test - Mapping NTE - hapi
                        }
                        //endregion
 
@@ -134,26 +136,27 @@ public class HL7Parser implements IHL7Parser {
                        );
                        //endregion
 
-                       //region OBSERVATION - NTE
-                       //FIXME - test - NTE
+                       //region OBSERVATION - NTE - hapi
+                       //test - NTE - hapi
                        //endregion
 
-                       //region OBSERVATION - CTI
-                       //FIXME - test - CTI
+                       //region OBSERVATION - CTI - hapi
+                       //test - CTI - hapi
                        //endregion
 
                        //region OBSERVATION - OBR to SPM
-                       var spc =   ObservationRequestToSpecimen(oru.getPatientResult().get(a).getOrderObservation().get(c).getObservationRequest(),
+                       var spc = ObservationRequestToSpecimen(oru.getPatientResult().get(a).getOrderObservation().get(c).getObservationRequest(),
                                new Specimen());
                        oru.getPatientResult().get(a).getOrderObservation().get(c).getSpecimen().add(
                              new gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Specimen(spc)
                        );
                        //endregion
-
-
                    }
 
                    //region Common Order - ORC to ORC
+                   var orderORC231 = patientResult231.get(a).getORCOBRNTEOBXNTECTI(0).getORC();
+                   var orderOBR231 = patientResult231.get(a).getORCOBRNTEOBXNTECTI(0).getOBR();
+                   var orderORC251 = oru.getPatientResult().get(a).getOrderObservation().get(0).getCommonOrder();
                     //FIXME - Map ORC to ORC -- noted on Rhapsody; only map the first record
                    //endregion
 
@@ -164,6 +167,7 @@ public class HL7Parser implements IHL7Parser {
                //region DSC
                //endregion
 
+               parsedMessage.setParsedMessage(oru);
                return parsedMessage;
            } else {
                throw new DiHL7Exception("Unsupported message version. Please only specify HL7v2.3.1. Provided version is:\t" + parsedMessage.getOriginalVersion());

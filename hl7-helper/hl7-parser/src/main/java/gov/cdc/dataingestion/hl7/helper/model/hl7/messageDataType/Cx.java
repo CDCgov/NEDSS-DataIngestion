@@ -12,10 +12,10 @@ public class Cx {
     String identifierTypeCode;
     String effectiveDate;
     String expirationDate;
-    Hd assignAuthority;
-    Hd assignFacility;
-    Cwe assignJurisdiction;
-    Cwe assignAgentOrDept;
+    Hd assignAuthority = new Hd();
+    Hd assignFacility = new Hd();
+    Cwe assignJurisdiction = new Cwe();
+    Cwe assignAgentOrDept = new Cwe();
 
     public Cx(ca.uhn.hl7v2.model.v251.datatype.CX cx) {
         this.idNumber = cx.getIDNumber().getValue();

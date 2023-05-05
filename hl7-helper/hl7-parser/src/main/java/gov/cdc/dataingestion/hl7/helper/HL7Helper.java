@@ -33,6 +33,10 @@ public class HL7Helper {
         return parser.hl7StringParser(message);
     }
 
+    public HL7ParsedMessage convert231To251(String message) throws DiHL7Exception {
+        return parser.convert231To251(message);
+    }
+
     /**
      * Convert HL7 message into fhir
      * */

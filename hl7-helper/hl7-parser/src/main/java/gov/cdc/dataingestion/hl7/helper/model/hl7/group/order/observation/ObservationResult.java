@@ -5,6 +5,7 @@ import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -12,30 +13,33 @@ import java.util.List;
 public class ObservationResult {
     String setIdObx;
     String valueType;
-    Ce observationIdentifier;
+    Ce observationIdentifier = new Ce();
     String observationSubId;
-    List<String> observationValue;
-    Ce units;
+    List<String> observationValue = new ArrayList<>();
+    Ce units = new Ce();
     String referencesRange;
-    List<String> abnormalFlag;
+    List<String> abnormalFlag = new ArrayList<>();
     String probability;
-    List<String> natureOfAbnormalTest;
+    List<String> natureOfAbnormalTest = new ArrayList<>();
     String observationResultStatus;
-    Ts effectiveDateOfReferenceRange;
+    Ts effectiveDateOfReferenceRange = new Ts();
     String userDefinedAccessChecks;
-    Ts DateTimeOfTheObservation;
-    Ce producerId;
-    List<Xcn> responsibleObserver;
-    List<Ce> observationMethod;
-    List<Ei> equipmentInstanceIdentifier;
-    Ts dateTimeOfTheAnalysis;
+    Ts DateTimeOfTheObservation = new Ts();
+    Ce producerId = new Ce();
+    List<Xcn> responsibleObserver = new ArrayList<>();
+    List<Ce> observationMethod = new ArrayList<>();
+    List<Ei> equipmentInstanceIdentifier = new ArrayList<>();
+    Ts dateTimeOfTheAnalysis = new Ts();
     String reservedForHarmonizationWithV261;
     String reservedForHarmonizationWithV262;
     String reservedForHarmonizationWithV263;
-    Xon performingOrganizationName;
-    Xad performingOrganizationAddress;
-    Xcn performingOrganizationMedicalDirector;
+    Xon performingOrganizationName = new Xon();
+    Xad performingOrganizationAddress = new Xad();
+    Xcn performingOrganizationMedicalDirector = new Xcn();
 
+    public ObservationResult() {
+
+    }
 
     public ObservationResult(ca.uhn.hl7v2.model.v251.segment.OBX obx) {
         this.setIdObx = obx.getSetIDOBX().getValue();

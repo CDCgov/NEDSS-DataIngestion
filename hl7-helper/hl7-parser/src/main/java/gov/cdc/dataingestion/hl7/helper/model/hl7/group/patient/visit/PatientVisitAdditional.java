@@ -5,24 +5,25 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 public class PatientVisitAdditional {
-    Pl priorPendingLocation;
-    Ce accommodationCode;
-    Ce admitReason;
-    Ce transferReason;
-    List<String> patientValuables;
+    Pl priorPendingLocation = new Pl();
+    Ce accommodationCode = new Ce();
+    Ce admitReason = new Ce();
+    Ce transferReason = new Ce();
+    List<String> patientValuables = new ArrayList<>();
     String patientValuablesLocation;
-    List<String> visitUserCode;
-    Ts expectedAdmitDateTime;
-    Ts expectedDischargeDateTime;
+    List<String> visitUserCode = new ArrayList<>();
+    Ts expectedAdmitDateTime = new Ts();
+    Ts expectedDischargeDateTime = new Ts();
     String estimateLengthOfInpatientDay;
     String actualLengthOfInpatientDay;
     String visitDescription;
-    List<Xcn> referralSourceCode;
+    List<Xcn> referralSourceCode = new ArrayList<>();
     String previousServiceDate;
     String employmentIllnessRelatedIndicator;
     String purgeStatusCode;
@@ -32,33 +33,37 @@ public class PatientVisitAdditional {
     String expectedNumberOfInsurancePlans;
     String visitPublicityCode;
     String visitProtectionIndicator;
-    List<Xon> clinicOrganizationName;
+    List<Xon> clinicOrganizationName = new ArrayList<>();
     String patientStatusCode;
     String visitPriorityCode;
     String previousTreatmentCode;
     String expectedDischargeDisposition;
     String signatureOnFileDate;
     String firstSimilarIllnessDate;
-    Ce patientChargeAdjustmentCode;
+    Ce patientChargeAdjustmentCode = new Ce();
     String recurringServiceCode;
     String billingMediaCode;
-    Ts expectedSurgeryDateTime;
+    Ts expectedSurgeryDateTime = new Ts();
     String militaryPartnershipCode;
     String militaryNonAvailCode;
     String newbornBabyIndicator;
     String babyDetainedIndicator;
-    Ce modeOfArrivalCode;
-    List<Ce> recreationalDrugUseCode;
-    Ce admissionLevelOfCareCode;
-    List<Ce> precautionCode;
-    Ce patientConditionCode;
+    Ce modeOfArrivalCode = new Ce();
+    List<Ce> recreationalDrugUseCode = new ArrayList<>();
+    Ce admissionLevelOfCareCode = new Ce();
+    List<Ce> precautionCode = new ArrayList<>();
+    Ce patientConditionCode = new Ce();
     String livingWillCode;
     String organDonorCode;
-    List<Ce> advanceDirectiveCode;
+    List<Ce> advanceDirectiveCode = new ArrayList<>();
     String patientStatusEffectiveDate;
-    Ts expectedLoaReturnDateTime;
-    Ts expectedPreAdmissionTestingDateTime;
-    List<String> notifyClergyCode;
+    Ts expectedLoaReturnDateTime = new Ts();
+    Ts expectedPreAdmissionTestingDateTime = new Ts();
+    List<String> notifyClergyCode = new ArrayList<>();
+
+    public PatientVisitAdditional() {
+
+    }
 
     public PatientVisitAdditional(ca.uhn.hl7v2.model.v251.segment.PV2 pv2) {
         this.priorPendingLocation = new Pl(pv2.getPriorPendingLocation());

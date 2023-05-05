@@ -27,4 +27,8 @@ public class Cwe {
         alterCodeSystemVerId = cwe.getAlternateCodingSystemVersionID().getValue();
         originalText = cwe.getOriginalText().getValue();
     }
+
+    public Cwe() {
+
+    }
 }

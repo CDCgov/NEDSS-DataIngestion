@@ -27,4 +27,8 @@ public class Cne {
         this.alternateCodingSystemVersionId = cne.getAlternateCodingSystemVersionID().getValue();
         this.originalText = cne.getOriginalText().getValue();
     }
+
+    public Cne() {
+
+    }
 }

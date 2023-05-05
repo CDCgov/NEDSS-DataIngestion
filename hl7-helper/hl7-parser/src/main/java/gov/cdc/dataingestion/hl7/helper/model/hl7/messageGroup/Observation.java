@@ -12,8 +12,12 @@ import java.util.List;
 @Getter
 @Setter
 public class Observation {
-    ObservationResult observationResult;
-    List<NoteAndComment> noteAndComments;
+    ObservationResult observationResult = new ObservationResult();
+    List<NoteAndComment> noteAndComments = new ArrayList<>();
+
+    public Observation() {
+
+    }
 
     public Observation(ca.uhn.hl7v2.model.v251.group.ORU_R01_OBSERVATION observation) throws HL7Exception {
         this.observationResult = new ObservationResult(observation.getOBX());

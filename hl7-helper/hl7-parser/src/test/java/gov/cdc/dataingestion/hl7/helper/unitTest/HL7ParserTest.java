@@ -59,4 +59,12 @@ public class HL7ParserTest {
         Assertions.assertEquals("R01", result.getEventTrigger());
     }
 
+
+    @Test
+    public void hl7StringConvert231To251_ReturnValidMessage() throws  DiHL7Exception {
+        var result = target.convert231To251(OruR1231Message1);
+        Gson gson = new Gson();
+        var str = gson.toJson(result);
+        Assertions.assertEquals("R01", result.getEventTrigger());
+    }
 }

@@ -1,8 +1,11 @@
 package gov.cdc.dataingestion.hl7.helper.helper;
 
 import ca.uhn.hl7v2.model.v231.datatype.CX;
+import ca.uhn.hl7v2.model.v231.datatype.EI;
 import ca.uhn.hl7v2.model.v231.segment.MSH;
+import ca.uhn.hl7v2.model.v231.segment.ORC;
 import ca.uhn.hl7v2.model.v231.segment.PID;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ObservationRequest;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen;
@@ -91,7 +94,9 @@ public class Mapping231To251Helper {
         for(int a = 0; a < outPid251.getPatientIdentifierList().size(); a++) {
             if (outPid251.getPatientIdentifierList().get(a) != null) {
                 var patientIdentifier = outPid251.getPatientIdentifierList().get(a);
-                if (patientIdentifier.getIdentifierTypeCode() == null || patientIdentifier.getIdentifierTypeCode().isEmpty()) {
+                if (patientIdentifier.getIdentifierTypeCode() == null ||
+                        (patientIdentifier.getIdentifierTypeCode() != null && patientIdentifier.getIdentifierTypeCode().isEmpty())
+                ) {
                     patientIdentifier = MapCxWithNullToCx(patientIdentifier, patientIdentifier, "U");
                 } else {
                     patientIdentifier = MapCxWithNullToCx(patientIdentifier, patientIdentifier, patientIdentifier.getIdentifierTypeCode());
@@ -143,6 +148,41 @@ public class Mapping231To251Helper {
     }
     //endregion
 
+    //region Map ORC to ORC - 231 to 251
+    public static CommonOrder MapCommonOrder(ORC inOrc231, CommonOrder outOrc251) {
+        if (inOrc231.getOrderControl() != null && inOrc231.getOrderControl().getValue().isEmpty()) {
+            outOrc251.setOrderControl("RE");
+        } else {
+            outOrc251.setOrderControl(inOrc231.getOrderControl().getValue());
+        }
+
+        if (inOrc231.getPlacerOrderNumber() != null) {
+            outOrc251.setPlacerGroupNumber(MapEi(inOrc231.getPlacerOrderNumber(), outOrc251.getPlacerGroupNumber()));
+        }
+
+        if (inOrc231.getFillerOrderNumber() != null) {
+            outOrc251.setFillerOrderNumber(MapEi(inOrc231.getFillerOrderNumber(), outOrc251.getFillerOrderNumber()));
+        }
+
+        if (inOrc231.getPlacerGroupNumber() != null) {
+            outOrc251.setPlacerGroupNumber(MapEi(inOrc231.getPlacerGroupNumber(), outOrc251.getPlacerGroupNumber()));
+        }
+
+        outOrc251.setOrderStatus(inOrc231.getOrderStatus().getValue());
+        outOrc251.setResponseFlag(inOrc231.getResponseFlag().getValue());
+
+        return outOrc251;
+    }
+    //endregion
+
+    public static Ei MapEi(EI in, Ei out) {
+        out.setEntityIdentifier(in.getEntityIdentifier().getValue());
+        out.setNameSpaceId(in.getNamespaceID().getValue());
+        out.setUniversalId(in.getUniversalID().getValue());
+        out.setUniversalIdType(in.getUniversalIDType().getValue());
+        return out;
+    }
+
     public static Cx MapSocialSecurityToPatientIdentifier(String ssnNumber, Cx out) {
         out.setIdNumber(ssnNumber);
         Hd hd = new Hd();
@@ -158,7 +198,7 @@ public class Mapping231To251Helper {
         cxOut.setIdentifierTypeCode(defaultValue);
 
 
-        if (cx.getAssignAuthority() != null && !cx.getAssignAuthority().getNameSpaceId().isEmpty()) {
+        if (cx.getAssignAuthority() != null && cx.getAssignAuthority().getNameSpaceId() != null && !cx.getAssignAuthority().getNameSpaceId().isEmpty()) {
             cxOut.getAssignFacility().setNameSpaceId(cx.getAssignFacility().getNameSpaceId());
             if(cx.getAssignAuthority().getUniversalId() == null || cx.getAssignAuthority().getUniversalId().isEmpty()) {
                 cxOut.getAssignAuthority().setUniversalId("2.16.840.1.113883.5.1008");
@@ -172,7 +212,7 @@ public class Mapping231To251Helper {
                 cxOut.getAssignAuthority().setUniversalIdType(cx.getAssignAuthority().getUniversalIdType());
             }
 
-            if(cx.getAssignFacility() != null && cx.getAssignFacility().getNameSpaceId().isEmpty()) {
+            if(cx.getAssignFacility() != null && cx.getAssignFacility().getNameSpaceId() != null &&  !cx.getAssignFacility().getNameSpaceId().isEmpty()) {
                 cxOut.getAssignFacility().setNameSpaceId(cx.getAssignFacility().getNameSpaceId());
                 if(cx.getAssignFacility().getUniversalId() == null || cx.getAssignFacility().getUniversalId().isEmpty()) {
                     cxOut.getAssignFacility().setUniversalId("2.16.840.1.113883.5.1008");
@@ -186,7 +226,7 @@ public class Mapping231To251Helper {
                     cxOut.getAssignFacility().setUniversalIdType(cx.getAssignFacility().getUniversalIdType());
                 }
             }
-        } else  if (cx.getAssignFacility() != null && !cx.getAssignFacility().getNameSpaceId().isEmpty()) {
+        } else  if (cx.getAssignFacility() != null && cx.getAssignFacility().getNameSpaceId() != null &&  !cx.getAssignFacility().getNameSpaceId().isEmpty()) {
             cxOut.getAssignAuthority().setNameSpaceId(cx.getAssignFacility().getNameSpaceId());
             if(cx.getAssignFacility().getUniversalId() == null || cx.getAssignFacility().getUniversalId().isEmpty()) {
                 cxOut.getAssignAuthority().setUniversalId("2.16.840.1.113883.5.1008");
@@ -248,10 +288,15 @@ public class Mapping231To251Helper {
         }
 
         if(obxIn.getPerformingOrganizationAddress().getStreetAddress() == null ||
-            obxIn.getPerformingOrganizationAddress().getCity().isEmpty() ||
-            obxIn.getPerformingOrganizationAddress().getState().isEmpty() ||
-            obxIn.getPerformingOrganizationAddress().getCountry().isEmpty() ||
-            obxIn.getPerformingOrganizationAddress().getZip().isEmpty()) {
+                (obxIn.getPerformingOrganizationAddress().getCity() != null &&
+            obxIn.getPerformingOrganizationAddress().getCity().isEmpty() )||
+                (obxIn.getPerformingOrganizationAddress().getState() != null &&
+            obxIn.getPerformingOrganizationAddress().getState().isEmpty()) ||
+                (obxIn.getPerformingOrganizationAddress().getCountry() != null &&
+            obxIn.getPerformingOrganizationAddress().getCountry().isEmpty()) ||
+                (obxIn.getPerformingOrganizationAddress().getZip() != null &&
+            obxIn.getPerformingOrganizationAddress().getZip().isEmpty())
+        ) {
             obxOut.getPerformingOrganizationAddress().getStreetAddress().setStreetMailingAddress("Not present in v2.3.1 message");
         }
 
@@ -260,7 +305,7 @@ public class Mapping231To251Helper {
 
     public static ObservationRequest ObservationRequestToObservationRequest(ObservationRequest in, ObservationRequest out, Ts timestamp) {
         if(in.getResultRptStatusChngDateTime() == null ||
-                (in.getResultRptStatusChngDateTime() != null && in.getResultRptStatusChngDateTime().getTime().isEmpty())
+                (in.getResultRptStatusChngDateTime() != null &&  in.getResultRptStatusChngDateTime().getTime() != null && in.getResultRptStatusChngDateTime().getTime().isEmpty())
         ) {
             out.setResultRptStatusChngDateTime(timestamp);
         }

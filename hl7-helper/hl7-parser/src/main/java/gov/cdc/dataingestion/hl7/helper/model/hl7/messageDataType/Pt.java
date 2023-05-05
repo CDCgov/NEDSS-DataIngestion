@@ -12,4 +12,8 @@ public class Pt {
        this.processingId = pt.getProcessingID().getValue();
        this.processingMode = pt.getProcessingMode().getValue();
     }
+
+    public Pt() {
+
+    }
 }

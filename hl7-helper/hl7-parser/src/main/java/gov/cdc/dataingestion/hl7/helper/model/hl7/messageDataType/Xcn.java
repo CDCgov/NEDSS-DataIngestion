@@ -8,28 +8,28 @@ import lombok.Setter;
 @Setter
 public class Xcn {
     String idNumber;
-    Fn familyName;
+    Fn familyName = new Fn();
     String givenName;
     String secondAndFurtherGivenNameOrInitial;
     String suffix;
     String prefix;
     String degree;
     String sourceTable;
-    Hd assignAuthority;
+    Hd assignAuthority = new Hd();
     String nameTypeCode;
     String identifierCheckDigit;
     String checkDigitScheme;
     String identifierTypeCode;
-    Hd assignFacility;
+    Hd assignFacility = new Hd();
     String nameRepresentationCode;
-    Ce nameContext;
-    Dr nameValidityRange;
+    Ce nameContext = new Ce();
+    Dr nameValidityRange = new Dr();
     String nameAssemblyOrder;
-    Ts effectiveDate;
-    Ts expirationDate;
+    Ts effectiveDate = new Ts();
+    Ts expirationDate = new Ts();
     String professionalSuffix;
-    Cwe assignJurisdiction;
-    Cwe assignAgencyDept;
+    Cwe assignJurisdiction = new Cwe();
+    Cwe assignAgencyDept = new Cwe();
 
     public Xcn(XCN xcn) {
         this.idNumber = xcn.getIDNumber().getValue();
@@ -55,5 +55,9 @@ public class Xcn {
         this.professionalSuffix = xcn.getProfessionalSuffix().getValue();
         this.assignJurisdiction = new Cwe(xcn.getAssigningJurisdiction());
         this.assignAgencyDept = new Cwe(xcn.getAssigningAgencyOrDepartment());
+    }
+
+    public Xcn() {
+
     }
 }

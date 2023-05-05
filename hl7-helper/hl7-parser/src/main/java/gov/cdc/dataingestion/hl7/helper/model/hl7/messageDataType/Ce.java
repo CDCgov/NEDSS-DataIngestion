@@ -21,4 +21,8 @@ public class Ce {
         this.alternateText = ce.getAlternateText().getValue();
         this.nameOfAlternateCodingSystem = ce.getNameOfAlternateCodingSystem().getValue();
     }
+
+    public Ce(){
+
+    }
 }

@@ -7,12 +7,16 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Prl {
-    Ce parentObservationIdentifier;
+    Ce parentObservationIdentifier = new Ce();
     String parentObservationSubIdentifier;
     String parentObservationValueDescriptor;
     public Prl(PRL prl) {
         this.parentObservationIdentifier = new Ce(prl.getParentObservationIdentifier());
         this.parentObservationSubIdentifier = prl.getParentObservationSubIdentifier().getValue();
         this.parentObservationValueDescriptor = prl.getParentObservationValueDescriptor().getValue();
+    }
+
+    public Prl() {
+
     }
 }

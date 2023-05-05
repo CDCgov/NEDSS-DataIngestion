@@ -13,4 +13,8 @@ public class Ts {
         this.time = ts.getTime().getValue();
         this.degreeOfPrecision = ts.getDegreeOfPrecision().getValue();
     }
+
+    public Ts(){
+
+    }
 }

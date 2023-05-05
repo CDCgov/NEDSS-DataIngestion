@@ -4,6 +4,7 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
@@ -54,41 +55,44 @@ public class NextOfKin {
         this.vipIndicator = nk1.getVIPIndicator().getValue();
     }
 
+    public NextOfKin(){
+
+    }
     String setIdNK1;
-    List<Xpn> nkName;
-    Ce relationship;
-    List<Xad> address;
-    List<Xtn> phoneNumber;
-    List<Xtn> businessPhoneNumber;
-    Ce contactRole;
+    List<Xpn> nkName = new ArrayList<>();
+    Ce relationship = new Ce();
+    List<Xad> address = new ArrayList<>();
+    List<Xtn> phoneNumber = new ArrayList<>();
+    List<Xtn> businessPhoneNumber = new ArrayList<>();
+    Ce contactRole = new Ce();
     String startDate;
     String endDate;
     String nextOfKinAssociatedPartiesJobTitle;
-    Jcc nextOfKinAssociatedPartiesJobCode;
-    Cx nextOfKinAssociatedPartiesEmployee;
-    List<Xon> organizationNameNk1;
-    Ce martialStatus;
+    Jcc nextOfKinAssociatedPartiesJobCode = new Jcc();
+    Cx nextOfKinAssociatedPartiesEmployee = new Cx();
+    List<Xon> organizationNameNk1 = new ArrayList<>();
+    Ce martialStatus = new Ce();
     String administrativeSex;
-    Ts dateTimeOfBirth;
-    List<String> livingDependency;
-    List<String> ambulatoryStatus;
-    List<Ce> citizenship;
-    Ce primaryLanguage;
+    Ts dateTimeOfBirth = new Ts();
+    List<String> livingDependency = new ArrayList<>();
+    List<String> ambulatoryStatus = new ArrayList<>();
+    List<Ce> citizenship = new ArrayList<>();
+    Ce primaryLanguage = new Ce();
     String livingArrangement;
-    Ce publicityCode;
+    Ce publicityCode =new Ce();
     String protectionIndicator;
     String studentIndicator;
-    Ce religion;
-    List<Xpn> motherMaidenName;
-    Ce nationality;
-    List<Ce> ethnicGroup;
-    List<Ce> contactReason;
-    List<Xpn> contactPersonName;
-    List<Xtn> contactPersonTelephoneNumber;
-    List<Xad> contactPersonAddress;
-    List<Cx> nextOfKinAssociatedPartyIdentifier;
+    Ce religion = new Ce();
+    List<Xpn> motherMaidenName = new ArrayList<>();
+    Ce nationality = new Ce();
+    List<Ce> ethnicGroup = new ArrayList<>();
+    List<Ce> contactReason = new ArrayList<>();
+    List<Xpn> contactPersonName = new ArrayList<>();
+    List<Xtn> contactPersonTelephoneNumber = new ArrayList<>();
+    List<Xad> contactPersonAddress = new ArrayList<>();
+    List<Cx> nextOfKinAssociatedPartyIdentifier = new ArrayList<>();
     String jobStatus;
-    List<Ce> race;
+    List<Ce> race = new ArrayList<>();
     String handicap;
     String contactPersonSocialSecurityNumber;
     String nextOfKinBirthPlace;

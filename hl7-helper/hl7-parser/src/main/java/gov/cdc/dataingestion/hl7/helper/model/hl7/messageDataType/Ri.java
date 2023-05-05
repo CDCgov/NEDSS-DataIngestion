@@ -13,4 +13,8 @@ public class Ri {
         this.repeatPattern = ri.getRepeatPattern().getValue();
         this.explicitTimeInterval = ri.getExplicitTimeInterval().getValue();
     }
+
+    public Ri() {
+
+    }
 }

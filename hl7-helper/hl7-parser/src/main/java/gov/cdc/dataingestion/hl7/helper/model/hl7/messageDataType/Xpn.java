@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Xpn {
-    Fn familyName;
+    Fn familyName = new Fn();
     String givenName;
     String secondAndFurtherGivenNameOrInitial;
     String suffix;
@@ -14,11 +14,11 @@ public class Xpn {
     String degree;
     String nameTypeCode;
     String nameRepresentationCode;
-    Ce nameContext;
-    Dr nameValidityRange;
+    Ce nameContext = new Ce();
+    Dr nameValidityRange = new Dr();
     String nameAssemblyOrder;
-    Ts effectiveDate;
-    Ts expirationDate;
+    Ts effectiveDate = new Ts();
+    Ts expirationDate = new Ts();
     String professionalSuffix;
 
     public Xpn(ca.uhn.hl7v2.model.v251.datatype.XPN xpn) {

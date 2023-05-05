@@ -15,4 +15,8 @@ public class Dln {
         issuedStateCountry = dln.getIssuingStateProvinceCountry().getValue();
         expirationDate = dln.getExpirationDate().getValue();
     }
+
+    public Dln() {
+
+    }
 }

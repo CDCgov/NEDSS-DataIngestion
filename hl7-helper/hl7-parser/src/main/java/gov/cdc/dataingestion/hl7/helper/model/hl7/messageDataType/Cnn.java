@@ -31,4 +31,8 @@ public class Cnn {
         this.assignAuthorityUniversalId = cnn.getAssigningAuthorityUniversalID().getValue();
         this.assignAuthorityUniversalIdType = cnn.getAssigningAuthorityUniversalIDType().getValue();
     }
+
+    public Cnn() {
+
+    }
 }

@@ -14,11 +14,15 @@ import java.util.List;
 @Getter
 @Setter
 public class Patient {
-    PatientIdentification patientIdentification;
-    PatientAdditionalDemographic patientAdditionalDemographic;
-    List<NoteAndComment> noteAndComment;
-    List<NextOfKin> nextOfKin;
-    Visit visit;
+    PatientIdentification patientIdentification = new PatientIdentification();
+    PatientAdditionalDemographic patientAdditionalDemographic = new PatientAdditionalDemographic();
+    List<NoteAndComment> noteAndComment = new ArrayList<>();
+    List<NextOfKin> nextOfKin = new ArrayList<>();
+    Visit visit = new Visit();
+
+    public Patient() {
+
+    }
 
     public Patient(ca.uhn.hl7v2.model.v251.group.ORU_R01_PATIENT oruR01Patient) throws HL7Exception {
         this.patientIdentification = new PatientIdentification(oruR01Patient.getPID());

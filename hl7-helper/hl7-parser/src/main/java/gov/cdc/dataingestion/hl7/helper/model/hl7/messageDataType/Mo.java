@@ -13,4 +13,8 @@ public class Mo {
         this.quantity = mo.getQuantity().getValue();
         this.denomination = mo.getDenomination().getValue();
     }
+
+    public Mo() {
+
+    }
 }

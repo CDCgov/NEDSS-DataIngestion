@@ -33,4 +33,8 @@ public class Osd {
         this.fillerOrderNumberUniversalId = osd.getFillerOrderNumberUniversalID().getValue();
         this.fillerOrderNumberUniversalIdType = osd.getFillerOrderNumberUniversalIDType().getValue();
     }
+
+    public Osd() {
+
+    }
 }

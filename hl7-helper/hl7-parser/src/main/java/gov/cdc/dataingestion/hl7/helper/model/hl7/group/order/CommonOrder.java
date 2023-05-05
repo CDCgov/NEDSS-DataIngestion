@@ -5,42 +5,44 @@ import lombok.Getter;
 import lombok.Setter;
 
 import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 public class CommonOrder {
     String orderControl;
-    Ei placerOrderNumber;
-    Ei fillerOrderNumber;
-    Ei placerGroupNumber;
+    Ei placerOrderNumber = new Ei();
+    Ei fillerOrderNumber = new Ei();
+    Ei placerGroupNumber = new Ei();
     String orderStatus;
     String responseFlag;
-    List<Tq> quantityTiming;
-    Eip parentOrder;
-    Ts dateTimeOfTransaction;
-    List<Xcn> enteredBy;
-    List<Xcn> verifiedBy;
-    List<Xcn> orderingProvider;
-    Pl entererLocation;
-    List<Xtn> callBackPhoneNumber;
-    Ts orderEffectiveDateTime;
-    Ce orderControlCodeReason;
-    Ce enteringOrganization;
-    Ce enteringDevice;
-    List<Xcn> actionBy;
-    Ce advancedBeneficiaryNoticeCode;
-    List<Xon> orderingFacilityName;
-    List<Xad> orderingFacilityAddress;
-    List<Xtn> orderingFacilityPhoneNumber;
-    List<Xad> orderingProviderAddress;
-    Cwe orderStatusModifier;
-    Cwe advancedBeneficiaryNoticeOverrideReason;
-    Ts fillerExpectedAvailabilityDateTime;
-    Cwe confidentialityCode;
-    Cwe orderType;
-    Cne entererAuthorizationMode;
-    Cwe parentUniversalServiceIdentifier;
+    List<Tq> quantityTiming = new ArrayList<>();
+    Eip parentOrder = new Eip();
+    Ts dateTimeOfTransaction = new Ts();
+    List<Xcn> enteredBy = new ArrayList<>();
+    List<Xcn> verifiedBy = new ArrayList<>();
+    List<Xcn> orderingProvider = new ArrayList<>();
+    Pl entererLocation = new Pl();
+    List<Xtn> callBackPhoneNumber = new ArrayList<>();
+    Ts orderEffectiveDateTime = new Ts();
+    Ce orderControlCodeReason = new Ce();
+    Ce enteringOrganization = new Ce();
+    Ce enteringDevice = new Ce();
+    List<Xcn> actionBy = new ArrayList<>();
+    Ce advancedBeneficiaryNoticeCode = new Ce();
+    List<Xon> orderingFacilityName = new ArrayList<>();
+    List<Xad> orderingFacilityAddress = new ArrayList<>();
+    List<Xtn> orderingFacilityPhoneNumber = new ArrayList<>();
+    List<Xad> orderingProviderAddress = new ArrayList<>();
+    Cwe orderStatusModifier = new Cwe();
+    Cwe advancedBeneficiaryNoticeOverrideReason = new Cwe();
+    Ts fillerExpectedAvailabilityDateTime = new Ts();
+    Cwe confidentialityCode = new Cwe();
+    Cwe orderType = new Cwe();
+    Cne entererAuthorizationMode = new Cne();
+    Cwe parentUniversalServiceIdentifier = new Cwe();
 
     public CommonOrder(ca.uhn.hl7v2.model.v251.segment.ORC orc) {
         this.orderControl = orc.getOrderControl().getValue();
@@ -74,5 +76,9 @@ public class CommonOrder {
         this.orderType = new Cwe(orc.getOrderType());
         this.entererAuthorizationMode = new Cne(orc.getEntererAuthorizationMode());
         this.parentUniversalServiceIdentifier = new Cwe(orc.getParentUniversalServiceIdentifier());
+    }
+
+    public CommonOrder() {
+
     }
 }

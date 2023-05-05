@@ -12,9 +12,9 @@ public class Xon {
     String idNumber;
     String checkDigit;
     String checkDigitScheme;
-    Hd assignAuthority;
+    Hd assignAuthority = new Hd();
     String identifierTypeCode;
-    Hd assignFacility;
+    Hd assignFacility = new Hd();
     String nameRepresentationCode;
     String organizationIdentifier;
     public Xon(XON xon) {

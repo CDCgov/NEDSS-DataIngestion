@@ -16,4 +16,8 @@ public class Pln {
         this.stateOtherQualifyingInformation = pln.getStateOtherQualifyingInformation().getValue();
         this.expirationDate = pln.getExpirationDate().getValue();
     }
+
+    public Pln() {
+
+    }
 }

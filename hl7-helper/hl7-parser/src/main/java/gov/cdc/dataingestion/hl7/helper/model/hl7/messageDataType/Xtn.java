@@ -33,4 +33,8 @@ public class Xtn {
         this.speedDialCode = xtn.getSpeedDialCode().getValue();
         this.unformattedTeleNumber = xtn.getUnformattedTelephoneNumber().getValue();
     }
+
+    public Xtn() {
+
+    }
 }

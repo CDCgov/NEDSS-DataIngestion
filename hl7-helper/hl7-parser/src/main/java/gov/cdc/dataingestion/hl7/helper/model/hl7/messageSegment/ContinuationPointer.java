@@ -16,4 +16,8 @@ public class ContinuationPointer {
         this.continuationPointer = dsc.getContinuationPointer().getValue();
         this.continuationStyle = dsc.getContinuationStyle().getValue();
     }
+
+    public ContinuationPointer() {
+
+    }
 }

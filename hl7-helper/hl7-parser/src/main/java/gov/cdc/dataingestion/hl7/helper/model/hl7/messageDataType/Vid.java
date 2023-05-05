@@ -7,8 +7,8 @@ import lombok.Setter;
 @Setter
 public class Vid {
     String versionId;
-    Ce internationalizationCode;
-    Ce internationalVersionId;
+    Ce internationalizationCode = new Ce();
+    Ce internationalVersionId = new Ce();
 
     public Vid(VID vid) {
         this.versionId = vid.getVersionID().getValue();
