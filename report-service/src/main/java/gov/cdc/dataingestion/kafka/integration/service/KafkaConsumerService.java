@@ -173,7 +173,8 @@ public class KafkaConsumerService {
 
         CompletableFuture<Void> future1 = CompletableFuture.runAsync(() -> {
             try {
-                conversionHandler(message);
+                throw new Exception("TEST");
+               // conversionHandler(message);
             } catch (Exception e) {
                 log.info("Retry queue");
                 throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
