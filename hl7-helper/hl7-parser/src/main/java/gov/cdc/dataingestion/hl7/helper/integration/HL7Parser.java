@@ -59,7 +59,12 @@ public class HL7Parser implements IHL7Parser {
     public HL7ParsedMessage convert231To251(String message) throws DiHL7Exception {
        try {
            HL7ParsedMessage parsedMessage = hl7StringParser(message);
-//           var parsed231Message = hl7v231StringParser(message);
+           var parsed231Message = hl7v231StringParser(message);
+
+           // 231 Patient Result
+           var patientResult231 = parsed231Message.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTIAll();
+           var msh231 = parsed231Message.getMSH();
+           var dsc231 = parsed231Message.getDSC();
 
            if (parsedMessage.getOriginalVersion().equalsIgnoreCase(supportedHL7version231)) {
 
@@ -68,131 +73,41 @@ public class HL7Parser implements IHL7Parser {
                Ts messageHeaderDateTime = oru.getMessageHeader().getDateTimeOfMessage();
 
                //region Message Header Conversion
-               MessageHeader msh = oru.getMessageHeader();
-               Msg messageType = new Msg();
-               messageType.setMessageCode("ORU");
-               messageType.setTriggerEvent("R01");
-               messageType.setMessageStructure("ORU_R01");
-               msh.setMessageType(messageType);
-               Vid versionId = new Vid();
-               versionId.setVersionId("2.5.1");
-               msh.setVersionId(versionId);
-               Ei messageProfileIdentifier = new Ei();
-               messageProfileIdentifier.setEntityIdentifier("PHLabReport-NoAck");
-               messageProfileIdentifier.setNameSpaceId("ELR_Receiver");
-               messageProfileIdentifier.setUniversalId("2.16.840.1.113883.9.11");
-               messageProfileIdentifier.setUniversalIdType("ISO");
-               List<Ei> listEi = new ArrayList<>();
-               listEi.add(messageProfileIdentifier);
-               msh.setMessageProfileIdentifier(listEi);
-               oru.setMessageHeader(msh);
+               oru.setMessageHeader(MapMsh(msh231, oru.getMessageHeader()));
                //endregion
 
                //region Software Segment conversion
-               Xon softwareVendorOrg = new Xon();
-               softwareVendorOrg.setOrganizationName("Rhapsody");
-               softwareVendorOrg.setOrganizationNameTypeCode("L");
-               Hd assignAuthority = new Hd();
-               assignAuthority.setUniversalId("Rhapsody OID");
-               assignAuthority.setUniversalIdType("ISO");
-               softwareVendorOrg.setAssignAuthority(assignAuthority);
-               softwareVendorOrg.setIdentifierTypeCode("XX");
-               softwareVendorOrg.setOrganizationIdentifier("Rhapsody Organization Identifier");
-               SoftwareSegment sft = new SoftwareSegment();
-               sft.setSoftwareVendorOrganization(softwareVendorOrg);
-               sft.setSoftwareCertifiedVersionOrReleaseNumber("4.1.1");
-               sft.setSoftwareProductName("Rhapsody");
-               sft.setSoftwareBinaryId("Rhapsody Binary ID");
-               var listSoftwareSegment = new ArrayList<SoftwareSegment>();
-               listSoftwareSegment.add(sft);
-               oru.setSoftwareSegment(listSoftwareSegment);
+               oru.setSoftwareSegment(MapSoftwareSegment(oru.getSoftwareSegment()));
                //endregion
+
 
                for (int a = 0; a < oru.getPatientResult().size(); a++) {
 
+
                    //region Patient Result - PATIENT - PID
+                   var pid231 = patientResult231.get(a).getPIDPD1NK1NTEPV1PV2().getPID();
                    var pid = oru.getPatientResult().get(a).getPatient().getPatientIdentification();
-                   pid.setSetPid("1");
-                   var listCx = pid.getPatientIdentifierList();
-                   for(int i = 0; i < listCx.size(); i++) {
-                       Cx cx;
-                       if(listCx.get(i).getIdentifierTypeCode() == null || listCx.get(i).getIdentifierTypeCode().isEmpty()) {
-                           cx = MapCxWithNullToCx(listCx.get(i), listCx.get(i), "U");
-                       } else {
-                           cx = MapCxWithNullToCx(listCx.get(i), listCx.get(i), listCx.get(i).getIdentifierTypeCode());
-                       }
-                       listCx.set(i, cx);
-
-                   }
-                   pid.setPatientIdentifierList(listCx);
-
-                   // Mapping PatientID to PatientIdentifierList
-                   if (pid.getPatientId() != null) {
-                       var newPatientIdCx = new Cx();
-                       var patientId = MapCxWithNullToCx(pid.getPatientId(), newPatientIdCx, "PT");
-                       pid.getPatientIdentifierList().add(patientId);
-                   }
-
-                   // Mapping AlternatePatientId to PatientIdentifierList
-                   for(int i = 0; i < pid.getAlternativePatientId().size(); i++) {
-                       if(pid.getPatientIdentifierList().get(i) != null) {
-                           var newPatientIdCx = new Cx();
-                           var patientId = MapCxWithNullToCx(pid.getPatientId(), newPatientIdCx, "APT");
-                           pid.getPatientIdentifierList().add(patientId);
-                       }
-                   }
-
-                   //FIXME: test - Mapping PatientName to PatientName
-                   //FIXME: test - Mapping MotherMaidenName to MotherMaidenName
-                   //FIXME: test - Mapping DateTimeOfBirth to DateTimeOfBirth
-
-                   //Mapping PatientAlias to PatientName
-                   for(int i = 0; i < pid.getPatientAlias().size(); i++) {
-                       if (pid.getPatientAlias().get(i) != null) {
-                           pid.getPatientName().add(MapXpnToXpn(pid.getPatientAlias().get(i), new Xpn(), "A"));
-                       }
-                   }
-
-                   //FIXME: test - Mapping Race to Race
-                   //FIXME: test - Mapping PatientAddress to PatientAddress
-                   //FIXME: test - Mapping HomePhoneNumber to HomePhoneNumber
-                   //FIXME: test - Mapping BusinessPhoneNumber to BusinessPhoneNumber
-                   //FIXME: test - Mapping PrimaryLanguage to PrimaryLanguage
-                   //FIXME: test - Mapping MartialStatus to MartialStatus
-                   //FIXME: test - Mapping Religion to Religion
-                   //FIXME: test - Mapping PatientAccountNumber to PatientAccountNumber
-                   //FIXME: test - Mapping MotherIdentifier to MotherIdentifier
-                   //FIXME: test - Mapping EthnicGroup to EthnicGroup
-                   //FIXME: test - Mapping Citizenship to Citizenship
-                   //FIXME: test - Mapping VeteranMilitaryStatus to VeteranMilitaryStatus
-                   //FIXME: test - Mapping Nationality to Nationality
-                   //FIXME: test - Mapping PatientDeathDateTime to PatientDeathDateTime
-
-                   // Mapping DriverLicenseNumber to PatientIdentifierList
-                   pid.getDriverLicenseNumberPatient();
-                   if (pid.getDriverLicenseNumberPatient() != null) {
-                       pid.getPatientIdentifierList().add(MapDlnToCx(pid.getDriverLicenseNumberPatient(), new Cx()));
-                   }
-                   oru.getPatientResult().get(a).getPatient().setPatientIdentification(pid);
+                   oru.getPatientResult().get(a).getPatient().setPatientIdentification(
+                           MapPid(pid231, pid));
                    //endregion
 
                    //region Patient Result - PATIENT - PD1
-                   //FIXME: test - mapping LivingDependency
-                   //FIXME: test - mapping PatientPrimaryFacility
-                   //FIXME: test - mapping DuplicatePatient
-                   //FIXME: test - mapping PatientPrimaryCareProviderNameAndIDNo
+                       //test - mapping LivingDependency - hapi
+                       //test - mapping PatientPrimaryFacility - hapi
+                       //test - mapping DuplicatePatient - hapi
+                       //test - mapping PatientPrimaryCareProviderNameAndIDNo - hapi
                    //endregion
 
                    //region Patient Result - PATIENT - NK1
-                   //FIXME - test mapping NK1
+                   //   test mapping NK1
                    //endregion
 
                    //region Patient Result - PATIENT - NTE
-                   //FIXME - test mapping NTE
+                        //test mapping NTE
                    //endregion
 
                    //region Patient Result - PATIENT - VISIT
-                   //FIXME - test VISIT
+                        //test VISIT - hapi
                    //endregion
 
                    //region Patient Result - ORDER OBSERVATION
@@ -245,6 +160,9 @@ public class HL7Parser implements IHL7Parser {
 
                    //endregion
                 }
+
+               //region DSC
+               //endregion
 
                return parsedMessage;
            } else {

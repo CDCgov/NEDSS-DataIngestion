@@ -1,11 +1,159 @@
 package gov.cdc.dataingestion.hl7.helper.helper;
 
+import ca.uhn.hl7v2.model.v231.datatype.CX;
+import ca.uhn.hl7v2.model.v231.segment.MSH;
+import ca.uhn.hl7v2.model.v231.segment.PID;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ObservationRequest;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.PatientIdentification;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Mapping231To251Helper {
+
+    //region Map Message Header - 231 to 251
+    public static MessageHeader MapMsh(MSH inMsh231, MessageHeader outMsh251) {
+        outMsh251.getMessageType().setMessageCode("ORU");
+        outMsh251.getMessageType().setTriggerEvent("R01");
+        outMsh251.getMessageType().setMessageStructure("ORU_R01");
+        outMsh251.getVersionId().setVersionId("2.5.1");
+
+        Ei messageProfileIdentifier = new Ei();
+        messageProfileIdentifier.setEntityIdentifier("PHLabReport-NoAck");
+        messageProfileIdentifier.setNameSpaceId("ELR_Receiver");
+        messageProfileIdentifier.setUniversalId("2.16.840.1.113883.9.11");
+        messageProfileIdentifier.setUniversalIdType("ISO");
+
+        if(outMsh251.getMessageProfileIdentifier() != null) {
+
+            if (outMsh251.getMessageProfileIdentifier().size() > 0) {
+                outMsh251.getMessageProfileIdentifier().set(0, messageProfileIdentifier);
+            } else {
+                outMsh251.getMessageProfileIdentifier().add(messageProfileIdentifier);
+            }
+        } else {
+            List<Ei> eis = new ArrayList<>();
+            eis.add(messageProfileIdentifier);
+            outMsh251.setMessageProfileIdentifier(eis);
+        }
+        return outMsh251;
+    }
+    //endregion
+
+    //region Map Software Segments - 231 to 251
+    public static List<SoftwareSegment> MapSoftwareSegment(List<SoftwareSegment> softwareSegment) {
+        Xon softwareVendorOrg = new Xon();
+        softwareVendorOrg.setOrganizationName("Rhapsody");
+        softwareVendorOrg.setOrganizationNameTypeCode("L");
+        Hd assignAuthority = new Hd();
+        assignAuthority.setUniversalId("Rhapsody OID");
+        assignAuthority.setUniversalIdType("ISO");
+        softwareVendorOrg.setAssignAuthority(assignAuthority);
+        softwareVendorOrg.setIdentifierTypeCode("XX");
+        softwareVendorOrg.setOrganizationIdentifier("Rhapsody Organization Identifier");
+        SoftwareSegment sft = new SoftwareSegment();
+        sft.setSoftwareVendorOrganization(softwareVendorOrg);
+        sft.setSoftwareCertifiedVersionOrReleaseNumber("4.1.1");
+        sft.setSoftwareProductName("Rhapsody");
+        sft.setSoftwareBinaryId("Rhapsody Binary ID");
+
+        if (softwareSegment != null) {
+            if (softwareSegment.isEmpty()) {
+                softwareSegment.add(sft);
+            } else {
+                softwareSegment.set(0, sft);
+            }
+        } else {
+            softwareSegment = new ArrayList<SoftwareSegment>();
+            softwareSegment.add(sft);
+        }
+        return softwareSegment;
+    }
+    //endregion
+
+    //region Map Patient Identification - 231 to 251
+    public static PatientIdentification MapPid(PID inPid231, PatientIdentification outPid251) {
+        outPid251.setSetPid("1");
+        if (outPid251.getPatientIdentifierList() == null) {
+            outPid251.setPatientIdentifierList(new ArrayList<Cx>());
+        }
+
+        if (outPid251.getPatientName() == null) {
+            outPid251.setPatientName(new ArrayList<Xpn>());
+        }
+
+        // PatientIdentifierList
+        for(int a = 0; a < outPid251.getPatientIdentifierList().size(); a++) {
+            if (outPid251.getPatientIdentifierList().get(a) != null) {
+                var patientIdentifier = outPid251.getPatientIdentifierList().get(a);
+                if (patientIdentifier.getIdentifierTypeCode() == null || patientIdentifier.getIdentifierTypeCode().isEmpty()) {
+                    patientIdentifier = MapCxWithNullToCx(patientIdentifier, patientIdentifier, "U");
+                } else {
+                    patientIdentifier = MapCxWithNullToCx(patientIdentifier, patientIdentifier, patientIdentifier.getIdentifierTypeCode());
+                }
+                outPid251.getPatientIdentifierList().set(a, patientIdentifier);
+            }
+        }
+
+        // Patient ID
+        if (outPid251.getPatientId() != null) {
+            outPid251.getPatientIdentifierList().add(MapCxWithNullToCx(outPid251.getPatientId(), new Cx(), "PT"));
+        }
+
+        // Patient AlternatePatientId
+        for(int b = 0; b < outPid251.getAlternativePatientId().size(); b++) {
+            if (outPid251.getAlternativePatientId().get(b) != null) {
+                outPid251.getPatientIdentifierList().add(MapCxWithNullToCx(outPid251.getAlternativePatientId().get(b), new Cx(), "APT"));
+            }
+        }
+
+        // Patient Name - hapi
+        // MotherMaidenName - hapi
+        // DateTimeOfBirth - hapi
+        // Patient Alias
+        for(int c = 0; c < outPid251.getPatientAlias().size(); c++) {
+            if (outPid251.getPatientAlias().get(c) != null) {
+                outPid251.getPatientName().add(MapXpnToXpn(outPid251.getPatientAlias().get(c), new Xpn(), "A"));
+            }
+        }
+        // Race - hapi
+        // Patient Address - hapi
+        // HomePhoneNumber - hapi
+        // BusinessPhoneNumber - hapi
+        // PrimaryLanguage - hapi
+        // MartialStatus - hapi
+        // Religion - hapi
+        // PatientAccountNumber - hapi
+        // SSN Number
+        outPid251.getPatientIdentifierList().add(MapSocialSecurityToPatientIdentifier(outPid251.getSsnNumberPatient(), new Cx()));
+        // Mother Identifier - hapi
+        // Ethnic Group - hapi
+        // Citizenship - hapi
+        // Veteran - hapi
+        // Nationality - hapi
+        // MapSocialSecurityToPatientIdentifier - hapi
+        // DriversLicenseNumber
+        outPid251.getPatientIdentifierList().add(MapDlnToCx(outPid251.getDriverLicenseNumberPatient(), new Cx()));
+        return outPid251;
+    }
+    //endregion
+
+    public static Cx MapSocialSecurityToPatientIdentifier(String ssnNumber, Cx out) {
+        out.setIdNumber(ssnNumber);
+        Hd hd = new Hd();
+        hd.setNameSpaceId("SSA");
+        hd.setUniversalId("2.16.840.1.113883.4.1");
+        hd.setUniversalIdType("ISO");
+        out.setAssignAuthority(hd);
+        out.setIdentifierTypeCode("SS");
+        return out;
+    }
+
     public static Cx MapCxWithNullToCx (Cx cx, Cx cxOut, String defaultValue) {
         cxOut.setIdentifierTypeCode(defaultValue);
 
