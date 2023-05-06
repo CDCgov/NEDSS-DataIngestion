@@ -1,7 +1,6 @@
 package gov.cdc.dataingestion.hl7.helper.helper;
 
-import ca.uhn.hl7v2.model.v231.datatype.CX;
-import ca.uhn.hl7v2.model.v231.datatype.EI;
+import ca.uhn.hl7v2.model.v231.datatype.*;
 import ca.uhn.hl7v2.model.v231.segment.MSH;
 import ca.uhn.hl7v2.model.v231.segment.ORC;
 import ca.uhn.hl7v2.model.v231.segment.PID;
@@ -157,25 +156,310 @@ public class Mapping231To251Helper {
         }
 
         if (inOrc231.getPlacerOrderNumber() != null) {
-            outOrc251.setPlacerGroupNumber(MapEi(inOrc231.getPlacerOrderNumber(), outOrc251.getPlacerGroupNumber()));
+            outOrc251.setPlacerGroupNumber(MapEi231(inOrc231.getPlacerOrderNumber(), outOrc251.getPlacerGroupNumber()));
         }
 
         if (inOrc231.getFillerOrderNumber() != null) {
-            outOrc251.setFillerOrderNumber(MapEi(inOrc231.getFillerOrderNumber(), outOrc251.getFillerOrderNumber()));
+            outOrc251.setFillerOrderNumber(MapEi231(inOrc231.getFillerOrderNumber(), outOrc251.getFillerOrderNumber()));
         }
 
         if (inOrc231.getPlacerGroupNumber() != null) {
-            outOrc251.setPlacerGroupNumber(MapEi(inOrc231.getPlacerGroupNumber(), outOrc251.getPlacerGroupNumber()));
+            outOrc251.setPlacerGroupNumber(MapEi231(inOrc231.getPlacerGroupNumber(), outOrc251.getPlacerGroupNumber()));
         }
 
         outOrc251.setOrderStatus(inOrc231.getOrderStatus().getValue());
         outOrc251.setResponseFlag(inOrc231.getResponseFlag().getValue());
 
+        if (inOrc231.getQuantityTiming() != null) {
+            Tq timeQty = MapTq231(inOrc231.getQuantityTiming(), new Tq());
+            if(outOrc251.getQuantityTiming() != null) {
+                outOrc251.getQuantityTiming().add(timeQty);
+            } else {
+                var quantityTimeList = new ArrayList<Tq>();
+                quantityTimeList.add(timeQty);
+                outOrc251.setQuantityTiming(quantityTimeList);
+            }
+        }
+
+        if(inOrc231.getParentOrder() != null) {
+            outOrc251.setParentOrder(MapEip231(inOrc231.getParentOrder(), outOrc251.getParentOrder()));
+        }
+
+        if(inOrc231.getDateTimeOfTransaction() != null) {
+            outOrc251.setDateTimeOfTransaction(MapTs231(inOrc231.getDateTimeOfTransaction(), outOrc251.getDateTimeOfTransaction()));
+        }
+
+        List<Xcn> enterBys = new ArrayList<>();
+        for(int a = 0; a < inOrc231.getEnteredBy().length; a++) {
+            if(inOrc231.getEnteredBy()[a] != null) {
+                enterBys.add(MapXcn231(inOrc231.getEnteredBy(a), new Xcn()));
+            }
+        }
+        outOrc251.setEnteredBy(enterBys);
+
+        List<Xcn> verifiedBys = new ArrayList<>();
+        for (int b = 0; b < inOrc231.getVerifiedBy().length; b++) {
+            if(inOrc231.getVerifiedBy()[b] != null) {
+                verifiedBys.add(MapXcn231(inOrc231.getVerifiedBy()[b], new Xcn()));
+            }
+        }
+        outOrc251.setVerifiedBy(verifiedBys);
+
+        List<Xcn> orderProviders = new ArrayList<>();
+        for(int c = 0; c < inOrc231.getOrderingProvider().length; c++) {
+            if(inOrc231.getOrderingProvider()[c] != null) {
+                orderProviders.add(MapXcn231(inOrc231.getOrderingProvider()[c], new Xcn()));
+            }
+        }
+        outOrc251.setOrderingProvider(orderProviders);
+
+        if(inOrc231.getEntererSLocation() != null) {
+            outOrc251.setEntererLocation(MapPl231(inOrc231.getEntererSLocation(), outOrc251.getEntererLocation()));
+        }
+
+        List<Xtn> phoneList = new ArrayList<>();
+        for(int d = 0; d < inOrc231.getCallBackPhoneNumber().length; d++) {
+            if(inOrc231.getCallBackPhoneNumber()[d] != null) {
+                phoneList.add(MapXtn231(inOrc231.getCallBackPhoneNumber(d), new Xtn()));
+            }
+        }
+        outOrc251.setCallBackPhoneNumber(phoneList);
+
+        if(inOrc231.getOrderEffectiveDateTime() != null) {
+            outOrc251.setOrderEffectiveDateTime(MapTs231(inOrc231.getOrderEffectiveDateTime(), outOrc251.getOrderEffectiveDateTime()));
+        }
+
+        if(inOrc231.getOrderControlCodeReason() != null) {
+            outOrc251.setOrderControlCodeReason(MapCe231(inOrc231.getOrderControlCodeReason(), outOrc251.getOrderControlCodeReason()));
+        }
+
+        if(inOrc231.getEnteringOrganization() != null) {
+            outOrc251.setEnteringOrganization(MapCe231(inOrc231.getEnteringOrganization(), outOrc251.getEnteringOrganization()));
+        }
+
+        if(inOrc231.getEnteringDevice() != null) {
+            outOrc251.setEnteringDevice(MapCe231(inOrc231.getEnteringDevice(), outOrc251.getEnteringDevice()));
+        }
+
+        List<Xcn> actionbyList = new ArrayList<>();
+        for(int e = 0; e < inOrc231.getActionBy().length; e++) {
+            if(inOrc231.getActionBy(e) != null) {
+                actionbyList.add(MapXcn231(inOrc231.getActionBy(e), new Xcn()));
+            }
+        }
+        outOrc251.setActionBy(actionbyList);
+
+        if(inOrc231.getAdvancedBeneficiaryNoticeCode() != null) {
+            outOrc251.setAdvancedBeneficiaryNoticeCode(MapCe231(inOrc231.getAdvancedBeneficiaryNoticeCode(), outOrc251.getAdvancedBeneficiaryNoticeCode()));
+        }
+
+        List<Xon> facilityList = new ArrayList<>();
+        for(int f= 0; f < inOrc231.getOrderingFacilityName().length; f++) {
+            if(inOrc231.getOrderingFacilityName(f) != null) {
+                facilityList.add(MapXon231(inOrc231.getOrderingFacilityName(f), new Xon()));
+            }
+        }
+        outOrc251.setOrderingFacilityName(facilityList);
+
+        List<Xad> orderingFacilityList = new ArrayList<>();
+        for(int g = 0; g < inOrc231.getOrderingFacilityAddress().length; g++) {
+            if(inOrc231.getOrderingFacilityAddress(g) != null) {
+                orderingFacilityList.add(MapXad231(inOrc231.getOrderingFacilityAddress(g), new Xad()));
+            }
+        }
+        outOrc251.setOrderingFacilityAddress(orderingFacilityList);
+
+
         return outOrc251;
     }
     //endregion
 
-    public static Ei MapEi(EI in, Ei out) {
+    public static Xad MapXad231(XAD in, Xad out) {
+        Sad sad = new Sad();
+        sad.setStreetMailingAddress(in.getStreetAddress().getValue());
+        out.setStreetAddress(sad);
+        out.setOtherDesignation(in.getOtherDesignation().getValue());
+        out.setCity(in.getCity().getValue());
+        out.setState(in.getStateOrProvince().getValue());
+        out.setZip(in.getZipOrPostalCode().getValue());
+        out.setCountry(in.getCountry().getValue());
+        out.setAddressType(in.getAddressType().getValue());
+        out.setOtherDesignation(in.getOtherDesignation().getValue());
+        out.setCensusTract(in.getCensusTract().getValue());
+        out.setAddressRepresentationCode(in.getAddressRepresentationCode().getValue());
+        out.setCountyCode(in.getCountyParishCode().getValue());
+        return out;
+
+    }
+
+    public static Xon MapXon231(XON in, Xon out) {
+        out.setOrganizationName(in.getOrganizationName().getValue());
+        out.setOrganizationNameTypeCode(in.getOrganizationNameTypeCode().getValue());
+        out.setOrganizationIdentifier(in.getIDNumber().getValue());
+        out.setCheckDigitScheme(in.getCodeIdentifyingTheCheckDigitSchemeEmployed().getValue());
+        if(in.getAssigningAuthority() != null) {
+            out.setAssignAuthority(MapHd231(in.getAssigningAuthority(), out.getAssignAuthority()));
+        }
+        out.setIdentifierTypeCode(in.getIdentifierTypeCode().getValue());
+        out.setNameRepresentationCode(in.getNameRepresentationCode().getValue());
+        if(in.getAssigningFacilityID() != null) {
+            out.setAssignFacility(MapHd231(in.getAssigningFacilityID(), out.getAssignFacility()));
+        }
+        return out;
+    }
+
+    public static Xtn MapXtn231(XTN in, Xtn out) {
+        out.setTelephoneNumber(in.getPhoneNumber().getValue());
+        out.setTeleComCode(in.getTelecommunicationUseCode().getValue());
+        out.setTeleComEquipmentType(in.getXtn3_TelecommunicationEquipmentType().getValue());
+        out.setEmailAddress(in.getEmailAddress().getValue());
+        out.setCountryCode(in.getCountryCode().getValue());
+        out.setCityCode(in.getAreaCityCode().getValue());
+        out.setLocalNumber(in.getPhoneNumber().getValue());
+        out.setExtension(in.getExtension().getValue());
+        out.setAnyText(in.getAnyText().getValue());
+        return out;
+    }
+
+    public static Pl MapPl231(PL in, Pl out) {
+        out.setPointOfCare(in.getPointOfCare().getValue());
+        out.setRoom(in.getRoom().getValue());
+        out.setBed(in.getBed().getValue());
+        if(in.getFacility() != null) {
+            out.setFacility(MapHd231(in.getFacility(), out.getFacility()));
+        }
+        out.setLocationStatus(in.getLocationStatus().getValue());
+        out.setBuilding(in.getBuilding().getValue());
+        out.setFloor(in.getFloor().getValue());
+        out.setLocationDescription(in.getLocationDescription().getValue());
+        out.setPersonLocationType(in.getPersonLocationType().getValue());
+        return out;
+    }
+
+    public static Xcn MapXcn231(XCN in, Xcn out) {
+        out.setIdNumber(in.getIDNumber().getValue());
+        Fn familyName = new Fn();
+        familyName.setSurname(in.getFamilyLastName().getFamilyName().getValue());
+        out.setFamilyName(familyName);
+        out.setGivenName(in.getGivenName().getValue());
+        out.setSecondAndFurtherGivenNameOrInitial(in.getMiddleInitialOrName().getValue());
+        out.setSuffix(in.getSuffixEgJRorIII().getValue());
+        out.setPrefix(in.getPrefixEgDR().getValue());
+        out.setDegree(in.getDegreeEgMD().getValue());
+        out.setSourceTable(in.getSourceTable().getValue());
+
+        if (in.getAssigningAuthority() != null) {
+            out.setAssignAuthority(MapHd231(in.getAssigningAuthority(), out.getAssignAuthority()));
+        }
+
+        out.setNameTypeCode(in.getNameTypeCode().getValue());
+        out.setIdentifierCheckDigit(in.getIdentifierCheckDigit().getValue());
+        out.setCheckDigitScheme(in.getCodeIdentifyingTheCheckDigitSchemeEmployed().getValue());
+        out.setIdentifierTypeCode(in.getIdentifierTypeCode().getValue());
+
+        if(in.getAssigningFacility() != null) {
+            out.setAssignFacility(MapHd231(in.getAssigningFacility(), out.getAssignFacility()));
+        }
+        out.setNameRepresentationCode(in.getNameRepresentationCode().getValue());
+        return out;
+    }
+
+    public static Hd MapHd231(HD in, Hd out) {
+        out.setNameSpaceId(in.getNamespaceID().getValue());
+        out.setUniversalId(in.getUniversalID().getValue());
+        out.setUniversalIdType(in.getUniversalIDType().getValue());
+        return out;
+    }
+
+    public static Eip MapEip231(EIP in, Eip out) {
+        out.setPlacerAssignedIdentifier(MapEi231(in.getParentSPlacerOrderNumber(), out.getPlacerAssignedIdentifier()));
+        out.setFillerAssignedIdentifier(MapEi231(in.getParentSFillerOrderNumber(), out.getFillerAssignedIdentifier()));
+        return out;
+    }
+
+    public static Tq MapTq231(TQ in, Tq out) {
+
+        if (in.getQuantity() != null) {
+            out.setQuantity(MapCq231(in.getQuantity(), out.getQuantity()));
+        }
+
+        if (in.getInterval() != null) {
+            out.setInterval(MapRi231(in.getInterval(), out.getInterval()));
+        }
+
+        out.setDuration(in.getDuration().getValue());
+
+        if (in.getStartDateTime() != null) {
+            out.setStartDateTime(MapTs231(in.getStartDateTime(), out.getStartDateTime()));
+        }
+
+        if (in.getEndDateTime() != null) {
+            out.setEndDateTime(MapTs231(in.getEndDateTime(), out.getEndDateTime()));
+        }
+
+        out.setPriority(in.getPriority().getValue());
+        out.setCondition(in.getCondition().getValue());
+        out.setText(in.getText().getValue());
+        out.setConjunction(in.getConjunction().getValue());
+
+        if(in.getOrderSequencing() != null) {
+            out.setOrderSequencing(MapOsd231(in.getOrderSequencing(), out.getOrderSequencing()));
+        }
+
+        if(in.getOccurrenceDuration() != null) {
+            out.setOccurrenceDuration(MapCe231(in.getOccurrenceDuration(), out.getOccurrenceDuration()));
+        }
+
+        out.setTotalOccurrences(in.getTotalOccurences().getValue());
+        return out;
+    }
+
+    public static Osd MapOsd231(OSD in, Osd out) {
+        out.setSequenceResultFlag(in.getSequenceResultsFlag().getValue());
+        out.setPlacerOrderNumberEntityIdentifier(in.getPlacerOrderNumberEntityIdentifier().getValue());
+        out.setPlacerOrderNumberUniversalId(in.getPlacerOrderNumberUniversalID().getValue());
+        out.setFillerOrderNumberEntityIdentifier(in.getFillerOrderNumberEntityIdentifier().getValue());
+        out.setFillerOrderNumberNamespaceId(in.getFillerOrderNumberNamespaceID().getValue());
+        out.setSequenceConditionValue(in.getSequenceConditionValue().getValue());
+        out.setPlacerOrderNumberUniversalId(in.getPlacerOrderNumberUniversalID().getValue());
+        out.setPlacerOrderNumberUniversalIdType(in.getPlacerOrderNumberUniversalIDType().getValue());
+        out.setFillerOrderNumberNamespaceId(in.getFillerOrderNumberNamespaceID().getValue());
+        out.setFillerOrderNumberUniversalIdType(in.getFillerOrderNumberUniversalIDType().getValue());
+        out.setMaximumNumberOfRepeats(in.getMaximumNumberOfRepeats().getValue());
+        return out;
+    }
+
+    public static Ts MapTs231(TS in, Ts out) {
+        out.setTime(in.getTimeOfAnEvent().getValue());
+        out.setDegreeOfPrecision(in.getDegreeOfPrecision().getValue());
+        return out;
+    }
+
+    public static Ri MapRi231(RI in, Ri out) {
+        out.setRepeatPattern(in.getRepeatPattern().getValue());
+        out.setExplicitTimeInterval(in.getExplicitTimeInterval().getValue());
+        return out;
+    }
+
+    public static Cq MapCq231(CQ in, Cq out) {
+        out.setQuantity(in.getQuantity().getValue());
+        out.setUnits(MapCe231(in.getUnits(), out.getUnits()));
+        return out;
+    }
+
+    public static Ce MapCe231(CE in, Ce out) {
+        out.setIdentifier(in.getIdentifier().getValue());
+        out.setText(in.getText().getValue());
+        out.setNameOfCodingSystem(in.getNameOfCodingSystem().getValue());
+        out.setAlternateIdentifier(in.getAlternateIdentifier().getValue());
+        out.setAlternateText(in.getAlternateText().getValue());
+        out.setNameOfAlternateCodingSystem(
+                in.getNameOfAlternateCodingSystem().getValue()
+        );
+        return out;
+    }
+
+    public static Ei MapEi231(EI in, Ei out) {
         out.setEntityIdentifier(in.getEntityIdentifier().getValue());
         out.setNameSpaceId(in.getNamespaceID().getValue());
         out.setUniversalId(in.getUniversalID().getValue());
