@@ -5,6 +5,7 @@ import ca.uhn.hl7v2.model.v231.segment.MSH;
 import ca.uhn.hl7v2.model.v231.segment.OBR;
 import ca.uhn.hl7v2.model.v231.segment.ORC;
 import ca.uhn.hl7v2.model.v231.segment.PID;
+import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ObservationRequest;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult;
@@ -155,7 +156,11 @@ public class Mapping231To251Helper {
 
     //region Map ORC to ORC - 231 to 251
     public static CommonOrder MapCommonOrder(ORC inOrc231, CommonOrder outOrc251) {
-        if (inOrc231.getOrderControl() != null && inOrc231.getOrderControl().getValue() != null && inOrc231.getOrderControl().getValue().isEmpty()) {
+        if (
+                (inOrc231.getOrderControl() == null) ||
+                (inOrc231.getOrderControl() != null && inOrc231.getOrderControl().getValue() == null) ||
+                (inOrc231.getOrderControl() != null && inOrc231.getOrderControl().getValue() != null && inOrc231.getOrderControl().getValue().isEmpty())
+        ) {
             outOrc251.setOrderControl("RE");
         } else {
             outOrc251.setOrderControl(inOrc231.getOrderControl().getValue());
@@ -316,6 +321,7 @@ public class Mapping231To251Helper {
         out.setCensusTract(in.getCensusTract().getValue());
         out.setAddressRepresentationCode(in.getAddressRepresentationCode().getValue());
         out.setCountyCode(in.getCountyParishCode().getValue());
+        out.setOtherGeographic(in.getOtherDesignation().getValue());
         return out;
 
     }
@@ -676,51 +682,132 @@ public class Mapping231To251Helper {
 
 
     public static ObservationResult MapObservationResultToObservationResult(ObservationResult obxIn, ObservationResult obxOut) {
+
         if (obxIn.getProducerId() == null) {
-            obxOut.getPerformingOrganizationName().setOrganizationName("Not present in v2.3.1 message");
+            var orgXon = new Xon();
+            orgXon.setOrganizationName("Not present in v2.3.1 message");
+            obxOut.setPerformingOrganizationName(orgXon);
+        } else {
+            obxOut.setPerformingOrganizationName(MapCeToXon(obxIn.getProducerId(), new Xon()));
         }
 
-        if(obxIn.getPerformingOrganizationAddress().getStreetAddress() == null ||
-                (obxIn.getPerformingOrganizationAddress().getCity() != null &&
-            obxIn.getPerformingOrganizationAddress().getCity().isEmpty() )||
-                (obxIn.getPerformingOrganizationAddress().getState() != null &&
-            obxIn.getPerformingOrganizationAddress().getState().isEmpty()) ||
-                (obxIn.getPerformingOrganizationAddress().getCountry() != null &&
-            obxIn.getPerformingOrganizationAddress().getCountry().isEmpty()) ||
-                (obxIn.getPerformingOrganizationAddress().getZip() != null &&
-            obxIn.getPerformingOrganizationAddress().getZip().isEmpty())
-        ) {
+var test = obxIn.getPerformingOrganizationAddress();
+
+        if (
+                obxIn.getPerformingOrganizationAddress() == null ||
+                (obxIn.getPerformingOrganizationAddress().getStreetAddress() != null  && (
+                        obxIn.getPerformingOrganizationAddress().getStreetAddress().getStreetName() == null ||
+                        obxIn.getPerformingOrganizationAddress().getStreetAddress().getStreetMailingAddress() == null ||
+                        (obxIn.getPerformingOrganizationAddress().getStreetAddress().getStreetName() != null && obxIn.getPerformingOrganizationAddress().getStreetAddress().getStreetName().isEmpty())
+                        || (obxIn.getPerformingOrganizationAddress().getStreetAddress().getStreetMailingAddress() != null && obxIn.getPerformingOrganizationAddress().getStreetAddress().getStreetMailingAddress().isEmpty())
+                ))
+                ||
+                (
+                        obxIn.getPerformingOrganizationAddress() != null && obxIn.getPerformingOrganizationAddress().getCity() == null ||
+                        obxIn.getPerformingOrganizationAddress() != null && obxIn.getPerformingOrganizationAddress().getCity() != null && obxIn.getPerformingOrganizationAddress().getCity().isEmpty()
+                )
+                ||
+                (
+                        obxIn.getPerformingOrganizationAddress() != null && obxIn.getPerformingOrganizationAddress().getState() == null ||
+                        obxIn.getPerformingOrganizationAddress() != null && obxIn.getPerformingOrganizationAddress().getState() != null && obxIn.getPerformingOrganizationAddress().getState().isEmpty()
+                )
+                ||
+                (
+                        obxIn.getPerformingOrganizationAddress() != null && obxIn.getPerformingOrganizationAddress().getCountry()==null ||
+                        obxIn.getPerformingOrganizationAddress() != null && obxIn.getPerformingOrganizationAddress().getCountry()!=null && obxIn.getPerformingOrganizationAddress().getCountry().isEmpty()
+                )
+                ||
+                (
+                        obxIn.getPerformingOrganizationAddress() != null && obxIn.getPerformingOrganizationAddress().getZip() == null ||
+                        obxIn.getPerformingOrganizationAddress() != null && obxIn.getPerformingOrganizationAddress().getZip()!= null && obxIn.getPerformingOrganizationAddress().getZip().isEmpty()
+                )
+
+        )
+        {
             obxOut.getPerformingOrganizationAddress().getStreetAddress().setStreetMailingAddress("Not present in v2.3.1 message");
+        } else {
+            obxOut.setPerformingOrganizationAddress(MapXad(obxIn.getPerformingOrganizationAddress(), obxOut.getPerformingOrganizationAddress()));
         }
+
+        if(
+                obxIn.getDateTimeOfTheAnalysis() == null ||
+                obxIn.getDateTimeOfTheAnalysis() != null && obxIn.getDateTimeOfTheAnalysis().getTime() == null
+        ) {
+            obxOut.setDateTimeOfTheAnalysis(obxIn.getDateTimeOfTheObservation());
+        }
+
 
         return obxOut;
     }
 
-    public static ObservationRequest ObservationRequestToObservationRequest(ObservationRequest in, ObservationRequest out, Ts timestamp) {
-        if(in.getResultRptStatusChngDateTime() == null ||
+    public static ObservationRequest ObservationRequestToObservationRequest(OBR in231, ObservationRequest in, ObservationRequest out, Ts timestamp) throws DiHL7Exception {if(in.getResultRptStatusChngDateTime() == null ||
                 (in.getResultRptStatusChngDateTime() != null &&  in.getResultRptStatusChngDateTime().getTime() != null && in.getResultRptStatusChngDateTime().getTime().isEmpty())
         ) {
             out.setResultRptStatusChngDateTime(timestamp);
         }
+
+        if(in.getParentResult() != null) {
+            out.setParentResult(MapPrl231(in231.getParentResult(), new Prl()));
+        }
         return out;
     }
+
+    public static Prl MapPrl231(PRL in, Prl out) throws DiHL7Exception {
+        if(in.getOBX3ObservationIdentifierOfParentResult() != null) {
+            out.setParentObservationIdentifier(MapCe231(in.getOBX3ObservationIdentifierOfParentResult(), out.getParentObservationIdentifier()));
+        }
+
+        out.setParentObservationSubIdentifier(in.getOBX4SubIDOfParentResult().getValue());
+
+        var descriptor = (in.getPartOfOBX5ObservationResultFromParent().getValue());
+        var compositeResult = in.getPartOfOBX5ObservationResultFromParent();
+        if(compositeResult != null && compositeResult.getExtraComponents() != null && compositeResult.getExtraComponents().numComponents() > 0) {
+            for(int i = 0; i < compositeResult.getExtraComponents().numComponents(); i++) {
+                try {
+                    descriptor = descriptor + "&" + compositeResult.getExtraComponents().getComponent(i).getData().encode().toString();
+                } catch (Exception e) {
+                    throw new DiHL7Exception(e.getMessage());
+                }
+            }
+        }
+
+        out.setParentObservationValueDescriptor(descriptor);
+
+        return out;
+    }
+
+
 
     public static Specimen ObservationRequestToSpecimen(ObservationRequest in, Specimen out) {
         out.setSetIdSpm(in.getSetIdObr());
         out.getSpecimenId().setPlacerAssignedIdentifier(in.getPlacerOrderNumber());
         out.getSpecimenId().setFillerAssignedIdentifier(in.getFillerOrderNumber());
 
-        if(in.getSpecimenSource().getSpecimenSourceNameOrCode() == null) {
+        if(in.getSpecimenSource().getSpecimenSourceNameOrCode() == null ||
+                (in.getSpecimenSource().getSpecimenSourceNameOrCode() != null && in.getSpecimenSource().getSpecimenSourceNameOrCode().getIdentifier() == null)
+        ) {
             out.getSpecimenType().setIdentifier("UNK");
             out.getSpecimenType().setText("Unknown");
             out.getSpecimenType().setNameOfCodingSystem("NullFlavor");
         } else {
             out.setSpecimenType(in.getSpecimenSource().getSpecimenSourceNameOrCode());
         }
-        out.getSpecimenAdditives().add(in.getSpecimenSource().getAdditives());
+
+        if(in.getSpecimenSource().getAdditives().getIdentifier() != null) {
+            var spcAdditive = new Cwe();
+            spcAdditive.setText(in.getSpecimenSource().getAdditives().getIdentifier());
+            spcAdditive.setIdentifier(in.getSpecimenSource().getAdditives().getIdentifier());
+            out.getSpecimenAdditives().add(spcAdditive);
+        }
+
+
+
         out.setSpecimenCollectionMethod(in.getSpecimenSource().getCollectionMethodModifierCode());
         out.setSpecimenSourceSite(in.getSpecimenSource().getBodySite());
-        out.getSpecimenSourceSiteModifier().add(in.getSpecimenSource().getSiteModifier());
+
+        if (in.getSpecimenSource().getSiteModifier() != null) {
+            out.getSpecimenSourceSiteModifier().add(in.getSpecimenSource().getSiteModifier());
+        }
         out.getSpecimenCollectionAmount().setQuantity(in.getCollectionVolume().getQuantity());
         out.getSpecimenCollectionAmount().setUnits(in.getCollectionVolume().getUnits());
         out.getSpecimenDescription().add(in.getSpecimenSource().getSpecimenCollectionMethod());
@@ -728,8 +815,29 @@ public class Mapping231To251Helper {
         out.getSpecimenCollectionDateTime().setRangeEndDateTime(in.getObservationEndDateTime());
         out.setSpecimenReceivedDateTime(in.getSpecimenReceivedDateTime());
         out.setNumberOfSpecimenContainers(in.getNumberOfSampleContainers());
+
         return out;
     }
 
+    public static Xad MapXad(Xad in, Xad out) {
+        out.setStreetAddress(in.getStreetAddress());
+        out.setOtherDesignation(in.getOtherDesignation());
+        out.setCity(in.getCity());
+        out.setState(in.getState());
+        out.setZip(in.getZip());
+        out.setCountry(in.getCountry());
+        out.setAddressType(in.getAddressType());
+        out.setOtherGeographic(in.getOtherGeographic());
+        out.setCensusTract(in.getCensusTract());
+        out.setAddressRepresentationCode(in.getAddressRepresentationCode());
+        out.setCountyCode(in.getCountyCode());
+        return out;
+    }
 
+    public static Xon MapCeToXon(Ce in, Xon out) {
+        out.setOrganizationName(in.getText());
+        out.setOrganizationIdentifier(in.getIdentifier());
+        out.getAssignAuthority().setNameSpaceId(in.getNameOfCodingSystem());
+        return out;
+    }
 }

@@ -127,8 +127,11 @@ public class HL7Parser implements IHL7Parser {
                        //endregion
 
                        //region OBSERVATION - OBR
+
+                       var obr231 = patientResult231.get(a).getORCOBRNTEOBXNTECTIAll().get(c).getOBR();
                        oru.getPatientResult().get(a).getOrderObservation().get(c).setObservationRequest(
                                ObservationRequestToObservationRequest(
+                                       obr231,
                                        oru.getPatientResult().get(a).getOrderObservation().get(c).getObservationRequest(),
                                        oru.getPatientResult().get(a).getOrderObservation().get(c).getObservationRequest(),
                                        messageHeaderDateTime
@@ -145,7 +148,8 @@ public class HL7Parser implements IHL7Parser {
                        //endregion
 
                        //region OBSERVATION - OBR to SPM
-                       var spc = ObservationRequestToSpecimen(oru.getPatientResult().get(a).getOrderObservation().get(c).getObservationRequest(),
+                       var spc = ObservationRequestToSpecimen(
+                               oru.getPatientResult().get(a).getOrderObservation().get(c).getObservationRequest(),
                                new Specimen());
                        oru.getPatientResult().get(a).getOrderObservation().get(c).getSpecimen().add(
                              new gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Specimen(spc)
