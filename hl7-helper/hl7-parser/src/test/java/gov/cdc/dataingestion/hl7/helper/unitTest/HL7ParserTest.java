@@ -53,7 +53,7 @@ public class HL7ParserTest {
 
     @Test
     public void hl7StringParser_ReturnValidMessage() throws  DiHL7Exception {
-        var result = target.hl7StringParser(OruR1Message1);
+        var result = target.hl7StringParser(OruR1RhapsodyConverted251Message);
         Gson gson = new Gson();
         var str = gson.toJson(result);
         Assertions.assertEquals("R01", result.getEventTrigger());

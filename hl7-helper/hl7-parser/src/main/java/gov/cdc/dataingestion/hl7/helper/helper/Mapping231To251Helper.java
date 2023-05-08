@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.hl7.helper.helper;
 
 import ca.uhn.hl7v2.model.v231.datatype.*;
 import ca.uhn.hl7v2.model.v231.segment.MSH;
+import ca.uhn.hl7v2.model.v231.segment.OBR;
 import ca.uhn.hl7v2.model.v231.segment.ORC;
 import ca.uhn.hl7v2.model.v231.segment.PID;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder;
@@ -90,29 +91,34 @@ public class Mapping231To251Helper {
         }
 
         // PatientIdentifierList
-        for(int a = 0; a < outPid251.getPatientIdentifierList().size(); a++) {
-            if (outPid251.getPatientIdentifierList().get(a) != null) {
-                var patientIdentifier = outPid251.getPatientIdentifierList().get(a);
+        for(int a = 0; a < inPid231.getPatientIdentifierList().length; a++) {
+            if (inPid231.getPatientIdentifierList(a) != null) {
+                var patientIdentifier = inPid231.getPatientIdentifierList(a);
+                var newPatientIdentifier = new Cx();
                 if (patientIdentifier.getIdentifierTypeCode() == null ||
-                        (patientIdentifier.getIdentifierTypeCode() != null && patientIdentifier.getIdentifierTypeCode().isEmpty())
+                        (patientIdentifier.getIdentifierTypeCode() != null && patientIdentifier.getIdentifierTypeCode().getValue() == null)
+                        ||
+                        (patientIdentifier.getIdentifierTypeCode() != null &&
+                                patientIdentifier.getIdentifierTypeCode().getValue() != null &&
+                                patientIdentifier.getIdentifierTypeCode().getValue().isEmpty())
                 ) {
-                    patientIdentifier = MapCxWithNullToCx(patientIdentifier, patientIdentifier, "U");
+                    newPatientIdentifier = MapCxWithNullToCx(inPid231.getPatientIdentifierList(a), outPid251.getPatientIdentifierList().get(a), "U");
                 } else {
-                    patientIdentifier = MapCxWithNullToCx(patientIdentifier, patientIdentifier, patientIdentifier.getIdentifierTypeCode());
+                    newPatientIdentifier = MapCxWithNullToCx(inPid231.getPatientIdentifierList(a),  outPid251.getPatientIdentifierList().get(a), patientIdentifier.getIdentifierTypeCode().getValue());
                 }
-                outPid251.getPatientIdentifierList().set(a, patientIdentifier);
+                outPid251.getPatientIdentifierList().set(a, newPatientIdentifier);
             }
         }
 
         // Patient ID
         if (outPid251.getPatientId() != null) {
-            outPid251.getPatientIdentifierList().add(MapCxWithNullToCx(outPid251.getPatientId(), new Cx(), "PT"));
+            outPid251.getPatientIdentifierList().add(MapCxWithNullToCx(inPid231.getPatientID(), outPid251.getPatientId(), "PT"));
         }
 
         // Patient AlternatePatientId
         for(int b = 0; b < outPid251.getAlternativePatientId().size(); b++) {
             if (outPid251.getAlternativePatientId().get(b) != null) {
-                outPid251.getPatientIdentifierList().add(MapCxWithNullToCx(outPid251.getAlternativePatientId().get(b), new Cx(), "APT"));
+                outPid251.getPatientIdentifierList().add(MapCxWithNullToCx(inPid231.getAlternatePatientIDPID(b), outPid251.getAlternativePatientId().get(b), "APT"));
             }
         }
 
@@ -149,7 +155,7 @@ public class Mapping231To251Helper {
 
     //region Map ORC to ORC - 231 to 251
     public static CommonOrder MapCommonOrder(ORC inOrc231, CommonOrder outOrc251) {
-        if (inOrc231.getOrderControl() != null && inOrc231.getOrderControl().getValue().isEmpty()) {
+        if (inOrc231.getOrderControl() != null && inOrc231.getOrderControl().getValue() != null && inOrc231.getOrderControl().getValue().isEmpty()) {
             outOrc251.setOrderControl("RE");
         } else {
             outOrc251.setOrderControl(inOrc231.getOrderControl().getValue());
@@ -269,10 +275,32 @@ public class Mapping231To251Helper {
         }
         outOrc251.setOrderingFacilityAddress(orderingFacilityList);
 
+        List<Xtn> orderingFacilityPhoneList = new ArrayList<>();
+        for(int h = 0; h < inOrc231.getOrderingFacilityPhoneNumber().length; h++) {
+            if(inOrc231.getOrderingFacilityPhoneNumber(h) != null) {
+                orderingFacilityPhoneList.add(MapXtn231(inOrc231.getOrderingFacilityPhoneNumber(h), new Xtn()));
+            }
+        }
+        outOrc251.setOrderingFacilityPhoneNumber(orderingFacilityPhoneList);
+
+        List<Xad> orderingProviderAddressList = new ArrayList<>();
+        for(int j = 0; j < inOrc231.getOrderingProviderAddress().length; j++) {
+            if(inOrc231.getOrderingProviderAddress(j) != null) {
+                orderingProviderAddressList.add(MapXad231(inOrc231.getOrderingProviderAddress(j), new Xad()));
+            }
+        }
+        outOrc251.setOrderingProviderAddress(orderingProviderAddressList);
 
         return outOrc251;
     }
     //endregion
+
+    //region Map OBR2and3ToORC2and3
+    public static CommonOrder MapOBR2and3ToORC2and3(OBR in, CommonOrder out) {
+        out.setPlacerGroupNumber(MapEi231(in.getPlacerOrderNumber(), out.getPlacerOrderNumber()));
+        out.setFillerOrderNumber(MapEi231(in.getFillerOrderNumber(), out.getFillerOrderNumber()));
+        return out;
+    }
 
     public static Xad MapXad231(XAD in, Xad out) {
         Sad sad = new Sad();
@@ -475,61 +503,139 @@ public class Mapping231To251Helper {
         hd.setUniversalIdType("ISO");
         out.setAssignAuthority(hd);
         out.setIdentifierTypeCode("SS");
+
+        // DI native
+        out.setAssignFacility(MapAssignedFacility(out.getAssignFacility(), out.getAssignAuthority()));
         return out;
     }
 
-    public static Cx MapCxWithNullToCx (Cx cx, Cx cxOut, String defaultValue) {
+    public static Cx MapCxWithNullToCx (CX inOri, Cx cxOut, String defaultValue) {
+        cxOut.setIdNumber(inOri.getID().getValue());
+        cxOut.setCheckDigit(inOri.getCheckDigit().getValue());
+        cxOut.setCheckDigitScheme(inOri.getCodeIdentifyingTheCheckDigitSchemeEmployed().getValue());
         cxOut.setIdentifierTypeCode(defaultValue);
 
+        // not null and not empty
+        if (inOri.getAssigningAuthority() != null
+                && inOri.getAssigningAuthority().getNamespaceID() != null
+                && inOri.getAssigningAuthority().getNamespaceID().getValue() != null
+                && !inOri.getAssigningAuthority().getNamespaceID().getValue().isEmpty()) {
 
-        if (cx.getAssignAuthority() != null && cx.getAssignAuthority().getNameSpaceId() != null && !cx.getAssignAuthority().getNameSpaceId().isEmpty()) {
-            cxOut.getAssignFacility().setNameSpaceId(cx.getAssignFacility().getNameSpaceId());
-            if(cx.getAssignAuthority().getUniversalId() == null || cx.getAssignAuthority().getUniversalId().isEmpty()) {
+            cxOut.getAssignAuthority().setNameSpaceId(inOri.getAssigningAuthority().getNamespaceID().getValue());
+
+            if(inOri.getAssigningAuthority().getUniversalID() == null
+                    || inOri.getAssigningAuthority().getUniversalID().getValue() == null
+                    || (inOri.getAssigningAuthority().getUniversalID().getValue() != null &&
+                            inOri.getAssigningAuthority().getUniversalID().getValue().isEmpty())
+            ) {
                 cxOut.getAssignAuthority().setUniversalId("2.16.840.1.113883.5.1008");
             } else {
-                cxOut.getAssignAuthority().setUniversalId(cx.getAssignAuthority().getUniversalId());
+                cxOut.getAssignAuthority().setUniversalId(inOri.getAssigningAuthority().getUniversalID().getValue());
             }
 
-            if (cx.getAssignAuthority().getUniversalIdType() == null || cx.getAssignAuthority().getUniversalIdType().isEmpty()) {
+            if (inOri.getAssigningAuthority().getUniversalIDType() == null
+                    || inOri.getAssigningAuthority().getUniversalIDType().getValue() == null
+                    || (inOri.getAssigningAuthority().getUniversalIDType().getValue() != null &&
+                    inOri.getAssigningAuthority().getUniversalIDType().getValue().isEmpty())) {
                 cxOut.getAssignAuthority().setUniversalIdType("NI");
             } else {
-                cxOut.getAssignAuthority().setUniversalIdType(cx.getAssignAuthority().getUniversalIdType());
+                cxOut.getAssignAuthority().setUniversalIdType(inOri.getAssigningAuthority().getUniversalIDType().getValue());
             }
 
-            if(cx.getAssignFacility() != null && cx.getAssignFacility().getNameSpaceId() != null &&  !cx.getAssignFacility().getNameSpaceId().isEmpty()) {
-                cxOut.getAssignFacility().setNameSpaceId(cx.getAssignFacility().getNameSpaceId());
-                if(cx.getAssignFacility().getUniversalId() == null || cx.getAssignFacility().getUniversalId().isEmpty()) {
+            if(inOri.getAssigningFacility() != null
+                    && inOri.getAssigningFacility().getNamespaceID() != null
+                    && inOri.getAssigningFacility().getNamespaceID().getValue() != null
+                    &&  !inOri.getAssigningFacility().getNamespaceID().getValue().isEmpty()) {
+                cxOut.getAssignFacility().setNameSpaceId(inOri.getAssigningFacility().getNamespaceID().getValue());
+                if(inOri.getAssigningFacility().getUniversalID() == null
+                        || inOri.getAssigningFacility().getUniversalID().getValue() == null
+                        || (inOri.getAssigningFacility().getUniversalID().getValue() != null &&
+                        inOri.getAssigningFacility().getUniversalID().getValue().isEmpty()) ) {
                     cxOut.getAssignFacility().setUniversalId("2.16.840.1.113883.5.1008");
                 } else {
-                    cxOut.getAssignFacility().setUniversalId(cx.getAssignFacility().getUniversalId());
+                    cxOut.getAssignFacility().setUniversalId(inOri.getAssigningFacility().getUniversalID().getValue());
                 }
 
-                if(cx.getAssignFacility().getUniversalIdType() == null || cx.getAssignFacility().getUniversalIdType().isEmpty()) {
+                if(inOri.getAssigningFacility().getUniversalIDType() == null
+                        || inOri.getAssigningFacility().getUniversalIDType().getValue() == null
+                        || (inOri.getAssigningFacility().getUniversalIDType().getValue() != null &&
+                        inOri.getAssigningFacility().getUniversalIDType().getValue().isEmpty()) ) {
                     cxOut.getAssignFacility().setUniversalIdType("NI");
                 } else {
-                    cxOut.getAssignFacility().setUniversalIdType(cx.getAssignFacility().getUniversalIdType());
+                    cxOut.getAssignFacility().setUniversalIdType(inOri.getAssigningFacility().getUniversalIDType().getValue());
                 }
             }
-        } else  if (cx.getAssignFacility() != null && cx.getAssignFacility().getNameSpaceId() != null &&  !cx.getAssignFacility().getNameSpaceId().isEmpty()) {
-            cxOut.getAssignAuthority().setNameSpaceId(cx.getAssignFacility().getNameSpaceId());
-            if(cx.getAssignFacility().getUniversalId() == null || cx.getAssignFacility().getUniversalId().isEmpty()) {
+        }
+        else  if (inOri.getAssigningFacility() != null
+                && inOri.getAssigningFacility().getNamespaceID() != null
+                && inOri.getAssigningFacility().getNamespaceID().getValue() != null
+                &&  !inOri.getAssigningFacility().getNamespaceID().getValue().isEmpty()) {
+
+            // Not from RHAP Map definition
+            cxOut.setAssignFacility(MapHd231(inOri.getAssigningFacility(), cxOut.getAssignFacility()));
+
+            cxOut.getAssignAuthority().setNameSpaceId(inOri.getAssigningFacility().getNamespaceID().getValue());
+
+            if(inOri.getAssigningFacility().getUniversalID() == null
+                    || inOri.getAssigningFacility().getUniversalID().getValue() == null
+                    || (inOri.getAssigningFacility().getUniversalID().getValue() != null &&
+                    inOri.getAssigningFacility().getUniversalID().getValue().isEmpty()) ) {
                 cxOut.getAssignAuthority().setUniversalId("2.16.840.1.113883.5.1008");
-            } else {
-                cxOut.getAssignAuthority().setUniversalId(cx.getAssignFacility().getUniversalId());
+            }
+            else {
+                cxOut.getAssignAuthority().setUniversalId(inOri.getAssigningFacility().getUniversalID().getValue());
             }
 
-            if(cx.getAssignFacility().getUniversalIdType() == null || cx.getAssignFacility().getUniversalIdType().isEmpty()) {
-                cxOut.getAssignFacility().setUniversalIdType("NI");
-            } else {
-                cxOut.getAssignAuthority().setUniversalIdType(cx.getAssignFacility().getUniversalIdType());
+
+            if(inOri.getAssigningFacility().getUniversalIDType() == null
+                    || inOri.getAssigningFacility().getUniversalIDType().getValue() == null
+                    || (inOri.getAssigningFacility().getUniversalIDType().getValue() != null &&
+                    inOri.getAssigningFacility().getUniversalIDType().getValue().isEmpty()) )  {
+                cxOut.getAssignAuthority().setUniversalIdType("NI");
             }
-        } else  {
+            else {
+                cxOut.getAssignAuthority().setUniversalIdType(inOri.getAssigningFacility().getUniversalIDType().getValue());
+            }
+
+
+        }
+        else  {
             cxOut.getAssignAuthority().setNameSpaceId("");
             cxOut.getAssignAuthority().setUniversalId("2.16.840.1.113883.5.1008");
             cxOut.getAssignAuthority().setUniversalIdType("NI");
         }
 
+        // DI native
+        cxOut.setAssignFacility(MapAssignedFacility(cxOut.getAssignFacility(), cxOut.getAssignAuthority()));
+
         return cxOut;
+    }
+
+    //DI's native
+    public static Hd MapAssignedFacility(Hd out, Hd inAssignAuthority) {
+        if (out.getUniversalId() == null
+                || (out.getUniversalId() != null)
+                || (out.getUniversalId() != null &&
+                out.getUniversalId().isEmpty())) {
+            out.setUniversalId(inAssignAuthority.getUniversalId());
+        }
+
+        // DI native
+        if (out.getUniversalIdType() == null
+                || (out.getUniversalIdType() != null)
+                || (out.getUniversalIdType() != null &&
+                out.getUniversalIdType().isEmpty())) {
+            out.setUniversalIdType(inAssignAuthority.getUniversalIdType());
+        }
+
+        if (out.getNameSpaceId() == null
+                || (out.getNameSpaceId() != null)
+                || (out.getNameSpaceId() != null &&
+                out.getNameSpaceId().isEmpty())) {
+            out.setNameSpaceId(inAssignAuthority.getNameSpaceId());
+        }
+
+        return out;
     }
 
     public static Xpn MapXpnToXpn(Xpn xpnIn, Xpn xpnOut, String defaultValue) {
@@ -562,6 +668,9 @@ public class Mapping231To251Helper {
         }
 
         cx.setIdentifierTypeCode("DL");
+
+        cx.setAssignFacility(MapAssignedFacility(cx.getAssignFacility(), cx.getAssignAuthority()));
+
         return cx;
     }
 

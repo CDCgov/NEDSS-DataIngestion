@@ -158,6 +158,8 @@ public class HL7Parser implements IHL7Parser {
                    var orderOBR231 = patientResult231.get(a).getORCOBRNTEOBXNTECTI(0).getOBR();
                    var orderORC251 = oru.getPatientResult().get(a).getOrderObservation().get(0).getCommonOrder();
                     //FIXME - Map ORC to ORC -- noted on Rhapsody; only map the first record
+                   orderORC251 = MapCommonOrder(orderORC231, orderORC251);
+                   oru.getPatientResult().get(a).getOrderObservation().get(0).setCommonOrder(MapOBR2and3ToORC2and3(orderOBR231, orderORC251));
                    //endregion
 
 
@@ -165,6 +167,7 @@ public class HL7Parser implements IHL7Parser {
                 }
 
                //region DSC
+               // test this
                //endregion
 
                parsedMessage.setParsedMessage(oru);
