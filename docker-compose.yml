@@ -1,0 +1,12 @@
+services:
+  report-service:
+    build:
+      context: ./
+      dockerfile: ./report-service/Dockerfile
+    container_name: report-service
+    networks:
+      - dataingestion
+networks:
+  dataingestion:
+      name: dataingestion
+      external: true

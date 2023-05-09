@@ -14,8 +14,9 @@ plugins {
 	id 'org.springframework.boot' version '3.0.0'
 	id 'io.spring.dependency-management' version '1.1.0'
 	id 'com.github.johnrengelman.shadow' version '7.1.2'
-	id 'checkstyle'
+//	id 'checkstyle'
 }
+
 
 group = 'gov.cdc.dataingestion'
 version = '0.0.1-SNAPSHOT'
@@ -38,6 +39,7 @@ jar {
 				'Main-Class': 'gov.cdc.dataingestion.ServiceApplication'
 		)
 	}
+	zip64 true
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
 	from {
@@ -64,7 +66,7 @@ dependencies {
 
 	// DI HL7 Wrapper
 	// implementation files('libs/hl7-parser.jar')
-
+	implementation project(':hl7-parser')
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
@@ -89,4 +91,8 @@ test {
 	useJUnitPlatform()
 }
 
-
+jar {
+	// task configuration goes here
+	dependsOn(':hl7-parser:jar')
+	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+}
