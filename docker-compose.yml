@@ -4,9 +4,10 @@ services:
       context: ./
       dockerfile: ./report-service/Dockerfile
     container_name: report-service
+    env_file:
+      - dataingestion.env
     networks:
       - dataingestion
 networks:
   dataingestion:
       name: dataingestion
-      external: true

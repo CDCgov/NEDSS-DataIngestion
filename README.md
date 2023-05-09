@@ -6,4 +6,4 @@ Build project (gradle)
 ./gradlew :report-service:build
 ./gradlew build                
 
-
+docker-compose up -d
