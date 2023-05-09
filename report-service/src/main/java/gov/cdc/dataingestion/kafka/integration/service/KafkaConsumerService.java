@@ -171,24 +171,13 @@ public class KafkaConsumerService {
                                        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         log.info("Received message ID: {} from topic: {}", message, topic);
 
-        CompletableFuture<Void> future1 = CompletableFuture.runAsync(() -> {
-            try {
-                throw new Exception("TEST");
-               // conversionHandler(message);
-            } catch (Exception e) {
-                log.info("Retry queue");
-                throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
-            }
-        });
-        CompletableFuture<Void> future2 = CompletableFuture.runAsync(() -> {
-            try {
-                xmlConversionHandler(message);
-            } catch (Exception e) {
-                log.info("Retry queue");
-                throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
-            }
-        });
-        CompletableFuture.allOf(future1, future2).join();
+        try {
+            xmlConversionHandler(message);
+            conversionHandler(message);
+        } catch (Exception e) {
+            log.info("Retry queue");
+            throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
+        }
 
     }
 
