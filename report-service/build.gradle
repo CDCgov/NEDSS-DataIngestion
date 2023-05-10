@@ -53,6 +53,14 @@ dependencies {
 	implementation 'com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11'
 	implementation 'com.zaxxer:HikariCP:5.0.1'
 
+
+	implementation 'ca.uhn.hapi:hapi-base:2.3'
+	implementation 'ca.uhn.hapi:hapi-structures-v251:2.3'
+
+	// DI HL7 Wrapper
+	// implementation files('libs/hl7-parser.jar')
+
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

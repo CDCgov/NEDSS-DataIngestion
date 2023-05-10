@@ -55,7 +55,7 @@ class HL7DuplicateValidatorTest {
                 .thenReturn(Optional.of(validatedELRModel));
         validatedELRModel.setHashedHL7String(hashedString);
 
-        doNothing().when(kafkaProducerServiceMock).sendMessageAfterCheckingDuplicateHL7(any(ValidatedELRModel.class), anyString(), 0);
+        doNothing().when(kafkaProducerServiceMock).sendMessageAfterCheckingDuplicateHL7(any(ValidatedELRModel.class), anyString(), anyInt());
 
         assertThrows(DuplicateHL7FileFoundException.class, () -> hl7DuplicateValidator.ValidateHL7Document(validatedELRModel));
         verify(iValidatedELRRepositoryMock).findByHashedHL7String(hashedString);

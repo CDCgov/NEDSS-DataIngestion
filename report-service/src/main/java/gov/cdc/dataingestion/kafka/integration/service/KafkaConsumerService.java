@@ -1,5 +1,4 @@
 package gov.cdc.dataingestion.kafka.integration.service;
-
 import ca.uhn.hl7v2.HL7Exception;
 import com.google.gson.Gson;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
@@ -17,13 +16,11 @@ import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2V
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import gov.cdc.dataingestion.validation.model.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
-
 import gov.cdc.dataingestion.nbs.converters.Hl7ToXmlConverter;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.errors.SerializationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.DltHandler;
@@ -34,7 +31,6 @@ import org.springframework.kafka.retrytopic.TopicSuffixingStrategy;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.kafka.support.serializer.DeserializationException;
 import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Service;
 
@@ -227,6 +223,7 @@ public class KafkaConsumerService {
             Gson gson = new Gson();
             String data = gson.toJson(elrDeadLetterDto);
 
+            // TODO: implement and replace this with LOG BAG
             File dir = new File(directory);
             if (!dir.exists()) {
                 dir.mkdir();
@@ -263,7 +260,7 @@ public class KafkaConsumerService {
         kafkaProducerService.sendMessageAfterConvertedToXml(hl7AsXml, convertedToXmlTopic, 0);
     }
 
-    private void validationHandler(String message) throws HL7Exception, DuplicateHL7FileFoundException {
+    private void validationHandler(String message) throws DuplicateHL7FileFoundException, HL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);
         RawERLModel elrModel = rawElrResponse.get();
         String messageType = elrModel.getType();
