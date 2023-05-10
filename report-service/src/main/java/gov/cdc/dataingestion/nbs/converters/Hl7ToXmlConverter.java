@@ -7,9 +7,6 @@ import 	ca.uhn.hl7v2.parser.CanonicalModelClassFactory;
 import 	ca.uhn.hl7v2.parser.PipeParser;
 import 	ca.uhn.hl7v2.parser.XMLParser;
 import 	ca.uhn.hl7v2.parser.DefaultXMLParser;
-import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
-
-import java.util.Optional;
 
 
 public class Hl7ToXmlConverter {
@@ -36,6 +33,7 @@ public class Hl7ToXmlConverter {
 
         XMLParser xmlParser = new DefaultXMLParser();
         String hl7AsXml = xmlParser.encode(hl7Message);
+
 
         return hl7AsXml;
     }
