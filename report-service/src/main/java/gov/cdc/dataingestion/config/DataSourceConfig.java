@@ -28,7 +28,8 @@ import  java.util.HashMap;
         basePackages = {
                 "gov.cdc.dataingestion.validation.repository",
                 "gov.cdc.dataingestion.report.repository",
-                "gov.cdc.dataingestion.conversion.repository"
+                "gov.cdc.dataingestion.conversion.repository",
+                "gov.cdc.dataingestion.security.repository"
         }
 )
 @Configuration
