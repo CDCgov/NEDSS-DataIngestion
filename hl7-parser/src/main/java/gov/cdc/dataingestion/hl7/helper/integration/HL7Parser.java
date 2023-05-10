@@ -33,11 +33,15 @@ public class HL7Parser implements IHL7Parser {
     public String hl7MessageStringValidation(String message) throws DiHL7Exception {
         if(message.contains(newLine)) {
             message = message.replaceAll(newLine, carrier);
-        } else if (message.contains(newLineWithCarrier)) {
-            message = message.replaceAll(newLineWithCarrier, carrier);
+        } else if (message.contains(newLineWithCarrier) || message.contains(carrier)) {
+            if (message.contains(newLineWithCarrier)) {
+                message = message.replaceAll(newLineWithCarrier, carrier);
+            }
         } else {
             if (message.contains("\\n")) {
                 message = message.replaceAll("\\\\n","\r");
+            } else {
+                throw new DiHL7Exception("Incorrect raw message format");
             }
         }
 
