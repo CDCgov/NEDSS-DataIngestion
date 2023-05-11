@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/hl7-parser/NEDDS-DataIngestion.hl7-parser.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hl7-parser/NEDDS-DataIngestion.hl7-parser.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/report-service/NEDDS-DataIngestion.report-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/report-service/NEDDS-DataIngestion.report-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hl7-parser/gov.cdc.dataingestion.NEDDS-DataIngestion.hl7-parser.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hl7-parser/gov.cdc.dataingestion.NEDDS-DataIngestion.hl7-parser.main.iml" />
     </modules>
   </component>
 </project>
