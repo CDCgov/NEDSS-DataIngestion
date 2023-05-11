@@ -6,6 +6,7 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Rpt;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
@@ -14,18 +15,18 @@ import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.GetCweList
 @Getter
 public class TimingQuantity {
     String setIdTq1;
-    Cq quantity;
-    List<Rpt> repeatPattern;
-    List<String> explicitTime;
-    List<Cq> relativeTimeAndUnits;
-    Cq serviceDuration;
-    Ts startDateTime;
-    Ts endDateTime;
-    List<Cwe> priority;
+    Cq quantity = new Cq();
+    List<Rpt> repeatPattern = new ArrayList<>();
+    List<String> explicitTime = new ArrayList<>();
+    List<Cq> relativeTimeAndUnits = new ArrayList<>();
+    Cq serviceDuration = new Cq();
+    Ts startDateTime = new Ts();
+    Ts endDateTime = new Ts();
+    List<Cwe> priority = new ArrayList<>();
     String conditionText;
     String textInstruction;
     String conjunction;
-    Cq occurrenceDuration;
+    Cq occurrenceDuration = new Cq();
     String totalOccurrences;
 
     public TimingQuantity(ca.uhn.hl7v2.model.v251.segment.TQ1 tq1) {
@@ -43,5 +44,9 @@ public class TimingQuantity {
         this.conjunction = tq1.getConjunction().getValue();
         this.occurrenceDuration = new Cq(tq1.getOccurrenceDuration());
         this.totalOccurrences = tq1.getTotalOccurrenceS().getValue();
+    }
+
+    public TimingQuantity() {
+
     }
 }

@@ -2,8 +2,10 @@ package gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType;
 
 import ca.uhn.hl7v2.model.v251.datatype.CNE;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class Cne {
     String identifier;
     String text;
@@ -24,5 +26,9 @@ public class Cne {
         this.codingSystemVersionId = cne.getCodingSystemVersionID().getValue();
         this.alternateCodingSystemVersionId = cne.getAlternateCodingSystemVersionID().getValue();
         this.originalText = cne.getOriginalText().getValue();
+    }
+
+    public Cne() {
+
     }
 }

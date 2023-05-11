@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static gov.cdc.dataingestion.hl7.helper.unitTest.Hl7TestData.OruR1Message;
-import static gov.cdc.dataingestion.hl7.helper.unitTest.Hl7TestData.OruR1MessageSmall;
+import static gov.cdc.dataingestion.hl7.helper.unitTest.Hl7TestData.*;
+import static gov.cdc.dataingestion.hl7.helper.unitTest.Hl7TestData.messageOriginal;
 
 public class HL7ParserTest {
     private HL7Helper target;
@@ -55,6 +55,23 @@ public class HL7ParserTest {
     @Test
     public void hl7StringParser_ReturnValidMessage() throws  DiHL7Exception {
         var result = target.hl7StringParser(OruR1Message);
+        Assertions.assertEquals("R01", result.getEventTrigger());
+    }
+
+    @Test
+    public void hl7StringParser_ReturnValidFromRhapsodyMessage() throws  DiHL7Exception {
+        var result = target.hl7StringParser(messageByRhapsody);
+        Gson gson = new Gson();
+        var str = gson.toJson(result);
+        Assertions.assertEquals("R01", result.getEventTrigger());
+    }
+
+
+    @Test
+    public void hl7StringConvert231To251_ReturnValidMessage() throws  DiHL7Exception {
+        var result = target.convert231To251(messageOriginal);
+        Gson gson = new Gson();
+        var str = gson.toJson(result);
         Assertions.assertEquals("R01", result.getEventTrigger());
     }
 
