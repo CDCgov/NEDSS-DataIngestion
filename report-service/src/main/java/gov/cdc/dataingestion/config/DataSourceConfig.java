@@ -29,7 +29,8 @@ import  java.util.HashMap;
                 "gov.cdc.dataingestion.validation.repository",
                 "gov.cdc.dataingestion.report.repository",
                 "gov.cdc.dataingestion.conversion.repository",
-                "gov.cdc.dataingestion.security.repository"
+                "gov.cdc.dataingestion.security.repository",
+                "gov.cdc.dataingestion.registration.repository"
         }
 )
 @Configuration
@@ -78,7 +79,9 @@ public class DataSourceConfig {
                 .dataSource(dataSource)
                 .packages("gov.cdc.dataingestion.validation.repository.model",
                           "gov.cdc.dataingestion.report.repository",
-                          "gov.cdc.dataingestion.conversion.repository.model")
+                          "gov.cdc.dataingestion.conversion.repository.model",
+                          "gov.cdc.dataingestion.security.model",
+                        "gov.cdc.dataingestion.registration.model")
                 .persistenceUnit("ingest")
                 .build();
     }
