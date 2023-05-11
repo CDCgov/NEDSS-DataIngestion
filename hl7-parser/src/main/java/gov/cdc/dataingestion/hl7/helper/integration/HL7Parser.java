@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.hl7.helper.integration;
 
+import ca.uhn.hl7v2.DefaultHapiContext;
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.HapiContext;
 import ca.uhn.hl7v2.model.Message;
@@ -37,6 +38,11 @@ public class HL7Parser implements IHL7Parser {
     private final String supportedHL7version = "2.5.1";
     private final String supportedHL7version231 = "2.3.1";
 
+    private static HL7Parser instance = new HL7Parser(new DefaultHapiContext());
+    public static HL7Parser getInstance() {
+        return instance;
+    }
+
     public HL7Parser(HapiContext context) {
         this.context = context;
     }
@@ -65,19 +71,12 @@ public class HL7Parser implements IHL7Parser {
         try {
             HL7ParsedMessage parsedMessage = hl7StringParser(message);
             var parsed231Message = hl7v231StringParser(message);
-
-            Gson gson = new Gson();
-            var str = gson.toJson(parsedMessage);
             // 231 Patient Result
             var patientResult231 = parsed231Message.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTIAll();
             var msh231 = parsed231Message.getMSH();
-            var dsc231 = parsed231Message.getDSC();
-
 
             if (parsedMessage.getOriginalVersion().equalsIgnoreCase(supportedHL7version231)) {
-
                 OruR1 oru = (OruR1) parsedMessage.getParsedMessage();
-
                 Ts messageHeaderDateTime = oru.getMessageHeader().getDateTimeOfMessage();
 
                 //region Message Header Conversion
@@ -97,22 +96,22 @@ public class HL7Parser implements IHL7Parser {
                     //endregion
 
                     //region Patient Result - PATIENT - PD1
-                    //test - mapping LivingDependency - hapi
-                    //test - mapping PatientPrimaryFacility - hapi
-                    //test - mapping DuplicatePatient - hapi
-                    //test - mapping PatientPrimaryCareProviderNameAndIDNo - hapi
+                    // - mapping LivingDependency - hapi
+                    // - mapping PatientPrimaryFacility - hapi
+                    // - mapping DuplicatePatient - hapi
+                    // - mapping PatientPrimaryCareProviderNameAndIDNo - hapi
                     //endregion
 
                     //region Patient Result - PATIENT - NK1
-                    //   test mapping NK1
+                    // HAPI
                     //endregion
 
                     //region Patient Result - PATIENT - NTE
-                    //test mapping NTE
+                    // HAPI
                     //endregion
 
                     //region Patient Result - PATIENT - VISIT
-                    //test VISIT - hapi
+                    // HAPI
                     //endregion
 
                     //region Patient Result - ORDER OBSERVATION
@@ -126,7 +125,7 @@ public class HL7Parser implements IHL7Parser {
                                                     oru.getPatientResult().get(a).getOrderObservation().get(c).getObservation().get(d).getObservationResult(),
                                                     oru.getPatientResult().get(a).getOrderObservation().get(c).getObservation().get(d).getObservationResult()
                                             ));
-                            //test - Mapping NTE - hapi
+                            //Mapping NTE - hapi
                         }
                         //endregion
 
@@ -144,11 +143,11 @@ public class HL7Parser implements IHL7Parser {
                         //endregion
 
                         //region OBSERVATION - NTE - hapi
-                        //test - NTE - hapi
+                        //HAPI
                         //endregion
 
                         //region OBSERVATION - CTI - hapi
-                        //test - CTI - hapi
+                        //HAPI
                         //endregion
 
                         //region OBSERVATION - OBR to SPM

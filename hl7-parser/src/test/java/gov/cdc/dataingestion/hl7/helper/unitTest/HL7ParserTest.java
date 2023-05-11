@@ -61,8 +61,6 @@ public class HL7ParserTest {
     @Test
     public void hl7StringParser_ReturnValidFromRhapsodyMessage() throws  DiHL7Exception {
         var result = target.hl7StringParser(messageByRhapsody);
-        Gson gson = new Gson();
-        var str = gson.toJson(result);
         Assertions.assertEquals("R01", result.getEventTrigger());
     }
 
@@ -70,8 +68,6 @@ public class HL7ParserTest {
     @Test
     public void hl7StringConvert231To251_ReturnValidMessage() throws  DiHL7Exception {
         var result = target.convert231To251(messageOriginal);
-        Gson gson = new Gson();
-        var str = gson.toJson(result);
         Assertions.assertEquals("R01", result.getEventTrigger());
     }
 
