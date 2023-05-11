@@ -88,3 +88,4 @@ hl7-parser/.vscode/
 
 
 dataingestion.env
+/report-service/libs/

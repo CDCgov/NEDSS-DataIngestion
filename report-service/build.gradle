@@ -65,8 +65,12 @@ dependencies {
 	implementation 'ca.uhn.hapi:hapi-structures-v251:2.3'
 
 	// DI HL7 Wrapper
-	// implementation files('libs/hl7-parser.jar')
-	implementation project(':hl7-parser')
+	if (findProject(':hl7-parser')) {
+		implementation project(':hl7-parser')
+	} else {
+		// this mostly needed when testing the app on idea
+		implementation files('libs/hl7-parser-0.0.1-SNAPSHOT.jar')
+	}
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
