@@ -86,3 +86,7 @@ hl7-parser/.nb-gradle/
 
 ### VS Code ###
 hl7-parser/.vscode/
+
+
+dataingestion.env
+/report-service/libs/
