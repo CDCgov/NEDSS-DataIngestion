@@ -1,12 +1,27 @@
-FROM gradle:7.6-jdk17 AS gradle_build
-COPY src /home/app/src
-COPY build.gradle /home/app
-COPY settings.gradle /home/app
-WORKDIR /home/app
-RUN gradle --no-daemon build
+FROM amazoncorretto:17 as builder
 
-FROM openjdk:17 AS run_gradle_build
-RUN mkdir -p /app
-COPY --from=gradle_build /home/app/build/libs/report-service-0.0.1-SNAPSHOT.jar /app/report-service.jar
 
-ENTRYPOINT ["java", "-Dspring.profiles.active=kubernetes", "-jar", "/app/report-service.jar"]
+#Copy project config
+COPY gradle /usr/src/dataingestion/gradle
+COPY gradlew /usr/src/dataingestion/gradlew
+COPY build.gradle /usr/src/dataingestion/build.gradle
+COPY settings.gradle /usr/src/dataingestion/settings.gradle
+
+#Copy sources
+COPY hl7-parser /usr/src/dataingestion/hl7-parser
+COPY report-service /usr/src/dataingestion/report-service
+
+COPY . /usr/src/dataingestion
+
+WORKDIR /usr/src/dataingestion
+
+#Build report service along with any required libraries
+RUN ./gradlew :report-service:buildNeeded -x test --no-daemon
+
+FROM amazoncorretto:17
+
+COPY --from=builder /usr/src/dataingestion/report-service/build/libs/report-service*.jar report-service.jar
+
+# Run jar
+ENTRYPOINT ["java", "-jar", "report-service.jar"]
+CMD ["java", "-jar", "report-service.jar"]
