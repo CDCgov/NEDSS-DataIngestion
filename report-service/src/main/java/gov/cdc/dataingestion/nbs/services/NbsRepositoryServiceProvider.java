@@ -17,15 +17,15 @@ import	java.sql.Timestamp;
 @Service
 @NoArgsConstructor
 public class NbsRepositoryServiceProvider {
-	private static Logger log = LoggerFactory.getLogger(NbsRepositoryServiceProvider.class);
+	private static final Logger log = LoggerFactory.getLogger(NbsRepositoryServiceProvider.class);
 	
-	private static String IMPEXP_CD = "l";
-	private static String STATUS_UNPROCESSED = "QUEUED";
-	private static String SYSTEM_NAME_NBS = "NBS";
-	private static String DOCUMENT_TYPE_CODE = "11648804";
-	private static String FILLER_ORDER_NBR = "HL7EntityIdentifier";
-	private static String LAB_CLIA = "HL7UniversalID";
-	private static String ORDER_TEST_CODE = "HL7AlternateIdentifier";
+	private static final String IMPEXP_CD = "l";
+	private static final String STATUS_UNPROCESSED = "QUEUED";
+	private static final String SYSTEM_NAME_NBS = "NBS";
+	private static final String DOCUMENT_TYPE_CODE = "11648804";
+	private static final String FILLER_ORDER_NBR = "HL7EntityIdentifier";
+	private static final String LAB_CLIA = "HL7UniversalID";
+	private static final String ORDER_TEST_CODE = "HL7AlternateIdentifier";
     @Autowired
     private NbsInterfaceRepository nbsInterfaceRepo;
     
