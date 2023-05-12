@@ -11,5 +11,5 @@ import	java.math.BigInteger;
 @Repository
 public interface NbsInterfaceRepository extends JpaRepository<NbsInterfaceModel, Integer> {
 	@Query(value = "select max(nbs_interface_uid) from NBS_interface", nativeQuery = true)
-	public BigInteger getMaxNbsInterfaceUid();
+    BigInteger getMaxNbsInterfaceUid();
 }

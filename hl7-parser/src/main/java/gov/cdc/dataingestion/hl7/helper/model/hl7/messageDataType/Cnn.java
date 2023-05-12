@@ -2,8 +2,10 @@ package gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType;
 
 import ca.uhn.hl7v2.model.v251.datatype.CNN;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class Cnn {
     String idNumber;
     String familyName;
@@ -28,5 +30,9 @@ public class Cnn {
         this.assignAuthorityNamespaceId = cnn.getAssigningAuthorityNamespaceID().getValue();
         this.assignAuthorityUniversalId = cnn.getAssigningAuthorityUniversalID().getValue();
         this.assignAuthorityUniversalIdType = cnn.getAssigningAuthorityUniversalIDType().getValue();
+    }
+
+    public Cnn() {
+
     }
 }

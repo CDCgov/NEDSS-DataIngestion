@@ -1,26 +1,24 @@
 package gov.cdc.dataingestion.config;
 
-import  org.slf4j.Logger;
-import  org.slf4j.LoggerFactory;
+import jakarta.persistence.EntityManagerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import  org.springframework.beans.factory.annotation.Value;
-import  org.springframework.boot.jdbc.DataSourceBuilder;
-import  org.springframework.context.annotation.Bean;
-import  org.springframework.context.annotation.Configuration;
-import  org.springframework.beans.factory.annotation.Qualifier;
-import  org.springframework.transaction.annotation.EnableTransactionManagement;
-import  org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import  org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
-import  org.springframework.transaction.PlatformTransactionManager;
-import  org.springframework.orm.jpa.JpaTransactionManager;
-import  org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import javax.sql.DataSource;
+import java.util.HashMap;
 
-import  javax.sql.DataSource;
-import  jakarta.persistence.EntityManagerFactory;
-import  java.util.HashMap;
-
-//import  gov.cdc.dataingestion.nbs.model.EntityNbsInterface;
 
 @Configuration
 @EnableTransactionManagement
@@ -32,7 +30,7 @@ import  java.util.HashMap;
         }
 )
 public class NbsDataSourceConfig {
-    private static Logger logger = LoggerFactory.getLogger(NbsDataSourceConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(NbsDataSourceConfig.class);
 
     @Value("${spring.datasource.nbs.driverClassName}")
     private String driverClassName;
