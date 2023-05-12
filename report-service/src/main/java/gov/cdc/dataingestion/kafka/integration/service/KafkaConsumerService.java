@@ -259,8 +259,8 @@ public class KafkaConsumerService {
         String rhapsodyXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(hl7Msg);
         log.info("rhapsodyXml: {}", rhapsodyXml);
       
-        nbsRepositoryServiceProvider.saveXmlMessage(hl7AsXml);
-        kafkaProducerService.sendMessageAfterConvertedToXml(hl7AsXml, convertedToXmlTopic, 0);
+        nbsRepositoryServiceProvider.saveXmlMessage(rhapsodyXml, message);
+        kafkaProducerService.sendMessageAfterConvertedToXml(rhapsodyXml, convertedToXmlTopic, 0);
     }
 
     private void validationHandler(String message) throws DuplicateHL7FileFoundException, HL7Exception {
