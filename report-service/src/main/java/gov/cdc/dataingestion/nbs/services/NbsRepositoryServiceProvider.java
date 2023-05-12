@@ -32,10 +32,10 @@ public class NbsRepositoryServiceProvider {
     @Autowired
     private NbsInterfaceRepository nbsInterfaceRepo;
     
-    public boolean saveXmlMessage(String xmlMsg) {
+    public boolean saveXmlMessage(String msgId, String xmlMsg) {
 		NbsInterfaceModel item = new NbsInterfaceModel();
 
-		log.info("Xml being persisted to NBS Legacy database");
+		log.debug("{} : Xml being persisted to NBS Legacy database", msgId);
 
 		item.setPayload(xmlMsg);
 		item.setImpExpIndCd(IMPEXP_CD);
@@ -57,7 +57,7 @@ public class NbsRepositoryServiceProvider {
 		item.setObservationUid(null);
 
     	nbsInterfaceRepo.save(item);
-		log.info("Persisted xml to nbs database");
+		log.debug("{} : Persisted xml to nbs database", msgId);
 
     	return true;
     }

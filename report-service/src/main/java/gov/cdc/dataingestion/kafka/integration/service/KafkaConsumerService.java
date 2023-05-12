@@ -125,7 +125,7 @@ public class KafkaConsumerService {
         String rhapsodyXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(hl7Msg);
         log.info("rhapsodyXml: {}", rhapsodyXml);
 
-        nbsRepositoryServiceProvider.saveXmlMessage(rhapsodyXml);
+        nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml);
         kafkaProducerService.sendMessageAfterConvertedToXml(rhapsodyXml, convertedToXmlTopic);
     }
 
