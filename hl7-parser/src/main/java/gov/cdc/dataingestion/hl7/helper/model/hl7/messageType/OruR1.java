@@ -6,16 +6,18 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.ContinuationPoi
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 public class OruR1 {
-    MessageHeader messageHeader;
-    List<SoftwareSegment> softwareSegment;
-    List<PatientResult> patientResult;
-    ContinuationPointer continuationPointer;
+    MessageHeader messageHeader = new MessageHeader();
+    List<SoftwareSegment> softwareSegment =new ArrayList<>();
+    List<PatientResult> patientResult = new ArrayList<>();
+    ContinuationPointer continuationPointer = new ContinuationPointer();
 
     public OruR1(ca.uhn.hl7v2.model.v251.message.ORU_R01 oruR01) throws HL7Exception {
 
@@ -29,6 +31,10 @@ public class OruR1 {
             this.patientResult.add(new PatientResult(item));
         }
         this.continuationPointer = new ContinuationPointer(oruR01.getDSC());
+
+    }
+
+    public OruR1() {
 
     }
 }

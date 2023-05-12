@@ -1,8 +1,10 @@
 package gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class Ce {
     String identifier;
     String text;
@@ -18,5 +20,9 @@ public class Ce {
         this.alternateIdentifier = ce.getAlternateIdentifier().getValue();
         this.alternateText = ce.getAlternateText().getValue();
         this.nameOfAlternateCodingSystem = ce.getNameOfAlternateCodingSystem().getValue();
+    }
+
+    public Ce(){
+
     }
 }

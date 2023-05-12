@@ -1,8 +1,10 @@
 package gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class Cwe {
     String identifier;
     String text;
@@ -24,5 +26,9 @@ public class Cwe {
         codeSystemVerId = cwe.getCodingSystemVersionID().getValue();
         alterCodeSystemVerId = cwe.getAlternateCodingSystemVersionID().getValue();
         originalText = cwe.getOriginalText().getValue();
+    }
+
+    public Cwe() {
+
     }
 }

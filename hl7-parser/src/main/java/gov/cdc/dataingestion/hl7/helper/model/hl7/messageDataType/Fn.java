@@ -1,8 +1,10 @@
 package gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class Fn {
     String surname;
     String ownSurnamePrefix;
@@ -16,5 +18,9 @@ public class Fn {
         this.ownSurname = fn.getOwnSurname().getValue();
         this.surnamePrefixFromPartner = fn.getSurnamePrefixFromPartnerSpouse().getValue();
         this.surnamePrefixFromPartner = fn.getSurnameFromPartnerSpouse().getValue();
+    }
+
+    public Fn() {
+
     }
 }

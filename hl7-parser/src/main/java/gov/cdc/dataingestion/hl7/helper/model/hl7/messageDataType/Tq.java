@@ -2,20 +2,22 @@ package gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType;
 
 import ca.uhn.hl7v2.model.v251.datatype.TQ;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class Tq {
-    Cq quantity;
-    Ri interval;
+    Cq quantity = new Cq();
+    Ri interval = new Ri();
     String duration;
-    Ts startDateTime;
-    Ts endDateTime;
+    Ts startDateTime = new Ts();
+    Ts endDateTime = new Ts();
     String priority;
     String condition;
     String text;
     String conjunction;
-    Osd orderSequencing;
-    Ce occurrenceDuration;
+    Osd orderSequencing = new Osd();
+    Ce occurrenceDuration = new Ce();
     String totalOccurrences;
     public Tq(TQ tq) {
         this.quantity = new Cq(tq.getQuantity());
@@ -30,5 +32,9 @@ public class Tq {
         this.orderSequencing = new Osd(tq.getOrderSequencing());
         this.occurrenceDuration = new Ce(tq.getOccurrenceDuration());
         this.totalOccurrences = tq.getTotalOccurrences().getValue();
+    }
+
+    public Tq() {
+
     }
 }

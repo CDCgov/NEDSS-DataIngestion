@@ -4,23 +4,30 @@ import ca.uhn.hl7v2.HL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.*;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.shared.NoteAndComment;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 public class OrderObservation {
-    CommonOrder commonOrder;
-    ObservationRequest observationRequest;
-    List<NoteAndComment> noteAndComment;
-    ContactData contactData;
-    List<FinancialTransaction> financialTransaction;
-    List<ClinicalTrialIdentification> clinicalTrialIdentification;
+    CommonOrder commonOrder = new CommonOrder();
+    ObservationRequest observationRequest = new ObservationRequest();
+    List<NoteAndComment> noteAndComment = new ArrayList<>();
+    ContactData contactData = new ContactData();
+    List<FinancialTransaction> financialTransaction = new ArrayList<>();
+    List<ClinicalTrialIdentification> clinicalTrialIdentification = new ArrayList<>();
 
     // Nested Group
-    List<TimingQty> timingQty;
-    List<Observation> observation;
-    List<Specimen> specimen;
+    List<TimingQty> timingQty = new ArrayList<>();
+    List<Observation> observation = new ArrayList<>();
+    List<Specimen> specimen = new ArrayList<>();
+
+    public OrderObservation() {
+
+    }
+
     public OrderObservation(ca.uhn.hl7v2.model.v251.group.ORU_R01_ORDER_OBSERVATION oruR01OrderObservation) throws HL7Exception {
         this.commonOrder = new CommonOrder(oruR01OrderObservation.getORC());
         this.observationRequest = new ObservationRequest(oruR01OrderObservation.getOBR());
