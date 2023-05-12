@@ -20,7 +20,10 @@ group = 'gov.cdc.dataingestion'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
 
+tasks.withType(Jar).all { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
+
 configurations {
+	jaxb
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
@@ -38,7 +41,30 @@ jar {
 	}
 }
 
+task jaxb {
+	System.setProperty('javax.xml.accessExternalSchema', 'all')
+	def jaxbTargetDir = file("src/main/java")
+	doLast {
+		jaxbTargetDir.mkdirs()
+		ant.taskdef(
+				name: 'xjc',
+				classname: 'com.sun.tools.xjc.XJCTask',
+				classpath: configurations.jaxb.asPath
+		)
+		ant.jaxbTargetDir = jaxbTargetDir
+		ant.xjc(
+				destdir: '${jaxbTargetDir}',
+				package: 'gov.cdc.dataingestion.nbs.jaxb',
+				schema: 'src/main/resources/xsd/PHDC.xsd'
+		)
+	}
+}
+
+compileJava.dependsOn jaxb
+
 dependencies {
+	implementation files('../hl7-parser/build/libs/hl7-parser.jar')
+
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.kafka:spring-kafka'
@@ -51,13 +77,8 @@ dependencies {
 	implementation 'com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11'
 	implementation 'com.zaxxer:HikariCP:5.0.1'
 
-
 	implementation 'ca.uhn.hapi:hapi-base:2.3'
 	implementation 'ca.uhn.hapi:hapi-structures-v251:2.3'
-
-	// DI HL7 Wrapper
-	// implementation files('libs/hl7-parser.jar')
-
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
@@ -73,9 +94,18 @@ dependencies {
 	testImplementation "org.testcontainers:mssqlserver:1.17.6"
 	testImplementation "org.testcontainers:junit-jupiter:1.17.6"
 	testImplementation 'org.testcontainers:postgresql:1.17.6'
-	runtimeOnly 'org.postgresql:postgresql:42.5.4'
+
 	runtimeOnly 'org.springframework.boot:spring-boot-devtools'
 
+	// Below is needed to compile jaxb generated code
+	implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
+
+	// Below is needed for runtime with jaxb generated code
+	runtimeOnly 'org.glassfish.jaxb:jaxb-runtime:4.0.2'
+
+	// Only need below two dependencies for java code generation from xsd file(s)
+	jaxb 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
+	jaxb 'org.glassfish.jaxb:jaxb-xjc:4.0.2'
 }
 
 test {

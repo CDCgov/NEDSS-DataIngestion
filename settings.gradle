@@ -1,2 +1,3 @@
 rootProject.name = 'NEDDS-DataIngestion'
-include 'report-serive'
+include 'hl7-parser'
+include 'report-service'

@@ -27,9 +27,9 @@ spring:
       connection-timeout: 60000
       maximum-pool-size: 5
     nbs:
-      url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_NBS_DBNAME};encrypt=true;trustServerCertificate=true;
-      username: ${DI_USERNAME}
-      password: ${DI_PASSWORD}
+      url: jdbc:sqlserver://${DI_NBS_DBSERVER};databaseName=${DI_NBS_DBNAME};encrypt=true;trustServerCertificate=true;
+      username: ${DI_NBS_DBUSER}
+      password: ${DI_NBS_DBPASSWORD}
       driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
   jpa:

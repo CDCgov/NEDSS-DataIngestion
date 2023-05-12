@@ -37,3 +37,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+/src/main/java/gov/cdc/dataingestion/nbs/jaxb/*.java
+/logs/report-service.log*
