@@ -10,7 +10,7 @@ import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2V
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import gov.cdc.dataingestion.validation.model.enums.MessageType;
 public class HL7v2Validator implements IHL7v2Validator {
-    private HapiContext context;
+    private final HapiContext context;
     public HL7v2Validator(HapiContext context) {
         this.context = context;
     }
@@ -19,9 +19,18 @@ public class HL7v2Validator implements IHL7v2Validator {
         String replaceSpecialCharacters;
         if (rawERLModel.getPayload().contains("\n")) {
             replaceSpecialCharacters = rawERLModel.getPayload().replaceAll("\n","\r");
+        } else if (rawERLModel.getPayload().contains("\n\r")) {
+            replaceSpecialCharacters = rawERLModel.getPayload().replaceAll("\n\r","\r");
         } else {
-            replaceSpecialCharacters = rawERLModel.getPayload();
+            if (rawERLModel.getPayload().contains("\\n")) {
+                replaceSpecialCharacters = rawERLModel.getPayload().replaceAll("\\\\n","\r");
+            } else {
+                replaceSpecialCharacters = rawERLModel.getPayload();
+            }
         }
+
+        replaceSpecialCharacters = replaceSpecialCharacters.replaceAll("\\\\+", "\\\\");
+
         ValidatedELRModel model = new ValidatedELRModel();
         // Set validation
         context.setValidationContext(ValidationContextFactory.defaultValidation());
