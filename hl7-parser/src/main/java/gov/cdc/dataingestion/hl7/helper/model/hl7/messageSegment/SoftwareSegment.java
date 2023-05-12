@@ -3,15 +3,17 @@ import ca.uhn.hl7v2.model.v251.segment.SFT;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class SoftwareSegment {
-    Xon softwareVendorOrganization;
+    Xon softwareVendorOrganization = new Xon();
     String softwareCertifiedVersionOrReleaseNumber;
     String softwareProductName;
     String softwareBinaryId;
     String softwareProductInformation;
-    Ts softwareInstallDate;
+    Ts softwareInstallDate = new Ts();
 
     public SoftwareSegment(SFT sft) {
         this.softwareVendorOrganization = new Xon(sft.getSoftwareVendorOrganization());
@@ -20,5 +22,8 @@ public class SoftwareSegment {
         this.softwareBinaryId = sft.getSoftwareBinaryID().getValue();
         this.softwareProductInformation = sft.getSoftwareProductInformation().getValue();
         this.softwareInstallDate = new Ts(sft.getSoftwareInstallDate());
+    }
+
+    public SoftwareSegment() {
     }
 }

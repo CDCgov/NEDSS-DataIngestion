@@ -7,6 +7,7 @@ import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
 import java.util.List;
 
 @Getter
+@Setter
 public class ContinuationPointer {
     String continuationPointer;
     String continuationStyle;
@@ -14,5 +15,9 @@ public class ContinuationPointer {
     public ContinuationPointer(DSC dsc) {
         this.continuationPointer = dsc.getContinuationPointer().getValue();
         this.continuationStyle = dsc.getContinuationStyle().getValue();
+    }
+
+    public ContinuationPointer() {
+
     }
 }

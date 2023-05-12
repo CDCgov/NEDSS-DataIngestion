@@ -4,11 +4,17 @@ import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit.PatientVisit;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit.PatientVisitAdditional;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class Visit {
-    PatientVisit patientVisit;
-    PatientVisitAdditional patientVisitAdditional;
+    PatientVisit patientVisit = new PatientVisit();
+    PatientVisitAdditional patientVisitAdditional = new PatientVisitAdditional();
+
+    public Visit() {
+
+    }
 
     public Visit(ca.uhn.hl7v2.model.v251.group.ORU_R01_VISIT oruR01Visit) {
         this.patientVisit = new PatientVisit(oruR01Visit.getPV1());

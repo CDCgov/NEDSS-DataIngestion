@@ -19,18 +19,27 @@ public class HL7Helper {
     private IHL7Parser parser = new HL7Parser(new DefaultHapiContext());
     private IFhirConverter fhirConverter = new FhirConverter(new HL7ToFHIRConverter());
 
+    private static HL7Helper instance = new HL7Helper();
+    public static HL7Helper getInstance() {
+        return instance;
+    }
+
     /**
-    * HL7 string validator, replacing "\n" by "\r"
-    * */
+     * HL7 string validator, replacing "\n" by "\r"
+     * */
     public String hl7StringValidator(String message) throws DiHL7Exception {
         return parser.hl7MessageStringValidation(message);
     }
 
     /**
-    * Parser to be updated
-    * */
+     * Parser to be updated
+     * */
     public HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception {
         return parser.hl7StringParser(message);
+    }
+
+    public HL7ParsedMessage convert231To251(String message) throws DiHL7Exception {
+        return parser.convert231To251(message);
     }
 
     /**
