@@ -32,7 +32,12 @@ public class RegistrationService {
             clientObject.setId(UUID.randomUUID().toString());
             clientObject.setUsername(username);
             clientObject.setPassword(passwordEncoder.encode(password));
-            clientObject.setRoles("ADMIN,USER");
+            if(username.contains("admin")) {
+                clientObject.setRoles("ADMIN");
+            }
+            else {
+                clientObject.setRoles("USER");
+            }
             clientObject.setCreatedBy("rshanmugam");
             clientObject.setUpdatedBy("rshanmugam");
             iClientRegisterRepository.save(clientObject);
