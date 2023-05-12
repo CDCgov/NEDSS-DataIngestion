@@ -1,3 +1,7 @@
 rootProject.name = 'NEDDS-DataIngestion'
-include 'hl7-parser'
+
+// App
 include 'report-service'
+
+// Libraries
+include 'hl7-parser'

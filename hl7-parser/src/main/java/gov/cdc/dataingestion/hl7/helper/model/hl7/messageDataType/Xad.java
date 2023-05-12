@@ -2,10 +2,12 @@ package gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType;
 
 import ca.uhn.hl7v2.model.v251.datatype.XAD;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class Xad {
-    Sad streetAddress;
+    Sad streetAddress = new Sad();
     String otherDesignation;
     String city;
     String state;
@@ -16,9 +18,9 @@ public class Xad {
     String countyCode;
     String censusTract;
     String addressRepresentationCode;
-    Dr addressValidityRange;
-    Ts effectiveDate;
-    Ts expirationDate;
+    Dr addressValidityRange = new Dr();
+    Ts effectiveDate = new Ts();
+    Ts expirationDate = new Ts();
     public Xad(XAD xad) {
         this.streetAddress = new Sad(xad.getStreetAddress());
         this.otherDesignation = xad.getOtherDesignation().getValue();
@@ -34,5 +36,9 @@ public class Xad {
         this.addressValidityRange = new Dr(xad.getAddressValidityRange());
         this.effectiveDate = new Ts(xad.getEffectiveDate());
         this.expirationDate = new Ts(xad.getExpirationDate());
+    }
+
+    public Xad() {
+
     }
 }

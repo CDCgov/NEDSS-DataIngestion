@@ -5,34 +5,41 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cx;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon;
 import lombok.Getter;
+import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
 
 @Getter
+@Setter
 public class PatientAdditionalDemographic {
-    List<String> livingDependency;
+    List<String> livingDependency = new ArrayList<>();
     String livingArrangement;
-    List<Xon> patientPrimaryFacility;
-    List<Xcn> patientPrimaryCareProviderNameAndIdNo;
+    List<Xon> patientPrimaryFacility = new ArrayList<>();
+    List<Xcn> patientPrimaryCareProviderNameAndIdNo = new ArrayList<>();
     String studentIndicator;
     String handiCap;
     String livingWillCode;
     String organDonorCode;
     String separateBill;
-    List<Cx> duplicatePatient;
-    Ce publicityCode;
+    List<Cx> duplicatePatient = new ArrayList<>();
+    Ce publicityCode = new Ce();
     String protectionIndicator;
     String protectionIndicatorEffectiveDate;
-    List<Xon> placeOfWorship;
-    List<Ce> advanceDirectiveCode;
+    List<Xon> placeOfWorship = new ArrayList<>();
+    List<Ce> advanceDirectiveCode = new ArrayList<>();
     String immunizationRegistryStatus;
     String immunizationRegistryStatusEffectiveDate;
     String publicityCodeEffectiveDate;
     String militaryBranch;
     String militaryRank;
     String militaryStatus;
+
+    public PatientAdditionalDemographic() {
+
+    }
 
     public PatientAdditionalDemographic(ca.uhn.hl7v2.model.v251.segment.PD1 pd1) {
         this.livingDependency = GetIsStringList(pd1.getLivingDependency());

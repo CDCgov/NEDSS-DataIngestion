@@ -2,43 +2,51 @@ package gov.cdc.dataingestion.hl7.helper.model.hl7.group.order;
 
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
 import lombok.Getter;
+import lombok.Setter;
+
 import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 public class FinancialTransaction {
     String setIdFT1;
     String transactionId;
     String transactionBatchId;
-    Dr transactionDate;
-    Ts transactionPostingDate;
+    Dr transactionDate = new Dr();
+    Ts transactionPostingDate = new Ts();
     String transactionType;
-    Ce transactionCode;
+    Ce transactionCode = new Ce();
     String transactionDescription;
     String transactionDescriptionAlter;
     String transactionQuantity;
-    Cp transactionAmountExt;
-    Cp transactionAmountUnit;
-    Ce departmentCode;
-    Ce insurancePlanId;
-    Cp insuranceAmount;
-    Pl assignedPatientLocation;
+    Cp transactionAmountExt = new Cp();
+    Cp transactionAmountUnit = new Cp();
+    Ce departmentCode = new Ce();
+    Ce insurancePlanId = new Ce();
+    Cp insuranceAmount = new Cp();
+    Pl assignedPatientLocation = new Pl();
     String feeSchedule;
     String patientType;
-    List<Ce> diagnosisCode;
-    List<Xcn> performedByCode;
-    List<Xcn> orderedByCode;
-    Cp unitCost;
-    Ei fillerOrderNumber;
-    List<Xcn> enteredByCode;
-    Ce procedureCode;
-    List<Ce> procedureCodeModifier;
-    Ce advancedBeneficiaryNoticeCode;
-    Cwe medicallyNecessaryDuplicateProcedureReason;
-    Cne ndcCode;
-    Cx paymentReferenceId;
-    List<String> transactionReferenceKey;
+    List<Ce> diagnosisCode = new ArrayList<>();
+    List<Xcn> performedByCode = new ArrayList<>();
+    List<Xcn> orderedByCode = new ArrayList<>();
+    Cp unitCost = new Cp();
+    Ei fillerOrderNumber = new Ei();
+    List<Xcn> enteredByCode = new ArrayList<>();
+    Ce procedureCode = new Ce();
+    List<Ce> procedureCodeModifier = new ArrayList<>();
+    Ce advancedBeneficiaryNoticeCode = new Ce();
+    Cwe medicallyNecessaryDuplicateProcedureReason = new Cwe();
+    Cne ndcCode = new Cne();
+    Cx paymentReferenceId = new Cx();
+    List<String> transactionReferenceKey = new ArrayList<>();
+
+    public FinancialTransaction() {
+
+    }
 
     public FinancialTransaction(ca.uhn.hl7v2.model.v251.segment.FT1 ft1) {
         this.setIdFT1 = ft1.getSetIDFT1().getValue();

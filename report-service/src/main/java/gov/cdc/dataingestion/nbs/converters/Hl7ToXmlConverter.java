@@ -10,8 +10,8 @@ import 	ca.uhn.hl7v2.parser.DefaultXMLParser;
 
 
 public class Hl7ToXmlConverter {
-    private static String HEADER = "MSH|^~\\&|||||20080925161613||ADT^A05||P|2.6|";
-    private static Hl7ToXmlConverter instance = new Hl7ToXmlConverter();
+    private static final String HEADER = "MSH|^~\\&|||||20080925161613||ADT^A05||P|2.6|";
+    private static final Hl7ToXmlConverter instance = new Hl7ToXmlConverter();
 
     public static Hl7ToXmlConverter getInstance() {
         return instance;

@@ -17,8 +17,8 @@ import java.util.Optional;
 @Slf4j
 public class HL7DuplicateValidator implements IHL7DuplicateValidator {
 
-    private IValidatedELRRepository iValidatedELRRepository;
-    private KafkaProducerService kafkaProducerService;
+    private final IValidatedELRRepository iValidatedELRRepository;
+    private final KafkaProducerService kafkaProducerService;
     @Value("${kafka.elr-duplicate.topic}")
     private String validatedElrDuplicateTopic = "";
 
@@ -48,7 +48,7 @@ public class HL7DuplicateValidator implements IHL7DuplicateValidator {
         if (!checkForDuplicateHL7HashString(hashedString)) {
             hl7ValidatedModel.setHashedHL7String(hashedString);
         } else {
-            kafkaProducerService.sendMessageAfterCheckingDuplicateHL7(hl7ValidatedModel, validatedElrDuplicateTopic);
+            kafkaProducerService.sendMessageAfterCheckingDuplicateHL7(hl7ValidatedModel, validatedElrDuplicateTopic, 0);
             throw new DuplicateHL7FileFoundException("HL7 document already exists in the database. " +
                     "Please check " + validatedElrDuplicateTopic + " kafka topic for the failed document.");
         }

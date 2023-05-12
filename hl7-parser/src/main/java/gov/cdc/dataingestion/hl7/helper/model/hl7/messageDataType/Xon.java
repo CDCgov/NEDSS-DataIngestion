@@ -2,17 +2,19 @@ package gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType;
 
 import ca.uhn.hl7v2.model.v251.datatype.XON;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class Xon {
     String organizationName;
     String organizationNameTypeCode;
     String idNumber;
     String checkDigit;
     String checkDigitScheme;
-    Hd assignAuthority;
+    Hd assignAuthority = new Hd();
     String identifierTypeCode;
-    Hd assignFacility;
+    Hd assignFacility = new Hd();
     String nameRepresentationCode;
     String organizationIdentifier;
     public Xon(XON xon) {
@@ -26,5 +28,9 @@ public class Xon {
         this.assignFacility = new Hd(xon.getAssigningFacility());
         this.nameRepresentationCode = xon.getNameRepresentationCode().getValue();
         this.organizationIdentifier = xon.getOrganizationIdentifier().getValue();
+    }
+
+    public Xon() {
+
     }
 }

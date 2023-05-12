@@ -3,38 +3,41 @@ import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
 
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
 import lombok.Getter;
+import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 public class PatientVisit {
     String setIdPv1;
     String patientClass;
-    Pl AssignPatientLocation;
+    Pl AssignPatientLocation = new Pl();
     String admissionType;
-    Cx preadmitNumber;
-    Pl priorPatientLocation;
-    List<Xcn> attendingDoctor;
-    List<Xcn> referringDoctor;
-    List<Xcn> consultingDoctor;
+    Cx preadmitNumber = new Cx();
+    Pl priorPatientLocation = new Pl();
+    List<Xcn> attendingDoctor = new ArrayList<>();
+    List<Xcn> referringDoctor = new ArrayList<>();
+    List<Xcn> consultingDoctor = new ArrayList<>();
     String hospitalService;
-    Pl temporaryLocation;
+    Pl temporaryLocation = new Pl();
     String preadmitTestIndicator;
     String reAdmissionIndicator;
     String admitSource;
-    List<String> ambulatoryStatus;
+    List<String> ambulatoryStatus = new ArrayList<>();
     String vipStatus;
-    List<Xcn> admittingDoctor;
+    List<Xcn> admittingDoctor = new ArrayList<>();
     String patientType;
-    Cx visitNumber;
-    List<Fc> financialClass;
+    Cx visitNumber = new Cx();
+    List<Fc> financialClass = new ArrayList<>();
     String chargePriceIndicator;
     String courtesyCode;
     String creditRating;
-    List<String> contractRole;
-    List<String> contractEffectiveDate;
-    List<String> contractAmount;
-    List<String> contractPeriod;
+    List<String> contractRole = new ArrayList<>();
+    List<String> contractEffectiveDate = new ArrayList<>();
+    List<String> contractAmount = new ArrayList<>();
+    List<String> contractPeriod = new ArrayList<>();
     String interestCode;
     String transferToBadDebtCode;
     String transferToBadDebtDate;
@@ -44,22 +47,26 @@ public class PatientVisit {
     String deleteAccountIndicator;
     String deleteAccountDate;
     String dischargeDisposition;
-    Dld dischargedToLocation;
-    Ce dietType;
+    Dld dischargedToLocation = new Dld();
+    Ce dietType = new Ce();
     String servicingFacility;
     String bedStatus;
     String accountStatus;
-    Pl pendingLocation;
-    Pl priorTemporaryLocation;
-    Ts admitDateTime;
-    List<Ts> dischargeDateTime;
+    Pl pendingLocation = new Pl();
+    Pl priorTemporaryLocation = new Pl();
+    Ts admitDateTime = new Ts();
+    List<Ts> dischargeDateTime = new ArrayList<>();
     String currentPatientBalance;
     String totalCharge;
     String totalAdjustment;
     String totalPayment;
-    Cx alternateVisitId;
+    Cx alternateVisitId = new Cx();
     String visitIndicator;
-    List<Xcn> otherHealthcareProvider;
+    List<Xcn> otherHealthcareProvider = new ArrayList<>();
+
+    public PatientVisit() {
+
+    }
 
     public PatientVisit(ca.uhn.hl7v2.model.v251.segment.PV1 pv1) {
         this.setIdPv1 = pv1.getSetIDPV1().getValue();

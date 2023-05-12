@@ -1,8 +1,10 @@
 package gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class Pln {
     String idNumber;
     String typeOfIdNumber;
@@ -13,5 +15,9 @@ public class Pln {
         this.typeOfIdNumber = pln.getTypeOfIDNumber().getValue();
         this.stateOtherQualifyingInformation = pln.getStateOtherQualifyingInformation().getValue();
         this.expirationDate = pln.getExpirationDate().getValue();
+    }
+
+    public Pln() {
+
     }
 }

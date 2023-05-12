@@ -3,34 +3,41 @@ package gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment;
 import ca.uhn.hl7v2.model.v251.segment.MSH;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
 import lombok.Getter;
+import lombok.Setter;
+
 import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 public class MessageHeader {
     String fieldSeparator;
     String encodingCharacters;
-    Hd sendingApplication;
-    Hd sendingFacility;
-    Hd receivingApplication;
-    Hd receivingFacility;
-    Ts DateTimeOfMessage;
+    Hd sendingApplication = new Hd();
+    Hd sendingFacility = new Hd();
+    Hd receivingApplication = new Hd();
+    Hd receivingFacility = new Hd();
+    Ts DateTimeOfMessage = new Ts();
     String security;
-    Msg messageType;
+    Msg messageType = new Msg();
     String messageControlId;
-    Pt processingId;
-    Vid versionId;
+    Pt processingId = new Pt();
+    Vid versionId = new Vid();
     String sequenceNumber;
     String continuationPointer;
     String acceptAckType;
     String applicationAckType;
     String countryCode;
-    List<String> characterSet;
-    Ce principalLanguageOfMessage;
+    List<String> characterSet = new ArrayList<>();
+    Ce principalLanguageOfMessage = new Ce();
     String alternateCharacterSetHandlingScheme;
-    List<Ei> messageProfileIdentifier;
+    List<Ei> messageProfileIdentifier = new ArrayList<>();
 
+    public MessageHeader() {
+
+    }
     public MessageHeader(MSH msh) {
         this.fieldSeparator = msh.getFieldSeparator().getValue();
         this.encodingCharacters = msh.getEncodingCharacters().getValue();
