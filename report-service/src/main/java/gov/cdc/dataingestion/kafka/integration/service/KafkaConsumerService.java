@@ -17,7 +17,6 @@ import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2V
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import gov.cdc.dataingestion.validation.model.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
-import ca.uhn.hl7v2.HL7Exception;
 import gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 
@@ -259,7 +258,7 @@ public class KafkaConsumerService {
         String rhapsodyXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(hl7Msg);
         log.info("rhapsodyXml: {}", rhapsodyXml);
       
-        nbsRepositoryServiceProvider.saveXmlMessage(rhapsodyXml, message);
+        nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml);
         kafkaProducerService.sendMessageAfterConvertedToXml(rhapsodyXml, convertedToXmlTopic, 0);
     }
 
