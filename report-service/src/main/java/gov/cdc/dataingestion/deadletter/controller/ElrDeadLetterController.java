@@ -25,13 +25,13 @@ public class ElrDeadLetterController {
         return ResponseEntity.ok(elrDeadLetterService.getAllErrorDltRecord());
     }
 
-    @GetMapping(path = "/{id}")
-    public ResponseEntity<ElrDeadLetterDto> getErrorMessage(@PathVariable String id) throws DeadLetterTopicException {
+    @GetMapping(path = "/get-message")
+    public ResponseEntity<ElrDeadLetterDto> getErrorMessage(@RequestParam("id") String id) throws DeadLetterTopicException {
         return ResponseEntity.ok(elrDeadLetterService.getDltRecordById(id));
     }
 
-    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/{id}/update-inject")
-    public ResponseEntity<?> messageReInject(@PathVariable String id, @RequestBody final String payload) throws Exception {
+    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/update-inject")
+    public ResponseEntity<?> messageReInject(@RequestParam("id") String id, @RequestBody final String payload) throws Exception {
         return ResponseEntity.ok(elrDeadLetterService.updateAndReprocessingMessage(id, payload));
     }
 }
