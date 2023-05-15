@@ -50,6 +50,7 @@ import java.util.Optional;
 @Slf4j
 public class KafkaConsumerService {
 
+    //region VARIABLE
     @Value("${kafka.retry.suffix}")
     private String retrySuffix = "";
 
@@ -87,7 +88,9 @@ public class KafkaConsumerService {
     private final IHL7DuplicateValidator iHL7DuplicateValidator;
     private final NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
     private final ElrDeadLetterService elrDeadLetterService;
+    //endregion
 
+    //region Constructor
     public KafkaConsumerService(
             IValidatedELRRepository iValidatedELRRepository,
             IRawELRRepository iRawELRRepository,
@@ -109,7 +112,9 @@ public class KafkaConsumerService {
         this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
         this.elrDeadLetterService = elrDeadLetterService;
     }
+    //endregion
 
+    //region KAFKA LISTENER
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
             autoCreateTopics = "false",
@@ -235,7 +240,9 @@ public class KafkaConsumerService {
             throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
         }
     }
+    //endregion
 
+    //region DLT HANDLER
     @DltHandler
     public void handleDlt(
             String message,
@@ -263,7 +270,9 @@ public class KafkaConsumerService {
         );
         processingDltRecord(elrDeadLetterDto, originalTopic, timeStamp);
     }
+    //endregion
 
+    //region PRIVATE METHOD
     private void processingDltRecord(ElrDeadLetterDto elrDeadLetterDto, String originalTopic, String timeStamp) {
         try {
             this.elrDeadLetterService.saveDltRecord(elrDeadLetterDto);
@@ -370,4 +379,5 @@ public class KafkaConsumerService {
     private void saveValidatedELRMessage(ValidatedELRModel model) {
         iValidatedELRRepository.save(model);
     }
+    //endregion
 }
