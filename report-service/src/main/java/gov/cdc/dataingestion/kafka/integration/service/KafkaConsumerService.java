@@ -90,7 +90,7 @@ public class KafkaConsumerService {
     private final ElrDeadLetterService elrDeadLetterService;
     //endregion
 
-    //region Constructor
+    //region CONSTRUCTOR
     public KafkaConsumerService(
             IValidatedELRRepository iValidatedELRRepository,
             IRawELRRepository iRawELRRepository,
