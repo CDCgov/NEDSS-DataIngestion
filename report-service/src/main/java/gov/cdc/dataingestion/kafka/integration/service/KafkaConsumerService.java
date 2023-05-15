@@ -7,8 +7,10 @@ import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.model.ElrDltStatus;
 import gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService;
+import gov.cdc.dataingestion.exception.ConversionPrepareException;
 import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
 import gov.cdc.dataingestion.exception.FhirConversionException;
+import gov.cdc.dataingestion.kafka.integration.constant.TopicPreparationType;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
@@ -43,7 +45,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
+
 @Service
 @Slf4j
 public class KafkaConsumerService {
@@ -69,9 +71,13 @@ public class KafkaConsumerService {
     @Value("${kafka.elr-duplicate.topic}")
     private String validatedElrDuplicateTopic = "";
 
+    @Value("${kafka.xml-conversion-prep.topic}")
+    private String prepXmlTopic = "";
+
+    @Value("${kafka.fhir-conversion-prep.topic}")
+    private String prepFhirTopic = "";
+
     private final String directory = "dlt_records";
-
-
     private final KafkaProducerService kafkaProducerService;
     private final IHL7v2Validator iHl7v2Validator;
     private final IRawELRRepository iRawELRRepository;
@@ -79,10 +85,8 @@ public class KafkaConsumerService {
     private final IHL7ToFHIRConversion iHl7ToFHIRConversion;
     private final IHL7ToFHIRRepository iHL7ToFHIRRepository;
     private final IHL7DuplicateValidator iHL7DuplicateValidator;
-
     private final NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
     private final ElrDeadLetterService elrDeadLetterService;
-
 
     public KafkaConsumerService(
             IValidatedELRRepository iValidatedELRRepository,
@@ -105,8 +109,6 @@ public class KafkaConsumerService {
         this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
         this.elrDeadLetterService = elrDeadLetterService;
     }
-
-
 
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
@@ -168,13 +170,72 @@ public class KafkaConsumerService {
         log.info("Received message ID: {} from topic: {}", message, topic);
 
         try {
-            xmlConversionHandler(message);
-            conversionHandler(message);
+            preparationForConversionHandler(message);
         } catch (Exception e) {
             log.info("Retry queue");
             throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
         }
 
+    }
+
+    @RetryableTopic(
+            attempts = "${kafka.consumer.max-retry}",
+            autoCreateTopics = "false",
+            dltStrategy = DltStrategy.FAIL_ON_ERROR,
+            retryTopicSuffix = "${kafka.retry.suffix}",
+            dltTopicSuffix = "${kafka.dlt.suffix}",
+            // retry topic name, such as topic-retry-1, topic-retry-2, etc
+            topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE,
+            // time to wait before attempting to retry
+            backoff = @Backoff(delay = 1000, multiplier = 2.0),
+            // if these exceptions occur, skip retry then push message to DLQ
+            exclude = {
+                    SerializationException.class,
+                    DeserializationException.class,
+                    DuplicateHL7FileFoundException.class,
+                    //HL7Exception.class
+            }
+    )
+    @KafkaListener(topics = "${kafka.xml-conversion-prep.topic}")
+    public void handleMessageForXmlConversionElr(String message,
+                                                 @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+        log.info("Received message ID: {} from topic: {}", message, topic);
+        try {
+            xmlConversionHandler(message);
+        } catch (Exception e) {
+            log.info("Retry queue");
+            throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
+        }
+    }
+
+    @RetryableTopic(
+            attempts = "${kafka.consumer.max-retry}",
+            autoCreateTopics = "false",
+            dltStrategy = DltStrategy.FAIL_ON_ERROR,
+            retryTopicSuffix = "${kafka.retry.suffix}",
+            dltTopicSuffix = "${kafka.dlt.suffix}",
+            // retry topic name, such as topic-retry-1, topic-retry-2, etc
+            topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE,
+            // time to wait before attempting to retry
+            backoff = @Backoff(delay = 1000, multiplier = 2.0),
+            // if these exceptions occur, skip retry then push message to DLQ
+            exclude = {
+                    SerializationException.class,
+                    DeserializationException.class,
+                    DuplicateHL7FileFoundException.class,
+                    //HL7Exception.class
+            }
+    )
+    @KafkaListener(topics = "${kafka.fhir-conversion-prep.topic}")
+    public void handleMessageForFhirConversionElr(String message,
+                                                 @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+        log.info("Received message ID: {} from topic: {}", message, topic);
+        try {
+            conversionHandler(message);
+        } catch (Exception e) {
+            log.info("Retry queue");
+            throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
+        }
     }
 
     @DltHandler
@@ -204,6 +265,10 @@ public class KafkaConsumerService {
             erroredSource = convertedToFhirTopic;
         } else if (originalTopic.equalsIgnoreCase(convertedToXmlTopic)) {
             erroredSource = convertedToXmlTopic;
+        } else if (originalTopic.equalsIgnoreCase(prepFhirTopic)) {
+            erroredSource = prepFhirTopic;
+        } else if (originalTopic.equalsIgnoreCase(prepXmlTopic)) {
+            erroredSource = prepXmlTopic;
         }
 
         ElrDeadLetterDto elrDeadLetterDto = new ElrDeadLetterDto(
@@ -247,7 +312,15 @@ public class KafkaConsumerService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return dateTime.format(formatter);
     }
-
+    private void preparationForConversionHandler(String message) throws ConversionPrepareException {
+        Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
+        if(validatedElrResponse.isPresent()) {
+            kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepXmlTopic, TopicPreparationType.XML, 0);
+            kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepFhirTopic, TopicPreparationType.FHIR, 0);
+        } else {
+            throw new ConversionPrepareException("Validation ELR Record Not Found");
+        }
+    }
     private void xmlConversionHandler(String message) throws Exception {
         log.info("Received message id will be retrieved from db and associated hl7 will be converted to xml");
 
@@ -259,7 +332,6 @@ public class KafkaConsumerService {
         nbsRepositoryServiceProvider.saveXmlMessage(hl7AsXml);
         kafkaProducerService.sendMessageAfterConvertedToXml(hl7AsXml, convertedToXmlTopic, 0);
     }
-
     private void validationHandler(String message) throws DuplicateHL7FileFoundException, HL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);
         RawERLModel elrModel = rawElrResponse.get();
@@ -295,7 +367,6 @@ public class KafkaConsumerService {
             throw new FhirConversionException("Invalid Message");
         }
     }
-
     private void saveValidatedELRMessage(ValidatedELRModel model) {
         iValidatedELRRepository.save(model);
     }

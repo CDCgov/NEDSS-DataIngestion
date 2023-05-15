@@ -54,8 +54,12 @@ kafka:
     topic: elr_validated
   fhir-conversion:
     topic: fhir_converted
+  fhir-conversion-prep:
+    topic: fhir_prep
   xml-conversion:
     topic: xml_converted
+  xml-conversion-prep:
+    topic: xml_prep
   elr-duplicate:
     topic: elr_duplicate
   topics: elr_raw,elr_validated
@@ -95,7 +99,7 @@ spring:
 
 kafka:
   consumer:
-    max-retry: 1
+    max-retry: 2
   raw:
     producer:
       topic: elr_raw
@@ -104,8 +108,12 @@ kafka:
     topic: elr_validated
   fhir-conversion:
     topic: fhir_converted
+  fhir-conversion-prep:
+    topic: fhir_prep
   xml-conversion:
     topic: xml_converted
+  xml-conversion-prep:
+    topic: xml_prep
   elr-duplicate:
     topic: elr_duplicate
   topics: elr_raw,elr_validated
