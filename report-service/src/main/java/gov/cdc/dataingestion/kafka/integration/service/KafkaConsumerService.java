@@ -140,8 +140,6 @@ public class KafkaConsumerService {
             validationHandler(message);
         } catch (Exception e) {
             log.info("Retry queue");
-            // run time error then -- do retry
-            // get root message
             throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
         }
     }
@@ -248,29 +246,12 @@ public class KafkaConsumerService {
             @Header(KafkaHeaderValue.OriginalTopic) String originalTopic
     ) {
         log.info("Message ID: {} handled by dlq topic: {}", message, topic);
-
-
-        // use this for data re-injection
-        String erroredSource = "";
         String regex = "^(.*\\n)*.*(?=java\\.lang\\.RuntimeException)";
         String errorStackTrace = stacktrace.replaceAll(regex, "");
         // increase by 1, indicate the dlt had been occurred
         Integer dltCount = Integer.parseInt(dltOccurrence) + 1;
         // consuming bad data and persist data onto database
-        if (originalTopic.equalsIgnoreCase(rawTopic)) {
-            erroredSource = rawTopic;
-        } else if (originalTopic.equalsIgnoreCase(validatedTopic)) {
-            erroredSource = validatedTopic;
-        } else if (originalTopic.equalsIgnoreCase(convertedToFhirTopic)) {
-            erroredSource = convertedToFhirTopic;
-        } else if (originalTopic.equalsIgnoreCase(convertedToXmlTopic)) {
-            erroredSource = convertedToXmlTopic;
-        } else if (originalTopic.equalsIgnoreCase(prepFhirTopic)) {
-            erroredSource = prepFhirTopic;
-        } else if (originalTopic.equalsIgnoreCase(prepXmlTopic)) {
-            erroredSource = prepXmlTopic;
-        }
-
+        String erroredSource = getDltErrorSource(originalTopic);
         ElrDeadLetterDto elrDeadLetterDto = new ElrDeadLetterDto(
                 message,
                 erroredSource,
@@ -280,6 +261,10 @@ public class KafkaConsumerService {
                 erroredSource + this.dltSuffix,
                 erroredSource + this.dltSuffix
         );
+        processingDltRecord(elrDeadLetterDto, originalTopic, timeStamp);
+    }
+
+    private void processingDltRecord(ElrDeadLetterDto elrDeadLetterDto, String originalTopic, String timeStamp) {
         try {
             this.elrDeadLetterService.saveDltRecord(elrDeadLetterDto);
             // TODO: push notification to notify user, error happened, and it was saved of  into rds db
@@ -294,7 +279,7 @@ public class KafkaConsumerService {
                 dir.mkdir();
             }
 
-            File file = new File( directory + "/" + originalTopic+ "_" + receivedTimeStamp +".txt");
+            File file = new File( directory + "/" + originalTopic + "_" + receivedTimeStamp +".txt");
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
                 writer.write(data);
                 // TODO: push notification to notify user, error is saved off as file and something wrong with rds
@@ -303,9 +288,24 @@ public class KafkaConsumerService {
                 // TODO: If this happened, then push notification to notify user either both saving off to rds and file system failed
             }
         }
-
     }
-
+    private String getDltErrorSource(String incomingTopic) {
+        String erroredSource = "";
+        if (incomingTopic.equalsIgnoreCase(rawTopic)) {
+            erroredSource = rawTopic;
+        } else if (incomingTopic.equalsIgnoreCase(validatedTopic)) {
+            erroredSource = validatedTopic;
+        } else if (incomingTopic.equalsIgnoreCase(convertedToFhirTopic)) {
+            erroredSource = convertedToFhirTopic;
+        } else if (incomingTopic.equalsIgnoreCase(convertedToXmlTopic)) {
+            erroredSource = convertedToXmlTopic;
+        } else if (incomingTopic.equalsIgnoreCase(prepFhirTopic)) {
+            erroredSource = prepFhirTopic;
+        } else if (incomingTopic.equalsIgnoreCase(prepXmlTopic)) {
+            erroredSource = prepXmlTopic;
+        }
+        return erroredSource;
+    }
     private String convertUnixTimeStampToReadable(String unixTimestamp) {
         Instant instant = Instant.ofEpochSecond(Long.parseLong(unixTimestamp));
         LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
