@@ -14,6 +14,7 @@ import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
+import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +45,11 @@ public class ElrDeadLetterService {
     @Value("${kafka.xml-conversion.topic}")
     private String convertedToXmlTopic = "";
 
+    @Value("${kafka.xml-conversion-prep.topic}")
+    private String prepXmlTopic = "";
+
+    @Value("${kafka.fhir-conversion-prep.topic}")
+    private String prepFhirTopic = "";
     @Value("${kafka.raw.topic}")
     private String rawTopic = "";
 
@@ -68,7 +74,11 @@ public class ElrDeadLetterService {
 
     public ElrDeadLetterDto getDltRecordById(String id) throws DeadLetterTopicException {
         Optional<ElrDeadLetterModel> model = dltRepository.findById(id);
-        return convertModelToDto(model.get());
+        if (model.isPresent()) {
+            return convertModelToDto(model.get());
+        } else {
+            throw new DeadLetterTopicException("Dead Letter Record Not Found");
+        }
     }
 
     public ElrDeadLetterDto updateAndReprocessingMessage(String id, String body) throws DeadLetterTopicException {
@@ -77,17 +87,45 @@ public class ElrDeadLetterService {
         existingRecord.setDltOccurrence(existingRecord.getDltOccurrence());
         if(existingRecord.getErrorMessageSource().equalsIgnoreCase(rawTopic)) {
             var rawRecord = rawELRRepository.findById(existingRecord.getErrorMessageId());
+            if (!rawRecord.isPresent()) {
+                throw new DeadLetterTopicException("Raw Record Not Found");
+            }
             RawERLModel rawModel = rawRecord.get();
             rawModel.setPayload(body);
             rawELRRepository.save(rawModel);
             kafkaProducerService.sendMessageFromController(rawModel.getId(), rawTopic, rawModel.getType(), existingRecord.getDltOccurrence());
-        } else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(validatedTopic)) {
-
-        } else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(convertedToFhirTopic)) {
-
-        } else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(convertedToXmlTopic)) {
-
-        } else {
+        }
+        else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(validatedTopic) ||
+                existingRecord.getErrorMessageSource().equalsIgnoreCase(convertedToFhirTopic) ||
+                existingRecord.getErrorMessageSource().equalsIgnoreCase(convertedToXmlTopic) ||
+                existingRecord.getErrorMessageSource().equalsIgnoreCase(prepFhirTopic) ||
+                existingRecord.getErrorMessageSource().equalsIgnoreCase(prepXmlTopic)) {
+            var validateRecord = validatedELRRepository.findById(existingRecord.getErrorMessageId());
+            if (!validateRecord.isPresent()) {
+                throw new DeadLetterTopicException("Validate Record Not Found");
+            }
+            ValidatedELRModel validateModel = validateRecord.get();
+            validateModel.setRawMessage(body);
+            validatedELRRepository.save(validateModel);
+            String topicToBeSent;
+            if(existingRecord.getErrorMessageSource().equalsIgnoreCase(validatedTopic)) {
+                topicToBeSent = validatedTopic;
+            }
+            else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(convertedToFhirTopic)) {
+                topicToBeSent = convertedToFhirTopic;
+            }
+            else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(convertedToXmlTopic)) {
+                topicToBeSent = convertedToXmlTopic;
+            }
+            else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(prepFhirTopic)) {
+                topicToBeSent = prepFhirTopic;
+            }
+            else {
+                topicToBeSent = prepXmlTopic;
+            }
+            kafkaProducerService.sendMessageFromController(validateModel.getId(), topicToBeSent, validateModel.getMessageType(), existingRecord.getDltOccurrence());
+        }
+        else {
             throw new DeadLetterTopicException("Provided Error Source is not supported");
         }
 
