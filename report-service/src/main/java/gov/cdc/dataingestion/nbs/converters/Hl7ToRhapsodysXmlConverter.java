@@ -175,12 +175,48 @@ public class Hl7ToRhapsodysXmlConverter {
             hl7PATIENTRESULTType.getORDEROBSERVATION().add(buildHL7OrderObservationType(oo));
         }
 
+        validatehl7PATIENTRESULTType(hl7PATIENTRESULTType.getORDEROBSERVATION());
+
         return hl7PATIENTRESULTType;
+    }
+
+    private void validatehl7PATIENTRESULTType(List<HL7OrderObservationType> listOfOOTypes) {
+        HL7OBRType assumedParentOBRType = null;
+        HL7OBRType assumedChildOBRType = null;
+
+        for(HL7OrderObservationType ooType : listOfOOTypes) {
+            HL7OBRType hl7OBRType = ooType.getObservationRequest();
+            if ((null == hl7OBRType.getParent()) && (null == hl7OBRType.getParentResult())) {
+                if (null == assumedParentOBRType) {
+                    assumedParentOBRType = hl7OBRType;
+                    break;
+                }
+            }
+        }
+
+        for(HL7OrderObservationType ooType : listOfOOTypes) {
+            HL7OBRType hl7OBRType = ooType.getObservationRequest();
+            if((null != hl7OBRType.getParent()) && (null != hl7OBRType.getParentResult())) {
+                if(null == assumedChildOBRType) {
+                    assumedChildOBRType = hl7OBRType;
+                    break;
+                }
+            }
+        }
+
+        for(HL7OrderObservationType ooType : listOfOOTypes) {
+            HL7OBRType hl7OBRType = ooType.getObservationRequest();
+            if((null == hl7OBRType.getParent()) && (null == hl7OBRType.getParentResult())) {
+                if((assumedParentOBRType != hl7OBRType) && (assumedChildOBRType != hl7OBRType)) {
+                    hl7OBRType.setParent(assumedChildOBRType.getParent());
+                    hl7OBRType.setParentResult(assumedChildOBRType.getParentResult());
+                }
+            }
+        }
     }
 
     private HL7OrderObservationType buildHL7OrderObservationType(OrderObservation oo) {
         HL7OrderObservationType hl7OrderObservationType = new HL7OrderObservationType();
-
         hl7OrderObservationType.setCommonOrder(buildHL7ORCType(oo.getCommonOrder()));
         hl7OrderObservationType.setObservationRequest(buildHL7OBRType(oo.getObservationRequest()));
 
@@ -549,13 +585,7 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7OBRType.setFillerOrderNumber(buildHL7EIType(or.getFillerOrderNumber()));
         hl7OBRType.setUniversalServiceIdentifier(buildHL7CWEType(or.getUniversalServiceIdentifier()));
         hl7OBRType.setPriorityOBR(or.getPriorityObr());
-
-
-        Ts ts = or.getRequestedDateTime();
-        HL7TSType hl7TSType = buildHL7TSType(ts);
         hl7OBRType.setRequestedDateTime(buildHL7TSType(or.getRequestedDateTime()));
-
-
         hl7OBRType.setObservationDateTime(buildHL7TSType(or.getObservationDateTime()));
         hl7OBRType.setObservationEndDateTime(buildHL7TSType(or.getObservationEndDateTime()));
         hl7OBRType.setCollectionVolume(buildHL7CQType(or.getCollectionVolume()));
@@ -1343,10 +1373,6 @@ public class Hl7ToRhapsodysXmlConverter {
     }
     */
 
-
-    /*
-    ramesh: buildHL7CXType
-     */
 
     private HL7CXType buildHL7CXType(Cx cx) {
         if(null == cx.getIdNumber()) return null;
