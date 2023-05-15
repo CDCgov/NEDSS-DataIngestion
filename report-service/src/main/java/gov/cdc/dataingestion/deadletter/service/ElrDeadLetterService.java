@@ -53,6 +53,8 @@ public class ElrDeadLetterService {
     @Value("${kafka.raw.topic}")
     private String rawTopic = "";
 
+    private final String deadLetterIsNullExceptionMessage = "Dead Letter Record Is Null";
+
     public ElrDeadLetterService(
             IElrDeadLetterRepository dltRepository,
             IRawELRRepository rawELRRepository,
@@ -68,6 +70,9 @@ public class ElrDeadLetterService {
 
     public List<ElrDeadLetterDto> getAllErrorDltRecord() throws DeadLetterTopicException {
         Optional<List<ElrDeadLetterModel>> deadLetterELRModels = dltRepository.findAllDltRecordByDltStatus(ElrDltStatus.ERROR.name(), Sort.by(Sort.Direction.DESC, "createdOn"));
+        if (!deadLetterELRModels.isPresent()) {
+            throw new DeadLetterTopicException(deadLetterIsNullExceptionMessage);
+        }
         var dtoModels = convertModelToDtoList(deadLetterELRModels.get());
         return dtoModels;
     }
@@ -77,7 +82,7 @@ public class ElrDeadLetterService {
         if (model.isPresent()) {
             return convertModelToDto(model.get());
         } else {
-            throw new DeadLetterTopicException("Dead Letter Record Not Found");
+            throw new DeadLetterTopicException(deadLetterIsNullExceptionMessage);
         }
     }
 
@@ -88,7 +93,7 @@ public class ElrDeadLetterService {
         if(existingRecord.getErrorMessageSource().equalsIgnoreCase(rawTopic)) {
             var rawRecord = rawELRRepository.findById(existingRecord.getErrorMessageId());
             if (!rawRecord.isPresent()) {
-                throw new DeadLetterTopicException("Raw Record Not Found");
+                throw new DeadLetterTopicException(deadLetterIsNullExceptionMessage);
             }
             RawERLModel rawModel = rawRecord.get();
             rawModel.setPayload(body);
@@ -102,7 +107,7 @@ public class ElrDeadLetterService {
                 existingRecord.getErrorMessageSource().equalsIgnoreCase(prepXmlTopic)) {
             var validateRecord = validatedELRRepository.findById(existingRecord.getErrorMessageId());
             if (!validateRecord.isPresent()) {
-                throw new DeadLetterTopicException("Validate Record Not Found");
+                throw new DeadLetterTopicException(deadLetterIsNullExceptionMessage);
             }
             ValidatedELRModel validateModel = validateRecord.get();
             validateModel.setRawMessage(body);
@@ -134,7 +139,7 @@ public class ElrDeadLetterService {
     }
 
     public ElrDeadLetterDto saveDltRecord(ElrDeadLetterDto model) {
-        ElrDeadLetterModel modelForUpdate = dltRepository.save(convertDtoToModel(model));
+        dltRepository.save(convertDtoToModel(model));
         return model;
     }
 
