@@ -118,7 +118,7 @@ public class KafkaConsumerService {
     /**
      * Read Me:
      * - Standard flow
-     * - RawELR
+     *      -> RawELR
      *      -> ValidatedELR
      *      -> Preparation For Conversion
      *          (No significant logic, simply send message to appropriate topics for consuming)
