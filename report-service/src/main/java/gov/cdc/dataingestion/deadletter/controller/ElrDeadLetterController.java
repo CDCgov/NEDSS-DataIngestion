@@ -1,5 +1,7 @@
 package gov.cdc.dataingestion.deadletter.controller;
 
+import gov.cdc.dataingestion.deadletter.integration.LogReader;
+import gov.cdc.dataingestion.deadletter.integration.interfaces.ILogReader;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService;
 import gov.cdc.dataingestion.exception.DeadLetterTopicException;
@@ -19,6 +21,14 @@ import java.util.List;
 public class ElrDeadLetterController {
 
     private final ElrDeadLetterService elrDeadLetterService;
+
+    private ILogReader logReader = new LogReader();
+
+    @GetMapping(path = "/get-error-messages-log")
+    public ResponseEntity<String> getAllNewErrorMessageFromLog() {
+        logReader.readDltErrorFromLog();
+        return ResponseEntity.ok("OK");
+    }
 
     @GetMapping(path = "/get-error-messages")
     public ResponseEntity<List<ElrDeadLetterDto>> getAllNewErrorMessage() throws DeadLetterTopicException {

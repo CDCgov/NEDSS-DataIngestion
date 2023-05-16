@@ -308,7 +308,8 @@ public class KafkaConsumerService {
     //region PRIVATE METHOD
     private void processingDltRecord(ElrDeadLetterDto elrDeadLetterDto, String originalTopic, String timeStamp) {
         try {
-            this.elrDeadLetterService.saveDltRecord(elrDeadLetterDto);
+            //this.elrDeadLetterService.saveDltRecord(elrDeadLetterDto);
+            throw new Exception("ERRRO");
             // TODO: push notification to notify user, error happened, and it was saved of  into rds db
         } catch (Exception e) {
             String receivedTimeStamp = convertUnixTimeStampToReadable(timeStamp);
