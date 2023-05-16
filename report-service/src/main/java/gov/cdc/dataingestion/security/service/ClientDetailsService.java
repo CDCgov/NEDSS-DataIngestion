@@ -23,17 +23,15 @@ public class ClientDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<Client> client = iClientRepository.findByUsername(username);
-        log.info("client object is...", client.get().getPassword());
-        log.info("client username is...", username);
+//        Optional<Client> client = iClientRepository.findByUsername(username);
+//        log.info("client object is...", client.get().getPassword());
+//        log.info("client username is...", username);
+//        client.orElseThrow(() -> new UsernameNotFoundException("Client Id now found: " + username));
+//        return client.map(SecurityUser::new).get();
 
-        client.orElseThrow(() -> new UsernameNotFoundException("Client Id now found: " + username));
-
-        return client.map(SecurityUser::new).get();
-
-//        return iClientRepository
-//                .findByClientId(username)
-//                .map(SecurityUser::new)
-//                .orElseThrow(() -> new UsernameNotFoundException("Client Id not found: " + username));
+        return iClientRepository
+                .findByUsername(username)
+                .map(SecurityUser::new)
+                .orElseThrow(() -> new UsernameNotFoundException("Client Id not found: " + username));
     }
 }
