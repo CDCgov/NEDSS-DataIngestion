@@ -1,0 +1,30 @@
+<configuration>
+    <!-- Appenders -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="DYNAMIC_FILE" class="gov.cdc.dataingestion.config.LogDynamicFileAppenderConfig">
+        <logFilePath>logs/kafka_dlt_error.log</logFilePath>
+        <append>true</append>
+        <encoder>
+            <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- Loggers -->
+    <logger name="gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService" level="INFO">
+        <appender-ref ref="DYNAMIC_FILE" />
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+    </root>
+</configuration>

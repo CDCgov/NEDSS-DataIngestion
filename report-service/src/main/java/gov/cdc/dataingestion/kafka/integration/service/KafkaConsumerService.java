@@ -24,6 +24,8 @@ import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.kafka.common.errors.SerializationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -51,6 +53,8 @@ import java.util.Optional;
 public class KafkaConsumerService {
 
     //region VARIABLE
+    private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerService.class);
+
     @Value("${kafka.retry.suffix}")
     private String retrySuffix = "";
 
@@ -311,20 +315,9 @@ public class KafkaConsumerService {
             Gson gson = new Gson();
             String data = gson.toJson(elrDeadLetterDto);
 
-            // TODO: implement and replace this with LOG BAG
-            File dir = new File(directory);
-            if (!dir.exists()) {
-                dir.mkdir();
-            }
+            // TODO: If this happened, then push notification to notify user
+            logger.error("Error occurred while processing DLT record: {}", data);
 
-            File file = new File( directory + "/" + originalTopic + "_" + receivedTimeStamp +".txt");
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-                writer.write(data);
-                // TODO: push notification to notify user, error is saved off as file and something wrong with rds
-            } catch (IOException ioe) {
-                System.out.println("Error writing to file: " + ioe.getMessage());
-                // TODO: If this happened, then push notification to notify user either both saving off to rds and file system failed
-            }
         }
     }
     private String getDltErrorSource(String incomingTopic) {
