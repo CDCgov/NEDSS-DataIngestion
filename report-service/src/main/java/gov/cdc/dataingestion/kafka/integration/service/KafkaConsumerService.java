@@ -115,6 +115,21 @@ public class KafkaConsumerService {
     //endregion
 
     //region KAFKA LISTENER
+    /**
+     * Read Me:
+     * - Standard flow
+     * - RawELR
+     *      -> ValidatedELR
+     *      -> Preparation For Conversion
+     *          (No significant logic, simply send message to appropriate topics for consuming)
+     *      -> These 2 paths will be consumed in no particular order
+     *          -> XML Conversion (consuming from Prepare XML topic)
+     *          -> Fhir Conversion (consuming from Prepare Fhir topic)
+     * */
+
+    /**
+     * Raw Data Validation Process
+     * */
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
             autoCreateTopics = "false",
@@ -149,6 +164,14 @@ public class KafkaConsumerService {
         }
     }
 
+    /**
+     * After Validation Process
+     * Description: After validated by Raw Consumer, data will be sent to validated producer
+     * the data will be picked up by this consumer
+     * this logic will direct validated data into 2 path (producers + topic)
+     * 1 - to XML conversion consumer
+     * 2 - to FHIR conversion consumer
+     * */
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
             autoCreateTopics = "false",
@@ -181,6 +204,9 @@ public class KafkaConsumerService {
 
     }
 
+    /**
+     * XML Conversion
+     * */
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
             autoCreateTopics = "false",
@@ -211,6 +237,9 @@ public class KafkaConsumerService {
         }
     }
 
+    /**
+     * FHIR Conversion
+     * */
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
             autoCreateTopics = "false",
