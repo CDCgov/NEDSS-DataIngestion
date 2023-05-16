@@ -1,7 +1,6 @@
 package gov.cdc.dataingestion.security.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.sql.Timestamp;

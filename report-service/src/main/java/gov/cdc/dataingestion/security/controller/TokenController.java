@@ -18,7 +18,6 @@ public class TokenController {
 
     @PostMapping("/token")
     public String token(Authentication authentication) {
-        log.info("Inside controller...");
         log.debug("Token requested for user: '{}'", authentication.getName());
 
         String token = tokenService.generateToken(authentication);
