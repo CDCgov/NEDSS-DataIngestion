@@ -7,12 +7,19 @@ import java.nio.file.Path;
 
 public class LogDynamicFileAppenderConfig<E> extends FileAppender<E> {
 
-    private String logFilePath; // New property for the log file path
+    private String logFilePath;
 
+    /**
+     * Helper method used by Logback
+     * Reading logFilePatch tag from logback.xml and return value
+     * */
     public void setLogFilePath(String logFilePath) {
         this.logFilePath = logFilePath;
     }
 
+    /**
+     * Purpose: Dynamically create log file if not exist
+     * */
     @Override
     public void start() {
         if (logFilePath == null) {

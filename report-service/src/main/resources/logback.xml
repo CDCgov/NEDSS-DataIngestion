@@ -5,6 +5,10 @@
     </appender>
 
     <appender name="DYNAMIC_FILE" class="gov.cdc.dataingestion.config.LogDynamicFileAppenderConfig">
+<!--        Auto delete -->
+<!--        Unique ID per message-->
+<!--        Specify logback.xml in app.yml HOW?-->
+<!--        Considering add diff file for each day-->
         <logFilePath>logs/kafka_dlt_error.log</logFilePath>
         <append>true</append>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
