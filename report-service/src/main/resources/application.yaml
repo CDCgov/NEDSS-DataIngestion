@@ -3,6 +3,8 @@ spring:
     name: report-service
 
 logging:
+  #  Only one config can be active at a time
+  config: classpath:dlt-logback.xml
   pattern:
     console: "%d %-5level %logger : %file-%line : %msg%n"
     file:    "%d %-5level [%thread] %logger : [ramesh] : %msg%n"

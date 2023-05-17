@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class LogDynamicFileAppenderConfig<E> extends FileAppender<E> {
 
@@ -11,7 +14,7 @@ public class LogDynamicFileAppenderConfig<E> extends FileAppender<E> {
 
     /**
      * Helper method used by Logback
-     * Reading logFilePatch tag from logback.xml and return value
+     * Reading logFilePatch tag from dlt-logback.xml and return value
      * */
     public void setLogFilePath(String logFilePath) {
         this.logFilePath = logFilePath;
@@ -25,6 +28,13 @@ public class LogDynamicFileAppenderConfig<E> extends FileAppender<E> {
         if (logFilePath == null) {
             addError("Log file path is not configured");
             return;
+        }
+
+        if (logFilePath.contains("%d{")) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            String formattedDate = dateFormat.format(new Date());
+            logFilePath = logFilePath.replace("%d{yyyy-MM-dd}", formattedDate);
         }
 
         File logFile = new File(logFilePath);
