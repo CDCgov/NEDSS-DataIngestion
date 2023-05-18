@@ -90,3 +90,8 @@ hl7-parser/.vscode/
 
 dataingestion.env
 /report-service/libs/
+
+### karatetest ###
+karatetest/build/
+karatetest/.gradle
+karatetest/.idea
