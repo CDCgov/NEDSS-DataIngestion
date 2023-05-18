@@ -3,6 +3,8 @@ rsa:
   public-key: classpath:certs/public.pem
 server:
   port: 8083
+
+  # FIX THIS FILE BEFORE PR
 #app:
 ##  security:
 ##    username: admin
