@@ -41,9 +41,9 @@ public class RhapsodysXmlToHl7Converter {
     private static String EMPTY_STRING = "";
     private static String NEWLINE = "\n";
     private static String COLUMNS_SEPARATOR = "|";
-    private static String LISTS_SEPARATOR = "&";     // Ex: Two patient identifiers, DL and LabID
+    private static String LISTS_SEPARATOR = "~";     // Ex: Two patient identifiers, DL and LabID
     private static String ATTRIBUTES_SEPARATOR = "^";// Ex: Id, First Name, Last Name; 7654^JONES^INDIANA
-    private static String TILDA_SEPARATOR = "~";     // EX: Lab tech comments, multiple last names
+    private static String INNTER_ATTRIBUTES_SEPARATOR = "&";     // EX: Lab tech comments, multiple last names
 
     private static RhapsodysXmlToHl7Converter instance = new RhapsodysXmlToHl7Converter();
 
@@ -87,6 +87,19 @@ public class RhapsodysXmlToHl7Converter {
         return sb.toString();
     }
 
+    private String streamOrderObservationResults(PatientResultOrderObservation results) {
+        StringBuilder sb = new StringBuilder();
+
+        if(null == results) return sb.toString();
+
+        for(HL7OBSERVATIONType obsType : results.getOBSERVATION()) {
+            sb.append(streamHL7OBSERVATIONType(obsType));
+            sb.append(NEWLINE);
+        }
+
+        return sb.toString();
+    }
+
     private String streamPaientIdentifications(List<HL7PATIENTRESULTType> patientresultTypeList) {
         StringBuilder sb = new StringBuilder();
 
@@ -100,6 +113,23 @@ public class RhapsodysXmlToHl7Converter {
         return sb.toString();
     }
 
+    private String streamHL7OBSERVATIONType(HL7OBSERVATIONType hl7ObsType) {
+        StringBuilder sb = new StringBuilder();
+
+        if(null == hl7ObsType) return sb.toString();
+
+        sb.append("OBX");
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7OBXType(hl7ObsType.getObservationResult()));
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7NTETypeList(hl7ObsType.getNotesAndComments()));
+
+        // List<HL7NTEType>
+        // ramesh
+
+        return sb.toString();
+    }
+
     private String streamHHL7OrderObservationType(HL7OrderObservationType obsType) {
         StringBuilder sb = new StringBuilder();
 
@@ -108,6 +138,87 @@ public class RhapsodysXmlToHl7Converter {
         sb.append(streamCommonOrders(obsType.getCommonOrder()));
         sb.append(NEWLINE);
         sb.append(streamObservationRequests(obsType.getObservationRequest())); // HL7OBRType
+        sb.append(NEWLINE);
+        sb.append(streamOrderObservationResults(obsType.getPatientResultOrderObservation()));
+        sb.append(NEWLINE);
+        sb.append(streamHL7NTETypeList(obsType.getNotesAndComments()));
+        sb.append(NEWLINE);
+        //sb.append(obsType.getPatientResultOrderSPMObservation()); // HL7PatientResultSPMType
+
+        return sb.toString();
+    }
+
+    private String streamHL7OBXType(HL7OBXType hl7OBXType) {
+        StringBuilder sb = new StringBuilder();
+
+        if(null == hl7OBXType) return sb.toString();
+
+        sb.append(streamHL7SIType(hl7OBXType.getSetIDOBX()));
+        sb.append(COLUMNS_SEPARATOR);
+
+        if(null != hl7OBXType.getValueType()) {
+            sb.append(hl7OBXType.getValueType());
+        }
+
+        sb.append(COLUMNS_SEPARATOR);
+        if(null != hl7OBXType.getObservationIdentifier()) {
+            sb.append(streamHL7CWEType(hl7OBXType.getObservationIdentifier()));
+        }
+
+        sb.append(COLUMNS_SEPARATOR);
+        if(null != hl7OBXType.getObservationSubID()) {
+            sb.append(hl7OBXType.getObservationSubID());
+        }
+
+        sb.append(COLUMNS_SEPARATOR);
+        if(null != hl7OBXType.getObservationValue()) {
+            for(String s : hl7OBXType.getObservationValue()) {
+                sb.append(s);
+                sb.append(ATTRIBUTES_SEPARATOR);
+            }
+        }
+
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // OBX.6 - Units: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(hl7OBXType.getReferencesRange());
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7CWETypeList(hl7OBXType.getAbnormalFlags()));
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // OBX.9 - Probability: NM
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // OBX.10 - Nature of Abnormal Test	2: ID
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(hl7OBXType.getObservationResultStatus());
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // OBX.12 - Effective Date of Reference Range: TS
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // OBX.13 - User Defined Access Checks: ST
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // OBX.14 - Date/Time of the Observation: TS
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7CWEType(hl7OBXType.getProducersReference()));
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // OBX.16 - Responsible Observer: XCN
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // OBX.17 - Observation Method: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // OBX.18 - Equipment Instance Identifier: EI
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7TSType(hl7OBXType.getDateTimeOftheAnalysis()));
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // OBX.20 - Reserved for harmonization with V2.6: ST
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // OBX.21 - Reserved for harmonization with V2.6: ST
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // OBX.22 - Reserved for harmonization with V2.6: ST
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7XONType(hl7OBXType.getPerformingOrganizationName()));
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7XADType(hl7OBXType.getPerformingOrganizationAddress()));
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7XCNType(hl7OBXType.getPerformingOrganizationMedicalDirector()));
+        sb.append(COLUMNS_SEPARATOR);
 
         return sb.toString();
     }
@@ -118,64 +229,156 @@ public class RhapsodysXmlToHl7Converter {
         if(null == hl7OBRType) return sb.toString();
 
         sb.append("OBR");
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7SIType(hl7OBRType.getSetIDOBR()));
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.2 - Placer Order Number: EI
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7EIType(hl7OBRType.getFillerOrderNumber()));
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7CWEType(hl7OBRType.getUniversalServiceIdentifier()));
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.5 - Priority - OBR: ID
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.6 - Requested Date/Time: TS
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7TSType(hl7OBRType.getObservationDateTime()));
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.8 - Observation End Date/Time: TS
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.9 - Collection Volume: CQ
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.10 - Collector Identifier: XCN
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.11 - Specimen Action Code: ID
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.12 - Danger Code: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.13 - Relevant Clinical Information: ST
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.14 - Specimen Received Date/Time: TS
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.15 - Specimen Source: SPS
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7XCNTypeList(hl7OBRType.getOrderingProvider()));
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7XTNTypeList(hl7OBRType.getOrderCallbackPhoneNumber()));
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.18 - Placer Field 1: ST
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.19 - Placer Field 2: ST
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.20 - Filler Field 1: ST
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.21 - Filler Field 2: ST
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.22 - Results Rpt/Status Chng - Date/Time: TS
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.23 - Charge to Practice: MOC
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.24 - Diagnostic Serv Sect ID: ID
+        sb.append(COLUMNS_SEPARATOR);
 
-        /*
-        OBR.1 - Set ID - OBR	4	SI	O 	-
-        OBR.2 - Placer Order Number	22	EI	C 	-
-        OBR.3 - Filler Order Number	22	EI	C 	-
-        OBR.4 - Universal Service Identifier	250	CE	R 	-
-        OBR.5 - Priority - OBR	2	ID	B 	-
-        OBR.6 - Requested Date/Time	26	TS	B 	-
-        OBR.7 - Observation Date/Time	26	TS	C 	-
-        OBR.8 - Observation End Date/Time	26	TS	O 	-
-        OBR.9 - Collection Volume	20	CQ	O 	-
-        OBR.10 - Collector Identifier	250	XCN	O 	∞
-        OBR.11 - Specimen Action Code	1	ID	O 	-	0065
-        OBR.12 - Danger Code	250	CE	O 	-
-        OBR.13 - Relevant Clinical Information	300	ST	O 	-
-        OBR.14 - Specimen Received Date/Time	26	TS	B 	-
-        OBR.15 - Specimen Source	300	SPS	B 	-
-        OBR.16 - Ordering Provider	250	XCN	O 	∞
-        OBR.17 - Order Callback Phone Number	250	XTN	O 	2
-        OBR.18 - Placer Field 1	60	ST	O 	-
-        OBR.19 - Placer Field 2	60	ST	O 	-
-        OBR.20 - Filler Field 1	60	ST	O 	-
-        OBR.21 - Filler Field 2	60	ST	O 	-
-        OBR.22 - Results Rpt/Status Chng - Date/Time	26	TS	C 	-
-        OBR.23 - Charge to Practice	40	MOC	O 	-
-        OBR.24 - Diagnostic Serv Sect ID	10	ID	O 	-	0074
-        OBR.25 - Result Status	1	ID	C 	-	0123
-        OBR.26 - Parent Result	400	PRL	O 	-
-        OBR.27 - Quantity/Timing	200	TQ	B 	∞
-        OBR.28 - Result Copies To	250	XCN	O 	∞
-        OBR.29 - Parent	200	EIP	O 	-
-        OBR.30 - Transportation Mode	20	ID	O 	-	0124
-        OBR.31 - Reason for Study	250	CE	O 	∞
-        OBR.32 - Principal Result Interpreter	200	NDL	O 	-
-        OBR.33 - Assistant Result Interpreter	200	NDL	O 	∞
-        OBR.34 - Technician	200	NDL	O 	∞
-        OBR.35 - Transcriptionist	200	NDL	O 	∞
-        OBR.36 - Scheduled Date/Time	26	TS	O 	-
-        OBR.37 - Number of Sample Containers	4	NM	O 	-
-        OBR.38 - Transport Logistics of Collected Sample	250	CE	O 	∞
-        OBR.39 - Collector's Comment	250	CE	O 	∞
-        OBR.40 - Transport Arrangement Responsibility	250	CE	O 	-
-        OBR.41 - Transport Arranged	30	ID	O 	-	0224
-        OBR.42 - Escort Required	1	ID	O 	-	0225
-        OBR.43 - Planned Patient Transport Comment	250	CE	O 	∞
-        OBR.44 - Procedure Code	250	CE	O 	-	0088
-        OBR.45 - Procedure Code Modifier	250	CE	O 	∞	0340
-        OBR.46 - Placer Supplemental Service Information	250	CE	O 	∞	0411
-        OBR.47 - Filler Supplemental Service Information	250	CE	O 	∞	0411
-        OBR.48 - Medically Necessary Duplicate Procedure Reason.	250	CWE	C 	-	0476
-        OBR.49 - Result Handling	2	IS	O 	-	0507
-        OBR.50 - Parent Universal Service Identifier
-        */
+        sb.append(hl7OBRType.getResultStatus());
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.26 - Parent Result: PRL
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.27 - Quantity/Timing: TQ
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.28 - Result Copies To: XCN
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.29 - Parent: EIP
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.30 - Transportation Mode: ID
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.31 - Reason for Study: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.32 - Principal Result Interpreter: NDL
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.33 - Assistant Result Interpreter: NDL
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.34 - Technician: NDL
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.35 - Transcriptionist: NDL
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.36 - Scheduled Date/Time: TS
+        sb.append(COLUMNS_SEPARATOR);
 
+        if((null != hl7OBRType.getNumberofSampleContainers())
+                && (null != hl7OBRType.getNumberofSampleContainers().getHL7Numeric())) {
+            sb.append(hl7OBRType.getNumberofSampleContainers().getHL7Numeric().intValue());
+        }
+
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.38 - Transport Logistics of Collected Sample: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.39 - Collector's Comment: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.40 - Transport Arrangement Responsibility: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.41 - Transport Arranged: ID
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.42 - Escort Required: ID
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.43 - Planned Patient Transport Comment: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.44 - Procedure Code: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.45 - Procedure Code Modifier: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.46 - Placer Supplemental Service Information: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.47 - Filler Supplemental Service Information: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.48 - Medically Necessary Duplicate Procedure Reason.: CWE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.49 - Result Handling: IS
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                        // OBR.50 - Parent Universal Service Identifier: CWE
+        sb.append(COLUMNS_SEPARATOR);
 
         return sb.toString();
     }
 
+/*
+ORC.1 - Order Control	2	ID	R 	-	0119
+ORC.2 - Placer Order Number	22	EI	C 	-
+ORC.3 - Filler Order Number	22	EI	C 	-
+ORC.4 - Placer Group Number	22	EI	O 	-
+ORC.5 - Order Status	2	ID	O 	-	0038
+ORC.6 - Response Flag
+ORC.7 - Quantity/Timing	200	TQ	B 	∞
+ORC.8 - Parent Order	200	EIP	O 	-
+ORC.9 - Date/Time of Transaction	26	TS	O 	-
+ORC.10 - Entered By	250	XCN	O 	∞
+ORC.11 - Verified By	250	XCN	O 	∞
+ORC.12 - Ordering Provider	250	XCN	O 	∞
+ORC.13 - Enterer's Location	80	PL	O 	-
+ORC.14 - Call Back Phone Number	250	XTN	O 	2
+ORC.15 - Order Effective Date/Time	26	TS	O 	-
+ORC.16 - Order Control Code Reason	250	CE	O 	-
+ORC.17 - Entering Organization	250	CE	O 	-
+ORC.18 - Entering Device	250	CE	O 	-
+ORC.19 - Action By	250	XCN	O 	∞
+ORC.20 - Advanced Beneficiary Notice Code	250	CE	O 	-	0339
+
+
+ORC.21 - Ordering Facility Name	250	XON	O 	∞
+ORC.22 - Ordering Facility Address	250	XAD	O 	∞
+ORC.23 - Ordering Facility Phone Number	250	XTN	O 	∞
+ORC.24 - Ordering Provider Address	250	XAD	O 	∞
+ORC.25 - Order Status Modifier	250	CWE	O 	-
+ORC.26 - Advanced Beneficiary Notice Override Reason	60	CWE	C 	-	0552
+ORC.27 - Filler's Expected Availability Date/Time	26	TS	O 	-
+ORC.28 - Confidentiality Code	250	CWE	O 	-	0177
+ORC.29 - Order Type	250	CWE	O 	-	0482
+ORC.30 - Enterer Authorization Mode	250	CNE	O 	-	0483
+ORC.31 - Parent Universal Service Identifier
+
+   | 1  | 2 |     3        | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 |                  21            |                     22                   |     23      |                  24                      | 25 | 26 |
+ORC| RE |   |34411541099348|   |   |   |   |   |   |    |    |    |    |    |    |    |    |    |    |    | Simon-Williamson Cl-Princeton^ |
+ORC| RE |   |34411541099348|   |   |   |   |   |   |    |    |    |    |    |    |    |    |    |    |    | Simon-Williamson Cl-Princeton^ | 832 Princeton Ave SW^Birmingham^GA^30342 | 205^2068375 | 832 Princeton Ave SW^Birmingham^GA^30342 |    |    ||||||
+*/
     private String streamCommonOrders(HL7ORCType hl7ORCType) {
         StringBuilder sb = new StringBuilder();
 
@@ -185,7 +388,7 @@ public class RhapsodysXmlToHl7Converter {
         sb.append(COLUMNS_SEPARATOR);
         sb.append(hl7ORCType.getOrderControl());
         sb.append(COLUMNS_SEPARATOR);
-        sb.append(streamHL7EIType(hl7ORCType.getPlacerGroupNumber()));
+        sb.append(streamHL7EIType(hl7ORCType.getPlacerOrderNumber()));
         sb.append(COLUMNS_SEPARATOR);
         sb.append(streamHL7EIType(hl7ORCType.getFillerOrderNumber()));
         sb.append(COLUMNS_SEPARATOR);
@@ -194,29 +397,43 @@ public class RhapsodysXmlToHl7Converter {
 
         if(null != hl7ORCType.getOrderStatus()) {
             sb.append(hl7ORCType.getOrderStatus());
-            sb.append(COLUMNS_SEPARATOR);
         }
+
+        sb.append(COLUMNS_SEPARATOR);
 
         if(null != hl7ORCType.getResponseFlag()) {
             sb.append(hl7ORCType.getResponseFlag());
-            sb.append(COLUMNS_SEPARATOR);
         }
 
-        sb.append(COLUMNS_SEPARATOR);   // ORC.7 - Quantity/Timing	: TQ
-        sb.append(COLUMNS_SEPARATOR);   // ORC.8 - Parent Order	    : EIP
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // ORC.7 - Quantity/Timing	: TQ
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // ORC.8 - Parent Order	    : EIP
+        sb.append(COLUMNS_SEPARATOR);
         sb.append(streamHL7TSType(hl7ORCType.getDateTimeOfTransaction())); // ORC.9 - Date/Time of Transaction: TS
-        sb.append(COLUMNS_SEPARATOR);   // ORC.10 - Entered By	    : XCN
-        sb.append(COLUMNS_SEPARATOR);   // ORC.10 - Verified By	    : XCN
-
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // ORC.10 - Entered By	    : XCN
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // ORC.11 - Verified By	    : XCN
+        sb.append(COLUMNS_SEPARATOR);
         sb.append(streamHL7XCNTypeList(hl7ORCType.getOrderingProvider())); // ORC.12 - Ordering Provider : XCN
-        sb.append(COLUMNS_SEPARATOR);   // ORC.13 - Enterer's Location: PL
-        sb.append(COLUMNS_SEPARATOR);   // ORC.14 - Call Back Phone Number: XTN
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // ORC.13 - Enterer's Location: PL
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // ORC.14 - Call Back Phone Number: XTN
+        sb.append(COLUMNS_SEPARATOR);
         sb.append(streamHL7TSType(hl7ORCType.getOrderEffectiveDateTime())); // ORC.15 - Order Effective Date/Time : TS
-        sb.append(COLUMNS_SEPARATOR);   // ORC.16 - Order Control Code Reason: CE
-        sb.append(COLUMNS_SEPARATOR);   // ORC.17 - Entering Organization: CE
-        sb.append(COLUMNS_SEPARATOR);   // ORC.18 - Entering Device: CE
-        sb.append(COLUMNS_SEPARATOR);   // ORC.19 - Action By: XCN
-        sb.append(COLUMNS_SEPARATOR);   // ORC.20 - Advanced Beneficiary Notice Code: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // ORC.16 - Order Control Code Reason: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // ORC.17 - Entering Organization: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // ORC.18 - Entering Device: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // ORC.19 - Action By: XCN
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // ORC.20 - Advanced Beneficiary Notice Code: CE
+        sb.append(COLUMNS_SEPARATOR);
         sb.append(streamHL7XONTypeList(hl7ORCType.getOrderingFacilityName())); // ORC.21 - Ordering Facility Name : XON
         sb.append(COLUMNS_SEPARATOR);
         sb.append(streamHL7XADTypeList(hl7ORCType.getOrderingFacilityAddress())); // ORC.22 - Ordering Facility Address: XAD
@@ -225,14 +442,20 @@ public class RhapsodysXmlToHl7Converter {
         sb.append(COLUMNS_SEPARATOR);
         sb.append(streamHL7XADTypeList(hl7ORCType.getOrderingProviderAddress())); // ORC.24 - Ordering Provider Address: XAD
         sb.append(COLUMNS_SEPARATOR);
-
-        sb.append(COLUMNS_SEPARATOR);   // ORC.25 - Order Status Modifier: CWE
-        sb.append(COLUMNS_SEPARATOR);   // ORC.26 - Advanced Beneficiary Notice Override Reason: CWE
-        sb.append(COLUMNS_SEPARATOR);   // ORC.27 - Filler's Expected Availability Date/Time: TS
-        sb.append(COLUMNS_SEPARATOR);   // ORC.28 - Confidentiality Code: CWE
-        sb.append(COLUMNS_SEPARATOR);   // RC.29 - Order Type: CWE
-        sb.append(COLUMNS_SEPARATOR);   // ORC.30 - Enterer Authorization Mode: CNE
-        sb.append(COLUMNS_SEPARATOR);   // ORC.31 - Parent Universal Service Identifier: ??
+        sb.append("");                  // ORC.25 - Order Status Modifier: CWE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // ORC.26 - Advanced Beneficiary Notice Override Reason: CWE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // ORC.27 - Filler's Expected Availability Date/Time: TS
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // ORC.28 - Confidentiality Code: CWE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // RC.29 - Order Type: CWE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // ORC.30 - Enterer Authorization Mode: CNE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");                  // ORC.31 - Parent Universal Service Identifier: ??
+        sb.append(COLUMNS_SEPARATOR);
 
         return sb.toString();
     }
@@ -254,7 +477,7 @@ public class RhapsodysXmlToHl7Converter {
         sb.append(COLUMNS_SEPARATOR);
         sb.append(streamHL7HDType(hl7MSHType.getReceivingFacility()));
         sb.append(COLUMNS_SEPARATOR);
-        sb.append(streamHL7TSType(hl7MSHType.getDateTimeOfMessage()));
+        sb.append(streamHL7TSType(hl7MSHType.getDateTimeOfMessage(), true));
         sb.append(COLUMNS_SEPARATOR);
 
         if(null != hl7MSHType.getSecurity()) {
@@ -509,7 +732,12 @@ public class RhapsodysXmlToHl7Converter {
         return sb.toString();
     }
 
+
     private String streamHL7TSType(HL7TSType hl7TSType) {
+        return streamHL7TSType(hl7TSType, false);
+    }
+
+    private String streamHL7TSType(HL7TSType hl7TSType, boolean shortForm) {
         StringBuilder sb = new StringBuilder();
 
         if(null == hl7TSType) return sb.toString();
@@ -517,28 +745,26 @@ public class RhapsodysXmlToHl7Converter {
         sb.append(String.format("%04d%02d%02d",
                 hl7TSType.getYear(), hl7TSType.getMonth(), hl7TSType.getDay()));
 
-        if(null != hl7TSType.getDay()) {
-            sb.append(String.format("%02d", hl7TSType.getDay()));
+        if (null != hl7TSType.getHours()) {
+            sb.append(String.format("%02d", hl7TSType.getHours()));
         }
-        else
-        {
+        else {
             sb.append("00");
         }
 
-        if(null != hl7TSType.getMinutes()) {
+        if (null != hl7TSType.getMinutes()) {
             sb.append(String.format("%02d", hl7TSType.getMinutes()));
         }
-        else
-        {
+        else {
             sb.append("00");
         }
 
-        if(null != hl7TSType.getSeconds()) {
-            sb.append(String.format("%02d", hl7TSType.getSeconds()));
-        }
-        else
-        {
-            sb.append("00");
+        if( !shortForm ) {
+            if (null != hl7TSType.getSeconds()) {
+                sb.append(String.format("%02d", hl7TSType.getSeconds()));
+            } else {
+                sb.append("00");
+            }
         }
 
         return sb.toString();
@@ -612,6 +838,53 @@ public class RhapsodysXmlToHl7Converter {
         return sb.toString();
     }
 
+    private String streamHL7NTEType(HL7NTEType nteType) {
+        StringBuilder sb = new StringBuilder();
+
+        if(null == nteType) return sb.toString();
+
+        sb.append("NTE");
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7SIType(nteType.getHL7SetIDNTE()));
+        sb.append(COLUMNS_SEPARATOR);
+
+        if(null != nteType.getHL7SourceOfComment()) {
+            sb.append(nteType.getHL7SourceOfComment());
+        }
+
+        sb.append(COLUMNS_SEPARATOR);
+        for(String s : nteType.getHL7Comment()) {
+            sb.append(s);
+            sb.append(ATTRIBUTES_SEPARATOR);
+        }
+
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7CWEType(nteType.getHL7CommentType()));
+        sb.append(COLUMNS_SEPARATOR);
+
+        return sb.toString();
+    }
+
+    private String streamHL7NTETypeList(List<HL7NTEType> nteTypeList) {
+        boolean isFirst = true;
+        StringBuilder sb = new StringBuilder();
+
+        if(null == nteTypeList) return sb.toString();
+
+        for(HL7NTEType nteType : nteTypeList) {
+            if( isFirst ) {
+                isFirst = !isFirst;
+            }
+            else {
+                sb.append(LISTS_SEPARATOR);
+            }
+
+            sb.append(streamHL7NTEType(nteType));
+        }
+
+        return sb.toString();
+    }
+
     private String streamHL7XTNTypeList(List<HL7XTNType> xtnTypeList) {
         boolean isFirst = true;
         StringBuilder sb = new StringBuilder();
@@ -623,7 +896,7 @@ public class RhapsodysXmlToHl7Converter {
                 isFirst = !isFirst;
             }
             else {
-                sb.append(TILDA_SEPARATOR);
+                sb.append(LISTS_SEPARATOR);
             }
 
             sb.append(streamHL7XTNType(xtnType));
@@ -643,7 +916,7 @@ public class RhapsodysXmlToHl7Converter {
                 isFirst = !isFirst;
             }
             else {
-                sb.append(TILDA_SEPARATOR);
+                sb.append(LISTS_SEPARATOR);
             }
 
             sb.append(streamHL7XADType(xadType));
@@ -663,7 +936,7 @@ public class RhapsodysXmlToHl7Converter {
                 isFirst = !isFirst;
             }
             else {
-                sb.append(TILDA_SEPARATOR);
+                sb.append(LISTS_SEPARATOR);
             }
 
             sb.append(streamHL7XCNType(xcnType));
@@ -683,7 +956,7 @@ public class RhapsodysXmlToHl7Converter {
                 isFirst = !isFirst;
             }
             else {
-                sb.append(TILDA_SEPARATOR);
+                sb.append(LISTS_SEPARATOR);
             }
 
             sb.append(streamHL7XONType(xonType));
@@ -703,7 +976,7 @@ public class RhapsodysXmlToHl7Converter {
                 isFirst = !isFirst;
             }
             else {
-                sb.append(TILDA_SEPARATOR);
+                sb.append(LISTS_SEPARATOR);
             }
 
             sb.append(streamHL7XPNType(xpnType));
@@ -733,13 +1006,13 @@ public class RhapsodysXmlToHl7Converter {
         return sb.toString();
     }
 
-    private String streamHL7SITypeList(List<HL7SIType> siist) {
+    private String streamHL7SITypeList(List<HL7SIType> siList) {
         boolean isFirst = true;
         StringBuilder sb = new StringBuilder();
 
-        if(null == siist) return sb.toString();
+        if(null == siList) return sb.toString();
 
-        for(HL7SIType siType : siist) {
+        for(HL7SIType siType : siList) {
             if( isFirst ) {
                 isFirst = !isFirst;
             }
@@ -748,6 +1021,26 @@ public class RhapsodysXmlToHl7Converter {
             }
 
             sb.append(streamHL7SIType(siType));
+        }
+
+        return sb.toString();
+    }
+
+    private String streamHL7CWETypeList(List<HL7CWEType> cweList) {
+        boolean isFirst = true;
+        StringBuilder sb = new StringBuilder();
+
+        if(null == cweList) return sb.toString();
+
+        for(HL7CWEType cweType : cweList) {
+            if( isFirst ) {
+                isFirst = !isFirst;
+            }
+            else {
+                sb.append(LISTS_SEPARATOR);
+            }
+
+            sb.append(streamHL7CWEType(cweType));
         }
 
         return sb.toString();
@@ -762,19 +1055,54 @@ public class RhapsodysXmlToHl7Converter {
         sb.append(ATTRIBUTES_SEPARATOR);
         sb.append(streamHL7FNType(xcnType.getHL7FamilyName()));
         sb.append(ATTRIBUTES_SEPARATOR);
+        sb.append(xcnType.getHL7GivenName());
+        sb.append(ATTRIBUTES_SEPARATOR);
+
+        if(null != xcnType.getHL7SecondAndFurtherGivenNamesOrInitialsThereof()) {
+            sb.append(xcnType.getHL7SecondAndFurtherGivenNamesOrInitialsThereof());
+        }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
+
+        if(null != xcnType.getHL7Suffix()) {
+            sb.append(xcnType.getHL7Suffix());
+        }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
+
+        if(null != xcnType.getHL7Prefix()) {
+            sb.append(xcnType.getHL7Prefix());
+        }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
+
+        if(null != xcnType.getHL7Degree()) {
+            sb.append(xcnType.getHL7Degree());
+        }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
+
+        if(null != xcnType.getHL7SourceTable()) {
+            sb.append(xcnType.getHL7SourceTable());
+        }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
 
         /*
-        XCN.3 - Given Name	30	ST	O 	-	FirstName
-        XCN.4 - Second And Further Given Names Or Initials Thereof	30	ST	O 	-
-        XCN.5 - Suffix (e.g., Jr Or Iii)	20	ST	O 	-
-        XCN.6 - Prefix (e.g., Dr)	20	ST	O 	-
-        XCN.7 - Degree (e.g., Md)	5	IS	B 	-	0360
-        XCN.8 - Source Table	4	IS	C 	-	0297
         XCN.9 - Assigning Authority	227	HD	O 	-	0363
         XCN.10 - Name Type Code	1	ID	O 	-	0200
         XCN.11 - Identifier Check Digit	1	ST	O 	-
         XCN.12 - Check Digit Scheme	3	ID	C 	-	0061
-        XCN.13 - Identifier Type Code	5	ID	O 	-	0203
+        */
+
+        if(null != xcnType.getHL7IdentifierTypeCode()) {
+            sb.append(xcnType.getHL7IdentifierTypeCode());
+        }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
+
+
+        /*
         XCN.14 - Assigning Facility	227	HD	O 	-
         XCN.15 - Name Representation Code	1	ID	O 	-	0465
         XCN.16 - Name Context	483	CE	O 	-	0448
@@ -796,9 +1124,9 @@ public class RhapsodysXmlToHl7Converter {
         if(null == xonType) return sb.toString();
 
         sb.append(xonType.getHL7OrganizationName());
+        sb.append(ATTRIBUTES_SEPARATOR);
 
         if(null != xonType.getHL7OrganizationNameTypeCode() && (xonType.getHL7OrganizationNameTypeCode().length() > 0)) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(xonType.getHL7OrganizationNameTypeCode());
         }
 
@@ -829,28 +1157,33 @@ public class RhapsodysXmlToHl7Converter {
 
         if(null != xpnType.getHL7SecondAndFurtherGivenNamesOrInitialsThereof()) {
             sb.append(xpnType.getHL7SecondAndFurtherGivenNamesOrInitialsThereof());
-            sb.append(ATTRIBUTES_SEPARATOR);
         }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
 
         if(null != xpnType.getHL7Suffix()) {
             sb.append(xpnType.getHL7Suffix());
-            sb.append(ATTRIBUTES_SEPARATOR);
         }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
 
         if(null != xpnType.getHL7Prefix()) {
             sb.append(xpnType.getHL7Prefix());
-            sb.append(ATTRIBUTES_SEPARATOR);
         }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
 
         if(null != xpnType.getHL7Degree()) {
             sb.append(xpnType.getHL7Degree());
-            sb.append(ATTRIBUTES_SEPARATOR);
         }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
 
         if(null != xpnType.getHL7NameTypeCode()) {
             sb.append(xpnType.getHL7NameTypeCode());
-            sb.append(ATTRIBUTES_SEPARATOR);
         }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
 
         /*
 			<xs:element name="HL7NameRepresentationCode" type="nbs:HL7IDType" minOccurs="0" maxOccurs="1"/>
@@ -879,24 +1212,25 @@ public class RhapsodysXmlToHl7Converter {
         if(null == fnType) return sb.toString();
 
         sb.append(fnType.getHL7Surname());
+        sb.append(ATTRIBUTES_SEPARATOR);
 
         if(null != fnType.getHL7OwnSurnamePrefix()) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(fnType.getHL7OwnSurnamePrefix());
         }
 
+        sb.append(ATTRIBUTES_SEPARATOR);
+
         if(null != fnType.getHL7OwnSurnamePrefix()) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(fnType.getHL7OwnSurnamePrefix());
         }
 
+        sb.append(ATTRIBUTES_SEPARATOR);
         if(null != fnType.getHL7SurnamePrefixFromPartnerSpouse()) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(fnType.getHL7SurnamePrefixFromPartnerSpouse());
         }
 
+        sb.append(ATTRIBUTES_SEPARATOR);
         if(null != fnType.getHL7SurnameFromPartnerSpouse()) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(fnType.getHL7SurnameFromPartnerSpouse());
         }
 
@@ -922,38 +1256,51 @@ public class RhapsodysXmlToHl7Converter {
             sb.append(hl7CXType.getHL7IDNumber());
         }
 
+        sb.append(ATTRIBUTES_SEPARATOR);
         if(null != hl7CXType.getHL7CheckDigit()) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(hl7CXType.getHL7CheckDigit());
         }
 
+        sb.append(ATTRIBUTES_SEPARATOR);
         if(null != hl7CXType.getHL7CheckDigitScheme()) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(hl7CXType.getHL7CheckDigitScheme());
         }
 
         sb.append(ATTRIBUTES_SEPARATOR);
         sb.append(streamHL7HDType(hl7CXType.getHL7AssigningAuthority()));
 
+        sb.append(ATTRIBUTES_SEPARATOR);
         if( null != hl7CXType.getHL7IdentifierTypeCode()) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(hl7CXType.getHL7IdentifierTypeCode());
         }
 
-        /*
         sb.append(ATTRIBUTES_SEPARATOR);
         sb.append(streamHL7HDType(hl7CXType.getHL7AssigningFacility()));
         sb.append(ATTRIBUTES_SEPARATOR);
-        sb.append(streamHL7HDType(hl7CXType.getHL7AssigningAuthority()));
+
+        if(null != hl7CXType.getHL7EffectiveDate()) {
+            sb.append(hl7CXType.getHL7EffectiveDate());
+        }
+
         sb.append(ATTRIBUTES_SEPARATOR);
-        sb.append(hl7CXType.getHL7EffectiveDate());
+
+        if(null != hl7CXType.getHL7ExpirationDate()) {
+            sb.append(hl7CXType.getHL7ExpirationDate());
+        }
+
         sb.append(ATTRIBUTES_SEPARATOR);
-        sb.append(hl7CXType.getHL7ExpirationDate());
+
+        if(null != hl7CXType.getHL7AssigningJurisdiction()) {
+            sb.append(streamHL7CWEType(hl7CXType.getHL7AssigningJurisdiction()));
+        }
+
         sb.append(ATTRIBUTES_SEPARATOR);
-        sb.append(streamHL7CWEType(hl7CXType.getHL7AssigningJurisdiction()));
-        sb.append(streamHL7CWEType(hl7CXType.getHL7AssigningAgencyOrDepartment()));
+
+        if(null != hl7CXType.getHL7AssigningAgencyOrDepartment()) {
+            sb.append(streamHL7CWEType(hl7CXType.getHL7AssigningAgencyOrDepartment()));
+        }
+
         sb.append(ATTRIBUTES_SEPARATOR);
-        */
 
         return sb.toString();
     }
@@ -961,25 +1308,59 @@ public class RhapsodysXmlToHl7Converter {
     private String streamHL7CWEType(HL7CWEType hl7CWEType) {
         StringBuilder sb = new StringBuilder();
 
-        if(null == hl7CWEType) return sb.toString();
+        if (null == hl7CWEType) return sb.toString();
 
-        sb.append(hl7CWEType.getHL7Identifier());
+        if (null != hl7CWEType.getHL7Identifier()) {
+            sb.append(hl7CWEType.getHL7Identifier());
+        }
+
         sb.append(ATTRIBUTES_SEPARATOR);
-        sb.append(hl7CWEType.getHL7Text());
+
+        if (null != hl7CWEType.getHL7Text()) {
+            sb.append(hl7CWEType.getHL7Text());
+        }
+
         sb.append(ATTRIBUTES_SEPARATOR);
-        sb.append(hl7CWEType.getHL7NameofCodingSystem());
+
+        if (null != hl7CWEType.getHL7NameofCodingSystem()) {
+            sb.append(hl7CWEType.getHL7NameofCodingSystem());
+        }
+
         sb.append(ATTRIBUTES_SEPARATOR);
-        sb.append(hl7CWEType.getHL7AlternateIdentifier());
+
+        if (null != hl7CWEType.getHL7AlternateIdentifier()) {
+            sb.append(hl7CWEType.getHL7AlternateIdentifier());
+        }
+
         sb.append(ATTRIBUTES_SEPARATOR);
-        sb.append(hl7CWEType.getHL7AlternateText());
+
+        if (null != hl7CWEType.getHL7AlternateText()) {
+            sb.append(hl7CWEType.getHL7AlternateText());
+        }
+
         sb.append(ATTRIBUTES_SEPARATOR);
-        sb.append(hl7CWEType.getHL7NameofAlternateCodingSystem());
+
+        if (null != hl7CWEType.getHL7NameofAlternateCodingSystem()) {
+            sb.append(hl7CWEType.getHL7NameofAlternateCodingSystem());
+        }
+
         sb.append(ATTRIBUTES_SEPARATOR);
-        sb.append(hl7CWEType.getHL7CodingSystemVersionID());
+
+        if (null != hl7CWEType.getHL7CodingSystemVersionID()) {
+            sb.append(hl7CWEType.getHL7CodingSystemVersionID());
+        }
+
         sb.append(ATTRIBUTES_SEPARATOR);
-        sb.append(hl7CWEType.getHL7AlternateCodingSystemVersionID());
+
+        if (null != hl7CWEType.getHL7AlternateCodingSystemVersionID()) {
+            sb.append(hl7CWEType.getHL7AlternateCodingSystemVersionID());
+        }
+
         sb.append(ATTRIBUTES_SEPARATOR);
-        sb.append(hl7CWEType.getHL7OriginalText());
+
+        if(null != hl7CWEType.getHL7OriginalText()) {
+            sb.append(hl7CWEType.getHL7OriginalText());
+        }
 
         return sb.toString();
     }
@@ -993,19 +1374,18 @@ public class RhapsodysXmlToHl7Converter {
             sb.append(hl7HDType.getHL7NamespaceID());
         }
 
+        sb.append(INNTER_ATTRIBUTES_SEPARATOR);
         if(null != hl7HDType.getHL7UniversalID()) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(hl7HDType.getHL7UniversalID());
         }
 
+        sb.append(INNTER_ATTRIBUTES_SEPARATOR);
         if(null != hl7HDType.getHL7UniversalIDType()) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(hl7HDType.getHL7UniversalIDType());
         }
 
         return sb.toString();
     }
-
 
     private MessageHeader buildMessageHeader() {
         MessageHeader mh = new MessageHeader();
