@@ -32,6 +32,8 @@ public class ElrDeadLetterDto {
 
     private String updatedBy;
 
+    public ElrDeadLetterDto() {};
+
     public ElrDeadLetterDto(String errorMessageId, String errorMessageSource,
                             String errorStackTrace,
                             Integer dltOccurrence, String dltStatus,

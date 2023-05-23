@@ -16,6 +16,7 @@ import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2V
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
@@ -37,21 +38,21 @@ public class ElrDeadLetterService {
     private final KafkaProducerService kafkaProducerService;
 
     @Value("${kafka.validation.topic}")
-    private String validatedTopic = "";
+    private String validatedTopic = "elr_validated";
 
     @Value("${kafka.fhir-conversion.topic}")
-    private String convertedToFhirTopic = "";
+    private String convertedToFhirTopic = "fhir_converted";
 
     @Value("${kafka.xml-conversion.topic}")
-    private String convertedToXmlTopic = "";
+    private String convertedToXmlTopic = "xml_converted";
 
     @Value("${kafka.xml-conversion-prep.topic}")
-    private String prepXmlTopic = "";
+    private String prepXmlTopic = "xml_prep";
 
     @Value("${kafka.fhir-conversion-prep.topic}")
-    private String prepFhirTopic = "";
+    private String prepFhirTopic = "fhir_prep";
     @Value("${kafka.raw.topic}")
-    private String rawTopic = "";
+    private String rawTopic = "elr_raw";
 
     private final String deadLetterIsNullExceptionMessage = "Dead Letter Record Is Null";
 
@@ -70,11 +71,13 @@ public class ElrDeadLetterService {
 
     public List<ElrDeadLetterDto> getAllErrorDltRecord() throws DeadLetterTopicException {
         Optional<List<ElrDeadLetterModel>> deadLetterELRModels = dltRepository.findAllDltRecordByDltStatus(ElrDltStatus.ERROR.name(), Sort.by(Sort.Direction.DESC, "createdOn"));
-        if (!deadLetterELRModels.isPresent()) {
-            throw new DeadLetterTopicException(deadLetterIsNullExceptionMessage);
+        List<ElrDeadLetterDto> results = new ArrayList<>();
+        // return empty list if nothing is found
+        if (deadLetterELRModels.isPresent()) {
+            results = convertModelToDtoList(deadLetterELRModels.get());
         }
-        var dtoModels = convertModelToDtoList(deadLetterELRModels.get());
-        return dtoModels;
+
+        return results;
     }
 
     public ElrDeadLetterDto getDltRecordById(String id) throws DeadLetterTopicException {
@@ -158,10 +161,10 @@ public class ElrDeadLetterService {
             if (rawMessageObject.isPresent()) {
                 errorMessage = rawMessageObject.get().getPayload();
             } else {
-                errorMessage = "Not Found";
+                throw new DeadLetterTopicException("DLT record, but parent table record not found");
             }
         } else {
-            throw new DeadLetterTopicException("Unsupported Operation");
+            throw new DeadLetterTopicException("Unsupported Topic");
         }
         return new ElrDeadLetterDto(model, errorMessage);
     }
