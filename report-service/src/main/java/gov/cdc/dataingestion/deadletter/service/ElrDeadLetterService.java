@@ -104,8 +104,6 @@ public class ElrDeadLetterService {
             kafkaProducerService.sendMessageFromController(rawModel.getId(), rawTopic, rawModel.getType(), existingRecord.getDltOccurrence());
         }
         else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(validatedTopic) ||
-                existingRecord.getErrorMessageSource().equalsIgnoreCase(convertedToFhirTopic) ||
-                existingRecord.getErrorMessageSource().equalsIgnoreCase(convertedToXmlTopic) ||
                 existingRecord.getErrorMessageSource().equalsIgnoreCase(prepFhirTopic) ||
                 existingRecord.getErrorMessageSource().equalsIgnoreCase(prepXmlTopic)) {
             var validateRecord = validatedELRRepository.findById(existingRecord.getErrorMessageId());
@@ -118,12 +116,6 @@ public class ElrDeadLetterService {
             String topicToBeSent;
             if(existingRecord.getErrorMessageSource().equalsIgnoreCase(validatedTopic)) {
                 topicToBeSent = validatedTopic;
-            }
-            else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(convertedToFhirTopic)) {
-                topicToBeSent = convertedToFhirTopic;
-            }
-            else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(convertedToXmlTopic)) {
-                topicToBeSent = convertedToXmlTopic;
             }
             else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(prepFhirTopic)) {
                 topicToBeSent = prepFhirTopic;
@@ -163,7 +155,18 @@ public class ElrDeadLetterService {
             } else {
                 throw new DeadLetterTopicException("DLT record, but parent table record not found");
             }
-        } else {
+        }
+        else if (model.getErrorMessageSource().equalsIgnoreCase(validatedTopic) ||
+                model.getErrorMessageSource().equalsIgnoreCase(prepXmlTopic) ||
+                model.getErrorMessageSource().equalsIgnoreCase(prepFhirTopic)) {
+            var rawMessageObject = validatedELRRepository.findById(model.getErrorMessageId());
+            if (rawMessageObject.isPresent()) {
+                errorMessage = rawMessageObject.get().getRawMessage();
+            } else {
+                throw new DeadLetterTopicException("DLT record, but parent table record not found");
+            }
+        }
+        else {
             throw new DeadLetterTopicException("Unsupported Topic");
         }
         return new ElrDeadLetterDto(model, errorMessage);

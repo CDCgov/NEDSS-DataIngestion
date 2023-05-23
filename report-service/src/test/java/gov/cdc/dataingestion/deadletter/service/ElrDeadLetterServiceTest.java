@@ -10,6 +10,7 @@ import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
+import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -261,6 +262,128 @@ public class ElrDeadLetterServiceTest {
         var result = elrDeadLetterService.getAllErrorDltRecord();
         assertEquals(result.size(), 0);
     }
+
+    @Test
+    void testUpdateAndReprocessingMessage_RawElr_Success() throws DeadLetterTopicException {
+        initialDataInsertionAndSelection("elr_raw");
+        String primaryIdForTesting = guidForTesting;
+
+        ElrDeadLetterModel elrDltModel = new ElrDeadLetterModel();
+        elrDltModel.setErrorMessageId(primaryIdForTesting);
+        elrDltModel.setDltOccurrence(1);
+        elrDltModel.setErrorMessageSource("elr_raw");
+
+
+        RawERLModel rawERLModel = new RawERLModel();
+        rawERLModel.setPayload("HL7 message");
+        rawERLModel.setId(elrDltModel.getErrorMessageId());
+
+
+        when(dltRepository.findById(eq(elrDltModel.getErrorMessageId())))
+                .thenReturn(Optional.of(elrDltModel));
+        when(rawELRRepository.findById(eq(elrDltModel.getErrorMessageId())))
+                .thenReturn(Optional.of(rawERLModel));
+        when(rawELRRepository.save(eq(rawERLModel))).thenReturn(rawERLModel);
+        when(dltRepository.save(any(ElrDeadLetterModel.class))).thenReturn(elrDltModel);
+
+        var result = elrDeadLetterService.updateAndReprocessingMessage(primaryIdForTesting, "HL7 message");
+
+        assertEquals(result.getErrorMessage(), "HL7 message");
+        assertEquals(result.getDltOccurrence(), 1);
+
+
+
+
+
+    }
+
+    @Test
+    void testUpdateAndReprocessingMessage_ValidatedElr_Success() throws DeadLetterTopicException {
+        initialDataInsertionAndSelection("elr_validated");
+        String primaryIdForTesting = guidForTesting;
+
+        ElrDeadLetterModel elrDltModel = new ElrDeadLetterModel();
+        elrDltModel.setErrorMessageId(primaryIdForTesting);
+        elrDltModel.setDltOccurrence(1);
+        elrDltModel.setErrorMessageSource("elr_validated");
+
+        ValidatedELRModel validatedERLModel = new ValidatedELRModel();
+        validatedERLModel.setRawMessage("HL7 message validated");
+        validatedERLModel.setId(elrDltModel.getErrorMessageId());
+
+        when(dltRepository.findById(eq(elrDltModel.getErrorMessageId())))
+                .thenReturn(Optional.of(elrDltModel));
+
+        when(validatedELRRepository.findById(eq(elrDltModel.getErrorMessageId())))
+                .thenReturn(Optional.of(validatedERLModel));
+
+        when(validatedELRRepository.save(any(ValidatedELRModel.class))).thenReturn(validatedERLModel);
+        when(dltRepository.save(any(ElrDeadLetterModel.class))).thenReturn(elrDltModel);
+
+        var result = elrDeadLetterService.updateAndReprocessingMessage(primaryIdForTesting, "HL7 message");
+
+        assertEquals(result.getErrorMessage(), "HL7 message validated");
+        assertEquals(result.getDltOccurrence(), 1);
+    }
+
+    @Test
+    void testUpdateAndReprocessingMessage_FhirPrep_Success() throws DeadLetterTopicException {
+        initialDataInsertionAndSelection("fhir_prep");
+        String primaryIdForTesting = guidForTesting;
+
+        ElrDeadLetterModel elrDltModel = new ElrDeadLetterModel();
+        elrDltModel.setErrorMessageId(primaryIdForTesting);
+        elrDltModel.setDltOccurrence(1);
+        elrDltModel.setErrorMessageSource("fhir_prep");
+
+        ValidatedELRModel validatedERLModel = new ValidatedELRModel();
+        validatedERLModel.setRawMessage("HL7 message fhir_prep");
+        validatedERLModel.setId(elrDltModel.getErrorMessageId());
+
+        when(dltRepository.findById(eq(elrDltModel.getErrorMessageId())))
+                .thenReturn(Optional.of(elrDltModel));
+
+        when(validatedELRRepository.findById(eq(elrDltModel.getErrorMessageId())))
+                .thenReturn(Optional.of(validatedERLModel));
+
+        when(validatedELRRepository.save(any(ValidatedELRModel.class))).thenReturn(validatedERLModel);
+        when(dltRepository.save(any(ElrDeadLetterModel.class))).thenReturn(elrDltModel);
+
+        var result = elrDeadLetterService.updateAndReprocessingMessage(primaryIdForTesting, "HL7 message");
+
+        assertEquals(result.getErrorMessage(), "HL7 message fhir_prep");
+        assertEquals(result.getDltOccurrence(), 1);
+    }
+
+    @Test
+    void testUpdateAndReprocessingMessage_XmlPrep_Success() throws DeadLetterTopicException {
+        initialDataInsertionAndSelection("xml_prep");
+        String primaryIdForTesting = guidForTesting;
+
+        ElrDeadLetterModel elrDltModel = new ElrDeadLetterModel();
+        elrDltModel.setErrorMessageId(primaryIdForTesting);
+        elrDltModel.setDltOccurrence(1);
+        elrDltModel.setErrorMessageSource("xml_prep");
+
+        ValidatedELRModel validatedERLModel = new ValidatedELRModel();
+        validatedERLModel.setRawMessage("HL7 message xml_prep");
+        validatedERLModel.setId(elrDltModel.getErrorMessageId());
+
+        when(dltRepository.findById(eq(elrDltModel.getErrorMessageId())))
+                .thenReturn(Optional.of(elrDltModel));
+
+        when(validatedELRRepository.findById(eq(elrDltModel.getErrorMessageId())))
+                .thenReturn(Optional.of(validatedERLModel));
+
+        when(validatedELRRepository.save(any(ValidatedELRModel.class))).thenReturn(validatedERLModel);
+        when(dltRepository.save(any(ElrDeadLetterModel.class))).thenReturn(elrDltModel);
+
+        var result = elrDeadLetterService.updateAndReprocessingMessage(primaryIdForTesting, "HL7 message");
+
+        assertEquals(result.getErrorMessage(), "HL7 message xml_prep");
+        assertEquals(result.getDltOccurrence(), 1);
+    }
+
 
     @Test
     void testSaveDltRecord() {
