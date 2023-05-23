@@ -1,0 +1,137 @@
+package gov.cdc.dataingestion.kafka.service;
+
+import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
+import gov.cdc.dataingestion.exception.ConversionPrepareException;
+import gov.cdc.dataingestion.kafka.integration.constant.TopicPreparationType;
+import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
+import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
+import org.springframework.util.concurrent.ListenableFuture;
+import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+@ExtendWith(MockitoExtension.class)
+@Testcontainers
+public class KafkaProducerServiceTest {
+
+    @Container
+    public static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"));
+
+    @Mock
+    private KafkaTemplate<String, String> kafkaTemplate;
+
+    @InjectMocks
+    private KafkaProducerService kafkaProducerService;
+
+    @BeforeEach
+    public void setUp() {
+        // Mocking SendResult and ListenableFuture
+        SendResult<String, String> sendResult = mock(SendResult.class);
+        var future = CompletableFuture.completedFuture(sendResult);
+
+        when(kafkaTemplate.send(any(ProducerRecord.class))).thenReturn(future);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        if (kafkaContainer != null) {
+            kafkaContainer.stop();
+        }
+    }
+
+    @Test
+    public void testSendMessageFromController() {
+        String msg = "test message";
+        String topic = "test-topic";
+        String msgType = "test-type";
+        Integer dltOccurrence = 1;
+        kafkaProducerService.sendMessageFromController(msg, topic, msgType, dltOccurrence);
+        verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
+    }
+
+    @Test
+    public void testSendMessageAfterValidatingMessage() {
+        String topic = "test-topic";
+        ValidatedELRModel model = new ValidatedELRModel();
+        model.setMessageType("test");
+        model.setId("test");
+        model.setMessageVersion("1");
+        kafkaProducerService.sendMessageAfterValidatingMessage(model, topic, 1);
+        verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
+    }
+
+    @Test
+    public void testSendMessagePreparationTopicXML() throws ConversionPrepareException {
+        var topicType = TopicPreparationType.XML;
+        String topic = "test-topic";
+        ValidatedELRModel model = new ValidatedELRModel();
+        model.setMessageType("test");
+        model.setId("test");
+        model.setMessageVersion("1");
+        kafkaProducerService.sendMessagePreparationTopic(model, topic,
+                topicType,
+                1 );
+        verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
+    }
+
+    @Test
+    public void testSendMessagePreparationTopicFHIR() throws ConversionPrepareException {
+        var topicType = TopicPreparationType.FHIR;
+        String topic = "test-topic";
+        ValidatedELRModel model = new ValidatedELRModel();
+        model.setMessageType("test");
+        model.setId("test");
+        model.setMessageVersion("1");
+        kafkaProducerService.sendMessagePreparationTopic(model, topic,
+                topicType,
+                1 );
+        verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
+    }
+
+    @Test
+    public void testSendMessageAfterConvertedToFhirMessage()  {
+        String topic = "test-topic";
+        HL7ToFHIRModel model = new HL7ToFHIRModel();
+        model.setId("test");
+        kafkaProducerService.sendMessageAfterConvertedToFhirMessage(model, topic,
+                1 );
+        verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
+    }
+
+    @Test
+    public void testSendMessageAfterConvertedToXml()  {
+        String topic = "test-topic";
+        String msg = "test";
+        kafkaProducerService.sendMessageAfterConvertedToXml(msg, topic,
+                1 );
+        verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
+    }
+
+    @Test
+    public void testSendMessageAfterCheckingDuplicateHL7()  {
+        String topic = "test-topic";
+        String msg = "test";
+        ValidatedELRModel model = new ValidatedELRModel();
+        model.setRawId("test");
+        kafkaProducerService.sendMessageAfterCheckingDuplicateHL7(model, topic,
+                1 );
+        verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
+    }
+}
