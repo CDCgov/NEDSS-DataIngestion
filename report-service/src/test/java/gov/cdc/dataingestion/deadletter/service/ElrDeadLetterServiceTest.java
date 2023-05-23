@@ -250,10 +250,8 @@ public class ElrDeadLetterServiceTest {
         rawModel.setPayload("HL7 message");
 
         when(dltRepository.findAllDltRecordByDltStatus(eq(ElrDltStatus.ERROR.name()), eq(Sort.by(Sort.Direction.DESC, "createdOn")))).thenReturn(Optional.of(listData));
-        when(rawELRRepository.findById(anyString())).thenReturn(Optional.of(rawModel));
         var result = elrDeadLetterService.getAllErrorDltRecord();
         assertEquals(result.get(0).getErrorMessageId(), model.getErrorMessageId());
-        assertEquals(result.get(0).getErrorMessage(), rawModel.getPayload());
 
     }
 

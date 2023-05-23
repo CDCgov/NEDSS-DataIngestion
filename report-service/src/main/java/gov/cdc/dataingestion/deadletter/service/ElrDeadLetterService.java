@@ -101,6 +101,7 @@ public class ElrDeadLetterService {
             RawERLModel rawModel = rawRecord.get();
             rawModel.setPayload(body);
             rawELRRepository.save(rawModel);
+            saveDltRecord(existingRecord);
             kafkaProducerService.sendMessageFromController(rawModel.getId(), rawTopic, rawModel.getType(), existingRecord.getDltOccurrence());
         }
         else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(validatedTopic) ||
@@ -123,13 +124,13 @@ public class ElrDeadLetterService {
             else {
                 topicToBeSent = prepXmlTopic;
             }
+            saveDltRecord(existingRecord);
             kafkaProducerService.sendMessageFromController(validateModel.getId(), topicToBeSent, validateModel.getMessageType(), existingRecord.getDltOccurrence());
         }
         else {
             throw new DeadLetterTopicException("Provided Error Source is not supported");
         }
 
-        saveDltRecord(existingRecord);
         return existingRecord;
     }
 
@@ -141,7 +142,7 @@ public class ElrDeadLetterService {
     private List<ElrDeadLetterDto> convertModelToDtoList(List<ElrDeadLetterModel> models) throws DeadLetterTopicException {
         List<ElrDeadLetterDto>  dtlModels = new ArrayList<>() {};
         for(ElrDeadLetterModel model: models) {
-            dtlModels.add(convertModelToDto(model));
+            dtlModels.add(new ElrDeadLetterDto(model));
         }
         return dtlModels;
     }

@@ -301,18 +301,16 @@ public class KafkaConsumerService {
                 erroredSource + this.dltSuffix,
                 erroredSource + this.dltSuffix
         );
-        processingDltRecord(elrDeadLetterDto, originalTopic, timeStamp);
+        processingDltRecord(elrDeadLetterDto);
     }
     //endregion
 
     //region PRIVATE METHOD
-    private void processingDltRecord(ElrDeadLetterDto elrDeadLetterDto, String originalTopic, String timeStamp) {
+    private void processingDltRecord(ElrDeadLetterDto elrDeadLetterDto) {
         try {
-            //this.elrDeadLetterService.saveDltRecord(elrDeadLetterDto);
-            throw new Exception("ERRRO");
+            this.elrDeadLetterService.saveDltRecord(elrDeadLetterDto);
             // TODO: push notification to notify user, error happened, and it was saved of  into rds db
         } catch (Exception e) {
-            String receivedTimeStamp = convertUnixTimeStampToReadable(timeStamp);
             Gson gson = new Gson();
             String data = gson.toJson(elrDeadLetterDto);
 

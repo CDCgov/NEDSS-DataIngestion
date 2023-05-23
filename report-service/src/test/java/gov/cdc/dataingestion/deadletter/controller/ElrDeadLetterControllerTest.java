@@ -86,7 +86,7 @@ public class ElrDeadLetterControllerTest {
 
     @Test
     public void testMessageReInject() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports-dlt/update-inject")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports-dlt/inject-message")
                 .param("id", "1")
                 .contentType("text/plain")
                 .content("HL7 message"))

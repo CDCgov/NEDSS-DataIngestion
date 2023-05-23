@@ -30,7 +30,7 @@ public class ElrDeadLetterController {
         return ResponseEntity.ok(elrDeadLetterService.getDltRecordById(id));
     }
 
-    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/update-inject")
+    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/inject-message")
     public ResponseEntity<?> messageReInject(@RequestParam("id") String id, @RequestBody final String payload) throws Exception {
         return ResponseEntity.ok(elrDeadLetterService.updateAndReprocessingMessage(id, payload));
     }
