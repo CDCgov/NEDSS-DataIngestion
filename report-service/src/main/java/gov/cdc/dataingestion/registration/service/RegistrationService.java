@@ -22,7 +22,7 @@ public class RegistrationService {
 
     public RegistrationService(PasswordEncoder passwordEncoder, IClientRegisterRepository iClientRegisterRepository) {
         this.iClientRegisterRepository = iClientRegisterRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder(12);
+        this.passwordEncoder = passwordEncoder;
     }
 
     public boolean createUser(String username, String password) {
