@@ -173,7 +173,7 @@ public class ElrDeadLetterServiceTest {
 
         ElrDeadLetterDto savedDto = elrDeadLetterService.getDltRecordById(guidForTesting);
         assertEquals(savedDto.getErrorMessageId(), model.getErrorMessageId());
-        assertEquals(savedDto.getErrorMessage(), rawModel.getPayload());
+        assertEquals(savedDto.getMessage(), rawModel.getPayload());
     }
 
     @Test
@@ -286,7 +286,7 @@ public class ElrDeadLetterServiceTest {
 
         var result = elrDeadLetterService.updateAndReprocessingMessage(primaryIdForTesting, "HL7 message");
 
-        assertEquals(result.getErrorMessage(), "HL7 message");
+        assertEquals(result.getMessage(), "HL7 message");
         assertEquals(result.getDltOccurrence(), 1);
 
 
@@ -320,7 +320,7 @@ public class ElrDeadLetterServiceTest {
 
         var result = elrDeadLetterService.updateAndReprocessingMessage(primaryIdForTesting, "HL7 message");
 
-        assertEquals(result.getErrorMessage(), "HL7 message validated");
+        assertEquals(result.getMessage(), "HL7 message validated");
         assertEquals(result.getDltOccurrence(), 1);
     }
 
@@ -349,7 +349,7 @@ public class ElrDeadLetterServiceTest {
 
         var result = elrDeadLetterService.updateAndReprocessingMessage(primaryIdForTesting, "HL7 message");
 
-        assertEquals(result.getErrorMessage(), "HL7 message fhir_prep");
+        assertEquals(result.getMessage(), "HL7 message fhir_prep");
         assertEquals(result.getDltOccurrence(), 1);
     }
 
@@ -378,7 +378,7 @@ public class ElrDeadLetterServiceTest {
 
         var result = elrDeadLetterService.updateAndReprocessingMessage(primaryIdForTesting, "HL7 message");
 
-        assertEquals(result.getErrorMessage(), "HL7 message xml_prep");
+        assertEquals(result.getMessage(), "HL7 message xml_prep");
         assertEquals(result.getDltOccurrence(), 1);
     }
 
