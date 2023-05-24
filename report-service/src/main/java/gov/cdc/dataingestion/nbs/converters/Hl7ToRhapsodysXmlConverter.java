@@ -187,7 +187,7 @@ public class Hl7ToRhapsodysXmlConverter {
         rhapsodyXml = baos.toString();
 
         // ramesh
-        RhapsodysXmlToHl7Converter.getInstance().convertToXl7(rhapsodyXml);
+        //RhapsodysXmlToHl7Converter.getInstance().convertToXl7(rhapsodyXml);
 
         return rhapsodyXml;
     }
@@ -880,12 +880,11 @@ public class Hl7ToRhapsodysXmlConverter {
             hl7OBXType.getNatureOfAbnormalTest().add(s);
         }
 
-
         hl7OBXType.setObservationResultStatus(buildEmptyValue(or.getObservationResultStatus()));
-        //hl7OBXType.setEffectiveDateOfReferenceRangeValues(buildHL7TSType(or.getEffectiveDateOfReferenceRange()));
+        hl7OBXType.setEffectiveDateOfReferenceRangeValues(buildHL7TSType(or.getEffectiveDateOfReferenceRange()));
         hl7OBXType.setUserDefinedAccessChecks(or.getUserDefinedAccessChecks());
-        //hl7OBXType.setDateTimeOftheObservation(buildHL7TSType(or.getDateTimeOfTheObservation()));
-        //hl7OBXType.setProducersReference(buildHL7CWEType(or.getProducerId()));
+        hl7OBXType.setDateTimeOftheObservation(buildHL7TSType(or.getDateTimeOfTheObservation()));
+        hl7OBXType.setProducersReference(buildHL7CWEType(or.getProducerId()));
 
         for(Xcn xcn : or.getResponsibleObserver()) {
             hl7OBXType.getResponsibleObserver().add(buildHL7XCNType(xcn));
@@ -1508,7 +1507,6 @@ public class Hl7ToRhapsodysXmlConverter {
         HL7PIDType hl7PIDType = new HL7PIDType();
 
         HL7SIType hl7SIType = new HL7SIType();
-        hl7SIType.setHL7SequenceID(pi.getSetPid());
 
         hl7PIDType.getSetIDPID().add(hl7SIType);
         hl7PIDType.setPatientID(buildHL7CXType(pi.getPatientId()));
@@ -1981,7 +1979,7 @@ public class Hl7ToRhapsodysXmlConverter {
         HL7NMType hl7NMType = new HL7NMType();
 
         try {
-            hl7NMType.setHL7Numeric(Float.parseFloat(seqNumber));
+            hl7NMType.setHL7Numeric(Float.valueOf(seqNumber));
         }
         catch(Exception e) {
             // ignore, sequence number not present in the samples

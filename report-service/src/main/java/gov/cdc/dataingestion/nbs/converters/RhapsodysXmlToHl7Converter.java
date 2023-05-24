@@ -55,7 +55,7 @@ public class RhapsodysXmlToHl7Converter {
     }
 
     public String convertToXl7(String xmlFile) throws Exception {
-        String xmlFilename = "/Users/RameshAddanki/cdcprojects/DocumentsProject/ExistingXmlSample.txt";
+        String xmlFilename = "/Users/RameshAddanki/cdcprojects/DocumentsProject/SampleWithLabReport_1.txt";
         StringBuilder sb = new StringBuilder();
 
         JAXBContext contextObj = JAXBContext.newInstance("gov.cdc.dataingestion.nbs.jaxb");
@@ -92,10 +92,19 @@ public class RhapsodysXmlToHl7Converter {
 
         if(null == results) return sb.toString();
 
+        // Output OBX records
         for(HL7OBSERVATIONType obsType : results.getOBSERVATION()) {
             sb.append(streamHL7OBSERVATIONType(obsType));
             sb.append(NEWLINE);
         }
+
+        // Output NTE records
+        /*
+        for(HL7OBSERVATIONType obsType : results.getOBSERVATION()) {
+            sb.append(streamHL7OBSERVATIONTypeNotesAndComments(obsType));
+            sb.append(NEWLINE);
+        }
+        */
 
         return sb.toString();
     }
@@ -122,10 +131,16 @@ public class RhapsodysXmlToHl7Converter {
         sb.append(COLUMNS_SEPARATOR);
         sb.append(streamHL7OBXType(hl7ObsType.getObservationResult()));
         sb.append(COLUMNS_SEPARATOR);
-        sb.append(streamHL7NTETypeList(hl7ObsType.getNotesAndComments()));
 
-        // List<HL7NTEType>
-        // ramesh
+        return sb.toString();
+    }
+
+    private String streamHL7OBSERVATIONTypeNotesAndComments(HL7OBSERVATIONType hl7ObsType) {
+        StringBuilder sb = new StringBuilder();
+
+        if(null == hl7ObsType) return sb.toString();
+
+        sb.append(streamHL7NTETypeList(hl7ObsType.getNotesAndComments()));
 
         return sb.toString();
     }
@@ -340,45 +355,6 @@ public class RhapsodysXmlToHl7Converter {
         return sb.toString();
     }
 
-/*
-ORC.1 - Order Control	2	ID	R 	-	0119
-ORC.2 - Placer Order Number	22	EI	C 	-
-ORC.3 - Filler Order Number	22	EI	C 	-
-ORC.4 - Placer Group Number	22	EI	O 	-
-ORC.5 - Order Status	2	ID	O 	-	0038
-ORC.6 - Response Flag
-ORC.7 - Quantity/Timing	200	TQ	B 	∞
-ORC.8 - Parent Order	200	EIP	O 	-
-ORC.9 - Date/Time of Transaction	26	TS	O 	-
-ORC.10 - Entered By	250	XCN	O 	∞
-ORC.11 - Verified By	250	XCN	O 	∞
-ORC.12 - Ordering Provider	250	XCN	O 	∞
-ORC.13 - Enterer's Location	80	PL	O 	-
-ORC.14 - Call Back Phone Number	250	XTN	O 	2
-ORC.15 - Order Effective Date/Time	26	TS	O 	-
-ORC.16 - Order Control Code Reason	250	CE	O 	-
-ORC.17 - Entering Organization	250	CE	O 	-
-ORC.18 - Entering Device	250	CE	O 	-
-ORC.19 - Action By	250	XCN	O 	∞
-ORC.20 - Advanced Beneficiary Notice Code	250	CE	O 	-	0339
-
-
-ORC.21 - Ordering Facility Name	250	XON	O 	∞
-ORC.22 - Ordering Facility Address	250	XAD	O 	∞
-ORC.23 - Ordering Facility Phone Number	250	XTN	O 	∞
-ORC.24 - Ordering Provider Address	250	XAD	O 	∞
-ORC.25 - Order Status Modifier	250	CWE	O 	-
-ORC.26 - Advanced Beneficiary Notice Override Reason	60	CWE	C 	-	0552
-ORC.27 - Filler's Expected Availability Date/Time	26	TS	O 	-
-ORC.28 - Confidentiality Code	250	CWE	O 	-	0177
-ORC.29 - Order Type	250	CWE	O 	-	0482
-ORC.30 - Enterer Authorization Mode	250	CNE	O 	-	0483
-ORC.31 - Parent Universal Service Identifier
-
-   | 1  | 2 |     3        | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 |                  21            |                     22                   |     23      |                  24                      | 25 | 26 |
-ORC| RE |   |34411541099348|   |   |   |   |   |   |    |    |    |    |    |    |    |    |    |    |    | Simon-Williamson Cl-Princeton^ |
-ORC| RE |   |34411541099348|   |   |   |   |   |   |    |    |    |    |    |    |    |    |    |    |    | Simon-Williamson Cl-Princeton^ | 832 Princeton Ave SW^Birmingham^GA^30342 | 205^2068375 | 832 Princeton Ave SW^Birmingham^GA^30342 |    |    ||||||
-*/
     private String streamCommonOrders(HL7ORCType hl7ORCType) {
         StringBuilder sb = new StringBuilder();
 
@@ -469,13 +445,13 @@ ORC| RE |   |34411541099348|   |   |   |   |   |   |    |    |    |    |    |   
         sb.append(COLUMNS_SEPARATOR);
         sb.append(hl7MSHType.getEncodingCharacters());
         sb.append(COLUMNS_SEPARATOR);
-        sb.append(streamHL7HDType(hl7MSHType.getSendingApplication()));
+        sb.append(streamHL7HDType(hl7MSHType.getSendingApplication(), ATTRIBUTES_SEPARATOR));
         sb.append(COLUMNS_SEPARATOR);
-        sb.append(streamHL7HDType(hl7MSHType.getSendingFacility()));
+        sb.append(streamHL7HDType(hl7MSHType.getSendingFacility(), ATTRIBUTES_SEPARATOR));
         sb.append(COLUMNS_SEPARATOR);
-        sb.append(streamHL7HDType(hl7MSHType.getReceivingApplication()));
+        sb.append(streamHL7HDType(hl7MSHType.getReceivingApplication(), ATTRIBUTES_SEPARATOR));
         sb.append(COLUMNS_SEPARATOR);
-        sb.append(streamHL7HDType(hl7MSHType.getReceivingFacility()));
+        sb.append(streamHL7HDType(hl7MSHType.getReceivingFacility(), ATTRIBUTES_SEPARATOR));
         sb.append(COLUMNS_SEPARATOR);
         sb.append(streamHL7TSType(hl7MSHType.getDateTimeOfMessage(), true));
         sb.append(COLUMNS_SEPARATOR);
@@ -551,29 +527,29 @@ ORC| RE |   |34411541099348|   |   |   |   |   |   |    |    |    |    |    |   
         if(null == hl7XADType) return sb.toString();
 
         sb.append(streamHL7SADType(hl7XADType.getHL7StreetAddress()));
+        sb.append(ATTRIBUTES_SEPARATOR);
 
         if(null != hl7XADType.getHL7OtherDesignation()) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(hl7XADType.getHL7OtherDesignation());
         }
 
+        sb.append(ATTRIBUTES_SEPARATOR);
         if(null != hl7XADType.getHL7City()) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(hl7XADType.getHL7City());
         }
 
+        sb.append(ATTRIBUTES_SEPARATOR);
         if(null != hl7XADType.getHL7StateOrProvince()) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(hl7XADType.getHL7StateOrProvince());
         }
 
+        sb.append(ATTRIBUTES_SEPARATOR);
         if(null != hl7XADType.getHL7ZipOrPostalCode()) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(hl7XADType.getHL7ZipOrPostalCode());
         }
 
+        sb.append(ATTRIBUTES_SEPARATOR);
         if(null != hl7XADType.getHL7Country()) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(hl7XADType.getHL7Country());
         }
 
@@ -649,40 +625,68 @@ ORC| RE |   |34411541099348|   |   |   |   |   |   |    |    |    |    |    |   
         sb.append(COLUMNS_SEPARATOR);
         sb.append(pid.getAdministrativeSex());
         sb.append(COLUMNS_SEPARATOR);
-
-        /*
-        PID.9 - Patient Alias	250	XPN	B 	∞
-        PID.10 - Race	250	CE	O 	∞	0005
-        PID.11 - Patient Address	250	XAD	O 	∞
-        PID.12 - County Code	4	IS	B 	-	0289
-        PID.13 - Phone Number - Home	250	XTN	O 	∞
-        PID.14 - Phone Number - Business	250	XTN	O 	∞
-        PID.15 - Primary Language	250	CE	O 	-	0296
-        PID.16 - Marital Status	250	CE	O 	-	0002
-        PID.17 - Religion	250	CE	O 	-	0006
-        PID.18 - Patient Account Number	250	CX	O 	-
-        PID.19 - SSN Number - Patient	16	ST	B 	-
-        PID.20 - Driver's License Number - Patient	25	DLN	B 	-
-        PID.21 - Mother's Identifier	250	CX	O 	∞
-        PID.22 - Ethnic Group	250	CE	O 	∞	0189
-        PID.23 - Birth Place	250	ST	O 	-
-        PID.24 - Multiple Birth Indicator	1	ID	O 	-	0136
-        PID.25 - Birth Order	2	NM	O 	-
-        PID.26 - Citizenship	250	CE	O 	∞	0171
-        PID.27 - Veterans Military Status	250	CE	O 	-	0172
-        PID.28 - Nationality	250	CE	B 	-	0212
-        PID.29 - Patient Death Date and Time	26	TS	O 	-
-        PID.30 - Patient Death Indicator	1	ID	O 	-	0136
-        PID.31 - Identity Unknown Indicator	1	ID	O 	-	0136
-        PID.32 - Identity Reliability Code	20	IS	O 	∞	0445
-        PID.33 - Last Update Date/Time	26	TS	O 	-
-        PID.34 - Last Update Facility	241	HD	O 	-
-        PID.35 - Species Code	250	CE	C 	-	0446
-        PID.36 - Breed Code	250	CE	C 	-	0447
-        PID.37 - Strain	80	ST	O 	-
-        PID.38 - Production Class Code	250	CE	O 	2	0429
-        PID.39 - Tribal Citizenship
-         */
+        sb.append("");      // PID.9 - Patient Alias	250	XPN
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7CWETypeList(pid.getRace()));
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7XADTypeList(pid.getPatientAddress()));
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.12 - County Code: IS
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7XTNTypeList(pid.getPhoneNumberHome()));
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7XTNTypeList(pid.getPhoneNumberBusiness()));
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.15 - Primary Language: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.16 - CMarital Status: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.17 - Religion: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.18 - Patient Account Number: CX
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.19 - SSN Number - Patient: ST
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.20 - Driver's License Number - Patient: DLN
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.21 - Mother's Identifier: CX
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append(streamHL7CWETypeList(pid.getEthnicGroup()));      // PID.22 - Ethnic Group: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.23 - Birth Place: ST
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.24 - Multiple Birth Indicator: ID
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.25 - Birth Order: NM
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.26 - Citizenship: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.27 - Veterans Military Status: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.28 - Nationality: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.29 - Patient Death Date and Time: TS
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.30 - Patient Death Indicator: ID
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.31 - Identity Unknown Indicator: ID
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.32 - Identity Reliability Code: IS
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.33 - Last Update Date/Time: TS
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.34 - Last Update Facility: HD
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.35 - Species Code: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.36 - Breed Code: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.37 - Strain: ST
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.38 - Production Class Code: CE
+        sb.append(COLUMNS_SEPARATOR);
+        sb.append("");      // PID.39 - Tribal Citizenship: CWE
+        sb.append(COLUMNS_SEPARATOR);
 
         return sb.toString();
     }
@@ -777,61 +781,72 @@ ORC| RE |   |34411541099348|   |   |   |   |   |   |    |    |    |    |    |   
 
         if(null != hl7XTNType.getHL7TelephoneNumber()) {
             sb.append(hl7XTNType.getHL7TelephoneNumber());
-            sb.append(ATTRIBUTES_SEPARATOR);
         }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
 
         if(null != hl7XTNType.getHL7TelecommunicationUseCode()) {
             sb.append(hl7XTNType.getHL7TelecommunicationUseCode());
-            sb.append(ATTRIBUTES_SEPARATOR);
         }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
 
         if(null != hl7XTNType.getHL7TelecommunicationEquipmentType()) {
             sb.append(hl7XTNType.getHL7TelecommunicationEquipmentType());
-            sb.append(ATTRIBUTES_SEPARATOR);
         }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
 
         if(null != hl7XTNType.getHL7EmailAddress()) {
             sb.append(hl7XTNType.getHL7EmailAddress());
-            sb.append(ATTRIBUTES_SEPARATOR);
         }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
 
         if((null != hl7XTNType.getHL7CountryCode()) && (null != hl7XTNType.getHL7CountryCode().getHL7Numeric())) {
             sb.append(hl7XTNType.getHL7CountryCode().getHL7Numeric().intValue());
-            sb.append(ATTRIBUTES_SEPARATOR);
         }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
 
         if((null != hl7XTNType.getHL7AreaCityCode()) && (null != hl7XTNType.getHL7AreaCityCode().getHL7Numeric())) {
             sb.append(hl7XTNType.getHL7AreaCityCode().getHL7Numeric().intValue());
-            sb.append(ATTRIBUTES_SEPARATOR);
         }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
 
         if((null != hl7XTNType.getHL7LocalNumber()) && (null != hl7XTNType.getHL7LocalNumber().getHL7Numeric())) {
             sb.append(hl7XTNType.getHL7LocalNumber().getHL7Numeric().intValue());
 
         }
 
+        sb.append(ATTRIBUTES_SEPARATOR);
+
         if((null != hl7XTNType.getHL7Extension()) && (null != hl7XTNType.getHL7Extension().getHL7Numeric())) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(hl7XTNType.getHL7Extension().getHL7Numeric().intValue());
         }
 
+        sb.append(ATTRIBUTES_SEPARATOR);
+
         if(null != hl7XTNType.getHL7AnyText()) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(hl7XTNType.getHL7AnyText());
         }
 
+        sb.append(ATTRIBUTES_SEPARATOR);
+
         if(null != hl7XTNType.getHL7ExtensionPrefix()) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(hl7XTNType.getHL7ExtensionPrefix());
         }
 
+        sb.append(ATTRIBUTES_SEPARATOR);
+
         if(null != hl7XTNType.getHL7SpeedDialCode()) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(hl7XTNType.getHL7SpeedDialCode());
         }
 
+        sb.append(ATTRIBUTES_SEPARATOR);
+
         if(null != hl7XTNType.getHL7UnformattedTelephonenumber()) {
-            sb.append(ATTRIBUTES_SEPARATOR);
             sb.append(hl7XTNType.getHL7UnformattedTelephonenumber());
         }
 
@@ -1088,32 +1103,42 @@ ORC| RE |   |34411541099348|   |   |   |   |   |   |    |    |    |    |    |   
 
         sb.append(ATTRIBUTES_SEPARATOR);
 
-        /*
-        XCN.9 - Assigning Authority	227	HD	O 	-	0363
-        XCN.10 - Name Type Code	1	ID	O 	-	0200
-        XCN.11 - Identifier Check Digit	1	ST	O 	-
-        XCN.12 - Check Digit Scheme	3	ID	C 	-	0061
-        */
+        sb.append("");       // XCN.9 - Assigning Authority: HD
+        sb.append(ATTRIBUTES_SEPARATOR);
+        sb.append("");       // XCN.10 - Name Type Code: ID
+        sb.append(ATTRIBUTES_SEPARATOR);
+        sb.append("");       // XCN.11 - Identifier Check Digi: ST
+        sb.append(ATTRIBUTES_SEPARATOR);
+        sb.append("");       // XCN.12 - Check Digit Scheme: ID
+        sb.append(ATTRIBUTES_SEPARATOR);
 
         if(null != xcnType.getHL7IdentifierTypeCode()) {
             sb.append(xcnType.getHL7IdentifierTypeCode());
         }
 
         sb.append(ATTRIBUTES_SEPARATOR);
-
-
-        /*
-        XCN.14 - Assigning Facility	227	HD	O 	-
-        XCN.15 - Name Representation Code	1	ID	O 	-	0465
-        XCN.16 - Name Context	483	CE	O 	-	0448
-        XCN.17 - Name Validity Range	53	DR	B 	-
-        XCN.18 - Name Assembly Order	1	ID	O 	-	0444
-        XCN.19 - Effective Date	26	TS	O 	-
-        XCN.20 - Expiration Date	26	TS	O 	-
-        XCN.21 - Professional Suffix	199	ST	O 	-
-        XCN.22 - Assigning Jurisdiction	705	CWE	O 	-
-        XCN.23 - Assigning Agency Or Department
-        */
+        sb.append("");       // XCN.13 - CIdentifier Type Code: ID
+        sb.append(ATTRIBUTES_SEPARATOR);
+        sb.append("");       // XCN.14 - CAssigning Facility: HD
+        sb.append(ATTRIBUTES_SEPARATOR);
+        sb.append("");       // XCN.15 - Name Representation Code: ID
+        sb.append(ATTRIBUTES_SEPARATOR);
+        sb.append("");       // XCN.16 - Name Context: CE
+        sb.append(ATTRIBUTES_SEPARATOR);
+        sb.append("");       // XCN.17 - Name Validity Range: DR
+        sb.append(ATTRIBUTES_SEPARATOR);
+        sb.append("");       // XCN.18 - Name Assembly Order: ID
+        sb.append(ATTRIBUTES_SEPARATOR);
+        sb.append("");       // XCN.19 - Effective Date: TS
+        sb.append(ATTRIBUTES_SEPARATOR);
+        sb.append("");       // XCN.20 - Expiration Date: TS
+        sb.append(ATTRIBUTES_SEPARATOR);
+        sb.append("");       // XCN.21 - Professional Suffix: ST
+        sb.append(ATTRIBUTES_SEPARATOR);
+        sb.append("");       // XCN.22 - Assigning Jurisdiction: CWE
+        sb.append(ATTRIBUTES_SEPARATOR);
+        sb.append("");       // XCN.23 - Assigning Agency Or Department: CWE
+        sb.append(ATTRIBUTES_SEPARATOR);
 
         return sb.toString();
     }
@@ -1130,17 +1155,41 @@ ORC| RE |   |34411541099348|   |   |   |   |   |   |    |    |    |    |    |   
             sb.append(xonType.getHL7OrganizationNameTypeCode());
         }
 
+        sb.append(ATTRIBUTES_SEPARATOR);
 
-        /*
-        XON.3 - Id Number	4	NM	B 	-
-        XON.4 - Check Digit	1	NM	O 	-
-        XON.5 - Check Digit Scheme	3	ID	O 	-	0061
-        XON.6 - Assigning Authority	227	HD	O 	-	0363
-        XON.7 - Identifier Type Code	5	ID	O 	-	0203
-        XON.8 - Assigning Facility	227	HD	O 	-
-        XON.9 - Name Representation Code	1	ID	O 	-	0465
-        XON.10 - Organization Identifier
-        */
+        if(null != xonType.getHL7IDNumber() && (null != xonType.getHL7IDNumber().getHL7Numeric())) {
+            sb.append(xonType.getHL7IDNumber().getHL7Numeric().floatValue());
+        }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
+
+        sb.append("");          // Check digit
+        sb.append(ATTRIBUTES_SEPARATOR);
+
+        sb.append("");          // Check digit scheme
+        sb.append(ATTRIBUTES_SEPARATOR);
+
+        sb.append(streamHL7HDType(xonType.getHL7AssigningAuthority()));
+        sb.append(ATTRIBUTES_SEPARATOR);
+
+        if(null != xonType.getHL7IdentifierTypeCode() && (xonType.getHL7IdentifierTypeCode().length() > 0)) {
+            sb.append(xonType.getHL7IdentifierTypeCode());
+        }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
+
+        sb.append(streamHL7HDType(xonType.getHL7AssigningFacility()));
+        sb.append(ATTRIBUTES_SEPARATOR);
+
+        if(null != xonType.getHL7NameRepresentationCode() && (xonType.getHL7NameRepresentationCode().length() > 0)) {
+            sb.append(xonType.getHL7NameRepresentationCode());
+        }
+
+        sb.append(ATTRIBUTES_SEPARATOR);
+
+        if(null != xonType.getHL7OrganizationIdentifier() && (xonType.getHL7OrganizationIdentifier().length() > 0)) {
+            sb.append(xonType.getHL7OrganizationIdentifier());
+        }
 
         return sb.toString();
     }
@@ -1212,24 +1261,24 @@ ORC| RE |   |34411541099348|   |   |   |   |   |   |    |    |    |    |    |   
         if(null == fnType) return sb.toString();
 
         sb.append(fnType.getHL7Surname());
-        sb.append(ATTRIBUTES_SEPARATOR);
+        sb.append(INNTER_ATTRIBUTES_SEPARATOR);
 
         if(null != fnType.getHL7OwnSurnamePrefix()) {
             sb.append(fnType.getHL7OwnSurnamePrefix());
         }
 
-        sb.append(ATTRIBUTES_SEPARATOR);
+        sb.append(INNTER_ATTRIBUTES_SEPARATOR);
 
         if(null != fnType.getHL7OwnSurnamePrefix()) {
             sb.append(fnType.getHL7OwnSurnamePrefix());
         }
 
-        sb.append(ATTRIBUTES_SEPARATOR);
+        sb.append(INNTER_ATTRIBUTES_SEPARATOR);
         if(null != fnType.getHL7SurnamePrefixFromPartnerSpouse()) {
             sb.append(fnType.getHL7SurnamePrefixFromPartnerSpouse());
         }
 
-        sb.append(ATTRIBUTES_SEPARATOR);
+        sb.append(INNTER_ATTRIBUTES_SEPARATOR);
         if(null != fnType.getHL7SurnameFromPartnerSpouse()) {
             sb.append(fnType.getHL7SurnameFromPartnerSpouse());
         }
@@ -1365,7 +1414,7 @@ ORC| RE |   |34411541099348|   |   |   |   |   |   |    |    |    |    |    |   
         return sb.toString();
     }
 
-    private String streamHL7HDType(HL7HDType hl7HDType) {
+    private String streamHL7HDType(HL7HDType hl7HDType, String separator) {
         StringBuilder sb = new StringBuilder();
 
         if(null == hl7HDType) return sb.toString();
@@ -1374,17 +1423,21 @@ ORC| RE |   |34411541099348|   |   |   |   |   |   |    |    |    |    |    |   
             sb.append(hl7HDType.getHL7NamespaceID());
         }
 
-        sb.append(INNTER_ATTRIBUTES_SEPARATOR);
+        sb.append(separator);
         if(null != hl7HDType.getHL7UniversalID()) {
             sb.append(hl7HDType.getHL7UniversalID());
         }
 
-        sb.append(INNTER_ATTRIBUTES_SEPARATOR);
+        sb.append(separator);
         if(null != hl7HDType.getHL7UniversalIDType()) {
             sb.append(hl7HDType.getHL7UniversalIDType());
         }
 
         return sb.toString();
+    }
+
+    private String streamHL7HDType(HL7HDType hl7HDType) {
+        return streamHL7HDType(hl7HDType, INNTER_ATTRIBUTES_SEPARATOR);
     }
 
     private MessageHeader buildMessageHeader() {
