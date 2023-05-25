@@ -29,13 +29,17 @@ import  jakarta.xml.bind.JAXBContext;
 import  jakarta.xml.bind.Unmarshaller;
 
 import  java.io.File;
+import  java.io.InputStream;
+import  java.io.ByteArrayInputStream;
+import  java.nio.charset.StandardCharsets;
 
 import  java.util.List;
 
-import org.apache.kafka.common.protocol.types.Field;
 import  org.slf4j.Logger;
 import  org.slf4j.LoggerFactory;
+import  org.springframework.stereotype.Component;
 
+@Component
 public class RhapsodysXmlToHl7Converter {
     private static Logger log = LoggerFactory.getLogger(RhapsodysXmlToHl7Converter.class);
     private static String EMPTY_STRING = "";
@@ -54,14 +58,14 @@ public class RhapsodysXmlToHl7Converter {
     private RhapsodysXmlToHl7Converter() {
     }
 
-    public String convertToXl7(String xmlFile) throws Exception {
-        String xmlFilename = "/Users/RameshAddanki/cdcprojects/DocumentsProject/SampleWithLabReport_1.txt";
+    public String convertToXl7(String xmlContent) throws Exception {
         StringBuilder sb = new StringBuilder();
 
         JAXBContext contextObj = JAXBContext.newInstance("gov.cdc.dataingestion.nbs.jaxb");
         Unmarshaller unmarshaller = contextObj.createUnmarshaller();
 
-        Container container = (Container) unmarshaller.unmarshal(new File(xmlFilename));
+        InputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8));
+        Container container = (Container) unmarshaller.unmarshal(inputStream);
 
         sb.append(streamHeader(container.getHL7LabReport().getHL7MSH()));
         sb.append(NEWLINE);
@@ -69,7 +73,6 @@ public class RhapsodysXmlToHl7Converter {
         sb.append(NEWLINE);
 
         String hl7Str = sb.toString();
-        System.out.println("hl7Str = " + hl7Str);
 
         return hl7Str;
     }
