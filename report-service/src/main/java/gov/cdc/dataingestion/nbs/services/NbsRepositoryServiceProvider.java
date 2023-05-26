@@ -11,33 +11,38 @@ import  org.slf4j.LoggerFactory;
 
 import	lombok.NoArgsConstructor;
 
-import	java.util.GregorianCalendar;
+import  java.time.ZonedDateTime;
+import  java.time.ZoneOffset;
+import	java.util.Calendar;
+import	java.util.TimeZone;
 import	java.sql.Timestamp;
 
 @Service
 @NoArgsConstructor
 public class NbsRepositoryServiceProvider {
-	private static final Logger log = LoggerFactory.getLogger(NbsRepositoryServiceProvider.class);
-	
-	private static final String IMPEXP_CD = "l";
-	private static final String STATUS_UNPROCESSED = "QUEUED";
-	private static final String SYSTEM_NAME_NBS = "NBS";
-	private static final String DOCUMENT_TYPE_CODE = "11648804";
-	private static final String FILLER_ORDER_NBR = "HL7EntityIdentifier";
-	private static final String LAB_CLIA = "HL7UniversalID";
-	private static final String ORDER_TEST_CODE = "HL7AlternateIdentifier";
+	private static Logger log = LoggerFactory.getLogger(NbsRepositoryServiceProvider.class);
+
+	private static String IMPEXP_CD = "I";
+	private static String STATUS_UNPROCESSED = "QUEUED";
+	private static String SYSTEM_NAME_NBS = "NBS";
+	private static String DOCUMENT_TYPE_CODE = "11648804";
+	private static String FILLER_ORDER_NBR = "HL7EntityIdentifier";
+	private static String LAB_CLIA = "HL7UniversalID";
+	private static String ORDER_TEST_CODE = "HL7AlternateIdentifier";
+
     @Autowired
     private NbsInterfaceRepository nbsInterfaceRepo;
     
-    public boolean saveXmlMessage(String msgXml) {
+    public boolean saveXmlMessage(String msgId, String xmlMsg) {
 		NbsInterfaceModel item = new NbsInterfaceModel();
 
-		item.setPayload(msgXml);
+		log.debug("{} : Xml being persisted to NBS Legacy database", msgId);
+
+		item.setPayload(xmlMsg);
 		item.setImpExpIndCd(IMPEXP_CD);
 		item.setRecordStatusCd(STATUS_UNPROCESSED);
-    	
-    	GregorianCalendar currentTimestamp = new GregorianCalendar();
-    	Timestamp recordTimestamp = new Timestamp(currentTimestamp.getTimeInMillis());
+
+		Timestamp recordTimestamp = new Timestamp(getGmtTimestamp());
 
 		item.setRecordStatusTime(recordTimestamp);
 		item.setAddTime(recordTimestamp);
@@ -51,11 +56,19 @@ public class NbsRepositoryServiceProvider {
 		item.setSpecimenCollDate(null);
 		item.setOrderTestCode(ORDER_TEST_CODE);
 		item.setObservationUid(null);
-    	
-    	nbsInterfaceRepo.save(item);
 
-		log.info("Persisted xml to nbs database");
+    	nbsInterfaceRepo.save(item);
+		log.debug("{} : Persisted xml to nbs database", msgId);
 
     	return true;
     }
+
+	private long getGmtTimestamp() {
+		ZonedDateTime currentDate = ZonedDateTime.now( ZoneOffset.UTC );
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		cal.set(Calendar.HOUR, currentDate.getHour());
+		cal.set(Calendar.MINUTE, currentDate.getMinute());
+		cal.set(Calendar.SECOND, currentDate.getSecond());
+		return cal.getTimeInMillis();
+	}
 }
