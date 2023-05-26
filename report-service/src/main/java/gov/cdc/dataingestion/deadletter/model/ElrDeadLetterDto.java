@@ -75,15 +75,15 @@ public class ElrDeadLetterDto {
     }
 
     private String processingSourceStackTrace(String stackTrace) {
-        String regex = "RuntimeException:(.*?)\\n\\tat";
+        String regex = "RuntimeException:\\s*(.*?)(?=\\r|\\n|$)";
         if (stackTrace == null) {
             return "";
         }
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(stackTrace);
         if (matcher.find()) {
-            String extractedString = matcher.group(1);
-            return extractedString.trim();
+            String extractedString = matcher.group(1).trim();
+            return extractedString;
         } else {
             return stackTrace;
         }
