@@ -74,6 +74,9 @@ compileJava.dependsOn jaxb
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+  implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+	// annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	implementation 'org.springframework.kafka:spring-kafka:3.0.6'
 	implementation 'org.apache.kafka:kafka-clients:2.8.1'
 
@@ -111,6 +114,10 @@ dependencies {
 	testImplementation "org.testcontainers:mssqlserver:1.17.6"
 	testImplementation "org.testcontainers:junit-jupiter:1.17.6"
 	testImplementation 'org.testcontainers:postgresql:1.17.6'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	runtimeOnly 'org.postgresql:postgresql:42.5.4'
 
 	runtimeOnly 'org.springframework.boot:spring-boot-devtools'
 
