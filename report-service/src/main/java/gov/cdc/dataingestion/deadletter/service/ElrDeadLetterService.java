@@ -14,7 +14,9 @@ import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
+import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
@@ -36,16 +38,23 @@ public class ElrDeadLetterService {
     private final KafkaProducerService kafkaProducerService;
 
     @Value("${kafka.validation.topic}")
-    private String validatedTopic = "";
+    private String validatedTopic = "elr_validated";
 
     @Value("${kafka.fhir-conversion.topic}")
-    private String convertedToFhirTopic = "";
+    private String convertedToFhirTopic = "fhir_converted";
 
     @Value("${kafka.xml-conversion.topic}")
-    private String convertedToXmlTopic = "";
+    private String convertedToXmlTopic = "xml_converted";
 
+    @Value("${kafka.xml-conversion-prep.topic}")
+    private String prepXmlTopic = "xml_prep";
+
+    @Value("${kafka.fhir-conversion-prep.topic}")
+    private String prepFhirTopic = "fhir_prep";
     @Value("${kafka.raw.topic}")
-    private String rawTopic = "";
+    private String rawTopic = "elr_raw";
+
+    private final String deadLetterIsNullExceptionMessage = "Dead Letter Record Is Null";
 
     public ElrDeadLetterService(
             IElrDeadLetterRepository dltRepository,
@@ -62,13 +71,22 @@ public class ElrDeadLetterService {
 
     public List<ElrDeadLetterDto> getAllErrorDltRecord() throws DeadLetterTopicException {
         Optional<List<ElrDeadLetterModel>> deadLetterELRModels = dltRepository.findAllDltRecordByDltStatus(ElrDltStatus.ERROR.name(), Sort.by(Sort.Direction.DESC, "createdOn"));
-        var dtoModels = convertModelToDtoList(deadLetterELRModels.get());
-        return dtoModels;
+        List<ElrDeadLetterDto> results = new ArrayList<>();
+        // return empty list if nothing is found
+        if (deadLetterELRModels.isPresent()) {
+            results = convertModelToDtoList(deadLetterELRModels.get());
+        }
+
+        return results;
     }
 
     public ElrDeadLetterDto getDltRecordById(String id) throws DeadLetterTopicException {
         Optional<ElrDeadLetterModel> model = dltRepository.findById(id);
-        return convertModelToDto(model.get());
+        if (model.isPresent()) {
+            return convertModelToDto(model.get());
+        } else {
+            throw new DeadLetterTopicException(deadLetterIsNullExceptionMessage);
+        }
     }
 
     public ElrDeadLetterDto updateAndReprocessingMessage(String id, String body) throws DeadLetterTopicException {
@@ -77,33 +95,54 @@ public class ElrDeadLetterService {
         existingRecord.setDltOccurrence(existingRecord.getDltOccurrence());
         if(existingRecord.getErrorMessageSource().equalsIgnoreCase(rawTopic)) {
             var rawRecord = rawELRRepository.findById(existingRecord.getErrorMessageId());
+            if (!rawRecord.isPresent()) {
+                throw new DeadLetterTopicException(deadLetterIsNullExceptionMessage);
+            }
             RawERLModel rawModel = rawRecord.get();
             rawModel.setPayload(body);
             rawELRRepository.save(rawModel);
+            saveDltRecord(existingRecord);
             kafkaProducerService.sendMessageFromController(rawModel.getId(), rawTopic, rawModel.getType(), existingRecord.getDltOccurrence());
-        } else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(validatedTopic)) {
-
-        } else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(convertedToFhirTopic)) {
-
-        } else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(convertedToXmlTopic)) {
-
-        } else {
+        }
+        else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(validatedTopic) ||
+                existingRecord.getErrorMessageSource().equalsIgnoreCase(prepFhirTopic) ||
+                existingRecord.getErrorMessageSource().equalsIgnoreCase(prepXmlTopic)) {
+            var validateRecord = validatedELRRepository.findById(existingRecord.getErrorMessageId());
+            if (!validateRecord.isPresent()) {
+                throw new DeadLetterTopicException(deadLetterIsNullExceptionMessage);
+            }
+            ValidatedELRModel validateModel = validateRecord.get();
+            validateModel.setRawMessage(body);
+            validatedELRRepository.save(validateModel);
+            String topicToBeSent;
+            if(existingRecord.getErrorMessageSource().equalsIgnoreCase(validatedTopic)) {
+                topicToBeSent = validatedTopic;
+            }
+            else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(prepFhirTopic)) {
+                topicToBeSent = prepFhirTopic;
+            }
+            else {
+                topicToBeSent = prepXmlTopic;
+            }
+            saveDltRecord(existingRecord);
+            kafkaProducerService.sendMessageFromController(validateModel.getId(), topicToBeSent, validateModel.getMessageType(), existingRecord.getDltOccurrence());
+        }
+        else {
             throw new DeadLetterTopicException("Provided Error Source is not supported");
         }
 
-        saveDltRecord(existingRecord);
         return existingRecord;
     }
 
     public ElrDeadLetterDto saveDltRecord(ElrDeadLetterDto model) {
-        ElrDeadLetterModel modelForUpdate = dltRepository.save(convertDtoToModel(model));
+        dltRepository.save(convertDtoToModel(model));
         return model;
     }
 
     private List<ElrDeadLetterDto> convertModelToDtoList(List<ElrDeadLetterModel> models) throws DeadLetterTopicException {
         List<ElrDeadLetterDto>  dtlModels = new ArrayList<>() {};
         for(ElrDeadLetterModel model: models) {
-            dtlModels.add(convertModelToDto(model));
+            dtlModels.add(new ElrDeadLetterDto(model));
         }
         return dtlModels;
     }
@@ -115,10 +154,21 @@ public class ElrDeadLetterService {
             if (rawMessageObject.isPresent()) {
                 errorMessage = rawMessageObject.get().getPayload();
             } else {
-                errorMessage = "Not Found";
+                throw new DeadLetterTopicException("DLT record, but parent table record not found");
             }
-        } else {
-            throw new DeadLetterTopicException("Unsupported Operation");
+        }
+        else if (model.getErrorMessageSource().equalsIgnoreCase(validatedTopic) ||
+                model.getErrorMessageSource().equalsIgnoreCase(prepXmlTopic) ||
+                model.getErrorMessageSource().equalsIgnoreCase(prepFhirTopic)) {
+            var rawMessageObject = validatedELRRepository.findById(model.getErrorMessageId());
+            if (rawMessageObject.isPresent()) {
+                errorMessage = rawMessageObject.get().getRawMessage();
+            } else {
+                throw new DeadLetterTopicException("DLT record, but parent table record not found");
+            }
+        }
+        else {
+            throw new DeadLetterTopicException("Unsupported Topic");
         }
         return new ElrDeadLetterDto(model, errorMessage);
     }
