@@ -11,7 +11,6 @@ java {
 
 group = 'gov.cdc.dataingestion'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17'
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -19,7 +18,6 @@ repositories {
 }
 
 dependencies {
-
     implementation 'ca.uhn.hapi:hapi-base:2.3'
     implementation 'ca.uhn.hapi:hapi-structures-v251:2.3'
     implementation 'ca.uhn.hapi:hapi-structures-v231:2.3'

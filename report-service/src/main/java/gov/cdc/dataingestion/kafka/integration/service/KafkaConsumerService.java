@@ -1,4 +1,5 @@
 package gov.cdc.dataingestion.kafka.integration.service;
+
 import ca.uhn.hl7v2.HL7Exception;
 import com.google.gson.Gson;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
@@ -16,7 +17,7 @@ import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2V
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import gov.cdc.dataingestion.validation.model.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
-import gov.cdc.dataingestion.nbs.converters.Hl7ToXmlConverter;
+import gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 
 import lombok.extern.slf4j.Slf4j;
@@ -252,12 +253,13 @@ public class KafkaConsumerService {
         log.info("Received message id will be retrieved from db and associated hl7 will be converted to xml");
 
         Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
-        String hl7AsXml = Hl7ToXmlConverter.getInstance().convertXl7ToXml(validatedElrResponse.get().getRawMessage());
+        String hl7Msg = validatedElrResponse.get().getRawMessage();
 
-        log.info("Converted xml: {}", hl7AsXml);
-
-        nbsRepositoryServiceProvider.saveXmlMessage(hl7AsXml);
-        kafkaProducerService.sendMessageAfterConvertedToXml(hl7AsXml, convertedToXmlTopic, 0);
+        String rhapsodyXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(hl7Msg);
+        log.info("rhapsodyXml: {}", rhapsodyXml);
+      
+        nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml);
+        kafkaProducerService.sendMessageAfterConvertedToXml(rhapsodyXml, convertedToXmlTopic, 0);
     }
 
     private void validationHandler(String message) throws DuplicateHL7FileFoundException, HL7Exception {
