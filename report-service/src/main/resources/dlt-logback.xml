@@ -1,0 +1,31 @@
+<configuration>
+    <!-- Appenders -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+    </appender>
+
+    <appender name="DYNAMIC_FILE" class="gov.cdc.dataingestion.config.LogDynamicFileAppenderConfig">
+        <logFilePath>logs/kafka_dlt_error-%d{yyyy-MM-dd}.log</logFilePath>
+        <append>true</append>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/kafka_dlt_error-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory> <!-- Number of old log files to keep -->
+            <totalSizeCap>1GB</totalSizeCap> <!-- Maximum total size of log files -->
+        </rollingPolicy>
+    </appender>
+
+    <!-- Loggers -->
+    <logger name="gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService" level="INFO">
+        <appender-ref ref="DYNAMIC_FILE" />
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+    </root>
+</configuration>
