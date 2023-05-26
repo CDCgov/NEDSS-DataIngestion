@@ -1,3 +1,12 @@
+rsa:
+  private-key: classpath:certs/private.pem
+  public-key: classpath:certs/public.pem
+server:
+  port: 8083
+app:
+  security:
+    username: admin
+    password: password
 spring:
   application:
     name: report-service
@@ -29,9 +38,9 @@ spring:
       connection-timeout: 60000
       maximum-pool-size: 5
     nbs:
-      url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_NBS_DBNAME};encrypt=true;trustServerCertificate=true;
-      username: ${DI_USERNAME}
-      password: ${DI_PASSWORD}
+      url: jdbc:sqlserver://${DI_NBS_DBSERVER};databaseName=${DI_NBS_DBNAME};encrypt=true;trustServerCertificate=true;
+      username: ${DI_NBS_DBUSER}
+      password: ${DI_NBS_DBPASSWORD}
       driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
   jpa:
@@ -123,7 +132,3 @@ kafka:
     suffix: _retry
   dlt:
     suffix: _dlt
-
-
-
-
