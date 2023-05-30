@@ -121,7 +121,7 @@ public class KafkaConsumerService {
         Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
         String hl7AsXml = Hl7ToXmlConverter.getInstance().convertXl7ToXml(validatedElrResponse.get().getRawMessage());
 
-        log.info("Converted xml: {}", hl7AsXml);
+        log.debug("Converted xml: {}", hl7AsXml);
 
         nbsRepositoryServiceProvider.saveXmlMessage(hl7AsXml);
         kafkaProducerService.sendMessageAfterConvertedToXml(hl7AsXml, convertedToXmlTopic);
