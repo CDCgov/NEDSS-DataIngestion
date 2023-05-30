@@ -29,13 +29,14 @@ import  java.util.HashMap;
                 "gov.cdc.dataingestion.validation.repository",
                 "gov.cdc.dataingestion.report.repository",
                 "gov.cdc.dataingestion.conversion.repository",
-                "gov.cdc.dataingestion.security.repository",
-                "gov.cdc.dataingestion.registration.repository"
+                "gov.cdc.dataingestion.deadletter.repository",
+                "gov.cdc.dataingestion.registration.repository",
+                "gov.cdc.dataingestion.security.repository"
         }
 )
 @Configuration
 public class DataSourceConfig {
-    private static Logger logger = LoggerFactory.getLogger(DataSourceConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(DataSourceConfig.class);
 
     @Value("${spring.datasource.driverClassName}")
     private String className;
@@ -80,8 +81,9 @@ public class DataSourceConfig {
                 .packages("gov.cdc.dataingestion.validation.repository.model",
                           "gov.cdc.dataingestion.report.repository",
                           "gov.cdc.dataingestion.conversion.repository.model",
-                          "gov.cdc.dataingestion.security.model",
-                        "gov.cdc.dataingestion.registration.model")
+                          "gov.cdc.dataingestion.deadletter.repository.model",
+                          "gov.cdc.dataingestion.registration.model",
+                          "gov.cdc.dataingestion.security.model")
                 .persistenceUnit("ingest")
                 .build();
     }

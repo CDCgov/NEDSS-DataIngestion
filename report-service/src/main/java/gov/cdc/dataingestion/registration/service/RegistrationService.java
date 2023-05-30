@@ -38,8 +38,8 @@ public class RegistrationService {
             else {
                 clientObject.setRoles("USER");
             }
-            clientObject.setCreatedBy("rshanmugam");
-            clientObject.setUpdatedBy("rshanmugam");
+            clientObject.setCreatedBy("diteamadmin");
+            clientObject.setUpdatedBy("diteamadmin");
             iClientRegisterRepository.save(clientObject);
             return true;
         }
