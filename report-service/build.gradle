@@ -94,6 +94,7 @@ dependencies {
 	implementation 'org.slf4j:slf4j-api'
 	implementation 'ch.qos.logback:logback-classic'
 	implementation 'net.logstash.logback:logstash-logback-encoder:6.6'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
 	// DI HL7 Wrapper
 	if (findProject(':hl7-parser')) {
@@ -142,6 +143,8 @@ test {
 
 jar {
 	// task configuration goes here
-	dependsOn(':hl7-parser:jar')
-	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+	if (findProject(':hl7-parser')) {
+		dependsOn(':hl7-parser:jar')
+		from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+	}
 }
