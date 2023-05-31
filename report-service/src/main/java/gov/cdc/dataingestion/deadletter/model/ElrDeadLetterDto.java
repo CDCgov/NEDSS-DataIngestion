@@ -5,6 +5,7 @@ import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.Timestamp;
 import java.util.regex.Matcher;
@@ -74,6 +75,7 @@ public class ElrDeadLetterDto {
         this.updatedBy = model.getUpdatedBy();
     }
 
+    @NotNull
     private String processingSourceStackTrace(String stackTrace) {
         String regex = "RuntimeException:\\s*(.*?)(?=\\r|\\n|$)";
         if (stackTrace == null) {
