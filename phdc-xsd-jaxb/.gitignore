@@ -28,3 +28,5 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
+src/main/java/gov/cdc/dataingestion/nbs/jaxb/*
+
