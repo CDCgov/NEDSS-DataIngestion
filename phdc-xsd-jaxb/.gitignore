@@ -28,15 +28,3 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-
-### VS Code ###
-.vscode/
-
-/src/main/java/gov/cdc/dataingestion/nbs/jaxb/*.java
-/logs/report-service.log*

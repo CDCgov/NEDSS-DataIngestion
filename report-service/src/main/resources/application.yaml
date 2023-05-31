@@ -1,8 +1,19 @@
+rsa:
+  private-key: classpath:certs/private.pem
+  public-key: classpath:certs/public.pem
+server:
+  port: 8083
+app:
+  security:
+    username: admin
+    password: password
 spring:
   application:
     name: report-service
 
 logging:
+  #  Only one config can be active at a time
+  config: classpath:dlt-logback.xml
   pattern:
     console: "%d %-5level %logger : %file-%line : %msg%n"
     file:    "%d %-5level [%thread] %logger : [ramesh] : %msg%n"
@@ -27,9 +38,9 @@ spring:
       connection-timeout: 60000
       maximum-pool-size: 5
     nbs:
-      url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_NBS_DBNAME};encrypt=true;trustServerCertificate=true;
-      username: ${DI_USERNAME}
-      password: ${DI_PASSWORD}
+      url: jdbc:sqlserver://${DI_NBS_DBSERVER};databaseName=${DI_NBS_DBNAME};encrypt=true;trustServerCertificate=true;
+      username: ${DI_NBS_DBUSER}
+      password: ${DI_NBS_DBPASSWORD}
       driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
   jpa:
@@ -54,8 +65,12 @@ kafka:
     topic: elr_validated
   fhir-conversion:
     topic: fhir_converted
+  fhir-conversion-prep:
+    topic: fhir_prep
   xml-conversion:
     topic: xml_converted
+  xml-conversion-prep:
+    topic: xml_prep
   elr-duplicate:
     topic: elr_duplicate
   topics: elr_raw,elr_validated
@@ -95,7 +110,7 @@ spring:
 
 kafka:
   consumer:
-    max-retry: 1
+    max-retry: 2
   raw:
     producer:
       topic: elr_raw
@@ -104,8 +119,12 @@ kafka:
     topic: elr_validated
   fhir-conversion:
     topic: fhir_converted
+  fhir-conversion-prep:
+    topic: fhir_prep
   xml-conversion:
     topic: xml_converted
+  xml-conversion-prep:
+    topic: xml_prep
   elr-duplicate:
     topic: elr_duplicate
   topics: elr_raw,elr_validated
@@ -113,7 +132,3 @@ kafka:
     suffix: _retry
   dlt:
     suffix: _dlt
-
-
-
-

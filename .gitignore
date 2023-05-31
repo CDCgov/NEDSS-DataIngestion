@@ -42,6 +42,7 @@ report-service/dlt_records
 .gradle/7.6/checksums/checksums.lock
 
 
+
 # HL7 Wrapper ignore 
 
 hl7-parser/HELP.md
@@ -95,3 +96,4 @@ dataingestion.env
 karatetest/build/
 karatetest/.gradle
 karatetest/.idea
+
