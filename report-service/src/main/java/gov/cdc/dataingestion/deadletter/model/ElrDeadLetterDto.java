@@ -1,8 +1,8 @@
 package gov.cdc.dataingestion.deadletter.model;
 
 
+import gov.cdc.dataingestion.constant.enums.EnumElrServiceOperation;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
-import gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +23,8 @@ public class ElrDeadLetterDto {
 
     private String errorStackTrace;
 
+    private String errorStackTraceShort;
+
     private Integer dltOccurrence;
 
     private String dltStatus;
@@ -37,6 +39,7 @@ public class ElrDeadLetterDto {
 
     public ElrDeadLetterDto() {};
 
+    // Constructor for DLT in Kafka Consumer Service
     public ElrDeadLetterDto(String errorMessageId, String errorMessageSource,
                             String errorStackTrace,
                             Integer dltOccurrence, String dltStatus,
@@ -47,32 +50,26 @@ public class ElrDeadLetterDto {
         this.dltStatus = dltStatus;
         this.createdBy = createdBy;
         this.updatedBy = updatedBy;
-        this.errorStackTrace = processingSourceStackTrace(errorStackTrace);
+        this.errorStackTrace = errorStackTrace;
+        this.errorStackTraceShort = processingSourceStackTrace(errorStackTrace);
     }
 
-    public ElrDeadLetterDto(ElrDeadLetterModel model, String errorMessage) {
+    // Constructor for DLT service, get all error messages
+    public ElrDeadLetterDto(ElrDeadLetterModel model, EnumElrServiceOperation operation) {
         this.errorMessageId = model.getErrorMessageId();
         this.errorMessageSource = model.getErrorMessageSource();
-        this.errorStackTrace = processingSourceStackTrace(model.getErrorStackTrace());
+        this.errorStackTraceShort = model.getErrorStackTraceShort();
         this.dltOccurrence = model.getDltOccurrence();
         this.dltStatus = model.getDltStatus();
         this.createdOn = model.getCreatedOn();
         this.updatedOn = model.getUpdatedOn();
         this.createdBy = model.getCreatedBy();
         this.updatedBy = model.getUpdatedBy();
-        this.message = errorMessage;
-    }
 
-    public ElrDeadLetterDto(ElrDeadLetterModel model) {
-        this.errorMessageId = model.getErrorMessageId();
-        this.errorMessageSource = model.getErrorMessageSource();
-        this.errorStackTrace = processingSourceStackTrace(model.getErrorStackTrace());
-        this.dltOccurrence = model.getDltOccurrence();
-        this.dltStatus = model.getDltStatus();
-        this.createdOn = model.getCreatedOn();
-        this.updatedOn = model.getUpdatedOn();
-        this.createdBy = model.getCreatedBy();
-        this.updatedBy = model.getUpdatedBy();
+        if (operation == EnumElrServiceOperation.GET_DLT_BY_ID) {
+            this.errorStackTrace = model.getErrorStackTrace();
+            this.message = model.getMessage();
+        }
     }
 
     @NotNull

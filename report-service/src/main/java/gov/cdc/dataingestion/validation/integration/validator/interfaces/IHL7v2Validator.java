@@ -6,4 +6,5 @@ import org.springframework.stereotype.Component;
 
 public interface IHL7v2Validator {
     ValidatedELRModel MessageValidation(String message, RawERLModel rawERLModel, String topicName) throws HL7Exception;
+    String MessageStringValidation(String message);
 }

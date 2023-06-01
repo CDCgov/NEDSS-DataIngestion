@@ -1,4 +1,4 @@
-package gov.cdc.dataingestion.validation.model.constant;
+package gov.cdc.dataingestion.constant;
 
 public class KafkaHeaderValue {
     public static final String MessageType = "MESSAGE-TYPE";
@@ -8,4 +8,6 @@ public class KafkaHeaderValue {
     public static final String MessageType_CSV = "CSV";
 
     public static final String MessageVersion = "MESSAGE_VERSION";
+
+    public static final String MessageOperation = "MESSAGE_OPERATION";
 }

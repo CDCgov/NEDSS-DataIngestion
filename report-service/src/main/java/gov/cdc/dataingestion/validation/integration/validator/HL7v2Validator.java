@@ -8,26 +8,36 @@ import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
-import gov.cdc.dataingestion.validation.model.enums.MessageType;
+import gov.cdc.dataingestion.constant.enums.EnumMessageType;
 public class HL7v2Validator implements IHL7v2Validator {
     private final HapiContext context;
     public HL7v2Validator(HapiContext context) {
         this.context = context;
     }
 
-    public ValidatedELRModel MessageValidation(String id, RawERLModel rawERLModel, String topicName) throws HL7Exception {
+    public String MessageStringValidation(String message) {
         String replaceSpecialCharacters;
-        if (rawERLModel.getPayload().contains("\n")) {
-            replaceSpecialCharacters = rawERLModel.getPayload().replaceAll("\n","\r");
-        } else if (rawERLModel.getPayload().contains("\n\r")) {
-            replaceSpecialCharacters = rawERLModel.getPayload().replaceAll("\n\r","\r");
+        if (message.contains("\n")) {
+            replaceSpecialCharacters = message.replaceAll("\n","\r");
+        } else if (message.contains("\n\r")) {
+            replaceSpecialCharacters = message.replaceAll("\n\r","\r");
         } else {
-            if (rawERLModel.getPayload().contains("\\n")) {
-                replaceSpecialCharacters = rawERLModel.getPayload().replaceAll("\\\\n","\r");
-            } else {
-                replaceSpecialCharacters = rawERLModel.getPayload();
+            if (message.contains("\\n")) {
+                replaceSpecialCharacters = message.replaceAll("\\\\n","\r");
+            } else if (message.contains("\\r")) {
+                replaceSpecialCharacters = message.replaceAll("\\\\r","\r");
+            }
+            else {
+                replaceSpecialCharacters = message;
             }
         }
+
+        replaceSpecialCharacters = replaceSpecialCharacters.replaceAll("\\\\+", "\\\\");
+        return replaceSpecialCharacters;
+    }
+
+    public ValidatedELRModel MessageValidation(String id, RawERLModel rawERLModel, String topicName) throws HL7Exception {
+        String replaceSpecialCharacters = MessageStringValidation(rawERLModel.getPayload());
 
         replaceSpecialCharacters = replaceSpecialCharacters.replaceAll("\\\\+", "\\\\");
 
@@ -40,7 +50,7 @@ public class HL7v2Validator implements IHL7v2Validator {
 
         model.setRawId(id);
         model.setRawMessage(replaceSpecialCharacters);
-        model.setMessageType(MessageType.HL7.name());
+        model.setMessageType(EnumMessageType.HL7.name());
         model.setMessageVersion(parsedMessage.getVersion());
         model.setCreatedBy(topicName);
         model.setUpdatedBy(topicName);

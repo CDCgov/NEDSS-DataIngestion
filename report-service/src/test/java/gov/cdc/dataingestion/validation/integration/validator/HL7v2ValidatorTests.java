@@ -5,7 +5,7 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.HapiContext;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
-import gov.cdc.dataingestion.validation.model.enums.MessageType;
+import gov.cdc.dataingestion.constant.enums.EnumMessageType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
@@ -41,7 +41,7 @@ public class HL7v2ValidatorTests
         Assertions.assertNotNull(result);
         Assertions.assertEquals("2.5",result.getMessageVersion());
         Assertions.assertEquals(data, result.getRawMessage());
-        Assertions.assertEquals(MessageType.HL7.name(), result.getMessageType());
+        Assertions.assertEquals(EnumMessageType.HL7.name(), result.getMessageType());
     }
 
     @Test
@@ -72,7 +72,7 @@ public class HL7v2ValidatorTests
         Assertions.assertNotNull(result);
         Assertions.assertEquals("2.5",result.getMessageVersion());
         Assertions.assertEquals(dataAfterValidated, result.getRawMessage());
-        Assertions.assertEquals(MessageType.HL7.name(), result.getMessageType());
+        Assertions.assertEquals(EnumMessageType.HL7.name(), result.getMessageType());
     }
 
     @Test
