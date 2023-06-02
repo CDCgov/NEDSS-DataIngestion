@@ -59,30 +59,28 @@ public class KafkaConsumerService {
     private String retrySuffix = "";
 
     @Value("${kafka.dlt.suffix}")
-    private String dltSuffix = "";
+    private String dltSuffix = "_dlt";
 
     @Value("${kafka.validation.topic}")
-    private String validatedTopic = "";
+    private String validatedTopic = "elr_validated";
 
     @Value("${kafka.fhir-conversion.topic}")
-    private String convertedToFhirTopic = "";
+    private String convertedToFhirTopic = "fhir_converted";
 
     @Value("${kafka.xml-conversion.topic}")
-    private String convertedToXmlTopic = "";
+    private String convertedToXmlTopic = "xml_converted";
 
     @Value("${kafka.raw.topic}")
-    private String rawTopic = "";
+    private String rawTopic = "elr_raw";
 
     @Value("${kafka.elr-duplicate.topic}")
     private String validatedElrDuplicateTopic = "";
 
     @Value("${kafka.xml-conversion-prep.topic}")
-    private String prepXmlTopic = "";
+    private String prepXmlTopic = "xml_prep";
 
     @Value("${kafka.fhir-conversion-prep.topic}")
-    private String prepFhirTopic = "";
-
-    private final String directory = "dlt_records";
+    private String prepFhirTopic = "fhir_prep";
     private final KafkaProducerService kafkaProducerService;
     private final IHL7v2Validator iHl7v2Validator;
     private final IRawELRRepository iRawELRRepository;
@@ -381,12 +379,7 @@ public class KafkaConsumerService {
         }
         return erroredSource;
     }
-    private String convertUnixTimeStampToReadable(String unixTimestamp) {
-        Instant instant = Instant.ofEpochSecond(Long.parseLong(unixTimestamp));
-        LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return dateTime.format(formatter);
-    }
+
     private void preparationForConversionHandler(String message) throws ConversionPrepareException {
         Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
         if(validatedElrResponse.isPresent()) {
