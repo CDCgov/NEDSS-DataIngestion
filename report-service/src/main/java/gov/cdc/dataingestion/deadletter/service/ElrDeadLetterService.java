@@ -30,8 +30,6 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class ElrDeadLetterService {
-    private static final String CREATED_BY = "DeadLetterService";
-
     private final IElrDeadLetterRepository dltRepository;
     private final IRawELRRepository rawELRRepository;
     private final IValidatedELRRepository validatedELRRepository;
@@ -70,7 +68,7 @@ public class ElrDeadLetterService {
         this.fhirRepository = fhirRepository;
     }
 
-    public List<ElrDeadLetterDto> getAllErrorDltRecord() throws DeadLetterTopicException {
+    public List<ElrDeadLetterDto> getAllErrorDltRecord() {
         Optional<List<ElrDeadLetterModel>> deadLetterELRModels = dltRepository.findAllDltRecordByDltStatus(EnumElrDltStatus.ERROR.name(), Sort.by(Sort.Direction.DESC, "createdOn"));
         List<ElrDeadLetterDto> results = new ArrayList<>();
         // return empty list if nothing is found
@@ -153,7 +151,7 @@ public class ElrDeadLetterService {
         return model;
     }
 
-    private List<ElrDeadLetterDto> convertModelToDtoList(List<ElrDeadLetterModel> models) throws DeadLetterTopicException {
+    private List<ElrDeadLetterDto> convertModelToDtoList(List<ElrDeadLetterModel> models) {
         List<ElrDeadLetterDto>  dtlModels = new ArrayList<>() {};
         for(ElrDeadLetterModel model: models) {
             dtlModels.add(new ElrDeadLetterDto(model, EnumElrServiceOperation.GET_DLT_LIST));
@@ -161,29 +159,7 @@ public class ElrDeadLetterService {
         return dtlModels;
     }
 
-    private ElrDeadLetterDto convertModelToDto(ElrDeadLetterModel model) throws DeadLetterTopicException {
-//        String errorMessage;
-//        if (model.getErrorMessageSource().equalsIgnoreCase(rawTopic)) {
-//            var rawMessageObject = rawELRRepository.findById(model.getErrorMessageId());
-//            if (rawMessageObject.isPresent()) {
-//                errorMessage = rawMessageObject.get().getPayload();
-//            } else {
-//                throw new DeadLetterTopicException("DLT record, but parent table record not found");
-//            }
-//        }
-//        else if (model.getErrorMessageSource().equalsIgnoreCase(validatedTopic) ||
-//                model.getErrorMessageSource().equalsIgnoreCase(prepXmlTopic) ||
-//                model.getErrorMessageSource().equalsIgnoreCase(prepFhirTopic)) {
-//            var rawMessageObject = validatedELRRepository.findById(model.getErrorMessageId());
-//            if (rawMessageObject.isPresent()) {
-//                errorMessage = rawMessageObject.get().getRawMessage();
-//            } else {
-//                throw new DeadLetterTopicException("DLT record, but parent table record not found");
-//            }
-//        }
-//        else {
-//            throw new DeadLetterTopicException("Unsupported Topic");
-//        }
+    private ElrDeadLetterDto convertModelToDto(ElrDeadLetterModel model) {
         return new ElrDeadLetterDto(model, EnumElrServiceOperation.GET_DLT_BY_ID);
     }
 
