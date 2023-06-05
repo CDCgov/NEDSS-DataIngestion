@@ -55,7 +55,7 @@ public class HL7DuplicateValidator implements IHL7DuplicateValidator {
     }
 
     public boolean checkForDuplicateHL7HashString(String hashedString) {
-        log.info("Generated HashString is being checked for duplicate if already present in the database");
+        log.debug("Generated HashString is being checked for duplicate if already present in the database");
         Optional<ValidatedELRModel> validatedELRResponseFromDatabase = iValidatedELRRepository.findByHashedHL7String(hashedString);
         if (!validatedELRResponseFromDatabase.isEmpty()) {
             if (hashedString.equals(validatedELRResponseFromDatabase.get().getHashedHL7String())) {
@@ -63,7 +63,7 @@ public class HL7DuplicateValidator implements IHL7DuplicateValidator {
                 return true;
             }
         }
-        log.info("HashString doesn't exists in the database. Moving forward to FHIR conversion.");
+        log.debug("HashString doesn't exists in the database. Moving forward to FHIR conversion.");
         return false;
     }
 }
