@@ -171,6 +171,7 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     public String convert(String hl7Msg) throws Exception {
+
         String rhapsodyXml = "";
 
         HL7Helper hl7Helper = new HL7Helper();
@@ -178,13 +179,16 @@ public class Hl7ToRhapsodysXmlConverter {
 
         HL7ParsedMessage hl7ParsedMsg = hl7Helper.hl7StringParser(hl7Msg);
 
-        if (!hl7ParsedMsg.getOriginalVersion().equalsIgnoreCase(VERSION231) ||
-        !hl7ParsedMsg.getOriginalVersion().equalsIgnoreCase(VERSION251)) {
-            throw new DiHL7Exception("Unsupported HL7 version: " + hl7ParsedMsg.getOriginalVersion());
-        }
-
-        if (hl7ParsedMsg.getOriginalVersion().equalsIgnoreCase(VERSION231)) {
-            hl7ParsedMsg = hl7Helper.convert231To251(hl7Msg);
+        // this should be handled by validation pipeline
+        // the one scenario this might be needed is when someone reprocessing the failed message on this pipeline
+        switch (hl7ParsedMsg.getOriginalVersion()) {
+            case VERSION231:
+                hl7ParsedMsg = hl7Helper.convert231To251(hl7Msg);
+                break;
+            case VERSION251:
+                break;
+            default:
+                throw new DiHL7Exception("Unsupported HL7 version: " + hl7ParsedMsg.getOriginalVersion());
         }
 
         Container c = new Container();
