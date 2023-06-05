@@ -6,6 +6,7 @@ import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConvers
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
+import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
@@ -236,7 +237,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void xmlPreparationConsumerTestReInjection() {
+    public void xmlPreparationConsumerTestReInjection() throws DiHL7Exception {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(xmlPrepTopic);
         String message =  guidForTesting;
@@ -299,7 +300,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void fhirPreparationConsumerTestReInjection() {
+    public void fhirPreparationConsumerTestReInjection() throws DiHL7Exception {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(fhirPrepTopic);
         String message =  guidForTesting;
