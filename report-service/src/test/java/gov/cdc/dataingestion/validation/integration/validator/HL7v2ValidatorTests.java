@@ -3,6 +3,7 @@ package gov.cdc.dataingestion.validation.integration.validator;
 import ca.uhn.hl7v2.DefaultHapiContext;
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.HapiContext;
+import gov.cdc.dataingestion.hl7.helper.HL7Helper;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.constant.enums.EnumMessageType;
@@ -13,12 +14,12 @@ import org.junit.jupiter.api.Assertions;
 public class HL7v2ValidatorTests
 {
     private IHL7v2Validator target;
-    private HapiContext context;
+    private HL7Helper hl7Helper;
 
     @BeforeEach
     public void setUp() {
-        context = new DefaultHapiContext();
-        target = new HL7v2Validator(context);
+        hl7Helper = new HL7Helper();
+        target = new HL7v2Validator(hl7Helper);
     }
 
     @Test
