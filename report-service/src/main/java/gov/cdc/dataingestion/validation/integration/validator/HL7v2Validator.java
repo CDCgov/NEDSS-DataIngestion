@@ -30,18 +30,14 @@ public class HL7v2Validator implements IHL7v2Validator {
         ValidatedELRModel model = new ValidatedELRModel();
         var parsedMessage = this.hl7Helper.hl7StringParser(replaceSpecialCharacters);
 
-        if (parsedMessage.getOriginalVersion().equalsIgnoreCase(VERSION251) ||
-            parsedMessage.getOriginalVersion().equalsIgnoreCase(VERSION231)) {
-            model.setRawId(id);
-            model.setRawMessage(replaceSpecialCharacters);
-            model.setMessageType(EnumMessageType.HL7.name());
-            model.setMessageVersion(parsedMessage.getOriginalVersion());
-            model.setCreatedBy(topicName);
-            model.setUpdatedBy(topicName);
-        }
-        else {
-            throw new DiHL7Exception("Invalid HL7 version");
-        }
+
+        model.setRawId(id);
+        model.setRawMessage(replaceSpecialCharacters);
+        model.setMessageType(EnumMessageType.HL7.name());
+        model.setMessageVersion(parsedMessage.getOriginalVersion());
+        model.setCreatedBy(topicName);
+        model.setUpdatedBy(topicName);
+
         return model;
     }
 }
