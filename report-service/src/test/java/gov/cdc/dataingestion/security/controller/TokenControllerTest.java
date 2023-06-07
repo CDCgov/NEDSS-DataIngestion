@@ -1,35 +1,35 @@
 package gov.cdc.dataingestion.security.controller;
 
 import gov.cdc.dataingestion.security.service.TokenService;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-public class TokenControllerTest {
+class TokenControllerTest {
 
-    private TokenController tokenController;
-
-    private  TokenService tokenService;
+    TokenService tokenService;
+    Authentication authentication;
+    String expectedToken = "testToken";
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         tokenService = mock(TokenService.class);
-        tokenController = new TokenController(tokenService);
+        authentication = new UsernamePasswordAuthenticationToken("username", "password");
     }
 
     @Test
-    public void TokenTest()
-    {
-        var authentication = mock(Authentication.class);
-        when(authentication.getName()).thenReturn("tokenTest");
-        when(tokenService.generateToken(authentication)).thenReturn("testGeneratedToken");
+    void testTokenEndpoint() {
+        when(tokenService.generateToken(authentication)).thenReturn("testToken");
 
-        var token  =  tokenController.token(authentication);
-        Assertions.assertEquals("testGeneratedToken", token);
+        TokenController tokenController = new TokenController(tokenService);
+
+        String generatedToken = tokenController.token(authentication);
+
+        verify(tokenService, times(1)).generateToken(authentication);
+        assertEquals(expectedToken, generatedToken);
     }
-
 }
