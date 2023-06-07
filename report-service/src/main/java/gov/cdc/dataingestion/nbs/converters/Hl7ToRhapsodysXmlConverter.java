@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.nbs.converters;
 
+import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ObservationRequest;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction;
@@ -152,11 +153,15 @@ import  java.time.LocalDateTime;
 import  java.util.List;
 import  java.util.ArrayList;
 
+import static gov.cdc.dataingestion.constant.SupportedHl7Version.VERSION231;
+import static gov.cdc.dataingestion.constant.SupportedHl7Version.VERSION251;
+
 public class Hl7ToRhapsodysXmlConverter {
     private static Logger log = LoggerFactory.getLogger(Hl7ToRhapsodysXmlConverter.class);
     private static Hl7ToRhapsodysXmlConverter instance = new Hl7ToRhapsodysXmlConverter();
     private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
     private static String EMPTY_STRING = "";
+
 
     public static Hl7ToRhapsodysXmlConverter getInstance() {
         return instance;
@@ -166,10 +171,25 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     public String convert(String hl7Msg) throws Exception {
+
         String rhapsodyXml = "";
 
         HL7Helper hl7Helper = new HL7Helper();
+
+
         HL7ParsedMessage hl7ParsedMsg = hl7Helper.hl7StringParser(hl7Msg);
+
+        // this should be handled by validation pipeline
+        // the one scenario this might be needed is when someone reprocessing the failed message on this pipeline
+        switch (hl7ParsedMsg.getOriginalVersion()) {
+            case VERSION231:
+                hl7ParsedMsg = hl7Helper.convert231To251(hl7Msg);
+                break;
+            case VERSION251:
+                break;
+            default:
+                throw new DiHL7Exception("Unsupported HL7 version: " + hl7ParsedMsg.getOriginalVersion());
+        }
 
         Container c = new Container();
 

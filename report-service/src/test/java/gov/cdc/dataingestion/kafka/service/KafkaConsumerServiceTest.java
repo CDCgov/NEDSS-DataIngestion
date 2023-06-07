@@ -6,6 +6,8 @@ import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConvers
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
+import gov.cdc.dataingestion.exception.ConversionPrepareException;
+import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
@@ -47,6 +49,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -207,6 +210,36 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
+    public void validateConsumerTest_Exception() {
+        // Produce a test message to the topic
+        initialDataInsertionAndSelection(validateTopic);
+        String message =  guidForTesting;
+        produceMessage(validateTopic, message, EnumKafkaOperation.INJECTION);
+
+        // Consume the message
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
+
+        // Perform assertions
+        assertEquals(1, records.count());
+
+        ConsumerRecord<String, String> firstRecord = records.iterator().next();
+        String value = firstRecord.value();
+
+        ValidatedELRModel model = new ValidatedELRModel();
+        model.setId(guidForTesting);
+
+        when(iValidatedELRRepository.findById(eq(guidForTesting)))
+                .thenReturn(Optional.empty());
+
+
+        assertThrows(RuntimeException.class, () -> kafkaConsumerService.handleMessageForValidatedElr(value, validateTopic));
+
+
+        verify(iValidatedELRRepository, times(1)).findById(eq(guidForTesting));
+
+    }
+
+    @Test
     public void xmlPreparationConsumerTest() {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(xmlPrepTopic);
@@ -236,7 +269,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void xmlPreparationConsumerTestReInjection() {
+    public void xmlPreparationConsumerTestReInjection() throws DiHL7Exception {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(xmlPrepTopic);
         String message =  guidForTesting;
@@ -299,7 +332,38 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void fhirPreparationConsumerTestReInjection() {
+    public void fhirPreparationConsumerTest_Exception() {
+        // Produce a test message to the topic
+        initialDataInsertionAndSelection(fhirPrepTopic);
+        String message =  guidForTesting;
+        produceMessage(fhirPrepTopic, message, EnumKafkaOperation.INJECTION);
+
+        // Consume the message
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
+
+        // Perform assertions
+        assertEquals(1, records.count());
+
+        ConsumerRecord<String, String> firstRecord = records.iterator().next();
+        String value = firstRecord.value();
+
+
+
+        when(iValidatedELRRepository.findById(eq(guidForTesting)))
+                .thenReturn(Optional.empty());
+
+
+        assertThrows(RuntimeException.class, () ->
+                kafkaConsumerService.handleMessageForFhirConversionElr(value, fhirPrepTopic, EnumKafkaOperation.INJECTION.name())
+        );
+
+
+        verify(iValidatedELRRepository, times(1)).findById(eq(guidForTesting));
+
+    }
+
+    @Test
+    public void fhirPreparationConsumerTestReInjection() throws DiHL7Exception {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(fhirPrepTopic);
         String message =  guidForTesting;

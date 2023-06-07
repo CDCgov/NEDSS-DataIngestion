@@ -20,6 +20,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -129,6 +131,28 @@ public class KafkaProducerServiceTest {
         model.setRawId("test");
         kafkaProducerService.sendMessageAfterCheckingDuplicateHL7(model, topic,
                 1 );
+        verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
+    }
+
+    @Test
+    public void testSendMessageFromDltController() {
+        String topic = "test-topic";
+        String msg = "test";
+        String msgType = "HL7";
+        Integer occurrence = 0;
+        kafkaProducerService.sendMessageFromController(msg, topic,msgType, occurrence);
+        verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
+    }
+
+    @Test
+    public void testSendMessageFromCSVController() {
+        String topic = "test-topic";
+        List<String> msgNested = new ArrayList<>();
+        msgNested.add("test");
+        List<List<String>> msg = new ArrayList<>();
+        msg.add(msgNested);
+        String msgType = "HL7";
+        kafkaProducerService.sendMessageFromCSVController(msg, topic,msgType);
         verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
     }
 }

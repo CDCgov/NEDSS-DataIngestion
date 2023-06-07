@@ -15,6 +15,7 @@ import gov.cdc.dataingestion.exception.ConversionPrepareException;
 import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
 import gov.cdc.dataingestion.exception.FhirConversionException;
 import gov.cdc.dataingestion.constant.TopicPreparationType;
+import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
@@ -148,6 +149,7 @@ public class KafkaConsumerService {
                     SerializationException.class,
                     DeserializationException.class,
                     DuplicateHL7FileFoundException.class,
+                    DiHL7Exception.class
                     //HL7Exception.class
             }
 
@@ -190,6 +192,7 @@ public class KafkaConsumerService {
                     SerializationException.class,
                     DeserializationException.class,
                     DuplicateHL7FileFoundException.class,
+                    DiHL7Exception.class
                     //HL7Exception.class
             }
     )
@@ -225,6 +228,7 @@ public class KafkaConsumerService {
                     SerializationException.class,
                     DeserializationException.class,
                     DuplicateHL7FileFoundException.class,
+                    DiHL7Exception.class
                     //HL7Exception.class
             }
     )
@@ -259,6 +263,7 @@ public class KafkaConsumerService {
                     SerializationException.class,
                     DeserializationException.class,
                     DuplicateHL7FileFoundException.class,
+                    DiHL7Exception.class
                     //HL7Exception.class
             }
     )
@@ -384,7 +389,7 @@ public class KafkaConsumerService {
         Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
         if(validatedElrResponse.isPresent()) {
             kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepXmlTopic, TopicPreparationType.XML, 0);
-            kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepFhirTopic, TopicPreparationType.FHIR, 0);
+            // kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepFhirTopic, TopicPreparationType.FHIR, 0);
         } else {
             throw new ConversionPrepareException("Validation ELR Record Not Found");
         }
@@ -412,7 +417,7 @@ public class KafkaConsumerService {
         nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml);
         kafkaProducerService.sendMessageAfterConvertedToXml(rhapsodyXml, convertedToXmlTopic, 0);
     }
-    private void validationHandler(String message) throws DuplicateHL7FileFoundException, HL7Exception {
+    private void validationHandler(String message) throws DuplicateHL7FileFoundException, HL7Exception, DiHL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);
         RawERLModel elrModel = rawElrResponse.get();
         String messageType = elrModel.getType();
@@ -431,7 +436,7 @@ public class KafkaConsumerService {
                 break;
         }
     }
-    private void conversionHandlerForFhir(String message, String operation) throws FhirConversionException {
+    private void conversionHandlerForFhir(String message, String operation) throws FhirConversionException, DiHL7Exception {
         String payloadMessage ="";
         ValidatedELRModel model = new ValidatedELRModel();
         if(operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
