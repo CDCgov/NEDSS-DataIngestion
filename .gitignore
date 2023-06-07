@@ -40,6 +40,10 @@ report-service/dlt_records
 .gradle/vcs-1/gc.properties
 .gradle/file-system.probe
 .gradle/7.6/checksums/checksums.lock
+.gradle/7.6/executionHistory/executionHistory.bin
+.gradle/7.6/fileHashes/fileHashes.bin
+.gradle/7.6/fileHashes/resourceHashesCache.bin
+
 
 # root idea
 .idea/
