@@ -1,6 +1,5 @@
 package gov.cdc.dataingestion.security.model;
 
-import gov.cdc.dataingestion.security.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,25 +9,25 @@ import java.util.Collection;
 
 public class SecurityUser implements UserDetails {
 
-    private final User user;
+    private final Client client;
 
-    public SecurityUser(User user) {
-        this.user = user;
+    public SecurityUser(Client client) {
+        this.client = client;
     }
 
     @Override
     public String getUsername() {
-        return user.getUsername();
+        return client.getUsername();
     }
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return client.getPassword();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Arrays.stream(user
+        return Arrays.stream(client
                         .getRoles()
                         .split(","))
                 .map(SimpleGrantedAuthority::new)
