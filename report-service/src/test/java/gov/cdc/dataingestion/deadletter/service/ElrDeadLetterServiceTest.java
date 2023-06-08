@@ -1,7 +1,7 @@
 package gov.cdc.dataingestion.deadletter.service;
 
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
-import gov.cdc.dataingestion.deadletter.model.ElrDltStatus;
+import gov.cdc.dataingestion.constant.enums.EnumElrDltStatus;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.exception.DeadLetterTopicException;
@@ -88,10 +88,10 @@ public class ElrDeadLetterServiceTest {
 
         //region INITIAL INSERTION - insert dlt data to test container db
         String sqlInsert = "INSERT INTO [NBS_DataIngest].[dbo].[elr_dlt] (" +
-                "error_message_id, error_message_source, error_stack_trace, dlt_status, dlt_occurrence, " +
+                "error_message_id, error_message_source, error_stack_trace,error_stack_trace_short,message, dlt_status, dlt_occurrence, " +
                 "created_by, updated_by, created_on, updated_on" +
                 ") VALUES (" +
-                "NEWID(), '" + dltSourceMessage +"', " + "'Sample Error Stack Trace', 'ERROR', 1, " +
+                "NEWID(), '" + dltSourceMessage +"', " + "'Sample Error Stack Trace','Sample Error Stack Trace','message', 'ERROR', 1, " +
                 "'system', 'system', GETDATE(), NULL" +
                 ");";
 
@@ -164,61 +164,12 @@ public class ElrDeadLetterServiceTest {
         model.setCreatedBy("system");
         model.setUpdatedBy("system");
 
-        RawERLModel rawModel = new RawERLModel();
-        rawModel.setId(guidForTesting);
-        rawModel.setPayload("HL7 message");
 
         when(dltRepository.findById(anyString())).thenReturn(Optional.of(model));
-        when(rawELRRepository.findById(anyString())).thenReturn(Optional.of(rawModel));
 
         ElrDeadLetterDto savedDto = elrDeadLetterService.getDltRecordById(guidForTesting);
         assertEquals(savedDto.getErrorMessageId(), model.getErrorMessageId());
-        assertEquals(savedDto.getMessage(), rawModel.getPayload());
-    }
-
-    @Test
-    void testGetDltRecordById_RawTableNotFound() {
-
-        initialDataInsertionAndSelection("elr_raw");
-        ElrDeadLetterModel model = new ElrDeadLetterModel();
-        model.setErrorMessageId(guidForTesting);
-        model.setErrorMessageSource("elr_raw");
-        model.setErrorStackTrace("Sample Error Stack Trace");
-        model.setDltOccurrence(1);
-        model.setDltStatus("ERROR");
-        model.setCreatedBy("system");
-        model.setUpdatedBy("system");
-
-
-        when(dltRepository.findById(anyString())).thenReturn(Optional.of(model));
-
-        var exception = Assertions.assertThrows(DeadLetterTopicException.class, () -> {
-            elrDeadLetterService.getDltRecordById(guidForTesting);
-        });
-        Assertions.assertEquals("DLT record, but parent table record not found", exception.getMessage());
-
-    }
-
-    @Test
-    void testGetDltRecordById_RawTableNonRecognizeTopic() {
-
-        initialDataInsertionAndSelection("elr_raw");
-        ElrDeadLetterModel model = new ElrDeadLetterModel();
-        model.setErrorMessageId(guidForTesting);
-        model.setErrorMessageSource("unknown");
-        model.setErrorStackTrace("Sample Error Stack Trace");
-        model.setDltOccurrence(1);
-        model.setDltStatus("ERROR");
-        model.setCreatedBy("system");
-        model.setUpdatedBy("system");
-
-        when(dltRepository.findById(anyString())).thenReturn(Optional.of(model));
-
-        var exception = Assertions.assertThrows(DeadLetterTopicException.class, () -> {
-            elrDeadLetterService.getDltRecordById(guidForTesting);
-        });
-        Assertions.assertEquals("Unsupported Topic", exception.getMessage());
-
+        assertEquals(savedDto.getMessage(), model.getMessage());
     }
 
     @Test
@@ -249,7 +200,7 @@ public class ElrDeadLetterServiceTest {
         rawModel.setId(guidForTesting);
         rawModel.setPayload("HL7 message");
 
-        when(dltRepository.findAllDltRecordByDltStatus(eq(ElrDltStatus.ERROR.name()), eq(Sort.by(Sort.Direction.DESC, "createdOn")))).thenReturn(Optional.of(listData));
+        when(dltRepository.findAllDltRecordByDltStatus(eq(EnumElrDltStatus.ERROR.name()), eq(Sort.by(Sort.Direction.DESC, "createdOn")))).thenReturn(Optional.of(listData));
         var result = elrDeadLetterService.getAllErrorDltRecord();
         assertEquals(result.get(0).getErrorMessageId(), model.getErrorMessageId());
 
@@ -320,7 +271,7 @@ public class ElrDeadLetterServiceTest {
 
         var result = elrDeadLetterService.updateAndReprocessingMessage(primaryIdForTesting, "HL7 message");
 
-        assertEquals(result.getMessage(), "HL7 message validated");
+        assertEquals(result.getMessage(), "HL7 message");
         assertEquals(result.getDltOccurrence(), 1);
     }
 
@@ -334,22 +285,17 @@ public class ElrDeadLetterServiceTest {
         elrDltModel.setDltOccurrence(1);
         elrDltModel.setErrorMessageSource("fhir_prep");
 
-        ValidatedELRModel validatedERLModel = new ValidatedELRModel();
-        validatedERLModel.setRawMessage("HL7 message fhir_prep");
-        validatedERLModel.setId(elrDltModel.getErrorMessageId());
 
         when(dltRepository.findById(eq(elrDltModel.getErrorMessageId())))
                 .thenReturn(Optional.of(elrDltModel));
 
-        when(validatedELRRepository.findById(eq(elrDltModel.getErrorMessageId())))
-                .thenReturn(Optional.of(validatedERLModel));
 
-        when(validatedELRRepository.save(any(ValidatedELRModel.class))).thenReturn(validatedERLModel);
+
         when(dltRepository.save(any(ElrDeadLetterModel.class))).thenReturn(elrDltModel);
 
         var result = elrDeadLetterService.updateAndReprocessingMessage(primaryIdForTesting, "HL7 message");
 
-        assertEquals(result.getMessage(), "HL7 message fhir_prep");
+        assertEquals(result.getMessage(), "HL7 message");
         assertEquals(result.getDltOccurrence(), 1);
     }
 
@@ -363,22 +309,15 @@ public class ElrDeadLetterServiceTest {
         elrDltModel.setDltOccurrence(1);
         elrDltModel.setErrorMessageSource("xml_prep");
 
-        ValidatedELRModel validatedERLModel = new ValidatedELRModel();
-        validatedERLModel.setRawMessage("HL7 message xml_prep");
-        validatedERLModel.setId(elrDltModel.getErrorMessageId());
 
         when(dltRepository.findById(eq(elrDltModel.getErrorMessageId())))
                 .thenReturn(Optional.of(elrDltModel));
 
-        when(validatedELRRepository.findById(eq(elrDltModel.getErrorMessageId())))
-                .thenReturn(Optional.of(validatedERLModel));
-
-        when(validatedELRRepository.save(any(ValidatedELRModel.class))).thenReturn(validatedERLModel);
         when(dltRepository.save(any(ElrDeadLetterModel.class))).thenReturn(elrDltModel);
 
         var result = elrDeadLetterService.updateAndReprocessingMessage(primaryIdForTesting, "HL7 message");
 
-        assertEquals(result.getMessage(), "HL7 message xml_prep");
+        assertEquals(result.getMessage(), "HL7 message");
         assertEquals(result.getDltOccurrence(), 1);
     }
 

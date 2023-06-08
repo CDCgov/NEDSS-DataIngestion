@@ -1,11 +1,13 @@
 package gov.cdc.dataingestion.kafka.integration.service;
 
 import com.google.gson.Gson;
+import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
+import gov.cdc.dataingestion.constant.enums.EnumElrDltStatus;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
-import gov.cdc.dataingestion.kafka.integration.constant.TopicPreparationType;
+import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
-import gov.cdc.dataingestion.validation.model.constant.KafkaHeaderValue;
+import gov.cdc.dataingestion.constant.KafkaHeaderValue;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -33,10 +35,23 @@ public class KafkaProducerService {
         var record = new ProducerRecord<>(topic, uniqueID, msg);
         record.headers().add(KafkaHeaderValue.MessageType, msgType.getBytes());
         record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
+        record.headers().add(KafkaHeaderValue.MessageOperation, EnumKafkaOperation.INJECTION.name().getBytes());
+
+        sendMessage(record);
+    }
+
+    public void sendMessageFromDltController(
+            String msg, String topic, String msgType, Integer dltOccurrence) {
+        String uniqueID = msgType + "_" + UUID.randomUUID();
+        var record = new ProducerRecord<>(topic, uniqueID, msg);
+        record.headers().add(KafkaHeaderValue.MessageType, msgType.getBytes());
+        record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
+        record.headers().add(KafkaHeaderValue.MessageOperation, EnumKafkaOperation.REINJECTION.name().getBytes());
         sendMessage(record);
     }
 
 
+    @Deprecated
     public void sendMessageFromCSVController(List<List<String>> msg, String topic, String msgType) {
         String uniqueID = msgType + "_" + UUID.randomUUID();
         Gson gson = new Gson();
@@ -53,6 +68,7 @@ public class KafkaProducerService {
         record.headers().add(KafkaHeaderValue.MessageType, msg.getMessageType().getBytes());
         record.headers().add(KafkaHeaderValue.MessageVersion, msg.getMessageVersion().getBytes());
         record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
+        record.headers().add(KafkaHeaderValue.MessageOperation, EnumKafkaOperation.INJECTION.name().getBytes());
         sendMessage(record);
     }
 
@@ -76,6 +92,7 @@ public class KafkaProducerService {
         record.headers().add(KafkaHeaderValue.MessageType, messageType.getBytes());
         record.headers().add(KafkaHeaderValue.MessageVersion, messageVersion.getBytes());
         record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
+        record.headers().add(KafkaHeaderValue.MessageOperation, EnumKafkaOperation.INJECTION.name().getBytes());
         sendMessage(record);
     }
 
@@ -83,6 +100,7 @@ public class KafkaProducerService {
         String uniqueID = fhirMessageKeyPrefix + UUID.randomUUID();
         var record = new ProducerRecord<>(topic, uniqueID, msg.getId());
         record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
+        record.headers().add(KafkaHeaderValue.MessageOperation, EnumKafkaOperation.INJECTION.name().getBytes());
         sendMessage(record);
     }
 
@@ -91,6 +109,7 @@ public class KafkaProducerService {
         String uniqueID = xmlMessageKeyPrefix + UUID.randomUUID();
         var record = new ProducerRecord<>(topic, uniqueID, xmlMsg);
         record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
+        record.headers().add(KafkaHeaderValue.MessageOperation, EnumKafkaOperation.INJECTION.name().getBytes());
         sendMessage(record);
     }
 
@@ -98,6 +117,7 @@ public class KafkaProducerService {
         String uniqueID = hl7MessageKeyPrefix + UUID.randomUUID();
         var record = new ProducerRecord<>(validatedElrDuplicateTopic, uniqueID, msg.getRawId());
         record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
+        record.headers().add(KafkaHeaderValue.MessageOperation, EnumKafkaOperation.INJECTION.name().getBytes());
         sendMessage(record);
     }
 

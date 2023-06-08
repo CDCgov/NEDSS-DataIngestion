@@ -2,22 +2,26 @@ package gov.cdc.dataingestion.kafka.integration.service;
 
 import ca.uhn.hl7v2.HL7Exception;
 import com.google.gson.Gson;
+import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
-import gov.cdc.dataingestion.deadletter.model.ElrDltStatus;
+import gov.cdc.dataingestion.constant.enums.EnumElrDltStatus;
+import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
+import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
 import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
 import gov.cdc.dataingestion.exception.FhirConversionException;
-import gov.cdc.dataingestion.kafka.integration.constant.TopicPreparationType;
+import gov.cdc.dataingestion.constant.TopicPreparationType;
+import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
-import gov.cdc.dataingestion.validation.model.constant.KafkaHeaderValue;
+import gov.cdc.dataingestion.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
@@ -39,10 +43,6 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -60,30 +60,28 @@ public class KafkaConsumerService {
     private String retrySuffix = "";
 
     @Value("${kafka.dlt.suffix}")
-    private String dltSuffix = "";
+    private String dltSuffix = "_dlt";
 
     @Value("${kafka.validation.topic}")
-    private String validatedTopic = "";
+    private String validatedTopic = "elr_validated";
 
     @Value("${kafka.fhir-conversion.topic}")
-    private String convertedToFhirTopic = "";
+    private String convertedToFhirTopic = "fhir_converted";
 
     @Value("${kafka.xml-conversion.topic}")
-    private String convertedToXmlTopic = "";
+    private String convertedToXmlTopic = "xml_converted";
 
     @Value("${kafka.raw.topic}")
-    private String rawTopic = "";
+    private String rawTopic = "elr_raw";
 
     @Value("${kafka.elr-duplicate.topic}")
     private String validatedElrDuplicateTopic = "";
 
     @Value("${kafka.xml-conversion-prep.topic}")
-    private String prepXmlTopic = "";
+    private String prepXmlTopic = "xml_prep";
 
     @Value("${kafka.fhir-conversion-prep.topic}")
-    private String prepFhirTopic = "";
-
-    private final String directory = "dlt_records";
+    private String prepFhirTopic = "fhir_prep";
     private final KafkaProducerService kafkaProducerService;
     private final IHL7v2Validator iHl7v2Validator;
     private final IRawELRRepository iRawELRRepository;
@@ -92,7 +90,8 @@ public class KafkaConsumerService {
     private final IHL7ToFHIRRepository iHL7ToFHIRRepository;
     private final IHL7DuplicateValidator iHL7DuplicateValidator;
     private final NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
-    private final ElrDeadLetterService elrDeadLetterService;
+
+    private final IElrDeadLetterRepository elrDeadLetterRepository;
     //endregion
 
     //region CONSTRUCTOR
@@ -105,7 +104,7 @@ public class KafkaConsumerService {
             IHL7ToFHIRRepository iHL7ToFHIRepository,
             IHL7DuplicateValidator iHL7DuplicateValidator,
             NbsRepositoryServiceProvider nbsRepositoryServiceProvider,
-            ElrDeadLetterService elrDeadLetterService
+            IElrDeadLetterRepository elrDeadLetterRepository
             ) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iRawELRRepository = iRawELRRepository;
@@ -115,7 +114,7 @@ public class KafkaConsumerService {
         this.iHL7ToFHIRRepository = iHL7ToFHIRepository;
         this.iHL7DuplicateValidator = iHL7DuplicateValidator;
         this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
-        this.elrDeadLetterService = elrDeadLetterService;
+        this.elrDeadLetterRepository = elrDeadLetterRepository;
     }
     //endregion
 
@@ -150,6 +149,7 @@ public class KafkaConsumerService {
                     SerializationException.class,
                     DeserializationException.class,
                     DuplicateHL7FileFoundException.class,
+                    DiHL7Exception.class
                     //HL7Exception.class
             }
 
@@ -159,12 +159,12 @@ public class KafkaConsumerService {
     )
     public void handleMessageForRawElr(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)  {
-        log.info("Received message ID: {} from topic: {}", message, topic);
+        log.debug("Received message ID: {} from topic: {}", message, topic);
 
         try {
             validationHandler(message);
         } catch (Exception e) {
-            log.info("Retry queue");
+            log.debug("Retry queue");
             throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
         }
     }
@@ -192,18 +192,19 @@ public class KafkaConsumerService {
                     SerializationException.class,
                     DeserializationException.class,
                     DuplicateHL7FileFoundException.class,
+                    DiHL7Exception.class
                     //HL7Exception.class
             }
     )
     @KafkaListener(topics = "${kafka.validation.topic}")
     public void handleMessageForValidatedElr(String message,
                                        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
-        log.info("Received message ID: {} from topic: {}", message, topic);
+        log.debug("Received message ID: {} from topic: {}", message, topic);
 
         try {
             preparationForConversionHandler(message);
         } catch (Exception e) {
-            log.info("Retry queue");
+            log.debug("Retry queue");
             throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
         }
 
@@ -227,17 +228,19 @@ public class KafkaConsumerService {
                     SerializationException.class,
                     DeserializationException.class,
                     DuplicateHL7FileFoundException.class,
+                    DiHL7Exception.class
                     //HL7Exception.class
             }
     )
     @KafkaListener(topics = "${kafka.xml-conversion-prep.topic}")
     public void handleMessageForXmlConversionElr(String message,
-                                                 @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
-        log.info("Received message ID: {} from topic: {}", message, topic);
+                                                 @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+                                                 @Header(KafkaHeaderValue.MessageOperation) String operation) {
+        log.debug("Received message ID: {} from topic: {}", message, topic);
         try {
-            xmlConversionHandler(message);
+            xmlConversionHandler(message, operation);
         } catch (Exception e) {
-            log.info("Retry queue");
+            log.debug("Retry queue");
             throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
         }
     }
@@ -260,17 +263,19 @@ public class KafkaConsumerService {
                     SerializationException.class,
                     DeserializationException.class,
                     DuplicateHL7FileFoundException.class,
+                    DiHL7Exception.class
                     //HL7Exception.class
             }
     )
     @KafkaListener(topics = "${kafka.fhir-conversion-prep.topic}")
     public void handleMessageForFhirConversionElr(String message,
-                                                 @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
-        log.info("Received message ID: {} from topic: {}", message, topic);
+                                                 @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+                                                  @Header(KafkaHeaderValue.MessageOperation) String operation) {
+        log.debug("Received message ID: {} from topic: {}", message, topic);
         try {
-            conversionHandler(message);
+            conversionHandlerForFhir(message, operation);
         } catch (Exception e) {
-            log.info("Retry queue");
+            log.debug("Retry queue");
             throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
         }
     }
@@ -286,7 +291,7 @@ public class KafkaConsumerService {
             @Header(KafkaHeaderValue.DltOccurrence) String dltOccurrence,
             @Header(KafkaHeaderValue.OriginalTopic) String originalTopic
     ) {
-        log.info("Message ID: {} handled by dlq topic: {}", message, topic);
+        log.debug("Message ID: {} handled by dlq topic: {}", message, topic);
         String regex = "^(.*\\n)*.*(?=java\\.lang\\.RuntimeException)";
         String errorStackTrace = stacktrace.replaceAll(regex, "");
         // increase by 1, indicate the dlt had been occurred
@@ -298,7 +303,7 @@ public class KafkaConsumerService {
                 erroredSource,
                 errorStackTrace,
                 dltCount,
-                ElrDltStatus.ERROR.name(),
+                EnumElrDltStatus.ERROR.name(),
                 erroredSource + this.dltSuffix,
                 erroredSource + this.dltSuffix
         );
@@ -308,12 +313,54 @@ public class KafkaConsumerService {
 
     //region PRIVATE METHOD
     private void processingDltRecord(ElrDeadLetterDto elrDeadLetterDto) {
+        ElrDeadLetterModel model = new ElrDeadLetterModel();
         try {
-            this.elrDeadLetterService.saveDltRecord(elrDeadLetterDto);
+            if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(rawTopic)) {
+                var message = this.iRawELRRepository.findById(elrDeadLetterDto.getErrorMessageId())
+                        .orElseThrow(() -> new RuntimeException("Raw data not found; id: " + elrDeadLetterDto.getErrorMessageId()));
+                elrDeadLetterDto.setMessage(message.getPayload());
+            }
+            else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(validatedTopic)) {
+                var message = this.iValidatedELRRepository.findById(elrDeadLetterDto.getErrorMessageId())
+                        .orElseThrow(() -> new RuntimeException("Raw data not found; id: " + elrDeadLetterDto.getErrorMessageId()));
+                elrDeadLetterDto.setMessage(message.getRawMessage());
+            }
+            else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(prepXmlTopic)) {
+                var message = this.iValidatedELRRepository.findById(elrDeadLetterDto.getErrorMessageId())
+                        .orElseThrow(() -> new RuntimeException("Raw data not found; id: " + elrDeadLetterDto.getErrorMessageId()));
+                elrDeadLetterDto.setMessage(message.getRawMessage());
+            }
+            else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(prepFhirTopic)) {
+                var message = this.iValidatedELRRepository.findById(elrDeadLetterDto.getErrorMessageId())
+                        .orElseThrow(() -> new RuntimeException("Raw data not found; id: " + elrDeadLetterDto.getErrorMessageId()));
+                elrDeadLetterDto.setMessage(message.getRawMessage());
+            }
+            else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(convertedToXmlTopic)) {
+                //todo: this to handle error that may occur after xml conversion
+                throw new RuntimeException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());
+            }
+            else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(convertedToFhirTopic)) {
+                var message = this.iHL7ToFHIRRepository.findById(elrDeadLetterDto.getErrorMessageId())
+                        .orElseThrow(() -> new RuntimeException("Raw data not found; id: " + elrDeadLetterDto.getErrorMessageId()));
+                elrDeadLetterDto.setMessage(message.getFhirMessage());
+            } else {
+                throw new RuntimeException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());
+            }
+
+            model.setErrorMessageId(elrDeadLetterDto.getErrorMessageId());
+            model.setErrorMessageSource(elrDeadLetterDto.getErrorMessageSource());
+            model.setErrorStackTrace(elrDeadLetterDto.getErrorStackTrace());
+            model.setErrorStackTraceShort(elrDeadLetterDto.getErrorStackTraceShort());
+            model.setDltOccurrence(elrDeadLetterDto.getDltOccurrence());
+            model.setDltStatus(elrDeadLetterDto.getDltStatus());
+            model.setMessage(elrDeadLetterDto.getMessage());
+            model.setCreatedBy(elrDeadLetterDto.getCreatedBy());
+            model.setUpdatedBy(elrDeadLetterDto.getUpdatedBy());
+            this.elrDeadLetterRepository.save(model);
             // TODO: push notification to notify user, error happened, and it was saved of  into rds db
         } catch (Exception e) {
             Gson gson = new Gson();
-            String data = gson.toJson(elrDeadLetterDto);
+            String data = gson.toJson(model);
 
             // TODO: If this happened, then push notification to notify user
             logger.error("Error occurred while processing DLT record: {}", data);
@@ -337,34 +384,40 @@ public class KafkaConsumerService {
         }
         return erroredSource;
     }
-    private String convertUnixTimeStampToReadable(String unixTimestamp) {
-        Instant instant = Instant.ofEpochSecond(Long.parseLong(unixTimestamp));
-        LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return dateTime.format(formatter);
-    }
+
     private void preparationForConversionHandler(String message) throws ConversionPrepareException {
         Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
         if(validatedElrResponse.isPresent()) {
             kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepXmlTopic, TopicPreparationType.XML, 0);
-            kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepFhirTopic, TopicPreparationType.FHIR, 0);
+            // kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepFhirTopic, TopicPreparationType.FHIR, 0);
         } else {
             throw new ConversionPrepareException("Validation ELR Record Not Found");
         }
     }
-    private void xmlConversionHandler(String message) throws Exception {
-        log.info("Received message id will be retrieved from db and associated hl7 will be converted to xml");
+    private void xmlConversionHandler(String message, String operation) throws Exception {
+        log.debug("Received message id will be retrieved from db and associated hl7 will be converted to xml");
 
-        Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
-        String hl7Msg = validatedElrResponse.get().getRawMessage();
+        String hl7Msg = "";
+        if (operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
+            Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
+            hl7Msg = validatedElrResponse.get().getRawMessage();
+        } else {
+            Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(message);
+            if (response.isPresent()) {
+                var validMessage = iHl7v2Validator.MessageStringValidation(response.get().getMessage());
+                hl7Msg = validMessage;
+            } else {
+                throw new Exception("Message not found in dead letter table");
+            }
+        }
 
         String rhapsodyXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(hl7Msg);
-        log.info("rhapsodyXml: {}", rhapsodyXml);
+        log.debug("rhapsodyXml: {}", rhapsodyXml);
       
         nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml);
         kafkaProducerService.sendMessageAfterConvertedToXml(rhapsodyXml, convertedToXmlTopic, 0);
     }
-    private void validationHandler(String message) throws DuplicateHL7FileFoundException, HL7Exception {
+    private void validationHandler(String message) throws DuplicateHL7FileFoundException, HL7Exception, DiHL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);
         RawERLModel elrModel = rawElrResponse.get();
         String messageType = elrModel.getType();
@@ -383,20 +436,38 @@ public class KafkaConsumerService {
                 break;
         }
     }
-    private void conversionHandler(String message) throws FhirConversionException {
-        Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
-        ValidatedELRModel validatedELRModel = validatedElrResponse.get();
-        String messageType = validatedELRModel.getMessageType();
-        if (messageType.equalsIgnoreCase(KafkaHeaderValue.MessageType_HL7v2)) {
-            try {
-                HL7ToFHIRModel convertedModel = iHl7ToFHIRConversion.ConvertHL7v2ToFhir(validatedELRModel, convertedToFhirTopic);
-                iHL7ToFHIRRepository.save(convertedModel);
-                kafkaProducerService.sendMessageAfterConvertedToFhirMessage(convertedModel, convertedToFhirTopic, 0);
-            } catch (Exception e) {
-                throw new FhirConversionException(e.getMessage());
+    private void conversionHandlerForFhir(String message, String operation) throws FhirConversionException, DiHL7Exception {
+        String payloadMessage ="";
+        ValidatedELRModel model = new ValidatedELRModel();
+        if(operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
+            Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
+            if (validatedElrResponse.isPresent()) {
+                payloadMessage = validatedElrResponse.get().getRawMessage();
+                model.setRawId(validatedElrResponse.get().getRawId());
+                model.setRawMessage(payloadMessage);
+            } else {
+                throw new FhirConversionException("Message not found in dead letter table");
             }
-        } else {
-            throw new FhirConversionException("Invalid Message");
+
+        }
+        else {
+            Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(message);
+            if (response.isPresent()) {
+                payloadMessage =  response.get().getMessage();
+                var validMessage = iHl7v2Validator.MessageStringValidation(payloadMessage);
+                model.setRawId(message);
+                model.setRawMessage(validMessage);
+            } else {
+                throw new FhirConversionException("Message not found in dead letter table");
+            }
+        }
+
+        try {
+            HL7ToFHIRModel convertedModel = iHl7ToFHIRConversion.ConvertHL7v2ToFhir(model, convertedToFhirTopic);
+            iHL7ToFHIRRepository.save(convertedModel);
+            kafkaProducerService.sendMessageAfterConvertedToFhirMessage(convertedModel, convertedToFhirTopic, 0);
+        } catch (Exception e) {
+            throw new FhirConversionException(e.getMessage());
         }
     }
     private void saveValidatedELRMessage(ValidatedELRModel model) {

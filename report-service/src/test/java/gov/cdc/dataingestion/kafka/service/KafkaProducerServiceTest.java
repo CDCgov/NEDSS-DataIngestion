@@ -2,7 +2,7 @@ package gov.cdc.dataingestion.kafka.service;
 
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
-import gov.cdc.dataingestion.kafka.integration.constant.TopicPreparationType;
+import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -15,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
-import org.springframework.util.concurrent.ListenableFuture;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -132,6 +131,28 @@ public class KafkaProducerServiceTest {
         model.setRawId("test");
         kafkaProducerService.sendMessageAfterCheckingDuplicateHL7(model, topic,
                 1 );
+        verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
+    }
+
+    @Test
+    public void testSendMessageFromDltController() {
+        String topic = "test-topic";
+        String msg = "test";
+        String msgType = "HL7";
+        Integer occurrence = 0;
+        kafkaProducerService.sendMessageFromController(msg, topic,msgType, occurrence);
+        verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
+    }
+
+    @Test
+    public void testSendMessageFromCSVController() {
+        String topic = "test-topic";
+        List<String> msgNested = new ArrayList<>();
+        msgNested.add("test");
+        List<List<String>> msg = new ArrayList<>();
+        msg.add(msgNested);
+        String msgType = "HL7";
+        kafkaProducerService.sendMessageFromCSVController(msg, topic,msgType);
         verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
     }
 }

@@ -67,7 +67,8 @@ public class HL7ParserTest {
 
     @Test
     public void hl7StringConvert231To251_ReturnValidMessage() throws  DiHL7Exception {
-        var result = target.convert231To251(messageOriginal);
+        var result = target.convert231To251(testMessage);
+
         Assertions.assertEquals("R01", result.getEventTrigger());
     }
 

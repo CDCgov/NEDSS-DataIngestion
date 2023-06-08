@@ -1,12 +1,6 @@
 rsa:
   private-key: classpath:certs/private.pem
   public-key: classpath:certs/public.pem
-server:
-  port: 8083
-app:
-  security:
-    username: admin
-    password: password
 spring:
   application:
     name: report-service

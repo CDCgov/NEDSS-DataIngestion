@@ -1,47 +1,98 @@
 package gov.cdc.dataingestion.security.service;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.*;
 
-import java.util.Arrays;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class TokenServiceTest {
+class TokenServiceTest {
 
-    private  JwtEncoder mockJwtencoder;
+    JwtEncoder jwtEncoderMock;
+    Jwt jwtMock;
+    TokenService tokenService;
+    Authentication authentication;
+    JwtDecoder jwtDecoderMock;
+    String expectedToken = "testToken";
 
-   private TokenService tokenService;
+    @BeforeEach
+    void setUp() {
+        jwtEncoderMock = mock(JwtEncoder.class);
+        jwtMock = mock(Jwt.class);
+        tokenService = new TokenService(jwtEncoderMock);
+        jwtDecoderMock = mock(JwtDecoder.class);
+        authentication = new UsernamePasswordAuthenticationToken("username", "password");
+        when(jwtMock.getTokenValue()).thenReturn("testToken");
+        when(jwtEncoderMock.encode(any())).thenReturn(jwtMock);
+    }
 
-   @BeforeEach
-    public void SetUp()
-   {
-       mockJwtencoder = mock(JwtEncoder.class);
-       tokenService = new TokenService(mockJwtencoder);
-   }
+    @AfterEach
+    void tearDown() {
+        Mockito.reset(jwtMock);
+        Mockito.reset(jwtEncoderMock);
+        Mockito.reset(jwtDecoderMock);
+    }
 
-   @Test
-    public  void GenerateTokenTest()
-   {
-       Authentication mockAuthentication = mock(Authentication.class);
-       when(mockAuthentication.getName()).thenReturn("nbsuser");
-       List<SimpleGrantedAuthority> grantedAuthorities = Arrays.asList(new SimpleGrantedAuthority("PERM_FOO_READ"), new SimpleGrantedAuthority("ROLE_USER"));
-       doReturn(grantedAuthorities).when(mockAuthentication).getAuthorities();
+    @Test
+    void testGenerateToken() {
+        String generatedToken = tokenService.generateToken(authentication);
 
-       var mockJwt = mock(Jwt.class);
-       when(mockJwt.getTokenValue()).thenReturn("encodedToken");
-       when(mockJwtencoder.encode(any(JwtEncoderParameters.class))).thenReturn(mockJwt);
+        assertNotNull(generatedToken);
+        assertEquals(expectedToken, generatedToken);
+        verify(jwtEncoderMock, times(1)).encode(any());
+        verify(jwtMock, times(1)).getTokenValue();
+    }
 
-      var encodedToken = tokenService.generateToken(mockAuthentication);
-       Assert.assertEquals("encodedToken",encodedToken);
-   }
+    @Test
+    void testGenerateTokenClaims() {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("USER"));
 
+        String generatedToken = tokenService.generateToken(authentication);
+
+        assertNotNull(generatedToken);
+        verify(jwtEncoderMock, times(1)).encode(any());
+        verify(jwtMock, times(1)).getTokenValue();
+
+        when(jwtDecoderMock.decode(anyString())).thenReturn(jwtMock);
+        when(jwtMock.getClaim("sub")).thenReturn("username");
+        when(jwtMock.getClaim("scope")).thenReturn("USER");
+        when(jwtMock.getClaim("issuer")).thenReturn("self");
+
+        Jwt decodedToken = jwtDecoderMock.decode(generatedToken);
+        assertEquals("username", decodedToken.getClaim("sub"));
+        assertEquals("self", decodedToken.getClaim("issuer"));
+    }
+
+    @Test
+    void testVerifyTokenExpiry() {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("USER"));
+
+        String generatedToken = tokenService.generateToken(authentication);
+
+        assertNotNull(generatedToken);
+        verify(jwtEncoderMock, times(1)).encode(any());
+        verify(jwtMock, times(1)).getTokenValue();
+
+        when(jwtDecoderMock.decode(anyString())).thenReturn(jwtMock);
+        when(jwtMock.getExpiresAt()).thenReturn(Instant.now().minus(1, ChronoUnit.HOURS));
+
+        Jwt decodedToken = jwtDecoderMock.decode(generatedToken);
+        Instant currentTime = Instant.now();
+
+        assertTrue(decodedToken.getExpiresAt().isBefore(currentTime));
+    }
 }

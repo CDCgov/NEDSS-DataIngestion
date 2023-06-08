@@ -56,8 +56,12 @@ public class HL7Parser implements IHL7Parser {
             }
         } else {
             if (message.contains("\\n")) {
-                message = message.replaceAll("\\\\n","\r");
-            } else {
+                message = message.replaceAll("\\\\n",carrier);
+            }
+            else if (message.contains("\\r")) {
+                message = message.replaceAll("\\\\r","carrier");
+            }
+            else {
                 throw new DiHL7Exception("Incorrect raw message format");
             }
         }

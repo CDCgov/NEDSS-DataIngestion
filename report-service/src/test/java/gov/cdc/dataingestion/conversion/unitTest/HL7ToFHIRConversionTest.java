@@ -8,6 +8,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+
 public class HL7ToFHIRConversionTest {
     private IHL7ToFHIRConversion target;
 
@@ -29,9 +32,18 @@ public class HL7ToFHIRConversionTest {
         model.setRawId("test");
         model.setMessageType("HL7");
         model.setRawMessage(data);
+        model.setCreatedBy("test");
+        model.setUpdatedBy("test");
+        model.setCreatedOn(null);
+        model.setUpdatedOn(null);
         var result = target.ConvertHL7v2ToFhir(model, "test");
 
         Assertions.assertEquals("test", result.getRawId());
+        Assertions.assertNull(result.getUpdatedOn());
+        Assertions.assertNull(result.getCreatedOn());
+        Assertions.assertEquals("test", result.getCreatedBy());
+        Assertions.assertEquals("test", result.getUpdatedBy());
+        Assertions.assertNotNull(result.getFhirMessage());
     }
 
     @Test

@@ -6,7 +6,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.ICsvValidator;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
-import gov.cdc.dataingestion.validation.model.enums.MessageType;
+import gov.cdc.dataingestion.constant.enums.EnumMessageType;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class CsvValidator implements ICsvValidator {
 
         ValidatedELRModel model = new ValidatedELRModel();
         model.setRawMessage(message);
-        model.setMessageType(MessageType.CSV.name());
+        model.setMessageType(EnumMessageType.CSV.name());
         model.setMessageVersion("NA");
 
         return model;
