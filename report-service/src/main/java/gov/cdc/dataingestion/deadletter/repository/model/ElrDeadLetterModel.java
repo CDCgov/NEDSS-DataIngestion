@@ -23,11 +23,17 @@ public class ElrDeadLetterModel {
     @Column(name = "error_stack_trace")
     private String errorStackTrace;
 
+    @Column(name = "error_stack_trace_short")
+    private String errorStackTraceShort;
+
     @Column(name = "dlt_occurrence")
     private int dltOccurrence;
 
     @Column(name="dlt_status")
     private String dltStatus;
+
+    @Column(name="message")
+    private String message;
 
     @Basic(optional = false)
     @Column(name = "created_on",insertable = false, updatable = false)
