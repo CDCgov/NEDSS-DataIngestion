@@ -44,18 +44,8 @@ report-service/dlt_records
 .gradle/7.6/fileHashes/fileHashes.bin
 .gradle/7.6/fileHashes/resourceHashesCache.bin
 
+### karatetest ###
+karatetest/build/
+karatetest/.gradle
+karatetest/.idea
 
-# root idea
-.idea/
-
-# exclude env file
-*.env
-
-# private pem
-report-service/src/main/resources/certs/private.pem
-
-# hl7 parser build
-hl7-parser/build/
-
-# hl7 parser .gradle
-hl7-parser/.gradle/
