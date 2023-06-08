@@ -1,6 +1,5 @@
 package gov.cdc.dataingestion.nbs.converters;
 
-import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ObservationRequest;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction;
@@ -153,15 +152,14 @@ import  java.time.LocalDateTime;
 import  java.util.List;
 import  java.util.ArrayList;
 
-import static gov.cdc.dataingestion.constant.SupportedHl7Version.VERSION231;
-import static gov.cdc.dataingestion.constant.SupportedHl7Version.VERSION251;
-
 public class Hl7ToRhapsodysXmlConverter {
     private static Logger log = LoggerFactory.getLogger(Hl7ToRhapsodysXmlConverter.class);
     private static Hl7ToRhapsodysXmlConverter instance = new Hl7ToRhapsodysXmlConverter();
     private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    private static DateTimeFormatter formatterWithZone = DateTimeFormatter.ofPattern("yyyyMMddHHmmssX");
+    private static String OBX_VALUE_TYPE_SN = "SN";
     private static String EMPTY_STRING = "";
-
+    private static String CARET_SEPARATOR = "\\^";
 
     public static Hl7ToRhapsodysXmlConverter getInstance() {
         return instance;
@@ -171,25 +169,10 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     public String convert(String hl7Msg) throws Exception {
-
         String rhapsodyXml = "";
 
         HL7Helper hl7Helper = new HL7Helper();
-
-
         HL7ParsedMessage hl7ParsedMsg = hl7Helper.hl7StringParser(hl7Msg);
-
-        // this should be handled by validation pipeline
-        // the one scenario this might be needed is when someone reprocessing the failed message on this pipeline
-        switch (hl7ParsedMsg.getOriginalVersion()) {
-            case VERSION231:
-                hl7ParsedMsg = hl7Helper.convert231To251(hl7Msg);
-                break;
-            case VERSION251:
-                break;
-            default:
-                throw new DiHL7Exception("Unsupported HL7 version: " + hl7ParsedMsg.getOriginalVersion());
-        }
 
         Container c = new Container();
 
@@ -243,12 +226,12 @@ public class Hl7ToRhapsodysXmlConverter {
             hl7PATIENTRESULTType.getORDEROBSERVATION().add(buildHL7OrderObservationType(oo));
         }
 
-        validatehl7PATIENTRESULTType(hl7PATIENTRESULTType.getORDEROBSERVATION());
+        validateHL7PATIENTRESULTType(hl7PATIENTRESULTType.getORDEROBSERVATION());
 
         return hl7PATIENTRESULTType;
     }
 
-    private void validatehl7PATIENTRESULTType(List<HL7OrderObservationType> listOfOOTypes) {
+    private void validateHL7PATIENTRESULTType(List<HL7OrderObservationType> listOfOOTypes) {
         HL7OBRType assumedParentOBRType = null;
         HL7OBRType assumedChildOBRType = null;
 
@@ -881,8 +864,14 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7OBXType.setObservationIdentifier(buildHL7CWEType(or.getObservationIdentifier()));
         hl7OBXType.setObservationSubID(or.getObservationSubId());
 
-        for(String s : or.getObservationValue()) {
-            hl7OBXType.getObservationValue().add(s);
+        for (String s : or.getObservationValue()) {
+            if( OBX_VALUE_TYPE_SN.equals(hl7OBXType.getValueType()) ) {
+                String refinedValue = s.replaceAll(CARET_SEPARATOR, "");
+                hl7OBXType.getObservationValue().add(refinedValue);
+            }
+            else {
+                hl7OBXType.getObservationValue().add(s);
+            }
         }
 
         hl7OBXType.setUnits(buildHL7CEType(or.getUnits()));
@@ -1922,13 +1911,12 @@ public class Hl7ToRhapsodysXmlConverter {
 
         for(SoftwareSegment ss : oruR1.getSoftwareSegment()) {
             HL7SoftwareSegmentType segType = new HL7SoftwareSegmentType();
-            segType.setSoftwareBinaryID(ss.getSoftwareBinaryId());
-            //@todo segType.setSoftwareInstallDate();
-            //@todo segType.setSoftwareProductInformation();
-            segType.setSoftwareProductName(ss.getSoftwareProductName());
-            //@todo segType.setSoftwareVendorOrganization();
+            segType.setSoftwareVendorOrganization(buildHL7XONType(ss.getSoftwareVendorOrganization()));
             segType.setSoftwareCertifiedVersionOrReleaseNumber(ss.getSoftwareCertifiedVersionOrReleaseNumber());
-
+            segType.setSoftwareProductName(ss.getSoftwareProductName());
+            segType.setSoftwareBinaryID(ss.getSoftwareBinaryId());
+            segType.setSoftwareProductInformation(buildHL7TXType(ss.getSoftwareProductInformation()));
+            segType.setSoftwareInstallDate(buildHL7TSType(ss.getSoftwareInstallDate()));
             destList.add(segType);
         }
 
@@ -2073,26 +2061,30 @@ public class Hl7ToRhapsodysXmlConverter {
     private HL7TSType buildHL7TSType(String ts) {
         HL7TSType hl7TSType = new HL7TSType();
 
-        if(null != ts) {
-            if(ts.length() <= 8) {
-                ts = ts + "000000";
-            }
-            else if(ts.length() <= 12) {
-                ts = ts + "00";
-            }
-            else if(ts.length() > 14) {
-                ts = ts.substring(0,(14-1));
-            }
+        if(null == ts) return hl7TSType;
 
-            LocalDateTime localDateTime = LocalDateTime.parse(ts, formatter);
-            hl7TSType.setYear(BigInteger.valueOf(localDateTime.getYear()));
-            hl7TSType.setMonth(BigInteger.valueOf(localDateTime.getMonthValue()));
-            hl7TSType.setDay(BigInteger.valueOf(localDateTime.getDayOfMonth()));
-            hl7TSType.setHours(BigInteger.valueOf(localDateTime.getHour()));
-            hl7TSType.setMinutes(BigInteger.valueOf(localDateTime.getMinute()));
-            hl7TSType.setSeconds(BigInteger.valueOf(localDateTime.getSecond()));
-            hl7TSType.setGmtOffset("");
+        DateTimeFormatter tsFormatter = formatter;
+        if(ts.indexOf("-") > 0) {
+            tsFormatter = formatterWithZone;
         }
+        else {
+            if (ts.length() <= 8) {
+                ts = ts + "000000";
+            } else if (ts.length() <= 12) {
+                ts = ts + "00";
+            } else if (ts.length() > 14) {
+                ts = ts.substring(0, 14);
+            }
+        }
+
+        LocalDateTime localDateTime = LocalDateTime.parse(ts, tsFormatter);
+        hl7TSType.setYear(BigInteger.valueOf(localDateTime.getYear()));
+        hl7TSType.setMonth(BigInteger.valueOf(localDateTime.getMonthValue()));
+        hl7TSType.setDay(BigInteger.valueOf(localDateTime.getDayOfMonth()));
+        hl7TSType.setHours(BigInteger.valueOf(localDateTime.getHour()));
+        hl7TSType.setMinutes(BigInteger.valueOf(localDateTime.getMinute()));
+        hl7TSType.setSeconds(BigInteger.valueOf(localDateTime.getSecond()));
+        hl7TSType.setGmtOffset("");
 
         return hl7TSType;
     }

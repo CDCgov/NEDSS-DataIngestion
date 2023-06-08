@@ -59,3 +59,5 @@ hl7-parser/build/
 
 # hl7 parser .gradle
 hl7-parser/.gradle/
+.gradle/7.6/checksums/md5-checksums.bin
+.gradle/7.6/checksums/sha1-checksums.bin
