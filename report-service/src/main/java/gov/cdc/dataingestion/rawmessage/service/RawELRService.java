@@ -19,15 +19,15 @@ import java.util.UUID;
 public class RawELRService {
 
     private static final String CREATED_BY = "admin";
-    //@Value("${kafka.raw.topic}")
-    //String topicName;
+    @Value("${kafka.raw.topic}")
+    String topicName;
     private final IRawELRRepository rawELRRepository;
-    //private final KafkaProducerService kafkaProducerService;
+    private final KafkaProducerService kafkaProducerService;
 
 
     public String submission(RawERLDto rawERLDto) {
         RawERLModel created = rawELRRepository.save(convert(rawERLDto));
-        //kafkaProducerService.sendMessageFromController(created.getId(), topicName, rawERLDto.getType());
+        kafkaProducerService.sendMessageFromController(created.getId(), topicName, rawERLDto.getType(), 0);
         return created.getId();
     }
 

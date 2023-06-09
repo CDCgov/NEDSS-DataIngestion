@@ -17,9 +17,9 @@ import java.util.Optional;
 @Slf4j
 public class HL7DuplicateValidator implements IHL7DuplicateValidator {
 
-    private IValidatedELRRepository iValidatedELRRepository;
-    private KafkaProducerService kafkaProducerService;
-    @Value("${kafka.elr-duplicate.topic:}")
+    private final IValidatedELRRepository iValidatedELRRepository;
+    private final KafkaProducerService kafkaProducerService;
+    @Value("${kafka.elr-duplicate.topic}")
     private String validatedElrDuplicateTopic = "";
 
     public HL7DuplicateValidator(IValidatedELRRepository iValidatedELRRepository, KafkaProducerService kafkaProducerService) {
@@ -48,14 +48,14 @@ public class HL7DuplicateValidator implements IHL7DuplicateValidator {
         if (!checkForDuplicateHL7HashString(hashedString)) {
             hl7ValidatedModel.setHashedHL7String(hashedString);
         } else {
-            kafkaProducerService.sendMessageAfterCheckingDuplicateHL7(hl7ValidatedModel, validatedElrDuplicateTopic);
+            kafkaProducerService.sendMessageAfterCheckingDuplicateHL7(hl7ValidatedModel, validatedElrDuplicateTopic, 0);
             throw new DuplicateHL7FileFoundException("HL7 document already exists in the database. " +
                     "Please check " + validatedElrDuplicateTopic + " kafka topic for the failed document.");
         }
     }
 
     public boolean checkForDuplicateHL7HashString(String hashedString) {
-        log.info("Generated HashString is being checked for duplicate if already present in the database");
+        log.debug("Generated HashString is being checked for duplicate if already present in the database");
         Optional<ValidatedELRModel> validatedELRResponseFromDatabase = iValidatedELRRepository.findByHashedHL7String(hashedString);
         if (!validatedELRResponseFromDatabase.isEmpty()) {
             if (hashedString.equals(validatedELRResponseFromDatabase.get().getHashedHL7String())) {
@@ -63,7 +63,7 @@ public class HL7DuplicateValidator implements IHL7DuplicateValidator {
                 return true;
             }
         }
-        log.info("HashString doesn't exists in the database. Moving forward to FHIR conversion.");
+        log.debug("HashString doesn't exists in the database. Moving forward to FHIR conversion.");
         return false;
     }
 }

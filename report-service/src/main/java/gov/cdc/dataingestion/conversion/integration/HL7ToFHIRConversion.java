@@ -6,7 +6,7 @@ import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import io.github.linuxforhealth.hl7.HL7ToFHIRConverter;
 
 public class HL7ToFHIRConversion implements IHL7ToFHIRConversion {
-    private HL7ToFHIRConverter converter;
+    private final HL7ToFHIRConverter converter;
     public HL7ToFHIRConversion(HL7ToFHIRConverter converter) {
         this.converter = converter;
     }

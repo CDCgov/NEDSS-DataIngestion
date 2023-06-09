@@ -24,6 +24,7 @@ hs_err_pid*
 
 # mongo data replica
 report-service/data
+report-service/dlt_records
 
 .DS_Store
 .gradle/7.6/dependencies-accessors/dependencies-accessors.lock
@@ -32,7 +33,19 @@ report-service/data
 .gradle/7.6/fileChanges/last-build.bin
 .gradle/7.6/fileHashes/fileHashes.lock
 .gradle/7.6/gc.properties
+.gradle/8.0.2
 .gradle/buildOutputCleanup/buildOutputCleanup.lock
 .gradle/buildOutputCleanup/cache.properties
+.gradle/buildOutputCleanup/outputFiles.bin
 .gradle/vcs-1/gc.properties
+.gradle/file-system.probe
 .gradle/7.6/checksums/checksums.lock
+.gradle/7.6/executionHistory/executionHistory.bin
+.gradle/7.6/fileHashes/fileHashes.bin
+.gradle/7.6/fileHashes/resourceHashesCache.bin
+
+### karatetest ###
+karatetest/build/
+karatetest/.gradle
+karatetest/.idea
+
