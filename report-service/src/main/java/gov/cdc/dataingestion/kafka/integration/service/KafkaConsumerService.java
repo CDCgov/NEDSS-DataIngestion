@@ -411,7 +411,7 @@ public class KafkaConsumerService {
             }
         }
 
-        String rhapsodyXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(hl7Msg);
+        String rhapsodyXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(message, hl7Msg);
 
         // Modified from debug ==> info to capture xml for analysis.
         // Please leave below at "info" level for the time being, before going live,

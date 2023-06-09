@@ -153,13 +153,13 @@ import  java.util.List;
 import  java.util.ArrayList;
 
 public class Hl7ToRhapsodysXmlConverter {
-    private static Logger log = LoggerFactory.getLogger(Hl7ToRhapsodysXmlConverter.class);
-    private static Hl7ToRhapsodysXmlConverter instance = new Hl7ToRhapsodysXmlConverter();
-    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-    private static DateTimeFormatter formatterWithZone = DateTimeFormatter.ofPattern("yyyyMMddHHmmssX");
-    private static String OBX_VALUE_TYPE_SN = "SN";
-    private static String EMPTY_STRING = "";
-    private static String CARET_SEPARATOR = "\\^";
+    private static final Logger log = LoggerFactory.getLogger(Hl7ToRhapsodysXmlConverter.class);
+    private static final Hl7ToRhapsodysXmlConverter instance = new Hl7ToRhapsodysXmlConverter();
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    private static final DateTimeFormatter formatterWithZone = DateTimeFormatter.ofPattern("yyyyMMddHHmmssX");
+    private static final String OBX_VALUE_TYPE_SN = "SN";
+    private static final String EMPTY_STRING = "";
+    private static final String CARET_SEPARATOR = "\\^";
 
     public static Hl7ToRhapsodysXmlConverter getInstance() {
         return instance;
@@ -168,7 +168,7 @@ public class Hl7ToRhapsodysXmlConverter {
     private Hl7ToRhapsodysXmlConverter() {
     }
 
-    public String convert(String hl7Msg) throws Exception {
+    public String convert(String raw_message_id, String hl7Msg) throws Exception {
         String rhapsodyXml = "";
 
         HL7Helper hl7Helper = new HL7Helper();
@@ -189,10 +189,24 @@ public class Hl7ToRhapsodysXmlConverter {
 
         rhapsodyXml = baos.toString();
 
+        // add raw_message_id as a comment
+        rhapsodyXml = rhapsodyXml + "\n" + buildTrailingComments(raw_message_id);
+
         // ramesh
         //RhapsodysXmlToHl7Converter.getInstance().convertToXl7(rhapsodyXml);
 
         return rhapsodyXml;
+    }
+
+    private String buildTrailingComments(String raw_message_id) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("<!-- ");
+        sb.append("raw_message_id = ");
+        sb.append(raw_message_id);
+        sb.append(" -->");
+
+        return sb.toString();
     }
 
     private HL7LabReportType buildHL7LabReportType(HL7ParsedMessage hl7ParsedMsg) {
@@ -1831,6 +1845,15 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7XTNType;
     }
 
+    private BigInteger buildBigInteger(String value) {
+        if((null != null) && (value.length() > 0)) {
+            return BigInteger.valueOf(Long.parseLong(value));
+        }
+        else {
+            return null;
+        }
+    }
+
     private HL7XADType buildHL7XADType(Xad xad) {
         HL7XADType hl7XADType = new HL7XADType();
 
@@ -1983,11 +2006,11 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7EIType;
     }
 
-    private HL7NMType buildHl7NMType(String seqNumber) {
+    private HL7NMType buildHl7NMType(String value) {
         HL7NMType hl7NMType = new HL7NMType();
 
         try {
-            hl7NMType.setHL7Numeric(Float.valueOf(seqNumber));
+            hl7NMType.setHL7Numeric(BigInteger.valueOf(Integer.valueOf(value)));
         }
         catch(Exception e) {
             // ignore, sequence number not present in the samples
