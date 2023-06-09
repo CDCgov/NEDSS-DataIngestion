@@ -1,0 +1,88 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+ext {
+    karateVersion = 'X.X.X'
+}
+
+dependencies {
+    testImplementation "com.intuit.karate:karate-junit5:${karateVersion}"
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation group: 'com.intuit.karate', name: 'karate-junit5', version: '1.4.0'
+    testImplementation group: 'com.intuit.karate', name: 'karate-apache', version: '0.9.6'
+    implementation group: 'com.intuit.karate', name: 'karate-core', version: '1.4.0'
+    testImplementation group: 'com.intuit.karate', name: 'karate-netty', version: '0.9.2'
+    implementation group: 'net.masterthought', name: 'cucumber-reporting', version: '5.7.5'
+    implementation group: 'org.springframework', name: 'spring-jdbc', version: '6.0.6'
+    implementation group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: '11.2.3.jre17'
+    implementation group: 'org.apache.maven.plugins', name: 'maven-surefire-report-plugin', version: '3.0.0-M5'
+    implementation group: 'org.apache.maven.surefire', name: 'surefire-report-parser', version: '3.0.0-M5'
+    implementation group: 'org.apache.maven.plugins', name: 'maven-surefire-plugin', version: '3.0.0-M5'
+    implementation group: 'org.apache.maven.plugins', name: 'maven-compiler-plugin', version: '3.8.1'
+    implementation group: 'org.apache.kafka', name: 'kafka-clients', version: '3.3.1'
+    implementation group: 'org.apache.kafka', name: 'kafka_2.13', version: '3.3.1'
+    implementation 'org.slf4j:slf4j-api:1.7.32'
+    implementation 'org.slf4j:slf4j-simple:1.7.32'
+
+
+}
+
+application {
+    mainClassName = 'com.api.dataingestionautomation.API'
+}
+sourceSets {
+    test {
+        resources {
+            srcDir file('src/test/java')
+            exclude '**/*.java'
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+    systemProperty "karate.options", System.properties.getProperty("karate.options")
+    systemProperty "karate.env", System.properties.getProperty("karate.env")
+    systemProperty "connectTimeout", System.properties.getProperty("connectTimeout")
+    systemProperty "readTimeout", System.properties.getProperty("readTimeout")
+    systemProperty "retryCount", System.properties.getProperty("retryCount")
+    systemProperty "retryInterval", System.properties.getProperty("retryInterval")
+    systemProperty "test.apiurl", System.properties.getProperty("test.apiurl")
+    systemProperty "test.username", System.properties.getProperty("test.username")
+    systemProperty "test.password", System.properties.getProperty("test.password")
+    systemProperty "test.url", System.properties.getProperty("test.url")
+    systemProperty "test.driverClassName", System.properties.getProperty("test.driverClassName")
+    systemProperty "test.wrongapiurl", System.properties.getProperty("test.wrongapiurl")
+    systemProperty "test.bootstrapServers", System.properties.getProperty("test.bootstrapServers")
+    systemProperty "test.groupId", System.properties.getProperty("test.groupId")
+    systemProperty "dev.apiurl", System.properties.getProperty("dev.apiurl")
+    systemProperty "dev.username", System.properties.getProperty("dev.username")
+    systemProperty "dev.password", System.properties.getProperty("dev.password")
+    systemProperty "dev.url", System.properties.getProperty("dev.url")
+    systemProperty "dev.driverClassName", System.properties.getProperty("dev.driverClassName")
+    systemProperty "dev.bootstrapServers", System.properties.getProperty("dev.bootstrapServers")
+    systemProperty "dev.groupId", System.properties.getProperty("dev.groupId")
+    systemProperty "dev.wrongapiurl", System.properties.getProperty("dev.wrongapiurl")
+    systemProperty "cucumber.options", System.properties.getProperty("cucumber.options")
+
+    outputs.upToDateWhen { false }
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+repositories {
+    mavenCentral()
+
+}
+
+task karateDebug(type: JavaExec) {
+    classpath = sourceSets.test.runtimeClasspath
+    mainClassName = 'com.api.dataingestionautomation.API'
+}

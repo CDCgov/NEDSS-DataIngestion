@@ -44,6 +44,10 @@ report-service/dlt_records
 .gradle/7.6/fileHashes/fileHashes.bin
 .gradle/7.6/fileHashes/resourceHashesCache.bin
 
+### karatetest ###
+karatetest/build/
+karatetest/.gradle
+karatetest/.idea
 
 # root idea
 .idea/
@@ -61,3 +65,4 @@ hl7-parser/build/
 hl7-parser/.gradle/
 .gradle/7.6/checksums/md5-checksums.bin
 .gradle/7.6/checksums/sha1-checksums.bin
+
