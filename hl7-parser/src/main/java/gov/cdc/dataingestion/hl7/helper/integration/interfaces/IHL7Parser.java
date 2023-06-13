@@ -7,5 +7,5 @@ public interface IHL7Parser {
     String hl7MessageStringValidation(String message) throws DiHL7Exception;
     HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception;
 
-    HL7ParsedMessage convert231To251(String message) throws  DiHL7Exception;
+    HL7ParsedMessage convert231To251(String message, HL7ParsedMessage preParsedMessage) throws  DiHL7Exception;
 }

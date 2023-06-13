@@ -39,7 +39,7 @@ public class HL7Helper {
     }
 
     public HL7ParsedMessage convert231To251(String message) throws DiHL7Exception {
-        return parser.convert231To251(message);
+        return parser.convert231To251(message, null);
     }
 
     /**
