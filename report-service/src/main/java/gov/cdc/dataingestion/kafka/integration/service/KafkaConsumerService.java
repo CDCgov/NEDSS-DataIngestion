@@ -149,8 +149,8 @@ public class KafkaConsumerService {
                     SerializationException.class,
                     DeserializationException.class,
                     DuplicateHL7FileFoundException.class,
-                    DiHL7Exception.class
-                    //HL7Exception.class
+                    DiHL7Exception.class,
+                    HL7Exception.class
             }
 
     )
@@ -158,15 +158,10 @@ public class KafkaConsumerService {
             topics = "${kafka.raw.topic}"
     )
     public void handleMessageForRawElr(String message,
-                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)  {
+                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws DuplicateHL7FileFoundException, DiHL7Exception {
         log.debug("Received message ID: {} from topic: {}", message, topic);
+        validationHandler(message);
 
-        try {
-            validationHandler(message);
-        } catch (Exception e) {
-            log.debug("Retry queue");
-            throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
-        }
     }
 
     /**
@@ -192,21 +187,18 @@ public class KafkaConsumerService {
                     SerializationException.class,
                     DeserializationException.class,
                     DuplicateHL7FileFoundException.class,
-                    DiHL7Exception.class
-                    //HL7Exception.class
+                    DiHL7Exception.class,
+                    HL7Exception.class
             }
     )
     @KafkaListener(topics = "${kafka.validation.topic}")
     public void handleMessageForValidatedElr(String message,
-                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws ConversionPrepareException {
         log.debug("Received message ID: {} from topic: {}", message, topic);
 
-        try {
-            preparationForConversionHandler(message);
-        } catch (Exception e) {
-            log.debug("Retry queue");
-            throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
-        }
+
+        preparationForConversionHandler(message);
+
 
     }
 
@@ -228,21 +220,18 @@ public class KafkaConsumerService {
                     SerializationException.class,
                     DeserializationException.class,
                     DuplicateHL7FileFoundException.class,
-                    DiHL7Exception.class
-                    //HL7Exception.class
+                    DiHL7Exception.class,
+                    HL7Exception.class
             }
     )
     @KafkaListener(topics = "${kafka.xml-conversion-prep.topic}")
     public void handleMessageForXmlConversionElr(String message,
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                                                 @Header(KafkaHeaderValue.MessageOperation) String operation) {
+                                                 @Header(KafkaHeaderValue.MessageOperation) String operation) throws Exception {
         log.debug("Received message ID: {} from topic: {}", message, topic);
-        try {
-            xmlConversionHandler(message, operation);
-        } catch (Exception e) {
-            log.debug("Retry queue");
-            throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
-        }
+
+        xmlConversionHandler(message, operation);
+
     }
 
     /**
@@ -263,21 +252,18 @@ public class KafkaConsumerService {
                     SerializationException.class,
                     DeserializationException.class,
                     DuplicateHL7FileFoundException.class,
-                    DiHL7Exception.class
-                    //HL7Exception.class
+                    DiHL7Exception.class,
+                    HL7Exception.class
             }
     )
     @KafkaListener(topics = "${kafka.fhir-conversion-prep.topic}")
     public void handleMessageForFhirConversionElr(String message,
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                                                  @Header(KafkaHeaderValue.MessageOperation) String operation) {
+                                                  @Header(KafkaHeaderValue.MessageOperation) String operation) throws FhirConversionException, DiHL7Exception {
         log.debug("Received message ID: {} from topic: {}", message, topic);
-        try {
-            conversionHandlerForFhir(message, operation);
-        } catch (Exception e) {
-            log.debug("Retry queue");
-            throw new RuntimeException(ExceptionUtils.getRootCause(e).getMessage());
-        }
+
+        conversionHandlerForFhir(message, operation);
+
     }
     //endregion
 
@@ -292,8 +278,9 @@ public class KafkaConsumerService {
             @Header(KafkaHeaderValue.OriginalTopic) String originalTopic
     ) {
         log.debug("Message ID: {} handled by dlq topic: {}", message, topic);
-        String regex = "^(.*\\n)*.*(?=java\\.lang\\.RuntimeException)";
+        String regex = "^(.*\\n)*.*(?=Caused by:)";
         String errorStackTrace = stacktrace.replaceAll(regex, "");
+
         // increase by 1, indicate the dlt had been occurred
         Integer dltCount = Integer.parseInt(dltOccurrence) + 1;
         // consuming bad data and persist data onto database
@@ -417,13 +404,14 @@ public class KafkaConsumerService {
         nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml);
         kafkaProducerService.sendMessageAfterConvertedToXml(rhapsodyXml, convertedToXmlTopic, 0);
     }
-    private void validationHandler(String message) throws DuplicateHL7FileFoundException, HL7Exception, DiHL7Exception {
+    private void validationHandler(String message) throws DuplicateHL7FileFoundException, DiHL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);
         RawERLModel elrModel = rawElrResponse.get();
         String messageType = elrModel.getType();
         switch (messageType) {
             case KafkaHeaderValue.MessageType_HL7v2:
                 ValidatedELRModel hl7ValidatedModel = iHl7v2Validator.MessageValidation(message, elrModel, validatedTopic);
+                // Duplication check
                 iHL7DuplicateValidator.ValidateHL7Document(hl7ValidatedModel);
                 saveValidatedELRMessage(hl7ValidatedModel);
                 kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic, 0);

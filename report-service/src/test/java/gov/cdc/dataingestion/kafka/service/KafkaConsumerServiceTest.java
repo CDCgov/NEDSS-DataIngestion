@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.kafka.service;
 
+import ca.uhn.hl7v2.HL7Exception;
 import gov.cdc.dataingestion.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
@@ -7,6 +8,8 @@ import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
+import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
+import gov.cdc.dataingestion.exception.FhirConversionException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
@@ -152,7 +155,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void rawConsumerTest() {
+    public void rawConsumerTest() throws HL7Exception, DuplicateHL7FileFoundException, DiHL7Exception {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(rawTopic);
         String message =  guidForTesting;
@@ -181,7 +184,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void validateConsumerTest() {
+    public void validateConsumerTest() throws ConversionPrepareException {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(validateTopic);
         String message =  guidForTesting;
@@ -239,7 +242,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void xmlPreparationConsumerTest() {
+    public void xmlPreparationConsumerTest() throws Exception {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(xmlPrepTopic);
         String message =  guidForTesting;
@@ -268,7 +271,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void xmlPreparationConsumerTestReInjection() throws DiHL7Exception {
+    public void xmlPreparationConsumerTestReInjection() throws Exception {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(xmlPrepTopic);
         String message =  guidForTesting;
@@ -301,7 +304,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void fhirPreparationConsumerTest() {
+    public void fhirPreparationConsumerTest() throws FhirConversionException, DiHL7Exception {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(fhirPrepTopic);
         String message =  guidForTesting;
@@ -362,7 +365,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void fhirPreparationConsumerTestReInjection() throws DiHL7Exception {
+    public void fhirPreparationConsumerTestReInjection() throws DiHL7Exception, FhirConversionException {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(fhirPrepTopic);
         String message =  guidForTesting;

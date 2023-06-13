@@ -74,7 +74,7 @@ public class ElrDeadLetterDto {
 
     @NotNull
     private String processingSourceStackTrace(String stackTrace) {
-        String regex = "RuntimeException:\\s*(.*?)(?=\\r|\\n|$)";
+        String regex = ":\\s*(.*?)(?=\\r|\\n|$)";
         if (stackTrace == null) {
             return "";
         }
