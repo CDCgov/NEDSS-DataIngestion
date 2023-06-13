@@ -15,6 +15,7 @@ import gov.cdc.dataingestion.exception.ConversionPrepareException;
 import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
 import gov.cdc.dataingestion.exception.FhirConversionException;
 import gov.cdc.dataingestion.constant.TopicPreparationType;
+import gov.cdc.dataingestion.exception.XmlConversionException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
@@ -26,6 +27,7 @@ import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 
+import jakarta.xml.bind.JAXBException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.kafka.common.errors.SerializationException;
@@ -43,6 +45,7 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -150,7 +153,9 @@ public class KafkaConsumerService {
                     DeserializationException.class,
                     DuplicateHL7FileFoundException.class,
                     DiHL7Exception.class,
-                    HL7Exception.class
+                    HL7Exception.class,
+                    XmlConversionException.class,
+                    JAXBException.class
             }
 
     )
@@ -161,7 +166,6 @@ public class KafkaConsumerService {
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws DuplicateHL7FileFoundException, DiHL7Exception {
         log.debug("Received message ID: {} from topic: {}", message, topic);
         validationHandler(message);
-
     }
 
     /**
@@ -188,18 +192,16 @@ public class KafkaConsumerService {
                     DeserializationException.class,
                     DuplicateHL7FileFoundException.class,
                     DiHL7Exception.class,
-                    HL7Exception.class
+                    HL7Exception.class,
+                    XmlConversionException.class,
+                    JAXBException.class
             }
     )
     @KafkaListener(topics = "${kafka.validation.topic}")
     public void handleMessageForValidatedElr(String message,
                                        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws ConversionPrepareException {
         log.debug("Received message ID: {} from topic: {}", message, topic);
-
-
         preparationForConversionHandler(message);
-
-
     }
 
     /**
@@ -221,7 +223,9 @@ public class KafkaConsumerService {
                     DeserializationException.class,
                     DuplicateHL7FileFoundException.class,
                     DiHL7Exception.class,
-                    HL7Exception.class
+                    HL7Exception.class,
+                    XmlConversionException.class,
+                    JAXBException.class
             }
     )
     @KafkaListener(topics = "${kafka.xml-conversion-prep.topic}")
@@ -229,7 +233,6 @@ public class KafkaConsumerService {
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                                  @Header(KafkaHeaderValue.MessageOperation) String operation) throws Exception {
         log.debug("Received message ID: {} from topic: {}", message, topic);
-
         xmlConversionHandler(message, operation);
 
     }
@@ -253,7 +256,9 @@ public class KafkaConsumerService {
                     DeserializationException.class,
                     DuplicateHL7FileFoundException.class,
                     DiHL7Exception.class,
-                    HL7Exception.class
+                    HL7Exception.class,
+                    XmlConversionException.class,
+                    JAXBException.class
             }
     )
     @KafkaListener(topics = "${kafka.fhir-conversion-prep.topic}")
@@ -261,7 +266,6 @@ public class KafkaConsumerService {
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                                   @Header(KafkaHeaderValue.MessageOperation) String operation) throws FhirConversionException, DiHL7Exception {
         log.debug("Received message ID: {} from topic: {}", message, topic);
-
         conversionHandlerForFhir(message, operation);
 
     }
@@ -381,7 +385,7 @@ public class KafkaConsumerService {
             throw new ConversionPrepareException("Validation ELR Record Not Found");
         }
     }
-    private void xmlConversionHandler(String message, String operation) throws Exception {
+    private void xmlConversionHandler(String message, String operation) throws XmlConversionException, DiHL7Exception, JAXBException, IOException {
         log.debug("Received message id will be retrieved from db and associated hl7 will be converted to xml");
 
         String hl7Msg = "";
@@ -394,7 +398,7 @@ public class KafkaConsumerService {
                 var validMessage = iHl7v2Validator.MessageStringValidation(response.get().getMessage());
                 hl7Msg = validMessage;
             } else {
-                throw new Exception("Message not found in dead letter table");
+                throw new XmlConversionException("Message not found in dead letter table");
             }
         }
 
@@ -417,8 +421,7 @@ public class KafkaConsumerService {
                 kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic, 0);
                 break;
             case KafkaHeaderValue.MessageType_CSV:
-                // ValidatedELRModel csvValidatedModel = csvValidator.ValidateCSVAgainstCVSSchema(message);
-                // kafkaProducerService.sendMessageAfterValidatingMessage(csvValidatedModel, validatedTopic);
+                // TODO: implement csv validation, this is not in the scope of data ingestion at the moment
                 break;
             default:
                 break;

@@ -234,7 +234,7 @@ public class KafkaConsumerServiceTest {
                 .thenReturn(Optional.empty());
 
 
-        assertThrows(RuntimeException.class, () -> kafkaConsumerService.handleMessageForValidatedElr(value, validateTopic));
+        assertThrows(ConversionPrepareException.class, () -> kafkaConsumerService.handleMessageForValidatedElr(value, validateTopic));
 
 
         verify(iValidatedELRRepository, times(1)).findById(eq(guidForTesting));
@@ -355,7 +355,7 @@ public class KafkaConsumerServiceTest {
                 .thenReturn(Optional.empty());
 
 
-        assertThrows(RuntimeException.class, () ->
+        assertThrows(FhirConversionException.class, () ->
                 kafkaConsumerService.handleMessageForFhirConversionElr(value, fhirPrepTopic, EnumKafkaOperation.INJECTION.name())
         );
 
