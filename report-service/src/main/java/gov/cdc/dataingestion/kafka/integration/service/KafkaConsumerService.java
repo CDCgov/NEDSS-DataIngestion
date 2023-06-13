@@ -380,7 +380,7 @@ public class KafkaConsumerService {
         Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
         if(validatedElrResponse.isPresent()) {
             kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepXmlTopic, TopicPreparationType.XML, 0);
-            // kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepFhirTopic, TopicPreparationType.FHIR, 0);
+            kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepFhirTopic, TopicPreparationType.FHIR, 0);
         } else {
             throw new ConversionPrepareException("Validation ELR Record Not Found");
         }
