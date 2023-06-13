@@ -49,3 +49,15 @@ karatetest/build/
 karatetest/.gradle
 karatetest/.idea
 
+### hl7 parser ###
+
+### HL7 parser lib ##
+hl7-parser/.idea/*
+
+### .idea ###
+.idea/.name
+.idea/*.xml
+.idea/modules/*
+
+### env ###
+*.env
