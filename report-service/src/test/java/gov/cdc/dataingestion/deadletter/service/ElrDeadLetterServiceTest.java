@@ -11,10 +11,10 @@ import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.jupiter.api.*;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Sort;
@@ -40,7 +40,7 @@ public class ElrDeadLetterServiceTest {
             .asCompatibleSubstituteFor("mcr.microsoft.com/mssql/server");
 
     @Container
-    public MSSQLServerContainer mssqlserver  =
+    public static MSSQLServerContainer mssqlserver  =
             new MSSQLServerContainer<>(taggedImageName)
                     .acceptLicense()
                     .withInitScript("sql-script/test-script.sql")
@@ -60,19 +60,20 @@ public class ElrDeadLetterServiceTest {
     @Mock
     private IHL7ToFHIRRepository fhirRepository;
 
-
+    @InjectMocks
     private ElrDeadLetterService elrDeadLetterService;
 
     private String guidForTesting = "";
+
     @BeforeEach
-    public void setUp() {
+    public void setUpEach() {
         MockitoAnnotations.openMocks(this);
         elrDeadLetterService = new ElrDeadLetterService(dltRepository, rawELRRepository, validatedELRRepository, kafkaProducerService, fhirRepository);
-
     }
 
-    @AfterEach
-    public void tearDown() {
+
+    @AfterAll
+    public static void tearDown() {
         mssqlserver.stop();
     }
 
@@ -81,6 +82,22 @@ public class ElrDeadLetterServiceTest {
         Connection conn = null;
         try {
             conn = DriverManager.getConnection(mssqlserver.getJdbcUrl(), mssqlserver.getUsername(), mssqlserver.getPassword());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        //endregion
+
+        //region INITIAL CLEANUP - delete all data from test container db
+        String sqlDeleteDlt = "DELETE FROM [NBS_DataIngest].[dbo].[elr_dlt]";
+        String sqlDeleteRaw = "DELETE FROM [NBS_DataIngest].[dbo].[elr_raw]";
+        String sqlDeleteFhir = "DELETE FROM [NBS_DataIngest].[dbo].[elr_fhir]";
+        String sqlDeleteValidated = "DELETE FROM [NBS_DataIngest].[dbo].[elr_validated]";
+        try {
+            Statement stmt = conn.createStatement();
+            stmt.execute(sqlDeleteDlt);
+            stmt.execute(sqlDeleteRaw);
+            stmt.execute(sqlDeleteFhir);
+            stmt.execute(sqlDeleteValidated);
         } catch (SQLException e) {
             e.printStackTrace();
         }

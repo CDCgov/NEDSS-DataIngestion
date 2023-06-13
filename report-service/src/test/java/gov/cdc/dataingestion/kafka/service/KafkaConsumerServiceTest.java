@@ -27,9 +27,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.Assert;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -82,12 +80,12 @@ public class KafkaConsumerServiceTest {
     public static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"))
             .withStartupTimeout(Duration.ofMinutes(5));
 
+
     private static final DockerImageName taggedImageName = DockerImageName.parse("mcr.microsoft.com/azure-sql-edge")
             .withTag("latest")
             .asCompatibleSubstituteFor("mcr.microsoft.com/mssql/server");
-
     @Container
-    public MSSQLServerContainer mssqlserver  =
+    public static MSSQLServerContainer mssqlserver  =
             new MSSQLServerContainer<>(taggedImageName)
                     .acceptLicense()
                     .withInitScript("sql-script/test-script.sql")
@@ -96,7 +94,7 @@ public class KafkaConsumerServiceTest {
 
     private KafkaConsumerService kafkaConsumerService;
 
-    private KafkaConsumer<String, String> consumer;
+    private static KafkaConsumer<String, String> consumer;
     private String guidForTesting = "";
 
     private String testHL7Message = "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r" +
@@ -107,14 +105,12 @@ public class KafkaConsumerServiceTest {
             "OBX|1|ST|||Test Demo CDC 2-8-16";
 
     private String errorMessage = "java.lang.RuntimeException: The HL7 version 2.5.1\\rPID is not recognized \tat gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService.handleMessageForXmlConversionElr(KafkaConsumerService.java:242) \tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) \tat java.base/java.lang.reflect.Method.invoke(Method.java:577) \tat org.springframework.messaging.handler.invocation.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:169) \tat org.springframework.messaging.handler.invocation.InvocableHandlerMethod.invoke(InvocableHandlerMethod.java:119) \tat org.springframework.kafka.listener.adapter.HandlerAdapter.invoke(HandlerAdapter.java:56) \tat org.springframework.kafka.listener.adapter.MessagingMessageListenerAdapter.invokeHandler(MessagingMessageListenerAdapter.java:366) \t... 18 more ";
-    private String rawTopic = "elr_raw";
-    private String validateTopic = "elr_validated";
-    private String xmlPrepTopic = "xml_prep";
-    private String fhirPrepTopic = "fhir_prep";
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-
+    private static String rawTopic = "elr_raw";
+    private static String validateTopic = "elr_validated";
+    private static String xmlPrepTopic = "xml_prep";
+    private static String fhirPrepTopic = "fhir_prep";
+    @BeforeAll
+    public static void setUpAll() {
         String bootstrapServers = kafkaContainer.getBootstrapServers();
 
         // Create Kafka consumer properties
@@ -132,8 +128,11 @@ public class KafkaConsumerServiceTest {
 
         // Subscribe to the test topic
         consumer.subscribe(Arrays.asList(rawTopic, validateTopic, xmlPrepTopic,  fhirPrepTopic));
+    }
 
-
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
         kafkaConsumerService = new KafkaConsumerService(
                 iValidatedELRRepository,
                 iRawELRRepository,
@@ -146,8 +145,8 @@ public class KafkaConsumerServiceTest {
                 elrDeadLetterRepository
         );
     }
-    @AfterEach
-    public void tearDown() {
+    @AfterAll
+    public static void tearDown() {
         consumer.close();
         mssqlserver.stop();
     }

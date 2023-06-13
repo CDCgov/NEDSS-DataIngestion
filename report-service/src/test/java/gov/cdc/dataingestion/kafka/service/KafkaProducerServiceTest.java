@@ -6,6 +6,7 @@ import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,15 +45,12 @@ public class KafkaProducerServiceTest {
         // Mocking SendResult and ListenableFuture
         SendResult<String, String> sendResult = mock(SendResult.class);
         var future = CompletableFuture.completedFuture(sendResult);
-
         when(kafkaTemplate.send(any(ProducerRecord.class))).thenReturn(future);
     }
 
-    @AfterEach
-    public void tearDown() {
-        if (kafkaContainer != null) {
-            kafkaContainer.stop();
-        }
+    @AfterAll
+    public static void tearDown() {
+        kafkaContainer.stop();
     }
 
     @Test
