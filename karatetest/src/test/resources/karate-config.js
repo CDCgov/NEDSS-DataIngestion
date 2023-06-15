@@ -23,6 +23,7 @@ function() {
     config.bootstrapServers = karate.properties['test.bootstrapServers'];
     config.groupId = karate.properties['test.groupId'];
     config.wrongapiurl = karate.properties['test.wrongapiurl'];
+    config.nbsurl = karate.properties['test.nbsurl'];
 
 
     karate.log('config object after setting test properties:', JSON.stringify(config));
@@ -36,6 +37,7 @@ function() {
         karate.log('bootstrapServers:', config.bootstrapServers);
         karate.log('groupId:', config.groupId);
 
+        
   } else if (env == 'dev') {
     config.apiurl = karate.properties['dev.apiurl'];
     config.username = karate.properties['dev.username'];
