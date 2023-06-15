@@ -2,6 +2,14 @@ package gov.cdc.dataingestion.hl7.helper.unitTest;
 
 public class Hl7TestData {
 
+	public static String testMessageForXmlIssue = "MSH|^~\\&|LABCORP-CORP^OID^ISO|LABCORP^34D0655059^CLIA|SCDOH^OID^ISO|SC^OID^ISO|201204200159||ORU^R01^ORU_R01|20120605034370001A|D|2.5.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r" +
+			"SFT|Mirth Corp.|2.0|Mirth Connect|789654||20110101\r" +
+			"PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||TESTMINIMUM_251^FIRSTMIN251|||||||||||||||||||||||||\r" +
+			"ORC|RE||||||||||||||||||||HUFF MEDICAL CENTER|1212 DOGGIE TRAIL.^SUITE 500^ATLANTA^GA^30004|^^^^^770^1234567\r" +
+			"OBR|1||06050205112A^namespace^OID^ISO|699-9^ORGANISM COUNT^LN|||200603241455|||||||||||||||201205091533|||F\r" +
+			"OBX|1|ST|11475-1^MICROORGANISM IDENTIFIED^LN||||||||F||||||||201205301200\r" +
+			"SPM|1|^08660205112&namespace&OID&ISO||UNK^Unknown^NullFlavor|";
+
 	public static String testMessage = "MSH|^~\\&|LABCORP^^|LABCORP^34D0655059^CLIA|ALDOH^^|AL^^|202305251105||ORU^R01^ORU_R01|202305221034-A|P^|2.3.1|\r" +
 			"PID|1||28164102670^^^LABCORP Birmingham&01D0301471&CLIA^U^^^^^^~441487312^^^&2.16.840.1.113883.5.1008&NI^PT^^^^^^~007226789^^^SSA&2.16.840.1.113883.4.1&ISO^SS^^^^^^||BOND&&&&^JAMES^^^^^^||19690626000000|M||U^^^^^^^^|25 Adams St^^FAIRFIELD^GA^30342^||^^^^^205^2714823^^^^^|||||||||U^^^^^^^^|||||||||||||||||||\r" +
 			"ORC|RE||34411541099348||||||||||||||||||Simon-Williamson Cl-Megan^^^^^^^^^|8321 Megan Ave SW^^Birmingham^GA^30342^|^^^^^205^2068375^^^^^|8321 Megan Ave SW^^Birmingham^GA^30342^||||||||\r" +
