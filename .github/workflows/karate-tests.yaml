@@ -1,0 +1,64 @@
+name: Karate tests
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: '17'
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+
+      - name: Build and run Karate tests
+        env:
+          KARATE_OPTIONS: ${{ env.KARATE_OPTIONS }}
+          KARATE_ENV: ${{ env.ENV }}
+          TEST_API_URL: ${{ secrets.APIURL }}
+          CONNECT_TIMEOUT: ${{ env.CONNECT_TIMEOUT }}
+          READ_TIMEOUT: ${{ env.KARATE_READTIMEOUT }}
+          RETRY_COUNT: ${{ env.KARATE_RETRYCOUNT }}
+          RETRY_INTERVAL: ${{env.RETRYINTERVAL }}
+          TEST_USERNAME: ${{ secrets.DATAINGEST_DB_USERNAME }}
+          TEST_PASSWORD: ${{ secrets.DATAINGEST_DB_PASSWORD }}
+          TEST_URL: ${{ secrets.DATAINGEST_SERVER_URL }}
+          TEST_DRIVER_CLASS_NAME: ${{ env.DRIVERCLASSNAME }}
+          TEST_BOOTSTRAP_SERVERS: ${{ secrets.KAFKA_SERVER }}
+          TEST_GROUP_ID: ${{ env.GROUPID }}
+          TEST_API_USERNAME: ${{ secrets.API_USERNAME }}
+          TEST_API_PASSWORD: ${{ secrets.API_PASSWORD }}
+          TEST_NBS_URL: ${{ env.NBS_URL }}
+        run: |
+          ./gradlew test \
+            -Dkarate.options="$KARATE_OPTIONS" \
+            -Dkarate.env="$KARATE_ENV" \
+            -Dtest.apiurl="$TEST_API_URL" \
+            -DconnectTimeout="$CONNECT_TIMEOUT" \
+            -DreadTimeout="$READ_TIMEOUT" \
+            -DretryCount="$RETRY_COUNT" \
+            -DretryInterval="$RETRY_INTERVAL" \
+            -Dtest.username="$TEST_USERNAME" \
+            -Dtest.password="$TEST_PASSWORD" \
+            -Dtest.url="$TEST_URL" \
+            -Dtest.driverClassName="$TEST_DRIVER_CLASS_NAME" \
+            -Dtest.bootstrapServers="$TEST_BOOTSTRAP_SERVERS" \
+            -Dtest.groupId="$TEST_GROUP_ID" \
+            -Dtest.apiusername="$TEST_API_USERNAME" \
+            -Dtest.apipassword="$TEST_API_PASSWORD" \
+            -Dtest.nbsurl="$TEST_NBS_URL"
