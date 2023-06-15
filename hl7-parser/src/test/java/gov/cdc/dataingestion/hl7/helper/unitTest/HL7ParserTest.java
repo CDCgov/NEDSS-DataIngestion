@@ -54,7 +54,7 @@ public class HL7ParserTest {
 
     @Test
     public void hl7StringParser_ReturnValidMessage() throws  DiHL7Exception {
-        var result = target.hl7StringParser(OruR1Message);
+        var result = target.hl7StringParser(testMessageForXmlIssue);
         Assertions.assertEquals("R01", result.getEventTrigger());
     }
 

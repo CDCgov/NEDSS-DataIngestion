@@ -28,7 +28,7 @@ public class TimingQuantityRelationship {
         this.relatedPlacerGroupNumber = GetEiList(tq2.getRelatedPlacerGroupNumber());
         this.sequenceConditionCode = tq2.getSequenceConditionCode().getValue();
         this.cyclicEntryExitIndicator = tq2.getCyclicEntryExitIndicator().getValue();
-        this.sequenceConditionTimeInterval = new Cq(tq2.getTq28_SequenceConditionTimeInterval());
+        this.sequenceConditionTimeInterval = new Cq(tq2.getSequenceConditionTimeInterval());
         this.cyclicGroupMaximumNumberOfRepeats = tq2.getCyclicGroupMaximumNumberOfRepeats().getValue();
         this.specialServiceRequestRelationship = tq2.getSpecialServiceRequestRelationship().getValue();
     }
