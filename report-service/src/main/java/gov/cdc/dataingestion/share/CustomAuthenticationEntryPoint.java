@@ -1,5 +1,7 @@
 package gov.cdc.dataingestion.share;
 
+import com.google.gson.Gson;
+import gov.cdc.dataingestion.share.model.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.AuthenticationException;
@@ -11,6 +13,12 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getWriter().write("{ \"error\": \"Unauthorized\", \"message\": \"Unauthorized access\" }");
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setStatusCode(response.SC_UNAUTHORIZED);
+        errorResponse.setMessage("Unauthorized");
+        errorResponse.setDetails(authException.getMessage());
+        Gson gson = new Gson();
+        String json = gson.toJson(errorResponse);
+        response.getWriter().write(json);
     }
 }
