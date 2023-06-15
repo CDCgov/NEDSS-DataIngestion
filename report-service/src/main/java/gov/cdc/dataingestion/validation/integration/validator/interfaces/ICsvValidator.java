@@ -7,5 +7,4 @@ import java.util.List;
 @Component
 public interface ICsvValidator {
     ValidatedELRModel ValidateCSVAgainstCVSSchema(String message) throws Exception;
-    List<List<String>> ReadLineByLine(Reader reader) throws Exception;
 }
