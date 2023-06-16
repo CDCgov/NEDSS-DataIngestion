@@ -30,10 +30,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @Testcontainers
 public class KafkaProducerServiceTest {
-
-    @Container
-    public static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"));
-
     @Mock
     private KafkaTemplate<String, String> kafkaTemplate;
 
@@ -50,7 +46,6 @@ public class KafkaProducerServiceTest {
 
     @AfterAll
     public static void tearDown() {
-        kafkaContainer.stop();
     }
 
     @Test
