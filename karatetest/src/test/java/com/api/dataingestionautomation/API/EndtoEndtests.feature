@@ -25,10 +25,8 @@ Feature: Scenarios to test end to end flow along with Kafka validations
     * url apiurl
     * def modifiedData = data[rowIndex].data.replace(oldValue, randomString)
     And request modifiedData
-    * print modifiedData
     When method POST
     Then status 200
-    And print response
     * def elr_raw_id = db.readRows('select id, payload from elr_raw where id = \'' + response + '\'')
     And eval Thread.sleep(400)
     And match elr_raw_id[0].id == response
@@ -36,16 +34,12 @@ Feature: Scenarios to test end to end flow along with Kafka validations
     And eval Thread.sleep(100)
     * def elr_raw_validated_id = db.readRows('select raw_message_id, id, validated_message from elr_validated where raw_message_id = \'' + response + '\'')
     And eval Thread.sleep(400)
-    * print elr_raw_validated_id
     * def kafka_elr_validated_id =  elr_raw_validated_id[0].id
-    * print kafka_elr_validated_id
     And match elr_raw_validated_id[0].raw_message_id == response
     And match elr_raw_validated_id[0].validated_message == modifiedData
     And eval Thread.sleep(600)
     * def elr_fhir_id = db.readRows('select raw_message_id, id from elr_fhir where raw_message_id = \'' + response + '\'')
-    * print elr_fhir_id
     * def kafka_elr_fhir_id = elr_fhir_id[0].id
-    And print kafka_elr_fhir_id
     And match elr_fhir_id[0].raw_message_id == response
     * def topics = ['elr_raw', 'elr_validated', 'fhir_converted', 'elr_duplicate', 'elr_raw_dlt', 'elr_validated_dlt']
     * def latestRecords = kafkaConsumer.readLatestFromTopics(...topics)
