@@ -37,7 +37,7 @@ function() {
         karate.log('bootstrapServers:', config.bootstrapServers);
         karate.log('groupId:', config.groupId);
 
-        
+
   } else if (env == 'dev') {
     config.apiurl = karate.properties['dev.apiurl'];
     config.username = karate.properties['dev.username'];
