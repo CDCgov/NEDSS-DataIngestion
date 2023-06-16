@@ -1,4 +1,5 @@
 name: Karate tests
+
 on:
   push:
     branches:
@@ -27,6 +28,7 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Build and run Karate tests
+        working-directory: ./karatetest
         env:
           KARATE_OPTIONS: ${{ env.KARATE_OPTIONS }}
           KARATE_ENV: ${{ env.ENV }}
@@ -62,3 +64,4 @@ jobs:
             -Dtest.apiusername="$TEST_API_USERNAME" \
             -Dtest.apipassword="$TEST_API_PASSWORD" \
             -Dtest.nbsurl="$TEST_NBS_URL"
+
