@@ -82,8 +82,16 @@ public class HL7ParserTest {
     }
 
     @Test
-    public void hl7StringParserWith251_ReturnValidMessage() throws  DiHL7Exception {
+    public void hl7StringParserWith251_ReturnValidMessage_RandomV1() throws  DiHL7Exception {
         var result = target.hl7StringParser(randomGenerated251WithDataInAllField);
+        Assertions.assertEquals("R01", result.getEventTrigger());
+    }
+
+    @Test
+    public void hl7StringParserWith251_ReturnValidMessage_RandomV2() throws  DiHL7Exception {
+        var result = target.hl7StringParser(randomGenerated251WithDataInAllFieldV2);
+        Gson gson = new Gson();
+        var test = gson.toJson(result);
         Assertions.assertEquals("R01", result.getEventTrigger());
     }
 
