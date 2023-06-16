@@ -81,4 +81,10 @@ public class HL7ParserTest {
         Assertions.assertEquals("R01", result.getEventTrigger());
     }
 
+    @Test
+    public void hl7StringParserWith251_ReturnValidMessage() throws  DiHL7Exception {
+        var result = target.hl7StringParser(randomGenerated251WithDataInAllField);
+        Assertions.assertEquals("R01", result.getEventTrigger());
+    }
+
 }

@@ -1,10 +1,12 @@
 package gov.cdc.dataingestion.kafka.service;
 
 import ca.uhn.hl7v2.HL7Exception;
+import com.google.gson.Gson;
 import gov.cdc.dataingestion.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
+import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
@@ -34,6 +36,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -412,6 +415,42 @@ public class KafkaConsumerServiceTest {
         kafkaConsumerService.handleDlt(message, rawTopic + "_dlt", "n/a", errorMessage, "0", rawTopic);
 
         verify(iRawELRRepository, times(1)).findById(eq(guidForTesting));
+    }
+
+    @Test
+    public void dltHandlerLogicOnConvertedFhir_UnSupportTopic_CodeCoverage_ResultFound() {
+        initialDataInsertionAndSelection("fhir_converted");
+
+        String message =  guidForTesting;
+        HL7ToFHIRModel mode = new HL7ToFHIRModel();
+        mode.setId(message);
+        when(iHL7ToFHIRRepository.findById(eq(guidForTesting)))
+                .thenReturn(Optional.of(mode));
+        kafkaConsumerService.handleDlt(message, "fhir_converted_dlt", "n/a", errorMessage, "0", "fhir_converted");
+        verify(iHL7ToFHIRRepository, times(1)).findById(eq(guidForTesting));
+
+    }
+
+
+    @Test
+    public void dltHandlerLogicOnConvertedFhir_UnSupportTopic_CodeCoverage() {
+        String message =  guidForTesting;
+        when(iHL7ToFHIRRepository.findById(eq(guidForTesting)))
+                .thenReturn(any());
+        kafkaConsumerService.handleDlt(message, "fhir_converted_dlt", "n/a", errorMessage, "0", "fhir_converted");
+        verify(iHL7ToFHIRRepository, times(1)).findById(eq(guidForTesting));
+
+    }
+
+    @Test
+    public void dltHandlerLogicOnConvertedXml_UnSupportTopic_CodeCoverage() {
+        String message =  guidForTesting;
+        kafkaConsumerService.handleDlt(message, "xml_converted_dlt", "n/a", errorMessage, "0", "xml_converted");
+    }
+    @Test
+    public void dltHandlerLogicOnOther_UnSupportTopic_CodeCoverage() {
+        String message =  guidForTesting;
+        kafkaConsumerService.handleDlt(message, "test_dlt", "n/a", errorMessage, "0", "test");
     }
 
     @Test

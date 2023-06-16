@@ -148,4 +148,14 @@ public class KafkaProducerServiceTest {
         kafkaProducerService.sendMessageFromCSVController(msg, topic,msgType);
         verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
     }
+
+    @Test
+    public void testSendMessageFromDltController_Success() {
+        String topic = "test-topic";
+        String msg = "test";
+        String msgType = "HL7";
+        Integer occurrence = 0;
+        kafkaProducerService.sendMessageFromDltController(msg, topic,msgType, occurrence);
+        verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
+    }
 }
