@@ -38,21 +38,17 @@ public class HL7Parser implements IHL7Parser {
     private final String supportedHL7version = "2.5.1";
     private final String supportedHL7version231 = "2.3.1";
 
-    private static HL7Parser instance = new HL7Parser(new DefaultHapiContext());
-    public static HL7Parser getInstance() {
-        return instance;
-    }
-
     public HL7Parser(HapiContext context) {
         this.context = context;
     }
 
-    public String hl7MessageStringValidation(String message) throws DiHL7Exception {
-        if(message.contains(newLine)) {
-            message = message.replaceAll(newLine, carrier);
-        } else if (message.contains(newLineWithCarrier) || message.contains(carrier)) {
+    public String hl7MessageStringValidation(String message)  {
+         if (message.contains(newLineWithCarrier) || message.contains(carrier) || message.contains(newLine)) {
             if (message.contains(newLineWithCarrier)) {
                 message = message.replaceAll(newLineWithCarrier, carrier);
+            }
+            else if (message.contains(newLine)) {
+                message = message.replaceAll(newLine, carrier);
             }
         } else {
             if (message.contains("\\n")) {
@@ -124,7 +120,6 @@ public class HL7Parser implements IHL7Parser {
 
                     //region Patient Result - ORDER OBSERVATION
 
-                    var test = oru.getPatientResult().get(a);
                     for(int c = 0; c < oru.getPatientResult().get(a).getOrderObservation().size(); c++) {
                         //region OBSERVATION - Order - OBX
                         for (int d = 0; d < oru.getPatientResult().get(a).getOrderObservation().get(c).getObservation().size(); d++) {

@@ -20,9 +20,6 @@ public class HL7Helper {
     private IFhirConverter fhirConverter = new FhirConverter(new HL7ToFHIRConverter());
 
     private static HL7Helper instance = new HL7Helper();
-    public static HL7Helper getInstance() {
-        return instance;
-    }
 
     /**
      * HL7 string validator, replacing "\n" by "\r"
@@ -36,6 +33,10 @@ public class HL7Helper {
      * */
     public HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception {
         return parser.hl7StringParser(message);
+    }
+
+    public ca.uhn.hl7v2.model.v231.message.ORU_R01 hl7StringParser231(String message) throws DiHL7Exception {
+        return parser.hl7v231StringParser(message);
     }
 
     public HL7ParsedMessage convert231To251(String message) throws DiHL7Exception {

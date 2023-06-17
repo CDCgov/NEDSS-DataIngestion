@@ -27,6 +27,7 @@ public class FhirConverterTest {
     public void convertingHL7ToFhir_Success() throws DiFhirException {
         var result = target.convertHl7ToFhir(validData);
         Assertions.assertNotNull(result.getFhirMessage());
+        Assertions.assertNotNull(result.getHl7Message());
     }
 
     @Test

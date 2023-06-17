@@ -10,13 +10,6 @@ public class HL7ParsedMessage<T> {
 
     }
 
-    public HL7ParsedMessage(String version, String type, String eventTrigger, String message, T parsedMessage) {
-        this.originalVersion = version;
-        this.type = type;
-        this.eventTrigger = eventTrigger;
-        this.message = message;
-        this.parsedMessage = parsedMessage;
-    }
     private String originalVersion;
     private String type;
     private String eventTrigger;
