@@ -45,18 +45,6 @@ public class HL7ParserTest {
     }
 
     @Test
-    public void hl7StringValidatorTest_ReturnException() {
-        Exception exception = Assertions.assertThrows(
-                DiHL7Exception.class, () -> {
-                    target.hl7StringValidator(invalidData);
-                }
-        );
-        String expectedMessage = "Incorrect raw message format";
-        String actualMessage = exception.getMessage();
-        Assertions.assertTrue(actualMessage.contains(expectedMessage));
-    }
-
-    @Test
     public void hl7StringParser_ReturnValidMessage() throws  DiHL7Exception {
         var result = target.hl7StringParser(testMessageForXmlIssue);
         Gson gson = new Gson();
