@@ -126,6 +126,8 @@ public class HL7Parser implements IHL7Parser {
                     //endregion
 
                     //region Patient Result - ORDER OBSERVATION
+
+                    var test = oru.getPatientResult().get(a);
                     for(int c = 0; c < oru.getPatientResult().get(a).getOrderObservation().size(); c++) {
                         //region OBSERVATION - Order - OBX
                         for (int d = 0; d < oru.getPatientResult().get(a).getOrderObservation().get(c).getObservation().size(); d++) {

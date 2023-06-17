@@ -3,9 +3,13 @@ package gov.cdc.dataingestion.hl7.helper.unitTest;
 import com.google.gson.Gson;
 import gov.cdc.dataingestion.hl7.helper.HL7Helper;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
 
 import static gov.cdc.dataingestion.hl7.helper.unitTest.Hl7TestData.*;
 import static gov.cdc.dataingestion.hl7.helper.unitTest.Hl7TestData.messageOriginal;
@@ -90,6 +94,53 @@ public class HL7ParserTest {
     @Test
     public void hl7StringParserWith251_ReturnValidMessage_RandomV2() throws  DiHL7Exception {
         var result = target.hl7StringParser(randomGenerated251WithDataInAllFieldV2);
+        var oru = (OruR1) result.getParsedMessage();
+        Gson gson = new Gson();
+        var test = gson.toJson(result);
+        Assertions.assertEquals("R01", result.getEventTrigger());
+        Assertions.assertEquals("20230615",oru.getContinuationPointer().getContinuationPointer());
+        Assertions.assertEquals("20230615",oru.getContinuationPointer().getContinuationStyle());
+
+        Assertions.assertEquals("|",oru.getMessageHeader().getFieldSeparator());
+        Assertions.assertEquals("^~\\&",oru.getMessageHeader().getEncodingCharacters());
+        Assertions.assertEquals("20230615",oru.getMessageHeader().getSecurity());
+        Assertions.assertEquals("123456789",oru.getMessageHeader().getMessageControlId());
+
+        Assertions.assertEquals("20230615",oru.getMessageHeader().getSequenceNumber());
+        Assertions.assertEquals("20230615",oru.getMessageHeader().getContinuationPointer());
+        Assertions.assertEquals("20230615",oru.getMessageHeader().getAcceptAckType());
+        Assertions.assertEquals("20230615",oru.getMessageHeader().getApplicationAckType());
+        Assertions.assertEquals("20230615",oru.getMessageHeader().getCountryCode());
+        Assertions.assertEquals("20230615",oru.getMessageHeader().getAlternateCharacterSetHandlingScheme());
+
+        Assertions.assertEquals("20230615",oru.getSoftwareSegment().get(0).getSoftwareCertifiedVersionOrReleaseNumber());
+        Assertions.assertEquals("20230615",oru.getSoftwareSegment().get(0).getSoftwareProductName());
+        Assertions.assertEquals("20230615",oru.getSoftwareSegment().get(0).getSoftwareBinaryId());
+        Assertions.assertEquals("20230615",oru.getSoftwareSegment().get(0).getSoftwareProductInformation());
+
+        Assertions.assertEquals("1",oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).getSetIdNte());
+        Assertions.assertEquals("20230615",oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).getSourceOfComment());
+
+
+        // Code coverage for setter
+        oru.getContinuationPointer().setContinuationPointer("AA");
+        oru.getContinuationPointer().setContinuationStyle("AA");
+        Assertions.assertEquals("AA",oru.getContinuationPointer().getContinuationPointer());
+        Assertions.assertEquals("AA",oru.getContinuationPointer().getContinuationStyle());
+
+        oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).setSetIdNte("3");
+        oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).setSourceOfComment("AA");
+        oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).setComment(new ArrayList<>());
+        oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).setCommentType(new Ce());
+        Assertions.assertEquals("3",oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).getSetIdNte());
+        Assertions.assertEquals("AA",oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).getSourceOfComment());
+
+
+    }
+
+    @Test
+    public void hl7StringParserWith231_ReturnValidMessage_RandomV1() throws  DiHL7Exception {
+        var result = target.hl7StringParser(randomGenerated231WithDataInAllFieldV1);
         Gson gson = new Gson();
         var test = gson.toJson(result);
         Assertions.assertEquals("R01", result.getEventTrigger());
