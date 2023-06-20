@@ -51,7 +51,7 @@ jobs:
           TEST_NBS_URL: ${{ vars.NBS_URL }}
         run: |
           ./gradlew test \
-            -Dkarate.options="--tags $KARATE_OPTIONS" \
+            -Dkarate.options="$KARATE_OPTIONS" \
             -Dkarate.env="$KARATE_ENV" \
             -Dtest.apiurl="$TEST_API_URL" \
             -DconnectTimeout="$CONNECT_TIMEOUT" \
@@ -73,4 +73,4 @@ jobs:
         if: always()
         with:
           name: karate-report
-          path: ./karatetest/build/karate-reports
+          path: ./karatetest/build/karate-reports/karate-summary.html

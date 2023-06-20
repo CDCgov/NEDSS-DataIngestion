@@ -59,7 +59,7 @@ Feature: Scenarios to test end to end flow along with Kafka validations
 
 
 
-  @regression
+  @regressionu
   Scenario: Transmit a bad Hl7 message and validate that data is only in ELR_RAw tables but not other tables
     Given url apiurl
     And request 'MSH|^~\&|SendingApp|SendingFac|ReceivingApp|ReceivingFac|20120411070545||ORU^R01|59689|P|2.9'
