@@ -1,4 +1,4 @@
-name: Karate tests
+name: Karate Test Workflow
 
 on:
   push:
@@ -27,7 +27,11 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
 
+      - name: Grant execute permission for gradlew
+        run: chmod +x karatetest/gradlew
+
       - name: Build and run Karate tests
+        working-directory: ./karatetest
         env:
           KARATE_OPTIONS: ${{ vars.KARATE_OPTIONS }}
           KARATE_ENV: ${{ vars.ENV }}
@@ -46,7 +50,6 @@ jobs:
           TEST_API_PASSWORD: ${{ secrets.API_PASSWORD }}
           TEST_NBS_URL: ${{ vars.NBS_URL }}
         run: |
-          ls -R src
           ./gradlew test \
             -Dkarate.options="--tags $KARATE_OPTIONS" \
             -Dkarate.env="$KARATE_ENV" \
@@ -64,9 +67,10 @@ jobs:
             -Dtest.apiusername="$TEST_API_USERNAME" \
             -Dtest.apipassword="$TEST_API_PASSWORD" \
             -Dtest.nbsurl="$TEST_NBS_URL"
-          
+
       - name: Upload Karate Test Report
         uses: actions/upload-artifact@v2
+        if: always()
         with:
           name: karate-report
           path: ./karatetest/build/karate-reports
