@@ -70,4 +70,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: karate-report
-          path: ./karatetest/build/karate-reports/karate-summary.html
+          path: ./karatetest/build/karate-reports
