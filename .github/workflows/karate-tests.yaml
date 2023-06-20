@@ -3,10 +3,10 @@ name: Karate tests
 on:
   push:
     branches:
-      - main
+      - CNDIT-390_Karate-framework
   pull_request:
     branches:
-      - main
+      - CNDIT-390_Karate-framework
 
 jobs:
   build:
@@ -48,7 +48,7 @@ jobs:
           TEST_NBS_URL: ${{ vars.NBS_URL }}
         run: |
           ./gradlew test \
-            -Dkarate.options="$KARATE_OPTIONS" \
+            -Dkarate.options="--tags $KARATE_OPTIONS" \
             -Dkarate.env="$KARATE_ENV" \
             -Dtest.apiurl="$TEST_API_URL" \
             -DconnectTimeout="$CONNECT_TIMEOUT" \
