@@ -29,7 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @Testcontainers
-public class KafkaProducerServiceTest {
+class KafkaProducerServiceTest {
     @Mock
     private KafkaTemplate<String, String> kafkaTemplate;
 
@@ -49,7 +49,7 @@ public class KafkaProducerServiceTest {
     }
 
     @Test
-    public void testSendMessageFromController() {
+    void testSendMessageFromController() {
         String msg = "test message";
         String topic = "test-topic";
         String msgType = "test-type";
@@ -59,7 +59,7 @@ public class KafkaProducerServiceTest {
     }
 
     @Test
-    public void testSendMessageAfterValidatingMessage() {
+    void testSendMessageAfterValidatingMessage() {
         String topic = "test-topic";
         ValidatedELRModel model = new ValidatedELRModel();
         model.setMessageType("test");
@@ -70,7 +70,7 @@ public class KafkaProducerServiceTest {
     }
 
     @Test
-    public void testSendMessagePreparationTopicXML() throws ConversionPrepareException {
+    void testSendMessagePreparationTopicXML() throws ConversionPrepareException {
         var topicType = TopicPreparationType.XML;
         String topic = "test-topic";
         ValidatedELRModel model = new ValidatedELRModel();
@@ -84,7 +84,7 @@ public class KafkaProducerServiceTest {
     }
 
     @Test
-    public void testSendMessagePreparationTopicFHIR() throws ConversionPrepareException {
+    void testSendMessagePreparationTopicFHIR() throws ConversionPrepareException {
         var topicType = TopicPreparationType.FHIR;
         String topic = "test-topic";
         ValidatedELRModel model = new ValidatedELRModel();
@@ -98,7 +98,7 @@ public class KafkaProducerServiceTest {
     }
 
     @Test
-    public void testSendMessageAfterConvertedToFhirMessage()  {
+    void testSendMessageAfterConvertedToFhirMessage()  {
         String topic = "test-topic";
         HL7ToFHIRModel model = new HL7ToFHIRModel();
         model.setId("test");
@@ -108,7 +108,7 @@ public class KafkaProducerServiceTest {
     }
 
     @Test
-    public void testSendMessageAfterConvertedToXml()  {
+    void testSendMessageAfterConvertedToXml()  {
         String topic = "test-topic";
         String msg = "test";
         kafkaProducerService.sendMessageAfterConvertedToXml(msg, topic,
@@ -117,7 +117,7 @@ public class KafkaProducerServiceTest {
     }
 
     @Test
-    public void testSendMessageAfterCheckingDuplicateHL7()  {
+    void testSendMessageAfterCheckingDuplicateHL7()  {
         String topic = "test-topic";
         String msg = "test";
         ValidatedELRModel model = new ValidatedELRModel();
@@ -128,7 +128,7 @@ public class KafkaProducerServiceTest {
     }
 
     @Test
-    public void testSendMessageFromDltController() {
+    void testSendMessageFromDltController() {
         String topic = "test-topic";
         String msg = "test";
         String msgType = "HL7";
@@ -138,7 +138,7 @@ public class KafkaProducerServiceTest {
     }
 
     @Test
-    public void testSendMessageFromCSVController() {
+    void testSendMessageFromCSVController() {
         String topic = "test-topic";
         List<String> msgNested = new ArrayList<>();
         msgNested.add("test");
@@ -150,7 +150,7 @@ public class KafkaProducerServiceTest {
     }
 
     @Test
-    public void testSendMessageFromDltController_Success() {
+    void testSendMessageFromDltController_Success() {
         String topic = "test-topic";
         String msg = "test";
         String msgType = "HL7";

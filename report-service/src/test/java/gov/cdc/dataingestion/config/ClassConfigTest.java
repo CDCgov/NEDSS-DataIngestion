@@ -21,7 +21,7 @@ class ClassConfigTest {
     }
 
     @Test
-    public void hl7v2Validator_BeanIsDefined() {
+    void hl7v2Validator_BeanIsDefined() {
         // Act
         IHL7v2Validator hl7v2Validator = context.getBean(IHL7v2Validator.class);
 

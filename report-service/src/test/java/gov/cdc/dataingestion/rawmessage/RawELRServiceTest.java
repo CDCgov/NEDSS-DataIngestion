@@ -21,7 +21,7 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-public class RawELRServiceTest {
+class RawELRServiceTest {
     @Mock
     private IRawELRRepository rawELRRepository;
 

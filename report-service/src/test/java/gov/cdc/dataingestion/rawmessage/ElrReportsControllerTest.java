@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 
 @EnableConfigurationProperties(RsaKeyProperties.class)
 @WebMvcTest(ElrReportsController.class)
-public class ElrReportsControllerTest {
+class ElrReportsControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -28,7 +28,7 @@ public class ElrReportsControllerTest {
     private RawELRService rawELRService;
 
     @Test
-    public void testSave() throws Exception {
+    void testSave() throws Exception {
         String payload = "Test payload";
         String messageType = "Test message type";
         RawERLDto rawERLDto = new RawERLDto();
@@ -45,7 +45,7 @@ public class ElrReportsControllerTest {
     }
 
     @Test
-    public void testGetById() throws Exception {
+    void testGetById() throws Exception {
         String id = "test-id";
         RawERLDto rawERLDto = new RawERLDto();
         rawERLDto.setId(id);

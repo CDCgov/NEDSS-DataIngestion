@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-public class CustomAuthenticationEntryPointTest {
+class CustomAuthenticationEntryPointTest {
     private CustomAuthenticationEntryPoint entryPoint;
     private HttpServletRequest request;
     private HttpServletResponse response;
@@ -29,7 +29,7 @@ public class CustomAuthenticationEntryPointTest {
     }
 
     @Test
-    public void commence_RespondsWithUnauthorizedError() throws IOException {
+    void commence_RespondsWithUnauthorizedError() throws IOException {
         // Arrange
         StringWriter stringWriter = new StringWriter();
         PrintWriter writer = new PrintWriter(stringWriter);

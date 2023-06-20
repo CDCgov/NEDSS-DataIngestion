@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class CsvValidatorTest {
+class CsvValidatorTest {
     private ICsvValidator target;
 
     @BeforeEach
@@ -16,7 +16,7 @@ public class CsvValidatorTest {
     }
 
     @Test
-    public void ValidateCSVAgainstCVSSchema_ValidCSV() throws Exception {
+    void ValidateCSVAgainstCVSSchema_ValidCSV() throws Exception {
         // Arrange
         String message = "[[\"value1\", \"value2\", \"value3\", \"value4\", \"value5\", \"value6\", \"value7\", \"value8\"]]";
 
@@ -30,7 +30,7 @@ public class CsvValidatorTest {
     }
 
     @Test
-    public void ValidateCSVAgainstCVSSchema_InValidCSV() {
+    void ValidateCSVAgainstCVSSchema_InValidCSV() {
         // Arrange
         String message = "[[\"value1\", \"value2\", \"value3\", \"value4\", \"value5\", \"value8\"]]";
 

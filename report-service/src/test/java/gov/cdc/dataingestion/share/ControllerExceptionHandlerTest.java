@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-public class ControllerExceptionHandlerTest {
+class ControllerExceptionHandlerTest {
     private ControllerExceptionHandler handler;
     private Exception exception;
 
@@ -17,7 +17,7 @@ public class ControllerExceptionHandlerTest {
     }
 
     @Test
-    public void handleException_ReturnsErrorResponseWithInternalServerError() {
+    void handleException_ReturnsErrorResponseWithInternalServerError() {
         // Act
         ResponseEntity<ErrorResponse> responseEntity = handler.handleException(exception);
 

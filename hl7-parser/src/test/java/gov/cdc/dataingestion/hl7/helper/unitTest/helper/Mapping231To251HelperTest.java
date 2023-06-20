@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import static gov.cdc.dataingestion.hl7.helper.unitTest.Hl7TestData.messageByRhapsody;
 import static gov.cdc.dataingestion.hl7.helper.unitTest.Hl7TestData.randomGenerated231WithDataInAllFieldV2;
 
-public class Mapping231To251HelperTest {
+class Mapping231To251HelperTest {
     static HL7Helper hl7Helper = new HL7Helper();
     Mapping231To251Helper target = new Mapping231To251Helper();
 
@@ -32,7 +32,7 @@ public class Mapping231To251HelperTest {
     }
 
     @Test
-    public void mapMsh_TestElse() {
+    void mapMsh_TestElse() {
         var oru = (OruR1) testObject.getParsedMessage();
         oru.getMessageHeader().setMessageProfileIdentifier(null);
         var result = target.MapMsh(null, oru.getMessageHeader());
@@ -40,7 +40,7 @@ public class Mapping231To251HelperTest {
     }
 
     @Test
-    public void mapPid_NullScenario() throws HL7Exception {
+    void mapPid_NullScenario() throws HL7Exception {
         var oru = (OruR1) testObject.getParsedMessage();
         PID pid = oruR01Hapi.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTIAll().get(0).getPIDPD1NK1NTEPV1PV2().getPID();
 
@@ -54,7 +54,7 @@ public class Mapping231To251HelperTest {
     }
 
     @Test
-    public void mapXad_Success() {
+    void mapXad_Success() {
         Xad xad = new Xad();
         Sad sad = new Sad();
         Ts ts = new Ts();

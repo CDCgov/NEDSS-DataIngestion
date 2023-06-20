@@ -60,7 +60,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @Testcontainers
-public class KafkaConsumerServiceTest {
+class KafkaConsumerServiceTest {
 
     @Mock
     private KafkaProducerService kafkaProducerService;
@@ -158,7 +158,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void rawConsumerTest() throws HL7Exception, DuplicateHL7FileFoundException, DiHL7Exception {
+    void rawConsumerTest() throws HL7Exception, DuplicateHL7FileFoundException, DiHL7Exception {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(rawTopic);
         String message =  guidForTesting;
@@ -187,7 +187,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void validateConsumerTest() throws ConversionPrepareException {
+    void validateConsumerTest() throws ConversionPrepareException {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(validateTopic);
         String message =  guidForTesting;
@@ -215,7 +215,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void validateConsumerTest_Exception() {
+    void validateConsumerTest_Exception() {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(validateTopic);
         String message =  guidForTesting;
@@ -245,7 +245,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void xmlPreparationConsumerTest() throws Exception {
+    void xmlPreparationConsumerTest() throws Exception {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(xmlPrepTopic);
         String message =  guidForTesting;
@@ -274,7 +274,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void xmlPreparationConsumerTestReInjection() throws Exception {
+    void xmlPreparationConsumerTestReInjection() throws Exception {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(xmlPrepTopic);
         String message =  guidForTesting;
@@ -307,7 +307,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void fhirPreparationConsumerTest() throws FhirConversionException, DiHL7Exception {
+    void fhirPreparationConsumerTest() throws FhirConversionException, DiHL7Exception {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(fhirPrepTopic);
         String message =  guidForTesting;
@@ -337,7 +337,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void fhirPreparationConsumerTest_Exception() {
+    void fhirPreparationConsumerTest_Exception() {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(fhirPrepTopic);
         String message =  guidForTesting;
@@ -368,7 +368,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void fhirPreparationConsumerTestReInjection() throws DiHL7Exception, FhirConversionException {
+    void fhirPreparationConsumerTestReInjection() throws DiHL7Exception, FhirConversionException {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(fhirPrepTopic);
         String message =  guidForTesting;
@@ -401,7 +401,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void dltHandlerLogicForRawPipeline() {
+    void dltHandlerLogicForRawPipeline() {
         initialDataInsertionAndSelection(rawTopic);
         String message =  guidForTesting;
 
@@ -418,7 +418,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void dltHandlerLogicOnConvertedFhir_UnSupportTopic_CodeCoverage_ResultFound() {
+    void dltHandlerLogicOnConvertedFhir_UnSupportTopic_CodeCoverage_ResultFound() {
         initialDataInsertionAndSelection("fhir_converted");
 
         String message =  guidForTesting;
@@ -433,7 +433,7 @@ public class KafkaConsumerServiceTest {
 
 
     @Test
-    public void dltHandlerLogicOnConvertedFhir_UnSupportTopic_CodeCoverage() {
+    void dltHandlerLogicOnConvertedFhir_UnSupportTopic_CodeCoverage() {
         String message =  guidForTesting;
         when(iHL7ToFHIRRepository.findById(eq(guidForTesting)))
                 .thenReturn(any());
@@ -443,18 +443,18 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void dltHandlerLogicOnConvertedXml_UnSupportTopic_CodeCoverage() {
+    void dltHandlerLogicOnConvertedXml_UnSupportTopic_CodeCoverage() {
         String message =  guidForTesting;
         kafkaConsumerService.handleDlt(message, "xml_converted_dlt", "n/a", errorMessage, "0", "xml_converted");
     }
     @Test
-    public void dltHandlerLogicOnOther_UnSupportTopic_CodeCoverage() {
+    void dltHandlerLogicOnOther_UnSupportTopic_CodeCoverage() {
         String message =  guidForTesting;
         kafkaConsumerService.handleDlt(message, "test_dlt", "n/a", errorMessage, "0", "test");
     }
 
     @Test
-    public void dltHandlerLogicForValidatePipeline() {
+    void dltHandlerLogicForValidatePipeline() {
         initialDataInsertionAndSelection(validateTopic);
         String message =  guidForTesting;
 
@@ -470,7 +470,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void dltHandlerLogicForPrepXMLPipeline() {
+    void dltHandlerLogicForPrepXMLPipeline() {
         initialDataInsertionAndSelection(xmlPrepTopic);
         String message =  guidForTesting;
 
@@ -486,7 +486,7 @@ public class KafkaConsumerServiceTest {
     }
 
     @Test
-    public void dltHandlerLogicForPrepFhirPipeline() {
+    void dltHandlerLogicForPrepFhirPipeline() {
         initialDataInsertionAndSelection(fhirPrepTopic);
         String message =  guidForTesting;
 
