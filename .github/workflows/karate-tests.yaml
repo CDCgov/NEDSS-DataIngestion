@@ -65,3 +65,9 @@ jobs:
             -Dtest.apipassword="$TEST_API_PASSWORD" \
             -Dtest.nbsurl="$TEST_NBS_URL"
 
+
+      - name: Upload Karate Test Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: karate-report
+          path: ./karatetest/build/karate-reports/karate-summary.html

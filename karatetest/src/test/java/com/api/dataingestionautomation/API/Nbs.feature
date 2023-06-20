@@ -54,14 +54,14 @@ Feature: test end to end flow from posting Hl7 message to validating in NBS UI
     * assert kafka_elr_validated_id != latestRecords['elr_validated_dlt']
     * assert kafka_elr_validated_id != latestRecords['elr_raw_dlt']
     Given driver nbsurl
-    * driver.screenshot()
+   # * driver.screenshot()
     And input('#id_UserName', 'state')
-    * driver.screenshot()
+    #* driver.screenshot()
     And click('img#id_Submit_bottom_ToolbarButtonGraphic')
-    * driver.screenshot()
+    #* driver.screenshot()
     And input('#DEM104', randomFirstName )
     And input('#DEM102', randomLastName )
-    * driver.screenshot()
+    #* driver.screenshot()
     #* delay(90000)
    # And click('tr:nth-child(8) input:nth-child(1)')
    # * delay(3000)

@@ -21,6 +21,7 @@ Feature: Scenarios to test end to end flow along with Kafka validations
     * def FakerHelper = Java.type('com.api.dataingestionautomation.API.FakerHelper')
     * def randomFirstName = FakerHelper.getRandomFirstName()
     * def randomLastName = FakerHelper.getRandomLastName()
+    * configure driver = { type: 'chrome' }
 
   @smoke
   Scenario Outline: Read Hl7 messages from JSON file and post it via REST API and perform Database and Kafka validations
@@ -177,14 +178,14 @@ Feature: Scenarios to test end to end flow along with Kafka validations
     * assert kafka_elr_validated_id != latestRecords['elr_validated_dlt']
     * assert kafka_elr_validated_id != latestRecords['elr_raw_dlt']
     Given driver nbsurl
-    * driver.screenshot()
+   # * driver.screenshot()
     And input('#id_UserName', 'state')
-    * driver.screenshot()
+   # * driver.screenshot()
     And click('img#id_Submit_bottom_ToolbarButtonGraphic')
-    * driver.screenshot()
+    #* driver.screenshot()
     And input('#DEM104', randomFirstName )
     And input('#DEM102', randomLastName )
-    * driver.screenshot()
+   # * driver.screenshot()
     #* delay(90000)
    # And click('tr:nth-child(8) input:nth-child(1)')
    # * delay(3000)
