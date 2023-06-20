@@ -22,20 +22,30 @@ function() {
     config.driverClassName = karate.properties['test.driverClassName'];
     config.bootstrapServers = karate.properties['test.bootstrapServers'];
     config.groupId = karate.properties['test.groupId'];
-    config.wrongapiurl = karate.properties['test.wrongapiurl'];
+    config.apiusername = karate.properties['test.apiusername'];
+    config.apipassword = karate.properties['test.apipassword'];
+    config.nbsinterfaceusername = karate.properties['test.nbsinterfaceusername'];
+    config.nbsinterfacepwd = karate.properties['test.nbsinterfacepwd'];
+    config.nbsdburl = karate.properties['test.nbsdburl'];
+    config.nbsdriverclsName = karate.properties['test.nbsdriverclsName'];
     config.nbsurl = karate.properties['test.nbsurl'];
+    config.wrongapiurl = karate.properties['test.wrongapiurl'];
 
 
     karate.log('config object after setting test properties:', JSON.stringify(config));
     karate.log('Setting test properties:');
         karate.log('apiurl:', config.apiurl);
-        karate.log('wrongapiurl:', config.wrongapiurl);
         karate.log('username:', config.username);
         karate.log('password:', config.password);
         karate.log('url:', config.url);
         karate.log('driverClassName:', config.driverClassName);
         karate.log('bootstrapServers:', config.bootstrapServers);
-        karate.log('groupId:', config.groupId);
+        karate.log('groupId:', config.apiusername);
+        karate.log('groupId:', config.apipassword);
+        karate.log('groupId:', config.nbsinterfaceusername);
+        karate.log('groupId:', config.nbsinterfacepwd);
+        karate.log('groupId:', config.nbsdburl);
+        karate.log('groupId:', config.nbsdburl);
 
 
   } else if (env == 'dev') {
@@ -46,7 +56,13 @@ function() {
     config.driverClassName = karate.properties['dev.driverClassName'];
     config.bootstrapServers = karate.properties['dev.bootstrapServers'];
     config.groupId = karate.properties['dev.groupId'];
-    config.wrongapiurl = karate.properties['dev.wrongapiurl'];
+    config.apiusername = karate.properties['dev.apiusername'];
+    config.apipassword = karate.properties['dev.apipassword'];
+    config.nbsinterfaceusername = karate.properties['dev.nbsinterfaceusername'];
+    config.nbsinterfacepwd = karate.properties['dev.nbsinterfacepwd'];
+    config.nbsdburl = karate.properties['dev.nbsdburl'];
+
+
 
     karate.log('config object after setting dev properties:', JSON.stringify(config));
   } else {

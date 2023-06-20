@@ -1,98 +1,74 @@
-plugins {
-    id 'java'
-    id 'application'
-}
+function() {
+  var env = karate.env;
+  karate.log('karate.env system property was:', env);
+  if (!env) {
+    env = 'test';
+  }
 
-group = 'org.example'
-version = '1.0-SNAPSHOT'
+  var config = {
+    connectTimeout: karate.properties['connectTimeout'],
+    readTimeout: karate.properties['readTimeout'],
+    retryCount: karate.properties['retryCount'],
+    retryInterval: karate.properties['retryInterval']
+  };
 
-ext {
-    karateVersion = 'X.X.X'
-}
+  karate.log('config object:', JSON.stringify(config));
 
-dependencies {
-    testImplementation "com.intuit.karate:karate-junit5:${karateVersion}"
-    testImplementation platform('org.junit:junit-bom:5.9.1')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testImplementation group: 'com.intuit.karate', name: 'karate-junit5', version: '1.4.0'
-    testImplementation group: 'com.intuit.karate', name: 'karate-apache', version: '0.9.6'
-    implementation group: 'com.intuit.karate', name: 'karate-core', version: '1.4.0'
-    testImplementation group: 'com.intuit.karate', name: 'karate-netty', version: '0.9.2'
-    implementation group: 'net.masterthought', name: 'cucumber-reporting', version: '5.7.5'
-    implementation group: 'org.springframework', name: 'spring-jdbc', version: '6.0.6'
-    implementation group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: '11.2.3.jre17'
-    implementation group: 'org.apache.maven.plugins', name: 'maven-surefire-report-plugin', version: '3.0.0-M5'
-    implementation group: 'org.apache.maven.surefire', name: 'surefire-report-parser', version: '3.0.0-M5'
-    implementation group: 'org.apache.maven.plugins', name: 'maven-surefire-plugin', version: '3.0.0-M5'
-    implementation group: 'org.apache.maven.plugins', name: 'maven-compiler-plugin', version: '3.8.1'
-    implementation group: 'org.apache.kafka', name: 'kafka-clients', version: '3.3.1'
-    implementation group: 'org.apache.kafka', name: 'kafka_2.13', version: '3.3.1'
-    implementation 'org.slf4j:slf4j-api:1.7.32'
-    implementation 'org.slf4j:slf4j-simple:1.7.32'
+  if (env == 'test') {
+    config.apiurl = karate.properties['test.apiurl'];
+    config.username = karate.properties['test.username'];
+    config.password = karate.properties['test.password'];
+    config.url = karate.properties['test.url'];
+    config.driverClassName = karate.properties['test.driverClassName'];
+    config.bootstrapServers = karate.properties['test.bootstrapServers'];
+    config.groupId = karate.properties['test.groupId'];
+    config.apiusername = karate.properties['test.apiusername'];
+    config.apipassword = karate.properties['test.apipassword'];
+    config.nbsinterfaceusername = karate.properties['test.nbsinterfaceusername'];
+    config.nbsinterfacepwd = karate.properties['test.nbsinterfacepwd'];
+    config.nbsdburl = karate.properties['test.nbsdburl'];
+    config.nbsdriverclsName = karate.properties['test.nbsdriverclsName'];
+    config.nbsurl = karate.properties['test.nbsurl'];
+    config.wrongapiurl = karate.properties['test.wrongapiurl'];
 
 
-}
+    karate.log('config object after setting test properties:', JSON.stringify(config));
+    karate.log('Setting test properties:');
+        karate.log('apiurl:', config.apiurl);
+        karate.log('username:', config.username);
+        karate.log('password:', config.password);
+        karate.log('url:', config.url);
+        karate.log('driverClassName:', config.driverClassName);
+        karate.log('bootstrapServers:', config.bootstrapServers);
+        karate.log('groupId:', config.apiusername);
+        karate.log('groupId:', config.apipassword);
+        karate.log('groupId:', config.nbsinterfaceusername);
+        karate.log('groupId:', config.nbsinterfacepwd);
+        karate.log('groupId:', config.nbsdburl);
+        karate.log('groupId:', config.nbsdburl);
 
-application {
-    mainClassName = 'com.api.dataingestionautomation.API'
-}
-sourceSets {
-    test {
-        resources {
-            srcDir file('src/test/java')
-            exclude '**/*.java'
-        }
-    }
-}
 
-test {
-    useJUnitPlatform()
-    systemProperty "karate.options", System.properties.getProperty("karate.options")
-    systemProperty "karate.env", System.properties.getProperty("karate.env")
-    systemProperty "connectTimeout", System.properties.getProperty("connectTimeout")
-    systemProperty "readTimeout", System.properties.getProperty("readTimeout")
-    systemProperty "retryCount", System.properties.getProperty("retryCount")
-    systemProperty "retryInterval", System.properties.getProperty("retryInterval")
-    systemProperty "test.apiurl", System.properties.getProperty("test.apiurl")
-    systemProperty "test.username", System.properties.getProperty("test.username")
-    systemProperty "test.password", System.properties.getProperty("test.password")
-    systemProperty "test.url", System.properties.getProperty("test.url")
-    systemProperty "test.driverClassName", System.properties.getProperty("test.driverClassName")
-    systemProperty "test.bootstrapServers", System.properties.getProperty("test.bootstrapServers")
-    systemProperty "test.groupId", System.properties.getProperty("test.groupId")
-    systemProperty "test.apiusername", System.properties.getProperty("test.apiusername")
-    systemProperty "test.apipassword", System.properties.getProperty("test.apipassword")
-    systemProperty "test.nbsinterfaceusername", System.properties.getProperty("test.nbsinterfaceusername")
-    systemProperty "test.nbsinterfacepwd", System.properties.getProperty("test.nbsinterfacepwd")
-    systemProperty "test.nbsurl", System.properties.getProperty("test.nbsurl")
-    systemProperty "test.nbsdburl", System.properties.getProperty("test.nbsdburl")
-    systemProperty "test.nbsdriverclsName", System.properties.getProperty("test.nbsdriverclsName")
-    systemProperty "dev.apiurl", System.properties.getProperty("dev.apiurl")
-    systemProperty "dev.username", System.properties.getProperty("dev.username")
-    systemProperty "dev.password", System.properties.getProperty("dev.password")
-    systemProperty "dev.url", System.properties.getProperty("dev.url")
-    systemProperty "dev.driverClassName", System.properties.getProperty("dev.driverClassName")
-    systemProperty "dev.bootstrapServers", System.properties.getProperty("dev.bootstrapServers")
-    systemProperty "dev.groupId", System.properties.getProperty("dev.groupId")
-    systemProperty "dev.apiusername", System.properties.getProperty("dev.apiusername")
-    systemProperty "dev.apipassword", System.properties.getProperty("dev.apipassword")
-    systemProperty "dev.nbsinterfaceusername", System.properties.getProperty("dev.nbsinterfaceusername")
-    systemProperty "dev.nbsinterfacepwd", System.properties.getProperty("dev.nbsinterfacepwd")
-    systemProperty "cucumber.options", System.properties.getProperty("cucumber.options")
-    systemProperty "dev.nbsdburl", System.properties.getProperty("dev.nbsdburl")
+  } else if (env == 'dev') {
+    config.apiurl = karate.properties['dev.apiurl'];
+    config.username = karate.properties['dev.username'];
+    config.password = karate.properties['dev.password'];
+    config.url = karate.properties['dev.url'];
+    config.driverClassName = karate.properties['dev.driverClassName'];
+    config.bootstrapServers = karate.properties['dev.bootstrapServers'];
+    config.groupId = karate.properties['dev.groupId'];
+    config.apiusername = karate.properties['dev.apiusername'];
+    config.apipassword = karate.properties['dev.apipassword'];
+    config.nbsinterfaceusername = karate.properties['dev.nbsinterfaceusername'];
+    config.nbsinterfacepwd = karate.properties['dev.nbsinterfacepwd'];
+    config.nbsdburl = karate.properties['dev.nbsdburl'];
 
-    outputs.upToDateWhen { false }
-    testLogging {
-        events "passed", "skipped", "failed"
-    }
-}
 
-repositories {
-    mavenCentral()
 
-}
+    karate.log('config object after setting dev properties:', JSON.stringify(config));
+  } else {
+    karate.log('Unknown environment:', env);
+    return;
+  }
 
-task karateDebug(type: JavaExec) {
-    classpath = sourceSets.test.runtimeClasspath
-    mainClassName = 'com.api.dataingestionautomation.API'
+  return config;
 }
