@@ -16,7 +16,6 @@ Feature: Test the Authorization logic implemented on Rest API end point URL
       And request 'abdef'
       When method POST
       Then status 401
-      * print response
 
   @auth
   Scenario: Validate if user cannot post a valid HL7 message when incorrect username is entered for basic authorization of API
@@ -26,7 +25,6 @@ Feature: Test the Authorization logic implemented on Rest API end point URL
     And request 'abdef'
     When method POST
     Then status 401
-    * print response
 
   @auth
   Scenario: Validate if user cannot post a valid HL7 message when incorrect password is entered for basic authorization of API
@@ -36,14 +34,12 @@ Feature: Test the Authorization logic implemented on Rest API end point URL
     And request 'abdef'
     When method POST
     Then status 401
-    * print response
 
   @auth
   Scenario: Validate if user cannot post a valid HL7 message when no authentication is selected in the API.
     And request 'abdef'
     When method POST
     Then status 401
-    * print response
 
 
 

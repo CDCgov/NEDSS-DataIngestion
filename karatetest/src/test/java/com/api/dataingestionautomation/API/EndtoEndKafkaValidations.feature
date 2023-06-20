@@ -23,7 +23,7 @@ Feature: Scenarios to test end to end flow along with Kafka validations
     * def randomLastName = FakerHelper.getRandomLastName()
 
   @smoke
-  Scenario Outline: Read Hl7 messages from CSV file and post it via REST API and perform Database and Kafka validations
+  Scenario Outline: Read Hl7 messages from JSON file and post it via REST API and perform Database and Kafka validations
     * def hl7Message = data
     * def modifiedmsg = hl7Message.replace(oldfirstname, randomFirstName)
     * def modifiedData = modifiedmsg.replace(oldlastname, randomLastName)
@@ -31,12 +31,9 @@ Feature: Scenarios to test end to end flow along with Kafka validations
     And request modifiedData
     When method POST
     Then status 200
-    And print response
     * def elr_raw_id = db.readRows('select id, payload from elr_raw where id = \'' + response + '\'')
     And eval Thread.sleep(400)
     And match elr_raw_id[0].id == response
-    * print modifiedData
-    * print elr_raw_id[0].payload
     And match elr_raw_id[0].payload == modifiedData
     * def elr_raw_validated_id = db.readRows('select raw_message_id, id, validated_message from elr_validated where raw_message_id = \'' + response + '\'')
     And eval Thread.sleep(400)
@@ -67,16 +64,13 @@ Feature: Scenarios to test end to end flow along with Kafka validations
     And request 'MSH|^~\&|SendingApp|SendingFac|ReceivingApp|ReceivingFac|20120411070545||ORU^R01|59689|P|2.9'
     When method POST
     Then status 200
-    And print response
     * def reqpayload = 'MSH|^~\&|SendingApp|SendingFac|ReceivingApp|ReceivingFac|20120411070545||ORU^R01|59689|P|2.9'
     * def elr_raw_id_neg = db.readRows('select id, payload from elr_raw where id = \'' + response + '\'')
     And eval Thread.sleep(100)
-    * print elr_raw_id_neg
     And match elr_raw_id_neg[0].id == response
     And match elr_raw_id_neg[0].payload == reqpayload
     * def elr_raw_validated_id_neg = db.readRows('select id, raw_message_id, validated_message from elr_validated where raw_message_id = \'' + response + '\'')
     And eval Thread.sleep(200)
-    * print elr_raw_validated_id_neg
     And match karate.sizeOf(elr_raw_validated_id_neg) == 0
 
 
@@ -92,7 +86,6 @@ Feature: Scenarios to test end to end flow along with Kafka validations
     * def modreq = modifiedData
     When method POST
     Then status 200
-    And print response
     And request modreq
     * header Content-Type = 'text/plain'
     * header msgType = 'HL7'
@@ -101,7 +94,6 @@ Feature: Scenarios to test end to end flow along with Kafka validations
     * header Authorization = basicAuth
     When method POST
     Then status 200
-    And print response
     * def finalresponse = response
     * def elr_raw_id = db.readRows('select id, payload from elr_raw where id = \'' + finalresponse + '\'')
     And eval Thread.sleep(400)
@@ -110,16 +102,12 @@ Feature: Scenarios to test end to end flow along with Kafka validations
     And eval Thread.sleep(100)
     * def elr_raw_validated_id_neg = db.readRows('select raw_message_id, validated_message from elr_validated where raw_message_id = \'' + finalresponse + '\'')
     And eval Thread.sleep(100)
-    * print elr_raw_validated_id_neg
     Then match karate.sizeOf(elr_raw_validated_id_neg) == 0
     #* def elr_fhir_id_neg = db.readRows('select raw_message_id from elr_fhir where raw_message_id = \'' + finalresponse + '\'')
     #And eval Thread.sleep(100)
-    #And  print elr_fhir_id_neg
     #And match karate.sizeOf(elr_fhir_id_neg) == 0
     * def topics = ['elr_raw', 'elr_validated', 'fhir_converted', 'elr_duplicate']
     * def latestRecords = kafkaConsumer.readLatestFromTopics(...topics)
-    * print latestRecords['elr_duplicate']
-    * print latestRecords['elr_raw']
     * assert response == latestRecords['elr_duplicate']
     * assert response == latestRecords['elr_raw']
     * assert response != latestRecords['elr_validated']
@@ -137,7 +125,6 @@ Feature: Scenarios to test end to end flow along with Kafka validations
     * def modreq = modifiedData
     Given url apiurl
     And request modifiedData
-    * print modreq
     When method POST
     Then status 200
     * def elr_raw_id = db.readRows('select id, payload from elr_raw where id = \'' + response + '\'')
@@ -147,11 +134,9 @@ Feature: Scenarios to test end to end flow along with Kafka validations
     And eval Thread.sleep(100)
     * def elr_raw_validated_id_neg = db.readRows('select raw_message_id, validated_message from elr_validated where raw_message_id = \'' + response + '\'')
     And eval Thread.sleep(100)
-    * print elr_raw_validated_id_neg
     Then match karate.sizeOf(elr_raw_validated_id_neg) == 0
     * def elr_fhir_id_neg = db.readRows('select raw_message_id from elr_fhir where raw_message_id = \'' + response + '\'')
     And eval Thread.sleep(100)
-    And  print elr_fhir_id_neg
     And match karate.sizeOf(elr_fhir_id_neg) == 0
     * def topics = ['elr_raw', 'elr_validated', 'fhir_converted', 'elr_duplicate', 'elr_raw_dlt', 'elr_raw_retry-0']
     * def latestRecords = kafkaConsumer.readLatestFromTopics(...topics)
@@ -171,22 +156,17 @@ Feature: Scenarios to test end to end flow along with Kafka validations
     And request modifiedData
     When method POST
     Then status 200
-    And print response
     * def elr_raw_id = db.readRows('select id, payload from elr_raw where id = \'' + response + '\'')
     And eval Thread.sleep(100)
     And match elr_raw_id[0].id == response
     And eval Thread.sleep(100)
     * def elr_raw_validated_id = db.readRows('select raw_message_id, id, validated_message from elr_validated where raw_message_id = \'' + response + '\'')
     And eval Thread.sleep(200)
-    * print elr_raw_validated_id
     * def kafka_elr_validated_id =  elr_raw_validated_id[0].id
-    * print kafka_elr_validated_id
     And match elr_raw_validated_id[0].raw_message_id == response
     And eval Thread.sleep(100)
    # * def elr_fhir_id = db.readRows('select raw_message_id, id from elr_fhir where raw_message_id = \'' + response + '\'')
-   # * print elr_fhir_id
    # * def kafka_elr_fhir_id = elr_fhir_id[0].id
-   # And print kafka_elr_fhir_id
    # And match elr_fhir_id[0].raw_message_id == response
     * def topics = ['elr_raw', 'elr_validated', 'fhir_converted', 'elr_duplicate', 'elr_raw_dlt', 'elr_validated_dlt']
     * def latestRecords = kafkaConsumer.readLatestFromTopics(...topics)
@@ -228,7 +208,6 @@ Feature: Scenarios to test end to end flow along with Kafka validations
     #* def modifiedData = message.replace(oldValue, randomString)
    # And request modifiedData
    # * def modreq = modifiedData
-   # * print modreq
    # When method POST
    # Then status 200
     #* def elr_raw_id = db.readRows('select id, payload from elr_raw where id = \'' + response + '\'')
@@ -239,13 +218,11 @@ Feature: Scenarios to test end to end flow along with Kafka validations
    # * def elr_raw_validated_id = db.readRows('select raw_message_id, id, validated_message from elr_validated where raw_message_id = \'' + response + '\'')
    # And eval Thread.sleep(400)
    # * def kafka_elr_validated_id =  elr_raw_validated_id[0].id
-   # * print kafka_elr_validated_id
    # And match elr_raw_validated_id[0].raw_message_id == response
    # And match elr_raw_validated_id[0].validated_message == modreq
     #And eval Thread.sleep(600)
     #* def elr_fhir_id_neg = db.readRows('select raw_message_id from elr_fhir where raw_message_id = \'' + response + '\'')
     #And eval Thread.sleep(100)
-   # And  print elr_fhir_id_neg
    # And match karate.sizeOf(elr_fhir_id_neg) == 0
     #* def topics = ['elr_raw', 'elr_validated', 'fhir_converted', 'elr_duplicate', 'elr_raw_dlt', 'elr_raw_retry-0','elr_validated_dlt','elr_validated_retry-0']
    # * def latestRecords = kafkaConsumer.readLatestFromTopics(...topics)

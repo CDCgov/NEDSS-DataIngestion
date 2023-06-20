@@ -32,22 +32,6 @@ function() {
     config.wrongapiurl = karate.properties['test.wrongapiurl'];
 
 
-    karate.log('config object after setting test properties:', JSON.stringify(config));
-    karate.log('Setting test properties:');
-        karate.log('apiurl:', config.apiurl);
-        karate.log('username:', config.username);
-        karate.log('password:', config.password);
-        karate.log('url:', config.url);
-        karate.log('driverClassName:', config.driverClassName);
-        karate.log('bootstrapServers:', config.bootstrapServers);
-        karate.log('groupId:', config.apiusername);
-        karate.log('groupId:', config.apipassword);
-        karate.log('groupId:', config.nbsinterfaceusername);
-        karate.log('groupId:', config.nbsinterfacepwd);
-        karate.log('groupId:', config.nbsdburl);
-        karate.log('groupId:', config.nbsdburl);
-
-
   } else if (env == 'dev') {
     config.apiurl = karate.properties['dev.apiurl'];
     config.username = karate.properties['dev.username'];
@@ -63,8 +47,6 @@ function() {
     config.nbsdburl = karate.properties['dev.nbsdburl'];
 
 
-
-    karate.log('config object after setting dev properties:', JSON.stringify(config));
   } else {
     karate.log('Unknown environment:', env);
     return;

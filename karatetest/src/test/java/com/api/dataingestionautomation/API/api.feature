@@ -1,5 +1,5 @@
 @parallel=true
-Feature: negative scenarios
+Feature: Test API functionality scenarios
 
   Background:
     * def configauth = { username: '#(apiusername)', password: '#(apipassword)' }
