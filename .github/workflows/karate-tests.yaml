@@ -28,7 +28,7 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Build and run Karate tests
-        working-directory: ./karatetest
+        working-directory: ./src/test/java/com/api/dataingestionautomation/API
         env:
           KARATE_OPTIONS: ${{ vars.KARATE_OPTIONS }}
           KARATE_ENV: ${{ vars.ENV }}
