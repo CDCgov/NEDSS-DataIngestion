@@ -276,7 +276,7 @@ public class KafkaConsumerService {
             @Header(KafkaHeaderValue.OriginalTopic) String originalTopic
     ) {
         log.debug("Message ID: {} handled by dlq topic: {}", message, topic);
-        String regex = "^(.*\\n)*.*(?=Caused by:)";
+        String regex = "^(.*\\n)*+.*(?=Caused by:)";
         String errorStackTrace = stacktrace.replaceAll(regex, "");
 
         // increase by 1, indicate the dlt had been occurred
