@@ -59,7 +59,7 @@ jobs:
             -DretryCount="$RETRY_COUNT" \
             -DretryInterval="$RETRY_INTERVAL" \
             -Dtest.username="$TEST_USERNAME" \
-            -Dtest.username="$TEST_PASSWORD" \
+            -Dtest.password="$TEST_PASSWORD" \
             -Dtest.url="$TEST_URL" \
             -Dtest.driverClassName="$TEST_DRIVER_CLASS_NAME" \
             -Dtest.bootstrapServers="$TEST_BOOTSTRAP_SERVERS" \
