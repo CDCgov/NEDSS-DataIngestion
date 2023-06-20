@@ -12,7 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-public class ClassConfigTest {
+class ClassConfigTest {
     private AnnotationConfigApplicationContext context;
 
     @BeforeEach
@@ -31,7 +31,7 @@ public class ClassConfigTest {
     }
 
     @Test
-    public void csvValidator_BeanIsDefined() {
+    void csvValidator_BeanIsDefined() {
         // Act
         ICsvValidator csvValidator = context.getBean(ICsvValidator.class);
 
@@ -41,7 +41,7 @@ public class ClassConfigTest {
     }
 
     @Test
-    public void hl7ToFHIRConversion_BeanIsDefined() {
+    void hl7ToFHIRConversion_BeanIsDefined() {
         // Act
         IHL7ToFHIRConversion hl7ToFHIRConversion = context.getBean(IHL7ToFHIRConversion.class);
 

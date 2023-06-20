@@ -9,7 +9,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
 
-public class KafkaProducerConfigTest {
+class KafkaProducerConfigTest {
 
     private static KafkaProducerConfig kafkaProducerConfig;
 
@@ -29,7 +29,7 @@ public class KafkaProducerConfigTest {
     }
 
     @Test
-    public void producerFactory_configValid() {
+    void producerFactory_configValid() {
 
         // Act
         var target =
@@ -40,7 +40,7 @@ public class KafkaProducerConfigTest {
     }
 
     @Test
-    public void kafkaTemplate_configValid() {
+    void kafkaTemplate_configValid() {
 
         // Act
         var target =

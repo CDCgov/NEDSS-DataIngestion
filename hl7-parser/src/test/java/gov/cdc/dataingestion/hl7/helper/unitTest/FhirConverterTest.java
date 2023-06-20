@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class FhirConverterTest {
+class FhirConverterTest {
     private HL7Helper target;
     private String validData = "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5\r"
             + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
@@ -24,14 +24,14 @@ public class FhirConverterTest {
 
 
     @Test
-    public void convertingHL7ToFhir_Success() throws DiFhirException {
+    void convertingHL7ToFhir_Success() throws DiFhirException {
         var result = target.convertHl7ToFhir(validData);
         Assertions.assertNotNull(result.getFhirMessage());
         Assertions.assertNotNull(result.getHl7Message());
     }
 
     @Test
-    public void convertingHL7ToFhir_ReturnException() {
+    void convertingHL7ToFhir_ReturnException() {
         Exception exception = Assertions.assertThrows(
                 DiFhirException.class, () -> {
                     target.convertHl7ToFhir("Bad Data");

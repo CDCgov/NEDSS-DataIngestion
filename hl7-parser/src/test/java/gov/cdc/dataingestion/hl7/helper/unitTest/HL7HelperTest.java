@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 import static gov.cdc.dataingestion.hl7.helper.unitTest.Hl7TestData.*;
 
-public class HL7HelperTest {
+class HL7HelperTest {
     private HL7Helper target;
     private String data = "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5\n"
             + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\n"
@@ -38,13 +38,13 @@ public class HL7HelperTest {
 
 
     @Test
-    public void hl7StringValidatorTest_ReturnValidMessage() throws DiHL7Exception {
+    void hl7StringValidatorTest_ReturnValidMessage() throws DiHL7Exception {
         var result = target.hl7StringValidator(data);
         Assertions.assertEquals(validData, result);
     }
 
     @Test
-    public void hl7StringParser_ReturnValidMessage() throws  DiHL7Exception {
+    void hl7StringParser_ReturnValidMessage() throws  DiHL7Exception {
         var result = target.hl7StringParser(testMessageForXmlIssue);
         Gson gson = new Gson();
         String json = gson.toJson(result);
@@ -52,21 +52,21 @@ public class HL7HelperTest {
     }
 
     @Test
-    public void hl7StringParser_ReturnValidFromRhapsodyMessage() throws  DiHL7Exception {
+    void hl7StringParser_ReturnValidFromRhapsodyMessage() throws  DiHL7Exception {
         var result = target.hl7StringParser(messageByRhapsody);
         Assertions.assertEquals("R01", result.getEventTrigger());
     }
 
 
     @Test
-    public void hl7StringConvert231To251_ReturnValidMessage() throws  DiHL7Exception {
+    void hl7StringConvert231To251_ReturnValidMessage() throws  DiHL7Exception {
         var result = target.convert231To251(testMessage);
 
         Assertions.assertEquals("R01", result.getEventTrigger());
     }
 
     @Test
-    public void hl7v231StringParser_ReturnException()  {
+    void hl7v231StringParser_ReturnException()  {
 
         var exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
             target.convert231To251(messageByRhapsody);
@@ -76,20 +76,20 @@ public class HL7HelperTest {
     }
 
     @Test
-    public void hl7StringParserWith231_ReturnValidMessage() throws  DiHL7Exception {
+    void hl7StringParserWith231_ReturnValidMessage() throws  DiHL7Exception {
         var result = target.hl7StringParser(testMessage);
 
         Assertions.assertEquals("R01", result.getEventTrigger());
     }
 
     @Test
-    public void hl7StringParserWith251_ReturnValidMessage_RandomV1() throws  DiHL7Exception {
+    void hl7StringParserWith251_ReturnValidMessage_RandomV1() throws  DiHL7Exception {
         var result = target.hl7StringParser(randomGenerated251WithDataInAllField);
         Assertions.assertEquals("R01", result.getEventTrigger());
     }
 
     @Test
-    public void hl7StringParserWith251_ReturnValidMessage_RandomV2() throws  DiHL7Exception {
+    void hl7StringParserWith251_ReturnValidMessage_RandomV2() throws  DiHL7Exception {
         var result = target.hl7StringParser(randomGenerated251WithDataInAllFieldV2);
         var oru = (OruR1) result.getParsedMessage();
         Assertions.assertEquals("R01", result.getEventTrigger());
@@ -368,7 +368,7 @@ public class HL7HelperTest {
     }
 
     @Test
-    public void hl7StringParserWith231_ReturnValidMessage_RandomV1() throws  DiHL7Exception {
+    void hl7StringParserWith231_ReturnValidMessage_RandomV1() throws  DiHL7Exception {
         var result = target.hl7StringParser(randomGenerated231WithDataInAllFieldV1);
         Gson gson = new Gson();
         var test = gson.toJson(result);
@@ -376,35 +376,35 @@ public class HL7HelperTest {
     }
 
     @Test
-    public void hl7MessageStringValidation_carrier() throws DiHL7Exception {
+    void hl7MessageStringValidation_carrier() throws DiHL7Exception {
         String msg = "test\r";
         var result = target.hl7StringValidator(msg);
         Assertions.assertNotNull(result);
     }
 
     @Test
-    public void hl7MessageStringValidation_carrierAndNewLine() throws DiHL7Exception {
+    void hl7MessageStringValidation_carrierAndNewLine() throws DiHL7Exception {
         String msg = "test\n\r";
         var result = target.hl7StringValidator(msg);
         Assertions.assertNotNull(result);
     }
 
     @Test
-    public void hl7MessageStringValidation_newLine() throws DiHL7Exception {
+    void hl7MessageStringValidation_newLine() throws DiHL7Exception {
         String msg = "test\n";
         var result = target.hl7StringValidator(msg);
         Assertions.assertNotNull(result);
     }
 
     @Test
-    public void hl7MessageStringValidation_doubleSlashNewLine() throws DiHL7Exception {
+    void hl7MessageStringValidation_doubleSlashNewLine() throws DiHL7Exception {
         String msg = "test\\n";
         var result = target.hl7StringValidator(msg);
         Assertions.assertNotNull(result);
     }
 
     @Test
-    public void hl7MessageStringValidation_doubleSlashCarrier() throws DiHL7Exception {
+    void hl7MessageStringValidation_doubleSlashCarrier() throws DiHL7Exception {
         String msg = "test\\r";
         var result = target.hl7StringValidator(msg);
         Assertions.assertNotNull(result);

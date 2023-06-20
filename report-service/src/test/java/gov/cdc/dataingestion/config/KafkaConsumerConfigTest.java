@@ -16,7 +16,7 @@ import java.util.Map;
 
 import static org.mockito.Mockito.when;
 
-public class KafkaConsumerConfigTest {
+class KafkaConsumerConfigTest {
 
     private static KafkaConsumerConfig kafkaConsumerConfig;
 
@@ -36,7 +36,7 @@ public class KafkaConsumerConfigTest {
     }
 
     @Test
-    public void kafkaListenerContainerFactory_ConfigurationIsValid() {
+    void kafkaListenerContainerFactory_ConfigurationIsValid() {
 
         // Act
         ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory =

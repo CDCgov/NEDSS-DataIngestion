@@ -33,7 +33,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @Testcontainers
-public class ElrDeadLetterServiceTest {
+class ElrDeadLetterServiceTest {
     @Mock
     private IElrDeadLetterRepository dltRepository;
 

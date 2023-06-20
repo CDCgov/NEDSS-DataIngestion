@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class HL7ParsedMessage<T> {
     public HL7ParsedMessage() {
-
+        // Default constructor
     }
 
     private String originalVersion;
