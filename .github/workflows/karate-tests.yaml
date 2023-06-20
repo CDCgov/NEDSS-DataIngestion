@@ -28,7 +28,6 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Build and run Karate tests
-        working-directory: ./src/test/java/com/api/dataingestionautomation/API
         env:
           KARATE_OPTIONS: ${{ vars.KARATE_OPTIONS }}
           KARATE_ENV: ${{ vars.ENV }}
@@ -47,6 +46,7 @@ jobs:
           TEST_API_PASSWORD: ${{ secrets.API_PASSWORD }}
           TEST_NBS_URL: ${{ vars.NBS_URL }}
         run: |
+          ls -R src
           ./gradlew test \
             -Dkarate.options="--tags $KARATE_OPTIONS" \
             -Dkarate.env="$KARATE_ENV" \
@@ -64,8 +64,7 @@ jobs:
             -Dtest.apiusername="$TEST_API_USERNAME" \
             -Dtest.apipassword="$TEST_API_PASSWORD" \
             -Dtest.nbsurl="$TEST_NBS_URL"
-
-
+          
       - name: Upload Karate Test Report
         uses: actions/upload-artifact@v2
         with:
