@@ -72,10 +72,15 @@ public class ElrDeadLetterDto {
         }
     }
 
+    /**
+     * Description: this method take in the full stackTrace message and narrow down to root cause.
+     * Stacktrace that is coming back from Kafka is appended with kafka listener stacktrace,
+     * hence, right now we do this to extract the root message
+     * */
     @NotNull
     private String processingSourceStackTrace(String stackTrace) {
-        // [^\n] should not cause any backtracking
-        String regex = "^.*?org\\.springframework\\.kafka\\.listener.*?$";
+        // [^\n] is a negate character, it should not cause any backtracking
+        String regex = "^[^\\n]*org\\.springframework\\.kafka\\.listener[^\\n]*$";
         String regexCleanUp = "Caused by:(?>.*)";
         if (stackTrace == null) {
             return "";
