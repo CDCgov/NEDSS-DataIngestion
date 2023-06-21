@@ -28,6 +28,7 @@ Feature: Test API functionality scenarios
     When method POST
     Then status 404
     And match response contains { error: 'Not Found' }
+    # added comment for demo
 
 
 
