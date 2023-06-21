@@ -14,7 +14,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setStatusCode(response.SC_UNAUTHORIZED);
+        errorResponse.setStatusCode(HttpServletResponse.SC_UNAUTHORIZED);
         errorResponse.setMessage("Unauthorized");
         errorResponse.setDetails(authException.getMessage());
         Gson gson = new Gson();
