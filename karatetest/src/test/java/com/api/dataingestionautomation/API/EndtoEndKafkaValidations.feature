@@ -235,7 +235,7 @@ Feature: Scenarios to test end to end flow along with Kafka validations
     #* assert response != latestRecords['elr_raw_retry-0']
    # * assert response == latestRecords['elr_validated_dlt']
    # * assert response == latestRecords['elr_validated_retry-0']
-   # add dummy comment2
+   # add dummy comment3
 
 
 
