@@ -21,7 +21,7 @@ Feature: Test API functionality scenarios
     Then status 400
     And match response contains { error: 'Bad Request' }
 
-  @apitest
+  @api
   Scenario: Transmit a valid Hl7 message via incorrect endpoint URL and validate the error response
     Given url wrongapiurl
     And request 'abdef'

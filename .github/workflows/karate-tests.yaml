@@ -49,6 +49,7 @@ jobs:
           TEST_API_USERNAME: ${{ secrets.API_USERNAME }}
           TEST_API_PASSWORD: ${{ secrets.API_PASSWORD }}
           TEST_NBS_URL: ${{ vars.NBS_URL }}
+          TEST_WRONGAPIURL: ${{ secrets.WRONGAPIURL }}
         run: |
           ./gradlew test \
             -Dkarate.options="$KARATE_OPTIONS" \
@@ -66,7 +67,8 @@ jobs:
             -Dtest.groupId="$TEST_GROUP_ID" \
             -Dtest.apiusername="$TEST_API_USERNAME" \
             -Dtest.apipassword="$TEST_API_PASSWORD" \
-            -Dtest.nbsurl="$TEST_NBS_URL"
+            -Dtest.nbsurl="$TEST_NBS_URL" \
+            -Dtest.wrongapiurl="TEST_WRONGAPIURL"
 
       - name: Upload Karate Test Report
         uses: actions/upload-artifact@v2
