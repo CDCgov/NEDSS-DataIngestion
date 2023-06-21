@@ -378,36 +378,46 @@ class HL7HelperTest {
     @Test
     void hl7MessageStringValidation_carrier() throws DiHL7Exception {
         String msg = "test\r";
+        String expectedMsg = "test\r";
         var result = target.hl7StringValidator(msg);
         Assertions.assertNotNull(result);
+        Assertions.assertEquals(expectedMsg, result);
     }
 
     @Test
     void hl7MessageStringValidation_carrierAndNewLine() throws DiHL7Exception {
-        String msg = "test\n\r";
+        String msg = "test with carrier and new line\n\r";
+        String expectedMsg = "test with carrier and new line\r";
         var result = target.hl7StringValidator(msg);
         Assertions.assertNotNull(result);
+        Assertions.assertEquals(expectedMsg, result);
     }
 
     @Test
     void hl7MessageStringValidation_newLine() throws DiHL7Exception {
-        String msg = "test\n";
+        String msg = "test with new line\n";
+        String expectedMsg = "test with new line\r";
         var result = target.hl7StringValidator(msg);
         Assertions.assertNotNull(result);
+        Assertions.assertEquals(expectedMsg, result);
     }
 
     @Test
     void hl7MessageStringValidation_doubleSlashNewLine() throws DiHL7Exception {
-        String msg = "test\\n";
+        String msg = "test with string new line\\n";
+        String expectedMsg = "test with string new line\r";
         var result = target.hl7StringValidator(msg);
         Assertions.assertNotNull(result);
+        Assertions.assertEquals(expectedMsg, result);
     }
 
     @Test
     void hl7MessageStringValidation_doubleSlashCarrier() throws DiHL7Exception {
-        String msg = "test\\r";
+        String msg = "test with string carrier\\r";
+        String expectedMsg = "test with string carrier\r";
         var result = target.hl7StringValidator(msg);
         Assertions.assertNotNull(result);
+        Assertions.assertEquals(expectedMsg, result);
     }
 
 

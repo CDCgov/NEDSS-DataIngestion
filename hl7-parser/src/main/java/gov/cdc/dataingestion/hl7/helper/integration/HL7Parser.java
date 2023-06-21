@@ -55,7 +55,7 @@ public class HL7Parser implements IHL7Parser {
                 message = message.replaceAll("\\\\n",carrier);
             }
             else if (message.contains("\\r")) {
-                message = message.replaceAll("\\\\r","carrier");
+                message = message.replaceAll("\\\\r",carrier);
             }
         }
 
