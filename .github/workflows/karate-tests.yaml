@@ -73,4 +73,9 @@ jobs:
         if: always()
         with:
           name: karate-report
-          path: ./karatetest/build/karate-reports
+          retention-days: 1
+          path: |
+           ./karatetest/build/cucumber-html-reports
+           ./karatetest/build/karate-reports
+          
+          
