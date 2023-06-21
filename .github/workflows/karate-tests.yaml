@@ -43,7 +43,7 @@ jobs:
           TEST_USERNAME: ${{ secrets.DATAINGEST_DB_USERNAME }}
           TEST_PASSWORD: ${{ secrets.DATAINGEST_DB_PASSWORD }}
           TEST_URL: ${{ secrets.DATAINGEST_SERVER_URL }}
-          TEST_DRIVER_CLASS_NAME: ${{ vars.DRIVERCLASSNAME }}
+          TEST_DRIVER_CLASS_NAME: ${{ secrets.DRIVERCLASSNAME }}
           TEST_BOOTSTRAP_SERVERS: ${{ secrets.KAFKA_SERVER }}
           TEST_GROUP_ID: ${{ vars.GROUPID }}
           TEST_API_USERNAME: ${{ secrets.API_USERNAME }}
