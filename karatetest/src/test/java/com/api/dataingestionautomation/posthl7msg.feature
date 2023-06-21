@@ -16,7 +16,7 @@ Feature: Post hl7 messages from json file
     * def randomLastName = FakerHelper.getRandomLastName()
 
 
-  @postmsg
+  @smoke
   Scenario Outline: Read Hl7 messages from JSON file and post it via REST API url
     * def hl7Message = data
     * def modifiedmsg = hl7Message.replace(oldfirstname, randomFirstName)

@@ -23,7 +23,7 @@ Feature: Scenarios to test end to end flow along with Kafka validations
     * def randomLastName = FakerHelper.getRandomLastName()
     * configure driver = { type: 'chrome' }
 
-  @smoke
+  @smokee
   Scenario Outline: Read Hl7 messages from JSON file and post it via REST API and perform Database and Kafka validations
     * def hl7Message = data
     * def modifiedmsg = hl7Message.replace(oldfirstname, randomFirstName)
