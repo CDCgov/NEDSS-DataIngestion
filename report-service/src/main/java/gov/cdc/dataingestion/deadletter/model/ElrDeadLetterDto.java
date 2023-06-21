@@ -80,7 +80,7 @@ public class ElrDeadLetterDto {
     @NotNull
     private String processingSourceStackTrace(String stackTrace) {
         // [^\n] is a negate character, it should not cause any backtracking
-        String regex = "^+[^\\n]*org\\.springframework\\.kafka\\.listener[^\\n]*+$";
+        String regex = "^[^\\n]*org\\.springframework\\.kafka\\.listener[^\\n]*+$";
         String regexCleanUp = "Caused by:(?>.*+)";
         if (stackTrace == null) {
             return "";
