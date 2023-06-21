@@ -75,7 +75,7 @@ public class ElrDeadLetterDto {
     @NotNull
     private String processingSourceStackTrace(String stackTrace) {
         String regex = "^[^\\n]*org\\.springframework\\.kafka\\.listener[^\\n]*$";
-        String regexCleanUp = "Caused by:(.*)";
+        String regexCleanUp = "Caused by:(?>.*)";
         if (stackTrace == null) {
             return "";
         }
