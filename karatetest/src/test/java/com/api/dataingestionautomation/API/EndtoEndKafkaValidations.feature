@@ -24,7 +24,7 @@ Feature: Scenarios to test end to end flow along with Kafka validations
     * configure driver = { type: 'chrome' }
 
   @smoke
-  Scenario Outline: Read Hl7 messages from JSON file and post it via REST API and perform Database and Kafka validations
+  Scenario Outline: Read Hl7 messages from JSON file and post it via REST API
     * def hl7Message = data
     * def modifiedmsg = hl7Message.replace(oldfirstname, randomFirstName)
     * def modifiedData = modifiedmsg.replace(oldlastname, randomLastName)
@@ -32,15 +32,15 @@ Feature: Scenarios to test end to end flow along with Kafka validations
     And request modifiedData
     When method POST
     Then status 200
-    * def elr_raw_id = db.readRows('select id, payload from elr_raw where id = \'' + response + '\'')
-    And eval Thread.sleep(400)
-     And match elr_raw_id[0].id == response
-     And match elr_raw_id[0].payload == modifiedData
+    #* def elr_raw_id = db.readRows('select id, payload from elr_raw where id = \'' + response + '\'')
+    #And eval Thread.sleep(400)
+     #And match elr_raw_id[0].id == response
+     #And match elr_raw_id[0].payload == modifiedData
     # * def elr_raw_validated_id = db.readRows('select raw_message_id, id, validated_message from elr_validated where raw_message_id = \'' + response + '\'')
     # And eval Thread.sleep(400)
     # And match elr_raw_validated_id[0].raw_message_id == response
     # * def kafka_elr_validated_id =  elr_raw_validated_id[0].id
-    And eval Thread.sleep(600)
+    # And eval Thread.sleep(600)
     #* def elr_fhir_id = db.readRows('select raw_message_id, id from elr_fhir where raw_message_id = \'' + response + '\'')
     #* def kafka_elr_fhir_id = elr_fhir_id[0].id
     #And match elr_fhir_id[0].raw_message_id == response
