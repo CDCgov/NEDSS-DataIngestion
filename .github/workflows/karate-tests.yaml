@@ -69,7 +69,7 @@ jobs:
             -Dtest.nbsurl="$TEST_NBS_URL"
 
       - name: Upload Karate Test Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         if: always()
         with:
           name: karate-report
