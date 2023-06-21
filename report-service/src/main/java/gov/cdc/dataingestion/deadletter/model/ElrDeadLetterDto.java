@@ -74,13 +74,15 @@ public class ElrDeadLetterDto {
 
     @NotNull
     private String processingSourceStackTrace(String stackTrace) {
+        String regex = "^.*org\\.springframework\\.kafka\\.listener.*$";
         String regexCleanUp = "Caused by:(.*)";
         if (stackTrace == null) {
             return "";
         }
-        String result = stackTrace.replaceAll("\".*org\\\\.springframework\\\\.kafka\\\\.listener.*\"", "");
+        Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
+        String result = pattern.matcher(stackTrace).replaceAll("");
 
-        Pattern pattern = Pattern.compile(regexCleanUp);
+        pattern = Pattern.compile(regexCleanUp);
         Matcher matcher = pattern.matcher(result);
         if (matcher.find()) {
             String extractedString = matcher.group(1).trim();
