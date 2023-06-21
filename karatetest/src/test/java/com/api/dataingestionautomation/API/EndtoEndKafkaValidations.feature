@@ -40,17 +40,17 @@ Feature: Scenarios to test end to end flow along with Kafka validations
     # And eval Thread.sleep(400)
     # And match elr_raw_validated_id[0].raw_message_id == response
     # * def kafka_elr_validated_id =  elr_raw_validated_id[0].id
-    #And eval Thread.sleep(600)
+    And eval Thread.sleep(600)
     #* def elr_fhir_id = db.readRows('select raw_message_id, id from elr_fhir where raw_message_id = \'' + response + '\'')
     #* def kafka_elr_fhir_id = elr_fhir_id[0].id
     #And match elr_fhir_id[0].raw_message_id == response
-    # * def topics = ['elr_raw', 'elr_validated', 'elr_duplicate', 'elr_raw_dlt', 'elr_validated_dlt']
-    # * def latestRecords = kafkaConsumer.readLatestFromTopics(...topics)
-    # * assert response == latestRecords['elr_raw']
-    # * assert kafka_elr_validated_id == latestRecords['elr_validated']
-    # * assert kafka_elr_validated_id != latestRecords['elr_validated_dlt']
-    # * assert kafka_elr_validated_id != latestRecords['elr_raw_dlt']
-    #* assert kafka_elr_fhir_id == latestRecords['fhir_converted']
+     * def topics = ['elr_raw', 'elr_validated', 'elr_duplicate', 'elr_raw_dlt', 'elr_validated_dlt']
+     * def latestRecords = kafkaConsumer.readLatestFromTopics(...topics)
+     * assert response == latestRecords['elr_raw']
+     * assert kafka_elr_validated_id == latestRecords['elr_validated']
+     * assert kafka_elr_validated_id != latestRecords['elr_validated_dlt']
+     * assert kafka_elr_validated_id != latestRecords['elr_raw_dlt']
+    * assert kafka_elr_fhir_id == latestRecords['fhir_converted']
 
 
 
