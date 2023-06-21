@@ -8,6 +8,8 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.ArrayList;
 
@@ -375,51 +377,19 @@ class HL7HelperTest {
         Assertions.assertEquals("R01", result.getEventTrigger());
     }
 
-    @Test
-    void hl7MessageStringValidation_carrier() throws DiHL7Exception {
-        String msg = "test\r";
-        String expectedMsg = "test\r";
+    @ParameterizedTest
+    @CsvSource({
+            "'test with string carrier\\r', 'test with string carrier\r'",
+            "'test with string new line\\n', 'test with string new line\r'",
+            "'test with new line\n', 'test with new line\r'",
+            "'test with carrier and new line\n\r', 'test with carrier and new line\r'",
+            "'test\r', 'test\r'"
+    })
+    void hl7MessageStringValidationAllScenario(String msg, String expectedMsg) throws DiHL7Exception {
         var result = target.hl7StringValidator(msg);
         Assertions.assertNotNull(result);
         Assertions.assertEquals(expectedMsg, result);
     }
-
-    @Test
-    void hl7MessageStringValidation_carrierAndNewLine() throws DiHL7Exception {
-        String msg = "test with carrier and new line\n\r";
-        String expectedMsg = "test with carrier and new line\r";
-        var result = target.hl7StringValidator(msg);
-        Assertions.assertNotNull(result);
-        Assertions.assertEquals(expectedMsg, result);
-    }
-
-    @Test
-    void hl7MessageStringValidation_newLine() throws DiHL7Exception {
-        String msg = "test with new line\n";
-        String expectedMsg = "test with new line\r";
-        var result = target.hl7StringValidator(msg);
-        Assertions.assertNotNull(result);
-        Assertions.assertEquals(expectedMsg, result);
-    }
-
-    @Test
-    void hl7MessageStringValidation_doubleSlashNewLine() throws DiHL7Exception {
-        String msg = "test with string new line\\n";
-        String expectedMsg = "test with string new line\r";
-        var result = target.hl7StringValidator(msg);
-        Assertions.assertNotNull(result);
-        Assertions.assertEquals(expectedMsg, result);
-    }
-
-    @Test
-    void hl7MessageStringValidation_doubleSlashCarrier() throws DiHL7Exception {
-        String msg = "test with string carrier\\r";
-        String expectedMsg = "test with string carrier\r";
-        var result = target.hl7StringValidator(msg);
-        Assertions.assertNotNull(result);
-        Assertions.assertEquals(expectedMsg, result);
-    }
-
 
 
 }
