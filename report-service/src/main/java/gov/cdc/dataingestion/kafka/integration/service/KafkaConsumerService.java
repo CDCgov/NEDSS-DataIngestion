@@ -89,6 +89,8 @@ public class KafkaConsumerService {
     private final NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
 
     private final IElrDeadLetterRepository elrDeadLetterRepository;
+
+    private String errorDltMessage = "Message not found in dead letter table";
     //endregion
 
     //region CONSTRUCTOR
@@ -392,7 +394,7 @@ public class KafkaConsumerService {
                 var validMessage = iHl7v2Validator.MessageStringValidation(response.get().getMessage());
                 hl7Msg = validMessage;
             } else {
-                throw new XmlConversionException("Message not found in dead letter table");
+                throw new XmlConversionException(errorDltMessage);
             }
         }
 
@@ -431,7 +433,7 @@ public class KafkaConsumerService {
                 model.setRawId(validatedElrResponse.get().getRawId());
                 model.setRawMessage(payloadMessage);
             } else {
-                throw new FhirConversionException("Message not found in dead letter table");
+                throw new FhirConversionException(errorDltMessage);
             }
 
         }
@@ -443,7 +445,7 @@ public class KafkaConsumerService {
                 model.setRawId(message);
                 model.setRawMessage(validMessage);
             } else {
-                throw new FhirConversionException("Message not found in dead letter table");
+                throw new FhirConversionException(errorDltMessage);
             }
         }
 

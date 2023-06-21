@@ -227,7 +227,6 @@ public class HL7Parser implements IHL7Parser {
                         switch (genericParsedMessage.getEventTrigger()){
                             case EventTrigger.ORU_01:
                                 ORU_R01 msg = (ca.uhn.hl7v2.model.v251.message.ORU_R01) parser.parse(genericParsedMessage.getMessage());
-                               var list = msg.getPATIENT_RESULT().getPATIENT().getPID().getPatientIdentifierList();
                                 OruR1 oru = new OruR1(msg);
                                 parsedMessage.setParsedMessage(oru);
 

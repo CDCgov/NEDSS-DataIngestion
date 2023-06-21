@@ -79,9 +79,9 @@ public class ElrDeadLetterDto {
      * */
     @NotNull
     private String processingSourceStackTrace(String stackTrace) {
-        // [^\n] is a negate character, it should not cause any backtracking
-        String regex = "^[^\\n]*org\\.springframework\\.kafka\\.listener[^\\n]*+$";
-        String regexCleanUp = "Caused by:(?>.*+)";
+        // Leading ^ and tailing [^\n]*+
+        String regex = "org\\.springframework\\.kafka\\.listener[^\\n]*+$";
+        String regexCleanUp = "Caused by: gov.cdc.dataingestion.exception.(.*+)";
         if (stackTrace == null) {
             return "";
         }

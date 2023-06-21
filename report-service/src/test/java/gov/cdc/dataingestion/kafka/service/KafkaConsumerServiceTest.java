@@ -424,10 +424,10 @@ class KafkaConsumerServiceTest {
         String message =  guidForTesting;
         HL7ToFHIRModel mode = new HL7ToFHIRModel();
         mode.setId(message);
-        when(iHL7ToFHIRRepository.findById(eq(guidForTesting)))
+        when(iHL7ToFHIRRepository.findById(guidForTesting))
                 .thenReturn(Optional.of(mode));
         kafkaConsumerService.handleDlt(message, "fhir_converted_dlt", "n/a", errorMessage, "0", "fhir_converted");
-        verify(iHL7ToFHIRRepository, times(1)).findById(eq(guidForTesting));
+        verify(iHL7ToFHIRRepository, times(1)).findById(guidForTesting);
 
     }
 
@@ -435,10 +435,10 @@ class KafkaConsumerServiceTest {
     @Test
     void dltHandlerLogicOnConvertedFhir_UnSupportTopic_CodeCoverage() {
         String message =  guidForTesting;
-        when(iHL7ToFHIRRepository.findById(eq(guidForTesting)))
+        when(iHL7ToFHIRRepository.findById(guidForTesting))
                 .thenReturn(any());
         kafkaConsumerService.handleDlt(message, "fhir_converted_dlt", "n/a", errorMessage, "0", "fhir_converted");
-        verify(iHL7ToFHIRRepository, times(1)).findById(eq(guidForTesting));
+        verify(iHL7ToFHIRRepository, times(1)).findById(guidForTesting);
 
     }
 
