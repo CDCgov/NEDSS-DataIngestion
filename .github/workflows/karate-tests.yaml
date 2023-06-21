@@ -3,10 +3,10 @@ name: Karate Test Workflow
 on:
   push:
     branches:
-      - CNDIT-390_Karate-framework
+      - Demo-branch-ignore
   pull_request:
     branches:
-      - CNDIT-390_Karate-framework
+      - Demo-branch-ignore
 
 jobs:
   build:
