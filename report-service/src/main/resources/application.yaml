@@ -43,7 +43,7 @@ spring:
       ddl-auto: none
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${BOOTSTRAP_SERVERS}
     group-id: data-ingestion-group
     consumer:
       maxPollIntervalMs: 30000
