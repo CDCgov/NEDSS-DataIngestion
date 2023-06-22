@@ -199,7 +199,7 @@ public class Hl7ToRhapsodysXmlConverter {
         // ramesh
         //RhapsodysXmlToHl7Converter.getInstance().convertToXl7(rhapsodyXml);
 
-        saveXmlToTempFile(rhapsodyXml);
+        //saveXmlToTempFile(rhapsodyXml);
 
         return rhapsodyXml;
     }
