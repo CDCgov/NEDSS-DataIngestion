@@ -80,18 +80,25 @@ public class ElrDeadLetterDto {
     @NotNull
     private String processingSourceStackTrace(String stackTrace) {
         // Leading ^ and tailing [^\n]*+
-        String regex = "org\\.springframework\\.kafka\\.listener[^\\n]*+$";
-        String regexCleanUp = "Caused by: gov.cdc.dataingestion.exception.(.*+)";
+        String regexCleanUpFirstLevel = "org\\.springframework\\.kafka\\.listener[^\\n]*+$";
+        String regexCleanUpSecondLevel = "Caused by: gov.cdc.dataingestion.exception.(.*+)";
+        String regexCleanUpThirdLevel = "gov\\.cdc(.*?):";
         if (stackTrace == null) {
             return "";
         }
-        Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
+        Pattern pattern = Pattern.compile(regexCleanUpFirstLevel, Pattern.MULTILINE);
         String result = pattern.matcher(stackTrace).replaceAll("");
 
-        pattern = Pattern.compile(regexCleanUp);
+        pattern = Pattern.compile(regexCleanUpSecondLevel);
         Matcher matcher = pattern.matcher(result);
         if (matcher.find()) {
             String extractedString = matcher.group(1).trim();
+            pattern = Pattern.compile(regexCleanUpThirdLevel);
+            matcher = pattern.matcher(extractedString);
+            if (matcher.find()) {
+                String extractedStringRoot = matcher.group(1);
+                return extractedStringRoot.trim();
+            }
             return extractedString;
         } else {
             return stackTrace;

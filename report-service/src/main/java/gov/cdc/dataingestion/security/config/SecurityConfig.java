@@ -61,10 +61,6 @@ public class SecurityConfig {
                 .userDetailsService(clientDetailsService)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
-// TODO: get touch with team to discuss the following
-//                .exceptionHandling(
-//                        (ex) -> ex.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-//                                .accessDeniedHandler(new BearerTokenAccessDeniedHandler()))
                 .exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint()).and()
                 .build();
     }
