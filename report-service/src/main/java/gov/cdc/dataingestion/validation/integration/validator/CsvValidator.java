@@ -40,27 +40,4 @@ public class CsvValidator implements ICsvValidator {
 
         return model;
     }
-
-    public List<List<String>> ReadLineByLine(Reader reader) throws Exception {
-        List<List<String>> list = new ArrayList<>();
-
-        CSVParser parser = new CSVParserBuilder()
-                .withSeparator(',')
-                .withIgnoreQuotations(true)
-                .build();
-
-        CSVReader csvReader = new CSVReaderBuilder(reader)
-                .withSkipLines(1)
-                .withCSVParser(parser)
-                .build();
-
-        String[] line;
-        while ((line = csvReader.readNext()) != null) {
-            List record = Arrays.asList(line);
-            list.add(record);
-        }
-
-        return list;
-    }
-
 }

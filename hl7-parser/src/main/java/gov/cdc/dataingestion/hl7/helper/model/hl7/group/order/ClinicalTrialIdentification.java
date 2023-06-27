@@ -14,7 +14,7 @@ public class ClinicalTrialIdentification {
     public ClinicalTrialIdentification(ca.uhn.hl7v2.model.v251.segment.CTI cti) {
         this.sponsorStudyId = new Ei(cti.getSponsorStudyID());
         this.studyPhaseIdentifier = new Ce(cti.getStudyPhaseIdentifier());
-        this.studyScheduledTimePoint = new Ce(cti.getCti3_StudyScheduledTimePoint());
+        this.studyScheduledTimePoint = new Ce(cti.getStudyScheduledTimePoint());
     }
 
     public ClinicalTrialIdentification() {

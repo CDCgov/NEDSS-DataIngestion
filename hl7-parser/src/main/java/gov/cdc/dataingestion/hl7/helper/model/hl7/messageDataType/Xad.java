@@ -29,7 +29,7 @@ public class Xad {
         this.zip = xad.getZipOrPostalCode().getValue();
         this.country = xad.getCountry().getValue();
         this.addressType = xad.getAddressType().getValue();
-        this.otherGeographic = xad.getOtherDesignation().getValue();
+        this.otherGeographic = xad.getOtherGeographicDesignation().getValue();
         this.countyCode = xad.getCountyParishCode().getValue();
         this.censusTract = xad.getCensusTract().getValue();
         this.addressRepresentationCode = xad.getAddressRepresentationCode().getValue();

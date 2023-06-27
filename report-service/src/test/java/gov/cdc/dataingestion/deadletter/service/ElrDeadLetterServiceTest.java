@@ -11,10 +11,10 @@ import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.jupiter.api.*;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Sort;
@@ -33,18 +33,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @Testcontainers
-public class ElrDeadLetterServiceTest {
-
-    private static final DockerImageName taggedImageName = DockerImageName.parse("mcr.microsoft.com/azure-sql-edge")
-            .withTag("latest")
-            .asCompatibleSubstituteFor("mcr.microsoft.com/mssql/server");
-
-    @Container
-    public MSSQLServerContainer mssqlserver  =
-            new MSSQLServerContainer<>(taggedImageName)
-                    .acceptLicense()
-                    .withInitScript("sql-script/test-script.sql")
-            ;
+class ElrDeadLetterServiceTest {
     @Mock
     private IElrDeadLetterRepository dltRepository;
 
@@ -60,101 +49,25 @@ public class ElrDeadLetterServiceTest {
     @Mock
     private IHL7ToFHIRRepository fhirRepository;
 
-
+    @InjectMocks
     private ElrDeadLetterService elrDeadLetterService;
 
     private String guidForTesting = "";
+
     @BeforeEach
-    public void setUp() {
+    public void setUpEach() {
         MockitoAnnotations.openMocks(this);
         elrDeadLetterService = new ElrDeadLetterService(dltRepository, rawELRRepository, validatedELRRepository, kafkaProducerService, fhirRepository);
-
     }
 
-    @AfterEach
-    public void tearDown() {
-        mssqlserver.stop();
-    }
 
-    private void initialDataInsertionAndSelection(String dltSourceMessage) {
-        //region CONNECTION
-        Connection conn = null;
-        try {
-            conn = DriverManager.getConnection(mssqlserver.getJdbcUrl(), mssqlserver.getUsername(), mssqlserver.getPassword());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        //endregion
+    @AfterAll
+    public static void tearDown() {
 
-        //region INITIAL INSERTION - insert dlt data to test container db
-        String sqlInsert = "INSERT INTO [NBS_DataIngest].[dbo].[elr_dlt] (" +
-                "error_message_id, error_message_source, error_stack_trace,error_stack_trace_short,message, dlt_status, dlt_occurrence, " +
-                "created_by, updated_by, created_on, updated_on" +
-                ") VALUES (" +
-                "NEWID(), '" + dltSourceMessage +"', " + "'Sample Error Stack Trace','Sample Error Stack Trace','message', 'ERROR', 1, " +
-                "'system', 'system', GETDATE(), NULL" +
-                ");";
-
-        try {
-            Statement stmt = conn.createStatement();
-            stmt.execute(sqlInsert);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        //endregion -  -,
-
-        //region INITIAL SELECTION - unique id from dlt for container testing
-        String sqlSelect = "SELECT TOP 1 * FROM [NBS_DataIngest].[dbo].[elr_dlt];";
-        try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(sqlSelect);
-
-            // Iterate over the ResultSet to get the first record
-            while(rs.next()) {
-                guidForTesting = rs.getString("error_message_id");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        //endregion
-
-        //region STEP INSERTION - dependent tables, insertion for elr_raw, elr_fhir, and elr_validated
-        String rawElrQuery = "INSERT INTO [NBS_DataIngest].[dbo].[elr_raw] (" +
-                "id, message_type, payload, created_by, updated_by, created_on, updated_on" +
-                ") VALUES (" +
-                "'" + guidForTesting +"', " + "'Sample Message Type', 'Sample Payload', 'system', 'system', GETDATE(), NULL" +
-                ");";
-
-        String fhirElrQuery = "INSERT INTO [NBS_DataIngest].[dbo].[elr_fhir] (" +
-                "id, fhir_message, raw_message_id, created_by, updated_by, created_on, updated_on" +
-                ") VALUES (" +
-                "'" + guidForTesting +"', " +"'Sample FHIR Message', 'Sample Raw Message ID', 'system', 'system', GETDATE(), NULL" +
-                ");";
-
-        String elrValidateQuery = "INSERT INTO [NBS_DataIngest].[dbo].[elr_validated] (" +
-                "id, raw_message_id, message_type, message_version, validated_message, hashed_hl7_string, " +
-                "created_by, updated_by, created_on, updated_on" +
-                ") VALUES (" +
-                "'" + guidForTesting +"', " + "'Sample Raw Message ID', 'Sample Message Type', 'Sample Message Version', 'Sample Validated Message', " +
-                "NULL, 'system', 'system', GETDATE(), NULL" +
-                ");";
-
-        try {
-            Statement stmt = conn.createStatement();
-            stmt.execute(rawElrQuery);
-            stmt.execute(fhirElrQuery);
-            stmt.execute(elrValidateQuery);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        //endregion
     }
 
     @Test
     void testGetDltRecordByIdSuccess() throws DeadLetterTopicException {
-
-        initialDataInsertionAndSelection("elr_raw");
         ElrDeadLetterModel model = new ElrDeadLetterModel();
         model.setErrorMessageId(guidForTesting);
         model.setErrorMessageSource("elr_raw");
@@ -174,7 +87,6 @@ public class ElrDeadLetterServiceTest {
 
     @Test
     void testGetDltRecordById_NoDltRecordFound() {
-        initialDataInsertionAndSelection("elr_raw");
         var exception = Assertions.assertThrows(DeadLetterTopicException.class, () -> {
             elrDeadLetterService.getDltRecordById(guidForTesting);
         });
@@ -183,8 +95,7 @@ public class ElrDeadLetterServiceTest {
     }
 
     @Test
-    void testGetAllErrorDltRecord_Success() throws DeadLetterTopicException {
-        initialDataInsertionAndSelection("elr_raw");
+    void testGetAllErrorDltRecord_Success()  {
         ElrDeadLetterModel model = new ElrDeadLetterModel();
         model.setErrorMessageId(guidForTesting);
         model.setErrorMessageSource("elr_raw");
@@ -207,14 +118,13 @@ public class ElrDeadLetterServiceTest {
     }
 
     @Test
-    void testGetAllErrorDltRecord_NoDataFound() throws DeadLetterTopicException {
+    void testGetAllErrorDltRecord_NoDataFound() {
         var result = elrDeadLetterService.getAllErrorDltRecord();
         assertEquals(result.size(), 0);
     }
 
     @Test
     void testUpdateAndReprocessingMessage_RawElr_Success() throws DeadLetterTopicException {
-        initialDataInsertionAndSelection("elr_raw");
         String primaryIdForTesting = guidForTesting;
 
         ElrDeadLetterModel elrDltModel = new ElrDeadLetterModel();
@@ -248,7 +158,6 @@ public class ElrDeadLetterServiceTest {
 
     @Test
     void testUpdateAndReprocessingMessage_ValidatedElr_Success() throws DeadLetterTopicException {
-        initialDataInsertionAndSelection("elr_validated");
         String primaryIdForTesting = guidForTesting;
 
         ElrDeadLetterModel elrDltModel = new ElrDeadLetterModel();
@@ -277,7 +186,6 @@ public class ElrDeadLetterServiceTest {
 
     @Test
     void testUpdateAndReprocessingMessage_FhirPrep_Success() throws DeadLetterTopicException {
-        initialDataInsertionAndSelection("fhir_prep");
         String primaryIdForTesting = guidForTesting;
 
         ElrDeadLetterModel elrDltModel = new ElrDeadLetterModel();
@@ -301,7 +209,6 @@ public class ElrDeadLetterServiceTest {
 
     @Test
     void testUpdateAndReprocessingMessage_XmlPrep_Success() throws DeadLetterTopicException {
-        initialDataInsertionAndSelection("xml_prep");
         String primaryIdForTesting = guidForTesting;
 
         ElrDeadLetterModel elrDltModel = new ElrDeadLetterModel();
