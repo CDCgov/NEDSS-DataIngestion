@@ -72,16 +72,33 @@ public class ElrDeadLetterDto {
         }
     }
 
+    /**
+     * Description: this method take in the full stackTrace message and narrow down to root cause.
+     * Stacktrace that is coming back from Kafka is appended with kafka listener stacktrace,
+     * hence, right now we do this to extract the root message
+     * */
     @NotNull
     private String processingSourceStackTrace(String stackTrace) {
-        String regex = "RuntimeException:\\s*(.*?)(?=\\r|\\n|$)";
+        // Leading ^ and tailing [^\n]*+
+        String regexCleanUpFirstLevel = "org\\.springframework\\.kafka\\.listener[^\\n]*+$";
+        String regexCleanUpSecondLevel = "Caused by: gov.cdc.dataingestion.exception.(.*+)";
+        String regexCleanUpThirdLevel = "gov\\.cdc(.*?):";
         if (stackTrace == null) {
             return "";
         }
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(stackTrace);
+        Pattern pattern = Pattern.compile(regexCleanUpFirstLevel, Pattern.MULTILINE);
+        String result = pattern.matcher(stackTrace).replaceAll("");
+
+        pattern = Pattern.compile(regexCleanUpSecondLevel);
+        Matcher matcher = pattern.matcher(result);
         if (matcher.find()) {
             String extractedString = matcher.group(1).trim();
+            pattern = Pattern.compile(regexCleanUpThirdLevel);
+            matcher = pattern.matcher(extractedString);
+            if (matcher.find()) {
+                String extractedStringRoot = matcher.group(1);
+                return extractedStringRoot.trim();
+            }
             return extractedString;
         } else {
             return stackTrace;

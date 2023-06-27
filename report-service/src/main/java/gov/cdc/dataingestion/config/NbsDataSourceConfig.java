@@ -30,8 +30,6 @@ import java.util.HashMap;
         }
 )
 public class NbsDataSourceConfig {
-    private static final Logger logger = LoggerFactory.getLogger(NbsDataSourceConfig.class);
-
     @Value("${spring.datasource.nbs.driverClassName}")
     private String driverClassName;
 

@@ -38,31 +38,24 @@ public class HL7Parser implements IHL7Parser {
     private final String supportedHL7version = "2.5.1";
     private final String supportedHL7version231 = "2.3.1";
 
-    private static HL7Parser instance = new HL7Parser(new DefaultHapiContext());
-    public static HL7Parser getInstance() {
-        return instance;
-    }
-
     public HL7Parser(HapiContext context) {
         this.context = context;
     }
 
-    public String hl7MessageStringValidation(String message) throws DiHL7Exception {
-        if(message.contains(newLine)) {
-            message = message.replaceAll(newLine, carrier);
-        } else if (message.contains(newLineWithCarrier) || message.contains(carrier)) {
+    public String hl7MessageStringValidation(String message)  {
+         if (message.contains(newLineWithCarrier) || message.contains(carrier) || message.contains(newLine)) {
             if (message.contains(newLineWithCarrier)) {
                 message = message.replaceAll(newLineWithCarrier, carrier);
+            }
+            else if (message.contains(newLine)) {
+                message = message.replaceAll(newLine, carrier);
             }
         } else {
             if (message.contains("\\n")) {
                 message = message.replaceAll("\\\\n",carrier);
             }
             else if (message.contains("\\r")) {
-                message = message.replaceAll("\\\\r","carrier");
-            }
-            else {
-                throw new DiHL7Exception("Incorrect raw message format");
+                message = message.replaceAll("\\\\r",carrier);
             }
         }
 
@@ -71,10 +64,17 @@ public class HL7Parser implements IHL7Parser {
         return message;
     }
 
-    public HL7ParsedMessage convert231To251(String message) throws DiHL7Exception {
+    public HL7ParsedMessage convert231To251(String message, HL7ParsedMessage preParsedMessage) throws DiHL7Exception {
         try {
-            HL7ParsedMessage parsedMessage = hl7StringParser(message);
-            var parsed231Message = hl7v231StringParser(message);
+            HL7ParsedMessage parsedMessage;
+            if (preParsedMessage == null) {
+                parsedMessage = hl7StringParser(message);
+            } else {
+                parsedMessage = preParsedMessage;
+            }
+            ca.uhn.hl7v2.model.v231.message.ORU_R01 parsed231Message = hl7v231StringParser(message);
+
+
             // 231 Patient Result
             var patientResult231 = parsed231Message.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTIAll();
             var msh231 = parsed231Message.getMSH();
@@ -119,6 +119,7 @@ public class HL7Parser implements IHL7Parser {
                     //endregion
 
                     //region Patient Result - ORDER OBSERVATION
+
                     for(int c = 0; c < oru.getPatientResult().get(a).getOrderObservation().size(); c++) {
                         //region OBSERVATION - Order - OBX
                         for (int d = 0; d < oru.getPatientResult().get(a).getOrderObservation().get(c).getObservation().size(); d++) {
@@ -226,10 +227,12 @@ public class HL7Parser implements IHL7Parser {
                         switch (genericParsedMessage.getEventTrigger()){
                             case EventTrigger.ORU_01:
                                 ORU_R01 msg = (ca.uhn.hl7v2.model.v251.message.ORU_R01) parser.parse(genericParsedMessage.getMessage());
-
                                 OruR1 oru = new OruR1(msg);
-
                                 parsedMessage.setParsedMessage(oru);
+
+                                if (genericParsedMessage.getOriginalVersion().equalsIgnoreCase(this.supportedHL7version231)) {
+                                    parsedMessage = convert231To251(genericParsedMessage.getMessage(), parsedMessage);
+                                }
                                 break;
                             default:
                                 throw new DiHL7Exception("Unsupported Event Trigger\t\t" + genericParsedMessage.getEventTrigger());
