@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.security.config;
 
 import gov.cdc.dataingestion.security.service.ClientDetailsService;
+import gov.cdc.dataingestion.share.CustomAuthenticationEntryPoint;
 import org.apache.commons.text.RandomStringGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -74,9 +75,7 @@ public class SecurityConfig {
                 .userDetailsService(clientDetailsService)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
-                .exceptionHandling(
-                        (ex) -> ex.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-                                .accessDeniedHandler(new BearerTokenAccessDeniedHandler()))
+                .exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint()).and()
                 .build();
     }
 

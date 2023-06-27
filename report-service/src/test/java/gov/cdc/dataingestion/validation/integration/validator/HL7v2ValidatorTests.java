@@ -165,7 +165,7 @@ public class HL7v2ValidatorTests
                     target.MessageValidation(id, model, "test");
                 }
         );
-        String expectedMessage = "Incorrect raw message format";
+        String expectedMessage = "Determine encoding for message. The following is the first 50 chars of the message for reference, although this may not be where the issue is: Invalid Message";
         String actualMessage = exception.getMessage();
         Assertions.assertTrue(actualMessage.contains(expectedMessage));
     }

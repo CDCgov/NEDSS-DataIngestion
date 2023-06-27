@@ -140,6 +140,7 @@ import  gov.cdc.dataingestion.nbs.jaxb.HL7PIV1Type;
 import  gov.cdc.dataingestion.nbs.jaxb.HL7FCType;
 
 import  jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 import  jakarta.xml.bind.Marshaller;
 
 import  jakarta.xml.bind.annotation.XmlElement;
@@ -147,6 +148,7 @@ import  org.slf4j.Logger;
 import  org.slf4j.LoggerFactory;
 
 import  java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import  java.math.BigInteger;
 import  java.time.format.DateTimeFormatter;
 import  java.time.LocalDateTime;
@@ -170,7 +172,7 @@ public class Hl7ToRhapsodysXmlConverter {
     private Hl7ToRhapsodysXmlConverter() {
     }
 
-    public String convert(String hl7Msg) throws Exception {
+    public String convert(String hl7Msg) throws DiHL7Exception, JAXBException, IOException {
 
         String rhapsodyXml = "";
 
@@ -178,18 +180,6 @@ public class Hl7ToRhapsodysXmlConverter {
 
 
         HL7ParsedMessage hl7ParsedMsg = hl7Helper.hl7StringParser(hl7Msg);
-
-        // this should be handled by validation pipeline
-        // the one scenario this might be needed is when someone reprocessing the failed message on this pipeline
-        switch (hl7ParsedMsg.getOriginalVersion()) {
-            case VERSION231:
-                hl7ParsedMsg = hl7Helper.convert231To251(hl7Msg);
-                break;
-            case VERSION251:
-                break;
-            default:
-                throw new DiHL7Exception("Unsupported HL7 version: " + hl7ParsedMsg.getOriginalVersion());
-        }
 
         Container c = new Container();
 
