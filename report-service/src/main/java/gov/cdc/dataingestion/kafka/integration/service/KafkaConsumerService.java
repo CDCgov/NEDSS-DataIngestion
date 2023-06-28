@@ -278,8 +278,8 @@ public class KafkaConsumerService {
             @Header(KafkaHeaderValue.OriginalTopic) String originalTopic
     ) {
         log.debug("Message ID: {} handled by dlq topic: {}", message, topic);
-        String regex = "^(.*\\n)*+.*(?=Caused by:)";
-        String errorStackTrace = stacktrace.replaceAll(regex, "");
+    //    String regex = "^(.*\\n)*+.*(?=Caused by:)";
+    //    String errorStackTrace = stacktrace.replaceAll(regex, "");
 
         // increase by 1, indicate the dlt had been occurred
         Integer dltCount = Integer.parseInt(dltOccurrence) + 1;
@@ -288,7 +288,7 @@ public class KafkaConsumerService {
         ElrDeadLetterDto elrDeadLetterDto = new ElrDeadLetterDto(
                 message,
                 erroredSource,
-                errorStackTrace,
+                stacktrace,
                 dltCount,
                 EnumElrDltStatus.ERROR.name(),
                 erroredSource + this.dltSuffix,
