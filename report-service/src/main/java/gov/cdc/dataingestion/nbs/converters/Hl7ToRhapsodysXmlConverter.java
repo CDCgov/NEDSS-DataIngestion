@@ -146,11 +146,13 @@ import  org.slf4j.Logger;
 import  org.slf4j.LoggerFactory;
 
 import  java.io.ByteArrayOutputStream;
+import java.io.File;
 import  java.math.BigInteger;
 import  java.time.format.DateTimeFormatter;
 import  java.time.LocalDateTime;
 import  java.util.List;
 import  java.util.ArrayList;
+import  org.apache.commons.lang3.StringUtils;
 
 public class Hl7ToRhapsodysXmlConverter {
     private static final Logger log = LoggerFactory.getLogger(Hl7ToRhapsodysXmlConverter.class);
@@ -196,17 +198,15 @@ public class Hl7ToRhapsodysXmlConverter {
         // add raw_message_id as a comment
         rhapsodyXml = rhapsodyXml + "\n" + buildTrailingComments(raw_message_id);
 
-        // ramesh
-        //RhapsodysXmlToHl7Converter.getInstance().convertToXl7(rhapsodyXml);
-
-        //saveXmlToTempFile(rhapsodyXml);
+        saveXmlToTempFile(rhapsodyXml);     // Ramesh
 
         return rhapsodyXml;
     }
 
     private void saveXmlToTempFile(String rhapsodyXml) {
         try {
-            java.nio.file.Path path = java.nio.file.Paths.get("/Users/RameshAddanki/downloads/gen101.xml");
+            String pathToHome = System.getenv("HOME");
+            java.nio.file.Path path = java.nio.file.Paths.get(pathToHome + File.separator + "gen101.xml");
             java.nio.file.Files.writeString(path, rhapsodyXml, java.nio.charset.StandardCharsets.UTF_8);
         } catch (java.io.IOException ex) {
             System.out.print("Invalid Path");
@@ -414,35 +414,35 @@ public class Hl7ToRhapsodysXmlConverter {
 
         hl7CNEType.setHL7Identifier(cne.getIdentifier());
 
-        if ((null != cne.getText()) && (cne.getText().length() > 0)) {
+        if( StringUtils.isNotEmpty(cne.getText())) {
             hl7CNEType.setHL7Text(cne.getText());
         }
 
-        if ((null != cne.getNameOfAlternateCodingSystem()) && (cne.getNameOfAlternateCodingSystem().length() > 0)) {
-            hl7CNEType.setHL7NameofCodingSystem(cne.getNameOfAlternateCodingSystem());
+        if( StringUtils.isNotEmpty(cne.getNameOfAlternateCodingSystem())) {
+             hl7CNEType.setHL7NameofCodingSystem(cne.getNameOfAlternateCodingSystem());
         }
 
-        if ((null != cne.getAlternateIdentifier()) && (cne.getAlternateIdentifier().length() > 0)) {
+        if( StringUtils.isNotEmpty(cne.getAlternateIdentifier())) {
             hl7CNEType.setHL7AlternateIdentifier(cne.getAlternateIdentifier());
         }
 
-        if ((null != cne.getAlternateText()) && (cne.getAlternateText().length() > 0)) {
+        if( StringUtils.isNotEmpty(cne.getAlternateText())) {
             hl7CNEType.setHL7AlternateText(cne.getAlternateText());
         }
 
-        if ((null != cne.getNameOfAlternateCodingSystem()) && (cne.getNameOfAlternateCodingSystem().length() > 0)) {
+        if( StringUtils.isNotEmpty(cne.getNameOfAlternateCodingSystem())) {
             hl7CNEType.setHL7NameofAlternateCodingSystem(cne.getNameOfAlternateCodingSystem());
         }
 
-        if ((null != cne.getCodingSystemVersionId()) && (cne.getCodingSystemVersionId().length() > 0)) {
+        if( StringUtils.isNotEmpty(cne.getCodingSystemVersionId())) {
             hl7CNEType.setHL7CodingSystemVersionID(cne.getCodingSystemVersionId());
         }
 
-        if ((null != cne.getAlternateCodingSystemVersionId()) && (cne.getAlternateCodingSystemVersionId().length() > 0)) {
+        if( StringUtils.isNotEmpty(cne.getAlternateCodingSystemVersionId())) {
             hl7CNEType.setHL7AlternateCodingSystemVersionID(cne.getAlternateCodingSystemVersionId());
         }
 
-        if ((null != cne.getOriginalText()) && (cne.getOriginalText().length() > 0)) {
+        if( StringUtils.isNotEmpty(cne.getOriginalText())) {
             hl7CNEType.setHL7OriginalText(cne.getOriginalText());
         }
 
@@ -454,35 +454,35 @@ public class Hl7ToRhapsodysXmlConverter {
 
         hl7CWEType.setHL7Identifier(cwe.getIdentifier());
 
-        if ((null != cwe.getText()) && (cwe.getText().length() > 0)) {
+        if( StringUtils.isNotEmpty(cwe.getText())) {
             hl7CWEType.setHL7Text(cwe.getText());
         }
 
-        if ((null != cwe.getNameOfCodingSystem()) && (cwe.getNameOfCodingSystem().length() > 0)) {
+        if( StringUtils.isNotEmpty(cwe.getNameOfCodingSystem())) {
             hl7CWEType.setHL7NameofCodingSystem(cwe.getNameOfCodingSystem());
         }
 
-        if ((null != cwe.getAlternateIdentifier()) && (cwe.getAlternateIdentifier().length() > 0)) {
+        if( StringUtils.isNotEmpty(cwe.getAlternateIdentifier())) {
             hl7CWEType.setHL7AlternateIdentifier(cwe.getAlternateIdentifier());
         }
 
-        if ((null != cwe.getAlternateText()) && (cwe.getAlternateText().length() > 0)) {
+        if( StringUtils.isNotEmpty(cwe.getAlternateText())) {
             hl7CWEType.setHL7AlternateText(cwe.getAlternateText());
         }
 
-        if ((null != cwe.getNameOfAlterCodeSystem()) && (cwe.getNameOfAlterCodeSystem().length() > 0)) {
+        if( StringUtils.isNotEmpty(cwe.getNameOfAlterCodeSystem())) {
             hl7CWEType.setHL7NameofAlternateCodingSystem(cwe.getNameOfAlterCodeSystem());
         }
 
-        if ((null != cwe.getCodeSystemVerId()) && (cwe.getCodeSystemVerId().length() > 0)) {
+        if( StringUtils.isNotEmpty(cwe.getCodeSystemVerId())) {
             hl7CWEType.setHL7CodingSystemVersionID(cwe.getCodeSystemVerId());
         }
 
-        if ((null != cwe.getAlterCodeSystemVerId()) && (cwe.getAlterCodeSystemVerId().length() > 0)) {
+        if( StringUtils.isNotEmpty(cwe.getAlterCodeSystemVerId())) {
             hl7CWEType.setHL7AlternateCodingSystemVersionID(cwe.getAlterCodeSystemVerId());
         }
 
-        if ((null != cwe.getOriginalText()) && (cwe.getOriginalText().length() > 0)) {
+        if( StringUtils.isNotEmpty(cwe.getOriginalText())) {
             hl7CWEType.setHL7OriginalText(cwe.getOriginalText());
         }
 
@@ -516,7 +516,7 @@ public class Hl7ToRhapsodysXmlConverter {
 
         hl7XONType.setHL7OrganizationName(xon.getOrganizationName());
 
-        if ((null != xon.getOrganizationNameTypeCode()) && (xon.getOrganizationNameTypeCode().length() > 0)) {
+        if( StringUtils.isNotEmpty(xon.getOrganizationNameTypeCode())) {
             hl7XONType.setHL7OrganizationNameTypeCode(xon.getOrganizationNameTypeCode());
         }
 
@@ -655,7 +655,7 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7SPSType.setHL7SpecimenSourceNameOrCode(buildHL7CWEType(sps.getSpecimenSourceNameOrCode()));
         hl7SPSType.setHL7Additives(buildHL7CWEType(sps.getAdditives()));
 
-        if ((null != sps.getSpecimenCollectionMethod()) && (sps.getSpecimenCollectionMethod().length() > 0)) {
+        if( StringUtils.isNotEmpty(sps.getSpecimenCollectionMethod())) {
             hl7SPSType.setHL7SpecimenCollectionMethod(buildHL7TXType(sps.getSpecimenCollectionMethod()));
         }
 
@@ -1577,7 +1577,7 @@ public class Hl7ToRhapsodysXmlConverter {
 
         hl7NK1Type.setProtectionIndicator(nok.getProtectionIndicator());
 
-        if((null != nok.getStudentIndicator()) && (nok.getStudentIndicator().length() > 0)) {
+        if( StringUtils.isNotEmpty(nok.getStudentIndicator())) {
             hl7NK1Type.setStudentIndicator(buildEmptyValue(nok.getStudentIndicator()));
         }
 
@@ -1720,7 +1720,7 @@ public class Hl7ToRhapsodysXmlConverter {
             hl7PID1Type.setPatientPrimaryCareProviderNameAndIDNo(buildHL7XCNType(xcn));
         }
 
-        if((null != pad.getStudentIndicator()) && (pad.getStudentIndicator().length() > 0)) {
+        if( StringUtils.isNotEmpty(pad.getStudentIndicator())) {
             hl7PID1Type.setStudentIndicator(buildEmptyValue(pad.getStudentIndicator()));
         }
 
@@ -1832,7 +1832,7 @@ public class Hl7ToRhapsodysXmlConverter {
         }
 
         //hl7PIDType.setPatientAccountNumber(buildHL7CXType(pi.getPatientAccountNumber()));
-        if ((null != pi.getSsnNumberPatient()) && (pi.getSsnNumberPatient().length() > 0)) {
+        if( StringUtils.isNotEmpty(pi.getSsnNumberPatient())) {
             hl7PIDType.setSSNNumberPatient(pi.getSsnNumberPatient());
         }
 
@@ -2230,19 +2230,19 @@ public class Hl7ToRhapsodysXmlConverter {
 
         hl7FNType.setHL7Surname(buildEmptyValue(fn.getSurname()));
 
-        if ((null != fn.getOwnSurnamePrefix()) && (fn.getOwnSurnamePrefix().length() > 0)) {
+        if( StringUtils.isNotEmpty(fn.getOwnSurnamePrefix())) {
             hl7FNType.setHL7OwnSurnamePrefix(buildEmptyValue(fn.getOwnSurnamePrefix()));
         }
 
-        if ((null != fn.getOwnSurname()) && (fn.getOwnSurname().length() > 0)) {
+        if( StringUtils.isNotEmpty(fn.getOwnSurname())) {
             hl7FNType.setHL7OwnSurname(buildEmptyValue(fn.getOwnSurname()));
         }
 
-        if ((null != fn.getSurnamePrefixFromPartner()) && (fn.getSurnamePrefixFromPartner().length() > 0)) {
+        if( StringUtils.isNotEmpty(fn.getSurnamePrefixFromPartner())) {
             hl7FNType.setHL7SurnamePrefixFromPartnerSpouse(buildEmptyValue(fn.getSurnamePrefixFromPartner()));
         }
 
-        if ((null != fn.getSurnameFromPartner()) && (fn.getSurnameFromPartner().length() > 0)) {
+        if( StringUtils.isNotEmpty(fn.getSurnamePrefixFromPartner())) {
             hl7FNType.setHL7SurnameFromPartnerSpouse(buildEmptyValue(fn.getSurnameFromPartner()));
         }
 
@@ -2367,27 +2367,27 @@ public class Hl7ToRhapsodysXmlConverter {
             return hl7CEType;
         }
 
-        if ((null != ce.getAlternateIdentifier()) && (ce.getAlternateIdentifier().length() > 0)) {
+        if( StringUtils.isNotEmpty(ce.getAlternateIdentifier())) {
             hl7CEType.setHL7AlternateIdentifier(buildEmptyValue(ce.getAlternateIdentifier()));
         }
 
-        if ((null != ce.getAlternateText()) && (ce.getAlternateText().length() > 0)) {
+        if( StringUtils.isNotEmpty(ce.getAlternateText())) {
             hl7CEType.setHL7AlternateText(buildEmptyValue(ce.getAlternateText()));
         }
 
-        if ((null != ce.getIdentifier()) && (ce.getIdentifier().length() > 0)) {
+        if( StringUtils.isNotEmpty(ce.getIdentifier())) {
             hl7CEType.setHL7Identifier(buildEmptyValue(ce.getIdentifier()));
         }
 
-        if ((null != ce.getNameOfCodingSystem()) && (ce.getNameOfCodingSystem().length() > 0)) {
+        if( StringUtils.isNotEmpty(ce.getNameOfCodingSystem())) {
             hl7CEType.setHL7NameofCodingSystem(buildEmptyValue(ce.getNameOfCodingSystem()));
         }
 
-        if ((null != ce.getText()) && (ce.getText().length() > 0)) {
+        if( StringUtils.isNotEmpty(ce.getText())) {
             hl7CEType.setHL7Text(buildEmptyValue(ce.getText()));
         }
 
-        if ((null != ce.getNameOfAlternateCodingSystem()) && (ce.getNameOfAlternateCodingSystem().length() > 0)) {
+        if( StringUtils.isNotEmpty(ce.getNameOfAlternateCodingSystem())) {
             hl7CEType.setHL7NameofAlternateCodingSystem(buildEmptyValue(ce.getNameOfAlternateCodingSystem()));
         }
 
@@ -2493,19 +2493,19 @@ public class Hl7ToRhapsodysXmlConverter {
 
         hl7CWEType.setHL7Identifier(ce.getIdentifier());
 
-        if ((null != ce.getText()) && (ce.getText().length() > 0)) {
+        if( StringUtils.isNotEmpty(ce.getText())) {
             hl7CWEType.setHL7Text(ce.getText());
         }
 
-        if ((null != ce.getNameOfCodingSystem()) && (ce.getNameOfCodingSystem().length() > 0)) {
+        if( StringUtils.isNotEmpty(ce.getNameOfCodingSystem())) {
             hl7CWEType.setHL7NameofCodingSystem(ce.getNameOfCodingSystem());
         }
 
-        if ((null != ce.getAlternateIdentifier()) && (ce.getAlternateIdentifier().length() > 0)) {
+        if( StringUtils.isNotEmpty(ce.getAlternateIdentifier())) {
             hl7CWEType.setHL7AlternateIdentifier(ce.getAlternateIdentifier());
         }
 
-        if ((null != ce.getAlternateText()) && (ce.getAlternateText().length() > 0)) {
+        if( StringUtils.isNotEmpty(ce.getAlternateText())) {
             hl7CWEType.setHL7AlternateText(ce.getAlternateText());
         }
 
@@ -2537,7 +2537,7 @@ public class Hl7ToRhapsodysXmlConverter {
     private boolean isEmptyHL7CEType(Ce ce) {
         if (null == ce) return true;
         if (null == ce.getIdentifier()) return true;
-        if (ce.getIdentifier().length() <= 0) return true;
+        if( StringUtils.isEmpty(ce.getIdentifier()) ) return true;
 
         return false;
     }
@@ -2547,7 +2547,7 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     private boolean isEmptyHL7EIType(Ei ei) {
-        if ((null == ei.getEntityIdentifier()) || (ei.getEntityIdentifier().length() <= 0)) return true;
+        if( StringUtils.isEmpty(ei.getEntityIdentifier()) ) return true;
         return false;
     }
 
@@ -2557,7 +2557,7 @@ public class Hl7ToRhapsodysXmlConverter {
 
     private boolean isEmptyHL7DLNType(Dln dln) {
         if (null == dln) return true;
-        if ((null == dln.getLicenseNumber()) || (dln.getLicenseNumber().length() <= 0)) return true;
+        if( StringUtils.isEmpty(dln.getLicenseNumber()) ) return true;
         return false;
     }
 
@@ -2569,19 +2569,19 @@ public class Hl7ToRhapsodysXmlConverter {
 
     private boolean isEmptyHL7HDType(Hd hdType) {
         if (null == hdType) return true;
-        if ((null == hdType.getUniversalId()) || (hdType.getUniversalId().length() == 0)) return true;
+        if( StringUtils.isEmpty(hdType.getUniversalId()) ) return true;
         return false;
     }
 
     private boolean isEmptyHL7CWEType(Cwe ce) {
         if (null == ce) return true;
-        if ((null == ce.getIdentifier()) || (ce.getIdentifier().length() <= 0)) return true;
+        if( StringUtils.isEmpty(ce.getIdentifier()) ) return true;
         return false;
     }
 
     private boolean isEmptyHL7CNEType(Cne cne) {
         if (null == cne) return true;
-        if ((null == cne.getIdentifier()) || (cne.getIdentifier().length() <= 0)) return true;
+        if( StringUtils.isEmpty(cne.getIdentifier()) ) return true;
         return false;
     }
 
@@ -2593,20 +2593,20 @@ public class Hl7ToRhapsodysXmlConverter {
 
     private boolean isEmptyHL7PIV1Type(PatientVisit pv) {
         if (null == pv) return true;
-        if ((null == pv.getSetIdPv1()) || (pv.getSetIdPv1().length() <= 0)) return true;
+        if( StringUtils.isEmpty(pv.getSetIdPv1()) ) return true;
         return false;
     }
 
     private boolean isEmptyHL7PLType(Pl pl) {
         if (null == pl) return true;
-        if ((null == pl.getPointOfCare()) || (pl.getPointOfCare().length() <= 0)) return true;
-        if ((null == pl.getFacility()) || isEmptyHL7HDType(pl.getFacility())) return true;
+        if( StringUtils.isEmpty(pl.getPointOfCare()) ) return true;
+        if( isEmptyHL7HDType(pl.getFacility()) ) return true;
         return false;
     }
 
     private boolean isEmptyHL7PIV2Type(PatientVisitAdditional pva) {
-        if (null == pva) return true;
-        if ((null == pva.getPriorPendingLocation()) || isEmptyHL7PLType(pva.getPriorPendingLocation())) return true;
+        if(null == pva) return true;
+        if( isEmptyHL7PLType(pva.getPriorPendingLocation())) return true;
         return false;
     }
 
@@ -2618,7 +2618,7 @@ public class Hl7ToRhapsodysXmlConverter {
 
     private boolean isEmptyHL7CQType(Cq cq) {
         if (null == cq) return true;
-        if ((null == cq.getQuantity()) || (cq.getQuantity().length() <= 0)) return true;
+        if( StringUtils.isEmpty(cq.getQuantity()) ) return true;
         return false;
     }
 
@@ -2648,7 +2648,7 @@ public class Hl7ToRhapsodysXmlConverter {
 
     private boolean isEmptyHL7XONType(Xon xon) {
         if (null == xon) return true;
-        if ((null == xon.getOrganizationName()) || (xon.getOrganizationName().length() <= 0)) return true;
+        if( StringUtils.isEmpty(xon.getOrganizationName()) ) return true;
         return false;
     }
 
@@ -2660,13 +2660,13 @@ public class Hl7ToRhapsodysXmlConverter {
 
     private boolean isEmptyHL7SADType(Sad sad) {
         if (null == sad) return true;
-        if ((null == sad.getStreetMailingAddress()) || (sad.getStreetMailingAddress().length() <= 0)) return true;
+        if( StringUtils.isEmpty(sad.getStreetMailingAddress()) ) return true;
         return false;
     }
 
     private boolean isEmptyHL7XCNType(Xcn xcn) {
         if (null == xcn) return true;
-        if ((null == xcn.getIdNumber()) || (xcn.getIdNumber().length() <= 0)) return true;
+        if( StringUtils.isEmpty(xcn.getIdNumber()) ) return true;
         return false;
     }
 
@@ -2679,13 +2679,13 @@ public class Hl7ToRhapsodysXmlConverter {
 
     private boolean isEmptyHL7JCCType(Jcc jcc) {
         if(null == jcc) return true;
-        if((null == jcc.getJobDescriptionText()) || (jcc.getJobDescriptionText().length() == 0)) return true;
+        if( StringUtils.isEmpty(jcc.getJobDescriptionText()) ) return true;
         return false;
     }
 
     private boolean isEmptyHL7ORCType(CommonOrder co) {
         if(null == co) return true;
-        if((null == co.getOrderControl()) || (co.getOrderControl().length() == 0)) return true;
+        if( StringUtils.isEmpty(co.getOrderControl()) ) return true;
         return false;
     }
 }

@@ -58,7 +58,7 @@ public class RhapsodysXmlToHl7Converter {
     private RhapsodysXmlToHl7Converter() {
     }
 
-    public String convertToXl7(String xmlContent) throws Exception {
+    public String convertToHl7(String xmlContent) throws Exception {
         StringBuilder sb = new StringBuilder();
 
         JAXBContext contextObj = JAXBContext.newInstance("gov.cdc.dataingestion.nbs.jaxb");
