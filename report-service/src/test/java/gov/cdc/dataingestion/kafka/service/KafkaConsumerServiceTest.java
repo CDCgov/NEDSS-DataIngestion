@@ -7,6 +7,7 @@ import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
+import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
@@ -47,6 +48,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.*;
 import java.time.Duration;
 import java.util.*;
@@ -399,6 +402,135 @@ class KafkaConsumerServiceTest {
         verify(elrDeadLetterRepository, times(1)).findById(eq(guidForTesting));
 
     }
+
+    @Test
+    void handleExceptionReturnFromListener() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        String errorMsg = "org.springframework.kafka.listener.ListenerExecutionFailedException: Listener failed\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.decorateException(KafkaMessageListenerContainer.java:2992)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.doInvokeOnMessage(KafkaMessageListenerContainer.java:2933)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.invokeOnMessage(KafkaMessageListenerContainer.java:2899)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.lambda$doInvokeRecordListener$58(KafkaMessageListenerContainer.java:2822)\n" +
+                "\tat io.micrometer.observation.Observation.observe(Observation.java:559)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.doInvokeRecordListener(KafkaMessageListenerContainer.java:2820)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.doInvokeWithRecords(KafkaMessageListenerContainer.java:2672)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.invokeRecordListener(KafkaMessageListenerContainer.java:2558)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.invokeListener(KafkaMessageListenerContainer.java:2200)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.invokeIfHaveRecords(KafkaMessageListenerContainer.java:1555)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.pollAndInvoke(KafkaMessageListenerContainer.java:1519)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.run(KafkaMessageListenerContainer.java:1394)\n" +
+                "\tat java.base/java.util.concurrent.CompletableFuture$AsyncRun.run(CompletableFuture.java:1804)\n" +
+                "\tat java.base/java.lang.Thread.run(Thread.java:833)\n" +
+                "Caused by: org.springframework.kafka.listener.TimestampedException: Exception thrown at 2023-06-28T19:28:23.180056Z\n" +
+                "\tat org.springframework.kafka.listener.adapter.KafkaBackoffAwareMessageListenerAdapter.onMessage(KafkaBackoffAwareMessageListenerAdapter.java:100)\n" +
+                "\tat org.springframework.kafka.listener.adapter.KafkaBackoffAwareMessageListenerAdapter.onMessage(KafkaBackoffAwareMessageListenerAdapter.java:49)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.doInvokeOnMessage(KafkaMessageListenerContainer.java:2919)\n" +
+                "\t... 12 more\n" +
+                "Caused by: org.springframework.kafka.listener.ListenerExecutionFailedException: Listener method 'public void gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService.handleMessageForRawElr(java.lang.String,java.lang.String) throws gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException,gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception' threw exception\n" +
+                "\tat org.springframework.kafka.listener.adapter.MessagingMessageListenerAdapter.invokeHandler(MessagingMessageListenerAdapter.java:382)\n" +
+                "\tat org.springframework.kafka.listener.adapter.RecordMessagingMessageListenerAdapter.onMessage(RecordMessagingMessageListenerAdapter.java:92)\n" +
+                "\tat org.springframework.kafka.listener.adapter.RecordMessagingMessageListenerAdapter.onMessage(RecordMessagingMessageListenerAdapter.java:53)\n" +
+                "\tat org.springframework.kafka.listener.adapter.KafkaBackoffAwareMessageListenerAdapter.invokeDelegateOnMessage(KafkaBackoffAwareMessageListenerAdapter.java:106)\n" +
+                "\tat org.springframework.kafka.listener.adapter.KafkaBackoffAwareMessageListenerAdapter.onMessage(KafkaBackoffAwareMessageListenerAdapter.java:97)\n" +
+                "\t... 14 more\n" +
+                "Caused by: gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception: ca.uhn.hl7v2.validation.ValidationException: Validation failed: Primitive value 'N' requires to be empty or a number with optional decimal digits at OBX-9(0)\n" +
+                "\tat gov.cdc.dataingestion.hl7.helper.integration.HL7Parser.hl7StringParser(HL7Parser.java:251)\n" +
+                "\tat gov.cdc.dataingestion.hl7.helper.HL7Helper.hl7StringParser(HL7Helper.java:35)\n" +
+                "\tat gov.cdc.dataingestion.validation.integration.validator.HL7v2Validator.MessageValidation(HL7v2Validator.java:31)\n" +
+                "\tat gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService.validationHandler(KafkaConsumerService.java:413)\n" +
+                "\tat gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService.handleMessageForRawElr(KafkaConsumerService.java:164)\n" +
+                "\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)\n" +
+                "\tat java.base/java.lang.reflect.Method.invoke(Method.java:577)\n" +
+                "\tat org.springframework.messaging.handler.invocation.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:169)\n" +
+                "\tat org.springframework.messaging.handler.invocation.InvocableHandlerMethod.invoke(InvocableHandlerMethod.java:119)\n" +
+                "\tat org.springframework.kafka.listener.adapter.HandlerAdapter.invoke(HandlerAdapter.java:56)\n" +
+                "\tat org.springframework.kafka.listener.adapter.MessagingMessageListenerAdapter.invokeHandler(MessagingMessageListenerAdapter.java:366)\n" +
+                "\t... 18 more\n";
+
+        String expectedMessage = "Primitive value 'N' requires to be empty or a number with optional decimal digits at OBX-9(0)";
+
+        ElrDeadLetterDto model = new ElrDeadLetterDto();
+
+        Method privateMethod = ElrDeadLetterDto.class.getDeclaredMethod("processingSourceStackTrace", String.class);
+        privateMethod.setAccessible(true);
+
+        var result = privateMethod.invoke(model, errorMsg);
+
+        Assertions.assertEquals(expectedMessage, result);
+    }
+
+    @Test
+    void handleExceptionReturnFromListenerButEmpty() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        String errorMsg = "";
+        String expectedMessage = "";
+        ElrDeadLetterDto model = new ElrDeadLetterDto();
+        Method privateMethod = ElrDeadLetterDto.class.getDeclaredMethod("processingSourceStackTrace", String.class);
+        privateMethod.setAccessible(true);
+        var result = privateMethod.invoke(model, errorMsg);
+        Assertions.assertEquals(expectedMessage, result);
+    }
+
+    @Test
+    void handleExceptionReturnFromListenerButNull() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        String errorMsg = null;
+        String expectedMessage = "";
+        ElrDeadLetterDto model = new ElrDeadLetterDto();
+        Method privateMethod = ElrDeadLetterDto.class.getDeclaredMethod("processingSourceStackTrace", String.class);
+        privateMethod.setAccessible(true);
+        var result = privateMethod.invoke(model, errorMsg);
+        Assertions.assertEquals(expectedMessage, result);
+    }
+
+    @Test
+    void handleExceptionReturnFromListenerButContainGenericEception() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        String errorMsg = "org.springframework.kafka.listener.ListenerExecutionFailedException: Listener failed\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.decorateException(KafkaMessageListenerContainer.java:2992)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.doInvokeOnMessage(KafkaMessageListenerContainer.java:2933)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.invokeOnMessage(KafkaMessageListenerContainer.java:2899)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.lambda$doInvokeRecordListener$58(KafkaMessageListenerContainer.java:2822)\n" +
+                "\tat io.micrometer.observation.Observation.observe(Observation.java:559)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.doInvokeRecordListener(KafkaMessageListenerContainer.java:2820)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.doInvokeWithRecords(KafkaMessageListenerContainer.java:2672)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.invokeRecordListener(KafkaMessageListenerContainer.java:2558)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.invokeListener(KafkaMessageListenerContainer.java:2200)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.invokeIfHaveRecords(KafkaMessageListenerContainer.java:1555)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.pollAndInvoke(KafkaMessageListenerContainer.java:1519)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.run(KafkaMessageListenerContainer.java:1394)\n" +
+                "\tat java.base/java.util.concurrent.CompletableFuture$AsyncRun.run(CompletableFuture.java:1804)\n" +
+                "\tat java.base/java.lang.Thread.run(Thread.java:833)\n" +
+                "Caused by: org.springframework.kafka.listener.TimestampedException: Exception thrown at 2023-06-28T20:11:44.811423Z\n" +
+                "\tat org.springframework.kafka.listener.adapter.KafkaBackoffAwareMessageListenerAdapter.onMessage(KafkaBackoffAwareMessageListenerAdapter.java:100)\n" +
+                "\tat org.springframework.kafka.listener.adapter.KafkaBackoffAwareMessageListenerAdapter.onMessage(KafkaBackoffAwareMessageListenerAdapter.java:49)\n" +
+                "\tat org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.doInvokeOnMessage(KafkaMessageListenerContainer.java:2919)\n" +
+                "\t... 12 more\n" +
+                "Caused by: org.springframework.kafka.listener.ListenerExecutionFailedException: Listener method 'public void gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService.handleMessageForRawElr(java.lang.String,java.lang.String) throws java.lang.Exception' threw exception\n" +
+                "\tat org.springframework.kafka.listener.adapter.MessagingMessageListenerAdapter.invokeHandler(MessagingMessageListenerAdapter.java:382)\n" +
+                "\tat org.springframework.kafka.listener.adapter.RecordMessagingMessageListenerAdapter.onMessage(RecordMessagingMessageListenerAdapter.java:92)\n" +
+                "\tat org.springframework.kafka.listener.adapter.RecordMessagingMessageListenerAdapter.onMessage(RecordMessagingMessageListenerAdapter.java:53)\n" +
+                "\tat org.springframework.kafka.listener.adapter.KafkaBackoffAwareMessageListenerAdapter.invokeDelegateOnMessage(KafkaBackoffAwareMessageListenerAdapter.java:106)\n" +
+                "\tat org.springframework.kafka.listener.adapter.KafkaBackoffAwareMessageListenerAdapter.onMessage(KafkaBackoffAwareMessageListenerAdapter.java:97)\n" +
+                "\t... 14 more\n" +
+                "Caused by: java.lang.Exception: TEST message exception\n" +
+                "\tat gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService.handleMessageForRawElr(KafkaConsumerService.java:165)\n" +
+                "\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)\n" +
+                "\tat java.base/java.lang.reflect.Method.invoke(Method.java:577)\n" +
+                "\tat org.springframework.messaging.handler.invocation.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:169)\n" +
+                "\tat org.springframework.messaging.handler.invocation.InvocableHandlerMethod.invoke(InvocableHandlerMethod.java:119)\n" +
+                "\tat org.springframework.kafka.listener.adapter.HandlerAdapter.invoke(HandlerAdapter.java:56)\n" +
+                "\tat org.springframework.kafka.listener.adapter.MessagingMessageListenerAdapter.invokeHandler(MessagingMessageListenerAdapter.java:366)\n" +
+                "\t... 18 more\n";
+
+        String expectedMessage = "TEST message exception";
+
+        ElrDeadLetterDto model = new ElrDeadLetterDto();
+
+        Method privateMethod = ElrDeadLetterDto.class.getDeclaredMethod("processingSourceStackTrace", String.class);
+        privateMethod.setAccessible(true);
+
+        var result = privateMethod.invoke(model, errorMsg);
+
+        Assertions.assertEquals(expectedMessage, result);
+    }
+
 
     @Test
     void dltHandlerLogicForRawPipeline() {

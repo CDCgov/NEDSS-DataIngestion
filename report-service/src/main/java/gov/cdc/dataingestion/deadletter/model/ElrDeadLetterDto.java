@@ -98,15 +98,6 @@ public class ElrDeadLetterDto {
     }
 
     private String extractCustomExceptionMessage(String extractedString) {
-        String regexCleanUpThirdLevel = "gov\\.cdc(.*?):";
-        Pattern pattern = Pattern.compile(regexCleanUpThirdLevel);
-        Matcher matcher = pattern.matcher(extractedString);
-        String extractedStringRoot = "";
-        if (matcher.find()) {
-            extractedStringRoot = matcher.group(1);
-            return extractedStringRoot.trim();
-        }
-
         int colonCount = extractedString.split(":").length - 1;
         return extractCustomMessageAfterColon(extractedString, colonCount);
     }
@@ -127,13 +118,11 @@ public class ElrDeadLetterDto {
         String regex = ":(.*+)";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(message);
-
-        if (numberColon <= 0) {
-            return message.trim();
-        }
-
         if (matcher.find()) {
             var extractedStringRoot = matcher.group(1);
+            if (numberColon <= 0) {
+                return message.trim();
+            }
             numberColon--;
             return extractCustomMessageAfterColon(extractedStringRoot,numberColon);
         } else {
