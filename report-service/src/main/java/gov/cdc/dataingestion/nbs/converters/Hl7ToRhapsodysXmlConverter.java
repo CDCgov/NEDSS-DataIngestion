@@ -198,18 +198,20 @@ public class Hl7ToRhapsodysXmlConverter {
         // add raw_message_id as a comment
         rhapsodyXml = rhapsodyXml + "\n" + buildTrailingComments(raw_message_id);
 
-        saveXmlToTempFile(rhapsodyXml);     // Ramesh
+        //saveXmlToTempFile(rhapsodyXml);     // Ramesh
 
         return rhapsodyXml;
     }
 
     private void saveXmlToTempFile(String rhapsodyXml) {
+        String pathToHome = System.getenv("HOME");
+        String fileFullpath = pathToHome + File.separator + "gen101.xml";
+
         try {
-            String pathToHome = System.getenv("HOME");
-            java.nio.file.Path path = java.nio.file.Paths.get(pathToHome + File.separator + "gen101.xml");
+            java.nio.file.Path path = java.nio.file.Paths.get(fileFullpath);
             java.nio.file.Files.writeString(path, rhapsodyXml, java.nio.charset.StandardCharsets.UTF_8);
         } catch (java.io.IOException ex) {
-            System.out.print("Invalid Path");
+            log.error("Invalid path: " + fileFullpath);
         }
     }
 
