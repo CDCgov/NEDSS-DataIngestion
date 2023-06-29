@@ -174,7 +174,8 @@ public class Hl7ToRhapsodysXmlConverter {
         return instance;
     }
 
-    private Hl7ToRhapsodysXmlConverter() {
+    // For Unit Test
+    public Hl7ToRhapsodysXmlConverter() {
     }
 
 
@@ -207,6 +208,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return rhapsodyXml;
     }
 
+    //TODO: DEAD CODE
     private void saveXmlToTempFile(String rhapsodyXml) {
         String pathToHome = System.getenv("HOME");
         String fileFullpath = pathToHome + File.separator + "gen101.xml";
@@ -370,6 +372,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7CTIType;
     }
 
+    //TODO: Dead Code
     private HL7TIMINGQuantiyType buildHL7TIMINGQuantiyType(List<TimingQty> timingQty) {
         HL7TIMINGQuantiyType hl7TIMINGQuantiyType = new HL7TIMINGQuantiyType();
 
@@ -2529,7 +2532,8 @@ public class Hl7ToRhapsodysXmlConverter {
             hld7Dt = hld7Dt.substring(0, (14 - 1));
         }
 
-        LocalDateTime localDtTime = LocalDateTime.parse(hld7Dt, DateTimeFormatter.BASIC_ISO_DATE);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        LocalDateTime localDtTime = LocalDateTime.parse(hld7Dt, formatter);
 
         HL7DTType hl7DTType = new HL7DTType();
 

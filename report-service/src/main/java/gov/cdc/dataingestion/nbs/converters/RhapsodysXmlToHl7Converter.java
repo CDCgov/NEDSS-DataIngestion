@@ -55,7 +55,7 @@ public class RhapsodysXmlToHl7Converter {
         return instance;
     }
 
-    private RhapsodysXmlToHl7Converter() {
+    public RhapsodysXmlToHl7Converter() {
     }
 
     public String convertToHl7(String xmlContent) throws Exception {
@@ -138,6 +138,7 @@ public class RhapsodysXmlToHl7Converter {
         return sb.toString();
     }
 
+    //TODO: Dead Code
     private String streamHL7OBSERVATIONTypeNotesAndComments(HL7OBSERVATIONType hl7ObsType) {
         StringBuilder sb = new StringBuilder();
 
@@ -1443,6 +1444,7 @@ public class RhapsodysXmlToHl7Converter {
         return streamHL7HDType(hl7HDType, INNTER_ATTRIBUTES_SEPARATOR);
     }
 
+    //TODO Dead Code
     private MessageHeader buildMessageHeader() {
         MessageHeader mh = new MessageHeader();
 
