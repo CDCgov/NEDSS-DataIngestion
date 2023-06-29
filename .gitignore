@@ -49,20 +49,27 @@ karatetest/build/
 karatetest/.gradle
 karatetest/.idea
 
-# root idea
-.idea/
-
-# exclude env file
-*.env
-
 # private pem
 report-service/src/main/resources/certs/private.pem
 
 # hl7 parser build
 hl7-parser/build/
 
-# hl7 parser .gradle
+# hl7 parser
 hl7-parser/.gradle/
+hl7-parser/.idea/*
+hl7-parser/.gradle/*
+
+### .idea ###
+.idea/
+.idea/.name
+.idea/*.xml
+.idea/modules/*
+
+### .gradle ###
 .gradle/7.6/checksums/md5-checksums.bin
 .gradle/7.6/checksums/sha1-checksums.bin
 
+### env ###
+*.env
+>>>>>>> main

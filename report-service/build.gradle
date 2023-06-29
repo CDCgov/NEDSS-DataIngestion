@@ -14,6 +14,7 @@ plugins {
 	id 'org.springframework.boot' version '3.0.0'
 	id 'io.spring.dependency-management' version '1.1.0'
 	id 'com.github.johnrengelman.shadow' version '7.1.2'
+	id 'jacoco'
 //	id 'checkstyle'
 }
 
@@ -35,6 +36,25 @@ repositories {
 	mavenCentral()
 }
 
+jacoco {
+	toolVersion = "0.8.8"
+	reportsDirectory = layout.buildDirectory.dir('customJacocoReportDir')
+}
+
+test {
+	finalizedBy jacocoTestReport // report is always generated after tests run
+}
+jacocoTestReport {
+	reports {
+		xml.required = false
+		csv.required = false
+		html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+	}
+	getExecutionData().setFrom(fileTree(buildDir).include("/jacoco/*.exec"))
+}
+task integration(type: Test) {
+	useJUnitPlatform()
+}
 
 jar {
 	manifest {
@@ -94,6 +114,8 @@ dependencies {
 	implementation 'org.slf4j:slf4j-api'
 	implementation 'ch.qos.logback:logback-classic'
 	implementation 'net.logstash.logback:logstash-logback-encoder:6.6'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4'
+
 
 	// DI HL7 Wrapper
 	if (findProject(':hl7-parser')) {

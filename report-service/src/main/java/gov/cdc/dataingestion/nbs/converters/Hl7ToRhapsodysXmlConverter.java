@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.nbs.converters;
 
+import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ObservationRequest;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction;
@@ -139,6 +140,7 @@ import  gov.cdc.dataingestion.nbs.jaxb.HL7PIV1Type;
 import  gov.cdc.dataingestion.nbs.jaxb.HL7FCType;
 
 import  jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 import  jakarta.xml.bind.Marshaller;
 
 import  jakarta.xml.bind.annotation.XmlElement;
@@ -146,7 +148,8 @@ import  org.slf4j.Logger;
 import  org.slf4j.LoggerFactory;
 
 import  java.io.ByteArrayOutputStream;
-import java.io.File;
+import  java.io.File;
+import  java.io.IOException;
 import  java.math.BigInteger;
 import  java.time.format.DateTimeFormatter;
 import  java.time.LocalDateTime;
@@ -174,7 +177,8 @@ public class Hl7ToRhapsodysXmlConverter {
     private Hl7ToRhapsodysXmlConverter() {
     }
 
-    public String convert(String raw_message_id, String hl7Msg) throws Exception {
+
+    public String convert(String raw_message_id, String hl7Msg) throws JAXBException, IOException, DiHL7Exception {
         String rhapsodyXml = "";
 
         HL7Helper hl7Helper = new HL7Helper();

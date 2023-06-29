@@ -29,7 +29,7 @@ import static org.mockito.Mockito.*;
 @WebMvcTest(ElrDeadLetterController.class)
 @EnableConfigurationProperties(RsaKeyProperties.class)
 
-public class ElrDeadLetterControllerTest {
+class ElrDeadLetterControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -38,7 +38,7 @@ public class ElrDeadLetterControllerTest {
 
 
     @Test
-    public void testGetAllNewErrorMessageSuccess() throws Exception {
+    void testGetAllNewErrorMessageSuccess() throws Exception {
         List<ElrDeadLetterDto> dtoList = new ArrayList<>();
         ElrDeadLetterDto dto1 = new ElrDeadLetterDto(
                 "1", "topic-a", "error stack trace", 1, "ERROR", "system", "system"
@@ -74,7 +74,7 @@ public class ElrDeadLetterControllerTest {
     }
 
     @Test
-    public void testGetErrorMessageSuccess() throws Exception {
+    void testGetErrorMessageSuccess() throws Exception {
         ElrDeadLetterDto dto1 = new ElrDeadLetterDto(
                 "1", "topic-a", "error stack trace", 1, "ERROR", "system", "system"
         );
@@ -96,7 +96,7 @@ public class ElrDeadLetterControllerTest {
     }
 
     @Test
-    public void testMessageReInject() throws Exception {
+    void testMessageReInject() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/reports-dlt/inject-message")
                 .param("id", "1")
                 .contentType("text/plain")

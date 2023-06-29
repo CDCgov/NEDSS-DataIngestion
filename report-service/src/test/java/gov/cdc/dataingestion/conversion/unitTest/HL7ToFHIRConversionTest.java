@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.Timestamp;
 import java.time.Instant;
 
-public class HL7ToFHIRConversionTest {
+class HL7ToFHIRConversionTest {
     private IHL7ToFHIRConversion target;
 
     @BeforeEach
@@ -20,7 +20,7 @@ public class HL7ToFHIRConversionTest {
     }
 
     @Test
-    public void ConvertHL7v2ToFhir_Success() {
+    void ConvertHL7v2ToFhir_Success() {
         String data = "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5\r"
                 + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
                 + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
@@ -47,7 +47,7 @@ public class HL7ToFHIRConversionTest {
     }
 
     @Test
-    public void ConvertHL7v2ToFhir_Fail_ThrowException() {
+    void ConvertHL7v2ToFhir_Fail_ThrowException() {
 
         String data = "Invalid Message";
         ValidatedELRModel model = new ValidatedELRModel();

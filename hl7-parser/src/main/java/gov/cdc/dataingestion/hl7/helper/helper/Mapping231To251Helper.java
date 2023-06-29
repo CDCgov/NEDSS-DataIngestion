@@ -691,8 +691,6 @@ public class Mapping231To251Helper {
             obxOut.setPerformingOrganizationName(MapCeToXon(obxIn.getProducerId(), new Xon()));
         }
 
-        var test = obxIn.getPerformingOrganizationAddress();
-
         if (
                 obxIn.getPerformingOrganizationAddress() == null ||
                         (obxIn.getPerformingOrganizationAddress().getStreetAddress() != null  && (

@@ -25,7 +25,7 @@ public class Cx {
         this.effectiveDate = cx.getEffectiveDate().getValue();
         this.expirationDate = cx.getExpirationDate().getValue();
         this.assignAuthority = new Hd(cx.getAssigningAuthority());
-        this.assignFacility = new Hd(cx.getAssigningAuthority());
+        this.assignFacility = new Hd(cx.getAssigningFacility());
         this.assignJurisdiction = new Cwe(cx.getAssigningJurisdiction());
         this.assignAgentOrDept = new Cwe(cx.getAssigningAgencyOrDepartment());
     }

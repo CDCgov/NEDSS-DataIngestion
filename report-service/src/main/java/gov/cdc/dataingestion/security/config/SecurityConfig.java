@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.security.config;
 
 import gov.cdc.dataingestion.security.service.ClientDetailsService;
+import gov.cdc.dataingestion.share.CustomAuthenticationEntryPoint;
 import org.apache.commons.text.RandomStringGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +33,20 @@ import com.nimbusds.jose.proc.SecurityContext;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    private static final String[] AUTH_WHITELIST = {
+            "/v2/api-docs",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/token"
+    };
+
     private final RsaKeyProperties jwtConfigProperties;
 
     private final ClientDetailsService clientDetailsService;
@@ -54,15 +69,13 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeRequests(auth -> auth
-                        .requestMatchers("/token").permitAll()
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
                         .anyRequest().authenticated())
                 .httpBasic().and()
                 .userDetailsService(clientDetailsService)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
-                .exceptionHandling(
-                        (ex) -> ex.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-                                .accessDeniedHandler(new BearerTokenAccessDeniedHandler()))
+                .exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint()).and()
                 .build();
     }
 
