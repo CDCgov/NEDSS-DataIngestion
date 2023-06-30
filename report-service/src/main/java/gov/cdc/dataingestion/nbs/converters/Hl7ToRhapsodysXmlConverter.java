@@ -383,6 +383,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7TIMINGQuantiyType;
     }
 
+    //TODO: Dead Code
     private HL7TIMINGQTYType buildHL7TIMINGQTYType(TimingQty tq) {
         HL7TIMINGQTYType hl7TIMINGQTYType = new HL7TIMINGQTYType();
 
@@ -898,6 +899,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7OBRType;
     }
 
+    //TODO: Dead Code
     private HL7TQ2Type buildHL7TQ2Type(TimingQuantityRelationship tqr) {
         HL7TQ2Type hl7TQ2Type = new HL7TQ2Type();
 
@@ -976,6 +978,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7XCNType;
     }
 
+    //TODO: Dead Code
     private HL7TQ1Type buildHL7TQ1Type(TimingQuantity tq) {
         HL7TQ1Type hl7TQ1Type = new HL7TQ1Type();
 
@@ -1011,6 +1014,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7TQ1Type;
     }
 
+    //TODO: Dead Code
     private HL7RPTType buildHL7RPTType(Rpt rpt) {
         HL7RPTType hl7RPTType = new HL7RPTType();
 
