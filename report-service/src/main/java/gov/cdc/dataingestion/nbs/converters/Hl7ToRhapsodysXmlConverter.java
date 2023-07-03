@@ -179,7 +179,7 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
 
-    public String convert(String raw_message_id, String hl7Msg) throws JAXBException, IOException, DiHL7Exception {
+    public String convert(String rawMessageId, String hl7Msg) throws JAXBException, IOException, DiHL7Exception {
         String rhapsodyXml = "";
 
         HL7Helper hl7Helper = new HL7Helper();
@@ -201,32 +201,19 @@ public class Hl7ToRhapsodysXmlConverter {
         rhapsodyXml = baos.toString();
 
         // add raw_message_id as a comment
-        rhapsodyXml = rhapsodyXml + "\n" + buildTrailingComments(raw_message_id);
+        rhapsodyXml = rhapsodyXml + "\n" + buildTrailingComments(rawMessageId);
 
         //saveXmlToTempFile(rhapsodyXml);     // Ramesh
 
         return rhapsodyXml;
     }
 
-    //TODO: DEAD CODE
-    private void saveXmlToTempFile(String rhapsodyXml) {
-        String pathToHome = System.getenv("HOME");
-        String fileFullpath = pathToHome + File.separator + "gen101.xml";
-
-        try {
-            java.nio.file.Path path = java.nio.file.Paths.get(fileFullpath);
-            java.nio.file.Files.writeString(path, rhapsodyXml, java.nio.charset.StandardCharsets.UTF_8);
-        } catch (java.io.IOException ex) {
-            log.error("Invalid path: " + fileFullpath);
-        }
-    }
-
-    private String buildTrailingComments(String raw_message_id) {
+    private String buildTrailingComments(String rawMessageId) {
         StringBuilder sb = new StringBuilder();
 
         sb.append("<!-- ");
         sb.append("raw_message_id = ");
-        sb.append(raw_message_id);
+        sb.append(rawMessageId);
         sb.append(" -->");
 
         return sb.toString();
@@ -372,7 +359,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7CTIType;
     }
 
-    //TODO: Dead Code
+    //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
     private HL7TIMINGQuantiyType buildHL7TIMINGQuantiyType(List<TimingQty> timingQty) {
         HL7TIMINGQuantiyType hl7TIMINGQuantiyType = new HL7TIMINGQuantiyType();
 
@@ -383,7 +370,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7TIMINGQuantiyType;
     }
 
-    //TODO: Dead Code
+    //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
     private HL7TIMINGQTYType buildHL7TIMINGQTYType(TimingQty tq) {
         HL7TIMINGQTYType hl7TIMINGQTYType = new HL7TIMINGQTYType();
 
@@ -899,7 +886,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7OBRType;
     }
 
-    //TODO: Dead Code
+    //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
     private HL7TQ2Type buildHL7TQ2Type(TimingQuantityRelationship tqr) {
         HL7TQ2Type hl7TQ2Type = new HL7TQ2Type();
 
@@ -978,7 +965,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7XCNType;
     }
 
-    //TODO: Dead Code
+    //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
     private HL7TQ1Type buildHL7TQ1Type(TimingQuantity tq) {
         HL7TQ1Type hl7TQ1Type = new HL7TQ1Type();
 
@@ -1014,7 +1001,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7TQ1Type;
     }
 
-    //TODO: Dead Code
+    //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
     private HL7RPTType buildHL7RPTType(Rpt rpt) {
         HL7RPTType hl7RPTType = new HL7RPTType();
 
@@ -1290,13 +1277,10 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7PIV2Type.setAccommodationCode(buildHL7CWEType(pva.getAccommodationCode()));
         hl7PIV2Type.setAdmitReason(buildHL7CWEType(pva.getAdmitReason()));
         hl7PIV2Type.setTransferReason(buildHL7CWEType(pva.getTransferReason()));
-
         for (String s : pva.getPatientValuables()) {
             hl7PIV2Type.getPatientValuables().add(s);
         }
-
         hl7PIV2Type.setPatientValuablesLocation(pva.getPatientValuablesLocation());
-
         for (String s : pva.getVisitUserCode()) {
             hl7PIV2Type.getVisitUserCode().add(s);
         }
@@ -1373,18 +1357,15 @@ public class Hl7ToRhapsodysXmlConverter {
 
     private HL7TMType buildHL7TMType(String s) {
         HL7TMType hl7TMType = new HL7TMType();
-
         return hl7TMType;
     }
 
     private HL7PIV1Type buildHL7PIV1Type(PatientVisit pv) {
         HL7PIV1Type hl7PIV1Type = new HL7PIV1Type();
-
         hl7PIV1Type.setSetIDPV1(buildHL7SIType(pv.getSetIdPv1()));
         hl7PIV1Type.setPatientClass(buildEmptyValue(pv.getPatientClass()));
         hl7PIV1Type.setAssignedPatientLocation(buildHL7PLType(pv.getAssignPatientLocation()));
         hl7PIV1Type.setAdmissionType(pv.getAdmissionType());
-
         if ((null == pv.getPreadmitNumber().getIdNumber())) {
             pv.getPreadmitNumber().setIdNumber(EMPTY_STRING);
         }
@@ -1657,27 +1638,6 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7JCCType;
     }
 
-
-    /*
-    private HL7CXType buildCXType(Cx cx) {
-        HL7CXType cxType = new HL7CXType();
-
-        cxType.setHL7IDNumber(buildEmptyValue(cx.getIdNumber()));
-        cxType.setHL7CheckDigit(cx.getCheckDigit());
-        cxType.setHL7CheckDigitScheme(cx.getCheckDigitScheme());
-        cxType.setHL7AssigningAuthority(buildHL7HDType(cx.getAssignAuthority()));
-        cxType.setHL7IdentifierTypeCode(cx.getIdentifierTypeCode());
-        cxType.setHL7AssigningFacility(buildHL7HDType(cx.getAssignFacility()));
-        cxType.setHL7AssigningAgencyOrDepartment(buildHL7CWEType(cx.getAssignAgentOrDept()));
-        cxType.setHL7EffectiveDate(buildHL7DTType(cx.getEffectiveDate()));
-        cxType.setHL7ExpirationDate(buildHL7DTType(cx.getExpirationDate()));
-        cxType.setHL7AssigningJurisdiction(buildHL7CWEType(cx.getAssignJurisdiction()));
-        cxType.setHL7AssigningAgencyOrDepartment(buildHL7CWEType(cx.getAssignAgentOrDept()));
-
-        return cxType;
-    }
-    */
-
     private HL7CXType buildHL7CXType(Cx cx) {
         if (null == cx.getIdNumber()) return null;
 
@@ -1913,8 +1873,6 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     private HL7ORCType buildHL7ORCType(CommonOrder commonOrder) {
-        //if(null == commonOrder.getOrderControl()) return null;
-
         HL7ORCType hl7ORCType = new HL7ORCType();
 
         hl7ORCType.setOrderControl(buildEmptyValue(commonOrder.getOrderControl()));

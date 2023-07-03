@@ -24,10 +24,6 @@ public class RegisterController {
             log.error("Username and/or password must not be null or empty.");
             return HttpStatus.BAD_REQUEST;
         }
-        if(username.isEmpty() || password.isEmpty()) {
-            log.error("Username and/or password must not be null or empty.");
-            return HttpStatus.BAD_REQUEST;
-        }
         if(registrationService.createUser(username, password)) {
             return HttpStatus.CREATED;
         }

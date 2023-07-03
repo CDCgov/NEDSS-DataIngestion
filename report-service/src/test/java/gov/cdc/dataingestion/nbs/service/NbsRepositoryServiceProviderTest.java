@@ -37,7 +37,7 @@ public class NbsRepositoryServiceProviderTest {
     @Test
     void saveToNbsTest() {
         String id = "whatever";
-        String xmlMsg = testXmlData;
+        String xmlMsg =  testXmlData;
 
         when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
 

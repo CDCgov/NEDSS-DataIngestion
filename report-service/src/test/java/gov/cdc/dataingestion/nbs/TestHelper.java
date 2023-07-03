@@ -15,7 +15,6 @@ public class TestHelper {
              BufferedReader bufferedReader = new BufferedReader(fileReader)) {
             String line = "";
             while ((line = bufferedReader.readLine()) != null) {
-                System.out.println(line);
                 result += line;
             }
 
