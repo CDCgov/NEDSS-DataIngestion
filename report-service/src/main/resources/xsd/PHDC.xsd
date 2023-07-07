@@ -1627,7 +1627,7 @@
 	</xs:complexType>
 	<xs:complexType name="HL7NMType">
 		<xs:sequence>
-			<xs:element name="HL7Numeric" type="xs:float" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="HL7Numeric" type="xs:integer" minOccurs="0" maxOccurs="1"/>
 			<!--maxLength="20"/-->
 		</xs:sequence>
 	</xs:complexType>

@@ -1,0 +1,1581 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Container xmlns="http://www.cdc.gov/NEDSS">
+    <HL7LabReport>
+        <HL7MSH>
+            <FieldSeparator>|</FieldSeparator>
+            <EncodingCharacters>^~\&amp;</EncodingCharacters>
+            <SendingApplication>
+                <HL7NamespaceID>SendingApp</HL7NamespaceID>
+            </SendingApplication>
+            <SendingFacility>
+                <HL7NamespaceID>SendingFac</HL7NamespaceID>
+            </SendingFacility>
+            <ReceivingApplication>
+                <HL7NamespaceID>ReceivApp</HL7NamespaceID>
+            </ReceivingApplication>
+            <ReceivingFacility>
+                <HL7NamespaceID>ReceivFac</HL7NamespaceID>
+            </ReceivingFacility>
+            <DateTimeOfMessage>
+                <year>2023</year>
+                <month>6</month>
+                <day>15</day>
+                <hours>12</hours>
+                <gmtOffset></gmtOffset>
+            </DateTimeOfMessage>
+            <Security></Security>
+            <MessageType>
+                <MessageCode>ORU</MessageCode>
+                <TriggerEvent>R01</TriggerEvent>
+                <MessageStructure>ORU_R01</MessageStructure>
+            </MessageType>
+            <MessageControlID>123456789</MessageControlID>
+            <ProcessingID>
+                <HL7ProcessingID>P</HL7ProcessingID>
+                <HL7ProcessingMode></HL7ProcessingMode>
+            </ProcessingID>
+            <VersionID>
+                <HL7VersionID>2.5.1</HL7VersionID>
+            </VersionID>
+            <SequenceNumber>
+                <HL7Numeric>20230615</HL7Numeric>
+            </SequenceNumber>
+            <ContinuationPointer>20230615</ContinuationPointer>
+            <AcceptAcknowledgmentType>20230615</AcceptAcknowledgmentType>
+            <ApplicationAcknowledgmentType>20230615</ApplicationAcknowledgmentType>
+            <CountryCode>20230615</CountryCode>
+            <CharacterSet>20230615</CharacterSet>
+            <AlternateCharacterSetHandlingScheme>20230615</AlternateCharacterSetHandlingScheme>
+            <MessageProfileIdentifier>
+                <HL7EntityIdentifier>20230615</HL7EntityIdentifier>
+            </MessageProfileIdentifier>
+        </HL7MSH>
+        <HL7SoftwareSegment>
+            <SoftwareVendorOrganization>
+                <HL7OrganizationName>20230615</HL7OrganizationName>
+                <HL7IDNumber/>
+                <HL7CheckDigit/>
+            </SoftwareVendorOrganization>
+            <SoftwareCertifiedVersionOrReleaseNumber>20230615</SoftwareCertifiedVersionOrReleaseNumber>
+            <SoftwareProductName>20230615</SoftwareProductName>
+            <SoftwareBinaryID>20230615</SoftwareBinaryID>
+            <SoftwareProductInformation>
+                <HL7String>20230615</HL7String>
+            </SoftwareProductInformation>
+            <SoftwareInstallDate>
+                <year>2023</year>
+                <month>6</month>
+                <day>15</day>
+                <gmtOffset></gmtOffset>
+            </SoftwareInstallDate>
+        </HL7SoftwareSegment>
+        <HL7PATIENT_RESULT>
+            <PATIENT>
+                <PatientIdentification>
+                    <SetIDPID>
+                        <HL7SequenceID>1</HL7SequenceID>
+                    </SetIDPID>
+                    <PatientID>
+                        <HL7IDNumber>20230615</HL7IDNumber>
+                    </PatientID>
+                    <PatientIdentifierList>
+                        <HL7IDNumber>P21-0000105075</HL7IDNumber>
+                        <HL7AssigningAuthority>
+                            <HL7NamespaceID>OneAbbottSol.STAG</HL7NamespaceID>
+                            <HL7UniversalID>2.16.840.1.113883.3.8589.4.2.7.2</HL7UniversalID>
+                            <HL7UniversalIDType>ISO</HL7UniversalIDType>
+                        </HL7AssigningAuthority>
+                        <HL7IdentifierTypeCode>SID</HL7IdentifierTypeCode>
+                        <HL7AssigningFacility>
+                            <HL7NamespaceID>OneAbbottSol.STAG</HL7NamespaceID>
+                            <HL7UniversalID>2.16.840.1.113883.3.8589.4.2.7.2</HL7UniversalID>
+                            <HL7UniversalIDType>ISO</HL7UniversalIDType>
+                        </HL7AssigningFacility>
+                    </PatientIdentifierList>
+                    <AlternatePatientIDPID>
+                        <HL7IDNumber>20230615</HL7IDNumber>
+                    </AlternatePatientIDPID>
+                    <PatientName>
+                        <HL7FamilyName>
+                            <HL7Surname>20230615</HL7Surname>
+                        </HL7FamilyName>
+                    </PatientName>
+                    <MothersMaidenName>
+                        <HL7FamilyName>
+                            <HL7Surname>20230615</HL7Surname>
+                        </HL7FamilyName>
+                    </MothersMaidenName>
+                    <DateTimeOfBirth>
+                        <year>2023</year>
+                        <month>6</month>
+                        <day>15</day>
+                        <hours>0</hours>
+                        <minutes>0</minutes>
+                        <gmtOffset></gmtOffset>
+                    </DateTimeOfBirth>
+                    <AdministrativeSex>20230615</AdministrativeSex>
+                    <PatientAlias>
+                        <HL7FamilyName>
+                            <HL7Surname>20230615</HL7Surname>
+                        </HL7FamilyName>
+                    </PatientAlias>
+                    <Race>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </Race>
+                    <PatientAddress>
+                        <HL7StreetAddress>
+                            <HL7StreetOrMailingAddress>20230615</HL7StreetOrMailingAddress>
+                        </HL7StreetAddress>
+                    </PatientAddress>
+                    <CountyCode>20230615</CountyCode>
+                    <PhoneNumberHome>
+                        <HL7TelephoneNumber>20230615</HL7TelephoneNumber>
+                        <HL7CountryCode/>
+                        <HL7AreaCityCode/>
+                        <HL7LocalNumber/>
+                        <HL7Extension/>
+                    </PhoneNumberHome>
+                    <PhoneNumberBusiness>
+                        <HL7TelephoneNumber>20230615</HL7TelephoneNumber>
+                        <HL7CountryCode/>
+                        <HL7AreaCityCode/>
+                        <HL7LocalNumber/>
+                        <HL7Extension/>
+                    </PhoneNumberBusiness>
+                    <PrimaryLanguage>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </PrimaryLanguage>
+                    <MaritalStatus>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </MaritalStatus>
+                    <Religion>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </Religion>
+                    <SSNNumberPatient>20230615</SSNNumberPatient>
+                    <DriversLicenseNumberPatient>
+                        <HL7LicenseNumber>20230615</HL7LicenseNumber>
+                    </DriversLicenseNumberPatient>
+                    <MothersIdentifier>
+                        <HL7IDNumber>20230615</HL7IDNumber>
+                    </MothersIdentifier>
+                    <EthnicGroup>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </EthnicGroup>
+                    <BirthPlace>20230615</BirthPlace>
+                    <MultipleBirthIndicator>20230615</MultipleBirthIndicator>
+                    <BirthOrder>
+                        <HL7Numeric>20230615</HL7Numeric>
+                    </BirthOrder>
+                    <Citizenship>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </Citizenship>
+                    <VeteransMilitaryStatus>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </VeteransMilitaryStatus>
+                    <Nationality>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </Nationality>
+                    <PatientDeathDateAndTime>
+                        <year>2023</year>
+                        <month>6</month>
+                        <day>15</day>
+                        <hours>0</hours>
+                        <minutes>0</minutes>
+                        <seconds>0</seconds>
+                        <gmtOffset></gmtOffset>
+                    </PatientDeathDateAndTime>
+                    <PatientDeathIndicator>20230615</PatientDeathIndicator>
+                    <IdentityUnknownIndicator>20230615</IdentityUnknownIndicator>
+                    <IdentityReliabilityCode>20230615</IdentityReliabilityCode>
+                    <LastUpdateDateTime>
+                        <year>2023</year>
+                        <month>6</month>
+                        <day>15</day>
+                        <hours>0</hours>
+                        <minutes>0</minutes>
+                        <seconds>0</seconds>
+                        <gmtOffset></gmtOffset>
+                    </LastUpdateDateTime>
+                    <SpeciesCode>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </SpeciesCode>
+                    <BreedCode>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </BreedCode>
+                    <Strain>20230615</Strain>
+                    <ProductionClassCode>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </ProductionClassCode>
+                </PatientIdentification>
+                <PatientAdditionalDemographic>
+                    <LivingDependency>20230615</LivingDependency>
+                    <LivingArrangement>20230615</LivingArrangement>
+                    <PatientPrimaryFacility>
+                        <HL7OrganizationName>20230615</HL7OrganizationName>
+                        <HL7IDNumber/>
+                        <HL7CheckDigit/>
+                    </PatientPrimaryFacility>
+                    <PatientPrimaryCareProviderNameAndIDNo>
+                        <HL7IDNumber>20230615</HL7IDNumber>
+                        <HL7FamilyName>
+                            <HL7Surname></HL7Surname>
+                        </HL7FamilyName>
+                    </PatientPrimaryCareProviderNameAndIDNo>
+                    <StudentIndicator>20230615</StudentIndicator>
+                    <Handicap>20230615</Handicap>
+                    <LivingWillCode>20230615</LivingWillCode>
+                    <OrganDonorCode>20230615</OrganDonorCode>
+                    <SeparateBill>20230615</SeparateBill>
+                    <DuplicatePatient>
+                        <HL7IDNumber>20230615</HL7IDNumber>
+                    </DuplicatePatient>
+                    <PublicityCode>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </PublicityCode>
+                    <ProtectionIndicator>20230615</ProtectionIndicator>
+                    <ProtectionIndicatorEffectiveDate>
+                        <year>2023</year>
+                        <month>6</month>
+                        <day>15</day>
+                    </ProtectionIndicatorEffectiveDate>
+                    <PlaceofWorship>
+                        <HL7OrganizationName>20230615</HL7OrganizationName>
+                        <HL7IDNumber/>
+                        <HL7CheckDigit/>
+                    </PlaceofWorship>
+                    <AdvanceDirectiveCode>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </AdvanceDirectiveCode>
+                    <ImmunizationRegistryStatus>20230615</ImmunizationRegistryStatus>
+                    <ImmunizationRegistryStatusEffectiveDate>
+                        <year>2023</year>
+                        <month>6</month>
+                        <day>15</day>
+                    </ImmunizationRegistryStatusEffectiveDate>
+                    <PublicityCodeEffectiveDate>
+                        <year>2023</year>
+                        <month>6</month>
+                        <day>15</day>
+                    </PublicityCodeEffectiveDate>
+                    <MilitaryBranch>20230615</MilitaryBranch>
+                    <MilitaryRankGrade>20230615</MilitaryRankGrade>
+                </PatientAdditionalDemographic>
+                <NotesandComments>
+                    <HL7SetIDNTE>
+                        <HL7SequenceID>1</HL7SequenceID>
+                    </HL7SetIDNTE>
+                    <HL7SourceOfComment>20230615</HL7SourceOfComment>
+                    <HL7Comment>20230615</HL7Comment>
+                    <HL7CommentType>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </HL7CommentType>
+                </NotesandComments>
+                <NotesandComments>
+                    <HL7SetIDNTE>
+                        <HL7SequenceID>2</HL7SequenceID>
+                    </HL7SetIDNTE>
+                    <HL7SourceOfComment>20230615</HL7SourceOfComment>
+                    <HL7Comment>20230615</HL7Comment>
+                    <HL7CommentType>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </HL7CommentType>
+                </NotesandComments>
+                <NextofKinAssociatedParties>
+                    <SetIDNK1>1</SetIDNK1>
+                    <Name>
+                        <HL7FamilyName>
+                            <HL7Surname>TESTNOK114B</HL7Surname>
+                        </HL7FamilyName>
+                        <HL7GivenName>FIRSTNOK1</HL7GivenName>
+                        <HL7SecondAndFurtherGivenNamesOrInitialsThereof>X</HL7SecondAndFurtherGivenNamesOrInitialsThereof>
+                        <HL7Suffix>JR</HL7Suffix>
+                        <HL7Prefix>DR</HL7Prefix>
+                        <HL7Degree>MD</HL7Degree>
+                    </Name>
+                    <Relationship>
+                        <HL7Identifier>FTH</HL7Identifier>
+                    </Relationship>
+                    <Address>
+                        <HL7StreetAddress>
+                            <HL7StreetOrMailingAddress>12 MAIN STREET</HL7StreetOrMailingAddress>
+                        </HL7StreetAddress>
+                        <HL7OtherDesignation>SUITE 16</HL7OtherDesignation>
+                        <HL7City>COLUMBIA</HL7City>
+                        <HL7StateOrProvince>SC</HL7StateOrProvince>
+                        <HL7ZipOrPostalCode>30329</HL7ZipOrPostalCode>
+                        <HL7Country>USA</HL7Country>
+                        <HL7CountyParishCode>RICHLAND</HL7CountyParishCode>
+                    </Address>
+                    <PhoneNumber>
+                        <HL7CountryCode/>
+                        <HL7AreaCityCode>
+                            <HL7Numeric>803</HL7Numeric>
+                        </HL7AreaCityCode>
+                        <HL7LocalNumber>
+                            <HL7Numeric>5551212</HL7Numeric>
+                        </HL7LocalNumber>
+                        <HL7Extension>
+                            <HL7Numeric>123</HL7Numeric>
+                        </HL7Extension>
+                    </PhoneNumber>
+                    <BusinessPhoneNumber>
+                        <HL7TelephoneNumber>20230615</HL7TelephoneNumber>
+                        <HL7CountryCode/>
+                        <HL7AreaCityCode/>
+                        <HL7LocalNumber/>
+                        <HL7Extension/>
+                    </BusinessPhoneNumber>
+                    <ContactRole>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </ContactRole>
+                    <StartDate>
+                        <year>2023</year>
+                        <month>6</month>
+                        <day>15</day>
+                    </StartDate>
+                    <EndDate>
+                        <year>2023</year>
+                        <month>6</month>
+                        <day>15</day>
+                    </EndDate>
+                    <NextOfKinAssociatedPartiesJobTitle>20230615</NextOfKinAssociatedPartiesJobTitle>
+                    <NextOfKinAssociatedPartiesEmployeeNumber>
+                        <HL7IDNumber>20230615</HL7IDNumber>
+                    </NextOfKinAssociatedPartiesEmployeeNumber>
+                    <OrganizationNameNK1>
+                        <HL7OrganizationName>20230615</HL7OrganizationName>
+                        <HL7IDNumber/>
+                        <HL7CheckDigit/>
+                    </OrganizationNameNK1>
+                    <MaritalStatus>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </MaritalStatus>
+                    <AdministrativeSex>20230615</AdministrativeSex>
+                    <DateTimeOfBirth>
+                        <year>2023</year>
+                        <month>6</month>
+                        <day>15</day>
+                        <hours>0</hours>
+                        <minutes>0</minutes>
+                        <seconds>0</seconds>
+                        <gmtOffset></gmtOffset>
+                    </DateTimeOfBirth>
+                    <LivingDependency>20230615</LivingDependency>
+                    <AmbulatoryStatus>20230615</AmbulatoryStatus>
+                    <Citizenship>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </Citizenship>
+                    <PrimaryLanguage>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </PrimaryLanguage>
+                    <LivingArrangement>20230615</LivingArrangement>
+                    <PublicityCode>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </PublicityCode>
+                    <ProtectionIndicator>20230615</ProtectionIndicator>
+                    <StudentIndicator>20230615</StudentIndicator>
+                    <Religion>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </Religion>
+                    <MothersMaidenName>
+                        <HL7FamilyName>
+                            <HL7Surname>20230615</HL7Surname>
+                        </HL7FamilyName>
+                    </MothersMaidenName>
+                    <Nationality>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </Nationality>
+                    <EthnicGroup>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </EthnicGroup>
+                    <ContactReason>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </ContactReason>
+                    <ContactPersonsName>
+                        <HL7FamilyName>
+                            <HL7Surname>20230615</HL7Surname>
+                        </HL7FamilyName>
+                    </ContactPersonsName>
+                    <ContactPersonsName>
+                        <HL7FamilyName>
+                            <HL7Surname>20230615</HL7Surname>
+                        </HL7FamilyName>
+                    </ContactPersonsName>
+                    <ContactPersonsAddress>
+                        <HL7StreetAddress>
+                            <HL7StreetOrMailingAddress>20230615</HL7StreetOrMailingAddress>
+                        </HL7StreetAddress>
+                    </ContactPersonsAddress>
+                    <NextOfKinAssociatedPartysIdentifiers>
+                        <HL7IDNumber>20230615</HL7IDNumber>
+                    </NextOfKinAssociatedPartysIdentifiers>
+                    <JobStatus>20230615</JobStatus>
+                    <Race>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </Race>
+                    <Handicap>20230615</Handicap>
+                    <ContactPersonSocialSecurityNumber>20230615</ContactPersonSocialSecurityNumber>
+                    <NextOfKinBirthPlace>20230615</NextOfKinBirthPlace>
+                    <VIPIndicator>20230615</VIPIndicator>
+                </NextofKinAssociatedParties>
+                <Visit>
+                    <PatientVisit>
+                        <SetIDPV1>
+                            <HL7SequenceID>20230615</HL7SequenceID>
+                        </SetIDPV1>
+                        <PatientClass>20230615</PatientClass>
+                        <AssignedPatientLocation>
+                            <HL7PointofCare>20230615</HL7PointofCare>
+                            <HL7ComprehensiveLocationIdentifier/>
+                            <HL7AssigningAuthorityforLocation/>
+                        </AssignedPatientLocation>
+                        <AdmissionType>20230615</AdmissionType>
+                        <PreadmitNumber>
+                            <HL7IDNumber>20230615</HL7IDNumber>
+                        </PreadmitNumber>
+                        <PriorPatientLocation>
+                            <HL7PointofCare>20230615</HL7PointofCare>
+                            <HL7ComprehensiveLocationIdentifier/>
+                            <HL7AssigningAuthorityforLocation/>
+                        </PriorPatientLocation>
+                        <AttendingDoctor>
+                            <HL7IDNumber>20230615</HL7IDNumber>
+                            <HL7FamilyName>
+<HL7Surname></HL7Surname>
+                            </HL7FamilyName>
+                        </AttendingDoctor>
+                        <AttendingDoctor>
+                            <HL7IDNumber>20230615</HL7IDNumber>
+                            <HL7FamilyName>
+<HL7Surname></HL7Surname>
+                            </HL7FamilyName>
+                        </AttendingDoctor>
+                        <ReferringDoctor>
+                            <HL7IDNumber>20230615</HL7IDNumber>
+                            <HL7FamilyName>
+<HL7Surname></HL7Surname>
+                            </HL7FamilyName>
+                        </ReferringDoctor>
+                        <ConsultingDoctor>
+                            <HL7IDNumber>20230615</HL7IDNumber>
+                            <HL7FamilyName>
+<HL7Surname></HL7Surname>
+                            </HL7FamilyName>
+                        </ConsultingDoctor>
+                        <HospitalService>20230615</HospitalService>
+                        <TemporaryLocation>
+                            <HL7PointofCare>20230615</HL7PointofCare>
+                            <HL7ComprehensiveLocationIdentifier/>
+                            <HL7AssigningAuthorityforLocation/>
+                        </TemporaryLocation>
+                        <PreadmitTestIndicator>20230615</PreadmitTestIndicator>
+                        <ReAdmissionIndicator>20230615</ReAdmissionIndicator>
+                        <AmbulatoryStatus>20230615</AmbulatoryStatus>
+                        <PatientType>20230615</PatientType>
+                        <VisitNumber>
+                            <HL7IDNumber>20230615</HL7IDNumber>
+                        </VisitNumber>
+                        <FinancialClass>
+                            <FinancialClassCode>20230615</FinancialClassCode>
+                        </FinancialClass>
+                        <ChargePriceIndicator>20230615</ChargePriceIndicator>
+                        <CourtesyCode>20230615</CourtesyCode>
+                        <CreditRating>20230615</CreditRating>
+                        <ContractCode>20230615</ContractCode>
+                        <ContractEffectiveDate>
+                            <year>2023</year>
+                            <month>6</month>
+                            <day>15</day>
+                        </ContractEffectiveDate>
+                        <ContractAmount>
+                            <HL7Numeric>20230615</HL7Numeric>
+                        </ContractAmount>
+                        <ContractPeriod>
+                            <HL7Numeric>20230615</HL7Numeric>
+                        </ContractPeriod>
+                        <InterestCode>20230615</InterestCode>
+                        <TransferToBadDebtCode>20230615</TransferToBadDebtCode>
+                        <TransferToBadDebtDate>
+                            <year>2023</year>
+                            <month>6</month>
+                            <day>15</day>
+                        </TransferToBadDebtDate>
+                        <BadDebtAgencyCode>20230615</BadDebtAgencyCode>
+                        <BadDebtTransferAmount>
+                            <HL7Numeric>20230615</HL7Numeric>
+                        </BadDebtTransferAmount>
+                        <BadDebtRecoveryAmount>
+                            <HL7Numeric>20230615</HL7Numeric>
+                        </BadDebtRecoveryAmount>
+                        <DeleteAccountIndicator>20230615</DeleteAccountIndicator>
+                        <DeleteAccountDate>
+                            <year>2023</year>
+                            <month>6</month>
+                            <day>15</day>
+                        </DeleteAccountDate>
+                        <DischargeDisposition>20230615</DischargeDisposition>
+                        <DischargedToLocation>
+                            <DischargeLocation>20230615</DischargeLocation>
+                        </DischargedToLocation>
+                        <DietType>
+                            <HL7Identifier>20230615</HL7Identifier>
+                        </DietType>
+                        <ServicingFacility>20230615</ServicingFacility>
+                        <BedStatus>20230615</BedStatus>
+                        <AccountStatus>20230615</AccountStatus>
+                        <PendingLocation>
+                            <HL7PointofCare>20230615</HL7PointofCare>
+                            <HL7ComprehensiveLocationIdentifier/>
+                            <HL7AssigningAuthorityforLocation/>
+                        </PendingLocation>
+                        <PriorTemporaryLocation>
+                            <HL7PointofCare>20230615</HL7PointofCare>
+                            <HL7ComprehensiveLocationIdentifier/>
+                            <HL7AssigningAuthorityforLocation/>
+                        </PriorTemporaryLocation>
+                        <AdmitDateTime>
+                            <year>2023</year>
+                            <month>6</month>
+                            <day>15</day>
+                            <hours>0</hours>
+                            <minutes>0</minutes>
+                            <seconds>0</seconds>
+                            <gmtOffset></gmtOffset>
+                        </AdmitDateTime>
+                        <DischargeDateTime>
+                            <year>2023</year>
+                            <month>6</month>
+                            <day>15</day>
+                            <hours>0</hours>
+                            <minutes>0</minutes>
+                            <seconds>0</seconds>
+                            <gmtOffset></gmtOffset>
+                        </DischargeDateTime>
+                        <CurrentPatientBalance>
+                            <HL7Numeric>20230615</HL7Numeric>
+                        </CurrentPatientBalance>
+                        <TotalCharges>
+                            <HL7Numeric>20230615</HL7Numeric>
+                        </TotalCharges>
+                        <TotalAdjustments>
+                            <HL7Numeric>20230615</HL7Numeric>
+                        </TotalAdjustments>
+                        <TotalPayments>
+                            <HL7Numeric>20230615</HL7Numeric>
+                        </TotalPayments>
+                        <AlternateVisitID>
+                            <HL7IDNumber>20230615</HL7IDNumber>
+                        </AlternateVisitID>
+                        <VisitIndicator>20230615</VisitIndicator>
+                        <OtherHealthcareProvider>
+                            <HL7IDNumber>20230615</HL7IDNumber>
+                            <HL7FamilyName>
+<HL7Surname></HL7Surname>
+                            </HL7FamilyName>
+                        </OtherHealthcareProvider>
+                    </PatientVisit>
+                </Visit>
+            </PATIENT>
+            <ORDER_OBSERVATION>
+                <CommonOrder>
+                    <OrderControl>RE</OrderControl>
+                    <PlacerOrderNumber>
+                        <HL7EntityIdentifier>2gcxDYvIHHLr+e5hO9Lxrg</HL7EntityIdentifier>
+                        <HL7NamespaceID>OneAbbottSol.STAG</HL7NamespaceID>
+                        <HL7UniversalID>2.16.840.1.113883.3.8589.4.2.7.2</HL7UniversalID>
+                        <HL7UniversalIDType>ISO</HL7UniversalIDType>
+                    </PlacerOrderNumber>
+                    <FillerOrderNumber>
+                        <HL7EntityIdentifier>P21-0000105078</HL7EntityIdentifier>
+                        <HL7NamespaceID>OneAbbottSol.STAG</HL7NamespaceID>
+                        <HL7UniversalID>2.16.840.1.113883.3.8589.4.2.7.2</HL7UniversalID>
+                        <HL7UniversalIDType>ISO</HL7UniversalIDType>
+                    </FillerOrderNumber>
+                    <PlacerGroupNumber>
+                        <HL7EntityIdentifier>2gcxDYvIHHLr+e5hO9Lxrg</HL7EntityIdentifier>
+                        <HL7NamespaceID>OneAbbottSol.STAG</HL7NamespaceID>
+                        <HL7UniversalID>2.16.840.1.113883.3.8589.4.2.7.2</HL7UniversalID>
+                        <HL7UniversalIDType>ISO</HL7UniversalIDType>
+                    </PlacerGroupNumber>
+                    <OrderStatus>20230615</OrderStatus>
+                    <ResponseFlag>20230615</ResponseFlag>
+                    <QuantityTiming>
+                        <HL7Quantity>
+                            <HL7Quantity>
+<HL7Numeric>20230615</HL7Numeric>
+                            </HL7Quantity>
+                            <HL7Units/>
+                        </HL7Quantity>
+                        <HL7Interval/>
+                        <HL7Text/>
+                        <HL7OrderSequencing>
+                            <HL7SequenceResultsFlag></HL7SequenceResultsFlag>
+                            <HL7PlacerOrderNumberEntityIdentifier></HL7PlacerOrderNumberEntityIdentifier>
+                            <HL7FillerOrderNumberEntityIdentifier></HL7FillerOrderNumberEntityIdentifier>
+                            <HL7MaximumNumberOfRepeats/>
+                            <HL7PlacerOrderNumberUniversalID></HL7PlacerOrderNumberUniversalID>
+                            <HL7PlacerOrderNumberUniversalIDType></HL7PlacerOrderNumberUniversalIDType>
+                            <HL7FillerOrderNumberUniversalID></HL7FillerOrderNumberUniversalID>
+                        </HL7OrderSequencing>
+                        <HL7OccurrenceDuration/>
+                        <HL7TotalOccurrences/>
+                    </QuantityTiming>
+                    <Parent>
+                        <HL7PlacerAssignedIdentifier>
+                            <HL7EntityIdentifier>20230615</HL7EntityIdentifier>
+                        </HL7PlacerAssignedIdentifier>
+                        <HL7FillerAssignedIdentifier/>
+                    </Parent>
+                    <DateTimeOfTransaction>
+                        <year>2023</year>
+                        <month>6</month>
+                        <day>15</day>
+                        <hours>0</hours>
+                        <minutes>0</minutes>
+                        <seconds>0</seconds>
+                        <gmtOffset></gmtOffset>
+                    </DateTimeOfTransaction>
+                    <EnteredBy>
+                        <HL7IDNumber>20230615</HL7IDNumber>
+                        <HL7FamilyName>
+                            <HL7Surname></HL7Surname>
+                        </HL7FamilyName>
+                    </EnteredBy>
+                    <VerifiedBy>
+                        <HL7IDNumber>1760801666</HL7IDNumber>
+                        <HL7FamilyName>
+                            <HL7Surname>Amanda</HL7Surname>
+                        </HL7FamilyName>
+                        <HL7GivenName>Sundling</HL7GivenName>
+                        <HL7AssigningAuthority>
+                            <HL7NamespaceID>NPI</HL7NamespaceID>
+                            <HL7UniversalID>2.16.840.1.113883.4.6</HL7UniversalID>
+                            <HL7UniversalIDType>ISO</HL7UniversalIDType>
+                        </HL7AssigningAuthority>
+                        <HL7IdentifierTypeCode>NPI</HL7IdentifierTypeCode>
+                    </VerifiedBy>
+                    <OrderingProvider>
+                        <HL7IDNumber>20230615</HL7IDNumber>
+                        <HL7FamilyName>
+                            <HL7Surname></HL7Surname>
+                        </HL7FamilyName>
+                    </OrderingProvider>
+                    <CallBackPhoneNumber>
+                        <HL7TelephoneNumber>20210128160603-0500</HL7TelephoneNumber>
+                        <HL7CountryCode/>
+                        <HL7AreaCityCode/>
+                        <HL7LocalNumber/>
+                        <HL7Extension/>
+                    </CallBackPhoneNumber>
+                    <OrderEffectiveDateTime>
+                        <year>2023</year>
+                        <month>6</month>
+                        <day>15</day>
+                        <hours>0</hours>
+                        <minutes>0</minutes>
+                        <seconds>0</seconds>
+                        <gmtOffset></gmtOffset>
+                    </OrderEffectiveDateTime>
+                    <OrderControlCodeReason>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </OrderControlCodeReason>
+                    <EnteringOrganization>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </EnteringOrganization>
+                    <EnteringDevice>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </EnteringDevice>
+                    <ActionBy>
+                        <HL7IDNumber>20230615</HL7IDNumber>
+                        <HL7FamilyName>
+                            <HL7Surname></HL7Surname>
+                        </HL7FamilyName>
+                    </ActionBy>
+                    <AdvancedBeneficiaryNoticeCode>
+                        <HL7Identifier>North Dakota Health Clinic</HL7Identifier>
+                    </AdvancedBeneficiaryNoticeCode>
+                    <OrderingFacilityName>
+                        <HL7OrganizationName>610 2nd St. N</HL7OrganizationName>
+                        <HL7IDNumber>
+                            <HL7Numeric>123</HL7Numeric>
+                        </HL7IDNumber>
+                        <HL7CheckDigit>
+                            <HL7Numeric>69</HL7Numeric>
+                        </HL7CheckDigit>
+                        <HL7CheckDigitScheme>58075</HL7CheckDigitScheme>
+                    </OrderingFacilityName>
+                    <OrderingFacilityAddress>
+                        <HL7StreetAddress/>
+                        <HL7Country>701</HL7Country>
+                        <HL7AddressType>6405718</HL7AddressType>
+                    </OrderingFacilityAddress>
+                    <OrderingFacilityPhoneNumber>
+                        <HL7TelephoneNumber>610 2nd St. N</HL7TelephoneNumber>
+                        <HL7TelecommunicationEquipmentType>123</HL7TelecommunicationEquipmentType>
+                        <HL7EmailAddress>69</HL7EmailAddress>
+                        <HL7CountryCode>
+                            <HL7Numeric>58075</HL7Numeric>
+                        </HL7CountryCode>
+                        <HL7AreaCityCode/>
+                        <HL7LocalNumber/>
+                        <HL7Extension/>
+                    </OrderingFacilityPhoneNumber>
+                    <OrderingProviderAddress>
+                        <HL7StreetAddress>
+                            <HL7StreetOrMailingAddress>20230615</HL7StreetOrMailingAddress>
+                        </HL7StreetAddress>
+                    </OrderingProviderAddress>
+                    <OrderStatusModifier>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </OrderStatusModifier>
+                    <AdvancedBeneficiaryNoticeOverrideReason>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </AdvancedBeneficiaryNoticeOverrideReason>
+                    <FillersExpectedAvailabilityDateTime>
+                        <year>2023</year>
+                        <month>6</month>
+                        <day>15</day>
+                        <hours>0</hours>
+                        <minutes>0</minutes>
+                        <seconds>0</seconds>
+                        <gmtOffset></gmtOffset>
+                    </FillersExpectedAvailabilityDateTime>
+                    <ConfidentialityCode>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </ConfidentialityCode>
+                    <OrderType>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </OrderType>
+                    <EntererAuthorizationMode>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </EntererAuthorizationMode>
+                </CommonOrder>
+                <ObservationRequest>
+                    <SetIDOBR>
+                        <HL7SequenceID>1</HL7SequenceID>
+                    </SetIDOBR>
+                    <PlacerOrderNumber>
+                        <HL7EntityIdentifier>20230615</HL7EntityIdentifier>
+                    </PlacerOrderNumber>
+                    <FillerOrderNumber>
+                        <HL7EntityIdentifier>2gcxDYvIHHLr+e5hO9Lxrg</HL7EntityIdentifier>
+                        <HL7NamespaceID>OneAbbottSol.STAG</HL7NamespaceID>
+                        <HL7UniversalID>2.16.840.1.113883.3.8589.4.2.7.2</HL7UniversalID>
+                        <HL7UniversalIDType>ISO</HL7UniversalIDType>
+                    </FillerOrderNumber>
+                    <UniversalServiceIdentifier>
+                        <HL7Identifier>P21-0000105078</HL7Identifier>
+                        <HL7Text>OneAbbottSol.STAG</HL7Text>
+                        <HL7NameofCodingSystem>2.16.840.1.113883.3.8589.4.2.7.2</HL7NameofCodingSystem>
+                        <HL7AlternateIdentifier>ISO</HL7AlternateIdentifier>
+                    </UniversalServiceIdentifier>
+                    <PriorityOBR>20230615</PriorityOBR>
+                    <RequestedDateTime>
+                        <year>2023</year>
+                        <month>6</month>
+                        <day>15</day>
+                        <hours>0</hours>
+                        <minutes>0</minutes>
+                        <seconds>0</seconds>
+                        <gmtOffset></gmtOffset>
+                    </RequestedDateTime>
+                    <ObservationDateTime>
+                        <year>2023</year>
+                        <month>6</month>
+                        <day>15</day>
+                        <hours>0</hours>
+                        <minutes>0</minutes>
+                        <gmtOffset></gmtOffset>
+                    </ObservationDateTime>
+                    <ObservationEndDateTime>
+                        <year>2023</year>
+                        <month>6</month>
+                        <day>15</day>
+                        <hours>0</hours>
+                        <minutes>0</minutes>
+                        <gmtOffset></gmtOffset>
+                    </ObservationEndDateTime>
+                    <CollectionVolume>
+                        <HL7Quantity>
+                            <HL7Numeric>20230615</HL7Numeric>
+                        </HL7Quantity>
+                        <HL7Units/>
+                    </CollectionVolume>
+                    <CollectorIdentifier>
+                        <HL7IDNumber>20230615</HL7IDNumber>
+                        <HL7FamilyName>
+                            <HL7Surname></HL7Surname>
+                        </HL7FamilyName>
+                    </CollectorIdentifier>
+                    <SpecimenActionCode>20230615</SpecimenActionCode>
+                    <DangerCode>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </DangerCode>
+                    <RelevantClinicalInformation>20230615</RelevantClinicalInformation>
+                    <SpecimenReceivedDateTime>
+                        <year>2023</year>
+                        <month>6</month>
+                        <day>15</day>
+                        <hours>0</hours>
+                        <minutes>0</minutes>
+                        <gmtOffset></gmtOffset>
+                    </SpecimenReceivedDateTime>
+                    <SpecimenSource>
+                        <HL7SpecimenSourceNameOrCode>
+                            <HL7Identifier>20230615</HL7Identifier>
+                        </HL7SpecimenSourceNameOrCode>
+                        <HL7Additives/>
+                        <HL7BodySite/>
+                        <HL7SiteModifier/>
+                        <HL7CollectionMethodModifierCode/>
+                        <HL7SpecimenRole/>
+                    </SpecimenSource>
+                    <OrderingProvider>
+                        <HL7IDNumber>20230615</HL7IDNumber>
+                        <HL7FamilyName>
+                            <HL7Surname></HL7Surname>
+                        </HL7FamilyName>
+                    </OrderingProvider>
+                    <OrderCallbackPhoneNumber>
+                        <HL7TelephoneNumber>20230615</HL7TelephoneNumber>
+                        <HL7CountryCode/>
+                        <HL7AreaCityCode/>
+                        <HL7LocalNumber/>
+                        <HL7Extension/>
+                    </OrderCallbackPhoneNumber>
+                    <PlacerField1>20230615</PlacerField1>
+                    <PlacerField2>20230615</PlacerField2>
+                    <FillerField1>20230615</FillerField1>
+                    <FillerField2>20230615</FillerField2>
+                    <ResultsRptStatusChngDateTime>
+                        <year>2023</year>
+                        <month>6</month>
+                        <day>15</day>
+                        <hours>0</hours>
+                        <minutes>0</minutes>
+                        <seconds>0</seconds>
+                        <gmtOffset></gmtOffset>
+                    </ResultsRptStatusChngDateTime>
+                    <ChargeToPractice>
+                        <HL7MonetaryAmount>
+                            <HL7Quantity>
+<HL7Numeric>20230615</HL7Numeric>
+                            </HL7Quantity>
+                        </HL7MonetaryAmount>
+                        <HL7ChargeCode/>
+                    </ChargeToPractice>
+                    <DiagnosticServSectID>20230615</DiagnosticServSectID>
+                    <ResultStatus>20230615</ResultStatus>
+                    <ParentResult>
+                        <ParentObservationIdentifier>
+                            <HL7Identifier>20230615</HL7Identifier>
+                        </ParentObservationIdentifier>
+                        <ParentObservationValueDescriptor/>
+                    </ParentResult>
+                    <QuantityTiming>
+                        <HL7Quantity>
+                            <HL7Quantity>
+<HL7Numeric>20230615</HL7Numeric>
+                            </HL7Quantity>
+                            <HL7Units/>
+                        </HL7Quantity>
+                        <HL7Interval/>
+                        <HL7Text/>
+                        <HL7OrderSequencing>
+                            <HL7SequenceResultsFlag></HL7SequenceResultsFlag>
+                            <HL7PlacerOrderNumberEntityIdentifier></HL7PlacerOrderNumberEntityIdentifier>
+                            <HL7FillerOrderNumberEntityIdentifier></HL7FillerOrderNumberEntityIdentifier>
+                            <HL7MaximumNumberOfRepeats/>
+                            <HL7PlacerOrderNumberUniversalID></HL7PlacerOrderNumberUniversalID>
+                            <HL7PlacerOrderNumberUniversalIDType></HL7PlacerOrderNumberUniversalIDType>
+                            <HL7FillerOrderNumberUniversalID></HL7FillerOrderNumberUniversalID>
+                        </HL7OrderSequencing>
+                        <HL7OccurrenceDuration/>
+                        <HL7TotalOccurrences/>
+                    </QuantityTiming>
+                    <ResultCopiesTo>
+                        <HL7IDNumber>20230615</HL7IDNumber>
+                        <HL7FamilyName>
+                            <HL7Surname></HL7Surname>
+                        </HL7FamilyName>
+                    </ResultCopiesTo>
+                    <Parent>
+                        <HL7PlacerAssignedIdentifier>
+                            <HL7EntityIdentifier>20230615</HL7EntityIdentifier>
+                        </HL7PlacerAssignedIdentifier>
+                        <HL7FillerAssignedIdentifier/>
+                    </Parent>
+                    <TransportationMode>20230615</TransportationMode>
+                    <ReasonforStudy>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </ReasonforStudy>
+                    <PrincipalResultInterpreter>
+                        <HL7Name>
+                            <HL7IDNumber>20230615</HL7IDNumber>
+                        </HL7Name>
+                    </PrincipalResultInterpreter>
+                    <AssistantResultInterpreter>
+                        <HL7Name>
+                            <HL7IDNumber>20230615</HL7IDNumber>
+                        </HL7Name>
+                    </AssistantResultInterpreter>
+                    <Technician>
+                        <HL7Name>
+                            <HL7IDNumber>20230615</HL7IDNumber>
+                        </HL7Name>
+                    </Technician>
+                    <Transcriptionist>
+                        <HL7Name>
+                            <HL7IDNumber>20230615</HL7IDNumber>
+                        </HL7Name>
+                    </Transcriptionist>
+                    <ScheduledDateTime>
+                        <year>2023</year>
+                        <month>6</month>
+                        <day>15</day>
+                        <hours>0</hours>
+                        <minutes>0</minutes>
+                        <seconds>0</seconds>
+                        <gmtOffset></gmtOffset>
+                    </ScheduledDateTime>
+                    <NumberofSampleContainers>
+                        <HL7Numeric>20230615</HL7Numeric>
+                    </NumberofSampleContainers>
+                    <TransportLogisticsofCollectedSample>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </TransportLogisticsofCollectedSample>
+                    <CollectorsComment>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </CollectorsComment>
+                    <TransportArrangementResponsibility>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </TransportArrangementResponsibility>
+                    <TransportArranged>20230615</TransportArranged>
+                    <EscortRequired>20230615</EscortRequired>
+                    <PlannedPatientTransportComment>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </PlannedPatientTransportComment>
+                    <ProcedureCode>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </ProcedureCode>
+                    <ProcedureCodeModifier>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </ProcedureCodeModifier>
+                    <PlacerSupplementalServiceInformation>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </PlacerSupplementalServiceInformation>
+                    <FillerSupplementalServiceInformation>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </FillerSupplementalServiceInformation>
+                    <MedicallyNecessaryDuplicateProcedureReason>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </MedicallyNecessaryDuplicateProcedureReason>
+                    <ResultHandling>20230615</ResultHandling>
+                    <ParentUniversalServiceIdentifier>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </ParentUniversalServiceIdentifier>
+                </ObservationRequest>
+                <NotesAndComments>
+                    <HL7SetIDNTE>
+                        <HL7SequenceID>1</HL7SequenceID>
+                    </HL7SetIDNTE>
+                    <HL7SourceOfComment>20230615</HL7SourceOfComment>
+                    <HL7Comment>20230615</HL7Comment>
+                    <HL7CommentType>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </HL7CommentType>
+                </NotesAndComments>
+                <ContactData>
+                    <ContactRole>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </ContactRole>
+                    <ContactName>
+                        <HL7FamilyName>
+                            <HL7Surname>20230615</HL7Surname>
+                        </HL7FamilyName>
+                    </ContactName>
+                    <ContactAddress>
+                        <HL7StreetAddress>
+                            <HL7StreetOrMailingAddress>20230615</HL7StreetOrMailingAddress>
+                        </HL7StreetAddress>
+                    </ContactAddress>
+                    <ContactLocation>
+                        <HL7PointofCare>20230615</HL7PointofCare>
+                        <HL7ComprehensiveLocationIdentifier/>
+                        <HL7AssigningAuthorityforLocation/>
+                    </ContactLocation>
+                    <ContactCommunicationInformation>
+                        <HL7TelephoneNumber>20230615</HL7TelephoneNumber>
+                        <HL7CountryCode/>
+                        <HL7AreaCityCode/>
+                        <HL7LocalNumber/>
+                        <HL7Extension/>
+                    </ContactCommunicationInformation>
+                    <PreferredMethodOfContact>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </PreferredMethodOfContact>
+                    <ContactIdentifiers>
+                        <ExpirationDate/>
+                    </ContactIdentifiers>
+                </ContactData>
+                <PatientResultOrderObservation>
+                    <OBSERVATION>
+                        <ObservationResult>
+                            <SetIDOBX>
+<HL7SequenceID>1</HL7SequenceID>
+                            </SetIDOBX>
+                            <ValueType>ST</ValueType>
+                            <ObservationIdentifier>
+<HL7Identifier>30525-0</HL7Identifier>
+<HL7Text>Age</HL7Text>
+<HL7NameofCodingSystem>LN</HL7NameofCodingSystem>
+                            </ObservationIdentifier>
+                            <ObservationSubID>20230615</ObservationSubID>
+                            <ObservationValue>20230615</ObservationValue>
+                            <Units>
+<HL7Identifier>20230615</HL7Identifier>
+                            </Units>
+                            <ReferencesRange>20230615</ReferencesRange>
+                            <Probability>
+<HL7Numeric>21</HL7Numeric>
+                            </Probability>
+                            <NatureOfAbnormalTest>20230615</NatureOfAbnormalTest>
+                            <ObservationResultStatus>20230615</ObservationResultStatus>
+                            <EffectiveDateOfReferenceRangeValues>
+<year>2023</year>
+<month>6</month>
+<day>15</day>
+<hours>0</hours>
+<minutes>0</minutes>
+<seconds>0</seconds>
+<gmtOffset></gmtOffset>
+                            </EffectiveDateOfReferenceRangeValues>
+                            <UserDefinedAccessChecks>20230615</UserDefinedAccessChecks>
+                            <DateTimeOftheObservation>
+<year>2023</year>
+<month>6</month>
+<day>15</day>
+<hours>0</hours>
+<minutes>0</minutes>
+<seconds>0</seconds>
+<gmtOffset></gmtOffset>
+                            </DateTimeOftheObservation>
+                            <ProducersReference>
+<HL7Identifier>20230615</HL7Identifier>
+                            </ProducersReference>
+                            <ResponsibleObserver>
+<HL7IDNumber>20230615</HL7IDNumber>
+<HL7FamilyName>
+    <HL7Surname></HL7Surname>
+</HL7FamilyName>
+                            </ResponsibleObserver>
+                            <ObservationMethod>
+<HL7Identifier>20230615</HL7Identifier>
+                            </ObservationMethod>
+                            <EquipmentInstanceIdentifier>
+<HL7EntityIdentifier>20230615</HL7EntityIdentifier>
+                            </EquipmentInstanceIdentifier>
+                            <DateTimeOftheAnalysis>
+<year>2023</year>
+<month>6</month>
+<day>15</day>
+<gmtOffset></gmtOffset>
+                            </DateTimeOftheAnalysis>
+                            <PerformingOrganizationName>
+<HL7OrganizationName>20230615</HL7OrganizationName>
+<HL7IDNumber/>
+<HL7CheckDigit/>
+                            </PerformingOrganizationName>
+                            <PerformingOrganizationAddress>
+<HL7StreetAddress>
+    <HL7StreetOrMailingAddress>20230615</HL7StreetOrMailingAddress>
+</HL7StreetAddress>
+                            </PerformingOrganizationAddress>
+                            <PerformingOrganizationMedicalDirector>
+<HL7IDNumber>20230615</HL7IDNumber>
+<HL7FamilyName>
+    <HL7Surname></HL7Surname>
+</HL7FamilyName>
+                            </PerformingOrganizationMedicalDirector>
+                        </ObservationResult>
+                        <NotesAndComments>
+                            <HL7SetIDNTE>
+<HL7SequenceID>1</HL7SequenceID>
+                            </HL7SetIDNTE>
+                            <HL7SourceOfComment>20230615</HL7SourceOfComment>
+                            <HL7Comment>20230615</HL7Comment>
+                            <HL7CommentType>
+<HL7Identifier>20230615</HL7Identifier>
+                            </HL7CommentType>
+                        </NotesAndComments>
+                    </OBSERVATION>
+                    <OBSERVATION>
+                        <ObservationResult>
+                            <SetIDOBX>
+<HL7SequenceID>2</HL7SequenceID>
+                            </SetIDOBX>
+                            <ValueType>CWE</ValueType>
+                            <ObservationIdentifier>
+<HL7Identifier>95417-2</HL7Identifier>
+<HL7Text>FirstTest</HL7Text>
+<HL7NameofCodingSystem>LN</HL7NameofCodingSystem>
+                            </ObservationIdentifier>
+                            <ObservationSubID>20230615</ObservationSubID>
+                            <ObservationValue>CWE[20230615]</ObservationValue>
+                            <Units>
+<HL7Identifier>20230615</HL7Identifier>
+                            </Units>
+                            <ReferencesRange>20230615</ReferencesRange>
+                            <Probability/>
+                            <ObservationResultStatus></ObservationResultStatus>
+                        </ObservationResult>
+                    </OBSERVATION>
+                    <OBSERVATION>
+                        <ObservationResult>
+                            <SetIDOBX>
+<HL7SequenceID>3</HL7SequenceID>
+                            </SetIDOBX>
+                            <ValueType>CWE</ValueType>
+                            <ObservationIdentifier>
+<HL7Identifier>95418-0</HL7Identifier>
+<HL7Text>Employed</HL7Text>
+<HL7NameofCodingSystem>LN</HL7NameofCodingSystem>
+                            </ObservationIdentifier>
+                            <ObservationSubID>20230615</ObservationSubID>
+                            <ObservationValue>CWE[20230615]</ObservationValue>
+                            <Units>
+<HL7Identifier>20230615</HL7Identifier>
+                            </Units>
+                            <ReferencesRange>20230615</ReferencesRange>
+                            <Probability/>
+                            <ObservationResultStatus></ObservationResultStatus>
+                        </ObservationResult>
+                    </OBSERVATION>
+                    <OBSERVATION>
+                        <ObservationResult>
+                            <SetIDOBX>
+<HL7SequenceID>4</HL7SequenceID>
+                            </SetIDOBX>
+                            <ValueType>CWE</ValueType>
+                            <ObservationIdentifier>
+<HL7Identifier>95419-8</HL7Identifier>
+<HL7Text>Symptoms</HL7Text>
+<HL7NameofCodingSystem>LN</HL7NameofCodingSystem>
+                            </ObservationIdentifier>
+                            <ObservationSubID>20230615</ObservationSubID>
+                            <ObservationValue>CWE[20230615]</ObservationValue>
+                            <Units>
+<HL7Identifier>20230615</HL7Identifier>
+                            </Units>
+                            <ReferencesRange>20230615</ReferencesRange>
+                            <Probability/>
+                            <ObservationResultStatus></ObservationResultStatus>
+                        </ObservationResult>
+                    </OBSERVATION>
+                    <OBSERVATION>
+                        <ObservationResult>
+                            <SetIDOBX>
+<HL7SequenceID>5</HL7SequenceID>
+                            </SetIDOBX>
+                            <ValueType>CWE</ValueType>
+                            <ObservationIdentifier>
+<HL7Identifier>77974-4</HL7Identifier>
+<HL7Text>Hospitalized</HL7Text>
+<HL7NameofCodingSystem>LN</HL7NameofCodingSystem>
+                            </ObservationIdentifier>
+                            <ObservationSubID>20230615</ObservationSubID>
+                            <ObservationValue>CWE[20230615]</ObservationValue>
+                            <Units>
+<HL7Identifier>20230615</HL7Identifier>
+                            </Units>
+                            <ReferencesRange>20230615</ReferencesRange>
+                            <Probability/>
+                            <ObservationResultStatus></ObservationResultStatus>
+                        </ObservationResult>
+                    </OBSERVATION>
+                    <OBSERVATION>
+                        <ObservationResult>
+                            <SetIDOBX>
+<HL7SequenceID>6</HL7SequenceID>
+                            </SetIDOBX>
+                            <ValueType>CWE</ValueType>
+                            <ObservationIdentifier>
+<HL7Identifier>95421-4</HL7Identifier>
+<HL7Text>Congregate</HL7Text>
+<HL7NameofCodingSystem>LN</HL7NameofCodingSystem>
+                            </ObservationIdentifier>
+                            <ObservationSubID>20230615</ObservationSubID>
+                            <ObservationValue>CWE[20230615]</ObservationValue>
+                            <Units>
+<HL7Identifier>20230615</HL7Identifier>
+                            </Units>
+                            <ReferencesRange>20230615</ReferencesRange>
+                            <Probability/>
+                            <ObservationResultStatus></ObservationResultStatus>
+                        </ObservationResult>
+                    </OBSERVATION>
+                    <OBSERVATION>
+                        <ObservationResult>
+                            <SetIDOBX>
+<HL7SequenceID>7</HL7SequenceID>
+                            </SetIDOBX>
+                            <ValueType>CWE</ValueType>
+                            <ObservationIdentifier>
+<HL7Identifier>82810-3</HL7Identifier>
+<HL7Text>Pregnancy</HL7Text>
+<HL7NameofCodingSystem>LN</HL7NameofCodingSystem>
+                            </ObservationIdentifier>
+                            <ObservationSubID>20230615</ObservationSubID>
+                            <ObservationValue>CWE[20230615]</ObservationValue>
+                            <Units>
+<HL7Identifier>20230615</HL7Identifier>
+                            </Units>
+                            <Probability/>
+                            <ObservationResultStatus></ObservationResultStatus>
+                        </ObservationResult>
+                    </OBSERVATION>
+                    <OBSERVATION>
+                        <ObservationResult>
+                            <SetIDOBX>
+<HL7SequenceID>8</HL7SequenceID>
+                            </SetIDOBX>
+                            <ValueType>CWE</ValueType>
+                            <ObservationIdentifier>
+<HL7Identifier>94558-4</HL7Identifier>
+<HL7Text>SARS-CoV-2</HL7Text>
+<HL7NameofCodingSystem>LN</HL7NameofCodingSystem>
+                            </ObservationIdentifier>
+                            <ObservationSubID>20230615</ObservationSubID>
+                            <ObservationValue>CWE[20230615]</ObservationValue>
+                            <Units>
+<HL7Identifier>20230615</HL7Identifier>
+                            </Units>
+                            <ReferencesRange>20230615</ReferencesRange>
+                            <Probability/>
+                            <ObservationResultStatus></ObservationResultStatus>
+                        </ObservationResult>
+                    </OBSERVATION>
+                </PatientResultOrderObservation>
+                <FinancialTransaction>
+                    <SetIDFT1>
+                        <HL7SequenceID>1</HL7SequenceID>
+                    </SetIDFT1>
+                    <TransactionID>20230615</TransactionID>
+                    <TransactionBatchID>20230615</TransactionBatchID>
+                    <TransactionDate>
+                        <HL7RangeStartDateTime>
+                            <year>2023</year>
+                            <month>6</month>
+                            <day>15</day>
+                            <hours>0</hours>
+                            <minutes>0</minutes>
+                            <gmtOffset></gmtOffset>
+                        </HL7RangeStartDateTime>
+                    </TransactionDate>
+                    <TransactionPostingDate>
+                        <year>2023</year>
+                        <month>6</month>
+                        <day>15</day>
+                        <hours>0</hours>
+                        <minutes>0</minutes>
+                        <seconds>0</seconds>
+                        <gmtOffset></gmtOffset>
+                    </TransactionPostingDate>
+                    <TransactionType>20230615</TransactionType>
+                    <TransactionCode>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </TransactionCode>
+                    <TransactionDescription>20230615</TransactionDescription>
+                    <TransactionDescriptionAlt>20230615</TransactionDescriptionAlt>
+                    <TransactionQuantity>
+                        <HL7Numeric>20230615</HL7Numeric>
+                    </TransactionQuantity>
+                    <TransactionAmountExtended>
+                        <HL7Price>
+                            <HL7Quantity>
+<HL7Numeric>20230615</HL7Numeric>
+                            </HL7Quantity>
+                        </HL7Price>
+                        <HL7FromValue/>
+                        <HL7ToValue/>
+                        <HL7RangeUnits/>
+                    </TransactionAmountExtended>
+                    <TransactionAmountUnit>
+                        <HL7Price>
+                            <HL7Quantity>
+<HL7Numeric>20230615</HL7Numeric>
+                            </HL7Quantity>
+                        </HL7Price>
+                        <HL7FromValue/>
+                        <HL7ToValue/>
+                        <HL7RangeUnits/>
+                    </TransactionAmountUnit>
+                    <DepartmentCode>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </DepartmentCode>
+                    <InsurancePlanID>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </InsurancePlanID>
+                    <InsuranceAmount>
+                        <HL7Price>
+                            <HL7Quantity>
+<HL7Numeric>20230615</HL7Numeric>
+                            </HL7Quantity>
+                        </HL7Price>
+                        <HL7FromValue/>
+                        <HL7ToValue/>
+                        <HL7RangeUnits/>
+                    </InsuranceAmount>
+                    <AssignedPatientLocation>
+                        <HL7PointofCare>20230615</HL7PointofCare>
+                        <HL7ComprehensiveLocationIdentifier/>
+                        <HL7AssigningAuthorityforLocation/>
+                    </AssignedPatientLocation>
+                    <FeeSchedule>20230615</FeeSchedule>
+                    <PatientType>20230615</PatientType>
+                    <DiagnosisCodeFT1>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </DiagnosisCodeFT1>
+                    <PerformedByCode>
+                        <HL7IDNumber>20230615</HL7IDNumber>
+                        <HL7FamilyName>
+                            <HL7Surname></HL7Surname>
+                        </HL7FamilyName>
+                    </PerformedByCode>
+                    <OrderedByCode>
+                        <HL7IDNumber>20230615</HL7IDNumber>
+                        <HL7FamilyName>
+                            <HL7Surname></HL7Surname>
+                        </HL7FamilyName>
+                    </OrderedByCode>
+                    <ProcedureCode>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </ProcedureCode>
+                    <ProcedureCodeModifier>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </ProcedureCodeModifier>
+                    <AdvancedBeneficiaryNoticeCode>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </AdvancedBeneficiaryNoticeCode>
+                    <MedicallyNecessaryDuplicateProcedureReason>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </MedicallyNecessaryDuplicateProcedureReason>
+                    <NDCCode>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </NDCCode>
+                    <PaymentReferenceID>
+                        <HL7IDNumber>20230615</HL7IDNumber>
+                    </PaymentReferenceID>
+                </FinancialTransaction>
+                <ClinicalTrialIdentification>
+                    <SponsorStudyID>
+                        <HL7EntityIdentifier>20230615</HL7EntityIdentifier>
+                    </SponsorStudyID>
+                    <StudyPhaseIdentifier>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </StudyPhaseIdentifier>
+                    <StudyScheduledTimePoint>
+                        <HL7Identifier>20230615</HL7Identifier>
+                    </StudyScheduledTimePoint>
+                </ClinicalTrialIdentification>
+                <PatientResultOrderSPMObservation>
+                    <SPECIMEN>
+                        <SPECIMEN>
+                            <SetIDSPM>
+<HL7SequenceID>1</HL7SequenceID>
+                            </SetIDSPM>
+                            <SpecimenID>
+<HL7FillerAssignedIdentifier>
+    <HL7EntityIdentifier>P21-0000105075</HL7EntityIdentifier>
+    <HL7NamespaceID>OneAbbottSol.STAG</HL7NamespaceID>
+    <HL7UniversalID>2.16.840.1.113883.3.8589.4.2.7.2</HL7UniversalID>
+    <HL7UniversalIDType>ISO</HL7UniversalIDType>
+</HL7FillerAssignedIdentifier>
+                            </SpecimenID>
+                            <SpecimenParentIDs>
+<HL7PlacerAssignedIdentifier>
+    <HL7EntityIdentifier>20230615</HL7EntityIdentifier>
+</HL7PlacerAssignedIdentifier>
+<HL7FillerAssignedIdentifier/>
+                            </SpecimenParentIDs>
+                            <SpecimenType>
+<HL7Identifier>445297001</HL7Identifier>
+<HL7Text>Swab</HL7Text>
+<HL7NameofCodingSystem>SCT</HL7NameofCodingSystem>
+                            </SpecimenType>
+                            <SpecimenTypeModifier>
+<HL7Identifier>20230615</HL7Identifier>
+                            </SpecimenTypeModifier>
+                            <SpecimenAdditives>
+<HL7Identifier>20230615</HL7Identifier>
+                            </SpecimenAdditives>
+                            <SpecimenCollectionMethod>
+<HL7Identifier>20230615</HL7Identifier>
+                            </SpecimenCollectionMethod>
+                            <SpecimenSourceSite>
+<HL7Identifier>20230615</HL7Identifier>
+                            </SpecimenSourceSite>
+                            <SpecimenSourceSiteModifier>
+<HL7Identifier>20230615</HL7Identifier>
+                            </SpecimenSourceSiteModifier>
+                            <SpecimenCollectionSite>
+<HL7Identifier>20230615</HL7Identifier>
+                            </SpecimenCollectionSite>
+                            <SpecimenRole>
+<HL7Identifier>20230615</HL7Identifier>
+                            </SpecimenRole>
+                            <SpecimenCollectionAmount>
+<HL7Quantity>
+    <HL7Numeric>20230615</HL7Numeric>
+</HL7Quantity>
+<HL7Units/>
+                            </SpecimenCollectionAmount>
+                            <GroupedSpecimenCount>
+<HL7Numeric>20230615</HL7Numeric>
+                            </GroupedSpecimenCount>
+                            <SpecimenDescription>20230615</SpecimenDescription>
+                            <SpecimenHandlingCode>
+<HL7Identifier>20230615</HL7Identifier>
+                            </SpecimenHandlingCode>
+                            <SpecimenRiskCode>
+<HL7Identifier>20230615</HL7Identifier>
+                            </SpecimenRiskCode>
+                            <SpecimenReceivedDateTime>
+<year>2023</year>
+<month>6</month>
+<day>15</day>
+<hours>0</hours>
+<minutes>0</minutes>
+<gmtOffset></gmtOffset>
+                            </SpecimenReceivedDateTime>
+                            <SpecimenExpirationDateTime>
+<year>2023</year>
+<month>6</month>
+<day>15</day>
+<hours>0</hours>
+<minutes>0</minutes>
+<seconds>0</seconds>
+<gmtOffset></gmtOffset>
+                            </SpecimenExpirationDateTime>
+                            <SpecimenAvailability>20230615</SpecimenAvailability>
+                            <SpecimenRejectReason>
+<HL7Identifier>20230615</HL7Identifier>
+                            </SpecimenRejectReason>
+                            <SpecimenQuality>
+<HL7Identifier>20230615</HL7Identifier>
+                            </SpecimenQuality>
+                            <SpecimenAppropriateness>
+<HL7Identifier>20230615</HL7Identifier>
+                            </SpecimenAppropriateness>
+                            <SpecimenCondition>
+<HL7Identifier>20230615</HL7Identifier>
+                            </SpecimenCondition>
+                            <SpecimenCurrentQuantity>
+<HL7Quantity>
+    <HL7Numeric>20230615</HL7Numeric>
+</HL7Quantity>
+<HL7Units/>
+                            </SpecimenCurrentQuantity>
+                            <NumberOfSpecimenContainers>
+<HL7Numeric>20230615</HL7Numeric>
+                            </NumberOfSpecimenContainers>
+                            <ContainerType>
+<HL7Identifier>20230615</HL7Identifier>
+                            </ContainerType>
+                            <ContainerCondition>
+<HL7Identifier>20230615</HL7Identifier>
+                            </ContainerCondition>
+                            <SpecimenChildRole>
+<HL7Identifier>20230615</HL7Identifier>
+                            </SpecimenChildRole>
+                        </SPECIMEN>
+                        <ObservationResult>
+                            <SetIDOBX>
+<HL7SequenceID>1</HL7SequenceID>
+                            </SetIDOBX>
+                            <ValueType>ST</ValueType>
+                            <ObservationIdentifier>
+<HL7Identifier>30525-0</HL7Identifier>
+<HL7Text>Age</HL7Text>
+<HL7NameofCodingSystem>LN</HL7NameofCodingSystem>
+                            </ObservationIdentifier>
+                            <ObservationSubID>20230615</ObservationSubID>
+                            <ObservationValue>20230615</ObservationValue>
+                            <Units>
+<HL7Identifier>20230615</HL7Identifier>
+                            </Units>
+                            <ReferencesRange>20230615</ReferencesRange>
+                            <Probability>
+<HL7Numeric>89</HL7Numeric>
+                            </Probability>
+                            <NatureOfAbnormalTest>20230615</NatureOfAbnormalTest>
+                            <ObservationResultStatus>20230615</ObservationResultStatus>
+                            <EffectiveDateOfReferenceRangeValues>
+<year>2023</year>
+<month>6</month>
+<day>15</day>
+<hours>0</hours>
+<minutes>0</minutes>
+<seconds>0</seconds>
+<gmtOffset></gmtOffset>
+                            </EffectiveDateOfReferenceRangeValues>
+                            <UserDefinedAccessChecks>20230615</UserDefinedAccessChecks>
+                            <DateTimeOftheObservation>
+<year>2023</year>
+<month>6</month>
+<day>15</day>
+<hours>0</hours>
+<minutes>0</minutes>
+<seconds>0</seconds>
+<gmtOffset></gmtOffset>
+                            </DateTimeOftheObservation>
+                            <ProducersReference>
+<HL7Identifier>20230615</HL7Identifier>
+                            </ProducersReference>
+                            <ResponsibleObserver>
+<HL7IDNumber>20230615</HL7IDNumber>
+<HL7FamilyName>
+    <HL7Surname></HL7Surname>
+</HL7FamilyName>
+                            </ResponsibleObserver>
+                            <ObservationMethod>
+<HL7Identifier>20230615</HL7Identifier>
+                            </ObservationMethod>
+                            <EquipmentInstanceIdentifier>
+<HL7EntityIdentifier>20230615</HL7EntityIdentifier>
+                            </EquipmentInstanceIdentifier>
+                            <DateTimeOftheAnalysis>
+<year>2023</year>
+<month>6</month>
+<day>15</day>
+<gmtOffset></gmtOffset>
+                            </DateTimeOftheAnalysis>
+                            <PerformingOrganizationName>
+<HL7OrganizationName>20230615</HL7OrganizationName>
+<HL7IDNumber/>
+<HL7CheckDigit/>
+                            </PerformingOrganizationName>
+                            <PerformingOrganizationAddress>
+<HL7StreetAddress>
+    <HL7StreetOrMailingAddress>20230615</HL7StreetOrMailingAddress>
+</HL7StreetAddress>
+                            </PerformingOrganizationAddress>
+                            <PerformingOrganizationMedicalDirector>
+<HL7IDNumber>20230615</HL7IDNumber>
+<HL7FamilyName>
+    <HL7Surname></HL7Surname>
+</HL7FamilyName>
+                            </PerformingOrganizationMedicalDirector>
+                        </ObservationResult>
+                    </SPECIMEN>
+                </PatientResultOrderSPMObservation>
+            </ORDER_OBSERVATION>
+        </HL7PATIENT_RESULT>
+        <HL7ContinuationPointer>
+            <ContinuationPointer>20230615</ContinuationPointer>
+            <ContinuationStyle>20230615</ContinuationStyle>
+        </HL7ContinuationPointer>
+    </HL7LabReport>
+</Container>
+
+<!-- raw_message_id = whatever -->

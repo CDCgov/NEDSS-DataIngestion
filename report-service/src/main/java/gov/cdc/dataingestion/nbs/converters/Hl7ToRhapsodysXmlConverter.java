@@ -148,37 +148,45 @@ import  org.slf4j.Logger;
 import  org.slf4j.LoggerFactory;
 
 import  java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import  java.io.File;
+import  java.io.IOException;
 import  java.math.BigInteger;
 import  java.time.format.DateTimeFormatter;
 import  java.time.LocalDateTime;
+import java.util.Collection;
 import  java.util.List;
 import  java.util.ArrayList;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
-import static gov.cdc.dataingestion.constant.SupportedHl7Version.VERSION231;
-import static gov.cdc.dataingestion.constant.SupportedHl7Version.VERSION251;
+import  org.apache.commons.lang3.StringUtils;
 
 public class Hl7ToRhapsodysXmlConverter {
-    private static Logger log = LoggerFactory.getLogger(Hl7ToRhapsodysXmlConverter.class);
-    private static Hl7ToRhapsodysXmlConverter instance = new Hl7ToRhapsodysXmlConverter();
-    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-    private static String EMPTY_STRING = "";
-
+    private static final Logger log = LoggerFactory.getLogger(Hl7ToRhapsodysXmlConverter.class);
+    private static final Hl7ToRhapsodysXmlConverter instance = new Hl7ToRhapsodysXmlConverter();
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    private static final DateTimeFormatter formatterWithZone = DateTimeFormatter.ofPattern("yyyyMMddHHmmssX");
+    private static final String OBX_VALUE_TYPE_SN = "SN";
+    private static final String EMPTY_STRING = "";
+    private static final String CARET_SEPARATOR = "\\^";
+    private static final int TS_FMT_ALL = 0;
+    private static final int TS_FMT_DATE_ONLY = 1;
+    private static final int TS_FMT_DATE_HOUR_ONLY = 2;
+    private static final int TS_FMT_DATE_HOUR_MINUTE_ONLY = 3;
 
     public static Hl7ToRhapsodysXmlConverter getInstance() {
         return instance;
     }
 
-    private Hl7ToRhapsodysXmlConverter() {
+    // For Unit Test
+    public Hl7ToRhapsodysXmlConverter() {
     }
 
-    public String convert(String hl7Msg) throws DiHL7Exception, JAXBException, IOException {
 
+    public String convert(String rawMessageId, String hl7Msg) throws JAXBException, IOException, DiHL7Exception {
         String rhapsodyXml = "";
 
         HL7Helper hl7Helper = new HL7Helper();
-
-
         HL7ParsedMessage hl7ParsedMsg = hl7Helper.hl7StringParser(hl7Msg);
 
         Container c = new Container();
@@ -196,16 +204,29 @@ public class Hl7ToRhapsodysXmlConverter {
 
         rhapsodyXml = baos.toString();
 
-        // ramesh
-        //RhapsodysXmlToHl7Converter.getInstance().convertToXl7(rhapsodyXml);
+        // add raw_message_id as a comment
+        rhapsodyXml = rhapsodyXml + "\n" + buildTrailingComments(rawMessageId);
+
+        //saveXmlToTempFile(rhapsodyXml);     // Ramesh
 
         return rhapsodyXml;
+    }
+
+    private String buildTrailingComments(String rawMessageId) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("<!-- ");
+        sb.append("raw_message_id = ");
+        sb.append(rawMessageId);
+        sb.append(" -->");
+
+        return sb.toString();
     }
 
     private HL7LabReportType buildHL7LabReportType(HL7ParsedMessage hl7ParsedMsg) {
         HL7LabReportType lbt = new HL7LabReportType();
 
-        if( !hl7ParsedMsg.getParsedMessage().getClass().isNestmateOf(OruR1.class) ) {
+        if (!hl7ParsedMsg.getParsedMessage().getClass().isNestmateOf(OruR1.class)) {
             log.error("Unidentified Hl7 message type, supported type(s): OruR1");
             return lbt;
         }
@@ -215,11 +236,13 @@ public class Hl7ToRhapsodysXmlConverter {
         lbt.setHL7MSH(buildHL7MSHType(oruR1.getMessageHeader()));
         lbt.getHL7SoftwareSegment().addAll(buildSoftwareSegments(oruR1));
 
-        for(PatientResult pr : oruR1.getPatientResult()) {
+        for (PatientResult pr : oruR1.getPatientResult()) {
             lbt.getHL7PATIENTRESULT().add(buildHL7PATIENTRESULTType(pr));
         }
 
-        lbt.setHL7ContinuationPointer(buildHl7ContinuationPointerType(oruR1));
+        if (!isEmptyHL7ContinuationPointerType(oruR1)) {
+            lbt.setHL7ContinuationPointer(buildHL7ContinuationPointerType(oruR1));
+        }
 
         return lbt;
     }
@@ -228,44 +251,22 @@ public class Hl7ToRhapsodysXmlConverter {
         HL7PATIENTRESULTType hl7PATIENTRESULTType = new HL7PATIENTRESULTType();
 
         hl7PATIENTRESULTType.setPATIENT(buildHL7PATIENTType(pr.getPatient()));
-        for(OrderObservation oo : pr.getOrderObservation())
-        {
+        for (OrderObservation oo : pr.getOrderObservation()) {
             hl7PATIENTRESULTType.getORDEROBSERVATION().add(buildHL7OrderObservationType(oo));
         }
 
-        validatehl7PATIENTRESULTType(hl7PATIENTRESULTType.getORDEROBSERVATION());
+        validateHL7PATIENTRESULTType(hl7PATIENTRESULTType.getORDEROBSERVATION());
 
         return hl7PATIENTRESULTType;
     }
 
-    private void validatehl7PATIENTRESULTType(List<HL7OrderObservationType> listOfOOTypes) {
-        HL7OBRType assumedParentOBRType = null;
-        HL7OBRType assumedChildOBRType = null;
-
-        for(HL7OrderObservationType ooType : listOfOOTypes) {
+    private void validateHL7PATIENTRESULTType(List<HL7OrderObservationType> listOfOOTypes) {
+        HL7OBRType assumedParentOBRType = findAssumedOBRType(listOfOOTypes, true);
+        HL7OBRType assumedChildOBRType = findAssumedOBRType(listOfOOTypes, false);
+        for (HL7OrderObservationType ooType : listOfOOTypes) {
             HL7OBRType hl7OBRType = ooType.getObservationRequest();
             if ((null == hl7OBRType.getParent()) && (null == hl7OBRType.getParentResult())) {
-                if (null == assumedParentOBRType) {
-                    assumedParentOBRType = hl7OBRType;
-                    break;
-                }
-            }
-        }
-
-        for(HL7OrderObservationType ooType : listOfOOTypes) {
-            HL7OBRType hl7OBRType = ooType.getObservationRequest();
-            if((null != hl7OBRType.getParent()) && (null != hl7OBRType.getParentResult())) {
-                if(null == assumedChildOBRType) {
-                    assumedChildOBRType = hl7OBRType;
-                    break;
-                }
-            }
-        }
-
-        for(HL7OrderObservationType ooType : listOfOOTypes) {
-            HL7OBRType hl7OBRType = ooType.getObservationRequest();
-            if((null == hl7OBRType.getParent()) && (null == hl7OBRType.getParentResult())) {
-                if((assumedParentOBRType != hl7OBRType) && (assumedChildOBRType != hl7OBRType)) {
+                if ((assumedParentOBRType != hl7OBRType) && (assumedChildOBRType != hl7OBRType)) {
                     hl7OBRType.setParent(assumedChildOBRType.getParent());
                     hl7OBRType.setParentResult(assumedChildOBRType.getParentResult());
                 }
@@ -273,41 +274,67 @@ public class Hl7ToRhapsodysXmlConverter {
         }
     }
 
-    private HL7OrderObservationType buildHL7OrderObservationType(OrderObservation oo) {
+    private HL7OBRType findAssumedOBRType(List<HL7OrderObservationType> listOfOOTypes, boolean findParent) {
+        for (HL7OrderObservationType ooType : listOfOOTypes) {
+            HL7OBRType hl7OBRType = ooType.getObservationRequest();
+            boolean hasParent = (hl7OBRType.getParent() != null);
+            boolean hasParentResult = (hl7OBRType.getParentResult() != null);
+
+            if (findParent && !hasParent && !hasParentResult) {
+                return hl7OBRType;
+            }
+
+            if (!findParent && hasParent && hasParentResult) {
+                return hl7OBRType;
+            }
+        }
+        return null;
+    }
+
+
+
+        private HL7OrderObservationType buildHL7OrderObservationType(OrderObservation oo) {
         HL7OrderObservationType hl7OrderObservationType = new HL7OrderObservationType();
-        hl7OrderObservationType.setCommonOrder(buildHL7ORCType(oo.getCommonOrder()));
+
+        if( !isEmptyHL7ORCType(oo.getCommonOrder()) ) {
+            hl7OrderObservationType.setCommonOrder(buildHL7ORCType(oo.getCommonOrder()));
+        }
+
         hl7OrderObservationType.setObservationRequest(buildHL7OBRType(oo.getObservationRequest()));
 
-        for(NoteAndComment nac : oo.getNoteAndComment()) {
+        for (NoteAndComment nac : oo.getNoteAndComment()) {
             hl7OrderObservationType.getNotesAndComments().add(buildHL7NTEType(nac));
         }
 
         //hl7OrderObservationType.setHL7TIMINGQuantiyType(buildHL7TIMINGQuantiyType(oo.getTimingQty()));
-        hl7OrderObservationType.setContactData(buildHL7CTDType(oo.getContactData()));
+
+        if (!isEmptyHL7CTDType(oo.getContactData())) {
+            hl7OrderObservationType.setContactData(buildHL7CTDType(oo.getContactData()));
+        }
+
         hl7OrderObservationType.setPatientResultOrderObservation(buildPatientResultOrderObservation(oo.getObservation()));
 
-        for(FinancialTransaction ft : oo.getFinancialTransaction()) {
+        for (FinancialTransaction ft : oo.getFinancialTransaction()) {
             hl7OrderObservationType.getFinancialTransaction().add(buildHL7FT1Type(ft));
         }
 
-        for(ClinicalTrialIdentification cti : oo.getClinicalTrialIdentification()) {
+        for (ClinicalTrialIdentification cti : oo.getClinicalTrialIdentification()) {
             hl7OrderObservationType.getClinicalTrialIdentification().add(buildHL7CTIType(cti));
         }
 
-        if((null != oo.getSpecimen() && (oo.getSpecimen().size() > 0))) {
+        if ((null != oo.getSpecimen() && (oo.getSpecimen().size() > 0))) {
             for (Specimen specimen : oo.getSpecimen()) {
                 hl7OrderObservationType.setPatientResultOrderSPMObservation(buildHL7PatientResultSPMType(oo.getSpecimen()));
             }
         }
 
-         return hl7OrderObservationType;
+        return hl7OrderObservationType;
     }
 
     private HL7PatientResultSPMType buildHL7PatientResultSPMType(List<Specimen> specimenList) {
         HL7PatientResultSPMType hl7PatientResultSPMType = new HL7PatientResultSPMType();
 
-        for(Specimen s : specimenList)
-        {
+        for (Specimen s : specimenList) {
             hl7PatientResultSPMType.getSPECIMEN().add(buildHL7SPECIMENType(s));
         }
 
@@ -317,7 +344,7 @@ public class Hl7ToRhapsodysXmlConverter {
     private PatientResultOrderObservation buildPatientResultOrderObservation(List<Observation> observations) {
         PatientResultOrderObservation proo = new PatientResultOrderObservation();
 
-        for(Observation o : observations) {
+        for (Observation o : observations) {
             proo.getOBSERVATION().add(buildHL7OBSERVATIONType(o));
         }
 
@@ -334,22 +361,24 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7CTIType;
     }
 
+    //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
     private HL7TIMINGQuantiyType buildHL7TIMINGQuantiyType(List<TimingQty> timingQty) {
         HL7TIMINGQuantiyType hl7TIMINGQuantiyType = new HL7TIMINGQuantiyType();
 
-        for(TimingQty tq : timingQty) {
+        for (TimingQty tq : timingQty) {
             hl7TIMINGQuantiyType.getTIMINGQTY().add(buildHL7TIMINGQTYType(tq));
         }
 
         return hl7TIMINGQuantiyType;
     }
 
+    //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
     private HL7TIMINGQTYType buildHL7TIMINGQTYType(TimingQty tq) {
         HL7TIMINGQTYType hl7TIMINGQTYType = new HL7TIMINGQTYType();
 
         hl7TIMINGQTYType.setTimingQuantity(buildHL7TQ1Type(tq.getTimeQuantity()));
 
-        for(TimingQuantityRelationship tqr : tq.getTimeQuantityRelationship()) {
+        for (TimingQuantityRelationship tqr : tq.getTimeQuantityRelationship()) {
             hl7TIMINGQTYType.getTimingQuantityRelationship().add(buildHL7TQ2Type(tqr));
         }
 
@@ -360,7 +389,7 @@ public class Hl7ToRhapsodysXmlConverter {
         HL7SPECIMENType hl7SPECIMENType = new HL7SPECIMENType();
 
         hl7SPECIMENType.setSPECIMEN(buildHL7SPMType(s.getSpecimen()));
-        for(ObservationResult or : s.getObservationResult()) {
+        for (ObservationResult or : s.getObservationResult()) {
             hl7SPECIMENType.getObservationResult().add(buildHL7OBXType(or));
         }
 
@@ -372,7 +401,7 @@ public class Hl7ToRhapsodysXmlConverter {
 
         hl7OBSERVATIONType.setObservationResult(buildHL7OBXType(o.getObservationResult()));
 
-        for(NoteAndComment nac : o.getNoteAndComments()) {
+        for (NoteAndComment nac : o.getNoteAndComments()) {
             hl7OBSERVATIONType.getNotesAndComments().add(buildHL7NTEType(nac));
         }
 
@@ -383,31 +412,37 @@ public class Hl7ToRhapsodysXmlConverter {
         HL7CNEType hl7CNEType = new HL7CNEType();
 
         hl7CNEType.setHL7Identifier(cne.getIdentifier());
-        hl7CNEType.setHL7Text(cne.getText());
-        hl7CNEType.setHL7NameofCodingSystem(cne.getNameOfAlternateCodingSystem());
-        hl7CNEType.setHL7AlternateIdentifier(cne.getAlternateIdentifier());
-        hl7CNEType.setHL7AlternateText(cne.getAlternateText());
-        hl7CNEType.setHL7NameofAlternateCodingSystem(cne.getNameOfAlternateCodingSystem());
-        hl7CNEType.setHL7CodingSystemVersionID(cne.getCodingSystemVersionId());
-        hl7CNEType.setHL7AlternateCodingSystemVersionID(cne.getAlternateCodingSystemVersionId());
-        hl7CNEType.setHL7OriginalText(cne.getOriginalText());
+        setNonEmptyStringHL7DataType(hl7CNEType::setHL7Text, cne.getText());
+        setNonEmptyStringHL7DataType(hl7CNEType::setHL7NameofCodingSystem, cne.getNameOfAlternateCodingSystem());
+        setNonEmptyStringHL7DataType(hl7CNEType::setHL7AlternateIdentifier, cne.getAlternateIdentifier());
+        setNonEmptyStringHL7DataType(hl7CNEType::setHL7AlternateText, cne.getAlternateText());
+        setNonEmptyStringHL7DataType(hl7CNEType::setHL7NameofAlternateCodingSystem, cne.getNameOfAlternateCodingSystem());
+        setNonEmptyStringHL7DataType(hl7CNEType::setHL7CodingSystemVersionID, cne.getCodingSystemVersionId());
+        setNonEmptyStringHL7DataType(hl7CNEType::setHL7AlternateCodingSystemVersionID, cne.getAlternateCodingSystemVersionId());
+        setNonEmptyStringHL7DataType(hl7CNEType::setHL7OriginalText, cne.getOriginalText());
 
         return hl7CNEType;
+    }
+
+    private void setNonEmptyStringHL7DataType(Consumer<String> setter, String value) {
+        if (StringUtils.isNotEmpty(value)) {
+            setter.accept(value);
+        }
     }
 
     private HL7CWEType buildHL7CWEType(Cwe cwe) {
         HL7CWEType hl7CWEType = new HL7CWEType();
 
         hl7CWEType.setHL7Identifier(cwe.getIdentifier());
-        hl7CWEType.setHL7Text(cwe.getText());
-        hl7CWEType.setHL7NameofCodingSystem(cwe.getNameOfCodingSystem());
-        hl7CWEType.setHL7AlternateIdentifier(cwe.getAlternateIdentifier());
-        hl7CWEType.setHL7AlternateText(cwe.getAlternateText());
-        hl7CWEType.setHL7NameofAlternateCodingSystem(cwe.getNameOfAlterCodeSystem());
-        hl7CWEType.setHL7CodingSystemVersionID(cwe.getCodeSystemVerId());
-        hl7CWEType.setHL7AlternateCodingSystemVersionID(cwe.getNameOfAlterCodeSystem());
-        hl7CWEType.setHL7OriginalText(cwe.getOriginalText());
 
+        setNonEmptyStringHL7DataType(hl7CWEType::setHL7Text, cwe.getText());
+        setNonEmptyStringHL7DataType(hl7CWEType::setHL7NameofCodingSystem, cwe.getNameOfCodingSystem());
+        setNonEmptyStringHL7DataType(hl7CWEType::setHL7AlternateIdentifier, cwe.getAlternateIdentifier());
+        setNonEmptyStringHL7DataType(hl7CWEType::setHL7AlternateText, cwe.getAlternateText());
+        setNonEmptyStringHL7DataType(hl7CWEType::setHL7NameofAlternateCodingSystem, cwe.getNameOfAlterCodeSystem());
+        setNonEmptyStringHL7DataType(hl7CWEType::setHL7CodingSystemVersionID, cwe.getCodeSystemVerId());
+        setNonEmptyStringHL7DataType(hl7CWEType::setHL7AlternateCodingSystemVersionID, cwe.getAlterCodeSystemVerId());
+        setNonEmptyStringHL7DataType(hl7CWEType::setHL7OriginalText, cwe.getOriginalText());
         return hl7CWEType;
     }
 
@@ -417,7 +452,11 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7PLType.setHL7PointofCare(pl.getPointOfCare());
         hl7PLType.setHL7Room(pl.getRoom());
         hl7PLType.setHL7Bed(pl.getBed());
-        hl7PLType.setHL7Facility(buildHL7HDType(pl.getFacility()));
+
+        if (!isEmptyHL7HDType(pl.getFacility())) {
+            hl7PLType.setHL7Facility(buildHL7HDType(pl.getFacility()));
+        }
+
         hl7PLType.setHL7LocationStatus(pl.getLocationStatus());
         hl7PLType.setHL7PersonLocationType(pl.getPersonLocationType());
         hl7PLType.setHL7Building(pl.getBuilding());
@@ -433,13 +472,25 @@ public class Hl7ToRhapsodysXmlConverter {
         HL7XONType hl7XONType = new HL7XONType();
 
         hl7XONType.setHL7OrganizationName(xon.getOrganizationName());
-        hl7XONType.setHL7OrganizationNameTypeCode(xon.getOrganizationNameTypeCode());
+
+        if( StringUtils.isNotEmpty(xon.getOrganizationNameTypeCode())) {
+            hl7XONType.setHL7OrganizationNameTypeCode(xon.getOrganizationNameTypeCode());
+        }
+
         hl7XONType.setHL7IDNumber(buildHl7NMType(xon.getIdNumber()));
         hl7XONType.setHL7CheckDigit(buildHl7NMType(xon.getCheckDigit()));
         hl7XONType.setHL7CheckDigitScheme(xon.getCheckDigitScheme());
-        hl7XONType.setHL7AssigningAuthority(buildHL7HDType(xon.getAssignAuthority()));
+
+        if (!isEmptyHL7HDType(xon.getAssignAuthority())) {
+            hl7XONType.setHL7AssigningAuthority(buildHL7HDType(xon.getAssignAuthority()));
+        }
+
         hl7XONType.setHL7IdentifierTypeCode(xon.getIdentifierTypeCode());
-        hl7XONType.setHL7AssigningFacility(buildHL7HDType(xon.getAssignFacility()));
+
+        if (!isEmptyHL7HDType(xon.getAssignFacility())) {
+            hl7XONType.setHL7AssigningFacility(buildHL7HDType(xon.getAssignFacility()));
+        }
+
         hl7XONType.setHL7NameRepresentationCode(xon.getNameRepresentationCode());
         hl7XONType.setHL7OrganizationIdentifier(xon.getOrganizationIdentifier());
 
@@ -450,17 +501,22 @@ public class Hl7ToRhapsodysXmlConverter {
         HL7PATIENTType hl7PATIENTType = new HL7PATIENTType();
 
         hl7PATIENTType.setPatientIdentification(buildHL7PIDType(p.getPatientIdentification()));
-        hl7PATIENTType.setPatientAdditionalDemographic(buildHL7PID1Type(p.getPatientAdditionalDemographic()));
 
-        for(NoteAndComment nac : p.getNoteAndComment()) {
+        if (!isEmptyHL7PID1Type(p.getPatientAdditionalDemographic())) {
+            hl7PATIENTType.setPatientAdditionalDemographic(buildHL7PID1Type(p.getPatientAdditionalDemographic()));
+        }
+
+        for (NoteAndComment nac : p.getNoteAndComment()) {
             hl7PATIENTType.getNotesandComments().add(buildHL7NTEType(nac));
         }
 
-        for(NextOfKin nok : p.getNextOfKin()) {
+        for (NextOfKin nok : p.getNextOfKin()) {
             hl7PATIENTType.getNextofKinAssociatedParties().add(buildHL7NK1Type(nok));
         }
 
-        hl7PATIENTType.setVisit(buildHL7VisitType(p.getVisit()));
+        if (!isEmptyHL7VisitType(p.getVisit())) {
+            hl7PATIENTType.setVisit(buildHL7VisitType(p.getVisit()));
+        }
 
         return hl7PATIENTType;
     }
@@ -468,8 +524,13 @@ public class Hl7ToRhapsodysXmlConverter {
     private HL7VisitType buildHL7VisitType(Visit v) {
         HL7VisitType hl7VisitType = new HL7VisitType();
 
-        hl7VisitType.setPatientVisit(buildHL7PIV1Type(v.getPatientVisit()));
-        hl7VisitType.setPatientVisitAdditionalInformation(buildHL7PIV2Type(v.getPatientVisitAdditional()));
+        if (!isEmptyHL7PIV1Type(v.getPatientVisit())) {
+            hl7VisitType.setPatientVisit(buildHL7PIV1Type(v.getPatientVisit()));
+        }
+
+        if (!isEmptyHL7PIV2Type(v.getPatientVisitAdditional())) {
+            hl7VisitType.setPatientVisitAdditionalInformation(buildHL7PIV2Type(v.getPatientVisitAdditional()));
+        }
 
         return hl7VisitType;
     }
@@ -483,7 +544,7 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7NTEType.setHL7SetIDNTE(hl7SIType);
         hl7NTEType.setHL7SourceOfComment(noteAndComment.getSourceOfComment());
 
-        for(String s : noteAndComment.getComment()) {
+        for (String s : noteAndComment.getComment()) {
             hl7NTEType.getHL7Comment().add(s);
         }
 
@@ -495,33 +556,31 @@ public class Hl7ToRhapsodysXmlConverter {
     private HL7CTDType buildHL7CTDType(ContactData contactData) {
         HL7CTDType hl7CTDType = new HL7CTDType();
 
-        if((null == contactData.getContactRole()) || (contactData.getContactRole().size() <= 0)) {
+        if ((null == contactData.getContactRole()) || (contactData.getContactRole().size() <= 0)) {
             hl7CTDType.getContactRole().add(buildHL7CEType(null));
-        }
-        else {
+        } else {
             for (Ce ce : contactData.getContactRole()) {
                 hl7CTDType.getContactRole().add(buildHL7CEType(ce));
             }
         }
 
-        for(Xpn xpn : contactData.getContactName()) {
+        for (Xpn xpn : contactData.getContactName()) {
             hl7CTDType.getContactName().add(buildHL7XPNType(xpn));
         }
 
-        for(Xad xad : contactData.getContactAddress())
-        {
+        for (Xad xad : contactData.getContactAddress()) {
             hl7CTDType.getContactAddress().add(buildHL7XADType(xad));
         }
 
         hl7CTDType.setContactLocation(buildHL7PLType(contactData.getContactLocation()));
 
-        for(Xtn xtn : contactData.getContactCommunicationInformation()) {
+        for (Xtn xtn : contactData.getContactCommunicationInformation()) {
             hl7CTDType.getContactCommunicationInformation().add(buildHL7XTNType(xtn));
         }
 
         hl7CTDType.setPreferredMethodOfContact(buildHL7CEType(contactData.getPreferredMethodOfContact()));
 
-        for(Pln pln : contactData.getContactIdentifiers()) {
+        for (Pln pln : contactData.getContactIdentifiers()) {
             hl7CTDType.getContactIdentifiers().add(buildHL7PLNType(pln));
         }
 
@@ -552,7 +611,11 @@ public class Hl7ToRhapsodysXmlConverter {
 
         hl7SPSType.setHL7SpecimenSourceNameOrCode(buildHL7CWEType(sps.getSpecimenSourceNameOrCode()));
         hl7SPSType.setHL7Additives(buildHL7CWEType(sps.getAdditives()));
-        hl7SPSType.setHL7SpecimenCollectionMethod(buildHL7TXType(sps.getSpecimenCollectionMethod()));
+
+        if( StringUtils.isNotEmpty(sps.getSpecimenCollectionMethod())) {
+            hl7SPSType.setHL7SpecimenCollectionMethod(buildHL7TXType(sps.getSpecimenCollectionMethod()));
+        }
+
         hl7SPSType.setHL7BodySite(buildHL7CWEType(sps.getBodySite()));
         hl7SPSType.setHL7SiteModifier(buildHL7CWEType(sps.getSiteModifier()));
         hl7SPSType.setHL7CollectionMethodModifierCode(buildHL7CWEType(sps.getCollectionMethodModifierCode()));
@@ -579,16 +642,8 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7MOType;
     }
 
-    private boolean isEmptyHL7CEType(Ce ce) {
-        return ((null == ce.getIdentifier()) || (ce.getIdentifier().length() <= 0));
-    }
-
-    private boolean isEmptyHL7PRLType(Prl prl) {
-        return isEmptyHL7CEType(prl.getParentObservationIdentifier());
-    }
-
     private HL7PRLType buildHL7PRLType(Prl prl) {
-        if( isEmptyHL7PRLType(prl) ) return null;
+        if (isEmptyHL7PRLType(prl)) return null;
 
         HL7PRLType hl7PRLType = new HL7PRLType();
 
@@ -608,7 +663,11 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7NDLType.setHL7PointOfCare(ndl.getPointOfCare());
         hl7NDLType.setHL7Room(ndl.getRoom());
         hl7NDLType.setHL7Bed(ndl.getBed());
-        hl7NDLType.setHL7Facility(buildHL7HDType(ndl.getFacility()));
+
+        if (!isEmptyHL7HDType(ndl.getFacility())) {
+            hl7NDLType.setHL7Facility(buildHL7HDType(ndl.getFacility()));
+        }
+
         hl7NDLType.setHL7LocationStatus(ndl.getLocationStatus());
         hl7NDLType.setHL7PatientLocationType(ndl.getPatientLocationType());
         hl7NDLType.setHL7Building(ndl.getBuilding());
@@ -639,31 +698,47 @@ public class Hl7ToRhapsodysXmlConverter {
         HL7OBRType hl7OBRType = new HL7OBRType();
 
         hl7OBRType.setSetIDOBR(buildHL7SIType(or.getSetIdObr()));
-        hl7OBRType.setPlacerOrderNumber(buildHL7EIType(or.getPlacerOrderNumber()));
-        hl7OBRType.setFillerOrderNumber(buildHL7EIType(or.getFillerOrderNumber()));
+
+        if (!isEmptyHL7EIType(or.getPlacerOrderNumber())) {
+            hl7OBRType.setPlacerOrderNumber(buildHL7EIType(or.getPlacerOrderNumber()));
+        }
+
+        if (!isEmptyHL7EIType(or.getFillerOrderNumber())) {
+            hl7OBRType.setFillerOrderNumber(buildHL7EIType(or.getFillerOrderNumber()));
+        }
+
         hl7OBRType.setUniversalServiceIdentifier(buildHL7CWEType(or.getUniversalServiceIdentifier()));
         hl7OBRType.setPriorityOBR(or.getPriorityObr());
         hl7OBRType.setRequestedDateTime(buildHL7TSType(or.getRequestedDateTime()));
-        hl7OBRType.setObservationDateTime(buildHL7TSType(or.getObservationDateTime()));
-        hl7OBRType.setObservationEndDateTime(buildHL7TSType(or.getObservationEndDateTime()));
-        hl7OBRType.setCollectionVolume(buildHL7CQType(or.getCollectionVolume()));
+        hl7OBRType.setObservationDateTime(buildHL7TSType(or.getObservationDateTime(), TS_FMT_DATE_HOUR_MINUTE_ONLY));
+        hl7OBRType.setObservationEndDateTime(buildHL7TSType(or.getObservationEndDateTime(), TS_FMT_DATE_HOUR_MINUTE_ONLY));
 
-        for(Xcn xcn : or.getCollectorIdentifier()) {
+        if (!isEmptyHL7CQType(or.getCollectionVolume())) {
+            hl7OBRType.setCollectionVolume(buildHL7CQType(or.getCollectionVolume()));
+        }
+
+        for (Xcn xcn : or.getCollectorIdentifier()) {
             hl7OBRType.getCollectorIdentifier().add(buildHL7XCNType(xcn));
         }
 
         hl7OBRType.setSpecimenActionCode(or.getSpecimenActionCode());
-        hl7OBRType.setDangerCode(buildHL7CWEType(or.getDangerCode()));
-        hl7OBRType.setRelevantClinicalInformation(or.getRelevantClinicalInformation());
-        hl7OBRType.setSpecimenReceivedDateTime(buildHL7TSType(or.getSpecimenReceivedDateTime()));
-        hl7OBRType.setSpecimenSource(buildHL7SPSType(or.getSpecimenSource()));
 
-        for(Xcn xcn : or.getOrderingProvider()) {
+        if (!isEmptyHL7CEType(or.getDangerCode())) {
+            hl7OBRType.setDangerCode(buildHL7CWEType(or.getDangerCode()));
+        }
+
+        hl7OBRType.setRelevantClinicalInformation(or.getRelevantClinicalInformation());
+        hl7OBRType.setSpecimenReceivedDateTime(buildHL7TSType(or.getSpecimenReceivedDateTime(), TS_FMT_DATE_HOUR_MINUTE_ONLY));
+
+        if (!isEmptyHL7SPSType(or.getSpecimenSource())) {
+            hl7OBRType.setSpecimenSource(buildHL7SPSType(or.getSpecimenSource()));
+        }
+
+        for (Xcn xcn : or.getOrderingProvider()) {
             hl7OBRType.getOrderingProvider().add(buildHL7XCNType(xcn));
         }
 
-        for(Xtn xtn : or.getOrderCallbackPhoneNumber())
-        {
+        for (Xtn xtn : or.getOrderCallbackPhoneNumber()) {
             hl7OBRType.getOrderCallbackPhoneNumber().add(buildHL7XTNType(xtn));
         }
 
@@ -672,103 +747,121 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7OBRType.setFillerField1(or.getFillerField1());
         hl7OBRType.setFillerField2(or.getFillerField2());
         hl7OBRType.setResultsRptStatusChngDateTime(buildHL7TSType(or.getResultRptStatusChngDateTime()));
-        hl7OBRType.setChargeToPractice(buildHL7MOCType(or.getChargeToPractice()));
+
+        if (!isEmptyHL7MOCType(or.getChargeToPractice())) {
+            hl7OBRType.setChargeToPractice(buildHL7MOCType(or.getChargeToPractice()));
+        }
+
         hl7OBRType.setDiagnosticServSectID(or.getDiagnosticServSectId());
         hl7OBRType.setResultStatus(or.getResultStatus());
 
         HL7PRLType hl7PRLType = buildHL7PRLType(or.getParentResult());
-        if(null != hl7PRLType) {
+        if (null != hl7PRLType) {
             hl7OBRType.setParentResult(hl7PRLType);
         }
 
-        for(Tq tq : or.getQuantityTiming()) {
+        for (Tq tq : or.getQuantityTiming()) {
             hl7OBRType.setQuantityTiming(buildHL7TQType(tq));
         }
 
-        for(Xcn xcn : or.getResultCopiesTo()) {
+        for (Xcn xcn : or.getResultCopiesTo()) {
             hl7OBRType.getResultCopiesTo().add(buildHL7XCNType(xcn));
         }
 
         HL7EIPType hl7EIPType = buildHL7EIPType(or.getParent());
-        if(null != hl7EIPType) {
+        if (null != hl7EIPType) {
             hl7OBRType.setParent(hl7EIPType);
         }
 
         hl7OBRType.setTransportationMode(or.getTransportationMode());
 
-        for(Ce ce : or.getReasonForStudy()) {
+        for (Ce ce : or.getReasonForStudy()) {
             hl7OBRType.getReasonforStudy().add(buildHL7CWEType(ce));
         }
 
-        hl7OBRType.setPrincipalResultInterpreter(buildHL7NDLType(or.getPrincipalResultInterpreter()));
+        if (!isEmptyHL7NDLType(or.getPrincipalResultInterpreter())) {
+            hl7OBRType.setPrincipalResultInterpreter(buildHL7NDLType(or.getPrincipalResultInterpreter()));
+        }
 
-        for(Ndl ndl : or.getAssistantResultInterpreter()) {
+        for (Ndl ndl : or.getAssistantResultInterpreter()) {
             hl7OBRType.getAssistantResultInterpreter().add(buildHL7NDLType(ndl));
         }
 
-        for(Ndl ndl : or.getTechnician()) {
+        for (Ndl ndl : or.getTechnician()) {
             hl7OBRType.getTechnician().add(buildHL7NDLType(ndl));
         }
 
-        for(Ndl ndl : or.getTranscriptionist()) {
+        for (Ndl ndl : or.getTranscriptionist()) {
             hl7OBRType.getTranscriptionist().add(buildHL7NDLType(ndl));
         }
 
         hl7OBRType.setScheduledDateTime(buildHL7TSType(or.getScheduledDateTime()));
         hl7OBRType.setNumberofSampleContainers(buildHl7NMType(or.getNumberOfSampleContainers()));
 
-        for(Ce ce : or.getTransportLogisticsOfCollectedSample()) {
+        for (Ce ce : or.getTransportLogisticsOfCollectedSample()) {
             hl7OBRType.getTransportLogisticsofCollectedSample().add(buildHL7CWEType(ce));
         }
 
-        for(Ce ce : or.getCollectorComment()) {
+        for (Ce ce : or.getCollectorComment()) {
             hl7OBRType.getCollectorsComment().add(buildHL7CWEType(ce));
         }
 
-        hl7OBRType.setTransportArrangementResponsibility(buildHL7CWEType(or.getTransportArrangementResponsibility()));
+        if (!isEmptyHL7CEType(or.getTransportArrangementResponsibility())) {
+            hl7OBRType.setTransportArrangementResponsibility(buildHL7CWEType(or.getTransportArrangementResponsibility()));
+        }
+
         hl7OBRType.setTransportArranged(or.getTransportArranged());
         hl7OBRType.setEscortRequired(or.getEscortRequired());
 
-        for(Ce ce : or.getPlannedPatientTransportComment()) {
+        for (Ce ce : or.getPlannedPatientTransportComment()) {
             hl7OBRType.getPlannedPatientTransportComment().add(buildHL7CWEType(ce));
         }
 
-        hl7OBRType.setProcedureCode(buildHL7CWEType(or.getProcedureCode()));
+        if (!isEmptyHL7CEType(or.getProcedureCode())) {
+            hl7OBRType.setProcedureCode(buildHL7CWEType(or.getProcedureCode()));
+        }
 
-        for(Ce ce : or.getProcedureCodeModifier()) {
+        for (Ce ce : or.getProcedureCodeModifier()) {
             hl7OBRType.getProcedureCodeModifier().add(buildHL7CWEType(ce));
         }
 
-        for(Ce ce : or.getPlacerSupplementalServiceInformation()) {
+        for (Ce ce : or.getPlacerSupplementalServiceInformation()) {
             hl7OBRType.getPlacerSupplementalServiceInformation().add(buildHL7CWEType(ce));
         }
 
-        for(Ce ce : or.getFillerSupplementalServiceInformation()) {
+        for (Ce ce : or.getFillerSupplementalServiceInformation()) {
             hl7OBRType.getFillerSupplementalServiceInformation().add(buildHL7CWEType(ce));
         }
 
-        hl7OBRType.setMedicallyNecessaryDuplicateProcedureReason(buildHL7CWEType(or.getMedicallyNecessaryDuplicateProcedureReason()));
+        if (!isEmptyHL7CWEType(or.getMedicallyNecessaryDuplicateProcedureReason())) {
+            hl7OBRType.setMedicallyNecessaryDuplicateProcedureReason(buildHL7CWEType(or.getMedicallyNecessaryDuplicateProcedureReason()));
+        }
+
         hl7OBRType.setResultHandling(or.getResultHandling());
-        hl7OBRType.setParentUniversalServiceIdentifier(buildHL7CWEType(or.getParentUniversalServiceIdentifier()));
+
+        if (!isEmptyHL7CWEType(or.getParentUniversalServiceIdentifier())) {
+            hl7OBRType.setParentUniversalServiceIdentifier(buildHL7CWEType(or.getParentUniversalServiceIdentifier()));
+        }
 
         return hl7OBRType;
     }
 
+    //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
     private HL7TQ2Type buildHL7TQ2Type(TimingQuantityRelationship tqr) {
         HL7TQ2Type hl7TQ2Type = new HL7TQ2Type();
 
         hl7TQ2Type.setSetIDTQ2(buildHL7SIType(tqr.getSetIdTq2()));
         hl7TQ2Type.getSequenceResultsFlag().add(tqr.getSequenceResultFlag());
 
-        for(Ei ei : tqr.getRelatedPlacerNumber()) {
+        for (Ei ei : tqr.getRelatedPlacerNumber()) {
             hl7TQ2Type.getRelatedPlacerNumber().add(buildHL7EIType(ei));
         }
 
-        for(Ei ei : tqr.getRelatedFillerNumber()) {
+        for (Ei ei : tqr.getRelatedFillerNumber()) {
             hl7TQ2Type.getRelatedFillerNumber().add(buildHL7EIType(ei));
         }
 
-        for(Ei ei : tqr.getRelatedPlacerGroupNumber()) {
+        for (Ei ei : tqr.getRelatedPlacerGroupNumber()) {
             hl7TQ2Type.getRelatedPlacerGroupNumber().add(buildHL7EIType(ei));
         }
 
@@ -792,40 +885,62 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7XCNType.setHL7Prefix(xcn.getPrefix());
         hl7XCNType.setHL7Degree(xcn.getDegree());
         hl7XCNType.setHL7SourceTable(xcn.getSourceTable());
-        hl7XCNType.setHL7AssigningAuthority(buildHL7HDType(xcn.getAssignAuthority()));
+
+        if (!isEmptyHL7HDType(xcn.getAssignAuthority())) {
+            hl7XCNType.setHL7AssigningAuthority(buildHL7HDType(xcn.getAssignAuthority()));
+        }
+
         hl7XCNType.setHL7NameTypeCode(xcn.getNameTypeCode());
         hl7XCNType.setHL7IdentifierCheckDigit(xcn.getIdentifierCheckDigit());
         hl7XCNType.setHL7CheckDigitScheme(xcn.getCheckDigitScheme());
         hl7XCNType.setHL7IdentifierTypeCode(xcn.getIdentifierTypeCode());
-        hl7XCNType.setHL7AssigningFacility(buildHL7HDType(xcn.getAssignFacility()));
+
+        if (!isEmptyHL7HDType(xcn.getAssignFacility())) {
+            hl7XCNType.setHL7AssigningFacility(buildHL7HDType(xcn.getAssignFacility()));
+        }
+
         hl7XCNType.setHL7NameRepresentationCode(xcn.getNameRepresentationCode());
-        hl7XCNType.setHL7NameContext(buildHL7CEType(xcn.getNameContext()));
-        hl7XCNType.setHL7NameValidityRange(buildHL7DRType(xcn.getNameValidityRange()));
+
+        if (!isEmptyHL7CEType(xcn.getNameContext())) {
+            hl7XCNType.setHL7NameContext(buildHL7CEType(xcn.getNameContext()));
+        }
+
+        if (!isEmptyHL7DRType(xcn.getNameValidityRange())) {
+            hl7XCNType.setHL7NameValidityRange(buildHL7DRType(xcn.getNameValidityRange()));
+        }
+
         hl7XCNType.setHL7NameAssemblyOrder(xcn.getNameAssemblyOrder());
         hl7XCNType.setHL7EffectiveDate(buildHL7TSType(xcn.getEffectiveDate()));
         hl7XCNType.setHL7ExpirationDate(buildHL7TSType(xcn.getExpirationDate()));
-        hl7XCNType.setHL7ProfessionalSuffix(xcn.getPrefix());
-        hl7XCNType.setHL7AssigningJurisdiction(buildHL7CWEType(xcn.getAssignJurisdiction()));
-        hl7XCNType.setHL7AssigningAgencyOrDepartment(buildHL7CWEType(xcn.getAssignAgencyDept()));
+        //hl7XCNType.setHL7ProfessionalSuffix(xcn.getPrefix());
+
+        if (!isEmptyHL7CWEType(xcn.getAssignJurisdiction())) {
+            hl7XCNType.setHL7AssigningJurisdiction(buildHL7CWEType(xcn.getAssignJurisdiction()));
+        }
+
+        if (!isEmptyHL7CWEType(xcn.getAssignAgencyDept())) {
+            hl7XCNType.setHL7AssigningAgencyOrDepartment(buildHL7CWEType(xcn.getAssignAgencyDept()));
+        }
 
         return hl7XCNType;
     }
 
+    //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
     private HL7TQ1Type buildHL7TQ1Type(TimingQuantity tq) {
         HL7TQ1Type hl7TQ1Type = new HL7TQ1Type();
 
         hl7TQ1Type.setSetIDTQ1(buildHL7SIType(buildEmptyValue(tq.getSetIdTq1())));
         hl7TQ1Type.setQuantity(buildHL7CQType(tq.getQuantity()));
 
-        for(Rpt rpt : tq.getRepeatPattern()) {
+        for (Rpt rpt : tq.getRepeatPattern()) {
             hl7TQ1Type.getRepeatPattern().add(buildHL7RPTType(rpt));
         }
 
-        for(String s : tq.getExplicitTime()) {
+        for (String s : tq.getExplicitTime()) {
             hl7TQ1Type.getExplicitTime().add(buildHL7TMType(s));
         }
 
-        for(Cq cq : tq.getRelativeTimeAndUnits()) {
+        for (Cq cq : tq.getRelativeTimeAndUnits()) {
             hl7TQ1Type.getRelativeTimeAndUnits().add(buildHL7CQType(cq));
         }
 
@@ -833,7 +948,7 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7TQ1Type.setStartdatetime(buildHL7TSType(tq.getStartDateTime()));
         hl7TQ1Type.setEnddatetime(buildHL7TSType(tq.getEndDateTime()));
 
-        for(Cwe cwe : tq.getPriority()) {
+        for (Cwe cwe : tq.getPriority()) {
             hl7TQ1Type.getPriority().add(buildHL7CWEType(cwe));
         }
 
@@ -846,6 +961,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7TQ1Type;
     }
 
+    //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
     private HL7RPTType buildHL7RPTType(Rpt rpt) {
         HL7RPTType hl7RPTType = new HL7RPTType();
 
@@ -871,11 +987,19 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7OBXType.setObservationIdentifier(buildHL7CWEType(or.getObservationIdentifier()));
         hl7OBXType.setObservationSubID(or.getObservationSubId());
 
-        for(String s : or.getObservationValue()) {
-            hl7OBXType.getObservationValue().add(s);
+        for (String s : or.getObservationValue()) {
+            if (OBX_VALUE_TYPE_SN.equals(hl7OBXType.getValueType())) {
+                String refinedValue = s.replaceAll(CARET_SEPARATOR, "");
+                hl7OBXType.getObservationValue().add(refinedValue);
+            } else {
+                hl7OBXType.getObservationValue().add(s);
+            }
         }
 
-        hl7OBXType.setUnits(buildHL7CEType(or.getUnits()));
+        if (!isEmptyHL7CEType(or.getUnits())) {
+            hl7OBXType.setUnits(buildHL7CEType(or.getUnits()));
+        }
+
         hl7OBXType.setReferencesRange(or.getReferencesRange());
 
         /*
@@ -886,7 +1010,7 @@ public class Hl7ToRhapsodysXmlConverter {
 
         hl7OBXType.getProbability().add(buildHl7NMType(or.getProbability()));
 
-        for(String s : or.getNatureOfAbnormalTest()) {
+        for (String s : or.getNatureOfAbnormalTest()) {
             hl7OBXType.getNatureOfAbnormalTest().add(s);
         }
 
@@ -894,101 +1018,133 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7OBXType.setEffectiveDateOfReferenceRangeValues(buildHL7TSType(or.getEffectiveDateOfReferenceRange()));
         hl7OBXType.setUserDefinedAccessChecks(or.getUserDefinedAccessChecks());
         hl7OBXType.setDateTimeOftheObservation(buildHL7TSType(or.getDateTimeOfTheObservation()));
-        hl7OBXType.setProducersReference(buildHL7CWEType(or.getProducerId()));
 
-        for(Xcn xcn : or.getResponsibleObserver()) {
+        if (!isEmptyHL7CEType(or.getProducerId())) {
+            hl7OBXType.setProducersReference(buildHL7CWEType(or.getProducerId()));
+        }
+
+        for (Xcn xcn : or.getResponsibleObserver()) {
             hl7OBXType.getResponsibleObserver().add(buildHL7XCNType(xcn));
         }
 
-        for(Ce ce : or.getObservationMethod()) {
+        for (Ce ce : or.getObservationMethod()) {
             hl7OBXType.getObservationMethod().add(buildHL7CEType(ce));
         }
 
-        for(Ei ei : or.getEquipmentInstanceIdentifier()) {
+        for (Ei ei : or.getEquipmentInstanceIdentifier()) {
             hl7OBXType.getEquipmentInstanceIdentifier().add(buildHL7EIType(ei));
         }
 
-        hl7OBXType.setDateTimeOftheAnalysis(buildHL7TSType(or.getDateTimeOfTheAnalysis()));
+        hl7OBXType.setDateTimeOftheAnalysis(buildHL7TSType(or.getDateTimeOfTheAnalysis(), TS_FMT_DATE_ONLY));
+
         //hl7OBXType.setReservedforHarmonizationWithV261(or.getReservedForHarmonizationWithV261());
-        hl7OBXType.setReservedForHarmonizationwithV262(or.getReservedForHarmonizationWithV262());
-        hl7OBXType.setReservedForHarmonizationWithV263(or.getReservedForHarmonizationWithV263());
-        hl7OBXType.setPerformingOrganizationName(buildHL7XONType(or.getPerformingOrganizationName()));
-        hl7OBXType.setPerformingOrganizationAddress(buildHL7XADType(or.getPerformingOrganizationAddress()));
-        hl7OBXType.setPerformingOrganizationMedicalDirector(buildHL7XCNType(or.getPerformingOrganizationMedicalDirector()));
+        //hl7OBXType.setReservedForHarmonizationwithV262(or.getReservedForHarmonizationWithV262());
+        //hl7OBXType.setReservedForHarmonizationWithV263(or.getReservedForHarmonizationWithV263());
+
+        if (!isEmptyHL7XONType(or.getPerformingOrganizationName())) {
+            hl7OBXType.setPerformingOrganizationName(buildHL7XONType(or.getPerformingOrganizationName()));
+        }
+
+        if (!isEmptyHL7XADType(or.getPerformingOrganizationAddress())) {
+            hl7OBXType.setPerformingOrganizationAddress(buildHL7XADType(or.getPerformingOrganizationAddress()));
+        }
+
+        if (!isEmptyHL7XCNType(or.getPerformingOrganizationMedicalDirector())) {
+            hl7OBXType.setPerformingOrganizationMedicalDirector(buildHL7XCNType(or.getPerformingOrganizationMedicalDirector()));
+        }
 
         return hl7OBXType;
     }
 
+
+    private void addCWEsToSPMType(List<Cwe> cweList, Consumer<HL7CWEType> spmAdder) {
+        for (Cwe cwe : cweList) {
+            spmAdder.accept(buildHL7CWEType(cwe));
+        }
+    }
+
     private HL7SPMType buildHL7SPMType(gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen s) {
         HL7SPMType hl7SPMType = new HL7SPMType();
-        
+
         hl7SPMType.setSetIDSPM(buildHL7SIType(s.getSetIdSpm()));
         hl7SPMType.setSpecimenID(buildHL7EIPType(s.getSpecimenId()));
-        
-        for(Eip eip : s.getSpecimenParentId()) {
+
+        for (Eip eip : s.getSpecimenParentId()) {
             hl7SPMType.getSpecimenParentIDs().add(buildHL7EIPType(eip));
         }
-        
+
         hl7SPMType.setSpecimenType(buildHL7CWEType(s.getSpecimenType()));
-        
-        for(Cwe cwe : s.getSpecimenTypeModifier()) {
-            hl7SPMType.getSpecimenTypeModifier().add(buildHL7CWEType(cwe));
-        }
-        
-        for(Cwe cwe : s.getSpecimenAdditives()) {
-            hl7SPMType.getSpecimenAdditives().add(buildHL7CWEType(cwe));
-        }
-        
-        hl7SPMType.setSpecimenCollectionMethod(buildHL7CWEType(s.getSpecimenCollectionMethod()));
-        hl7SPMType.setSpecimenSourceSite(buildHL7CWEType(s.getSpecimenSourceSite()));
-        
-        for(Cwe cwe : s.getSpecimenSourceSiteModifier()) {
-            hl7SPMType.getSpecimenSourceSiteModifier().add(buildHL7CWEType(cwe));
-        }
-        
-        hl7SPMType.setSpecimenCollectionSite(buildHL7CWEType(s.getSpecimenCollectionSite()));
-        
-        for(Cwe cwe : s.getSpecimenRole()) {
-            hl7SPMType.getSpecimenRole().add(buildHL7CWEType(cwe));
-        }
-        
-        hl7SPMType.setSpecimenCollectionAmount(buildHL7CQType(s.getSpecimenCollectionAmount()));
-        hl7SPMType.setGroupedSpecimenCount(buildHl7NMType(s.getGroupedSpecimenCount()));
-        
-        for(String str : s.getSpecimenDescription()) {
-            hl7SPMType.getSpecimenDescription().add(str);
-        }
-        
-        for(Cwe cwe : s.getSpecimenHandlingCode()) {
-            hl7SPMType.getSpecimenHandlingCode().add(buildHL7CWEType(cwe));
+
+        addCWEsToSPMType(s.getSpecimenTypeModifier(), hl7CWEType -> hl7SPMType.getSpecimenTypeModifier().add(hl7CWEType));
+        addCWEsToSPMType(s.getSpecimenAdditives(), hl7CWEType -> hl7SPMType.getSpecimenAdditives().add(hl7CWEType));
+
+        if (!isEmptyHL7CWEType(s.getSpecimenCollectionMethod())) {
+            hl7SPMType.setSpecimenCollectionMethod(buildHL7CWEType(s.getSpecimenCollectionMethod()));
         }
 
-        for(Cwe cwe : s.getSpecimenRiskCode()) {
-            hl7SPMType.getSpecimenRiskCode().add(buildHL7CWEType(cwe));
+        if (!isEmptyHL7CWEType(s.getSpecimenSourceSite())) {
+            hl7SPMType.setSpecimenSourceSite(buildHL7CWEType(s.getSpecimenSourceSite()));
         }
-        
-        hl7SPMType.setSpecimenCollectionDateTime(buildHL7DRType(s.getSpecimenCollectionDateTime()));
-        hl7SPMType.setSpecimenReceivedDateTime(buildHL7TSType(s.getSpecimenReceivedDateTime()));
+
+        addCWEsToSPMType(s.getSpecimenSourceSiteModifier(), hl7CWEType -> hl7SPMType.getSpecimenSourceSiteModifier().add(hl7CWEType));
+
+        if (!isEmptyHL7CWEType(s.getSpecimenCollectionSite())) {
+            hl7SPMType.setSpecimenCollectionSite(buildHL7CWEType(s.getSpecimenCollectionSite()));
+        }
+
+        addCWEsToSPMType(s.getSpecimenRole(), hl7CWEType -> hl7SPMType.getSpecimenRole().add(hl7CWEType));
+
+        if (!isEmptyHL7CQType(s.getSpecimenCollectionAmount())) {
+            hl7SPMType.setSpecimenCollectionAmount(buildHL7CQType(s.getSpecimenCollectionAmount()));
+        }
+
+        hl7SPMType.setGroupedSpecimenCount(buildHl7NMType(s.getGroupedSpecimenCount()));
+
+        for (String str : s.getSpecimenDescription()) {
+            hl7SPMType.getSpecimenDescription().add(str);
+        }
+
+        addCWEsToSPMType(s.getSpecimenHandlingCode(), hl7CWEType -> hl7SPMType.getSpecimenHandlingCode().add(hl7CWEType));
+
+        addCWEsToSPMType(s.getSpecimenRiskCode(), hl7CWEType -> hl7SPMType.getSpecimenRiskCode().add(hl7CWEType));
+
+        if (!isEmptyHL7DRType(s.getSpecimenCollectionDateTime())) {
+            hl7SPMType.setSpecimenCollectionDateTime(buildHL7DRType(s.getSpecimenCollectionDateTime()));
+        }
+
+        hl7SPMType.setSpecimenReceivedDateTime(buildHL7TSType(s.getSpecimenReceivedDateTime(), TS_FMT_DATE_HOUR_MINUTE_ONLY));
         hl7SPMType.setSpecimenExpirationDateTime(buildHL7TSType(s.getSpecimenExpirationDateTime()));
         hl7SPMType.setSpecimenAvailability(s.getSpecimenAvailability());
 
-        for(Cwe cwe : s.getSpecimenRejectReason()) {
-            hl7SPMType.getSpecimenRejectReason().add(buildHL7CWEType(cwe));
+        addCWEsToSPMType(s.getSpecimenRejectReason(), hl7CWEType -> hl7SPMType.getSpecimenRejectReason().add(hl7CWEType));
+
+        if (!isEmptyHL7CWEType(s.getSpecimenQuality())) {
+            hl7SPMType.setSpecimenQuality(buildHL7CWEType(s.getSpecimenQuality()));
         }
 
-        hl7SPMType.setSpecimenQuality(buildHL7CWEType(s.getSpecimenQuality()));
-        hl7SPMType.setSpecimenAppropriateness(buildHL7CWEType(s.getSpecimenAppropriateness()));
-
-        for(Cwe cwe : s.getSpecimenCondition())
-        {
-            hl7SPMType.getSpecimenCondition().add(buildHL7CWEType(cwe));
+        if (!isEmptyHL7CWEType(s.getSpecimenAppropriateness())) {
+            hl7SPMType.setSpecimenAppropriateness(buildHL7CWEType(s.getSpecimenAppropriateness()));
         }
 
-        hl7SPMType.setSpecimenCurrentQuantity(buildHL7CQType(s.getSpecimenCurrentQuantity()));
+        addCWEsToSPMType(s.getSpecimenCondition(), hl7CWEType -> hl7SPMType.getSpecimenCondition().add(hl7CWEType));
+
+        if (!isEmptyHL7CQType(s.getSpecimenCurrentQuantity())) {
+            hl7SPMType.setSpecimenCurrentQuantity(buildHL7CQType(s.getSpecimenCurrentQuantity()));
+        }
+
         hl7SPMType.setNumberOfSpecimenContainers(buildHl7NMType(s.getNumberOfSpecimenContainers()));
-        hl7SPMType.setContainerType(buildHL7CWEType(s.getContainerType()));
-        hl7SPMType.setContainerCondition(buildHL7CWEType(s.getContainerCondition()));
-        hl7SPMType.setSpecimenChildRole(buildHL7CWEType(s.getSpecimenChildRole()));
+
+        if (!isEmptyHL7CWEType(s.getContainerType())) {
+            hl7SPMType.setContainerType(buildHL7CWEType(s.getContainerType()));
+        }
+
+        if (!isEmptyHL7CWEType(s.getContainerCondition())) {
+            hl7SPMType.setContainerCondition(buildHL7CWEType(s.getContainerCondition()));
+        }
+
+        if (!isEmptyHL7CWEType(s.getSpecimenChildRole())) {
+            hl7SPMType.setSpecimenChildRole(buildHL7CWEType(s.getSpecimenChildRole()));
+        }
 
         return hl7SPMType;
     }
@@ -1008,7 +1164,7 @@ public class Hl7ToRhapsodysXmlConverter {
 
     private HL7FT1Type buildHL7FT1Type(FinancialTransaction ft) {
         HL7FT1Type hl7FT1Type = new HL7FT1Type();
-        
+
         hl7FT1Type.setSetIDFT1(buildHL7SIType(ft.getSetIdFT1()));
         hl7FT1Type.setTransactionID(ft.getTransactionId());
         hl7FT1Type.setTransactionBatchID(ft.getTransactionBatchId());
@@ -1028,31 +1184,36 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7FT1Type.setFeeSchedule(ft.getFeeSchedule());
         hl7FT1Type.setPatientType(ft.getPatientType());
 
-        for(Ce ce : ft.getDiagnosisCode()) {
+        for (Ce ce : ft.getDiagnosisCode()) {
             hl7FT1Type.getDiagnosisCodeFT1().add(buildHL7CEType(ce));
         }
 
-        for(Xcn xcn : ft.getPerformedByCode()) {
+        for (Xcn xcn : ft.getPerformedByCode()) {
             hl7FT1Type.getPerformedByCode().add(buildHL7XCNType(xcn));
         }
 
-        for(Xcn xcn : ft.getOrderedByCode()) {
+        for (Xcn xcn : ft.getOrderedByCode()) {
             hl7FT1Type.getOrderedByCode().add(buildHL7XCNType(xcn));
         }
 
-        hl7FT1Type.setProcedureCode(buildHL7CEType(ft.getProcedureCode()));
+        if (!isEmptyHL7CEType(ft.getProcedureCode())) {
+            hl7FT1Type.setProcedureCode(buildHL7CEType(ft.getProcedureCode()));
+        }
 
-        for(Ce ce : ft.getProcedureCodeModifier()) {
+        for (Ce ce : ft.getProcedureCodeModifier()) {
             hl7FT1Type.getProcedureCodeModifier().add(buildHL7CEType(ce));
         }
 
         hl7FT1Type.setAdvancedBeneficiaryNoticeCode(buildHL7CEType(ft.getAdvancedBeneficiaryNoticeCode()));
 
-        hl7FT1Type.setMedicallyNecessaryDuplicateProcedureReason(buildHL7CWEType(ft.getMedicallyNecessaryDuplicateProcedureReason()));
+        if (!isEmptyHL7CWEType(ft.getMedicallyNecessaryDuplicateProcedureReason())) {
+            hl7FT1Type.setMedicallyNecessaryDuplicateProcedureReason(buildHL7CWEType(ft.getMedicallyNecessaryDuplicateProcedureReason()));
+        }
+
         hl7FT1Type.setNDCCode(buildHL7CNEType(ft.getNdcCode()));
         hl7FT1Type.setPaymentReferenceID(buildHL7CXType(ft.getPaymentReferenceId()));
 
-        for(String s : ft.getTransactionReferenceKey()) {
+        for (String s : ft.getTransactionReferenceKey()) {
             hl7FT1Type.getTransactionReferenceKey().add(buildHL7SIType(s));
         }
 
@@ -1061,19 +1222,16 @@ public class Hl7ToRhapsodysXmlConverter {
 
     private HL7PIV2Type buildHL7PIV2Type(PatientVisitAdditional pva) {
         HL7PIV2Type hl7PIV2Type = new HL7PIV2Type();
-        
+
         hl7PIV2Type.setPriorPendingLocation(buildHL7PLType(pva.getPriorPendingLocation()));
         hl7PIV2Type.setAccommodationCode(buildHL7CWEType(pva.getAccommodationCode()));
         hl7PIV2Type.setAdmitReason(buildHL7CWEType(pva.getAdmitReason()));
         hl7PIV2Type.setTransferReason(buildHL7CWEType(pva.getTransferReason()));
-
-        for(String s : pva.getPatientValuables()) {
+        for (String s : pva.getPatientValuables()) {
             hl7PIV2Type.getPatientValuables().add(s);
         }
-
         hl7PIV2Type.setPatientValuablesLocation(pva.getPatientValuablesLocation());
-
-        for(String s : pva.getVisitUserCode()) {
+        for (String s : pva.getVisitUserCode()) {
             hl7PIV2Type.getVisitUserCode().add(s);
         }
 
@@ -1083,7 +1241,7 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7PIV2Type.setActualLengthOfInpatientStay(buildHl7NMType(pva.getActualLengthOfInpatientDay()));
         hl7PIV2Type.getVisitDescription().add(pva.getVisitDescription());
 
-        for(Xcn xcn : pva.getReferralSourceCode()) {
+        for (Xcn xcn : pva.getReferralSourceCode()) {
             hl7PIV2Type.getReferralSourceCode().add(buildHL7XCNType(xcn));
         }
 
@@ -1097,8 +1255,8 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7PIV2Type.setVisitPriorityCode(pva.getVisitPublicityCode());
         hl7PIV2Type.getVisitProtectionIndicator().add(pva.getVisitProtectionIndicator());
 
-        for(Xon xon : pva.getClinicOrganizationName()) {
-           hl7PIV2Type.setClinicOrganizationName(buildHL7XONType(xon));
+        for (Xon xon : pva.getClinicOrganizationName()) {
+            hl7PIV2Type.setClinicOrganizationName(buildHL7XONType(xon));
         }
 
         hl7PIV2Type.setPatientStatusCode(pva.getPatientStatusCode());
@@ -1117,13 +1275,13 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7PIV2Type.setBabyDetainedIndicator(pva.getBabyDetainedIndicator());
         hl7PIV2Type.getModeOfArrivalCode().add(buildHL7CWEType(pva.getModeOfArrivalCode()));
 
-        for(Ce ce : pva.getRecreationalDrugUseCode()) {
+        for (Ce ce : pva.getRecreationalDrugUseCode()) {
             hl7PIV2Type.setRecreationalDrugUseCode(buildHL7CWEType(ce));
         }
 
         hl7PIV2Type.setAdmissionLevelOfCareCode(buildHL7CWEType(pva.getAdmissionLevelOfCareCode()));
 
-        for(Ce ce : pva.getPrecautionCode()) {
+        for (Ce ce : pva.getPrecautionCode()) {
             hl7PIV2Type.setPrecautionCode(buildHL7CWEType(ce));
         }
 
@@ -1131,7 +1289,7 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7PIV2Type.setLivingWillCode(pva.getLivingWillCode());
         hl7PIV2Type.setOrganDonorCode(pva.getOrganDonorCode());
 
-        for(Ce ce : pva.getAdvanceDirectiveCode()) {
+        for (Ce ce : pva.getAdvanceDirectiveCode()) {
             hl7PIV2Type.getAdvanceDirectiveCode().add(buildHL7CWEType(ce));
         }
 
@@ -1139,7 +1297,7 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7PIV2Type.setExpectedLOAReturnDateTime(buildHL7TSType(pva.getExpectedLoaReturnDateTime()));
         hl7PIV2Type.setExpectedPreadmissionTestingDateTime(buildHL7TSType(pva.getExpectedPreAdmissionTestingDateTime()));
 
-        for(String s : pva.getNotifyClergyCode()) {
+        for (String s : pva.getNotifyClergyCode()) {
             hl7PIV2Type.getNotifyClergyCode().add(s);
         }
 
@@ -1149,34 +1307,31 @@ public class Hl7ToRhapsodysXmlConverter {
 
     private HL7TMType buildHL7TMType(String s) {
         HL7TMType hl7TMType = new HL7TMType();
-
         return hl7TMType;
     }
 
     private HL7PIV1Type buildHL7PIV1Type(PatientVisit pv) {
         HL7PIV1Type hl7PIV1Type = new HL7PIV1Type();
-
         hl7PIV1Type.setSetIDPV1(buildHL7SIType(pv.getSetIdPv1()));
         hl7PIV1Type.setPatientClass(buildEmptyValue(pv.getPatientClass()));
         hl7PIV1Type.setAssignedPatientLocation(buildHL7PLType(pv.getAssignPatientLocation()));
         hl7PIV1Type.setAdmissionType(pv.getAdmissionType());
-
-        if((null == pv.getPreadmitNumber().getIdNumber())) {
+        if ((null == pv.getPreadmitNumber().getIdNumber())) {
             pv.getPreadmitNumber().setIdNumber(EMPTY_STRING);
         }
         hl7PIV1Type.setPreadmitNumber(buildHL7CXType(pv.getPreadmitNumber()));
 
         hl7PIV1Type.setPriorPatientLocation(buildHL7PLType(pv.getPriorPatientLocation()));
 
-        for(Xcn xcn : pv.getAttendingDoctor()) {
+        for (Xcn xcn : pv.getAttendingDoctor()) {
             hl7PIV1Type.getAttendingDoctor().add(buildHL7XCNType(xcn));
         }
 
-        for(Xcn xcn : pv.getReferringDoctor()) {
+        for (Xcn xcn : pv.getReferringDoctor()) {
             hl7PIV1Type.getReferringDoctor().add(buildHL7XCNType(xcn));
         }
 
-        for(Xcn xcn : pv.getConsultingDoctor()) {
+        for (Xcn xcn : pv.getConsultingDoctor()) {
             hl7PIV1Type.setConsultingDoctor(buildHL7XCNType(xcn));
         }
 
@@ -1186,24 +1341,24 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7PIV1Type.setReAdmissionIndicator(pv.getReAdmissionIndicator());
         hl7PIV1Type.setAdmissionType(pv.getAdmitSource());
 
-        for(String s : pv.getAmbulatoryStatus()) {
+        for (String s : pv.getAmbulatoryStatus()) {
             hl7PIV1Type.getAmbulatoryStatus().add(s);
         }
 
         hl7PIV1Type.setVisitIndicator(pv.getVisitIndicator());
 
-        for(Xcn xcn : pv.getAdmittingDoctor()) {
+        for (Xcn xcn : pv.getAdmittingDoctor()) {
             hl7PIV1Type.getAttendingDoctor().add(buildHL7XCNType(xcn));
         }
 
         hl7PIV1Type.setPatientType(pv.getPatientType());
 
         HL7CXType hl7CXType = buildHL7CXType(pv.getVisitNumber());
-        if(hl7CXType != null) {
+        if (hl7CXType != null) {
             hl7PIV1Type.setVisitNumber(hl7CXType);
         }
 
-        for(Fc fc : pv.getFinancialClass()) {
+        for (Fc fc : pv.getFinancialClass()) {
             hl7PIV1Type.getFinancialClass().add(buildHL7FCType(fc));
         }
 
@@ -1211,19 +1366,19 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7PIV1Type.setCourtesyCode(pv.getCourtesyCode());
         hl7PIV1Type.setCreditRating(pv.getCreditRating());
 
-        for(String s : pv.getContractRole()) {
+        for (String s : pv.getContractRole()) {
             hl7PIV1Type.getContractCode().add(s);
         }
 
-        for(String s : pv.getContractEffectiveDate()) {
+        for (String s : pv.getContractEffectiveDate()) {
             hl7PIV1Type.getContractEffectiveDate().add(buildHL7DTType(s));
         }
 
-        for(String s : pv.getContractAmount()) {
+        for (String s : pv.getContractAmount()) {
             hl7PIV1Type.getContractAmount().add(buildHl7NMType(s));
         }
 
-        for(String s : pv.getContractPeriod()) {
+        for (String s : pv.getContractPeriod()) {
             hl7PIV1Type.getContractPeriod().add(buildHl7NMType(s));
         }
 
@@ -1245,7 +1400,7 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7PIV1Type.setPriorTemporaryLocation(buildHL7PLType(pv.getPriorTemporaryLocation()));
         hl7PIV1Type.setAdmitDateTime(buildHL7TSType(pv.getAdmitDateTime()));
 
-        for(Ts ts : pv.getDischargeDateTime()) {
+        for (Ts ts : pv.getDischargeDateTime()) {
             hl7PIV1Type.getDischargeDateTime().add(buildHL7TSType(ts));
         }
 
@@ -1256,7 +1411,7 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7PIV1Type.setAlternateVisitID(buildHL7CXType(pv.getAlternateVisitId()));
         hl7PIV1Type.setVisitIndicator(pv.getVisitIndicator());
 
-        for(Xcn xcn : pv.getOtherHealthcareProvider()) {
+        for (Xcn xcn : pv.getOtherHealthcareProvider()) {
             hl7PIV1Type.setOtherHealthcareProvider(buildHL7XCNType(xcn));
         }
 
@@ -1314,14 +1469,20 @@ public class Hl7ToRhapsodysXmlConverter {
             hl7NK1Type.getBusinessPhoneNumber().add(buildHL7XTNType(xtn));
         }
 
-        hl7NK1Type.setContactRole(buildHL7CWEType(nok.getContactRole()));
+        if (!isEmptyHL7CEType(nok.getContactRole())) {
+            hl7NK1Type.setContactRole(buildHL7CWEType(nok.getContactRole()));
+        }
+
         hl7NK1Type.setStartDate(buildHL7DTType(nok.getStartDate()));
         hl7NK1Type.setEndDate(buildHL7DTType(nok.getEndDate()));
         hl7NK1Type.getNextOfKinAssociatedPartiesJobTitle().add(nok.getNextOfKinAssociatedPartiesJobTitle());
-        hl7NK1Type.setNextOfKinAssociatedPartiesJobCodeClass(buildHL7JCCType(nok.getNextOfKinAssociatedPartiesJobCode()));
+
+        if (!isEmptyHL7JCCType(nok.getNextOfKinAssociatedPartiesJobCode())) {
+            hl7NK1Type.setNextOfKinAssociatedPartiesJobCodeClass(buildHL7JCCType(nok.getNextOfKinAssociatedPartiesJobCode()));
+        }
 
         HL7CXType hl7CXType = buildHL7CXType(nok.getNextOfKinAssociatedPartiesEmployee());
-        if(null != hl7CXType) {
+        if (null != hl7CXType) {
             hl7NK1Type.setNextOfKinAssociatedPartiesEmployeeNumber(hl7CXType);
         }
 
@@ -1329,7 +1490,10 @@ public class Hl7ToRhapsodysXmlConverter {
             hl7NK1Type.getOrganizationNameNK1().add(buildHL7XONType(xon));
         }
 
-        hl7NK1Type.getMaritalStatus().add(buildHL7CWEType(nok.getMartialStatus()));
+        if (!isEmptyHL7CEType(nok.getMartialStatus())) {
+            hl7NK1Type.getMaritalStatus().add(buildHL7CWEType(nok.getMartialStatus()));
+        }
+
         hl7NK1Type.getAdministrativeSex().add(nok.getAdministrativeSex());
         hl7NK1Type.setDateTimeOfBirth(buildHL7TSType(nok.getDateTimeOfBirth()));
 
@@ -1345,49 +1509,64 @@ public class Hl7ToRhapsodysXmlConverter {
             hl7NK1Type.getCitizenship().add(buildHL7CWEType(ce));
         }
 
-        hl7NK1Type.setPrimaryLanguage(buildHL7CWEType(nok.getPrimaryLanguage()));
-        hl7NK1Type.setLivingArrangement(nok.getLivingArrangement());
-        hl7NK1Type.setPublicityCode(buildHL7CWEType(nok.getPublicityCode()));
-        hl7NK1Type.setProtectionIndicator(nok.getProtectionIndicator());
-        hl7NK1Type.setStudentIndicator(buildEmptyValue(nok.getStudentIndicator()));
-        hl7NK1Type.setReligion(buildHL7CWEType(nok.getReligion()));
+        if (!isEmptyHL7CEType(nok.getPrimaryLanguage())) {
+            hl7NK1Type.setPrimaryLanguage(buildHL7CWEType(nok.getPrimaryLanguage()));
+        }
 
-        for(Xpn xpn : nok.getMotherMaidenName()) {
+        hl7NK1Type.setLivingArrangement(nok.getLivingArrangement());
+
+        if( !isEmptyHL7CEType(nok.getPublicityCode()) ) {
+            hl7NK1Type.setPublicityCode(buildHL7CWEType(nok.getPublicityCode()));
+        }
+
+        hl7NK1Type.setProtectionIndicator(nok.getProtectionIndicator());
+
+        if( StringUtils.isNotEmpty(nok.getStudentIndicator())) {
+            hl7NK1Type.setStudentIndicator(buildEmptyValue(nok.getStudentIndicator()));
+        }
+
+        if (!isEmptyHL7CEType(nok.getReligion())) {
+            hl7NK1Type.setReligion(buildHL7CWEType(nok.getReligion()));
+        }
+
+        for (Xpn xpn : nok.getMotherMaidenName()) {
             hl7NK1Type.getMothersMaidenName().add(buildHL7XPNType(xpn));
         }
 
-        hl7NK1Type.setNationality(buildHL7CWEType(nok.getNationality()));
+        if (!isEmptyHL7CEType(nok.getNationality())) {
+            hl7NK1Type.setNationality(buildHL7CWEType(nok.getNationality()));
+        }
 
-        for(Ce ce : nok.getEthnicGroup()) {
+        for (Ce ce : nok.getEthnicGroup()) {
             hl7NK1Type.getEthnicGroup().add(buildHL7CWEType(ce));
         }
 
-        for(Ce ce : nok.getContactReason()) {
+        for (Ce ce : nok.getContactReason()) {
             hl7NK1Type.getContactReason().add(buildHL7CWEType(ce));
         }
 
-        for(Xpn xpn : nok.getContactPersonName()) {
+        for (Xpn xpn : nok.getContactPersonName()) {
             hl7NK1Type.getContactPersonsName().add(buildHL7XPNType(xpn));
         }
 
-        for(Xpn xpn : nok.getContactPersonName()) {
+        for (Xpn xpn : nok.getContactPersonName()) {
             hl7NK1Type.getContactPersonsName().add(buildHL7XPNType(xpn));
         }
 
-        for(Xad xad : nok.getContactPersonAddress()) {
+        for (Xad xad : nok.getContactPersonAddress()) {
             hl7NK1Type.getContactPersonsAddress().add(buildHL7XADType(xad));
         }
 
-        for(Cx cx : nok.getNextOfKinAssociatedPartyIdentifier()) {
+        for (Cx cx : nok.getNextOfKinAssociatedPartyIdentifier()) {
             hl7CXType = buildHL7CXType(cx);
-            if(null != hl7CXType) {
+            if (null != hl7CXType) {
                 hl7NK1Type.getNextOfKinAssociatedPartysIdentifiers().add(hl7CXType);
             }
         }
 
         hl7NK1Type.setJobStatus(nok.getJobStatus());
 
-        for(Ce ce : nok.getRace()) {
+        for (Ce ce : nok.getRace()) {
             hl7NK1Type.getRace().add(buildHL7CWEType(ce));
         }
 
@@ -1409,49 +1588,40 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7JCCType;
     }
 
-
-    /*
-    private HL7CXType buildCXType(Cx cx) {
-        HL7CXType cxType = new HL7CXType();
-
-        cxType.setHL7IDNumber(buildEmptyValue(cx.getIdNumber()));
-        cxType.setHL7CheckDigit(cx.getCheckDigit());
-        cxType.setHL7CheckDigitScheme(cx.getCheckDigitScheme());
-        cxType.setHL7AssigningAuthority(buildHL7HDType(cx.getAssignAuthority()));
-        cxType.setHL7IdentifierTypeCode(cx.getIdentifierTypeCode());
-        cxType.setHL7AssigningFacility(buildHL7HDType(cx.getAssignFacility()));
-        cxType.setHL7AssigningAgencyOrDepartment(buildHL7CWEType(cx.getAssignAgentOrDept()));
-        cxType.setHL7EffectiveDate(buildHL7DTType(cx.getEffectiveDate()));
-        cxType.setHL7ExpirationDate(buildHL7DTType(cx.getExpirationDate()));
-        cxType.setHL7AssigningJurisdiction(buildHL7CWEType(cx.getAssignJurisdiction()));
-        cxType.setHL7AssigningAgencyOrDepartment(buildHL7CWEType(cx.getAssignAgentOrDept()));
-
-        return cxType;
-    }
-    */
-
     private HL7CXType buildHL7CXType(Cx cx) {
-        if(null == cx.getIdNumber()) return null;
+        if (null == cx.getIdNumber()) return null;
 
         HL7CXType hl7CXType = new HL7CXType();
 
         hl7CXType.setHL7IDNumber(cx.getIdNumber());
         hl7CXType.setHL7CheckDigit(cx.getCheckDigit());
         hl7CXType.setHL7CheckDigitScheme(cx.getCheckDigitScheme());
-        hl7CXType.setHL7AssigningAuthority(buildHL7HDType(cx.getAssignAuthority()));
-        hl7CXType.setHL7IdentifierTypeCode(cx.getIdentifierTypeCode());
-        hl7CXType.setHL7AssigningFacility(buildHL7HDType(cx.getAssignFacility()));
 
-        if(null != cx.getExpirationDate()) {
+        if (!isEmptyHL7HDType(cx.getAssignAuthority())) {
+            hl7CXType.setHL7AssigningAuthority(buildHL7HDType(cx.getAssignAuthority()));
+        }
+
+        hl7CXType.setHL7IdentifierTypeCode(cx.getIdentifierTypeCode());
+
+        if (!isEmptyHL7HDType(cx.getAssignFacility())) {
+            hl7CXType.setHL7AssigningFacility(buildHL7HDType(cx.getAssignFacility()));
+        }
+
+        if (null != cx.getExpirationDate()) {
             hl7CXType.setHL7EffectiveDate(buildHL7DTType(cx.getExpirationDate()));
         }
 
-        if(null != cx.getExpirationDate()) {
+        if (null != cx.getExpirationDate()) {
             hl7CXType.setHL7ExpirationDate(buildHL7DTType(cx.getExpirationDate()));
         }
 
-        hl7CXType.setHL7AssigningJurisdiction(buildHL7CWEType(cx.getAssignJurisdiction()));
-        hl7CXType.setHL7AssigningAgencyOrDepartment(buildHL7CWEType(cx.getAssignAgentOrDept()));
+        if (!isEmptyHL7CWEType(cx.getAssignJurisdiction())) {
+            hl7CXType.setHL7AssigningJurisdiction(buildHL7CWEType(cx.getAssignJurisdiction()));
+        }
+
+        if (!isEmptyHL7CWEType(cx.getAssignAgentOrDept())) {
+            hl7CXType.setHL7AssigningAgencyOrDepartment(buildHL7CWEType(cx.getAssignAgentOrDept()));
+        }
 
         return hl7CXType;
     }
@@ -1473,35 +1643,44 @@ public class Hl7ToRhapsodysXmlConverter {
             hl7PID1Type.setPatientPrimaryCareProviderNameAndIDNo(buildHL7XCNType(xcn));
         }
 
-        hl7PID1Type.setStudentIndicator(buildEmptyValue(pad.getStudentIndicator()));
+        if( StringUtils.isNotEmpty(pad.getStudentIndicator())) {
+            hl7PID1Type.setStudentIndicator(buildEmptyValue(pad.getStudentIndicator()));
+        }
+
         hl7PID1Type.setHandicap(pad.getHandiCap());
         hl7PID1Type.setLivingWillCode(pad.getLivingWillCode());
         hl7PID1Type.setOrganDonorCode(pad.getOrganDonorCode());
         hl7PID1Type.setSeparateBill(pad.getSeparateBill());
 
-        for(Cx cx : pad.getDuplicatePatient()) {
+        for (Cx cx : pad.getDuplicatePatient()) {
             HL7CXType hl7CXType = buildHL7CXType(cx);
-            if(null != hl7CXType) {
+            if (null != hl7CXType) {
                 hl7PID1Type.getDuplicatePatient().add(hl7CXType);
             }
         }
 
-        hl7PID1Type.setPublicityCode(buildHL7CEType(pad.getPublicityCode()));
+        if( !isEmptyHL7CEType(pad.getPublicityCode()) ) {
+            hl7PID1Type.setPublicityCode(buildHL7CEType(pad.getPublicityCode()));
+        }
+
         hl7PID1Type.setProtectionIndicator(pad.getProtectionIndicator());
         hl7PID1Type.setProtectionIndicatorEffectiveDate(buildHL7DTType(pad.getProtectionIndicatorEffectiveDate()));
 
-        for(Xon xon : pad.getPlaceOfWorship()) {
+        for (Xon xon : pad.getPlaceOfWorship()) {
             hl7PID1Type.getPlaceofWorship().add(buildHL7XONType(xon));
         }
 
-        for(Ce ce : pad.getAdvanceDirectiveCode())
-        {
+        for (Ce ce : pad.getAdvanceDirectiveCode()) {
             hl7PID1Type.getAdvanceDirectiveCode().add(buildHL7CEType(ce));
         }
 
         hl7PID1Type.setImmunizationRegistryStatus(pad.getImmunizationRegistryStatus());
         hl7PID1Type.setImmunizationRegistryStatusEffectiveDate(buildHL7DTType(pad.getImmunizationRegistryStatusEffectiveDate()));
-        hl7PID1Type.setPublicityCodeEffectiveDate(buildHL7DTType(pad.getPublicityCodeEffectiveDate()));
+
+        if( !isEmptyHL7CEType(pad.getPublicityCode()) ) {
+            hl7PID1Type.setPublicityCodeEffectiveDate(buildHL7DTType(pad.getPublicityCodeEffectiveDate()));
+        }
+
         hl7PID1Type.setMilitaryBranch(pad.getMilitaryBranch());
         hl7PID1Type.setMilitaryRankGrade(pad.getMilitaryRank());
         hl7PID1Type.setMilitaryStatus(pad.getMilitaryStatus());
@@ -1513,67 +1692,104 @@ public class Hl7ToRhapsodysXmlConverter {
         return ((null == src) ? EMPTY_STRING : src);
     }
 
+    private void addCXsToPIDType(List<Cx> itemList, Consumer<HL7CXType> adder) {
+        for (Cx cx : itemList) {
+            adder.accept(buildHL7CXType(cx));
+        }
+    }
+
+    private void addXPNsToPIDType(List<Xpn> itemList, Consumer<HL7XPNType> adder) {
+        for (Xpn item : itemList) {
+            adder.accept(buildHL7XPNType(item));
+        }
+    }
+
+    private void addXTNsToPIDType(List<Xtn> itemList, Consumer<HL7XTNType> adder) {
+        for (Xtn item : itemList) {
+            adder.accept(buildHL7XTNType(item));
+        }
+    }
+
+    private void addCEToPIDType(Ce ce, Consumer<HL7CEType> pidAdder) {
+        if (!isEmptyHL7CEType(ce)) {
+            pidAdder.accept(buildHL7CEType(ce));
+        }
+    }
+
+    private void addCEToPIDTypeAsCwe(List<Ce> itemList, Consumer<HL7CWEType> adder) {
+        for (Ce item : itemList) {
+            adder.accept(buildHL7CWEType(item));
+        }
+    }
+
+    private void addCWEToPIDType(List<Cwe> itemList, Consumer<HL7CWEType> adder) {
+        for (Cwe item : itemList) {
+            adder.accept(buildHL7CWEType(item));
+        }
+    }
+
+    private void addXADToPIDType(List<Xad> itemList, Consumer<HL7XADType> adder) {
+        for (Xad item : itemList) {
+            adder.accept(buildHL7XADType(item));
+        }
+    }
+
     private HL7PIDType buildHL7PIDType(PatientIdentification pi) {
         HL7PIDType hl7PIDType = new HL7PIDType();
 
         HL7SIType hl7SIType = new HL7SIType();
+        hl7SIType.setHL7SequenceID(pi.getSetPid());
 
         hl7PIDType.getSetIDPID().add(hl7SIType);
         hl7PIDType.setPatientID(buildHL7CXType(pi.getPatientId()));
 
-        for(Cx cx : pi.getPatientIdentifierList()) {
-            hl7PIDType.getPatientIdentifierList().add(buildHL7CXType(cx));
-        }
+        addCXsToPIDType(pi.getPatientIdentifierList(), hL7CXType -> hl7PIDType.getPatientIdentifierList().add(hL7CXType));
 
-        for(Cx api : pi.getAlternativePatientId()) {
-            hl7PIDType.getAlternatePatientIDPID().add(buildHL7CXType(api));
-        }
+        addCXsToPIDType(pi.getAlternativePatientId(), hL7CXType -> hl7PIDType.getAlternatePatientIDPID().add(hL7CXType));
 
-        for(Xpn xpn : pi.getPatientName()) {
-            hl7PIDType.getPatientName().add(buildHL7XPNType(xpn));
-        }
+        addXPNsToPIDType(pi.getPatientName(), hL7XpnType -> hl7PIDType.getPatientName().add(hL7XpnType));
 
-        for(Xpn xpn : pi.getMotherMaidenName()) {
-            hl7PIDType.getMothersMaidenName().add(buildHL7XPNType(xpn));
-        }
+        addXPNsToPIDType(pi.getMotherMaidenName(), hL7XpnType -> hl7PIDType.getMothersMaidenName().add(hL7XpnType));
 
-        hl7PIDType.setDateTimeOfBirth(buildHL7TSType(pi.getDateTimeOfBirth()));
+        hl7PIDType.setDateTimeOfBirth(buildHL7TSType(pi.getDateTimeOfBirth(), TS_FMT_DATE_HOUR_MINUTE_ONLY));
         hl7PIDType.setAdministrativeSex(pi.getAdministrativeSex());
 
-        for(Xpn xpn : pi.getPatientAlias()) {
+        for (Xpn xpn : pi.getPatientAlias()) {
             hl7PIDType.setPatientAlias(buildHL7XPNType(xpn));
         }
 
-        for(Ce ce : pi.getRace()) {
-            hl7PIDType.getRace().add(buildHL7CWEType(ce));
-        }
+        addCEToPIDTypeAsCwe(pi.getRace(), hL7CeType -> hl7PIDType.getRace().add(hL7CeType));
 
-        for(Xad xad : pi.getPatientAddress()) {
-            hl7PIDType.getPatientAddress().add(buildHL7XADType(xad));
-        }
+        addXADToPIDType(pi.getPatientAddress(), hL7XadType -> hl7PIDType.getPatientAddress().add(hL7XadType));
 
         hl7PIDType.setCountyCode(pi.getCountyCode());
 
-        for(Xtn xtn : pi.getPhoneNumberHome()) {
-            hl7PIDType.getPhoneNumberHome().add(buildHL7XTNType(xtn));
+        addXTNsToPIDType(pi.getPhoneNumberHome(), hL7XtnType -> hl7PIDType.getPhoneNumberHome().add(hL7XtnType));
+
+        addXTNsToPIDType(pi.getPhoneNumberBusiness(), hL7XtnType -> hl7PIDType.getPhoneNumberBusiness().add(hL7XtnType));
+
+        addCEToPIDType(pi.getPrimaryLanguage(), hl7CEType -> hl7PIDType.getPrimaryLanguage().add(hl7CEType));
+
+        if (!isEmptyHL7CEType(pi.getMartialStatus())) {
+            hl7PIDType.setMaritalStatus(buildHL7CEType(pi.getMartialStatus()));
         }
 
-        for(Xtn xtn : pi.getPhoneNumberBusiness()) {
-            hl7PIDType.getPhoneNumberBusiness().add(buildHL7XTNType(xtn));
+        if (!isEmptyHL7CEType(pi.getReligion())) {
+            hl7PIDType.setReligion(buildHL7CEType(pi.getReligion()));
         }
 
-        hl7PIDType.getPrimaryLanguage().add(buildHL7CEType(pi.getPrimaryLanguage()));
-        hl7PIDType.setMaritalStatus(buildHL7CEType(pi.getMartialStatus()));
-        hl7PIDType.setReligion(buildHL7CEType(pi.getReligion()));
         //hl7PIDType.setPatientAccountNumber(buildHL7CXType(pi.getPatientAccountNumber()));
-        hl7PIDType.setSSNNumberPatient(pi.getSsnNumberPatient());
-        hl7PIDType.setDriversLicenseNumberPatient(buildHL7DLNType(pi.getDriverLicenseNumberPatient()));
-
-        for(Cx cx : pi.getMotherIdentifier()) {
-            hl7PIDType.getMothersIdentifier().add(buildHL7CXType(cx));
+        if( StringUtils.isNotEmpty(pi.getSsnNumberPatient())) {
+            hl7PIDType.setSSNNumberPatient(pi.getSsnNumberPatient());
         }
 
-        for(Ce ce : pi.getEthnicGroup()) {
+        if (!isEmptyHL7DLNType(pi.getDriverLicenseNumberPatient())) {
+            hl7PIDType.setDriversLicenseNumberPatient(buildHL7DLNType(pi.getDriverLicenseNumberPatient()));
+        }
+
+        addCXsToPIDType(pi.getMotherIdentifier(), hL7CXType -> hl7PIDType.getMothersIdentifier().add(hL7CXType));
+
+        for (Ce ce : pi.getEthnicGroup()) {
             hl7PIDType.getEthnicGroup().add(buildHL7CWEType(ce));
         }
 
@@ -1581,136 +1797,188 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7PIDType.setMultipleBirthIndicator(pi.getMultipleBirthIndicator());
         hl7PIDType.setBirthOrder(buildHl7NMType(pi.getBirthOrder()));
 
-        for(Ce ce : pi.getCitizenship()) {
-            hl7PIDType.getCitizenship().add(buildHL7CWEType(ce));
+        addCEToPIDTypeAsCwe(pi.getCitizenship(), hL7CweType -> hl7PIDType.getCitizenship().add(hL7CweType));
+
+        if (!isEmptyHL7CEType(pi.getVeteranStatus())) {
+            hl7PIDType.setVeteransMilitaryStatus(buildHL7CWEType(pi.getVeteranStatus()));
         }
 
-        hl7PIDType.setVeteransMilitaryStatus(buildHL7CWEType(pi.getVeteranStatus()));
-        hl7PIDType.setNationality(buildHL7CWEType(pi.getNationality()));
+        if (!isEmptyHL7CEType(pi.getNationality())) {
+            hl7PIDType.setNationality(buildHL7CWEType(pi.getNationality()));
+        }
+
         hl7PIDType.setPatientDeathDateAndTime(buildHL7TSType(pi.getPatientDeathDateAndTime()));
         hl7PIDType.setPatientDeathIndicator(pi.getPatientDeathIndicator());
         hl7PIDType.setIdentityUnknownIndicator(pi.getIdentityUnknownIndicator());
 
-        for(String s : pi.getIdentityReliabilityCode()) {
+        for (String s : pi.getIdentityReliabilityCode()) {
             hl7PIDType.getIdentityReliabilityCode().add(s);
         }
 
         hl7PIDType.setLastUpdateDateTime(buildHL7TSType(pi.getLastUpdateDateTime()));
-        hl7PIDType.setLastUpdateFacility(buildHL7HDType(pi.getLastUpdateFacility()));
-        hl7PIDType.setSpeciesCode(buildHL7CEType(pi.getSpeciesCode()));
-        hl7PIDType.setBreedCode(buildHL7CEType(pi.getBreedCode()));
-        hl7PIDType.setStrain(pi.getStrain());
-        hl7PIDType.getProductionClassCode().add(buildHL7CEType(pi.getProductionClassCode()));
 
-        for(Cwe cwe : pi.getTribalCitizenship()) {
-            hl7PIDType.getTribalCitizenship().add(buildHL7CWEType(cwe));
+        if (!isEmptyHL7HDType(pi.getLastUpdateFacility())) {
+            hl7PIDType.setLastUpdateFacility(buildHL7HDType(pi.getLastUpdateFacility()));
         }
+
+        if (!isEmptyHL7CEType(pi.getSpeciesCode())) {
+            hl7PIDType.setSpeciesCode(buildHL7CEType(pi.getSpeciesCode()));
+        }
+
+        if (!isEmptyHL7CEType(pi.getBreedCode())) {
+            hl7PIDType.setBreedCode(buildHL7CEType(pi.getBreedCode()));
+        }
+
+        hl7PIDType.setStrain(pi.getStrain());
+
+        if (!isEmptyHL7CEType(pi.getProductionClassCode())) {
+            hl7PIDType.getProductionClassCode().add(buildHL7CEType(pi.getProductionClassCode()));
+        }
+
+        addCWEToPIDType(pi.getTribalCitizenship(), hL7CweType -> hl7PIDType.getTribalCitizenship().add(hL7CweType));
 
         return hl7PIDType;
     }
 
     private HL7ORCType buildHL7ORCType(CommonOrder commonOrder) {
-        //if(null == commonOrder.getOrderControl()) return null;
-
         HL7ORCType hl7ORCType = new HL7ORCType();
 
         hl7ORCType.setOrderControl(buildEmptyValue(commonOrder.getOrderControl()));
-        hl7ORCType.setPlacerOrderNumber(buildHL7EIType(commonOrder.getPlacerOrderNumber()));
-        hl7ORCType.setFillerOrderNumber(buildHL7EIType(commonOrder.getFillerOrderNumber()));
 
-        HL7EIType eiType = buildHL7EIType(commonOrder.getPlacerGroupNumber());
-        if(null != eiType) hl7ORCType.setPlacerGroupNumber(eiType);
+        if (!isEmptyHL7EIType(commonOrder.getPlacerOrderNumber())) {
+            hl7ORCType.setPlacerOrderNumber(buildHL7EIType(commonOrder.getPlacerOrderNumber()));
+        }
+
+        if (!isEmptyHL7EIType(commonOrder.getFillerOrderNumber())) {
+            hl7ORCType.setFillerOrderNumber(buildHL7EIType(commonOrder.getFillerOrderNumber()));
+        }
+
+        if (!isEmptyHL7EIType(commonOrder.getPlacerGroupNumber())) {
+            HL7EIType eiType = buildHL7EIType(commonOrder.getPlacerGroupNumber());
+            if (null != eiType) hl7ORCType.setPlacerGroupNumber(eiType);
+        }
 
         hl7ORCType.setOrderStatus(commonOrder.getOrderStatus());
         hl7ORCType.setResponseFlag(commonOrder.getResponseFlag());
 
-        for(Tq tq : commonOrder.getQuantityTiming()) {
+        for (Tq tq : commonOrder.getQuantityTiming()) {
             hl7ORCType.getQuantityTiming().add(buildHL7TQType(tq));
         }
 
         HL7EIPType hl7EIPType = buildHL7EIPType(commonOrder.getParentOrder());
-        if(null != hl7EIPType) {
+        if (null != hl7EIPType) {
             hl7ORCType.setParent(hl7EIPType);
         }
 
         hl7ORCType.setDateTimeOfTransaction(buildHL7TSType(commonOrder.getDateTimeOfTransaction()));
 
-        if(commonOrder.getEnteredBy().size() > 0) {
+        if (commonOrder.getEnteredBy().size() > 0) {
             for (Xcn xcn : commonOrder.getEnteredBy()) {
                 hl7ORCType.getEnteredBy().add(buildHL7XCNType(xcn));
             }
         }
 
-        if(commonOrder.getVerifiedBy().size() > 0) {
+        if (commonOrder.getVerifiedBy().size() > 0) {
             for (Xcn xcn : commonOrder.getVerifiedBy()) {
                 hl7ORCType.getVerifiedBy().add(buildHL7XCNType(xcn));
             }
         }
 
-        if(commonOrder.getOrderingProvider().size() > 0) {
+        if (commonOrder.getOrderingProvider().size() > 0) {
             for (Xcn xcn : commonOrder.getOrderingProvider()) {
                 hl7ORCType.getOrderingProvider().add(buildHL7XCNType(xcn));
             }
         }
 
-        hl7ORCType.setEnterersLocation(buildHL7PLType(commonOrder.getEntererLocation()));
+        if (!isEmptyHL7PLType(commonOrder.getEntererLocation())) {
+            hl7ORCType.setEnterersLocation(buildHL7PLType(commonOrder.getEntererLocation()));
+        }
 
-        for(Xtn xtn : commonOrder.getCallBackPhoneNumber()) {
+        for (Xtn xtn : commonOrder.getCallBackPhoneNumber()) {
             hl7ORCType.getCallBackPhoneNumber().add(buildHL7XTNType(xtn));
         }
 
         hl7ORCType.setOrderEffectiveDateTime(buildHL7TSType(commonOrder.getOrderEffectiveDateTime()));
-        hl7ORCType.setOrderControlCodeReason(buildHL7CWEType(commonOrder.getOrderControlCodeReason()));
-        hl7ORCType.setEnteringOrganization(buildHL7CWEType(commonOrder.getEnteringOrganization()));
-        hl7ORCType.setEnteringDevice(buildHL7CWEType(commonOrder.getEnteringDevice()));
 
-        if(commonOrder.getActionBy().size() > 0) {
+        if (!isEmptyHL7CEType(commonOrder.getOrderControlCodeReason())) {
+            hl7ORCType.setOrderControlCodeReason(buildHL7CWEType(commonOrder.getOrderControlCodeReason()));
+        }
+
+        if (!isEmptyHL7CEType(commonOrder.getEnteringOrganization())) {
+            hl7ORCType.setEnteringOrganization(buildHL7CWEType(commonOrder.getEnteringOrganization()));
+        }
+
+        if (!isEmptyHL7CEType(commonOrder.getEnteringOrganization())) {
+            hl7ORCType.setEnteringDevice(buildHL7CWEType(commonOrder.getEnteringDevice()));
+        }
+
+        if (commonOrder.getActionBy().size() > 0) {
             for (Xcn xcn : commonOrder.getActionBy()) {
                 hl7ORCType.getActionBy().add(buildHL7XCNType(xcn));
             }
         }
 
-        hl7ORCType.setAdvancedBeneficiaryNoticeCode(buildHL7CWEType(commonOrder.getAdvancedBeneficiaryNoticeCode()));
+        if (!isEmptyHL7CEType(commonOrder.getAdvancedBeneficiaryNoticeCode())) {
+            hl7ORCType.setAdvancedBeneficiaryNoticeCode(buildHL7CWEType(commonOrder.getAdvancedBeneficiaryNoticeCode()));
+        }
 
-        if(commonOrder.getOrderingFacilityName().size() > 0) {
+        if (commonOrder.getOrderingFacilityName().size() > 0) {
             for (Xon xon : commonOrder.getOrderingFacilityName()) {
                 hl7ORCType.getOrderingFacilityName().add(buildHL7XONType(xon));
             }
         }
 
-        if(commonOrder.getOrderingFacilityAddress().size() > 0) {
+        if (commonOrder.getOrderingFacilityAddress().size() > 0) {
             for (Xad xad : commonOrder.getOrderingFacilityAddress()) {
                 hl7ORCType.getOrderingFacilityAddress().add(buildHL7XADType(xad));
             }
         }
 
-        if(commonOrder.getOrderingFacilityPhoneNumber().size() > 0) {
+        if (commonOrder.getOrderingFacilityPhoneNumber().size() > 0) {
             for (Xtn xtn : commonOrder.getOrderingFacilityPhoneNumber()) {
                 hl7ORCType.getOrderingFacilityPhoneNumber().add(buildHL7XTNType(xtn));
             }
         }
 
-        if(commonOrder.getOrderingProviderAddress().size() > 0) {
+        if (commonOrder.getOrderingProviderAddress().size() > 0) {
             for (Xad xad : commonOrder.getOrderingProviderAddress()) {
                 hl7ORCType.getOrderingProviderAddress().add(buildHL7XADType(xad));
             }
         }
 
-        hl7ORCType.setOrderStatusModifier(buildHL7CWEType(commonOrder.getOrderStatusModifier()));
-        hl7ORCType.setAdvancedBeneficiaryNoticeOverrideReason(buildHL7CWEType(commonOrder.getAdvancedBeneficiaryNoticeOverrideReason()));
+        if (!isEmptyHL7CWEType(commonOrder.getOrderStatusModifier())) {
+            hl7ORCType.setOrderStatusModifier(buildHL7CWEType(commonOrder.getOrderStatusModifier()));
+        }
+
+        if (!isEmptyHL7CWEType(commonOrder.getAdvancedBeneficiaryNoticeOverrideReason())) {
+            hl7ORCType.setAdvancedBeneficiaryNoticeOverrideReason(buildHL7CWEType(commonOrder.getAdvancedBeneficiaryNoticeOverrideReason()));
+        }
+
         hl7ORCType.setFillersExpectedAvailabilityDateTime(buildHL7TSType(commonOrder.getFillerExpectedAvailabilityDateTime()));
-        hl7ORCType.setConfidentialityCode(buildHL7CWEType(commonOrder.getConfidentialityCode()));
-        hl7ORCType.setOrderType(buildHL7CWEType(commonOrder.getOrderType()));
-        hl7ORCType.setEntererAuthorizationMode(buildHL7CNEType(commonOrder.getEntererAuthorizationMode()));
-        hl7ORCType.setParentUniversalServiceIdentifier(buildHL7CWEType(commonOrder.getParentUniversalServiceIdentifier()));
+
+        if (!isEmptyHL7CWEType(commonOrder.getConfidentialityCode())) {
+            hl7ORCType.setConfidentialityCode(buildHL7CWEType(commonOrder.getConfidentialityCode()));
+        }
+
+        if (!isEmptyHL7CWEType(commonOrder.getOrderType())) {
+            hl7ORCType.setOrderType(buildHL7CWEType(commonOrder.getOrderType()));
+        }
+
+        if (!isEmptyHL7CNEType(commonOrder.getEntererAuthorizationMode())) {
+            hl7ORCType.setEntererAuthorizationMode(buildHL7CNEType(commonOrder.getEntererAuthorizationMode()));
+        }
+
+        if (!isEmptyHL7CWEType(commonOrder.getParentUniversalServiceIdentifier())) {
+            hl7ORCType.setParentUniversalServiceIdentifier(buildHL7CWEType(commonOrder.getParentUniversalServiceIdentifier()));
+        }
 
         return hl7ORCType;
     }
 
-    private HL7ContinuationPointerType buildHl7ContinuationPointerType(OruR1 oruR1) {
+    private HL7ContinuationPointerType buildHL7ContinuationPointerType(OruR1 oruR1) {
         HL7ContinuationPointerType hl7ContinuationPointerType = new HL7ContinuationPointerType();
 
-        if(null == oruR1.getContinuationPointer()) {
+        if (null == oruR1.getContinuationPointer()) {
             return hl7ContinuationPointerType;
         }
 
@@ -1720,21 +1988,15 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7ContinuationPointerType;
     }
 
-    private boolean isEmptyHL7EIType(Ei ei) {
-        if((null == ei.getEntityIdentifier()) || (ei.getEntityIdentifier().length() <= 0)) return true;
-        return false;
-    }
-
-    private boolean isEmptyHL7EIPType(Eip eip) {
-        return isEmptyHL7EIType(eip.getPlacerAssignedIdentifier()) && isEmptyHL7EIType(eip.getFillerAssignedIdentifier());
-    }
-
     private HL7EIPType buildHL7EIPType(Eip eip) {
-        if( isEmptyHL7EIPType(eip) ) return null;
+        if (isEmptyHL7EIPType(eip)) return null;
 
         HL7EIPType hl7EIPType = new HL7EIPType();
 
-        hl7EIPType.setHL7PlacerAssignedIdentifier(buildHL7EIType(eip.getPlacerAssignedIdentifier()));
+        if (!isEmptyHL7EIType(eip.getPlacerAssignedIdentifier())) {
+            hl7EIPType.setHL7PlacerAssignedIdentifier(buildHL7EIType(eip.getPlacerAssignedIdentifier()));
+        }
+
         hl7EIPType.setHL7FillerAssignedIdentifier(buildHL7EIType(eip.getFillerAssignedIdentifier()));
 
         return hl7EIPType;
@@ -1842,11 +2104,15 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7XADType.setHL7ZipOrPostalCode(xad.getZip());
         hl7XADType.setHL7Country(xad.getCountry());
         hl7XADType.setHL7AddressType(xad.getAddressType());
-        hl7XADType.setHL7OtherGeographicDesignation(xad.getOtherGeographic());
+        //hl7XADType.setHL7OtherGeographicDesignation(xad.getOtherGeographic());
         hl7XADType.setHL7CountyParishCode(xad.getCountyCode());
         hl7XADType.setHL7CensusTract(xad.getCensusTract());
         hl7XADType.setHL7AddressRepresentationCode(xad.getAddressRepresentationCode());
-        hl7XADType.setHL7AddressValidityRange(buildHL7DRType(xad.getAddressValidityRange()));
+
+        if (!isEmptyHL7DRType(xad.getAddressValidityRange())) {
+            hl7XADType.setHL7AddressValidityRange(buildHL7DRType(xad.getAddressValidityRange()));
+        }
+
         hl7XADType.setHL7EffectiveDate(buildHL7TSType(xad.getEffectiveDate()));
         hl7XADType.setHL7ExpirationDate(buildHL7TSType(xad.getExpirationDate()));
 
@@ -1874,20 +2140,27 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7XPNType.setHL7Degree(xpn.getDegree());
         hl7XPNType.setHL7NameTypeCode(xpn.getNameTypeCode());
         hl7XPNType.setHL7NameRepresentationCode(xpn.getNameRepresentationCode());
-        hl7XPNType.setHL7NameContext(buildHL7CEType(xpn.getNameContext()));
-        hl7XPNType.setHL7NameValidityRange(buildHL7DRType(xpn.getNameValidityRange()));
+
+        if (!isEmptyHL7CEType(xpn.getNameContext())) {
+            hl7XPNType.setHL7NameContext(buildHL7CEType(xpn.getNameContext()));
+        }
+
+        if (!isEmptyHL7DRType(xpn.getNameValidityRange())) {
+            hl7XPNType.setHL7NameValidityRange(buildHL7DRType(xpn.getNameValidityRange()));
+        }
+
         hl7XPNType.setHL7NameAssemblyOrder(xpn.getNameAssemblyOrder());
         hl7XPNType.setHL7EffectiveDate(buildHL7TSType(xpn.getEffectiveDate()));
         hl7XPNType.setHL7ExpirationDate(buildHL7TSType(xpn.getExpirationDate()));
-        hl7XPNType.setHL7ProfessionalSuffix(xpn.getProfessionalSuffix());
+        //hl7XPNType.setHL7ProfessionalSuffix(xpn.getProfessionalSuffix());
 
         return hl7XPNType;
     }
 
     private HL7DRType buildHL7DRType(Dr dr) {
         HL7DRType hl7DRType = new HL7DRType();
-        hl7DRType.setHL7RangeStartDateTime(buildHL7TSType(dr.getRangeStartDateTime()));
-        hl7DRType.setHL7RangeEndDateTime(buildHL7TSType(dr.getRangeEndDateTime()));
+        hl7DRType.setHL7RangeStartDateTime(buildHL7TSType(dr.getRangeStartDateTime(), TS_FMT_DATE_HOUR_MINUTE_ONLY));
+        hl7DRType.setHL7RangeEndDateTime(buildHL7TSType(dr.getRangeEndDateTime(), TS_FMT_DATE_HOUR_MINUTE_ONLY));
         return hl7DRType;
     }
 
@@ -1895,10 +2168,22 @@ public class Hl7ToRhapsodysXmlConverter {
         HL7FNType hl7FNType = new HL7FNType();
 
         hl7FNType.setHL7Surname(buildEmptyValue(fn.getSurname()));
-        hl7FNType.setHL7OwnSurnamePrefix(buildEmptyValue(fn.getOwnSurnamePrefix()));
-        hl7FNType.setHL7OwnSurname(buildEmptyValue(fn.getOwnSurname()));
-        hl7FNType.setHL7SurnamePrefixFromPartnerSpouse(buildEmptyValue(fn.getSurnamePrefixFromPartner()));
-        hl7FNType.setHL7SurnameFromPartnerSpouse(buildEmptyValue(fn.getSurnameFromPartner()));
+
+        if( StringUtils.isNotEmpty(fn.getOwnSurnamePrefix())) {
+            hl7FNType.setHL7OwnSurnamePrefix(buildEmptyValue(fn.getOwnSurnamePrefix()));
+        }
+
+        if( StringUtils.isNotEmpty(fn.getOwnSurname())) {
+            hl7FNType.setHL7OwnSurname(buildEmptyValue(fn.getOwnSurname()));
+        }
+
+        if( StringUtils.isNotEmpty(fn.getSurnamePrefixFromPartner())) {
+            hl7FNType.setHL7SurnamePrefixFromPartnerSpouse(buildEmptyValue(fn.getSurnamePrefixFromPartner()));
+        }
+
+        if( StringUtils.isNotEmpty(fn.getSurnamePrefixFromPartner())) {
+            hl7FNType.setHL7SurnameFromPartnerSpouse(buildEmptyValue(fn.getSurnameFromPartner()));
+        }
 
         return hl7FNType;
     }
@@ -1906,19 +2191,18 @@ public class Hl7ToRhapsodysXmlConverter {
     private List<HL7SoftwareSegmentType> buildSoftwareSegments(OruR1 oruR1) {
         ArrayList<HL7SoftwareSegmentType> destList = new ArrayList<>();
 
-        if(null == oruR1.getSoftwareSegment()) {
+        if (null == oruR1.getSoftwareSegment()) {
             return destList;
         }
 
-        for(SoftwareSegment ss : oruR1.getSoftwareSegment()) {
+        for (SoftwareSegment ss : oruR1.getSoftwareSegment()) {
             HL7SoftwareSegmentType segType = new HL7SoftwareSegmentType();
-            segType.setSoftwareBinaryID(ss.getSoftwareBinaryId());
-            //@todo segType.setSoftwareInstallDate();
-            //@todo segType.setSoftwareProductInformation();
-            segType.setSoftwareProductName(ss.getSoftwareProductName());
-            //@todo segType.setSoftwareVendorOrganization();
+            segType.setSoftwareVendorOrganization(buildHL7XONType(ss.getSoftwareVendorOrganization()));
             segType.setSoftwareCertifiedVersionOrReleaseNumber(ss.getSoftwareCertifiedVersionOrReleaseNumber());
-
+            segType.setSoftwareProductName(ss.getSoftwareProductName());
+            segType.setSoftwareBinaryID(ss.getSoftwareBinaryId());
+            segType.setSoftwareProductInformation(buildHL7TXType(ss.getSoftwareProductInformation()));
+            segType.setSoftwareInstallDate(buildHL7TSType(ss.getSoftwareInstallDate(), TS_FMT_DATE_ONLY));
             destList.add(segType);
         }
 
@@ -1933,29 +2217,30 @@ public class Hl7ToRhapsodysXmlConverter {
 
         mshType.setSendingApplication(buildHL7HDType(mh.getSendingApplication()));
         mshType.setSendingFacility(buildHL7HDType(mh.getSendingFacility()));
-        mshType.setReceivingApplication(buildHL7HDType(mh.getReceivingFacility()));
+        mshType.setReceivingApplication(buildHL7HDType(mh.getReceivingApplication()));
         mshType.setReceivingFacility(buildHL7HDType(mh.getReceivingFacility()));
-        mshType.setDateTimeOfMessage(buildHL7TSType(mh.getDateTimeOfMessage()));
+        mshType.setDateTimeOfMessage(buildHL7TSType(mh.getDateTimeOfMessage(), TS_FMT_DATE_HOUR_ONLY));
         mshType.setSecurity("");
         mshType.setMessageType(buildHl7MsgType());
         mshType.setMessageControlID(mh.getMessageControlId());
         mshType.setProcessingID(buildHl7PtType(mh.getProcessingId()));
-        mshType.setVersionID(buildHl7VidType(mh.getVersionId()));
+        mshType.setVersionID(buildHL7VidType(mh.getVersionId()));
         mshType.setSequenceNumber(null);
-        if(null != mh.getSequenceNumber()) {
+        if (null != mh.getSequenceNumber()) {
             mshType.setSequenceNumber(buildHl7NMType(mh.getSequenceNumber()));
         }
 
-        if(null != mh.getCharacterSet()) {
+        if (null != mh.getCharacterSet()) {
             mshType.getCharacterSet().addAll(mh.getCharacterSet());
         }
 
         mshType.setContinuationPointer(mh.getContinuationPointer());
         mshType.setAcceptAcknowledgmentType(mh.getAcceptAckType());
+        mshType.setApplicationAcknowledgmentType(mh.getApplicationAckType());
         mshType.setCountryCode(mh.getCountryCode());
         mshType.setAlternateCharacterSetHandlingScheme(mh.getAlternateCharacterSetHandlingScheme());
 
-        if(null != mh.getMessageProfileIdentifier()) {
+        if (null != mh.getMessageProfileIdentifier()) {
             mshType.getMessageProfileIdentifier().addAll(buildMessageProfileIdentifiers(mh.getMessageProfileIdentifier()));
         }
 
@@ -1965,7 +2250,7 @@ public class Hl7ToRhapsodysXmlConverter {
     private List<HL7EIType> buildMessageProfileIdentifiers(List<Ei> srcItems) {
         ArrayList<HL7EIType> destItems = new ArrayList<>();
 
-        for(Ei ei : srcItems) {
+        for (Ei ei : srcItems) {
             destItems.add(buildHL7EIType(ei));
         }
 
@@ -1973,7 +2258,7 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     private HL7EIType buildHL7EIType(Ei ei) {
-        if(null == ei) return null;
+        if (null == ei) return null;
 
         HL7EIType hl7EIType = new HL7EIType();
 
@@ -1985,29 +2270,28 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7EIType;
     }
 
-    private HL7NMType buildHl7NMType(String seqNumber) {
+    private HL7NMType buildHl7NMType(String value) {
         HL7NMType hl7NMType = new HL7NMType();
 
         try {
-            hl7NMType.setHL7Numeric(Float.valueOf(seqNumber));
-        }
-        catch(Exception e) {
+            hl7NMType.setHL7Numeric(BigInteger.valueOf(Integer.valueOf(value)));
+        } catch (Exception e) {
             // ignore, sequence number not present in the samples
         }
 
         return hl7NMType;
     }
 
-    public HL7VIDType buildHl7VidType(Vid vid) {
+    private HL7VIDType buildHL7VidType(Vid vid) {
         HL7VIDType hl7VIDType = new HL7VIDType();
 
         hl7VIDType.setHL7VersionID(vid.getVersionId());
 
-        if(null != vid.getInternationalizationCode()) {
+        if (!isEmptyHL7CEType(vid.getInternationalizationCode())) {
             hl7VIDType.setHL7InternationalizationCode(buildHL7CEType(vid.getInternationalizationCode()));
         }
 
-        if(null != vid.getInternationalVersionId()) {
+        if (!isEmptyHL7CEType(vid.getInternationalVersionId())) {
             hl7VIDType.setHL7InternationalVersionID(buildHL7CEType(vid.getInternationalVersionId()));
         }
 
@@ -2017,28 +2301,44 @@ public class Hl7ToRhapsodysXmlConverter {
     private HL7CEType buildHL7CEType(Ce ce) {
         HL7CEType hl7CEType = new HL7CEType();
 
-        if(null == ce) {
+        if (null == ce) {
             hl7CEType.setHL7Identifier(EMPTY_STRING);
             return hl7CEType;
         }
 
-        hl7CEType.setHL7AlternateIdentifier(buildEmptyValue(ce.getAlternateIdentifier()));
-        hl7CEType.setHL7AlternateText(buildEmptyValue(ce.getAlternateText()));
-        hl7CEType.setHL7Identifier(buildEmptyValue(ce.getIdentifier()));
-        hl7CEType.setHL7NameofCodingSystem(buildEmptyValue(ce.getNameOfCodingSystem()));
-        hl7CEType.setHL7Text(buildEmptyValue(ce.getText()));
-        hl7CEType.setHL7NameofAlternateCodingSystem(buildEmptyValue(ce.getNameOfAlternateCodingSystem()));
+        if( StringUtils.isNotEmpty(ce.getAlternateIdentifier())) {
+            hl7CEType.setHL7AlternateIdentifier(buildEmptyValue(ce.getAlternateIdentifier()));
+        }
+
+        if( StringUtils.isNotEmpty(ce.getAlternateText())) {
+            hl7CEType.setHL7AlternateText(buildEmptyValue(ce.getAlternateText()));
+        }
+
+        if( StringUtils.isNotEmpty(ce.getIdentifier())) {
+            hl7CEType.setHL7Identifier(buildEmptyValue(ce.getIdentifier()));
+        }
+
+        if( StringUtils.isNotEmpty(ce.getNameOfCodingSystem())) {
+            hl7CEType.setHL7NameofCodingSystem(buildEmptyValue(ce.getNameOfCodingSystem()));
+        }
+
+        if( StringUtils.isNotEmpty(ce.getText())) {
+            hl7CEType.setHL7Text(buildEmptyValue(ce.getText()));
+        }
+
+        if( StringUtils.isNotEmpty(ce.getNameOfAlternateCodingSystem())) {
+            hl7CEType.setHL7NameofAlternateCodingSystem(buildEmptyValue(ce.getNameOfAlternateCodingSystem()));
+        }
 
         return hl7CEType;
     }
 
-    private HL7PTType buildHl7PtType(Pt pt)
-    {
+    private HL7PTType buildHl7PtType(Pt pt) {
         HL7PTType hl7PTType = new HL7PTType();
         hl7PTType.setHL7ProcessingID(pt.getProcessingId());
 
         hl7PTType.setHL7ProcessingMode("");
-        if(null != pt.getProcessingMode()) {
+        if (null != pt.getProcessingMode()) {
             hl7PTType.setHL7ProcessingMode(pt.getProcessingMode());
         }
 
@@ -2056,41 +2356,69 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     private HL7TSType buildHL7TSType(Ts ts) {
-        if((null == ts) || (null == ts.time)) return null;
-       return buildHL7TSType(ts.time);
+        return buildHL7TSType(ts, TS_FMT_ALL);
+    }
+
+    private HL7TSType buildHL7TSType(Ts ts, int outFmt) {
+        if ((null == ts) || (null == ts.time)) return null;
+        return buildHL7TSType(ts.time, outFmt);
     }
 
     private HL7TSType buildHL7TSType(String ts) {
+        return buildHL7TSType(ts, TS_FMT_ALL);
+    }
+
+    private HL7TSType buildHL7TSType(String ts, int outFmt) {
         HL7TSType hl7TSType = new HL7TSType();
 
-        if(null != ts) {
-            if(ts.length() <= 8) {
-                ts = ts + "000000";
-            }
-            else if(ts.length() <= 12) {
-                ts = ts + "00";
-            }
-            else if(ts.length() > 14) {
-                ts = ts.substring(0,(14-1));
-            }
+        if (null == ts) return hl7TSType;
 
-            LocalDateTime localDateTime = LocalDateTime.parse(ts, formatter);
+        DateTimeFormatter tsFormatter = formatter;
+        if (ts.indexOf("-") > 0) {
+            tsFormatter = formatterWithZone;
+        } else {
+            if (ts.length() <= 8) {
+                ts = ts + "000000";
+            } else if (ts.length() <= 12) {
+                ts = ts + "00";
+            } else if (ts.length() > 14) {
+                ts = ts.substring(0, 14);
+            }
+        }
+
+        LocalDateTime localDateTime = LocalDateTime.parse(ts, tsFormatter);
+
+        hl7TSType.setGmtOffset("");
+        if (outFmt == TS_FMT_DATE_ONLY) {
+            hl7TSType.setYear(BigInteger.valueOf(localDateTime.getYear()));
+            hl7TSType.setMonth(BigInteger.valueOf(localDateTime.getMonthValue()));
+            hl7TSType.setDay(BigInteger.valueOf(localDateTime.getDayOfMonth()));
+        } else if (outFmt == TS_FMT_DATE_HOUR_ONLY) {
+            hl7TSType.setYear(BigInteger.valueOf(localDateTime.getYear()));
+            hl7TSType.setMonth(BigInteger.valueOf(localDateTime.getMonthValue()));
+            hl7TSType.setDay(BigInteger.valueOf(localDateTime.getDayOfMonth()));
+            hl7TSType.setHours(BigInteger.valueOf(localDateTime.getHour()));
+        } else if (outFmt == TS_FMT_DATE_HOUR_MINUTE_ONLY) {
+            hl7TSType.setYear(BigInteger.valueOf(localDateTime.getYear()));
+            hl7TSType.setMonth(BigInteger.valueOf(localDateTime.getMonthValue()));
+            hl7TSType.setDay(BigInteger.valueOf(localDateTime.getDayOfMonth()));
+            hl7TSType.setHours(BigInteger.valueOf(localDateTime.getHour()));
+            hl7TSType.setMinutes(BigInteger.valueOf(localDateTime.getMinute()));
+        } else if (outFmt == TS_FMT_ALL) {
             hl7TSType.setYear(BigInteger.valueOf(localDateTime.getYear()));
             hl7TSType.setMonth(BigInteger.valueOf(localDateTime.getMonthValue()));
             hl7TSType.setDay(BigInteger.valueOf(localDateTime.getDayOfMonth()));
             hl7TSType.setHours(BigInteger.valueOf(localDateTime.getHour()));
             hl7TSType.setMinutes(BigInteger.valueOf(localDateTime.getMinute()));
             hl7TSType.setSeconds(BigInteger.valueOf(localDateTime.getSecond()));
-            hl7TSType.setGmtOffset("");
         }
-
         return hl7TSType;
     }
 
     private HL7HDType buildHL7HDType(Hd hdType) {
         HL7HDType hl7HDType = new HL7HDType();
 
-        if(null != hdType) {
+        if (null != hdType) {
             hl7HDType.setHL7UniversalID(hdType.getUniversalId());
             hl7HDType.setHL7UniversalIDType(hdType.getUniversalIdType());
             hl7HDType.setHL7NamespaceID(hdType.getNameSpaceId());
@@ -2103,28 +2431,39 @@ public class Hl7ToRhapsodysXmlConverter {
         HL7CWEType hl7CWEType = new HL7CWEType();
 
         hl7CWEType.setHL7Identifier(ce.getIdentifier());
-        hl7CWEType.setHL7Text(ce.getText());
-        hl7CWEType.setHL7NameofCodingSystem(ce.getNameOfCodingSystem());
-        hl7CWEType.setHL7AlternateIdentifier(ce.getAlternateIdentifier());
-        hl7CWEType.setHL7AlternateText(ce.getAlternateText());
+
+        if( StringUtils.isNotEmpty(ce.getText())) {
+            hl7CWEType.setHL7Text(ce.getText());
+        }
+
+        if( StringUtils.isNotEmpty(ce.getNameOfCodingSystem())) {
+            hl7CWEType.setHL7NameofCodingSystem(ce.getNameOfCodingSystem());
+        }
+
+        if( StringUtils.isNotEmpty(ce.getAlternateIdentifier())) {
+            hl7CWEType.setHL7AlternateIdentifier(ce.getAlternateIdentifier());
+        }
+
+        if( StringUtils.isNotEmpty(ce.getAlternateText())) {
+            hl7CWEType.setHL7AlternateText(ce.getAlternateText());
+        }
 
         return hl7CWEType;
     }
 
     private HL7DTType buildHL7DTType(String hld7Dt) {
-        if(hld7Dt == null) return null;
+        if (hld7Dt == null) return null;
 
-        if(hld7Dt.length() <= 8) {
+        if (hld7Dt.length() <= 8) {
             hld7Dt = hld7Dt + "000000";
-        }
-        else if(hld7Dt.length() <= 12) {
+        } else if (hld7Dt.length() <= 12) {
             hld7Dt = hld7Dt + "00";
-        }
-        else if(hld7Dt.length() > 14) {
-            hld7Dt = hld7Dt.substring(0,(14-1));
+        } else if (hld7Dt.length() > 14) {
+            hld7Dt = hld7Dt.substring(0, (14 - 1));
         }
 
-        LocalDateTime localDtTime = LocalDateTime.parse(hld7Dt, DateTimeFormatter.BASIC_ISO_DATE);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        LocalDateTime localDtTime = LocalDateTime.parse(hld7Dt, formatter);
 
         HL7DTType hl7DTType = new HL7DTType();
 
@@ -2134,5 +2473,159 @@ public class Hl7ToRhapsodysXmlConverter {
 
         return hl7DTType;
     }
-}
 
+    private boolean isEmptyHL7CEType(Ce ce) {
+        if (null == ce) return true;
+        if (null == ce.getIdentifier()) return true;
+        if( StringUtils.isEmpty(ce.getIdentifier()) ) return true;
+
+        return false;
+    }
+
+    private boolean isEmptyHL7PRLType(Prl prl) {
+        return isEmptyHL7CEType(prl.getParentObservationIdentifier());
+    }
+
+    private boolean isEmptyHL7EIType(Ei ei) {
+        if( StringUtils.isEmpty(ei.getEntityIdentifier()) ) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7EIPType(Eip eip) {
+        return isEmptyHL7EIType(eip.getPlacerAssignedIdentifier()) && isEmptyHL7EIType(eip.getFillerAssignedIdentifier());
+    }
+
+    private boolean isEmptyHL7DLNType(Dln dln) {
+        if (null == dln) return true;
+        if( StringUtils.isEmpty(dln.getLicenseNumber()) ) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7DRType(Dr dr) {
+        if ((null != dr.getRangeStartDateTime()) && (null == dr.getRangeStartDateTime().getTime())) return true;
+        if ((null != dr.getRangeEndDateTime()) && (null == dr.getRangeEndDateTime().getTime())) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7HDType(Hd hdType) {
+        if (null == hdType) return true;
+        if( StringUtils.isEmpty(hdType.getUniversalId()) ) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7CWEType(Cwe ce) {
+        if (null == ce) return true;
+        if( StringUtils.isEmpty(ce.getIdentifier()) ) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7CNEType(Cne cne) {
+        if (null == cne) return true;
+        if( StringUtils.isEmpty(cne.getIdentifier()) ) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7PID1Type(PatientAdditionalDemographic pad) {
+        if (null == pad) return true;
+        if (pad.getLivingDependency().size() <= 0) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7PIV1Type(PatientVisit pv) {
+        if (null == pv) return true;
+        if( StringUtils.isEmpty(pv.getSetIdPv1()) ) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7PLType(Pl pl) {
+        if (null == pl) return true;
+        if( StringUtils.isEmpty(pl.getPointOfCare()) ) return true;
+        if( isEmptyHL7HDType(pl.getFacility()) ) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7PIV2Type(PatientVisitAdditional pva) {
+        if(null == pva) return true;
+        if( isEmptyHL7PLType(pva.getPriorPendingLocation())) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7VisitType(Visit v) {
+        if (null == v) return true;
+        if (isEmptyHL7PIV1Type(v.getPatientVisit())) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7CQType(Cq cq) {
+        if (null == cq) return true;
+        if( StringUtils.isEmpty(cq.getQuantity()) ) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7SPSType(Sps sps) {
+        if (null == sps) return true;
+        if (isEmptyHL7CWEType(sps.getSpecimenSourceNameOrCode())) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7MOCType(Moc moc) {
+        if (null == moc) return true;
+        if ((null == moc.getMonetaryAmount()) || (null == moc.getMonetaryAmount().getQuantity())) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7NDLType(Ndl ndl) {
+        if (null == ndl) return true;
+        if ((null == ndl.getName()) || (null == ndl.getName().getIdNumber())) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7CTDType(ContactData contactData) {
+        if (null == contactData) return true;
+        if ((null == contactData.getContactRole()) || (contactData.getContactRole().size() <= 0)) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7XONType(Xon xon) {
+        if (null == xon) return true;
+        if( StringUtils.isEmpty(xon.getOrganizationName()) ) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7XADType(Xad xad) {
+        if (null == xad) return true;
+        if ((null == xad.getStreetAddress()) || isEmptyHL7SADType(xad.getStreetAddress())) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7SADType(Sad sad) {
+        if (null == sad) return true;
+        if( StringUtils.isEmpty(sad.getStreetMailingAddress()) ) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7XCNType(Xcn xcn) {
+        if (null == xcn) return true;
+        if( StringUtils.isEmpty(xcn.getIdNumber()) ) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7ContinuationPointerType(OruR1 oruR1) {
+        if (null == oruR1) return true;
+        if ((null == oruR1.getContinuationPointer()) || (null == oruR1.getContinuationPointer().getContinuationPointer()))
+            return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7JCCType(Jcc jcc) {
+        if(null == jcc) return true;
+        if( StringUtils.isEmpty(jcc.getJobDescriptionText()) ) return true;
+        return false;
+    }
+
+    private boolean isEmptyHL7ORCType(CommonOrder co) {
+        if(null == co) return true;
+        if( StringUtils.isEmpty(co.getOrderControl()) ) return true;
+        return false;
+    }
+}
