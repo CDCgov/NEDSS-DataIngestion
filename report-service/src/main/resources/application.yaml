@@ -10,10 +10,10 @@ logging:
   config: classpath:dlt-logback.xml
   pattern:
     console: "%d %-5level %logger : %file-%line : %msg%n"
-    file:    "%d %-5level [%thread] %logger : [ramesh] : %msg%n"
+    file:    "%d %-5level [%thread] %logger : %msg%n"
     
   level:
-    com.apps.restfulApp.api.controller: ERROR
+    com.apps.restfulApp.api.controller: INFO
   file:
     name: logs/report-service.log
 

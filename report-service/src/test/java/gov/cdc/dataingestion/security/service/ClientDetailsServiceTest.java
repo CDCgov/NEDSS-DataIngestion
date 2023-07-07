@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.sql.Timestamp;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,6 +37,12 @@ class ClientDetailsServiceTest {
     void testLoadUserByUsernameExistingClient() {
         client.setUsername("existingUser");
         client.setPassword("password");
+        client.setId("id");
+        client.setRoles("user");
+        client.setCreatedBy("test");
+        client.setUpdatedBy("test");
+        client.setCreatedOn(new Timestamp(System.currentTimeMillis()));
+        client.setUpdatedOn(new Timestamp(System.currentTimeMillis()));
         when(iClientRepositoryMock.findByUsername("existingUser")).thenReturn(Optional.of(client));
 
         UserDetails userDetails = clientDetailsService.loadUserByUsername("existingUser");
@@ -43,6 +50,12 @@ class ClientDetailsServiceTest {
         assertNotNull(userDetails);
         assertEquals("existingUser", userDetails.getUsername());
         assertEquals("password", userDetails.getPassword());
+        assertEquals("id", client.getId());
+        assertEquals("user", client.getRoles());
+        assertEquals("test", client.getCreatedBy());
+        assertEquals("test", client.getUpdatedBy());
+        assertNotNull( client.getCreatedOn());
+        assertNotNull( client.getUpdatedOn());
     }
 
     @Test

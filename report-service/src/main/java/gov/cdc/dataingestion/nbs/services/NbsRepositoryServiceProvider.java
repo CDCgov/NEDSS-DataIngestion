@@ -3,6 +3,7 @@ package gov.cdc.dataingestion.nbs.services;
 import	gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import 	gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 
+import lombok.AllArgsConstructor;
 import 	org.springframework.beans.factory.annotation.Autowired;
 import 	org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ import	java.util.TimeZone;
 import	java.sql.Timestamp;
 
 @Service
-@NoArgsConstructor
+@AllArgsConstructor
 public class NbsRepositoryServiceProvider {
 	private static Logger log = LoggerFactory.getLogger(NbsRepositoryServiceProvider.class);
 
