@@ -81,27 +81,52 @@ public class ElrDeadLetterDto {
     private String processingSourceStackTrace(String stackTrace) {
         // Leading ^ and tailing [^\n]*+
         String regexCleanUpFirstLevel = "org\\.springframework\\.kafka\\.listener[^\\n]*+$";
-        String regexCleanUpSecondLevel = "Caused by: gov.cdc.dataingestion.exception.(.*+)";
-        String regexCleanUpThirdLevel = "gov\\.cdc(.*?):";
+        String regexCleanUpSecondLevel = "Caused by: gov.cdc.dataingestion.(.*+)";
         if (stackTrace == null) {
             return "";
         }
         Pattern pattern = Pattern.compile(regexCleanUpFirstLevel, Pattern.MULTILINE);
         String result = pattern.matcher(stackTrace).replaceAll("");
-
         pattern = Pattern.compile(regexCleanUpSecondLevel);
         Matcher matcher = pattern.matcher(result);
         if (matcher.find()) {
             String extractedString = matcher.group(1).trim();
-            pattern = Pattern.compile(regexCleanUpThirdLevel);
-            matcher = pattern.matcher(extractedString);
-            if (matcher.find()) {
-                String extractedStringRoot = matcher.group(1);
-                return extractedStringRoot.trim();
-            }
-            return extractedString;
+            return extractCustomExceptionMessage(extractedString);
         } else {
-            return stackTrace;
+            return extractGenericExceptionMessage(result ,stackTrace);
+        }
+    }
+
+    private String extractCustomExceptionMessage(String extractedString) {
+        int colonCount = extractedString.split(":").length - 1;
+        return extractCustomMessageAfterColon(extractedString, colonCount);
+    }
+
+    private String extractGenericExceptionMessage(String message, String originalMessage) {
+        String regexCleanUpSecondLevelForGenericException = "Caused by: java.lang.Exception.(.*+)";
+        var pattern = Pattern.compile(regexCleanUpSecondLevelForGenericException);
+        var matcher = pattern.matcher(message);
+        if (matcher.find()) {
+            var extractedStringRoot = matcher.group(1);
+            return extractedStringRoot.trim();
+        } else {
+            return originalMessage;
+        }
+    }
+
+    private String extractCustomMessageAfterColon(String message, int numberColon) {
+        String regex = ":(.*+)";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(message);
+        if (matcher.find()) {
+            var extractedStringRoot = matcher.group(1);
+            if (numberColon <= 0) {
+                return message.trim();
+            }
+            numberColon--;
+            return extractCustomMessageAfterColon(extractedStringRoot,numberColon);
+        } else {
+            return message.trim();
         }
     }
 

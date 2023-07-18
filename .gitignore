@@ -65,6 +65,7 @@ hl7-parser/.gradle/*
 .idea/.name
 .idea/*.xml
 .idea/modules/*
+.idea/libraries/*
 
 ### .gradle ###
 .gradle/7.6/checksums/md5-checksums.bin

@@ -7,6 +7,7 @@ import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
+import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
@@ -40,6 +41,8 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.listener.ListenerExecutionFailedException;
+import org.springframework.kafka.listener.TimestampedException;
 import org.springframework.kafka.support.SendResult;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.MSSQLServerContainer;
@@ -47,6 +50,10 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.*;
 import java.time.Duration;
 import java.util.*;
@@ -399,6 +406,85 @@ class KafkaConsumerServiceTest {
         verify(elrDeadLetterRepository, times(1)).findById(eq(guidForTesting));
 
     }
+
+    private String getFormattedExceptionMessage(Throwable throwable) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        pw.println(throwable.getClass().getName() + ": " + throwable.getMessage());
+        for (StackTraceElement element : throwable.getStackTrace()) {
+            pw.println("\tat " + element.toString());
+        }
+        return sw.toString();
+    }
+    @Test
+    void handleExceptionReturnFromListener() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        String msg;
+        try {
+            throw new Exception(
+                    "Caused by: gov.cdc.dataingestion: Primitive value 'N' requires to be empty or a number with optional decimal digits at OBX-9(0)"
+            );
+        } catch (Exception e) {
+            msg = getFormattedExceptionMessage(e);
+        }
+
+        String expectedMessage = "Primitive value 'N' requires to be empty or a number with optional decimal digits at OBX-9(0)";
+
+        ElrDeadLetterDto model = new ElrDeadLetterDto();
+
+        Method privateMethod = ElrDeadLetterDto.class.getDeclaredMethod("processingSourceStackTrace", String.class);
+        privateMethod.setAccessible(true);
+
+        var result = privateMethod.invoke(model, msg);
+
+        Assertions.assertEquals(expectedMessage, result);
+    }
+
+    @Test
+    void handleExceptionReturnFromListenerButEmpty() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        String errorMsg = "";
+        String expectedMessage = "";
+        ElrDeadLetterDto model = new ElrDeadLetterDto();
+        Method privateMethod = ElrDeadLetterDto.class.getDeclaredMethod("processingSourceStackTrace", String.class);
+        privateMethod.setAccessible(true);
+        var result = privateMethod.invoke(model, errorMsg);
+        Assertions.assertEquals(expectedMessage, result);
+    }
+
+    @Test
+    void handleExceptionReturnFromListenerButNull() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        String errorMsg = null;
+        String expectedMessage = "";
+        ElrDeadLetterDto model = new ElrDeadLetterDto();
+        Method privateMethod = ElrDeadLetterDto.class.getDeclaredMethod("processingSourceStackTrace", String.class);
+        privateMethod.setAccessible(true);
+        var result = privateMethod.invoke(model, errorMsg);
+        Assertions.assertEquals(expectedMessage, result);
+    }
+
+    @Test
+    void handleExceptionReturnFromListenerButContainGenericEception() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        String msg;
+        try {
+            throw new Exception(
+                    "Caused by: java.lang.Exception: TEST message exception"
+            );
+        } catch (Exception e) {
+            msg = getFormattedExceptionMessage(e);
+        }
+
+        String expectedMessage = "TEST message exception";
+
+        ElrDeadLetterDto model = new ElrDeadLetterDto();
+
+        Method privateMethod = ElrDeadLetterDto.class.getDeclaredMethod("processingSourceStackTrace", String.class);
+        privateMethod.setAccessible(true);
+
+        var result = privateMethod.invoke(model, msg);
+
+        Assertions.assertEquals(expectedMessage, result);
+    }
+
 
     @Test
     void dltHandlerLogicForRawPipeline() {
