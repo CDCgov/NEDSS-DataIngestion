@@ -117,7 +117,7 @@ dependencies {
 	implementation 'ch.qos.logback:logback-classic'
 	implementation 'net.logstash.logback:logstash-logback-encoder:6.6'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4'
-
+	implementation 'software.amazon.msk:aws-msk-iam-auth:1.0.0'
 
 	// DI HL7 Wrapper
 	if (findProject(':hl7-parser')) {
