@@ -135,3 +135,4 @@ sasl:
     config: software.amazon.msk.auth.iam.IAMLoginModule required;
   client:
     callback.handler.class: software.amazon.msk.auth.iam.IAMClientCallbackHandler
+
