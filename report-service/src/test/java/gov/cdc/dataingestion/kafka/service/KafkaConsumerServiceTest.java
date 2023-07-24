@@ -13,7 +13,6 @@ import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
 import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
 import gov.cdc.dataingestion.exception.FhirConversionException;
-import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
@@ -165,7 +164,7 @@ class KafkaConsumerServiceTest {
     }
 
     @Test
-    void rawConsumerTest() throws HL7Exception, DuplicateHL7FileFoundException, DiHL7Exception {
+    void rawConsumerTest() throws HL7Exception, DuplicateHL7FileFoundException {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(rawTopic);
         String message =  guidForTesting;
@@ -314,7 +313,7 @@ class KafkaConsumerServiceTest {
     }
 
     @Test
-    void fhirPreparationConsumerTest() throws FhirConversionException, DiHL7Exception {
+    void fhirPreparationConsumerTest() throws FhirConversionException {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(fhirPrepTopic);
         String message =  guidForTesting;
@@ -375,7 +374,7 @@ class KafkaConsumerServiceTest {
     }
 
     @Test
-    void fhirPreparationConsumerTestReInjection() throws DiHL7Exception, FhirConversionException {
+    void fhirPreparationConsumerTestReInjection() throws FhirConversionException {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(fhirPrepTopic);
         String message =  guidForTesting;
