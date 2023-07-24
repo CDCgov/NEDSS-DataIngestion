@@ -93,7 +93,7 @@ task jaxb {
 compileJava.dependsOn jaxb
 
 dependencies {
-	// implementation project(':hl7-parser')
+	implementation project(':hl7-parser')
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
