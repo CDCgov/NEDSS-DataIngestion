@@ -2368,6 +2368,18 @@ public class Hl7ToRhapsodysXmlConverter {
         return buildHL7TSType(ts, TS_FMT_ALL);
     }
 
+    private String AppendingTimeStamp(String ts) {
+        if (ts.length() <= 8) {
+            ts = ts + "000000";
+        } else if (ts.length() <= 12) {
+            ts = ts + "00";
+        } else if (ts.length() > 14) {
+            ts = ts.substring(0, 14);
+        }
+        return ts;
+    }
+
+
     private HL7TSType buildHL7TSType(String ts, int outFmt) {
         HL7TSType hl7TSType = new HL7TSType();
 
@@ -2376,14 +2388,12 @@ public class Hl7ToRhapsodysXmlConverter {
         DateTimeFormatter tsFormatter = formatter;
         if (ts.indexOf("-") > 0) {
             tsFormatter = formatterWithZone;
+//            int index = ts.indexOf("-");
+//            String subStr = ts.substring(0, index);
+//            String subStrTimeZone =  ts.substring(index);
+//            ts = AppendingTimeStamp(subStr) + subStrTimeZone;
         } else {
-            if (ts.length() <= 8) {
-                ts = ts + "000000";
-            } else if (ts.length() <= 12) {
-                ts = ts + "00";
-            } else if (ts.length() > 14) {
-                ts = ts.substring(0, 14);
-            }
+            ts = AppendingTimeStamp(ts);
         }
 
         LocalDateTime localDateTime = LocalDateTime.parse(ts, tsFormatter);
