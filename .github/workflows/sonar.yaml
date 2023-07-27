@@ -44,7 +44,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          modules = ("report-service" "hl7-parser" "phdc-xsd-jaxb") # Add all your module names here
+          modules = "report-service" "hl7-parser" "phdc-xsd-jaxb" 
           for module in "${modules[@]}"
           do
           cd "$module"
