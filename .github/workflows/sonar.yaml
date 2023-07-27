@@ -48,7 +48,7 @@ jobs:
           for module in "${modules[@]}"
           do
           cd "$module"
-          ./gradlew clean build sonarqube -Dsonar.login=YOUR_SONARQUBE_TOKEN
+          ./gradlew clean build sonarqube 
           cd ..
           done
           
