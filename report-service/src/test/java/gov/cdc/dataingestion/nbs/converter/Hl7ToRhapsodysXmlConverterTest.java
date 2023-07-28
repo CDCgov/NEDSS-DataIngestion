@@ -870,4 +870,40 @@ public class Hl7ToRhapsodysXmlConverterTest {
         Assertions.assertNotNull(result.getBreedCode());
         Assertions.assertEquals(expectedMessage, result.getStrain());
     }
+
+    @Test
+    void appendingTimeStampGreaterThan14() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        var parentClass = new Hl7ToRhapsodysXmlConverter();
+        var payload = "20230615123059-timezone";
+        var expectedMessage = "20230615123059";
+        Method privateMethod = Hl7ToRhapsodysXmlConverter.class.getDeclaredMethod("appendingTimeStamp", String.class);
+        privateMethod.setAccessible(true);
+        var result = (String) privateMethod.invoke(parentClass, payload);
+
+        Assertions.assertEquals(expectedMessage, result);
+    }
+
+    @Test
+    void appendingTimeStampLessT14AndGreaterT8() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        var parentClass = new Hl7ToRhapsodysXmlConverter();
+        var payload = "20230615123";
+        var expectedMessage = "2023061512300";
+        Method privateMethod = Hl7ToRhapsodysXmlConverter.class.getDeclaredMethod("appendingTimeStamp", String.class);
+        privateMethod.setAccessible(true);
+        var result = (String) privateMethod.invoke(parentClass, payload);
+
+        Assertions.assertEquals(expectedMessage, result);
+    }
+
+    @Test
+    void appendingTimeStampWithDateOnly() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        var parentClass = new Hl7ToRhapsodysXmlConverter();
+        var payload = "20230615";
+        var expectedMessage = "20230615000000";
+        Method privateMethod = Hl7ToRhapsodysXmlConverter.class.getDeclaredMethod("appendingTimeStamp", String.class);
+        privateMethod.setAccessible(true);
+        var result = (String) privateMethod.invoke(parentClass, payload);
+
+        Assertions.assertEquals(expectedMessage, result);
+    }
 }

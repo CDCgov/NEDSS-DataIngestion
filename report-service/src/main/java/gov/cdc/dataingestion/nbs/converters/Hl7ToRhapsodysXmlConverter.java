@@ -266,7 +266,8 @@ public class Hl7ToRhapsodysXmlConverter {
         for (HL7OrderObservationType ooType : listOfOOTypes) {
             HL7OBRType hl7OBRType = ooType.getObservationRequest();
             if ((null == hl7OBRType.getParent()) && (null == hl7OBRType.getParentResult())) {
-                if ((assumedParentOBRType != hl7OBRType) && (assumedChildOBRType != hl7OBRType) && assumedChildOBRType != null && assumedChildOBRType.getParent() != null) {
+                if ((assumedParentOBRType != hl7OBRType) && (assumedChildOBRType != hl7OBRType) &&
+                        (assumedChildOBRType != null) && (assumedChildOBRType.getParent() != null)) {
                     hl7OBRType.setParent(assumedChildOBRType.getParent());
                     hl7OBRType.setParentResult(assumedChildOBRType.getParentResult());
                 }
