@@ -25,6 +25,9 @@ import gov.cdc.dataingestion.nbs.jaxb.*;
 import jakarta.xml.bind.JAXBException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.runners.Parameterized;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -871,11 +874,14 @@ public class Hl7ToRhapsodysXmlConverterTest {
         Assertions.assertEquals(expectedMessage, result.getStrain());
     }
 
-    @Test
-    void appendingTimeStampGreaterThan14() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    @ParameterizedTest
+    @CsvSource({
+            "20230615123059-timezone, 20230615123059",
+            "20230615123, 2023061512300",
+            "20230615, 20230615000000"
+    })
+    void testAppendingTimeStamp(String payload, String expectedMessage) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         var parentClass = new Hl7ToRhapsodysXmlConverter();
-        var payload = "20230615123059-timezone";
-        var expectedMessage = "20230615123059";
         Method privateMethod = Hl7ToRhapsodysXmlConverter.class.getDeclaredMethod("appendingTimeStamp", String.class);
         privateMethod.setAccessible(true);
         var result = (String) privateMethod.invoke(parentClass, payload);
@@ -883,27 +889,4 @@ public class Hl7ToRhapsodysXmlConverterTest {
         Assertions.assertEquals(expectedMessage, result);
     }
 
-    @Test
-    void appendingTimeStampLessT14AndGreaterT8() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        var parentClass = new Hl7ToRhapsodysXmlConverter();
-        var payload = "20230615123";
-        var expectedMessage = "2023061512300";
-        Method privateMethod = Hl7ToRhapsodysXmlConverter.class.getDeclaredMethod("appendingTimeStamp", String.class);
-        privateMethod.setAccessible(true);
-        var result = (String) privateMethod.invoke(parentClass, payload);
-
-        Assertions.assertEquals(expectedMessage, result);
-    }
-
-    @Test
-    void appendingTimeStampWithDateOnly() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        var parentClass = new Hl7ToRhapsodysXmlConverter();
-        var payload = "20230615";
-        var expectedMessage = "20230615000000";
-        Method privateMethod = Hl7ToRhapsodysXmlConverter.class.getDeclaredMethod("appendingTimeStamp", String.class);
-        privateMethod.setAccessible(true);
-        var result = (String) privateMethod.invoke(parentClass, payload);
-
-        Assertions.assertEquals(expectedMessage, result);
-    }
 }
