@@ -473,7 +473,7 @@ class KafkaConsumerServiceTest {
             msg = getFormattedExceptionMessage(e);
         }
 
-        String expectedMessage = "TEST message exception";
+        String expectedMessage = "lang.Exception: TEST message exception";
 
         ElrDeadLetterDto model = new ElrDeadLetterDto();
 

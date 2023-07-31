@@ -103,7 +103,7 @@ public class ElrDeadLetterDto {
     }
 
     private String extractGenericExceptionMessage(String message, String originalMessage) {
-        String regexCleanUpSecondLevelForGenericException = "Caused by: java.lang.Exception.(.*+)";
+        String regexCleanUpSecondLevelForGenericException = "Caused by: java.(.*+)";
         var pattern = Pattern.compile(regexCleanUpSecondLevelForGenericException);
         var matcher = pattern.matcher(message);
         if (matcher.find()) {
