@@ -25,6 +25,8 @@ Data Ingestion for Modernization of NEDSS Project by Enquizit
          DI_NBS_DBUSER=value
          
          DI_NBS_DBPASSWORD=value
+
+         DI_LOG_PATH=value
          ```
   - Run "docker-compose up -d"
   - If encounter gradle exception such as missing wrapper then run the following command
@@ -35,6 +37,28 @@ Data Ingestion for Modernization of NEDSS Project by Enquizit
   - ./gradlew :report-service:build
   - ./gradlew build
 
+# Building Docker image for EKS (1)
+- If you are on Mac OS Environnment, look into Docker Buildx, so linux image can be built
+- This example assume local machine run Mac OS.
+- ```Run "docker buildx  build --platform linux/amd64 -t <DOCKER_REPOS>/<IMAGE_NAME>:<VERSION> -f report-service/Dockerfile . --push"```
+    - This command look for Dockerfile inside report-service directory and build image from the top level of the project's hierarchy 
+
+# Deploy Docker image on EKS (2)
+- These steps assume EKS cluster already exist and running, and it is being manage by Helm Charts 
+- ```Run "helm upgrade --install dataingestion-service -f ./dataingestion-service/values-dev.yaml --set jdbc.dbserver='VALUE',jdbc.dbname='VALUE',jdbc.username='VALUE',jdbc.password='VALUE',jdbc.nbs.dbserver='VALUE',jdbc.nbs.dbname='VALUE',jdbc.nbs.username='VALUE',jdbc.nbs.password='VALUE',kafka.cluster='VALUE' dataingestion-service"```
+    - What this command does is create new if not service not exist and update existing one if it exists.
+    -  values-dev.yaml: indicate value file, helm charts pull values such as enviroment variable from this file.
+    -  --set jdb.dbserver='VALUE': argument to pass value into enviroment variable, this value is defined in values-dev.yaml.
+    -  --set image.repository='VALUE': image repos, say if using registry other than docker hub. Ex: ECR
+    -  Docker Image need to be specify in values-dev.yaml
+    -  For Helm Chart and EKS configuration, please refer to this [NEDSS-Helm](https://github.com/CDCgov/NEDSS-Helm)
+- Other useful commands
+    -  ```helm delete <SERVICE-NAME>```: delete service
+    -  ```kubectl exec -it <POD-ID>  -- /bin/bash``` : access pod environment
+    -  ```kubectl get pods```
+    -  ```kubectl describe pod <POD-ID>```: get pod info, useful to inspect configuration and debug
+    -  ```kubectl logs <POD-ID>```
+     
 # Unit Testing and Code Coverage
 - Requirement:
   - Code coverage must be greater than 90%
