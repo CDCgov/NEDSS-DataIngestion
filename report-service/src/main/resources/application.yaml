@@ -4,25 +4,15 @@ rsa:
 spring:
   application:
     name: report-service
-
 logging:
   #  Only one config can be active at a time
-  config: classpath:dlt-logback.xml
-  pattern:
-    console: "%d %-5level %logger : %file-%line : %msg%n"
-    file:    "%d %-5level [%thread] %logger : %msg%n"
-    
-  level:
-    com.apps.restfulApp.api.controller: INFO
-  file:
-    name: logs/report-service.log
-
+  config: classpath:logback-config.xml
+LOG_PATH: ${DI_LOG_PATH}
 ---
 spring:
   config:
     activate:
       on-profile: default
-
   datasource:
     url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_DBNAME};encrypt=true;trustServerCertificate=true;
     username: ${DI_USERNAME}
@@ -36,12 +26,10 @@ spring:
       username: ${DI_NBS_DBUSER}
       password: ${DI_NBS_DBPASSWORD}
       driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: none
-
   kafka:
     bootstrap-servers: ${BOOTSTRAP_SERVERS}
     group-id: data-ingestion-group
@@ -78,26 +66,25 @@ spring:
   config:
     activate:
       on-profile: kubernetes
-
   datasource:
-    url: db_di_url
-    username: db_di_username
-    password: db_di_password
+    url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_DBNAME};encrypt=true;trustServerCertificate=true;
+    username: ${DI_USERNAME}
+    password: ${DI_PASSWORD}
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-
+    hikari:
+      connection-timeout: 60000
+      maximum-pool-size: 5
     nbs:
-      url: db_nbs_url
-      username: db_nbs_username
-      password: db_nbs_password
+      url: jdbc:sqlserver://${DI_NBS_DBSERVER};databaseName=${DI_NBS_DBNAME};encrypt=true;trustServerCertificate=true;
+      username: ${DI_NBS_DBUSER}
+      password: ${DI_NBS_DBPASSWORD}
       driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: none
-
   kafka:
-    bootstrap-servers: kafka_bootstrap_servers
+    bootstrap-servers: ${BOOTSTRAP_SERVERS}
     group-id: data-ingestion-group
     consumer:
       maxPollIntervalMs: 30000
