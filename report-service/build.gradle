@@ -1,3 +1,4 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 buildscript {
 	repositories {
@@ -15,10 +16,8 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.0'
 	id 'com.github.johnrengelman.shadow' version '7.1.2'
 	id 'jacoco'
-	id "org.sonarqube" version "4.2.1.3168"
 //	id 'checkstyle'
 }
-
 
 group = 'gov.cdc.dataingestion'
 version = '0.0.1-SNAPSHOT'
@@ -93,7 +92,7 @@ task jaxb {
 compileJava.dependsOn jaxb
 
 dependencies {
-	//implementation project(':hl7-parser')
+	implementation project(':hl7-parser')
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
@@ -162,8 +161,40 @@ dependencies {
 }
 
 test {
+	//  Cucumber only supports the JUnit Platform
 	useJUnitPlatform()
+	// always re-run tests
+	test.outputs.upToDateWhen { false }
+	systemProperty "cucumber.filter.tags", System.getProperty("cucumber.filter.tags")
+	// support Github actions overriding the configured database image
+	if (System.getProperty("testing.database.image") != null) {
+		systemProperty "testing.database.image", System.getProperty("testing.database.image")
+	}
+
+	debugOptions {
+		enabled = true
+		server = true
+		suspend = false
+		port = java.util.Optional.ofNullable(findProperty('debug.port'))
+				.map(Object::toString)
+				.map(Integer::parseInt)
+				.orElse(5105)
+	}
 }
+
+tasks.withType(JavaExec).configureEach {
+
+	debugOptions {
+		enabled = true
+		server = true
+		suspend = false
+		port = java.util.Optional.ofNullable(findProperty('debug.port'))
+				.map(Object::toString)
+				.map(Integer::parseInt)
+				.orElse(5005)
+	}
+}
+
 
 jar {
 	// task configuration goes here
@@ -180,3 +211,5 @@ sonarqube {
 		property "sonar.host.url", "https://sonarcloud.io"
 	}
 }
+
+compileJava.mustRunAfter(":hl7-parser:build")
