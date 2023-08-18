@@ -161,40 +161,8 @@ dependencies {
 }
 
 test {
-	//  Cucumber only supports the JUnit Platform
 	useJUnitPlatform()
-	// always re-run tests
-	test.outputs.upToDateWhen { false }
-	systemProperty "cucumber.filter.tags", System.getProperty("cucumber.filter.tags")
-	// support Github actions overriding the configured database image
-	if (System.getProperty("testing.database.image") != null) {
-		systemProperty "testing.database.image", System.getProperty("testing.database.image")
-	}
-
-	debugOptions {
-		enabled = true
-		server = true
-		suspend = false
-		port = java.util.Optional.ofNullable(findProperty('debug.port'))
-				.map(Object::toString)
-				.map(Integer::parseInt)
-				.orElse(5105)
-	}
 }
-
-tasks.withType(JavaExec).configureEach {
-
-	debugOptions {
-		enabled = true
-		server = true
-		suspend = false
-		port = java.util.Optional.ofNullable(findProperty('debug.port'))
-				.map(Object::toString)
-				.map(Integer::parseInt)
-				.orElse(5005)
-	}
-}
-
 
 jar {
 	// task configuration goes here

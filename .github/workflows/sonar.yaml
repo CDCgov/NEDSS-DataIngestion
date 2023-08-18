@@ -6,35 +6,41 @@ on:
   pull_request:
     paths:
       - "report-service/**"
+      - "hl7-parser/**"
       - ".github/workflows/sonar.yaml"
+env:
+  deployment_env: dev
+  accountid: ${{secrets.cdc_nbs_sandbox_shared_services_accountid}}
+
+
 jobs:
-  build:
+  pipeline:
     name: Build and analyze
     runs-on: ubuntu-latest
+
     permissions:
       id-token: write
       contents: read
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-
-      - name: Set executable permissions for Gradle Wrapper
-        run: chmod +x ./report-service/gradlew
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: 17
           distribution: 'zulu' # Alternative distribution options are available
+
       - name: Cache SonarCloud packages
-        uses: actions/cache@v3
+        uses: actions/cache@v1
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
+
       - name: Cache Gradle packages
-        uses: actions/cache@v3
+        uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
