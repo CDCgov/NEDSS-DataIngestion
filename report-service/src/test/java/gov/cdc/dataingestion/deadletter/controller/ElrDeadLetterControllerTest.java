@@ -2,19 +2,12 @@ package gov.cdc.dataingestion.deadletter.controller;
 
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService;
-import gov.cdc.dataingestion.exception.DeadLetterTopicException;
 import gov.cdc.dataingestion.security.config.RsaKeyProperties;
-import gov.cdc.dataingestion.security.service.TokenService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -37,7 +30,7 @@ class ElrDeadLetterControllerTest {
     private ElrDeadLetterService elrDeadLetterService;
 
 
-    //@Test
+    @Test
     void testGetAllNewErrorMessageSuccess() throws Exception {
         List<ElrDeadLetterDto> dtoList = new ArrayList<>();
         ElrDeadLetterDto dto1 = new ElrDeadLetterDto(
@@ -95,7 +88,7 @@ class ElrDeadLetterControllerTest {
 
     }
 
-    //@Test
+    @Test
     void testMessageReInject() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/reports-dlt/inject-message")
                 .param("id", "1")

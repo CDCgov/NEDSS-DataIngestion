@@ -1,7 +1,5 @@
 package gov.cdc.dataingestion.registration.controller;
 
-import gov.cdc.dataingestion.deadletter.controller.ElrDeadLetterController;
-import gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService;
 import gov.cdc.dataingestion.registration.service.RegistrationService;
 import gov.cdc.dataingestion.security.config.RsaKeyProperties;
 import org.junit.jupiter.api.Assertions;
@@ -28,7 +26,7 @@ public class RegisterControllerTest {
     @MockBean
     private RegistrationService registrationService;
 
-    //@Test
+    @Test
     void createUserTestSuccess() throws Exception {
         when(registrationService.createUser("u", "p")).thenReturn(true);
         var result = mockMvc.perform(MockMvcRequestBuilders.post("/registration")
@@ -41,7 +39,7 @@ public class RegisterControllerTest {
 
     }
 
-    //@Test
+    @Test
     void createUserTestSuccessSaveReturnFalse() throws Exception {
         when(registrationService.createUser("u", "p")).thenReturn(false);
         var result = mockMvc.perform(MockMvcRequestBuilders.post("/registration")
@@ -53,7 +51,7 @@ public class RegisterControllerTest {
         Assertions.assertEquals("\"NOT_ACCEPTABLE\"", result.getResponse().getContentAsString());
     }
 
-    //@Test
+    @Test
     void createUserTestSuccessSaveReturnBadRequest() throws Exception {
         var result = mockMvc.perform(MockMvcRequestBuilders.post("/registration")
                         .param("username", "")
