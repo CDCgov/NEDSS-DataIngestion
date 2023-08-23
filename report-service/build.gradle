@@ -120,6 +120,8 @@ dependencies {
 	implementation 'software.amazon.msk:aws-msk-iam-auth:1.0.0'
 	implementation 'io.micrometer:micrometer-registry-prometheus'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+	implementation 'com.amazonaws:aws-java-sdk-acm:1.12.534'
 
 	// DI HL7 Wrapper
 	if (findProject(':hl7-parser')) {

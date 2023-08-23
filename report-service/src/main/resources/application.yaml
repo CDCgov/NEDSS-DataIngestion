@@ -136,7 +136,10 @@ sasl:
   client:
     callback.handler.class: software.amazon.msk.auth.iam.IAMClientCallbackHandler
 
-
+auth:
+  username: nedss_elr_load
+  password: password #TODO: Move this to env variable
+  url: https://nbsauthenticator.datateam-cdc-nbs.eqsandbox.com/nbsauth/token
 
 
 
