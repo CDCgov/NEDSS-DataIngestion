@@ -74,6 +74,13 @@ kafka:
   dlt:
       suffix: _dlt
 
+auth:
+#  username: nedss_elr_load
+#  password: ${NBS_AUTH_PASSWORD}
+#  url: https://nbsauthenticator.datateam-cdc-nbs.eqsandbox.com/nbsauth/token
+  username: diteamadmin
+  password: ${DI_ADMIN_PASSWORD}
+  url: https://dataingestion.datateam-cdc-nbs.eqsandbox.com/token
 ---
 spring:
   config:
@@ -138,7 +145,7 @@ sasl:
 
 auth:
   username: nedss_elr_load
-  password: password #TODO: Move this to env variable
+  password: ${NBS_AUTH_PASSWORD}
   url: https://nbsauthenticator.datateam-cdc-nbs.eqsandbox.com/nbsauth/token
 
 

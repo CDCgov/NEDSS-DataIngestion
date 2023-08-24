@@ -18,9 +18,9 @@ public class AuthController {
         this.authService = authService;
     }
 
-    @GetMapping("/nbs/token")
+    @GetMapping("/nbsauth/token")
     public String getAuthToken() {
-        logger.info("Inside getAuthToken()...");
-        return "dummy-token";
+        logger.info("Inside getAuthToken() controller...");
+        return authService.getToken();
     }
 }

@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.authintegration.service;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.http.Header;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.CloseableHttpClient;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 
 import com.amazonaws.services.certificatemanager.AWSCertificateManagerClientBuilder;
@@ -34,27 +36,39 @@ import com.amazonaws.regions.Regions;
 
 import com.amazonaws.AmazonClientException;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
 @Service
 @EnableScheduling
 public class AuthService {
-    private static Logger logger = LoggerFactory.getLogger(AuthService.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
-    @Value("${kafka.validation.topic}")
+    @Value("${auth.username}")
     private String username;
 
-    @Value("${kafka.validation.topic}")
+    @Value("${auth.password}")
     private String password;
 
-//    @Value("${auth.url}")
-//    private String url;
+    @Value("${auth.url}")
+    private String url;
+
+    // TODO: Decide and move this to singleton if needed
+    private String token;
 
     //@EventListener(ApplicationReadyEvent.class)
-    @Scheduled(initialDelay = 0, fixedDelay = 10000) //fixedRate = 60*60*1000)
+    public void generateAuthTokenDuringStartup() {
+        System.err.println("Generating Auth Token during startup...");
+        generateToken();
+        System.err.println("Token is startup..." + token);
+    }
+    @Scheduled(initialDelay = 0, fixedRate = 60*60*1000)
+    //@Scheduled(fixedRate = 15*1000)
     public void generateAuthTokenScheduled() {
-//        logger.info("Generating Auth Token after expiry..." + url);
+        System.err.println("Generating Auth Token scheduled...");
 //        AWSCredentials credentials = null;
 //        try {
 //            logger.info("Loading from creds file...");
@@ -90,19 +104,44 @@ public class AuthService {
 //        // Display the certificate list.
 //        System.out.println("Response from aws is...." +"\n" + result + "\n");
 
+        // Move this to a different function and add an EventListener and call the function twice
+        // during start up and scheduled
+        generateToken();
+        System.err.println("Token is scheduled..." + token);
+
+    }
+
+    private void generateToken() {
         try {
-            //UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(username, password);
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(username, password);
 
             CloseableHttpClient httpsClient = HttpClients.createDefault();
-            HttpPost getRequest = new HttpPost("https://nbsauthenticator.datateam-cdc-nbs.eqsandbox.com/nbsauth/token");
-            CloseableHttpResponse response = httpsClient.execute(getRequest);
+//            HttpGet getRequest = new HttpGet(url);
+            HttpPost postRequest = new HttpPost(url);
+            Header authHeader = new BasicScheme(StandardCharsets.UTF_8).authenticate(credentials, postRequest, null);
+//            CloseableHttpResponse response = httpsClient.execute(getRequest);
+            postRequest.addHeader(authHeader);
+            CloseableHttpResponse response = httpsClient.execute(postRequest);
             int statusCode = response.getStatusLine().getStatusCode();
-            logger.info("status code from token service is..." + statusCode);
-            logger.info("response from token service is..." + response);
-        } catch (IOException e) {
-            logger.error("Exception occurred while establishing connection to NBS Auth Service:" + e);
+            System.err.println("status code from token service is..." + statusCode);
+            InputStream apiContent = response.getEntity().getContent();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(apiContent));
+            StringBuilder stringBuilder = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+            }
+
+            token = stringBuilder.toString();
+            System.err.println("response from token service is..." + token);
+
+        } catch (Exception e) {
+            System.err.println("Exception occurred while establishing connection to NBS Auth Service: " + e);
             throw new RuntimeException(e);
         }
+    }
 
+    public String getToken() {
+        return token;
     }
 }
