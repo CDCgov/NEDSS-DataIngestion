@@ -1,9 +1,22 @@
 package gov.cdc.dataingestion.authintegration.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
+import org.apache.http.ssl.SSLContexts;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +49,7 @@ import com.amazonaws.regions.Regions;
 
 import com.amazonaws.AmazonClientException;
 
+import javax.net.ssl.SSLContext;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -65,8 +79,8 @@ public class AuthService {
         generateToken();
         System.err.println("Token is startup..." + token);
     }
-    @Scheduled(initialDelay = 0, fixedRate = 60*60*1000)
-    //@Scheduled(fixedRate = 15*1000)
+    //@Scheduled(initialDelay = 0, fixedRate = 60*60*1000)
+    @Scheduled(initialDelay = 0, fixedRate = 15*1000)
     public void generateAuthTokenScheduled() {
         System.err.println("Generating Auth Token scheduled...");
 //        AWSCredentials credentials = null;
@@ -115,24 +129,49 @@ public class AuthService {
         try {
             UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(username, password);
 
-            CloseableHttpClient httpsClient = HttpClients.createDefault();
-//            HttpGet getRequest = new HttpGet(url);
-            HttpPost postRequest = new HttpPost(url);
-            Header authHeader = new BasicScheme(StandardCharsets.UTF_8).authenticate(credentials, postRequest, null);
+            TrustStrategy acceptingTrustStrategy = (cert, authType) -> true;
+            SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
+            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext,
+                    NoopHostnameVerifier.INSTANCE);
+
+            Registry<ConnectionSocketFactory> socketFactoryRegistry =
+                    RegistryBuilder.<ConnectionSocketFactory> create()
+                            .register("https", sslsf)
+                            .register("http", new PlainConnectionSocketFactory())
+                            .build();
+
+            BasicHttpClientConnectionManager connectionManager =
+                    new BasicHttpClientConnectionManager(socketFactoryRegistry);
+
+            //CloseableHttpClient httpsClient = HttpClients.createDefault();
+            CloseableHttpClient httpsClient = HttpClients.custom().setSSLSocketFactory(sslsf)
+                    .setConnectionManager(connectionManager).build();
+
+
+            HttpGet getRequest = new HttpGet("https://nbsauthenticator.datateam-cdc-nbs.eqsandbox.com/nbsauth/token");
+//            HttpPost postRequest = new HttpPost("url");
+            Header authHeader = new BasicScheme(StandardCharsets.UTF_8).authenticate(credentials, getRequest, null);
 //            CloseableHttpResponse response = httpsClient.execute(getRequest);
-            postRequest.addHeader(authHeader);
-            CloseableHttpResponse response = httpsClient.execute(postRequest);
+            //postRequest.addHeader(authHeader);
+            CloseableHttpResponse response = httpsClient.execute(getRequest);
             int statusCode = response.getStatusLine().getStatusCode();
             System.err.println("status code from token service is..." + statusCode);
-            InputStream apiContent = response.getEntity().getContent();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(apiContent));
-            StringBuilder stringBuilder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line);
-            }
+            HttpEntity httpEntity = response.getEntity();
 
-            token = stringBuilder.toString();
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = mapper.readTree(EntityUtils.toString(httpEntity));
+
+//            InputStream apiContent = response.getEntity().getContent();
+//            BufferedReader reader = new BufferedReader(new InputStreamReader(apiContent));
+//            StringBuilder stringBuilder = new StringBuilder();
+//            String line;
+//            System.out.println("Line is..." + stringBuilder.toString());
+//            while ((line = reader.readLine()) != null) {
+//                System.out.println("Line is..." + line);
+//                stringBuilder.append(line);
+//            }
+
+            token = node.get("token").asText();
             System.err.println("response from token service is..." + token);
 
         } catch (Exception e) {
