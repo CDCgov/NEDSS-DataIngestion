@@ -21,6 +21,7 @@ logging:
   #  Only one config can be active at a time
   config: classpath:logback-config.xml
 LOG_PATH: ${DI_LOG_PATH}
+HL7_VALIDATOR: ${DI_HL7_VALIDATOR}
 ---
 spring:
   config:

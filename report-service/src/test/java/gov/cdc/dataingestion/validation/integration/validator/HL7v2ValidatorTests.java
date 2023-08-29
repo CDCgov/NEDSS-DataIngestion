@@ -24,6 +24,31 @@ public class HL7v2ValidatorTests
     }
 
     @Test
+    public void MessageValidation_Success_ValidMessage_ValidatorActivated_ReturnError_MissingOBR() throws DiHL7Exception {
+
+        String data = "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
+                + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379";
+        String id = "1";
+
+        RawERLModel model = new RawERLModel();
+        model.setPayload(data);
+        model.setId(id);
+        model.setCreatedOn(null);
+        model.setUpdatedOn(null);
+
+
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.MessageValidation(id, model, "test", true);
+        });
+
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Error Occurred at OBR-4";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+
+
+    @Test
     public void MessageValidation_Success_ValidMessage_NotContainNewLine() throws DiHL7Exception {
 
         String data = "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
@@ -40,7 +65,7 @@ public class HL7v2ValidatorTests
         model.setId(id);
         model.setCreatedOn(null);
         model.setUpdatedOn(null);
-        var result = target.MessageValidation(id, model, "test");
+        var result = target.MessageValidation(id, model, "test", false);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("2.5.1",result.getMessageVersion());
@@ -69,7 +94,7 @@ public class HL7v2ValidatorTests
         model.setId(id);
         model.setCreatedOn(null);
         model.setUpdatedOn(null);
-        var result = target.MessageValidation(id, model, "test");
+        var result = target.MessageValidation(id, model, "test", false);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("2.3.1",result.getMessageVersion());
@@ -104,7 +129,7 @@ public class HL7v2ValidatorTests
         model.setPayload(data);
         model.setId(id);
 
-        var result = target.MessageValidation(id, model, "test");
+        var result = target.MessageValidation(id, model, "test", false);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("2.5.1",result.getMessageVersion());
@@ -141,7 +166,7 @@ public class HL7v2ValidatorTests
 
         Exception exception = Assertions.assertThrows(
                 DiHL7Exception.class, () -> {
-                    target.MessageValidation(id, model, "test");
+                    target.MessageValidation(id, model, "test", false);
                 }
         );
 
@@ -162,7 +187,7 @@ public class HL7v2ValidatorTests
 
         Exception exception = Assertions.assertThrows(
                 DiHL7Exception.class, () -> {
-                    target.MessageValidation(id, model, "test");
+                    target.MessageValidation(id, model, "test", false);
                 }
         );
         String expectedMessage = "Determine encoding for message. The following is the first 50 chars of the message for reference, although this may not be where the issue is: Invalid Message";
