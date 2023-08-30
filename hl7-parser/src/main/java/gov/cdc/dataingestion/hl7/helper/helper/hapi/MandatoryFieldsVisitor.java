@@ -3,6 +3,8 @@ package gov.cdc.dataingestion.hl7.helper.helper.hapi;
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.Location;
 import ca.uhn.hl7v2.model.Group;
+import ca.uhn.hl7v2.model.Message;
+import ca.uhn.hl7v2.model.Segment;
 import ca.uhn.hl7v2.validation.builder.support.ValidatingMessageVisitor;
 import static gov.cdc.dataingestion.hl7.helper.constant.hl7.EventTrigger.ORU_01;
 import static gov.cdc.dataingestion.hl7.helper.constant.hl7.MessageType.ORU;
@@ -20,7 +22,6 @@ public class MandatoryFieldsVisitor extends ValidatingMessageVisitor {
         }
         return false;
     }
-
 
 
 

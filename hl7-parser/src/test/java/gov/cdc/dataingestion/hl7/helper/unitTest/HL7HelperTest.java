@@ -554,4 +554,51 @@ class HL7HelperTest {
         Assertions.assertEquals(expectedMessage, exception.getMessage());
     }
 
+    @Test
+    void hl7Validation_Invalid_NoPatientName() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|||7005728^^^TML^MR||||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO|RET^RETICULOCYTE COUNT^HL79901 literal|||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "OBX|1|ST|||Test Value";
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Error Occurred at PID-5";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void hl7Validation_Invalid_NoOrderObservationGroup() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST";
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Order Observation is Empty";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void hl7Validation_Invalid_NoObrIdentifierCode() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO||||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "OBX|1|ST|||Test Value";
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Error Occurred at OBR-4";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
 }

@@ -27,10 +27,6 @@ public class OruR01Validator {
             Group patientGroup = (Group) orderObsGroup;
             var pid = (Segment) patientGroup.get("PID");
 
-            if(pid == null) {
-                throw new HL7Exception("Patient Identifier is Null");
-            }
-
             String patientName = pid.getField(5, 0).encode();
 
             if(patientName == null || (patientName != null && patientName.isEmpty())) {
@@ -49,9 +45,6 @@ public class OruR01Validator {
         for (int i = 0; i < orderCounter; i++) {
             var orderObsGroup = (Group) group.get("ORDER_OBSERVATION", i);
             var obr = (Segment) orderObsGroup.get("OBR");
-            if (obr == null) {
-                throw new HL7Exception("OBR is null");
-            }
 
             String identifierCode = obr.getField(4, 0).encode();
 
