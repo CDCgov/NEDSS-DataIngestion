@@ -24,7 +24,7 @@ public class HL7v2ValidatorTests
     }
 
     @Test
-    public void MessageValidation_Success_ValidMessage_ValidatorActivated_ReturnError_MissingOBR() throws DiHL7Exception {
+    void MessageValidation_Success_ValidMessage_ValidatorActivated_ReturnError_MissingOBR() throws DiHL7Exception {
 
         String data = "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
                 + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
