@@ -8,5 +8,6 @@ public class RawERLDto {
     private String id;
     private String type;
     private String payload;
+    private Boolean validationActive = false;
 
 }

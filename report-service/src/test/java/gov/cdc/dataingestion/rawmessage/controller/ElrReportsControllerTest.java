@@ -3,6 +3,7 @@ package gov.cdc.dataingestion.rawmessage.controller;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
 import gov.cdc.dataingestion.security.config.RsaKeyProperties;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -30,6 +31,7 @@ public class ElrReportsControllerTest {
         String messageType = "HL7";
         mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
                         .header("msgType", messageType)
+                        .header("validationActive", "false")
                         .contentType("text/plain")
                         .content(hl7Payload)
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
@@ -41,6 +43,26 @@ public class ElrReportsControllerTest {
 
         verify(rawELRService).submission(rawERLDto);
 
+    }
+
+    @Test
+    public void testSaveHL7MessageValidationActivated() throws Exception {
+        String hl7Payload = "testmessage";
+        String messageType = "HL7";
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
+                        .header("msgType", messageType)
+                        .header("validationActive", "true")
+                        .contentType("text/plain")
+                        .content(hl7Payload)
+                        .with(SecurityMockMvcRequestPostProcessors.jwt()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        RawERLDto rawERLDto = new RawERLDto();
+        rawERLDto.setType(messageType);
+        rawERLDto.setPayload(hl7Payload);
+        rawERLDto.setValidationActive(true);
+
+        verify(rawELRService).submission(rawERLDto);
     }
 
 }

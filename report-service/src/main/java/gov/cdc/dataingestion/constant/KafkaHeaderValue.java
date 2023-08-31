@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.constant;
 
 public class KafkaHeaderValue {
     public static final String MessageType = "MESSAGE-TYPE";
+    public static final String MessageValidationActive = "MESSAGE-VALIDATION-APPLIED";
     public static final String DltOccurrence = "DLT-OCCURRENCE";
     public static final String OriginalTopic = "kafka_original-topic";
     public static final String MessageType_HL7v2 = "HL7";

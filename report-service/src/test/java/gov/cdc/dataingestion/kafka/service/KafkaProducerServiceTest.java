@@ -54,7 +54,7 @@ class KafkaProducerServiceTest {
         String topic = "test-topic";
         String msgType = "test-type";
         Integer dltOccurrence = 1;
-        kafkaProducerService.sendMessageFromController(msg, topic, msgType, dltOccurrence);
+        kafkaProducerService.sendMessageFromController(msg, topic, msgType, dltOccurrence, false);
         verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
     }
 
@@ -133,7 +133,7 @@ class KafkaProducerServiceTest {
         String msg = "test";
         String msgType = "HL7";
         Integer occurrence = 0;
-        kafkaProducerService.sendMessageFromController(msg, topic,msgType, occurrence);
+        kafkaProducerService.sendMessageFromController(msg, topic,msgType, occurrence, false);
         verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
     }
 

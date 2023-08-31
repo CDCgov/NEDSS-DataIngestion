@@ -30,12 +30,13 @@ public class KafkaProducerService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendMessageFromController(String msg, String topic, String msgType, Integer dltOccurrence) {
+    public void sendMessageFromController(String msg, String topic, String msgType, Integer dltOccurrence, Boolean validationActive) {
         String uniqueID = msgType + "_" + UUID.randomUUID();
         var record = new ProducerRecord<>(topic, uniqueID, msg);
         record.headers().add(KafkaHeaderValue.MessageType, msgType.getBytes());
         record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
         record.headers().add(KafkaHeaderValue.MessageOperation, EnumKafkaOperation.INJECTION.name().getBytes());
+        record.headers().add(KafkaHeaderValue.MessageValidationActive, validationActive.toString().getBytes());
 
         sendMessage(record);
     }

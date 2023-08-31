@@ -79,9 +79,6 @@ public class KafkaConsumerService {
 
     @Value("${kafka.fhir-conversion-prep.topic}")
     private String prepFhirTopic = "fhir_prep";
-
-    @Value("${HL7_VALIDATOR}")
-    private boolean hl7ValidationActivated = false;
     private final KafkaProducerService kafkaProducerService;
     private final IHL7v2Validator iHl7v2Validator;
     private final IRawELRRepository iRawELRRepository;
@@ -162,9 +159,13 @@ public class KafkaConsumerService {
             topics = "${kafka.raw.topic}"
     )
     public void handleMessageForRawElr(String message,
-                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws DuplicateHL7FileFoundException, DiHL7Exception {
+                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic, @Header(KafkaHeaderValue.MessageValidationActive) String messageValidationActive) throws DuplicateHL7FileFoundException, DiHL7Exception {
         log.debug("Received message ID: {} from topic: {}", message, topic);
-        validationHandler(message);
+        boolean hl7ValidationActivated = false;
+        if (messageValidationActive != null && !messageValidationActive.equalsIgnoreCase("true")) {
+            hl7ValidationActivated = true;
+        }
+        validationHandler(message, hl7ValidationActivated);
     }
 
     /**
@@ -409,7 +410,7 @@ public class KafkaConsumerService {
         nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml);
         kafkaProducerService.sendMessageAfterConvertedToXml(rhapsodyXml, convertedToXmlTopic, 0);
     }
-    private void validationHandler(String message) throws DuplicateHL7FileFoundException, DiHL7Exception {
+    private void validationHandler(String message, boolean hl7ValidationActivated) throws DuplicateHL7FileFoundException, DiHL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);
         RawERLModel elrModel = rawElrResponse.get();
         String messageType = elrModel.getType();

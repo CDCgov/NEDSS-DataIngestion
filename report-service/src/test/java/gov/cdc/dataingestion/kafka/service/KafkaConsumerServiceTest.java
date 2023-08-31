@@ -187,7 +187,7 @@ class KafkaConsumerServiceTest {
         when(iRawELRRepository.findById(eq(guidForTesting)))
                 .thenReturn(Optional.of(rawModel));
 
-        kafkaConsumerService.handleMessageForRawElr(value, rawTopic);
+        kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false");
 
         verify(iRawELRRepository, times(1)).findById(eq(guidForTesting));
 
