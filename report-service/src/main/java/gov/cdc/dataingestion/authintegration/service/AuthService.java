@@ -2,10 +2,12 @@ package gov.cdc.dataingestion.authintegration.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import org.apache.http.Header;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
@@ -13,59 +15,24 @@ import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.CloseableHttpClient;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-
-import com.amazonaws.services.certificatemanager.AWSCertificateManagerClientBuilder;
-import com.amazonaws.services.certificatemanager.AWSCertificateManager;
-import com.amazonaws.services.certificatemanager.model.ListCertificatesRequest;
-import com.amazonaws.services.certificatemanager.model.ListCertificatesResult;
-
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.regions.Regions;
-
-import com.amazonaws.AmazonClientException;
-
+import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.SSLContext;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
+import java.security.Key;
 import java.util.Base64;
-import java.util.List;
-
-import  io.jsonwebtoken.Claims;
-import  io.jsonwebtoken.Jwts;
-import  io.jsonwebtoken.SignatureAlgorithm;
-import  javax.crypto.spec.SecretKeySpec;
-import  java.security.Key;
 
 @Service
 @EnableScheduling
@@ -89,11 +56,10 @@ public class AuthService {
 
     private String token;
 
-    private static String AUTH_ROLE_CLAIM = "auth_role_nm";
-    private static String AUTH_ELR_CLAIM = "ELR Importer";
-    private static String AUTH_ECR_CLAIM = "ECR Importer";
+    private static final String AUTH_ELR_CLAIM = "ELR Importer";
+    private static final String AUTH_ECR_CLAIM = "ECR Importer";
 
-    private String encodedSignOnUrl =  getSignOnUrl();
+    private final String encodedSignOnUrl =  getSignOnUrl();
 
 
     @EventListener(ApplicationReadyEvent.class)
@@ -108,16 +74,16 @@ public class AuthService {
             return;
         }
 
-        logger.info("Auth role claim is: ", authRoleName);
+        logger.info("Auth role claim is: " + authRoleName);
 
         boolean isUserAllowedToLoadElrData = authRoleName.contains(AUTH_ELR_CLAIM);
         boolean isUserAllowedToLoadEcrData = authRoleName.contains(AUTH_ECR_CLAIM);
 
-        logger.info("Is allowed to load ELR data: ", isUserAllowedToLoadElrData);
-        logger.info("Is allowed to load ECR data: ", isUserAllowedToLoadEcrData);
+        logger.info("Is allowed to load ELR data: " + isUserAllowedToLoadElrData);
+        logger.info("Is allowed to load ECR data: " + isUserAllowedToLoadEcrData);
     }
 
-    // Need to generate token before it's expiry
+    // Need to generate token before it's expiry and that is why 55 minutes
     //@Scheduled(initialDelay = 0, fixedRate = 55*60*1000)
     @Scheduled(initialDelay = 0, fixedRate = 15*1000)
     public void generateAuthTokenScheduled() {
@@ -160,7 +126,7 @@ public class AuthService {
     }
 
     private CloseableHttpClient buildHttpClient() {
-        CloseableHttpClient httpsClient = null;
+        CloseableHttpClient httpsClient;
         try {
             // TODO: Fix the certificate issue with the NBS AUth service in AWS
             //  And change this code as like we are using in Data Ingestion CLI
@@ -195,6 +161,7 @@ public class AuthService {
                 .parseClaimsJws(token)
                 .getBody();
 
+        String AUTH_ROLE_CLAIM = "auth_role_nm";
         return (String) jwtClaims.get(AUTH_ROLE_CLAIM);
     }
 
@@ -202,7 +169,6 @@ public class AuthService {
         generateToken(tokenUrl);
     }
 
-    @NotNull
     private String getSignOnUrl() {
         String encodedUsername = new String(Base64.getEncoder().encode(nbsUsername.getBytes()));
         String encodedPassword = new String(Base64.getEncoder().encode(nbsPassword.getBytes()));

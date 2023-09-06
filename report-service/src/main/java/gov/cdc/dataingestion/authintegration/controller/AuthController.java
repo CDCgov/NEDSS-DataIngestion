@@ -32,7 +32,7 @@ public class AuthController {
         this.authService = authService;
     }
 
-    @GetMapping("/nbsauth/token")
+    @GetMapping("/auth/token")
     public String getAuthToken() {
         logger.info("Inside getAuthToken() controller...");
         return authService.getToken();
