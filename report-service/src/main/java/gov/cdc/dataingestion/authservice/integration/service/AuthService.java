@@ -1,4 +1,4 @@
-package gov.cdc.dataingestion.authintegration.service;
+package gov.cdc.dataingestion.authservice.integration.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
