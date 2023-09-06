@@ -20,7 +20,6 @@ public class AuthController {
 
     @GetMapping("/auth/token")
     public String getAuthToken() {
-        logger.info("Inside getAuthToken() controller...");
         return authService.getToken();
     }
 }

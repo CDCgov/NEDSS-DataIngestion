@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.annotation.PostConstruct;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -23,8 +25,6 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -62,11 +62,9 @@ public class AuthService {
     private final String encodedSignOnUrl =  getSignOnUrl();
 
 
-    @EventListener(ApplicationReadyEvent.class)
+    @PostConstruct
     public void generateAuthTokenDuringStartup() {
-        System.err.println("Generating Auth Token during startup...");
         generateToken(encodedSignOnUrl);
-        System.err.println("Token at startup..." + token);
 
         String authRoleName = getAuthRoleClaim(token);
         if(authRoleName == null || authRoleName.isEmpty()) {
@@ -79,34 +77,37 @@ public class AuthService {
         boolean isUserAllowedToLoadElrData = authRoleName.contains(AUTH_ELR_CLAIM);
         boolean isUserAllowedToLoadEcrData = authRoleName.contains(AUTH_ECR_CLAIM);
 
-        logger.info("Is allowed to load ELR data: " + isUserAllowedToLoadElrData);
-        logger.info("Is allowed to load ECR data: " + isUserAllowedToLoadEcrData);
+        logger.info("Is user allowed to load ELR data: " + isUserAllowedToLoadElrData);
+        logger.info("Is user allowed to load ECR data: " + isUserAllowedToLoadEcrData);
     }
 
-    // Need to generate token before it's expiry and that is why 55 minutes
-    //@Scheduled(initialDelay = 0, fixedRate = 55*60*1000)
-    @Scheduled(initialDelay = 0, fixedRate = 15*1000)
+    // Need to generate token before it's expiry (1 hour) and that is
+    // why this method is scheduled every 55 minutes
+    @Scheduled(fixedRate = 55*60*1000)
     public void generateAuthTokenScheduled() {
-        System.err.println("Generating Auth Token scheduled...");
-        getNewToken();
-        System.err.println("Token from scheduled..." + token);
+        generateToken(tokenUrl);
     }
 
     private void generateToken(String url) {
         try {
-            CloseableHttpClient httpsClient = buildHttpClient();
-            if(httpsClient != null) {
-                HttpPost postRequest = new HttpPost(url);
+            CloseableHttpClient httpClient = buildHttpClient();
+            if(httpClient != null) {
+                CloseableHttpResponse response;
                 if(url.contains("token")) {
-                    postRequest.addHeader("Auth-Token", token);
+                    HttpGet getRequest = new HttpGet(url);
+                    getRequest.addHeader("Auth-Token", token);
+                    response = httpClient.execute(getRequest);
                 }
-                CloseableHttpResponse response = httpsClient.execute(postRequest);
+                else {
+                    HttpPost postRequest = new HttpPost(url);
+                    response = httpClient.execute(postRequest);
+                }
                 int statusCode = response.getStatusLine().getStatusCode();
-                System.err.println("status code from token service is..." + statusCode);
 
-                // TODO: Lookup the right code for the token expiration error. Check if this is really needed
+                // TODO: Lookup the right code for the token expiration error.
+                //  Need to create a story to add this code logic in the Auth service
                 if(statusCode == 503) {
-                    System.err.println("Token expired. Signing on again...");
+                    logger.info("Token expired. Signing on again...");
                     generateToken(encodedSignOnUrl);
                 }
 
@@ -114,13 +115,12 @@ public class AuthService {
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode node = mapper.readTree(EntityUtils.toString(httpEntity));
                 token = node.get("token").asText();
-                System.err.println("response from token service is..." + token);
             }
             else {
-                logger.error("Https client returned as null.");
+                logger.error("Http client returned as null.");
             }
         } catch (Exception e) {
-            System.err.println("Exception occurred while establishing connection to NBS Auth Service: " + e);
+            logger.error("Exception occurred while generating auth token: " + e);
             throw new RuntimeException(e);
         }
     }
@@ -147,7 +147,7 @@ public class AuthService {
             httpsClient = HttpClients.custom().setSSLSocketFactory(sslsf)
                     .setConnectionManager(connectionManager).build();
         } catch (Exception e) {
-            System.err.println("Exception occurred while building HTTPS client: " + e);
+            logger.error("Exception occurred while building http client: " + e);
             throw new RuntimeException(e);
         }
         return httpsClient;
@@ -165,16 +165,11 @@ public class AuthService {
         return (String) jwtClaims.get(AUTH_ROLE_CLAIM);
     }
 
-    private void getNewToken() {
-        generateToken(tokenUrl);
-    }
-
     private String getSignOnUrl() {
         String encodedUsername = new String(Base64.getEncoder().encode(nbsUsername.getBytes()));
         String encodedPassword = new String(Base64.getEncoder().encode(nbsPassword.getBytes()));
 
         String nbsSignOnEncodedUrl = signOnUrl + "?user=" + encodedUsername + "&password=" + encodedPassword;
-        logger.info("Formed sign on URL is: " + nbsSignOnEncodedUrl);
         return nbsSignOnEncodedUrl;
     }
 
