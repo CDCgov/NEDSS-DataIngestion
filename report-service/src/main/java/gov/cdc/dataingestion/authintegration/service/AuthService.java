@@ -17,6 +17,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,8 +54,18 @@ import javax.net.ssl.SSLContext;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
+
+import  io.jsonwebtoken.Claims;
+import  io.jsonwebtoken.Jwts;
+import  io.jsonwebtoken.SignatureAlgorithm;
+import  javax.crypto.spec.SecretKeySpec;
+import  java.security.Key;
 
 @Service
 @EnableScheduling
@@ -62,73 +73,97 @@ public class AuthService {
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     @Value("${auth.username}")
-    private String username;
+    private String nbsUsername;
 
     @Value("${auth.password}")
-    private String password;
+    private String nbsPassword;
 
-    @Value("${auth.url}")
-    private String url;
+    @Value("${auth.sign-on-url}")
+    private String signOnUrl;
 
-    // TODO: Decide and move this to singleton if needed
+    @Value("${auth.token-url}")
+    private String tokenUrl;
+
+    @Value("${auth.salt-for-algorithm}")
+    private String saltForAlgorithm;
+
     private String token;
 
-    //@EventListener(ApplicationReadyEvent.class)
+    private static String AUTH_ROLE_CLAIM = "auth_role_nm";
+    private static String AUTH_ELR_CLAIM = "ELR Importer";
+    private static String AUTH_ECR_CLAIM = "ECR Importer";
+
+    private String encodedSignOnUrl =  getSignOnUrl();
+
+
+    @EventListener(ApplicationReadyEvent.class)
     public void generateAuthTokenDuringStartup() {
         System.err.println("Generating Auth Token during startup...");
-        generateToken();
-        System.err.println("Token is startup..." + token);
+        generateToken(encodedSignOnUrl);
+        System.err.println("Token at startup..." + token);
+
+        String authRoleName = getAuthRoleClaim(token);
+        if(authRoleName == null || authRoleName.isEmpty()) {
+            logger.error("Auth roles not defined, nothing to authorize.");
+            return;
+        }
+
+        logger.info("Auth role claim is: ", authRoleName);
+
+        boolean isUserAllowedToLoadElrData = authRoleName.contains(AUTH_ELR_CLAIM);
+        boolean isUserAllowedToLoadEcrData = authRoleName.contains(AUTH_ECR_CLAIM);
+
+        logger.info("Is allowed to load ELR data: ", isUserAllowedToLoadElrData);
+        logger.info("Is allowed to load ECR data: ", isUserAllowedToLoadEcrData);
     }
-    //@Scheduled(initialDelay = 0, fixedRate = 60*60*1000)
+
+    // Need to generate token before it's expiry
+    //@Scheduled(initialDelay = 0, fixedRate = 55*60*1000)
     @Scheduled(initialDelay = 0, fixedRate = 15*1000)
     public void generateAuthTokenScheduled() {
         System.err.println("Generating Auth Token scheduled...");
-//        AWSCredentials credentials = null;
-//        try {
-//            logger.info("Loading from creds file...");
-//            credentials = new ProfileCredentialsProvider().getCredentials();
-//        }
-//        catch (Exception ex) {
-//            throw new AmazonClientException("Cannot load the credentials from file.", ex);
-//        }
-//
-//        // Create a client.
-//        AWSCertificateManager client = AWSCertificateManagerClientBuilder.standard()
-//                .withRegion(Regions.US_EAST_1)
-//                .withCredentials(new AWSStaticCredentialsProvider(credentials))
-//                .build();
-//
-//        // Create a request object and set the parameters.
-//        ListCertificatesRequest req = new ListCertificatesRequest();
-//        List<String> Statuses = Arrays.asList("ISSUED", "EXPIRED", "PENDING_VALIDATION", "FAILED");
-//        req.setCertificateStatuses(Statuses);
-//        req.setMaxItems(10);
-//
-//        // Retrieve the list of certificates.
-//        ListCertificatesResult result = null;
-//        try {
-//            result = client.listCertificates(req);
-//        }
-//        catch (Exception ex)
-//        {
-//            logger.error("exception in aws..." + ex);
-//            throw ex;
-//        }
-//
-//        // Display the certificate list.
-//        System.out.println("Response from aws is...." +"\n" + result + "\n");
-
-        // Move this to a different function and add an EventListener and call the function twice
-        // during start up and scheduled
-        generateToken();
-        System.err.println("Token is scheduled..." + token);
-
+        getNewToken();
+        System.err.println("Token from scheduled..." + token);
     }
 
-    private void generateToken() {
+    private void generateToken(String url) {
         try {
-            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(username, password);
+            CloseableHttpClient httpsClient = buildHttpClient();
+            if(httpsClient != null) {
+                HttpPost postRequest = new HttpPost(url);
+                if(url.contains("token")) {
+                    postRequest.addHeader("Auth-Token", token);
+                }
+                CloseableHttpResponse response = httpsClient.execute(postRequest);
+                int statusCode = response.getStatusLine().getStatusCode();
+                System.err.println("status code from token service is..." + statusCode);
 
+                // TODO: Lookup the right code for the token expiration error. Check if this is really needed
+                if(statusCode == 503) {
+                    System.err.println("Token expired. Signing on again...");
+                    generateToken(encodedSignOnUrl);
+                }
+
+                HttpEntity httpEntity = response.getEntity();
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode node = mapper.readTree(EntityUtils.toString(httpEntity));
+                token = node.get("token").asText();
+                System.err.println("response from token service is..." + token);
+            }
+            else {
+                logger.error("Https client returned as null.");
+            }
+        } catch (Exception e) {
+            System.err.println("Exception occurred while establishing connection to NBS Auth Service: " + e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private CloseableHttpClient buildHttpClient() {
+        CloseableHttpClient httpsClient = null;
+        try {
+            // TODO: Fix the certificate issue with the NBS AUth service in AWS
+            //  And change this code as like we are using in Data Ingestion CLI
             TrustStrategy acceptingTrustStrategy = (cert, authType) -> true;
             SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
             SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext,
@@ -143,41 +178,38 @@ public class AuthService {
             BasicHttpClientConnectionManager connectionManager =
                     new BasicHttpClientConnectionManager(socketFactoryRegistry);
 
-            //CloseableHttpClient httpsClient = HttpClients.createDefault();
-            CloseableHttpClient httpsClient = HttpClients.custom().setSSLSocketFactory(sslsf)
+            httpsClient = HttpClients.custom().setSSLSocketFactory(sslsf)
                     .setConnectionManager(connectionManager).build();
-
-
-            HttpGet getRequest = new HttpGet("https://nbsauthenticator.datateam-cdc-nbs.eqsandbox.com/nbsauth/token");
-//            HttpPost postRequest = new HttpPost("url");
-            Header authHeader = new BasicScheme(StandardCharsets.UTF_8).authenticate(credentials, getRequest, null);
-//            CloseableHttpResponse response = httpsClient.execute(getRequest);
-            //postRequest.addHeader(authHeader);
-            CloseableHttpResponse response = httpsClient.execute(getRequest);
-            int statusCode = response.getStatusLine().getStatusCode();
-            System.err.println("status code from token service is..." + statusCode);
-            HttpEntity httpEntity = response.getEntity();
-
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode node = mapper.readTree(EntityUtils.toString(httpEntity));
-
-//            InputStream apiContent = response.getEntity().getContent();
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(apiContent));
-//            StringBuilder stringBuilder = new StringBuilder();
-//            String line;
-//            System.out.println("Line is..." + stringBuilder.toString());
-//            while ((line = reader.readLine()) != null) {
-//                System.out.println("Line is..." + line);
-//                stringBuilder.append(line);
-//            }
-
-            token = node.get("token").asText();
-            System.err.println("response from token service is..." + token);
-
         } catch (Exception e) {
-            System.err.println("Exception occurred while establishing connection to NBS Auth Service: " + e);
+            System.err.println("Exception occurred while building HTTPS client: " + e);
             throw new RuntimeException(e);
         }
+        return httpsClient;
+    }
+
+    private String getAuthRoleClaim(String token) {
+        Key hmacKey = new SecretKeySpec(saltForAlgorithm.getBytes(), SignatureAlgorithm.HS256.getJcaName());
+        Claims jwtClaims = Jwts.parserBuilder()
+                .setSigningKey(hmacKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return (String) jwtClaims.get(AUTH_ROLE_CLAIM);
+    }
+
+    private void getNewToken() {
+        generateToken(tokenUrl);
+    }
+
+    @NotNull
+    private String getSignOnUrl() {
+        String encodedUsername = new String(Base64.getEncoder().encode(nbsUsername.getBytes()));
+        String encodedPassword = new String(Base64.getEncoder().encode(nbsPassword.getBytes()));
+
+        String nbsSignOnEncodedUrl = signOnUrl + "?user=" + encodedUsername + "&password=" + encodedPassword;
+        logger.info("Formed sign on URL is: " + nbsSignOnEncodedUrl);
+        return nbsSignOnEncodedUrl;
     }
 
     public String getToken() {

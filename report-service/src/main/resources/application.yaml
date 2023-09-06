@@ -75,12 +75,12 @@ kafka:
       suffix: _dlt
 
 auth:
-#  username: nedss_elr_load
-#  password: ${NBS_AUTH_PASSWORD}
-#  url: https://nbsauthenticator.datateam-cdc-nbs.eqsandbox.com/nbsauth/token
-  username: diteamadmin
-  password: ${DI_ADMIN_PASSWORD}
-  url: https://dataingestion.datateam-cdc-nbs.eqsandbox.com/token
+  username: ${NBS_AUTH_USERNAME}
+  password: ${NBS_AUTH_PASSWORD}
+  sign-on-url: https://nbsauthenticator.datateam-cdc-nbs.eqsandbox.com/nbsauth/signon
+  token-url: https://nbsauthenticator.datateam-cdc-nbs.eqsandbox.com/nbsauth/token
+  salt-for-algorithm: ${NBS_AUTH_SECRET}
+
 ---
 spring:
   config:
@@ -144,10 +144,9 @@ sasl:
     callback.handler.class: software.amazon.msk.auth.iam.IAMClientCallbackHandler
 
 auth:
-  username: nedss_elr_load
+  username: ${NBS_AUTH_USERNAME}
   password: ${NBS_AUTH_PASSWORD}
-  url: https://nbsauthenticator.datateam-cdc-nbs.eqsandbox.com/nbsauth/token
-
-
-
+  sign-on-url: https://nbsauthenticator.datateam-cdc-nbs.eqsandbox.com/nbsauth/signon
+  token-url: https://nbsauthenticator.datateam-cdc-nbs.eqsandbox.com/nbsauth/token
+  salt-for-algorithm: ${NBS_AUTH_SECRET}
 
