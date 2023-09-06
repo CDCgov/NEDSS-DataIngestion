@@ -59,11 +59,12 @@ public class AuthService {
     private static final String AUTH_ELR_CLAIM = "ELR Importer";
     private static final String AUTH_ECR_CLAIM = "ECR Importer";
 
-    private final String encodedSignOnUrl =  getSignOnUrl();
+    private String encodedSignOnUrl;
 
 
     @PostConstruct
     public void generateAuthTokenDuringStartup() {
+        encodedSignOnUrl = getSignOnUrl();
         generateToken(encodedSignOnUrl);
 
         String authRoleName = getAuthRoleClaim(token);
