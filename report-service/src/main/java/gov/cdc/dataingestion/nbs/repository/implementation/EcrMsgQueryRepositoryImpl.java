@@ -3,15 +3,21 @@ package gov.cdc.dataingestion.nbs.repository.implementation;
 import gov.cdc.dataingestion.nbs.repository.EcrMsgQueryRepository;
 import gov.cdc.dataingestion.nbs.repository.model.dto.*;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import jakarta.transaction.TransactionManager;
+import org.hibernate.Transaction;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,13 +34,13 @@ public class EcrMsgQueryRepositoryImpl implements EcrMsgQueryRepository {
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
             var val = results.get(0);
-            ecrMsgContainerDto.setMsgContainerUid(((Number)val[0]).intValue());
-            ecrMsgContainerDto.setInvLocalId(String.valueOf(nullToString(val[1])));
-            ecrMsgContainerDto.setNbsInterfaceUid(((Number)val[2]).intValue());
-            ecrMsgContainerDto.setReceivingSystem(String.valueOf(nullToString(val[3])));
-            ecrMsgContainerDto.setOngoingCase(String.valueOf(nullToString(val[4])));
-            ecrMsgContainerDto.setVersionCtrNbr(((Number)val[5]).intValue());
-            ecrMsgContainerDto.setDataMigrationStatus(((Number)val[6]).intValue());
+            ecrMsgContainerDto.setMsgContainerUid(nullCheckInt(val[0]));
+            ecrMsgContainerDto.setInvLocalId((nullToString(val[1])));
+            ecrMsgContainerDto.setNbsInterfaceUid(nullCheckInt(val[2]));
+            ecrMsgContainerDto.setReceivingSystem((nullToString(val[3])));
+            ecrMsgContainerDto.setOngoingCase((nullToString(val[4])));
+            ecrMsgContainerDto.setVersionCtrNbr(nullCheckInt(val[5]));
+            ecrMsgContainerDto.setDataMigrationStatus(nullCheckInt(val[6]));
 
             return ecrMsgContainerDto;
 
@@ -42,559 +48,647 @@ public class EcrMsgQueryRepositoryImpl implements EcrMsgQueryRepository {
         return null;
     }
 
-    public EcrMsgPatientDto FetchMsgPatientForApplicableEcr(String containerId) {
+    public List<EcrMsgPatientDto> FetchMsgPatientForApplicableEcr(Integer containerId) {
         String queryString = loadSqlFromFile("ecr_msg_patient.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
-        EcrMsgPatientDto dto = new EcrMsgPatientDto();
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
-            var val = results.get(0);
-            dto.setMsgContainerUid(((Number)val[0]).intValue());
-            dto.setPatLocalId(String.valueOf(nullToString(val[1])));
-            dto.setPatAuthorId(String.valueOf(nullToString(val[2])));
-            dto.setPatAddrAsOfDt((Timestamp) val[3]);
-            dto.setPatAddrCityTxt(String.valueOf(nullToString(val[4])));
-            dto.setPatAddrCommentTxt(String.valueOf(nullToString(val[5])));
-            dto.setPatAddrCountyCd(String.valueOf(nullToString(val[6])));
-            dto.setPatAddrCountryCd(String.valueOf(nullToString(val[7])));
-            dto.setPatAdditionalGenderTxt(String.valueOf(nullToString(val[8])));
-            dto.setPatAddrCensusTractTxt(String.valueOf(nullToString(val[9])));
-            dto.setPatAddrStateCd(String.valueOf(nullToString(val[10])));
-            dto.setPatAddrStreetAddr1Txt(String.valueOf(nullToString(val[11])));
-            dto.setPatAddrStreetAddr2Txt(String.valueOf(nullToString(val[12])));
-            dto.setPatAddrZipCodeTxt(String.valueOf(nullToString(val[13])));
-            dto.setPatBirthCountryCd(String.valueOf(nullToString(val[14])));
-            dto.setPatBirthDt((Timestamp) val[15]);
-            dto.setPatBirthSexCd(String.valueOf(nullToString(val[16])));
-            dto.setPatCellPhoneNbrTxt(String.valueOf(nullToString(val[17])));
-            dto.setPatCommentTxt(String.valueOf(nullToString(val[18])));
-            dto.setPatCurrentSexCd(String.valueOf(nullToString(val[19])));
-            dto.setPatDeceasedIndCd(String.valueOf(nullToString(val[20])));
-            dto.setPatDeceasedDt((Timestamp) val[21]);
-            dto.setPatEffectiveTime(String.valueOf(nullToString(val[22])));
-            dto.setPatIdMedicalRecordNbrTxt(String.valueOf(nullToString(val[23])));
-            dto.setPatIdStateHivCaseNbrTxt(String.valueOf(nullToString(val[24])));
-            dto.setPatInfoAsOfDt((Timestamp) val[25]);
-            dto.setPatIdSsnTxt(String.valueOf(nullToString(val[26])));
-            dto.setPatEmailAddressTxt(String.valueOf(nullToString(val[27])));
-            dto.setPatEthnicGroupIndCd(String.valueOf(nullToString(val[28])));
-            dto.setPatEthnicityUnkReasonCd(String.valueOf(nullToString(val[29])));
-            dto.setPatHomePhoneNbrTxt(String.valueOf(nullToString(val[30])));
-            dto.setPatNameAliasTxt(String.valueOf(nullToString(val[31])));
-            dto.setPatNameAsOfDt((Timestamp) val[32]);
-            dto.setPatNameDegreeCd(String.valueOf(nullToString(val[33])));
-            dto.setPatNameFirstTxt(String.valueOf(nullToString(val[34])));
-            dto.setPatNameLastTxt(String.valueOf(nullToString(val[35])));
-            dto.setPatNameMiddleTxt(String.valueOf(nullToString(val[36])));
-            dto.setPatNamePrefixCd(String.valueOf(nullToString(val[37])));
-            dto.setPatNameSuffixCd(String.valueOf(nullToString(val[38])));
-            dto.setPatMaritalStatusCd(String.valueOf(nullToString(val[39])));
-            dto.setPatPhoneCommentTxt(String.valueOf(nullToString(val[40])));
-            dto.setPatPhoneCountryCodeTxt(((Number)val[41]).intValue());
-            dto.setPatPrimaryLanguageCd(String.valueOf(nullToString(val[42])));
-            dto.setPatPreferredGenderCd(String.valueOf(nullToString(val[43])));
-            dto.setPatRaceCategoryCd(String.valueOf(nullToString(val[44])));
-            dto.setPatRaceDescTxt(String.valueOf(nullToString(val[45])));
-            dto.setPatReportedAge(((Number)val[46]).intValue());
-            dto.setPatReportedAgeUnitCd(String.valueOf(nullToString(val[47])));
-            dto.setPatSexUnkReasonCd(String.valueOf(nullToString(val[48])));
-            dto.setPatSpeaksEnglishIndCd(String.valueOf(nullToString(val[49])));
-            dto.setPatPhoneAsOfDt((Timestamp) val[50]);
-            dto.setPatUrlAddressTxt(String.valueOf(nullToString(val[51])));
-            dto.setPatWorkPhoneNbrTxt(String.valueOf(nullToString(val[52])));
-            dto.setPatWorkPhoneExtensionTxt(((Number)val[53]).intValue());
-            return dto;
+        List<EcrMsgPatientDto> dtoList = new ArrayList<>();
 
+        if (results != null && !results.isEmpty()) {
+            for(Object[] val: results) {
+                EcrMsgPatientDto dto = new EcrMsgPatientDto();
+                dto.setMsgContainerUid(((Number)val[0]).intValue());
+                dto.setPatLocalId((nullToString(val[1])));
+                dto.setPatAuthorId((nullToString(val[2])));
+                dto.setPatAddrAsOfDt((Timestamp) val[3]);
+                dto.setPatAddrCityTxt((nullToString(val[4])));
+                dto.setPatAddrCommentTxt((nullToString(val[5])));
+                dto.setPatAddrCountyCd((nullToString(val[6])));
+                dto.setPatAddrCountryCd((nullToString(val[7])));
+                dto.setPatAdditionalGenderTxt((nullToString(val[8])));
+                dto.setPatAddrCensusTractTxt((nullToString(val[9])));
+                dto.setPatAddrStateCd((nullToString(val[10])));
+                dto.setPatAddrStreetAddr1Txt((nullToString(val[11])));
+                dto.setPatAddrStreetAddr2Txt((nullToString(val[12])));
+                dto.setPatAddrZipCodeTxt((nullToString(val[13])));
+                dto.setPatBirthCountryCd((nullToString(val[14])));
+                dto.setPatBirthDt((Timestamp) val[15]);
+                dto.setPatBirthSexCd((nullToString(val[16])));
+                dto.setPatCellPhoneNbrTxt((nullToString(val[17])));
+                dto.setPatCommentTxt((nullToString(val[18])));
+                dto.setPatCurrentSexCd((nullToString(val[19])));
+                dto.setPatDeceasedIndCd((nullToString(val[20])));
+                dto.setPatDeceasedDt((Timestamp) val[21]);
+                dto.setPatEffectiveTime((nullToString(val[22])));
+                dto.setPatIdMedicalRecordNbrTxt((nullToString(val[23])));
+                dto.setPatIdStateHivCaseNbrTxt((nullToString(val[24])));
+                dto.setPatInfoAsOfDt((Timestamp) val[25]);
+                dto.setPatIdSsnTxt((nullToString(val[26])));
+                dto.setPatEmailAddressTxt((nullToString(val[27])));
+                dto.setPatEthnicGroupIndCd((nullToString(val[28])));
+                dto.setPatEthnicityUnkReasonCd((nullToString(val[29])));
+                dto.setPatHomePhoneNbrTxt((nullToString(val[30])));
+                dto.setPatNameAliasTxt((nullToString(val[31])));
+                dto.setPatNameAsOfDt((Timestamp) val[32]);
+                dto.setPatNameDegreeCd((nullToString(val[33])));
+                dto.setPatNameFirstTxt((nullToString(val[34])));
+                dto.setPatNameLastTxt((nullToString(val[35])));
+                dto.setPatNameMiddleTxt((nullToString(val[36])));
+                dto.setPatNamePrefixCd((nullToString(val[37])));
+                dto.setPatNameSuffixCd((nullToString(val[38])));
+                dto.setPatMaritalStatusCd((nullToString(val[39])));
+                dto.setPatPhoneCommentTxt((nullToString(val[40])));
+
+                dto.setPatPhoneCountryCodeTxt(nullCheckInt(val[41]));
+                dto.setPatPrimaryLanguageCd((nullToString(val[42])));
+                dto.setPatPreferredGenderCd((nullToString(val[43])));
+                dto.setPatRaceCategoryCd((nullToString(val[44])));
+                dto.setPatRaceDescTxt((nullToString(val[45])));
+                dto.setPatReportedAge(nullCheckInt(val[46]));
+                dto.setPatReportedAgeUnitCd((nullToString(val[47])));
+                dto.setPatSexUnkReasonCd((nullToString(val[48])));
+                dto.setPatSpeaksEnglishIndCd((nullToString(val[49])));
+                dto.setPatPhoneAsOfDt((Timestamp) val[50]);
+                dto.setPatUrlAddressTxt((nullToString(val[51])));
+                dto.setPatWorkPhoneNbrTxt((nullToString(val[52])));
+                dto.setPatWorkPhoneExtensionTxt(nullCheckInt(val[53]));
+                dtoList.add(dto);
+            }
         }
-        return null;
+        return dtoList;
     }
 
-    public EcrMsgCaseDto FetchMsgCaseForApplicableEcr(String containerId) {
+    public List<EcrMsgCaseDto> FetchMsgCaseForApplicableEcr(Integer containerId) {
         String queryString = loadSqlFromFile("ecr_msg_case.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
-        EcrMsgCaseDto dto = new EcrMsgCaseDto();
+
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
-            var val = results.get(0);
-            dto.setInvLocalId(String.valueOf(nullToString(val[0])));
-            dto.setPatLocalId(String.valueOf(nullToString(val[1])));
-            dto.setInvAuthorId(String.valueOf(nullToString(val[2])));
-            dto.setInvCaseStatusCd(String.valueOf(nullToString(val[3])));
-            dto.setInvCloseDt(String.valueOf(nullToString(val[4])));
-            dto.setInvCommentTxt(String.valueOf(nullToString(val[5])));
-            dto.setInvConditionCd(String.valueOf(nullToString(val[6])));
-            dto.setInvContactInvCommentTxt(String.valueOf(nullToString(val[7])));
-            dto.setInvContactInvPriorityCd(String.valueOf(nullToString(val[8])));
-            dto.setInvContactInvStatusCd(String.valueOf(nullToString(val[9])));
-            dto.setInvCurrProcessStateCd(String.valueOf(nullToString(val[10])));
-            dto.setInvDaycareIndCd(String.valueOf(nullToString(val[11])));
-            dto.setInvDetectionMethodCd(String.valueOf(nullToString(val[12])));
-            dto.setInvDiagnosisDt(String.valueOf(nullToString(val[13])));
-            dto.setInvDiseaseAcquiredLocCd(String.valueOf(nullToString(val[14])));
-            dto.setInvEffectiveTime((Timestamp) val[15]);
-            dto.setInvFoodhandlerIndCd(String.valueOf(nullToString(val[16])));
-            dto.setInvHospitalizedAdmitDt(String.valueOf(nullToString(val[17])));
-            dto.setInvHospitalizedDischargeDt(String.valueOf(nullToString(val[18])));
-            dto.setInvHospitalizedIndCd(String.valueOf(nullToString(val[19])));
-            dto.setInvHospStayDuration(((Number)val[20]).intValue());
-            dto.setInvIllnessStartDt(String.valueOf(nullToString(val[21])));
-            dto.setInvIllnessEndDt(String.valueOf(nullToString(val[22])));
-            dto.setInvIllnessDuration(((Number)val[23]).intValue());
-            dto.setInvIllnessDurationUnitCd(String.valueOf(nullToString(val[24])));
-            dto.setInvIllnessOnsetAge(((Number)val[25]).intValue());
-            dto.setInvIllnessOnsetAgeUnitCd(String.valueOf(nullToString(val[26])));
-            dto.setInvInvestigatorAssignedDt(String.valueOf(nullToString(val[27])));
-            dto.setInvImportCityTxt(String.valueOf(nullToString(val[28])));
-            dto.setInvImportCountyCd(String.valueOf(nullToString(val[29])));
-            dto.setInvImportCountryCd(String.valueOf(nullToString(val[30])));
-            dto.setInvImportStateCd(String.valueOf(nullToString(val[31])));
-            dto.setInvInfectiousFromDt(String.valueOf(nullToString(val[32])));
-            dto.setInvInfectiousToDt(String.valueOf(nullToString(val[33])));
-            dto.setInvLegacyCaseId(String.valueOf(nullToString(val[34])));
-            dto.setInvMmwrWeekTxt(String.valueOf(nullToString(val[35])));
-            dto.setInvMmwrYearTxt(String.valueOf(nullToString(val[36])));
-            dto.setInvOutbreakIndCd(String.valueOf(nullToString(val[37])));
-            dto.setInvOutbreakNameCd(String.valueOf(nullToString(val[38])));
-            dto.setInvPatientDeathDt(String.valueOf(nullToString(val[39])));
-            dto.setInvPatientDeathIndCd(String.valueOf(nullToString(val[40])));
-            dto.setInvPregnancyIndCd(String.valueOf(nullToString(val[41])));
-            dto.setInvReferralBasisCd(String.valueOf(nullToString(val[42])));
-            dto.setInvReportDt(String.valueOf(nullToString(val[43])));
-            dto.setInvReportToCountyDt(String.valueOf(nullToString(val[44])));
-            dto.setInvReportToStateDt(String.valueOf(nullToString(val[45])));
-            dto.setInvReportingCountyCd(String.valueOf(nullToString(val[46])));
-            dto.setInvSharedIndCd(String.valueOf(nullToString(val[47])));
-            dto.setInvSourceTypeCd(String.valueOf(nullToString(val[48])));
-            dto.setInvStartDt(String.valueOf(nullToString(val[49])));
-            dto.setInvStateId(String.valueOf(nullToString(val[50])));
-            dto.setInvStatusCd(String.valueOf(nullToString(val[51])));
-            dto.setInvTransmissionModeCd(String.valueOf(nullToString(val[52])));
-            return dto;
+        List<EcrMsgCaseDto> dtos = new ArrayList<>();
+
+        if (results != null) {
+            for (Object[] val : results) {
+                EcrMsgCaseDto dto = new EcrMsgCaseDto();
+                dto.setInvLocalId((nullToString(val[0])));
+                dto.setPatLocalId((nullToString(val[1])));
+                dto.setInvAuthorId((nullToString(val[2])));
+                dto.setInvCaseStatusCd((nullToString(val[3])));
+                dto.setInvCloseDt((nullToString(val[4])));
+                dto.setInvCommentTxt((nullToString(val[5])));
+                dto.setInvConditionCd((nullToString(val[6])));
+                dto.setInvContactInvCommentTxt((nullToString(val[7])));
+                dto.setInvContactInvPriorityCd((nullToString(val[8])));
+                dto.setInvContactInvStatusCd((nullToString(val[9])));
+                dto.setInvCurrProcessStateCd((nullToString(val[10])));
+                dto.setInvDaycareIndCd((nullToString(val[11])));
+                dto.setInvDetectionMethodCd((nullToString(val[12])));
+                dto.setInvDiagnosisDt((nullToString(val[13])));
+                dto.setInvDiseaseAcquiredLocCd((nullToString(val[14])));
+                dto.setInvEffectiveTime((Timestamp) val[15]);
+                dto.setInvFoodhandlerIndCd((nullToString(val[16])));
+                dto.setInvHospitalizedAdmitDt((nullToString(val[17])));
+                dto.setInvHospitalizedDischargeDt((nullToString(val[18])));
+                dto.setInvHospitalizedIndCd((nullToString(val[19])));
+                dto.setInvHospStayDuration(nullCheckInt(val[20]));
+                dto.setInvIllnessStartDt((nullToString(val[21])));
+                dto.setInvIllnessEndDt((nullToString(val[22])));
+                dto.setInvIllnessDuration(nullCheckInt(val[23]));
+                dto.setInvIllnessDurationUnitCd((nullToString(val[24])));
+                dto.setInvIllnessOnsetAge(nullCheckInt(val[25]));
+                dto.setInvIllnessOnsetAgeUnitCd((nullToString(val[26])));
+                dto.setInvInvestigatorAssignedDt((nullToString(val[27])));
+                dto.setInvImportCityTxt((nullToString(val[28])));
+                dto.setInvImportCountyCd((nullToString(val[29])));
+                dto.setInvImportCountryCd((nullToString(val[30])));
+                dto.setInvImportStateCd((nullToString(val[31])));
+                dto.setInvInfectiousFromDt((nullToString(val[32])));
+                dto.setInvInfectiousToDt((nullToString(val[33])));
+                dto.setInvLegacyCaseId((nullToString(val[34])));
+                dto.setInvMmwrWeekTxt((nullToString(val[35])));
+                dto.setInvMmwrYearTxt((nullToString(val[36])));
+                dto.setInvOutbreakIndCd((nullToString(val[37])));
+                dto.setInvOutbreakNameCd((nullToString(val[38])));
+                dto.setInvPatientDeathDt((nullToString(val[39])));
+                dto.setInvPatientDeathIndCd((nullToString(val[40])));
+                dto.setInvPregnancyIndCd((nullToString(val[41])));
+                dto.setInvReferralBasisCd((nullToString(val[42])));
+                dto.setInvReportDt((nullToString(val[43])));
+                dto.setInvReportToCountyDt((nullToString(val[44])));
+                dto.setInvReportToStateDt((nullToString(val[45])));
+                dto.setInvReportingCountyCd((nullToString(val[46])));
+                dto.setInvSharedIndCd((nullToString(val[47])));
+                dto.setInvSourceTypeCd((nullToString(val[48])));
+                dto.setInvStartDt((nullToString(val[49])));
+                dto.setInvStateId((nullToString(val[50])));
+                dto.setInvStatusCd((nullToString(val[51])));
+                dto.setInvTransmissionModeCd((nullToString(val[52])));
+                dtos.add(dto);
+            }
         }
-        return null;
+        return dtos;
     }
 
-    public EcrMsgCaseParticipantDto FetchMsgCaseParticipantForApplicableEcr(String containerId, String invLocalId) {
+    public List<EcrMsgCaseParticipantDto> FetchMsgCaseParticipantForApplicableEcr(Integer containerId, String invLocalId) {
         String queryString = loadSqlFromFile("ecr_msg_case_participant.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
         query.setParameter("INV_LOCAL_ID", invLocalId);
-        EcrMsgCaseParticipantDto dto = new EcrMsgCaseParticipantDto();
+        List<EcrMsgCaseParticipantDto> dtos = new ArrayList<EcrMsgCaseParticipantDto>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
-            var val = results.get(0);
-            dto.setMsgEventId(String.valueOf(nullToString(val[0])));
-            dto.setMsgEventType(String.valueOf(nullToString(val[1])));
-            dto.setAnswerTxt(String.valueOf(nullToString(val[2])));
-            dto.setAnswerLargeTxt(String.valueOf(nullToString(val[3])));
-            dto.setAnswerGroupSeqNbr(((Number)val[4]).intValue());
-            dto.setPartTypeCd(String.valueOf(nullToString(val[5])));
-            dto.setQuestionIdentifier(String.valueOf(nullToString(val[6])));
-            dto.setQuestionGroupSeqNbr(((Number)val[7]).intValue());
-            dto.setSeqNbr(((Number)val[8]).intValue());
-            return dto;
+            for(Object[] val : results) {
+                EcrMsgCaseParticipantDto dto = new EcrMsgCaseParticipantDto();
+                dto.setMsgEventId((nullToString(val[0])));
+                dto.setMsgEventType((nullToString(val[1])));
+                dto.setAnswerTxt((nullToString(val[2])));
+                dto.setAnswerLargeTxt((nullToString(val[3])));
+                dto.setAnswerGroupSeqNbr(nullCheckInt(val[4]));
+                dto.setPartTypeCd((nullToString(val[5])));
+                dto.setQuestionIdentifier((nullToString(val[6])));
+                dto.setQuestionGroupSeqNbr(nullCheckInt(val[7]));
+                dto.setSeqNbr(nullCheckInt(val[8]));
+                dtos.add(dto);
+            }
         }
-        return null;
+        return dtos;
     }
 
-    public EcrMsgCaseAnswerDto FetchMsgCaseAnswerForApplicableEcr(String containerId, String invLocalId) {
+    public List<EcrMsgCaseAnswerDto> FetchMsgCaseAnswerForApplicableEcr(Integer containerId, String invLocalId) {
         String queryString = loadSqlFromFile("ecr_msg_case_answer.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
         query.setParameter("INV_LOCAL_ID", invLocalId);
-        EcrMsgCaseAnswerDto dto = new EcrMsgCaseAnswerDto();
+        List<EcrMsgCaseAnswerDto> dtos = new ArrayList<EcrMsgCaseAnswerDto>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
-            var val = results.get(0);
-            dto.setQuestionIdentifier(String.valueOf(nullToString(val[0])));
-            dto.setMsgContainerUid(((Number)val[1]).intValue());
-            dto.setMsgEventId(String.valueOf(nullToString(val[2])));
-            dto.setMsgEventType(String.valueOf(nullToString(val[3])));
-            dto.setAnsCodeSystemCd(String.valueOf(nullToString(val[4])));
-            dto.setAnsCodeSystemDescTxt(String.valueOf(nullToString(val[5])));
-            dto.setAnsDisplayTxt(String.valueOf(nullToString(val[6])));
-            dto.setAnswerTxt(String.valueOf(nullToString(val[7])));
-            dto.setPartTypeCd(String.valueOf(nullToString(val[8])));
-            dto.setQuesCodeSystemCd(String.valueOf(nullToString(val[9])));
-            dto.setQuesCodeSystemDescTxt(String.valueOf(nullToString(val[10])));
-            dto.setQuesDisplayTxt(String.valueOf(nullToString(val[11])));
-            dto.setQuestionDisplayName(String.valueOf(nullToString(val[12])));
-            dto.setAnsToCode(String.valueOf(nullToString(val[13])));
-            dto.setAnsToCodeSystemCd(String.valueOf(nullToString(val[14])));
-            dto.setAnsToDisplayNm(String.valueOf(nullToString(val[15])));
-            dto.setCodeTranslationRequired(String.valueOf(nullToString(val[16])));
-            dto.setAnsToCodeSystemDescTxt(String.valueOf(nullToString(val[17])));
-            return dto;
+            for(Object [] val : results) {
+                EcrMsgCaseAnswerDto dto = new EcrMsgCaseAnswerDto();
+                dto.setQuestionIdentifier((nullToString(val[0])));
+                dto.setMsgContainerUid(((Number)val[1]).intValue());
+                dto.setMsgEventId((nullToString(val[2])));
+                dto.setMsgEventType((nullToString(val[3])));
+                dto.setAnsCodeSystemCd((nullToString(val[4])));
+                dto.setAnsCodeSystemDescTxt((nullToString(val[5])));
+                dto.setAnsDisplayTxt((nullToString(val[6])));
+                dto.setAnswerTxt((nullToString(val[7])));
+                dto.setPartTypeCd((nullToString(val[8])));
+                dto.setQuesCodeSystemCd((nullToString(val[9])));
+                dto.setQuesCodeSystemDescTxt((nullToString(val[10])));
+                dto.setQuesDisplayTxt((nullToString(val[11])));
+                dto.setQuestionDisplayName((nullToString(val[12])));
+                dto.setAnsToCode((nullToString(val[13])));
+                dto.setAnsToCodeSystemCd((nullToString(val[14])));
+                dto.setAnsToDisplayNm((nullToString(val[15])));
+                dto.setCodeTranslationRequired((nullToString(val[16])));
+                dto.setAnsToCodeSystemDescTxt((nullToString(val[17])));
+                dtos.add(dto);
+            }
         }
-        return null;
+        return dtos;
     }
 
-    public EcrMsgCaseAnswerDtoRepeat FetchMsgCaseAnswerRepeatForApplicableEcr(String containerId, String invLocalId) {
+    public List<EcrMsgCaseAnswerRepeatDto> FetchMsgCaseAnswerRepeatForApplicableEcr(Integer containerId, String invLocalId) {
         String queryString = loadSqlFromFile("ecr_msg_case_answer_repeat.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
         query.setParameter("INV_LOCAL_ID", invLocalId);
-        EcrMsgCaseAnswerDtoRepeat dto = new EcrMsgCaseAnswerDtoRepeat();
+        List<EcrMsgCaseAnswerRepeatDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
-            var val = results.get(0);
-            dto.setQuestionIdentifier(String.valueOf(nullToString(val[0])));
-            dto.setMsgContainerUid(((Number)val[1]).intValue());
-            dto.setMsgEventId(String.valueOf(nullToString(val[2])));
-            dto.setMsgEventType(String.valueOf(nullToString(val[3])));
-            dto.setAnsCodeSystemCd(String.valueOf(nullToString(val[4])));
-            dto.setAnsCodeSystemDescTxt(String.valueOf(nullToString(val[5])));
-            dto.setAnsDisplayTxt(String.valueOf(nullToString(val[6])));
-            dto.setAnswerTxt(String.valueOf(nullToString(val[7])));
-            dto.setPartTypeCd(String.valueOf(nullToString(val[8])));
-            dto.setQuesCodeSystemCd(String.valueOf(nullToString(val[9])));
-            dto.setQuesCodeSystemDescTxt(String.valueOf(nullToString(val[10])));
-            dto.setQuesDisplayTxt(String.valueOf(nullToString(val[11])));
-            dto.setQuestionDisplayName(String.valueOf(nullToString(val[12])));
-            dto.setAnsToCode(String.valueOf(nullToString(val[13])));
-            dto.setAnsToCodeSystemCd(String.valueOf(nullToString(val[14])));
-            dto.setAnsToDisplayNm(String.valueOf(nullToString(val[15])));
-            dto.setCodeTranslationRequired(String.valueOf(nullToString(val[16])));
-            dto.setAnsToCodeSystemDescTxt(String.valueOf(nullToString(val[17])));
-            return dto;
+            for(Object[] val: results) {
+                EcrMsgCaseAnswerRepeatDto dto = new EcrMsgCaseAnswerRepeatDto();
+                dto.setQuestionIdentifier((nullToString(val[0])));
+                dto.setMsgContainerUid(((Number)val[1]).intValue());
+                dto.setMsgEventId((nullToString(val[2])));
+                dto.setMsgEventType((nullToString(val[3])));
+                dto.setAnsCodeSystemCd((nullToString(val[4])));
+                dto.setAnsCodeSystemDescTxt((nullToString(val[5])));
+                dto.setAnsDisplayTxt((nullToString(val[6])));
+                dto.setAnswerTxt((nullToString(val[7])));
+                dto.setPartTypeCd((nullToString(val[8])));
+                dto.setQuesCodeSystemCd((nullToString(val[9])));
+                dto.setQuesCodeSystemDescTxt((nullToString(val[10])));
+                dto.setQuesDisplayTxt((nullToString(val[11])));
+                dto.setQuestionDisplayName((nullToString(val[12])));
+                dto.setAnsToCode((nullToString(val[13])));
+                dto.setAnsToCodeSystemCd((nullToString(val[14])));
+                dto.setAnsToDisplayNm((nullToString(val[15])));
+                dto.setCodeTranslationRequired((nullToString(val[16])));
+                dto.setAnsToCodeSystemDescTxt((nullToString(val[17])));
+                dtos.add(dto);
+            }
         }
-        return null;
+        return dtos;
     }
 
-    public EcrMsgXmlAnswerDto FetchMsgXmlAnswerForApplicableEcr(String containerId, String invLocalId) {
+    public List<EcrMsgXmlAnswerDto> FetchMsgXmlAnswerForApplicableEcr(Integer containerId, String invLocalId) {
         String queryString = loadSqlFromFile("ecr_msg_xml_answer.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
         query.setParameter("INV_LOCAL_ID", invLocalId);
-        EcrMsgXmlAnswerDto dto = new EcrMsgXmlAnswerDto();
+        List<EcrMsgXmlAnswerDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
-            var val = results.get(0);
-            dto.setDataType(String.valueOf(nullToString(val[0])));
-            dto.setAnswerXmlTxt(String.valueOf(nullToString(val[1])));
-            return dto;
+            for(Object[] val: results) {
+                EcrMsgXmlAnswerDto dto = new EcrMsgXmlAnswerDto();
+                dto.setDataType((nullToString(val[0])));
+                dto.setAnswerXmlTxt((nullToString(val[1])));
+                dtos.add(dto);
+            }
         }
-        return null;
+        return dtos;
     }
 
-    public EcrMsgProviderDto FetchMsgProviderForApplicableEcr(String containerId) {
+    public List<EcrMsgProviderDto> FetchMsgProviderForApplicableEcr(Integer containerId) {
         String queryString = loadSqlFromFile("ecr_msg_provider.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
-        EcrMsgProviderDto dto = new EcrMsgProviderDto();
+        List<EcrMsgProviderDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
-            var val = results.get(0);
-            dto.setPrvLocalId(String.valueOf(nullToString(val[0])));
-            dto.setPrvAuthorId(String.valueOf(nullToString(val[1])));
-            dto.setPrvAddrCityTxt(String.valueOf(nullToString(val[2])));
-            dto.setPrvAddrCommentTxt(String.valueOf(nullToString(val[3])));
-            dto.setPrvAddrCountyCd(String.valueOf(nullToString(val[4])));
-            dto.setPrvAddrCountryCd(String.valueOf(nullToString(val[5])));
-            dto.setPrvAddrStreetAddr1Txt(String.valueOf(nullToString(val[6])));
-            dto.setPrvAddrStreetAddr2Txt(String.valueOf(nullToString(val[7])));
-            dto.setPrvAddrStateCd(String.valueOf(nullToString(val[8])));
-            dto.setPrvAddrZipCodeTxt(String.valueOf(nullToString(val[9])));
-            dto.setPrvCommentTxt(String.valueOf(nullToString(val[10])));
-            dto.setPrvIdAltIdNbrTxt(String.valueOf(nullToString(val[11])));
-            dto.setPrvIdQuickCodeTxt(String.valueOf(nullToString(val[12])));
-            dto.setPrvIdNbrTxt(String.valueOf(nullToString(val[13])));
-            dto.setPrvIdNpiTxt(String.valueOf(nullToString(val[14])));
-            dto.setPrvEffectiveTime((Timestamp)val[15]);
-            dto.setPrvEmailAddressTxt(String.valueOf(nullToString(val[16])));
-            dto.setPrvNameDegreeCd(String.valueOf(nullToString(val[17])));
-            dto.setPrvNameFirstTxt(String.valueOf(nullToString(val[18])));
-            dto.setPrvNameLastTxt(String.valueOf(nullToString(val[19])));
-            dto.setPrvNameMiddleTxt(String.valueOf(nullToString(val[20])));
-            dto.setPrvNamePrefixCd(String.valueOf(nullToString(val[21])));
-            dto.setPrvNameSuffixCd(String.valueOf(nullToString(val[22])));
-            dto.setPrvPhoneCommentTxt(String.valueOf(nullToString(val[23])));
-            dto.setPrvPhoneCountryCodeTxt(String.valueOf(nullToString(val[24])));
-            dto.setPrvPhoneExtensionTxt(((Number)val[25]).intValue());
-            dto.setPrvPhoneNbrTxt(String.valueOf(nullToString(val[26])));
-            dto.setPrvRoleCd(String.valueOf(nullToString(val[27])));
-            dto.setPrvUrlAddressTxt(String.valueOf(nullToString(val[28])));
-            return dto;
+            for(Object[] val: results) {
+                EcrMsgProviderDto dto = new EcrMsgProviderDto();
+                dto.setPrvLocalId((nullToString(val[0])));
+                dto.setPrvAuthorId((nullToString(val[1])));
+                dto.setPrvAddrCityTxt((nullToString(val[2])));
+                dto.setPrvAddrCommentTxt((nullToString(val[3])));
+                dto.setPrvAddrCountyCd((nullToString(val[4])));
+                dto.setPrvAddrCountryCd((nullToString(val[5])));
+                dto.setPrvAddrStreetAddr1Txt((nullToString(val[6])));
+                dto.setPrvAddrStreetAddr2Txt((nullToString(val[7])));
+                dto.setPrvAddrStateCd((nullToString(val[8])));
+                dto.setPrvAddrZipCodeTxt((nullToString(val[9])));
+                dto.setPrvCommentTxt((nullToString(val[10])));
+                dto.setPrvIdAltIdNbrTxt((nullToString(val[11])));
+                dto.setPrvIdQuickCodeTxt((nullToString(val[12])));
+                dto.setPrvIdNbrTxt((nullToString(val[13])));
+                dto.setPrvIdNpiTxt((nullToString(val[14])));
+                dto.setPrvEffectiveTime((Timestamp)val[15]);
+                dto.setPrvEmailAddressTxt((nullToString(val[16])));
+                dto.setPrvNameDegreeCd((nullToString(val[17])));
+                dto.setPrvNameFirstTxt((nullToString(val[18])));
+                dto.setPrvNameLastTxt((nullToString(val[19])));
+                dto.setPrvNameMiddleTxt((nullToString(val[20])));
+                dto.setPrvNamePrefixCd((nullToString(val[21])));
+                dto.setPrvNameSuffixCd((nullToString(val[22])));
+                dto.setPrvPhoneCommentTxt((nullToString(val[23])));
+                dto.setPrvPhoneCountryCodeTxt((nullToString(val[24])));
+                dto.setPrvPhoneExtensionTxt(nullCheckInt(val[25]));
+                dto.setPrvPhoneNbrTxt((nullToString(val[26])));
+                dto.setPrvRoleCd((nullToString(val[27])));
+                dto.setPrvUrlAddressTxt((nullToString(val[28])));
+                dtos.add(dto);
+            }
         }
-        return null;
+        return dtos;
     }
 
-    public EcrMsgOrganizationDto FetchMsgOrganizationForApplicableEcr(String containerId) {
+    public List<EcrMsgOrganizationDto> FetchMsgOrganizationForApplicableEcr(Integer containerId) {
         String queryString = loadSqlFromFile("ecr_msg_organization.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
-        EcrMsgOrganizationDto dto = new EcrMsgOrganizationDto();
+        List<EcrMsgOrganizationDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
-            var val = results.get(0);
-            dto.setOrgLocalId(String.valueOf(nullToString(val[0])));
-            dto.setOrgAuthorId(String.valueOf(nullToString(val[1])));
-            dto.setOrgEffectiveTime((Timestamp)val[2]);
-            dto.setOrgNameTxt(String.valueOf(nullToString(val[3])));
-            dto.setOrgAddrCityTxt(String.valueOf(nullToString(val[4])));
-            dto.setOrgAddrCommentTxt(String.valueOf(nullToString(val[5])));
-            dto.setOrgAddrCountyCd(String.valueOf(nullToString(val[6])));
-            dto.setOrgAddrCountryCd(String.valueOf(nullToString(val[7])));
-            dto.setOrgAddrStateCd(String.valueOf(nullToString(val[8])));
-            dto.setOrgAddrStreetAddr1Txt(String.valueOf(nullToString(val[9])));
-            dto.setOrgAddrStreetAddr2Txt(String.valueOf(nullToString(val[10])));
-            dto.setOrgAddrZipCodeTxt(String.valueOf(nullToString(val[11])));
-            dto.setOrgClassCd(String.valueOf(nullToString(val[12])));
-            dto.setOrgCommentTxt(String.valueOf(nullToString(val[13])));
-            dto.setOrgEmailAddressTxt(String.valueOf(nullToString(val[14])));
-            dto.setOrgIdCliaNbrTxt(String.valueOf(nullToString(val[15])));
-            dto.setOrgIdFacilityIdentifierTxt(String.valueOf(nullToString(val[16])));
-            dto.setOrgIdQuickCodeTxt(String.valueOf(nullToString(val[17])));
-            dto.setOrgPhoneCommentTxt(String.valueOf(nullToString(val[18])));
-            dto.setOrgPhoneCountryCodeTxt(String.valueOf(nullToString(val[19])));
-            dto.setOrgPhoneExtensionTxt(((Number)val[20]).intValue());
-            dto.setOrgPhoneNbrTxt(String.valueOf(nullToString(val[21])));
-            dto.setOrgRoleCd(String.valueOf(nullToString(val[22])));
-            dto.setOrgUrlAddressTxt(String.valueOf(nullToString(val[23])));
-            return dto;
+
+            for(Object[] val: results) {
+                EcrMsgOrganizationDto dto = new EcrMsgOrganizationDto();
+                dto.setOrgLocalId((nullToString(val[0])));
+                dto.setOrgAuthorId((nullToString(val[1])));
+                dto.setOrgEffectiveTime((Timestamp)val[2]);
+                dto.setOrgNameTxt((nullToString(val[3])));
+                dto.setOrgAddrCityTxt((nullToString(val[4])));
+                dto.setOrgAddrCommentTxt((nullToString(val[5])));
+                dto.setOrgAddrCountyCd((nullToString(val[6])));
+                dto.setOrgAddrCountryCd((nullToString(val[7])));
+                dto.setOrgAddrStateCd((nullToString(val[8])));
+                dto.setOrgAddrStreetAddr1Txt((nullToString(val[9])));
+                dto.setOrgAddrStreetAddr2Txt((nullToString(val[10])));
+                dto.setOrgAddrZipCodeTxt((nullToString(val[11])));
+                dto.setOrgClassCd((nullToString(val[12])));
+                dto.setOrgCommentTxt((nullToString(val[13])));
+                dto.setOrgEmailAddressTxt((nullToString(val[14])));
+                dto.setOrgIdCliaNbrTxt((nullToString(val[15])));
+                dto.setOrgIdFacilityIdentifierTxt((nullToString(val[16])));
+                dto.setOrgIdQuickCodeTxt((nullToString(val[17])));
+                dto.setOrgPhoneCommentTxt((nullToString(val[18])));
+                dto.setOrgPhoneCountryCodeTxt((nullToString(val[19])));
+                dto.setOrgPhoneExtensionTxt(nullCheckInt(val[20]));
+                dto.setOrgPhoneNbrTxt((nullToString(val[21])));
+                dto.setOrgRoleCd((nullToString(val[22])));
+                dto.setOrgUrlAddressTxt((nullToString(val[23])));
+                dtos.add(dto);
+            }
         }
-        return null;
+        return dtos;
     }
 
-    public EcrMsgPlaceDto FetchMsgPlaceForApplicableEcr(String containerId) {
+    public List<EcrMsgPlaceDto> FetchMsgPlaceForApplicableEcr(Integer containerId) {
         String queryString = loadSqlFromFile("ecr_msg_place.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
-        EcrMsgPlaceDto dto = new EcrMsgPlaceDto();
+        List<EcrMsgPlaceDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
-            var val = results.get(0);
-            dto.setMsgContainerUid(((Number)val[0]).intValue());
-            dto.setPlaLocalId(String.valueOf(nullToString(val[1])));
-            dto.setPlaAuthorId(String.valueOf(nullToString(val[2])));
-            dto.setPlaEffectiveTime((Timestamp)val[3]);
-            dto.setPlaAddrAsOfDt((Timestamp)val[4]);
-            dto.setPlaAddrCityTxt(String.valueOf(nullToString(val[5])));
-            dto.setPlaAddrCountyCd(String.valueOf(nullToString(val[6])));
-            dto.setPlaAddrCountryCd(String.valueOf(nullToString(val[7])));
-            dto.setPlaAddrStateCd(String.valueOf(nullToString(val[8])));
-            dto.setPlaAddrStreetAddr1Txt(String.valueOf(nullToString(val[9])));
-            dto.setPlaAddrStreetAddr2Txt(String.valueOf(nullToString(val[10])));
-            dto.setPlaAddrZipCodeTxt(String.valueOf(nullToString(val[11])));
-            dto.setPlaAddrCommentTxt(String.valueOf(nullToString(val[12])));
-            dto.setPlaCensusTractTxt(String.valueOf(nullToString(val[13])));
-            dto.setPlaCommentTxt(String.valueOf(nullToString(val[14])));
-            dto.setPlaEmailAddressTxt(String.valueOf(nullToString(val[15])));
-            dto.setPlaIdQuickCode(String.valueOf(nullToString(val[16])));
-            dto.setPlaNameTxt(String.valueOf(nullToString(val[17])));
-            dto.setPlaPhoneAsOfDt((Timestamp)val[18]);
-            dto.setPlaPhoneCountryCodeTxt(String.valueOf(nullToString(val[19])));
-            dto.setPlaPhoneExtensionTxt(String.valueOf(nullToString(val[20])));
-            dto.setPlaPhoneNbrTxt(String.valueOf(nullToString(val[21])));
-            dto.setPlaPhoneCommentTxt(String.valueOf(nullToString(val[22])));
-            dto.setPlaTypeCd(String.valueOf(nullToString(val[23])));
-            dto.setPlaUrlAddressTxt(String.valueOf(nullToString(val[24])));
-            return dto;
+            for(Object[] val: results) {
+                EcrMsgPlaceDto dto = new EcrMsgPlaceDto();
+                dto.setMsgContainerUid(((Number)val[0]).intValue());
+                dto.setPlaLocalId((nullToString(val[1])));
+                dto.setPlaAuthorId((nullToString(val[2])));
+                dto.setPlaEffectiveTime((Timestamp)val[3]);
+                dto.setPlaAddrAsOfDt((Timestamp)val[4]);
+                dto.setPlaAddrCityTxt((nullToString(val[5])));
+                dto.setPlaAddrCountyCd((nullToString(val[6])));
+                dto.setPlaAddrCountryCd((nullToString(val[7])));
+                dto.setPlaAddrStateCd((nullToString(val[8])));
+                dto.setPlaAddrStreetAddr1Txt((nullToString(val[9])));
+                dto.setPlaAddrStreetAddr2Txt((nullToString(val[10])));
+                dto.setPlaAddrZipCodeTxt((nullToString(val[11])));
+                dto.setPlaAddrCommentTxt((nullToString(val[12])));
+                dto.setPlaCensusTractTxt((nullToString(val[13])));
+                dto.setPlaCommentTxt((nullToString(val[14])));
+                dto.setPlaEmailAddressTxt((nullToString(val[15])));
+                dto.setPlaIdQuickCode((nullToString(val[16])));
+                dto.setPlaNameTxt((nullToString(val[17])));
+                dto.setPlaPhoneAsOfDt((Timestamp)val[18]);
+                dto.setPlaPhoneCountryCodeTxt((nullToString(val[19])));
+                dto.setPlaPhoneExtensionTxt((nullToString(val[20])));
+                dto.setPlaPhoneNbrTxt((nullToString(val[21])));
+                dto.setPlaPhoneCommentTxt((nullToString(val[22])));
+                dto.setPlaTypeCd((nullToString(val[23])));
+                dto.setPlaUrlAddressTxt((nullToString(val[24])));
+                dtos.add(dto);
+            }
         }
-        return null;
+        return dtos;
     }
 
-    public EcrMsgInterviewDto FetchMsgInterviewForApplicableEcr(String containerId) {
+    public List<EcrMsgInterviewDto> FetchMsgInterviewForApplicableEcr(Integer containerId) {
         String queryString = loadSqlFromFile("ecr_msg_interview.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
-        EcrMsgInterviewDto dto = new EcrMsgInterviewDto();
+        List<EcrMsgInterviewDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
-            var val = results.get(0);
-            dto.setMsgContainerUid(((Number)val[0]).intValue());
-            dto.setIxsLocalId(String.valueOf(nullToString(val[1])));
-            dto.setIxsIntervieweeId(String.valueOf(nullToString(val[2])));
-            dto.setIxsAuthorId(String.valueOf(nullToString(val[3])));
-            dto.setIxsEffectiveTime((Timestamp)val[4]);
-            dto.setIxsInterviewDt((Timestamp)val[5]);
-            dto.setIxsInterviewLocCd(String.valueOf(nullToString(val[6])));
-            dto.setIxsIntervieweeRoleCd(String.valueOf(nullToString(val[7])));
-            dto.setIxsInterviewTypeCd(String.valueOf(nullToString(val[8])));
-            dto.setIxsStatusCd(String.valueOf(nullToString(val[9])));
-            return dto;
+            for(Object[] val: results) {
+                EcrMsgInterviewDto dto = new EcrMsgInterviewDto();
+                dto.setMsgContainerUid(((Number)val[0]).intValue());
+                dto.setIxsLocalId((nullToString(val[1])));
+                dto.setIxsIntervieweeId((nullToString(val[2])));
+                dto.setIxsAuthorId((nullToString(val[3])));
+                dto.setIxsEffectiveTime((Timestamp)val[4]);
+                dto.setIxsInterviewDt((Timestamp)val[5]);
+                dto.setIxsInterviewLocCd((nullToString(val[6])));
+                dto.setIxsIntervieweeRoleCd((nullToString(val[7])));
+                dto.setIxsInterviewTypeCd((nullToString(val[8])));
+                dto.setIxsStatusCd((nullToString(val[9])));
+                dtos.add(dto);
+            }
+
         }
-        return null;
+        return dtos;
     }
 
-    public EcrMsgInterviewAnswerDto FetchMsgInterviewAnswerForApplicableEcr(String containerId, String ixsLocalId) {
+    public List<EcrMsgInterviewProviderDto> FetchMsgInterviewProviderForApplicableEcr(Integer containerId,  String ixsLocalId) {
+        String queryString = loadSqlFromFile("ecr_msg_interview_provider.sql");
+        Query query = entityManager.createNativeQuery(queryString);
+        query.setParameter("MSG_CONTAINER_UID", containerId);
+        query.setParameter("IXS_LOCAL_ID", ixsLocalId);
+        List<EcrMsgInterviewProviderDto> dtos = new ArrayList<>();
+        List<Object[]> results = query.getResultList();
+        if (results != null && !results.isEmpty()) {
+            for(Object[] val: results) {
+                EcrMsgInterviewProviderDto dto = new EcrMsgInterviewProviderDto();
+                dto.setPrvLocalId((nullToString(val[0])));
+                dto.setPrvAuthorId((nullToString(val[1])));
+                dto.setPrvAddrCityTxt((nullToString(val[2])));
+                dto.setPrvAddrCommentTxt((nullToString(val[3])));
+                dto.setPrvAddrCountyCd((nullToString(val[4])));
+                dto.setPrvAddrCountryCd((nullToString(val[5])));
+                dto.setPrvAddrStreetAddr1Txt((nullToString(val[6])));
+                dto.setPrvAddrStreetAddr2Txt((nullToString(val[7])));
+                dto.setPrvAddrStateCd((nullToString(val[8])));
+                dto.setPrvAddrZipCodeTxt((nullToString(val[9])));
+                dto.setPrvCommentTxt((nullToString(val[10])));
+                dto.setPrvIdAltIdNbrTxt((nullToString(val[11])));
+                dto.setPrvIdQuickCodeTxt((nullToString(val[12])));
+                dto.setPrvIdNbrTxt((nullToString(val[13])));
+                dto.setPrvIdNpiTxt((nullToString(val[14])));
+                dto.setPrvEffectiveTime((Timestamp)val[15]);
+                dto.setPrvEmailAddressTxt((nullToString(val[16])));
+                dto.setPrvNameDegreeCd((nullToString(val[17])));
+                dto.setPrvNameFirstTxt((nullToString(val[18])));
+                dto.setPrvNameLastTxt((nullToString(val[19])));
+                dto.setPrvNameMiddleTxt((nullToString(val[20])));
+                dto.setPrvNamePrefixCd((nullToString(val[21])));
+                dto.setPrvNameSuffixCd((nullToString(val[22])));
+                dto.setPrvPhoneCommentTxt((nullToString(val[23])));
+                dto.setPrvPhoneCountryCodeTxt((nullToString(val[24])));
+                dto.setPrvPhoneExtensionTxt(nullCheckInt(val[25]));
+                dto.setPrvPhoneNbrTxt((nullToString(val[26])));
+                dto.setPrvRoleCd((nullToString(val[27])));
+                dto.setPrvUrlAddressTxt((nullToString(val[28])));
+                dtos.add(dto);
+            }
+        }
+        return dtos;
+    }
+
+
+    public List<EcrMsgInterviewAnswerDto> FetchMsgInterviewAnswerForApplicableEcr(Integer containerId, String ixsLocalId) {
         String queryString = loadSqlFromFile("ecr_msg_interview_answer.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
         query.setParameter("IXS_LOCAL_ID", ixsLocalId);
-        EcrMsgInterviewAnswerDto dto = new EcrMsgInterviewAnswerDto();
+        List<EcrMsgInterviewAnswerDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
-            var val = results.get(0);
-            dto.setQuestionIdentifier(String.valueOf(nullToString(val[0])));
-            dto.setMsgContainerUid(((Number)val[1]).intValue());
-            dto.setMsgEventId(String.valueOf(nullToString(val[2])));
-            dto.setMsgEventType(String.valueOf(nullToString(val[3])));
-            dto.setAnsCodeSystemCd(String.valueOf(nullToString(val[4])));
-            dto.setAnsCodeSystemDescTxt(String.valueOf(nullToString(val[5])));
-            dto.setAnsDisplayTxt(String.valueOf(nullToString(val[6])));
-            dto.setAnswerTxt(String.valueOf(nullToString(val[7])));
-            dto.setPartTypeCd(String.valueOf(nullToString(val[8])));
-            dto.setQuesCodeSystemCd(String.valueOf(nullToString(val[9])));
-            dto.setQuesCodeSystemDescTxt(String.valueOf(nullToString(val[10])));
-            dto.setQuesDisplayTxt(String.valueOf(nullToString(val[11])));
-            dto.setQuestionDisplayName(String.valueOf(nullToString(val[12])));
-            dto.setAnsToCode(String.valueOf(nullToString(val[13])));
-            dto.setAnsToCodeSystemCd(String.valueOf(nullToString(val[14])));
-            dto.setAnsToDisplayNm(String.valueOf(nullToString(val[15])));
-            dto.setCodeTranslationRequired(String.valueOf(nullToString(val[16])));
-            dto.setAnsToCodeSystemDescTxt(String.valueOf(nullToString(val[17])));
-            return dto;
+            for(Object[] val: results) {
+                EcrMsgInterviewAnswerDto dto = new EcrMsgInterviewAnswerDto();
+                dto.setQuestionIdentifier((nullToString(val[0])));
+                dto.setMsgContainerUid(((Number)val[1]).intValue());
+                dto.setMsgEventId((nullToString(val[2])));
+                dto.setMsgEventType((nullToString(val[3])));
+                dto.setAnsCodeSystemCd((nullToString(val[4])));
+                dto.setAnsCodeSystemDescTxt((nullToString(val[5])));
+                dto.setAnsDisplayTxt((nullToString(val[6])));
+                dto.setAnswerTxt((nullToString(val[7])));
+                dto.setPartTypeCd((nullToString(val[8])));
+                dto.setQuesCodeSystemCd((nullToString(val[9])));
+                dto.setQuesCodeSystemDescTxt((nullToString(val[10])));
+                dto.setQuesDisplayTxt((nullToString(val[11])));
+                dto.setQuestionDisplayName((nullToString(val[12])));
+                dto.setAnsToCode((nullToString(val[13])));
+                dto.setAnsToCodeSystemCd((nullToString(val[14])));
+                dto.setAnsToDisplayNm((nullToString(val[15])));
+                dto.setCodeTranslationRequired((nullToString(val[16])));
+                dto.setAnsToCodeSystemDescTxt((nullToString(val[17])));
+                dtos.add(dto);
+            }
+
         }
-        return null;
+        return dtos;
     }
 
-    public EcrMsgInterviewAnswerDtoRepeat FetchMsgInterviewAnswerRepeatForApplicableEcr(String containerId, String ixsLocalId) {
+    public List<EcrMsgInterviewAnswerRepeatDto> FetchMsgInterviewAnswerRepeatForApplicableEcr(Integer containerId, String ixsLocalId) {
         String queryString = loadSqlFromFile("ecr_msg_interview_answer_repeat.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
         query.setParameter("IXS_LOCAL_ID", ixsLocalId);
-        EcrMsgInterviewAnswerDtoRepeat dto = new EcrMsgInterviewAnswerDtoRepeat();
+        List<EcrMsgInterviewAnswerRepeatDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
-            var val = results.get(0);
-            dto.setQuestionIdentifier(String.valueOf(nullToString(val[0])));
-            dto.setMsgContainerUid(((Number)val[1]).intValue());
-            dto.setMsgEventId(String.valueOf(nullToString(val[2])));
-            dto.setMsgEventType(String.valueOf(nullToString(val[3])));
-            dto.setAnsCodeSystemCd(String.valueOf(nullToString(val[4])));
-            dto.setAnsCodeSystemDescTxt(String.valueOf(nullToString(val[5])));
-            dto.setAnsDisplayTxt(String.valueOf(nullToString(val[6])));
-            dto.setAnswerTxt(String.valueOf(nullToString(val[7])));
-            dto.setPartTypeCd(String.valueOf(nullToString(val[8])));
-            dto.setQuesCodeSystemCd(String.valueOf(nullToString(val[9])));
-            dto.setQuesCodeSystemDescTxt(String.valueOf(nullToString(val[10])));
-            dto.setQuesDisplayTxt(String.valueOf(nullToString(val[11])));
-            dto.setQuestionDisplayName(String.valueOf(nullToString(val[12])));
-            dto.setAnsToCode(String.valueOf(nullToString(val[13])));
-            dto.setAnsToCodeSystemCd(String.valueOf(nullToString(val[14])));
-            dto.setAnsToDisplayNm(String.valueOf(nullToString(val[15])));
-            dto.setCodeTranslationRequired(String.valueOf(nullToString(val[16])));
-            dto.setAnsToCodeSystemDescTxt(String.valueOf(nullToString(val[17])));
-            return dto;
+            for(Object[] val: results) {
+                EcrMsgInterviewAnswerRepeatDto dto = new EcrMsgInterviewAnswerRepeatDto();
+                dto.setQuestionIdentifier((nullToString(val[0])));
+                dto.setMsgContainerUid(((Number)val[1]).intValue());
+                dto.setMsgEventId((nullToString(val[2])));
+                dto.setMsgEventType((nullToString(val[3])));
+                dto.setAnsCodeSystemCd((nullToString(val[4])));
+                dto.setAnsCodeSystemDescTxt((nullToString(val[5])));
+                dto.setAnsDisplayTxt((nullToString(val[6])));
+                dto.setAnswerTxt((nullToString(val[7])));
+                dto.setPartTypeCd((nullToString(val[8])));
+                dto.setQuesCodeSystemCd((nullToString(val[9])));
+                dto.setQuesCodeSystemDescTxt((nullToString(val[10])));
+                dto.setQuesDisplayTxt((nullToString(val[11])));
+                dto.setQuestionDisplayName((nullToString(val[12])));
+                dto.setAnsToCode((nullToString(val[13])));
+                dto.setAnsToCodeSystemCd((nullToString(val[14])));
+                dto.setAnsToDisplayNm((nullToString(val[15])));
+                dto.setCodeTranslationRequired((nullToString(val[16])));
+                dto.setAnsToCodeSystemDescTxt((nullToString(val[17])));
+                dtos.add(dto);
+            }
+
         }
-        return null;
+        return dtos;
     }
 
-    public EcrMsgTreatmentDto FetchMsgTreatmentForApplicableEcr(String containerId) {
+    public List<EcrMsgTreatmentDto> FetchMsgTreatmentForApplicableEcr(Integer containerId) {
         String queryString = loadSqlFromFile("ecr_msg_treatment.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
-        EcrMsgTreatmentDto dto = new EcrMsgTreatmentDto();
+        List<EcrMsgTreatmentDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
-            var val = results.get(0);
-            dto.setTrtLocalId(String.valueOf(nullToString(val[0])));
-            dto.setTrtAuthorId(String.valueOf(nullToString(val[1])));
-            dto.setTrtCompositeCd(String.valueOf(nullToString(val[2])));
-            dto.setTrtCommentTxt(String.valueOf(nullToString(val[3])));
-            dto.setTrtCustomTreatmentTxt(String.valueOf(nullToString(val[4])));
-            dto.setTrtDosageAmt(val[5] == null ? null : ((Number)val[5]).intValue());
-            dto.setTrtDosageUnitCd(String.valueOf(nullToString(val[6])));
-            dto.setTrtDrugCd(String.valueOf(nullToString(val[7])));
-            dto.setTrtDurationAmt(val[8] == null ? null : ((Number)val[8]).intValue());
-            dto.setTrtDurationUnitCd(String.valueOf(nullToString(val[9])));
-            dto.setTrtEffectiveTime((Timestamp) val[10]);
-            dto.setTrtFrequencyAmtCd(String.valueOf(nullToString(val[11])));
-            dto.setTrtRouteCd(String.valueOf(nullToString(val[12])));
-            dto.setTrtTreatmentDt((Timestamp) val[13]);
-            return dto;
+            for(Object[] val: results) {
+                EcrMsgTreatmentDto dto = new EcrMsgTreatmentDto();
+                dto.setTrtLocalId((nullToString(val[0])));
+                dto.setTrtAuthorId((nullToString(val[1])));
+                dto.setTrtCompositeCd((nullToString(val[2])));
+                dto.setTrtCommentTxt((nullToString(val[3])));
+                dto.setTrtCustomTreatmentTxt((nullToString(val[4])));
+                dto.setTrtDosageAmt(nullCheckInt(val[5]));
+                dto.setTrtDosageUnitCd((nullToString(val[6])));
+                dto.setTrtDrugCd((nullToString(val[7])));
+                dto.setTrtDurationAmt(nullCheckInt(val[8]));
+                dto.setTrtDurationUnitCd((nullToString(val[9])));
+                dto.setTrtEffectiveTime((Timestamp) val[10]);
+                dto.setTrtFrequencyAmtCd((nullToString(val[11])));
+                dto.setTrtRouteCd((nullToString(val[12])));
+                dto.setTrtTreatmentDt((Timestamp) val[13]);
+                dtos.add(dto);
+            }
+
         }
-        return null;
+        return dtos;
     }
 
-    public EcrMsgTreatmentProviderDto FetchMsgTreatmentProviderForApplicableEcr(String containerId) {
+    public List<EcrMsgTreatmentProviderDto> FetchMsgTreatmentProviderForApplicableEcr(Integer containerId) {
         String queryString = loadSqlFromFile("ecr_msg_treatment_provider.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
-        EcrMsgTreatmentProviderDto dto = new EcrMsgTreatmentProviderDto();
+        List<EcrMsgTreatmentProviderDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
-            var val = results.get(0);
-            dto.setPrvLocalId(String.valueOf(nullToString(val[0])));
-            dto.setPrvAuthorId(String.valueOf(nullToString(val[1])));
-            dto.setPrvAddrCityTxt(String.valueOf(nullToString(val[2])));
-            dto.setPrvAddrCommentTxt(String.valueOf(nullToString(val[3])));
-            dto.setPrvAddrCountyCd(String.valueOf(nullToString(val[4])));
-            dto.setPrvAddrCountryCd(String.valueOf(nullToString(val[5])));
-            dto.setPrvAddrStreetAddr1Txt(String.valueOf(nullToString(val[6])));
-            dto.setPrvAddrStreetAddr2Txt(String.valueOf(nullToString(val[7])));
-            dto.setPrvAddrStateCd(String.valueOf(nullToString(val[8])));
-            dto.setPrvAddrZipCodeTxt(String.valueOf(nullToString(val[9])));
-            dto.setPrvCommentTxt(String.valueOf(nullToString(val[10])));
-            dto.setPrvIdAltIdNbrTxt(String.valueOf(nullToString(val[11])));
-            dto.setPrvIdQuickCodeTxt(String.valueOf(nullToString(val[12])));
-            dto.setPrvIdNbrTxt(String.valueOf(nullToString(val[13])));
-            dto.setPrvIdNpiTxt(String.valueOf(nullToString(val[14])));
-            dto.setPrvEffectiveTime((Timestamp) val[15]);
-            dto.setPrvEmailAddressTxt(String.valueOf(nullToString(val[16])));
-            dto.setPrvNameDegreeCd(String.valueOf(nullToString(val[17])));
-            dto.setPrvNameFirstTxt(String.valueOf(nullToString(val[18])));
-            dto.setPrvNameLastTxt(String.valueOf(nullToString(val[19])));
-            dto.setPrvNameMiddleTxt(String.valueOf(nullToString(val[20])));
-            dto.setPrvNamePrefixCd(String.valueOf(nullToString(val[21])));
-            dto.setPrvNameSuffixCd(String.valueOf(nullToString(val[22])));
-            dto.setPrvPhoneCommentTxt(String.valueOf(nullToString(val[23])));
-            dto.setPrvPhoneCountryCodeTxt(String.valueOf(nullToString(val[24])));
-            dto.setPrvPhoneExtensionTxt(val[25] == null ? null : ((Number)val[25]).intValue());
-            dto.setPrvPhoneNbrTxt(String.valueOf(nullToString(val[26])));
-            dto.setPrvRoleCd(String.valueOf(nullToString(val[27])));
-            dto.setPrvUrlAddressTxt(String.valueOf(nullToString(val[28])));
-            return dto;
+            for(Object[] val: results) {
+                EcrMsgTreatmentProviderDto dto = new EcrMsgTreatmentProviderDto();
+                dto.setPrvLocalId((nullToString(val[0])));
+                dto.setPrvAuthorId((nullToString(val[1])));
+                dto.setPrvAddrCityTxt((nullToString(val[2])));
+                dto.setPrvAddrCommentTxt((nullToString(val[3])));
+                dto.setPrvAddrCountyCd((nullToString(val[4])));
+                dto.setPrvAddrCountryCd((nullToString(val[5])));
+                dto.setPrvAddrStreetAddr1Txt((nullToString(val[6])));
+                dto.setPrvAddrStreetAddr2Txt((nullToString(val[7])));
+                dto.setPrvAddrStateCd((nullToString(val[8])));
+                dto.setPrvAddrZipCodeTxt((nullToString(val[9])));
+                dto.setPrvCommentTxt((nullToString(val[10])));
+                dto.setPrvIdAltIdNbrTxt((nullToString(val[11])));
+                dto.setPrvIdQuickCodeTxt((nullToString(val[12])));
+                dto.setPrvIdNbrTxt((nullToString(val[13])));
+                dto.setPrvIdNpiTxt((nullToString(val[14])));
+                dto.setPrvEffectiveTime((Timestamp) val[15]);
+                dto.setPrvEmailAddressTxt((nullToString(val[16])));
+                dto.setPrvNameDegreeCd((nullToString(val[17])));
+                dto.setPrvNameFirstTxt((nullToString(val[18])));
+                dto.setPrvNameLastTxt((nullToString(val[19])));
+                dto.setPrvNameMiddleTxt((nullToString(val[20])));
+                dto.setPrvNamePrefixCd((nullToString(val[21])));
+                dto.setPrvNameSuffixCd((nullToString(val[22])));
+                dto.setPrvPhoneCommentTxt((nullToString(val[23])));
+                dto.setPrvPhoneCountryCodeTxt((nullToString(val[24])));
+                dto.setPrvPhoneExtensionTxt(nullCheckInt(val[25]));
+                dto.setPrvPhoneNbrTxt((nullToString(val[26])));
+                dto.setPrvRoleCd((nullToString(val[27])));
+                dto.setPrvUrlAddressTxt((nullToString(val[28])));
+                dtos.add(dto);
+            }
+
         }
-        return null;
+        return dtos;
     }
 
-    public EcrMsgTreatmentOrganizationDto FetchMsgTreatmentOrganizationForApplicableEcr(String containerId) {
+    public List<EcrMsgTreatmentOrganizationDto> FetchMsgTreatmentOrganizationForApplicableEcr(Integer containerId) {
         String queryString = loadSqlFromFile("ecr_msg_treatment_organization.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
-        EcrMsgTreatmentOrganizationDto dto = new EcrMsgTreatmentOrganizationDto();
+        List<EcrMsgTreatmentOrganizationDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
-            var val = results.get(0);
-            dto.setOrgLocalId(String.valueOf(nullToString(val[0])));
-            dto.setOrgAuthorId(String.valueOf(nullToString(val[1])));
-            dto.setOrgEffectiveTime((Timestamp) val[2]);
-            dto.setOrgNameTxt(String.valueOf(nullToString(val[3])));
-            dto.setOrgAddrCityTxt(String.valueOf(nullToString(val[4])));
-            dto.setOrgAddrCommentTxt(String.valueOf(nullToString(val[5])));
-            dto.setOrgAddrCountyCd(String.valueOf(nullToString(val[6])));
-            dto.setOrgAddrCountryCd(String.valueOf(nullToString(val[7])));
-            dto.setOrgAddrStateCd(String.valueOf(nullToString(val[8])));
-            dto.setOrgAddrStreetAddr1Txt(String.valueOf(nullToString(val[9])));
-            dto.setOrgAddrStreetAddr2Txt(String.valueOf(nullToString(val[10])));
-            dto.setOrgAddrZipCodeTxt(String.valueOf(nullToString(val[11])));
-            dto.setOrgClassCd(String.valueOf(nullToString(val[12])));
-            dto.setOrgCommentTxt(String.valueOf(nullToString(val[13])));
-            dto.setOrgEmailAddressTxt(String.valueOf(nullToString(val[14])));
-            dto.setOrgIdCliaNbrTxt(String.valueOf(nullToString(val[15])));
-            dto.setOrgIdFacilityIdentifierTxt(String.valueOf(nullToString(val[16])));
-            dto.setOrgIdQuickCodeTxt(String.valueOf(nullToString(val[17])));
-            dto.setOrgPhoneCommentTxt(String.valueOf(nullToString(val[18])));
-            dto.setOrgPhoneCountryCodeTxt(String.valueOf(nullToString(val[19])));
-            dto.setOrgPhoneExtensionTxt(val[20] == null ? null : ((Number)val[20]).intValue());
-            dto.setOrgPhoneNbrTxt(String.valueOf(nullToString(val[21])));
-            dto.setOrgRoleCd(String.valueOf(nullToString(val[22])));
-            dto.setOrgUrlAddressTxt(String.valueOf(nullToString(val[23])));
-            return dto;
+            for(Object[] val: results) {
+                EcrMsgTreatmentOrganizationDto dto = new EcrMsgTreatmentOrganizationDto();
+                dto.setOrgLocalId((nullToString(val[0])));
+                dto.setOrgAuthorId((nullToString(val[1])));
+                dto.setOrgEffectiveTime((Timestamp) val[2]);
+                dto.setOrgNameTxt((nullToString(val[3])));
+                dto.setOrgAddrCityTxt((nullToString(val[4])));
+                dto.setOrgAddrCommentTxt((nullToString(val[5])));
+                dto.setOrgAddrCountyCd((nullToString(val[6])));
+                dto.setOrgAddrCountryCd((nullToString(val[7])));
+                dto.setOrgAddrStateCd((nullToString(val[8])));
+                dto.setOrgAddrStreetAddr1Txt((nullToString(val[9])));
+                dto.setOrgAddrStreetAddr2Txt((nullToString(val[10])));
+                dto.setOrgAddrZipCodeTxt((nullToString(val[11])));
+                dto.setOrgClassCd((nullToString(val[12])));
+                dto.setOrgCommentTxt((nullToString(val[13])));
+                dto.setOrgEmailAddressTxt((nullToString(val[14])));
+                dto.setOrgIdCliaNbrTxt((nullToString(val[15])));
+                dto.setOrgIdFacilityIdentifierTxt((nullToString(val[16])));
+                dto.setOrgIdQuickCodeTxt((nullToString(val[17])));
+                dto.setOrgPhoneCommentTxt((nullToString(val[18])));
+                dto.setOrgPhoneCountryCodeTxt((nullToString(val[19])));
+                dto.setOrgPhoneExtensionTxt(nullCheckInt(val[20]));
+                dto.setOrgPhoneNbrTxt((nullToString(val[21])));
+                dto.setOrgRoleCd((nullToString(val[22])));
+                dto.setOrgUrlAddressTxt((nullToString(val[23])));
+                dtos.add(dto);
+            }
+
         }
-        return null;
+        return dtos;
     }
 
+    @Transactional(transactionManager = "nbsTransactionManager")
     public void UpdateMatchEcrRecordForProcessing(Integer containerUid) {
         String queryString = loadSqlFromFile("ecr_msg_container_update_match_record.sql");
         Query query = entityManager.createNativeQuery(queryString);
-        query.setParameter("customValue", containerUid);
+        query.setParameter("MSG_CONTAINER_UID", containerUid);
         query.executeUpdate();
     }
+
 
     private String loadSqlFromFile(String filename) {
         try (InputStream is = getClass().getResourceAsStream("/queries/ecr/" + filename);
@@ -606,6 +700,14 @@ public class EcrMsgQueryRepositoryImpl implements EcrMsgQueryRepository {
     }
 
     public static String nullToString(Object obj) {
-        return obj != null ? String.valueOf(obj) : "";
+        return obj != null ? String.valueOf(obj) : null;
+    }
+
+    private Integer nullCheckInt(Object obj) {
+        if (obj == null) {
+            return null;
+        } else {
+            return ((Number)obj).intValue();
+        }
     }
 }

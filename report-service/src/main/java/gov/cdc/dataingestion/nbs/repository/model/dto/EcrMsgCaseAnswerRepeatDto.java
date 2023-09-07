@@ -7,5 +7,5 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class EcrMsgInterviewProviderDtoDto extends EcrMsgProviderDto {
+public class EcrMsgCaseAnswerRepeatDto extends EcrMsgCaseAnswerDto {
 }
