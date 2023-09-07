@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.rawmessage.controller;
 
+import gov.cdc.dataingestion.nbs.services.EcrMsgQueryService;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -7,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import gov.cdc.dataingestion.share.model.ErrorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,12 +25,16 @@ public class ElrReportsController {
 
     private final RawELRService rawELRService;
 
+    @Autowired
+    private EcrMsgQueryService ecrMsgQueryService;
+
     @Operation(
             summary = "Submit a plain text HL7 message",
             description = "Submit a plain text HL7 message with msgType header",
             tags = { "dataingestion", "elr" })
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<?> save(@RequestBody final String payload, @RequestHeader("msgType") String type) {
+        ecrMsgQueryService.test();
             RawERLDto rawERLDto = new RawERLDto();
             rawERLDto.setType(type);
             rawERLDto.setPayload(payload);
