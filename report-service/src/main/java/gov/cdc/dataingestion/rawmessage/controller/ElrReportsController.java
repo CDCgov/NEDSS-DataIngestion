@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.rawmessage.controller;
 
+import com.google.gson.Gson;
 import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
@@ -31,7 +32,6 @@ public class ElrReportsController {
             tags = { "dataingestion", "elr" })
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<?> save(@RequestBody final String payload, @RequestHeader("msgType") String type) {
-        ecrMsgQueryService.GetSelectedEcrRecord();
             RawERLDto rawERLDto = new RawERLDto();
             rawERLDto.setType(type);
             rawERLDto.setPayload(payload);
@@ -45,5 +45,16 @@ public class ElrReportsController {
     @GetMapping(path = "/{id}")
     public ResponseEntity<RawERLDto> getById(@PathVariable String id) {
         return ResponseEntity.ok(rawELRService.getById(id));
+    }
+
+    @Operation(
+            summary = "TEST ECR COMM")
+    @GetMapping(path = "/test")
+    public ResponseEntity<String> getTestEcrAfterPatch() {
+        Gson gson = new Gson();
+        var result = ecrMsgQueryService.GetSelectedEcrRecord();
+        String jsonString = gson.toJson(result);
+
+        return ResponseEntity.ok(jsonString);
     }
 }
