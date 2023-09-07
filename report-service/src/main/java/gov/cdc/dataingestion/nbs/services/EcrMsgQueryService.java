@@ -14,6 +14,10 @@ public class EcrMsgQueryService {
     }
 
     public void test() {
-        this.ecrMsgQueryRepository.FetchMsgContainerForApplicableEcr();
+        var msgContainer = this.ecrMsgQueryRepository.FetchMsgContainerForApplicableEcr();
+
+        // Do the update LAST
+
+        var a = msgContainer;
     }
 }

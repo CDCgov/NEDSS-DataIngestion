@@ -1,4 +1,4 @@
-package gov.cdc.dataingestion.nbs.repository.model;
+package gov.cdc.dataingestion.nbs.repository.model.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @Getter
 @Setter
-public class EcrMsgProvider {
+public class EcrMsgProviderDto {
     private String prvLocalId;
     private String prvAuthorId;
     private String prvAddrCityTxt;

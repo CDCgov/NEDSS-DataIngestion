@@ -1,16 +1,15 @@
-package gov.cdc.dataingestion.nbs.repository.model;
+package gov.cdc.dataingestion.nbs.repository.model.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Time;
 import java.sql.Timestamp;
 
 @NoArgsConstructor
 @Getter
 @Setter
-public class EcrMsgCase {
+public class EcrMsgCaseDto {
     private String invLocalId;
     private String patLocalId;
     private String invAuthorId;
