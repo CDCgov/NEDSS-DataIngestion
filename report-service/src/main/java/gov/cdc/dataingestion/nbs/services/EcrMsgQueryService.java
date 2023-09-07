@@ -1,12 +1,12 @@
 package gov.cdc.dataingestion.nbs.services;
 
-import gov.cdc.dataingestion.nbs.repository.EcrMsgQueryRepository;
+import gov.cdc.dataingestion.nbs.repository.IEcrMsgQueryRepository;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedCase;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedInterview;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedTreatment;
 import gov.cdc.dataingestion.nbs.repository.model.dto.*;
-import gov.cdc.dataingestion.nbs.services.interfaces.EcrMsgQueryService;
+import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,11 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class EcrMsgQueryServiceImpl implements EcrMsgQueryService {
-    private EcrMsgQueryRepository ecrMsgQueryRepository;
+public class EcrMsgQueryService implements IEcrMsgQueryService {
+    private IEcrMsgQueryRepository ecrMsgQueryRepository;
 
     @Autowired
-    public EcrMsgQueryServiceImpl(EcrMsgQueryRepository ecrMsgQueryRepository) {
+    public EcrMsgQueryService(IEcrMsgQueryRepository ecrMsgQueryRepository) {
         this.ecrMsgQueryRepository = ecrMsgQueryRepository;
     }
 

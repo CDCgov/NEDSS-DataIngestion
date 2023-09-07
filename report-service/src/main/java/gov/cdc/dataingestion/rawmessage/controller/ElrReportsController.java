@@ -1,7 +1,6 @@
 package gov.cdc.dataingestion.rawmessage.controller;
 
-import gov.cdc.dataingestion.nbs.services.EcrMsgQueryServiceImpl;
-import gov.cdc.dataingestion.nbs.services.interfaces.EcrMsgQueryService;
+import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,7 +23,7 @@ public class ElrReportsController {
     private final RawELRService rawELRService;
 
     @Autowired
-    private EcrMsgQueryService ecrMsgQueryService;
+    private IEcrMsgQueryService ecrMsgQueryService;
 
     @Operation(
             summary = "Submit a plain text HL7 message",

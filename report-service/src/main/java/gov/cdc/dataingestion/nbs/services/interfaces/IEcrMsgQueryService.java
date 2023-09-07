@@ -4,6 +4,6 @@ import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import org.springframework.stereotype.Service;
 
 @Service
-public interface EcrMsgQueryService {
+public interface IEcrMsgQueryService {
     EcrSelectedRecord GetSelectedEcrRecord();
 }

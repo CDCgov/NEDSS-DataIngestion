@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface EcrMsgQueryRepository {
+public interface IEcrMsgQueryRepository {
      EcrMsgContainerDto FetchMsgContainerForApplicableEcr();
      List<EcrMsgPatientDto> FetchMsgPatientForApplicableEcr(Integer containerId);
      List<EcrMsgCaseDto> FetchMsgCaseForApplicableEcr(Integer containerId);

@@ -1,14 +1,10 @@
 package gov.cdc.dataingestion.nbs.repository.implementation;
 
-import gov.cdc.dataingestion.nbs.repository.EcrMsgQueryRepository;
+import gov.cdc.dataingestion.nbs.repository.IEcrMsgQueryRepository;
 import gov.cdc.dataingestion.nbs.repository.model.dto.*;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import jakarta.transaction.TransactionManager;
-import org.hibernate.Transaction;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
-public class EcrMsgQueryRepositoryImpl implements EcrMsgQueryRepository {
+public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
     @PersistenceContext(unitName = "nbs")
     private EntityManager entityManager;
 
