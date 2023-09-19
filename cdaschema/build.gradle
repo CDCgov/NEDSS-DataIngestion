@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+}
+sourceCompatibility = '17'
+targetCompatibility = '17'
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    xmlbeans
+}
+
+dependencies {
+    xmlbeans 'org.apache.xmlbeans:xmlbeans:5.1.1'
+    implementation 'org.apache.xmlbeans:xmlbeans:5.1.1'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+            srcDir "${buildDir}/generated-src"
+        }
+    }
+}
+
+task generateXmlBeans(type: JavaExec) {
+    doFirst {
+        mkdir "${buildDir}/libs"
+    }
+    mainClass = "org.apache.xmlbeans.impl.tool.SchemaCompiler"
+    classpath = configurations.xmlbeans
+    args "-out", "${buildDir}/libs/cdaSchema.jar"
+    args "-src", "${buildDir}/generated-src"
+    args "src/main/resources/xsd/cda/config.xsdconfig"
+    args "src/main/resources/xsd/cda/CDA_SDTC.xsd"
+}
+
+compileJava.dependsOn generateXmlBeans
+
+jar {
+    from "${buildDir}/classes/java/main"
+}

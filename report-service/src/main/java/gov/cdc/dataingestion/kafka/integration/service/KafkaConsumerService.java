@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.kafka.integration.service;
 
+
 import ca.uhn.hl7v2.HL7Exception;
 import com.google.gson.Gson;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
