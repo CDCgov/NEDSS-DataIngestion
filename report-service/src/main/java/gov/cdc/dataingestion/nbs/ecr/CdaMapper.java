@@ -7,6 +7,8 @@ import java.math.BigInteger;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class CdaMapper {
 
@@ -23,6 +25,13 @@ public class CdaMapper {
     private String codeSystemName = "LOINC";
 
     public void test(EcrSelectedRecord input) {
+        try {
+            var clinical = ClinicalDocumentDocument1.Factory.newInstance();
+
+        } catch (Exception e) {
+            var error = e;
+            System.out.println(e.getMessage());
+        }
         POCDMT000040ClinicalDocument1 clinicalDocument = POCDMT000040ClinicalDocument1.Factory.newInstance();
 
         clinicalDocument.setRealmCodeArray(0, CS.Factory.newInstance());
@@ -98,6 +107,7 @@ public class CdaMapper {
         clinicalDocument.setConfidentialityCode(CE.Factory.newInstance());
         clinicalDocument.getConfidentialityCode().setCode("N");
         clinicalDocument.getConfidentialityCode().setCodeSystem("2.16.840.1.113883.5.25");
+
         int componentCounter=-1;
         int componentCaseCounter=-1;
         int interviewCounter= 0;
@@ -141,6 +151,98 @@ public class CdaMapper {
             String PAT_PHONE_COUNTRY_CODE_TXT="";
             int patientIdentifier =0;
             int caseInvCounter= -1;
+
+            POCDMT000040RecordTarget[] recordTarget = {POCDMT000040RecordTarget.Factory.newInstance()};
+            clinicalDocument.setRecordTargetArray(recordTarget);
+            if (patient.getPatPrimaryLanguageCd() != null && !patient.getPatPrimaryLanguageCd().isEmpty()) {
+                clinicalDocument.setLanguageCode(CS.Factory.newInstance());
+                clinicalDocument.getLanguageCode().setCode(patient.getPatPrimaryLanguageCd());
+            }
+            if (patient.getPatLocalId() != null && !patient.getPatLocalId().isEmpty()) {
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setExtension(patient.getPatPrimaryLanguageCd());
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setRoot("2.16.840.1.113883.4.1");
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setAssigningAuthorityName("LR");
+                patientIdentifier++;
+            }
+            if (patient.getPatIdMedicalRecordNbrTxt() != null && !patient.getPatIdMedicalRecordNbrTxt().isEmpty()) {
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setExtension(patient.getPatIdMedicalRecordNbrTxt());
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setRoot("2.16.840.1.113883.4.1");
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setAssigningAuthorityName("LR_MRN");
+                patientIdentifier++;
+            }
+            if (patient.getPatIdSsnTxt() != null && !patient.getPatIdSsnTxt().isEmpty()) {
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setExtension(patient.getPatIdSsnTxt());
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setRoot("2.16.840.1.114222.4.5.1");
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setAssigningAuthorityName("SS");
+                patientIdentifier++;
+            }
+            if (patient.getPatAddrStreetAddr1Txt() != null && !patient.getPatAddrStreetAddr1Txt().isEmpty()) {
+                address1 += patient.getPatAddrStreetAddr1Txt();
+            }
+            if (patient.getPatAddrStreetAddr2Txt() != null && !patient.getPatAddrStreetAddr2Txt().isEmpty()) {
+                address2 += patient.getPatAddrStreetAddr2Txt();
+            }
+
+            // PAT_ADDR_CITY_TXT
+            // these need to be reinspect
+            // line 158
+            // PAT_ADDR_COUNTRY_CD
+
+            if (patient.getPatWorkPhoneExtensionTxt() != null) {
+                PAT_WORK_PHONE_EXTENSION_TXT = patient.getPatWorkPhoneExtensionTxt().toString();
+            }
+            if (patient.getPatHomePhoneNbrTxt() != null) {
+                PAT_HOME_PHONE_NBR_TXT = patient.getPatHomePhoneNbrTxt();
+            }
+            if (patient.getPatWorkPhoneNbrTxt() != null) {
+                wpNumber = patient.getPatWorkPhoneNbrTxt();
+            }
+            if (patient.getPatPhoneCountryCodeTxt() != null) {
+                PAT_PHONE_COUNTRY_CODE_TXT = patient.getPatPhoneCountryCodeTxt().toString();
+            }
+            if (patient.getPatCellPhoneNbrTxt() != null) {
+                cellNumber = patient.getPatCellPhoneNbrTxt();
+            }
+            if (patient.getPatNamePrefixCd() != null && !patient.getPatNamePrefixCd().trim().isEmpty()) {
+                PAT_NAME_PREFIX_CD = patient.getPatNamePrefixCd();
+            }
+            if (patient.getPatNameFirstTxt() != null && !patient.getPatNameFirstTxt().trim().isEmpty()) {
+                PAT_NAME_FIRST_TXT = patient.getPatNameFirstTxt();
+            }
+            if (patient.getPatNameMiddleTxt() != null && !patient.getPatNameMiddleTxt().trim().isEmpty()) {
+                PAT_NAME_MIDDLE_TXT = patient.getPatNameMiddleTxt();
+            }
+            if (patient.getPatNameLastTxt() != null && !patient.getPatNameLastTxt().trim().isEmpty()) {
+                PAT_NAME_LAST_TXT = patient.getPatNameLastTxt();
+            }
+            if (patient.getPatNameSuffixCd() != null && !patient.getPatNameSuffixCd().trim().isEmpty()) {
+                PAT_NAME_SUFFIX_CD = patient.getPatNameSuffixCd();
+            }
+            if (patient.getPatNameAliasTxt() != null && !patient.getPatNameAliasTxt().trim().isEmpty()) {
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(1).setUse(new ArrayList<String> (Arrays.asList("P")));
+                //out.recordTarget[0].patientRole.patient.name[1].PN#Grp1[1].given.#PCDATA=value;
+            }
+
+            // PAT_CURRENT_SEX_CD
+            // these need to be reinspect
+            // line 214
+            // PAT_ADDR_CENSUS_TRACT_TXT
+            if (patient.getPatEmailAddressTxt() != null && !patient.getPatEmailAddressTxt().trim().isEmpty()) {
+                PAT_EMAIL_ADDRESS_TXT = patient.getPatEmailAddressTxt();
+            }
+            if (patient.getPatUrlAddressTxt() != null && !patient.getPatUrlAddressTxt().trim().isEmpty()) {
+                PAT_URL_ADDRESS_TXT = patient.getPatUrlAddressTxt();
+            }
+            // PAT_NAME_AS_OF_DT
+            // these need to be reinspect
+            // line 270
+            if (patient.getPatPhoneAsOfDt() != null) {
+                PAT_PHONE_AS_OF_DT = patient.getPatPhoneAsOfDt().toString();
+            }
+
+            // PAT_INFO_AS_OF_DT
+            // these need to be reinspect
+            // line 274
         }
     }
 

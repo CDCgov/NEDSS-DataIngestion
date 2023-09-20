@@ -129,7 +129,7 @@ dependencies {
 		// this mostly needed when testing the app on idea
 		implementation files('libs/hl7-parser-0.0.1-SNAPSHOT.jar')
 	}
-	implementation files('libs/cdaSchema.jar')
+	implementation files('libs/CDA_SDTC.jar')
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

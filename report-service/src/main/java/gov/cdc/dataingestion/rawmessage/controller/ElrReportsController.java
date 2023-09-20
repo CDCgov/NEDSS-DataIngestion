@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.rawmessage.controller;
 
 import com.google.gson.Gson;
+import gov.cdc.dataingestion.nbs.ecr.CdaMapper;
 import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
@@ -53,6 +54,15 @@ public class ElrReportsController {
     public ResponseEntity<String> getTestEcrAfterPatch() {
         Gson gson = new Gson();
         var result = ecrMsgQueryService.GetSelectedEcrRecord();
+
+        CdaMapper mapper = new CdaMapper();
+        try {
+            mapper.test(result);
+
+        } catch (Exception e){
+            var error = e;
+            System.out.println(e.getMessage());
+        }
         String jsonString = gson.toJson(result);
 
         return ResponseEntity.ok(jsonString);
