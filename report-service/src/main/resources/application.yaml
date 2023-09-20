@@ -79,7 +79,7 @@ auth:
   password: ${NBS_AUTH_PASSWORD}
   sign-on-url: https://nbsauthenticator.datateam-cdc-nbs.eqsandbox.com/nbsauth/signon
   token-url: https://nbsauthenticator.datateam-cdc-nbs.eqsandbox.com/nbsauth/token
-  salt-for-algorithm: ${NBS_AUTH_SECRET}
+  roles-url: https://nbsauthenticator.datateam-cdc-nbs.eqsandbox.com/nbsauth/roles
 
 ---
 spring:
@@ -148,5 +148,5 @@ auth:
   password: ${NBS_AUTH_PASSWORD}
   sign-on-url: https://nbsauthenticator.datateam-cdc-nbs.eqsandbox.com/nbsauth/signon
   token-url: https://nbsauthenticator.datateam-cdc-nbs.eqsandbox.com/nbsauth/token
-  salt-for-algorithm: ${NBS_AUTH_SECRET}
+  roles-url: https://nbsauthenticator.datateam-cdc-nbs.eqsandbox.com/nbsauth/roles
 

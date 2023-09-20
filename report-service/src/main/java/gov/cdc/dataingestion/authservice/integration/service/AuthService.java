@@ -1,14 +1,8 @@
 package gov.cdc.dataingestion.authservice.integration.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -22,6 +16,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,9 +24,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.SSLContext;
-import java.security.Key;
+import java.io.IOException;
 import java.util.Base64;
 
 @Service
@@ -51,10 +45,12 @@ public class AuthService {
     @Value("${auth.token-url}")
     private String tokenUrl;
 
-    @Value("${auth.salt-for-algorithm}")
-    private String saltForAlgorithm;
+    @Value("${auth.roles-url}")
+    private String rolesUrl;
 
     private String token;
+    private String refreshToken;
+    private String authRole;
 
     private static final String AUTH_ELR_CLAIM = "ELR Importer";
     private static final String AUTH_ECR_CLAIM = "ECR Importer";
@@ -65,57 +61,33 @@ public class AuthService {
     @PostConstruct
     public void generateAuthTokenDuringStartup() {
         encodedSignOnUrl = getSignOnUrl();
-        generateToken(encodedSignOnUrl);
+        CloseableHttpResponse apiSignOnResponse = getAuthApiResponse(encodedSignOnUrl, "");
+        getTokenFromApiResponse(apiSignOnResponse);
 
-        String authRoleName = getAuthRoleClaim(token);
-        if(authRoleName == null || authRoleName.isEmpty()) {
-            logger.error("Auth roles not defined, nothing to authorize.");
-            return;
-        }
-
-        logger.info("Auth role claim is: " + authRoleName);
-
-        boolean isUserAllowedToLoadElrData = authRoleName.contains(AUTH_ELR_CLAIM);
-        boolean isUserAllowedToLoadEcrData = authRoleName.contains(AUTH_ECR_CLAIM);
-
-        logger.info("Is user allowed to load ELR data: " + isUserAllowedToLoadElrData);
-        logger.info("Is user allowed to load ECR data: " + isUserAllowedToLoadEcrData);
+        CloseableHttpResponse apiRolesResponse = getAuthApiResponse(rolesUrl, token);
+        getAuthRolesFromApiResponse(apiRolesResponse);
     }
 
     // Need to generate token before it's expiry (1 hour) and that is
     // why this method is scheduled every 55 minutes
     @Scheduled(fixedRate = 55*60*1000)
-    public void generateAuthTokenScheduled() {
-        generateToken(tokenUrl);
+    public void refreshAuthTokenScheduled() {
+        CloseableHttpResponse apiRefreshTokenResponse = getAuthApiResponse(tokenUrl, refreshToken);
+        getTokenFromApiResponse(apiRefreshTokenResponse);
+
     }
 
-    private void generateToken(String url) {
+    private CloseableHttpResponse getAuthApiResponse(String url, String token) {
+        CloseableHttpResponse response = null;
         try {
             CloseableHttpClient httpClient = buildHttpClient();
             if(httpClient != null) {
-                CloseableHttpResponse response;
-                if(url.contains("token")) {
-                    HttpGet getRequest = new HttpGet(url);
-                    getRequest.addHeader("Auth-Token", token);
-                    response = httpClient.execute(getRequest);
-                }
-                else {
-                    HttpPost postRequest = new HttpPost(url);
-                    response = httpClient.execute(postRequest);
-                }
-                int statusCode = response.getStatusLine().getStatusCode();
 
-                // TODO: Lookup the right code for the token expiration error.
-                //  Need to create a story to add this code logic in the Auth service
-                if(statusCode == 503) {
-                    logger.info("Token expired. Signing on again...");
-                    generateToken(encodedSignOnUrl);
+                HttpPost postRequest = new HttpPost(url);
+                if(!token.isEmpty() && token.length() > 0) {
+                    postRequest.addHeader("Auth-Token", token);
                 }
-
-                HttpEntity httpEntity = response.getEntity();
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode node = mapper.readTree(EntityUtils.toString(httpEntity));
-                token = node.get("token").asText();
+                response = httpClient.execute(postRequest);
             }
             else {
                 logger.error("Http client returned as null.");
@@ -124,13 +96,60 @@ public class AuthService {
             logger.error("Exception occurred while generating auth token: " + e);
             throw new RuntimeException(e);
         }
+        return response;
+    }
+
+
+    private void getAuthRolesFromApiResponse(CloseableHttpResponse apiRolesResponse) {
+        if(apiRolesResponse != null) {
+            try {
+                HttpEntity httpEntity = apiRolesResponse.getEntity();
+                String responseAuthRolesString = EntityUtils.toString(httpEntity, "UTF-8");
+                JSONObject jsonObj = new JSONObject(responseAuthRolesString);
+                authRole = jsonObj.getString("roles");
+                if(authRole == null || authRole.isEmpty()) {
+                    logger.error("Auth role is not defined, nothing to authorize.");
+                }
+                else {
+                    logger.info("User auth role from the API is: " + authRole);
+
+                    boolean isUserAllowedToLoadElrData = authRole.contains(AUTH_ELR_CLAIM) || authRole.contains("allow_elr_data_loading");
+                    boolean isUserAllowedToLoadEcrData = authRole.contains(AUTH_ECR_CLAIM) || authRole.contains("allow_ecr_data_loading");
+
+                    logger.info("Is user allowed to load ELR data: " + isUserAllowedToLoadElrData);
+                    logger.info("Is user allowed to load ECR data: " + isUserAllowedToLoadEcrData);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Exception occurred while parsing token: " + e);
+            }
+        }
+        else {
+            logger.error("Auth API response is null.");
+        }
+    }
+
+    private void getTokenFromApiResponse(CloseableHttpResponse apiResponse) {
+        if(apiResponse != null) {
+            try {
+                HttpEntity httpEntity = apiResponse.getEntity();
+                String responseTokensString = EntityUtils.toString(httpEntity, "UTF-8");
+                JSONObject jsonObj = new JSONObject(responseTokensString);
+                token = jsonObj.getString("token");
+                refreshToken = jsonObj.getString("refreshToken");
+            } catch (IOException e) {
+                throw new RuntimeException("Exception occurred while generating/refreshing token: " + e);
+            }
+        }
+        else {
+            logger.error("Auth API response is null.");
+        }
     }
 
     private CloseableHttpClient buildHttpClient() {
         CloseableHttpClient httpsClient;
         try {
             // TODO: Fix the certificate issue with the NBS AUth service in AWS
-            //  And change this code as like we are using in Data Ingestion CLI
+            //  and change this code as like we are using in Data Ingestion CLI
             TrustStrategy acceptingTrustStrategy = (cert, authType) -> true;
             SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
             SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext,
@@ -152,18 +171,6 @@ public class AuthService {
             throw new RuntimeException(e);
         }
         return httpsClient;
-    }
-
-    private String getAuthRoleClaim(String token) {
-        Key hmacKey = new SecretKeySpec(saltForAlgorithm.getBytes(), SignatureAlgorithm.HS256.getJcaName());
-        Claims jwtClaims = Jwts.parserBuilder()
-                .setSigningKey(hmacKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        String AUTH_ROLE_CLAIM = "auth_role_nm";
-        return (String) jwtClaims.get(AUTH_ROLE_CLAIM);
     }
 
     private String getSignOnUrl() {
