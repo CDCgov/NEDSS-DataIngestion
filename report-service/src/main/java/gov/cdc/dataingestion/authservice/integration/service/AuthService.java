@@ -26,6 +26,9 @@ import org.springframework.stereotype.Service;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 @Service
@@ -50,18 +53,13 @@ public class AuthService {
 
     private String token;
     private String refreshToken;
-    private String authRole;
-
     private static final String AUTH_ELR_CLAIM = "ELR Importer";
     private static final String AUTH_ECR_CLAIM = "ECR Importer";
-
-    private String encodedSignOnUrl;
 
 
     @PostConstruct
     public void generateAuthTokenDuringStartup() {
-        encodedSignOnUrl = getSignOnUrl();
-        CloseableHttpResponse apiSignOnResponse = getAuthApiResponse(encodedSignOnUrl, "");
+        CloseableHttpResponse apiSignOnResponse = getAuthApiResponse(getSignOnUrl(), "");
         getTokenFromApiResponse(apiSignOnResponse);
 
         CloseableHttpResponse apiRolesResponse = getAuthApiResponse(rolesUrl, token);
@@ -92,8 +90,8 @@ public class AuthService {
             else {
                 logger.error("Http client returned as null.");
             }
-        } catch (Exception e) {
-            logger.error("Exception occurred while generating auth token: " + e);
+        } catch (IOException e) {
+            logger.error("Exception occurred while generating auth token: {}", e.getMessage());
             throw new RuntimeException(e);
         }
         return response;
@@ -106,21 +104,22 @@ public class AuthService {
                 HttpEntity httpEntity = apiRolesResponse.getEntity();
                 String responseAuthRolesString = EntityUtils.toString(httpEntity, "UTF-8");
                 JSONObject jsonObj = new JSONObject(responseAuthRolesString);
-                authRole = jsonObj.getString("roles");
+                String authRole = jsonObj.getString("roles");
                 if(authRole == null || authRole.isEmpty()) {
                     logger.error("Auth role is not defined, nothing to authorize.");
                 }
                 else {
-                    logger.info("User auth role from the API is: " + authRole);
+                    logger.info("User auth role from the API is: {}", authRole);
 
                     boolean isUserAllowedToLoadElrData = authRole.contains(AUTH_ELR_CLAIM) || authRole.contains("allow_elr_data_loading");
                     boolean isUserAllowedToLoadEcrData = authRole.contains(AUTH_ECR_CLAIM) || authRole.contains("allow_ecr_data_loading");
 
-                    logger.info("Is user allowed to load ELR data: " + isUserAllowedToLoadElrData);
-                    logger.info("Is user allowed to load ECR data: " + isUserAllowedToLoadEcrData);
+                    logger.info("Is user allowed to load ELR data: {}", isUserAllowedToLoadElrData);
+                    logger.info("Is user allowed to load ECR data: {}", isUserAllowedToLoadEcrData);
                 }
             } catch (IOException e) {
-                throw new RuntimeException("Exception occurred while parsing token: " + e);
+                logger.error("Exception occurred while parsing token: {}", e.getMessage());
+                throw new RuntimeException(e);
             }
         }
         else {
@@ -137,7 +136,8 @@ public class AuthService {
                 token = jsonObj.getString("token");
                 refreshToken = jsonObj.getString("refreshToken");
             } catch (IOException e) {
-                throw new RuntimeException("Exception occurred while generating/refreshing token: " + e);
+                logger.error("Exception occurred while generating/refreshing token: {}", e.getMessage());
+                throw new RuntimeException(e);
             }
         }
         else {
@@ -147,6 +147,7 @@ public class AuthService {
 
     private CloseableHttpClient buildHttpClient() {
         CloseableHttpClient httpsClient;
+
         try {
             // TODO: Fix the certificate issue with the NBS AUth service in AWS
             //  and change this code as like we are using in Data Ingestion CLI
@@ -166,8 +167,14 @@ public class AuthService {
 
             httpsClient = HttpClients.custom().setSSLSocketFactory(sslsf)
                     .setConnectionManager(connectionManager).build();
-        } catch (Exception e) {
-            logger.error("Exception occurred while building http client: " + e);
+        } catch (NoSuchAlgorithmException e) {
+            logger.error("NoSuchAlgorithmException occurred while building http client: {}", e.getMessage());
+            throw new RuntimeException(e);
+        } catch (KeyManagementException e) {
+            logger.error("KeyManagementException occurred while building http client: {}", e.getMessage());
+            throw new RuntimeException(e);
+        } catch (KeyStoreException e) {
+            logger.error("KeyStoreException occurred while building http client: {}", e.getMessage());
             throw new RuntimeException(e);
         }
         return httpsClient;
@@ -177,8 +184,7 @@ public class AuthService {
         String encodedUsername = new String(Base64.getEncoder().encode(nbsUsername.getBytes()));
         String encodedPassword = new String(Base64.getEncoder().encode(nbsPassword.getBytes()));
 
-        String nbsSignOnEncodedUrl = signOnUrl + "?user=" + encodedUsername + "&password=" + encodedPassword;
-        return nbsSignOnEncodedUrl;
+        return signOnUrl + "?user=" + encodedUsername + "&password=" + encodedPassword;
     }
 
     public String getToken() {
