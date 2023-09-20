@@ -2,6 +2,10 @@ package gov.cdc.dataingestion.nbs.ecr;
 
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.nedss.phdc.cda.*;
+import gov.cdc.nedss.phdc.cda.impl.ClinicalDocumentDocument1Impl;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 
 import java.math.BigInteger;
 import java.time.ZoneId;
@@ -9,6 +13,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class CdaMapper {
 
@@ -24,17 +29,13 @@ public class CdaMapper {
     private String codeSystem = "2.16.840.1.113883.6.1";
     private String codeSystemName = "LOINC";
 
-    public void test(EcrSelectedRecord input) {
-        try {
-            var clinical = ClinicalDocumentDocument1.Factory.newInstance();
+    public void test(EcrSelectedRecord input) throws XmlException {
 
-        } catch (Exception e) {
-            var error = e;
-            System.out.println(e.getMessage());
-        }
+
         POCDMT000040ClinicalDocument1 clinicalDocument = POCDMT000040ClinicalDocument1.Factory.newInstance();
 
-        clinicalDocument.setRealmCodeArray(0, CS.Factory.newInstance());
+        CS[] realmCodeArray = { CS.Factory.newInstance()};
+        clinicalDocument.setRealmCodeArray(realmCodeArray);
         clinicalDocument.getRealmCodeArray(0).setCode(realmCode);
 
         clinicalDocument.setTypeId(POCDMT000040InfrastructureRootTypeId.Factory.newInstance());
@@ -87,6 +88,7 @@ public class CdaMapper {
             dataMigrationStatus = input.getMsgContainer().getDataMigrationStatus();
         }
 
+        clinicalDocument.setCode(CE.Factory.newInstance());
         clinicalDocument.getCode().setCode(code);
         clinicalDocument.getCode().setCodeSystem(codeSystem);
         clinicalDocument.getCode().setCodeSystemName(codeSystemName);
@@ -124,6 +126,7 @@ public class CdaMapper {
         int medicalHistoryCounter=0;
         int GenericBatchEntryCounter=0;
 
+        //region PATIENT
         for(var patient : input.getMsgPatients()) {
             String address1 ="";
             String address2 ="";
@@ -152,30 +155,44 @@ public class CdaMapper {
             int patientIdentifier =0;
             int caseInvCounter= -1;
 
-            POCDMT000040RecordTarget[] recordTarget = {POCDMT000040RecordTarget.Factory.newInstance()};
+            int k = 1;
+            int nameCounter = 1;
+
+            POCDMT000040RecordTarget rtarget= POCDMT000040RecordTarget.Factory.newInstance();
+            POCDMT000040PatientRole patientRole = POCDMT000040PatientRole.Factory.newInstance();
+            rtarget.setPatientRole(patientRole);
+            POCDMT000040RecordTarget[] recordTarget = {rtarget};
             clinicalDocument.setRecordTargetArray(recordTarget);
             if (patient.getPatPrimaryLanguageCd() != null && !patient.getPatPrimaryLanguageCd().isEmpty()) {
                 clinicalDocument.setLanguageCode(CS.Factory.newInstance());
                 clinicalDocument.getLanguageCode().setCode(patient.getPatPrimaryLanguageCd());
             }
+
+            List<II> idArrayList = new ArrayList<II>();
             if (patient.getPatLocalId() != null && !patient.getPatLocalId().isEmpty()) {
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setExtension(patient.getPatPrimaryLanguageCd());
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setRoot("2.16.840.1.113883.4.1");
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setAssigningAuthorityName("LR");
-                patientIdentifier++;
+                II ii = II.Factory.newInstance();
+                ii.setExtension(patient.getPatPrimaryLanguageCd());
+                ii.setRoot("2.16.840.1.113883.4.1");
+                ii.setAssigningAuthorityName("LR");
+                idArrayList.add(ii);
             }
             if (patient.getPatIdMedicalRecordNbrTxt() != null && !patient.getPatIdMedicalRecordNbrTxt().isEmpty()) {
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setExtension(patient.getPatIdMedicalRecordNbrTxt());
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setRoot("2.16.840.1.113883.4.1");
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setAssigningAuthorityName("LR_MRN");
-                patientIdentifier++;
+                II ii = II.Factory.newInstance();
+                ii.setExtension(patient.getPatIdMedicalRecordNbrTxt());
+                ii.setRoot("2.16.840.1.113883.4.1");
+                ii.setAssigningAuthorityName("LR_MRN");
+                idArrayList.add(ii);
             }
             if (patient.getPatIdSsnTxt() != null && !patient.getPatIdSsnTxt().isEmpty()) {
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setExtension(patient.getPatIdSsnTxt());
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setRoot("2.16.840.1.114222.4.5.1");
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setAssigningAuthorityName("SS");
-                patientIdentifier++;
+                II ii = II.Factory.newInstance();
+                ii.setExtension(patient.getPatIdSsnTxt());
+                ii.setRoot("2.16.840.1.114222.4.5.1");
+                ii.setAssigningAuthorityName("SS");
+                idArrayList.add(ii);
             }
+            II[] iiArray = idArrayList.toArray(new II[0]);
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().setIdArray(iiArray);
+
             if (patient.getPatAddrStreetAddr1Txt() != null && !patient.getPatAddrStreetAddr1Txt().isEmpty()) {
                 address1 += patient.getPatAddrStreetAddr1Txt();
             }
@@ -183,11 +200,36 @@ public class CdaMapper {
                 address2 += patient.getPatAddrStreetAddr2Txt();
             }
 
-            // PAT_ADDR_CITY_TXT
-            // these need to be reinspect
-            // line 158
-            // PAT_ADDR_COUNTRY_CD
-
+            AD addr = AD.Factory.newInstance();
+            AdxpCity city = AdxpCity.Factory.newInstance();
+            AdxpCity[] cityArray = {city};
+            addr.setCityArray(cityArray);
+            AD[] addrArray = {addr};
+            if(patient.getPatAddrCityTxt() != null && !patient.getPatAddrCityTxt().isEmpty()) {
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().setAddrArray(addrArray);
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getCityArray(0).set(MapToCData(patient.getPatAddrCityTxt()));
+                // set City here
+                k++;
+            }
+            if(patient.getPatAddrStateCd() != null && !patient.getPatAddrStateCd().isEmpty()) {
+                var state = MapToAddressType(patient.getPatAddrStateCd(), "STATE");
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getStateArray(0).set(MapToCData(state));
+                k++;
+            }
+            if(patient.getPatAddrZipCodeTxt() != null && !patient.getPatAddrZipCodeTxt().isEmpty()) {
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getPostalCodeArray(0).set(MapToCData(patient.getPatAddrZipCodeTxt()));
+                k++;
+            }
+            if(patient.getPatAddrCountyCd() != null && !patient.getPatAddrCountyCd().isEmpty()) {
+                var state = MapToAddressType(patient.getPatAddrCountyCd(), "COUNTY");
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getCountyArray(0).set(MapToCData(state));
+                k++;
+            }
+            if(patient.getPatAddrCountryCd() != null && !patient.getPatAddrCountryCd().isEmpty()) {
+                var state = MapToAddressType(patient.getPatAddrCountryCd(), "COUNTRY");
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getCountryArray(0).set(MapToCData(state));
+                k++;
+            }
             if (patient.getPatWorkPhoneExtensionTxt() != null) {
                 PAT_WORK_PHONE_EXTENSION_TXT = patient.getPatWorkPhoneExtensionTxt().toString();
             }
@@ -219,10 +261,14 @@ public class CdaMapper {
                 PAT_NAME_SUFFIX_CD = patient.getPatNameSuffixCd();
             }
             if (patient.getPatNameAliasTxt() != null && !patient.getPatNameAliasTxt().trim().isEmpty()) {
+                // ORIG: 211
                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(1).setUse(new ArrayList<String> (Arrays.asList("P")));
-                //out.recordTarget[0].patientRole.patient.name[1].PN#Grp1[1].given.#PCDATA=value;
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(1).getGivenArray(0).set(MapToCData(patient.getPatNameAliasTxt()));
             }
 
+            if(patient.getPatCurrentSexCd() != null && !patient.getPatCurrentSexCd().isEmpty()) {
+                String questionCode = MapToQuestionId(patient.getPatCurrentSexCd());
+            }
             // PAT_CURRENT_SEX_CD
             // these need to be reinspect
             // line 214
@@ -243,7 +289,140 @@ public class CdaMapper {
             // PAT_INFO_AS_OF_DT
             // these need to be reinspect
             // line 274
+
+
+            if(!PAT_NAME_PREFIX_CD.isEmpty()) {
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getPrefixArray(0).set(MapToCData(PAT_NAME_PREFIX_CD));
+                nameCounter++;
+            }
+            if(!PAT_NAME_FIRST_TXT.isEmpty()) {
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getGivenArray(0).set(MapToCData(PAT_NAME_PREFIX_CD));
+                nameCounter++;
+            }
+            if(!PAT_NAME_MIDDLE_TXT.isEmpty()) {
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getGivenArray(0).set(MapToCData(PAT_NAME_PREFIX_CD));
+                nameCounter++;
+            }
+            if(!PAT_NAME_LAST_TXT.isEmpty()) {
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getFamilyArray(0).set(MapToCData(PAT_NAME_PREFIX_CD));
+                nameCounter++;
+            }
+            if(!PAT_NAME_SUFFIX_CD.isEmpty()) {
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getSuffixArray(0).set(MapToCData(PAT_NAME_PREFIX_CD));
+                nameCounter++;
+            }
+
+            // PAT_HOME_PHONE_NBR_TXT
+            // line 352
+            // line 412
+
+            if(!address1.isEmpty()) {
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getStreetAddressLineArray(0).set(MapToCData(address1));
+            }
+
+            if(!address2.isEmpty()) {
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getStreetAddressLineArray(0).set(MapToCData(address2));
+            }
+
         }
+        //endregion
+
+        if(!input.getMsgCases().isEmpty()) {
+            if (componentCounter < 0) {
+                componentCounter++;
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(componentCounter).getSection().getId().setRoot("2.16.840.1.113883.19");
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(componentCounter).getSection().getId().setExtension(inv168);
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(componentCounter).getSection().getId().setAssigningAuthorityName("LR");
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(componentCounter).getSection().getCode().setCode("55752-0");
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(componentCounter).getSection().getCode().setCodeSystem("2.16.840.1.113883.6.1");
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(componentCounter).getSection().getCode().setCodeSystemName("LOINC");
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(componentCounter).getSection().getCode().setDisplayName("Clinical Information");
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(componentCounter).getSection().getTitle().set(MapToCData("CLINICAL INFORMATION"));
+            }
+            // MAP TO CASE code line 438
+        }
+
+        if(!input.getMsgXmlAnswers().isEmpty()) {
+            // 444
+        }
+
+        if(!input.getMsgProviders().isEmpty()) {
+            // 449
+        }
+
+        if(!input.getMsgOrganizations().isEmpty()) {
+            // 474
+        }
+
+        if(!input.getMsgPlaces().isEmpty()) {
+            // 498
+        }
+
+        if(!input.getMsgInterviews().isEmpty()) {
+            // 523
+        }
+
+        if(!input.getMsgTreatments().isEmpty()) {
+            // 543
+        }
+
+
+        XmlOptions options = new XmlOptions();
+        options.setSavePrettyPrint();
+        options.setSavePrettyPrintIndent(4);  // Set indentation
+
+        // Use a default namespace instead of a prefixed one (like urn:)
+        options.setUseDefaultNamespace();
+
+        // Set to always use full tags instead of self-closing tags
+        options.setSaveNoXmlDecl();
+        options.setSaveOuter();
+
+        String xmlOutput = clinicalDocument.xmlText(options);
+        System.out.println(xmlOutput);
+    }
+
+    private String MapToAddressType(String data, String questionCode) {
+        String output = "";
+        String code="";
+        String toDisplayName="";
+        String codeSystemeDescTxt="";
+        String codeSystem="";
+        String codeSystemName="";
+        String displayName="";
+        String transCodeSystem="";
+        String transCode="";
+        String transCodeSystemName="";
+        String transDisplayName="";
+
+        // Mapping To Code Anwser goes here, may have to call out to RhapsodyAnswer table
+
+        if (!code.isEmpty()) {
+            output = code;
+        }
+
+        if (!displayName.isEmpty()) {
+            output = output + "^" + displayName;
+        }
+
+        if (!codeSystemName.isEmpty()) {
+            output = output + "^" + codeSystemName;
+        }
+
+
+        return output;
+
+    }
+
+    private String MapToQuestionId(String data) {
+        // Rhapsody look up
+        return "";
+    }
+
+    private XmlObject MapToCData(String data) throws XmlException {
+        String xmlTemplate = "<to-be-remove><![CDATA[REPLACE_STRING]]></to-be-remove>";
+        String updatedXML = xmlTemplate.replace("REPLACE_STRING", data);
+        return XmlObject.Factory.parse(updatedXML);
     }
 
 
