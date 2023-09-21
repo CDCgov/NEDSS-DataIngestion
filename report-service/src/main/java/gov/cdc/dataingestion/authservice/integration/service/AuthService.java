@@ -52,10 +52,13 @@ public class AuthService {
     @Value("${auth.roles-url}")
     private String rolesUrl;
 
-    private CloseableHttpClient httpsClient;
+    CloseableHttpClient httpsClient;
 
-    private String token;
-    private String refreshToken;
+    String token;
+    String refreshToken;
+
+    boolean isUserAllowedToLoadElrData;
+    boolean isUserAllowedToLoadEcrData;
     private static final String AUTH_ELR_CLAIM = "ELR Importer";
     private static final String AUTH_ECR_CLAIM = "ECR Importer";
 
@@ -79,11 +82,10 @@ public class AuthService {
 
     }
 
-    private CloseableHttpResponse getAuthApiResponse(CloseableHttpClient httpClient, String url, String token) throws DIAuthenticationException {
+    public CloseableHttpResponse getAuthApiResponse(CloseableHttpClient httpClient, String url, String token) throws DIAuthenticationException {
         CloseableHttpResponse response = null;
         try {
             if(httpClient != null) {
-
                 HttpPost postRequest = new HttpPost(url);
                 if(!token.isEmpty() && token.length() > 0) {
                     postRequest.addHeader("Auth-Token", token);
@@ -100,7 +102,7 @@ public class AuthService {
     }
 
 
-    private void getAuthRolesFromApiResponse(CloseableHttpResponse apiRolesResponse) throws DIAuthenticationException {
+    public void getAuthRolesFromApiResponse(CloseableHttpResponse apiRolesResponse) throws DIAuthenticationException {
         if(apiRolesResponse != null) {
             try {
                 HttpEntity httpEntity = apiRolesResponse.getEntity();
@@ -111,11 +113,8 @@ public class AuthService {
                     logger.error("Auth role is not defined, nothing to authorize.");
                 }
                 else {
-                    logger.debug("User auth role from the API is: {}", authRole);
-
                     boolean isUserAllowedToLoadElrData = authRole.contains(AUTH_ELR_CLAIM) || authRole.contains("allow_elr_data_loading");
                     boolean isUserAllowedToLoadEcrData = authRole.contains(AUTH_ECR_CLAIM) || authRole.contains("allow_ecr_data_loading");
-
                     logger.debug("Is user allowed to load ELR data: {}", isUserAllowedToLoadElrData);
                     logger.debug("Is user allowed to load ECR data: {}", isUserAllowedToLoadEcrData);
                 }
@@ -128,7 +127,7 @@ public class AuthService {
         }
     }
 
-    private void getTokenFromApiResponse(CloseableHttpResponse apiResponse) throws DIAuthenticationException {
+    public void getTokenFromApiResponse(CloseableHttpResponse apiResponse) throws DIAuthenticationException {
         if(apiResponse != null) {
             try {
                 HttpEntity httpEntity = apiResponse.getEntity();
@@ -145,7 +144,7 @@ public class AuthService {
         }
     }
 
-    private CloseableHttpClient buildHttpClient() throws DIAuthenticationException {
+    public CloseableHttpClient buildHttpClient() throws DIAuthenticationException {
         try {
             // TODO: Fix the certificate issue with the NBS AUth service in AWS
             //  and change this code as like we are using in Data Ingestion CLI
@@ -175,7 +174,7 @@ public class AuthService {
         return httpsClient;
     }
 
-    private String getSignOnUrl() {
+    public String getSignOnUrl() {
         String encodedUsername = new String(Base64.getEncoder().encode(nbsUsername.getBytes()));
         String encodedPassword = new String(Base64.getEncoder().encode(nbsPassword.getBytes()));
 
