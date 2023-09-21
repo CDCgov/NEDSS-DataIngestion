@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.authservice.integration.service;
 
+import gov.cdc.dataingestion.exception.DIAuthenticationException;
 import jakarta.annotation.PostConstruct;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -51,6 +52,8 @@ public class AuthService {
     @Value("${auth.roles-url}")
     private String rolesUrl;
 
+    private CloseableHttpClient httpsClient;
+
     private String token;
     private String refreshToken;
     private static final String AUTH_ELR_CLAIM = "ELR Importer";
@@ -58,27 +61,27 @@ public class AuthService {
 
 
     @PostConstruct
-    public void generateAuthTokenDuringStartup() {
-        CloseableHttpResponse apiSignOnResponse = getAuthApiResponse(getSignOnUrl(), "");
+    public void generateAuthTokenDuringStartup() throws DIAuthenticationException {
+        httpsClient = buildHttpClient();
+        CloseableHttpResponse apiSignOnResponse = getAuthApiResponse(httpsClient, getSignOnUrl(), "");
         getTokenFromApiResponse(apiSignOnResponse);
 
-        CloseableHttpResponse apiRolesResponse = getAuthApiResponse(rolesUrl, token);
+        CloseableHttpResponse apiRolesResponse = getAuthApiResponse(httpsClient, rolesUrl, token);
         getAuthRolesFromApiResponse(apiRolesResponse);
     }
 
     // Need to generate token before it's expiry (1 hour) and that is
     // why this method is scheduled every 55 minutes
     @Scheduled(fixedRate = 55*60*1000)
-    public void refreshAuthTokenScheduled() {
-        CloseableHttpResponse apiRefreshTokenResponse = getAuthApiResponse(tokenUrl, refreshToken);
+    public void refreshAuthTokenScheduled() throws DIAuthenticationException {
+        CloseableHttpResponse apiRefreshTokenResponse = getAuthApiResponse(httpsClient, tokenUrl, refreshToken);
         getTokenFromApiResponse(apiRefreshTokenResponse);
 
     }
 
-    private CloseableHttpResponse getAuthApiResponse(String url, String token) {
+    private CloseableHttpResponse getAuthApiResponse(CloseableHttpClient httpClient, String url, String token) throws DIAuthenticationException {
         CloseableHttpResponse response = null;
         try {
-            CloseableHttpClient httpClient = buildHttpClient();
             if(httpClient != null) {
 
                 HttpPost postRequest = new HttpPost(url);
@@ -91,35 +94,33 @@ public class AuthService {
                 logger.error("Http client returned as null.");
             }
         } catch (IOException e) {
-            logger.error("Exception occurred while generating auth token: {}", e.getMessage());
-            throw new RuntimeException(e);
+            throw new DIAuthenticationException("Exception occurred while generating auth token: " + e.getMessage());
         }
         return response;
     }
 
 
-    private void getAuthRolesFromApiResponse(CloseableHttpResponse apiRolesResponse) {
+    private void getAuthRolesFromApiResponse(CloseableHttpResponse apiRolesResponse) throws DIAuthenticationException {
         if(apiRolesResponse != null) {
             try {
                 HttpEntity httpEntity = apiRolesResponse.getEntity();
                 String responseAuthRolesString = EntityUtils.toString(httpEntity, "UTF-8");
                 JSONObject jsonObj = new JSONObject(responseAuthRolesString);
-                String authRole = jsonObj.getString("roles");
+                String authRole = jsonObj.optString("roles", "");
                 if(authRole == null || authRole.isEmpty()) {
                     logger.error("Auth role is not defined, nothing to authorize.");
                 }
                 else {
-                    logger.info("User auth role from the API is: {}", authRole);
+                    logger.debug("User auth role from the API is: {}", authRole);
 
                     boolean isUserAllowedToLoadElrData = authRole.contains(AUTH_ELR_CLAIM) || authRole.contains("allow_elr_data_loading");
                     boolean isUserAllowedToLoadEcrData = authRole.contains(AUTH_ECR_CLAIM) || authRole.contains("allow_ecr_data_loading");
 
-                    logger.info("Is user allowed to load ELR data: {}", isUserAllowedToLoadElrData);
-                    logger.info("Is user allowed to load ECR data: {}", isUserAllowedToLoadEcrData);
+                    logger.debug("Is user allowed to load ELR data: {}", isUserAllowedToLoadElrData);
+                    logger.debug("Is user allowed to load ECR data: {}", isUserAllowedToLoadEcrData);
                 }
             } catch (IOException e) {
-                logger.error("Exception occurred while parsing token: {}", e.getMessage());
-                throw new RuntimeException(e);
+                throw new DIAuthenticationException("Exception occurred while parsing token: " + e.getMessage());
             }
         }
         else {
@@ -127,17 +128,16 @@ public class AuthService {
         }
     }
 
-    private void getTokenFromApiResponse(CloseableHttpResponse apiResponse) {
+    private void getTokenFromApiResponse(CloseableHttpResponse apiResponse) throws DIAuthenticationException {
         if(apiResponse != null) {
             try {
                 HttpEntity httpEntity = apiResponse.getEntity();
                 String responseTokensString = EntityUtils.toString(httpEntity, "UTF-8");
                 JSONObject jsonObj = new JSONObject(responseTokensString);
-                token = jsonObj.getString("token");
-                refreshToken = jsonObj.getString("refreshToken");
+                token = jsonObj.optString("token", "");
+                refreshToken = jsonObj.optString("refreshToken", "");
             } catch (IOException e) {
-                logger.error("Exception occurred while generating/refreshing token: {}", e.getMessage());
-                throw new RuntimeException(e);
+                throw new DIAuthenticationException("Exception occurred while generating/refreshing token: " + e.getMessage());
             }
         }
         else {
@@ -145,9 +145,7 @@ public class AuthService {
         }
     }
 
-    private CloseableHttpClient buildHttpClient() {
-        CloseableHttpClient httpsClient;
-
+    private CloseableHttpClient buildHttpClient() throws DIAuthenticationException {
         try {
             // TODO: Fix the certificate issue with the NBS AUth service in AWS
             //  and change this code as like we are using in Data Ingestion CLI
@@ -168,14 +166,11 @@ public class AuthService {
             httpsClient = HttpClients.custom().setSSLSocketFactory(sslsf)
                     .setConnectionManager(connectionManager).build();
         } catch (NoSuchAlgorithmException e) {
-            logger.error("NoSuchAlgorithmException occurred while building http client: {}", e.getMessage());
-            throw new RuntimeException(e);
+            throw new DIAuthenticationException("NoSuchAlgorithmException occurred while building http client: " + e.getMessage());
         } catch (KeyManagementException e) {
-            logger.error("KeyManagementException occurred while building http client: {}", e.getMessage());
-            throw new RuntimeException(e);
+            throw new DIAuthenticationException("KeyManagementException occurred while building http client: " + e.getMessage());
         } catch (KeyStoreException e) {
-            logger.error("KeyStoreException occurred while building http client: {}", e.getMessage());
-            throw new RuntimeException(e);
+            throw new DIAuthenticationException("KeyStoreException occurred while building http client: " + e.getMessage());
         }
         return httpsClient;
     }
