@@ -113,8 +113,8 @@ public class AuthService {
                     logger.error("Auth role is not defined, nothing to authorize.");
                 }
                 else {
-                    boolean isUserAllowedToLoadElrData = authRole.contains(AUTH_ELR_CLAIM) || authRole.contains("allow_elr_data_loading");
-                    boolean isUserAllowedToLoadEcrData = authRole.contains(AUTH_ECR_CLAIM) || authRole.contains("allow_ecr_data_loading");
+                    isUserAllowedToLoadElrData = authRole.contains(AUTH_ELR_CLAIM) || authRole.contains("allow_elr_data_loading");
+                    isUserAllowedToLoadEcrData = authRole.contains(AUTH_ECR_CLAIM) || authRole.contains("allow_ecr_data_loading");
                     logger.debug("Is user allowed to load ELR data: {}", isUserAllowedToLoadElrData);
                     logger.debug("Is user allowed to load ECR data: {}", isUserAllowedToLoadEcrData);
                 }
