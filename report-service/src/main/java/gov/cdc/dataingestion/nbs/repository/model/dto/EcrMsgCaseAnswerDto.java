@@ -8,6 +8,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EcrMsgCaseAnswerDto {
+    // NEW
+    private String questionGroupSeqNbr;
+    private String answerGroupSeqNbr;
+    private String seqNbr;
+    private String dataType;
+
     private String questionIdentifier;
     private Integer msgContainerUid;
     private String msgEventId;

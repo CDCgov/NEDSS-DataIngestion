@@ -16,4 +16,5 @@ public class EcrMsgContainerDto {
     private String ongoingCase;
     private Integer versionCtrNbr;
     private Integer dataMigrationStatus;
+
 }

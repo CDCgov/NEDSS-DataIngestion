@@ -37,7 +37,6 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
             ecrMsgContainerDto.setOngoingCase((nullToString(val[4])));
             ecrMsgContainerDto.setVersionCtrNbr(nullCheckInt(val[5]));
             ecrMsgContainerDto.setDataMigrationStatus(nullCheckInt(val[6]));
-
             return ecrMsgContainerDto;
 
         }

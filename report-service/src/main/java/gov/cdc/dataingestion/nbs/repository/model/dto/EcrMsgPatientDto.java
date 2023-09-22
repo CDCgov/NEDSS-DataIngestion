@@ -4,12 +4,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.lang.reflect.Field;
 import java.sql.Timestamp;
 
-@NoArgsConstructor
 @Getter
 @Setter
 public class EcrMsgPatientDto {
+    public EcrMsgPatientDto() {
+        this.numberOfField = countFields();
+    }
+
     private Integer msgContainerUid;
     private String patLocalId;
     private String patAuthorId;
@@ -64,5 +68,19 @@ public class EcrMsgPatientDto {
     private String patUrlAddressTxt;
     private String patWorkPhoneNbrTxt;
     private Integer patWorkPhoneExtensionTxt;
+
+    private Integer numberOfField;
+
+    private int countFields() {
+        Field[] fields = this.getClass().getDeclaredFields();
+        int count = 0;
+        for (Field field : fields) {
+            // Exclude the 'numberOfVariable' field
+            if (!"numberOfVariable".equals(field.getName())) {
+                count++;
+            }
+        }
+        return count;
+    }
 
 }
