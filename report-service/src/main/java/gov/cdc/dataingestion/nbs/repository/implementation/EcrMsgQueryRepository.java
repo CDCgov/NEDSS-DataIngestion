@@ -109,6 +109,8 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
                 dto.setPatWorkPhoneNbrTxt((nullToString(val[52])));
                 dto.setPatWorkPhoneExtensionTxt(nullCheckInt(val[53]));
                 dtoList.add(dto);
+
+
             }
         }
         return dtoList;
@@ -178,6 +180,8 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
                 dto.setInvStateId((nullToString(val[50])));
                 dto.setInvStatusCd((nullToString(val[51])));
                 dto.setInvTransmissionModeCd((nullToString(val[52])));
+                dto.initDataMap();
+
                 dtos.add(dto);
             }
         }
@@ -237,6 +241,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
                 dto.setAnsToDisplayNm((nullToString(val[15])));
                 dto.setCodeTranslationRequired((nullToString(val[16])));
                 dto.setAnsToCodeSystemDescTxt((nullToString(val[17])));
+                dto.initDataMap();
                 dtos.add(dto);
             }
         }
@@ -333,6 +338,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
                 dto.setPrvPhoneNbrTxt((nullToString(val[26])));
                 dto.setPrvRoleCd((nullToString(val[27])));
                 dto.setPrvUrlAddressTxt((nullToString(val[28])));
+                dto.initDataMap();
                 dtos.add(dto);
             }
         }
@@ -373,6 +379,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
                 dto.setOrgPhoneNbrTxt((nullToString(val[21])));
                 dto.setOrgRoleCd((nullToString(val[22])));
                 dto.setOrgUrlAddressTxt((nullToString(val[23])));
+                dto.initDataMap();
                 dtos.add(dto);
             }
         }
@@ -413,6 +420,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
                 dto.setPlaPhoneCommentTxt((nullToString(val[22])));
                 dto.setPlaTypeCd((nullToString(val[23])));
                 dto.setPlaUrlAddressTxt((nullToString(val[24])));
+                dto.initDataMap();
                 dtos.add(dto);
             }
         }
@@ -438,6 +446,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
                 dto.setIxsIntervieweeRoleCd((nullToString(val[7])));
                 dto.setIxsInterviewTypeCd((nullToString(val[8])));
                 dto.setIxsStatusCd((nullToString(val[9])));
+                dto.initDataMap();
                 dtos.add(dto);
             }
 
@@ -584,6 +593,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
                 dto.setTrtFrequencyAmtCd((nullToString(val[11])));
                 dto.setTrtRouteCd((nullToString(val[12])));
                 dto.setTrtTreatmentDt((Timestamp) val[13]);
+                dto.initDataMap();
                 dtos.add(dto);
             }
 

@@ -19,4 +19,6 @@ public interface IEcrLookUpRepository {
 
     QuestionIdentifierMapDto FetchQuestionIdentifierMapByCriteriaByCriteria(String columNm, String value);
 
+
+
 }
