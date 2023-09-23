@@ -860,7 +860,7 @@ public class CdaMapper {
         //endregion
 
         /**
-         * CASE - TEST NEEDED
+         * CASE - 1st PHASE TESTED
          * **/
         if(!input.getMsgCases().isEmpty()) {
 
@@ -916,94 +916,178 @@ public class CdaMapper {
             }
 
         }
-        var t = printXmlForTesting(clinicalDocument);
 
 
         /**
-         * XML ANSWER - TEST NEEDED
+         * XML ANSWER - PHASE 1 Test Done
          * */
         if(!input.getMsgXmlAnswers().isEmpty()) {
             for(int i = 0; i < input.getMsgXmlAnswers().size(); i++) {
                 componentCounter++;
-                POCDMT000040Component3 out = clinicalDocument.getComponent().getStructuredBody().getComponentArray(componentCounter);
+                int c = 0;
+                if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
+                    clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+                } else {
+                    c = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length;
+                    clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+                }
+                POCDMT000040Component3 out = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c);
                 var mappedData = MapToExtendedData(input.getMsgXmlAnswers().get(i), out);
-                clinicalDocument.getComponent().getStructuredBody().setComponentArray(componentCounter, mappedData);
+                clinicalDocument.getComponent().getStructuredBody().setComponentArray(c, mappedData);
             }
 
         }
 
         /**
-         * PROVIDER -- TEST NEEDED
+         * PROVIDER -- PHASE 1 TESTED
          * **/
         if(!input.getMsgProviders().isEmpty()) {
             // 449
            for(int i = 0; i < input.getMsgProviders().size(); i++) {
-                if (input.getMsgProviders().get(i).getPrvAuthorId().equalsIgnoreCase(inv168)) {
+                if (input.getMsgProviders().get(i).getPrvAuthorId() != null
+                        && input.getMsgProviders().get(i).getPrvAuthorId().equalsIgnoreCase(inv168)) {
                     // ignore
                 }
                 else {
+                    int c = 0;
+                    if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
+                        clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+                    } else {
+                        c = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length;
+                        clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+                    }
+                    if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).addNewSection();
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
+                    } else {
+                        if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
+                            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
+                        }
+                    }
+
                     if (performerComponentCounter < 1) {
                         componentCounter++;
                         performerComponentCounter = componentCounter;
 
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getCode().setCode("123-4567");
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getCode().setCodeSystem("Local-codesystem-oid");
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getCode().setCodeSystemName("LocalSystem");
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getCode().setDisplayName("Interested Parties Section");
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getCode().set(MapToCData("INTERESTED PARTIES SECTION"));
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCode("123-4567");
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem("Local-codesystem-oid");
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName("LocalSystem");
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setDisplayName("Interested Parties Section");
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().set(MapToCData("INTERESTED PARTIES SECTION"));
                     }
 
-                    performerSectionCounter = clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray().length;
+                    performerSectionCounter = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray().length;
+
+                    if ( clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray().length == 0) {
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewEntry();
+                        performerSectionCounter = 0;
+                    }
+                    else {
+                        performerSectionCounter = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray().length;
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewEntry();
+                    }
+
+
+                    if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct() == null) {
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).addNewAct();
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().addNewParticipant();
+                    } else {
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().addNewParticipant();
+                    }
                     // CHECK MapToPSN
-                    POCDMT000040Participant2 out = clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().getParticipantArray(0);
+                    POCDMT000040Participant2 out = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getParticipantArray(0);
                     POCDMT000040Participant2 output = MapToPSN(
                             input.getMsgProviders().get(i),
                             out
                     );
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().setParticipantArray(0, output);
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().setParticipantArray(0, output);
 
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).setTypeCode(XActRelationshipEntry.COMP);
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().setClassCode(XActClassDocumentEntryAct.ACT);
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().setMoodCode(XDocumentActMood.EVN);
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setCode("PSN");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystem("Local-codesystem-oid");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystemName("LocalSystem");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setDisplayName("Interested Party");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).setTypeCode(XActRelationshipEntry.COMP);
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().setClassCode(XActClassDocumentEntryAct.ACT);
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().setMoodCode(XDocumentActMood.EVN);
+
+                    if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getCode() == null){
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().addNewCode();
+                    }
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setCode("PSN");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystem("Local-codesystem-oid");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystemName("LocalSystem");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setDisplayName("Interested Party");
 
                 }
            }
         }
 
+
         /**
-         * ORGANIZATION -- TEST NEEDED
+         * ORGANIZATION -- PHASE 1 TESTED
          * **/
         if(!input.getMsgOrganizations().isEmpty()) {
             // 474
             for(int i = 0; i < input.getMsgOrganizations().size(); i++) {
+
+                int c = 0;
+                if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
+                    clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+                } else {
+                    c = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length;
+                    clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+                }
+                if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).addNewSection();
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
+                } else {
+                    if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
+                    }
+                }
+
                 if (performerComponentCounter < 1) {
                     componentCounter++;
                     performerComponentCounter = componentCounter;
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getCode().setCode("123-4567");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getCode().setCodeSystem("Local-codesystem-oid");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getCode().setCodeSystemName("LocalSystem");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getCode().setDisplayName("Interested Parties Section");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getCode().set(MapToCData("INTERESTED PARTIES SECTION"));
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCode("123-4567");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem("Local-codesystem-oid");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName("LocalSystem");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setDisplayName("Interested Parties Section");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().set(MapToCData("INTERESTED PARTIES SECTION"));
 
 
                 }
-                performerSectionCounter = clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray().length;
-                // CHECK MapToORG
-                POCDMT000040Participant2 out = clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().getParticipantArray(0);
-                POCDMT000040Participant2 output = MapToORG(input.getMsgOrganizations().get(i), out);
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().setParticipantArray(0, output);
+                performerSectionCounter = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray().length;
+                if ( clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray().length == 0) {
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewEntry();
+                    performerSectionCounter = 0;
+                }
+                else {
+                    performerSectionCounter = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray().length;
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewEntry();
+                }
 
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).setTypeCode(XActRelationshipEntry.COMP);
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().setClassCode(XActClassDocumentEntryAct.ACT);
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().setMoodCode(XDocumentActMood.EVN);
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setCode("ORG");
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystem("Local-codesystem-oid");
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystemName("LocalSystem");
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setDisplayName("Interested Party");
+
+                if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct() == null) {
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).addNewAct();
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().addNewParticipant();
+                } else {
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().addNewParticipant();
+                }
+
+                // CHECK MapToORG
+                POCDMT000040Participant2 out = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getParticipantArray(0);
+                POCDMT000040Participant2 output = MapToORG(input.getMsgOrganizations().get(i), out);
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().setParticipantArray(0, output);
+
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).setTypeCode(XActRelationshipEntry.COMP);
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().setClassCode(XActClassDocumentEntryAct.ACT);
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().setMoodCode(XDocumentActMood.EVN);
+
+                if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getCode() == null){
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().addNewCode();
+                }
+
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setCode("ORG");
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystem("Local-codesystem-oid");
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystemName("LocalSystem");
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setDisplayName("Interested Party");
 
             }
         }
@@ -1014,33 +1098,76 @@ public class CdaMapper {
         if(!input.getMsgPlaces().isEmpty()) {
             // 498
             for(int i = 0; i < input.getMsgPlaces().size(); i++) {
+
+                int c = 0;
+                if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
+                    clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+                } else {
+                    c = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length;
+                    clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+                }
+                if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).addNewSection();
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
+                } else {
+                    if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
+                    }
+                }
+
+
                 if (performerComponentCounter < 1) {
                     componentCounter++;
                     performerComponentCounter = componentCounter;
 
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getCode().setCode("123-4567");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getCode().setCodeSystem("Local-codesystem-oid");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getCode().setCodeSystemName("LocalSystem");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getCode().setDisplayName("Interested Parties Section");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getCode().set(MapToCData("INTERESTED PARTIES SECTION"));
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCode("123-4567");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem("Local-codesystem-oid");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName("LocalSystem");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setDisplayName("Interested Parties Section");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().set(MapToCData("INTERESTED PARTIES SECTION"));
                 }
 
-                performerSectionCounter = clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray().length;
-                // CHECK MapToPlace
-                POCDMT000040Participant2 out = clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().getParticipantArray(0);
-                POCDMT000040Participant2 output = MapToPlace(input.getMsgPlaces().get(i), out);
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().setParticipantArray(0, output);
+                performerSectionCounter = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray().length;
 
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).setTypeCode(XActRelationshipEntry.COMP);
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().setClassCode(XActClassDocumentEntryAct.ACT);
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().setMoodCode(XDocumentActMood.EVN);
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setCode("PLC");
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystem("Local-codesystem-oid");
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystemName("LocalSystem");
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray(performerComponentCounter).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setDisplayName("Interested Party");
+                if ( clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray().length == 0) {
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewEntry();
+                    performerSectionCounter = 0;
+                }
+                else {
+                    performerSectionCounter = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray().length;
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewEntry();
+                }
+
+
+                if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct() == null) {
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).addNewAct();
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().addNewParticipant();
+                } else {
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().addNewParticipant();
+                }
+
+                // CHECK MapToPlace
+                POCDMT000040Participant2 out = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getParticipantArray(0);
+                POCDMT000040Participant2 output = MapToPlace(input.getMsgPlaces().get(i), out);
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().setParticipantArray(0, output);
+
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).setTypeCode(XActRelationshipEntry.COMP);
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().setClassCode(XActClassDocumentEntryAct.ACT);
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().setMoodCode(XDocumentActMood.EVN);
+
+                if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getCode() == null){
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().addNewCode();
+                }
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setCode("PLC");
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystem("Local-codesystem-oid");
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystemName("LocalSystem");
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getCode().setDisplayName("Interested Party");
 
             }
         }
+
+        var t = printXmlForTesting(clinicalDocument);
+
 
         /**
          * INTERVIEW -- TEST NEEDED
@@ -1048,22 +1175,40 @@ public class CdaMapper {
         if(!input.getMsgInterviews().isEmpty()) {
             // 523
             for(int i = 0; i < input.getMsgInterviews().size(); i++) {
+
+                int c = 0;
+                if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
+                    clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+                } else {
+                    c = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length;
+                    clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+                }
+                if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).addNewSection();
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
+                } else {
+                    if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
+                    }
+                }
+
+
                 if (interviewCounter < 1) {
                     interviewCounter = componentCounter + 1;
                     componentCounter++;
 
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(interviewCounter).getSection().getCode().setCode("IXS");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(interviewCounter).getSection().getCode().setCodeSystem("Local-codesystem-oid");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(interviewCounter).getSection().getCode().setCodeSystemName("LocalSystem");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(interviewCounter).getSection().getCode().setDisplayName("Interviews");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(interviewCounter).getSection().getCode().set(MapToCData("INTERVIEW SECTION"));
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCode("IXS");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem("Local-codesystem-oid");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName("LocalSystem");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setDisplayName("Interviews");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().set(MapToCData("INTERVIEW SECTION"));
                 }
 
-                POCDMT000040Component3 ot = clinicalDocument.getComponent().getStructuredBody().getComponentArray(interviewCounter);
+                POCDMT000040Component3 ot = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c);
                 // CHECK MapToInterview
 
                 POCDMT000040Component3 output = MapToInterview(input.getMsgInterviews().get(i), ot);
-                clinicalDocument.getComponent().getStructuredBody().setComponentArray(interviewCounter, output);
+                clinicalDocument.getComponent().getStructuredBody().setComponentArray(c, output);
             }
         }
 
@@ -1074,33 +1219,51 @@ public class CdaMapper {
             // 543
             for(int i = 0; i < input.getMsgTreatments().size(); i++) {
 
+                int c = 0;
+                if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
+                    clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+                } else {
+                    c = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length;
+                    clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+                }
+                if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).addNewSection();
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
+                } else {
+                    if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
+                    }
+                }
+
+
+
                 if (treatmentCounter < 1) {
                     treatmentCounter++;
                     componentCounter++;
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray()[treatmentCounter].getSection().getCode().setCode("55753-8");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray()[treatmentCounter].getSection().getCode().setCodeSystem("2.16.840.1.113883.6.1");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray()[treatmentCounter].getSection().getCode().setCodeSystemName("LOINC");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray()[treatmentCounter].getSection().getCode().setDisplayName("Treatment Information");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray()[treatmentCounter].getSection().set(MapToCData("TREATMENT INFORMATION"));
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(treatmentCounter).getSection().set(MapToCData("CDA Treatment Information Section"));
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCode("55753-8");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem("2.16.840.1.113883.6.1");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName("LOINC");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setDisplayName("Treatment Information");
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().set(MapToCData("TREATMENT INFORMATION"));
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().set(MapToCData("CDA Treatment Information Section"));
                 }
 
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray()[treatmentCounter].getSection().getEntryArray(treatmentSectionCounter).getSubstanceAdministration().getStatusCode().setCode("active");
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray()[treatmentCounter].getSection().getEntryArray(treatmentSectionCounter).getSubstanceAdministration().getEntryRelationshipArray(0).setTypeCode(XActRelationshipEntryRelationship.COMP);
-                var outpp = clinicalDocument.getComponent().getStructuredBody().getComponentArray()[treatmentCounter].getSection().getEntryArray(treatmentSectionCounter)
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(treatmentSectionCounter).getSubstanceAdministration().getStatusCode().setCode("active");
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(treatmentSectionCounter).getSubstanceAdministration().getEntryRelationshipArray(0).setTypeCode(XActRelationshipEntryRelationship.COMP);
+                var outpp = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(treatmentSectionCounter)
                         .getSubstanceAdministration();
                 String treatmentvalue = "";
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray()[treatmentCounter].getSection().getEntryArray(treatmentSectionCounter).getSubstanceAdministration().setClassCode("SBADM");
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray()[treatmentCounter].getSection().getEntryArray(treatmentSectionCounter).getSubstanceAdministration().setMoodCode(XDocumentSubstanceMood.EVN);
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray()[treatmentCounter].getSection().getEntryArray(treatmentSectionCounter).getSubstanceAdministration().setNegationInd(false);
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(treatmentSectionCounter).getSubstanceAdministration().setClassCode("SBADM");
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(treatmentSectionCounter).getSubstanceAdministration().setMoodCode(XDocumentSubstanceMood.EVN);
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(treatmentSectionCounter).getSubstanceAdministration().setNegationInd(false);
 
-                var o1 = clinicalDocument.getComponent().getStructuredBody().getComponentArray(treatmentCounter).getSection().getEntryArray(treatmentSectionCounter).getSubstanceAdministration();
-                var o2 = clinicalDocument.getComponent().getStructuredBody().getComponentArray(treatmentCounter).getSection().getText();
+                var o1 = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(treatmentSectionCounter).getSubstanceAdministration();
+                var o2 = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getText();
                 var mappedVal = MapToTreatment(input.getMsgTreatments().get(0),
                         o1,
                         o2,
                         treatmentSectionCounter);
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray(treatmentCounter).getSection().getEntryArray(treatmentSectionCounter).setSubstanceAdministration(mappedVal);
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(treatmentSectionCounter).setSubstanceAdministration(mappedVal);
                 treatmentSectionCounter= treatmentSectionCounter+1;
             }
         }
@@ -1109,6 +1272,13 @@ public class CdaMapper {
         String value ="";
         int k =0;
 
+        // Custodian should be null as nothing initiate it on up stream process
+        clinicalDocument.addNewCustodian().addNewAssignedCustodian().addNewRepresentedCustodianOrganization().addNewId();
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().addNewAddr();
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr();
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().addNewTelecom();
+
+
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getIdArray(0).setExtension(MapToTranslatedValue("CUS101"));
         value = MapToTranslatedValue("CUS102");
 
@@ -1116,31 +1286,54 @@ public class CdaMapper {
         MapToElementValue("CHECK MAP TO ELEMENT VALUE");
 
         value = MapToTranslatedValue("CUS103");
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewStreetAddressLine();
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStreetAddressLineArray(k).set(MapToCData(value));
         k = k+1;
         value = MapToTranslatedValue("CUS104");
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewStreetAddressLine();
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStreetAddressLineArray(k).set(MapToCData(value));
         k = k+1;
+
+        k = 0;
         value = MapToTranslatedValue("CUS105");
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewCity();
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getCityArray(k).set(MapToCData(value));
         k = k+1;
+
+        k = 0;
         value = MapToTranslatedValue("CUS106");
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewState();
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStateArray(k).set(MapToCData(value));
         k = k+1;
+
         value = MapToTranslatedValue("CUS107");
+        k = 0;
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewPostalCode();
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getPostalCodeArray(k).set(MapToCData(value));
         k = k+1;
+
         value = MapToTranslatedValue("CUS108");
+        k = 0;
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewCountry();
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getCountryArray(k).set(MapToCData(value));
         k = k+1;
+
         value = MapToTranslatedValue("CUS109");
+        k = 0;
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getTelecom().setValue(value);
         k = k+1;
 
+        clinicalDocument.addNewAuthor().addNewAssignedAuthor();
+        clinicalDocument.getAuthorArray(0).addNewTime();
+        clinicalDocument.getAuthorArray(0).getAssignedAuthor().addNewId();
+
         value = MapToTranslatedValue("AUT101");
         clinicalDocument.getAuthorArray(0).getAssignedAuthor().getIdArray(0).setRoot(value);
+
+        clinicalDocument.getAuthorArray(0).getAssignedAuthor().addNewAssignedPerson().addNewName();
+        clinicalDocument.getAuthorArray(0).getAssignedAuthor().getAssignedPerson().getNameArray(0).addNewFamily();
         value = MapToTranslatedValue("AUT102");
-        clinicalDocument.getAuthorArray(0).getAssignedAuthor().getAssignedPerson().getNameArray(0).getFamilyArray(1).set(MapToCData(value));
+        clinicalDocument.getAuthorArray(0).getAssignedAuthor().getAssignedPerson().getNameArray(0).getFamilyArray(0).set(MapToCData(value));
         clinicalDocument.getAuthorArray(0).getTime().setValue("DateChangeFormat(SQLServCurrentSmallDateTime(), \"yyyy-MM-dd HH:mm:ss\", \"HL7\");");
 
 
@@ -1215,22 +1408,25 @@ public class CdaMapper {
 
         for (Map.Entry<String, Object> entry : input.getMsgTreatment().getDataMap().entrySet()) {
             String name = entry.getKey();
-            String value = entry.getValue().toString();
+            String value = null;
+            if (entry.getValue() != null) {
+                value = entry.getValue().toString();
+            }
 
-            if(name.equals("trtTreatmentDt") && input.getMsgTreatment().getTrtTreatmentDt() != null) {
+            if(name.equals("trtTreatmentDt")  && value != null && input.getMsgTreatment().getTrtTreatmentDt() != null) {
                 TRT_TREATMENT_DT= input.getMsgTreatment().getTrtTreatmentDt().toString();
             }
 
-            if(name.equals("trtFrequencyAmtCd") && input.getMsgTreatment().getTrtFrequencyAmtCd() != null && !input.getMsgTreatment().getTrtFrequencyAmtCd().isEmpty()) {
+            if(name.equals("trtFrequencyAmtCd")  && value != null && input.getMsgTreatment().getTrtFrequencyAmtCd() != null && !input.getMsgTreatment().getTrtFrequencyAmtCd().isEmpty()) {
                 TRT_FREQUENCY_AMT_CD= input.getMsgTreatment().getTrtFrequencyAmtCd();
             }
 
-            if(name.equals("trtDosageUnitCd") && input.getMsgTreatment().getTrtDosageUnitCd() != null && !input.getMsgTreatment().getTrtDosageUnitCd().isEmpty()) {
+            if(name.equals("trtDosageUnitCd") && value != null && input.getMsgTreatment().getTrtDosageUnitCd() != null && !input.getMsgTreatment().getTrtDosageUnitCd().isEmpty()) {
                 TRT_DOSAGE_UNIT_CD= input.getMsgTreatment().getTrtDosageUnitCd();
                 output.getDoseQuantity().setUnit(TRT_DOSAGE_UNIT_CD);
             }
 
-            if(name.equals("trtDosageAmt") && input.getMsgTreatment().getTrtDosageAmt() != null) {
+            if(name.equals("trtDosageAmt") && value != null && input.getMsgTreatment().getTrtDosageAmt() != null) {
                 String dosageSt = input.getMsgTreatment().getTrtDosageAmt().toString();
                 if(!dosageSt.isEmpty()) {
                     String dosageStQty = "";
@@ -1242,36 +1438,36 @@ public class CdaMapper {
                 }
             }
 
-            if(name.equals("trtDrugCd") && input.getMsgTreatment().getTrtDrugCd() != null && !input.getMsgTreatment().getTrtDrugCd().isEmpty()) {
+            if(name.equals("trtDrugCd") && value != null && input.getMsgTreatment().getTrtDrugCd() != null && !input.getMsgTreatment().getTrtDrugCd().isEmpty()) {
                 treatmentNameQuestion = MapToQuestionId("TRT_DRUG_CD");;
                 treatmentName = input.getMsgTreatment().getTrtDrugCd();
             }
 
 
-            if(name.equals("trtLocalId") && input.getMsgTreatment().getTrtLocalId() != null && !input.getMsgTreatment().getTrtLocalId().isEmpty()) {
+            if(name.equals("trtLocalId")  && value != null&& input.getMsgTreatment().getTrtLocalId() != null && !input.getMsgTreatment().getTrtLocalId().isEmpty()) {
                 output.getIdArray(0).setRoot("2.16.840.999999");
                 output.getIdArray(0).setAssigningAuthorityName("LR");
                 output.getIdArray(0).setExtension(input.getMsgTreatment().getTrtLocalId());
                 treatmentUid=input.getMsgTreatment().getTrtLocalId();
             }
 
-            if(name.equals("trtCustomTreatmentTxt") && input.getMsgTreatment().getTrtCustomTreatmentTxt() != null && !input.getMsgTreatment().getTrtCustomTreatmentTxt().isEmpty()) {
+            if(name.equals("trtCustomTreatmentTxt")  && value != null && input.getMsgTreatment().getTrtCustomTreatmentTxt() != null && !input.getMsgTreatment().getTrtCustomTreatmentTxt().isEmpty()) {
                 customTreatment= input.getMsgTreatment().getTrtCustomTreatmentTxt();
             }
 
-            if(name.equals("trtCompositeCd") && input.getMsgTreatment().getTrtCompositeCd() != null && !input.getMsgTreatment().getTrtCompositeCd().isEmpty()) {
+            if(name.equals("trtCompositeCd")  && value != null && input.getMsgTreatment().getTrtCompositeCd() != null && !input.getMsgTreatment().getTrtCompositeCd().isEmpty()) {
 
             }
 
-            if(name.equals("trtCommentTxt") && input.getMsgTreatment().getTrtCommentTxt() != null && !input.getMsgTreatment().getTrtCommentTxt().isEmpty()) {
+            if(name.equals("trtCommentTxt")  && value != null && input.getMsgTreatment().getTrtCommentTxt() != null && !input.getMsgTreatment().getTrtCommentTxt().isEmpty()) {
 
             }
 
-            if(name.equals("trtDurationAmt") && input.getMsgTreatment().getTrtDurationAmt() != null) {
+            if(name.equals("trtDurationAmt") && value != null && input.getMsgTreatment().getTrtDurationAmt() != null) {
                 TRT_DURATION_AMT = input.getMsgTreatment().getTrtDurationAmt().toString();
             }
 
-            if(name.equals("trtDurationUnitCd") && input.getMsgTreatment().getTrtDurationUnitCd() != null && !input.getMsgTreatment().getTrtDurationUnitCd().isEmpty()) {
+            if(name.equals("trtDurationUnitCd") && value != null && input.getMsgTreatment().getTrtDurationUnitCd() != null && !input.getMsgTreatment().getTrtDurationUnitCd().isEmpty()) {
                 TRT_DURATION_UNIT_CD = input.getMsgTreatment().getTrtDurationUnitCd();
             }
         }
@@ -1442,27 +1638,30 @@ public class CdaMapper {
         for (Map.Entry<String, Object> entry : in.getMsgInterview().getDataMap().entrySet()) {
 
             String name = entry.getKey();
-            String value = entry.getValue().toString();
+            String value = null;
+            if (entry.getValue() != null) {
+                value = entry.getValue().toString();
+            }
 
-            if((name.equals("msgContainerUid")  && in.getMsgInterview().getMsgContainerUid() != null )
-                    || (name.equals("ixsAuthorId")  && !in.getMsgInterview().getIxsAuthorId().isEmpty() )
-                    || (name.equals("ixsEffectiveTime")  && in.getMsgInterview().getIxsEffectiveTime() != null)){
+            if((name.equals("msgContainerUid") && value != null && in.getMsgInterview().getMsgContainerUid() != null )
+                    || (name.equals("ixsAuthorId")  && value != null  && !in.getMsgInterview().getIxsAuthorId().isEmpty() )
+                    || (name.equals("ixsEffectiveTime")  && value != null  && in.getMsgInterview().getIxsEffectiveTime() != null)){
                 // CHECK MapToInterview
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray(0).setExtension(in.getMsgInterview().getMsgContainerUid().toString());
             }
-            else if (name.equals("ixsLocalId")  && !in.getMsgInterview().getIxsLocalId().isEmpty()){
+            else if (name.equals("ixsLocalId")  && value != null && !in.getMsgInterview().getIxsLocalId().isEmpty()){
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray(0).setExtension(in.getMsgInterview().getIxsLocalId());
             }
 
-            else if (name.equals("ixsStatusCd")  && !in.getMsgInterview().getIxsStatusCd().isEmpty()){
+            else if (name.equals("ixsStatusCd")  && value != null && !in.getMsgInterview().getIxsStatusCd().isEmpty()){
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getStatusCode().setCode(in.getMsgInterview().getIxsStatusCd());
             }
-            else if (name.equals("ixsInterviewDt")  && in.getMsgInterview().getIxsInterviewDt() != null){
+            else if (name.equals("ixsInterviewDt")  && value != null && in.getMsgInterview().getIxsInterviewDt() != null){
                 var ts = MapToTsType(in.getMsgInterview().getIxsInterviewDt().toString());
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEffectiveTime().setValue(ts.toString());
             }
 
-            else if (name.equals("ixsIntervieweeRoleCd")  && !in.getMsgInterview().getIxsIntervieweeRoleCd().isEmpty()){
+            else if (name.equals("ixsIntervieweeRoleCd")  && value != null && !in.getMsgInterview().getIxsIntervieweeRoleCd().isEmpty()){
                 String questionCode = MapToQuestionId("IXS_INTERVIEWEE_ROLE_CD");
 
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setTypeCode(XActRelationshipEntryRelationship.COMP);
@@ -1471,7 +1670,7 @@ public class CdaMapper {
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setObservation(obs);
                 entryCounter= entryCounter+ 1;
             }
-            else if (name.equals("ixsInterviewTypeCd")  && !in.getMsgInterview().getIxsInterviewTypeCd().isEmpty()){
+            else if (name.equals("ixsInterviewTypeCd")  && value != null && !in.getMsgInterview().getIxsInterviewTypeCd().isEmpty()){
                 String questionCode = MapToQuestionId("IXS_INTERVIEW_TYPE_CD");
 
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setTypeCode(XActRelationshipEntryRelationship.COMP);
@@ -1481,7 +1680,7 @@ public class CdaMapper {
                 entryCounter= entryCounter+ 1;
 
             }
-            else if (name.equals("ixsInterviewLocCd")  && !in.getMsgInterview().getIxsInterviewLocCd().isEmpty()){
+            else if (name.equals("ixsInterviewLocCd")  && value != null && !in.getMsgInterview().getIxsInterviewLocCd().isEmpty()){
                 String questionCode = MapToQuestionId("IXS_INTERVIEW_LOC_CD");
 
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setTypeCode(XActRelationshipEntryRelationship.COMP);
@@ -1571,7 +1770,10 @@ public class CdaMapper {
 
         for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
             String name = entry.getKey();
-            String value = entry.getValue().toString();
+            String value = null;
+            if (entry.getValue() != null) {
+                value = entry.getValue().toString();
+            }
 
             if(name.equals("questionGroupSeqNbr") && !in.getQuestionGroupSeqNbr().isEmpty()){
                 questionGroupSeqNbr= Integer.valueOf(in.getQuestionGroupSeqNbr());
@@ -1724,7 +1926,10 @@ public class CdaMapper {
 
         for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
             String name = entry.getKey();
-            String value = entry.getValue().toString();
+            String value = null;
+            if (entry.getValue() != null) {
+                value = entry.getValue().toString();
+            }
 
             if(name.equals("questionGroupSeqNbr") && !in.getQuestionGroupSeqNbr().isEmpty()){
                 questionGroupSeqNbr= Integer.valueOf(in.getQuestionGroupSeqNbr());
@@ -1877,85 +2082,124 @@ public class CdaMapper {
 
         for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
             String name = entry.getKey();
-            String value = entry.getValue().toString();
+            String value = null;
+            if (entry.getValue() != null) {
+                value = entry.getValue().toString();
+            }
 
-            if(name.equals("plaLocalId") && !in.getPlaLocalId().isEmpty()){
+            if(name.equals("plaLocalId") && value != null && !in.getPlaLocalId().isEmpty()){
+                if (out.getParticipantRole() == null) {
+                    out.addNewParticipantRole().addNewId();
+                } else {
+                    out.getParticipantRole().addNewId();
+                }
+
                 out.setTypeCode("PRF");
                 out.getParticipantRole().getIdArray(0).setRoot("2.16.840.1.113883.4.6");
                 out.getParticipantRole().getIdArray(0).setExtension(in.getPlaLocalId());
                 out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
             }
-            if (name.equals("plaNameTxt") && !in.getPlaNameTxt().isEmpty()){
+            if (name.equals("plaNameTxt") && value != null && !in.getPlaNameTxt().isEmpty()){
+                if (out.getParticipantRole() == null) {
+                    out.addNewParticipantRole().addNewPlayingEntity().addNewName();
+                } else {
+                    out.getParticipantRole().addNewPlayingEntity().addNewName();
+                }
+
                 PN val = PN.Factory.newInstance();
                 val.set(MapToCData(in.getPlaNameTxt()));
                 out.getParticipantRole().getPlayingEntity().addNewName();
                 out.getParticipantRole().getPlayingEntity().setNameArray(0, val);
             }
-            if (name.equals("plaAddrStreetAddr1Txt") && !in.getPlaAddrStreetAddr1Txt().isEmpty()){
+            if (name.equals("plaAddrStreetAddr1Txt")&& value != null && !in.getPlaAddrStreetAddr1Txt().isEmpty()){
                 streetAddress1= in.getPlaAddrStreetAddr1Txt();
             }
-            if (name.equals("plaAddrStreetAddr2Txt") && !in.getPlaAddrStreetAddr2Txt().isEmpty()){
+            if (name.equals("plaAddrStreetAddr2Txt")&& value != null && !in.getPlaAddrStreetAddr2Txt().isEmpty()){
                 streetAddress2 =in.getPlaAddrStreetAddr2Txt();
             }
-            if (name.equals("plaAddrCityTxt") && !in.getPlaAddrCityTxt().isEmpty()){
+            if (name.equals("plaAddrCityTxt")&& value != null && !in.getPlaAddrCityTxt().isEmpty()){
                 city= in.getPlaAddrCityTxt();
             }
-            if (name.equals("plaAddrCountyCd") && !in.getPlaAddrCountyCd().isEmpty()){
+            if (name.equals("plaAddrCountyCd")&& value != null && !in.getPlaAddrCountyCd().isEmpty()){
                 county= in.getPlaAddrCountyCd();
             }
-            if (name.equals("plaAddrStateCd") && !in.getPlaAddrStateCd().isEmpty()){
+            if (name.equals("plaAddrStateCd")&& value != null && !in.getPlaAddrStateCd().isEmpty()){
                 state= in.getPlaAddrStateCd();
             }
-            if (name.equals("plaAddrZipCodeTxt") && !in.getPlaAddrZipCodeTxt().isEmpty()){
+            if (name.equals("plaAddrZipCodeTxt")&& value != null && !in.getPlaAddrZipCodeTxt().isEmpty()){
                 zip = in.getPlaAddrZipCodeTxt();
             }
-            if (name.equals("plaAddrCountryCd") && !in.getPlaAddrCountryCd().isEmpty()){
+            if (name.equals("plaAddrCountryCd")&& value != null && !in.getPlaAddrCountryCd().isEmpty()){
                 country=in.getPlaAddrCountryCd();
             }
-            if (name.equals("plaPhoneNbrTxt") && !in.getPlaPhoneNbrTxt().isEmpty()){
+            if (name.equals("plaPhoneNbrTxt") && value != null&& !in.getPlaPhoneNbrTxt().isEmpty()){
                 workPhone=in.getPlaPhoneNbrTxt();
             }
-            if (name.equals("plaAddrAsOfDt") && in.getPlaAddrAsOfDt() != null){
+            if (name.equals("plaAddrAsOfDt") && value != null&& in.getPlaAddrAsOfDt() != null){
                 postalAsOfDate=in.getPlaAddrAsOfDt().toString();
             }
-            if (name.equals("plaCensusTractTxt") && !in.getPlaCensusTractTxt().isEmpty()){
+            if (name.equals("plaCensusTractTxt") && value != null&& !in.getPlaCensusTractTxt().isEmpty()){
                 censusTract=in.getPlaCensusTractTxt();
             }
-            if (name.equals("plaPhoneAsOfDt") && in.getPlaPhoneAsOfDt() != null ){
+            if (name.equals("plaPhoneAsOfDt") && value != null&& in.getPlaPhoneAsOfDt() != null ){
                 teleAsOfDate=in.getPlaPhoneAsOfDt().toString();
             }
-            if (name.equals("plaPhoneExtensionTxt") && !in.getPlaPhoneExtensionTxt().isEmpty()){
+            if (name.equals("plaPhoneExtensionTxt") && value != null&& !in.getPlaPhoneExtensionTxt().isEmpty()){
                 workExtn= in.getPlaPhoneExtensionTxt();
             }
-            if (name.equals("plaCommentTxt") && !in.getPlaCommentTxt().isEmpty()){
+            if (name.equals("plaCommentTxt") && value != null&& !in.getPlaCommentTxt().isEmpty()){
                 placeAddressComments= in.getPlaCommentTxt();
             }
-            if (name.equals("plaPhoneCountryCodeTxt") && !in.getPlaPhoneCountryCodeTxt().isEmpty()){
+            if (name.equals("plaPhoneCountryCodeTxt") && value != null&& !in.getPlaPhoneCountryCodeTxt().isEmpty()){
                 workCountryCode= in.getPlaPhoneCountryCodeTxt();
             }
-            if (name.equals("plaEmailAddressTxt") && !in.getPlaEmailAddressTxt().isEmpty()){
+            if (name.equals("plaEmailAddressTxt") && value != null&& !in.getPlaEmailAddressTxt().isEmpty()){
                 workEmail= in.getPlaEmailAddressTxt();
             }
-            if (name.equals("plaUrlAddressTxt") && !in.getPlaUrlAddressTxt().isEmpty()){
+            if (name.equals("plaUrlAddressTxt") && value != null&& !in.getPlaUrlAddressTxt().isEmpty()){
                 workURL= in.getPlaUrlAddressTxt();
             }
-            if (name.equals("plaPhoneCommentTxt") && !in.getPlaPhoneCommentTxt().isEmpty()){
+            if (name.equals("plaPhoneCommentTxt") && value != null&& !in.getPlaPhoneCommentTxt().isEmpty()){
                 placeComments= in.getPlaPhoneCommentTxt();
             }
-            if (name.equals("plaTypeCd") && !in.getPlaTypeCd().isEmpty()){
+            if (name.equals("plaTypeCd") && value != null&& !in.getPlaTypeCd().isEmpty()){
+                if (out.getParticipantRole() == null) {
+                    out.addNewParticipantRole().addNewCode();
+                } else {
+                    out.getParticipantRole().addNewCode();
+                }
 
                 String questionCode= MapToQuestionId("PLA_TYPE_CD");
                 out.getParticipantRole().addNewCode();
                 out.getParticipantRole().setCode(MapToCEAnswerType(in.getPlaTypeCd(), questionCode));
             }
-            if (name.equals("plaCommentTxt") && !in.getPlaCommentTxt().isEmpty()){
+            if (name.equals("plaCommentTxt") && value != null&& !in.getPlaCommentTxt().isEmpty()){
+                if (out.getParticipantRole() == null) {
+                    out.addNewParticipantRole().addNewPlayingEntity().addNewDesc();
+                } else {
+                    out.getParticipantRole().addNewPlayingEntity().addNewDesc();
+                }
+
                 out.getParticipantRole().getPlayingEntity().getDesc().set(MapToCData(in.getPlaCommentTxt()));
             }
 
-            if (name.equals("plaIdQuickCode") && !in.getPlaIdQuickCode().isEmpty()){
-                out.getParticipantRole().getIdArray(1).setRoot("2.16.840.1.113883.4.6");
-                out.getParticipantRole().getIdArray(1).setExtension(in.getPlaIdQuickCode());
-                out.getParticipantRole().getIdArray(1).setAssigningAuthorityName("LR_QEC");
+            if (name.equals("plaIdQuickCode") && value != null&& !in.getPlaIdQuickCode().isEmpty()){
+
+                int c = 0;
+                if (out.getParticipantRole() == null) {
+                    out.addNewParticipantRole().addNewId();
+                } else {
+                    if (out.getParticipantRole().getIdArray().length > 0) {
+                        c = out.getParticipantRole().getIdArray().length;
+                    }
+                    out.addNewParticipantRole().addNewId();
+                }
+
+
+                // Index is 1 in original code
+                out.getParticipantRole().getIdArray(c).setRoot("2.16.840.1.113883.4.6");
+                out.getParticipantRole().getIdArray(c).setExtension(in.getPlaIdQuickCode());
+                out.getParticipantRole().getIdArray(c).setAssigningAuthorityName("LR_QEC");
             }
 
         }
@@ -1971,59 +2215,101 @@ public class CdaMapper {
             isAddressPopulated=1;
         }
         if(!streetAddress2.isEmpty()){
-            AdxpStreetAddressLine val = AdxpStreetAddressLine.Factory.newInstance();
-            val.set(MapToCData(streetAddress2));
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
             out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
             if (out.getParticipantRole().getAddrArray().length > 1) {
-                out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(1, val);
+                out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(1,  AdxpStreetAddressLine.Factory.newInstance());
+                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(1).set(MapToCData(streetAddress2));
             }
             else {
-                out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0, val);
+                out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0,  AdxpStreetAddressLine.Factory.newInstance());
+                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(MapToCData(streetAddress2));
             }
             isAddressPopulated=1;
         }
         if(!city.isEmpty()){
-            AdxpCity val = AdxpCity.Factory.newInstance();
-            val.set(MapToCData(city));
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
+
             out.getParticipantRole().getAddrArray(0).addNewCity();
-            out.getParticipantRole().getAddrArray(0).setCityArray(0, val);
+            out.getParticipantRole().getAddrArray(0).setCityArray(0,  AdxpCity.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getCityArray(0).set(MapToCData(city));
+
             isAddressPopulated=1;
         }
         if(!state.isEmpty()){
-            AdxpState val = AdxpState.Factory.newInstance();
-            val.set(MapToCData(state));
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
             out.getParticipantRole().getAddrArray(0).addNewState();
-            out.getParticipantRole().getAddrArray(0).setStateArray(0, val);
+            out.getParticipantRole().getAddrArray(0).setStateArray(0,  AdxpState.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(MapToCData(state  ));
             isAddressPopulated=1;
         }
         if(!county.isEmpty()){
-            AdxpCounty val = AdxpCounty.Factory.newInstance();
-            val.set(MapToCData(county));
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
             out.getParticipantRole().getAddrArray(0).addNewCounty();
-            out.getParticipantRole().getAddrArray(0).setCountyArray(0, val);
+
+            out.getParticipantRole().getAddrArray(0).setCountyArray(0,  AdxpCounty.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getCountyArray(0).set(MapToCData(county));
             isAddressPopulated=1;
         }
         if(!zip.isEmpty()){
-            AdxpPostalCode val = AdxpPostalCode.Factory.newInstance();
-            val.set(MapToCData(zip));
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
             out.getParticipantRole().getAddrArray(0).addNewPostalCode();
-            out.getParticipantRole().getAddrArray(0).setPostalCodeArray(0, val);
+
+            out.getParticipantRole().getAddrArray(0).setPostalCodeArray(0,  AdxpPostalCode.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getPostalCodeArray(0).set(MapToCData(zip   ));
             isAddressPopulated=1;
         }
         if(!country.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
             AdxpCountry val = AdxpCountry.Factory.newInstance();
             val.set(MapToCData(country));
             out.getParticipantRole().getAddrArray(0).addNewCountry();
-            out.getParticipantRole().getAddrArray(0).setCountryArray(0, val);
+
+            out.getParticipantRole().getAddrArray(0).setCountryArray(0,  AdxpCountry.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getCountryArray(0).set(MapToCData(country));
             isAddressPopulated=1;
         }
         if(!censusTract.isEmpty()){
-            AdxpCensusTract val = AdxpCensusTract.Factory.newInstance();
-            val.set(MapToCData(censusTract));
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
             out.getParticipantRole().getAddrArray(0).addNewCensusTract();
-            out.getParticipantRole().getAddrArray(0).setCensusTractArray(0, val);
+
+            out.getParticipantRole().getAddrArray(0).setCensusTractArray(0,  AdxpCensusTract.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getCensusTractArray(0).set(MapToCData(censusTract));
         }
         if(isAddressPopulated>0){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
             out.getParticipantRole().getAddrArray()[0].setUse(Arrays.asList("WP"));
             if(!postalAsOfDate.isEmpty()){
                 // OutXML::Element element = (OutXML::Element)out.getParticipantRole().addr[0];
@@ -2032,13 +2318,23 @@ public class CdaMapper {
             }
         }
         if(!placeAddressComments.isEmpty()){
-            AdxpAdditionalLocator val = AdxpAdditionalLocator.Factory.newInstance();
-            val.set(MapToCData(placeAddressComments));
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
             out.getParticipantRole().getAddrArray(0).addNewAdditionalLocator();
-            out.getParticipantRole().getAddrArray(0).setAdditionalLocatorArray(0, val);
+
+            out.getParticipantRole().getAddrArray(0).setAdditionalLocatorArray(0,  AdxpAdditionalLocator.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getAdditionalLocatorArray(0).set(MapToCData(placeAddressComments));
         }
 
         if(!workPhone.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewTelecom();
+            } else {
+                out.getParticipantRole().addNewTelecom();
+            }
             out.getParticipantRole().getTelecomArray(teleCounter).setUse(Arrays.asList("WP"));
             //workCountryCode
             int countryphoneCodeSize= workCountryCode.length();
@@ -2054,6 +2350,7 @@ public class CdaMapper {
             }else
                 workPhone=workPhone;
             out.getParticipantRole().getTelecomArray(teleCounter).setValue(workPhone);
+
             if(!teleAsOfDate.isEmpty()){
                 // OutXML::Element element = (OutXML::Element)out.getParticipantRole().telecom[teleCounter];
                 // MapToUsableTSElement(teleAsOfDate, element, "useablePeriod");
@@ -2062,6 +2359,11 @@ public class CdaMapper {
             teleCounter = teleCounter+1;
         }
         if(!workEmail.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewTelecom();
+            } else {
+                out.getParticipantRole().addNewTelecom();
+            }
             out.getParticipantRole().getTelecomArray(teleCounter).setUse(Arrays.asList("WP"));
             out.getParticipantRole().getTelecomArray(teleCounter).setValue("mailto:"+workEmail);
             if(!teleAsOfDate.isEmpty()){
@@ -2072,6 +2374,11 @@ public class CdaMapper {
             teleCounter = teleCounter +1;
         }
         if(!workURL.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewTelecom();
+            } else {
+                out.getParticipantRole().addNewTelecom();
+            }
             out.getParticipantRole().getTelecomArray(teleCounter).setUse(Arrays.asList("WP"));
             out.getParticipantRole().getTelecomArray(teleCounter).setValue(workURL);
             if(!teleAsOfDate.isEmpty()){
@@ -2099,47 +2406,66 @@ public class CdaMapper {
 
         for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
             String name = entry.getKey();
-            String value = entry.getValue().toString();
+            String value = null;
+            if (entry.getValue() != null) {
+                value = entry.getValue().toString();
+            }
 
-            if(name.equals("orgLocalId") && !in.getOrgLocalId().isEmpty()){
+            if(name.equals("orgLocalId") && in.getOrgLocalId()!=null && !in.getOrgLocalId().isEmpty()){
+                if (out.getParticipantRole() == null) {
+                    out.addNewParticipantRole().addNewId();
+                } else {
+                    out.getParticipantRole().addNewId();
+                }
                 out.getParticipantRole().getIdArray(0).setRoot("2.16.840.1.113883.4.6");
                 out.getParticipantRole().getIdArray(0).setExtension(in.getOrgLocalId());
                 out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
             }
-            else if(name.equals("orgNameTxt") && !in.getOrgNameTxt().isEmpty()){
-                PN val = PN.Factory.newInstance();
-                val.set(MapToCData(in.getOrgNameTxt()));
+            else if(name.equals("orgNameTxt") && in.getOrgNameTxt() != null && !in.getOrgNameTxt().isEmpty()){
+                if (out.getParticipantRole() == null) {
+                    out.addNewParticipantRole().addNewPlayingEntity();
+                } else {
+                    out.getParticipantRole().addNewPlayingEntity();
+                }
+                var val = MapToCData(in.getOrgNameTxt());
                 out.getParticipantRole().getPlayingEntity().addNewName();
-                out.getParticipantRole().getPlayingEntity().setNameArray(0, val);
+                out.getParticipantRole().getPlayingEntity().setNameArray(0,  PN.Factory.newInstance());
+                out.getParticipantRole().getPlayingEntity().getNameArray(0).set(val);
             }
-            else if(name.equals("orgAddrStreetAddr1Txt") && !in.getOrgAddrStreetAddr1Txt().isEmpty()){
+            else if(name.equals("orgAddrStreetAddr1Txt") && in.getOrgAddrStreetAddr1Txt() != null && !in.getOrgAddrStreetAddr1Txt().isEmpty()){
                 streetAddress1= in.getOrgAddrStreetAddr1Txt();
             }
-            else if(name.equals("orgAddrStreetAddr2Txt") && !in.getOrgAddrStreetAddr2Txt().isEmpty()){
+            else if(name.equals("orgAddrStreetAddr2Txt") && in.getOrgAddrStreetAddr2Txt() != null && !in.getOrgAddrStreetAddr2Txt().isEmpty()){
                 streetAddress2 =in.getOrgAddrStreetAddr2Txt();
             }
-            else if(name.equals("orgAddrCityTxt") && !in.getOrgAddrCityTxt().isEmpty()){
+            else if(name.equals("orgAddrCityTxt") && in.getOrgAddrCityTxt() !=null && !in.getOrgAddrCityTxt().isEmpty()){
                 city= in.getOrgAddrCityTxt();
             }
-            else if(name.equals("orgAddrCountyCd") && !in.getOrgAddrCountyCd().isEmpty()){
+            else if(name.equals("orgAddrCountyCd") && in.getOrgAddrCountyCd() != null && !in.getOrgAddrCountyCd().isEmpty()){
                 county = MapToAddressType( in.getOrgAddrCountyCd(), "COUNTY");
             }
-            else if (name.equals("orgAddrStateCd") &&  !in.getOrgAddrStateCd().isEmpty()){
+            else if (name.equals("orgAddrStateCd") && in.getOrgAddrStateCd() != null &&  !in.getOrgAddrStateCd().isEmpty()){
                 state= MapToAddressType( in.getOrgAddrStateCd(), "STATE");
             }
-            else if(name.equals("orgAddrZipCodeTxt") && !in.getOrgAddrZipCodeTxt().isEmpty()){
+            else if(name.equals("orgAddrZipCodeTxt") && in.getOrgAddrZipCodeTxt() != null && !in.getOrgAddrZipCodeTxt().isEmpty()){
                 zip = in.getOrgAddrZipCodeTxt();
             }
-            else if(name.equals("orgAddrCountryCd") && !in.getOrgAddrCountryCd().isEmpty()){
+            else if(name.equals("orgAddrCountryCd") && in.getOrgAddrCountryCd() != null && !in.getOrgAddrCountryCd().isEmpty()){
                 country = MapToAddressType( in.getOrgAddrCountryCd(), "COUNTRY");
             }
-            else if(name.equals("orgPhoneNbrTxt") && !in.getOrgPhoneNbrTxt().isEmpty()){
+            else if(name.equals("orgPhoneNbrTxt") && in.getOrgPhoneNbrTxt() != null && !in.getOrgPhoneNbrTxt().isEmpty()){
                 phone=in.getOrgPhoneNbrTxt();
             }
-            else if(name.equals("orgPhoneExtensionTxt") && in.getOrgPhoneExtensionTxt() != null){
+            else if(name.equals("orgPhoneExtensionTxt") && in.getOrgPhoneExtensionTxt() != null && in.getOrgPhoneExtensionTxt() != null){
                 extn= in.getOrgPhoneExtensionTxt().toString();
             }
-            else if(name.equals("orgIdCliaNbrTxt") && !in.getOrgIdCliaNbrTxt().isEmpty()){
+            else if(name.equals("orgIdCliaNbrTxt") && in.getOrgIdCliaNbrTxt() != null && !in.getOrgIdCliaNbrTxt().isEmpty()){
+                if (out.getParticipantRole() == null) {
+                    out.addNewParticipantRole().addNewId();
+                } else {
+                    out.getParticipantRole().addNewId();
+                }
+
                 out.getParticipantRole().getIdArray(1).setRoot("2.16.840.1.113883.4.6");
                 out.getParticipantRole().getIdArray(1).setExtension(in.getOrgIdCliaNbrTxt());
                 out.getParticipantRole().getIdArray(1).setAssigningAuthorityName("LR_CLIA");
@@ -2150,74 +2476,119 @@ public class CdaMapper {
 
         int isAddressPopulated= 0;
         if(!streetAddress1.isEmpty()){
-            AdxpStreetAddressLine val = AdxpStreetAddressLine.Factory.newInstance();
-            val.set(MapToCData(streetAddress1));
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
+
             out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
-            out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0, val);
+            out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0, AdxpStreetAddressLine.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(MapToCData(streetAddress1));
+
             isAddressPopulated=1;
         }
         if(!streetAddress2.isEmpty() ){
-            AdxpStreetAddressLine val = AdxpStreetAddressLine.Factory.newInstance();
-            val.set(MapToCData(streetAddress2));
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
             out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
             if (out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray().length > 1) {
-                out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(1, val);
+                out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(1, AdxpStreetAddressLine.Factory.newInstance());
+                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(1).set(MapToCData(streetAddress2));
             }
             else {
-                out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0, val);
+                out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0, AdxpStreetAddressLine.Factory.newInstance());
+                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(MapToCData(streetAddress2));
             }
 
             isAddressPopulated=1;
         }
         if(!city.isEmpty()){
-            AdxpCity val = AdxpCity.Factory.newInstance();
-            val.set(MapToCData(city));
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
 
             out.getParticipantRole().getAddrArray(0).addNewCity();
-            out.getParticipantRole().getAddrArray(0).setCityArray(0, val);
+            out.getParticipantRole().getAddrArray(0).setCityArray(0, AdxpCity.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getCityArray(0).set(MapToCData(city));
 
             isAddressPopulated=1;
         }
         if(!state.isEmpty()){
-            AdxpState val = AdxpState.Factory.newInstance();
-            val.set(MapToCData(state));
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
 
             out.getParticipantRole().getAddrArray(0).addNewState();
-            out.getParticipantRole().getAddrArray(0).setStateArray(0, val);
+
+            out.getParticipantRole().getAddrArray(0).setStateArray(0, AdxpState.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getStateArray(0).set(MapToCData(state));
 
             isAddressPopulated=1;
         }
         if(!county.isEmpty()){
-            AdxpCounty val = AdxpCounty.Factory.newInstance();
-            val.set(MapToCData(county));
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
 
             out.getParticipantRole().getAddrArray(0).addNewCounty();
-            out.getParticipantRole().getAddrArray(0).setCountyArray(0, val);
+
+            out.getParticipantRole().getAddrArray(0).setCountyArray(0, AdxpCounty.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getCountyArray(0).set(MapToCData(county));
 
             isAddressPopulated=1;
         }
         if(!zip.isEmpty()){
-            AdxpPostalCode val = AdxpPostalCode.Factory.newInstance();
-            val.set(MapToCData(zip));
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
 
             out.getParticipantRole().getAddrArray(0).addNewPostalCode();
-            out.getParticipantRole().getAddrArray(0).setPostalCodeArray(0, val);
+
+            out.getParticipantRole().getAddrArray(0).setPostalCodeArray(0, AdxpPostalCode.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getPostalCodeArray(0).set(MapToCData(zip));
             isAddressPopulated=1;
         }
         if(!country.isEmpty()){
-            AdxpCountry val = AdxpCountry.Factory.newInstance();
-            val.set(MapToCData(zip));
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
 
             out.getParticipantRole().getAddrArray(0).addNewCountry();
-            out.getParticipantRole().getAddrArray(0).setCountryArray(0, val);
+
+            out.getParticipantRole().getAddrArray(0).setCountryArray(0, AdxpCountry.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getCountryArray(0).set(MapToCData(zip));
 
             isAddressPopulated=1;
         }
         if(isAddressPopulated>0)
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
             out.getParticipantRole().getAddrArray(0).setUse(new ArrayList(Arrays.asList("WP")));
 
 
         if(!phone.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewTelecom();
+            } else {
+                out.getParticipantRole().addNewTelecom();
+            }
             out.getParticipantRole().getTelecomArray(0).setUse(new ArrayList(Arrays.asList("WP")));
             int phoneExtnSize = extn.length();
             if(phoneExtnSize>0){
@@ -2253,61 +2624,74 @@ public class CdaMapper {
 
         for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
             String name = entry.getKey();
-            String value = entry.getValue().toString();
+            String value = null;
+            if (entry.getValue() != null) {
+                value = entry.getValue().toString();
+            }
 
-            if (name.equals("prvLocalId") && !in.getPrvLocalId().isEmpty()) {
+            if (name.equals("prvLocalId") && in.getPrvLocalId() != null && !in.getPrvLocalId().isEmpty()) {
+                if (out.getParticipantRole() == null) {
+                    out.addNewParticipantRole().addNewId();
+                } else {
+                    out.getParticipantRole().addNewId();
+                }
                 out.getParticipantRole().getIdArray(0).setExtension(in.getPrvLocalId());
                 out.getParticipantRole().getIdArray(0).setRoot("2.16.840.1.113883.11.19745");
                 out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
             }
-            else if (name.equals("prvNameFirstTxt") && !in.getPrvNameFirstTxt().isEmpty()) {
+            else if (name.equals("prvNameFirstTxt") && in.getPrvNameFirstTxt() !=null && !in.getPrvNameFirstTxt().isEmpty()) {
                 firstName = in.getPrvNameFirstTxt();
             }
-            else if (name.equals("prvNamePrefixCd") && !in.getPrvNamePrefixCd().isEmpty()) {
+            else if (name.equals("prvNamePrefixCd") && in.getPrvNamePrefixCd() != null && !in.getPrvNamePrefixCd().isEmpty()) {
                 prefix = in.getPrvNamePrefixCd();
             }
-            else if (name.equals("prvNameLastTxt") && !in.getPrvNameLastTxt().isEmpty()) {
+            else if (name.equals("prvNameLastTxt") && in.getPrvNameLastTxt() != null && !in.getPrvNameLastTxt().isEmpty()) {
                 prefix = in.getPrvNameLastTxt();
             }
-            else if(name.equals("prvNameSuffixCd") && !in.getPrvNameSuffixCd().isEmpty()) {
+            else if(name.equals("prvNameSuffixCd") && in.getPrvNameSuffixCd() != null && !in.getPrvNameSuffixCd().isEmpty()) {
                 lastName = in.getPrvNameSuffixCd();
             }
-            else if(name.equals("prvNameDegreeCd") && !in.getPrvNameDegreeCd().isEmpty()) {
+            else if(name.equals("prvNameDegreeCd") && in.getPrvNameDegreeCd()!=null && !in.getPrvNameDegreeCd().isEmpty()) {
                 degree = in.getPrvNameDegreeCd();
             }
-            else if(name.equals("prvAddrStreetAddr1Txt") && !in.getPrvAddrStreetAddr1Txt().isEmpty()) {
+            else if(name.equals("prvAddrStreetAddr1Txt") && in.getPrvAddrStreetAddr1Txt() !=null && !in.getPrvAddrStreetAddr1Txt().isEmpty()) {
                 address1 = in.getPrvAddrStreetAddr1Txt();
             }
-            else if(name.equals("prvAddrStreetAddr2Txt") && !in.getPrvAddrStreetAddr2Txt().isEmpty()) {
+            else if(name.equals("prvAddrStreetAddr2Txt") && in.getPrvAddrStreetAddr2Txt() != null && !in.getPrvAddrStreetAddr2Txt().isEmpty()) {
                 address2 = in.getPrvAddrStreetAddr2Txt();
             }
-            else if(name.equals("prvAddrCityTxt") && !in.getPrvAddrCityTxt().isEmpty()) {
+            else if(name.equals("prvAddrCityTxt") && in.getPrvAddrCityTxt() != null && !in.getPrvAddrCityTxt().isEmpty()) {
                 city = in.getPrvAddrCityTxt();
             }
-            if(name.equals("prvAddrCountyCd") && !in.getPrvAddrCountyCd().isEmpty()) {
+            if(name.equals("prvAddrCountyCd") && in.getPrvAddrCountyCd() != null && !in.getPrvAddrCountyCd().isEmpty()) {
                 county = MapToAddressType(in.getPrvAddrCountyCd(), "COUNTY");
             }
-            else if(name.equals("prvAddrStateCd") && !in.getPrvAddrStateCd().isEmpty()) {
+            else if(name.equals("prvAddrStateCd") && in.getPrvAddrStateCd() != null  && !in.getPrvAddrStateCd().isEmpty()) {
                 state = MapToAddressType(in.getPrvAddrStateCd(), "STATE");
             }
-            else if(name.equals("prvAddrZipCodeTxt") && !in.getPrvAddrZipCodeTxt().isEmpty()) {
+            else if(name.equals("prvAddrZipCodeTxt") && in.getPrvAddrZipCodeTxt() != null && !in.getPrvAddrZipCodeTxt().isEmpty()) {
                 zip = in.getPrvAddrZipCodeTxt();
             }
-            else if(name.equals("prvAddrCountryCd") && !in.getPrvAddrCountryCd().isEmpty()) {
+            else if(name.equals("prvAddrCountryCd") && in.getPrvAddrCountryCd() != null && !in.getPrvAddrCountryCd().isEmpty()) {
                 country = MapToAddressType(in.getPrvAddrCountryCd(), "COUNTRY");
             }
-            else if(name.equals("prvPhoneNbrTxt") && !in.getPrvPhoneNbrTxt().isEmpty()) {
+            else if(name.equals("prvPhoneNbrTxt") && in.getPrvPhoneNbrTxt() != null && !in.getPrvPhoneNbrTxt().isEmpty()) {
                 telephone = in.getPrvPhoneNbrTxt();
             }
             else  if(name.equals("prvPhoneExtensionTxt") && in.getPrvPhoneExtensionTxt() != null) {
                 extn = in.getPrvPhoneExtensionTxt().toString();
             }
-            else if(name.equals("prvIdQuickCodeTxt") && !in.getPrvIdQuickCodeTxt().isEmpty()) {
+            else if(name.equals("prvIdQuickCodeTxt") && in.getPrvIdQuickCodeTxt() != null && !in.getPrvIdQuickCodeTxt().isEmpty()) {
+                if (out.getParticipantRole() == null) {
+                    out.addNewParticipantRole().addNewId();
+                } else {
+                    out.getParticipantRole().addNewId();
+                }
                 out.getParticipantRole().getIdArray(1).setExtension(in.getPrvIdQuickCodeTxt());
                 out.getParticipantRole().getIdArray(1).setRoot("2.16.840.1.113883.11.19745");
                 out.getParticipantRole().getIdArray(1).setAssigningAuthorityName("LR_QEC");
             }
-            else if(name.equals("prvEmailAddressTxt") && !in.getPrvEmailAddressTxt().isEmpty()) {
+            else if(name.equals("prvEmailAddressTxt") && in.getPrvEmailAddressTxt() != null && !in.getPrvEmailAddressTxt().isEmpty()) {
                 email = in.getPrvEmailAddressTxt();
             }
 
@@ -2317,90 +2701,168 @@ public class CdaMapper {
 
 
         if(!firstName.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewPlayingEntity().addNewName();
+            } else {
+                out.getParticipantRole().addNewPlayingEntity().addNewName();
+            }
             var mapVal = MapToCData(firstName);
             EnGiven enG = EnGiven.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewGiven();
-            out.getParticipantRole().getPlayingEntity().getNameArray(0).setGivenArray(0, enG);
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).setGivenArray(0,  EnGiven.Factory.newInstance());
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).getGivenArray(0).set(mapVal);
             out.getParticipantRole().getPlayingEntity().getNameArray(0).setUse(new ArrayList(Arrays.asList("L")));
         }
         if(!lastName.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewPlayingEntity().addNewName();
+            } else {
+                out.getParticipantRole().addNewPlayingEntity().addNewName();
+            }
             var mapVal = MapToCData(lastName);
             EnFamily enG = EnFamily.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewFamily();
-            out.getParticipantRole().getPlayingEntity().getNameArray(0).setFamilyArray(0, enG);
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).setFamilyArray(0,  EnFamily.Factory.newInstance());
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).getFamilyArray(0).set(mapVal);
             out.getParticipantRole().getPlayingEntity().getNameArray(0).setUse(new ArrayList(Arrays.asList("L")));
         }
         if(!prefix.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewPlayingEntity().addNewName();
+            } else {
+                out.getParticipantRole().addNewPlayingEntity().addNewName();
+            }
             var mapVal = MapToCData(prefix);
             EnPrefix enG = EnPrefix.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewPrefix();
-            out.getParticipantRole().getPlayingEntity().getNameArray(0).setPrefixArray(0, enG);
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).setPrefixArray(0,  EnPrefix.Factory.newInstance());
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).getPrefixArray(0).set(mapVal);
         }
         if(!suffix.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewPlayingEntity().addNewName();
+            } else {
+                out.getParticipantRole().addNewPlayingEntity().addNewName();
+            }
             var mapVal = MapToCData(suffix);
             EnSuffix enG = EnSuffix.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewSuffix();
-            out.getParticipantRole().getPlayingEntity().getNameArray(0).setSuffixArray(0, enG);
+
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).setSuffixArray(0,  EnSuffix.Factory.newInstance());
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).getSuffixArray(0).set(mapVal);
         }
         if(!address1.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
             var mapVal = MapToCData(address1);
             AdxpStreetAddressLine enG = AdxpStreetAddressLine.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
-            out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0, enG);
+            out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0,  AdxpStreetAddressLine.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapVal);
         }
         if(!address2.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
             var mapVal = MapToCData(address2);
             AdxpStreetAddressLine enG = AdxpStreetAddressLine.Factory.newInstance();
             enG.set(mapVal);
 
             out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
             if (out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray().length > 1) {
-                out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(1, enG);
+                out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(1,  AdxpStreetAddressLine.Factory.newInstance());
+                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(1).set(mapVal);
             }
-            out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0, enG);
+            out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0,  AdxpStreetAddressLine.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapVal);
         }
         if(!city.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
             var mapVal = MapToCData(city);
             AdxpCity enG = AdxpCity.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getAddrArray(0).addNewCity();
-            out.getParticipantRole().getAddrArray(0).setCityArray(0, enG);
+
+            out.getParticipantRole().getAddrArray(0).setCityArray(0,  AdxpCity.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getCityArray(0).set(mapVal);
         }
         if(!county.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
             var mapVal = MapToCData(county);
             AdxpCounty enG = AdxpCounty.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getAddrArray(0).addNewCounty();
-            out.getParticipantRole().getAddrArray(0).setCountyArray(0, enG);
+
+            out.getParticipantRole().getAddrArray(0).setCountyArray(0,  AdxpCounty.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getCountyArray(0).set(mapVal);
         }
         if(!zip.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
             var mapVal = MapToCData(zip);
             AdxpPostalCode enG = AdxpPostalCode.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getAddrArray(0).addNewPostalCode();
-            out.getParticipantRole().getAddrArray(0).setPostalCodeArray(0, enG);
+
+            out.getParticipantRole().getAddrArray(0).setPostalCodeArray(0,  AdxpPostalCode.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getPostalCodeArray(0).set(mapVal);
         }
 
         if(!state.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
             var mapVal = MapToCData(state);
             AdxpState enG = AdxpState.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getAddrArray(0).addNewState();
-            out.getParticipantRole().getAddrArray(0).setStateArray(0, enG);
+
+            out.getParticipantRole().getAddrArray(0).setStateArray(0,  AdxpState.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getStateArray(0).set(mapVal);
         }
         if(!country.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
             var mapVal = MapToCData(country);
             AdxpCountry enG = AdxpCountry.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getAddrArray(0).addNewCountry();
-            out.getParticipantRole().getAddrArray(0).setCountryArray(0, enG);
+
+            out.getParticipantRole().getAddrArray(0).setCountryArray(0,  AdxpCountry.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getCountryArray(0).set(mapVal);
         }
         if(!telephone.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewTelecom();
+            } else {
+                out.getParticipantRole().addNewTelecom();
+            }
             out.getParticipantRole().getTelecomArray(teleCounter).setUse(new ArrayList(Arrays.asList("WP")));
             int phoneExtnSize= extn.length();
             if(phoneExtnSize>0){
@@ -2410,6 +2872,11 @@ public class CdaMapper {
             out.getParticipantRole().getTelecomArray(teleCounter).setValue(telephone);
             teleCounter = teleCounter+1;
         } if(!email.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewTelecom();
+            } else {
+                out.getParticipantRole().addNewTelecom();
+            }
             out.getParticipantRole().getTelecomArray(teleCounter).setUse(new ArrayList(Arrays.asList("WP")));
             out.getParticipantRole().getTelecomArray(teleCounter).setValue(email);
             teleCounter= teleCounter + 1;
@@ -2818,7 +3285,11 @@ public class CdaMapper {
 
         for (Map.Entry<String, Object> entry : caseDto.getMsgCase().getDataMap().entrySet()) {
             String name = entry.getKey();
-            String value = entry.getValue().toString();
+
+            String value = null;
+            if (entry.getValue() != null) {
+                value = entry.getValue().toString();
+            }
 
             boolean patLocalIdFailedCheck = (name.equalsIgnoreCase("patLocalId") && caseDto.getMsgCase().getPatLocalId() == null)
                     || (name.equalsIgnoreCase("patLocalId")  && caseDto.getMsgCase().getPatLocalId() != null && caseDto.getMsgCase().getPatLocalId().isEmpty());
@@ -2838,21 +3309,47 @@ public class CdaMapper {
 
 
                 if (repeats > 1) {
+                    int c = 0;
+                    if (output.getComponentArray(componentCaseCounter).getSection().getEntryArray().length == 0) {
+                        output.getComponentArray(componentCaseCounter).getSection().addNewEntry();
+                    } else {
+                        c = output.getComponentArray(componentCaseCounter).getSection().getEntryArray().length;
+                        output.getComponentArray(componentCaseCounter).getSection().addNewEntry();
+                    }
+
+                    if (output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation() == null) {
+                        output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).addNewObservation();
+                    }
+
+
+                    var element = output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation();
                     var obs = MapTripletToObservation(
                             caseDto.getMsgCase().getInvConditionCd(),
                             quesId,
-                            output.getComponentArray(componentCaseCounter).getSection().getEntryArray(counter).getObservation()
+                            element
                     );
-                    output.getComponentArray(componentCaseCounter).getSection().getEntryArray(counter).setObservation(obs);
+                    output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).setObservation(obs);
                     repeats = 0;
                 }
                 else {
+                    int c = 0;
+                    if (output.getComponentArray(componentCaseCounter).getSection().getEntryArray().length == 0) {
+                        output.getComponentArray(componentCaseCounter).getSection().addNewEntry();
+                    } else {
+                        c = output.getComponentArray(componentCaseCounter).getSection().getEntryArray().length;
+                        output.getComponentArray(componentCaseCounter).getSection().addNewEntry();
+                    }
+
+                    if (output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation() == null) {
+                        output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).addNewObservation();
+                    }
+                    var element = output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation();
                     POCDMT000040Observation obs = MapToObservation(
                             quesId,
                             caseDto.getMsgCase().getInvConditionCd(),
-                            output.getComponentArray(componentCaseCounter).getSection().getEntryArray(counter).getObservation()
+                            element
                     );
-                    output.getComponentArray(componentCaseCounter).getSection().getEntryArray(counter).setObservation(obs);
+                    output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).setObservation(obs);
                 }
                 counter++;
             }
@@ -3106,7 +3603,10 @@ public class CdaMapper {
         MessageAnswer model = new MessageAnswer();
         for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
             String name = entry.getKey();
-            String value = entry.getValue().toString();
+            String value = null;
+            if (entry.getValue() != null) {
+                value = entry.getValue().toString();
+            }
 
             if (name.equals("questionGroupSeqNbr") &&  !in.getQuestionGroupSeqNbr().isEmpty()) {
                 questionGroupSeqNbr = Integer.valueOf(in.getQuestionGroupSeqNbr());
