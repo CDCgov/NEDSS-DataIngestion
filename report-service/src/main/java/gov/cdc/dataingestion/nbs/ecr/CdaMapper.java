@@ -1,10 +1,10 @@
 package gov.cdc.dataingestion.nbs.ecr;
 
-import gov.cdc.dataingestion.nbs.ecr.model.MessageAnswer;
-import gov.cdc.dataingestion.nbs.ecr.model.MultiSelect;
+import gov.cdc.dataingestion.nbs.ecr.model.*;
 import gov.cdc.dataingestion.nbs.repository.implementation.EcrLookUpRepository;
 import gov.cdc.dataingestion.nbs.repository.model.IEcrLookUpRepository;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedCase;
+import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedInterview;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedTreatment;
 import gov.cdc.dataingestion.nbs.repository.model.dao.LookUp.PhdcAnswerDao;
@@ -19,12 +19,9 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 import javax.xml.namespace.QName;
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
-import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -936,7 +933,7 @@ public class CdaMapper {
         }
 
         /**
-         * PROVIDER -- REVIEW NEEDED
+         * PROVIDER -- TEST NEEDED
          * **/
         if(!input.getMsgProviders().isEmpty()) {
             // 449
@@ -978,7 +975,7 @@ public class CdaMapper {
         }
 
         /**
-         * ORGANIZATION -- REVIEW NEEDED
+         * ORGANIZATION -- TEST NEEDED
          * **/
         if(!input.getMsgOrganizations().isEmpty()) {
             // 474
@@ -1012,7 +1009,7 @@ public class CdaMapper {
         }
 
         /**
-         * PLACE -- REVIEW NEEDED
+         * PLACE -- TEST NEEDED
          * */
         if(!input.getMsgPlaces().isEmpty()) {
             // 498
@@ -1046,7 +1043,7 @@ public class CdaMapper {
         }
 
         /**
-         * PLACE -- INTERVIEW NEEDED
+         * INTERVIEW -- TEST NEEDED
          * */
         if(!input.getMsgInterviews().isEmpty()) {
             // 523
@@ -1065,13 +1062,13 @@ public class CdaMapper {
                 POCDMT000040Component3 ot = clinicalDocument.getComponent().getStructuredBody().getComponentArray(interviewCounter);
                 // CHECK MapToInterview
 
-                POCDMT000040Component3 output = MapToInterview(input.getMsgInterviews().get(i).getMsgInterview(), ot);
+                POCDMT000040Component3 output = MapToInterview(input.getMsgInterviews().get(i), ot);
                 clinicalDocument.getComponent().getStructuredBody().setComponentArray(interviewCounter, output);
             }
         }
 
         /**
-         * TREATMENT -- INTERVIEW NEEDED
+         * TREATMENT -- REVIEW NEEDED
          * */
         if(!input.getMsgTreatments().isEmpty()) {
             // 543
@@ -1196,7 +1193,10 @@ public class CdaMapper {
         }
     }
     
-    private POCDMT000040SubstanceAdministration MapToTreatment(EcrSelectedTreatment input, POCDMT000040SubstanceAdministration output, StrucDocText list, int counter) throws XmlException {
+    private POCDMT000040SubstanceAdministration MapToTreatment(
+            EcrSelectedTreatment input, POCDMT000040SubstanceAdministration output,
+            StrucDocText list,
+            int counter) throws XmlException {
         String PROV="";
         String ORG="";
         String treatmentUid="";
@@ -1212,70 +1212,69 @@ public class CdaMapper {
         String subjectAreaTRT ="TREATMENT";
         String customTreatment="";
 
-        for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
+
+        for (Map.Entry<String, Object> entry : input.getMsgTreatment().getDataMap().entrySet()) {
             String name = entry.getKey();
             String value = entry.getValue().toString();
-        }
 
-        if(input.getMsgTreatment().getTrtTreatmentDt() != null) {
-            TRT_TREATMENT_DT= input.getMsgTreatment().getTrtTreatmentDt().toString();
-        }
+            if(name.equals("trtTreatmentDt") && input.getMsgTreatment().getTrtTreatmentDt() != null) {
+                TRT_TREATMENT_DT= input.getMsgTreatment().getTrtTreatmentDt().toString();
+            }
 
-        if(input.getMsgTreatment().getTrtFrequencyAmtCd() != null && !input.getMsgTreatment().getTrtFrequencyAmtCd().isEmpty()) {
-            TRT_FREQUENCY_AMT_CD= input.getMsgTreatment().getTrtFrequencyAmtCd();
-        }
+            if(name.equals("trtFrequencyAmtCd") && input.getMsgTreatment().getTrtFrequencyAmtCd() != null && !input.getMsgTreatment().getTrtFrequencyAmtCd().isEmpty()) {
+                TRT_FREQUENCY_AMT_CD= input.getMsgTreatment().getTrtFrequencyAmtCd();
+            }
 
-        if(input.getMsgTreatment().getTrtDosageUnitCd() != null && !input.getMsgTreatment().getTrtDosageUnitCd().isEmpty()) {
-            TRT_DOSAGE_UNIT_CD= input.getMsgTreatment().getTrtDosageUnitCd();
-            output.getDoseQuantity().setUnit(TRT_DOSAGE_UNIT_CD);
-        }
+            if(name.equals("trtDosageUnitCd") && input.getMsgTreatment().getTrtDosageUnitCd() != null && !input.getMsgTreatment().getTrtDosageUnitCd().isEmpty()) {
+                TRT_DOSAGE_UNIT_CD= input.getMsgTreatment().getTrtDosageUnitCd();
+                output.getDoseQuantity().setUnit(TRT_DOSAGE_UNIT_CD);
+            }
 
-        if(input.getMsgTreatment().getTrtDosageAmt() != null) {
-            String dosageSt = input.getMsgTreatment().getTrtDosageAmt().toString();
-            if(!dosageSt.isEmpty()) {
-                String dosageStQty = "";
-                String dosageStUnit = "";
-                String dosageStCodeSystemName = "";
-                String dosageStDisplayName = "";
-                // CHECK MapToTreatment
+            if(name.equals("trtDosageAmt") && input.getMsgTreatment().getTrtDosageAmt() != null) {
+                String dosageSt = input.getMsgTreatment().getTrtDosageAmt().toString();
+                if(!dosageSt.isEmpty()) {
+                    String dosageStQty = "";
+                    String dosageStUnit = "";
+                    String dosageStCodeSystemName = "";
+                    String dosageStDisplayName = "";
+                    // CHECK MapToTreatment
+                    output.getDoseQuantity().setValue(input.getMsgTreatment().getTrtDosageAmt());
+                }
+            }
 
-                output.getDoseQuantity().setValue(input.getMsgTreatment().getTrtDosageAmt());
+            if(name.equals("trtDrugCd") && input.getMsgTreatment().getTrtDrugCd() != null && !input.getMsgTreatment().getTrtDrugCd().isEmpty()) {
+                treatmentNameQuestion = MapToQuestionId("TRT_DRUG_CD");;
+                treatmentName = input.getMsgTreatment().getTrtDrugCd();
+            }
+
+
+            if(name.equals("trtLocalId") && input.getMsgTreatment().getTrtLocalId() != null && !input.getMsgTreatment().getTrtLocalId().isEmpty()) {
+                output.getIdArray(0).setRoot("2.16.840.999999");
+                output.getIdArray(0).setAssigningAuthorityName("LR");
+                output.getIdArray(0).setExtension(input.getMsgTreatment().getTrtLocalId());
+                treatmentUid=input.getMsgTreatment().getTrtLocalId();
+            }
+
+            if(name.equals("trtCustomTreatmentTxt") && input.getMsgTreatment().getTrtCustomTreatmentTxt() != null && !input.getMsgTreatment().getTrtCustomTreatmentTxt().isEmpty()) {
+                customTreatment= input.getMsgTreatment().getTrtCustomTreatmentTxt();
+            }
+
+            if(name.equals("trtCompositeCd") && input.getMsgTreatment().getTrtCompositeCd() != null && !input.getMsgTreatment().getTrtCompositeCd().isEmpty()) {
+
+            }
+
+            if(name.equals("trtCommentTxt") && input.getMsgTreatment().getTrtCommentTxt() != null && !input.getMsgTreatment().getTrtCommentTxt().isEmpty()) {
+
+            }
+
+            if(name.equals("trtDurationAmt") && input.getMsgTreatment().getTrtDurationAmt() != null) {
+                TRT_DURATION_AMT = input.getMsgTreatment().getTrtDurationAmt().toString();
+            }
+
+            if(name.equals("trtDurationUnitCd") && input.getMsgTreatment().getTrtDurationUnitCd() != null && !input.getMsgTreatment().getTrtDurationUnitCd().isEmpty()) {
+                TRT_DURATION_UNIT_CD = input.getMsgTreatment().getTrtDurationUnitCd();
             }
         }
-
-        if(input.getMsgTreatment().getTrtDrugCd() != null && !input.getMsgTreatment().getTrtDrugCd().isEmpty()) {
-            treatmentNameQuestion = MapToQuestionId("TRT_DRUG_CD");;
-            treatmentName = input.getMsgTreatment().getTrtDrugCd();
-        }
-
-
-        if(input.getMsgTreatment().getTrtLocalId() != null && !input.getMsgTreatment().getTrtLocalId().isEmpty()) {
-            output.getIdArray(0).setRoot("2.16.840.999999");
-            output.getIdArray(0).setAssigningAuthorityName("LR");
-            output.getIdArray(0).setExtension(input.getMsgTreatment().getTrtLocalId());
-            treatmentUid=input.getMsgTreatment().getTrtLocalId();
-        }
-
-        if(input.getMsgTreatment().getTrtCustomTreatmentTxt() != null && !input.getMsgTreatment().getTrtCustomTreatmentTxt().isEmpty()) {
-            customTreatment= input.getMsgTreatment().getTrtCustomTreatmentTxt();
-        }
-
-        if(input.getMsgTreatment().getTrtCompositeCd() != null && !input.getMsgTreatment().getTrtCompositeCd().isEmpty()) {
-
-        }
-
-        if(input.getMsgTreatment().getTrtCommentTxt() != null && !input.getMsgTreatment().getTrtCommentTxt().isEmpty()) {
-
-        }
-
-        if(input.getMsgTreatment().getTrtDurationAmt() != null) {
-            TRT_DURATION_AMT = input.getMsgTreatment().getTrtDurationAmt().toString();
-        }
-
-        if(input.getMsgTreatment().getTrtDurationUnitCd() != null && !input.getMsgTreatment().getTrtDurationUnitCd().isEmpty()) {
-            TRT_DURATION_UNIT_CD = input.getMsgTreatment().getTrtDurationUnitCd();
-        }
-
 
         ///
 
@@ -1285,7 +1284,6 @@ public class CdaMapper {
 
         }else{
             // OutXML::Element element1= (OutXML::Element)list.item[counter];
-
         }
 
         if (!treatmentName.isEmpty()) {
@@ -1304,10 +1302,54 @@ public class CdaMapper {
 
         if(!TRT_TREATMENT_DT.isEmpty()){
             // CHECK MapToTreatment
+            var lowElement = output.getEffectiveTimeArray(0);
+            XmlCursor cursor = lowElement.newCursor();
+            cursor.setAttributeText(new QName("http://www.w3.org/2001/XMLSchema-instance", "type"), "IVL_TS");
+            cursor.beginElement(new QName("urn:hl7-org:v3", "low"));
+            String newValue = MapToTsType(TRT_TREATMENT_DT).toString();
+            cursor.insertAttributeWithValue("value", newValue);
+            cursor.toEndToken();
+            if (TRT_DURATION_AMT != null && !TRT_DURATION_AMT.isEmpty() && TRT_DURATION_UNIT_CD != null && !TRT_DURATION_UNIT_CD.isEmpty()) {
+                cursor.beginElement(new QName("urn:hl7-org:v3", "width"));
+                if (!TRT_DURATION_AMT.isEmpty()) {
+                    cursor.insertAttributeWithValue("value", TRT_DURATION_AMT);
+                }
+
+                if (!TRT_DURATION_UNIT_CD.isEmpty()) {
+                    cursor.insertAttributeWithValue("unit", TRT_DURATION_UNIT_CD);
+                }
+
+                cursor.toEndToken();  // Move to the end of the current element (width)
+            }
+
+            cursor.dispose();
+
+            output.setEffectiveTimeArray(0, lowElement);
         }
 
         if (!TRT_FREQUENCY_AMT_CD.isEmpty()) {
             // CHECK MapToTreatment
+            var element = output.getEffectiveTimeArray(1);
+            XmlCursor cursor = element.newCursor();
+
+            cursor.setAttributeText(new QName("http://www.w3.org/2001/XMLSchema-instance", "type"), "PIVL_TS");
+
+            cursor.beginElement(new QName("urn:hl7-org:v3", "period"));
+
+            String hertz = TRT_FREQUENCY_AMT_CD;
+            AttributeMapper res = MapToAttributes(hertz);
+            if (cursor.toFirstAttribute()) {
+                cursor.setName(new QName("value"));
+                cursor.setTextValue(res.getAttribute1());
+            }
+            if (cursor.toNextAttribute()) {
+                cursor.setName(new QName("unit"));
+                cursor.setTextValue(res.getAttribute2());
+            }
+
+            cursor.dispose();
+
+            output.setEffectiveTimeArray(1, element);
         }
 
         int org = 0;
@@ -1335,7 +1377,55 @@ public class CdaMapper {
         return output;
     }
 
-    private POCDMT000040Component3 MapToInterview(EcrMsgInterviewDto in, POCDMT000040Component3 out) throws XmlException {
+    private AttributeMapper MapToAttributes(String input) {
+        AttributeMapper model = new AttributeMapper();
+        if (!input.isEmpty()) {
+            if (input.equals("BID")) {
+                model.setAttribute1("12");
+                model.setAttribute2("h");
+            } else if (input.equals("5ID")) {
+                model.setAttribute1("4.5");
+                model.setAttribute2("h");
+            } else if (input.equals("TID")) {
+                model.setAttribute1("8");
+                model.setAttribute2("h");
+            } else if (input.equals("QW")) {
+                model.setAttribute1("1");
+                model.setAttribute2("wk");
+            } else if (input.equals("QID")) {
+                model.setAttribute1("6");
+                model.setAttribute2("h");
+            } else if (input.equals("QD")) {
+                model.setAttribute1("1");
+                model.setAttribute2("d");
+            } else if (input.equals("Q8H")) {
+                model.setAttribute1("8");
+                model.setAttribute2("h");
+            } else if (input.equals("Q6H")) {
+                model.setAttribute1("6");
+                model.setAttribute2("h");
+            } else if (input.equals("Q5D")) {
+                model.setAttribute1("1.4");
+                model.setAttribute2("d");
+            } else if (input.equals("Q4H")) {
+                model.setAttribute1("4");
+                model.setAttribute2("h");
+            } else if (input.equals("Q3D")) {
+                model.setAttribute1("3.5");
+                model.setAttribute2("d");
+            } else if (input.equals("Once")) {
+                model.setAttribute1("24");
+                model.setAttribute2("h");
+            } else if (input.equals("Q12H")) {
+                model.setAttribute1("12");
+                model.setAttribute2("h");
+            }
+
+        }
+        return model;
+    }
+
+    private POCDMT000040Component3 MapToInterview(EcrSelectedInterview in, POCDMT000040Component3 out) throws XmlException {
         int repeatCounter=0;
         int sectionEntryCounter= out.getSection().getEntryArray().length;
 
@@ -1349,53 +1439,420 @@ public class CdaMapper {
         String IXS_INTERVIEWER_ID="";
         String interviewer = "";
 
-        
-        if(in.getMsgContainerUid() != null || !in.getIxsAuthorId().isEmpty() || in.getIxsEffectiveTime() != null){
-            // CHECK MapToInterview
-            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray(0).setExtension(in.getMsgContainerUid().toString());
-        }
-        if (!in.getIxsLocalId().isEmpty()){
-            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray(0).setExtension(in.getIxsLocalId());
+        for (Map.Entry<String, Object> entry : in.getMsgInterview().getDataMap().entrySet()) {
+
+            String name = entry.getKey();
+            String value = entry.getValue().toString();
+
+            if((name.equals("msgContainerUid")  && in.getMsgInterview().getMsgContainerUid() != null )
+                    || (name.equals("ixsAuthorId")  && !in.getMsgInterview().getIxsAuthorId().isEmpty() )
+                    || (name.equals("ixsEffectiveTime")  && in.getMsgInterview().getIxsEffectiveTime() != null)){
+                // CHECK MapToInterview
+                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray(0).setExtension(in.getMsgInterview().getMsgContainerUid().toString());
+            }
+            else if (name.equals("ixsLocalId")  && !in.getMsgInterview().getIxsLocalId().isEmpty()){
+                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray(0).setExtension(in.getMsgInterview().getIxsLocalId());
+            }
+
+            else if (name.equals("ixsStatusCd")  && !in.getMsgInterview().getIxsStatusCd().isEmpty()){
+                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getStatusCode().setCode(in.getMsgInterview().getIxsStatusCd());
+            }
+            else if (name.equals("ixsInterviewDt")  && in.getMsgInterview().getIxsInterviewDt() != null){
+                var ts = MapToTsType(in.getMsgInterview().getIxsInterviewDt().toString());
+                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEffectiveTime().setValue(ts.toString());
+            }
+
+            else if (name.equals("ixsIntervieweeRoleCd")  && !in.getMsgInterview().getIxsIntervieweeRoleCd().isEmpty()){
+                String questionCode = MapToQuestionId("IXS_INTERVIEWEE_ROLE_CD");
+
+                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setTypeCode(XActRelationshipEntryRelationship.COMP);
+                var obs = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).getObservation();
+                MapToObservation(questionCode, in.getMsgInterview().getIxsIntervieweeRoleCd(), obs);
+                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setObservation(obs);
+                entryCounter= entryCounter+ 1;
+            }
+            else if (name.equals("ixsInterviewTypeCd")  && !in.getMsgInterview().getIxsInterviewTypeCd().isEmpty()){
+                String questionCode = MapToQuestionId("IXS_INTERVIEW_TYPE_CD");
+
+                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setTypeCode(XActRelationshipEntryRelationship.COMP);
+                var obs = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).getObservation();
+                MapToObservation(questionCode, in.getMsgInterview().getIxsInterviewTypeCd(), obs);
+                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setObservation(obs);
+                entryCounter= entryCounter+ 1;
+
+            }
+            else if (name.equals("ixsInterviewLocCd")  && !in.getMsgInterview().getIxsInterviewLocCd().isEmpty()){
+                String questionCode = MapToQuestionId("IXS_INTERVIEW_LOC_CD");
+
+                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setTypeCode(XActRelationshipEntryRelationship.COMP);
+                var obs = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).getObservation();
+                MapToObservation(questionCode, in.getMsgInterview().getIxsInterviewLocCd(), obs);
+                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setObservation(obs);
+                entryCounter= entryCounter+ 1;
+            }
         }
 
-        if (!in.getIxsStatusCd().isEmpty()){
-            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getStatusCode().setCode(in.getIxsStatusCd());
-        }
-        if (in.getIxsInterviewDt() != null){
-            var ts = MapToTsType(in.getIxsInterviewDt().toString());
-            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEffectiveTime().setValue(ts.toString());
+        int questionGroupCounter=0;
+        int componentCounter=0;
+        int answerGroupCounter=0;
+        String OldQuestionId="CHANGED";
+        String OldRepeatQuestionId="CHANGED";
+        int sectionCounter = 0;
+        int repeatComponentCounter=0;
+        int providerRoleCounter=0;
+
+
+        if (!in.getMsgInterviewProviders().isEmpty() || !in.getMsgInterviewAnswers().isEmpty() || !in.getMsgInterviewAnswerRepeats().isEmpty()) {
+
+            for(int i = 0; i < in.getMsgInterviewProviders().size(); i++) {
+                var element = out.getSection().getEntryArray(sectionCounter).getEncounter().getParticipantArray(providerRoleCounter);
+                var ot = MapToPSN(in.getMsgInterviewProviders().get(i),
+                        element);
+                out.getSection().getEntryArray(sectionCounter).getEncounter().setParticipantArray(providerRoleCounter, ot);
+                var element2 = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getParticipantArray(providerRoleCounter)
+                        .getParticipantRole().getCode();
+                CE ce = MapToCEQuestionType("IXS102", element2);
+                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getParticipantArray(providerRoleCounter)
+                        .getParticipantRole().setCode(ce);
+                providerRoleCounter=providerRoleCounter+1;
+            }
+            for(int i = 0; i < in.getMsgInterviewAnswers().size(); i++) {
+                String newQuestionId="";
+                var element = out.getSection().getEntryArray(sectionCounter).getEncounter();
+                var ot = MapToInterviewObservation(in.getMsgInterviewAnswers().get(i), entryCounter, OldQuestionId,
+                        element );
+
+                entryCounter = ot.getCounter();
+                OldQuestionId = ot.getQuestionSeq();
+                out.getSection().getEntryArray(sectionCounter).setEncounter(ot.getComponent());
+
+                if(newQuestionId.equals(OldQuestionId)){
+                }
+                else{
+                    OldQuestionId=newQuestionId;
+                }
+            }
+            for(int i = 0; i < in.getMsgInterviewAnswerRepeats().size(); i++) {
+                var element = out.getSection().getEntryArray(sectionEntryCounter).getEncounter();
+                var mapped = MapToInterviewMultiSelectObservation(in.getMsgInterviewAnswerRepeats().get(i),
+                        answerGroupCounter,
+                        questionGroupCounter,
+                        sectionCounter,
+                        OldRepeatQuestionId,
+                        element);
+
+                answerGroupCounter = mapped.getAnswerGroupCounter();
+                questionGroupCounter = mapped.getQuestionGroupCounter();
+                sectionCounter = mapped.getSectionCounter();
+                OldRepeatQuestionId = mapped.getQuestionId();
+                out.getSection().getEntryArray(sectionEntryCounter).setEncounter(mapped.getComponent());
+
+            }
         }
 
-        if (!in.getIxsIntervieweeRoleCd().isEmpty()){
-            String questionCode = MapToQuestionId("IXS_INTERVIEWEE_ROLE_CD");
-            
-            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setTypeCode(XActRelationshipEntryRelationship.COMP);
-            var obs = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).getObservation();
-            MapToObservation(questionCode, in.getIxsIntervieweeRoleCd(), obs);
-            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setObservation(obs);
-            entryCounter= entryCounter+ 1;
-        }
-        if (!in.getIxsInterviewTypeCd().isEmpty()){
-            String questionCode = MapToQuestionId("IXS_INTERVIEW_TYPE_CD");
-
-            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setTypeCode(XActRelationshipEntryRelationship.COMP);
-            var obs = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).getObservation();
-            MapToObservation(questionCode, in.getIxsInterviewTypeCd(), obs);
-            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setObservation(obs);
-            entryCounter= entryCounter+ 1;
-
-        }
-        if (!in.getIxsInterviewLocCd().isEmpty()){
-            String questionCode = MapToQuestionId("IXS_INTERVIEW_LOC_CD");
-
-            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setTypeCode(XActRelationshipEntryRelationship.COMP);
-            var obs = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).getObservation();
-            MapToObservation(questionCode, in.getIxsInterviewLocCd(), obs);
-            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setObservation(obs);
-            entryCounter= entryCounter+ 1;
-        }
 
         return out;
+    }
+
+    private InterviewAnswerMultiMapper MapToInterviewMultiSelectObservation(EcrMsgInterviewAnswerRepeatDto in,
+                                                                            Integer answerGroupCounter,
+                                                                            Integer questionGroupCounter,
+                                                                            Integer sectionCounter,
+                                                                            String questionId,
+                                                                            POCDMT000040Encounter out) {
+        int componentCounter = 0;
+        String dataType="DATE";
+        int seqNbr = 0;
+        int questionGroupSeqNbr = 0;
+        int answerGroupSeqNbr = 0;
+        String questionIdentifier="";
+
+        InterviewAnswerMultiMapper model = new InterviewAnswerMultiMapper();
+
+        for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
+            String name = entry.getKey();
+            String value = entry.getValue().toString();
+
+            if(name.equals("questionGroupSeqNbr") && !in.getQuestionGroupSeqNbr().isEmpty()){
+                questionGroupSeqNbr= Integer.valueOf(in.getQuestionGroupSeqNbr());
+            }
+            else if(name.equals("answerGroupSeqNbr") && !in.getAnswerGroupSeqNbr().isEmpty()){
+                answerGroupSeqNbr= Integer.valueOf(in.getAnswerGroupSeqNbr());
+                if((answerGroupSeqNbr==answerGroupCounter) &&
+                        (questionGroupSeqNbr ==questionGroupCounter))
+                {
+                    componentCounter = out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray().length;
+                }
+                else
+                {
+                    sectionCounter = out.getEntryRelationshipArray().length;
+                    questionGroupCounter=questionGroupSeqNbr ;
+                    answerGroupCounter=answerGroupSeqNbr;
+
+                    out.getEntryRelationshipArray(sectionCounter).getOrganizer().getCode().setCode(String.valueOf(questionGroupSeqNbr));
+                    out.getEntryRelationshipArray(sectionCounter).getOrganizer().getCode().setCode("1234567-RPT");
+                    out.getEntryRelationshipArray(sectionCounter).getOrganizer().getCode().setCodeSystem("Local-codesystem-oid");
+                    out.getEntryRelationshipArray(sectionCounter).getOrganizer().getCode().setCodeSystemName("LocalSystem");
+                    out.getEntryRelationshipArray(sectionCounter).getOrganizer().getCode().setDisplayName("Generic Repeating Questions Section");
+
+                    out.getEntryRelationshipArray(sectionCounter).setTypeCode(XActRelationshipEntryRelationship.COMP);
+                    out.getEntryRelationshipArray(sectionCounter).getOrganizer().setClassCode(XActClassDocumentEntryOrganizer.CLUSTER);
+                    out.getEntryRelationshipArray(sectionCounter).getOrganizer().setMoodCode("EVN");
+                    out.getEntryRelationshipArray(sectionCounter).getOrganizer().getStatusCode().setCode("completed");
+                    componentCounter=0;
+
+                }
+            }
+
+            else if(name.equals("dataType") && !in.getDataType().isEmpty() ){
+                dataType= in.getDataType();
+            }else if(name.equals("seqNbr") && !in.getSeqNbr().isEmpty()){
+                seqNbr= Integer.valueOf(in.getSeqNbr()) ;
+            }
+
+            if(dataType.equalsIgnoreCase("CODED") || dataType.equalsIgnoreCase("CODED_COUNTY")){
+                CE ce = CE.Factory.newInstance();
+                if (name.equals("answerTxt") && !in.getAnswerTxt().isEmpty()) {
+                    ce.getTranslationArray(0).setCode(in.getAnswerTxt());
+                }
+                else if (name.equals("ansCodeSystemCd") && !in.getAnsCodeSystemCd().isEmpty()) {
+                    ce.getTranslationArray(0).setCodeSystem(in.getAnsCodeSystemCd());
+                }
+                else if (name.equals("ansCodeSystemDescTxt") && !in.getAnsCodeSystemDescTxt().isEmpty()) {
+                    ce.getTranslationArray(0).setCodeSystemName(in.getAnsCodeSystemDescTxt());
+                }
+                else if (name.equals("ansDisplayTxt") && !in.getAnsDisplayTxt().isEmpty()) {
+                    ce.getTranslationArray(0).setDisplayName(in.getAnsDisplayTxt());
+                }
+                else if (name.equals("ansToCode") && !in.getAnsToCode().isEmpty()) {
+                    ce.setCode(in.getAnsToCode());
+                }
+                else if (name.equals("ansToCodeSystemCd") && !in.getAnsToCodeSystemCd().isEmpty()) {
+                    ce.setCodeSystem(in.getAnsToCodeSystemCd());
+                }
+                else if (name.equals("ansToCodeSystemDescTxt") && !in.getAnsToCodeSystemDescTxt().isEmpty()) {
+                    ce.setCodeSystemName(in.getAnsToCodeSystemDescTxt());
+                }
+                else if (name.equals("ansToDisplayNm") && !in.getAnsToDisplayNm().isEmpty()) {
+                    ce.setDisplayName(in.getAnsToDisplayNm());
+
+                }
+                out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getValueArray(seqNbr).set(ce);
+            }
+            else if ((dataType.equalsIgnoreCase("TEXT") || dataType.equalsIgnoreCase("NUMERIC")) &&
+                    name.equals("answerTxt")){
+                if(questionIdentifier.equalsIgnoreCase("NBS243") ||
+                        questionIdentifier.equalsIgnoreCase("NBS290")) {
+
+                    var element = out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation();
+                    var ot = MapToObservationPlace(value,
+                            element);
+                    out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).setObservation((POCDMT000040Observation) ot);
+
+                }
+                else {
+                    var element = out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation();
+
+                    var ot = MapToSTValue(value,element);
+                    out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).setObservation((POCDMT000040Observation)ot);
+                }
+            }
+            else if(dataType.equalsIgnoreCase("DATE")){
+                if(name.equals("answerTxt")){
+                    var element = out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getValueArray(0);
+                    XmlCursor cursor = element.newCursor();
+                    cursor.toFirstChild();
+                    cursor.setAttributeText(new QName("http://www.w3.org/2001/XMLSchema-instance", "type"), "TS");
+                    cursor.setAttributeText(new QName("", "value"), null);
+                    if (name.equals("answerTxt")) {
+                        String newValue = MapToTsType(in.getAnswerTxt()).toString();
+                        cursor.setAttributeText(new QName("", "value"), newValue);
+                    }
+                    cursor.dispose();
+                }
+            }
+
+
+            if(name.equals("questionIdentifier")){
+                questionIdentifier= value;
+                if(value.equals(questionId)){
+                    //Test
+                }else{
+                    if(questionId=="CHANGED"){
+
+                    }else{
+                        sectionCounter =  sectionCounter+1;
+                    }
+
+                    questionId =value;
+                }
+
+                out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().setClassCode("OBS");
+                out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().setMoodCode(XActMoodDocumentObservation.EVN);
+                out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getCode().setCode(value);
+            }
+            else if(name.equals("quesCodeSystemCd")){
+                out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getCode().setCodeSystem(value);
+            }
+            else if(name.equals("quesCodeSystemDescTxt")){
+                out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getCode().setCodeSystemName(value);
+            }
+            else if(name.equals("quesDisplayTxt")){
+                out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getCode().setDisplayName(value);
+            }
+        }
+
+        model.setAnswerGroupCounter(answerGroupCounter);
+        model.setQuestionGroupCounter(questionGroupCounter);
+        model.setSectionCounter(sectionCounter);
+        model.setQuestionId(questionId);
+        model.setComponent(out);
+
+        return model;
+    }
+
+    private InterviewAnswerMapper MapToInterviewObservation(EcrMsgInterviewAnswerDto in, int counter,
+                                                            String questionSeq,
+                                                            POCDMT000040Encounter out) throws XmlException {
+        String dataType="";
+        //string hl7DataType="CWE";
+        int sequenceNbr = 0;
+        int questionGroupSeqNbr = 0;
+        int answerGroupSeqNbr = 0;
+
+        InterviewAnswerMapper model = new InterviewAnswerMapper();
+
+        for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
+            String name = entry.getKey();
+            String value = entry.getValue().toString();
+
+            if(name.equals("questionGroupSeqNbr") && !in.getQuestionGroupSeqNbr().isEmpty()){
+                questionGroupSeqNbr= Integer.valueOf(in.getQuestionGroupSeqNbr());
+            }
+            else if(name.equals("answerGroupSeqNbr") && !in.getAnswerGroupSeqNbr().isEmpty() ){
+                answerGroupSeqNbr= Integer.valueOf(in.getAnswerGroupSeqNbr());
+            }
+            else if(name.equals("dataType") && !in.getDataType().isEmpty()){
+                dataType=in.getDataType();
+            }
+            else if(name.equals("seqNbr") && !in.getSeqNbr().isEmpty()){
+                sequenceNbr= Integer.valueOf(in.getSeqNbr());
+                if(sequenceNbr>0) {
+                    sequenceNbr =sequenceNbr-1;
+                }
+            }
+
+            if(dataType.equalsIgnoreCase("CODED") || dataType.equalsIgnoreCase("COUNTY")){
+                CE ce = CE.Factory.newInstance();
+                if (name.equals("answerTxt") && !in.getAnswerTxt().isEmpty()) {
+                    ce.getTranslationArray(0).setCode(in.getAnswerTxt());
+                }
+                else if (name.equals("ansCodeSystemCd") && !in.getAnsCodeSystemCd().isEmpty()) {
+                    ce.getTranslationArray(0).setCodeSystem(in.getAnsCodeSystemCd());
+                }
+                else if (name.equals("ansCodeSystemDescTxt") && !in.getAnsCodeSystemDescTxt().isEmpty()) {
+                    ce.getTranslationArray(0).setCodeSystemName(in.getAnsCodeSystemDescTxt());
+                }
+                else if (name.equals("ansDisplayTxt") && !in.getAnsDisplayTxt().isEmpty()) {
+                    ce.getTranslationArray(0).setDisplayName(in.getAnsDisplayTxt());
+                }
+                else if (name.equals("ansToCode") && !in.getAnsToCode().isEmpty()) {
+                    ce.setCode(in.getAnsToCode());
+                }
+                else if (name.equals("ansToCodeSystemCd") && !in.getAnsToCodeSystemCd().isEmpty()) {
+                    ce.setCodeSystem(in.getAnsToCodeSystemCd());
+                }
+                else if (name.equals("ansToCodeSystemDescTxt") && !in.getAnsToCodeSystemDescTxt().isEmpty()) {
+                    ce.setCodeSystemName(in.getAnsToCodeSystemDescTxt());
+                }
+                else if (name.equals("ansToDisplayNm") && !in.getAnsToDisplayNm().isEmpty()) {
+                    ce.setDisplayName(in.getAnsToDisplayNm());
+
+                }
+                out.getEntryRelationshipArray(counter).getObservation().getValueArray(sequenceNbr).set(ce);
+
+            }
+            else if(
+                    dataType.equals("TEXT") ||
+                    dataType.equals("NUMERIC")){
+                if(name.equals("answerTxt") && !in.getAnswerTxt().isEmpty()){
+                    var element = out.getEntryRelationshipArray(counter).getObservation();
+                    var ot = MapToSTValue(value, element);
+                    out.getEntryRelationshipArray(counter).setObservation((POCDMT000040Observation) ot);
+                }
+
+            }
+            else if(dataType.equalsIgnoreCase(  "DATE")){
+                if(name.equals("answerTxt") && !in.getAnswerTxt().isEmpty()){
+                    var element = out.getEntryRelationshipArray(counter).getObservation().getValueArray(0);
+                    XmlCursor cursor = element.newCursor();
+                    cursor.setAttributeText(new QName("http://www.w3.org/2001/XMLSchema-instance", "type"), "TS");
+                    cursor.setAttributeText(new QName("name"), "value");  // This is an assumption based on the original code
+
+                    if(name.equals("answerTxt") && !in.getAnswerTxt().isEmpty()){
+                        String newValue = MapToTsType(in.getAnswerTxt()).toString();
+                        cursor.setAttributeText(new QName("name"), "value");
+                        cursor.setTextValue(newValue);
+                    }
+                    else {
+                        element = out.getEntryRelationshipArray(counter).getObservation().getValueArray(0);
+                        cursor = element.newCursor();
+                        cursor.setAttributeText(new QName("http://www.w3.org/2001/XMLSchema-instance", "type"), "ST");
+
+                        if(name.equals("answerTxt") && !in.getAnswerTxt().isEmpty()) {
+                            cursor.setTextValue(MapToCData(in.getAnswerTxt()).toString());
+                        }
+                    }
+
+                    out.getEntryRelationshipArray(counter).getObservation().setValueArray(0, element);
+                    cursor.dispose();
+                }
+            }
+            if(name.equals("questionIdentifier") && !in.getQuestionIdentifier().isEmpty()){
+                if(in.getQuestionIdentifier().equals(value)){
+                    //Test
+                }else{
+                    if(questionSeq=="CHANGED"){
+
+                    }else{
+                        counter =  counter+1;
+                    }
+
+                    questionSeq =value;
+
+                    out.getEntryRelationshipArray(counter).getObservation().setClassCode("OBS");
+                    out.getEntryRelationshipArray(counter).getObservation().setMoodCode(XActMoodDocumentObservation.EVN);
+                    out.getEntryRelationshipArray(counter).getObservation().getCode().setCode(in.getQuestionIdentifier());
+                }
+            }
+            else if(name.equals("quesCodeSystemCd") && !in.getQuesCodeSystemCd().isEmpty()){
+                out.getEntryRelationshipArray(counter).getObservation().getCode().setCodeSystem(in.getQuesCodeSystemCd());
+            }
+            else if(name.equals("quesCodeSystemDescTxt") && !in.getQuesCodeSystemDescTxt().isEmpty()){
+                out.getEntryRelationshipArray(counter).getObservation().getCode().setCodeSystemName(in.getQuesCodeSystemDescTxt());
+            }
+            else if(name.equals("quesDisplayTxt") && !in.getQuesDisplayTxt().isEmpty()){
+                out.getEntryRelationshipArray(counter).getObservation().getCode().setDisplayName(in.getQuesDisplayTxt());
+            }
+
+        }
+
+        model.setComponent(out);
+        model.setCounter(counter);
+        model.setQuestionSeq(questionSeq);
+        return model;
+    }
+
+
+
+    private CE MapToCEQuestionType(String questionCode, CE output) {
+        var ot = MapToCodedQuestionType(questionCode);
+        output.setCodeSystem(ot.getQuesCodeSystemCd());
+        output.setCodeSystemName(ot.getQuesCodeSystemDescTxt());
+        output.setDisplayName(ot.getQuesDisplayName());
+        output.setCode(questionCode);
+
+        return output;
     }
 
     private POCDMT000040Participant2 MapToPlace(EcrMsgPlaceDto in, POCDMT000040Participant2 out) throws XmlException {
@@ -1421,86 +1878,88 @@ public class CdaMapper {
         for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
             String name = entry.getKey();
             String value = entry.getValue().toString();
+
+            if(name.equals("plaLocalId") && !in.getPlaLocalId().isEmpty()){
+                out.setTypeCode("PRF");
+                out.getParticipantRole().getIdArray(0).setRoot("2.16.840.1.113883.4.6");
+                out.getParticipantRole().getIdArray(0).setExtension(in.getPlaLocalId());
+                out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
+            }
+            if (name.equals("plaNameTxt") && !in.getPlaNameTxt().isEmpty()){
+                PN val = PN.Factory.newInstance();
+                val.set(MapToCData(in.getPlaNameTxt()));
+                out.getParticipantRole().getPlayingEntity().addNewName();
+                out.getParticipantRole().getPlayingEntity().setNameArray(0, val);
+            }
+            if (name.equals("plaAddrStreetAddr1Txt") && !in.getPlaAddrStreetAddr1Txt().isEmpty()){
+                streetAddress1= in.getPlaAddrStreetAddr1Txt();
+            }
+            if (name.equals("plaAddrStreetAddr2Txt") && !in.getPlaAddrStreetAddr2Txt().isEmpty()){
+                streetAddress2 =in.getPlaAddrStreetAddr2Txt();
+            }
+            if (name.equals("plaAddrCityTxt") && !in.getPlaAddrCityTxt().isEmpty()){
+                city= in.getPlaAddrCityTxt();
+            }
+            if (name.equals("plaAddrCountyCd") && !in.getPlaAddrCountyCd().isEmpty()){
+                county= in.getPlaAddrCountyCd();
+            }
+            if (name.equals("plaAddrStateCd") && !in.getPlaAddrStateCd().isEmpty()){
+                state= in.getPlaAddrStateCd();
+            }
+            if (name.equals("plaAddrZipCodeTxt") && !in.getPlaAddrZipCodeTxt().isEmpty()){
+                zip = in.getPlaAddrZipCodeTxt();
+            }
+            if (name.equals("plaAddrCountryCd") && !in.getPlaAddrCountryCd().isEmpty()){
+                country=in.getPlaAddrCountryCd();
+            }
+            if (name.equals("plaPhoneNbrTxt") && !in.getPlaPhoneNbrTxt().isEmpty()){
+                workPhone=in.getPlaPhoneNbrTxt();
+            }
+            if (name.equals("plaAddrAsOfDt") && in.getPlaAddrAsOfDt() != null){
+                postalAsOfDate=in.getPlaAddrAsOfDt().toString();
+            }
+            if (name.equals("plaCensusTractTxt") && !in.getPlaCensusTractTxt().isEmpty()){
+                censusTract=in.getPlaCensusTractTxt();
+            }
+            if (name.equals("plaPhoneAsOfDt") && in.getPlaPhoneAsOfDt() != null ){
+                teleAsOfDate=in.getPlaPhoneAsOfDt().toString();
+            }
+            if (name.equals("plaPhoneExtensionTxt") && !in.getPlaPhoneExtensionTxt().isEmpty()){
+                workExtn= in.getPlaPhoneExtensionTxt();
+            }
+            if (name.equals("plaCommentTxt") && !in.getPlaCommentTxt().isEmpty()){
+                placeAddressComments= in.getPlaCommentTxt();
+            }
+            if (name.equals("plaPhoneCountryCodeTxt") && !in.getPlaPhoneCountryCodeTxt().isEmpty()){
+                workCountryCode= in.getPlaPhoneCountryCodeTxt();
+            }
+            if (name.equals("plaEmailAddressTxt") && !in.getPlaEmailAddressTxt().isEmpty()){
+                workEmail= in.getPlaEmailAddressTxt();
+            }
+            if (name.equals("plaUrlAddressTxt") && !in.getPlaUrlAddressTxt().isEmpty()){
+                workURL= in.getPlaUrlAddressTxt();
+            }
+            if (name.equals("plaPhoneCommentTxt") && !in.getPlaPhoneCommentTxt().isEmpty()){
+                placeComments= in.getPlaPhoneCommentTxt();
+            }
+            if (name.equals("plaTypeCd") && !in.getPlaTypeCd().isEmpty()){
+
+                String questionCode= MapToQuestionId("PLA_TYPE_CD");
+                out.getParticipantRole().addNewCode();
+                out.getParticipantRole().setCode(MapToCEAnswerType(in.getPlaTypeCd(), questionCode));
+            }
+            if (name.equals("plaCommentTxt") && !in.getPlaCommentTxt().isEmpty()){
+                out.getParticipantRole().getPlayingEntity().getDesc().set(MapToCData(in.getPlaCommentTxt()));
+            }
+
+            if (name.equals("plaIdQuickCode") && !in.getPlaIdQuickCode().isEmpty()){
+                out.getParticipantRole().getIdArray(1).setRoot("2.16.840.1.113883.4.6");
+                out.getParticipantRole().getIdArray(1).setExtension(in.getPlaIdQuickCode());
+                out.getParticipantRole().getIdArray(1).setAssigningAuthorityName("LR_QEC");
+            }
+
         }
 
-        if(!in.getPlaLocalId().isEmpty()){
-            out.setTypeCode("PRF");
-            out.getParticipantRole().getIdArray(0).setRoot("2.16.840.1.113883.4.6");
-            out.getParticipantRole().getIdArray(0).setExtension(in.getPlaLocalId());
-            out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
-        } 
-        if (!in.getPlaNameTxt().isEmpty()){
-            PN val = PN.Factory.newInstance();
-            val.set(MapToCData(in.getPlaNameTxt()));
-            out.getParticipantRole().getPlayingEntity().addNewName();
-            out.getParticipantRole().getPlayingEntity().setNameArray(0, val);
-        }
-        if (!in.getPlaAddrStreetAddr1Txt().isEmpty()){
-            streetAddress1= in.getPlaAddrStreetAddr1Txt();
-        }
-        if (!in.getPlaAddrStreetAddr2Txt().isEmpty()){
-            streetAddress2 =in.getPlaAddrStreetAddr2Txt();
-        }
-        if (!in.getPlaAddrCityTxt().isEmpty()){
-            city= in.getPlaAddrCityTxt();
-        } 
-        if (!in.getPlaAddrCountyCd().isEmpty()){
-            county= in.getPlaAddrCountyCd();
-        }
-        if (!in.getPlaAddrStateCd().isEmpty()){
-            state= in.getPlaAddrStateCd();
-        } 
-        if (!in.getPlaAddrZipCodeTxt().isEmpty()){
-            zip = in.getPlaAddrZipCodeTxt();
-        }
-        if (!in.getPlaAddrCountryCd().isEmpty()){
-            country=in.getPlaAddrCountryCd();
-        }
-        if (!in.getPlaPhoneNbrTxt().isEmpty()){
-            workPhone=in.getPlaPhoneNbrTxt();
-        }
-        if (in.getPlaAddrAsOfDt() != null){
-            postalAsOfDate=in.getPlaAddrAsOfDt().toString();
-        }
-        if (!in.getPlaCensusTractTxt().isEmpty()){
-            censusTract=in.getPlaCensusTractTxt();
-        }
-        if (in.getPlaPhoneAsOfDt() != null ){
-            teleAsOfDate=in.getPlaPhoneAsOfDt().toString();
-        }
-        if (!in.getPlaPhoneExtensionTxt().isEmpty()){
-            workExtn= in.getPlaPhoneExtensionTxt();
-        }
-        if (!in.getPlaCommentTxt().isEmpty()){
-            placeAddressComments= in.getPlaCommentTxt();
-        }
-        if (!in.getPlaPhoneCountryCodeTxt().isEmpty()){
-            workCountryCode= in.getPlaPhoneCountryCodeTxt();
-        }
-        if (!in.getPlaEmailAddressTxt().isEmpty()){
-            workEmail= in.getPlaEmailAddressTxt();
-        }
-        if (!in.getPlaUrlAddressTxt().isEmpty()){
-            workURL= in.getPlaUrlAddressTxt();
-        }
-        if (!in.getPlaPhoneCommentTxt().isEmpty()){
-            placeComments= in.getPlaPhoneCommentTxt();
-        }
-        if (!in.getPlaTypeCd().isEmpty()){
-
-            String questionCode= MapToQuestionId("PLA_TYPE_CD");
-            out.getParticipantRole().addNewCode();
-            out.getParticipantRole().setCode(MapToCEAnswerType(in.getPlaTypeCd(), questionCode));
-        } 
-        if (!in.getPlaCommentTxt().isEmpty()){
-            out.getParticipantRole().getPlayingEntity().getDesc().set(MapToCData(in.getPlaCommentTxt()));
-        }
-         
-        if (!in.getPlaIdQuickCode().isEmpty()){
-            out.getParticipantRole().getIdArray(1).setRoot("2.16.840.1.113883.4.6");
-            out.getParticipantRole().getIdArray(1).setExtension(in.getPlaIdQuickCode());
-            out.getParticipantRole().getIdArray(1).setAssigningAuthorityName("LR_QEC");
-        }
 
 
         int isAddressPopulated= 0;
@@ -1641,51 +2100,53 @@ public class CdaMapper {
         for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
             String name = entry.getKey();
             String value = entry.getValue().toString();
+
+            if(name.equals("orgLocalId") && !in.getOrgLocalId().isEmpty()){
+                out.getParticipantRole().getIdArray(0).setRoot("2.16.840.1.113883.4.6");
+                out.getParticipantRole().getIdArray(0).setExtension(in.getOrgLocalId());
+                out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
+            }
+            else if(name.equals("orgNameTxt") && !in.getOrgNameTxt().isEmpty()){
+                PN val = PN.Factory.newInstance();
+                val.set(MapToCData(in.getOrgNameTxt()));
+                out.getParticipantRole().getPlayingEntity().addNewName();
+                out.getParticipantRole().getPlayingEntity().setNameArray(0, val);
+            }
+            else if(name.equals("orgAddrStreetAddr1Txt") && !in.getOrgAddrStreetAddr1Txt().isEmpty()){
+                streetAddress1= in.getOrgAddrStreetAddr1Txt();
+            }
+            else if(name.equals("orgAddrStreetAddr2Txt") && !in.getOrgAddrStreetAddr2Txt().isEmpty()){
+                streetAddress2 =in.getOrgAddrStreetAddr2Txt();
+            }
+            else if(name.equals("orgAddrCityTxt") && !in.getOrgAddrCityTxt().isEmpty()){
+                city= in.getOrgAddrCityTxt();
+            }
+            else if(name.equals("orgAddrCountyCd") && !in.getOrgAddrCountyCd().isEmpty()){
+                county = MapToAddressType( in.getOrgAddrCountyCd(), "COUNTY");
+            }
+            else if (name.equals("orgAddrStateCd") &&  !in.getOrgAddrStateCd().isEmpty()){
+                state= MapToAddressType( in.getOrgAddrStateCd(), "STATE");
+            }
+            else if(name.equals("orgAddrZipCodeTxt") && !in.getOrgAddrZipCodeTxt().isEmpty()){
+                zip = in.getOrgAddrZipCodeTxt();
+            }
+            else if(name.equals("orgAddrCountryCd") && !in.getOrgAddrCountryCd().isEmpty()){
+                country = MapToAddressType( in.getOrgAddrCountryCd(), "COUNTRY");
+            }
+            else if(name.equals("orgPhoneNbrTxt") && !in.getOrgPhoneNbrTxt().isEmpty()){
+                phone=in.getOrgPhoneNbrTxt();
+            }
+            else if(name.equals("orgPhoneExtensionTxt") && in.getOrgPhoneExtensionTxt() != null){
+                extn= in.getOrgPhoneExtensionTxt().toString();
+            }
+            else if(name.equals("orgIdCliaNbrTxt") && !in.getOrgIdCliaNbrTxt().isEmpty()){
+                out.getParticipantRole().getIdArray(1).setRoot("2.16.840.1.113883.4.6");
+                out.getParticipantRole().getIdArray(1).setExtension(in.getOrgIdCliaNbrTxt());
+                out.getParticipantRole().getIdArray(1).setAssigningAuthorityName("LR_CLIA");
+            }
         }
 
-        if(!in.getOrgLocalId().isEmpty()){
-            out.getParticipantRole().getIdArray(0).setRoot("2.16.840.1.113883.4.6");
-            out.getParticipantRole().getIdArray(0).setExtension(in.getOrgLocalId());
-            out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
-        }
-        if(!in.getOrgNameTxt().isEmpty()){
-            PN val = PN.Factory.newInstance();
-            val.set(MapToCData(in.getOrgNameTxt()));
-            out.getParticipantRole().getPlayingEntity().addNewName();
-            out.getParticipantRole().getPlayingEntity().setNameArray(0, val);
-        }
-        if(!in.getOrgAddrStreetAddr1Txt().isEmpty()){
-            streetAddress1= in.getOrgAddrStreetAddr1Txt();
-        }
-        if(!in.getOrgAddrStreetAddr2Txt().isEmpty()){
-            streetAddress2 =in.getOrgAddrStreetAddr2Txt();
-        }
-        if(!in.getOrgAddrCityTxt().isEmpty()){
-            city= in.getOrgAddrCityTxt();
-        }
-        if(!in.getOrgAddrCountyCd().isEmpty()){
-            county = MapToAddressType( in.getOrgAddrCountyCd(), "COUNTY");
-        }
-         if ( !in.getOrgAddrStateCd().isEmpty()){
-            state= MapToAddressType( in.getOrgAddrStateCd(), "STATE");
-        }
-        if(!in.getOrgAddrZipCodeTxt().isEmpty()){
-            zip = in.getOrgAddrZipCodeTxt();
-        }
-        if(!in.getOrgAddrCountryCd().isEmpty()){
-            country = MapToAddressType( in.getOrgAddrCountryCd(), "COUNTRY");
-        }
-        if(!in.getOrgPhoneNbrTxt().isEmpty()){
-            phone=in.getOrgPhoneNbrTxt();
-        }
-        if(in.getOrgPhoneExtensionTxt() != null){
-            extn= in.getOrgPhoneExtensionTxt().toString();
-        }
-        if(!in.getOrgIdCliaNbrTxt().isEmpty()){
-            out.getParticipantRole().getIdArray(1).setRoot("2.16.840.1.113883.4.6");
-            out.getParticipantRole().getIdArray(1).setExtension(in.getOrgIdCliaNbrTxt());
-            out.getParticipantRole().getIdArray(1).setAssigningAuthorityName("LR_CLIA");
-        }
+
 
         int isAddressPopulated= 0;
         if(!streetAddress1.isEmpty()){
@@ -1793,65 +2254,65 @@ public class CdaMapper {
         for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
             String name = entry.getKey();
             String value = entry.getValue().toString();
-        }
 
-        if (!in.getPrvLocalId().isEmpty()) {
-            out.getParticipantRole().getIdArray(0).setExtension(in.getPrvLocalId());
-            out.getParticipantRole().getIdArray(0).setRoot("2.16.840.1.113883.11.19745");
-            out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
-        }
-        if (!in.getPrvNameFirstTxt().isEmpty()) {
-            firstName = in.getPrvNameFirstTxt();
-        }
-        if (!in.getPrvNamePrefixCd().isEmpty()) {
-            prefix = in.getPrvNamePrefixCd();
-        }
-        if (!in.getPrvNameLastTxt().isEmpty()) {
-            prefix = in.getPrvNameLastTxt();
-        }
-        if(!in.getPrvNameSuffixCd().isEmpty()) {
-           lastName = in.getPrvNameSuffixCd();
-        }
-        if(!in.getPrvNameDegreeCd().isEmpty()) {
-            degree = in.getPrvNameDegreeCd();
-        }
-        if(!in.getPrvAddrStreetAddr1Txt().isEmpty()) {
-            address1 = in.getPrvAddrStreetAddr1Txt();
-        }
-        if(!in.getPrvAddrStreetAddr2Txt().isEmpty()) {
-            address2 = in.getPrvAddrStreetAddr2Txt();
-        }
-        if(!in.getPrvAddrCityTxt().isEmpty()) {
-            city = in.getPrvAddrCityTxt();
-        }
-        if(!in.getPrvAddrCountyCd().isEmpty()) {
-            county = MapToAddressType(in.getPrvAddrCountyCd(), "COUNTY");
-        }
-        if(!in.getPrvAddrStateCd().isEmpty()) {
-            state = MapToAddressType(in.getPrvAddrStateCd(), "STATE");
-        }
-        if(!in.getPrvAddrZipCodeTxt().isEmpty()) {
-            zip = in.getPrvAddrZipCodeTxt();
-        }
-        if(!in.getPrvAddrCountryCd().isEmpty()) {
-            country = MapToAddressType(in.getPrvAddrCountryCd(), "COUNTRY");
-        }
-        if(!in.getPrvPhoneNbrTxt().isEmpty()) {
-            telephone = in.getPrvPhoneNbrTxt();
-        }
-        if(in.getPrvPhoneExtensionTxt() != null) {
-            extn = in.getPrvPhoneExtensionTxt().toString();
-        }
-        if(!in.getPrvIdQuickCodeTxt().isEmpty()) {
-            out.getParticipantRole().getIdArray(1).setExtension(in.getPrvIdQuickCodeTxt());
-            out.getParticipantRole().getIdArray(1).setRoot("2.16.840.1.113883.11.19745");
-            out.getParticipantRole().getIdArray(1).setAssigningAuthorityName("LR_QEC");
-        }
-        if(!in.getPrvEmailAddressTxt().isEmpty()) {
-            email = in.getPrvEmailAddressTxt();
-        }
+            if (name.equals("prvLocalId") && !in.getPrvLocalId().isEmpty()) {
+                out.getParticipantRole().getIdArray(0).setExtension(in.getPrvLocalId());
+                out.getParticipantRole().getIdArray(0).setRoot("2.16.840.1.113883.11.19745");
+                out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
+            }
+            else if (name.equals("prvNameFirstTxt") && !in.getPrvNameFirstTxt().isEmpty()) {
+                firstName = in.getPrvNameFirstTxt();
+            }
+            else if (name.equals("prvNamePrefixCd") && !in.getPrvNamePrefixCd().isEmpty()) {
+                prefix = in.getPrvNamePrefixCd();
+            }
+            else if (name.equals("prvNameLastTxt") && !in.getPrvNameLastTxt().isEmpty()) {
+                prefix = in.getPrvNameLastTxt();
+            }
+            else if(name.equals("prvNameSuffixCd") && !in.getPrvNameSuffixCd().isEmpty()) {
+                lastName = in.getPrvNameSuffixCd();
+            }
+            else if(name.equals("prvNameDegreeCd") && !in.getPrvNameDegreeCd().isEmpty()) {
+                degree = in.getPrvNameDegreeCd();
+            }
+            else if(name.equals("prvAddrStreetAddr1Txt") && !in.getPrvAddrStreetAddr1Txt().isEmpty()) {
+                address1 = in.getPrvAddrStreetAddr1Txt();
+            }
+            else if(name.equals("prvAddrStreetAddr2Txt") && !in.getPrvAddrStreetAddr2Txt().isEmpty()) {
+                address2 = in.getPrvAddrStreetAddr2Txt();
+            }
+            else if(name.equals("prvAddrCityTxt") && !in.getPrvAddrCityTxt().isEmpty()) {
+                city = in.getPrvAddrCityTxt();
+            }
+            if(name.equals("prvAddrCountyCd") && !in.getPrvAddrCountyCd().isEmpty()) {
+                county = MapToAddressType(in.getPrvAddrCountyCd(), "COUNTY");
+            }
+            else if(name.equals("prvAddrStateCd") && !in.getPrvAddrStateCd().isEmpty()) {
+                state = MapToAddressType(in.getPrvAddrStateCd(), "STATE");
+            }
+            else if(name.equals("prvAddrZipCodeTxt") && !in.getPrvAddrZipCodeTxt().isEmpty()) {
+                zip = in.getPrvAddrZipCodeTxt();
+            }
+            else if(name.equals("prvAddrCountryCd") && !in.getPrvAddrCountryCd().isEmpty()) {
+                country = MapToAddressType(in.getPrvAddrCountryCd(), "COUNTRY");
+            }
+            else if(name.equals("prvPhoneNbrTxt") && !in.getPrvPhoneNbrTxt().isEmpty()) {
+                telephone = in.getPrvPhoneNbrTxt();
+            }
+            else  if(name.equals("prvPhoneExtensionTxt") && in.getPrvPhoneExtensionTxt() != null) {
+                extn = in.getPrvPhoneExtensionTxt().toString();
+            }
+            else if(name.equals("prvIdQuickCodeTxt") && !in.getPrvIdQuickCodeTxt().isEmpty()) {
+                out.getParticipantRole().getIdArray(1).setExtension(in.getPrvIdQuickCodeTxt());
+                out.getParticipantRole().getIdArray(1).setRoot("2.16.840.1.113883.11.19745");
+                out.getParticipantRole().getIdArray(1).setAssigningAuthorityName("LR_QEC");
+            }
+            else if(name.equals("prvEmailAddressTxt") && !in.getPrvEmailAddressTxt().isEmpty()) {
+                email = in.getPrvEmailAddressTxt();
+            }
 
-        /////
+            /////
+        }
 
 
 
@@ -1953,6 +2414,8 @@ public class CdaMapper {
             out.getParticipantRole().getTelecomArray(teleCounter).setValue(email);
             teleCounter= teleCounter + 1;
         }
+
+
 
         return out;
     }
