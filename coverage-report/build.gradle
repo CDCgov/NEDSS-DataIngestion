@@ -1,0 +1,26 @@
+
+plugins {
+    id 'base'
+    id 'jacoco-report-aggregation'
+}
+
+group = 'gov.cdc.dataingestion'
+version = '0.0.1-SNAPSHOT'
+
+dependencies {
+
+    jacocoAggregation project(':hl7-parser')
+    jacocoAggregation project(':report-service')
+}
+
+reporting {
+    reports {
+        testCodeCoverageReport(JacocoCoverageReport) {
+            testType = TestSuiteType.UNIT_TEST
+        }
+    }
+}
+
+tasks.named('test') {
+    finalizedBy tasks.named('testCodeCoverageReport', JacocoReport)
+}

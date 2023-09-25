@@ -1,7 +1,5 @@
 package gov.cdc.dataingestion.registration.controller;
 
-import gov.cdc.dataingestion.deadletter.controller.ElrDeadLetterController;
-import gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService;
 import gov.cdc.dataingestion.registration.service.RegistrationService;
 import gov.cdc.dataingestion.security.config.RsaKeyProperties;
 import org.junit.jupiter.api.Assertions;
