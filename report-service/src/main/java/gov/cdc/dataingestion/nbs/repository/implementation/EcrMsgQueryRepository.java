@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Repository
+//@Repository
 public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
     @PersistenceContext(unitName = "nbs")
     private EntityManager entityManager;
@@ -688,10 +688,10 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
 
     @Transactional(transactionManager = "nbsTransactionManager")
     public void UpdateMatchEcrRecordForProcessing(Integer containerUid) {
-        String queryString = loadSqlFromFile("ecr_msg_container_update_match_record.sql");
-        Query query = entityManager.createNativeQuery(queryString);
-        query.setParameter("MSG_CONTAINER_UID", containerUid);
-        query.executeUpdate();
+//        String queryString = loadSqlFromFile("ecr_msg_container_update_match_record.sql");
+//        Query query = entityManager.createNativeQuery(queryString);
+//        query.setParameter("MSG_CONTAINER_UID", containerUid);
+//        query.executeUpdate();
     }
 
 

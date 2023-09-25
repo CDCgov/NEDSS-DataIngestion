@@ -1,4 +1,4 @@
-package gov.cdc.dataingestion.nbs.ecr;
+package gov.cdc.dataingestion.nbs.ecr.service.helper;
 
 import java.util.ArrayList;
 import java.util.List;

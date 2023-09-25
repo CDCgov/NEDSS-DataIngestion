@@ -1,7 +1,7 @@
 package gov.cdc.dataingestion.rawmessage.controller;
 
 import com.google.gson.Gson;
-import gov.cdc.dataingestion.nbs.ecr.CdaMapper;
+import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
@@ -22,10 +22,22 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ElrReportsController {
 
+    @Autowired
     private final RawELRService rawELRService;
 
-    @Autowired
-    private IEcrMsgQueryService ecrMsgQueryService;
+//    private IEcrMsgQueryService ecrMsgQueryService;
+//    private ICdaMapper mapper;
+//
+//    @Autowired
+//    public ElrReportsController(IEcrMsgQueryService ecrMsgQueryService,
+//                                ICdaMapper mapper,
+//                                RawELRService rawELRService) {
+//        this.ecrMsgQueryService = ecrMsgQueryService;
+//        this.mapper = mapper;
+//        this.rawELRService = rawELRService;
+//    }
+
+
 
     @Operation(
             summary = "Submit a plain text HL7 message",
@@ -48,23 +60,23 @@ public class ElrReportsController {
         return ResponseEntity.ok(rawELRService.getById(id));
     }
 
-    @Operation(
-            summary = "TEST ECR COMM")
-    @GetMapping(path = "/test")
-    public ResponseEntity<String> getTestEcrAfterPatch() {
-        Gson gson = new Gson();
-        var result = ecrMsgQueryService.GetSelectedEcrRecord();
-
-        CdaMapper mapper = new CdaMapper();
-        try {
-            mapper.test(result);
-
-        } catch (Exception e){
-            var error = e;
-            System.out.println(e.getMessage());
-        }
-        String jsonString = gson.toJson(result);
-
-        return ResponseEntity.ok(jsonString);
-    }
+//    @Operation(
+//            summary = "TEST ECR COMM")
+//    @GetMapping(path = "/test")
+//    public ResponseEntity<String> getTestEcrAfterPatch() {
+//        Gson gson = new Gson();
+//        var result = ecrMsgQueryService.GetSelectedEcrRecord();
+//
+//
+//        try {
+//            mapper.tranformSelectedEcrToCDAXml(result);
+//
+//        } catch (Exception e){
+//            var error = e;
+//            System.out.println(e.getMessage());
+//        }
+//        String jsonString = gson.toJson(result);
+//
+//        return ResponseEntity.ok(jsonString);
+//    }
 }

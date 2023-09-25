@@ -13,14 +13,14 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+//@Service
 public class EcrMsgQueryService implements IEcrMsgQueryService {
     private IEcrMsgQueryRepository ecrMsgQueryRepository;
 
-    @Autowired
-    public EcrMsgQueryService(IEcrMsgQueryRepository ecrMsgQueryRepository) {
-        this.ecrMsgQueryRepository = ecrMsgQueryRepository;
-    }
+//    @Autowired
+//    public EcrMsgQueryService(IEcrMsgQueryRepository ecrMsgQueryRepository) {
+//        this.ecrMsgQueryRepository = ecrMsgQueryRepository;
+//    }
 
     public EcrSelectedRecord GetSelectedEcrRecord() {
         EcrSelectedRecord selectedRecord = null;

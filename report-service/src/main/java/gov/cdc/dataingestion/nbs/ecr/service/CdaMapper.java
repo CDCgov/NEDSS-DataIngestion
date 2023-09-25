@@ -1,8 +1,7 @@
-package gov.cdc.dataingestion.nbs.ecr;
+package gov.cdc.dataingestion.nbs.ecr.service;
 
 import gov.cdc.dataingestion.nbs.ecr.model.*;
-import gov.cdc.dataingestion.nbs.repository.implementation.EcrLookUpRepository;
-import gov.cdc.dataingestion.nbs.repository.model.IEcrLookUpRepository;
+import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedCase;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedInterview;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
@@ -12,11 +11,14 @@ import gov.cdc.dataingestion.nbs.repository.model.dao.LookUp.QuestionIdentifierM
 import gov.cdc.dataingestion.nbs.repository.model.dto.*;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcQuestionLookUpDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.QuestionIdentifierMapDto;
+import gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService;
 import gov.cdc.nedss.phdc.cda.*;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.xml.namespace.QName;
 import java.lang.reflect.Field;
@@ -27,37 +29,32 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static gov.cdc.dataingestion.nbs.ecr.CdaMapStringHelper.GetStringsBeforeCaret;
-import static gov.cdc.dataingestion.nbs.ecr.CdaMapStringHelper.GetStringsBeforePipe;
+import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforeCaret;
+import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforePipe;
 
-public class CdaMapper {
+//@Service
+public class CdaMapper implements ICdaMapper {
+    
+    private ICdaLookUpService ecrLookUpService;
 
-    private String xmlns = "http://www.w3.org/2001/XMLSchema-instance";
-    private String xmlns_prefix1 = "sdtcxmlnamespaceholder";
-    private String xmlns_prefix2 = "xsi";
-    private String typeRootId = "2.16.840.1.113883.1.3";
-    private String idRootId = "2.16.840.1.113883.19";
-    private String typeExtension = "POCD_HD000040";
-    private String typeAuthorityName = "LR";
-    private String realmCode = "US";
-    private String code = "55751-2";
-    private String codeSystem = "2.16.840.1.113883.6.1";
-    private String codeSystemName = "LOINC";
+//    @Autowired
+//    public CdaMapper(ICdaLookUpService ecrLookUpService) {
+//        this.ecrLookUpService = ecrLookUpService;
+//    }
 
-    private IEcrLookUpRepository ecrLookUpRepository = new EcrLookUpRepository();
-
-    public void test(EcrSelectedRecord input) throws XmlException, ParseException {
+    public String tranformSelectedEcrToCDAXml(EcrSelectedRecord input) throws XmlException {
 
 
+        ClinicalDocumentDocument1 rootDocument = ClinicalDocumentDocument1.Factory.newInstance();
         POCDMT000040ClinicalDocument1 clinicalDocument = POCDMT000040ClinicalDocument1.Factory.newInstance();
 
         CS[] realmCodeArray = { CS.Factory.newInstance()};
         clinicalDocument.setRealmCodeArray(realmCodeArray);
-        clinicalDocument.getRealmCodeArray(0).setCode(realmCode);
+        clinicalDocument.getRealmCodeArray(0).setCode("US");
 
         clinicalDocument.setTypeId(POCDMT000040InfrastructureRootTypeId.Factory.newInstance());
-        clinicalDocument.getTypeId().setRoot(typeRootId);
-        clinicalDocument.getTypeId().setExtension(typeExtension);
+        clinicalDocument.getTypeId().setRoot("2.16.840.1.113883.1.3");
+        clinicalDocument.getTypeId().setExtension("POCD_HD000040");
 
 
         String inv168 = "";
@@ -68,9 +65,9 @@ public class CdaMapper {
 
         if (input.getMsgContainer().getInvLocalId() != null && !input.getMsgContainer().getInvLocalId().isEmpty()) {
             clinicalDocument.setId(II.Factory.newInstance());
-            clinicalDocument.getId().setRoot(idRootId);
+            clinicalDocument.getId().setRoot("2.16.840.1.113883.19");
             clinicalDocument.getId().setExtension(input.getMsgContainer().getInvLocalId());
-            clinicalDocument.getId().setAssigningAuthorityName(typeAuthorityName);
+            clinicalDocument.getId().setAssigningAuthorityName("LR");
             inv168 = input.getMsgContainer().getInvLocalId();
         }
 
@@ -107,9 +104,9 @@ public class CdaMapper {
         }
 
         clinicalDocument.setCode(CE.Factory.newInstance());
-        clinicalDocument.getCode().setCode(code);
-        clinicalDocument.getCode().setCodeSystem(codeSystem);
-        clinicalDocument.getCode().setCodeSystemName(codeSystemName);
+        clinicalDocument.getCode().setCode("55751-2");
+        clinicalDocument.getCode().setCodeSystem("2.16.840.1.113883.6.1");
+        clinicalDocument.getCode().setCodeSystemName("LOINC");
         clinicalDocument.getCode().setDisplayName("Public Health Case Report - PHRI");
         clinicalDocument.setTitle(ST.Factory.newInstance());
 
@@ -117,7 +114,7 @@ public class CdaMapper {
         clinicalDocument.getTitle().setLanguage("Public Health Case Report - Data from Legacy System to CDA");
 
         clinicalDocument.setEffectiveTime(TS.Factory.newInstance());
-        clinicalDocument.getEffectiveTime().setValue(GetCurrentUtcDateTimeInCdaFormat());
+        clinicalDocument.getEffectiveTime().setValue(getCurrentUtcDateTimeInCdaFormat());
 
         if(versionCtrNbr != null && versionCtrNbr > 0) {
             clinicalDocument.setVersionNumber(INT.Factory.newInstance());
@@ -231,7 +228,7 @@ public class CdaMapper {
                             }
                             // original code start at index 1
                             clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0)
-                                    .getCityArray(0).set(MapToCData(patient.getPatAddrCityTxt()));
+                                    .getCityArray(0).set(mapToCData(patient.getPatAddrCityTxt()));
                             k++;
                         }
                         else if(field.getName().equals("patAddrStateCd") && patient.getPatAddrStateCd() != null && !patient.getPatAddrStateCd().isEmpty()) {
@@ -241,8 +238,8 @@ public class CdaMapper {
                             if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getStateArray().length == 0) {
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).addNewState();
                             }
-                            var state = MapToAddressType(patient.getPatAddrStateCd(), "STATE");
-                            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getStateArray(0).set(MapToCData(state));
+                            var state = mapToAddressType(patient.getPatAddrStateCd(), "STATE");
+                            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getStateArray(0).set(mapToCData(state));
                             k++;
                         }
                         else if(field.getName().equals("patAddrZipCodeTxt") && patient.getPatAddrZipCodeTxt() != null && !patient.getPatAddrZipCodeTxt().isEmpty()) {
@@ -252,7 +249,7 @@ public class CdaMapper {
                             if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getPostalCodeArray().length == 0) {
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).addNewPostalCode();
                             }
-                            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getPostalCodeArray(0).set(MapToCData(patient.getPatAddrZipCodeTxt()));
+                            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getPostalCodeArray(0).set(mapToCData(patient.getPatAddrZipCodeTxt()));
                             k++;
                         }
                         // PAT_ADDR_COUNTY_CD
@@ -264,8 +261,8 @@ public class CdaMapper {
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).addNewCounty();
                             }
 
-                            var val = MapToAddressType(patient.getPatAddrCountyCd(), "COUNTY");
-                            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getCountyArray(0).set(MapToCData(val));
+                            var val = mapToAddressType(patient.getPatAddrCountyCd(), "COUNTY");
+                            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getCountyArray(0).set(mapToCData(val));
                             k++;
                         }
                         // PAT_ADDR_COUNTRY_CD
@@ -276,8 +273,8 @@ public class CdaMapper {
                             if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getCountryArray().length == 0) {
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).addNewCountry();
                             }
-                            var val = MapToAddressType(patient.getPatAddrCountryCd(), "COUNTRY");
-                            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getCountryArray(0).set(MapToCData(val));
+                            var val = mapToAddressType(patient.getPatAddrCountryCd(), "COUNTRY");
+                            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getCountryArray(0).set(mapToCData(val));
                             k++;
                         }
 
@@ -332,11 +329,11 @@ public class CdaMapper {
                             }
 
                             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(1).setUse(new ArrayList<String> (Arrays.asList("P")));
-                            clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(1).getGivenArray(0).set(MapToCData(patient.getPatNameAliasTxt()));
+                            clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(1).getGivenArray(0).set(mapToCData(patient.getPatNameAliasTxt()));
                         }
                         // PAT_CURRENT_SEX_CD
                         else if(field.getName().equals("patCurrentSexCd") && patient.getPatCurrentSexCd() != null && !patient.getPatCurrentSexCd().isEmpty()) {
-                            String questionCode = MapToQuestionId(patient.getPatCurrentSexCd());
+                            String questionCode = mapToQuestionId(patient.getPatCurrentSexCd());
 
                             if (!clinicalDocument.getRecordTargetArray(0).getPatientRole().isSetPatient()) {
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewPatient();
@@ -345,7 +342,7 @@ public class CdaMapper {
                             if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().isSetAdministrativeGenderCode()) {
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().addNewAdministrativeGenderCode();
                             }
-                            CE administrativeGender = MapToCEAnswerType(patient.getPatCurrentSexCd(), questionCode);
+                            CE administrativeGender = mapToCEAnswerType(patient.getPatCurrentSexCd(), questionCode);
                             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().setAdministrativeGenderCode(administrativeGender);
                         }
                         // PAT_BIRTH_DT
@@ -354,12 +351,12 @@ public class CdaMapper {
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewPatient();
                             }
 
-                            clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().setBirthTime(MapToTsType(patient.getPatBirthDt().toString()));
+                            clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().setBirthTime(mapToTsType(patient.getPatBirthDt().toString()));
                         }
                         // PAT_MARITAL_STATUS_CD
                         else if(field.getName().equals("patMaritalStatusCd") && patient.getPatMaritalStatusCd() != null  && !patient.getPatMaritalStatusCd().isEmpty()) {
-                            String questionCode = MapToQuestionId(patient.getPatMaritalStatusCd());
-                            CE ce = MapToCEAnswerType(patient.getPatMaritalStatusCd(), questionCode);
+                            String questionCode = mapToQuestionId(patient.getPatMaritalStatusCd());
+                            CE ce = mapToCEAnswerType(patient.getPatMaritalStatusCd(), questionCode);
                             if (!clinicalDocument.getRecordTargetArray(0).getPatientRole().isSetPatient()) {
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewPatient();
                             }
@@ -378,9 +375,9 @@ public class CdaMapper {
                             }
                             for(int i = 0; i < raceCatList.size(); i++) {
                                 String val = raceCatList.get(i);
-                                String questionCode = MapToQuestionId("PAT_RACE_CATEGORY_CD");
+                                String questionCode = mapToQuestionId("PAT_RACE_CATEGORY_CD");
                                 if (!questionCode.isEmpty()) {
-                                    CE ce = MapToCEAnswerType(val, questionCode);
+                                    CE ce = mapToCEAnswerType(val, questionCode);
                                     raceCode2List.add(ce);
                                     raceCodeCounter = i;
                                 }
@@ -401,7 +398,7 @@ public class CdaMapper {
                             }
                             ED originalText = ED.Factory.newInstance();
                             // CHECK LINE 246
-                            originalText.set(MapToCData(patient.getPatRaceDescTxt()));
+                            originalText.set(mapToCData(patient.getPatRaceDescTxt()));
                             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getRaceCode2Array(counter).setOriginalText(originalText);
                             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getRaceCode2Array(counter).setCode("OTH");
                         }
@@ -412,8 +409,8 @@ public class CdaMapper {
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewPatient();
                             }
 
-                            String questionCode = MapToQuestionId(patient.getPatEthnicGroupIndCd());
-                            CE ce = MapToCEAnswerType(patient.getPatEthnicGroupIndCd(), questionCode);
+                            String questionCode = mapToQuestionId(patient.getPatEthnicGroupIndCd());
+                            CE ce = mapToCEAnswerType(patient.getPatEthnicGroupIndCd(), questionCode);
 
                             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().setEthnicGroupCode(ce);
                         }
@@ -429,7 +426,7 @@ public class CdaMapper {
                             }
 
 
-                            String val = MapToAddressType(patient.getPatBirthCountryCd(), "COUNTRY");
+                            String val = mapToAddressType(patient.getPatBirthCountryCd(), "COUNTRY");
                             POCDMT000040Place place = POCDMT000040Place.Factory.newInstance();
                             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getBirthplace().setPlace(place);
 
@@ -437,7 +434,7 @@ public class CdaMapper {
                             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getBirthplace().getPlace().setAddr(ad);
 
                             AdxpCounty county = AdxpCounty.Factory.newInstance();
-                            county.set(MapToCData(val));
+                            county.set(mapToCData(val));
                             AdxpCounty[] countyArr = {county};
                             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getBirthplace().getPlace().getAddr().setCountyArray(countyArr);
                         }
@@ -449,7 +446,7 @@ public class CdaMapper {
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewAddr();
                             }
                             AdxpCensusTract census = AdxpCensusTract.Factory.newInstance();
-                            census.set(MapToCData(patient.getPatAddrCensusTractTxt() ));
+                            census.set(mapToCData(patient.getPatAddrCensusTractTxt() ));
                             AdxpCensusTract[] censusArr = {census};
                             clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).setCensusTractArray(censusArr);
                             k++;
@@ -472,8 +469,8 @@ public class CdaMapper {
 
                             PN pn = PN.Factory.newInstance();
                             IVLTS time = IVLTS.Factory.newInstance();
-                            var ts = MapToTsType(patient.getPatNameAsOfDt().toString());
-                            time.set(MapToCData(ts.getValue()));
+                            var ts = mapToTsType(patient.getPatNameAsOfDt().toString());
+                            time.set(mapToCData(ts.getValue()));
                             pn.setValidTime(time);
                             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().setNameArray(0, pn);
                         }
@@ -593,7 +590,7 @@ public class CdaMapper {
                                 clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setCodeSystem("2.16.840.1.113883.6.1");
                                 clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setCodeSystemName("LOINC");
                                 clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setDisplayName("Social History");
-                                clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getTitle().set(MapToCData("SOCIAL HISTORY INFORMATION"));
+                                clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getTitle().set(mapToCData("SOCIAL HISTORY INFORMATION"));
 
                             }
 
@@ -602,7 +599,7 @@ public class CdaMapper {
                             int patEntityCounter = clinicalDocument.getComponent().getStructuredBody().getComponentArray(0).getSection().getEntryArray().length;
 
 
-                            var compPatient = MapToPatient(patEntityCounter, colName, value, comp);
+                            var compPatient = mapToPatient(patEntityCounter, colName, value, comp);
 
                             clinicalDocument.getComponent().getStructuredBody().setComponentArray(patientComponentCounter, compPatient);
                         }
@@ -619,9 +616,9 @@ public class CdaMapper {
                         if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray().length == 0) {
                             clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewAddr();
                         }
-                        // CHECK MapToUsableTSElement in Ori
+                        // CHECK mapToUsableTSElement in Ori
                         AD element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0);
-                        var ad = MapToUsableTSElement(patient.getPatAddrAsOfDt().toString(), element, "useablePeriod");
+                        var ad = mapToUsableTSElement(patient.getPatAddrAsOfDt().toString(), element, "useablePeriod");
                         clinicalDocument.getRecordTargetArray(0).getPatientRole().setAddrArray(0, (AD) ad);
                     }
 
@@ -635,7 +632,7 @@ public class CdaMapper {
                 if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getPrefixArray().length == 0) {
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).addNewPrefix();
                 }
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getPrefixArray(0).set(MapToCData(PAT_NAME_PREFIX_CD));
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getPrefixArray(0).set(mapToCData(PAT_NAME_PREFIX_CD));
                 nameCounter++;
             }
             if(!PAT_NAME_FIRST_TXT.isEmpty()) {
@@ -649,7 +646,7 @@ public class CdaMapper {
                     count = clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getGivenArray().length + 1 - 1;
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).addNewGiven();
                 }
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getGivenArray(count).set(MapToCData(PAT_NAME_PREFIX_CD));
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getGivenArray(count).set(mapToCData(PAT_NAME_PREFIX_CD));
                 nameCounter++;
             }
             if(!PAT_NAME_MIDDLE_TXT.isEmpty()) {
@@ -663,7 +660,7 @@ public class CdaMapper {
                     count = clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getGivenArray().length + 1 - 1;
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).addNewGiven();
                 }
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getGivenArray(count).set(MapToCData(PAT_NAME_MIDDLE_TXT));
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getGivenArray(count).set(mapToCData(PAT_NAME_MIDDLE_TXT));
                 nameCounter++;
             }
             if(!PAT_NAME_LAST_TXT.isEmpty()) {
@@ -673,7 +670,7 @@ public class CdaMapper {
                 if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getFamilyArray().length == 0) {
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).addNewFamily();
                 }
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getFamilyArray(0).set(MapToCData(PAT_NAME_LAST_TXT));
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getFamilyArray(0).set(mapToCData(PAT_NAME_LAST_TXT));
                 nameCounter++;
             }
             if(!PAT_NAME_SUFFIX_CD.isEmpty()) {
@@ -683,7 +680,7 @@ public class CdaMapper {
                 if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getSuffixArray().length == 0) {
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).addNewSuffix();
                 }
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getSuffixArray(0).set(MapToCData(PAT_NAME_SUFFIX_CD));
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getSuffixArray(0).set(mapToCData(PAT_NAME_SUFFIX_CD));
                 nameCounter++;
             }
             if (!PAT_HOME_PHONE_NBR_TXT.isEmpty()) {
@@ -710,8 +707,8 @@ public class CdaMapper {
                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(phoneHome);
                 if(!PAT_PHONE_AS_OF_DT.isEmpty()){
                     TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
-                    // CHECK MapToUsableTSElement
-                    var out = MapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, "useablePeriod");
+                    // CHECK mapToUsableTSElement
+                    var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, "useablePeriod");
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
                 phoneCounter =phoneCounter +1;
@@ -734,11 +731,11 @@ public class CdaMapper {
                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(wpNumber);
                 if(!PAT_PHONE_AS_OF_DT.isEmpty()){
                     //OutXML::Element element = (OutXML::Element)out.recordTarget[0].patientRole.telecom[phoneCounter];
-                    //MapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, "useablePeriod");
-                    // CHECK MapToUsableTSElement
+                    //mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, "useablePeriod");
+                    // CHECK mapToUsableTSElement
                     TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
-                    // CHECK MapToUsableTSElement
-                    var out = MapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, "useablePeriod");
+                    // CHECK mapToUsableTSElement
+                    var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, "useablePeriod");
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
 
@@ -760,8 +757,8 @@ public class CdaMapper {
 
                 if(!PAT_PHONE_AS_OF_DT.isEmpty()){
                     TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
-                    // CHECK MapToUsableTSElement
-                    var out = MapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, "useablePeriod");
+                    // CHECK mapToUsableTSElement
+                    var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, "useablePeriod");
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
                 phoneCounter =phoneCounter +1;
@@ -782,8 +779,8 @@ public class CdaMapper {
                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue("mailto:"+PAT_EMAIL_ADDRESS_TXT);
                 if(!PAT_PHONE_AS_OF_DT.isEmpty()){
                     TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
-                    // CHECK MapToUsableTSElement
-                    var out = MapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, "useablePeriod");
+                    // CHECK mapToUsableTSElement
+                    var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, "useablePeriod");
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
                 phoneCounter =phoneCounter +1;
@@ -802,8 +799,8 @@ public class CdaMapper {
                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(PAT_URL_ADDRESS_TXT);
                 if(!PAT_PHONE_AS_OF_DT.isEmpty()){
                     TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
-                    // CHECK MapToUsableTSElement
-                    var out = MapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, "useablePeriod");
+                    // CHECK mapToUsableTSElement
+                    var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, "useablePeriod");
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
                 phoneCounter =phoneCounter +1;
@@ -829,7 +826,7 @@ public class CdaMapper {
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).addNewStreetAddressLine();
                 }
 
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).getStreetAddressLineArray(c2).set(MapToCData(address1));
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).getStreetAddressLineArray(c2).set(mapToCData(address1));
             }
 
             if(!address2.isEmpty()) {
@@ -851,13 +848,15 @@ public class CdaMapper {
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).addNewStreetAddressLine();
                 }
 
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).getStreetAddressLineArray(c2).set(MapToCData(address2));
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).getStreetAddressLineArray(c2).set(mapToCData(address2));
             }
 
 
 
         }
         //endregion
+
+
 
         /**
          * CASE - 1st PHASE TESTED
@@ -902,20 +901,21 @@ public class CdaMapper {
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(componentCounter).getSection().getCode().setCodeSystem("2.16.840.1.113883.6.1");
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(componentCounter).getSection().getCode().setCodeSystemName("LOINC");
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(componentCounter).getSection().getCode().setDisplayName("Clinical Information");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(componentCounter).getSection().getTitle().set(MapToCData("CLINICAL INFORMATION"));
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(componentCounter).getSection().getTitle().set(mapToCData("CLINICAL INFORMATION"));
                 }
 
                 // MAP TO CASE code line 438
                 clinicalCounter = clinicalDocument.getComponent().getStructuredBody().getComponentArray(componentCaseCounter).getSection().getEntryArray().length;
-                // CHECK MapToCase
+                // CHECK mapToCase
                 POCDMT000040StructuredBody output = clinicalDocument.getComponent().getStructuredBody();
 
-                var mappedCase = MapToCase(clinicalCounter, input.getMsgCases().get(i), output);
+                var mappedCase = mapToCase(clinicalCounter, input.getMsgCases().get(i), output);
                 clinicalDocument.getComponent().setStructuredBody(mappedCase);
                 componentCounter = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length - 1;
             }
 
         }
+
 
 
         /**
@@ -932,11 +932,13 @@ public class CdaMapper {
                     clinicalDocument.getComponent().getStructuredBody().addNewComponent();
                 }
                 POCDMT000040Component3 out = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c);
-                var mappedData = MapToExtendedData(input.getMsgXmlAnswers().get(i), out);
+                var mappedData = mapToExtendedData(input.getMsgXmlAnswers().get(i), out);
                 clinicalDocument.getComponent().getStructuredBody().setComponentArray(c, mappedData);
             }
 
         }
+
+
 
         /**
          * PROVIDER -- PHASE 1 TESTED
@@ -973,7 +975,7 @@ public class CdaMapper {
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem("Local-codesystem-oid");
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName("LocalSystem");
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setDisplayName("Interested Parties Section");
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().set(MapToCData("INTERESTED PARTIES SECTION"));
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().set(mapToCData("INTERESTED PARTIES SECTION"));
                     }
 
                     performerSectionCounter = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray().length;
@@ -994,9 +996,9 @@ public class CdaMapper {
                     } else {
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().addNewParticipant();
                     }
-                    // CHECK MapToPSN
+                    // CHECK mapToPSN
                     POCDMT000040Participant2 out = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getParticipantArray(0);
-                    POCDMT000040Participant2 output = MapToPSN(
+                    POCDMT000040Participant2 output = mapToPSN(
                             input.getMsgProviders().get(i),
                             out
                     );
@@ -1017,6 +1019,9 @@ public class CdaMapper {
                 }
            }
         }
+
+
+
 
 
         /**
@@ -1049,7 +1054,7 @@ public class CdaMapper {
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem("Local-codesystem-oid");
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName("LocalSystem");
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setDisplayName("Interested Parties Section");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().set(MapToCData("INTERESTED PARTIES SECTION"));
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().set(mapToCData("INTERESTED PARTIES SECTION"));
 
 
                 }
@@ -1071,9 +1076,9 @@ public class CdaMapper {
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().addNewParticipant();
                 }
 
-                // CHECK MapToORG
+                // CHECK mapToORG
                 POCDMT000040Participant2 out = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getParticipantArray(0);
-                POCDMT000040Participant2 output = MapToORG(input.getMsgOrganizations().get(i), out);
+                POCDMT000040Participant2 output = mapToORG(input.getMsgOrganizations().get(i), out);
                 clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().setParticipantArray(0, output);
 
                 clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).setTypeCode(XActRelationshipEntry.COMP);
@@ -1124,7 +1129,7 @@ public class CdaMapper {
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem("Local-codesystem-oid");
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName("LocalSystem");
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setDisplayName("Interested Parties Section");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().set(MapToCData("INTERESTED PARTIES SECTION"));
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().set(mapToCData("INTERESTED PARTIES SECTION"));
                 }
 
                 performerSectionCounter = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray().length;
@@ -1146,9 +1151,9 @@ public class CdaMapper {
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().addNewParticipant();
                 }
 
-                // CHECK MapToPlace
+                // CHECK mapToPlace
                 POCDMT000040Participant2 out = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().getParticipantArray(0);
-                POCDMT000040Participant2 output = MapToPlace(input.getMsgPlaces().get(i), out);
+                POCDMT000040Participant2 output = mapToPlace(input.getMsgPlaces().get(i), out);
                 clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).getAct().setParticipantArray(0, output);
 
                 clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(performerSectionCounter).setTypeCode(XActRelationshipEntry.COMP);
@@ -1166,7 +1171,6 @@ public class CdaMapper {
             }
         }
 
-        var t = printXmlForTesting(clinicalDocument);
 
 
         /**
@@ -1201,13 +1205,13 @@ public class CdaMapper {
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem("Local-codesystem-oid");
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName("LocalSystem");
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setDisplayName("Interviews");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().set(MapToCData("INTERVIEW SECTION"));
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().set(mapToCData("INTERVIEW SECTION"));
                 }
 
                 POCDMT000040Component3 ot = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c);
-                // CHECK MapToInterview
+                // CHECK mapToInterview
 
-                POCDMT000040Component3 output = MapToInterview(input.getMsgInterviews().get(i), ot);
+                POCDMT000040Component3 output = mapToInterview(input.getMsgInterviews().get(i), ot);
                 clinicalDocument.getComponent().getStructuredBody().setComponentArray(c, output);
             }
         }
@@ -1244,8 +1248,8 @@ public class CdaMapper {
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem("2.16.840.1.113883.6.1");
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName("LOINC");
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setDisplayName("Treatment Information");
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().set(MapToCData("TREATMENT INFORMATION"));
-                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().set(MapToCData("CDA Treatment Information Section"));
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().set(mapToCData("TREATMENT INFORMATION"));
+                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().set(mapToCData("CDA Treatment Information Section"));
                 }
 
                 clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(treatmentSectionCounter).getSubstanceAdministration().getStatusCode().setCode("active");
@@ -1259,7 +1263,7 @@ public class CdaMapper {
 
                 var o1 = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(treatmentSectionCounter).getSubstanceAdministration();
                 var o2 = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getText();
-                var mappedVal = MapToTreatment(input.getMsgTreatments().get(0),
+                var mappedVal = mapToTreatment(input.getMsgTreatments().get(0),
                         o1,
                         o2,
                         treatmentSectionCounter);
@@ -1279,46 +1283,47 @@ public class CdaMapper {
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().addNewTelecom();
 
 
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getIdArray(0).setExtension(MapToTranslatedValue("CUS101"));
-        value = MapToTranslatedValue("CUS102");
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getIdArray(0).setExtension(mapToTranslatedValue("CUS101"));
+        value = mapToTranslatedValue("CUS102");
 
         var element = clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization();
-        MapToElementValue("CHECK MAP TO ELEMENT VALUE");
+        element = mapToElementValue(value, element, "name");
+        clinicalDocument.getCustodian().getAssignedCustodian().setRepresentedCustodianOrganization(element);
 
-        value = MapToTranslatedValue("CUS103");
+        value = mapToTranslatedValue("CUS103");
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewStreetAddressLine();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStreetAddressLineArray(k).set(MapToCData(value));
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStreetAddressLineArray(k).set(mapToCData(value));
         k = k+1;
-        value = MapToTranslatedValue("CUS104");
+        value = mapToTranslatedValue("CUS104");
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewStreetAddressLine();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStreetAddressLineArray(k).set(MapToCData(value));
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStreetAddressLineArray(k).set(mapToCData(value));
         k = k+1;
 
         k = 0;
-        value = MapToTranslatedValue("CUS105");
+        value = mapToTranslatedValue("CUS105");
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewCity();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getCityArray(k).set(MapToCData(value));
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getCityArray(k).set(mapToCData(value));
         k = k+1;
 
         k = 0;
-        value = MapToTranslatedValue("CUS106");
+        value = mapToTranslatedValue("CUS106");
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewState();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStateArray(k).set(MapToCData(value));
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStateArray(k).set(mapToCData(value));
         k = k+1;
 
-        value = MapToTranslatedValue("CUS107");
+        value = mapToTranslatedValue("CUS107");
         k = 0;
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewPostalCode();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getPostalCodeArray(k).set(MapToCData(value));
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getPostalCodeArray(k).set(mapToCData(value));
         k = k+1;
 
-        value = MapToTranslatedValue("CUS108");
+        value = mapToTranslatedValue("CUS108");
         k = 0;
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewCountry();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getCountryArray(k).set(MapToCData(value));
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getCountryArray(k).set(mapToCData(value));
         k = k+1;
 
-        value = MapToTranslatedValue("CUS109");
+        value = mapToTranslatedValue("CUS109");
         k = 0;
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getTelecom().setValue(value);
         k = k+1;
@@ -1327,37 +1332,35 @@ public class CdaMapper {
         clinicalDocument.getAuthorArray(0).addNewTime();
         clinicalDocument.getAuthorArray(0).getAssignedAuthor().addNewId();
 
-        value = MapToTranslatedValue("AUT101");
+        value = mapToTranslatedValue("AUT101");
         clinicalDocument.getAuthorArray(0).getAssignedAuthor().getIdArray(0).setRoot(value);
 
         clinicalDocument.getAuthorArray(0).getAssignedAuthor().addNewAssignedPerson().addNewName();
         clinicalDocument.getAuthorArray(0).getAssignedAuthor().getAssignedPerson().getNameArray(0).addNewFamily();
-        value = MapToTranslatedValue("AUT102");
-        clinicalDocument.getAuthorArray(0).getAssignedAuthor().getAssignedPerson().getNameArray(0).getFamilyArray(0).set(MapToCData(value));
+        value = mapToTranslatedValue("AUT102");
+        clinicalDocument.getAuthorArray(0).getAssignedAuthor().getAssignedPerson().getNameArray(0).getFamilyArray(0).set(mapToCData(value));
         clinicalDocument.getAuthorArray(0).getTime().setValue("DateChangeFormat(SQLServCurrentSmallDateTime(), \"yyyy-MM-dd HH:mm:ss\", \"HL7\");");
 
 
+        rootDocument.setClinicalDocument(clinicalDocument);
+        XmlCursor cursor = rootDocument.newCursor();
+        cursor.toFirstChild();
+        cursor.setAttributeText(new QName("sdtcxmlnamespaceholder"), "urn:hl7-org:v3");
+        cursor.setAttributeText(new QName("sdt"), "urn:hl7-org:sdtc");
+        cursor.setAttributeText(new QName("xsi"), "http://www.w3.org/2001/XMLSchema-instance");
+        cursor.setAttributeText(new QName("schemaLocation"), "urn:hl7-org:v3 CDA_SDTC.xsd");
+        cursor.dispose();
 
 
+        var result = convertXmlToString(rootDocument);
+        System.out.println(result);
+        return result;
 
 
-        XmlOptions options = new XmlOptions();
-        options.setSavePrettyPrint();
-        options.setSavePrettyPrintIndent(4);  // Set indentation
-
-        // Use a default namespace instead of a prefixed one (like urn:)
-        options.setUseDefaultNamespace();
-
-        // Set to always use full tags instead of self-closing tags
-        options.setSaveNoXmlDecl();
-        options.setSaveOuter();
-
-        String xmlOutput = clinicalDocument.xmlText(options);
-        System.out.println(xmlOutput);
     }
 
 
-    private String printXmlForTesting(POCDMT000040ClinicalDocument1 clinicalDocument) {
+    private String convertXmlToString(ClinicalDocumentDocument1 clinicalDocument) throws XmlException {
         XmlOptions options = new XmlOptions();
         options.setSavePrettyPrint();
         options.setSavePrettyPrintIndent(4);  // Set indentation
@@ -1372,12 +1375,25 @@ public class CdaMapper {
         String xmlOutput = clinicalDocument.xmlText(options);
         xmlOutput = xmlOutput.replaceAll("<to-be-remove>(.*?)</to-be-remove>", "$1");
         xmlOutput = xmlOutput.replaceAll("<to-be-remove xmlns=\".*?\">(.*?)</to-be-remove>", "$1");
+        xmlOutput = xmlOutput.replaceAll("<to-be-remove xmlns=\"\"/?>", "");
+        xmlOutput = xmlOutput.replaceAll("&lt;","<");
+        xmlOutput = xmlOutput.replaceAll("&gt;",">");
+        xmlOutput = xmlOutput.replaceAll("\\r?\\n", "");
 
-        return xmlOutput;
+
+        XmlObject out = XmlObject.Factory.parse(xmlOutput);
+
+        String outputStr = out.toString();
+        outputStr = outputStr.replaceAll("sdtcxmlnamespaceholder=\"urn:hl7-org:v3\"", "xmlns:sdtcxmlnamespaceholder=\"urn:hl7-org:v3\"");
+        outputStr = outputStr.replaceAll("sdt=\"urn:hl7-org:sdtc\"", "xmlns:sdt=\"urn:hl7-org:sdtc\"");
+        outputStr = outputStr.replaceAll("xsi=\"http://www.w3.org/2001/XMLSchema-instance\"", "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
+        outputStr = outputStr.replaceAll("schemaLocation=\"urn:hl7-org:v3 CDA_SDTC.xsd\"", "xsi:schemaLocation=\"urn:hl7-org:v3 CDA_SDTC.xsd\"");
+
+        return outputStr;
     }
 
-    private String MapToTranslatedValue(String input) {
-        var res = ecrLookUpRepository.FetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", input);
+    private String mapToTranslatedValue(String input) {
+        var res = ecrLookUpService.fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", input);
         if (res != null && !res.getSampleValue().isEmpty()) {
             return res.getSampleValue();
         }
@@ -1386,7 +1402,7 @@ public class CdaMapper {
         }
     }
     
-    private POCDMT000040SubstanceAdministration MapToTreatment(
+    private POCDMT000040SubstanceAdministration mapToTreatment(
             EcrSelectedTreatment input, POCDMT000040SubstanceAdministration output,
             StrucDocText list,
             int counter) throws XmlException {
@@ -1433,13 +1449,13 @@ public class CdaMapper {
                     String dosageStUnit = "";
                     String dosageStCodeSystemName = "";
                     String dosageStDisplayName = "";
-                    // CHECK MapToTreatment
+                    // CHECK mapToTreatment
                     output.getDoseQuantity().setValue(input.getMsgTreatment().getTrtDosageAmt());
                 }
             }
 
             if(name.equals("trtDrugCd") && value != null && input.getMsgTreatment().getTrtDrugCd() != null && !input.getMsgTreatment().getTrtDrugCd().isEmpty()) {
-                treatmentNameQuestion = MapToQuestionId("TRT_DRUG_CD");;
+                treatmentNameQuestion = mapToQuestionId("TRT_DRUG_CD");;
                 treatmentName = input.getMsgTreatment().getTrtDrugCd();
             }
 
@@ -1475,8 +1491,8 @@ public class CdaMapper {
         ///
 
         if(!customTreatment.isEmpty()){
-            // CHECK MapToTreatment
-            list.getListArray(counter).set(MapToCData(customTreatment));
+            // CHECK mapToTreatment
+            list.getListArray(counter).set(mapToCData(customTreatment));
 
         }else{
             // OutXML::Element element1= (OutXML::Element)list.item[counter];
@@ -1484,7 +1500,7 @@ public class CdaMapper {
 
         if (!treatmentName.isEmpty()) {
             var ot = output.getConsumable().getManufacturedProduct().getManufacturedLabeledDrug().getCode();
-            var ce = MapToCEAnswerType(
+            var ce = mapToCEAnswerType(
                     treatmentName,
                     treatmentNameQuestion
             );
@@ -1493,16 +1509,16 @@ public class CdaMapper {
 
         } else {
             output.getConsumable().getManufacturedProduct().getManufacturedLabeledDrug().getCode().setNullFlavor("OTH");
-            output.getConsumable().getManufacturedProduct().getManufacturedLabeledDrug().getName().set(MapToCData(customTreatment));
+            output.getConsumable().getManufacturedProduct().getManufacturedLabeledDrug().getName().set(mapToCData(customTreatment));
         }
 
         if(!TRT_TREATMENT_DT.isEmpty()){
-            // CHECK MapToTreatment
+            // CHECK mapToTreatment
             var lowElement = output.getEffectiveTimeArray(0);
             XmlCursor cursor = lowElement.newCursor();
             cursor.setAttributeText(new QName("http://www.w3.org/2001/XMLSchema-instance", "type"), "IVL_TS");
             cursor.beginElement(new QName("urn:hl7-org:v3", "low"));
-            String newValue = MapToTsType(TRT_TREATMENT_DT).toString();
+            String newValue = mapToTsType(TRT_TREATMENT_DT).toString();
             cursor.insertAttributeWithValue("value", newValue);
             cursor.toEndToken();
             if (TRT_DURATION_AMT != null && !TRT_DURATION_AMT.isEmpty() && TRT_DURATION_UNIT_CD != null && !TRT_DURATION_UNIT_CD.isEmpty()) {
@@ -1524,7 +1540,7 @@ public class CdaMapper {
         }
 
         if (!TRT_FREQUENCY_AMT_CD.isEmpty()) {
-            // CHECK MapToTreatment
+            // CHECK mapToTreatment
             var element = output.getEffectiveTimeArray(1);
             XmlCursor cursor = element.newCursor();
 
@@ -1533,7 +1549,7 @@ public class CdaMapper {
             cursor.beginElement(new QName("urn:hl7-org:v3", "period"));
 
             String hertz = TRT_FREQUENCY_AMT_CD;
-            AttributeMapper res = MapToAttributes(hertz);
+            AttributeMapper res = mapToAttributes(hertz);
             if (cursor.toFirstAttribute()) {
                 cursor.setName(new QName("value"));
                 cursor.setTextValue(res.getAttribute1());
@@ -1554,7 +1570,7 @@ public class CdaMapper {
         if (input.getMsgTreatmentOrganizations().size() > 0 ||  input.getMsgTreatmentProviders().size() > 0) {
             for(int i = 0; i < input.getMsgTreatmentOrganizations().size(); i++) {
                 var ot = output.getParticipantArray(performerCounter);
-                var mappedVal = MapToORG( input.getMsgTreatmentOrganizations().get(i), ot);
+                var mappedVal = mapToORG( input.getMsgTreatmentOrganizations().get(i), ot);
                 output.setParticipantArray(performerCounter, mappedVal);
                 output.getParticipantArray(performerCounter).getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR_ORG");
                 performerCounter++;
@@ -1563,7 +1579,7 @@ public class CdaMapper {
 
             for(int i = 0; i < input.getMsgTreatmentProviders().size(); i++) {
                 var ot = output.getParticipantArray(performerCounter);
-                var mappedVal = MapToPSN(input.getMsgTreatmentProviders().get(i), ot);
+                var mappedVal = mapToPSN(input.getMsgTreatmentProviders().get(i), ot);
                 output.getParticipantArray(performerCounter).getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR_ORG");
                 performerCounter++;
                 provider = 1;
@@ -1573,7 +1589,7 @@ public class CdaMapper {
         return output;
     }
 
-    private AttributeMapper MapToAttributes(String input) {
+    private AttributeMapper mapToAttributes(String input) {
         AttributeMapper model = new AttributeMapper();
         if (!input.isEmpty()) {
             if (input.equals("BID")) {
@@ -1621,7 +1637,7 @@ public class CdaMapper {
         return model;
     }
 
-    private POCDMT000040Component3 MapToInterview(EcrSelectedInterview in, POCDMT000040Component3 out) throws XmlException {
+    private POCDMT000040Component3 mapToInterview(EcrSelectedInterview in, POCDMT000040Component3 out) throws XmlException {
         int repeatCounter=0;
         int sectionEntryCounter= out.getSection().getEntryArray().length;
 
@@ -1646,7 +1662,7 @@ public class CdaMapper {
             if((name.equals("msgContainerUid") && value != null && in.getMsgInterview().getMsgContainerUid() != null )
                     || (name.equals("ixsAuthorId")  && value != null  && !in.getMsgInterview().getIxsAuthorId().isEmpty() )
                     || (name.equals("ixsEffectiveTime")  && value != null  && in.getMsgInterview().getIxsEffectiveTime() != null)){
-                // CHECK MapToInterview
+                // CHECK mapToInterview
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray(0).setExtension(in.getMsgInterview().getMsgContainerUid().toString());
             }
             else if (name.equals("ixsLocalId")  && value != null && !in.getMsgInterview().getIxsLocalId().isEmpty()){
@@ -1657,35 +1673,35 @@ public class CdaMapper {
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getStatusCode().setCode(in.getMsgInterview().getIxsStatusCd());
             }
             else if (name.equals("ixsInterviewDt")  && value != null && in.getMsgInterview().getIxsInterviewDt() != null){
-                var ts = MapToTsType(in.getMsgInterview().getIxsInterviewDt().toString());
+                var ts = mapToTsType(in.getMsgInterview().getIxsInterviewDt().toString());
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEffectiveTime().setValue(ts.toString());
             }
 
             else if (name.equals("ixsIntervieweeRoleCd")  && value != null && !in.getMsgInterview().getIxsIntervieweeRoleCd().isEmpty()){
-                String questionCode = MapToQuestionId("IXS_INTERVIEWEE_ROLE_CD");
+                String questionCode = mapToQuestionId("IXS_INTERVIEWEE_ROLE_CD");
 
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setTypeCode(XActRelationshipEntryRelationship.COMP);
                 var obs = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).getObservation();
-                MapToObservation(questionCode, in.getMsgInterview().getIxsIntervieweeRoleCd(), obs);
+                mapToObservation(questionCode, in.getMsgInterview().getIxsIntervieweeRoleCd(), obs);
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setObservation(obs);
                 entryCounter= entryCounter+ 1;
             }
             else if (name.equals("ixsInterviewTypeCd")  && value != null && !in.getMsgInterview().getIxsInterviewTypeCd().isEmpty()){
-                String questionCode = MapToQuestionId("IXS_INTERVIEW_TYPE_CD");
+                String questionCode = mapToQuestionId("IXS_INTERVIEW_TYPE_CD");
 
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setTypeCode(XActRelationshipEntryRelationship.COMP);
                 var obs = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).getObservation();
-                MapToObservation(questionCode, in.getMsgInterview().getIxsInterviewTypeCd(), obs);
+                mapToObservation(questionCode, in.getMsgInterview().getIxsInterviewTypeCd(), obs);
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setObservation(obs);
                 entryCounter= entryCounter+ 1;
 
             }
             else if (name.equals("ixsInterviewLocCd")  && value != null && !in.getMsgInterview().getIxsInterviewLocCd().isEmpty()){
-                String questionCode = MapToQuestionId("IXS_INTERVIEW_LOC_CD");
+                String questionCode = mapToQuestionId("IXS_INTERVIEW_LOC_CD");
 
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setTypeCode(XActRelationshipEntryRelationship.COMP);
                 var obs = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).getObservation();
-                MapToObservation(questionCode, in.getMsgInterview().getIxsInterviewLocCd(), obs);
+                mapToObservation(questionCode, in.getMsgInterview().getIxsInterviewLocCd(), obs);
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(entryCounter).setObservation(obs);
                 entryCounter= entryCounter+ 1;
             }
@@ -1705,12 +1721,12 @@ public class CdaMapper {
 
             for(int i = 0; i < in.getMsgInterviewProviders().size(); i++) {
                 var element = out.getSection().getEntryArray(sectionCounter).getEncounter().getParticipantArray(providerRoleCounter);
-                var ot = MapToPSN(in.getMsgInterviewProviders().get(i),
+                var ot = mapToPSN(in.getMsgInterviewProviders().get(i),
                         element);
                 out.getSection().getEntryArray(sectionCounter).getEncounter().setParticipantArray(providerRoleCounter, ot);
                 var element2 = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getParticipantArray(providerRoleCounter)
                         .getParticipantRole().getCode();
-                CE ce = MapToCEQuestionType("IXS102", element2);
+                CE ce = mapToCEQuestionType("IXS102", element2);
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getParticipantArray(providerRoleCounter)
                         .getParticipantRole().setCode(ce);
                 providerRoleCounter=providerRoleCounter+1;
@@ -1718,7 +1734,7 @@ public class CdaMapper {
             for(int i = 0; i < in.getMsgInterviewAnswers().size(); i++) {
                 String newQuestionId="";
                 var element = out.getSection().getEntryArray(sectionCounter).getEncounter();
-                var ot = MapToInterviewObservation(in.getMsgInterviewAnswers().get(i), entryCounter, OldQuestionId,
+                var ot = mapToInterviewObservation(in.getMsgInterviewAnswers().get(i), entryCounter, OldQuestionId,
                         element );
 
                 entryCounter = ot.getCounter();
@@ -1733,7 +1749,7 @@ public class CdaMapper {
             }
             for(int i = 0; i < in.getMsgInterviewAnswerRepeats().size(); i++) {
                 var element = out.getSection().getEntryArray(sectionEntryCounter).getEncounter();
-                var mapped = MapToInterviewMultiSelectObservation(in.getMsgInterviewAnswerRepeats().get(i),
+                var mapped = mapToInterviewMultiSelectObservation(in.getMsgInterviewAnswerRepeats().get(i),
                         answerGroupCounter,
                         questionGroupCounter,
                         sectionCounter,
@@ -1753,7 +1769,7 @@ public class CdaMapper {
         return out;
     }
 
-    private InterviewAnswerMultiMapper MapToInterviewMultiSelectObservation(EcrMsgInterviewAnswerRepeatDto in,
+    private InterviewAnswerMultiMapper mapToInterviewMultiSelectObservation(EcrMsgInterviewAnswerRepeatDto in,
                                                                             Integer answerGroupCounter,
                                                                             Integer questionGroupCounter,
                                                                             Integer sectionCounter,
@@ -1847,7 +1863,7 @@ public class CdaMapper {
                         questionIdentifier.equalsIgnoreCase("NBS290")) {
 
                     var element = out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation();
-                    var ot = MapToObservationPlace(value,
+                    var ot = mapToObservationPlace(value,
                             element);
                     out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).setObservation((POCDMT000040Observation) ot);
 
@@ -1855,7 +1871,7 @@ public class CdaMapper {
                 else {
                     var element = out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation();
 
-                    var ot = MapToSTValue(value,element);
+                    var ot = mapToSTValue(value,element);
                     out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).setObservation((POCDMT000040Observation)ot);
                 }
             }
@@ -1867,7 +1883,7 @@ public class CdaMapper {
                     cursor.setAttributeText(new QName("http://www.w3.org/2001/XMLSchema-instance", "type"), "TS");
                     cursor.setAttributeText(new QName("", "value"), null);
                     if (name.equals("answerTxt")) {
-                        String newValue = MapToTsType(in.getAnswerTxt()).toString();
+                        String newValue = mapToTsType(in.getAnswerTxt()).toString();
                         cursor.setAttributeText(new QName("", "value"), newValue);
                     }
                     cursor.dispose();
@@ -1913,7 +1929,7 @@ public class CdaMapper {
         return model;
     }
 
-    private InterviewAnswerMapper MapToInterviewObservation(EcrMsgInterviewAnswerDto in, int counter,
+    private InterviewAnswerMapper mapToInterviewObservation(EcrMsgInterviewAnswerDto in, int counter,
                                                             String questionSeq,
                                                             POCDMT000040Encounter out) throws XmlException {
         String dataType="";
@@ -1982,7 +1998,7 @@ public class CdaMapper {
                     dataType.equals("NUMERIC")){
                 if(name.equals("answerTxt") && !in.getAnswerTxt().isEmpty()){
                     var element = out.getEntryRelationshipArray(counter).getObservation();
-                    var ot = MapToSTValue(value, element);
+                    var ot = mapToSTValue(value, element);
                     out.getEntryRelationshipArray(counter).setObservation((POCDMT000040Observation) ot);
                 }
 
@@ -1995,7 +2011,7 @@ public class CdaMapper {
                     cursor.setAttributeText(new QName("name"), "value");  // This is an assumption based on the original code
 
                     if(name.equals("answerTxt") && !in.getAnswerTxt().isEmpty()){
-                        String newValue = MapToTsType(in.getAnswerTxt()).toString();
+                        String newValue = mapToTsType(in.getAnswerTxt()).toString();
                         cursor.setAttributeText(new QName("name"), "value");
                         cursor.setTextValue(newValue);
                     }
@@ -2005,7 +2021,7 @@ public class CdaMapper {
                         cursor.setAttributeText(new QName("http://www.w3.org/2001/XMLSchema-instance", "type"), "ST");
 
                         if(name.equals("answerTxt") && !in.getAnswerTxt().isEmpty()) {
-                            cursor.setTextValue(MapToCData(in.getAnswerTxt()).toString());
+                            cursor.setTextValue(mapToCData(in.getAnswerTxt()).toString());
                         }
                     }
 
@@ -2050,8 +2066,8 @@ public class CdaMapper {
 
 
 
-    private CE MapToCEQuestionType(String questionCode, CE output) {
-        var ot = MapToCodedQuestionType(questionCode);
+    private CE mapToCEQuestionType(String questionCode, CE output) {
+        var ot = mapToCodedQuestionType(questionCode);
         output.setCodeSystem(ot.getQuesCodeSystemCd());
         output.setCodeSystemName(ot.getQuesCodeSystemDescTxt());
         output.setDisplayName(ot.getQuesDisplayName());
@@ -2060,7 +2076,7 @@ public class CdaMapper {
         return output;
     }
 
-    private POCDMT000040Participant2 MapToPlace(EcrMsgPlaceDto in, POCDMT000040Participant2 out) throws XmlException {
+    private POCDMT000040Participant2 mapToPlace(EcrMsgPlaceDto in, POCDMT000040Participant2 out) throws XmlException {
         String state="";
         String streetAddress1="";
         String streetAddress2="";
@@ -2107,7 +2123,7 @@ public class CdaMapper {
                 }
 
                 PN val = PN.Factory.newInstance();
-                val.set(MapToCData(in.getPlaNameTxt()));
+                val.set(mapToCData(in.getPlaNameTxt()));
                 out.getParticipantRole().getPlayingEntity().addNewName();
                 out.getParticipantRole().getPlayingEntity().setNameArray(0, val);
             }
@@ -2169,9 +2185,9 @@ public class CdaMapper {
                     out.getParticipantRole().addNewCode();
                 }
 
-                String questionCode= MapToQuestionId("PLA_TYPE_CD");
+                String questionCode= mapToQuestionId("PLA_TYPE_CD");
                 out.getParticipantRole().addNewCode();
-                out.getParticipantRole().setCode(MapToCEAnswerType(in.getPlaTypeCd(), questionCode));
+                out.getParticipantRole().setCode(mapToCEAnswerType(in.getPlaTypeCd(), questionCode));
             }
             if (name.equals("plaCommentTxt") && value != null&& !in.getPlaCommentTxt().isEmpty()){
                 if (out.getParticipantRole() == null) {
@@ -2180,7 +2196,7 @@ public class CdaMapper {
                     out.getParticipantRole().addNewPlayingEntity().addNewDesc();
                 }
 
-                out.getParticipantRole().getPlayingEntity().getDesc().set(MapToCData(in.getPlaCommentTxt()));
+                out.getParticipantRole().getPlayingEntity().getDesc().set(mapToCData(in.getPlaCommentTxt()));
             }
 
             if (name.equals("plaIdQuickCode") && value != null&& !in.getPlaIdQuickCode().isEmpty()){
@@ -2209,7 +2225,7 @@ public class CdaMapper {
         int isAddressPopulated= 0;
         if(!streetAddress1.isEmpty() ){
             AdxpStreetAddressLine val = AdxpStreetAddressLine.Factory.newInstance();
-            val.set(MapToCData(streetAddress1));
+            val.set(mapToCData(streetAddress1));
             out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
             out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0, val);
             isAddressPopulated=1;
@@ -2223,11 +2239,11 @@ public class CdaMapper {
             out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
             if (out.getParticipantRole().getAddrArray().length > 1) {
                 out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(1,  AdxpStreetAddressLine.Factory.newInstance());
-                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(1).set(MapToCData(streetAddress2));
+                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(1).set(mapToCData(streetAddress2));
             }
             else {
                 out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0,  AdxpStreetAddressLine.Factory.newInstance());
-                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(MapToCData(streetAddress2));
+                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapToCData(streetAddress2));
             }
             isAddressPopulated=1;
         }
@@ -2240,7 +2256,7 @@ public class CdaMapper {
 
             out.getParticipantRole().getAddrArray(0).addNewCity();
             out.getParticipantRole().getAddrArray(0).setCityArray(0,  AdxpCity.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getCityArray(0).set(MapToCData(city));
+            out.getParticipantRole().getAddrArray(0).getCityArray(0).set(mapToCData(city));
 
             isAddressPopulated=1;
         }
@@ -2252,7 +2268,7 @@ public class CdaMapper {
             }
             out.getParticipantRole().getAddrArray(0).addNewState();
             out.getParticipantRole().getAddrArray(0).setStateArray(0,  AdxpState.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(MapToCData(state  ));
+            out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapToCData(state  ));
             isAddressPopulated=1;
         }
         if(!county.isEmpty()){
@@ -2264,7 +2280,7 @@ public class CdaMapper {
             out.getParticipantRole().getAddrArray(0).addNewCounty();
 
             out.getParticipantRole().getAddrArray(0).setCountyArray(0,  AdxpCounty.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getCountyArray(0).set(MapToCData(county));
+            out.getParticipantRole().getAddrArray(0).getCountyArray(0).set(mapToCData(county));
             isAddressPopulated=1;
         }
         if(!zip.isEmpty()){
@@ -2276,7 +2292,7 @@ public class CdaMapper {
             out.getParticipantRole().getAddrArray(0).addNewPostalCode();
 
             out.getParticipantRole().getAddrArray(0).setPostalCodeArray(0,  AdxpPostalCode.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getPostalCodeArray(0).set(MapToCData(zip   ));
+            out.getParticipantRole().getAddrArray(0).getPostalCodeArray(0).set(mapToCData(zip   ));
             isAddressPopulated=1;
         }
         if(!country.isEmpty()){
@@ -2286,11 +2302,11 @@ public class CdaMapper {
                 out.getParticipantRole().addNewAddr();
             }
             AdxpCountry val = AdxpCountry.Factory.newInstance();
-            val.set(MapToCData(country));
+            val.set(mapToCData(country));
             out.getParticipantRole().getAddrArray(0).addNewCountry();
 
             out.getParticipantRole().getAddrArray(0).setCountryArray(0,  AdxpCountry.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getCountryArray(0).set(MapToCData(country));
+            out.getParticipantRole().getAddrArray(0).getCountryArray(0).set(mapToCData(country));
             isAddressPopulated=1;
         }
         if(!censusTract.isEmpty()){
@@ -2302,7 +2318,7 @@ public class CdaMapper {
             out.getParticipantRole().getAddrArray(0).addNewCensusTract();
 
             out.getParticipantRole().getAddrArray(0).setCensusTractArray(0,  AdxpCensusTract.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getCensusTractArray(0).set(MapToCData(censusTract));
+            out.getParticipantRole().getAddrArray(0).getCensusTractArray(0).set(mapToCData(censusTract));
         }
         if(isAddressPopulated>0){
             if (out.getParticipantRole() == null) {
@@ -2313,8 +2329,8 @@ public class CdaMapper {
             out.getParticipantRole().getAddrArray()[0].setUse(Arrays.asList("WP"));
             if(!postalAsOfDate.isEmpty()){
                 // OutXML::Element element = (OutXML::Element)out.getParticipantRole().addr[0];
-                // MapToUsableTSElement(postalAsOfDate, element, "useablePeriod");
-                // CHECK MapToUsableTSElement
+                // mapToUsableTSElement(postalAsOfDate, element, "useablePeriod");
+                // CHECK mapToUsableTSElement
             }
         }
         if(!placeAddressComments.isEmpty()){
@@ -2326,7 +2342,7 @@ public class CdaMapper {
             out.getParticipantRole().getAddrArray(0).addNewAdditionalLocator();
 
             out.getParticipantRole().getAddrArray(0).setAdditionalLocatorArray(0,  AdxpAdditionalLocator.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getAdditionalLocatorArray(0).set(MapToCData(placeAddressComments));
+            out.getParticipantRole().getAddrArray(0).getAdditionalLocatorArray(0).set(mapToCData(placeAddressComments));
         }
 
         if(!workPhone.isEmpty()){
@@ -2353,8 +2369,8 @@ public class CdaMapper {
 
             if(!teleAsOfDate.isEmpty()){
                 // OutXML::Element element = (OutXML::Element)out.getParticipantRole().telecom[teleCounter];
-                // MapToUsableTSElement(teleAsOfDate, element, "useablePeriod");
-                // CHECK MapToUsableTSElement
+                // mapToUsableTSElement(teleAsOfDate, element, "useablePeriod");
+                // CHECK mapToUsableTSElement
             }
             teleCounter = teleCounter+1;
         }
@@ -2368,8 +2384,8 @@ public class CdaMapper {
             out.getParticipantRole().getTelecomArray(teleCounter).setValue("mailto:"+workEmail);
             if(!teleAsOfDate.isEmpty()){
                 // OutXML::Element element = (OutXML::Element)out.getParticipantRole().telecom[teleCounter];
-                // MapToUsableTSElement(teleAsOfDate, element, "useablePeriod");
-                // CHECK MapToUsableTSElement
+                // mapToUsableTSElement(teleAsOfDate, element, "useablePeriod");
+                // CHECK mapToUsableTSElement
             }
             teleCounter = teleCounter +1;
         }
@@ -2383,15 +2399,15 @@ public class CdaMapper {
             out.getParticipantRole().getTelecomArray(teleCounter).setValue(workURL);
             if(!teleAsOfDate.isEmpty()){
                 // OutXML::Element element = (OutXML::Element)out.getParticipantRole().telecom[teleCounter];
-                // MapToUsableTSElement(teleAsOfDate, element, "useablePeriod");
-                // CHECK MapToUsableTSElement
+                // mapToUsableTSElement(teleAsOfDate, element, "useablePeriod");
+                // CHECK mapToUsableTSElement
             }
             teleCounter=teleCounter+1;
         }
         return out;
     }
 
-    private POCDMT000040Participant2 MapToORG(EcrMsgOrganizationDto in, POCDMT000040Participant2 out) throws XmlException {
+    private POCDMT000040Participant2 mapToORG(EcrMsgOrganizationDto in, POCDMT000040Participant2 out) throws XmlException {
         String state="";
         String streetAddress1="";
         String streetAddress2="";
@@ -2427,7 +2443,7 @@ public class CdaMapper {
                 } else {
                     out.getParticipantRole().addNewPlayingEntity();
                 }
-                var val = MapToCData(in.getOrgNameTxt());
+                var val = mapToCData(in.getOrgNameTxt());
                 out.getParticipantRole().getPlayingEntity().addNewName();
                 out.getParticipantRole().getPlayingEntity().setNameArray(0,  PN.Factory.newInstance());
                 out.getParticipantRole().getPlayingEntity().getNameArray(0).set(val);
@@ -2442,16 +2458,16 @@ public class CdaMapper {
                 city= in.getOrgAddrCityTxt();
             }
             else if(name.equals("orgAddrCountyCd") && in.getOrgAddrCountyCd() != null && !in.getOrgAddrCountyCd().isEmpty()){
-                county = MapToAddressType( in.getOrgAddrCountyCd(), "COUNTY");
+                county = mapToAddressType( in.getOrgAddrCountyCd(), "COUNTY");
             }
             else if (name.equals("orgAddrStateCd") && in.getOrgAddrStateCd() != null &&  !in.getOrgAddrStateCd().isEmpty()){
-                state= MapToAddressType( in.getOrgAddrStateCd(), "STATE");
+                state= mapToAddressType( in.getOrgAddrStateCd(), "STATE");
             }
             else if(name.equals("orgAddrZipCodeTxt") && in.getOrgAddrZipCodeTxt() != null && !in.getOrgAddrZipCodeTxt().isEmpty()){
                 zip = in.getOrgAddrZipCodeTxt();
             }
             else if(name.equals("orgAddrCountryCd") && in.getOrgAddrCountryCd() != null && !in.getOrgAddrCountryCd().isEmpty()){
-                country = MapToAddressType( in.getOrgAddrCountryCd(), "COUNTRY");
+                country = mapToAddressType( in.getOrgAddrCountryCd(), "COUNTRY");
             }
             else if(name.equals("orgPhoneNbrTxt") && in.getOrgPhoneNbrTxt() != null && !in.getOrgPhoneNbrTxt().isEmpty()){
                 phone=in.getOrgPhoneNbrTxt();
@@ -2484,7 +2500,7 @@ public class CdaMapper {
 
             out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
             out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0, AdxpStreetAddressLine.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(MapToCData(streetAddress1));
+            out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapToCData(streetAddress1));
 
             isAddressPopulated=1;
         }
@@ -2497,11 +2513,11 @@ public class CdaMapper {
             out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
             if (out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray().length > 1) {
                 out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(1, AdxpStreetAddressLine.Factory.newInstance());
-                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(1).set(MapToCData(streetAddress2));
+                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(1).set(mapToCData(streetAddress2));
             }
             else {
                 out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0, AdxpStreetAddressLine.Factory.newInstance());
-                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(MapToCData(streetAddress2));
+                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapToCData(streetAddress2));
             }
 
             isAddressPopulated=1;
@@ -2515,7 +2531,7 @@ public class CdaMapper {
 
             out.getParticipantRole().getAddrArray(0).addNewCity();
             out.getParticipantRole().getAddrArray(0).setCityArray(0, AdxpCity.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getCityArray(0).set(MapToCData(city));
+            out.getParticipantRole().getAddrArray(0).getCityArray(0).set(mapToCData(city));
 
             isAddressPopulated=1;
         }
@@ -2529,7 +2545,7 @@ public class CdaMapper {
             out.getParticipantRole().getAddrArray(0).addNewState();
 
             out.getParticipantRole().getAddrArray(0).setStateArray(0, AdxpState.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getStateArray(0).set(MapToCData(state));
+            out.getParticipantRole().getAddrArray(0).getStateArray(0).set(mapToCData(state));
 
             isAddressPopulated=1;
         }
@@ -2543,7 +2559,7 @@ public class CdaMapper {
             out.getParticipantRole().getAddrArray(0).addNewCounty();
 
             out.getParticipantRole().getAddrArray(0).setCountyArray(0, AdxpCounty.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getCountyArray(0).set(MapToCData(county));
+            out.getParticipantRole().getAddrArray(0).getCountyArray(0).set(mapToCData(county));
 
             isAddressPopulated=1;
         }
@@ -2557,7 +2573,7 @@ public class CdaMapper {
             out.getParticipantRole().getAddrArray(0).addNewPostalCode();
 
             out.getParticipantRole().getAddrArray(0).setPostalCodeArray(0, AdxpPostalCode.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getPostalCodeArray(0).set(MapToCData(zip));
+            out.getParticipantRole().getAddrArray(0).getPostalCodeArray(0).set(mapToCData(zip));
             isAddressPopulated=1;
         }
         if(!country.isEmpty()){
@@ -2570,7 +2586,7 @@ public class CdaMapper {
             out.getParticipantRole().getAddrArray(0).addNewCountry();
 
             out.getParticipantRole().getAddrArray(0).setCountryArray(0, AdxpCountry.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getCountryArray(0).set(MapToCData(zip));
+            out.getParticipantRole().getAddrArray(0).getCountryArray(0).set(mapToCData(zip));
 
             isAddressPopulated=1;
         }
@@ -2601,7 +2617,7 @@ public class CdaMapper {
         return out;
     }
 
-    private POCDMT000040Participant2 MapToPSN(EcrMsgProviderDto in, POCDMT000040Participant2 out) throws XmlException {
+    private POCDMT000040Participant2 mapToPSN(EcrMsgProviderDto in, POCDMT000040Participant2 out) throws XmlException {
         String firstName="";
         String lastName="";
         String suffix="";
@@ -2664,16 +2680,16 @@ public class CdaMapper {
                 city = in.getPrvAddrCityTxt();
             }
             if(name.equals("prvAddrCountyCd") && in.getPrvAddrCountyCd() != null && !in.getPrvAddrCountyCd().isEmpty()) {
-                county = MapToAddressType(in.getPrvAddrCountyCd(), "COUNTY");
+                county = mapToAddressType(in.getPrvAddrCountyCd(), "COUNTY");
             }
             else if(name.equals("prvAddrStateCd") && in.getPrvAddrStateCd() != null  && !in.getPrvAddrStateCd().isEmpty()) {
-                state = MapToAddressType(in.getPrvAddrStateCd(), "STATE");
+                state = mapToAddressType(in.getPrvAddrStateCd(), "STATE");
             }
             else if(name.equals("prvAddrZipCodeTxt") && in.getPrvAddrZipCodeTxt() != null && !in.getPrvAddrZipCodeTxt().isEmpty()) {
                 zip = in.getPrvAddrZipCodeTxt();
             }
             else if(name.equals("prvAddrCountryCd") && in.getPrvAddrCountryCd() != null && !in.getPrvAddrCountryCd().isEmpty()) {
-                country = MapToAddressType(in.getPrvAddrCountryCd(), "COUNTRY");
+                country = mapToAddressType(in.getPrvAddrCountryCd(), "COUNTRY");
             }
             else if(name.equals("prvPhoneNbrTxt") && in.getPrvPhoneNbrTxt() != null && !in.getPrvPhoneNbrTxt().isEmpty()) {
                 telephone = in.getPrvPhoneNbrTxt();
@@ -2706,7 +2722,7 @@ public class CdaMapper {
             } else {
                 out.getParticipantRole().addNewPlayingEntity().addNewName();
             }
-            var mapVal = MapToCData(firstName);
+            var mapVal = mapToCData(firstName);
             EnGiven enG = EnGiven.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewGiven();
@@ -2720,7 +2736,7 @@ public class CdaMapper {
             } else {
                 out.getParticipantRole().addNewPlayingEntity().addNewName();
             }
-            var mapVal = MapToCData(lastName);
+            var mapVal = mapToCData(lastName);
             EnFamily enG = EnFamily.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewFamily();
@@ -2734,7 +2750,7 @@ public class CdaMapper {
             } else {
                 out.getParticipantRole().addNewPlayingEntity().addNewName();
             }
-            var mapVal = MapToCData(prefix);
+            var mapVal = mapToCData(prefix);
             EnPrefix enG = EnPrefix.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewPrefix();
@@ -2747,7 +2763,7 @@ public class CdaMapper {
             } else {
                 out.getParticipantRole().addNewPlayingEntity().addNewName();
             }
-            var mapVal = MapToCData(suffix);
+            var mapVal = mapToCData(suffix);
             EnSuffix enG = EnSuffix.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewSuffix();
@@ -2761,7 +2777,7 @@ public class CdaMapper {
             } else {
                 out.getParticipantRole().addNewAddr();
             }
-            var mapVal = MapToCData(address1);
+            var mapVal = mapToCData(address1);
             AdxpStreetAddressLine enG = AdxpStreetAddressLine.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
@@ -2774,7 +2790,7 @@ public class CdaMapper {
             } else {
                 out.getParticipantRole().addNewAddr();
             }
-            var mapVal = MapToCData(address2);
+            var mapVal = mapToCData(address2);
             AdxpStreetAddressLine enG = AdxpStreetAddressLine.Factory.newInstance();
             enG.set(mapVal);
 
@@ -2792,7 +2808,7 @@ public class CdaMapper {
             } else {
                 out.getParticipantRole().addNewAddr();
             }
-            var mapVal = MapToCData(city);
+            var mapVal = mapToCData(city);
             AdxpCity enG = AdxpCity.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getAddrArray(0).addNewCity();
@@ -2806,7 +2822,7 @@ public class CdaMapper {
             } else {
                 out.getParticipantRole().addNewAddr();
             }
-            var mapVal = MapToCData(county);
+            var mapVal = mapToCData(county);
             AdxpCounty enG = AdxpCounty.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getAddrArray(0).addNewCounty();
@@ -2820,7 +2836,7 @@ public class CdaMapper {
             } else {
                 out.getParticipantRole().addNewAddr();
             }
-            var mapVal = MapToCData(zip);
+            var mapVal = mapToCData(zip);
             AdxpPostalCode enG = AdxpPostalCode.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getAddrArray(0).addNewPostalCode();
@@ -2835,7 +2851,7 @@ public class CdaMapper {
             } else {
                 out.getParticipantRole().addNewAddr();
             }
-            var mapVal = MapToCData(state);
+            var mapVal = mapToCData(state);
             AdxpState enG = AdxpState.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getAddrArray(0).addNewState();
@@ -2849,7 +2865,7 @@ public class CdaMapper {
             } else {
                 out.getParticipantRole().addNewAddr();
             }
-            var mapVal = MapToCData(country);
+            var mapVal = mapToCData(country);
             AdxpCountry enG = AdxpCountry.Factory.newInstance();
             enG.set(mapVal);
             out.getParticipantRole().getAddrArray(0).addNewCountry();
@@ -2887,29 +2903,36 @@ public class CdaMapper {
         return out;
     }
 
-    private POCDMT000040Component3 MapToExtendedData(EcrMsgXmlAnswerDto in, POCDMT000040Component3 out) throws XmlException {
-        // CHECK MapToExtendedData
+    private POCDMT000040Component3 mapToExtendedData(EcrMsgXmlAnswerDto in, POCDMT000040Component3 out) throws XmlException {
+        // CHECK mapToExtendedData
         String dataType="";
         if (!in.getDataType().isEmpty()) {
             dataType = in.getDataType();
         }
+
+
+
         if (!in.getAnswerXmlTxt().isEmpty()) {
-            XmlCursor cursor = out.newCursor();
-            cursor.toEndToken(); // Move to the end token of the current element
-            cursor.beginElement("childElementName"); // Replace "childElementName" with the name of your new child element
-            cursor.insertChars(in.getAnswerXmlTxt());
-            cursor.dispose();
+//            XmlCursor cursor = out.newCursor();
+//            cursor.toEndToken(); // Move to the end token of the current element
+//            cursor.beginElement("childElementName"); // Replace "childElementName" with the name of your new child element
+//            cursor.insertChars(in.getAnswerXmlTxt());
+//            cursor.dispose();
+
+            ANY any = ANY.Factory.parse(in.getAnswerXmlTxt());
+
+            out.set(any);
         }
         return out;
     }
 
 
 
-    private String MapToAddressType(String data, String questionCode) {
+    private String mapToAddressType(String data, String questionCode) {
         String output = "";
         // Mapping To Code Anwser goes here, may have to call out to RhapsodyAnswer table
-        // MapToCodedAnswer
-        var answer = MapToCodedAnswer(data, questionCode);
+        // mapToCodedAnswer
+        var answer = mapToCodedAnswer(data, questionCode);
 
         if (!answer.getCode().isEmpty()) {
             output = answer.getCode();
@@ -2928,7 +2951,7 @@ public class CdaMapper {
 
     }
 
-    private PhdcAnswerDao MapToCodedAnswer(String data, String questionCode) {
+    private PhdcAnswerDao mapToCodedAnswer(String data, String questionCode) {
         PhdcAnswerDao model = new PhdcAnswerDao();
         String translation="";
         String isTranslationReq= "YES";
@@ -2943,7 +2966,7 @@ public class CdaMapper {
 
         // RhapsodyTableLookup(output, tableName, resultColumnName, defaultValue, queryColumn1, queryValue1, queryColumn2, queryValue2, ...)
         // DI - output = RhapsodyTableLookup(resultColumnName, defaultValue, queryColumn1, queryValue1, queryColumn2, queryValue2, ...)
-        var phdcAnswer = ecrLookUpRepository.FetchPhdcAnswerByCriteriaForTranslationCode(questionCode, data);
+        var phdcAnswer = ecrLookUpService.fetchPhdcAnswerByCriteriaForTranslationCode(questionCode, data);
         if (phdcAnswer != null) {
             isTranslationReq = phdcAnswer.getCodeTranslationRequired();
             code = phdcAnswer.getAnsToCode();
@@ -2988,10 +3011,10 @@ public class CdaMapper {
         return model;
     }
 
-    private String MapToQuestionId(String data) {
+    private String mapToQuestionId(String data) {
         String output = "";
         QuestionIdentifierMapDao model = new QuestionIdentifierMapDao();
-        var qIdentifier = ecrLookUpRepository.FetchQuestionIdentifierMapByCriteriaByCriteria("COLUMN_NM", data);
+        var qIdentifier = ecrLookUpService.fetchQuestionIdentifierMapByCriteriaByCriteria("COLUMN_NM", data);
         if(qIdentifier != null) {
             if (qIdentifier.getDynamicQuestionIdentifier().equalsIgnoreCase("STANDARD")) {
                 model.setQuestionIdentifier(qIdentifier.getQuestionIdentifier());
@@ -3004,14 +3027,22 @@ public class CdaMapper {
         return "TEST_OUTPUT";
     }
 
-    private String MapToElementValue(String data) {
-        // CHECK MapToElementValue
-        return "To Be Implemented";
+    private POCDMT000040CustodianOrganization mapToElementValue(String data, POCDMT000040CustodianOrganization output, String name) {
+        // CHECK mapToElementValue
+
+        XmlCursor cursor = output.newCursor();
+        cursor.toFirstChild();
+        cursor.beginElement(name);
+        cursor.insertAttributeWithValue("xmlns", "urn:hl7-org:v3");
+        cursor.insertProcInst("CDATA", data);
+        cursor.dispose();
+
+        return output;
     }
 
-    private CE MapToCEAnswerType(String data, String questionCode) {
+    private CE mapToCEAnswerType(String data, String questionCode) {
         CE ce = CE.Factory.newInstance();
-        var answer = MapToCodedAnswer(data, questionCode);
+        var answer = mapToCodedAnswer(data, questionCode);
 
         ce.setCode(answer.getCode());
         ce.setCodeSystem(answer.getCodeSystem());
@@ -3028,7 +3059,7 @@ public class CdaMapper {
         return ce;
     }
 
-    private TS MapToTsType(String data) {
+    private TS mapToTsType(String data) {
         TS ts = TS.Factory.newInstance();
         String result = "";
         boolean checkerCode = data.contains("/");
@@ -3047,23 +3078,29 @@ public class CdaMapper {
         return ts;
     }
 
-    private XmlObject MapToCData(String data) throws XmlException {
-        String xmlTemplate = "<to-be-remove><![CDATA[REPLACE_STRING]]></to-be-remove>";
-        String updatedXML = xmlTemplate.replace("REPLACE_STRING", data);
-        return XmlObject.Factory.parse(updatedXML);
+    private XmlObject mapToCData(String data) throws XmlException {
+//        String xmlTemplate = "<to-be-remove><![CDATA[REPLACE_STRING]]></to-be-remove>";
+//        String updatedXML = xmlTemplate.replace("REPLACE_STRING", data);
+//
+        XmlObject xmlObject = XmlObject.Factory.parse("<to-be-remove></to-be-remove>");
+        XmlCursor cursor = xmlObject.newCursor();
+        cursor.toFirstChild();
+        cursor.insertChars("<![CDATA["+data+"]]>");
+        cursor.dispose();
+        return xmlObject;
     }
 
 
 
-    private String GetCurrentUtcDateTimeInCdaFormat() {
+    private String getCurrentUtcDateTimeInCdaFormat() {
         ZonedDateTime utcNow = ZonedDateTime.now(ZoneId.of("UTC"));
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssX");
         String formattedDate = utcNow.format(formatter);
         return formattedDate;
     }
 
-    private POCDMT000040Component3 MapToPatient(int counter, String colName, String data, POCDMT000040Component3 component3) throws XmlException {
-       var questionCode = MapToQuestionId(colName);
+    private POCDMT000040Component3 mapToPatient(int counter, String colName, String data, POCDMT000040Component3 component3) throws XmlException {
+       var questionCode = mapToQuestionId(colName);
        var count = 0;
        if (component3.getSection() == null) {
            component3.addNewSection();
@@ -3081,7 +3118,7 @@ public class CdaMapper {
        }
 
        POCDMT000040Observation observation = component3.getSection().getEntryArray(count).getObservation();
-       observation = MapToObservation(questionCode, data, observation);
+       observation = mapToObservation(questionCode, data, observation);
 
         component3.getSection().getEntryArray(counter).setObservation(observation);
         return component3;
@@ -3090,7 +3127,7 @@ public class CdaMapper {
     /*
     * TEST NEEDED
     * */
-    private POCDMT000040Observation MapToObservation(String questionCode, String data, POCDMT000040Observation observation) throws XmlException {
+    private POCDMT000040Observation mapToObservation(String questionCode, String data, POCDMT000040Observation observation) throws XmlException {
         observation.setClassCode("OBS");
         observation.setMoodCode(XActMoodDocumentObservation.EVN);
         String dataType="DATE";
@@ -3102,7 +3139,7 @@ public class CdaMapper {
         questionLup.setQuesCodeSystemDescTxt("NOT_FOUND");
         questionLup.setQuesDisplayName("NOT_FOUND");
         questionLup.setDataType("NOT_FOUND");
-        var result = ecrLookUpRepository.FetchPhdcQuestionByCriteria(questionCode);
+        var result = ecrLookUpService.fetchPhdcQuestionByCriteria(questionCode);
         /// TEST CODE
         result = new PhdcQuestionLookUpDto();
         result.setQuestionIdentifier("test");
@@ -3130,7 +3167,7 @@ public class CdaMapper {
 
             QuestionIdentifierMapDto map = new QuestionIdentifierMapDto();
             map.setDynamicQuestionIdentifier("NOT_FOUND");
-            QuestionIdentifierMapDto identifierMap = ecrLookUpRepository.FetchQuestionIdentifierMapByCriteriaByCriteria("Question_Identifier", questionCode);
+            QuestionIdentifierMapDto identifierMap = ecrLookUpService.fetchQuestionIdentifierMapByCriteriaByCriteria("Question_Identifier", questionCode);
             // TEST CODE
             identifierMap = new QuestionIdentifierMapDto();
             identifierMap.setDynamicQuestionIdentifier("test");
@@ -3157,7 +3194,7 @@ public class CdaMapper {
                             c = observation.getValueArray().length;
                             observation.addNewValue();
                         }
-                        CE ce = MapToCEAnswerType(
+                        CE ce = mapToCEAnswerType(
                                 dataList.get(i),
                                 defaultQuestionIdentifier);
                         observation.setValueArray(c, ce);
@@ -3165,61 +3202,76 @@ public class CdaMapper {
                 }
                 else {
                     if (result.getDataType().equalsIgnoreCase("TEXT")) {
-                        // CHECK MapToSTValue from ori code
-                        XmlObject out = MapToSTValue(data, observation);
+                        // CHECK mapToSTValue from ori code
+                        XmlObject out = mapToSTValue(data, observation);
                         observation.set(out);
                     }
                     else if (result.getDataType().equalsIgnoreCase("PART")) {
-                        // CHECK MapToObservation from ori 47
+                        // CHECK mapToObservation from ori 47
                         if (observation.getValueArray().length == 0) {
                             observation.addNewValue();
                         }
-                        var element = observation.getValueArray(0);
+                        ANY any = ANY.Factory.parse("<value></value>");
+                        var element = any;
                         XmlCursor cursor = element.newCursor();
                         cursor.toFirstAttribute();
                         cursor.toNextToken();
                         cursor.insertAttributeWithValue(new QName("http://www.w3.org/2001/XMLSchema-instance", "type"), "II");
                         cursor.insertAttributeWithValue("root", "2.3.3.3.322.23.34");
 
-                        var val = ecrLookUpRepository.FetchPhdcQuestionByCriteriaWithColumn("Question_Identifier", defaultQuestionIdentifier);
+                        var val = ecrLookUpService.fetchPhdcQuestionByCriteriaWithColumn("Question_Identifier", defaultQuestionIdentifier);
                         cursor.setAttributeText(new QName("root"), val.getQuesCodeSystemCd());
 
                         cursor.insertAttributeWithValue("extension", data);
                         cursor.dispose();
 
+                        observation.setValueArray(0, element);
+
                     }
                     else if (result.getDataType().equalsIgnoreCase("DATE")) {
-                        // CHECK MapToObservation from ori 66
+                        // CHECK mapToObservation from ori 66
                         if (observation.getValueArray().length == 0) {
                             observation.addNewValue();
                         }
-                        var element = observation.getValueArray(0);
+                        ANY any = ANY.Factory.parse("<value></value>");
+                        var element = any;
                         XmlCursor cursor = element.newCursor();
                         cursor.toFirstAttribute();
                         cursor.setAttributeText(new QName("http://www.w3.org/2001/XMLSchema-instance", "type"), "TS");
                         if (cursor.getAttributeText(new QName("value")) != null) {
-                            cursor.setAttributeText(new QName("value"), MapToTsType(data).toString()); // Assuming MapToTsType returns a value.
+                            cursor.setAttributeText(new QName("value"), mapToTsType(data).toString()); // Assuming mapToTsType returns a value.
                         } else {
-                            cursor.insertAttributeWithValue("value", MapToTsType(data).toString()); // Assuming MapToTsType returns a value.
+                            cursor.insertAttributeWithValue("value", mapToTsType(data).toString()); // Assuming mapToTsType returns a value.
                         }
                         cursor.dispose();
+
+                        observation.setValueArray(0, element);
                     }
                     else {
-                        // CHECK MapToObservation from ori 77
+                        // CHECK mapToObservation from ori 77
                         if (observation.getValueArray().length == 0) {
                             observation.addNewValue();
                         }
-                        var element = observation.getValueArray(0);
+
+                        ANY any = ANY.Factory.parse("<value></value>");
+
+                        var element = any;
                         XmlCursor cursor = element.newCursor();
                         cursor.toFirstAttribute();
                         cursor.setAttributeText(new QName("http://www.w3.org/2001/XMLSchema-instance", "type"), "ST");
                         cursor.toParent();
                         cursor.setTextValue(data);
                         cursor.dispose();
+
+                        observation.setValueArray(0,  any);
                     }
                 }
             }
         } else {
+
+            if (observation.getCode() == null) {
+                observation.addNewCode();
+            }
             observation.getCode().setCode(data + questionCode);
             observation.getCode().setCodeSystem("CODE NOT MAPPED");
             observation.getCode().setCodeSystemName("CODE NOT MAPPED");
@@ -3228,7 +3280,7 @@ public class CdaMapper {
         return observation;
     }
 
-    private XmlObject MapToSTValue(String input, XmlObject output) {
+    private XmlObject mapToSTValue(String input, XmlObject output) {
         XmlCursor cursor = output.newCursor();
 
         // Navigate to the 'value' element
@@ -3245,7 +3297,7 @@ public class CdaMapper {
         return output;
     }
 
-    private XmlObject MapToUsableTSElement(String data, XmlObject output, String name) {
+    private XmlObject mapToUsableTSElement(String data, XmlObject output, String name) {
         XmlCursor cursor = output.newCursor();
 
         // Ensure the cursor is at the correct position
@@ -3269,14 +3321,14 @@ public class CdaMapper {
         cursor.insertNamespace("", "urn:hl7-org:v3");
 
 
-        cursor.insertAttributeWithValue("value", MapToTsType(data).toString());
+        cursor.insertAttributeWithValue("value", mapToTsType(data).toString());
 
         // Dispose of any cursors we've created
         cursor.dispose();
         return output;
     }
 
-    private POCDMT000040StructuredBody MapToCase(int entryCounter, EcrSelectedCase caseDto, POCDMT000040StructuredBody output) throws XmlException {
+    private POCDMT000040StructuredBody mapToCase(int entryCounter, EcrSelectedCase caseDto, POCDMT000040StructuredBody output) throws XmlException {
         int componentCaseCounter=output.getComponentArray().length -1;
         int repeats = 0;
 
@@ -3301,7 +3353,7 @@ public class CdaMapper {
             }
             else if (value != null && !value.isEmpty()) {
                 String questionId= "";
-                var quesId = MapToQuestionId(questionId);
+                var quesId = mapToQuestionId(questionId);
 
                 if (name.equalsIgnoreCase("invConditionCd")) {
                     repeats = (int) caseDto.getMsgCase().getInvConditionCd().chars().filter(x -> x == '^').count();
@@ -3323,7 +3375,7 @@ public class CdaMapper {
 
 
                     var element = output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation();
-                    var obs = MapTripletToObservation(
+                    var obs = mapTripletToObservation(
                             caseDto.getMsgCase().getInvConditionCd(),
                             quesId,
                             element
@@ -3344,7 +3396,7 @@ public class CdaMapper {
                         output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).addNewObservation();
                     }
                     var element = output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation();
-                    POCDMT000040Observation obs = MapToObservation(
+                    POCDMT000040Observation obs = mapToObservation(
                             quesId,
                             caseDto.getMsgCase().getInvConditionCd(),
                             element
@@ -3386,7 +3438,7 @@ public class CdaMapper {
 
                 var element = output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation();
 
-                POCDMT000040Observation out = MapToObsFromParticipant(
+                POCDMT000040Observation out = mapToObsFromParticipant(
                         caseDto.getMsgCaseParticipants().get(i),
                         element
                 );
@@ -3399,7 +3451,7 @@ public class CdaMapper {
              * */
             for(int i = 0; i < caseDto.getMsgCaseAnswers().size(); i++) {
                 var out = output.getComponentArray(componentCaseCounter);
-                var res = MapToMessageAnswer(
+                var res = mapToMessageAnswer(
                         caseDto.getMsgCaseAnswers().get(i),
                         OldQuestionId,
                         counter,
@@ -3418,7 +3470,7 @@ public class CdaMapper {
 
                 var out = output.getComponentArray(componentCaseCounter).getSection();
 
-                var ot = MapToMultiSelect(caseDto.getMsgCaseAnswerRepeats().get(i),
+                var ot = mapToMultiSelect(caseDto.getMsgCaseAnswerRepeats().get(i),
                         answerGroupCounter, questionGroupCounter, sectionCounter, out);
 
                 answerGroupCounter = ot.getAnswerGroupCounter();
@@ -3430,7 +3482,7 @@ public class CdaMapper {
         }
 
 
-        // CHECK MapToCase
+        // CHECK mapToCase
         return output;
 
 
@@ -3438,7 +3490,7 @@ public class CdaMapper {
 
 
 
-    private MultiSelect MapToMultiSelect(EcrMsgCaseAnswerRepeatDto in,
+    private MultiSelect mapToMultiSelect(EcrMsgCaseAnswerRepeatDto in,
                                          int answerGroupCounter,
                                          int questionGroupCounter,
                                          int sectionCounter, POCDMT000040Section out) throws XmlException {
@@ -3446,7 +3498,7 @@ public class CdaMapper {
         out.getCode().setCodeSystem("Local-codesystem-oid");
         out.getCode().setCodeSystemName("LocalSystem");
         out.getCode().setDisplayName("Generic Repeating Questions Section");
-        out.getTitle().set(MapToCData("REPEATING QUESTIONS"));
+        out.getTitle().set(mapToCData("REPEATING QUESTIONS"));
         int componentCounter = 0;
         String dataType="DATE";
         int seqNbr = 0;
@@ -3525,7 +3577,7 @@ public class CdaMapper {
                 if(questionIdentifier.equalsIgnoreCase("NBS243") ||
                         questionIdentifier.equalsIgnoreCase("NBS290")) {
                     var element = out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation();
-                    var ot = MapToObservationPlace(
+                    var ot = mapToObservationPlace(
                             in.getAnswerTxt(),
                             element);
                     out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).setObservation((POCDMT000040Observation) ot);
@@ -3533,7 +3585,7 @@ public class CdaMapper {
                 else {
 
                     var element = out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation();
-                    var ot = MapToSTValue(
+                    var ot = mapToSTValue(
                             in.getAnswerTxt(),
                             element);
                     out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).setObservation((POCDMT000040Observation)ot);
@@ -3550,7 +3602,7 @@ public class CdaMapper {
                     cursor.setAttributeText(new QName("http://www.w3.org/2001/XMLSchema-instance", "type"), "TS");
                     cursor.setAttributeText(new QName("", "value"), null);
                     if (name.equals("answerTxt")) {
-                        String newValue = MapToTsType(in.getAnswerTxt()).toString();
+                        String newValue = mapToTsType(in.getAnswerTxt()).toString();
                         cursor.setAttributeText(new QName("", "value"), newValue);
                     }
                     cursor.dispose();
@@ -3583,7 +3635,7 @@ public class CdaMapper {
         return model;
     }
 
-    private XmlObject MapToObservationPlace(String in, XmlObject out) {
+    private XmlObject mapToObservationPlace(String in, XmlObject out) {
         XmlCursor cursor = out.newCursor();
         cursor.toFirstChild();
         cursor.setAttributeText(new QName("http://www.w3.org/2001/XMLSchema-instance", "type"), "II");
@@ -3594,7 +3646,7 @@ public class CdaMapper {
         return out;
     }
 
-    private MessageAnswer MapToMessageAnswer(EcrMsgCaseAnswerDto in, String questionSeq, int counter, POCDMT000040Component3 out) {
+    private MessageAnswer mapToMessageAnswer(EcrMsgCaseAnswerDto in, String questionSeq, int counter, POCDMT000040Component3 out) {
         String dataType="";
         int sequenceNbr = 0;
         int questionGroupSeqNbr = 0;
@@ -3656,22 +3708,22 @@ public class CdaMapper {
 
             else if (dataType.equalsIgnoreCase("TEXT") || dataType.equalsIgnoreCase("NUMERIC")) {
                 if (name.equals("answerTxt") && !in.getAnswerTxt().isEmpty()) {
-                    // CHECK MapToSTValue
+                    // CHECK mapToSTValue
                     var element = out.getSection().getEntryArray(counter).getObservation();
-                    var ot = MapToSTValue(in.getAnswerTxt(), element);
+                    var ot = mapToSTValue(in.getAnswerTxt(), element);
                     out.getSection().getEntryArray(counter).setObservation((POCDMT000040Observation) ot);
                 }
             }
             else if (dataType.equalsIgnoreCase("DATE")) {
                 if (name.equals("answerTxt") && !in.getAnswerTxt().isEmpty()) {
-                    // CHECK MapToMessageAnswer
+                    // CHECK mapToMessageAnswer
                     var element = out.getSection().getEntryArray(counter).getObservation().getValueArray(0);
                     XmlCursor cursor = element.newCursor();
                     cursor.toFirstAttribute();
                     cursor.insertAttributeWithValue(new QName("http://www.w3.org/2001/XMLSchema-instance", "type"), "TS");
                     cursor.insertAttributeWithValue("value", ""); // As per your code, it's empty
 
-                    var ot = MapToTsType(in.getAnswerTxt()).toString();
+                    var ot = mapToTsType(in.getAnswerTxt()).toString();
                     cursor.setAttributeText(new QName("", "value"), ot);
                     cursor.dispose();
                 }
@@ -3716,7 +3768,7 @@ public class CdaMapper {
     /**
      * TEST NEEDED
      * */
-    private POCDMT000040Observation MapToObsFromParticipant(EcrMsgCaseParticipantDto in, POCDMT000040Observation out) throws XmlException {
+    private POCDMT000040Observation mapToObsFromParticipant(EcrMsgCaseParticipantDto in, POCDMT000040Observation out) throws XmlException {
         String localId = "";
         String questionCode ="";
 
@@ -3728,16 +3780,16 @@ public class CdaMapper {
             questionCode = in.getQuestionIdentifier();
         }
 
-        return MapToObservation(questionCode, localId, out);
+        return mapToObservation(questionCode, localId, out);
     }
 
-    private POCDMT000040Observation MapTripletToObservation(String invConditionCd, String questionId, POCDMT000040Observation output) {
+    private POCDMT000040Observation mapTripletToObservation(String invConditionCd, String questionId, POCDMT000040Observation output) {
         output.setClassCode("OBS");
         output.setMoodCode(XActMoodDocumentObservation.EVN);
         List<String> repeats = GetStringsBeforePipe(invConditionCd);
 
         String tripletCodedValue =  "";
-        PhdcQuestionLookUpDto questionLookUpDto = MapToCodedQuestionType(questionId);
+        PhdcQuestionLookUpDto questionLookUpDto = mapToCodedQuestionType(questionId);
         output.getCode().setCode(questionLookUpDto.getQuesCodeSystemCd());
         output.getCode().setCodeSystem(questionLookUpDto.getQuesCodeSystemDescTxt());
         output.getCode().setDisplayName(questionLookUpDto.getQuesDisplayName());
@@ -3752,7 +3804,7 @@ public class CdaMapper {
             var caretStringList = GetStringsBeforeCaret(repeats.get(i));
 
             if (tripletCodedValue.length() > 0 && caretStringList.size() == 4) {
-                // CHECK MapTripletToObservation
+                // CHECK mapTripletToObservation
                 String code = caretStringList.get(0);
                 String displayName = caretStringList.get(1);
                 String codeSystemName = caretStringList.get(2);
@@ -3779,13 +3831,13 @@ public class CdaMapper {
 
     }
 
-    private PhdcQuestionLookUpDto MapToCodedQuestionType(String questionIdentifier) {
+    private PhdcQuestionLookUpDto mapToCodedQuestionType(String questionIdentifier) {
         PhdcQuestionLookUpDto dto = new PhdcQuestionLookUpDto();
         dto.setQuesCodeSystemCd("NOT_FOUND");
         dto.setQuesCodeSystemDescTxt("NOT_FOUND");
         dto.setQuesDisplayName("NOT_FOUND");
         if (!questionIdentifier.isEmpty()) {
-            var result = ecrLookUpRepository.FetchPhdcQuestionByCriteriaWithColumn("QUESTION_IDENTIFIER", questionIdentifier);
+            var result = ecrLookUpService.fetchPhdcQuestionByCriteriaWithColumn("QUESTION_IDENTIFIER", questionIdentifier);
             if (result != null) {
                 if (result.getQuesCodeSystemCd() != null && !result.getQuesCodeSystemCd().isEmpty()) {
                     dto.setQuesCodeSystemCd(result.getQuesCodeSystemCd());
