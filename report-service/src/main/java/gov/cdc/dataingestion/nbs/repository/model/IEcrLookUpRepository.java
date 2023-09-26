@@ -6,7 +6,7 @@ import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcQuestionLookUpD
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.QuestionIdentifierMapDto;
 import org.springframework.stereotype.Repository;
 
-//@Repository
+@Repository
 public interface IEcrLookUpRepository {
     ConstantLookUpDto fetchConstantLookUpByCriteriaWithColumn(String column, String value);
     PhdcAnswerLookUpDto fetchPhdcAnswerByCriteriaForTranslationCode(String questionIdentifier, String ansFromCode);

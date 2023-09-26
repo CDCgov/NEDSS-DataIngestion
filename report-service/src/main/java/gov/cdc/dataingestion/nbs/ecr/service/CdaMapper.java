@@ -32,15 +32,15 @@ import java.util.*;
 import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforeCaret;
 import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforePipe;
 
-//@Service
+@Service
 public class CdaMapper implements ICdaMapper {
     
     private ICdaLookUpService ecrLookUpService;
 
-//    @Autowired
-//    public CdaMapper(ICdaLookUpService ecrLookUpService) {
-//        this.ecrLookUpService = ecrLookUpService;
-//    }
+    @Autowired
+    public CdaMapper(ICdaLookUpService ecrLookUpService) {
+        this.ecrLookUpService = ecrLookUpService;
+    }
 
     public String tranformSelectedEcrToCDAXml(EcrSelectedRecord input) throws XmlException {
 
@@ -2985,7 +2985,7 @@ public class CdaMapper implements ICdaMapper {
             transCodeSystemName = "NOT_MAPPED";
             transDisplayName = "NOT_MAPPED";
             codeSystemName ="NOT_MAPPED";
-            displayName = "NOT_MAPPED";;
+            displayName = "NOT_MAPPED";
         }
 
         if (code.equalsIgnoreCase("NOT_MAPPED")) {
@@ -3024,7 +3024,7 @@ public class CdaMapper implements ICdaMapper {
                 output = model.getDynamicQuestionIdentifier();
             }
         }
-        return "TEST_OUTPUT";
+        return output;
     }
 
     private POCDMT000040CustodianOrganization mapToElementValue(String data, POCDMT000040CustodianOrganization output, String name) {
@@ -3140,14 +3140,6 @@ public class CdaMapper implements ICdaMapper {
         questionLup.setQuesDisplayName("NOT_FOUND");
         questionLup.setDataType("NOT_FOUND");
         var result = ecrLookUpService.fetchPhdcQuestionByCriteria(questionCode);
-        /// TEST CODE
-        result = new PhdcQuestionLookUpDto();
-        result.setQuestionIdentifier("test");
-        result.setQuesCodeSystemCd("test");
-        result.setQuesCodeSystemDescTxt("test");
-        result.setQuesDisplayName("test");
-        result.setDataType("test");
-        /// END TEST
         if (result != null) {
             if (!result.getQuestionIdentifier().isEmpty()) {
                 questionLup.setQuestionIdentifier(result.getQuestionIdentifier());
@@ -3168,11 +3160,6 @@ public class CdaMapper implements ICdaMapper {
             QuestionIdentifierMapDto map = new QuestionIdentifierMapDto();
             map.setDynamicQuestionIdentifier("NOT_FOUND");
             QuestionIdentifierMapDto identifierMap = ecrLookUpService.fetchQuestionIdentifierMapByCriteriaByCriteria("Question_Identifier", questionCode);
-            // TEST CODE
-            identifierMap = new QuestionIdentifierMapDto();
-            identifierMap.setDynamicQuestionIdentifier("test");
-            identifierMap.setQuestionIdentifier("test");
-            // END TEST
             if(identifierMap != null && !identifierMap.getDynamicQuestionIdentifier().isEmpty()) {
                 map.setDynamicQuestionIdentifier(identifierMap.getDynamicQuestionIdentifier());
             }

@@ -22,20 +22,20 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ElrReportsController {
 
-    @Autowired
+//    @Autowired
     private final RawELRService rawELRService;
 
-//    private IEcrMsgQueryService ecrMsgQueryService;
-//    private ICdaMapper mapper;
-//
-//    @Autowired
-//    public ElrReportsController(IEcrMsgQueryService ecrMsgQueryService,
-//                                ICdaMapper mapper,
-//                                RawELRService rawELRService) {
-//        this.ecrMsgQueryService = ecrMsgQueryService;
-//        this.mapper = mapper;
-//        this.rawELRService = rawELRService;
-//    }
+    private IEcrMsgQueryService ecrMsgQueryService;
+    private ICdaMapper mapper;
+
+    @Autowired
+    public ElrReportsController(IEcrMsgQueryService ecrMsgQueryService,
+                                ICdaMapper mapper,
+                                RawELRService rawELRService) {
+        this.ecrMsgQueryService = ecrMsgQueryService;
+        this.mapper = mapper;
+        this.rawELRService = rawELRService;
+    }
 
 
 
@@ -60,23 +60,24 @@ public class ElrReportsController {
         return ResponseEntity.ok(rawELRService.getById(id));
     }
 
-//    @Operation(
-//            summary = "TEST ECR COMM")
-//    @GetMapping(path = "/test")
-//    public ResponseEntity<String> getTestEcrAfterPatch() {
-//        Gson gson = new Gson();
-//        var result = ecrMsgQueryService.GetSelectedEcrRecord();
-//
-//
-//        try {
-//            mapper.tranformSelectedEcrToCDAXml(result);
-//
-//        } catch (Exception e){
-//            var error = e;
-//            System.out.println(e.getMessage());
-//        }
-//        String jsonString = gson.toJson(result);
-//
-//        return ResponseEntity.ok(jsonString);
-//    }
+    @Operation(
+            summary = "TEST ECR COMM")
+    @GetMapping(path = "/test")
+    public ResponseEntity<String> getTestEcrAfterPatch() {
+        Gson gson = new Gson();
+        var result = ecrMsgQueryService.GetSelectedEcrRecord();
+
+
+        String xmlREsult = "";
+        try {
+            xmlREsult = mapper.tranformSelectedEcrToCDAXml(result);
+
+        } catch (Exception e){
+            var error = e;
+            System.out.println(e.getMessage());
+        }
+        String jsonString = gson.toJson(result);
+
+        return ResponseEntity.ok(xmlREsult);
+    }
 }

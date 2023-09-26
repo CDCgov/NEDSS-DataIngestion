@@ -9,14 +9,14 @@ import gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-//@Service
+@Service
 public class CdaLookUpService  implements ICdaLookUpService {
     private IEcrLookUpRepository ecrLookUpRepository;
 
-//    @Autowired
-//    public CdaLookUpService(IEcrLookUpRepository ecrLookUpRepository) {
-//        this.ecrLookUpRepository = ecrLookUpRepository;
-//    }
+    @Autowired
+    public CdaLookUpService(IEcrLookUpRepository ecrLookUpRepository) {
+        this.ecrLookUpRepository = ecrLookUpRepository;
+    }
 
 
     public ConstantLookUpDto fetchConstantLookUpByCriteriaWithColumn(String column, String value) {
