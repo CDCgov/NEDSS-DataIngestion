@@ -1,7 +1,6 @@
 package gov.cdc.dataingestion.kafka.service;
 
 import ca.uhn.hl7v2.HL7Exception;
-import com.google.gson.Gson;
 import gov.cdc.dataingestion.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
@@ -19,6 +18,7 @@ import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
+import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
@@ -32,18 +32,11 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.Assert;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.listener.ListenerExecutionFailedException;
-import org.springframework.kafka.listener.TimestampedException;
-import org.springframework.kafka.support.SendResult;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -57,7 +50,6 @@ import java.lang.reflect.Method;
 import java.sql.*;
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -87,6 +79,8 @@ class KafkaConsumerServiceTest {
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
     @Mock
     private IElrDeadLetterRepository elrDeadLetterRepository;
+    @Mock
+    private IReportStatusRepository iReportStatusRepository;
 
 
     @Container
@@ -155,8 +149,8 @@ class KafkaConsumerServiceTest {
                 iHL7ToFHIRRepository,
                 iHL7DuplicateValidator,
                 nbsRepositoryServiceProvider,
-                elrDeadLetterRepository
-        );
+                elrDeadLetterRepository,
+                iReportStatusRepository);
     }
     @AfterAll
     public static void tearDown() {
