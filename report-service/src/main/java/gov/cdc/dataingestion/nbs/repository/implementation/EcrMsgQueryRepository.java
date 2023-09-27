@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.nbs.repository.implementation;
 
+import com.google.gson.Gson;
 import gov.cdc.dataingestion.nbs.repository.IEcrMsgQueryRepository;
 import gov.cdc.dataingestion.nbs.repository.model.dto.*;
 import jakarta.persistence.EntityManager;
@@ -12,15 +13,21 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static gov.cdc.dataingestion.nbs.repository.implementation.JsonReaderTester.loadContainer;
+
 @Repository
 public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
     @PersistenceContext(unitName = "nbs")
     private EntityManager entityManager;
+
+
+
 
     public EcrMsgContainerDto FetchMsgContainerForApplicableEcr() {
         String queryString = loadSqlFromFile("ecr_msg_container.sql");
@@ -40,6 +47,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
             return ecrMsgContainerDto;
 
         }
+
         return null;
     }
 

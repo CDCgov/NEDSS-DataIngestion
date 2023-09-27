@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.nbs.services;
 
 import gov.cdc.dataingestion.nbs.repository.IEcrMsgQueryRepository;
+import gov.cdc.dataingestion.nbs.repository.implementation.JsonReaderTester;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedCase;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedInterview;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
@@ -20,6 +21,48 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
     @Autowired
     public EcrMsgQueryService(IEcrMsgQueryRepository ecrMsgQueryRepository) {
         this.ecrMsgQueryRepository = ecrMsgQueryRepository;
+    }
+
+    public EcrSelectedRecord getSelectedEcrFromJson() {
+        var container = JsonReaderTester.loadContainer();
+        var patient = JsonReaderTester.loadPatient();
+
+        var msgCase = JsonReaderTester.loadCase();
+        msgCase.initDataMap();
+        var msgCasePar = JsonReaderTester.loadCasePar();
+        var org = JsonReaderTester.loadOrg();
+        org.initDataMap();
+        var provider = JsonReaderTester.loadProvider();
+        for( int i = 0; i < provider.size(); i++) {
+            provider.get(i).initDataMap();
+        }
+
+        EcrSelectedRecord selectedRecord = new EcrSelectedRecord();
+        selectedRecord.setMsgContainer(container);
+
+        var paArr = new ArrayList<EcrMsgPatientDto>();
+        paArr.add(patient);
+        selectedRecord.setMsgPatients(paArr);
+
+        EcrSelectedCase selectedCase = new EcrSelectedCase();
+        selectedCase.setMsgCase(msgCase);
+        selectedCase.setMsgCaseParticipants(msgCasePar);
+
+        var caseSelectedArr = new ArrayList<EcrSelectedCase>();
+        caseSelectedArr.add(selectedCase);
+        selectedRecord.setMsgCases(caseSelectedArr);
+
+        selectedRecord.setMsgXmlAnswers(new ArrayList<>());
+
+        selectedRecord.setMsgProviders(provider);
+
+        var orgArr = new ArrayList<EcrMsgOrganizationDto>();
+        orgArr.add(org);
+        selectedRecord.setMsgOrganizations(orgArr);
+
+
+
+        return selectedRecord;
     }
 
     public EcrSelectedRecord GetSelectedEcrRecord() {

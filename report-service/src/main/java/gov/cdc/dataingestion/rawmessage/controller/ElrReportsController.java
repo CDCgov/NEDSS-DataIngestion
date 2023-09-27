@@ -65,7 +65,7 @@ public class ElrReportsController {
     @GetMapping(path = "/test")
     public ResponseEntity<String> getTestEcrAfterPatch() {
         Gson gson = new Gson();
-        var result = ecrMsgQueryService.GetSelectedEcrRecord();
+        var result = ecrMsgQueryService.getSelectedEcrFromJson();
 
 
         String xmlREsult = "";

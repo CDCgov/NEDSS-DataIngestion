@@ -6,4 +6,5 @@ import org.springframework.stereotype.Service;
 @Service
 public interface IEcrMsgQueryService {
     EcrSelectedRecord GetSelectedEcrRecord();
+    EcrSelectedRecord getSelectedEcrFromJson();
 }
