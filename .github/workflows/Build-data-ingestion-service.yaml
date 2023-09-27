@@ -5,6 +5,7 @@ on:
       - main
       - master
       - rel-**
+      - CNDIT-640-github-**
     paths:
       - 'report-service/**'
       - '.github/workflows/Build-data-ingestion-service.yaml'
