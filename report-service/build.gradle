@@ -173,18 +173,42 @@ test {
 	useJUnitPlatform()
 }
 
+//jar {
+//	// task configuration goes here
+//	if (findProject(':hl7-parser')) {
+//		dependsOn(':hl7-parser:jar')
+//		from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+//	}
+//
+//	if (findProject(':cdaschema')) {
+//		dependsOn(':cdaschema:jar')
+//		from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+//	}
+//}
+
 jar {
-	// task configuration goes here
+	manifest {
+		attributes(
+				'Main-Class': 'gov.cdc.dataingestion.ServiceApplication'
+		)
+	}
+	zip64 true
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+	// Gather all runtime dependencies
+	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+
+	// Conditionally add dependencies from projects
 	if (findProject(':hl7-parser')) {
 		dependsOn(':hl7-parser:jar')
-		from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 	}
 
 	if (findProject(':cdaschema')) {
 		dependsOn(':cdaschema:jar')
-		from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 	}
 }
+
+
 compileJava.mustRunAfter(":hl7-parser:build")
 compileJava.mustRunAfter(":cdaschema:build")
 

@@ -7,6 +7,7 @@ on:
     paths:
       - "report-service/**"
       - "hl7-parser/**"
+      - "cdaschema/**"
       - ".github/workflows/sonar.yaml"
 env:
   deployment_env: dev

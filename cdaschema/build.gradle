@@ -1,8 +1,17 @@
 plugins {
-    id 'java'
+    id 'java-library'
 }
-sourceCompatibility = '17'
-targetCompatibility = '17'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+group = 'gov.cdc.dataingestion'
+version = '0.0.1-SNAPSHOT'
+//
+//sourceCompatibility = '17'
+//targetCompatibility = '17'
 repositories {
     mavenCentral()
 }
@@ -14,7 +23,7 @@ configurations {
 dependencies {
     xmlbeans 'org.apache.xmlbeans:xmlbeans:2.6.0'
     implementation 'org.apache.xmlbeans:xmlbeans:2.6.0'
-    implementation files('libs/cdaSchema.jar')
+//    implementation files('libs/cdaSchema.jar')
 }
 
 sourceSets {
