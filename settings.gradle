@@ -1,8 +1,5 @@
 rootProject.name = 'NEDDS-DataIngestion'
 
-// App
-include 'report-service'
-
 // Libraries
 include 'hl7-parser'
 
@@ -11,3 +8,6 @@ include 'phdc-xsd-jaxb'
 
 // Ecr Xsd
 include 'cdaschema'
+
+// App
+include 'report-service'
