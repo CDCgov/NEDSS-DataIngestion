@@ -34,7 +34,7 @@ ALTER TABLE elr_validated ADD CONSTRAINT FK__elr_valid__raw_i__5FB337D6 FOREIGN 
 
 CREATE TABLE elr_fhir (
 	id uniqueidentifier DEFAULT newid() NOT NULL,
-	fhir_message nvarchar COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	fhir_message nvarchar(max) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 	raw_message_id uniqueidentifier NULL,
 	created_by nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 	updated_by nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
@@ -49,8 +49,8 @@ ALTER TABLE elr_fhir ADD CONSTRAINT FK__elr_fhir__raw_me__5AEE82B9 FOREIGN KEY (
 CREATE TABLE elr_dlt (
 	error_message_id uniqueidentifier NOT NULL,
 	error_message_source nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	error_stack_trace nvarchar COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	error_stack_trace_short nvarchar COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	error_stack_trace nvarchar(max) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	error_stack_trace_short nvarchar(max) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 	dlt_status nvarchar(10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 	dlt_occurrence int NULL,
 	message ntext COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
