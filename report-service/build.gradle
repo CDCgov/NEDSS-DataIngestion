@@ -173,18 +173,6 @@ test {
 	useJUnitPlatform()
 }
 
-//jar {
-//	// task configuration goes here
-//	if (findProject(':hl7-parser')) {
-//		dependsOn(':hl7-parser:jar')
-//		from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-//	}
-//
-//	if (findProject(':cdaschema')) {
-//		dependsOn(':cdaschema:jar')
-//		from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-//	}
-//}
 
 jar {
 	manifest {
@@ -208,9 +196,10 @@ jar {
 	}
 }
 
-
-compileJava.mustRunAfter(":hl7-parser:build")
-compileJava.mustRunAfter(":cdaschema:build")
+if (project != project.rootProject || project.hasProperty('remoteBuild')) {
+	compileJava.mustRunAfter(":hl7-parser:build")
+	compileJava.mustRunAfter(":cdaschema:build")
+}
 
 sonarqube {
 	properties {
