@@ -130,8 +130,8 @@ dependencies {
 		implementation files('libs/hl7-parser-0.0.1-SNAPSHOT.jar')
 	}
 
-	if (findProject(':CdaSchema')) {
-		implementation project(':CdaSchema')
+	if (findProject(':cdaschema')) {
+		implementation project(':cdaschema')
 	} else {
 		// this mostly needed when testing the app on idea
 		implementation files('libs/cdaSchema.jar')
@@ -181,8 +181,8 @@ jar {
 		from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 	}
 
-	if (findProject(':CdaSchema')) {
-		dependsOn(':CdaSchema:jar')
+	if (findProject(':cdaschema')) {
+		dependsOn(':cdaschema:jar')
 		from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 	}
 }

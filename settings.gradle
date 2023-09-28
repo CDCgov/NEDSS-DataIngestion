@@ -9,3 +9,5 @@ include 'hl7-parser'
 // Added by R. Addanki, Xsd is converted to java classes, generated java classes are compiled and built into a library
 include 'phdc-xsd-jaxb'
 
+// Ecr Xsd
+include 'cdaschema'
