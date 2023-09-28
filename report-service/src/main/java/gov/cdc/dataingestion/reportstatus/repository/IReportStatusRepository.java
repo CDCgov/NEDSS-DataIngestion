@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface IReportStatusRepository extends JpaRepository<ReportStatusIdData, Long> {
+public interface IReportStatusRepository extends JpaRepository<ReportStatusIdData, String> {
     Optional<ReportStatusIdData> findByRawMessageId(String id);
 }

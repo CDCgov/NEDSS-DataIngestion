@@ -1,12 +1,16 @@
 package gov.cdc.dataingestion.reportstatus.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "elr_record_status_id")
+@Getter
+@Setter
 public class ReportStatusIdData {
     @Id
     @GenericGenerator(name = "generator", strategy = "guid", parameters = {})
@@ -32,60 +36,4 @@ public class ReportStatusIdData {
 
     @Column(name = "updated_by")
     private String updatedBy;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getRawMessageId() {
-        return rawMessageId;
-    }
-
-    public void setRawMessageId(String rawMessageId) {
-        this.rawMessageId = rawMessageId;
-    }
-
-    public Integer getNbsInterfaceUid() {
-        return nbsInterfaceUid;
-    }
-
-    public void setNbsInterfaceUid(Integer nbsInterfaceUid) {
-        this.nbsInterfaceUid = nbsInterfaceUid;
-    }
-
-    public Timestamp getCreatedOn() {
-        return createdOn;
-    }
-
-    public void setCreatedOn(Timestamp createdOn) {
-        this.createdOn = createdOn;
-    }
-
-    public Timestamp getUpdatedOn() {
-        return updatedOn;
-    }
-
-    public void setUpdatedOn(Timestamp updatedOn) {
-        this.updatedOn = updatedOn;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public String getUpdatedBy() {
-        return updatedBy;
-    }
-
-    public void setUpdatedBy(String updatedBy) {
-        this.updatedBy = updatedBy;
-    }
 }

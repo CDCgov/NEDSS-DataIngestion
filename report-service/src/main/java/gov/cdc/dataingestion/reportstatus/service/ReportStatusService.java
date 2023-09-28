@@ -23,11 +23,14 @@ public class ReportStatusService {
 
     public String getStatusForReport(String id) {
         Optional<ReportStatusIdData > reportStatusIdData = iReportStatusRepository.findByRawMessageId(id);
-        logger.debug("NBS Interface id retrieved from the elr_record_status_id table is: {}", reportStatusIdData.get().getNbsInterfaceUid());
+        if(reportStatusIdData.isEmpty()) {
+            return "Provided UUID is not present in the database.";
+        }
 
         Optional<NbsInterfaceModel> nbsInterfaceModel = nbsInterfaceRepository.findByNbsInterfaceUid(reportStatusIdData.get().getNbsInterfaceUid());
-        logger.debug("NBS Interface table id for the requested report id is: {}", nbsInterfaceModel.get().getNbsInterfaceUid());
-
+        if(nbsInterfaceModel.isEmpty()) {
+            return "Couldn't find status for the requested ID.";
+        }
         return nbsInterfaceModel.get().getRecordStatusCd();
     }
 }

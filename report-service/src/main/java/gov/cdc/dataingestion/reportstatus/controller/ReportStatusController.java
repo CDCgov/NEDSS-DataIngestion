@@ -2,13 +2,13 @@ package gov.cdc.dataingestion.reportstatus.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 import gov.cdc.dataingestion.reportstatus.service.ReportStatusService;
-import gov.cdc.dataingestion.security.service.TokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,15 +25,23 @@ public class ReportStatusController {
 
     @GetMapping("/report-status/{id}")
     @ResponseBody
-    public String nbsInterfaceUid(@PathVariable String id) throws JsonProcessingException {
+    public String getReportStatus(@PathVariable String id) throws JsonProcessingException {
         logger.debug("Status requested for record with id: '{}'", id);
+
+        if(id == null || id.isEmpty() || id.isBlank()) {
+            throw new IllegalArgumentException("Invalid 'id' parameter provided.");
+        }
 
         String status = reportStatusService.getStatusForReport(id);
 
         Map<String, String> returnJson = new HashMap<>();
         returnJson.put("id", id);
-        returnJson.put("status", status);
-
+        if(status.equals("Provided UUID is not present in the database.") || status.equals("Couldn't find status for the requested ID.")) {
+            returnJson.put("error_message", status);
+        }
+        else {
+            returnJson.put("status", status);
+        }
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(returnJson);
     }
