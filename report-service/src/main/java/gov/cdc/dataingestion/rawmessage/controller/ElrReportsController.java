@@ -61,12 +61,11 @@ public class ElrReportsController {
     }
 
     @Operation(
-            summary = "TEST ECR COMM")
-    @GetMapping(path = "/test")
-    public ResponseEntity<String> getTestEcrAfterPatch() {
+            summary = "Transform parsed ecr data in MSG table into CDA xml")
+    @GetMapping(path = "/ecr/cda-transformation")
+    public ResponseEntity<String> processingMsgEcrIntoCDA() {
         Gson gson = new Gson();
-        var result = ecrMsgQueryService.getSelectedEcrFromJson();
-
+        var result = ecrMsgQueryService.GetSelectedEcrRecord();
 
         String xmlREsult = "";
         try {
