@@ -129,7 +129,15 @@ dependencies {
 		// this mostly needed when testing the app on idea
 		implementation files('libs/hl7-parser-0.0.1-SNAPSHOT.jar')
 	}
-	implementation files('libs/cdaSchema.jar')
+
+	if (findProject(':CdaSchema')) {
+		implementation project(':CdaSchema')
+	} else {
+		// this mostly needed when testing the app on idea
+		implementation files('libs/cdaSchema.jar')
+	}
+
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -170,6 +178,11 @@ jar {
 	// task configuration goes here
 	if (findProject(':hl7-parser')) {
 		dependsOn(':hl7-parser:jar')
+		from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+	}
+
+	if (findProject(':CdaSchema')) {
+		dependsOn(':CdaSchema:jar')
 		from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 	}
 }
