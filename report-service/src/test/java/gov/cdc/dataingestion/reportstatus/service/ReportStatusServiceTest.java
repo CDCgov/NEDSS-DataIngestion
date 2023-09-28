@@ -77,7 +77,7 @@ class ReportStatusServiceTest {
 
     @Test
     void testDummyGetStatusForReportSuccessModelCoverage() {
-        String id = UUID.randomUUID().toString();
+        String id = "test_uuid_from_user";
         reportStatusIdData.setNbsInterfaceUid(1234);
         nbsInterfaceModel.setRecordStatusCd("Success");
 

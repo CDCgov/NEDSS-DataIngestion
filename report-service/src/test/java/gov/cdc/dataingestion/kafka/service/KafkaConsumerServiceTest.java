@@ -15,6 +15,7 @@ import gov.cdc.dataingestion.exception.FhirConversionException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
+import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
@@ -81,6 +82,9 @@ class KafkaConsumerServiceTest {
     private IElrDeadLetterRepository elrDeadLetterRepository;
     @Mock
     private IReportStatusRepository iReportStatusRepository;
+
+    private NbsInterfaceModel nbsInterfaceModel;
+    private ValidatedELRModel validatedELRModel;
 
 
     @Container
@@ -151,6 +155,8 @@ class KafkaConsumerServiceTest {
                 nbsRepositoryServiceProvider,
                 elrDeadLetterRepository,
                 iReportStatusRepository);
+        nbsInterfaceModel = new NbsInterfaceModel();
+        validatedELRModel = new ValidatedELRModel();
     }
     @AfterAll
     public static void tearDown() {
@@ -267,10 +273,11 @@ class KafkaConsumerServiceTest {
 
         when(iValidatedELRRepository.findById(eq(guidForTesting)))
                 .thenReturn(Optional.of(model));
+        when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString())).thenReturn(nbsInterfaceModel);
 
         kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.INJECTION.name());
 
-        verify(iValidatedELRRepository, times(1)).findById(eq(guidForTesting));
+        verify(iValidatedELRRepository, times(2)).findById(eq(guidForTesting));
 
     }
 
@@ -299,6 +306,8 @@ class KafkaConsumerServiceTest {
 
         when(iHl7v2Validator.MessageStringValidation(eq(testHL7Message)))
                 .thenReturn(testHL7Message);
+        when(iValidatedELRRepository.findById(anyString())).thenReturn(Optional.of(validatedELRModel));
+        when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString())).thenReturn(nbsInterfaceModel);
 
         kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.name());
 
