@@ -43,9 +43,7 @@ subprojects {
     }
 
 }
-test {
-    ignoreFailures = true
-}
+
 
 sonarqube {
     properties {
