@@ -23,7 +23,7 @@ jobs:
     uses: CDCgov/NEDSS-Workflows/.github/workflows/Build-gradle-microservice-container.yaml@main
     with:
       microservice_name: data-ingestion-service
-      dockerfile_relative_path: ./report-service .
+      dockerfile_relative_path: -f ./report-service/Dockerfile .
       environment_classifier: SNAPSHOT
       java_version: "17"
     secrets:
