@@ -8,6 +8,9 @@ buildscript {
     ext {
         testFailures = 0
     }
+    dependencies {
+        classpath("com.dipien:semantic-version-gradle-plugin:2.0.0")
+    }
 }
 
 plugins {
@@ -15,7 +18,7 @@ plugins {
 }
 
 version = '1.0.1-SNAPSHOT'  // The plugin will assign the root project version to all its subprojects.
-
+apply plugin: "com.dipien.semantic-version"
 subprojects {
 
     repositories {
