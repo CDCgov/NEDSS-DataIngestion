@@ -1,8 +1,5 @@
 name: Release dataingestion image
 on:
-  push:
-    branches:
-      - CNDIT-640-github-**
   workflow_dispatch:
     inputs:
       microservice_name:
