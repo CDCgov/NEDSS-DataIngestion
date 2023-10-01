@@ -7,9 +7,9 @@ on:
       - rel-**
       - CNDIT-640-github-**
     paths-ignore:
-      - "cdc-sandbox/**"
       - "docker-compose.yml"
       - "**.md"
+      - ".github/workflows/**"
 jobs:
   sonar_scan:
     uses: ./.github/workflows/sonar.yaml
