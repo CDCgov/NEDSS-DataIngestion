@@ -99,7 +99,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
 	implementation 'commons-lang:commons-lang:2.6'
-WW
+
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 	implementation 'org.springframework.kafka:spring-kafka:3.0.6'
 	implementation 'org.apache.kafka:kafka-clients:2.8.1'
