@@ -32,7 +32,7 @@ public class HL7Parser implements IHL7Parser {
     // this is the support hl7 structure
     private final String supportedHL7version = "2.5.1";
     private final String supportedHL7version231 = "2.3.1";
-    private final String exMessage = "Invalid Message ";
+    private static final String exMessage = "Invalid Message ";
 
 
     public HL7Parser(HapiContext context) {
@@ -65,7 +65,8 @@ public class HL7Parser implements IHL7Parser {
             throw new DiHL7Exception(exMessage + e.getMessage());
         }
 
-        ValidationRuleBuilder builder = new DefaultValidationBuilder() {
+        // Ignore sonar queue complain as this is coming from Library
+        ValidationRuleBuilder builder = new DefaultValidationBuilder() { // NOSONAR
             @Override
             protected  void configure() {
                 super.configure();
@@ -86,7 +87,8 @@ public class HL7Parser implements IHL7Parser {
     private void customOruR01Validator(String message) throws DiHL7Exception {
         MandatoryFields mandatoryFields = new MandatoryFields(ORU + "_" + ORU_01);
 
-        ValidationRuleBuilder builder = new DefaultValidationBuilder() {
+        // Ignore sonar queue complain as this is coming from Library
+        ValidationRuleBuilder builder = new DefaultValidationBuilder() { // NOSONAR
             @Override
             protected  void configure() {
                 super.configure();

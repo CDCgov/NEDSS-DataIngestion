@@ -36,7 +36,7 @@ public class KafkaProducerService {
         record.headers().add(KafkaHeaderValue.MessageType, msgType.getBytes());
         record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
         record.headers().add(KafkaHeaderValue.MessageOperation, EnumKafkaOperation.INJECTION.name().getBytes());
-        record.headers().add(KafkaHeaderValue.MessageValidationActive, validationActive.toString().getBytes());
+        record.headers().add(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE, validationActive.toString().getBytes());
 
         sendMessage(record);
     }

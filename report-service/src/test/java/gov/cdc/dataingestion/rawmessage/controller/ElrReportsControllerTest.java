@@ -46,7 +46,7 @@ public class ElrReportsControllerTest {
     }
 
     @Test
-    private void testSaveHL7MessageValidationActivated() throws Exception {
+    void testSaveHL7MessageValidationActivated() throws Exception {
         String hl7Payload = "testmessage";
         String messageType = "HL7";
         mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")

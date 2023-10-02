@@ -166,7 +166,7 @@ public class KafkaConsumerService {
     )
     public void handleMessageForRawElr(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                               @Header(KafkaHeaderValue.MessageValidationActive) String messageValidationActive) throws DuplicateHL7FileFoundException, DiHL7Exception {
+                               @Header(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE) String messageValidationActive) throws DuplicateHL7FileFoundException, DiHL7Exception {
         log.debug("Received message ID: {} from topic: {}", message, topic);
         boolean hl7ValidationActivated = false;
 
