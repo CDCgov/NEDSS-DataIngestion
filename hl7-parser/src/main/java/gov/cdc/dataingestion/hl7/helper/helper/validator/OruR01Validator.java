@@ -5,6 +5,9 @@ import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Segment;
 
 public class OruR01Validator {
+    private OruR01Validator() {
+
+    }
     public static void patientResultValidator(Group group) throws HL7Exception {
         var groupName = group.getName();
         if(groupName.equalsIgnoreCase("PATIENT_RESULT")) {
@@ -29,7 +32,7 @@ public class OruR01Validator {
 
             String patientName = pid.getField(5, 0).encode();
 
-            if(patientName == null || (patientName != null && patientName.isEmpty())) {
+            if(patientName == null || patientName.isEmpty()) {
                 throw new HL7Exception("Error Occurred at PID-5");
             }
 
@@ -48,7 +51,7 @@ public class OruR01Validator {
 
             String identifierCode = obr.getField(4, 0).encode();
 
-            if(identifierCode == null || (identifierCode != null && identifierCode.isEmpty())) {
+            if(identifierCode == null ||  identifierCode.isEmpty()) {
                 throw new HL7Exception("Error Occurred at OBR-4");
             }
         }

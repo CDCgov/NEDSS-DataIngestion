@@ -10,8 +10,6 @@ import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.builder.ValidationRuleBuilder;
 import ca.uhn.hl7v2.validation.builder.support.DefaultValidationBuilder;
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
-import gov.cdc.dataingestion.hl7.helper.constant.hl7.EventTrigger;
-import gov.cdc.dataingestion.hl7.helper.constant.hl7.MessageType;
 import gov.cdc.dataingestion.hl7.helper.helper.hapi.MandatoryFields;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser;
@@ -19,8 +17,6 @@ import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
-
-import java.util.*;
 
 import static gov.cdc.dataingestion.hl7.helper.constant.hl7.EventTrigger.ORU_01;
 import static gov.cdc.dataingestion.hl7.helper.constant.hl7.MessageType.ORU;
@@ -36,6 +32,8 @@ public class HL7Parser implements IHL7Parser {
     // this is the support hl7 structure
     private final String supportedHL7version = "2.5.1";
     private final String supportedHL7version231 = "2.3.1";
+    private final String exMessage = "Invalid Message ";
+
 
     public HL7Parser(HapiContext context) {
         this.context = context;
@@ -64,7 +62,7 @@ public class HL7Parser implements IHL7Parser {
         try {
             parser.parse(message);
         } catch (HL7Exception e){
-            throw new DiHL7Exception("Invalid Message " + e.getMessage());
+            throw new DiHL7Exception(exMessage + e.getMessage());
         }
 
         ValidationRuleBuilder builder = new DefaultValidationBuilder() {
@@ -81,7 +79,7 @@ public class HL7Parser implements IHL7Parser {
         try {
             parser.parse(message);
         } catch (HL7Exception e){
-            throw new DiHL7Exception("Invalid Message " + e.getMessage());
+            throw new DiHL7Exception(exMessage + e.getMessage());
         }
     }
 
@@ -104,7 +102,7 @@ public class HL7Parser implements IHL7Parser {
         try {
             parser.parse(message);
         } catch (HL7Exception e){
-            throw new DiHL7Exception("Invalid Message " + e.getMessage());
+            throw new DiHL7Exception(exMessage + e.getMessage());
         }
     }
 
