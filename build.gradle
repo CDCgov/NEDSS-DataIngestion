@@ -1,9 +1,56 @@
-subprojects {
-    apply plugin: 'java'
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+
+    ext {
+        testFailures = 0
+    }
 }
 
-version = '0.0.1-SNAPSHOT'
+plugins {
+    id "org.sonarqube" version "4.2.1.3168"
+}
 
-repositories {
-    mavenCentral()
+version = '1.0.1-SNAPSHOT'  // The plugin will assign the root project version to all its subprojects.
+
+subprojects {
+
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://packages.confluent.io/maven"
+        }
+    }
+
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
+
+    // Displays cucumber test results
+    apply from: "${rootDir}/gradle/cucumber-logging.gradle"
+
+    jacocoTestReport {
+        dependsOn test
+        reports {
+            xml.required = true
+        }
+    }
+
+    tasks.named('test') {
+        finalizedBy tasks.named('jacocoTestReport', JacocoReport)
+    }
+
+}
+
+
+sonarqube {
+    properties {
+        property "sonar.sourceEncoding", "UTF-8"
+        property "sonar.projectKey", "CDCgov_NEDSS-DataIngestion"
+        property "sonar.organization", "cdcgov"
+        property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.coverage.jacoco.xmlReportPaths", "${rootDir}/hl7-parser/build/reports/jacoco/test/jacocoTestReport.xml,${rootDir}/coverage-report/build/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml"
+    }
 }

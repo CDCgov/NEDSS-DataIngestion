@@ -34,7 +34,7 @@ public class NbsRepositoryServiceProvider {
     @Autowired
     private NbsInterfaceRepository nbsInterfaceRepo;
     
-    public boolean saveXmlMessage(String msgId, String xmlMsg) {
+    public NbsInterfaceModel saveXmlMessage(String msgId, String xmlMsg) {
 		NbsInterfaceModel item = new NbsInterfaceModel();
 
 		log.debug("{} : Xml being persisted to NBS Legacy database", msgId);
@@ -58,10 +58,10 @@ public class NbsRepositoryServiceProvider {
 		item.setOrderTestCode(ORDER_TEST_CODE);
 		item.setObservationUid(null);
 
-    	nbsInterfaceRepo.save(item);
+    	NbsInterfaceModel nbsInterfaceModel = nbsInterfaceRepo.save(item);
 		log.debug("{} : Persisted xml to nbs database", msgId);
 
-    	return true;
+    	return nbsInterfaceModel;
     }
 
 	private long getGmtTimestamp() {
