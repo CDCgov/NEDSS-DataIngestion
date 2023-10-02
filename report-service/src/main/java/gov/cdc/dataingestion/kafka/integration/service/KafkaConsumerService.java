@@ -16,8 +16,11 @@ import gov.cdc.dataingestion.exception.FhirConversionException;
 import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.exception.XmlConversionException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
+import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
+import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
+import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
@@ -90,6 +93,8 @@ public class KafkaConsumerService {
 
     private final IElrDeadLetterRepository elrDeadLetterRepository;
 
+    private final IReportStatusRepository iReportStatusRepository;
+
     private String errorDltMessage = "Message not found in dead letter table";
     //endregion
 
@@ -103,8 +108,8 @@ public class KafkaConsumerService {
             IHL7ToFHIRRepository iHL7ToFHIRepository,
             IHL7DuplicateValidator iHL7DuplicateValidator,
             NbsRepositoryServiceProvider nbsRepositoryServiceProvider,
-            IElrDeadLetterRepository elrDeadLetterRepository
-            ) {
+            IElrDeadLetterRepository elrDeadLetterRepository,
+            IReportStatusRepository iReportStatusRepository) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.kafkaProducerService = kafkaProducerService;
@@ -114,6 +119,7 @@ public class KafkaConsumerService {
         this.iHL7DuplicateValidator = iHL7DuplicateValidator;
         this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
         this.elrDeadLetterRepository = elrDeadLetterRepository;
+        this.iReportStatusRepository = iReportStatusRepository;
     }
     //endregion
 
@@ -403,8 +409,21 @@ public class KafkaConsumerService {
         // this will be changed to debug
         log.info("rhapsodyXml: {}", rhapsodyXml);
       
-        nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml);
+        NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml);
         kafkaProducerService.sendMessageAfterConvertedToXml(rhapsodyXml, convertedToXmlTopic, 0);
+
+        // Once the XML is saved to the NBS_Interface table, we get the ID to save it
+        // in the Data Ingestion elr_record_status_id table, so that we can get the status
+        // of the record straight-forward from the NBS_Interface table.
+
+        ReportStatusIdData reportStatusIdData = new ReportStatusIdData();
+        Optional<ValidatedELRModel> validatedELRModel = iValidatedELRRepository.findById(message);
+        reportStatusIdData.setRawMessageId(validatedELRModel.get().getRawId());
+        reportStatusIdData.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
+        reportStatusIdData.setCreatedBy(convertedToXmlTopic);
+        reportStatusIdData.setUpdatedBy(convertedToXmlTopic);
+
+        iReportStatusRepository.save(reportStatusIdData);
     }
     private void validationHandler(String message) throws DuplicateHL7FileFoundException, DiHL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);

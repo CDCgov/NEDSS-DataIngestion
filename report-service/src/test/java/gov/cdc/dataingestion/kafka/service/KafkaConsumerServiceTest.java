@@ -1,7 +1,6 @@
 package gov.cdc.dataingestion.kafka.service;
 
 import ca.uhn.hl7v2.HL7Exception;
-import com.google.gson.Gson;
 import gov.cdc.dataingestion.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
@@ -16,9 +15,11 @@ import gov.cdc.dataingestion.exception.FhirConversionException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
+import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
+import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
@@ -32,18 +33,11 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.Assert;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.listener.ListenerExecutionFailedException;
-import org.springframework.kafka.listener.TimestampedException;
-import org.springframework.kafka.support.SendResult;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -57,7 +51,6 @@ import java.lang.reflect.Method;
 import java.sql.*;
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -87,6 +80,11 @@ class KafkaConsumerServiceTest {
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
     @Mock
     private IElrDeadLetterRepository elrDeadLetterRepository;
+    @Mock
+    private IReportStatusRepository iReportStatusRepository;
+
+    private NbsInterfaceModel nbsInterfaceModel;
+    private ValidatedELRModel validatedELRModel;
 
 
     @Container
@@ -155,8 +153,10 @@ class KafkaConsumerServiceTest {
                 iHL7ToFHIRRepository,
                 iHL7DuplicateValidator,
                 nbsRepositoryServiceProvider,
-                elrDeadLetterRepository
-        );
+                elrDeadLetterRepository,
+                iReportStatusRepository);
+        nbsInterfaceModel = new NbsInterfaceModel();
+        validatedELRModel = new ValidatedELRModel();
     }
     @AfterAll
     public static void tearDown() {
@@ -273,10 +273,11 @@ class KafkaConsumerServiceTest {
 
         when(iValidatedELRRepository.findById(eq(guidForTesting)))
                 .thenReturn(Optional.of(model));
+        when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString())).thenReturn(nbsInterfaceModel);
 
         kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.INJECTION.name());
 
-        verify(iValidatedELRRepository, times(1)).findById(eq(guidForTesting));
+        verify(iValidatedELRRepository, times(2)).findById(eq(guidForTesting));
 
     }
 
@@ -305,6 +306,8 @@ class KafkaConsumerServiceTest {
 
         when(iHl7v2Validator.MessageStringValidation(eq(testHL7Message)))
                 .thenReturn(testHL7Message);
+        when(iValidatedELRRepository.findById(anyString())).thenReturn(Optional.of(validatedELRModel));
+        when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString())).thenReturn(nbsInterfaceModel);
 
         kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.name());
 
