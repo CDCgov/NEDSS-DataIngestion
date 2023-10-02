@@ -1,4 +1,4 @@
-name: Release dataingestion image
+name: SonarCloud
 on:
   workflow_call:
     secrets:
