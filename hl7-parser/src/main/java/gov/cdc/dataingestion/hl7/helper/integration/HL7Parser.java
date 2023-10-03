@@ -1,30 +1,25 @@
 package gov.cdc.dataingestion.hl7.helper.integration;
 
-import ca.uhn.hl7v2.DefaultHapiContext;
-import ca.uhn.hl7v2.HL7Exception;
-import ca.uhn.hl7v2.HapiContext;
-import ca.uhn.hl7v2.model.Message;
+import ca.uhn.hl7v2.*;
+import ca.uhn.hl7v2.model.*;
 import ca.uhn.hl7v2.model.v251.message.ORU_R01;
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory;
 import ca.uhn.hl7v2.parser.DefaultModelClassFactory;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.util.Terser;
+import ca.uhn.hl7v2.validation.builder.ValidationRuleBuilder;
+import ca.uhn.hl7v2.validation.builder.support.DefaultValidationBuilder;
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
-import com.google.gson.Gson;
-import gov.cdc.dataingestion.hl7.helper.constant.hl7.EventTrigger;
-import gov.cdc.dataingestion.hl7.helper.constant.hl7.MessageType;
+import gov.cdc.dataingestion.hl7.helper.helper.hapi.MandatoryFields;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import static gov.cdc.dataingestion.hl7.helper.constant.hl7.EventTrigger.ORU_01;
+import static gov.cdc.dataingestion.hl7.helper.constant.hl7.MessageType.ORU;
 import static gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper.*;
 
 public class HL7Parser implements IHL7Parser {
@@ -37,9 +32,80 @@ public class HL7Parser implements IHL7Parser {
     // this is the support hl7 structure
     private final String supportedHL7version = "2.5.1";
     private final String supportedHL7version231 = "2.3.1";
+    private static final String exMessage = "Invalid Message ";
+
 
     public HL7Parser(HapiContext context) {
         this.context = context;
+    }
+
+    public String hl7ORUValidation(String message) throws DiHL7Exception {
+        /**
+         * Default validation include
+         * - number of sensible
+         * - max length on string type
+         * - format for telephone and timestamp, etc
+         * */
+        defaultOruR01Validator(message);
+
+        /**
+         * This goes in-dept into message structure and validate based on the custom definition
+         * */
+        customOruR01Validator(message);
+
+        return message;
+    }
+
+    private void defaultOruR01Validator(String message) throws DiHL7Exception {
+        this.context.setValidationContext(ValidationContextFactory.defaultValidation());
+        PipeParser parser = context.getPipeParser();
+        try {
+            parser.parse(message);
+        } catch (HL7Exception e){
+            throw new DiHL7Exception(exMessage + e.getMessage());
+        }
+
+        // Ignore sonar queue complain as this is coming from Library
+        ValidationRuleBuilder builder = new DefaultValidationBuilder() { // NOSONAR
+            @Override
+            protected  void configure() {
+                super.configure();
+                forVersion(Version.V251).message(ORU, ORU_01).onlyKnownSegments();
+
+            }
+        };
+        this.context.setValidationRuleBuilder(builder);
+        parser = context.getPipeParser();
+
+        try {
+            parser.parse(message);
+        } catch (HL7Exception e){
+            throw new DiHL7Exception(exMessage + e.getMessage());
+        }
+    }
+
+    private void customOruR01Validator(String message) throws DiHL7Exception {
+        MandatoryFields mandatoryFields = new MandatoryFields(ORU + "_" + ORU_01);
+
+        // Ignore sonar queue complain as this is coming from Library
+        ValidationRuleBuilder builder = new DefaultValidationBuilder() { // NOSONAR
+            @Override
+            protected  void configure() {
+                super.configure();
+                forVersion(Version.V251).message(ORU, ORU_01)
+                        .inspect(mandatoryFields);
+
+            }
+        };
+        this.context.setValidationRuleBuilder(builder);
+        this.context.getParserConfiguration().setValidating(true);
+        PipeParser parser = context.getPipeParser();
+
+        try {
+            parser.parse(message);
+        } catch (HL7Exception e){
+            throw new DiHL7Exception(exMessage + e.getMessage());
+        }
     }
 
     public String hl7MessageStringValidation(String message)  {
@@ -223,9 +289,9 @@ public class HL7Parser implements IHL7Parser {
             if (genericParsedMessage.getOriginalVersion().equalsIgnoreCase(this.supportedHL7version231) ||
                     genericParsedMessage.getOriginalVersion().equalsIgnoreCase(this.supportedHL7version)) {
                 switch(genericParsedMessage.getType()) {
-                    case  MessageType.ORU:
+                    case  ORU:
                         switch (genericParsedMessage.getEventTrigger()){
-                            case EventTrigger.ORU_01:
+                            case ORU_01:
                                 ORU_R01 msg = (ca.uhn.hl7v2.model.v251.message.ORU_R01) parser.parse(genericParsedMessage.getMessage());
                                 OruR1 oru = new OruR1(msg);
                                 parsedMessage.setParsedMessage(oru);
@@ -289,3 +355,5 @@ public class HL7Parser implements IHL7Parser {
         return context;
     }
 }
+
+

@@ -6,6 +6,6 @@ import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.springframework.stereotype.Component;
 
 public interface IHL7v2Validator {
-    ValidatedELRModel MessageValidation(String message, RawERLModel rawERLModel, String topicName) throws DiHL7Exception;
+    ValidatedELRModel MessageValidation(String message, RawERLModel rawERLModel, String topicName, boolean validationActive) throws DiHL7Exception;
     String MessageStringValidation(String message) throws DiHL7Exception;
 }

@@ -392,4 +392,214 @@ class HL7HelperTest {
     }
 
 
+
+    @Test
+    void hl7Validation_TestValidMessage() throws DiHL7Exception {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO|RET^RETICULOCYTE COUNT^HL79901 literal|||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "OBX|1|ST|||Test Value";
+        var result = target.hl7Validation(oruR1MessageSmall);
+        Assertions.assertEquals(oruR1MessageSmall, result);
+    }
+
+    @Test
+    void hl7Validation_Invalid_MissingMSH() {
+       String oruR1MessageSmall =
+               "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
+                + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO|RET^RETICULOCYTE COUNT^HL79901 literal|||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                + "OBX|1|ST|||Test Value";
+
+
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+
+        String expectedMessage = "Invalid Message Determine encoding for message. The following is the first 50 chars of the message for reference, although this may not be where the issue is: PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void hl7Validation_Invalid_JumbleMSH() {
+        String oruR1MessageSmall =
+                         "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO|RET^RETICULOCYTE COUNT^HL79901 literal|||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "OBX|1|ST|||Test Value";
+
+
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+
+        String expectedMessage = "Invalid Message Determine encoding for message. The following is the first 50 chars of the message for reference, although this may not be where the issue is: PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void hl7Validation_Invalid_ExceedingRequiredLength() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|MedSeries|CAISI_1-2|PLS|3910|200903230934||ADT^A31^ADT_A05|75535037-1237815294895|P^T|2.5.1\r\n"
+          				+ "EVN|0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789|200903230934\r\n"
+          				+ "PID|1||29^^CAISI_1-2^PI~\"\"||Test300^Leticia^^^^^L||19770202|M||||||||||||||||||||||";
+
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.validation.ValidationException: Validation failed: Primitive value '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789' requires to be shorter than 200 characters at EVN-1(0)";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void hl7Validation_Invalid_OBX_ExceededLength() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO|RET^RETICULOCYTE COUNT^HL79901 literal|||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "OBX|1|EXCEEDED_LENGTH|||Test Value";
+
+
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+
+        String expectedMessage = "Invalid Message 'EXCEEDED_LENGTH' in record 1 is invalid for version 2.5.1 at OBX-2(0)";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void hl7Validation_Invalid_DateTime() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO|RET^RETICULOCYTE COUNT^HL79901 literal|||200905011106|||||||2009AAA05011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "OBX|1|ST|||Test Value";
+
+
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.validation.ValidationException: Validation failed: Primitive value '2009AAA05011106' requires to be empty or a HL7 datetime string at OBR-14(0)";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void hl7Validation_Invalid_Number() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO|RET^RETICULOCYTE COUNT^HL79901 literal|||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "OBX|1|ST|||Test Value||||TEST NUMBER";
+
+
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.validation.ValidationException: Validation failed: Primitive value 'TEST NUMBER' requires to be empty or a number with optional decimal digits at OBX-9(0)";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void hl7Validation_Invalid_BogusSegment() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|LABADT|MCM|LAAAB|ELAB-3|20230630122000||ORU^R01|CNTRL-3456|P|2.5.1\r" +
+                        "OBR|1|86427531000^LAB|17747^LAB|008342^CBC (INCLUDEES DIFF/PLT)^L|||202306301221|||L|||^456^123^A||1234567890^M10||202306301228|||F\r" +
+                        "PV1||O|O/R|||01^DOCTOR\r" +
+                        "PID|||1234^5^M11||EVERYMANN^ADAM^A||19610615|X|||222 W MAIN ST^^BOSTON^MA^111^USA||(617)555-1212|(617)555-1212||S||123456789|876-54-3210\r" +
+                        "ORC|RE|86427531000^LAB|17747^LAB||Final||202306301220||||674-111^^^ACME HOSPITAL^L\r" +
+                        "AAA|RE|86427531000^LAB|17747^LAB||Final||202306301220||||674-111^^^ACME HOSPITAL^L\r" +
+                        "OBX|1|NM|008342^WBC^L||11|X10^3/uL^Universal|||123||||||202306301228|||^^^456^123";
+
+
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+
+        String expectedMessage = "Invalid Message Found unknown segment: AAA at AAA";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void hl7Validation_Invalid_BadSegment() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|LABADT|MCM|LAAAB|ELAB-3|20230630122000||ORU^R01|CNTRL-3456|P|2.5.1\r" +
+                        "OBR|1|86427531000^LAB|17747^LAB|008342^CBC (INCLUDEES DIFF/PLT)^L|||202306301221|||L|||^456^123^A||1234567890^M10||202306301228|||F\r" +
+                        "PV1||O|O/R|||01^DOCTOR\r" +
+
+                        "PID|||1234^5^M11||EVERYMANN^ADAM^A||19610615|X|||222 W MAIN ST^^BOSTON^MA^111^USA||(617)555-1212|(617)555-1212||S||123456789|876-54-3210\r" +
+                        "ORC|RE|86427531000^LAB|17747^LAB||Final||202306301220||||674-111^^^ACME HOSPITAL^L\r" +
+                        "OBX|1|NM|008342^WBC^L||11|X10^3/uL^Universal|||123||||||202306301228|||^^^456^123";
+
+
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Patient Group is Empty";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void hl7Validation_Invalid_NoPatientName() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|||7005728^^^TML^MR||||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO|RET^RETICULOCYTE COUNT^HL79901 literal|||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "OBX|1|ST|||Test Value";
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Error Occurred at PID-5";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void hl7Validation_Invalid_NoOrderObservationGroup() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST";
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Order Observation is Empty";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void hl7Validation_Invalid_NoObrIdentifierCode() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO||||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "OBX|1|ST|||Test Value";
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Error Occurred at OBR-4";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
 }

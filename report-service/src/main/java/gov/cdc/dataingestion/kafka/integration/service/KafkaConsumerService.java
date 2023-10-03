@@ -165,9 +165,15 @@ public class KafkaConsumerService {
             topics = "${kafka.raw.topic}"
     )
     public void handleMessageForRawElr(String message,
-                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws DuplicateHL7FileFoundException, DiHL7Exception {
+                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+                               @Header(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE) String messageValidationActive) throws DuplicateHL7FileFoundException, DiHL7Exception {
         log.debug("Received message ID: {} from topic: {}", message, topic);
-        validationHandler(message);
+        boolean hl7ValidationActivated = false;
+
+        if (messageValidationActive != null && messageValidationActive.equalsIgnoreCase("true")) {
+            hl7ValidationActivated = true;
+        }
+        validationHandler(message, hl7ValidationActivated);
     }
 
     /**
@@ -425,13 +431,13 @@ public class KafkaConsumerService {
 
         iReportStatusRepository.save(reportStatusIdData);
     }
-    private void validationHandler(String message) throws DuplicateHL7FileFoundException, DiHL7Exception {
+    private void validationHandler(String message, boolean hl7ValidationActivated) throws DuplicateHL7FileFoundException, DiHL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);
         RawERLModel elrModel = rawElrResponse.get();
         String messageType = elrModel.getType();
         switch (messageType) {
             case KafkaHeaderValue.MessageType_HL7v2:
-                ValidatedELRModel hl7ValidatedModel = iHl7v2Validator.MessageValidation(message, elrModel, validatedTopic);
+                ValidatedELRModel hl7ValidatedModel = iHl7v2Validator.MessageValidation(message, elrModel, validatedTopic, hl7ValidationActivated);
                 // Duplication check
                 iHL7DuplicateValidator.ValidateHL7Document(hl7ValidatedModel);
                 saveValidatedELRMessage(hl7ValidatedModel);
