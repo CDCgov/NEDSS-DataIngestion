@@ -65,7 +65,7 @@ public class ElrReportsController {
     @GetMapping(path = "/ecr/cda-transformation")
     public ResponseEntity<String> processingMsgEcrIntoCDA() {
         Gson gson = new Gson();
-        var result = ecrMsgQueryService.GetSelectedEcrRecord();
+        var result = ecrMsgQueryService.getSelectedEcrFromJson();
 
         String xmlREsult = "";
         try {
