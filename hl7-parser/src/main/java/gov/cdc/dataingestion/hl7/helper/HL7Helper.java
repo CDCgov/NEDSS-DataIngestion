@@ -50,5 +50,9 @@ public class HL7Helper {
         return fhirConverter.HL7ToFHIRConversion(message);
     }
 
+    public String hl7Validation(String message) throws DiHL7Exception{
+        return parser.hl7ORUValidation(message);
+    }
+
 
 }

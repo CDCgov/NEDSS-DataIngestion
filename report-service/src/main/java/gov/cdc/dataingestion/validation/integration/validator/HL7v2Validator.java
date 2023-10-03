@@ -25,10 +25,17 @@ public class HL7v2Validator implements IHL7v2Validator {
         return this.hl7Helper.hl7StringValidator(message);
     }
 
-    public ValidatedELRModel MessageValidation(String id, RawERLModel rawERLModel, String topicName) throws DiHL7Exception {
+    public ValidatedELRModel MessageValidation(String id, RawERLModel rawERLModel, String topicName, boolean validationActive) throws DiHL7Exception {
         String replaceSpecialCharacters = MessageStringValidation(rawERLModel.getPayload());
+
+        if (validationActive) {
+            replaceSpecialCharacters = this.hl7Helper.hl7Validation(replaceSpecialCharacters);
+        }
+
         ValidatedELRModel model = new ValidatedELRModel();
         var parsedMessage = this.hl7Helper.hl7StringParser(replaceSpecialCharacters);
+
+
 
 
         model.setRawId(id);
