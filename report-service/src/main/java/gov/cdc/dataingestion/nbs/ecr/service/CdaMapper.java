@@ -268,8 +268,10 @@ public class CdaMapper implements ICdaMapper {
          * PLACE -- TEST NEEDED
          * PLACE -- TEST NEEDED
          * */
+
+        POCDMT000040Section interestedPartyComp = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection();
         var ecrPlace = mapToPlaceTop(input, clinicalDocument, performerComponentCounter,
-                componentCounter, performerSectionCounter);
+                componentCounter, performerSectionCounter, interestedPartyComp);
         clinicalDocument = ecrPlace.getClinicalDocument();
         performerComponentCounter = ecrPlace.getPerformerComponentCounter();
         componentCounter = ecrPlace.getComponentCounter();
@@ -1341,7 +1343,11 @@ public class CdaMapper implements ICdaMapper {
                         componentCounter++;
                         performerComponentCounter = componentCounter;
 
-                        clinicalDocument.getCode().setCode(code);
+                        var nestedCode = code;
+                        if (nestedCode.contains("-")) {
+                            nestedCode = nestedCode.replaceAll("-", "");
+                        }
+                        clinicalDocument.getCode().setCode(nestedCode);
                         clinicalDocument.getCode().setCodeSystem(clinicalCodeSystem);
                         clinicalDocument.getCode().setCodeSystemName(clinicalCodeSystemName);
                         clinicalDocument.getCode().setDisplayName(codeDisplayName);
@@ -1478,7 +1484,8 @@ public class CdaMapper implements ICdaMapper {
     //region PLACE
     private CdaPlaceMapper mapToPlaceTop(EcrSelectedRecord input, POCDMT000040ClinicalDocument1 clinicalDocument,
                                          int performerComponentCounter, int componentCounter,
-                                         int performerSectionCounter) throws XmlException{
+                                         int performerSectionCounter,
+                                         POCDMT000040Section section) throws XmlException{
         CdaPlaceMapper mapper = new CdaPlaceMapper();
         if(input.getMsgPlaces() != null && !input.getMsgPlaces().isEmpty()) {
             // 498
@@ -1488,9 +1495,12 @@ public class CdaMapper implements ICdaMapper {
                 if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
                     clinicalDocument.getComponent().getStructuredBody().addNewComponent();
                 } else {
+
+
                     c = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length;
                     clinicalDocument.getComponent().getStructuredBody().addNewComponent();
                 }
+
                 if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).addNewSection();
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
@@ -3140,10 +3150,10 @@ public class CdaMapper implements ICdaMapper {
                 prefix = in.getPrvNamePrefixCd();
             }
             else if (name.equals("prvNameLastTxt") && in.getPrvNameLastTxt() != null && !in.getPrvNameLastTxt().isEmpty()) {
-                prefix = in.getPrvNameLastTxt();
+                lastName = in.getPrvNameLastTxt();
             }
             else if(name.equals("prvNameSuffixCd") && in.getPrvNameSuffixCd() != null && !in.getPrvNameSuffixCd().isEmpty()) {
-                lastName = in.getPrvNameSuffixCd();
+                suffix = in.getPrvNameSuffixCd();
             }
             else if(name.equals("prvNameDegreeCd") && in.getPrvNameDegreeCd()!=null && !in.getPrvNameDegreeCd().isEmpty()) {
                 degree = in.getPrvNameDegreeCd();
@@ -3282,13 +3292,16 @@ public class CdaMapper implements ICdaMapper {
             AdxpStreetAddressLine enG = AdxpStreetAddressLine.Factory.newInstance();
             enG.set(mapVal);
 
-            out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
             if (out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray().length > 1) {
+                out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
                 out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(1,  AdxpStreetAddressLine.Factory.newInstance());
                 out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(1).set(mapVal);
+            } else {
+                out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
+                out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0,  AdxpStreetAddressLine.Factory.newInstance());
+                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapVal);
             }
-            out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0,  AdxpStreetAddressLine.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapVal);
+
         }
         if(!city.isEmpty()){
             if (out.getParticipantRole() == null) {
@@ -3877,7 +3890,12 @@ public class CdaMapper implements ICdaMapper {
             }
             else if (value != null && !value.isEmpty()) {
                 String questionId= "";
-                var quesId = mapToQuestionId(questionId);
+                if (name == "invEffectiveTime") {
+                    var test = "TEST THIS";
+                }
+
+                questionId = mapToQuestionId(name);
+
 
                 if (name.equalsIgnoreCase("invConditionCd")) {
                     repeats = (int) caseDto.getMsgCase().getInvConditionCd().chars().filter(x -> x == '^').count();
@@ -3901,7 +3919,7 @@ public class CdaMapper implements ICdaMapper {
                     var element = output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation();
                     var obs = mapTripletToObservation(
                             value,
-                            quesId,
+                            questionId,
                             element
                     );
                     output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).setObservation(obs);
@@ -3921,7 +3939,7 @@ public class CdaMapper implements ICdaMapper {
                     }
                     var element = output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation();
                     POCDMT000040Observation obs = mapToObservation(
-                            quesId,
+                            questionId,
                             value,
                             element
                     );
@@ -4370,7 +4388,7 @@ public class CdaMapper implements ICdaMapper {
         output.getCode().setCode(questionLookUpDto.getQuesCodeSystemCd());
         output.getCode().setCodeSystem(questionLookUpDto.getQuesCodeSystemDescTxt());
         output.getCode().setDisplayName(questionLookUpDto.getQuesDisplayName());
-        output.getCode().setCode(questionId);
+        //output.getCode().setCode(questionId);
 
         for(int i = 0; i < repeats.size(); i++) {
             if (repeats.size() == 1) {
