@@ -12,8 +12,8 @@ management:
         enabled: true
 
 rsa:
-  private-key: classpath:certs/private.pem
-  public-key: classpath:certs/public.pem
+  private-key-content: ${DI_RSA_PRIVATE_KEY}
+  public-key-content: ${DI_RSA_PUBLIC_KEY}
 spring:
   application:
     name: report-service
@@ -135,9 +135,3 @@ sasl:
     config: software.amazon.msk.auth.iam.IAMLoginModule required;
   client:
     callback.handler.class: software.amazon.msk.auth.iam.IAMClientCallbackHandler
-
-
-
-
-
-
