@@ -27,6 +27,8 @@ public class RsaKeyProperties {
     private static final String END_PUBLIC_KEY = "-----END PUBLIC KEY-----";
     private static final String BEGIN_PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----";
     private static final String END_PRIVATE_KEY = "-----END PRIVATE KEY-----";
+    private static final String BEGIN_RSA_PRIVATE_KEY = "-----BEGIN RSA PRIVATE KEY-----";
+    private static final String END_RSA_PRIVATE_KEY = "-----END RSA PRIVATE KEY-----";
     private final RSAPublicKey publicKey;
     private final RSAPrivateKey privateKey;
 
@@ -39,9 +41,9 @@ public class RsaKeyProperties {
         log.debug("Inside RsaKeyProperties privateKey");
         RSAPrivateKey privKey = null;
         try {
-            String privateKey = privateKeyContent.replace(BEGIN_PRIVATE_KEY, "")
+            String privateKey = privateKeyContent.replace(BEGIN_PRIVATE_KEY, "").replace(BEGIN_RSA_PRIVATE_KEY, "")
                     .replaceAll(LINE_SEPARATOR, "")
-                    .replace(END_PRIVATE_KEY, "");
+                    .replace(END_PRIVATE_KEY, "").replace(END_RSA_PRIVATE_KEY, "");
             byte[] encodedPrivateKey = DatatypeConverter.parseBase64Binary(privateKey);
             privKey = (RSAPrivateKey) KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(encodedPrivateKey));
         } catch (Exception e) {
