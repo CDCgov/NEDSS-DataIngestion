@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.rawmessage.controller;
 
 import com.google.gson.Gson;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
+import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
@@ -28,13 +29,17 @@ public class ElrReportsController {
     private IEcrMsgQueryService ecrMsgQueryService;
     private ICdaMapper mapper;
 
+    private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
+
     @Autowired
     public ElrReportsController(IEcrMsgQueryService ecrMsgQueryService,
                                 ICdaMapper mapper,
-                                RawELRService rawELRService) {
+                                RawELRService rawELRService,
+                                NbsRepositoryServiceProvider nbsRepositoryServiceProvider) {
         this.ecrMsgQueryService = ecrMsgQueryService;
         this.mapper = mapper;
         this.rawELRService = rawELRService;
+        this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
     }
 
 
@@ -71,6 +76,7 @@ public class ElrReportsController {
         try {
             xmlREsult = mapper.tranformSelectedEcrToCDAXml(result);
 
+            nbsRepositoryServiceProvider.saveEcrCdaXmlMessage("21216969", -1, xmlREsult);
         } catch (Exception e){
             var error = e;
             System.out.println(e.getMessage());

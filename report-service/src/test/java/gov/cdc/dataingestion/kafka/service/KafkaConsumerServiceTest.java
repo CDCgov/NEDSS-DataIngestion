@@ -16,7 +16,9 @@ import gov.cdc.dataingestion.exception.FhirConversionException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
+import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
+import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
@@ -88,6 +90,12 @@ class KafkaConsumerServiceTest {
     @Mock
     private IElrDeadLetterRepository elrDeadLetterRepository;
 
+    @Mock
+    private ICdaMapper cdaMapper;
+
+    @Mock
+    private IEcrMsgQueryService ecrMsgQueryService;
+
 
     @Container
     public static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"))
@@ -155,7 +163,9 @@ class KafkaConsumerServiceTest {
                 iHL7ToFHIRRepository,
                 iHL7DuplicateValidator,
                 nbsRepositoryServiceProvider,
-                elrDeadLetterRepository
+                elrDeadLetterRepository,
+                cdaMapper,
+                ecrMsgQueryService
         );
     }
     @AfterAll

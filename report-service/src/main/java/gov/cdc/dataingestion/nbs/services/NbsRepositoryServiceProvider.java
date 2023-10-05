@@ -3,6 +3,7 @@ package gov.cdc.dataingestion.nbs.services;
 import	gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import 	gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 
+import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import lombok.AllArgsConstructor;
 import 	org.springframework.beans.factory.annotation.Autowired;
 import 	org.springframework.stereotype.Service;
@@ -12,9 +13,11 @@ import  org.slf4j.LoggerFactory;
 
 import	lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import  java.time.ZonedDateTime;
 import  java.time.ZoneOffset;
 import	java.util.Calendar;
+import java.util.Optional;
 import	java.util.TimeZone;
 import	java.sql.Timestamp;
 
@@ -33,6 +36,40 @@ public class NbsRepositoryServiceProvider {
 
     @Autowired
     private NbsInterfaceRepository nbsInterfaceRepo;
+
+	public void saveEcrCdaXmlMessage (String nbsInterfaceUid,
+									  Integer dataMigrationStatus, String xmlMsg) {
+		Optional<NbsInterfaceModel>  response = nbsInterfaceRepo.getNbsInterfaceByIdAndDocType(Integer.valueOf(nbsInterfaceUid), "PHC236");
+		var time = Timestamp.from(Instant.now());
+		NbsInterfaceModel model = new NbsInterfaceModel();
+		if (response.isPresent()) {
+			model = response.get();
+			model.setRecordStatusTime(time);
+			model.setPayload(xmlMsg);
+			nbsInterfaceRepo.save(model);
+		} else {
+			if (dataMigrationStatus == -1) {
+				model.setPayload(xmlMsg);
+				model.setImpExpIndCd("E");
+				model.setRecordStatusCd(STATUS_UNPROCESSED);
+				model.setRecordStatusTime(time);
+				model.setAddTime(time);
+				model.setSystemNm(SYSTEM_NAME_NBS);
+				model.setDocTypeCd("PHC236");
+				nbsInterfaceRepo.save(model);
+			}
+			else if (dataMigrationStatus == -2) {
+				model.setPayload(xmlMsg);
+				model.setImpExpIndCd("I");
+				model.setRecordStatusCd(STATUS_UNPROCESSED);
+				model.setRecordStatusTime(time);
+				model.setAddTime(time);
+				model.setSystemNm(SYSTEM_NAME_NBS);
+				model.setDocTypeCd("PHC236");
+				nbsInterfaceRepo.save(model);
+			}
+		}
+	}
     
     public boolean saveXmlMessage(String msgId, String xmlMsg) {
 		NbsInterfaceModel item = new NbsInterfaceModel();
