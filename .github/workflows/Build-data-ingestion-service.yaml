@@ -5,6 +5,7 @@ on:
       - main
       - master
       - rel-**
+      - CNDIT-640-github-**
     paths-ignore:
       - "docker-compose.yml"
       - "**.md"
