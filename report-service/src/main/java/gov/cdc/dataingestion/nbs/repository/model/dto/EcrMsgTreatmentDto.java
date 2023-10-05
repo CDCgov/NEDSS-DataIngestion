@@ -31,7 +31,7 @@ public class EcrMsgTreatmentDto {
     public void initDataMap() {
         dataMap = new HashMap<>();
 
-        Field[] fields = this.getClass().getDeclaredFields();
+        Field[] fields = EcrMsgTreatmentDto.class.getDeclaredFields();
         for (Field field : fields) {
             if (!"numberOfField".equals(field.getName()) && !"dataMap".equals(field.getName())) {
                 field.setAccessible(true);  // make sure we can access private fields

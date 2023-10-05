@@ -72,7 +72,7 @@ public class EcrMsgPatientDto {
     private Integer numberOfField;
 
     private int CountFields() {
-        Field[] fields = this.getClass().getDeclaredFields();
+        Field[] fields = EcrMsgPatientDto.class.getDeclaredFields();
         int count = 0;
         for (Field field : fields) {
             // Exclude the 'numberOfVariable' field

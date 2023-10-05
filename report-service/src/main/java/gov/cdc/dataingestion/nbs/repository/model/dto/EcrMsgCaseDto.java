@@ -71,7 +71,7 @@ public class EcrMsgCaseDto {
         this.numberOfField = CountFields();
     }
     private int CountFields() {
-        Field[] fields = this.getClass().getDeclaredFields();
+        Field[] fields = EcrMsgCaseDto.class.getDeclaredFields();
         int count = 0;
         for (Field field : fields) {
             // Exclude the 'numberOfVariable' field
@@ -85,7 +85,7 @@ public class EcrMsgCaseDto {
     public void initDataMap() {
         dataMap = new HashMap<>();
 
-        Field[] fields = this.getClass().getDeclaredFields();
+        Field[] fields = EcrMsgCaseDto.class.getDeclaredFields();
         for (Field field : fields) {
             if (!"numberOfField".equals(field.getName()) && !"dataMap".equals(field.getName())) {
                 field.setAccessible(true);  // make sure we can access private fields
