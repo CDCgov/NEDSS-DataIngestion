@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.nbs.repository.implementation;
 
 import com.google.gson.Gson;
+import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.repository.IEcrMsgQueryRepository;
 import gov.cdc.dataingestion.nbs.repository.model.dto.*;
 import jakarta.persistence.EntityManager;
@@ -124,7 +125,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtoList;
     }
 
-    public List<EcrMsgCaseDto> FetchMsgCaseForApplicableEcr(Integer containerId) {
+    public List<EcrMsgCaseDto> FetchMsgCaseForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_case.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
@@ -221,7 +222,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgCaseAnswerDto> FetchMsgCaseAnswerForApplicableEcr(Integer containerId, String invLocalId) {
+    public List<EcrMsgCaseAnswerDto> FetchMsgCaseAnswerForApplicableEcr(Integer containerId, String invLocalId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_case_answer.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
@@ -308,7 +309,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgProviderDto> FetchMsgProviderForApplicableEcr(Integer containerId) {
+    public List<EcrMsgProviderDto> FetchMsgProviderForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_provider.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
@@ -353,7 +354,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgOrganizationDto> FetchMsgOrganizationForApplicableEcr(Integer containerId) {
+    public List<EcrMsgOrganizationDto> FetchMsgOrganizationForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_organization.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
@@ -394,7 +395,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgPlaceDto> FetchMsgPlaceForApplicableEcr(Integer containerId) {
+    public List<EcrMsgPlaceDto> FetchMsgPlaceForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_place.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
@@ -435,7 +436,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgInterviewDto> FetchMsgInterviewForApplicableEcr(Integer containerId) {
+    public List<EcrMsgInterviewDto> FetchMsgInterviewForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_interview.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);
@@ -578,7 +579,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgTreatmentDto> FetchMsgTreatmentForApplicableEcr(Integer containerId) {
+    public List<EcrMsgTreatmentDto> FetchMsgTreatmentForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_treatment.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("MSG_CONTAINER_UID", containerId);

@@ -10,6 +10,8 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+// THIS TEST CLASS
+@SuppressWarnings("squid:S00114")  // This suppresses all SonarCloud issues for the class
 public class JsonReaderTester {
     public static EcrMsgContainerDto loadContainer() {
         Gson gson = new Gson();

@@ -1,5 +1,7 @@
 package gov.cdc.dataingestion.nbs.repository.model.dto;
 
+import gov.cdc.dataingestion.exception.EcrCdaXmlException;
+import gov.cdc.dataingestion.share.helper.EcrXmlModelingHelper;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -46,21 +48,12 @@ public class EcrMsgProviderDto {
     private Map<String, Object> dataMap;
 
     private Integer numberOfField;
-    public void initDataMap() {
+    public void initDataMap() throws EcrCdaXmlException {
         dataMap = new HashMap<>();
 
         Field[] fields = EcrMsgProviderDto.class.getDeclaredFields();
-        for (Field field : fields) {
-            if (!"numberOfField".equals(field.getName()) && !"dataMap".equals(field.getName())) {
-                field.setAccessible(true);  // make sure we can access private fields
-                try {
-                    // Store the field name and its value in the dataMap
-                    dataMap.put(field.getName(), field.get(this));
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        EcrXmlModelingHelper helper = new EcrXmlModelingHelper();
+        dataMap = helper.setupDataMap(fields, dataMap, this);
     }
 
 }

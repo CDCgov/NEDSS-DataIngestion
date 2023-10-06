@@ -1487,39 +1487,42 @@ public class CdaMapper implements ICdaMapper {
                         section.getTitle().set(mapToStringData(clinicalTitle));
                     }
 
+                    int c = 0;
                     if ( section.getEntryArray().length == 0) {
                         section.addNewEntry();
-                        performerSectionCounter = 0;
+                        c = 0;
                     }
                     else {
-                        performerSectionCounter = section.getEntryArray().length;
+                        c = section.getEntryArray().length;
                         section.addNewEntry();
                     }
 
+                    performerSectionCounter = c;
 
-                    if (section.getEntryArray(performerSectionCounter).getAct() == null) {
-                        section.getEntryArray(performerSectionCounter).addNewAct();
-                        section.getEntryArray(performerSectionCounter).getAct().addNewParticipant();
+
+                    if (section.getEntryArray(c).getAct() == null) {
+                        section.getEntryArray(c).addNewAct();
+                        section.getEntryArray(c).getAct().addNewParticipant();
                     } else {
-                        section.getEntryArray(performerSectionCounter).getAct().addNewParticipant();
+                        section.getEntryArray(c).getAct().addNewParticipant();
                     }
 
                     // CHECK mapToPlace
-                    POCDMT000040Participant2 out = section.getEntryArray(performerSectionCounter).getAct().getParticipantArray(0);
+                    POCDMT000040Participant2 out = section.getEntryArray(c).getAct().getParticipantArray(0);
                     POCDMT000040Participant2 output = mapToPlace(input.getMsgPlaces().get(i), out);
-                    section.getEntryArray(performerSectionCounter).getAct().setParticipantArray(0, output);
+                    section.getEntryArray(c).getAct().setParticipantArray(0, output);
 
-                    section.getEntryArray(performerSectionCounter).setTypeCode(XActRelationshipEntry.COMP);
-                    section.getEntryArray(performerSectionCounter).getAct().setClassCode(XActClassDocumentEntryAct.ACT);
-                    section.getEntryArray(performerSectionCounter).getAct().setMoodCode(XDocumentActMood.EVN);
+                    section.getEntryArray(c).setTypeCode(XActRelationshipEntry.COMP);
+                    section.getEntryArray(c).getAct().setClassCode(XActClassDocumentEntryAct.ACT);
+                    section.getEntryArray(c).getAct().setMoodCode(XDocumentActMood.EVN);
 
-                    if (section.getEntryArray(performerSectionCounter).getAct().getCode() == null){
-                        section.getEntryArray(performerSectionCounter).getAct().addNewCode();
+                    if (section.getEntryArray(c).getAct().getCode() == null){
+                        section.getEntryArray(c).getAct().addNewCode();
                     }
-                    section.getEntryArray(performerSectionCounter).getAct().getCode().setCode("PLC");
-                    section.getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystem(clinicalCodeSystem);
-                    section.getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystemName(clinicalCodeSystemName);
-                    section.getEntryArray(performerSectionCounter).getAct().getCode().setDisplayName(actCodeDisplayName);
+                    section.getEntryArray(c).getAct().getCode().setCode("PLC");
+                    section.getEntryArray(c).getAct().getCode().setCodeSystem(clinicalCodeSystem);
+                    section.getEntryArray(c).getAct().getCode().setCodeSystemName(clinicalCodeSystemName);
+                    section.getEntryArray(c).getAct().getCode().setDisplayName(actCodeDisplayName);
 
                 }
             }

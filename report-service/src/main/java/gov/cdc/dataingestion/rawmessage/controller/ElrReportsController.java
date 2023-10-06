@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.rawmessage.controller;
 
 import com.google.gson.Gson;
+import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
@@ -71,7 +72,7 @@ public class ElrReportsController {
     @Operation(
             summary = "Transform parsed ecr data in MSG table into CDA xml")
     @GetMapping(path = "/ecr/cda-transformation")
-    public ResponseEntity<String> processingMsgEcrIntoCDA() {
+    public ResponseEntity<String> processingMsgEcrIntoCDA() throws EcrCdaXmlException {
         Gson gson = new Gson();
         var result = ecrMsgQueryService.getSelectedEcrFromJson();
 

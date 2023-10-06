@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.nbs.services;
 
+import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.repository.IEcrMsgQueryRepository;
 import gov.cdc.dataingestion.nbs.repository.implementation.JsonReaderTester;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedCase;
@@ -24,7 +25,7 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
         this.ecrMsgQueryRepository = ecrMsgQueryRepository;
     }
 
-    public EcrSelectedRecord getSelectedEcrFromJson() {
+    public EcrSelectedRecord getSelectedEcrFromJson() throws EcrCdaXmlException {
         var container = JsonReaderTester.loadContainer();
         var patient = JsonReaderTester.loadPatient();
 
@@ -127,7 +128,7 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
         return selectedRecord;
     }
 
-    public EcrSelectedRecord GetSelectedEcrRecord() {
+    public EcrSelectedRecord GetSelectedEcrRecord() throws EcrCdaXmlException {
         EcrSelectedRecord selectedRecord = null;
         EcrMsgContainerDto msgContainer = this.ecrMsgQueryRepository.FetchMsgContainerForApplicableEcr();
 
