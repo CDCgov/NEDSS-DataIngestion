@@ -34,12 +34,14 @@ public class NbsRepositoryServiceProvider {
 	private static String LAB_CLIA = "HL7UniversalID";
 	private static String ORDER_TEST_CODE = "HL7AlternateIdentifier";
 
+	private static String ECR_DOC_TYPE = "PHC236";
+
     @Autowired
     private NbsInterfaceRepository nbsInterfaceRepo;
 
 	public void saveEcrCdaXmlMessage (String nbsInterfaceUid,
 									  Integer dataMigrationStatus, String xmlMsg) {
-		Optional<NbsInterfaceModel>  response = nbsInterfaceRepo.getNbsInterfaceByIdAndDocType(Integer.valueOf(nbsInterfaceUid), "PHC236");
+		Optional<NbsInterfaceModel>  response = nbsInterfaceRepo.getNbsInterfaceByIdAndDocType(Integer.valueOf(nbsInterfaceUid), ECR_DOC_TYPE);
 		var time = Timestamp.from(Instant.now());
 		NbsInterfaceModel model = new NbsInterfaceModel();
 		if (response.isPresent()) {
@@ -55,7 +57,7 @@ public class NbsRepositoryServiceProvider {
 				model.setRecordStatusTime(time);
 				model.setAddTime(time);
 				model.setSystemNm(SYSTEM_NAME_NBS);
-				model.setDocTypeCd("PHC236");
+				model.setDocTypeCd(ECR_DOC_TYPE);
 				nbsInterfaceRepo.save(model);
 			}
 			else if (dataMigrationStatus == -2) {
@@ -65,7 +67,7 @@ public class NbsRepositoryServiceProvider {
 				model.setRecordStatusTime(time);
 				model.setAddTime(time);
 				model.setSystemNm(SYSTEM_NAME_NBS);
-				model.setDocTypeCd("PHC236");
+				model.setDocTypeCd(ECR_DOC_TYPE);
 				nbsInterfaceRepo.save(model);
 			}
 		}

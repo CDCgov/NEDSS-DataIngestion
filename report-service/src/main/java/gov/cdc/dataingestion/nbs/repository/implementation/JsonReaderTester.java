@@ -11,8 +11,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 // THIS TEST CLASS
-@SuppressWarnings("squid:S00114")  // This suppresses all SonarCloud issues for the class
 public class JsonReaderTester {
+    private static String dateFormat = "yyyy-MM-dd HH:mm:ss.S";
     public static EcrMsgContainerDto loadContainer() {
         Gson gson = new Gson();
         try {
@@ -23,13 +23,13 @@ public class JsonReaderTester {
             var res =  gson.fromJson(reader, EcrMsgContainerDto.class);
             return res;
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // NOSONAR
         }
         return null;
     }
 
     public static EcrMsgPatientDto loadPatient() {
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.S").create();
+        Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         try {
             var in =  JsonReaderTester.class.getResourceAsStream("/testData/ecrMsgPatient.json");
             InputStreamReader reader = new InputStreamReader(
@@ -38,14 +38,14 @@ public class JsonReaderTester {
             var res =  gson.fromJson(reader, EcrMsgPatientDto.class);
             return res;
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // NOSONAR
         }
         return null;
     }
 
     //region ECR CASE
     public static EcrMsgCaseDto loadCase() {
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.S").create();
+        Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         try {
             var in =  JsonReaderTester.class.getResourceAsStream("/testData/ecrMsgCase.json");
             InputStreamReader reader = new InputStreamReader(
@@ -54,13 +54,13 @@ public class JsonReaderTester {
             var res =  gson.fromJson(reader, EcrMsgCaseDto.class);
             return res;
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // NOSONAR
         }
         return null;
     }
 
     public static List<EcrMsgCaseParticipantDto> loadCasePar() {
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.S").create();
+        Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         try {
             var in =  JsonReaderTester.class.getResourceAsStream("/testData/ecrMsgCasePaticipant.json");
             InputStreamReader reader = new InputStreamReader(
@@ -71,13 +71,13 @@ public class JsonReaderTester {
             List<EcrMsgCaseParticipantDto> res = gson.fromJson(reader, listType);
             return res;
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // NOSONAR
         }
         return null;
     }
 
     public static List<EcrMsgCaseAnswerDto> loadCaseAnswer() {
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.S").create();
+        Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         try {
             var in =  JsonReaderTester.class.getResourceAsStream("/testData/ecrMsgCaseAnswer.json");
             InputStreamReader reader = new InputStreamReader(
@@ -88,13 +88,13 @@ public class JsonReaderTester {
             List<EcrMsgCaseAnswerDto> res = gson.fromJson(reader, listType);
             return res;
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // NOSONAR
         }
         return null;
     }
 
     public static List<EcrMsgCaseAnswerRepeatDto> loadCaseAnswerRepeat() {
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.S").create();
+        Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         try {
             var in =  JsonReaderTester.class.getResourceAsStream("/testData/ecrMsgCaseAnswerRepeat.json");
             InputStreamReader reader = new InputStreamReader(
@@ -105,14 +105,14 @@ public class JsonReaderTester {
             List<EcrMsgCaseAnswerRepeatDto> res = gson.fromJson(reader, listType);
             return res;
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // NOSONAR
         }
         return null;
     }
     //endregion
 
     public static List<EcrMsgProviderDto> loadProvider() {
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.S").create();
+        Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         try {
             var in =  JsonReaderTester.class.getResourceAsStream("/testData/ecrMsgProvider.json");
             InputStreamReader reader = new InputStreamReader(
@@ -123,13 +123,13 @@ public class JsonReaderTester {
             List<EcrMsgProviderDto> res = gson.fromJson(reader, listType);
             return res;
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // NOSONAR
         }
         return null;
     }
 
     public static EcrMsgOrganizationDto loadOrg() {
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.S").create();
+        Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         try {
             var in =  JsonReaderTester.class.getResourceAsStream("/testData/ecrMsgOrg.json");
             InputStreamReader reader = new InputStreamReader(
@@ -138,14 +138,14 @@ public class JsonReaderTester {
             var res =  gson.fromJson(reader, EcrMsgOrganizationDto.class);
             return res;
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // NOSONAR
         }
         return null;
     }
 
     //region INTERVIEW
     public static EcrMsgInterviewDto loadInterview() {
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.S").create();
+        Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         try {
             var in =  JsonReaderTester.class.getResourceAsStream("/testData/ecrMsgInterview.json");
             InputStreamReader reader = new InputStreamReader(
@@ -154,13 +154,13 @@ public class JsonReaderTester {
             var res =  gson.fromJson(reader, EcrMsgInterviewDto.class);
             return res;
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // NOSONAR
         }
         return null;
     }
 
     public static List<EcrMsgInterviewAnswerDto> loadInterviewAnswer() {
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.S").create();
+        Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         try {
             var in =  JsonReaderTester.class.getResourceAsStream("/testData/ecrMsgInterviewAnswer.json");
             InputStreamReader reader = new InputStreamReader(
@@ -171,13 +171,13 @@ public class JsonReaderTester {
             List<EcrMsgInterviewAnswerDto> res = gson.fromJson(reader, listType);
             return res;
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // NOSONAR
         }
         return null;
     }
 
     public static List<EcrMsgInterviewAnswerRepeatDto> loadInterviewAnswerRepeat() {
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.S").create();
+        Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         try {
             var in =  JsonReaderTester.class.getResourceAsStream("/testData/ecrMsgInterviewAnswerRepeat.json");
             InputStreamReader reader = new InputStreamReader(
@@ -188,13 +188,13 @@ public class JsonReaderTester {
             List<EcrMsgInterviewAnswerRepeatDto> res = gson.fromJson(reader, listType);
             return res;
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // NOSONAR
         }
         return null;
     }
 
     public static List<EcrMsgInterviewProviderDto> loadInterviewProvider() {
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.S").create();
+        Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         try {
             var in =  JsonReaderTester.class.getResourceAsStream("/testData/ecrMsgInterviewProvider.json");
             InputStreamReader reader = new InputStreamReader(
@@ -205,14 +205,14 @@ public class JsonReaderTester {
             List<EcrMsgInterviewProviderDto> res = gson.fromJson(reader, listType);
             return res;
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // NOSONAR
         }
         return null;
     }
     //endregion
 
     public static EcrMsgPlaceDto loadPlace() {
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.S").create();
+        Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         try {
             var in =  JsonReaderTester.class.getResourceAsStream("/testData/ecrMsgPlace.json");
             InputStreamReader reader = new InputStreamReader(
@@ -221,14 +221,14 @@ public class JsonReaderTester {
             var res =  gson.fromJson(reader, EcrMsgPlaceDto.class);
             return res;
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // NOSONAR
         }
         return null;
     }
 
     //region TREATMENT
     public static EcrMsgTreatmentDto loadTreatment() {
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.S").create();
+        Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         try {
             var in =  JsonReaderTester.class.getResourceAsStream("/testData/ecrMsgTreatment.json");
             InputStreamReader reader = new InputStreamReader(
@@ -237,13 +237,13 @@ public class JsonReaderTester {
             var res =  gson.fromJson(reader, EcrMsgTreatmentDto.class);
             return res;
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // NOSONAR
         }
         return null;
     }
 
     public static List<EcrMsgTreatmentOrganizationDto> loadTreatmentOrg() {
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.S").create();
+        Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         try {
             var in =  JsonReaderTester.class.getResourceAsStream("/testData/ecrMsgTreatmentOrg.json");
             InputStreamReader reader = new InputStreamReader(
@@ -254,13 +254,13 @@ public class JsonReaderTester {
             List<EcrMsgTreatmentOrganizationDto> res = gson.fromJson(reader, listType);
             return res;
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // NOSONAR
         }
         return null;
     }
 
     public static List<EcrMsgTreatmentProviderDto> loadTreatmentProvider() {
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.S").create();
+        Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         try {
             var in =  JsonReaderTester.class.getResourceAsStream("/testData/ecrMsgTreatmentProvider.json");
             InputStreamReader reader = new InputStreamReader(
@@ -271,7 +271,7 @@ public class JsonReaderTester {
             List<EcrMsgTreatmentProviderDto> res = gson.fromJson(reader, listType);
             return res;
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // NOSONAR
         }
         return null;
     }

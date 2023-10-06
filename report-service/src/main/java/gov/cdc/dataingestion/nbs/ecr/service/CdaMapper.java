@@ -57,13 +57,18 @@ public class CdaMapper implements ICdaMapper {
     private final String actCodeDisplayName = "Interested Party";
     private final String notFoundValue = "NOT_FOUND";
     private final String idRoot = "2.16.840.999999";
-    private final String valueTest = "value";
+    private final String value = "value";
     private final String change = "CHANGED";
     private final String idArrRoot = "2.16.840.1.113883.4.6";
     private final String extnStr = ";extn=";
     private final String notMappedValue = "NOT_MAPPED";
     private final String valueTag = "<value></value>";
     private final String codeNotMappedValue = "CODE NOT MAPPED";
+
+    private final String cdata = "[CDATA]";
+    private final String stud = "<stud>stud</stud>";
+    
+    private final String mailTo = "mailto:";
 
     /** COL NAME */
     private final String patLocalId = "patLocalId";
@@ -658,7 +663,7 @@ public class CdaMapper implements ICdaMapper {
                                 XmlCursor cursor = originalText.newCursor();
                                 cursor.toEndDoc();
                                 cursor.beginElement("originalText");
-                                cursor.insertChars("[CDATA]" + patient.getPatRaceDescTxt() + "[CDATA]");
+                                cursor.insertChars(cdata + patient.getPatRaceDescTxt() + cdata);
                                 cursor.dispose();
 
 
@@ -699,7 +704,7 @@ public class CdaMapper implements ICdaMapper {
                                 AdxpCounty county = AdxpCounty.Factory.newInstance();
 
                                 XmlCursor cursor = county.newCursor();
-                                cursor.setTextValue("[CDATA]" + val + "[CDATA]");
+                                cursor.setTextValue(cdata + val + cdata);
                                 cursor.dispose();
 
                                 AdxpCounty[] countyArr = {county};
@@ -714,7 +719,7 @@ public class CdaMapper implements ICdaMapper {
                                 }
                                 AdxpCensusTract census = AdxpCensusTract.Factory.newInstance();
                                 XmlCursor cursor = census.newCursor();
-                                cursor.setTextValue( "[CDATA]" + patient.getPatAddrCensusTractTxt() + "[CDATA]");
+                                cursor.setTextValue( cdata + patient.getPatAddrCensusTractTxt() + cdata);
                                 cursor.dispose();
 
                                 int c = 0;
@@ -752,7 +757,7 @@ public class CdaMapper implements ICdaMapper {
                                 cursor.toEndDoc();
 
                                 cursor.beginElement("low");
-                                cursor.insertAttributeWithValue("value",  ts.getValue());
+                                cursor.insertAttributeWithValue(value,  ts.getValue());
 
                                 cursor.toEndDoc();
                                 cursor.removeXml();
@@ -993,7 +998,7 @@ public class CdaMapper implements ICdaMapper {
                     }
                     if(!PAT_PHONE_AS_OF_DT.isEmpty()){
                         TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
-                        element.set(XmlObject.Factory.parse("<stud>stud</stud>"));
+                        element.set(XmlObject.Factory.parse(stud));
                         var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, useablePeriod);
                         clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                     }
@@ -1018,7 +1023,7 @@ public class CdaMapper implements ICdaMapper {
                     }
                     if(!PAT_PHONE_AS_OF_DT.isEmpty()){
                         TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
-                        element.set(XmlObject.Factory.parse("<stud>stud</stud>"));
+                        element.set(XmlObject.Factory.parse(stud));
                         var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, useablePeriod);
                         clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                     }
@@ -1042,7 +1047,7 @@ public class CdaMapper implements ICdaMapper {
                     if(!PAT_PHONE_AS_OF_DT.isEmpty()){
                         TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
                         // CHECK mapToUsableTSElement
-                        element.set(XmlObject.Factory.parse("<stud>stud</stud>"));
+                        element.set(XmlObject.Factory.parse(stud));
                         var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, useablePeriod);
                         clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                     }
@@ -1064,17 +1069,17 @@ public class CdaMapper implements ICdaMapper {
 
 
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList(Arrays.asList("HP")));
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue("mailto:"+PAT_EMAIL_ADDRESS_TXT);
+                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(mailTo+PAT_EMAIL_ADDRESS_TXT);
                     if(!PAT_PHONE_AS_OF_DT.isEmpty()){
                         TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
                         // CHECK mapToUsableTSElement
-                        element.set(XmlObject.Factory.parse("<stud>stud</stud>"));
+                        element.set(XmlObject.Factory.parse(stud));
                         var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, useablePeriod);
                         clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                     }
 
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<String>(Arrays.asList("HP")));
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue("mailto:" + PAT_EMAIL_ADDRESS_TXT);
+                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(mailTo + PAT_EMAIL_ADDRESS_TXT);
                     phoneCounter =phoneCounter +1;
                 }
 
@@ -1092,7 +1097,7 @@ public class CdaMapper implements ICdaMapper {
                     if(!PAT_PHONE_AS_OF_DT.isEmpty()){
                         TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
                         // CHECK mapToUsableTSElement
-                        element.set(XmlObject.Factory.parse("<stud>stud</stud>"));
+                        element.set(XmlObject.Factory.parse(stud));
                         var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, useablePeriod);
                         clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                     }
@@ -1313,7 +1318,7 @@ public class CdaMapper implements ICdaMapper {
 
                             var nestedCode = code;
                             if (nestedCode.contains("-")) {
-                                nestedCode = nestedCode.replaceAll("-", "");
+                                nestedCode = nestedCode.replaceAll("-", ""); // NOSONAR
                             }
                             clinicalDocument.getCode().setCode(nestedCode);
                             clinicalDocument.getCode().setCodeSystem(clinicalCodeSystem);
@@ -1497,7 +1502,7 @@ public class CdaMapper implements ICdaMapper {
                         section.addNewEntry();
                     }
 
-                    performerSectionCounter = c;
+                    performerSectionCounter = c; // NOSONAR
 
 
                     if (section.getEntryArray(c).getAct() == null) {
@@ -1708,21 +1713,21 @@ public class CdaMapper implements ICdaMapper {
 
             String xmlOutput = clinicalDocument.xmlText(options);
 
-            xmlOutput = xmlOutput.replaceAll("<STRING[^>]*>([^<]+)</STRING>", "$1"); // remove string tag
-            xmlOutput = xmlOutput.replaceAll("<CDATA[^>]*>(.*?)</CDATA>", "<![CDATA[$1]]>"); // replace CDATA with real CDATA
-            xmlOutput = xmlOutput.replaceAll("<(\\w+)></\\1>", ""); // remove empty <tag></tag>
-            xmlOutput = xmlOutput.replaceAll("<(\\w+)/>", ""); // remove empty <tag/>
-            xmlOutput = xmlOutput.replaceAll("<stud xmlns=\"\">stud</stud>", ""); // remove stud tag
-            xmlOutput = xmlOutput.replaceAll("(?m)^\\s*$[\n\r]{1,}", ""); // remove new line
+            xmlOutput = xmlOutput.replaceAll("<STRING[^>]*>([^<]+)</STRING>", "$1");// NOSONAR // remove string tag
+            xmlOutput = xmlOutput.replaceAll("<CDATA[^>]*>(.*?)</CDATA>", "<![CDATA[$1]]>");// NOSONAR // replace CDATA with real CDATA
+            xmlOutput = xmlOutput.replaceAll("<(\\w+)></\\1>", "");// NOSONAR // remove empty <tag></tag>
+            xmlOutput = xmlOutput.replaceAll("<(\\w+)/>", "");// NOSONAR // remove empty <tag/>
+            xmlOutput = xmlOutput.replaceAll("<stud xmlns=\"\">stud</stud>", "");// NOSONAR // remove stud tag
+            xmlOutput = xmlOutput.replaceAll("(?m)^\\s*$[\n\r]{1,}", "");// NOSONAR // remove new line
 
-            xmlOutput = xmlOutput.replaceAll("sdtcxmlnamespaceholder=\""+ xmlNameSpaceHolder +"\"", "xmlns:sdtcxmlnamespaceholder=\""+xmlNameSpaceHolder+"\"");
-            xmlOutput = xmlOutput.replaceAll("sdt=\"urn:hl7-org:sdtc\"", "xmlns:sdt=\"urn:hl7-org:sdtc\"");
-            xmlOutput = xmlOutput.replaceAll("xsi=\"http://www.w3.org/2001/XMLSchema-instance\"", "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
-            xmlOutput = xmlOutput.replaceAll("schemaLocation=\""+ xmlNameSpaceHolder +" CDA_SDTC.xsd\"", "xsi:schemaLocation=\""+xmlNameSpaceHolder +" CDA_SDTC.xsd\"");
+            xmlOutput = xmlOutput.replaceAll("sdtcxmlnamespaceholder=\""+ xmlNameSpaceHolder +"\"", "xmlns:sdtcxmlnamespaceholder=\""+xmlNameSpaceHolder+"\"");// NOSONAR
+            xmlOutput = xmlOutput.replaceAll("sdt=\"urn:hl7-org:sdtc\"", "xmlns:sdt=\"urn:hl7-org:sdtc\"");// NOSONAR
+            xmlOutput = xmlOutput.replaceAll("xsi=\"http://www.w3.org/2001/XMLSchema-instance\"", "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");// NOSONAR
+            xmlOutput = xmlOutput.replaceAll("schemaLocation=\""+ xmlNameSpaceHolder +" CDA_SDTC.xsd\"", "xsi:schemaLocation=\""+xmlNameSpaceHolder +" CDA_SDTC.xsd\"");// NOSONAR
 
 
-            xmlOutput = xmlOutput.replaceAll("\\^NOT_MAPPED", "");
-            xmlOutput = xmlOutput.replaceAll("NOT_MAPPED","");
+            xmlOutput = xmlOutput.replaceAll("\\^NOT_MAPPED", "");// NOSONAR
+            xmlOutput = xmlOutput.replaceAll("NOT_MAPPED","");// NOSONAR
 
             xmlOutput = "<?xml version=\"1.0\"?>\n" + xmlOutput;
             return xmlOutput;
@@ -1859,7 +1864,7 @@ public class CdaMapper implements ICdaMapper {
             StrucDocItem item = StrucDocItem.Factory.newInstance();
 
             XmlCursor cursor = item.newCursor();
-            cursor.setTextValue("[CDATA]" + customTreatment + "[CDATA]");
+            cursor.setTextValue(cdata + customTreatment + cdata);
             cursor.dispose();
 
             list.getListArray(c).setItemArray(0, item);
@@ -1903,13 +1908,13 @@ public class CdaMapper implements ICdaMapper {
             cursor.toEndDoc();  // Move to the root element
 
             cursor.beginElement("low");
-            cursor.insertAttributeWithValue("value",  mapToTsType(TRT_TREATMENT_DT).getValue());
+            cursor.insertAttributeWithValue(value,  mapToTsType(TRT_TREATMENT_DT).getValue());
 
             if (TRT_DURATION_AMT != null && !TRT_DURATION_AMT.isEmpty() && TRT_DURATION_UNIT_CD != null && !TRT_DURATION_UNIT_CD.isEmpty()) {
                 cursor.toEndDoc();
                 cursor.beginElement("width");
                 if (!TRT_DURATION_AMT.isEmpty()) {
-                    cursor.insertAttributeWithValue(valueTest, TRT_DURATION_AMT);
+                    cursor.insertAttributeWithValue(value, TRT_DURATION_AMT);
                 }
 
                 if (!TRT_DURATION_UNIT_CD.isEmpty()) {
@@ -1951,7 +1956,7 @@ public class CdaMapper implements ICdaMapper {
             String hertz = TRT_FREQUENCY_AMT_CD;
             AttributeMapper res = mapToAttributes(hertz);
             if (cursor.toFirstAttribute()) {
-                cursor.insertAttributeWithValue("value", res.getAttribute1());
+                cursor.insertAttributeWithValue(value, res.getAttribute1());
             }
             if (cursor.toNextAttribute()) {
                 cursor.insertAttributeWithValue("unit", res.getAttribute2());
@@ -2381,10 +2386,10 @@ public class CdaMapper implements ICdaMapper {
                     XmlCursor cursor = element.newCursor();
                     cursor.toFirstChild();
                     cursor.setAttributeText(new QName(nameSpaceUrl, "type"), "TS");
-                    cursor.setAttributeText(new QName("", valueTest), null);
+                    cursor.setAttributeText(new QName("", value), null);
                     if (name.equals(colAnswerTxt)) {
                         String newValue = mapToTsType(in.getAnswerTxt()).toString();
-                        cursor.setAttributeText(new QName("", valueTest), newValue);
+                        cursor.setAttributeText(new QName("", value), newValue);
                     }
                     cursor.dispose();
                 }
@@ -2519,11 +2524,11 @@ public class CdaMapper implements ICdaMapper {
                     var element = out.getEntryRelationshipArray(counter).getObservation().getValueArray(0);
                     XmlCursor cursor = element.newCursor();
                     cursor.setAttributeText(new QName(nameSpaceUrl, "type"), "TS");
-                    cursor.setAttributeText(new QName("name"), valueTest);  // This is an assumption based on the original code
+                    cursor.setAttributeText(new QName("name"), value);  // This is an assumption based on the original code
 
                     if(name.equals(colAnswerTxt) && !in.getAnswerTxt().isEmpty()){
                         String newValue = mapToTsType(in.getAnswerTxt()).toString();
-                        cursor.setAttributeText(new QName("name"), valueTest);
+                        cursor.setAttributeText(new QName("name"), value);
                         cursor.setTextValue(newValue);
                     }
                     else {
@@ -2532,7 +2537,7 @@ public class CdaMapper implements ICdaMapper {
                         cursor.setAttributeText(new QName(nameSpaceUrl, "type"), "ST");
 
                         if(name.equals(colAnswerTxt) && !in.getAnswerTxt().isEmpty()) {
-                            cursor.setTextValue("[CDATA]" + in.getAnswerTxt() + "[CDATA]");
+                            cursor.setTextValue(cdata + in.getAnswerTxt() + cdata);
                         }
                     }
 
@@ -2636,7 +2641,7 @@ public class CdaMapper implements ICdaMapper {
                 PN val = PN.Factory.newInstance();
 
                 XmlCursor cursor = val.newCursor();
-                cursor.setTextValue("[CDATA]" + in.getPlaNameTxt() + "[CDATA]");
+                cursor.setTextValue(cdata + in.getPlaNameTxt() + cdata);
                 cursor.dispose();
 
                 out.getParticipantRole().getPlayingEntity().addNewName();
@@ -2741,7 +2746,7 @@ public class CdaMapper implements ICdaMapper {
         if(!streetAddress1.isEmpty() ){
             AdxpStreetAddressLine val = AdxpStreetAddressLine.Factory.newInstance();
             XmlCursor cursor = val.newCursor();
-            cursor.setTextValue("[CDATA]" + streetAddress1 + "[CDATA]");
+            cursor.setTextValue(cdata + streetAddress1 + cdata);
             cursor.dispose();
 
             int c = 0;
@@ -2903,7 +2908,7 @@ public class CdaMapper implements ICdaMapper {
                 out.getParticipantRole().addNewTelecom();
             }
             out.getParticipantRole().getTelecomArray(teleCounter).setUse(Arrays.asList("WP"));
-            out.getParticipantRole().getTelecomArray(teleCounter).setValue("mailto:"+workEmail);
+            out.getParticipantRole().getTelecomArray(teleCounter).setValue(mailTo+workEmail);
             if(!teleAsOfDate.isEmpty()){
                 // OutXML::Element element = (OutXML::Element)out.getParticipantRole().telecom[teleCounter];
                 // mapToUsableTSElement(teleAsOfDate, element, useablePeriod);
@@ -3823,12 +3828,12 @@ public class CdaMapper implements ICdaMapper {
 //                        XmlCursor cursor = element.newCursor();
 //                        if (cursor.toFirstAttribute() || !cursor.toEndToken().isStart()) { // Added check here
 //                            cursor.setAttributeText(new QName(nameSpaceUrl, "type"), "TS");
-//                            if (cursor.getAttributeText(new QName(valueTest)) != null) {
-//                                cursor.setAttributeText(new QName(valueTest), mapToTsType(data).toString());
+//                            if (cursor.getAttributeText(new QName(value)) != null) {
+//                                cursor.setAttributeText(new QName(value), mapToTsType(data).toString());
 //                            } else {
 //                                cursor.toStartDoc();
 //                                cursor.toNextToken(); // Moves to the start of the element
-//                                cursor.insertAttributeWithValue(valueTest, mapToTsType(data).toString());
+//                                cursor.insertAttributeWithValue(value, mapToTsType(data).toString());
 //                            }
 //                            cursor.dispose();
 //
@@ -3885,7 +3890,7 @@ public class CdaMapper implements ICdaMapper {
         XmlCursor cursor = output.newCursor();
 
         // Navigate to the 'value' element
-        if (cursor.toChild(new QName(valueTest))) {
+        if (cursor.toChild(new QName(value))) {
             // Set the attributes of the 'value' element
             cursor.setAttributeText(new QName(nameSpaceUrl, "type"), "ST");
 
@@ -3907,7 +3912,7 @@ public class CdaMapper implements ICdaMapper {
         cursor.toFirstChild();  // Move inside childName
         cursor.beginElement("low");
         cursor.insertNamespace("", xmlNameSpaceHolder);
-        cursor.insertAttributeWithValue(valueTest, mapToTsType(data).getValue().toString());
+        cursor.insertAttributeWithValue(value, mapToTsType(data).getValue().toString());
         cursor.dispose();
         return output;
     }
@@ -4271,10 +4276,10 @@ public class CdaMapper implements ICdaMapper {
                     XmlCursor cursor = element.newCursor();
                     cursor.toFirstChild();
                     cursor.setAttributeText(new QName(nameSpaceUrl, "type"), "TS");
-                    cursor.setAttributeText(new QName("", valueTest), null);
+                    cursor.setAttributeText(new QName("", value), null);
                     if (name.equals(colAnswerTxt)) {
                         String newValue = mapToTsType(in.getAnswerTxt()).toString();
-                        cursor.setAttributeText(new QName("", valueTest), newValue);
+                        cursor.setAttributeText(new QName("", value), newValue);
                     }
                     cursor.dispose();
                 }
@@ -4414,10 +4419,10 @@ public class CdaMapper implements ICdaMapper {
                     XmlCursor cursor = element.newCursor();
                     cursor.toFirstAttribute();
                     cursor.insertAttributeWithValue(new QName(nameSpaceUrl, "type"), "TS");
-                    cursor.insertAttributeWithValue(valueTest, ""); // As per your code, it's empty
+                    cursor.insertAttributeWithValue(value, ""); // As per your code, it's empty
 
                     var ot = mapToTsType(in.getAnswerTxt()).toString();
-                    cursor.setAttributeText(new QName("", valueTest), ot);
+                    cursor.setAttributeText(new QName("", value), ot);
                     cursor.dispose();
                 }
             }
