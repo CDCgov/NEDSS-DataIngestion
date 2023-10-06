@@ -1709,12 +1709,13 @@ public class CdaMapper implements ICdaMapper {
             xmlOutput = xmlOutput.replaceAll("<CDATA[^>]*>(.*?)</CDATA>", "<![CDATA[$1]]>"); // replace CDATA with real CDATA
             xmlOutput = xmlOutput.replaceAll("<(\\w+)></\\1>", ""); // remove empty <tag></tag>
             xmlOutput = xmlOutput.replaceAll("<(\\w+)/>", ""); // remove empty <tag/>
+            xmlOutput = xmlOutput.replaceAll("<stud xmlns=\"\">stud</stud>", ""); // remove stud tag
             xmlOutput = xmlOutput.replaceAll("(?m)^\\s*$[\n\r]{1,}", ""); // remove new line
 
             xmlOutput = xmlOutput.replaceAll("sdtcxmlnamespaceholder=\""+ xmlNameSpaceHolder +"\"", "xmlns:sdtcxmlnamespaceholder=\""+xmlNameSpaceHolder+"\"");
             xmlOutput = xmlOutput.replaceAll("sdt=\"urn:hl7-org:sdtc\"", "xmlns:sdt=\"urn:hl7-org:sdtc\"");
             xmlOutput = xmlOutput.replaceAll("xsi=\"http://www.w3.org/2001/XMLSchema-instance\"", "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
-            xmlOutput = xmlOutput.replaceAll("schemaLocation=\""+ xmlNameSpaceHolder +" CDA_SDTC.xsd\"", "xsi:schemaLocation=\""+xmlNameSpaceHolder +"CDA_SDTC.xsd\"");
+            xmlOutput = xmlOutput.replaceAll("schemaLocation=\""+ xmlNameSpaceHolder +" CDA_SDTC.xsd\"", "xsi:schemaLocation=\""+xmlNameSpaceHolder +" CDA_SDTC.xsd\"");
 
 
             xmlOutput = xmlOutput.replaceAll("\\^NOT_MAPPED", "");
