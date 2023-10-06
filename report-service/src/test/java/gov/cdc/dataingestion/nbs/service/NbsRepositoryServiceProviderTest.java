@@ -42,6 +42,6 @@ public class NbsRepositoryServiceProviderTest {
         when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
 
         var saved = target.saveXmlMessage(id, xmlMsg);
-        Assertions.assertTrue(saved);
+        Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
 }

@@ -27,7 +27,7 @@ public class RawELRService {
 
     public String submission(RawERLDto rawERLDto) {
         RawERLModel created = rawELRRepository.save(convert(rawERLDto));
-        kafkaProducerService.sendMessageFromController(created.getId(), topicName, rawERLDto.getType(), 0);
+        kafkaProducerService.sendMessageFromController(created.getId(), topicName, rawERLDto.getType(), 0, rawERLDto.getValidationActive());
         return created.getId();
     }
 

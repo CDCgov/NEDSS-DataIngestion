@@ -14,8 +14,7 @@ import java.util.Optional;
 public interface NbsInterfaceRepository extends JpaRepository<NbsInterfaceModel, Integer> {
 	@Query(value = "select max(nbs_interface_uid) from NBS_interface", nativeQuery = true)
     BigInteger getMaxNbsInterfaceUid();
-
-
     @Query(value = "SELECT * FROM NBS_interface WHERE nbs_interface_uid = :nbsInterfaceUid AND doc_type_cd = :docTypeCd", nativeQuery = true)
     Optional<NbsInterfaceModel> getNbsInterfaceByIdAndDocType(@Param("nbsInterfaceUid") Integer id, @Param("docTypeCd") String docType);
+    Optional<NbsInterfaceModel> findByNbsInterfaceUid(Integer id);
 }

@@ -26,7 +26,6 @@ public class RegistrationService {
     }
 
     public boolean createUser(String username, String password) {
-        log.info("inside register service...");
         Optional<RegisterClient> client = iClientRegisterRepository.findByUsername(username);
         if(client.isEmpty()) {
             clientObject.setId(UUID.randomUUID().toString());
