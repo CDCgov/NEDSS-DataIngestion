@@ -259,6 +259,32 @@ public class CdaPatientMappingHelper {
         return clinicalDocument;
     }
 
+    public static POCDMT000040ClinicalDocument1 checkPatientRoleFamilyName(POCDMT000040ClinicalDocument1 clinicalDocument) {
+        clinicalDocument = checkPatientRoleNameArray(clinicalDocument);
+        if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getFamilyArray().length == 0) {
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).addNewFamily();
+        };
+        return clinicalDocument;
+    }
+
+    public static POCDMT000040ClinicalDocument1 checkPatientRoleSuffix(POCDMT000040ClinicalDocument1 clinicalDocument) {
+        clinicalDocument = checkPatientRoleNameArray(clinicalDocument);
+        if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getSuffixArray().length == 0) {
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).addNewSuffix();
+        }
+        return clinicalDocument;
+    }
+
+    public static POCDMT000040ClinicalDocument1 checkPatientRolePrefix(POCDMT000040ClinicalDocument1 clinicalDocument) {
+        clinicalDocument = checkPatientRoleNameArray(clinicalDocument);
+        if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getPrefixArray().length == 0) {
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).addNewPrefix();
+        }
+        return clinicalDocument;
+    }
+
+
+
     public static POCDMT000040ClinicalDocument1 checkPatientRoleAlias(POCDMT000040ClinicalDocument1 clinicalDocument) {
         clinicalDocument = checkPatientRole(clinicalDocument);
 
