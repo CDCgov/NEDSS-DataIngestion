@@ -10,7 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CdaPlaceMapper {
-//    private POCDMT000040ClinicalDocument1 clinicalDocument;
     private int performerComponentCounter;
     private int componentCounter;
     private int performerSectionCounter;

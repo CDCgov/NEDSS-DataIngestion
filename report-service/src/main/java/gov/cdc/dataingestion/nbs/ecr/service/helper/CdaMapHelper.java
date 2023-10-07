@@ -9,8 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.valueName;
-import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.xmlNameSpaceHolder;
+import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
 
 public class CdaMapHelper {
     public static XmlObject mapToCData(String data) throws EcrCdaXmlException {
@@ -42,8 +41,8 @@ public class CdaMapHelper {
         cursor.insertAttributeWithValue("type", "IVL_TS");
         cursor.toFirstChild();  // Move inside childName
         cursor.beginElement("low");
-        cursor.insertNamespace("", xmlNameSpaceHolder);
-        cursor.insertAttributeWithValue(valueName, mapToTsType(data).getValue().toString());
+        cursor.insertNamespace("", XML_NAME_SPACE_HOLDER);
+        cursor.insertAttributeWithValue(VALUE_NAME, mapToTsType(data).getValue().toString());
         cursor.dispose();
         return output;
     }

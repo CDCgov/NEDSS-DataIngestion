@@ -69,10 +69,7 @@ public class CdaMapper implements ICdaMapper {
         //endregion
 
         String inv168 = "";
-//        Integer nbsInterfaceUid = null;
-//        String systemName = "";
         Integer versionCtrNbr = null;
-//        Integer dataMigrationStatus = null;
 
         //region CONTAINER COMPONENT CREATION
         if (input.getMsgContainer().getInvLocalId() != null && !input.getMsgContainer().getInvLocalId().isEmpty()) {
@@ -94,35 +91,17 @@ public class CdaMapper implements ICdaMapper {
             }
         }
 
-//        if(input.getMsgContainer().getNbsInterfaceUid() != null) {
-//            nbsInterfaceUid = input.getMsgContainer().getNbsInterfaceUid();
-//        }
-
-//        if(input.getMsgContainer().getReceivingSystem() != null &&
-//            !input.getMsgContainer().getReceivingSystem().isEmpty()) {
-//            if(input.getMsgContainer().getReceivingSystem().length() > 0) {
-//                systemName = input.getMsgContainer().getReceivingSystem();
-//            } else {
-//                systemName = "NBS";
-//            }
-//        }
-
         if (input.getMsgContainer().getVersionCtrNbr() != null) {
             versionCtrNbr = input.getMsgContainer().getVersionCtrNbr();
         }
 
-//        if(input.getMsgContainer().getDataMigrationStatus() != null) {
-//            dataMigrationStatus = input.getMsgContainer().getDataMigrationStatus();
-//        }
-
         clinicalDocument.setCode(CE.Factory.newInstance());
         clinicalDocument.getCode().setCode("55751-2");
         clinicalDocument.getCode().setCodeSystem(CODE_SYSTEM);
-        clinicalDocument.getCode().setCodeSystemName(codeSystemName);
+        clinicalDocument.getCode().setCodeSystemName(CODE_SYSTEM_NAME);
         clinicalDocument.getCode().setDisplayName("Public Health Case Report - PHRI");
         clinicalDocument.setTitle(ST.Factory.newInstance());
 
-        // This need to be checked
         clinicalDocument.getTitle().set(mapToStringData("Public Health Case Report - Data from Legacy System to CDA"));
 
         clinicalDocument.setEffectiveTime(TS.Factory.newInstance());
@@ -143,16 +122,10 @@ public class CdaMapper implements ICdaMapper {
         int interviewCounter= 0;
         int treatmentCounter=0;
         int treatmentSectionCounter=0;
-//        int caseEntryCounter=0;
-//        int performerCounter=0;
         int patientComponentCounter=-1;
         int performerComponentCounter=0;
         int performerSectionCounter=0;
         int clinicalCounter= 0;
-//        int performerEntityCounter=0;
-//        int signsAndSymptomCounter=0;
-//        int medicalHistoryCounter=0;
-//        int GenericBatchEntryCounter=0;
 
         //region SUB COMPONENT CREATION
 
@@ -163,7 +136,6 @@ public class CdaMapper implements ICdaMapper {
         /**MAP TO PATIENT**/
         var pat =  mapToPatient(input, clinicalDocument, patientComponentCounter, inv168);
         clinicalDocument = pat.getClinicalDocument();
-//        patientComponentCounter = pat.getPatientComponentCounter();
         inv168 = pat.getInv168();
 
         /**MAP TO CASE**/
@@ -171,8 +143,6 @@ public class CdaMapper implements ICdaMapper {
         componentCaseCounter, inv168);
         clinicalDocument = ecrCase.getClinicalDocument();
         componentCounter = ecrCase.getComponentCounter();
-//        clinicalCounter = ecrCase.getClinicalCounter();
-//        componentCaseCounter = ecrCase.getComponentCaseCounter();
         inv168 = ecrCase.getInv168();
 
         /**XML ANSWER**/
@@ -207,7 +177,6 @@ public class CdaMapper implements ICdaMapper {
 
 
         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).setSection(ecrProvider.getClinicalSection());
-//        inv168 = ecrProvider.getInv168();
         performerComponentCounter = ecrProvider.getPerformerComponentCounter();
         componentCounter = ecrProvider.getComponentCounter();
         performerSectionCounter = ecrProvider.getPerformerSectionCounter();
@@ -230,16 +199,13 @@ public class CdaMapper implements ICdaMapper {
         var ecrPlace = mapToPlaceTop(input, performerComponentCounter,
                 componentCounter, performerSectionCounter, interestedPartyComp);
         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).setSection(ecrPlace.getSection());
-//        performerComponentCounter = ecrPlace.getPerformerComponentCounter();
         componentCounter = ecrPlace.getComponentCounter();
-//        performerSectionCounter = ecrPlace.getPerformerSectionCounter();
 
         /**
          * INTERVIEW
          * */
         var ecrInterview = mapToInterviewTop(input, clinicalDocument, interviewCounter, componentCounter);
         clinicalDocument = ecrInterview.getClinicalDocument();
-//        interviewCounter = ecrInterview.getInterviewCounter();
         componentCounter = ecrInterview.getComponentCounter();
 
         /**
@@ -248,9 +214,6 @@ public class CdaMapper implements ICdaMapper {
         var ecrTreatment = mapToTreatmentTop(input, clinicalDocument,
                 treatmentCounter, componentCounter, treatmentSectionCounter);
         clinicalDocument = ecrTreatment.getClinicalDocument();
-//        treatmentCounter = ecrTreatment.getTreatmentCounter();
-//        treatmentSectionCounter = ecrTreatment.getTreatmentSectionCounter();
-//        componentCounter = ecrTreatment.getComponentCounter();
 
         //endregion
 
@@ -332,10 +295,10 @@ public class CdaMapper implements ICdaMapper {
         //region XML CLEANUP
         XmlCursor cursor = rootDocument.newCursor();
         cursor.toFirstChild();
-        cursor.setAttributeText(new QName("sdtcxmlnamespaceholder"), xmlNameSpaceHolder);
+        cursor.setAttributeText(new QName("sdtcxmlnamespaceholder"), XML_NAME_SPACE_HOLDER);
         cursor.setAttributeText(new QName("sdt"), "urn:hl7-org:sdtc");
-        cursor.setAttributeText(new QName("xsi"), nameSpaceUrl);
-        cursor.setAttributeText(new QName("schemaLocation"), xmlNameSpaceHolder + " CDA_SDTC.xsd");
+        cursor.setAttributeText(new QName("xsi"), NAME_SPACE_URL);
+        cursor.setAttributeText(new QName("schemaLocation"), XML_NAME_SPACE_HOLDER + " CDA_SDTC.xsd");
         cursor.dispose();
         var result = convertXmlToString(rootDocument);
         //endregion
@@ -390,7 +353,7 @@ public class CdaMapper implements ICdaMapper {
                                 clinicalDocument = checkLanguageCode(clinicalDocument);
                                 clinicalDocument.getLanguageCode().setCode(patient.getPatPrimaryLanguageCd());
                             }
-                            else if (field.getName().equals(patLocalId) &&
+                            else if (field.getName().equals(PAT_LOCAL_ID_CONST) &&
                                     patient.getPatLocalId() != null && !patient.getPatLocalId().isEmpty()) {
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewId();
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setExtension(patient.getPatLocalId());
@@ -422,14 +385,13 @@ public class CdaMapper implements ICdaMapper {
                             }
                             else if(field.getName().equals("patAddrCityTxt") && patient.getPatAddrCityTxt() != null && !patient.getPatAddrCityTxt().isEmpty()) {
                                 clinicalDocument = checkPatientRoleAddrCity(clinicalDocument);
-                                // original code start at index 1
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0)
                                         .getCityArray(0).set(mapToCData(patient.getPatAddrCityTxt()));
                                 k++;
                             }
                             else if(field.getName().equals("patAddrStateCd") && patient.getPatAddrStateCd() != null && !patient.getPatAddrStateCd().isEmpty()) {
                                 clinicalDocument = checkPatientRoleAddrState(clinicalDocument);
-                                var nstate = mapToAddressType(patient.getPatAddrStateCd(), state);
+                                var nstate = mapToAddressType(patient.getPatAddrStateCd(), STATE);
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getStateArray(0).set(mapToCData(nstate));
                                 k++;
                             }
@@ -440,13 +402,13 @@ public class CdaMapper implements ICdaMapper {
                             }
                             else if(field.getName().equals("patAddrCountyCd") && patient.getPatAddrCountyCd() != null && !patient.getPatAddrCountyCd().isEmpty()) {
                                 clinicalDocument = checkPatientRoleAddrCounty(clinicalDocument);
-                                var val = mapToAddressType(patient.getPatAddrCountyCd(), county);
+                                var val = mapToAddressType(patient.getPatAddrCountyCd(), COUNTY);
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getCountyArray(0).set(mapToCData(val));
                                 k++;
                             }
                             else if(field.getName().equals("patAddrCountryCd") && patient.getPatAddrCountryCd() != null && !patient.getPatAddrCountryCd().isEmpty()) {
                                 clinicalDocument = checkPatientRoleAddrCountry(clinicalDocument);
-                                var val = mapToAddressType(patient.getPatAddrCountryCd(), country);
+                                var val = mapToAddressType(patient.getPatAddrCountryCd(), COUNTRY);
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getCountryArray(0).set(mapToCData(val));
                                 k++;
                             }
@@ -536,7 +498,7 @@ public class CdaMapper implements ICdaMapper {
                                 XmlCursor cursor = originalText.newCursor();
                                 cursor.toEndDoc();
                                 cursor.beginElement("originalText");
-                                cursor.insertChars(cdata + patient.getPatRaceDescTxt() + cdata);
+                                cursor.insertChars(CDATA + patient.getPatRaceDescTxt() + CDATA);
                                 cursor.dispose();
 
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getRaceCode2Array(counter).setOriginalText(originalText);
@@ -551,7 +513,7 @@ public class CdaMapper implements ICdaMapper {
                             }
                             else if(field.getName().equals("patBirthCountryCd") && patient.getPatBirthCountryCd() != null  && !patient.getPatBirthCountryCd().isEmpty()) {
                                 clinicalDocument = checkPatientRoleBirthCountry(clinicalDocument);
-                                String val = mapToAddressType(patient.getPatBirthCountryCd(), country);
+                                String val = mapToAddressType(patient.getPatBirthCountryCd(), COUNTRY);
                                 POCDMT000040Place place = POCDMT000040Place.Factory.newInstance();
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getBirthplace().setPlace(place);
 
@@ -561,7 +523,7 @@ public class CdaMapper implements ICdaMapper {
                                 AdxpCounty county = AdxpCounty.Factory.newInstance();
 
                                 XmlCursor cursor = county.newCursor();
-                                cursor.setTextValue(cdata + val + cdata);
+                                cursor.setTextValue(CDATA + val + CDATA);
                                 cursor.dispose();
 
                                 AdxpCounty[] countyArr = {county};
@@ -573,7 +535,7 @@ public class CdaMapper implements ICdaMapper {
 
                                 AdxpCensusTract census = AdxpCensusTract.Factory.newInstance();
                                 XmlCursor cursor = census.newCursor();
-                                cursor.setTextValue( cdata + patient.getPatAddrCensusTractTxt() + cdata);
+                                cursor.setTextValue( CDATA + patient.getPatAddrCensusTractTxt() + CDATA);
                                 cursor.dispose();
 
                                 int c = 0;
@@ -603,7 +565,7 @@ public class CdaMapper implements ICdaMapper {
                                 cursor.toEndDoc();
 
                                 cursor.beginElement("low");
-                                cursor.insertAttributeWithValue(valueName,  ts.getValue());
+                                cursor.insertAttributeWithValue(VALUE_NAME,  ts.getValue());
 
                                 cursor.toEndDoc();
                                 cursor.removeXml();
@@ -636,7 +598,7 @@ public class CdaMapper implements ICdaMapper {
                         if (k> 1 && field.getName().equals("patAddrAsOfDt") && patient.getPatAddrAsOfDt() != null ) {
                             clinicalDocument = checkPatientRoleAddrArray(clinicalDocument);
                             AD element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0);
-                            var ad = mapToUsableTSElement(patient.getPatAddrAsOfDt().toString(), element, useablePeriod);
+                            var ad = mapToUsableTSElement(patient.getPatAddrAsOfDt().toString(), element, USESABLE_PERIOD);
                             clinicalDocument.getRecordTargetArray(0).getPatientRole().setAddrArray(0, (AD) ad);
                         }
                     }
@@ -700,8 +662,8 @@ public class CdaMapper implements ICdaMapper {
                     }
                     if(!PAT_PHONE_AS_OF_DT.isEmpty()){
                         TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
-                        element.set(XmlObject.Factory.parse(stud));
-                        var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, useablePeriod);
+                        element.set(XmlObject.Factory.parse(STUD));
+                        var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, USESABLE_PERIOD);
                         clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                     }
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<String>(Arrays.asList("HP")));
@@ -781,7 +743,7 @@ public class CdaMapper implements ICdaMapper {
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getId().setAssigningAuthorityName("LR");
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCode("55752-0");
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem(CODE_SYSTEM);
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName(codeSystemName);
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName(CODE_SYSTEM_NAME);
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setDisplayName("Clinical Information");
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getTitle().set(mapToStringData("CLINICAL INFORMATION"));
 
@@ -789,9 +751,7 @@ public class CdaMapper implements ICdaMapper {
 
                     }
                     componentCaseCounter = componentCounter;
-                    // MAP TO CASE code line 438
                     clinicalCounter = clinicalDocument.getComponent().getStructuredBody().getComponentArray(componentCaseCounter).getSection().getEntryArray().length;
-                    // CHECK mapToCase
                     POCDMT000040StructuredBody output = clinicalDocument.getComponent().getStructuredBody();
 
                     var mappedCase = mapToCase(clinicalCounter, input.getMsgCases().get(i), output);
@@ -856,7 +816,6 @@ public class CdaMapper implements ICdaMapper {
             CdaProviderMapper mapper = new CdaProviderMapper();
 
             if(input.getMsgProviders() != null && !input.getMsgProviders().isEmpty()) {
-                // 449
                 for(int i = 0; i < input.getMsgProviders().size(); i++) {
                     if (input.getMsgProviders().get(i).getPrvAuthorId() != null
                             && input.getMsgProviders().get(i).getPrvAuthorId().equalsIgnoreCase(inv168)) {
@@ -878,15 +837,15 @@ public class CdaMapper implements ICdaMapper {
                             componentCounter++;
                             performerComponentCounter = componentCounter;
 
-                            var nestedCode = code;
+                            var nestedCode = CODE;
                             if (nestedCode.contains("-")) {
                                 nestedCode = nestedCode.replaceAll("-", ""); // NOSONAR
                             }
                             clinicalDocument.getCode().setCode(nestedCode);
-                            clinicalDocument.getCode().setCodeSystem(clinicalCodeSystem);
-                            clinicalDocument.getCode().setCodeSystemName(clinicalCodeSystemName);
-                            clinicalDocument.getCode().setDisplayName(codeDisplayName);
-                            clinicalDocument.getTitle().set(mapToStringData(clinicalTitle));
+                            clinicalDocument.getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
+                            clinicalDocument.getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
+                            clinicalDocument.getCode().setDisplayName(CODE_DISPLAY_NAME);
+                            clinicalDocument.getTitle().set(mapToStringData(CLINICAL_TITLE));
                         }
 
                         performerSectionCounter = clinicalDocument.getEntryArray().length;
@@ -907,7 +866,6 @@ public class CdaMapper implements ICdaMapper {
                         } else {
                             clinicalDocument.getEntryArray(performerSectionCounter).getAct().addNewParticipant();
                         }
-                        // CHECK mapToPSN
                         POCDMT000040Participant2 out = clinicalDocument.getEntryArray(performerSectionCounter).getAct().getParticipantArray(0);
                         POCDMT000040Participant2 output = mapToPSN(
                                 input.getMsgProviders().get(i),
@@ -923,9 +881,9 @@ public class CdaMapper implements ICdaMapper {
                             clinicalDocument.getEntryArray(performerSectionCounter).getAct().addNewCode();
                         }
                         clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setCode("PSN");
-                        clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystem(clinicalCodeSystem);
-                        clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystemName(clinicalCodeSystemName);
-                        clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setDisplayName(actCodeDisplayName);
+                        clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
+                        clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
+                        clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setDisplayName(ACT_CODE_DISPLAY_NAME);
 
                     }
                 }
@@ -951,11 +909,7 @@ public class CdaMapper implements ICdaMapper {
         try {
             CdaOrganizationMapper mapper = new CdaOrganizationMapper();
             if(input.getMsgOrganizations()!= null && !input.getMsgOrganizations().isEmpty()) {
-                // 474
                 for(int i = 0; i < input.getMsgOrganizations().size(); i++) {
-
-                    int c = 0;
-
                     if (clinicalDocument.getCode() == null) {
                         clinicalDocument.addNewCode();
                     }
@@ -967,11 +921,11 @@ public class CdaMapper implements ICdaMapper {
                     if (performerComponentCounter < 1) {
                         componentCounter++;
                         performerComponentCounter = componentCounter;
-                        clinicalDocument.getCode().setCode(code);
-                        clinicalDocument.getCode().setCodeSystem(clinicalCodeSystem);
-                        clinicalDocument.getCode().setCodeSystemName(clinicalCodeSystemName);
-                        clinicalDocument.getCode().setDisplayName(codeDisplayName);
-                        clinicalDocument.getTitle().set(mapToStringData(clinicalTitle));
+                        clinicalDocument.getCode().setCode(CODE);
+                        clinicalDocument.getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
+                        clinicalDocument.getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
+                        clinicalDocument.getCode().setDisplayName(CODE_DISPLAY_NAME);
+                        clinicalDocument.getTitle().set(mapToStringData(CLINICAL_TITLE));
 
 
                     }
@@ -993,7 +947,6 @@ public class CdaMapper implements ICdaMapper {
                         clinicalDocument.getEntryArray(performerSectionCounter).getAct().addNewParticipant();
                     }
 
-                    // CHECK mapToORG
                     POCDMT000040Participant2 out = clinicalDocument.getEntryArray(performerSectionCounter).getAct().getParticipantArray(0);
                     POCDMT000040Participant2 output = mapToORG(input.getMsgOrganizations().get(i), out);
                     clinicalDocument.getEntryArray(performerSectionCounter).getAct().setParticipantArray(0, output);
@@ -1007,9 +960,9 @@ public class CdaMapper implements ICdaMapper {
                     }
 
                     clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setCode("ORG");
-                    clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystem(clinicalCodeSystem);
-                    clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystemName(clinicalCodeSystemName);
-                    clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setDisplayName(actCodeDisplayName);
+                    clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
+                    clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
+                    clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setDisplayName(ACT_CODE_DISPLAY_NAME);
 
                 }
             }
@@ -1033,7 +986,6 @@ public class CdaMapper implements ICdaMapper {
         try {
             CdaPlaceMapper mapper = new CdaPlaceMapper();
             if(input.getMsgPlaces() != null && !input.getMsgPlaces().isEmpty()) {
-                // 498
                 for(int i = 0; i < input.getMsgPlaces().size(); i++) {
 
                     if (section == null) {
@@ -1047,11 +999,11 @@ public class CdaMapper implements ICdaMapper {
                         componentCounter++;
                         performerComponentCounter = componentCounter;
 
-                        section.getCode().setCode(code);
-                        section.getCode().setCodeSystem(clinicalCodeSystem);
-                        section.getCode().setCodeSystemName(clinicalCodeSystemName);
-                        section.getCode().setDisplayName(codeDisplayName);
-                        section.getTitle().set(mapToStringData(clinicalTitle));
+                        section.getCode().setCode(CODE);
+                        section.getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
+                        section.getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
+                        section.getCode().setDisplayName(CODE_DISPLAY_NAME);
+                        section.getTitle().set(mapToStringData(CLINICAL_TITLE));
                     }
 
                     int c = 0;
@@ -1074,7 +1026,6 @@ public class CdaMapper implements ICdaMapper {
                         section.getEntryArray(c).getAct().addNewParticipant();
                     }
 
-                    // CHECK mapToPlace
                     POCDMT000040Participant2 out = section.getEntryArray(c).getAct().getParticipantArray(0);
                     POCDMT000040Participant2 output = mapToPlace(input.getMsgPlaces().get(i), out);
                     section.getEntryArray(c).getAct().setParticipantArray(0, output);
@@ -1087,9 +1038,9 @@ public class CdaMapper implements ICdaMapper {
                         section.getEntryArray(c).getAct().addNewCode();
                     }
                     section.getEntryArray(c).getAct().getCode().setCode("PLC");
-                    section.getEntryArray(c).getAct().getCode().setCodeSystem(clinicalCodeSystem);
-                    section.getEntryArray(c).getAct().getCode().setCodeSystemName(clinicalCodeSystemName);
-                    section.getEntryArray(c).getAct().getCode().setDisplayName(actCodeDisplayName);
+                    section.getEntryArray(c).getAct().getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
+                    section.getEntryArray(c).getAct().getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
+                    section.getEntryArray(c).getAct().getCode().setDisplayName(ACT_CODE_DISPLAY_NAME);
 
                 }
             }
@@ -1112,7 +1063,6 @@ public class CdaMapper implements ICdaMapper {
         try {
             CdaInterviewMapper mapper = new CdaInterviewMapper();
             if(input.getMsgInterviews() != null && !input.getMsgInterviews().isEmpty()) {
-                // 523
                 for(int i = 0; i < input.getMsgInterviews().size(); i++) {
 
                     int c = 0;
@@ -1137,8 +1087,8 @@ public class CdaMapper implements ICdaMapper {
                         componentCounter++;
 
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCode("IXS");
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem(clinicalCodeSystem);
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName(clinicalCodeSystemName);
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setDisplayName("Interviews");
 
                         if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getTitle() == null) {
@@ -1148,7 +1098,6 @@ public class CdaMapper implements ICdaMapper {
                     }
 
                     POCDMT000040Component3 ot = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c);
-                    // CHECK mapToInterview
 
                     POCDMT000040Component3 output = mapToInterview(input.getMsgInterviews().get(i), ot);
                     clinicalDocument.getComponent().getStructuredBody().setComponentArray(c, output);
@@ -1173,7 +1122,6 @@ public class CdaMapper implements ICdaMapper {
         try {
             CdaTreatmentMapper mapper = new CdaTreatmentMapper();
             if(input.getMsgTreatments() != null && !input.getMsgTreatments().isEmpty()) {
-                // 543
                 for(int i = 0; i < input.getMsgTreatments().size(); i++) {
 
                     int c = 0;
@@ -1199,7 +1147,7 @@ public class CdaMapper implements ICdaMapper {
                         componentCounter++;
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCode("55753-8");
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem(CODE_SYSTEM);
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName(codeSystemName);
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName(CODE_SYSTEM_NAME);
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setDisplayName("Treatment Information");
 
                         if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getTitle() == null) {
@@ -1226,9 +1174,6 @@ public class CdaMapper implements ICdaMapper {
 
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(cTreatment).getSubstanceAdministration().getStatusCode().setCode("active");
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(cTreatment).getSubstanceAdministration().getEntryRelationshipArray(0).setTypeCode(XActRelationshipEntryRelationship.COMP);
-                    var outpp = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(cTreatment)
-                            .getSubstanceAdministration();
-                    String treatmentvalue = "";
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(cTreatment).getSubstanceAdministration().setClassCode("SBADM");
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(cTreatment).getSubstanceAdministration().setMoodCode(XDocumentSubstanceMood.EVN);
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(cTreatment).getSubstanceAdministration().setNegationInd(false);
@@ -1264,10 +1209,8 @@ public class CdaMapper implements ICdaMapper {
             XmlOptions options = new XmlOptions();
             options.setSavePrettyPrint();
             options.setSavePrettyPrintIndent(4);  // Set indentation
-
             // Use a default namespace instead of a prefixed one (like urn:)
             options.setUseDefaultNamespace();
-
             // Set to always use full tags instead of self-closing tags
             options.setSaveNoXmlDecl();
             options.setSaveOuter();
@@ -1279,13 +1222,14 @@ public class CdaMapper implements ICdaMapper {
             xmlOutput = xmlOutput.replaceAll("<CDATA[^>]*>(.*?)</CDATA>", "<![CDATA[$1]]>");// NOSONAR // replace CDATA with real CDATA
             xmlOutput = xmlOutput.replaceAll("<(\\w+)></\\1>", "");// NOSONAR // remove empty <tag></tag>
             xmlOutput = xmlOutput.replaceAll("<(\\w+)/>", "");// NOSONAR // remove empty <tag/>
-            xmlOutput = xmlOutput.replaceAll("<stud xmlns=\"\">stud</stud>", "");// NOSONAR // remove stud tag
+            xmlOutput = xmlOutput.replaceAll("<STUD xmlns=\"\">STUD</STUD>", "");// NOSONAR // remove STUD tag
+            xmlOutput = xmlOutput.replaceAll("<stud xmlns=\"\">stud</stud>", "");// NOSONAR // remove STUD tag
             xmlOutput = xmlOutput.replaceAll("(?m)^\\s*$[\n\r]{1,}", "");// NOSONAR // remove new line
 
-            xmlOutput = xmlOutput.replaceAll("sdtcxmlnamespaceholder=\""+ xmlNameSpaceHolder +"\"", "xmlns:sdtcxmlnamespaceholder=\""+xmlNameSpaceHolder+"\"");// NOSONAR
+            xmlOutput = xmlOutput.replaceAll("sdtcxmlnamespaceholder=\""+ XML_NAME_SPACE_HOLDER +"\"", "xmlns:sdtcxmlnamespaceholder=\""+XML_NAME_SPACE_HOLDER+"\"");// NOSONAR
             xmlOutput = xmlOutput.replaceAll("sdt=\"urn:hl7-org:sdtc\"", "xmlns:sdt=\"urn:hl7-org:sdtc\"");// NOSONAR
             xmlOutput = xmlOutput.replaceAll("xsi=\"http://www.w3.org/2001/XMLSchema-instance\"", "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");// NOSONAR
-            xmlOutput = xmlOutput.replaceAll("schemaLocation=\""+ xmlNameSpaceHolder +" CDA_SDTC.xsd\"", "xsi:schemaLocation=\""+xmlNameSpaceHolder +" CDA_SDTC.xsd\"");// NOSONAR
+            xmlOutput = xmlOutput.replaceAll("schemaLocation=\""+ XML_NAME_SPACE_HOLDER +" CDA_SDTC.xsd\"", "xsi:schemaLocation=\""+XML_NAME_SPACE_HOLDER +" CDA_SDTC.xsd\"");// NOSONAR
 
 
             xmlOutput = xmlOutput.replaceAll("\\^NOT_MAPPED", "");// NOSONAR
@@ -1305,7 +1249,7 @@ public class CdaMapper implements ICdaMapper {
             return res.getSampleValue();
         }
         else {
-            return notFoundValue;
+            return NOT_FOUND_VALUE;
         }
     }
 
@@ -1356,7 +1300,6 @@ public class CdaMapper implements ICdaMapper {
                     String dosageStUnit = "";
                     String dosageStCodeSystemName = "";
                     String dosageStDisplayName = "";
-                    // CHECK mapToTreatment
                     if (output.getDoseQuantity() == null) {
                         output.addNewDoseQuantity();
                     }
@@ -1378,7 +1321,7 @@ public class CdaMapper implements ICdaMapper {
                     c = output.getIdArray().length;
                     output.addNewId();
                 }
-                output.getIdArray(c).setRoot(idRoot);
+                output.getIdArray(c).setRoot(ID_ROOT);
                 output.getIdArray(c).setAssigningAuthorityName("LR");
                 output.getIdArray(c).setExtension(input.getMsgTreatment().getTrtLocalId());
                 treatmentUid=input.getMsgTreatment().getTrtLocalId();
@@ -1407,7 +1350,6 @@ public class CdaMapper implements ICdaMapper {
 
 
         if(!customTreatment.isEmpty()){
-            // CHECK mapToTreatment
             int c = 0;
             if (list == null) {
                 list = StrucDocText.Factory.newInstance();
@@ -1426,7 +1368,7 @@ public class CdaMapper implements ICdaMapper {
             StrucDocItem item = StrucDocItem.Factory.newInstance();
 
             XmlCursor cursor = item.newCursor();
-            cursor.setTextValue(cdata + customTreatment + cdata);
+            cursor.setTextValue(CDATA + customTreatment + CDATA);
             cursor.dispose();
 
             list.getListArray(c).setItemArray(0, item);
@@ -1434,7 +1376,7 @@ public class CdaMapper implements ICdaMapper {
             list.getListArray(c).getCaption().set(mapToCData("CDA Treatment Information Section"));
 
         }else{
-            // OutXML::Element element1= (OutXML::Element)list.item[counter];
+            // TODO: OutXML::Element element1= (OutXML::Element)list.item[counter];
         }
 
         if (!treatmentName.isEmpty()) {
@@ -1459,7 +1401,6 @@ public class CdaMapper implements ICdaMapper {
         }
 
         if(!TRT_TREATMENT_DT.isEmpty()){
-            // CHECK mapToTreatment
             if (output.getEffectiveTimeArray().length == 0) {
                 output.addNewEffectiveTime();
             }
@@ -1468,15 +1409,14 @@ public class CdaMapper implements ICdaMapper {
             XmlObject xmlOb = XmlObject.Factory.newInstance();
             XmlCursor cursor = xmlOb.newCursor();
             cursor.toEndDoc();  // Move to the root element
-
             cursor.beginElement("low");
-            cursor.insertAttributeWithValue(valueName,  mapToTsType(TRT_TREATMENT_DT).getValue());
+            cursor.insertAttributeWithValue(VALUE_NAME,  mapToTsType(TRT_TREATMENT_DT).getValue());
 
             if (TRT_DURATION_AMT != null && !TRT_DURATION_AMT.isEmpty() && TRT_DURATION_UNIT_CD != null && !TRT_DURATION_UNIT_CD.isEmpty()) {
                 cursor.toEndDoc();
                 cursor.beginElement("width");
                 if (!TRT_DURATION_AMT.isEmpty()) {
-                    cursor.insertAttributeWithValue(valueName, TRT_DURATION_AMT);
+                    cursor.insertAttributeWithValue(VALUE_NAME, TRT_DURATION_AMT);
                 }
 
                 if (!TRT_DURATION_UNIT_CD.isEmpty()) {
@@ -1497,7 +1437,6 @@ public class CdaMapper implements ICdaMapper {
         }
 
         if (!TRT_FREQUENCY_AMT_CD.isEmpty()) {
-            // CHECK mapToTreatment
             int c = 0;
             if (output.getEffectiveTimeArray().length == 0) {
                 output.addNewEffectiveTime();
@@ -1518,7 +1457,7 @@ public class CdaMapper implements ICdaMapper {
             String hertz = TRT_FREQUENCY_AMT_CD;
             AttributeMapper res = mapToAttributes(hertz);
             if (cursor.toFirstAttribute()) {
-                cursor.insertAttributeWithValue(valueName, res.getAttribute1());
+                cursor.insertAttributeWithValue(VALUE_NAME, res.getAttribute1());
             }
             if (cursor.toNextAttribute()) {
                 cursor.insertAttributeWithValue("unit", res.getAttribute2());
@@ -1635,7 +1574,6 @@ public class CdaMapper implements ICdaMapper {
             out.getSection().addNewEntry().addNewEncounter().addNewCode();
             out.getSection().getEntryArray(0).getEncounter().addNewId();
         }
-        // check existing scenario
 
         out.getSection().getEntryArray(sectionEntryCounter).getEncounter().setClassCode("ENC");
         out.getSection().getEntryArray(sectionEntryCounter).getEncounter().setMoodCode(XDocumentEncounterMood.EVN);
@@ -1653,15 +1591,10 @@ public class CdaMapper implements ICdaMapper {
         for (Map.Entry<String, Object> entry : in.getMsgInterview().getDataMap().entrySet()) {
 
             String name = entry.getKey();
-            String value = null;
-            if (entry.getValue() != null) {
-                value = entry.getValue().toString();
-            }
 
             if((name.equals("msgContainerUid") && in.getMsgInterview().getMsgContainerUid() != null )
                     || (name.equals("ixsAuthorId")  && in.getMsgInterview().getIxsAuthorId() != null)
                     || (name.equals("ixsEffectiveTime")  && in.getMsgInterview().getIxsEffectiveTime() != null)){
-                // CHECK mapToInterview
                 int c = 0;
                 if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray().length == 0) {
                     out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewId();
@@ -1753,8 +1686,8 @@ public class CdaMapper implements ICdaMapper {
         int questionGroupCounter=0;
         int componentCounter=0;
         int answerGroupCounter=0;
-        String OldQuestionId=change;
-        String OldRepeatQuestionId=change;
+        String OldQuestionId=CHANGE;
+        String OldRepeatQuestionId=CHANGE;
         int sectionCounter = 0;
         int repeatComponentCounter=0;
         int providerRoleCounter=0;
@@ -1842,10 +1775,10 @@ public class CdaMapper implements ICdaMapper {
                 value = entry.getValue().toString();
             }
 
-            if(name.equals(colQuestionGroupSeqNbr) && !in.getQuestionGroupSeqNbr().isEmpty()){
+            if(name.equals(COL_QUES_GROUP_SEQ_NBR) && !in.getQuestionGroupSeqNbr().isEmpty()){
                 questionGroupSeqNbr= Integer.valueOf(in.getQuestionGroupSeqNbr());
             }
-            else if(name.equals(colAnswerGroupSeqNbr) && !in.getAnswerGroupSeqNbr().isEmpty()){
+            else if(name.equals(COL_ANS_GROUP_SEQ_NBR) && !in.getAnswerGroupSeqNbr().isEmpty()){
                 answerGroupSeqNbr= Integer.valueOf(in.getAnswerGroupSeqNbr());
                 if((answerGroupSeqNbr==answerGroupCounter) &&
                         (questionGroupSeqNbr ==questionGroupCounter))
@@ -1873,8 +1806,8 @@ public class CdaMapper implements ICdaMapper {
 
                     out.getEntryRelationshipArray(sectionCounter).getOrganizer().getCode().setCode(String.valueOf(questionGroupSeqNbr));
                     out.getEntryRelationshipArray(sectionCounter).getOrganizer().getCode().setCode("1234567RPT");
-                    out.getEntryRelationshipArray(sectionCounter).getOrganizer().getCode().setCodeSystem(clinicalCodeSystem);
-                    out.getEntryRelationshipArray(sectionCounter).getOrganizer().getCode().setCodeSystemName(clinicalCodeSystemName);
+                    out.getEntryRelationshipArray(sectionCounter).getOrganizer().getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
+                    out.getEntryRelationshipArray(sectionCounter).getOrganizer().getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
                     out.getEntryRelationshipArray(sectionCounter).getOrganizer().getCode().setDisplayName("Generic Repeating Questions Section");
 
                     out.getEntryRelationshipArray(sectionCounter).setTypeCode(XActRelationshipEntryRelationship.COMP);
@@ -1886,43 +1819,43 @@ public class CdaMapper implements ICdaMapper {
                 }
             }
 
-            else if(name.equals(colDataType) && !in.getDataType().isEmpty() ){
+            else if(name.equals(COL_DATA_TYPE) && !in.getDataType().isEmpty() ){
                 dataType= in.getDataType();
-            }else if(name.equals(colSeqNbr) && !in.getSeqNbr().isEmpty()){
+            }else if(name.equals(COL_SEQ_NBR) && !in.getSeqNbr().isEmpty()){
                 seqNbr= Integer.valueOf(in.getSeqNbr()) ;
             }
 
-            if(dataType.equalsIgnoreCase(dataTypeCode) || dataType.equalsIgnoreCase("CODED_COUNTY")){
+            if(dataType.equalsIgnoreCase(DATA_TYPE_CODE) || dataType.equalsIgnoreCase("CODED_COUNTY")){
                 CE ce = CE.Factory.newInstance();
-                if (name.equals(colAnswerTxt) && !in.getAnswerTxt().isEmpty()) {
+                if (name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()) {
                     ce.getTranslationArray(0).setCode(in.getAnswerTxt());
                 }
-                else if (name.equals(colAnsCodeSystemCd) && !in.getAnsCodeSystemCd().isEmpty()) {
+                else if (name.equals(COL_ANS_CODE_SYSTEM_CD) && !in.getAnsCodeSystemCd().isEmpty()) {
                     ce.getTranslationArray(0).setCodeSystem(in.getAnsCodeSystemCd());
                 }
-                else if (name.equals(colAnsCodeSystemDescTxt) && !in.getAnsCodeSystemDescTxt().isEmpty()) {
+                else if (name.equals(COL_ANS_CODE_SYSTEM_DESC_TXT) && !in.getAnsCodeSystemDescTxt().isEmpty()) {
                     ce.getTranslationArray(0).setCodeSystemName(in.getAnsCodeSystemDescTxt());
                 }
-                else if (name.equals(colAnsDisplayTxt) && !in.getAnsDisplayTxt().isEmpty()) {
+                else if (name.equals(COL_ANS_DISPLAY_TXT) && !in.getAnsDisplayTxt().isEmpty()) {
                     ce.getTranslationArray(0).setDisplayName(in.getAnsDisplayTxt());
                 }
-                else if (name.equals(colAnsToCode) && !in.getAnsToCode().isEmpty()) {
+                else if (name.equals(COL_ANS_TO_CODE) && !in.getAnsToCode().isEmpty()) {
                     ce.setCode(in.getAnsToCode());
                 }
-                else if (name.equals(colAnsToCodeSystemCd) && !in.getAnsToCodeSystemCd().isEmpty()) {
+                else if (name.equals(COL_ANS_TO_CODE_SYSTEM_CD) && !in.getAnsToCodeSystemCd().isEmpty()) {
                     ce.setCodeSystem(in.getAnsToCodeSystemCd());
                 }
-                else if (name.equals(colAnsToCodeSystemDescTxt) && !in.getAnsToCodeSystemDescTxt().isEmpty()) {
+                else if (name.equals(COL_ANS_TO_CODE_SYSTEM_DESC_TXT) && !in.getAnsToCodeSystemDescTxt().isEmpty()) {
                     ce.setCodeSystemName(in.getAnsToCodeSystemDescTxt());
                 }
-                else if (name.equals(colAnsToDisplayNm) && !in.getAnsToDisplayNm().isEmpty()) {
+                else if (name.equals(COL_ANS_TO_DISPLAY_NM) && !in.getAnsToDisplayNm().isEmpty()) {
                     ce.setDisplayName(in.getAnsToDisplayNm());
 
                 }
                 out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getValueArray(seqNbr).set(ce);
             }
-            else if ((dataType.equalsIgnoreCase("TEXT") || dataType.equalsIgnoreCase(dataTypeNumeric)) &&
-                    name.equals(colAnswerTxt)){
+            else if ((dataType.equalsIgnoreCase("TEXT") || dataType.equalsIgnoreCase(DATA_TYPE_NUMERIC)) &&
+                    name.equals(COL_ANS_TXT)){
                 if(questionIdentifier.equalsIgnoreCase("NBS243") ||
                         questionIdentifier.equalsIgnoreCase("NBS290")) {
 
@@ -1940,16 +1873,16 @@ public class CdaMapper implements ICdaMapper {
                 }
             }
             else if(dataType.equalsIgnoreCase("DATE")){
-                if(name.equals(colAnswerTxt)){
+                if(name.equals(COL_ANS_TXT)){
                     if (out.getEntryRelationshipArray(sectionCounter).getOrganizer() == null) {
                         out.getEntryRelationshipArray(sectionCounter).addNewOrganizer().addNewComponent().addNewObservation().addNewValue();
                     }
                     var element = out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getValueArray(0);
                     XmlCursor cursor = element.newCursor();
                     cursor.toFirstChild();
-                    cursor.setAttributeText(new QName(nameSpaceUrl, "type"), "TS");
+                    cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "TS");
                     cursor.setAttributeText(new QName("", value), null);
-                    if (name.equals(colAnswerTxt)) {
+                    if (name.equals(COL_ANS_TXT)) {
                         String newValue = mapToTsType(in.getAnswerTxt()).toString();
                         cursor.setAttributeText(new QName("", value), newValue);
                     }
@@ -1958,12 +1891,12 @@ public class CdaMapper implements ICdaMapper {
             }
 
 
-            if(name.equals(colQuestionIdentifier)){
+            if(name.equals(COL_QUES_IDENTIFIER)){
                 questionIdentifier= value;
                 if(value.equals(questionId)){
-                    //Test
+                    // IGNORE
                 }else{
-                    if(questionId.equals(change)){
+                    if(questionId.equals(CHANGE)){
 
                     }else{
                         sectionCounter =  sectionCounter+1;
@@ -1980,13 +1913,13 @@ public class CdaMapper implements ICdaMapper {
                 out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().setMoodCode(XActMoodDocumentObservation.EVN);
                 out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getCode().setCode(value);
             }
-            else if(name.equals(colQuesCodeSystemCd)){
+            else if(name.equals(COL_QUES_CODE_SYSTEM_CD)){
                 out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getCode().setCodeSystem(value);
             }
-            else if(name.equals(colQuesCodeSystemDescTxt)){
+            else if(name.equals(COL_QUES_CODE_SYSTEM_DESC_TXT)){
                 out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getCode().setCodeSystemName(value);
             }
-            else if(name.equals(colQuesDisplayTxt)){
+            else if(name.equals(COL_QUES_DISPLAY_TXT)){
                 out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getCode().setDisplayName(value);
             }
         }
@@ -2025,46 +1958,46 @@ public class CdaMapper implements ICdaMapper {
                 value = entry.getValue().toString();
             }
 
-            if(name.equals(colQuestionGroupSeqNbr) && !in.getQuestionGroupSeqNbr().isEmpty()){
+            if(name.equals(COL_QUES_GROUP_SEQ_NBR) && !in.getQuestionGroupSeqNbr().isEmpty()){
                 questionGroupSeqNbr= Integer.valueOf(in.getQuestionGroupSeqNbr());
             }
-            else if(name.equals(colAnswerGroupSeqNbr) && !in.getAnswerGroupSeqNbr().isEmpty() ){
+            else if(name.equals(COL_ANS_GROUP_SEQ_NBR) && !in.getAnswerGroupSeqNbr().isEmpty() ){
                 answerGroupSeqNbr= Integer.valueOf(in.getAnswerGroupSeqNbr());
             }
-            else if(name.equals(colDataType) && !in.getDataType().isEmpty()){
+            else if(name.equals(COL_DATA_TYPE) && !in.getDataType().isEmpty()){
                 dataType=in.getDataType();
             }
-            else if(name.equals(colSeqNbr) && !in.getSeqNbr().isEmpty()){
+            else if(name.equals(COL_SEQ_NBR) && !in.getSeqNbr().isEmpty()){
                 sequenceNbr= Integer.valueOf(in.getSeqNbr());
                 if(sequenceNbr>0) {
                     sequenceNbr =sequenceNbr-1;
                 }
             }
 
-            if(dataType.equalsIgnoreCase(dataTypeCode) || dataType.equalsIgnoreCase(county)){
+            if(dataType.equalsIgnoreCase(DATA_TYPE_CODE) || dataType.equalsIgnoreCase(COUNTY)){
                 CE ce = CE.Factory.newInstance();
-                if (name.equals(colAnswerTxt) && !in.getAnswerTxt().isEmpty()) {
+                if (name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()) {
                     ce.getTranslationArray(0).setCode(in.getAnswerTxt());
                 }
-                else if (name.equals(colAnsCodeSystemCd) && !in.getAnsCodeSystemCd().isEmpty()) {
+                else if (name.equals(COL_ANS_CODE_SYSTEM_CD) && !in.getAnsCodeSystemCd().isEmpty()) {
                     ce.getTranslationArray(0).setCodeSystem(in.getAnsCodeSystemCd());
                 }
-                else if (name.equals(colAnsCodeSystemDescTxt) && !in.getAnsCodeSystemDescTxt().isEmpty()) {
+                else if (name.equals(COL_ANS_CODE_SYSTEM_DESC_TXT) && !in.getAnsCodeSystemDescTxt().isEmpty()) {
                     ce.getTranslationArray(0).setCodeSystemName(in.getAnsCodeSystemDescTxt());
                 }
-                else if (name.equals(colAnsDisplayTxt) && !in.getAnsDisplayTxt().isEmpty()) {
+                else if (name.equals(COL_ANS_DISPLAY_TXT) && !in.getAnsDisplayTxt().isEmpty()) {
                     ce.getTranslationArray(0).setDisplayName(in.getAnsDisplayTxt());
                 }
-                else if (name.equals(colAnsToCode) && !in.getAnsToCode().isEmpty()) {
+                else if (name.equals(COL_ANS_TO_CODE) && !in.getAnsToCode().isEmpty()) {
                     ce.setCode(in.getAnsToCode());
                 }
-                else if (name.equals(colAnsToCodeSystemCd) && !in.getAnsToCodeSystemCd().isEmpty()) {
+                else if (name.equals(COL_ANS_TO_CODE_SYSTEM_CD) && !in.getAnsToCodeSystemCd().isEmpty()) {
                     ce.setCodeSystem(in.getAnsToCodeSystemCd());
                 }
-                else if (name.equals(colAnsToCodeSystemDescTxt) && !in.getAnsToCodeSystemDescTxt().isEmpty()) {
+                else if (name.equals(COL_ANS_TO_CODE_SYSTEM_DESC_TXT) && !in.getAnsToCodeSystemDescTxt().isEmpty()) {
                     ce.setCodeSystemName(in.getAnsToCodeSystemDescTxt());
                 }
-                else if (name.equals(colAnsToDisplayNm) && !in.getAnsToDisplayNm().isEmpty()) {
+                else if (name.equals(COL_ANS_TO_DISPLAY_NM) && !in.getAnsToDisplayNm().isEmpty()) {
                     ce.setDisplayName(in.getAnsToDisplayNm());
 
                 }
@@ -2073,8 +2006,8 @@ public class CdaMapper implements ICdaMapper {
             }
             else if(
                     dataType.equals("TEXT") ||
-                    dataType.equals(dataTypeNumeric)){
-                if(name.equals(colAnswerTxt) && !in.getAnswerTxt().isEmpty()){
+                    dataType.equals(DATA_TYPE_NUMERIC)){
+                if(name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()){
                     var element = out.getEntryRelationshipArray(counter).getObservation();
                     var ot = mapToSTValue(value, element);
                     out.getEntryRelationshipArray(counter).setObservation((POCDMT000040Observation) ot);
@@ -2082,13 +2015,13 @@ public class CdaMapper implements ICdaMapper {
 
             }
             else if(dataType.equalsIgnoreCase(  "DATE")){
-                if(name.equals(colAnswerTxt) && !in.getAnswerTxt().isEmpty()){
+                if(name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()){
                     var element = out.getEntryRelationshipArray(counter).getObservation().getValueArray(0);
                     XmlCursor cursor = element.newCursor();
-                    cursor.setAttributeText(new QName(nameSpaceUrl, "type"), "TS");
+                    cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "TS");
                     cursor.setAttributeText(new QName("name"), value);  // This is an assumption based on the original code
 
-                    if(name.equals(colAnswerTxt) && !in.getAnswerTxt().isEmpty()){
+                    if(name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()){
                         String newValue = mapToTsType(in.getAnswerTxt()).toString();
                         cursor.setAttributeText(new QName("name"), value);
                         cursor.setTextValue(newValue);
@@ -2096,10 +2029,10 @@ public class CdaMapper implements ICdaMapper {
                     else {
                         element = out.getEntryRelationshipArray(counter).getObservation().getValueArray(0);
                         cursor = element.newCursor();
-                        cursor.setAttributeText(new QName(nameSpaceUrl, "type"), "ST");
+                        cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "ST");
 
-                        if(name.equals(colAnswerTxt) && !in.getAnswerTxt().isEmpty()) {
-                            cursor.setTextValue(cdata + in.getAnswerTxt() + cdata);
+                        if(name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()) {
+                            cursor.setTextValue(CDATA + in.getAnswerTxt() + CDATA);
                         }
                     }
 
@@ -2107,11 +2040,11 @@ public class CdaMapper implements ICdaMapper {
                     cursor.dispose();
                 }
             }
-            if(name.equals(colQuestionIdentifier) && !in.getQuestionIdentifier().isEmpty()){
+            if(name.equals(COL_QUES_IDENTIFIER) && !in.getQuestionIdentifier().isEmpty()){
                 if(in.getQuestionIdentifier().equals(value)){
-                    //Test
+                    //IGNORE
                 }else{
-                    if(questionSeq.equals(change)){
+                    if(questionSeq.equals(CHANGE)){
 
                     }else{
                         counter =  counter+1;
@@ -2124,13 +2057,13 @@ public class CdaMapper implements ICdaMapper {
                     out.getEntryRelationshipArray(counter).getObservation().getCode().setCode(in.getQuestionIdentifier());
                 }
             }
-            else if(name.equals(colQuesCodeSystemCd) && !in.getQuesCodeSystemCd().isEmpty()){
+            else if(name.equals(COL_QUES_CODE_SYSTEM_CD) && !in.getQuesCodeSystemCd().isEmpty()){
                 out.getEntryRelationshipArray(counter).getObservation().getCode().setCodeSystem(in.getQuesCodeSystemCd());
             }
-            else if(name.equals(colQuesCodeSystemDescTxt) && !in.getQuesCodeSystemDescTxt().isEmpty()){
+            else if(name.equals(COL_QUES_CODE_SYSTEM_DESC_TXT) && !in.getQuesCodeSystemDescTxt().isEmpty()){
                 out.getEntryRelationshipArray(counter).getObservation().getCode().setCodeSystemName(in.getQuesCodeSystemDescTxt());
             }
-            else if(name.equals(colQuesDisplayTxt) && !in.getQuesDisplayTxt().isEmpty()){
+            else if(name.equals(COL_QUES_DISPLAY_TXT) && !in.getQuesDisplayTxt().isEmpty()){
                 out.getEntryRelationshipArray(counter).getObservation().getCode().setDisplayName(in.getQuesDisplayTxt());
             }
 
@@ -2189,7 +2122,7 @@ public class CdaMapper implements ICdaMapper {
                 }
 
                 out.setTypeCode("PRF");
-                out.getParticipantRole().getIdArray(0).setRoot(idArrRoot);
+                out.getParticipantRole().getIdArray(0).setRoot(ID_ARR_ROOT);
                 out.getParticipantRole().getIdArray(0).setExtension(in.getPlaLocalId());
                 out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
             }
@@ -2203,7 +2136,7 @@ public class CdaMapper implements ICdaMapper {
                 PN val = PN.Factory.newInstance();
 
                 XmlCursor cursor = val.newCursor();
-                cursor.setTextValue(cdata + in.getPlaNameTxt() + cdata);
+                cursor.setTextValue(CDATA + in.getPlaNameTxt() + CDATA);
                 cursor.dispose();
 
                 out.getParticipantRole().getPlayingEntity().addNewName();
@@ -2293,9 +2226,7 @@ public class CdaMapper implements ICdaMapper {
                     out.addNewParticipantRole().addNewId();
                 }
 
-
-                // Index is 1 in original code
-                out.getParticipantRole().getIdArray(c).setRoot(idArrRoot);
+                out.getParticipantRole().getIdArray(c).setRoot(ID_ARR_ROOT);
                 out.getParticipantRole().getIdArray(c).setExtension(in.getPlaIdQuickCode());
                 out.getParticipantRole().getIdArray(c).setAssigningAuthorityName("LR_QEC");
             }
@@ -2308,7 +2239,7 @@ public class CdaMapper implements ICdaMapper {
         if(!streetAddress1.isEmpty() ){
             AdxpStreetAddressLine val = AdxpStreetAddressLine.Factory.newInstance();
             XmlCursor cursor = val.newCursor();
-            cursor.setTextValue(cdata + streetAddress1 + cdata);
+            cursor.setTextValue(CDATA + streetAddress1 + CDATA);
             cursor.dispose();
 
             int c = 0;
@@ -2420,8 +2351,9 @@ public class CdaMapper implements ICdaMapper {
             }
             out.getParticipantRole().getAddrArray()[0].setUse(Arrays.asList("WP"));
             if(!postalAsOfDate.isEmpty()){
+                // TODO:
                 // OutXML::Element element = (OutXML::Element)out.getParticipantRole().addr[0];
-                // mapToUsableTSElement(postalAsOfDate, element, useablePeriod);
+                // mapToUsableTSElement(postalAsOfDate, element, USESABLE_PERIOD);
                 // CHECK mapToUsableTSElement
             }
         }
@@ -2444,7 +2376,6 @@ public class CdaMapper implements ICdaMapper {
                 out.getParticipantRole().addNewTelecom();
             }
             out.getParticipantRole().getTelecomArray(teleCounter).setUse(Arrays.asList("WP"));
-            //workCountryCode
             int countryphoneCodeSize= workCountryCode.length();
             if(countryphoneCodeSize>0){
                 workPhone = workCountryCode+"-"+ workPhone;
@@ -2452,13 +2383,14 @@ public class CdaMapper implements ICdaMapper {
 
             int phoneExtnSize = workExtn.length();
             if(phoneExtnSize>0){
-                workPhone=workPhone+ extnStr+ workExtn;
+                workPhone=workPhone+ EXTN_STR+ workExtn;
             }
             out.getParticipantRole().getTelecomArray(teleCounter).setValue(workPhone);
 
             if(!teleAsOfDate.isEmpty()){
+                // TODO:
                 // OutXML::Element element = (OutXML::Element)out.getParticipantRole().telecom[teleCounter];
-                // mapToUsableTSElement(teleAsOfDate, element, useablePeriod);
+                // mapToUsableTSElement(teleAsOfDate, element, USESABLE_PERIOD);
                 // CHECK mapToUsableTSElement
             }
             teleCounter = teleCounter+1;
@@ -2470,10 +2402,11 @@ public class CdaMapper implements ICdaMapper {
                 out.getParticipantRole().addNewTelecom();
             }
             out.getParticipantRole().getTelecomArray(teleCounter).setUse(Arrays.asList("WP"));
-            out.getParticipantRole().getTelecomArray(teleCounter).setValue(mailTo+workEmail);
+            out.getParticipantRole().getTelecomArray(teleCounter).setValue(MAIL_TO+workEmail);
             if(!teleAsOfDate.isEmpty()){
+                // TODO:
                 // OutXML::Element element = (OutXML::Element)out.getParticipantRole().telecom[teleCounter];
-                // mapToUsableTSElement(teleAsOfDate, element, useablePeriod);
+                // mapToUsableTSElement(teleAsOfDate, element, USESABLE_PERIOD);
                 // CHECK mapToUsableTSElement
             }
             teleCounter = teleCounter +1;
@@ -2487,8 +2420,9 @@ public class CdaMapper implements ICdaMapper {
             out.getParticipantRole().getTelecomArray(teleCounter).setUse(Arrays.asList("WP"));
             out.getParticipantRole().getTelecomArray(teleCounter).setValue(workURL);
             if(!teleAsOfDate.isEmpty()){
+                // TODO:
                 // OutXML::Element element = (OutXML::Element)out.getParticipantRole().telecom[teleCounter];
-                // mapToUsableTSElement(teleAsOfDate, element, useablePeriod);
+                // mapToUsableTSElement(teleAsOfDate, element, USESABLE_PERIOD);
                 // CHECK mapToUsableTSElement
             }
             teleCounter=teleCounter+1;
@@ -2522,7 +2456,7 @@ public class CdaMapper implements ICdaMapper {
                 } else {
                     out.getParticipantRole().addNewId();
                 }
-                out.getParticipantRole().getIdArray(0).setRoot(idArrRoot);
+                out.getParticipantRole().getIdArray(0).setRoot(ID_ARR_ROOT);
                 out.getParticipantRole().getIdArray(0).setExtension(in.getOrgLocalId());
                 out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
             }
@@ -2572,7 +2506,7 @@ public class CdaMapper implements ICdaMapper {
                     out.getParticipantRole().addNewId();
                 }
 
-                out.getParticipantRole().getIdArray(1).setRoot(idArrRoot);
+                out.getParticipantRole().getIdArray(1).setRoot(ID_ARR_ROOT);
                 out.getParticipantRole().getIdArray(1).setExtension(in.getOrgIdCliaNbrTxt());
                 out.getParticipantRole().getIdArray(1).setAssigningAuthorityName("LR_CLIA");
             }
@@ -2700,7 +2634,7 @@ public class CdaMapper implements ICdaMapper {
             out.getParticipantRole().getTelecomArray(0).setUse(new ArrayList(Arrays.asList("WP")));
             int phoneExtnSize = extn.length();
             if(phoneExtnSize>0){
-                phone=phone+ extnStr+ extn;
+                phone=phone+ EXTN_STR+ extn;
             }
             out.getParticipantRole().getTelecomArray(0).setValue(phone);
 
@@ -2985,7 +2919,7 @@ public class CdaMapper implements ICdaMapper {
             out.getParticipantRole().getTelecomArray(teleCounter).setUse(new ArrayList(Arrays.asList("WP")));
             int phoneExtnSize= extn.length();
             if(phoneExtnSize>0){
-                telephone=telephone+ extnStr+ extn;
+                telephone=telephone+ EXTN_STR+ extn;
             }
 
             out.getParticipantRole().getTelecomArray(teleCounter).setValue(telephone);
@@ -3007,7 +2941,6 @@ public class CdaMapper implements ICdaMapper {
     }
 
     private POCDMT000040Component3 mapToExtendedData(EcrMsgXmlAnswerDto in, POCDMT000040Component3 out) throws XmlException {
-        // CHECK mapToExtendedData
         String dataType="";
         if (!in.getDataType().isEmpty()) {
             dataType = in.getDataType();
@@ -3016,14 +2949,7 @@ public class CdaMapper implements ICdaMapper {
 
 
         if (!in.getAnswerXmlTxt().isEmpty()) {
-//            XmlCursor cursor = out.newCursor();
-//            cursor.toEndToken(); // Move to the end token of the current element
-//            cursor.beginElement("childElementName"); // Replace "childElementName" with the name of your new child element
-//            cursor.insertChars(in.getAnswerXmlTxt());
-//            cursor.dispose();
-
             ANY any = ANY.Factory.parse(in.getAnswerXmlTxt());
-
             out.set(any);
         }
         return out;
@@ -3033,8 +2959,6 @@ public class CdaMapper implements ICdaMapper {
 
     private String mapToAddressType(String data, String questionCode) {
         String output = "";
-        // Mapping To Code Anwser goes here, may have to call out to RhapsodyAnswer table
-        // mapToCodedAnswer
         var answer = mapToCodedAnswer(data, questionCode);
 
         if (!answer.getCode().isEmpty()) {
@@ -3064,11 +2988,10 @@ public class CdaMapper implements ICdaMapper {
         String transCodeSystemName = "";
         String transDisplayName = "";
         String codeSystem = "";
-        String codeSystemName = "";
+        String CODE_SYSTEM_NAME = "";
         String displayName = "";
 
         // RhapsodyTableLookup(output, tableName, resultColumnName, defaultValue, queryColumn1, queryValue1, queryColumn2, queryValue2, ...)
-        // DI - output = RhapsodyTableLookup(resultColumnName, defaultValue, queryColumn1, queryValue1, queryColumn2, queryValue2, ...)
         var phdcAnswer = ecrLookUpService.fetchPhdcAnswerByCriteriaForTranslationCode(questionCode, data);
         if (phdcAnswer != null) {
             isTranslationReq = phdcAnswer.getCodeTranslationRequired();
@@ -3077,34 +3000,34 @@ public class CdaMapper implements ICdaMapper {
             transCodeSystemName = phdcAnswer.getAnsFromCodeSystemCd();
             transDisplayName = phdcAnswer.getAnsFromDisplayNm();
             codeSystem = phdcAnswer.getAnsToCodeSystemCd();
-            codeSystemName = phdcAnswer.getAnsToCodeSystemDescTxt();
+            CODE_SYSTEM_NAME = phdcAnswer.getAnsToCodeSystemDescTxt();
             displayName = phdcAnswer.getAnsToDisplayNm();
         }
         else {
-            transCodeSystem = idRoot;
-            codeSystem = idRoot;
-            isTranslationReq = notMappedValue;
-            code = notMappedValue;
-            transCodeSystemName = notMappedValue;
-            transDisplayName = notMappedValue;
-            codeSystemName =notMappedValue;
-            displayName = notMappedValue;
+            transCodeSystem = ID_ROOT;
+            codeSystem = ID_ROOT;
+            isTranslationReq = NOT_MAPPED_VALUE;
+            code = NOT_MAPPED_VALUE;
+            transCodeSystemName = NOT_MAPPED_VALUE;
+            transDisplayName = NOT_MAPPED_VALUE;
+            CODE_SYSTEM_NAME =NOT_MAPPED_VALUE;
+            displayName = NOT_MAPPED_VALUE;
         }
 
-        if (code.equalsIgnoreCase(notMappedValue)) {
+        if (code.equalsIgnoreCase(NOT_MAPPED_VALUE)) {
             code = data;
         }
 
         if (code.equalsIgnoreCase("NULL") || code.isEmpty()) {
             code = data ;
             codeSystem = transCodeSystem;
-            codeSystemName = transCodeSystemName;
+            CODE_SYSTEM_NAME = transCodeSystemName;
             displayName = transDisplayName;
         }
 
         model.setCode(code);
         model.setCodeSystem(codeSystem);
-        model.setCodeSystemName(codeSystemName);
+        model.setCodeSystemName(CODE_SYSTEM_NAME);
         model.setDisplayName(displayName);
         model.setTransCode(transCode);
         model.setTransCodeSystem(transCodeSystem);
@@ -3131,12 +3054,10 @@ public class CdaMapper implements ICdaMapper {
     }
 
     private POCDMT000040CustodianOrganization mapToElementValue(String data, POCDMT000040CustodianOrganization output, String name) {
-        // CHECK mapToElementValue
-
         XmlCursor cursor = output.newCursor();
         cursor.toFirstChild();
         cursor.beginElement(name);
-        cursor.insertAttributeWithValue("xmlns", xmlNameSpaceHolder);
+        cursor.insertAttributeWithValue("xmlns", XML_NAME_SPACE_HOLDER);
         cursor.insertProcInst("CDATA", data);
         cursor.dispose();
 
@@ -3209,11 +3130,11 @@ public class CdaMapper implements ICdaMapper {
         String defaultQuestionIdentifier = "";
 
         PhdcQuestionLookUpDto questionLup = new PhdcQuestionLookUpDto();
-        questionLup.setQuestionIdentifier(notFoundValue);
-        questionLup.setQuesCodeSystemCd(notFoundValue);
-        questionLup.setQuesCodeSystemDescTxt(notFoundValue);
-        questionLup.setQuesDisplayName(notFoundValue);
-        questionLup.setDataType(notFoundValue);
+        questionLup.setQuestionIdentifier(NOT_FOUND_VALUE);
+        questionLup.setQuesCodeSystemCd(NOT_FOUND_VALUE);
+        questionLup.setQuesCodeSystemDescTxt(NOT_FOUND_VALUE);
+        questionLup.setQuesDisplayName(NOT_FOUND_VALUE);
+        questionLup.setDataType(NOT_FOUND_VALUE);
         var result = ecrLookUpService.fetchPhdcQuestionByCriteria(questionCode);
         if (result != null) {
 
@@ -3235,21 +3156,21 @@ public class CdaMapper implements ICdaMapper {
             }
 
             QuestionIdentifierMapDto map = new QuestionIdentifierMapDto();
-            map.setDynamicQuestionIdentifier(notFoundValue);
+            map.setDynamicQuestionIdentifier(NOT_FOUND_VALUE);
             QuestionIdentifierMapDto identifierMap = ecrLookUpService.fetchQuestionIdentifierMapByCriteriaByCriteria("Question_Identifier", questionCode);
             if(identifierMap != null && !identifierMap.getDynamicQuestionIdentifier().isEmpty()) {
                 map.setDynamicQuestionIdentifier(identifierMap.getDynamicQuestionIdentifier());
             }
 
             if(map.getDynamicQuestionIdentifier().equalsIgnoreCase("STANDARD")
-                    || map.getDynamicQuestionIdentifier().equalsIgnoreCase(notFoundValue)) {
+                    || map.getDynamicQuestionIdentifier().equalsIgnoreCase(NOT_FOUND_VALUE)) {
                 defaultQuestionIdentifier = questionCode;
             }
 
             //endregion
 
             if (!result.getDataType().isEmpty()) {
-                if (result.getDataType().equalsIgnoreCase(dataTypeCode)) {
+                if (result.getDataType().equalsIgnoreCase(DATA_TYPE_CODE)) {
                     var dataList = GetStringsBeforePipe(data);
                     String dataStr = "";
                     for(int i = 0; i < dataList.size(); i++) {
@@ -3295,12 +3216,12 @@ public class CdaMapper implements ICdaMapper {
                             observation.addNewCode();
                         }
 
-                        ANY any = ANY.Factory.parse(valueTag);
+                        ANY any = ANY.Factory.parse(VALUE_TAG);
                         var element = any;
                         XmlCursor cursor = element.newCursor();
                         cursor.toFirstAttribute();
                         cursor.toNextToken();
-                        cursor.insertAttributeWithValue(new QName(nameSpaceUrl, "type"), "II");
+                        cursor.insertAttributeWithValue(new QName(NAME_SPACE_URL, "type"), "II");
                         var val = ecrLookUpService.fetchPhdcQuestionByCriteriaWithColumn("Question_Identifier", defaultQuestionIdentifier);
                         cursor.insertAttributeWithValue("root",  val.getQuesCodeSystemCd());
 
@@ -3327,11 +3248,11 @@ public class CdaMapper implements ICdaMapper {
                         observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
                         observation.getCode().setDisplayName(result.getQuesDisplayName());
 
-//                        ANY any = ANY.Factory.parse(valueTag);
+//                        ANY any = ANY.Factory.parse(VALUE_TAG);
 //                        var element = any;
 //                        XmlCursor cursor = element.newCursor();
 //                        if (cursor.toFirstAttribute() || !cursor.toEndToken().isStart()) { // Added check here
-//                            cursor.setAttributeText(new QName(nameSpaceUrl, "type"), "TS");
+//                            cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "TS");
 //                            if (cursor.getAttributeText(new QName(value)) != null) {
 //                                cursor.setAttributeText(new QName(value), mapToTsType(data).toString());
 //                            } else {
@@ -3357,12 +3278,12 @@ public class CdaMapper implements ICdaMapper {
 //                            observation.addNewValue();
 //                        }
 //
-//                        ANY any = ANY.Factory.parse(valueTag);
+//                        ANY any = ANY.Factory.parse(VALUE_TAG);
 //
 //                        var element = any;
 //                        XmlCursor cursor = element.newCursor();
 //                        cursor.toFirstAttribute();
-//                        cursor.setAttributeText(new QName(nameSpaceUrl, "type"), "ST");
+//                        cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "ST");
 //                        cursor.toParent();
 //                        cursor.setTextValue(data);
 //                        cursor.dispose();
@@ -3383,9 +3304,9 @@ public class CdaMapper implements ICdaMapper {
                 observation.addNewCode();
             }
             observation.getCode().setCode(data + questionCode);
-            observation.getCode().setCodeSystem(codeNotMappedValue);
-            observation.getCode().setCodeSystemName(codeNotMappedValue);
-            observation.getCode().setDisplayName(codeNotMappedValue);
+            observation.getCode().setCodeSystem(CODE_NODE_MAPPED_VALUE);
+            observation.getCode().setCodeSystemName(CODE_NODE_MAPPED_VALUE);
+            observation.getCode().setDisplayName(CODE_NODE_MAPPED_VALUE);
         }
         return observation;
     }
@@ -3393,11 +3314,9 @@ public class CdaMapper implements ICdaMapper {
     private XmlObject mapToSTValue(String input, XmlObject output) {
         XmlCursor cursor = output.newCursor();
 
-        // Navigate to the 'value' element
-        if (cursor.toChild(new QName(valueName))) {
+        if (cursor.toChild(new QName(VALUE_NAME))) {
             // Set the attributes of the 'value' element
-            cursor.setAttributeText(new QName(nameSpaceUrl, "type"), "ST");
-
+            cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "ST");
             // Add child CDATA to 'value' element
             cursor.toNextToken(); // Move to the end of the current element (value element)
             cursor.insertChars(input);
@@ -3413,7 +3332,6 @@ public class CdaMapper implements ICdaMapper {
         int componentCaseCounter=output.getComponentArray().length -1;
         int repeats = 0;
 
-        // case index in case list
         int counter= entryCounter;
 
         for (Map.Entry<String, Object> entry : caseDto.getMsgCase().getDataMap().entrySet()) {
@@ -3424,8 +3342,8 @@ public class CdaMapper implements ICdaMapper {
                 value = entry.getValue().toString();
             }
 
-            boolean patLocalIdFailedCheck = (name.equalsIgnoreCase(patLocalId) && caseDto.getMsgCase().getPatLocalId() == null)
-                    || (name.equalsIgnoreCase(patLocalId)  && caseDto.getMsgCase().getPatLocalId() != null && caseDto.getMsgCase().getPatLocalId().isEmpty());
+            boolean patLocalIdFailedCheck = (name.equalsIgnoreCase(PAT_LOCAL_ID_CONST) && caseDto.getMsgCase().getPatLocalId() == null)
+                    || (name.equalsIgnoreCase(PAT_LOCAL_ID_CONST)  && caseDto.getMsgCase().getPatLocalId() != null && caseDto.getMsgCase().getPatLocalId().isEmpty());
             boolean patInvEffTimeFailedCheck = name.equalsIgnoreCase("invEffectiveTime")  && caseDto.getMsgCase().getInvEffectiveTime() == null;
             boolean patInvAuthorIdFailedCheck = (name.equalsIgnoreCase("invAuthorId") && caseDto.getMsgCase().getInvAuthorId() == null)
                     || (name.equalsIgnoreCase("invAuthorId") && caseDto.getMsgCase().getInvAuthorId() != null && caseDto.getMsgCase().getInvAuthorId().isEmpty());
@@ -3494,7 +3412,7 @@ public class CdaMapper implements ICdaMapper {
         int questionGroupCounter=0;
         int componentCounter=0;
         int answerGroupCounter=0;
-        String OldQuestionId=change;
+        String OldQuestionId=CHANGE;
         int sectionCounter = 0;
         int repeatComponentCounter=0;
 
@@ -3584,12 +3502,7 @@ public class CdaMapper implements ICdaMapper {
             }
 
         }
-
-
-        // CHECK mapToCase
         return output;
-
-
     }
 
 
@@ -3607,8 +3520,8 @@ public class CdaMapper implements ICdaMapper {
         }
 
         out.getCode().setCode("1234567-RPT");
-        out.getCode().setCodeSystem(clinicalCodeSystem);
-        out.getCode().setCodeSystemName(clinicalCodeSystemName);
+        out.getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
+        out.getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
         out.getCode().setDisplayName("Generic Repeating Questions Section");
         out.getTitle().set(mapToStringData("REPEATING QUESTIONS"));
         int componentCounter = 0;
@@ -3628,18 +3541,15 @@ public class CdaMapper implements ICdaMapper {
             out.addNewEntry().addNewOrganizer();
         }
 
-
-
-        // CHECK MapToMutliSelect
         for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
             String name= entry.getKey();
             String value= entry.getValue().toString();
 
 
-            if (name.equalsIgnoreCase(colQuestionGroupSeqNbr)) {
+            if (name.equalsIgnoreCase(COL_QUES_GROUP_SEQ_NBR)) {
                 questionGroupSeqNbr = Integer.valueOf(in.getQuestionGroupSeqNbr());
             }
-            else if (name.equalsIgnoreCase(colAnswerGroupSeqNbr)) {
+            else if (name.equalsIgnoreCase(COL_ANS_GROUP_SEQ_NBR)) {
 
                 if (out.getEntryArray(sectionCounter).getOrganizer() == null) {
                     out.getEntryArray(sectionCounter).addNewOrganizer();
@@ -3658,7 +3568,6 @@ public class CdaMapper implements ICdaMapper {
                         out.getEntryArray(sectionCounter).getOrganizer().addNewStatusCode();
                     }
 
-                   // sectionCounter = out.getEntryArray().length;
                     questionGroupCounter=questionGroupSeqNbr ;
                     answerGroupCounter=answerGroupSeqNbr;
                     out.getEntryArray(sectionCounter).getOrganizer().getCode().setCode(String.valueOf(questionGroupSeqNbr));
@@ -3680,37 +3589,37 @@ public class CdaMapper implements ICdaMapper {
                 out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().setMoodCode(XActMoodDocumentObservation.EVN);
 
             }
-            else if (name.equalsIgnoreCase(colDataType)) {
+            else if (name.equalsIgnoreCase(COL_DATA_TYPE)) {
                 dataType = in.getDataType();
             }
-            else if (name.equalsIgnoreCase(colSeqNbr)) {
+            else if (name.equalsIgnoreCase(COL_SEQ_NBR)) {
                 seqNbr = Integer.valueOf(in.getSeqNbr());
             }
 
-            if(dataType.equalsIgnoreCase(dataTypeCode) || dataType.equalsIgnoreCase("CODED_COUNTY")){
+            if(dataType.equalsIgnoreCase(DATA_TYPE_CODE) || dataType.equalsIgnoreCase("CODED_COUNTY")){
                 CE ce = CE.Factory.newInstance();
-                if (name.equals(colAnswerTxt) && !in.getAnswerTxt().isEmpty()) {
+                if (name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()) {
                     ce.getTranslationArray(0).setCode(in.getAnswerTxt());
                 }
-                else if (name.equals(colAnsCodeSystemCd) && !in.getAnsCodeSystemCd().isEmpty()) {
+                else if (name.equals(COL_ANS_CODE_SYSTEM_CD) && !in.getAnsCodeSystemCd().isEmpty()) {
                     ce.getTranslationArray(0).setCodeSystem(in.getAnsCodeSystemCd());
                 }
-                else if (name.equals(colAnsCodeSystemDescTxt) && !in.getAnsCodeSystemDescTxt().isEmpty()) {
+                else if (name.equals(COL_ANS_CODE_SYSTEM_DESC_TXT) && !in.getAnsCodeSystemDescTxt().isEmpty()) {
                     ce.getTranslationArray(0).setCodeSystemName(in.getAnsCodeSystemDescTxt());
                 }
-                else if (name.equals(colAnsDisplayTxt) && !in.getAnsDisplayTxt().isEmpty()) {
+                else if (name.equals(COL_ANS_DISPLAY_TXT) && !in.getAnsDisplayTxt().isEmpty()) {
                     ce.getTranslationArray(0).setDisplayName(in.getAnsDisplayTxt());
                 }
-                else if (name.equals(colAnsToCode) && !in.getAnsToCode().isEmpty()) {
+                else if (name.equals(COL_ANS_TO_CODE) && !in.getAnsToCode().isEmpty()) {
                     ce.setCode(in.getAnsToCode());
                 }
-                else if (name.equals(colAnsToCodeSystemCd) && !in.getAnsToCodeSystemCd().isEmpty()) {
+                else if (name.equals(COL_ANS_TO_CODE_SYSTEM_CD) && !in.getAnsToCodeSystemCd().isEmpty()) {
                     ce.setCodeSystem(in.getAnsToCodeSystemCd());
                 }
-                else if (name.equals(colAnsToCodeSystemDescTxt) && !in.getAnsToCodeSystemDescTxt().isEmpty()) {
+                else if (name.equals(COL_ANS_TO_CODE_SYSTEM_DESC_TXT) && !in.getAnsToCodeSystemDescTxt().isEmpty()) {
                     ce.setCodeSystemName(in.getAnsToCodeSystemDescTxt());
                 }
-                else if (name.equals(colAnsToDisplayNm) && !in.getAnsToDisplayNm().isEmpty()) {
+                else if (name.equals(COL_ANS_TO_DISPLAY_NM) && !in.getAnsToDisplayNm().isEmpty()) {
                     ce.setDisplayName(in.getAnsToDisplayNm());
 
                 }
@@ -3720,8 +3629,8 @@ public class CdaMapper implements ICdaMapper {
 
                 out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getValueArray(seqNbr).set(ce);
             }
-            else if ((dataType.equalsIgnoreCase("TEXT") || dataType.equalsIgnoreCase(dataTypeNumeric)) &&
-                    name.equals(colAnswerTxt)) {
+            else if ((dataType.equalsIgnoreCase("TEXT") || dataType.equalsIgnoreCase(DATA_TYPE_NUMERIC)) &&
+                    name.equals(COL_ANS_TXT)) {
                 if(questionIdentifier.equalsIgnoreCase("NBS243") ||
                         questionIdentifier.equalsIgnoreCase("NBS290")) {
                     var element = out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation();
@@ -3743,7 +3652,7 @@ public class CdaMapper implements ICdaMapper {
 
             }
             else if(dataType.equalsIgnoreCase("DATE")){
-                if(name.equals(colAnswerTxt)){
+                if(name.equals(COL_ANS_TXT)){
                     int c = 0;
 
                     var size = out.getEntryArray(sectionCounter).getOrganizer().getComponentArray().length;
@@ -3767,9 +3676,9 @@ public class CdaMapper implements ICdaMapper {
                     var element = out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getValueArray(c);
                     XmlCursor cursor = element.newCursor();
                     cursor.toFirstChild();
-                    cursor.setAttributeText(new QName(nameSpaceUrl, "type"), "TS");
+                    cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "TS");
                     cursor.setAttributeText(new QName("", value), null);
-                    if (name.equals(colAnswerTxt)) {
+                    if (name.equals(COL_ANS_TXT)) {
                         String newValue = mapToTsType(in.getAnswerTxt()).toString();
                         cursor.setAttributeText(new QName("", value), newValue);
                     }
@@ -3777,7 +3686,7 @@ public class CdaMapper implements ICdaMapper {
                 }
             }
 
-            if(name.equals(colQuestionIdentifier)){
+            if(name.equals(COL_QUES_IDENTIFIER)){
 
                 if (out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation() == null) {
                     out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).addNewObservation().addNewCode();
@@ -3788,7 +3697,7 @@ public class CdaMapper implements ICdaMapper {
                 out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation()
                         .getCode().setCode(in.getQuestionIdentifier());
             }
-            else if(name.equals(colQuesCodeSystemCd)){
+            else if(name.equals(COL_QUES_CODE_SYSTEM_CD)){
                 if (out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation() == null) {
                     out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).addNewObservation().addNewCode();
                 } else {
@@ -3797,7 +3706,7 @@ public class CdaMapper implements ICdaMapper {
                 out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation()
                         .getCode().setCodeSystem(in.getQuesCodeSystemCd());
             }
-            else if(name.equals(colQuesCodeSystemDescTxt)){
+            else if(name.equals(COL_QUES_CODE_SYSTEM_DESC_TXT)){
                 if (out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation() == null) {
                     out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).addNewObservation().addNewCode();
                 } else {
@@ -3806,7 +3715,7 @@ public class CdaMapper implements ICdaMapper {
                 out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation()
                         .getCode().setCodeSystemName(in.getQuesCodeSystemDescTxt());;
             }
-            else if(name.equals(colQuesDisplayTxt)){
+            else if(name.equals(COL_QUES_DISPLAY_TXT)){
                 if (out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation() == null) {
                     out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).addNewObservation().addNewCode();
                 } else {
@@ -3827,7 +3736,7 @@ public class CdaMapper implements ICdaMapper {
     private XmlObject mapToObservationPlace(String in, XmlObject out) {
         XmlCursor cursor = out.newCursor();
         cursor.toFirstChild();
-        cursor.setAttributeText(new QName(nameSpaceUrl, "type"), "II");
+        cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "II");
         cursor.setAttributeText(new QName("", "root"), "2.3.3.3.322.23.34");
         cursor.setAttributeText(new QName("", "extension"), in);
         cursor.dispose();
@@ -3849,43 +3758,43 @@ public class CdaMapper implements ICdaMapper {
                 value = entry.getValue().toString();
             }
 
-            if (name.equals(colQuestionGroupSeqNbr) &&  !in.getQuestionGroupSeqNbr().isEmpty()) {
+            if (name.equals(COL_QUES_GROUP_SEQ_NBR) &&  !in.getQuestionGroupSeqNbr().isEmpty()) {
                 var test = in.getQuestionGroupSeqNbr();
                 questionGroupSeqNbr = Integer.valueOf(in.getQuestionGroupSeqNbr());
             }
-            else if (name.equals(colAnswerGroupSeqNbr) && !in.getAnswerGroupSeqNbr().isEmpty()) {
+            else if (name.equals(COL_ANS_GROUP_SEQ_NBR) && !in.getAnswerGroupSeqNbr().isEmpty()) {
                 answerGroupSeqNbr = Integer.valueOf(in.getAnswerGroupSeqNbr());
             }
-            else if (name.equals(colDataType) && !in.getDataType().isEmpty()) {
+            else if (name.equals(COL_DATA_TYPE) && !in.getDataType().isEmpty()) {
                 dataType = in.getDataType();
             }
-            else if (name.equals(colSeqNbr) && !in.getSeqNbr().isEmpty()) {
+            else if (name.equals(COL_SEQ_NBR) && !in.getSeqNbr().isEmpty()) {
                 sequenceNbr = out.getSection().getEntryArray(counter).getObservation().getValueArray().length;
             }
-            else if (dataType.equalsIgnoreCase(dataTypeCode) || dataType.equalsIgnoreCase(county)) {
+            else if (dataType.equalsIgnoreCase(DATA_TYPE_CODE) || dataType.equalsIgnoreCase(COUNTY)) {
                 CE ce = CE.Factory.newInstance();
-                if (name.equals(colAnswerTxt) && !in.getAnswerTxt().isEmpty()) {
+                if (name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()) {
                     ce.getTranslationArray(0).setCode(in.getAnswerTxt());
                 }
-                else if (name.equals(colAnsCodeSystemCd) && !in.getAnsCodeSystemCd().isEmpty()) {
+                else if (name.equals(COL_ANS_CODE_SYSTEM_CD) && !in.getAnsCodeSystemCd().isEmpty()) {
                     ce.getTranslationArray(0).setCodeSystem(in.getAnsCodeSystemCd());
                 }
-                else if (name.equals(colAnsCodeSystemDescTxt) && !in.getAnsCodeSystemDescTxt().isEmpty()) {
+                else if (name.equals(COL_ANS_CODE_SYSTEM_DESC_TXT) && !in.getAnsCodeSystemDescTxt().isEmpty()) {
                     ce.getTranslationArray(0).setCodeSystemName(in.getAnsCodeSystemDescTxt());
                 }
-                else if (name.equals(colAnsDisplayTxt) && !in.getAnsDisplayTxt().isEmpty()) {
+                else if (name.equals(COL_ANS_DISPLAY_TXT) && !in.getAnsDisplayTxt().isEmpty()) {
                     ce.getTranslationArray(0).setDisplayName(in.getAnsDisplayTxt());
                 }
-                else if (name.equals(colAnsToCode) && !in.getAnsToCode().isEmpty()) {
+                else if (name.equals(COL_ANS_TO_CODE) && !in.getAnsToCode().isEmpty()) {
                     ce.setCode(in.getAnsToCode());
                 }
-                else if (name.equals(colAnsToCodeSystemCd) && !in.getAnsToCodeSystemCd().isEmpty()) {
+                else if (name.equals(COL_ANS_TO_CODE_SYSTEM_CD) && !in.getAnsToCodeSystemCd().isEmpty()) {
                     ce.setCodeSystem(in.getAnsToCodeSystemCd());
                 }
-                else if (name.equals(colAnsToCodeSystemDescTxt) && !in.getAnsToCodeSystemDescTxt().isEmpty()) {
+                else if (name.equals(COL_ANS_TO_CODE_SYSTEM_DESC_TXT) && !in.getAnsToCodeSystemDescTxt().isEmpty()) {
                     ce.setCodeSystemName(in.getAnsToCodeSystemDescTxt());
                 }
-                else if (name.equals(colAnsToDisplayNm) && !in.getAnsToDisplayNm().isEmpty()) {
+                else if (name.equals(COL_ANS_TO_DISPLAY_NM) && !in.getAnsToDisplayNm().isEmpty()) {
                     if(ce.getTranslationArray(0).getDisplayName().equals("OTH^")) {
                         ce.setDisplayName(ce.getTranslationArray(0).getDisplayName());
                     }
@@ -3896,23 +3805,20 @@ public class CdaMapper implements ICdaMapper {
                 out.getSection().getEntryArray(counter).getObservation().getValueArray(sequenceNbr).set(ce);
             }
 
-            else if (dataType.equalsIgnoreCase("TEXT") || dataType.equalsIgnoreCase(dataTypeNumeric)) {
-                if (name.equals(colAnswerTxt) && !in.getAnswerTxt().isEmpty()) {
-                    // CHECK mapToSTValue
+            else if (dataType.equalsIgnoreCase("TEXT") || dataType.equalsIgnoreCase(DATA_TYPE_NUMERIC)) {
+                if (name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()) {
                     var element = out.getSection().getEntryArray(counter).getObservation();
                     var ot = mapToSTValue(in.getAnswerTxt(), element);
                     out.getSection().getEntryArray(counter).setObservation((POCDMT000040Observation) ot);
                 }
             }
             else if (dataType.equalsIgnoreCase("DATE")) {
-                if (name.equals(colAnswerTxt) && !in.getAnswerTxt().isEmpty()) {
-                    // CHECK mapToMessageAnswer
+                if (name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()) {
                     var element = out.getSection().getEntryArray(counter).getObservation().getValueArray(0);
                     XmlCursor cursor = element.newCursor();
                     cursor.toFirstAttribute();
-                    cursor.insertAttributeWithValue(new QName(nameSpaceUrl, "type"), "TS");
+                    cursor.insertAttributeWithValue(new QName(NAME_SPACE_URL, "type"), "TS");
                     cursor.insertAttributeWithValue(value, ""); // As per your code, it's empty
-
                     var ot = mapToTsType(in.getAnswerTxt()).toString();
                     cursor.setAttributeText(new QName("", value), ot);
                     cursor.dispose();
@@ -3924,7 +3830,7 @@ public class CdaMapper implements ICdaMapper {
                     // ignore
                 }
                 else {
-                    if (questionSeq.equalsIgnoreCase(change)) {
+                    if (questionSeq.equalsIgnoreCase(CHANGE)) {
                         // ignore
                     }
                     else {
@@ -3988,7 +3894,6 @@ public class CdaMapper implements ICdaMapper {
         output.getCode().setCode(questionLookUpDto.getQuesCodeSystemCd());
         output.getCode().setCodeSystem(questionLookUpDto.getQuesCodeSystemDescTxt());
         output.getCode().setDisplayName(questionLookUpDto.getQuesDisplayName());
-        //output.getCode().setCode(questionId);
 
         for(int i = 0; i < repeats.size(); i++) {
             if (repeats.size() == 1) {
@@ -3999,10 +3904,9 @@ public class CdaMapper implements ICdaMapper {
             var caretStringList = GetStringsBeforeCaret(repeats.get(i));
 
             if (tripletCodedValue.length() > 0 && caretStringList.size() == 4) {
-                // CHECK mapTripletToObservation
                 String code = caretStringList.get(0);
                 String displayName = caretStringList.get(1);
-                String codeSystemName = caretStringList.get(2);
+                String CODE_SYSTEM_NAME = caretStringList.get(2);
                 String codeSystem = caretStringList.get(3);
                 int c = 0;
                 if (output.getValueArray().length == 0) {
@@ -4016,7 +3920,7 @@ public class CdaMapper implements ICdaMapper {
                 CE ce = CE.Factory.newInstance();
                 ce.setCode(code);
                 ce.setCodeSystem(codeSystem);
-                ce.setCodeSystemName(codeSystemName);
+                ce.setCodeSystemName(CODE_SYSTEM_NAME);
                 ce.setDisplayName(displayName);
                 output.getValueArray(c).set(ce);
             }
@@ -4028,9 +3932,9 @@ public class CdaMapper implements ICdaMapper {
 
     private PhdcQuestionLookUpDto mapToCodedQuestionType(String questionIdentifier) {
         PhdcQuestionLookUpDto dto = new PhdcQuestionLookUpDto();
-        dto.setQuesCodeSystemCd(notFoundValue);
-        dto.setQuesCodeSystemDescTxt(notFoundValue);
-        dto.setQuesDisplayName(notFoundValue);
+        dto.setQuesCodeSystemCd(NOT_FOUND_VALUE);
+        dto.setQuesCodeSystemDescTxt(NOT_FOUND_VALUE);
+        dto.setQuesDisplayName(NOT_FOUND_VALUE);
         if (!questionIdentifier.isEmpty()) {
             var result = ecrLookUpService.fetchPhdcQuestionByCriteriaWithColumn("QUESTION_IDENTIFIER", questionIdentifier);
             if (result != null) {

@@ -160,7 +160,7 @@ public class CdaPatientMappingHelper {
             clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getId().setAssigningAuthorityName("LR");
             clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setCode("297622");
             clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setCodeSystem(CODE_SYSTEM);
-            clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setCodeSystemName(codeSystemName);
+            clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setCodeSystemName(CODE_SYSTEM_NAME);
             clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setDisplayName("Social History");
             clinicalDocument.getComponent().getStructuredBody()
                     .getComponentArray(patientComponentCounter).getSection().getTitle().set(mapToCData("SOCIAL HISTORY INFORMATION"));
@@ -328,8 +328,8 @@ public class CdaPatientMappingHelper {
                 }
                 if(!PAT_PHONE_AS_OF_DT.isEmpty()){
                     TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
-                    element.set(XmlObject.Factory.parse(stud));
-                    var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, useablePeriod);
+                    element.set(XmlObject.Factory.parse(STUD));
+                    var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, USESABLE_PERIOD);
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
 
@@ -367,8 +367,8 @@ public class CdaPatientMappingHelper {
                 if(!PAT_PHONE_AS_OF_DT.isEmpty()){
                     TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
                     // CHECK mapToUsableTSElement
-                    element.set(XmlObject.Factory.parse(stud));
-                    var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, useablePeriod);
+                    element.set(XmlObject.Factory.parse(STUD));
+                    var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, USESABLE_PERIOD);
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
 
@@ -403,17 +403,17 @@ public class CdaPatientMappingHelper {
 
 
                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList(Arrays.asList("HP")));
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(mailTo+PAT_EMAIL_ADDRESS_TXT);
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(MAIL_TO+PAT_EMAIL_ADDRESS_TXT);
                 if(!PAT_PHONE_AS_OF_DT.isEmpty()){
                     TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
                     // CHECK mapToUsableTSElement
-                    element.set(XmlObject.Factory.parse(stud));
-                    var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, useablePeriod);
+                    element.set(XmlObject.Factory.parse(STUD));
+                    var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, USESABLE_PERIOD);
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
 
                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<String>(Arrays.asList("HP")));
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(mailTo + PAT_EMAIL_ADDRESS_TXT);
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(MAIL_TO + PAT_EMAIL_ADDRESS_TXT);
                 phoneCounter =phoneCounter +1;
             }
             model.setClinicalDocument(clinicalDocument);
@@ -443,8 +443,8 @@ public class CdaPatientMappingHelper {
                 if(!PAT_PHONE_AS_OF_DT.isEmpty()){
                     TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
                     // CHECK mapToUsableTSElement
-                    element.set(XmlObject.Factory.parse(stud));
-                    var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, useablePeriod);
+                    element.set(XmlObject.Factory.parse(STUD));
+                    var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, USESABLE_PERIOD);
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
 
