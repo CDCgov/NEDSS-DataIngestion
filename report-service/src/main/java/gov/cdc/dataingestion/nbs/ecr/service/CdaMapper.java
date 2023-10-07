@@ -33,67 +33,18 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
+import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper.mapToCData;
+import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper.mapToStringData;
 import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforeCaret;
 import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforePipe;
-import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper.validatePatientGenericField;
+import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper.*;
 
 @Service
 public class CdaMapper implements ICdaMapper {
     
     private ICdaLookUpService ecrLookUpService;
-    private final String rootId = "2.16.840.1.113883.19";
-    private final String codeSystem = "2.16.840.1.113883.6.1";
-    private final String codeSystemName = "LOINC";
-    private final String xmlNameSpaceHolder = "urn:hl7-org:v3";
-    private final String nameSpaceUrl = "http://www.w3.org/2001/XMLSchema-instance";
-    private final String state = "STATE";
-    private final String county = "COUNTY";
-    private final String country = "COUNTRY";
-    private final String useablePeriod = "useablePeriod";
-    private final String code = "123-4567";
-    private final String clinicalCodeSystem = "Local-codesystem-oid";
-    private final String clinicalCodeSystemName = "LocalSystem";
-    private final String codeDisplayName = "Interested Parties Section";
-    private final String clinicalTitle = "INTERESTED PARTIES SECTION";
-    private final String actCodeDisplayName = "Interested Party";
-    private final String notFoundValue = "NOT_FOUND";
-    private final String idRoot = "2.16.840.999999";
-    private final String valueName = "value";
-    private final String change = "CHANGED";
-    private final String idArrRoot = "2.16.840.1.113883.4.6";
-    private final String extnStr = ";extn=";
-    private final String notMappedValue = "NOT_MAPPED";
-    private final String valueTag = "<value></value>";
-    private final String codeNotMappedValue = "CODE NOT MAPPED";
 
-    private final String cdata = "[CDATA]";
-    private final String stud = "<stud>stud</stud>";
-    
-    private final String mailTo = "mailto:";
-
-    /** COL NAME */
-    private final String patLocalId = "patLocalId";
-    private final String colQuestionGroupSeqNbr = "questionGroupSeqNbr";
-    private final String colAnswerGroupSeqNbr = "answerGroupSeqNbr";
-    private final String colDataType = "dataType";
-    private final String colSeqNbr = "seqNbr";
-    private final String colAnswerTxt = "answerTxt";
-    private final String colAnsCodeSystemCd = "ansCodeSystemCd";
-    private final String colAnsCodeSystemDescTxt = "ansCodeSystemDescTxt";
-    private final String colAnsDisplayTxt = "ansDisplayTxt";
-    private final String colAnsToCode = "ansToCode";
-    private final String colAnsToCodeSystemCd = "ansToCodeSystemCd";
-    private final String colAnsToCodeSystemDescTxt = "ansToCodeSystemDescTxt";
-    private final String colAnsToDisplayNm = "ansToDisplayNm";
-    private final String colQuestionIdentifier = "questionIdentifier";
-    private final String colQuesCodeSystemCd = "quesCodeSystemCd";
-    private final String colQuesCodeSystemDescTxt = "quesCodeSystemDescTxt";
-    private final String colQuesDisplayTxt = "quesDisplayTxt";
-    
-    
-    /**DATA TYPE*/
-    private final String dataTypeCode = "CODED";
-    private final String dataTypeNumeric = "NUMERIC";
 
 
     @Autowired
@@ -435,8 +386,6 @@ public class CdaMapper implements ICdaMapper {
                 int caseInvCounter= -1;
                 int nameCounter = 1;
                 //endregion
-                CdaPatientField cdaPatientField = new CdaPatientField();
-
                 if (input.getMsgPatients() != null && input.getMsgPatients().size() > 0) {
                     int k = 1;
                     Field[] fields = EcrMsgPatientDto.class.getDeclaredFields();
@@ -775,109 +724,15 @@ public class CdaMapper implements ICdaMapper {
 
                             // PAT_INFO_AS_OF_DT
                             else if ( validatePatientGenericField(field, patient) ) {
-                                String colName = "";
-                                String value = "";
-
-                                if (field.getName().equals("patInfoAsOfDt") && isFieldValid(field.getName(), patient.getPatInfoAsOfDt())) {
-                                    colName = "PAT_INFO_AS_OF_DT";
-                                    value = patient.getPatInfoAsOfDt().toString();
-                                } else if (field.getName().equals("patAddrCommentTxt") && isFieldValid(field.getName(), patient.getPatAddrCommentTxt())) {
-                                    colName = "PAT_ADDR_COMMENT_TXT";
-                                    value = patient.getPatAddrCommentTxt();
-                                } else if (field.getName().equals("patAdditionalGenderTxt") && isFieldValid(field.getName(), patient.getPatAdditionalGenderTxt())) {
-                                    colName = "PAT_ADDITIONAL_GENDER_TXT";
-                                    value = patient.getPatAdditionalGenderTxt();
-                                } else if (field.getName().equals("patSpeaksEnglishIndCd") && isFieldValid(field.getName(), patient.getPatSpeaksEnglishIndCd())) {
-                                    colName = "PAT_SPEAKS_ENGLISH_IND_CD";
-                                    value = patient.getPatSpeaksEnglishIndCd();
-                                } else if (field.getName().equals("patIdStateHivCaseNbrTxt") && isFieldValid(field.getName(), patient.getPatIdStateHivCaseNbrTxt())) {
-                                    colName = "PAT_ID_STATE_HIV_CASE_NBR_TXT";
-                                    value = patient.getPatIdStateHivCaseNbrTxt();
-                                } else if (field.getName().equals("patEthnicityUnkReasonCd") && isFieldValid(field.getName(), patient.getPatEthnicityUnkReasonCd())) {
-                                    colName = "PAT_ETHNICITY_UNK_REASON_CD";
-                                    value = patient.getPatEthnicityUnkReasonCd();
-                                } else if (field.getName().equals("patSexUnkReasonCd") && isFieldValid(field.getName(), patient.getPatSexUnkReasonCd())) {
-                                    colName = "PAT_SEX_UNK_REASON_CD";
-                                    value = patient.getPatSexUnkReasonCd();
-                                } else if (field.getName().equals("patPhoneCommentTxt") && isFieldValid(field.getName(), patient.getPatPhoneCommentTxt())) {
-                                    colName = "PAT_PHONE_COMMENT_TXT";
-                                    value = patient.getPatPhoneCommentTxt();
-                                } else if (field.getName().equals("patDeceasedIndCd") && isFieldValid(field.getName(), patient.getPatDeceasedIndCd())) {
-                                    colName = "PAT_DECEASED_IND_CD";
-                                    value = patient.getPatDeceasedIndCd();
-                                } else if (field.getName().equals("patDeceasedDt") && isFieldValid(field.getName(), patient.getPatDeceasedDt())) {
-                                    colName = "PAT_DECEASED_DT";
-                                    value = patient.getPatDeceasedDt().toString();
-                                } else if (field.getName().equals("patPreferredGenderCd") && isFieldValid(field.getName(), patient.getPatPreferredGenderCd())) {
-                                    colName = "PAT_PREFERRED_GENDER_CD";
-                                    value = patient.getPatPreferredGenderCd();
-                                } else if (field.getName().equals("patReportedAge") && patient.getPatReportedAge() != null) {
-                                    colName = "PAT_REPORTED_AGE";
-                                    value = String.valueOf(patient.getPatReportedAge());
-                                } else if (field.getName().equals("patReportedAgeUnitCd") && isFieldValid(field.getName(), patient.getPatReportedAgeUnitCd())) {
-                                    colName = "PAT_REPORTED_AGE_UNIT_CD";
-                                    value = patient.getPatReportedAgeUnitCd();
-                                } else if (field.getName().equals("patCommentTxt") && isFieldValid(field.getName(), patient.getPatCommentTxt())) {
-                                    colName = "PAT_COMMENT_TXT";
-                                    value = patient.getPatCommentTxt();
-                                } else if (field.getName().equals("patBirthSexCd") && isFieldValid(field.getName(), patient.getPatBirthSexCd())) {
-                                    colName = "PAT_BIRTH_SEX_CD";
-                                    value = patient.getPatBirthSexCd();
-                                }
-
-                                if (patientComponentCounter < 0 ) {
-
-                                    if (clinicalDocument.getComponent() == null) {
-                                        clinicalDocument.addNewComponent();
-                                    }
-
-                                    if (!clinicalDocument.getComponent().isSetStructuredBody()) {
-                                        clinicalDocument.getComponent().addNewStructuredBody();
-                                    }
-
-                                    if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
-                                        clinicalDocument.getComponent().getStructuredBody().addNewComponent();
-                                        patientComponentCounter = 0;
-                                    }
-                                    else {
-                                        patientComponentCounter = clinicalDocument.getComponent().addNewStructuredBody().getComponentArray().length+ 1;
-                                        clinicalDocument.getComponent().getStructuredBody().addNewComponent();
-                                    }
-
-                                    if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection() == null) {
-                                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).addNewSection();
-                                    }
-
-                                    if (!clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().isSetId()) {
-                                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().addNewId();
-                                    }
-
-                                    if (!clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().isSetCode()) {
-                                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().addNewCode();
-                                    }
-
-                                    if (!clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().isSetTitle()) {
-                                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().addNewTitle();
-                                    }
-
-                                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getId().setRoot(rootId);
-                                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getId().setExtension(inv168);
-                                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getId().setAssigningAuthorityName("LR");
-                                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setCode("297622");
-                                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setCodeSystem(codeSystem);
-                                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setCodeSystemName(codeSystemName);
-                                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setDisplayName("Social History");
-                                    clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getTitle().set(mapToCData("SOCIAL HISTORY INFORMATION"));
-
-                                }
-
+                                var mapValue = getPatientVariableNameAndValue(field, patient);
+                                String colName = mapValue.getColName();
+                                String value = mapValue.getValue();
+                                var  clinicalDocumentMapper = mapPatientStructureComponent(patientComponentCounter, clinicalDocument, inv168);
+                                clinicalDocument = clinicalDocumentMapper.getClinicalDocument();
+                                patientComponentCounter = clinicalDocumentMapper.getPatientComponentCounter();
                                 POCDMT000040Component3 comp = clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter);
-
                                 int patEntityCounter = clinicalDocument.getComponent().getStructuredBody().getComponentArray(0).getSection().getEntryArray().length;
-
-
                                 var compPatient = mapToPatient(patEntityCounter, colName, value, comp);
-
                                 clinicalDocument.getComponent().getStructuredBody().setComponentArray(patientComponentCounter, compPatient);
                             }
 
@@ -3611,40 +3466,6 @@ public class CdaMapper implements ICdaMapper {
     }
 
 
-    private XmlObject mapToCData(String data) throws EcrCdaXmlException {
-        try {
-//        String xmlTemplate = "<to-be-remove><![CDATA[REPLACE_STRING]]></to-be-remove>";
-//        String updatedXML = xmlTemplate.replace("REPLACE_STRING", data);
-//
-            XmlObject xmlObject = XmlObject.Factory.parse("<CDATA>"+data+"</CDATA>");
-//        XmlCursor cursor = xmlObject.newCursor();
-//        cursor.toFirstChild();
-//        cursor.insertChars(data);
-//        cursor.dispose();
-            return xmlObject;
-        } catch (Exception e) {
-            throw new EcrCdaXmlException(e.getMessage());
-        }
-
-    }
-
-
-    private XmlObject mapToStringData(String data) throws EcrCdaXmlException {
-        try {
-            //        String xmlTemplate = "<to-be-remove><![CDATA[REPLACE_STRING]]></to-be-remove>";
-//        String updatedXML = xmlTemplate.replace("REPLACE_STRING", data);
-//
-            XmlObject xmlObject = XmlObject.Factory.parse("<STRING>"+data+"</STRING>");
-//        XmlCursor cursor = xmlObject.newCursor();
-//        cursor.toFirstChild();
-//        cursor.insertChars(data);
-//        cursor.dispose();
-            return xmlObject;
-        } catch (Exception e) {
-            throw new EcrCdaXmlException(e.getMessage());
-        }
-
-    }
 
 
 
