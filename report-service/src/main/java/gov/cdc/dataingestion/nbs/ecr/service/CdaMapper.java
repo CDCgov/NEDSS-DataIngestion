@@ -57,7 +57,7 @@ public class CdaMapper implements ICdaMapper {
     private final String actCodeDisplayName = "Interested Party";
     private final String notFoundValue = "NOT_FOUND";
     private final String idRoot = "2.16.840.999999";
-    private final String value = "value";
+    private final String valueName = "value";
     private final String change = "CHANGED";
     private final String idArrRoot = "2.16.840.1.113883.4.6";
     private final String extnStr = ";extn=";
@@ -116,10 +116,10 @@ public class CdaMapper implements ICdaMapper {
         //endregion
 
         String inv168 = "";
-        Integer nbsInterfaceUid = null;
-        String systemName = "";
+//        Integer nbsInterfaceUid = null;
+//        String systemName = "";
         Integer versionCtrNbr = null;
-        Integer dataMigrationStatus = null;
+//        Integer dataMigrationStatus = null;
 
         //region CONTAINER COMPONENT CREATION
         if (input.getMsgContainer().getInvLocalId() != null && !input.getMsgContainer().getInvLocalId().isEmpty()) {
@@ -141,26 +141,26 @@ public class CdaMapper implements ICdaMapper {
             }
         }
 
-        if(input.getMsgContainer().getNbsInterfaceUid() != null) {
-            nbsInterfaceUid = input.getMsgContainer().getNbsInterfaceUid();
-        }
+//        if(input.getMsgContainer().getNbsInterfaceUid() != null) {
+//            nbsInterfaceUid = input.getMsgContainer().getNbsInterfaceUid();
+//        }
 
-        if(input.getMsgContainer().getReceivingSystem() != null &&
-            !input.getMsgContainer().getReceivingSystem().isEmpty()) {
-            if(input.getMsgContainer().getReceivingSystem().length() > 0) {
-                systemName = input.getMsgContainer().getReceivingSystem();
-            } else {
-                systemName = "NBS";
-            }
-        }
+//        if(input.getMsgContainer().getReceivingSystem() != null &&
+//            !input.getMsgContainer().getReceivingSystem().isEmpty()) {
+//            if(input.getMsgContainer().getReceivingSystem().length() > 0) {
+//                systemName = input.getMsgContainer().getReceivingSystem();
+//            } else {
+//                systemName = "NBS";
+//            }
+//        }
 
         if (input.getMsgContainer().getVersionCtrNbr() != null) {
             versionCtrNbr = input.getMsgContainer().getVersionCtrNbr();
         }
 
-        if(input.getMsgContainer().getDataMigrationStatus() != null) {
-            dataMigrationStatus = input.getMsgContainer().getDataMigrationStatus();
-        }
+//        if(input.getMsgContainer().getDataMigrationStatus() != null) {
+//            dataMigrationStatus = input.getMsgContainer().getDataMigrationStatus();
+//        }
 
         clinicalDocument.setCode(CE.Factory.newInstance());
         clinicalDocument.getCode().setCode("55751-2");
@@ -190,16 +190,16 @@ public class CdaMapper implements ICdaMapper {
         int interviewCounter= 0;
         int treatmentCounter=0;
         int treatmentSectionCounter=0;
-        int caseEntryCounter=0;
-        int performerCounter=0;
+//        int caseEntryCounter=0;
+//        int performerCounter=0;
         int patientComponentCounter=-1;
         int performerComponentCounter=0;
         int performerSectionCounter=0;
         int clinicalCounter= 0;
-        int performerEntityCounter=0;
-        int signsAndSymptomCounter=0;
-        int medicalHistoryCounter=0;
-        int GenericBatchEntryCounter=0;
+//        int performerEntityCounter=0;
+//        int signsAndSymptomCounter=0;
+//        int medicalHistoryCounter=0;
+//        int GenericBatchEntryCounter=0;
 
         //region SUB COMPONENT CREATION
 
@@ -210,7 +210,7 @@ public class CdaMapper implements ICdaMapper {
         /**MAP TO PATIENT**/
         var pat =  mapToPatient(input, clinicalDocument, patientComponentCounter, inv168);
         clinicalDocument = pat.getClinicalDocument();
-        patientComponentCounter = pat.getPatientComponentCounter();
+//        patientComponentCounter = pat.getPatientComponentCounter();
         inv168 = pat.getInv168();
 
         /**MAP TO CASE**/
@@ -218,8 +218,8 @@ public class CdaMapper implements ICdaMapper {
         componentCaseCounter, inv168);
         clinicalDocument = ecrCase.getClinicalDocument();
         componentCounter = ecrCase.getComponentCounter();
-        clinicalCounter = ecrCase.getClinicalCounter();
-        componentCaseCounter = ecrCase.getComponentCaseCounter();
+//        clinicalCounter = ecrCase.getClinicalCounter();
+//        componentCaseCounter = ecrCase.getComponentCaseCounter();
         inv168 = ecrCase.getInv168();
 
         /**XML ANSWER**/
@@ -254,7 +254,7 @@ public class CdaMapper implements ICdaMapper {
 
 
         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).setSection(ecrProvider.getClinicalSection());
-        inv168 = ecrProvider.getInv168();
+//        inv168 = ecrProvider.getInv168();
         performerComponentCounter = ecrProvider.getPerformerComponentCounter();
         componentCounter = ecrProvider.getComponentCounter();
         performerSectionCounter = ecrProvider.getPerformerSectionCounter();
@@ -277,16 +277,16 @@ public class CdaMapper implements ICdaMapper {
         var ecrPlace = mapToPlaceTop(input, performerComponentCounter,
                 componentCounter, performerSectionCounter, interestedPartyComp);
         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).setSection(ecrPlace.getSection());
-        performerComponentCounter = ecrPlace.getPerformerComponentCounter();
+//        performerComponentCounter = ecrPlace.getPerformerComponentCounter();
         componentCounter = ecrPlace.getComponentCounter();
-        performerSectionCounter = ecrPlace.getPerformerSectionCounter();
+//        performerSectionCounter = ecrPlace.getPerformerSectionCounter();
 
         /**
          * INTERVIEW
          * */
         var ecrInterview = mapToInterviewTop(input, clinicalDocument, interviewCounter, componentCounter);
         clinicalDocument = ecrInterview.getClinicalDocument();
-        interviewCounter = ecrInterview.getInterviewCounter();
+//        interviewCounter = ecrInterview.getInterviewCounter();
         componentCounter = ecrInterview.getComponentCounter();
 
         /**
@@ -295,9 +295,9 @@ public class CdaMapper implements ICdaMapper {
         var ecrTreatment = mapToTreatmentTop(input, clinicalDocument,
                 treatmentCounter, componentCounter, treatmentSectionCounter);
         clinicalDocument = ecrTreatment.getClinicalDocument();
-        treatmentCounter = ecrTreatment.getTreatmentCounter();
-        treatmentSectionCounter = ecrTreatment.getTreatmentSectionCounter();
-        componentCounter = ecrTreatment.getComponentCounter();
+//        treatmentCounter = ecrTreatment.getTreatmentCounter();
+//        treatmentSectionCounter = ecrTreatment.getTreatmentSectionCounter();
+//        componentCounter = ecrTreatment.getComponentCounter();
 
         //endregion
 
@@ -757,7 +757,7 @@ public class CdaMapper implements ICdaMapper {
                                 cursor.toEndDoc();
 
                                 cursor.beginElement("low");
-                                cursor.insertAttributeWithValue(value,  ts.getValue());
+                                cursor.insertAttributeWithValue(valueName,  ts.getValue());
 
                                 cursor.toEndDoc();
                                 cursor.removeXml();
@@ -1908,13 +1908,13 @@ public class CdaMapper implements ICdaMapper {
             cursor.toEndDoc();  // Move to the root element
 
             cursor.beginElement("low");
-            cursor.insertAttributeWithValue(value,  mapToTsType(TRT_TREATMENT_DT).getValue());
+            cursor.insertAttributeWithValue(valueName,  mapToTsType(TRT_TREATMENT_DT).getValue());
 
             if (TRT_DURATION_AMT != null && !TRT_DURATION_AMT.isEmpty() && TRT_DURATION_UNIT_CD != null && !TRT_DURATION_UNIT_CD.isEmpty()) {
                 cursor.toEndDoc();
                 cursor.beginElement("width");
                 if (!TRT_DURATION_AMT.isEmpty()) {
-                    cursor.insertAttributeWithValue(value, TRT_DURATION_AMT);
+                    cursor.insertAttributeWithValue(valueName, TRT_DURATION_AMT);
                 }
 
                 if (!TRT_DURATION_UNIT_CD.isEmpty()) {
@@ -1956,7 +1956,7 @@ public class CdaMapper implements ICdaMapper {
             String hertz = TRT_FREQUENCY_AMT_CD;
             AttributeMapper res = mapToAttributes(hertz);
             if (cursor.toFirstAttribute()) {
-                cursor.insertAttributeWithValue(value, res.getAttribute1());
+                cursor.insertAttributeWithValue(valueName, res.getAttribute1());
             }
             if (cursor.toNextAttribute()) {
                 cursor.insertAttributeWithValue("unit", res.getAttribute2());
@@ -3890,7 +3890,7 @@ public class CdaMapper implements ICdaMapper {
         XmlCursor cursor = output.newCursor();
 
         // Navigate to the 'value' element
-        if (cursor.toChild(new QName(value))) {
+        if (cursor.toChild(new QName(valueName))) {
             // Set the attributes of the 'value' element
             cursor.setAttributeText(new QName(nameSpaceUrl, "type"), "ST");
 
@@ -3912,7 +3912,7 @@ public class CdaMapper implements ICdaMapper {
         cursor.toFirstChild();  // Move inside childName
         cursor.beginElement("low");
         cursor.insertNamespace("", xmlNameSpaceHolder);
-        cursor.insertAttributeWithValue(value, mapToTsType(data).getValue().toString());
+        cursor.insertAttributeWithValue(valueName, mapToTsType(data).getValue().toString());
         cursor.dispose();
         return output;
     }
