@@ -560,8 +560,8 @@ public class CdaMapper implements ICdaMapper {
                             }
                             // PAT_RACE_DESC_TXT
                             else if(field.getName().equals("patRaceDescTxt") && patient.getPatRaceDescTxt() != null  && !patient.getPatRaceDescTxt().isEmpty()) {
-                                clinicalDocument = checkPatientRole(clinicalDocument);
                                 var counter = 0;
+                                clinicalDocument = checkPatientRole(clinicalDocument);
                                 if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getRaceCode2Array().length == 0) {
                                     clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().addNewRaceCode2();
                                 }
@@ -578,17 +578,13 @@ public class CdaMapper implements ICdaMapper {
                                 cursor.insertChars(cdata + patient.getPatRaceDescTxt() + cdata);
                                 cursor.dispose();
 
-
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getRaceCode2Array(counter).setOriginalText(originalText);
 
                             }
 
                             // PAT_ETHNIC_GROUP_IND_CD
                             else if(field.getName().equals("patEthnicGroupIndCd") && patient.getPatEthnicGroupIndCd() != null  && !patient.getPatEthnicGroupIndCd().isEmpty()) {
-                                if (!clinicalDocument.getRecordTargetArray(0).getPatientRole().isSetPatient()) {
-                                    clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewPatient();
-                                }
-
+                                clinicalDocument = checkPatientRole(clinicalDocument);
                                 String questionCode = mapToQuestionId(patient.getPatEthnicGroupIndCd());
                                 CE ce = mapToCEAnswerType(patient.getPatEthnicGroupIndCd(), questionCode);
 
@@ -597,15 +593,7 @@ public class CdaMapper implements ICdaMapper {
 
                             // PAT_BIRTH_COUNTRY_CD
                             else if(field.getName().equals("patBirthCountryCd") && patient.getPatBirthCountryCd() != null  && !patient.getPatBirthCountryCd().isEmpty()) {
-                                if (!clinicalDocument.getRecordTargetArray(0).getPatientRole().isSetPatient()) {
-                                    clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewPatient();
-                                }
-
-                                if (!clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().isSetBirthplace()) {
-                                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().addNewBirthplace();
-                                }
-
-
+                                clinicalDocument = checkPatientRoleBirthCountry(clinicalDocument);
                                 String val = mapToAddressType(patient.getPatBirthCountryCd(), country);
                                 POCDMT000040Place place = POCDMT000040Place.Factory.newInstance();
                                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getBirthplace().setPlace(place);
@@ -626,9 +614,8 @@ public class CdaMapper implements ICdaMapper {
                             // PAT_ADDR_CENSUS_TRACT_TXT
                             else if(field.getName().equals("patAddrCensusTractTxt") && patient.getPatAddrCensusTractTxt() != null  && !patient.getPatAddrCensusTractTxt().isEmpty()) {
 
-                                if ( clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray().length == 0) {
-                                    clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewAddr();
-                                }
+                                clinicalDocument = checkPatientRoleAddrArray(clinicalDocument);
+
                                 AdxpCensusTract census = AdxpCensusTract.Factory.newInstance();
                                 XmlCursor cursor = census.newCursor();
                                 cursor.setTextValue( cdata + patient.getPatAddrCensusTractTxt() + cdata);
@@ -654,13 +641,7 @@ public class CdaMapper implements ICdaMapper {
                             }
                             // PAT_NAME_AS_OF_DT
                             else if(field.getName().equals("patNameAsOfDt") && patient.getPatNameAsOfDt() != null) {
-                                if (!clinicalDocument.getRecordTargetArray(0).getPatientRole().isSetPatient()) {
-                                    clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewPatient();
-                                }
-                                if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray().length == 0) {
-                                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().addNewName();
-                                }
-
+                                clinicalDocument = checkPatientRoleNameArray(clinicalDocument);
                                 PN pn = PN.Factory.newInstance();
                                 IVLTS time = IVLTS.Factory.newInstance();
                                 var ts = mapToTsType(patient.getPatNameAsOfDt().toString());

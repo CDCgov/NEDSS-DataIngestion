@@ -186,10 +186,27 @@ public class CdaPatientMappingHelper {
         return clinicalDocument;
     }
 
+    public static POCDMT000040ClinicalDocument1
+        checkPatientRoleBirthCountry(POCDMT000040ClinicalDocument1 clinicalDocument) {
+        clinicalDocument = checkPatientRole(clinicalDocument);
+        if (!clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().isSetBirthplace()) {
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().addNewBirthplace();
+        }
+        return clinicalDocument;
+    }
+
     public static POCDMT000040ClinicalDocument1 checkPatientRoleGenderCode(POCDMT000040ClinicalDocument1 clinicalDocument) {
         clinicalDocument = checkPatientRole(clinicalDocument);
         if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().isSetAdministrativeGenderCode()) {
             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().addNewAdministrativeGenderCode();
+        }
+        return clinicalDocument;
+    }
+
+    public static POCDMT000040ClinicalDocument1 checkPatientRoleNameArray(POCDMT000040ClinicalDocument1 clinicalDocument) {
+        clinicalDocument = checkPatientRole(clinicalDocument);
+        if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray().length == 0) {
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().addNewName();
         }
         return clinicalDocument;
     }
