@@ -3,6 +3,7 @@ package gov.cdc.dataingestion.nbs.ecr.service;
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.model.*;
 import gov.cdc.dataingestion.nbs.ecr.model.Patient.CdaPatientField;
+import gov.cdc.dataingestion.nbs.ecr.model.Patient.CdaPatientTelecom;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedCase;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedInterview;
@@ -34,8 +35,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
-import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper.mapToCData;
-import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper.mapToStringData;
+import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper.*;
 import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforeCaret;
 import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforePipe;
 import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper.*;
@@ -361,7 +361,6 @@ public class CdaMapper implements ICdaMapper {
                 String address1 ="";
                 String address2 ="";
                 String homeExtn="";
-                String name1 = "Patient";
                 String PAT_HOME_PHONE_NBR_TXT  ="";
                 String PAT_WORK_PHONE_EXTENSION_TXT="";
                 String wpNumber="";
@@ -372,19 +371,12 @@ public class CdaMapper implements ICdaMapper {
                 String PAT_NAME_LAST_TXT="";
                 String PAT_NAME_SUFFIX_CD="";
 
-                int raceCodeCounter=0;
                 int phoneCounter = 0;
-                String PAT_RACE_DESC_TXT="";
-                String PAT_ADDR_CENSUS_TRACT_TXT="";
                 String PAT_EMAIL_ADDRESS_TXT="";
                 String PAT_URL_ADDRESS_TXT="";
-                String PAT_NAME_AS_OF_DT="";
-                String PAT_ADDR_AS_OF_DT="";
                 String PAT_PHONE_AS_OF_DT="";
                 String PAT_PHONE_COUNTRY_CODE_TXT="";
                 int patientIdentifier =0;
-                int caseInvCounter= -1;
-                int nameCounter = 1;
                 //endregion
                 if (input.getMsgPatients() != null && input.getMsgPatients().size() > 0) {
                     int k = 1;
@@ -525,7 +517,6 @@ public class CdaMapper implements ICdaMapper {
                                     if (!questionCode.isEmpty()) {
                                         CE ce = mapToCEAnswerType(val, questionCode);
                                         raceCode2List.add(ce);
-                                        raceCodeCounter = i;
                                     }
                                 }
                             }
@@ -653,7 +644,6 @@ public class CdaMapper implements ICdaMapper {
                 if(!PAT_NAME_PREFIX_CD.isEmpty()) {
                     clinicalDocument = checkPatientRolePrefix(clinicalDocument);
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getPrefixArray(0).set(mapToCData(PAT_NAME_PREFIX_CD));
-                    nameCounter++;
                 }
                 if(!PAT_NAME_FIRST_TXT.isEmpty()) {
                     clinicalDocument = checkPatientRoleNameArray(clinicalDocument);
@@ -667,7 +657,6 @@ public class CdaMapper implements ICdaMapper {
 
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).setUse(new ArrayList(Arrays.asList("L")));
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getGivenArray(count).set(mapToCData(PAT_NAME_FIRST_TXT));
-                    nameCounter++;
                 }
                 if(!PAT_NAME_MIDDLE_TXT.isEmpty()) {
                     clinicalDocument = checkPatientRoleNameArray(clinicalDocument);
@@ -679,17 +668,14 @@ public class CdaMapper implements ICdaMapper {
                         clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).addNewGiven();
                     }
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getGivenArray(count).set(mapToCData(PAT_NAME_MIDDLE_TXT));
-                    nameCounter++;
                 }
                 if(!PAT_NAME_LAST_TXT.isEmpty()) {
                     clinicalDocument = checkPatientRoleFamilyName(clinicalDocument);
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getFamilyArray(0).set(mapToCData(PAT_NAME_LAST_TXT));
-                    nameCounter++;
                 }
                 if(!PAT_NAME_SUFFIX_CD.isEmpty()) {
                     clinicalDocument = checkPatientRoleSuffix(clinicalDocument);
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getSuffixArray(0).set(mapToCData(PAT_NAME_SUFFIX_CD));
-                    nameCounter++;
                 }
                 if (!PAT_HOME_PHONE_NBR_TXT.isEmpty()) {
                     int pCount = 0;
@@ -724,140 +710,36 @@ public class CdaMapper implements ICdaMapper {
                 }
 
                 // wpNumber
-                if (!wpNumber.isEmpty()) {
-                    int pCount = 0;
-                    if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray().length == 0) {
-                        clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewTelecom();
-                    } else {
-                        pCount = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray().length + 1 - 1;
-                        clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewTelecom();
-                    }
+                CdaPatientTelecom cdaPatientTeleComWpNumber =
+                        mapPatientWpNumber(clinicalDocument, wpNumber, PAT_WORK_PHONE_EXTENSION_TXT,
+                                PAT_PHONE_AS_OF_DT, phoneCounter);
 
-                    if(!PAT_WORK_PHONE_EXTENSION_TXT.isEmpty()){
-                        wpNumber=wpNumber+ ";ext="+ PAT_WORK_PHONE_EXTENSION_TXT;
-                    }
-                    if(!PAT_PHONE_AS_OF_DT.isEmpty()){
-                        TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
-                        element.set(XmlObject.Factory.parse(stud));
-                        var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, useablePeriod);
-                        clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
-                    }
-
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<String>(Arrays.asList("WP")));
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(wpNumber);
-
-                    phoneCounter =phoneCounter +1;
-                }
+                clinicalDocument = cdaPatientTeleComWpNumber.getClinicalDocument();
+                phoneCounter= cdaPatientTeleComWpNumber.getPhoneCounter();
 
                 // cellNumber
-                if(!cellNumber.isEmpty()) {
-                    int pCount = 0;
-                    if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray().length == 0) {
-                        clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewTelecom();
-                    } else {
-                        pCount = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray().length + 1 - 1;
-                        clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewTelecom();
-                    }
-
-                    if(!PAT_PHONE_AS_OF_DT.isEmpty()){
-                        TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
-                        // CHECK mapToUsableTSElement
-                        element.set(XmlObject.Factory.parse(stud));
-                        var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, useablePeriod);
-                        clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
-                    }
-
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<String>(Arrays.asList("MC")));
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(cellNumber);
-                    phoneCounter =phoneCounter +1;
-                }
+                CdaPatientTelecom cdaPatientTeleComCelLNumber =
+                        mapPatientCellPhone(clinicalDocument, cellNumber,
+                                PAT_PHONE_AS_OF_DT, phoneCounter);
+                clinicalDocument = cdaPatientTeleComCelLNumber.getClinicalDocument();
+                phoneCounter= cdaPatientTeleComCelLNumber.getPhoneCounter();
 
                 // PAT_EMAIL_ADDRESS_TXT
-                if(!PAT_EMAIL_ADDRESS_TXT.isEmpty()) {
-                    int pCount = 0;
-                    if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray().length == 0) {
-                        clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewTelecom();
-                    } else {
-                        pCount = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray().length + 1 - 1;
-                        clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewTelecom();
-                    }
+                CdaPatientTelecom cdaPatientTelecomEmail =
+                        mapPatientEmail(clinicalDocument, PAT_EMAIL_ADDRESS_TXT,
+                            PAT_PHONE_AS_OF_DT, phoneCounter  );
+                clinicalDocument = cdaPatientTelecomEmail.getClinicalDocument();
+                phoneCounter= cdaPatientTelecomEmail.getPhoneCounter();
 
-
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList(Arrays.asList("HP")));
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(mailTo+PAT_EMAIL_ADDRESS_TXT);
-                    if(!PAT_PHONE_AS_OF_DT.isEmpty()){
-                        TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
-                        // CHECK mapToUsableTSElement
-                        element.set(XmlObject.Factory.parse(stud));
-                        var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, useablePeriod);
-                        clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
-                    }
-
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<String>(Arrays.asList("HP")));
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(mailTo + PAT_EMAIL_ADDRESS_TXT);
-                    phoneCounter =phoneCounter +1;
-                }
 
                 // PAT_URL_ADDRESS_TXT
-                if(!PAT_URL_ADDRESS_TXT.isEmpty()) {
-                    int pCount = 0;
-                    if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray().length == 0) {
-                        clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewTelecom();
-                    } else {
-                        pCount = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray().length + 1 - 1;
-                        clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewTelecom();
-                    }
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList(Arrays.asList("HP")));
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(PAT_URL_ADDRESS_TXT);
-                    if(!PAT_PHONE_AS_OF_DT.isEmpty()){
-                        TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
-                        // CHECK mapToUsableTSElement
-                        element.set(XmlObject.Factory.parse(stud));
-                        var out = mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, useablePeriod);
-                        clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
-                    }
+                CdaPatientTelecom cdaPatientTelecomUrl =
+                        mapPatientUrlAddress(clinicalDocument, PAT_URL_ADDRESS_TXT,
+                                PAT_PHONE_AS_OF_DT, phoneCounter);
+                clinicalDocument = cdaPatientTelecomUrl.getClinicalDocument();
 
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<String>(Arrays.asList("HP")));
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(PAT_URL_ADDRESS_TXT);
-                    phoneCounter =phoneCounter +1;
-                }
-
-                if(!address1.isEmpty()) {
-                    int c1 = 0;
-                    int c2 = 0;
-                    clinicalDocument = checkPatientRoleNameArray(clinicalDocument);
-                    if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).getStreetAddressLineArray().length == 0) {
-                        clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).addNewStreetAddressLine();
-                    }
-                    else {
-                        c2 = clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).getStreetAddressLineArray().length;
-                        clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).getStreetAddressLineArray();
-                    }
-
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).getStreetAddressLineArray(c2).set(mapToCData(address1));
-                }
-
-                if(!address2.isEmpty()) {
-                    int c1 = 0;
-                    int c2 = 0;
-                    if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray().length == 0) {
-                        clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewAddr();
-                    }
-                    else {
-                        c1 = clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray().length - 1;
-
-                        if ( clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).getStreetAddressLineArray().length == 0) {
-                            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).addNewStreetAddressLine();
-                        } else {
-                            c2 = clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).getStreetAddressLineArray().length;
-                            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).addNewStreetAddressLine();
-                        }
-
-
-                    }
-
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).getStreetAddressLineArray(c2).set(mapToCData(address2));
-                }
+                clinicalDocument = mapPatientAddress1(clinicalDocument, address1);
+                clinicalDocument = mapPatientAddress2(clinicalDocument, address2);
 
             }
             mapper.setClinicalDocument(clinicalDocument);
@@ -3313,30 +3195,6 @@ public class CdaMapper implements ICdaMapper {
         return ce;
     }
 
-    private TS mapToTsType(String data) throws ParseException {
-        TS ts = TS.Factory.newInstance();
-        String result = "";
-        boolean checkerCode = data.contains("/");
-        boolean checkerCodeDash = data.contains("-");
-        if (!checkerCode && !checkerCodeDash) {
-            result = data;
-        }
-        else if (checkerCodeDash && !data.isEmpty()) {
-            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd HH:mm:ss.S");
-            Date date = inputFormat.parse(data);
-            result = outputFormat.format(date);
-        }
-        else if (checkerCode && !data.isEmpty()) {
-            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.S");
-            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd HH:mm:ss.S");
-            Date date = inputFormat.parse(data);
-            result = outputFormat.format(date);
-        }
-
-        ts.setValue(result);
-        return ts;
-    }
 
 
 
@@ -3582,19 +3440,7 @@ public class CdaMapper implements ICdaMapper {
         return output;
     }
 
-    private XmlObject mapToUsableTSElement(String data, XmlObject output, String name) throws ParseException {
-        XmlCursor cursor = output.newCursor();
-        cursor.toFirstChild();  // Move to the root element
 
-        cursor.beginElement(name);
-        cursor.insertAttributeWithValue("type", "IVL_TS");
-        cursor.toFirstChild();  // Move inside childName
-        cursor.beginElement("low");
-        cursor.insertNamespace("", xmlNameSpaceHolder);
-        cursor.insertAttributeWithValue(valueName, mapToTsType(data).getValue().toString());
-        cursor.dispose();
-        return output;
-    }
 
     private POCDMT000040StructuredBody mapToCase(int entryCounter, EcrSelectedCase caseDto, POCDMT000040StructuredBody output) throws XmlException, ParseException, EcrCdaXmlException {
         int componentCaseCounter=output.getComponentArray().length -1;
