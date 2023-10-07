@@ -1,4 +1,4 @@
-package gov.cdc.dataingestion.nbs.ecr.model.Patient;
+package gov.cdc.dataingestion.nbs.ecr.model.patient;
 
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto;
 import gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1;

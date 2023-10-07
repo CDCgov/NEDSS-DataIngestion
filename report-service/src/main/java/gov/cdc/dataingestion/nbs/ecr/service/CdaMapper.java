@@ -2,8 +2,8 @@ package gov.cdc.dataingestion.nbs.ecr.service;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.model.*;
-import gov.cdc.dataingestion.nbs.ecr.model.Patient.CdaPatientField;
-import gov.cdc.dataingestion.nbs.ecr.model.Patient.CdaPatientTelecom;
+import gov.cdc.dataingestion.nbs.ecr.model.cases.CdaCaseComponent;
+import gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientTelecom;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedCase;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedInterview;
@@ -27,7 +27,6 @@ import javax.xml.namespace.QName;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -35,6 +34,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
+import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaCaseMappingHelper.checkCaseStructComponent;
+import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaCaseMappingHelper.checkCaseStructComponentWithSectionAndIndex;
 import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper.*;
 import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforeCaret;
 import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforePipe;
@@ -76,7 +77,7 @@ public class CdaMapper implements ICdaMapper {
         //region CONTAINER COMPONENT CREATION
         if (input.getMsgContainer().getInvLocalId() != null && !input.getMsgContainer().getInvLocalId().isEmpty()) {
             clinicalDocument.setId(II.Factory.newInstance());
-            clinicalDocument.getId().setRoot(rootId);
+            clinicalDocument.getId().setRoot(ROOT_ID);
             clinicalDocument.getId().setExtension(input.getMsgContainer().getInvLocalId());
             clinicalDocument.getId().setAssigningAuthorityName("LR");
             inv168 = input.getMsgContainer().getInvLocalId();
@@ -116,7 +117,7 @@ public class CdaMapper implements ICdaMapper {
 
         clinicalDocument.setCode(CE.Factory.newInstance());
         clinicalDocument.getCode().setCode("55751-2");
-        clinicalDocument.getCode().setCodeSystem(codeSystem);
+        clinicalDocument.getCode().setCodeSystem(CODE_SYSTEM);
         clinicalDocument.getCode().setCodeSystemName(codeSystemName);
         clinicalDocument.getCode().setDisplayName("Public Health Case Report - PHRI");
         clinicalDocument.setTitle(ST.Factory.newInstance());
@@ -763,21 +764,7 @@ public class CdaMapper implements ICdaMapper {
              * CASE - 1st PHASE TESTED
              * **/
             if(!input.getMsgCases().isEmpty()) {
-
-                if (clinicalDocument.getComponent() == null) {
-                    clinicalDocument.addNewComponent().addNewStructuredBody().addNewComponent();
-
-                }
-                else {
-                    if (!clinicalDocument.getComponent().isSetStructuredBody()) {
-                        clinicalDocument.getComponent().addNewStructuredBody();
-                    }
-                    else {
-                        if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
-                            clinicalDocument.getComponent().getStructuredBody().addNewComponent();
-                        }
-                    }
-                }
+                clinicalDocument =  checkCaseStructComponent(clinicalDocument);
 
                 // componentCounter should be zero initially
                 for(int i = 0; i < input.getMsgCases().size(); i++) {
@@ -785,35 +772,15 @@ public class CdaMapper implements ICdaMapper {
                         componentCounter++;
                         var c = 0;
 
-                        if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
-                            clinicalDocument.getComponent().getStructuredBody().addNewComponent();
-                        } else {
-                            c = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length;
-                            clinicalDocument.getComponent().getStructuredBody().addNewComponent();
-                        }
+                        CdaCaseComponent caseComponent = checkCaseStructComponentWithSectionAndIndex(clinicalDocument, c);
+                        clinicalDocument = caseComponent.getClinicalDocument();
+                        c = caseComponent.getComponentIndex();
 
-
-                        if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
-                            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).addNewSection().addNewId();
-                            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
-                            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewTitle();
-                        }
-                        else {
-                            if( clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getId() == null) {
-                                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewId();
-                            }
-                            if( clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode() == null) {
-                                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
-                            }
-                            if( clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getTitle() == null) {
-                                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewTitle();
-                            }
-                        }
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getId().setRoot(rootId);
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getId().setRoot(ROOT_ID);
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getId().setExtension(inv168);
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getId().setAssigningAuthorityName("LR");
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCode("55752-0");
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem(codeSystem);
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem(CODE_SYSTEM);
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName(codeSystemName);
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setDisplayName("Clinical Information");
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getTitle().set(mapToStringData("CLINICAL INFORMATION"));
@@ -1231,7 +1198,7 @@ public class CdaMapper implements ICdaMapper {
                         treatmentCounter++;
                         componentCounter++;
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCode("55753-8");
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem(codeSystem);
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem(CODE_SYSTEM);
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName(codeSystemName);
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setDisplayName("Treatment Information");
 

@@ -1,8 +1,8 @@
 package gov.cdc.dataingestion.nbs.ecr.constant;
 
 public class CdaConstantValue {
-    public static final String rootId = "2.16.840.1.113883.19";
-    public static final String codeSystem = "2.16.840.1.113883.6.1";
+    public static final String ROOT_ID = "2.16.840.1.113883.19";
+    public static final String CODE_SYSTEM = "2.16.840.1.113883.6.1";
     public static final String codeSystemName = "LOINC";
     public static final String xmlNameSpaceHolder = "urn:hl7-org:v3";
     public static final String nameSpaceUrl = "http://www.w3.org/2001/XMLSchema-instance";

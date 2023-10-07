@@ -2,10 +2,9 @@ package gov.cdc.dataingestion.nbs.ecr.service.helper;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.model.CdaPatientMapper;
-import gov.cdc.dataingestion.nbs.ecr.model.Patient.CdaPatientTelecom;
+import gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientTelecom;
 import gov.cdc.dataingestion.nbs.ecr.model.ValueMapper;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto;
-import gov.cdc.nedss.phdc.cda.ClinicalDocumentDocument1;
 import gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1;
 import gov.cdc.nedss.phdc.cda.TEL;
 import org.apache.xmlbeans.XmlObject;
@@ -156,11 +155,11 @@ public class CdaPatientMappingHelper {
                 clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().addNewTitle();
             }
 
-            clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getId().setRoot(rootId);
+            clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getId().setRoot(ROOT_ID);
             clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getId().setExtension(inv168);
             clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getId().setAssigningAuthorityName("LR");
             clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setCode("297622");
-            clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setCodeSystem(codeSystem);
+            clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setCodeSystem(CODE_SYSTEM);
             clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setCodeSystemName(codeSystemName);
             clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setDisplayName("Social History");
             clinicalDocument.getComponent().getStructuredBody()
@@ -508,28 +507,6 @@ public class CdaPatientMappingHelper {
             return clinicalDocument;
         } catch (Exception e) {
             throw new EcrCdaXmlException(e.getMessage());
-        }
-    }
-
-    public static String getStringValue(String fieldName, EcrMsgPatientDto patient) {
-        // Use reflection to get the value using the getter
-        try {
-            Method method = EcrMsgPatientDto.class.getMethod("get" + capitalize(fieldName));
-            return (String) method.invoke(patient);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public static Timestamp getDateTimeValue(String fieldName, EcrMsgPatientDto patient) {
-        // Use reflection to get the value using the getter
-        try {
-            Method method = EcrMsgPatientDto.class.getMethod("get" + capitalize(fieldName));
-            return (Timestamp) method.invoke(patient);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
         }
     }
 
