@@ -35,6 +35,7 @@ import java.util.*;
 
 import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforeCaret;
 import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforePipe;
+import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper.validatePatientGenericField;
 
 @Service
 public class CdaMapper implements ICdaMapper {
@@ -773,23 +774,7 @@ public class CdaMapper implements ICdaMapper {
                             }
 
                             // PAT_INFO_AS_OF_DT
-                            else if (
-                                    (field.getName().equals("patInfoAsOfDt") && patient.getPatInfoAsOfDt() != null) ||
-                                            (field.getName().equals("patAddrCommentTxt") && patient.getPatAddrCommentTxt() != null && !patient.getPatAddrCommentTxt().isEmpty()) ||
-                                            (field.getName().equals("patAdditionalGenderTxt") && patient.getPatAdditionalGenderTxt() != null && !patient.getPatAdditionalGenderTxt().isEmpty()) ||
-                                            (field.getName().equals("patSpeaksEnglishIndCd") && patient.getPatSpeaksEnglishIndCd() != null && !patient.getPatSpeaksEnglishIndCd().isEmpty()) ||
-                                            (field.getName().equals("patIdStateHivCaseNbrTxt") && patient.getPatIdStateHivCaseNbrTxt() != null && !patient.getPatIdStateHivCaseNbrTxt().isEmpty()) ||
-                                            (field.getName().equals("patEthnicityUnkReasonCd") && patient.getPatEthnicityUnkReasonCd() != null && !patient.getPatEthnicityUnkReasonCd().isEmpty()) ||
-                                            (field.getName().equals("patSexUnkReasonCd") && patient.getPatSexUnkReasonCd() != null && !patient.getPatSexUnkReasonCd().isEmpty()) ||
-                                            (field.getName().equals("patPhoneCommentTxt") && patient.getPatPhoneCommentTxt() != null && !patient.getPatPhoneCommentTxt().isEmpty()) ||
-                                            (field.getName().equals("patDeceasedIndCd") && patient.getPatDeceasedIndCd() != null && !patient.getPatDeceasedIndCd().isEmpty()) ||
-                                            (field.getName().equals("patDeceasedDt") && patient.getPatDeceasedDt() != null) ||
-                                            (field.getName().equals("patPreferredGenderCd") && patient.getPatPreferredGenderCd() != null && !patient.getPatPreferredGenderCd().isEmpty()) ||
-                                            (field.getName().equals("patReportedAge") && patient.getPatReportedAge() != null) ||
-                                            (field.getName().equals("patReportedAgeUnitCd") && patient.getPatReportedAgeUnitCd() != null && !patient.getPatReportedAgeUnitCd().isEmpty()) ||
-                                            (field.getName().equals("patCommentTxt") && patient.getPatCommentTxt() != null && !patient.getPatCommentTxt().isEmpty()) ||
-                                            (field.getName().equals("patBirthSexCd") && patient.getPatBirthSexCd() != null && !patient.getPatBirthSexCd().isEmpty())
-                            ) {
+                            else if ( validatePatientGenericField(field, patient) ) {
                                 String colName = "";
                                 String value = "";
 
