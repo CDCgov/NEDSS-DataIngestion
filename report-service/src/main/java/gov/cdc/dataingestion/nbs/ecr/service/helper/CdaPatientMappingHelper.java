@@ -186,6 +186,54 @@ public class CdaPatientMappingHelper {
         return clinicalDocument;
     }
 
+    public static POCDMT000040ClinicalDocument1 checkLanguageCode(POCDMT000040ClinicalDocument1 clinicalDocument) {
+        if(!clinicalDocument.isSetLanguageCode()){
+            clinicalDocument.addNewLanguageCode();
+        }
+        return clinicalDocument;
+    }
+
+    public static POCDMT000040ClinicalDocument1 checkPatientRoleAddrPostal(POCDMT000040ClinicalDocument1 clinicalDocument) {
+        clinicalDocument = checkPatientRoleAddrArray(clinicalDocument);
+        if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getPostalCodeArray().length == 0) {
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).addNewPostalCode();
+        }
+        return clinicalDocument;
+    }
+
+    public static POCDMT000040ClinicalDocument1 checkPatientRoleAddrState(POCDMT000040ClinicalDocument1 clinicalDocument) {
+        clinicalDocument = checkPatientRoleAddrArray(clinicalDocument);
+        if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getStateArray().length == 0) {
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).addNewState();
+        }
+        return clinicalDocument;
+    }
+
+    public static POCDMT000040ClinicalDocument1 checkPatientRoleAddrCity(POCDMT000040ClinicalDocument1 clinicalDocument) {
+        clinicalDocument = checkPatientRoleAddrArray(clinicalDocument);
+        if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getCityArray().length == 0) {
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).addNewCity();
+        }
+        return clinicalDocument;
+    }
+
+
+    public static POCDMT000040ClinicalDocument1 checkPatientRoleAddrCountry(POCDMT000040ClinicalDocument1 clinicalDocument) {
+        clinicalDocument = checkPatientRoleAddrArray(clinicalDocument);
+        if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getCountryArray().length == 0) {
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).addNewCountry();
+        }
+        return clinicalDocument;
+    }
+
+    public static POCDMT000040ClinicalDocument1 checkPatientRoleAddrCounty(POCDMT000040ClinicalDocument1 clinicalDocument) {
+        clinicalDocument = checkPatientRoleAddrArray(clinicalDocument);
+        if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getCountyArray().length == 0) {
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).addNewCounty();
+        }
+        return clinicalDocument;
+    }
+
     public static POCDMT000040ClinicalDocument1
         checkPatientRoleBirthCountry(POCDMT000040ClinicalDocument1 clinicalDocument) {
         clinicalDocument = checkPatientRole(clinicalDocument);
