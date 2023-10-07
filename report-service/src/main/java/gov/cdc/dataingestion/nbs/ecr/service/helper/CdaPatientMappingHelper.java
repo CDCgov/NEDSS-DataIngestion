@@ -4,6 +4,7 @@ import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.model.CdaPatientMapper;
 import gov.cdc.dataingestion.nbs.ecr.model.ValueMapper;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto;
+import gov.cdc.nedss.phdc.cda.ClinicalDocumentDocument1;
 import gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1;
 
 import java.lang.reflect.Field;
@@ -165,6 +166,49 @@ public class CdaPatientMappingHelper {
         mapper.setClinicalDocument(clinicalDocument);
         mapper.setPatientComponentCounter(patientComponentCounter);
         return mapper;
+    }
+
+
+    public static POCDMT000040ClinicalDocument1 checkPatientRoleAddrArray(POCDMT000040ClinicalDocument1 clinicalDocument) {
+        if (clinicalDocument.getRecordTargetArray(0)
+                .getPatientRole().getAddrArray().length == 0) {
+            clinicalDocument.getRecordTargetArray(0)
+                    .getPatientRole().addNewAddr();
+        }
+        return clinicalDocument;
+    }
+
+    public static POCDMT000040ClinicalDocument1 checkPatientRole(POCDMT000040ClinicalDocument1 clinicalDocument) {
+        if (!clinicalDocument.getRecordTargetArray(0).getPatientRole().isSetPatient()) {
+            clinicalDocument.getRecordTargetArray(0)
+                    .getPatientRole().addNewPatient();
+        }
+        return clinicalDocument;
+    }
+
+    public static POCDMT000040ClinicalDocument1 checkPatientRoleGenderCode(POCDMT000040ClinicalDocument1 clinicalDocument) {
+        clinicalDocument = checkPatientRole(clinicalDocument);
+        if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().isSetAdministrativeGenderCode()) {
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().addNewAdministrativeGenderCode();
+        }
+        return clinicalDocument;
+    }
+
+    public static POCDMT000040ClinicalDocument1 checkPatientRoleAlias(POCDMT000040ClinicalDocument1 clinicalDocument) {
+        clinicalDocument = checkPatientRole(clinicalDocument);
+
+        if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray().length == 0) {
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().addNewName();
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().addNewName();
+        }
+        else if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray().length == 1) {
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().addNewName();
+        }
+
+        if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(1).getGivenArray().length == 0) {
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(1).addNewGiven();
+        }
+        return clinicalDocument;
     }
 
     public static String getStringValue(String fieldName, EcrMsgPatientDto patient) {
