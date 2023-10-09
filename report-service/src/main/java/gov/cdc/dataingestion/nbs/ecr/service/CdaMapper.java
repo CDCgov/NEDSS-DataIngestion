@@ -136,7 +136,7 @@ public class CdaMapper implements ICdaMapper {
         clinicalDocument.getRecordTargetArray(0).addNewPatientRole();
 
         /**MAP TO PATIENT**/
-        var pat =  mapToPatient(input, clinicalDocument, patientComponentCounter, inv168);
+        var pat =  this.patientMappingHelper.mapToPatient(input, clinicalDocument, patientComponentCounter, inv168);
         clinicalDocument = pat.getClinicalDocument();
         inv168 = pat.getInv168();
 
@@ -314,321 +314,6 @@ public class CdaMapper implements ICdaMapper {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssZ");
         return dateTime.format(formatter);
     }
-
-    //region PATIENT
-    private CdaPatientMapper mapToPatient(EcrSelectedRecord input, POCDMT000040ClinicalDocument1 clinicalDocument, int patientComponentCounter, String inv168)
-            throws EcrCdaXmlException {
-
-        try {
-            CdaPatientMapper mapper = new CdaPatientMapper();
-            for(var patient : input.getMsgPatients()) {
-
-                //region VARIABLE
-                String address1 ="";
-                String address2 ="";
-                String homeExtn="";
-                String PAT_HOME_PHONE_NBR_TXT  ="";
-                String PAT_WORK_PHONE_EXTENSION_TXT="";
-                String wpNumber="";
-                String cellNumber="";
-                String PAT_NAME_FIRST_TXT="";
-                String PAT_NAME_MIDDLE_TXT="";
-                String PAT_NAME_PREFIX_CD="";
-                String PAT_NAME_LAST_TXT="";
-                String PAT_NAME_SUFFIX_CD="";
-
-                int phoneCounter = 0;
-                String PAT_EMAIL_ADDRESS_TXT="";
-                String PAT_URL_ADDRESS_TXT="";
-                String PAT_PHONE_AS_OF_DT="";
-                String PAT_PHONE_COUNTRY_CODE_TXT="";
-                int patientIdentifier =0;
-                //endregion
-                if (input.getMsgPatients() != null && input.getMsgPatients().size() > 0) {
-                    int k = 1;
-                    Field[] fields = EcrMsgPatientDto.class.getDeclaredFields();
-
-                    for (Field field : fields) {
-                        if (!"numberOfField".equals(field.getName())) {
-                            if (field.getName().equals("patPrimaryLanguageCd") &&
-                                    patient.getPatPrimaryLanguageCd() != null && !patient.getPatPrimaryLanguageCd().isEmpty()) {
-                                clinicalDocument = this.patientMappingHelper.checkLanguageCode(clinicalDocument);
-                                clinicalDocument.getLanguageCode().setCode(patient.getPatPrimaryLanguageCd());
-                            }
-                            else if (field.getName().equals(PAT_LOCAL_ID_CONST) &&
-                                    patient.getPatLocalId() != null && !patient.getPatLocalId().isEmpty()) {
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewId();
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setExtension(patient.getPatLocalId());
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setRoot("2.16.840.1.113883.4.1");
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setAssigningAuthorityName("LR");
-                                patientIdentifier++;
-                            }
-                            else if (field.getName().equals("patIdMedicalRecordNbrTxt") &&
-                                    patient.getPatIdMedicalRecordNbrTxt() != null && !patient.getPatIdMedicalRecordNbrTxt().isEmpty()) {
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewId();
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setExtension(patient.getPatIdMedicalRecordNbrTxt());
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setRoot("2.16.840.1.113883.4.1");
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setAssigningAuthorityName("LR_MRN");
-                                patientIdentifier++;
-                            }
-                            else if (field.getName().equals("patIdSsnTxt") &&
-                                    patient.getPatIdSsnTxt() != null && !patient.getPatIdSsnTxt().isEmpty()) {
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewId();
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setExtension(patient.getPatIdSsnTxt());
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setRoot("2.16.840.1.114222.4.5.1");
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getIdArray(patientIdentifier).setAssigningAuthorityName("SS");
-                                patientIdentifier++;
-                            }
-                            else if (field.getName().equals("patAddrStreetAddr1Txt") && patient.getPatAddrStreetAddr1Txt() != null && !patient.getPatAddrStreetAddr1Txt().isEmpty()) {
-                                address1 += patient.getPatAddrStreetAddr1Txt();
-                            }
-                            else if (field.getName().equals("patAddrStreetAddr2Txt") && patient.getPatAddrStreetAddr2Txt() != null && !patient.getPatAddrStreetAddr2Txt().isEmpty()) {
-                                address2 += patient.getPatAddrStreetAddr2Txt();
-                            }
-                            else if(field.getName().equals("patAddrCityTxt") && patient.getPatAddrCityTxt() != null && !patient.getPatAddrCityTxt().isEmpty()) {
-                                clinicalDocument = this.patientMappingHelper.checkPatientRoleAddrCity(clinicalDocument);
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0)
-                                        .getCityArray(0).set(cdaMapHelper.mapToCData(patient.getPatAddrCityTxt()));
-                                k++;
-                            }
-                            else if(field.getName().equals("patAddrStateCd") && patient.getPatAddrStateCd() != null && !patient.getPatAddrStateCd().isEmpty()) {
-                                clinicalDocument = this.patientMappingHelper.checkPatientRoleAddrState(clinicalDocument);
-                                var nstate = this.cdaMapHelper.mapToAddressType(patient.getPatAddrStateCd(), STATE);
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getStateArray(0).set(cdaMapHelper.mapToCData(nstate));
-                                k++;
-                            }
-                            else if(field.getName().equals("patAddrZipCodeTxt") && patient.getPatAddrZipCodeTxt() != null && !patient.getPatAddrZipCodeTxt().isEmpty()) {
-                                clinicalDocument = this.patientMappingHelper.checkPatientRoleAddrPostal(clinicalDocument);
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getPostalCodeArray(0).set(cdaMapHelper.mapToCData(patient.getPatAddrZipCodeTxt()));
-                                k++;
-                            }
-                            else if(field.getName().equals("patAddrCountyCd") && patient.getPatAddrCountyCd() != null && !patient.getPatAddrCountyCd().isEmpty()) {
-                                clinicalDocument = this.patientMappingHelper.checkPatientRoleAddrCounty(clinicalDocument);
-                                var val = this.cdaMapHelper.mapToAddressType(patient.getPatAddrCountyCd(), COUNTY);
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getCountyArray(0).set(cdaMapHelper.mapToCData(val));
-                                k++;
-                            }
-                            else if(field.getName().equals("patAddrCountryCd") && patient.getPatAddrCountryCd() != null && !patient.getPatAddrCountryCd().isEmpty()) {
-                                clinicalDocument = this.patientMappingHelper.checkPatientRoleAddrCountry(clinicalDocument);
-                                var val = this.cdaMapHelper.mapToAddressType(patient.getPatAddrCountryCd(), COUNTRY);
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).getCountryArray(0).set(cdaMapHelper.mapToCData(val));
-                                k++;
-                            }
-                            else if (field.getName().equals("patWorkPhoneExtensionTxt") && patient.getPatWorkPhoneExtensionTxt() != null) {
-                                PAT_WORK_PHONE_EXTENSION_TXT = patient.getPatWorkPhoneExtensionTxt().toString();
-                            }
-                            else if (field.getName().equals("patHomePhoneNbrTxt") && patient.getPatHomePhoneNbrTxt() != null) {
-                                PAT_HOME_PHONE_NBR_TXT = patient.getPatHomePhoneNbrTxt();
-                            }
-                            else if (field.getName().equals("patWorkPhoneNbrTxt") && patient.getPatWorkPhoneNbrTxt() != null) {
-                                wpNumber = patient.getPatWorkPhoneNbrTxt();
-                            }
-                            else if (field.getName().equals("patPhoneCountryCodeTxt") && patient.getPatPhoneCountryCodeTxt() != null) {
-                                PAT_PHONE_COUNTRY_CODE_TXT = patient.getPatPhoneCountryCodeTxt().toString();
-                            }
-                            else if (field.getName().equals("patCellPhoneNbrTxt") && patient.getPatCellPhoneNbrTxt() != null) {
-                                cellNumber = patient.getPatCellPhoneNbrTxt();
-                            }
-                            else if (field.getName().equals("patNamePrefixCd") && patient.getPatNamePrefixCd() != null && !patient.getPatNamePrefixCd().trim().isEmpty()) {
-                                PAT_NAME_PREFIX_CD = patient.getPatNamePrefixCd();
-                            }
-                            else if (field.getName().equals("patNameFirstTxt") && patient.getPatNameFirstTxt() != null && !patient.getPatNameFirstTxt().trim().isEmpty()) {
-                                PAT_NAME_FIRST_TXT = patient.getPatNameFirstTxt();
-                            }
-                            else if (field.getName().equals("patNameMiddleTxt") && patient.getPatNameMiddleTxt() != null && !patient.getPatNameMiddleTxt().trim().isEmpty()) {
-                                PAT_NAME_MIDDLE_TXT = patient.getPatNameMiddleTxt();
-                            }
-                            else if (field.getName().equals("patNameLastTxt") && patient.getPatNameLastTxt() != null && !patient.getPatNameLastTxt().trim().isEmpty()) {
-                                PAT_NAME_LAST_TXT = patient.getPatNameLastTxt();
-                            }
-                            else if (field.getName().equals("patNameSuffixCd") && patient.getPatNameSuffixCd() != null && !patient.getPatNameSuffixCd().trim().isEmpty()) {
-                                PAT_NAME_SUFFIX_CD = patient.getPatNameSuffixCd();
-                            }
-                            else if (field.getName().equals("patNameAliasTxt") && patient.getPatNameAliasTxt() != null && !patient.getPatNameAliasTxt().trim().isEmpty()) {
-                                clinicalDocument = this.patientMappingHelper.checkPatientRoleAlias(clinicalDocument);
-
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(1).setUse(new ArrayList<String> (Arrays.asList("P")));
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(1).getGivenArray(0).set(cdaMapHelper.mapToCData(patient.getPatNameAliasTxt()));
-                            }
-                            else if(field.getName().equals("patCurrentSexCd") && patient.getPatCurrentSexCd() != null && !patient.getPatCurrentSexCd().isEmpty()) {
-                                String questionCode = this.cdaMapHelper.mapToQuestionId(patient.getPatCurrentSexCd());
-                                clinicalDocument = this.patientMappingHelper.checkPatientRoleGenderCode(clinicalDocument);
-                                CE administrativeGender = this.cdaMapHelper.mapToCEAnswerType(patient.getPatCurrentSexCd(), questionCode);
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().setAdministrativeGenderCode(administrativeGender);
-                            }
-                            else if(field.getName().equals("patBirthDt") && patient.getPatBirthDt() != null) {
-                                clinicalDocument = this.patientMappingHelper.checkPatientRole(clinicalDocument);
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().setBirthTime(cdaMapHelper.mapToTsType(patient.getPatBirthDt().toString()));
-                            }
-                            else if(field.getName().equals("patMaritalStatusCd") && patient.getPatMaritalStatusCd() != null  && !patient.getPatMaritalStatusCd().isEmpty()) {
-                                String questionCode = this.cdaMapHelper.mapToQuestionId(patient.getPatMaritalStatusCd());
-                                CE ce = this.cdaMapHelper.mapToCEAnswerType(patient.getPatMaritalStatusCd(), questionCode);
-                                clinicalDocument = this.patientMappingHelper.checkPatientRole(clinicalDocument);
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().setMaritalStatusCode(ce);
-                            }
-                            else if(field.getName().equals("patRaceCategoryCd") && patient.getPatRaceCategoryCd() != null  && !patient.getPatRaceCategoryCd().isEmpty()) {
-                                clinicalDocument = this.patientMappingHelper.mapPatientRaceCategory(patient, clinicalDocument);
-                            }
-                            else if(field.getName().equals("patRaceDescTxt") && patient.getPatRaceDescTxt() != null  && !patient.getPatRaceDescTxt().isEmpty()) {
-                                clinicalDocument = this.patientMappingHelper.mapToPatientRaceDesc(clinicalDocument, patient);
-                            }
-                            else if(field.getName().equals("patEthnicGroupIndCd") && patient.getPatEthnicGroupIndCd() != null  && !patient.getPatEthnicGroupIndCd().isEmpty()) {
-                                clinicalDocument = this.patientMappingHelper.checkPatientRole(clinicalDocument);
-                                String questionCode = this.cdaMapHelper.mapToQuestionId(patient.getPatEthnicGroupIndCd());
-                                CE ce = this.cdaMapHelper.mapToCEAnswerType(patient.getPatEthnicGroupIndCd(), questionCode);
-
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().setEthnicGroupCode(ce);
-                            }
-                            else if(field.getName().equals("patBirthCountryCd") && patient.getPatBirthCountryCd() != null  && !patient.getPatBirthCountryCd().isEmpty()) {
-                                clinicalDocument = this.patientMappingHelper.checkPatientRoleBirthCountry(clinicalDocument);
-                                String val = this.cdaMapHelper.mapToAddressType(patient.getPatBirthCountryCd(), COUNTRY);
-                                POCDMT000040Place place = POCDMT000040Place.Factory.newInstance();
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getBirthplace().setPlace(place);
-
-                                AD ad = AD.Factory.newInstance();
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getBirthplace().getPlace().setAddr(ad);
-
-                                AdxpCounty county = AdxpCounty.Factory.newInstance();
-
-                                XmlCursor cursor = county.newCursor();
-                                cursor.setTextValue(CDATA + val + CDATA);
-                                cursor.dispose();
-
-                                AdxpCounty[] countyArr = {county};
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getBirthplace().getPlace().getAddr().setCountyArray(countyArr);
-                            }
-                            else if(field.getName().equals("patAddrCensusTractTxt") && patient.getPatAddrCensusTractTxt() != null  && !patient.getPatAddrCensusTractTxt().isEmpty()) {
-                                clinicalDocument = this.patientMappingHelper.mapPatientAddrCensusTract(clinicalDocument, patient);
-                                k++;
-                            }
-                            else if (field.getName().equals("patEmailAddressTxt") && patient.getPatEmailAddressTxt() != null && !patient.getPatEmailAddressTxt().trim().isEmpty()) {
-                                PAT_EMAIL_ADDRESS_TXT = patient.getPatEmailAddressTxt();
-                            }
-                            else if (field.getName().equals("patUrlAddressTxt") && patient.getPatUrlAddressTxt() != null && !patient.getPatUrlAddressTxt().trim().isEmpty()) {
-                                PAT_URL_ADDRESS_TXT = patient.getPatUrlAddressTxt();
-                            }
-                            else if(field.getName().equals("patNameAsOfDt") && patient.getPatNameAsOfDt() != null) {
-                                clinicalDocument = this.patientMappingHelper.checkPatientRoleNameArray(clinicalDocument);
-                                PN pn = PN.Factory.newInstance();
-                                IVLTS time = IVLTS.Factory.newInstance();
-                                var ts = cdaMapHelper.mapToTsType(patient.getPatNameAsOfDt().toString());
-
-                                XmlCursor cursor = time.newCursor();
-                                cursor.toEndDoc();
-
-                                cursor.beginElement("low");
-                                cursor.insertAttributeWithValue(VALUE_NAME,  ts.getValue());
-
-                                cursor.toEndDoc();
-                                cursor.removeXml();
-                                cursor.dispose();
-
-
-                                pn.setValidTime(time);
-                                clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().setNameArray(0, pn);
-                            }
-                            else if (field.getName().equals("patPhoneAsOfDt") &&  patient.getPatPhoneAsOfDt() != null) {
-                                PAT_PHONE_AS_OF_DT = patient.getPatPhoneAsOfDt().toString();
-                            }
-                            else if ( this.patientMappingHelper.validatePatientGenericField(field, patient) ) {
-                                var mapValue = this.patientMappingHelper.getPatientVariableNameAndValue(field, patient);
-                                String colName = mapValue.getColName();
-                                String value = mapValue.getValue();
-                                var  clinicalDocumentMapper = this.patientMappingHelper.mapPatientStructureComponent(patientComponentCounter, clinicalDocument, inv168);
-                                clinicalDocument = clinicalDocumentMapper.getClinicalDocument();
-                                patientComponentCounter = clinicalDocumentMapper.getPatientComponentCounter();
-                                POCDMT000040Component3 comp = clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter);
-                                int patEntityCounter = clinicalDocument.getComponent().getStructuredBody().getComponentArray(0).getSection().getEntryArray().length;
-                                var compPatient = mapToPatient(patEntityCounter, colName, value, comp);
-                                clinicalDocument.getComponent().getStructuredBody().setComponentArray(patientComponentCounter, compPatient);
-                            }
-                        }
-                        if (k > 1) {
-                            clinicalDocument = this.patientMappingHelper.checkPatientRoleAddrArray(clinicalDocument);
-                            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).setUse(new ArrayList<String>(Arrays.asList("H")));
-                        }
-                        if (k> 1 && field.getName().equals("patAddrAsOfDt") && patient.getPatAddrAsOfDt() != null ) {
-                            clinicalDocument = this.patientMappingHelper.checkPatientRoleAddrArray(clinicalDocument);
-                            AD element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0);
-                            var ad = cdaMapHelper.mapToUsableTSElement(patient.getPatAddrAsOfDt().toString(), element, USESABLE_PERIOD);
-                            clinicalDocument.getRecordTargetArray(0).getPatientRole().setAddrArray(0, (AD) ad);
-                        }
-                    }
-                }
-
-                if(!PAT_NAME_PREFIX_CD.isEmpty()) {
-                    clinicalDocument = this.patientMappingHelper.checkPatientRolePrefix(clinicalDocument);
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getPrefixArray(0).set(cdaMapHelper.mapToCData(PAT_NAME_PREFIX_CD));
-                }
-                if(!PAT_NAME_FIRST_TXT.isEmpty()) {
-                    clinicalDocument = this.patientMappingHelper.mapPatientFirstName(clinicalDocument,
-                            PAT_NAME_FIRST_TXT);
-                }
-                if(!PAT_NAME_MIDDLE_TXT.isEmpty()) {
-                    clinicalDocument = this.patientMappingHelper.mapPatientMiddleName(clinicalDocument,
-                            PAT_NAME_MIDDLE_TXT);
-                }
-
-                if(!PAT_NAME_LAST_TXT.isEmpty()) {
-                    clinicalDocument = this.patientMappingHelper.checkPatientRoleFamilyName(clinicalDocument);
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getFamilyArray(0).set(cdaMapHelper.mapToCData(PAT_NAME_LAST_TXT));
-                }
-                if(!PAT_NAME_SUFFIX_CD.isEmpty()) {
-                    clinicalDocument = this.patientMappingHelper.checkPatientRoleSuffix(clinicalDocument);
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getSuffixArray(0).set(cdaMapHelper.mapToCData(PAT_NAME_SUFFIX_CD));
-                }
-                if (!PAT_HOME_PHONE_NBR_TXT.isEmpty()) {
-                    clinicalDocument =  this.patientMappingHelper.mapPatientHomePhoneNumber(
-                            clinicalDocument,
-                            PAT_PHONE_COUNTRY_CODE_TXT,
-                            PAT_HOME_PHONE_NBR_TXT,
-                            PAT_PHONE_AS_OF_DT,
-                            homeExtn);
-                    phoneCounter =phoneCounter +1;
-                }
-
-                // wpNumber
-                CdaPatientTelecom cdaPatientTeleComWpNumber =
-                        this.patientMappingHelper.mapPatientWpNumber(clinicalDocument, wpNumber, PAT_WORK_PHONE_EXTENSION_TXT,
-                                PAT_PHONE_AS_OF_DT, phoneCounter);
-
-                clinicalDocument = cdaPatientTeleComWpNumber.getClinicalDocument();
-                phoneCounter= cdaPatientTeleComWpNumber.getPhoneCounter();
-
-                // cellNumber
-                CdaPatientTelecom cdaPatientTeleComCelLNumber =
-                        this.patientMappingHelper.mapPatientCellPhone(clinicalDocument, cellNumber,
-                                PAT_PHONE_AS_OF_DT, phoneCounter);
-                clinicalDocument = cdaPatientTeleComCelLNumber.getClinicalDocument();
-                phoneCounter= cdaPatientTeleComCelLNumber.getPhoneCounter();
-
-                // PAT_EMAIL_ADDRESS_TXT
-                CdaPatientTelecom cdaPatientTelecomEmail =
-                        this.patientMappingHelper.mapPatientEmail(clinicalDocument, PAT_EMAIL_ADDRESS_TXT,
-                            PAT_PHONE_AS_OF_DT, phoneCounter  );
-                clinicalDocument = cdaPatientTelecomEmail.getClinicalDocument();
-                phoneCounter= cdaPatientTelecomEmail.getPhoneCounter();
-
-
-                // PAT_URL_ADDRESS_TXT
-                CdaPatientTelecom cdaPatientTelecomUrl =
-                        this.patientMappingHelper.mapPatientUrlAddress(clinicalDocument, PAT_URL_ADDRESS_TXT,
-                                PAT_PHONE_AS_OF_DT, phoneCounter);
-                clinicalDocument = cdaPatientTelecomUrl.getClinicalDocument();
-
-                clinicalDocument = this.patientMappingHelper.mapPatientAddress1(clinicalDocument, address1);
-                clinicalDocument = this.patientMappingHelper.mapPatientAddress2(clinicalDocument, address2);
-
-            }
-            mapper.setClinicalDocument(clinicalDocument);
-            mapper.setPatientComponentCounter(patientComponentCounter);
-            mapper.setInv168(inv168);
-            return mapper;
-        } catch (Exception e) {
-            throw new EcrCdaXmlException(e.getMessage());
-        }
-    }
-    //endregion
 
     //region CASE
     public CdaCaseMapper mapToCaseTop(EcrSelectedRecord input, POCDMT000040ClinicalDocument1 clinicalDocument,
@@ -1558,7 +1243,7 @@ public class CdaMapper implements ICdaMapper {
 
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).setTypeCode(XActRelationshipEntryRelationship.COMP);
                 var obs = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).getObservation();
-                mapToObservation(questionCode, in.getMsgInterview().getIxsIntervieweeRoleCd(), obs);
+                this.cdaMapHelper.mapToObservation(questionCode, in.getMsgInterview().getIxsIntervieweeRoleCd(), obs);
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).setObservation(obs);
                 entryCounter= entryCounter+ 1;
             }
@@ -1575,7 +1260,7 @@ public class CdaMapper implements ICdaMapper {
 
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).setTypeCode(XActRelationshipEntryRelationship.COMP);
                 var obs = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).getObservation();
-                mapToObservation(questionCode, in.getMsgInterview().getIxsInterviewTypeCd(), obs);
+                this.cdaMapHelper.mapToObservation(questionCode, in.getMsgInterview().getIxsInterviewTypeCd(), obs);
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).setObservation(obs);
                 entryCounter= entryCounter+ 1;
 
@@ -1592,7 +1277,7 @@ public class CdaMapper implements ICdaMapper {
                 }
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).setTypeCode(XActRelationshipEntryRelationship.COMP);
                 var obs = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).getObservation();
-                mapToObservation(questionCode, in.getMsgInterview().getIxsInterviewLocCd(), obs);
+                this.cdaMapHelper.mapToObservation(questionCode, in.getMsgInterview().getIxsInterviewLocCd(), obs);
                 out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).setObservation(obs);
                 entryCounter= entryCounter+ 1;
             }
@@ -2870,223 +2555,6 @@ public class CdaMapper implements ICdaMapper {
         return out;
     }
 
-
-    private POCDMT000040Component3 mapToPatient(int counter, String colName, String data, POCDMT000040Component3 component3) throws XmlException, ParseException, EcrCdaXmlException {
-       var questionCode = this.cdaMapHelper.mapToQuestionId(colName);
-       var count = 0;
-       if (component3.getSection() == null) {
-           component3.addNewSection();
-       }
-
-       if (component3.getSection().getEntryArray().length == 0){
-           component3.getSection().addNewEntry();
-       } else {
-           count = component3.getSection().getEntryArray().length + 1 - 1;
-           component3.getSection().addNewEntry();
-       }
-
-       if (!component3.getSection().getEntryArray(count).isSetObservation()) {
-           component3.getSection().getEntryArray(count).addNewObservation();
-       }
-
-       POCDMT000040Observation observation = component3.getSection().getEntryArray(count).getObservation();
-       observation = mapToObservation(questionCode, data, observation);
-
-        component3.getSection().getEntryArray(counter).setObservation(observation);
-        return component3;
-    }
-
-    /*
-    * TEST NEEDED
-    * */
-    private POCDMT000040Observation mapToObservation(String questionCode, String data, POCDMT000040Observation observation) throws XmlException, ParseException, EcrCdaXmlException {
-        observation.setClassCode("OBS");
-        observation.setMoodCode(XActMoodDocumentObservation.EVN);
-        String dataType="DATE";
-        String defaultQuestionIdentifier = "";
-
-        PhdcQuestionLookUpDto questionLup = new PhdcQuestionLookUpDto();
-        questionLup.setQuestionIdentifier(NOT_FOUND_VALUE);
-        questionLup.setQuesCodeSystemCd(NOT_FOUND_VALUE);
-        questionLup.setQuesCodeSystemDescTxt(NOT_FOUND_VALUE);
-        questionLup.setQuesDisplayName(NOT_FOUND_VALUE);
-        questionLup.setDataType(NOT_FOUND_VALUE);
-        var result = ecrLookUpService.fetchPhdcQuestionByCriteria(questionCode);
-        if (result != null) {
-
-            //region DB LOOKUP
-            if (!result.getQuestionIdentifier().isEmpty()) {
-                questionLup.setQuestionIdentifier(result.getQuestionIdentifier());
-            }
-            if (!result.getQuesCodeSystemCd().isEmpty()) {
-                questionLup.setQuesCodeSystemCd(result.getQuesCodeSystemCd());
-            }
-            if (!result.getQuesCodeSystemDescTxt().isEmpty()) {
-                questionLup.setQuesCodeSystemDescTxt(result.getQuesCodeSystemDescTxt());
-            }
-            if (!result.getQuesDisplayName().isEmpty()) {
-                questionLup.setQuesDisplayName(result.getQuesDisplayName());
-            }
-            if (!result.getDataType().isEmpty()) {
-                questionLup.setDataType(result.getDataType());
-            }
-
-            QuestionIdentifierMapDto map = new QuestionIdentifierMapDto();
-            map.setDynamicQuestionIdentifier(NOT_FOUND_VALUE);
-            QuestionIdentifierMapDto identifierMap = ecrLookUpService.fetchQuestionIdentifierMapByCriteriaByCriteria("Question_Identifier", questionCode);
-            if(identifierMap != null && !identifierMap.getDynamicQuestionIdentifier().isEmpty()) {
-                map.setDynamicQuestionIdentifier(identifierMap.getDynamicQuestionIdentifier());
-            }
-
-            if(map.getDynamicQuestionIdentifier().equalsIgnoreCase("STANDARD")
-                    || map.getDynamicQuestionIdentifier().equalsIgnoreCase(NOT_FOUND_VALUE)) {
-                defaultQuestionIdentifier = questionCode;
-            }
-
-            //endregion
-
-            if (!result.getDataType().isEmpty()) {
-                if (result.getDataType().equalsIgnoreCase(DATA_TYPE_CODE)) {
-                    var dataList = GetStringsBeforePipe(data);
-                    String dataStr = "";
-                    for(int i = 0; i < dataList.size(); i++) {
-//                        int c = 0;
-//                        if (observation.getValueArray().length == 0) {
-//                            observation.addNewValue();
-//                        }
-//                        else {
-//                            c = observation.getValueArray().length;
-//                            observation.addNewValue();
-//                        }
-//                        CE ce = mapToCEAnswerTypeNoTranslation(
-//                                dataList.get(i),
-//                                defaultQuestionIdentifier);
-//                        observation.setValueArray(c, ce);
-
-                        dataStr = dataStr + " " +  dataList.get(i);
-
-                    }
-                    dataStr  = dataStr.trim();
-                    observation.addNewCode();
-                    observation.getCode().setCode(dataStr);
-                    observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
-                    observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
-                    observation.getCode().setDisplayName(result.getQuesDisplayName());
-                }
-                else {
-                    if (result.getDataType().equalsIgnoreCase("TEXT")) {
-                        // CHECK mapToSTValue from ori code
-                        observation.addNewCode();
-                        observation.getCode().setCode(data);
-                        observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
-                        observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
-                        observation.getCode().setDisplayName(result.getQuesDisplayName());
-                    }
-                    else if (result.getDataType().equalsIgnoreCase("PART")) {
-                        // CHECK mapToObservation from ori 47
-                        if (observation.getValueArray().length == 0) {
-                            observation.addNewValue();
-                        }
-
-                        if (observation.getCode() == null) {
-                            observation.addNewCode();
-                        }
-
-                        ANY any = ANY.Factory.parse(VALUE_TAG);
-                        var element = any;
-                        XmlCursor cursor = element.newCursor();
-                        cursor.toFirstAttribute();
-                        cursor.toNextToken();
-                        cursor.insertAttributeWithValue(new QName(NAME_SPACE_URL, "type"), "II");
-                        var val = ecrLookUpService.fetchPhdcQuestionByCriteriaWithColumn("Question_Identifier", defaultQuestionIdentifier);
-                        cursor.insertAttributeWithValue("root",  val.getQuesCodeSystemCd());
-
-                        cursor.insertAttributeWithValue("extension", data);
-                        cursor.dispose();
-
-                        observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
-                        observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
-                        observation.getCode().setDisplayName(result.getQuesDisplayName());
-
-                        observation.getCode().setCode(data);
-
-                        observation.setValueArray(0, element); // THIS
-
-
-
-
-                    }
-                    else if (result.getDataType().equalsIgnoreCase("DATE")) {
-                        var ts = cdaMapHelper.mapToTsType(data).getValue().toString();
-                        observation.addNewCode();
-                        observation.getCode().setCode(ts);
-                        observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
-                        observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
-                        observation.getCode().setDisplayName(result.getQuesDisplayName());
-
-//                        ANY any = ANY.Factory.parse(VALUE_TAG);
-//                        var element = any;
-//                        XmlCursor cursor = element.newCursor();
-//                        if (cursor.toFirstAttribute() || !cursor.toEndToken().isStart()) { // Added check here
-//                            cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "TS");
-//                            if (cursor.getAttributeText(new QName(value)) != null) {
-//                                cursor.setAttributeText(new QName(value), mapToTsType(data).toString());
-//                            } else {
-//                                cursor.toStartDoc();
-//                                cursor.toNextToken(); // Moves to the start of the element
-//                                cursor.insertAttributeWithValue(value, mapToTsType(data).toString());
-//                            }
-//                            cursor.dispose();
-//
-//                            observation.setValueArray(0, element);
-//
-//
-//
-//
-//                        } else {
-//                            cursor.dispose();
-//                            // Handle the case where the element didn't have attributes, if necessary
-//                        }
-                    }
-                    else {
-                        // CHECK mapToObservation from ori 77
-//                        if (observation.getValueArray().length == 0) {
-//                            observation.addNewValue();
-//                        }
-//
-//                        ANY any = ANY.Factory.parse(VALUE_TAG);
-//
-//                        var element = any;
-//                        XmlCursor cursor = element.newCursor();
-//                        cursor.toFirstAttribute();
-//                        cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "ST");
-//                        cursor.toParent();
-//                        cursor.setTextValue(data);
-//                        cursor.dispose();
-//
-//                        observation.setValueArray(0,  any);
-
-                        observation.addNewCode();
-                        observation.getCode().setCode(data);
-                        observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
-                        observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
-                        observation.getCode().setDisplayName(result.getQuesDisplayName());
-                    }
-                }
-            }
-        } else {
-
-            if (observation.getCode() == null) {
-                observation.addNewCode();
-            }
-            observation.getCode().setCode(data + questionCode);
-            observation.getCode().setCodeSystem(CODE_NODE_MAPPED_VALUE);
-            observation.getCode().setCodeSystemName(CODE_NODE_MAPPED_VALUE);
-            observation.getCode().setDisplayName(CODE_NODE_MAPPED_VALUE);
-        }
-        return observation;
-    }
-
     private XmlObject mapToSTValue(String input, XmlObject output) {
         XmlCursor cursor = output.newCursor();
 
@@ -3173,7 +2641,7 @@ public class CdaMapper implements ICdaMapper {
                         output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).addNewObservation();
                     }
                     var element = output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation();
-                    POCDMT000040Observation obs = mapToObservation(
+                    POCDMT000040Observation obs = this.cdaMapHelper.mapToObservation(
                             questionId,
                             value,
                             element
@@ -3657,7 +3125,7 @@ public class CdaMapper implements ICdaMapper {
             questionCode = in.getQuestionIdentifier();
         }
 
-        return mapToObservation(questionCode, localId, out);
+        return this.cdaMapHelper.mapToObservation(questionCode, localId, out);
     }
 
     private POCDMT000040Observation mapTripletToObservation(String invConditionCd, String questionId, POCDMT000040Observation output) {

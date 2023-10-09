@@ -5,6 +5,7 @@ import gov.cdc.dataingestion.nbs.repository.model.dao.LookUp.PhdcAnswerDao;
 import gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService;
 import gov.cdc.nedss.phdc.cda.CE;
 import gov.cdc.nedss.phdc.cda.POCDMT000040CustodianOrganization;
+import gov.cdc.nedss.phdc.cda.POCDMT000040Observation;
 import gov.cdc.nedss.phdc.cda.TS;
 import org.apache.xmlbeans.XmlObject;
 
@@ -21,4 +22,7 @@ public interface ICdaMapHelper {
     PhdcAnswerDao mapToCodedAnswer(String data, String questionCode);
     POCDMT000040CustodianOrganization mapToElementValue(String data, POCDMT000040CustodianOrganization output, String name);
     String getCurrentUtcDateTimeInCdaFormat();
+
+    POCDMT000040Observation mapToObservation(String questionCode, String data,
+                                             POCDMT000040Observation observation) throws EcrCdaXmlException;
 }

@@ -8,7 +8,7 @@ import java.util.Map;
 public class EcrXmlModelingHelper {
     public Map<String, Object> setupDataMap(Field[] fields, Map<String, Object> dataMap, Object objectInstance) throws EcrCdaXmlException {
         for (Field field : fields) {
-            if (!"numberOfField".equals(field.getName()) && !"dataMap".equals(field.getName())) {
+            if (!"dataMap".equals(field.getName())) {
                 field.setAccessible(true);  // make sure we can access private fields
                 try {
                     // Store the field name and its value in the dataMap

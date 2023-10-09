@@ -11,7 +11,6 @@ import java.sql.Timestamp;
 @Setter
 public class EcrMsgPatientDto {
     public EcrMsgPatientDto() {
-        this.numberOfField = CountFields();
     }
 
     private Integer msgContainerUid;
@@ -69,18 +68,5 @@ public class EcrMsgPatientDto {
     private String patWorkPhoneNbrTxt;
     private Integer patWorkPhoneExtensionTxt;
 
-    private Integer numberOfField;
-
-    private int CountFields() {
-        Field[] fields = EcrMsgPatientDto.class.getDeclaredFields();
-        int count = 0;
-        for (Field field : fields) {
-            // Exclude the 'numberOfVariable' field
-            if (!"numberOfVariable".equals(field.getName())) {
-                count++;
-            }
-        }
-        return count;
-    }
 
 }

@@ -4,14 +4,15 @@ import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.LookUp.PhdcAnswerDao;
 import gov.cdc.dataingestion.nbs.repository.model.dao.LookUp.QuestionIdentifierMapDao;
+import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcQuestionLookUpDto;
+import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.QuestionIdentifierMapDto;
 import gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService;
-import gov.cdc.nedss.phdc.cda.CD;
-import gov.cdc.nedss.phdc.cda.CE;
-import gov.cdc.nedss.phdc.cda.POCDMT000040CustodianOrganization;
-import gov.cdc.nedss.phdc.cda.TS;
+import gov.cdc.nedss.phdc.cda.*;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
+import javax.xml.namespace.QName;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
@@ -20,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
+import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforePipe;
 
 public class CdaMapHelper implements ICdaMapHelper {
 
@@ -226,6 +228,203 @@ public class CdaMapHelper implements ICdaMapHelper {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssX");
         String formattedDate = utcNow.format(formatter);
         return formattedDate;
+    }
+
+    /*
+     * TEST NEEDED
+     * */
+    public POCDMT000040Observation mapToObservation(String questionCode, String data,
+        POCDMT000040Observation observation) throws EcrCdaXmlException {
+        try {
+            observation.setClassCode("OBS");
+            observation.setMoodCode(XActMoodDocumentObservation.EVN);
+            String dataType="DATE";
+            String defaultQuestionIdentifier = "";
+
+            PhdcQuestionLookUpDto questionLup = new PhdcQuestionLookUpDto();
+            questionLup.setQuestionIdentifier(NOT_FOUND_VALUE);
+            questionLup.setQuesCodeSystemCd(NOT_FOUND_VALUE);
+            questionLup.setQuesCodeSystemDescTxt(NOT_FOUND_VALUE);
+            questionLup.setQuesDisplayName(NOT_FOUND_VALUE);
+            questionLup.setDataType(NOT_FOUND_VALUE);
+            var result = ecrLookUpService.fetchPhdcQuestionByCriteria(questionCode);
+            if (result != null) {
+
+                //region DB LOOKUP
+                if (!result.getQuestionIdentifier().isEmpty()) {
+                    questionLup.setQuestionIdentifier(result.getQuestionIdentifier());
+                }
+                if (!result.getQuesCodeSystemCd().isEmpty()) {
+                    questionLup.setQuesCodeSystemCd(result.getQuesCodeSystemCd());
+                }
+                if (!result.getQuesCodeSystemDescTxt().isEmpty()) {
+                    questionLup.setQuesCodeSystemDescTxt(result.getQuesCodeSystemDescTxt());
+                }
+                if (!result.getQuesDisplayName().isEmpty()) {
+                    questionLup.setQuesDisplayName(result.getQuesDisplayName());
+                }
+                if (!result.getDataType().isEmpty()) {
+                    questionLup.setDataType(result.getDataType());
+                }
+
+                QuestionIdentifierMapDto map = new QuestionIdentifierMapDto();
+                map.setDynamicQuestionIdentifier(NOT_FOUND_VALUE);
+                QuestionIdentifierMapDto identifierMap = ecrLookUpService.fetchQuestionIdentifierMapByCriteriaByCriteria("Question_Identifier", questionCode);
+                if(identifierMap != null && !identifierMap.getDynamicQuestionIdentifier().isEmpty()) {
+                    map.setDynamicQuestionIdentifier(identifierMap.getDynamicQuestionIdentifier());
+                }
+
+                if(map.getDynamicQuestionIdentifier().equalsIgnoreCase("STANDARD")
+                        || map.getDynamicQuestionIdentifier().equalsIgnoreCase(NOT_FOUND_VALUE)) {
+                    defaultQuestionIdentifier = questionCode;
+                }
+
+                //endregion
+
+                if (!result.getDataType().isEmpty()) {
+                    if (result.getDataType().equalsIgnoreCase(DATA_TYPE_CODE)) {
+                        var dataList = GetStringsBeforePipe(data);
+                        String dataStr = "";
+                        for(int i = 0; i < dataList.size(); i++) {
+//                        int c = 0;
+//                        if (observation.getValueArray().length == 0) {
+//                            observation.addNewValue();
+//                        }
+//                        else {
+//                            c = observation.getValueArray().length;
+//                            observation.addNewValue();
+//                        }
+//                        CE ce = mapToCEAnswerTypeNoTranslation(
+//                                dataList.get(i),
+//                                defaultQuestionIdentifier);
+//                        observation.setValueArray(c, ce);
+
+                            dataStr = dataStr + " " +  dataList.get(i);
+
+                        }
+                        dataStr  = dataStr.trim();
+                        observation.addNewCode();
+                        observation.getCode().setCode(dataStr);
+                        observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
+                        observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
+                        observation.getCode().setDisplayName(result.getQuesDisplayName());
+                    }
+                    else {
+                        if (result.getDataType().equalsIgnoreCase("TEXT")) {
+                            // CHECK mapToSTValue from ori code
+                            observation.addNewCode();
+                            observation.getCode().setCode(data);
+                            observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
+                            observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
+                            observation.getCode().setDisplayName(result.getQuesDisplayName());
+                        }
+                        else if (result.getDataType().equalsIgnoreCase("PART")) {
+                            // CHECK mapToObservation from ori 47
+                            if (observation.getValueArray().length == 0) {
+                                observation.addNewValue();
+                            }
+
+                            if (observation.getCode() == null) {
+                                observation.addNewCode();
+                            }
+
+                            ANY any = ANY.Factory.parse(VALUE_TAG);
+                            var element = any;
+                            XmlCursor cursor = element.newCursor();
+                            cursor.toFirstAttribute();
+                            cursor.toNextToken();
+                            cursor.insertAttributeWithValue(new QName(NAME_SPACE_URL, "type"), "II");
+                            var val = ecrLookUpService.fetchPhdcQuestionByCriteriaWithColumn("Question_Identifier", defaultQuestionIdentifier);
+                            cursor.insertAttributeWithValue("root",  val.getQuesCodeSystemCd());
+
+                            cursor.insertAttributeWithValue("extension", data);
+                            cursor.dispose();
+
+                            observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
+                            observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
+                            observation.getCode().setDisplayName(result.getQuesDisplayName());
+
+                            observation.getCode().setCode(data);
+
+                            observation.setValueArray(0, element); // THIS
+
+
+
+
+                        }
+                        else if (result.getDataType().equalsIgnoreCase("DATE")) {
+                            var ts = mapToTsType(data).getValue().toString();
+                            observation.addNewCode();
+                            observation.getCode().setCode(ts);
+                            observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
+                            observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
+                            observation.getCode().setDisplayName(result.getQuesDisplayName());
+
+//                        ANY any = ANY.Factory.parse(VALUE_TAG);
+//                        var element = any;
+//                        XmlCursor cursor = element.newCursor();
+//                        if (cursor.toFirstAttribute() || !cursor.toEndToken().isStart()) { // Added check here
+//                            cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "TS");
+//                            if (cursor.getAttributeText(new QName(value)) != null) {
+//                                cursor.setAttributeText(new QName(value), mapToTsType(data).toString());
+//                            } else {
+//                                cursor.toStartDoc();
+//                                cursor.toNextToken(); // Moves to the start of the element
+//                                cursor.insertAttributeWithValue(value, mapToTsType(data).toString());
+//                            }
+//                            cursor.dispose();
+//
+//                            observation.setValueArray(0, element);
+//
+//
+//
+//
+//                        } else {
+//                            cursor.dispose();
+//                            // Handle the case where the element didn't have attributes, if necessary
+//                        }
+                        }
+                        else {
+                            // CHECK mapToObservation from ori 77
+//                        if (observation.getValueArray().length == 0) {
+//                            observation.addNewValue();
+//                        }
+//
+//                        ANY any = ANY.Factory.parse(VALUE_TAG);
+//
+//                        var element = any;
+//                        XmlCursor cursor = element.newCursor();
+//                        cursor.toFirstAttribute();
+//                        cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "ST");
+//                        cursor.toParent();
+//                        cursor.setTextValue(data);
+//                        cursor.dispose();
+//
+//                        observation.setValueArray(0,  any);
+
+                            observation.addNewCode();
+                            observation.getCode().setCode(data);
+                            observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
+                            observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
+                            observation.getCode().setDisplayName(result.getQuesDisplayName());
+                        }
+                    }
+                }
+            } else {
+
+                if (observation.getCode() == null) {
+                    observation.addNewCode();
+                }
+                observation.getCode().setCode(data + questionCode);
+                observation.getCode().setCodeSystem(CODE_NODE_MAPPED_VALUE);
+                observation.getCode().setCodeSystemName(CODE_NODE_MAPPED_VALUE);
+                observation.getCode().setDisplayName(CODE_NODE_MAPPED_VALUE);
+            }
+            return observation;
+        } catch ( Exception e) {
+            throw new EcrCdaXmlException(e.getMessage());
+        }
+
     }
 
 

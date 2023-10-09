@@ -47,7 +47,6 @@ public class EcrMsgProviderDto {
 
     private Map<String, Object> dataMap;
 
-    private Integer numberOfField;
     public void initDataMap() throws EcrCdaXmlException {
         dataMap = new HashMap<>();
 

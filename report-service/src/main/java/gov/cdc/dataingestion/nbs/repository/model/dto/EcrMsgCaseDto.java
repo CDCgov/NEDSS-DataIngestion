@@ -67,21 +67,8 @@ public class EcrMsgCaseDto {
     private String invStateId;
     private String invStatusCd;
     private String invTransmissionModeCd;
-    private Integer numberOfField;
     private Map<String, Object> dataMap;
     public EcrMsgCaseDto() {
-        this.numberOfField = CountFields();
-    }
-    private int CountFields() {
-        Field[] fields = EcrMsgCaseDto.class.getDeclaredFields();
-        int count = 0;
-        for (Field field : fields) {
-            // Exclude the 'numberOfVariable' field
-            if (!"numberOfVariable".equals(field.getName())) {
-                count++;
-            }
-        }
-        return count;
     }
 
     public void initDataMap() throws EcrCdaXmlException {

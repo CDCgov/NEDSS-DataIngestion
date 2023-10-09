@@ -8,33 +8,92 @@ import lombok.Setter;
 
 import java.lang.reflect.Field;
 
-@NoArgsConstructor
 @Getter
 @Setter
 /// TO USE LATER FOR REFACTOR
 public class CdaPatientField {
-    private Field[] fields;
+    public CdaPatientField(POCDMT000040ClinicalDocument1 clinicalDocument,
+                           int phoneCounter)
+    {
+        this.phoneCounter = phoneCounter;
+        this.clinicalDocument = clinicalDocument;
+    }
+
+    public CdaPatientField(int patientIdentifier,
+                           String address1,
+                           String address2,
+                           int k,
+                           int patientComponentCounter,
+                           POCDMT000040ClinicalDocument1 clinicalDocument,
+                           String workPhoneExt,
+                           String homePhoneNumber,
+                           String wpNumber,
+                           String phoneCountryCode,
+                           String cellNumber,
+                           String ptPrefix,
+                           String ptFirstName,
+                           String ptMiddleName,
+                           String ptLastName,
+                           String ptSuffix,
+                           String email,
+                           String urlAddress,
+                           String phoneAsDateTime,
+                           String inv168) {
+        this.patientIdentifier = patientIdentifier;
+        this.address1 = address1;
+        this.address2 = address2;
+        this.k = k;
+        this.patientComponentCounter = patientComponentCounter;
+        this.clinicalDocument = clinicalDocument;
+        this.workPhoneExt = workPhoneExt;
+        this.homePhoneNumber = homePhoneNumber;
+        this.wpNumber = wpNumber;
+        this.phoneCountryCode = phoneCountryCode;
+        this.cellNumber = cellNumber;
+        this.ptPrefix = ptPrefix;
+        this.ptFirstName = ptFirstName;
+        this.ptMiddleName = ptMiddleName;
+        this.ptLastName = ptLastName;
+        this.ptSuffix = ptSuffix;
+        this.email = email;
+        this.urlAddress = urlAddress;
+        this.phoneAsDateTime = phoneAsDateTime;
+        this.inv168 = inv168;
+
+    }
+
     private int patientIdentifier;
     private String address1;
     private String address2;
     private int k;
-    private int raceCodeCounter;
     private int patientComponentCounter;
-    private String inv168;
-    private EcrMsgPatientDto patient;
+
     private POCDMT000040ClinicalDocument1 clinicalDocument;
 
-    private String PAT_WORK_PHONE_EXTENSION_TXT;
-    private String PAT_HOME_PHONE_NBR_TXT;
+    private String workPhoneExt;
+    private String homePhoneNumber;
     private String wpNumber;
-    private String PAT_PHONE_COUNTRY_CODE_TXT;
+    private String phoneCountryCode;
     private String cellNumber;
-    private String PAT_NAME_PREFIX_CD;
-    private String PAT_NAME_FIRST_TXT;
-    private String PAT_NAME_MIDDLE_TXT;
-    private String PAT_NAME_LAST_TXT;
-    private String PAT_NAME_SUFFIX_CD;
-    private String PAT_EMAIL_ADDRESS_TXT;
-    private String PAT_URL_ADDRESS_TXT;
-    private String PAT_PHONE_AS_OF_DT;
+    private String ptPrefix;
+    private String ptFirstName;
+    private String ptMiddleName;
+    private String ptLastName;
+    private String ptSuffix;
+
+    private String email;
+    private String urlAddress;
+    private String phoneAsDateTime;
+
+    private String inv168;
+
+    private int phoneCounter;
+
+
+    /**
+     *
+     private int raceCodeCounter;
+     private EcrMsgPatientDto patient;
+     *
+     * */
 }
