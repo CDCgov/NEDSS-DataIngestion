@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.repository.model.dao.LookUp.PhdcAnswerDao;
+import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcQuestionLookUpDto;
 import gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService;
 import gov.cdc.nedss.phdc.cda.CE;
 import gov.cdc.nedss.phdc.cda.POCDMT000040CustodianOrganization;
@@ -25,4 +26,10 @@ public interface ICdaMapHelper {
 
     POCDMT000040Observation mapToObservation(String questionCode, String data,
                                              POCDMT000040Observation observation) throws EcrCdaXmlException;
+
+
+    PhdcQuestionLookUpDto mapToCodedQuestionType(String questionIdentifier);
+    CE mapToCEQuestionType(String questionCode, CE output);
+    XmlObject mapToSTValue(String input, XmlObject output);
+    XmlObject mapToObservationPlace(String in, XmlObject out);
 }

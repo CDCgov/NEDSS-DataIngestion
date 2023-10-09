@@ -429,4 +429,62 @@ public class CdaMapHelper implements ICdaMapHelper {
 
 
 
+    public PhdcQuestionLookUpDto mapToCodedQuestionType(String questionIdentifier) {
+        PhdcQuestionLookUpDto dto = new PhdcQuestionLookUpDto();
+        dto.setQuesCodeSystemCd(NOT_FOUND_VALUE);
+        dto.setQuesCodeSystemDescTxt(NOT_FOUND_VALUE);
+        dto.setQuesDisplayName(NOT_FOUND_VALUE);
+        if (!questionIdentifier.isEmpty()) {
+            var result = ecrLookUpService.fetchPhdcQuestionByCriteriaWithColumn("QUESTION_IDENTIFIER", questionIdentifier);
+            if (result != null) {
+                if (result.getQuesCodeSystemCd() != null && !result.getQuesCodeSystemCd().isEmpty()) {
+                    dto.setQuesCodeSystemCd(result.getQuesCodeSystemCd());
+                }
+                else if (result.getQuesCodeSystemDescTxt() != null && !result.getQuesCodeSystemDescTxt().isEmpty()) {
+                    dto.setQuesCodeSystemDescTxt(result.getQuesCodeSystemDescTxt());
+                }
+                else if (result.getQuesDisplayName() != null && !result.getQuesDisplayName().isEmpty()) {
+                    dto.setQuesDisplayName(result.getQuesDisplayName());
+                }
+            }
+        }
+        return dto;
+    }
+
+    public CE mapToCEQuestionType(String questionCode, CE output) {
+        var ot = mapToCodedQuestionType(questionCode);
+        output.setCodeSystem(ot.getQuesCodeSystemCd());
+        output.setCodeSystemName(ot.getQuesCodeSystemDescTxt());
+        output.setDisplayName(ot.getQuesDisplayName());
+        output.setCode(questionCode);
+
+        return output;
+    }
+
+    public XmlObject mapToSTValue(String input, XmlObject output) {
+        XmlCursor cursor = output.newCursor();
+
+        if (cursor.toChild(new QName(VALUE_NAME))) {
+            // Set the attributes of the 'value' element
+            cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "ST");
+            // Add child CDATA to 'value' element
+            cursor.toNextToken(); // Move to the end of the current element (value element)
+            cursor.insertChars(input);
+        }
+
+        cursor.dispose();
+        return output;
+    }
+
+    public XmlObject mapToObservationPlace(String in, XmlObject out) {
+        XmlCursor cursor = out.newCursor();
+        cursor.toFirstChild();
+        cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "II");
+        cursor.setAttributeText(new QName("", "root"), "2.3.3.3.322.23.34");
+        cursor.setAttributeText(new QName("", "extension"), in);
+        cursor.dispose();
+
+        return out;
+    }
+
 }
