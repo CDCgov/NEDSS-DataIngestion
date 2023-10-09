@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
@@ -15,8 +16,8 @@ import java.util.List;
 @Setter
 public class EcrSelectedCase {
     private EcrMsgCaseDto MsgCase;
-    private List<EcrMsgCaseParticipantDto> MsgCaseParticipants;
-    private List<EcrMsgCaseAnswerDto> MsgCaseAnswers;
-    private List<EcrMsgCaseAnswerRepeatDto> MsgCaseAnswerRepeats;
+    private List<EcrMsgCaseParticipantDto> MsgCaseParticipants = new ArrayList<>();
+    private List<EcrMsgCaseAnswerDto> MsgCaseAnswers = new ArrayList<>();
+    private List<EcrMsgCaseAnswerRepeatDto> MsgCaseAnswerRepeats = new ArrayList<>();
 
 }
