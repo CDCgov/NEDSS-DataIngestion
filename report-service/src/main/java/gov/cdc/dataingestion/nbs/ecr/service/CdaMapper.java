@@ -3,6 +3,7 @@ package gov.cdc.dataingestion.nbs.ecr.service;
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.model.*;
 import gov.cdc.dataingestion.nbs.ecr.model.cases.CdaCaseComponent;
+import gov.cdc.dataingestion.nbs.ecr.model.container.CdaContainerComp;
 import gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientTelecom;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.*;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.*;
@@ -66,68 +67,17 @@ public class CdaMapper implements ICdaMapper {
     }
 
     public String tranformSelectedEcrToCDAXml(EcrSelectedRecord input) throws EcrCdaXmlException {
+        String inv168 = "";
 
         //region DOCUMENT INITIATION
         ClinicalDocumentDocument1 rootDocument = ClinicalDocumentDocument1.Factory.newInstance();
         POCDMT000040ClinicalDocument1 clinicalDocument = POCDMT000040ClinicalDocument1.Factory.newInstance();
-
-        CS[] realmCodeArray = { CS.Factory.newInstance()};
-        clinicalDocument.setRealmCodeArray(realmCodeArray);
-        clinicalDocument.getRealmCodeArray(0).setCode("US");
-
-        clinicalDocument.setTypeId(POCDMT000040InfrastructureRootTypeId.Factory.newInstance());
-        clinicalDocument.getTypeId().setRoot("2.16.840.1.113883.1.3");
-        clinicalDocument.getTypeId().setExtension("POCD_HD000040");
         //endregion
 
-        String inv168 = "";
-        Integer versionCtrNbr = null;
-
-        //region CONTAINER COMPONENT CREATION
-        if (input.getMsgContainer().getInvLocalId() != null && !input.getMsgContainer().getInvLocalId().isEmpty()) {
-            clinicalDocument.setId(II.Factory.newInstance());
-            clinicalDocument.getId().setRoot(ROOT_ID);
-            clinicalDocument.getId().setExtension(input.getMsgContainer().getInvLocalId());
-            clinicalDocument.getId().setAssigningAuthorityName("LR");
-            inv168 = input.getMsgContainer().getInvLocalId();
-        }
-
-        if (input.getMsgContainer().getOngoingCase() != null &&
-            !input.getMsgContainer().getOngoingCase().isEmpty()) {
-            clinicalDocument.setSetId(II.Factory.newInstance());
-            clinicalDocument.getSetId().setExtension("ONGOING_CASE");
-            if (input.getMsgContainer().getOngoingCase().equalsIgnoreCase("yes")) {
-                clinicalDocument.getSetId().setDisplayable(true);
-            } else {
-                clinicalDocument.getSetId().setDisplayable(false);
-            }
-        }
-
-        if (input.getMsgContainer().getVersionCtrNbr() != null) {
-            versionCtrNbr = input.getMsgContainer().getVersionCtrNbr();
-        }
-
-        clinicalDocument.setCode(CE.Factory.newInstance());
-        clinicalDocument.getCode().setCode("55751-2");
-        clinicalDocument.getCode().setCodeSystem(CODE_SYSTEM);
-        clinicalDocument.getCode().setCodeSystemName(CODE_SYSTEM_NAME);
-        clinicalDocument.getCode().setDisplayName("Public Health Case Report - PHRI");
-        clinicalDocument.setTitle(ST.Factory.newInstance());
-
-        clinicalDocument.getTitle().set(cdaMapHelper.mapToStringData("Public Health Case Report - Data from Legacy System to CDA"));
-
-        clinicalDocument.setEffectiveTime(TS.Factory.newInstance());
-        clinicalDocument.getEffectiveTime().setValue(this.cdaMapHelper.getCurrentUtcDateTimeInCdaFormat());
-
-        if(versionCtrNbr != null && versionCtrNbr > 0) {
-            clinicalDocument.setVersionNumber(INT.Factory.newInstance());
-            clinicalDocument.getVersionNumber().setValue(BigInteger.valueOf(versionCtrNbr));
-        }
-
-        clinicalDocument.setConfidentialityCode(CE.Factory.newInstance());
-        clinicalDocument.getConfidentialityCode().setCode("N");
-        clinicalDocument.getConfidentialityCode().setCodeSystem("2.16.840.1.113883.5.25");
-        //endregion
+        var containerModel = mapParentContainer(clinicalDocument,
+                input, inv168);
+        clinicalDocument = containerModel.getClinicalDocument();
+        inv168 = containerModel.getInv168();
 
         int componentCounter=-1;
         int componentCaseCounter=-1;
@@ -163,7 +113,6 @@ public class CdaMapper implements ICdaMapper {
         clinicalDocument = ecrXmlAnswer.getClinicalDocument();
         componentCounter = ecrXmlAnswer.getComponentCounter();
 
-
         /**INITIATE SECTION**/
         int c = 0;
         if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
@@ -179,24 +128,17 @@ public class CdaMapper implements ICdaMapper {
             comp.addNewSection();
         }
 
-        /** set this section -- clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection(); **/
-        /**
-         * PROVIDER
-         * **/
+        /**PROVIDER**/
         var ecrProvider = this.providerMappingHelper.mapToProviderTop(input, clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection(),
                 inv168, performerComponentCounter, componentCounter,
                  performerSectionCounter);
-
 
         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).setSection(ecrProvider.getClinicalSection());
         performerComponentCounter = ecrProvider.getPerformerComponentCounter();
         componentCounter = ecrProvider.getComponentCounter();
         performerSectionCounter = ecrProvider.getPerformerSectionCounter();
 
-
-        /**
-         * ORGANIZATION
-         * **/
+        /**ORGANIZATION**/
         var ecrOrganization = this.orgMappingHelper.mapToOrganizationTop(input, clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection(),
                 performerComponentCounter, componentCounter, performerSectionCounter);
         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).setSection(ecrProvider.getClinicalSection());
@@ -204,102 +146,29 @@ public class CdaMapper implements ICdaMapper {
         componentCounter = ecrOrganization.getComponentCounter();
         performerSectionCounter = ecrOrganization.getPerformerSectionCounter();
 
-        /**
-         * PLACE
-         * */
+        /**PLACE**/
         POCDMT000040Section interestedPartyComp = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection();
         var ecrPlace = this.placeMappingHelper.mapToPlaceTop(input, performerComponentCounter,
                 componentCounter, performerSectionCounter, interestedPartyComp);
         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).setSection(ecrPlace.getSection());
         componentCounter = ecrPlace.getComponentCounter();
 
-        /**
-         * INTERVIEW
-         * */
+        /**INTERVIEW**/
         var ecrInterview = this.interviewMappingHelper.mapToInterviewTop(input, clinicalDocument, interviewCounter, componentCounter);
         clinicalDocument = ecrInterview.getClinicalDocument();
         componentCounter = ecrInterview.getComponentCounter();
 
-        /**
-         * TREATMENT
-         * */
+        /**TREATMENT**/
         var ecrTreatment = this.treatmentMappingHelper.mapToTreatmentTop(input, clinicalDocument,
                 treatmentCounter, componentCounter, treatmentSectionCounter);
         clinicalDocument = ecrTreatment.getClinicalDocument();
 
-        //endregion
+        /**CUSTODIAN**/
+        clinicalDocument = mapCustodian(clinicalDocument);
 
-        String value ="";
-        int k =0;
+        /**AUTHOR**/
+        clinicalDocument = mapAuthor(clinicalDocument);
 
-        //region CONTAINER BOTTOM LAYER
-        clinicalDocument.addNewCustodian().addNewAssignedCustodian().addNewRepresentedCustodianOrganization().addNewId();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().addNewAddr();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().addNewTelecom();
-
-
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getIdArray(0).setExtension(mapToTranslatedValue("CUS101"));
-        value = mapToTranslatedValue("CUS102");
-
-        var element = clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization();
-        element = this.cdaMapHelper.mapToElementValue(value, element, "name");
-        clinicalDocument.getCustodian().getAssignedCustodian().setRepresentedCustodianOrganization(element);
-
-        value = mapToTranslatedValue("CUS103");
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewStreetAddressLine();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStreetAddressLineArray(k).set(cdaMapHelper.mapToCData(value));
-        k = k+1;
-        value = mapToTranslatedValue("CUS104");
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewStreetAddressLine();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStreetAddressLineArray(k).set(cdaMapHelper.mapToCData(value));
-        k = k+1;
-
-        k = 0;
-        value = mapToTranslatedValue("CUS105");
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewCity();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getCityArray(k).set(cdaMapHelper.mapToCData(value));
-        k = k+1;
-
-        k = 0;
-        value = mapToTranslatedValue("CUS106");
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewState();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStateArray(k).set(cdaMapHelper.mapToCData(value));
-        k = k+1;
-
-        value = mapToTranslatedValue("CUS107");
-        k = 0;
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewPostalCode();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getPostalCodeArray(k).set(cdaMapHelper.mapToCData(value));
-        k = k+1;
-
-        value = mapToTranslatedValue("CUS108");
-        k = 0;
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewCountry();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getCountryArray(k).set(cdaMapHelper.mapToCData(value));
-        k = k+1;
-
-        value = mapToTranslatedValue("CUS109");
-        k = 0;
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getTelecom().setValue(value);
-        k = k+1;
-
-        clinicalDocument.addNewAuthor().addNewAssignedAuthor();
-        clinicalDocument.getAuthorArray(0).addNewTime();
-        clinicalDocument.getAuthorArray(0).getAssignedAuthor().addNewId();
-
-        value = mapToTranslatedValue("AUT101");
-        clinicalDocument.getAuthorArray(0).getAssignedAuthor().getIdArray(0).setRoot(value);
-
-        clinicalDocument.getAuthorArray(0).getAssignedAuthor().addNewAssignedPerson().addNewName();
-        clinicalDocument.getAuthorArray(0).getAssignedAuthor().getAssignedPerson().getNameArray(0).addNewFamily();
-        value = mapToTranslatedValue("AUT102");
-        clinicalDocument.getAuthorArray(0).getAssignedAuthor().getAssignedPerson().getNameArray(0).getFamilyArray(0).set(cdaMapHelper.mapToCData(value));
-
-        OffsetDateTime now = OffsetDateTime.now();
-        String formattedDateTime = formatDateTime(now);
-
-        clinicalDocument.getAuthorArray(0).getTime().setValue(formattedDateTime);
         //endregion
 
         rootDocument.setClinicalDocument(clinicalDocument);
@@ -317,7 +186,139 @@ public class CdaMapper implements ICdaMapper {
 
         return result;
 
+    }
 
+    private CdaContainerComp mapParentContainer(POCDMT000040ClinicalDocument1 clinicalDocument,
+                                                EcrSelectedRecord input, String inv168) throws EcrCdaXmlException {
+
+        Integer versionCtrNbr = null;
+
+        //region CONTAINER COMPONENT CREATION
+        CS[] realmCodeArray = { CS.Factory.newInstance()};
+        clinicalDocument.setRealmCodeArray(realmCodeArray);
+        clinicalDocument.getRealmCodeArray(0).setCode("US");
+
+        clinicalDocument.setTypeId(POCDMT000040InfrastructureRootTypeId.Factory.newInstance());
+        clinicalDocument.getTypeId().setRoot("2.16.840.1.113883.1.3");
+        clinicalDocument.getTypeId().setExtension("POCD_HD000040");
+
+        if (input.getMsgContainer().getInvLocalId() != null && !input.getMsgContainer().getInvLocalId().isEmpty()) {
+            clinicalDocument.setId(II.Factory.newInstance());
+            clinicalDocument.getId().setRoot(ROOT_ID);
+            clinicalDocument.getId().setExtension(input.getMsgContainer().getInvLocalId());
+            clinicalDocument.getId().setAssigningAuthorityName("LR");
+            inv168 = input.getMsgContainer().getInvLocalId();
+        }
+
+        if (input.getMsgContainer().getOngoingCase() != null &&
+                !input.getMsgContainer().getOngoingCase().isEmpty()) {
+            clinicalDocument.setSetId(II.Factory.newInstance());
+            clinicalDocument.getSetId().setExtension("ONGOING_CASE");
+            if (input.getMsgContainer().getOngoingCase().equalsIgnoreCase("yes")) {
+                clinicalDocument.getSetId().setDisplayable(true);
+            } else {
+                clinicalDocument.getSetId().setDisplayable(false);
+            }
+        }
+
+        if (input.getMsgContainer().getVersionCtrNbr() != null) {
+            versionCtrNbr = input.getMsgContainer().getVersionCtrNbr();
+        }
+
+        clinicalDocument.setCode(CE.Factory.newInstance());
+        clinicalDocument.getCode().setCode("55751-2");
+        clinicalDocument.getCode().setCodeSystem(CODE_SYSTEM);
+        clinicalDocument.getCode().setCodeSystemName(CODE_SYSTEM_NAME);
+        clinicalDocument.getCode().setDisplayName("Public Health Case Report - PHRI");
+        clinicalDocument.setTitle(ST.Factory.newInstance());
+
+        clinicalDocument.getTitle().set(cdaMapHelper.mapToStringData("Public Health Case Report - Data from Legacy System to CDA"));
+
+        clinicalDocument.setEffectiveTime(TS.Factory.newInstance());
+        clinicalDocument.getEffectiveTime().setValue(this.cdaMapHelper.getCurrentUtcDateTimeInCdaFormat());
+
+        if(versionCtrNbr != null && versionCtrNbr > 0) {
+            clinicalDocument.setVersionNumber(INT.Factory.newInstance());
+            clinicalDocument.getVersionNumber().setValue(BigInteger.valueOf(versionCtrNbr));
+        }
+
+        clinicalDocument.setConfidentialityCode(CE.Factory.newInstance());
+        clinicalDocument.getConfidentialityCode().setCode("N");
+        clinicalDocument.getConfidentialityCode().setCodeSystem("2.16.840.1.113883.5.25");
+        //endregion
+
+        var model = new CdaContainerComp();
+        model.setClinicalDocument(clinicalDocument);
+        model.setInv168(inv168);
+        return model;
+    }
+
+    private POCDMT000040ClinicalDocument1 mapCustodian(POCDMT000040ClinicalDocument1 clinicalDocument) throws EcrCdaXmlException {
+        int k =0;
+        String custodianValue = "";
+        clinicalDocument.addNewCustodian().addNewAssignedCustodian().addNewRepresentedCustodianOrganization().addNewId();
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().addNewAddr();
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr();
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().addNewTelecom();
+
+
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getIdArray(0).setExtension(mapToTranslatedValue("CUS101"));
+        custodianValue = mapToTranslatedValue("CUS102");
+
+        var element = clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization();
+        element = this.cdaMapHelper.mapToElementValue(custodianValue, element, "name");
+        clinicalDocument.getCustodian().getAssignedCustodian().setRepresentedCustodianOrganization(element);
+
+        custodianValue = mapToTranslatedValue("CUS103");
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewStreetAddressLine();
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStreetAddressLineArray(k).set(cdaMapHelper.mapToCData(custodianValue));
+        k = k+1;
+        custodianValue = mapToTranslatedValue("CUS104");
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewStreetAddressLine();
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStreetAddressLineArray(k).set(cdaMapHelper.mapToCData(custodianValue));
+
+        k = 0;
+        custodianValue = mapToTranslatedValue("CUS105");
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewCity();
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getCityArray(k).set(cdaMapHelper.mapToCData(custodianValue));
+
+        custodianValue = mapToTranslatedValue("CUS106");
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewState();
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStateArray(k).set(cdaMapHelper.mapToCData(custodianValue));
+
+        custodianValue = mapToTranslatedValue("CUS107");
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewPostalCode();
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getPostalCodeArray(k).set(cdaMapHelper.mapToCData(custodianValue));
+
+        custodianValue = mapToTranslatedValue("CUS108");
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewCountry();
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getCountryArray(k).set(cdaMapHelper.mapToCData(custodianValue));
+
+        custodianValue = mapToTranslatedValue("CUS109");
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getTelecom().setValue(custodianValue);
+
+        return clinicalDocument;
+    }
+
+    private POCDMT000040ClinicalDocument1 mapAuthor(POCDMT000040ClinicalDocument1 clinicalDocument) throws EcrCdaXmlException {
+        String value ="";
+        clinicalDocument.addNewAuthor().addNewAssignedAuthor();
+        clinicalDocument.getAuthorArray(0).addNewTime();
+        clinicalDocument.getAuthorArray(0).getAssignedAuthor().addNewId();
+
+        value = mapToTranslatedValue("AUT101");
+        clinicalDocument.getAuthorArray(0).getAssignedAuthor().getIdArray(0).setRoot(value);
+
+        clinicalDocument.getAuthorArray(0).getAssignedAuthor().addNewAssignedPerson().addNewName();
+        clinicalDocument.getAuthorArray(0).getAssignedAuthor().getAssignedPerson().getNameArray(0).addNewFamily();
+        value = mapToTranslatedValue("AUT102");
+        clinicalDocument.getAuthorArray(0).getAssignedAuthor().getAssignedPerson().getNameArray(0).getFamilyArray(0).set(cdaMapHelper.mapToCData(value));
+
+        OffsetDateTime now = OffsetDateTime.now();
+        String formattedDateTime = formatDateTime(now);
+
+        clinicalDocument.getAuthorArray(0).getTime().setValue(formattedDateTime);
+        return clinicalDocument;
     }
 
     private static String formatDateTime(OffsetDateTime dateTime) {
