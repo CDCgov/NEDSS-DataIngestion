@@ -2,12 +2,11 @@ package gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.repository.model.dao.LookUp.PhdcAnswerDao;
+import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto;
+import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgProviderDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcQuestionLookUpDto;
 import gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService;
-import gov.cdc.nedss.phdc.cda.CE;
-import gov.cdc.nedss.phdc.cda.POCDMT000040CustodianOrganization;
-import gov.cdc.nedss.phdc.cda.POCDMT000040Observation;
-import gov.cdc.nedss.phdc.cda.TS;
+import gov.cdc.nedss.phdc.cda.*;
 import org.apache.xmlbeans.XmlObject;
 
 import java.text.ParseException;
@@ -32,4 +31,11 @@ public interface ICdaMapHelper {
     CE mapToCEQuestionType(String questionCode, CE output);
     XmlObject mapToSTValue(String input, XmlObject output);
     XmlObject mapToObservationPlace(String in, XmlObject out);
+
+    POCDMT000040Participant2 mapToPSN(EcrMsgProviderDto in, POCDMT000040Participant2 out)
+            throws EcrCdaXmlException;
+
+    POCDMT000040Participant2 mapToORG(EcrMsgOrganizationDto in,
+                                      POCDMT000040Participant2 out)
+            throws EcrCdaXmlException;
 }

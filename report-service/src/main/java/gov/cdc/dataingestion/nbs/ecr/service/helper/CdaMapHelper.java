@@ -4,6 +4,8 @@ import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.LookUp.PhdcAnswerDao;
 import gov.cdc.dataingestion.nbs.repository.model.dao.LookUp.QuestionIdentifierMapDao;
+import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto;
+import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgProviderDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcQuestionLookUpDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.QuestionIdentifierMapDto;
 import gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService;
@@ -18,7 +20,10 @@ import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Map;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
 import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforePipe;
@@ -486,5 +491,521 @@ public class CdaMapHelper implements ICdaMapHelper {
 
         return out;
     }
+
+    public POCDMT000040Participant2 mapToPSN(EcrMsgProviderDto in, POCDMT000040Participant2 out)
+            throws EcrCdaXmlException {
+        String firstName="";
+        String lastName="";
+        String suffix="";
+        String degree="";
+        String address1="";
+        String address2="";
+        String city="";
+        String county="";
+        String state="";
+        String zip="";
+        String country="";
+        String telephone="";
+        String extn="";
+        String qec="";
+        String email="";
+        String prefix="";
+        int teleCounter=0;
+
+        out.setTypeCode("PRF");
+
+        for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
+            String name = entry.getKey();
+            String value = null;
+            if (entry.getValue() != null) {
+                value = entry.getValue().toString();
+            }
+
+            if (name.equals("prvLocalId") && in.getPrvLocalId() != null && !in.getPrvLocalId().isEmpty()) {
+                if (out.getParticipantRole() == null) {
+                    out.addNewParticipantRole().addNewId();
+                } else {
+                    out.getParticipantRole().addNewId();
+                }
+                out.getParticipantRole().getIdArray(0).setExtension(in.getPrvLocalId());
+                out.getParticipantRole().getIdArray(0).setRoot("2.16.840.1.113883.11.19745");
+                out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
+            }
+            else if (name.equals("prvNameFirstTxt") && in.getPrvNameFirstTxt() !=null && !in.getPrvNameFirstTxt().isEmpty()) {
+                firstName = in.getPrvNameFirstTxt();
+            }
+            else if (name.equals("prvNamePrefixCd") && in.getPrvNamePrefixCd() != null && !in.getPrvNamePrefixCd().isEmpty()) {
+                prefix = in.getPrvNamePrefixCd();
+            }
+            else if (name.equals("prvNameLastTxt") && in.getPrvNameLastTxt() != null && !in.getPrvNameLastTxt().isEmpty()) {
+                lastName = in.getPrvNameLastTxt();
+            }
+            else if(name.equals("prvNameSuffixCd") && in.getPrvNameSuffixCd() != null && !in.getPrvNameSuffixCd().isEmpty()) {
+                suffix = in.getPrvNameSuffixCd();
+            }
+            else if(name.equals("prvNameDegreeCd") && in.getPrvNameDegreeCd()!=null && !in.getPrvNameDegreeCd().isEmpty()) {
+                degree = in.getPrvNameDegreeCd();
+            }
+            else if(name.equals("prvAddrStreetAddr1Txt") && in.getPrvAddrStreetAddr1Txt() !=null && !in.getPrvAddrStreetAddr1Txt().isEmpty()) {
+                address1 = in.getPrvAddrStreetAddr1Txt();
+            }
+            else if(name.equals("prvAddrStreetAddr2Txt") && in.getPrvAddrStreetAddr2Txt() != null && !in.getPrvAddrStreetAddr2Txt().isEmpty()) {
+                address2 = in.getPrvAddrStreetAddr2Txt();
+            }
+            else if(name.equals("prvAddrCityTxt") && in.getPrvAddrCityTxt() != null && !in.getPrvAddrCityTxt().isEmpty()) {
+                city = in.getPrvAddrCityTxt();
+            }
+            if(name.equals("prvAddrCountyCd") && in.getPrvAddrCountyCd() != null && !in.getPrvAddrCountyCd().isEmpty()) {
+                county = mapToAddressType(in.getPrvAddrCountyCd(), county);
+            }
+            else if(name.equals("prvAddrStateCd") && in.getPrvAddrStateCd() != null  && !in.getPrvAddrStateCd().isEmpty()) {
+                state = mapToAddressType(in.getPrvAddrStateCd(), state);
+            }
+            else if(name.equals("prvAddrZipCodeTxt") && in.getPrvAddrZipCodeTxt() != null && !in.getPrvAddrZipCodeTxt().isEmpty()) {
+                zip = in.getPrvAddrZipCodeTxt();
+            }
+            else if(name.equals("prvAddrCountryCd") && in.getPrvAddrCountryCd() != null && !in.getPrvAddrCountryCd().isEmpty()) {
+                country = mapToAddressType(in.getPrvAddrCountryCd(), country);
+            }
+            else if(name.equals("prvPhoneNbrTxt") && in.getPrvPhoneNbrTxt() != null && !in.getPrvPhoneNbrTxt().isEmpty()) {
+                telephone = in.getPrvPhoneNbrTxt();
+            }
+            else  if(name.equals("prvPhoneExtensionTxt") && in.getPrvPhoneExtensionTxt() != null) {
+                extn = in.getPrvPhoneExtensionTxt().toString();
+            }
+            else if(name.equals("prvIdQuickCodeTxt") && in.getPrvIdQuickCodeTxt() != null && !in.getPrvIdQuickCodeTxt().isEmpty()) {
+                if (out.getParticipantRole() == null) {
+                    out.addNewParticipantRole().addNewId();
+                } else {
+                    out.getParticipantRole().addNewId();
+                }
+
+
+                int c = 0;
+                if (out.getParticipantRole().getIdArray().length == 0) {
+                    out.getParticipantRole().addNewId();
+                } else {
+                    c = out.getParticipantRole().getIdArray().length;
+                    out.getParticipantRole().addNewId();
+                }
+
+                out.getParticipantRole().getIdArray(c).setExtension(in.getPrvIdQuickCodeTxt());
+                out.getParticipantRole().getIdArray(c).setRoot("2.16.840.1.113883.11.19745");
+                out.getParticipantRole().getIdArray(c).setAssigningAuthorityName("LR_QEC");
+            }
+            else if(name.equals("prvEmailAddressTxt") && in.getPrvEmailAddressTxt() != null && !in.getPrvEmailAddressTxt().isEmpty()) {
+                email = in.getPrvEmailAddressTxt();
+            }
+
+        }
+
+
+
+        if(!firstName.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewPlayingEntity().addNewName();
+            } else {
+                out.getParticipantRole().addNewPlayingEntity().addNewName();
+            }
+            var mapVal = mapToCData(firstName);
+            EnGiven enG = EnGiven.Factory.newInstance();
+            enG.set(mapVal);
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewGiven();
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).setGivenArray(0,  EnGiven.Factory.newInstance());
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).getGivenArray(0).set(mapVal);
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).setUse(new ArrayList(Arrays.asList("L")));
+        }
+        if(!lastName.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewPlayingEntity().addNewName();
+            } else {
+                out.getParticipantRole().addNewPlayingEntity().addNewName();
+            }
+            var mapVal = mapToCData(lastName);
+            EnFamily enG = EnFamily.Factory.newInstance();
+            enG.set(mapVal);
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewFamily();
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).setFamilyArray(0,  EnFamily.Factory.newInstance());
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).getFamilyArray(0).set(mapVal);
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).setUse(new ArrayList(Arrays.asList("L")));
+        }
+        if(!prefix.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewPlayingEntity().addNewName();
+            } else {
+                out.getParticipantRole().addNewPlayingEntity().addNewName();
+            }
+            var mapVal = mapToCData(prefix);
+            EnPrefix enG = EnPrefix.Factory.newInstance();
+            enG.set(mapVal);
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewPrefix();
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).setPrefixArray(0,  EnPrefix.Factory.newInstance());
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).getPrefixArray(0).set(mapVal);
+        }
+        if(!suffix.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewPlayingEntity().addNewName();
+            } else {
+                out.getParticipantRole().addNewPlayingEntity().addNewName();
+            }
+            var mapVal = mapToCData(suffix);
+            EnSuffix enG = EnSuffix.Factory.newInstance();
+            enG.set(mapVal);
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewSuffix();
+
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).setSuffixArray(0,  EnSuffix.Factory.newInstance());
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).getSuffixArray(0).set(mapVal);
+        }
+        if(!address1.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
+            var mapVal = mapToCData(address1);
+            AdxpStreetAddressLine enG = AdxpStreetAddressLine.Factory.newInstance();
+            enG.set(mapVal);
+            out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
+            out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0,  AdxpStreetAddressLine.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapVal);
+        }
+        if(!address2.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
+            var mapVal = mapToCData(address2);
+            AdxpStreetAddressLine enG = AdxpStreetAddressLine.Factory.newInstance();
+            enG.set(mapVal);
+
+            if (out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray().length > 1) {
+                out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
+                out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(1,  AdxpStreetAddressLine.Factory.newInstance());
+                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(1).set(mapVal);
+            } else {
+                out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
+                out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0,  AdxpStreetAddressLine.Factory.newInstance());
+                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapVal);
+            }
+
+        }
+        if(!city.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
+            var mapVal = mapToCData(city);
+            AdxpCity enG = AdxpCity.Factory.newInstance();
+            enG.set(mapVal);
+            out.getParticipantRole().getAddrArray(0).addNewCity();
+
+            out.getParticipantRole().getAddrArray(0).setCityArray(0,  AdxpCity.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getCityArray(0).set(mapVal);
+        }
+        if(!county.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
+            var mapVal = mapToCData(county);
+            AdxpCounty enG = AdxpCounty.Factory.newInstance();
+            enG.set(mapVal);
+            out.getParticipantRole().getAddrArray(0).addNewCounty();
+
+            out.getParticipantRole().getAddrArray(0).setCountyArray(0,  AdxpCounty.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getCountyArray(0).set(mapVal);
+        }
+        if(!zip.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
+            var mapVal = mapToCData(zip);
+            AdxpPostalCode enG = AdxpPostalCode.Factory.newInstance();
+            enG.set(mapVal);
+            out.getParticipantRole().getAddrArray(0).addNewPostalCode();
+
+            out.getParticipantRole().getAddrArray(0).setPostalCodeArray(0,  AdxpPostalCode.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getPostalCodeArray(0).set(mapVal);
+        }
+
+        if(!state.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
+            var mapVal = mapToCData(state);
+            AdxpState enG = AdxpState.Factory.newInstance();
+            enG.set(mapVal);
+            out.getParticipantRole().getAddrArray(0).addNewState();
+
+            out.getParticipantRole().getAddrArray(0).setStateArray(0,  AdxpState.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getStateArray(0).set(mapVal);
+        }
+        if(!country.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
+            var mapVal = mapToCData(country);
+            AdxpCountry enG = AdxpCountry.Factory.newInstance();
+            enG.set(mapVal);
+            out.getParticipantRole().getAddrArray(0).addNewCountry();
+
+            out.getParticipantRole().getAddrArray(0).setCountryArray(0,  AdxpCountry.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getCountryArray(0).set(mapVal);
+        }
+        if(!telephone.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewTelecom();
+            } else {
+                out.getParticipantRole().addNewTelecom();
+            }
+            out.getParticipantRole().getTelecomArray(teleCounter).setUse(new ArrayList(Arrays.asList("WP")));
+            int phoneExtnSize= extn.length();
+            if(phoneExtnSize>0){
+                telephone=telephone+ EXTN_STR+ extn;
+            }
+
+            out.getParticipantRole().getTelecomArray(teleCounter).setValue(telephone);
+            teleCounter = teleCounter+1;
+        } if(!email.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewTelecom();
+            } else {
+                out.getParticipantRole().addNewTelecom();
+            }
+            out.getParticipantRole().getTelecomArray(teleCounter).setUse(new ArrayList(Arrays.asList("WP")));
+            out.getParticipantRole().getTelecomArray(teleCounter).setValue(email);
+            teleCounter= teleCounter + 1;
+        }
+
+        return out;
+    }
+
+    public POCDMT000040Participant2 mapToORG(EcrMsgOrganizationDto in,
+                                             POCDMT000040Participant2 out)
+            throws EcrCdaXmlException {
+        String state="";
+        String streetAddress1="";
+        String streetAddress2="";
+        String city = "";
+        String county = "";
+        String country = "";
+        String zip = "";
+        String phone= "";
+        String extn = "";
+
+        out.setTypeCode("PRF");
+
+        for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
+            String name = entry.getKey();
+            String value = null;
+            if (entry.getValue() != null) {
+                value = entry.getValue().toString();
+            }
+
+            if(name.equals("orgLocalId") && in.getOrgLocalId()!=null && !in.getOrgLocalId().isEmpty()){
+                if (out.getParticipantRole() == null) {
+                    out.addNewParticipantRole().addNewId();
+                } else {
+                    out.getParticipantRole().addNewId();
+                }
+                out.getParticipantRole().getIdArray(0).setRoot(ID_ARR_ROOT);
+                out.getParticipantRole().getIdArray(0).setExtension(in.getOrgLocalId());
+                out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
+            }
+            else if(name.equals("orgNameTxt") && in.getOrgNameTxt() != null && !in.getOrgNameTxt().isEmpty()){
+                if (out.getParticipantRole() == null) {
+                    out.addNewParticipantRole().addNewPlayingEntity();
+                } else {
+                    out.getParticipantRole().addNewPlayingEntity();
+                }
+                var val = mapToCData(in.getOrgNameTxt());
+                out.getParticipantRole().getPlayingEntity().addNewName();
+                out.getParticipantRole().getPlayingEntity().setNameArray(0,  PN.Factory.newInstance());
+                out.getParticipantRole().getPlayingEntity().getNameArray(0).set(val);
+            }
+            else if(name.equals("orgAddrStreetAddr1Txt") && in.getOrgAddrStreetAddr1Txt() != null && !in.getOrgAddrStreetAddr1Txt().isEmpty()){
+                streetAddress1= in.getOrgAddrStreetAddr1Txt();
+            }
+            else if(name.equals("orgAddrStreetAddr2Txt") && in.getOrgAddrStreetAddr2Txt() != null && !in.getOrgAddrStreetAddr2Txt().isEmpty()){
+                streetAddress2 =in.getOrgAddrStreetAddr2Txt();
+            }
+            else if(name.equals("orgAddrCityTxt") && in.getOrgAddrCityTxt() !=null && !in.getOrgAddrCityTxt().isEmpty()){
+                city= in.getOrgAddrCityTxt();
+            }
+            else if(name.equals("orgAddrCountyCd") && in.getOrgAddrCountyCd() != null && !in.getOrgAddrCountyCd().isEmpty()){
+                county = mapToAddressType( in.getOrgAddrCountyCd(), county);
+            }
+            else if (name.equals("orgAddrStateCd") && in.getOrgAddrStateCd() != null &&  !in.getOrgAddrStateCd().isEmpty()){
+                state= mapToAddressType( in.getOrgAddrStateCd(), state);
+            }
+            else if(name.equals("orgAddrZipCodeTxt") && in.getOrgAddrZipCodeTxt() != null && !in.getOrgAddrZipCodeTxt().isEmpty()){
+                zip = in.getOrgAddrZipCodeTxt();
+            }
+            else if(name.equals("orgAddrCountryCd") && in.getOrgAddrCountryCd() != null && !in.getOrgAddrCountryCd().isEmpty()){
+                country = mapToAddressType( in.getOrgAddrCountryCd(), country);
+            }
+            else if(name.equals("orgPhoneNbrTxt") && in.getOrgPhoneNbrTxt() != null && !in.getOrgPhoneNbrTxt().isEmpty()){
+                phone=in.getOrgPhoneNbrTxt();
+            }
+            else if (name.equals("orgPhoneExtensionTxt") && in.getOrgPhoneExtensionTxt() != null)
+            {
+                extn= in.getOrgPhoneExtensionTxt().toString();
+            }
+            else if(name.equals("orgIdCliaNbrTxt") && in.getOrgIdCliaNbrTxt() != null && !in.getOrgIdCliaNbrTxt().isEmpty()){
+                if (out.getParticipantRole() == null) {
+                    out.addNewParticipantRole().addNewId();
+                } else {
+                    out.getParticipantRole().addNewId();
+                }
+
+                out.getParticipantRole().getIdArray(1).setRoot(ID_ARR_ROOT);
+                out.getParticipantRole().getIdArray(1).setExtension(in.getOrgIdCliaNbrTxt());
+                out.getParticipantRole().getIdArray(1).setAssigningAuthorityName("LR_CLIA");
+            }
+        }
+
+
+
+        int isAddressPopulated= 0;
+        if(!streetAddress1.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
+
+            out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
+            out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0, AdxpStreetAddressLine.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapToCData(streetAddress1));
+
+            isAddressPopulated=1;
+        }
+        if(!streetAddress2.isEmpty() ){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
+            out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
+            if (out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray().length > 1) {
+                out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(1, AdxpStreetAddressLine.Factory.newInstance());
+                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(1).set(mapToCData(streetAddress2));
+            }
+            else {
+                out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0, AdxpStreetAddressLine.Factory.newInstance());
+                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapToCData(streetAddress2));
+            }
+
+            isAddressPopulated=1;
+        }
+        if(!city.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
+
+            out.getParticipantRole().getAddrArray(0).addNewCity();
+            out.getParticipantRole().getAddrArray(0).setCityArray(0, AdxpCity.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getCityArray(0).set(mapToCData(city));
+
+            isAddressPopulated=1;
+        }
+        if(!state.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
+
+            out.getParticipantRole().getAddrArray(0).addNewState();
+
+            out.getParticipantRole().getAddrArray(0).setStateArray(0, AdxpState.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getStateArray(0).set(mapToCData(state));
+
+            isAddressPopulated=1;
+        }
+        if(!county.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
+
+            out.getParticipantRole().getAddrArray(0).addNewCounty();
+
+            out.getParticipantRole().getAddrArray(0).setCountyArray(0, AdxpCounty.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getCountyArray(0).set(mapToCData(county));
+
+            isAddressPopulated=1;
+        }
+        if(!zip.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
+
+            out.getParticipantRole().getAddrArray(0).addNewPostalCode();
+
+            out.getParticipantRole().getAddrArray(0).setPostalCodeArray(0, AdxpPostalCode.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getPostalCodeArray(0).set(mapToCData(zip));
+            isAddressPopulated=1;
+        }
+        if(!country.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
+
+            out.getParticipantRole().getAddrArray(0).addNewCountry();
+
+            out.getParticipantRole().getAddrArray(0).setCountryArray(0, AdxpCountry.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getCountryArray(0).set(mapToCData(zip));
+
+            isAddressPopulated=1;
+        }
+        if(isAddressPopulated>0) {
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewAddr();
+            } else {
+                out.getParticipantRole().addNewAddr();
+            }
+            out.getParticipantRole().getAddrArray(0).setUse(new ArrayList(Arrays.asList("WP")));
+        }
+
+
+
+        if(!phone.isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewTelecom();
+            } else {
+                out.getParticipantRole().addNewTelecom();
+            }
+            out.getParticipantRole().getTelecomArray(0).setUse(new ArrayList(Arrays.asList("WP")));
+            int phoneExtnSize = extn.length();
+            if(phoneExtnSize>0){
+                phone=phone+ EXTN_STR+ extn;
+            }
+            out.getParticipantRole().getTelecomArray(0).setValue(phone);
+
+        }
+        return out;
+    }
+
+
+
+
+
 
 }
