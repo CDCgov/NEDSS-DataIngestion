@@ -204,7 +204,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         String queryString = loadSqlFromFile("ecr_msg_case_participant.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
-        query.setParameter(invLocalId, invLocalId);
+        query.setParameter(this.invLocalId, invLocalId);
         List<EcrMsgCaseParticipantDto> dtos = new ArrayList<EcrMsgCaseParticipantDto>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
@@ -229,7 +229,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         String queryString = loadSqlFromFile("ecr_msg_case_answer.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
-        query.setParameter(invLocalId, invLocalId);
+        query.setParameter(this.invLocalId, invLocalId);
         List<EcrMsgCaseAnswerDto> dtos = new ArrayList<EcrMsgCaseAnswerDto>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
@@ -264,7 +264,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         String queryString = loadSqlFromFile("ecr_msg_case_answer_repeat.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
-        query.setParameter(invLocalId, invLocalId);
+        query.setParameter(this.invLocalId, invLocalId);
         List<EcrMsgCaseAnswerRepeatDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
@@ -298,7 +298,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         String queryString = loadSqlFromFile("ecr_msg_xml_answer.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
-        query.setParameter(invLocalId, invLocalId);
+        query.setParameter(this.invLocalId, invLocalId);
         List<EcrMsgXmlAnswerDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
@@ -470,7 +470,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         String queryString = loadSqlFromFile("ecr_msg_interview_provider.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
-        query.setParameter(ixsLocalId, ixsLocalId);
+        query.setParameter(this.ixsLocalId, ixsLocalId);
         List<EcrMsgInterviewProviderDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
@@ -516,7 +516,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         String queryString = loadSqlFromFile("ecr_msg_interview_answer.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
-        query.setParameter(ixsLocalId, ixsLocalId);
+        query.setParameter(this.ixsLocalId, ixsLocalId);
         List<EcrMsgInterviewAnswerDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
@@ -551,7 +551,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         String queryString = loadSqlFromFile("ecr_msg_interview_answer_repeat.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
-        query.setParameter(ixsLocalId, ixsLocalId);
+        query.setParameter(this.ixsLocalId, ixsLocalId);
         List<EcrMsgInterviewAnswerRepeatDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {

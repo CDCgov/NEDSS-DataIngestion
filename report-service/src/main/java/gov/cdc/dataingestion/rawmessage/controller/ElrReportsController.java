@@ -76,6 +76,7 @@ public class ElrReportsController {
         Gson gson = new Gson();
         var result = ecrMsgQueryService.getSelectedEcrFromJson();
 
+
         String xmlREsult = "";
         try {
             xmlREsult = mapper.tranformSelectedEcrToCDAXml(result);
