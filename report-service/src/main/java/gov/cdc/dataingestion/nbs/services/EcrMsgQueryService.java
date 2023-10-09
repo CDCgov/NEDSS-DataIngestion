@@ -126,9 +126,9 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
         selectedRecord.setMsgInterviews(interviewArr);
 
 
-        var xmlAnsw = ecrMsgQueryRepository.FetchMsgXmlAnswerForApplicableEcr(10009282, "1.2.840.114350.1.13.478.2.7.8.688883.74957358");
-
-        selectedRecord.setMsgXmlAnswers(xmlAnsw);
+//        var xmlAnsw = ecrMsgQueryRepository.FetchMsgXmlAnswerForApplicableEcr(10009282, "1.2.840.114350.1.13.478.2.7.8.688883.74957358");
+//
+//        selectedRecord.setMsgXmlAnswers(xmlAnsw);
         return selectedRecord;
     }
 
