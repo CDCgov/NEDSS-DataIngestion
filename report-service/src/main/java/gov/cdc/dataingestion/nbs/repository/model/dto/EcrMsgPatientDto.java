@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 @Setter
 public class EcrMsgPatientDto {
     public EcrMsgPatientDto() {
+        // empty constructor
     }
 
     private Integer msgContainerUid;

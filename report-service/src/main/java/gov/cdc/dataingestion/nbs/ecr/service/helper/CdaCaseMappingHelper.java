@@ -15,11 +15,8 @@ import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseParticipantDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcQuestionLookUpDto;
 import gov.cdc.nedss.phdc.cda.*;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
 
 import javax.xml.namespace.QName;
-import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -95,33 +92,67 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
     //endregion
 
 
-    private POCDMT000040StructuredBody mapToCase(int entryCounter, EcrSelectedCase caseDto, POCDMT000040StructuredBody output) throws XmlException, ParseException, EcrCdaXmlException {
-        int componentCaseCounter=output.getComponentArray().length -1;
+    private POCDMT000040StructuredBody mapToCase(int entryCounter, EcrSelectedCase caseDto, POCDMT000040StructuredBody output) throws EcrCdaXmlException {
+        int componentCaseCounter = output.getComponentArray().length - 1;
         int repeats = 0;
 
         int counter= entryCounter;
 
+        var caseField = mapCaseFieldCheck(caseDto, output, repeats, componentCaseCounter, counter);
+        output = caseField.getOutput();
+        componentCaseCounter = caseField.getComponentCaseCounter();
+        counter = caseField.getCounter();
+
+        int questionGroupCounter=0;
+        int answerGroupCounter=0;
+        String OldQuestionId=CHANGE;
+        int sectionCounter = 0;
+        int repeatComponentCounter=0;
+
+
+        if (caseDto.getMsgCaseParticipants().size() > 0
+                || caseDto.getMsgCaseAnswers().size() > 0 || caseDto.getMsgCaseAnswerRepeats().size() > 0) {
+
+            /**CASE PARTICIPANT**/
+            var participantModel = mapCaseParticipant(caseDto, output, componentCaseCounter, counter);
+            output = participantModel.getStructuredBody();
+            componentCaseCounter = participantModel.getComponentCaseCounter();
+            counter = participantModel.getCounter();
+
+            /**CASE ANSWER**/
+            var caseAnsModel = mapCaseAnswer(caseDto, output, componentCaseCounter, counter, OldQuestionId);
+            output = caseAnsModel.getStructuredBody();
+            componentCaseCounter = caseAnsModel.getComponentCaseCounter();
+
+            /**CASE PARTICIPANT REPEAT**/
+            var caseParRepeatModel = mapCaseParticipantRepeat(caseDto, output, repeatComponentCounter,
+                    componentCaseCounter, answerGroupCounter, questionGroupCounter, sectionCounter);
+            output = caseParRepeatModel.getStructuredBody();
+
+        }
+        return output;
+    }
+
+    private CdaCaseField mapCaseFieldCheck(EcrSelectedCase caseDto,
+                                   POCDMT000040StructuredBody output,
+                                   int repeats,
+                                   int componentCaseCounter,
+                                   int counter) throws EcrCdaXmlException {
+
+        CdaCaseField caseField = new CdaCaseField();
         for (Map.Entry<String, Object> entry : caseDto.getMsgCase().getDataMap().entrySet()) {
             String name = entry.getKey();
 
-            String value = null;
-            if (entry.getValue() != null) {
-                value = entry.getValue().toString();
-            }
+            String value = getValueFromMap(entry);
 
             if (checkInvalidField(name, caseDto)) {
                 // do nothing
             }
             else if (value != null && !value.isEmpty()) {
-                String questionId= "";
-
-                questionId = this.cdaMapHelper.mapToQuestionId(name);
-
-
+                String questionId = this.cdaMapHelper.mapToQuestionId(name);
                 if (name.equalsIgnoreCase("invConditionCd")) {
                     repeats = (int) caseDto.getMsgCase().getInvConditionCd().chars().filter(x -> x == '^').count();
                 }
-
 
                 if (repeats > 1) {
                     int c = 0;
@@ -170,35 +201,11 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             }
         }
 
-
-        int questionGroupCounter=0;
-        int answerGroupCounter=0;
-        String OldQuestionId=CHANGE;
-        int sectionCounter = 0;
-        int repeatComponentCounter=0;
-
-
-        if (caseDto.getMsgCaseParticipants().size() > 0
-                || caseDto.getMsgCaseAnswers().size() > 0 || caseDto.getMsgCaseAnswerRepeats().size() > 0) {
-
-            /**CASE PARTICIPANT**/
-            var participantModel = mapCaseParticipant(caseDto, output, componentCaseCounter, counter);
-            output = participantModel.getStructuredBody();
-            componentCaseCounter = participantModel.getComponentCaseCounter();
-            counter = participantModel.getCounter();
-
-            /**CASE ANSWER**/
-            var caseAnsModel = mapCaseAnswer(caseDto, output, componentCaseCounter, counter, OldQuestionId);
-            output = caseAnsModel.getStructuredBody();
-            componentCaseCounter = caseAnsModel.getComponentCaseCounter();
-
-            /**CASE PARTICIPANT REPEAT**/
-            var caseParRepeatModel = mapCaseParticipantRepeat(caseDto, output, repeatComponentCounter,
-                    componentCaseCounter, answerGroupCounter, questionGroupCounter, sectionCounter);
-            output = caseParRepeatModel.getStructuredBody();
-
-        }
-        return output;
+        caseField.setOutput(output);
+        caseField.setRepeats(repeats);
+        caseField.setComponentCaseCounter(componentCaseCounter);
+        caseField.setCounter(counter);
+        return caseField;
     }
 
     private CdaCaseParticipantRepeat mapCaseParticipantRepeat(EcrSelectedCase caseDto, POCDMT000040StructuredBody output,

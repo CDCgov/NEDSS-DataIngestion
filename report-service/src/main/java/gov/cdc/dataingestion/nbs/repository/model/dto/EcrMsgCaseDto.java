@@ -69,6 +69,7 @@ public class EcrMsgCaseDto {
     private String invTransmissionModeCd;
     private Map<String, Object> dataMap;
     public EcrMsgCaseDto() {
+        // empty constructor
     }
 
     public void initDataMap() throws EcrCdaXmlException {
