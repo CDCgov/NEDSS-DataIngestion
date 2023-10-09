@@ -7,9 +7,11 @@ import gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientTelecom;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.CdaCaseMappingHelper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper;
+import gov.cdc.dataingestion.nbs.ecr.service.helper.CdaXmlAnswerMappingHelper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaCaseMappingHelper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaPatientMappingHelper;
+import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaXmlAnswerMappingHelper;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedCase;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedInterview;
@@ -50,12 +52,15 @@ public class CdaMapper implements ICdaMapper {
 
     private final ICdaCaseMappingHelper caseMappingHelper;
 
+    private final ICdaXmlAnswerMappingHelper xmlAnswerMappingHelper;
+
     @Autowired
     public CdaMapper(ICdaLookUpService ecrLookUpService) {
         this.ecrLookUpService = ecrLookUpService;
         this.cdaMapHelper = new CdaMapHelper(this.ecrLookUpService);
         this.patientMappingHelper = new CdaPatientMappingHelper(this.cdaMapHelper);
         this.caseMappingHelper = new CdaCaseMappingHelper(this.cdaMapHelper);
+        this.xmlAnswerMappingHelper = new CdaXmlAnswerMappingHelper();
     }
 
     public String tranformSelectedEcrToCDAXml(EcrSelectedRecord input) throws EcrCdaXmlException {
@@ -151,7 +156,7 @@ public class CdaMapper implements ICdaMapper {
         inv168 = ecrCase.getInv168();
 
         /**XML ANSWER**/
-        var ecrXmlAnswer = mapToXmlAnswerTop(input,
+        var ecrXmlAnswer = xmlAnswerMappingHelper.mapToXmlAnswerTop(input,
                 clinicalDocument, componentCounter);
         clinicalDocument = ecrXmlAnswer.getClinicalDocument();
         componentCounter = ecrXmlAnswer.getComponentCounter();
@@ -317,39 +322,6 @@ public class CdaMapper implements ICdaMapper {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssZ");
         return dateTime.format(formatter);
     }
-
-
-    //region XML Answer
-    public CdaXmlAnswerMapper mapToXmlAnswerTop(EcrSelectedRecord input,
-                                                POCDMT000040ClinicalDocument1 clinicalDocument,
-                                                int componentCounter) throws EcrCdaXmlException {
-
-        try {
-            CdaXmlAnswerMapper mapper = new CdaXmlAnswerMapper();
-            if(input.getMsgXmlAnswers() != null && !input.getMsgXmlAnswers().isEmpty()) {
-                for(int i = 0; i < input.getMsgXmlAnswers().size(); i++) {
-                    componentCounter++;
-                    int c = 0;
-                    if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
-                        clinicalDocument.getComponent().getStructuredBody().addNewComponent();
-                    } else {
-                        c = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length;
-                        clinicalDocument.getComponent().getStructuredBody().addNewComponent();
-                    }
-                    POCDMT000040Component3 out = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c);
-                    var mappedData = mapToExtendedData(input.getMsgXmlAnswers().get(i), out);
-                    clinicalDocument.getComponent().getStructuredBody().setComponentArray(c, mappedData);
-                }
-            }
-            mapper.setClinicalDocument(clinicalDocument);
-            mapper.setComponentCounter(componentCounter);
-            return mapper;
-        } catch ( Exception e) {
-            throw new EcrCdaXmlException(e.getMessage());
-        }
-
-    }
-    //endregion
 
 
     //region PROVIDER
@@ -2471,23 +2443,6 @@ public class CdaMapper implements ICdaMapper {
             teleCounter= teleCounter + 1;
         }
 
-
-
-        return out;
-    }
-
-    private POCDMT000040Component3 mapToExtendedData(EcrMsgXmlAnswerDto in, POCDMT000040Component3 out) throws XmlException {
-        String dataType="";
-        if (!in.getDataType().isEmpty()) {
-            dataType = in.getDataType();
-        }
-
-
-
-        if (!in.getAnswerXmlTxt().isEmpty()) {
-            ANY any = ANY.Factory.parse(in.getAnswerXmlTxt());
-            out.set(any);
-        }
         return out;
     }
 
