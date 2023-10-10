@@ -207,7 +207,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
     private CdaCaseFieldRepeat mapCaseFieldCheckHasRepeat(POCDMT000040StructuredBody output,
                                        int componentCaseCounter,
                                        String value,
-                                       String questionId) {
+                                       String questionId) throws EcrCdaXmlException {
         int c = 0;
         if (output.getComponentArray(componentCaseCounter).getSection().getEntryArray().length == 0) {
             output.getComponentArray(componentCaseCounter).getSection().addNewEntry();
@@ -332,7 +332,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         return model;
     }
 
-    private POCDMT000040Observation mapTripletToObservation(String invConditionCd, String questionId, POCDMT000040Observation output) {
+    private POCDMT000040Observation mapTripletToObservation(String invConditionCd, String questionId, POCDMT000040Observation output) throws EcrCdaXmlException {
         output.setClassCode("OBS");
         output.setMoodCode(XActMoodDocumentObservation.EVN);
         List<String> repeats = GetStringsBeforePipe(invConditionCd);

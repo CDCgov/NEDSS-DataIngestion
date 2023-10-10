@@ -15,8 +15,6 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -255,7 +253,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
         else if (field.getName().equals("patNameAliasTxt") && patient.getPatNameAliasTxt() != null && !patient.getPatNameAliasTxt().trim().isEmpty()) {
             clinicalDocument = checkPatientRoleAlias(clinicalDocument);
 
-            clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(1).setUse(new ArrayList<String> (Arrays.asList("P")));
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(1).setUse(new ArrayList<> (Arrays.asList("P")));
             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(1).getGivenArray(0).set(cdaMapHelper.mapToCData(patient.getPatNameAliasTxt()));
         }
         else if(field.getName().equals("patCurrentSexCd") && patient.getPatCurrentSexCd() != null && !patient.getPatCurrentSexCd().isEmpty()) {
@@ -358,7 +356,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
     private POCDMT000040ClinicalDocument1 patientFieldCheckKMapping(int k, POCDMT000040ClinicalDocument1 clinicalDocument, EcrMsgPatientDto patient, Field field) throws EcrCdaXmlException {
         if (k > 1) {
             clinicalDocument = checkPatientRoleAddrArray(clinicalDocument);
-            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).setUse(new ArrayList<String>(Arrays.asList("H")));
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).setUse(new ArrayList<>(Arrays.asList("H")));
         }
         if (k> 1 && field.getName().equals("patAddrAsOfDt") && patient.getPatAddrAsOfDt() != null ) {
             clinicalDocument = checkPatientRoleAddrArray(clinicalDocument);
@@ -403,8 +401,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
             phoneCounter =phoneCounter +1;
         }
 
-        CdaPatientField fieldModel = new CdaPatientField(clinicalDocument, phoneCounter);
-        return fieldModel;
+        return new CdaPatientField(clinicalDocument, phoneCounter);
     }
 
     private boolean validatePatientGenericField(Field field, EcrMsgPatientDto patient) {
@@ -656,7 +653,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
         clinicalDocument = checkPatientRoleNameArray(clinicalDocument);
         if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getFamilyArray().length == 0) {
             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).addNewFamily();
-        };
+        }
         return clinicalDocument;
     }
 
@@ -719,7 +716,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
 
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<String>(Arrays.asList("WP")));
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<>(Arrays.asList("WP")));
                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(wpNumber);
 
                 phoneCounter = phoneCounter +1;
@@ -758,7 +755,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
 
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<String>(Arrays.asList("MC")));
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<>(Arrays.asList("MC")));
                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(cellNumber);
                 phoneCounter =phoneCounter +1;
             }
@@ -798,7 +795,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
 
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<String>(Arrays.asList("HP")));
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<>(Arrays.asList("HP")));
                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(MAIL_TO + PAT_EMAIL_ADDRESS_TXT);
                 phoneCounter =phoneCounter +1;
             }
@@ -810,7 +807,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
         return model;
     }
 
-    private POCDMT000040ClinicalDocument1 mapPatientRaceCategory(EcrMsgPatientDto patient, POCDMT000040ClinicalDocument1 clinicalDocument) {
+    private POCDMT000040ClinicalDocument1 mapPatientRaceCategory(EcrMsgPatientDto patient, POCDMT000040ClinicalDocument1 clinicalDocument) throws EcrCdaXmlException {
         List<CE> raceCode2List = new ArrayList<>();
         long counter = patient.getPatRaceCategoryCd().chars().filter(x -> x == '|').count();
 
@@ -1009,7 +1006,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                 clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewTelecom();
             }
 
-            String phoneHome = "";
+            String phoneHome;
             if(!phoneCountryCode.isEmpty()) {
                 homePhoneNumber =  "+"+phoneCountryCode+"-"+homePhoneNumber;
             }
@@ -1036,7 +1033,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
 
     }
 
-    private POCDMT000040Component3 mapToPatientNested(int counter, String colName, String data, POCDMT000040Component3 component3) throws XmlException, ParseException, EcrCdaXmlException {
+    private POCDMT000040Component3 mapToPatientNested(int counter, String colName, String data, POCDMT000040Component3 component3) throws EcrCdaXmlException {
         var questionCode = this.cdaMapHelper.mapToQuestionId(colName);
         var count = 0;
         if (component3.getSection() == null) {

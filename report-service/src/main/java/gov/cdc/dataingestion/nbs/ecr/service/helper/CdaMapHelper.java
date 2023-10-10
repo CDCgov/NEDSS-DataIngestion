@@ -15,11 +15,9 @@ import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.QuestionIdentifierM
 import gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService;
 import gov.cdc.nedss.phdc.cda.*;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 import javax.xml.namespace.QName;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -34,7 +32,7 @@ import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.Ge
 
 public class CdaMapHelper implements ICdaMapHelper {
 
-    private ICdaLookUpService ecrLookUpService;
+    private final ICdaLookUpService ecrLookUpService;
 
     public CdaMapHelper(ICdaLookUpService ecrLookUpService) {
         this.ecrLookUpService = ecrLookUpService;
@@ -42,8 +40,7 @@ public class CdaMapHelper implements ICdaMapHelper {
 
     public XmlObject mapToCData(String data) throws EcrCdaXmlException {
         try {
-            XmlObject xmlObject = XmlObject.Factory.parse("<CDATA>"+data+"</CDATA>");
-            return xmlObject;
+            return XmlObject.Factory.parse("<CDATA>"+data+"</CDATA>");
         } catch (Exception e) {
             throw new EcrCdaXmlException(e.getMessage());
         }
@@ -53,8 +50,7 @@ public class CdaMapHelper implements ICdaMapHelper {
 
     public XmlObject mapToStringData(String data) throws EcrCdaXmlException {
         try {
-            XmlObject xmlObject = XmlObject.Factory.parse("<STRING>"+data+"</STRING>");
-            return xmlObject;
+            return XmlObject.Factory.parse("<STRING>"+data+"</STRING>");
         } catch (Exception e) {
             throw new EcrCdaXmlException(e.getMessage());
         }
@@ -70,7 +66,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         cursor.toFirstChild();  // Move inside childName
         cursor.beginElement("low");
         cursor.insertNamespace("", XML_NAME_SPACE_HOLDER);
-        cursor.insertAttributeWithValue(VALUE_NAME, mapToTsType(data).getValue().toString());
+        cursor.insertAttributeWithValue(VALUE_NAME, mapToTsType(data).getValue());
         cursor.dispose();
         return output;
     }
@@ -84,13 +80,13 @@ public class CdaMapHelper implements ICdaMapHelper {
             if (!checkerCode && !checkerCodeDash) {
                 result = data;
             }
-            else if (checkerCodeDash && !data.isEmpty()) {
+            else if (checkerCodeDash) {
                 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
                 SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd HH:mm:ss.S");
                 Date date = inputFormat.parse(data);
                 result = outputFormat.format(date);
             }
-            else if (checkerCode && !data.isEmpty()) {
+            else if (checkerCode) {
                 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.S");
                 SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd HH:mm:ss.S");
                 Date date = inputFormat.parse(data);
@@ -105,7 +101,7 @@ public class CdaMapHelper implements ICdaMapHelper {
 
     }
 
-    public String mapToQuestionId(String data) {
+    public String mapToQuestionId(String data) throws EcrCdaXmlException {
         String output = "";
         QuestionIdentifierMapDao model = new QuestionIdentifierMapDao();
         var qIdentifier = ecrLookUpService.fetchQuestionIdentifierMapByCriteriaByCriteria("COLUMN_NM", data);
@@ -121,7 +117,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         return output;
     }
 
-    public CE mapToCEAnswerType(String data, String questionCode) {
+    public CE mapToCEAnswerType(String data, String questionCode) throws EcrCdaXmlException {
         CE ce = CE.Factory.newInstance();
         var answer = mapToCodedAnswer(data, questionCode);
 
@@ -140,7 +136,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         return ce;
     }
 
-    public String mapToAddressType(String data, String questionCode) {
+    public String mapToAddressType(String data, String questionCode) throws EcrCdaXmlException {
         String output = "";
         var answer = mapToCodedAnswer(data, questionCode);
 
@@ -161,23 +157,19 @@ public class CdaMapHelper implements ICdaMapHelper {
 
     }
 
-    public PhdcAnswerDao mapToCodedAnswer(String data, String questionCode) {
+    public PhdcAnswerDao mapToCodedAnswer(String data, String questionCode) throws EcrCdaXmlException {
         PhdcAnswerDao model = new PhdcAnswerDao();
-        String translation="";
-        String isTranslationReq= "YES";
-        String code = "";
-        String transCode = data;
-        String transCodeSystem = "";
-        String transCodeSystemName = "";
-        String transDisplayName = "";
-        String codeSystem = "";
-        String CODE_SYSTEM_NAME = "";
-        String displayName = "";
+        String code;
+        String transCodeSystem;
+        String transCodeSystemName;
+        String transDisplayName;
+        String codeSystem;
+        String CODE_SYSTEM_NAME;
+        String displayName;
 
         // RhapsodyTableLookup(output, tableName, resultColumnName, defaultValue, queryColumn1, queryValue1, queryColumn2, queryValue2, ...)
         var phdcAnswer = ecrLookUpService.fetchPhdcAnswerByCriteriaForTranslationCode(questionCode, data);
         if (phdcAnswer != null) {
-            isTranslationReq = phdcAnswer.getCodeTranslationRequired();
             code = phdcAnswer.getAnsToCode();
             transCodeSystem = phdcAnswer.getAnsFromCodeSystemCd();
             transCodeSystemName = phdcAnswer.getAnsFromCodeSystemCd();
@@ -189,7 +181,6 @@ public class CdaMapHelper implements ICdaMapHelper {
         else {
             transCodeSystem = ID_ROOT;
             codeSystem = ID_ROOT;
-            isTranslationReq = NOT_MAPPED_VALUE;
             code = NOT_MAPPED_VALUE;
             transCodeSystemName = NOT_MAPPED_VALUE;
             transDisplayName = NOT_MAPPED_VALUE;
@@ -212,7 +203,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         model.setCodeSystem(codeSystem);
         model.setCodeSystemName(CODE_SYSTEM_NAME);
         model.setDisplayName(displayName);
-        model.setTransCode(transCode);
+        model.setTransCode(data);
         model.setTransCodeSystem(transCodeSystem);
         model.setTransCodeSystemName(transCodeSystemName);
         model.setTransDisplayName(transDisplayName);
@@ -235,8 +226,7 @@ public class CdaMapHelper implements ICdaMapHelper {
     public String getCurrentUtcDateTimeInCdaFormat() {
         ZonedDateTime utcNow = ZonedDateTime.now(ZoneId.of("UTC"));
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssX");
-        String formattedDate = utcNow.format(formatter);
-        return formattedDate;
+        return utcNow.format(formatter);
     }
 
     /*
@@ -247,7 +237,6 @@ public class CdaMapHelper implements ICdaMapHelper {
         try {
             observation.setClassCode("OBS");
             observation.setMoodCode(XActMoodDocumentObservation.EVN);
-            String dataType="DATE";
             String defaultQuestionIdentifier = "";
 
             PhdcQuestionLookUpDto questionLup = new PhdcQuestionLookUpDto();
@@ -267,9 +256,7 @@ public class CdaMapHelper implements ICdaMapHelper {
                 var obs = mapToObservationLookupCheck(result,
                         param);
 
-                questionLup = obs.getQuestionLup();
                 defaultQuestionIdentifier = obs.getDefaultQuestionIdentifier();
-                questionCode = obs.getQuestionCode();
 
                 //endregion
 
@@ -329,15 +316,7 @@ public class CdaMapHelper implements ICdaMapHelper {
                                                    String defaultQuestionIdentifier) throws EcrCdaXmlException {
 
         try {
-            if (result.getDataType().equalsIgnoreCase("TEXT")) {
-                // CHECK mapToSTValue from ori code
-                observation.addNewCode();
-                observation.getCode().setCode(data);
-                observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
-                observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
-                observation.getCode().setDisplayName(result.getQuesDisplayName());
-            }
-            else if (result.getDataType().equalsIgnoreCase("PART")) {
+            if (result.getDataType().equalsIgnoreCase("PART")) {
                 // CHECK mapToObservation from ori 47
                 if (observation.getValueArray().length == 0) {
                     observation.addNewValue();
@@ -348,8 +327,7 @@ public class CdaMapHelper implements ICdaMapHelper {
                 }
 
                 ANY any = ANY.Factory.parse(VALUE_TAG);
-                var element = any;
-                XmlCursor cursor = element.newCursor();
+                XmlCursor cursor = any.newCursor();
                 cursor.toFirstAttribute();
                 cursor.toNextToken();
                 cursor.insertAttributeWithValue(new QName(NAME_SPACE_URL, "type"), "II");
@@ -361,10 +339,10 @@ public class CdaMapHelper implements ICdaMapHelper {
                 observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
                 observation.getCode().setDisplayName(result.getQuesDisplayName());
                 observation.getCode().setCode(data);
-                observation.setValueArray(0, element); // THIS
+                observation.setValueArray(0, any); // THIS
             }
             else if (result.getDataType().equalsIgnoreCase("DATE")) {
-                var ts = mapToTsType(data).getValue().toString();
+                var ts = mapToTsType(data).getValue();
                 observation.addNewCode();
                 observation.getCode().setCode(ts);
                 observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
@@ -372,6 +350,7 @@ public class CdaMapHelper implements ICdaMapHelper {
                 observation.getCode().setDisplayName(result.getQuesDisplayName());
             }
             else {
+                // TEXT type also goes here
                 // CHECK mapToObservation from ori 77
                 observation.addNewCode();
                 observation.getCode().setCode(data);
@@ -388,7 +367,7 @@ public class CdaMapHelper implements ICdaMapHelper {
     }
 
     private Observation mapToObservationLookupCheck(PhdcQuestionLookUpDto result,
-                                             Observation param) {
+                                             Observation param) throws EcrCdaXmlException {
 
         PhdcQuestionLookUpDto questionLup = param.getQuestionLup();
         String defaultQuestionIdentifier = param.getDefaultQuestionIdentifier();
@@ -421,9 +400,7 @@ public class CdaMapHelper implements ICdaMapHelper {
                 || map.getDynamicQuestionIdentifier().equalsIgnoreCase(NOT_FOUND_VALUE)) {
             defaultQuestionIdentifier = questionCode;
         }
-        param.setQuestionLup(questionLup);
         param.setDefaultQuestionIdentifier(defaultQuestionIdentifier);
-        param.setQuestionCode(questionCode);
 
         return param;
 
@@ -431,7 +408,7 @@ public class CdaMapHelper implements ICdaMapHelper {
 
 
 
-    public PhdcQuestionLookUpDto mapToCodedQuestionType(String questionIdentifier) {
+    public PhdcQuestionLookUpDto mapToCodedQuestionType(String questionIdentifier) throws EcrCdaXmlException {
         PhdcQuestionLookUpDto dto = new PhdcQuestionLookUpDto();
         dto.setQuesCodeSystemCd(NOT_FOUND_VALUE);
         dto.setQuesCodeSystemDescTxt(NOT_FOUND_VALUE);
@@ -453,7 +430,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         return dto;
     }
 
-    public CE mapToCEQuestionType(String questionCode, CE output) {
+    public CE mapToCEQuestionType(String questionCode, CE output) throws EcrCdaXmlException {
         var ot = mapToCodedQuestionType(questionCode);
         output.setCodeSystem(ot.getQuesCodeSystemCd());
         output.setCodeSystemName(ot.getQuesCodeSystemDescTxt());
@@ -504,7 +481,6 @@ public class CdaMapHelper implements ICdaMapHelper {
         String country="";
         String telephone="";
         String extn="";
-        String qec="";
         String email="";
 
         String prefix="";
@@ -599,7 +575,6 @@ public class CdaMapHelper implements ICdaMapHelper {
             var emailInfo = mapToPSNEmail( email,   out,
              teleCounter);
             out = emailInfo.getOut();
-            teleCounter = emailInfo.getTeleCounter();
         }
 
         return out;
@@ -624,7 +599,7 @@ public class CdaMapHelper implements ICdaMapHelper {
 
 
     private PsnTelephone mapToPSNTelephone(String telephone,  POCDMT000040Participant2 out, String extn,
-                                                       int teleCounter) throws EcrCdaXmlException {
+                                                       int teleCounter)   {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewTelecom();
         } else {
@@ -830,7 +805,7 @@ public class CdaMapHelper implements ICdaMapHelper {
     private Psn mapToPSNFieldCheckAndMap(EcrMsgProviderDto in,
                                           POCDMT000040Participant2 out,
                                           String name,
-                                          Psn param) {
+                                          Psn param) throws EcrCdaXmlException {
         String firstName = param.getFirstName();
         String prefix = param.getPrefix();
         String lastName = param.getLastName();

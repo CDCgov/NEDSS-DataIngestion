@@ -13,10 +13,8 @@ import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgInterviewAnswerDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgInterviewAnswerRepeatDto;
 import gov.cdc.nedss.phdc.cda.*;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
 
 import javax.xml.namespace.QName;
-import java.text.ParseException;
 import java.util.Map;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
@@ -97,7 +95,6 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
 
     private POCDMT000040Component3 mapToInterview(EcrSelectedInterview in, POCDMT000040Component3 out) throws EcrCdaXmlException {
 
-        int repeatCounter=0;
         int sectionEntryCounter= out.getSection().getEntryArray().length;
 
         if (out.getSection().getEntryArray().length == 0) {
@@ -111,9 +108,6 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         out.getSection().getEntryArray(0).getEncounter().getIdArray(0).setRoot("LR");
 
         int entryCounter= 0;
-        int outerEntryCounter= 1;
-        String IXS_INTERVIEWER_ID="";
-        String interviewer = "";
 
         if (in.getMsgInterview().getDataMap() == null || in.getMsgInterview().getDataMap().size() == 0) {
             in.getMsgInterview().initDataMap();
@@ -128,16 +122,13 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
              entryCounter);
 
             out = interviewFieldP1.getOut();
-            entryCounter = interviewFieldP1.getEntryCounter();;
+            entryCounter = interviewFieldP1.getEntryCounter();
         }
 
         int questionGroupCounter=0;
-        int componentCounter=0;
         int answerGroupCounter=0;
-        String OldQuestionId=CHANGE;
         String OldRepeatQuestionId=CHANGE;
         int sectionCounter = 0;
-        int repeatComponentCounter=0;
         int providerRoleCounter=0;
 
 
@@ -148,12 +139,10 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
 
             var interviewAns = mapToInterviewAnswer( in,  out,
              sectionCounter,
-             entryCounter,
-             OldQuestionId);
+             entryCounter
+                    );
 
-            entryCounter = interviewAns.getEntryCounter();
             out = interviewAns.getOut();
-            OldQuestionId = interviewAns.getOldQuestionId();
 
             for(int i = 0; i < in.getMsgInterviewAnswerRepeats().size(); i++) {
                 var element = out.getSection().getEntryArray(sectionEntryCounter).getEncounter();
@@ -180,28 +169,17 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
 
     private InterviewAnswer mapToInterviewAnswer(EcrSelectedInterview in, POCDMT000040Component3 out,
                                       int sectionCounter,
-                                      int entryCounter,
-                                      String oldQuestionId) throws EcrCdaXmlException {
+                                      int entryCounter) throws EcrCdaXmlException {
         for(int i = 0; i < in.getMsgInterviewAnswers().size(); i++) {
-            String newQuestionId="";
             var element = out.getSection().getEntryArray(sectionCounter).getEncounter();
-            var ot = mapToInterviewObservation(in.getMsgInterviewAnswers().get(i), entryCounter, oldQuestionId,
+            var ot = mapToInterviewObservation(in.getMsgInterviewAnswers().get(i), entryCounter, CHANGE,
                     element );
 
             entryCounter = ot.getCounter();
-            oldQuestionId = ot.getQuestionSeq();
             out.getSection().getEntryArray(sectionCounter).setEncounter(ot.getComponent());
-
-            if(newQuestionId.equals(oldQuestionId)){
-            }
-            else{
-                oldQuestionId=newQuestionId;
-            }
         }
 
         InterviewAnswer model = new InterviewAnswer();
-        model.setOldQuestionId(oldQuestionId);
-        model.setEntryCounter(entryCounter);
         model.setOut(out);
 
         return model;
@@ -253,7 +231,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         else if (name.equals("ixsIntervieweeRoleCd")  && in.getMsgInterview().getIxsIntervieweeRoleCd() != null && !in.getMsgInterview().getIxsIntervieweeRoleCd().isEmpty()){
             String questionCode = this.cdaMapHelper.mapToQuestionId("IXS_INTERVIEWEE_ROLE_CD");
 
-            var interviewRole = mapToInterviewFieldCheckP1Role(out, sectionEntryCounter);
+            var interviewRole = mapToInterviewFieldCheckP1InterviewRole(out, sectionEntryCounter);
             int c = interviewRole.getC();
             out = interviewRole.getOut();
 
@@ -339,7 +317,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         return model;
     }
 
-    private InterviewRole mapToInterviewFieldCheckP1Role(POCDMT000040Component3 out, int sectionEntryCounter) {
+    private InterviewRole mapToInterviewFieldCheckP1InterviewRole(POCDMT000040Component3 out, int sectionEntryCounter) {
         int c = 0;
         if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray().length == 0) {
             out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEntryRelationship().addNewObservation();
@@ -358,7 +336,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEffectiveTime() == null) {
             out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEffectiveTime();
         }
-        out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEffectiveTime().setValue(ts.getValue().toString());
+        out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEffectiveTime().setValue(ts.getValue());
         return out;
     }
 
@@ -487,7 +465,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
                 // IGNORE
             }else{
                 if(questionId.equals(CHANGE)){
-
+                    // IGNORE
                 }else{
                     sectionCounter =  sectionCounter+1;
                 }
@@ -581,10 +559,10 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
             cursor.toFirstChild();
             cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "TS");
             cursor.setAttributeText(new QName("", value), null);
-            if (name.equals(COL_ANS_TXT)) {
-                String newValue = cdaMapHelper.mapToTsType(in.getAnswerTxt()).toString();
-                cursor.setAttributeText(new QName("", value), newValue);
-            }
+
+            String newValue = cdaMapHelper.mapToTsType(in.getAnswerTxt()).toString();
+            cursor.setAttributeText(new QName("", value), newValue);
+
             cursor.dispose();
         }
 
@@ -814,7 +792,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
                 //IGNORE
             }else{
                 if(questionSeq.equals(CHANGE)){
-
+                    //IGNORE
                 }else{
                     counter =  counter+1;
                 }

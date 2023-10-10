@@ -42,11 +42,6 @@ public class CdaXmlAnswerMappingHelper implements ICdaXmlAnswerMappingHelper {
     }
 
     private POCDMT000040Component3 mapToExtendedData(EcrMsgXmlAnswerDto in, POCDMT000040Component3 out) throws XmlException {
-        String dataType="";
-        if (!in.getDataType().isEmpty()) {
-            dataType = in.getDataType();
-        }
-
         if (!in.getAnswerXmlTxt().isEmpty()) {
             ANY any = ANY.Factory.parse(in.getAnswerXmlTxt());
             out.set(any);

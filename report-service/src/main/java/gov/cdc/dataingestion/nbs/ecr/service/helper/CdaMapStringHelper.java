@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CdaMapStringHelper {
+    private CdaMapStringHelper() {
+        // String helper class
+    }
     public static List<String> GetStringsBeforePipe(String input) {
         List<String> result = new ArrayList<>();
         String[] parts = input.split("\\|");

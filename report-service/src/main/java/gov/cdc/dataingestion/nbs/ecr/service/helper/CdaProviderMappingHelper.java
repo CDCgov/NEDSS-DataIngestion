@@ -109,8 +109,6 @@ public class CdaProviderMappingHelper implements ICdaProviderMappingHelper {
                 clinicalDocument.getTitle().set(cdaMapHelper.mapToStringData(CLINICAL_TITLE));
             }
 
-            performerSectionCounter = clinicalDocument.getEntryArray().length;
-
             if ( clinicalDocument.getEntryArray().length == 0) {
                 clinicalDocument.addNewEntry();
                 performerSectionCounter = 0;

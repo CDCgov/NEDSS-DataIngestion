@@ -12,6 +12,9 @@ import java.util.List;
 
 // THIS TEST CLASS
 public class JsonReaderTester {
+    private JsonReaderTester() {
+        // this is test class
+    }
     private static String dateFormat = "yyyy-MM-dd HH:mm:ss.S";
     public static EcrMsgContainerDto loadContainer() {
         Gson gson = new Gson();
@@ -25,7 +28,7 @@ public class JsonReaderTester {
         } catch (Exception e) {
             e.printStackTrace(); // NOSONAR
         }
-        return null;
+        return null; // NOSONAR
     }
 
     public static EcrMsgPatientDto loadPatient() {
@@ -40,7 +43,7 @@ public class JsonReaderTester {
         } catch (Exception e) {
             e.printStackTrace(); // NOSONAR
         }
-        return null;
+        return null; // NOSONAR
     }
 
     //region ECR CASE
@@ -56,7 +59,7 @@ public class JsonReaderTester {
         } catch (Exception e) {
             e.printStackTrace(); // NOSONAR
         }
-        return null;
+        return null; // NOSONAR
     }
 
     public static List<EcrMsgCaseParticipantDto> loadCasePar() {
@@ -73,7 +76,7 @@ public class JsonReaderTester {
         } catch (Exception e) {
             e.printStackTrace(); // NOSONAR
         }
-        return null;
+        return null; // NOSONAR
     }
 
     public static List<EcrMsgCaseAnswerDto> loadCaseAnswer() {
@@ -90,7 +93,7 @@ public class JsonReaderTester {
         } catch (Exception e) {
             e.printStackTrace(); // NOSONAR
         }
-        return null;
+        return null; // NOSONAR
     }
 
     public static List<EcrMsgCaseAnswerRepeatDto> loadCaseAnswerRepeat() {
@@ -107,7 +110,7 @@ public class JsonReaderTester {
         } catch (Exception e) {
             e.printStackTrace(); // NOSONAR
         }
-        return null;
+        return null; // NOSONAR
     }
     //endregion
 
@@ -125,7 +128,7 @@ public class JsonReaderTester {
         } catch (Exception e) {
             e.printStackTrace(); // NOSONAR
         }
-        return null;
+        return null; // NOSONAR
     }
 
     public static EcrMsgOrganizationDto loadOrg() {
@@ -140,7 +143,7 @@ public class JsonReaderTester {
         } catch (Exception e) {
             e.printStackTrace(); // NOSONAR
         }
-        return null;
+        return null; // NOSONAR
     }
 
     //region INTERVIEW
@@ -156,7 +159,7 @@ public class JsonReaderTester {
         } catch (Exception e) {
             e.printStackTrace(); // NOSONAR
         }
-        return null;
+        return null; // NOSONAR
     }
 
     public static List<EcrMsgInterviewAnswerDto> loadInterviewAnswer() {
@@ -173,7 +176,7 @@ public class JsonReaderTester {
         } catch (Exception e) {
             e.printStackTrace(); // NOSONAR
         }
-        return null;
+        return null; // NOSONAR
     }
 
     public static List<EcrMsgInterviewAnswerRepeatDto> loadInterviewAnswerRepeat() {
@@ -190,7 +193,7 @@ public class JsonReaderTester {
         } catch (Exception e) {
             e.printStackTrace(); // NOSONAR
         }
-        return null;
+        return null; // NOSONAR
     }
 
     public static List<EcrMsgInterviewProviderDto> loadInterviewProvider() {
@@ -207,7 +210,7 @@ public class JsonReaderTester {
         } catch (Exception e) {
             e.printStackTrace(); // NOSONAR
         }
-        return null;
+        return null; // NOSONAR
     }
     //endregion
 
@@ -223,7 +226,7 @@ public class JsonReaderTester {
         } catch (Exception e) {
             e.printStackTrace(); // NOSONAR
         }
-        return null;
+        return null; // NOSONAR
     }
 
     //region TREATMENT
@@ -239,7 +242,7 @@ public class JsonReaderTester {
         } catch (Exception e) {
             e.printStackTrace(); // NOSONAR
         }
-        return null;
+        return null; // NOSONAR
     }
 
     public static List<EcrMsgTreatmentOrganizationDto> loadTreatmentOrg() {
@@ -256,7 +259,7 @@ public class JsonReaderTester {
         } catch (Exception e) {
             e.printStackTrace(); // NOSONAR
         }
-        return null;
+        return null; // NOSONAR
     }
 
     public static List<EcrMsgTreatmentProviderDto> loadTreatmentProvider() {
@@ -273,7 +276,7 @@ public class JsonReaderTester {
         } catch (Exception e) {
             e.printStackTrace(); // NOSONAR
         }
-        return null;
+        return null; // NOSONAR
     }
     //endregion
 

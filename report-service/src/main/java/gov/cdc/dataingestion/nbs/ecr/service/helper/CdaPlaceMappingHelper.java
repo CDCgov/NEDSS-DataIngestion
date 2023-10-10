@@ -9,7 +9,6 @@ import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPlaceDto;
 import gov.cdc.nedss.phdc.cda.*;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -34,8 +33,6 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
                     section = mapToPlaceTopFieldCheck( input,
                              section,
                      performerComponentCounter,
-                     performerSectionCounter,
-                     componentCounter,
                      i);
                 }
             }
@@ -54,8 +51,6 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
     private POCDMT000040Section mapToPlaceTopFieldCheck(EcrSelectedRecord input,
                                          POCDMT000040Section section,
                                          int performerComponentCounter,
-                                         int performerSectionCounter,
-                                         int componentCounter,
                                          int i) throws EcrCdaXmlException {
         if (section == null) {
             section = POCDMT000040Section.Factory.newInstance();
@@ -64,9 +59,6 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
         }
 
         if (performerComponentCounter < 1) {
-            componentCounter++;
-            performerComponentCounter = componentCounter;
-
             section.getCode().setCode(CODE);
             section.getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
             section.getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
@@ -74,7 +66,7 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
             section.getTitle().set(cdaMapHelper.mapToStringData(CLINICAL_TITLE));
         }
 
-        int c = 0;
+        int c;
         if ( section.getEntryArray().length == 0) {
             section.addNewEntry();
             c = 0;
@@ -83,9 +75,6 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
             c = section.getEntryArray().length;
             section.addNewEntry();
         }
-
-        performerSectionCounter = c; // NOSONAR
-
 
         if (section.getEntryArray(c).getAct() == null) {
             section.getEntryArray(c).addNewAct();
@@ -291,10 +280,10 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
              out,
              workURL,
              teleAsOfDate);
-            teleCounter=teleCounter+1;
         }
 
         param.setOut(out);
+
         return param;
     }
 
@@ -311,9 +300,6 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
         out.getParticipantRole().getTelecomArray(teleCounter).setValue(workURL);
         if(!teleAsOfDate.isEmpty()){
             // TODO:
-            // OutXML::Element element = (OutXML::Element)out.getParticipantRole().telecom[teleCounter];
-            // mapToUsableTSElement(teleAsOfDate, element, USESABLE_PERIOD);
-            // CHECK mapToUsableTSElement
         }
         return out;
     }
@@ -331,9 +317,6 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
         out.getParticipantRole().getTelecomArray(teleCounter).setValue(MAIL_TO+workEmail);
         if(!teleAsOfDate.isEmpty()){
             // TODO:
-            // OutXML::Element element = (OutXML::Element)out.getParticipantRole().telecom[teleCounter];
-            // mapToUsableTSElement(teleAsOfDate, element, USESABLE_PERIOD);
-            // CHECK mapToUsableTSElement
         }
         return out;
     }
@@ -364,9 +347,6 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
 
         if(!teleAsOfDate.isEmpty()){
             // TODO:
-            // OutXML::Element element = (OutXML::Element)out.getParticipantRole().telecom[teleCounter];
-            // mapToUsableTSElement(teleAsOfDate, element, USESABLE_PERIOD);
-            // CHECK mapToUsableTSElement
         }
         return out;
     }
@@ -393,9 +373,6 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
         out.getParticipantRole().getAddrArray()[0].setUse(Arrays.asList("WP"));
         if(!postalAsOfDate.isEmpty()){
             // TODO:
-            // OutXML::Element element = (OutXML::Element)out.getParticipantRole().addr[0];
-            // mapToUsableTSElement(postalAsOfDate, element, USESABLE_PERIOD);
-            // CHECK mapToUsableTSElement
         }
         return out;
     }

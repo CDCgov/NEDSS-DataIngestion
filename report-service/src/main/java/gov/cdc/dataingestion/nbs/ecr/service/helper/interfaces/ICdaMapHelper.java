@@ -17,10 +17,10 @@ public interface ICdaMapHelper {
     XmlObject mapToStringData(String data) throws EcrCdaXmlException;
     XmlObject mapToUsableTSElement(String data, XmlObject output, String name) throws EcrCdaXmlException;
     TS mapToTsType(String data) throws EcrCdaXmlException;
-    String mapToQuestionId(String data);
-    CE mapToCEAnswerType(String data, String questionCode);
-    String mapToAddressType(String data, String questionCode);
-    PhdcAnswerDao mapToCodedAnswer(String data, String questionCode);
+    String mapToQuestionId(String data) throws EcrCdaXmlException;
+    CE mapToCEAnswerType(String data, String questionCode) throws EcrCdaXmlException;
+    String mapToAddressType(String data, String questionCode) throws EcrCdaXmlException;
+    PhdcAnswerDao mapToCodedAnswer(String data, String questionCode) throws EcrCdaXmlException;
     POCDMT000040CustodianOrganization mapToElementValue(String data, POCDMT000040CustodianOrganization output, String name);
     String getCurrentUtcDateTimeInCdaFormat();
 
@@ -28,8 +28,8 @@ public interface ICdaMapHelper {
                                              POCDMT000040Observation observation) throws EcrCdaXmlException;
 
 
-    PhdcQuestionLookUpDto mapToCodedQuestionType(String questionIdentifier);
-    CE mapToCEQuestionType(String questionCode, CE output);
+    PhdcQuestionLookUpDto mapToCodedQuestionType(String questionIdentifier) throws EcrCdaXmlException;
+    CE mapToCEQuestionType(String questionCode, CE output) throws EcrCdaXmlException;
     XmlObject mapToSTValue(String input, XmlObject output);
     XmlObject mapToObservationPlace(String in, XmlObject out);
 

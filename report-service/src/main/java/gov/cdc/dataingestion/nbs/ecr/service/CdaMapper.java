@@ -365,7 +365,7 @@ public class CdaMapper implements ICdaMapper {
 
     }
 
-    private String mapToTranslatedValue(String input) {
+    private String mapToTranslatedValue(String input) throws EcrCdaXmlException {
         var res = ecrLookUpService.fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", input);
         if (res != null && !res.getSampleValue().isEmpty()) {
             return res.getSampleValue();

@@ -31,7 +31,6 @@ public class CdaOrgMappingHelper implements ICdaOrgMappingHelper {
                     clinicalDocument = mapToOrganizationTopFieldMap(
                              clinicalDocument,
                              performerComponentCounter,
-                             componentCounter,
                              input,
                              i);
                 }
@@ -49,12 +48,9 @@ public class CdaOrgMappingHelper implements ICdaOrgMappingHelper {
     private POCDMT000040Section mapToOrganizationTopFieldMap(
             POCDMT000040Section clinicalDocument,
             int performerComponentCounter,
-            int componentCounter,
             EcrSelectedRecord input,
             int i) throws EcrCdaXmlException {
         if (performerComponentCounter < 1) {
-            componentCounter++;
-            performerComponentCounter = componentCounter;
             clinicalDocument.getCode().setCode(CODE);
             clinicalDocument.getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
             clinicalDocument.getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);

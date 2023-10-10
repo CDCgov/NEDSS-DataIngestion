@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.nbs.repository.implementation;
 
+import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.repository.model.IEcrLookUpRepository;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.ConstantLookUpDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcAnswerLookUpDto;
@@ -22,9 +23,7 @@ public class EcrLookUpRepository implements IEcrLookUpRepository {
     @PersistenceContext(unitName = "ingest")
     private EntityManager entityManager;
 
-    public ConstantLookUpDto fetchConstantLookUpByCriteriaWithColumn(String column, String value) {
-        //String queryString = "SELECT * FROM ecr_constant_lookup WHERE " + column + " = '"+value +"'";
-
+    public ConstantLookUpDto fetchConstantLookUpByCriteriaWithColumn(String column, String value) throws EcrCdaXmlException {
         String queryString = loadLookUpSqlFromFile("constant_lookup.sql");
         queryString = queryString.replace("{LOOK_UP_COL}", column);
 
@@ -48,26 +47,7 @@ public class EcrLookUpRepository implements IEcrLookUpRepository {
         return null;
     }
 
-    public PhdcAnswerLookUpDto fetchPhdcAnswerByCriteriaForTranslationCode(String questionIdentifier, String ansFromCode) {
-//        String queryString =
-//        "SELECT [ANS_FROM_CODE], " +
-//                "[ANS_FROM_CODE_SYSTEM_CD], " +
-//                "[ANS_FROM_CODE_SYSTEM_DESC_TXT], " +
-//                "[ANS_FROM_DISPLAY_NM], " +
-//                "[ANS_TO_CODE], " +
-//                "[ANS_TO_CODE_SYSTEM_CD], " +
-//                "[ANS_TO_CODE_SYSTEM_DESC_TXT], " +
-//                "[ANS_TO_DISPLAY_NM], " +
-//                "[CODE_TRANSLATION_REQUIRED], " +
-//                "[DOC_TYPE_CD], " +
-//                "[DOC_TYPE_VERSION_TXT], " +
-//                "[QUES_CODE_SYSTEM_CD], " +
-//                "[QUESTION_IDENTIFIER], " +
-//                "[SENDING_SYSTEM_CD] " +
-//                "FROM [ecr_phdc_answer_lookup] " +
-//                "WHERE [QUESTION_IDENTIFIER] = '"+ ansFromCode +"'";
-//        Query query = entityManager.createNativeQuery(queryString);
-
+    public PhdcAnswerLookUpDto fetchPhdcAnswerByCriteriaForTranslationCode(String questionIdentifier, String ansFromCode) throws EcrCdaXmlException {
         String queryString = loadLookUpSqlFromFile("phdc_answer_translation_code.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("VALUE_DATA", ansFromCode);
@@ -96,21 +76,7 @@ public class EcrLookUpRepository implements IEcrLookUpRepository {
         return null;
     }
 
-    public PhdcQuestionLookUpDto fetchPhdcQuestionByCriteria(String questionIdentifier) {
-//        String queryString =
-//                "SELECT [DOC_TYPE_CD], " +
-//                        "[DOC_TYPE_VERSION_TXT], " +
-//                        "[QUES_CODE_SYSTEM_CD], " +
-//                        "[QUES_CODE_SYSTEM_DESC_TXT], " +
-//                        "[DATA_TYPE], " +
-//                        "[QUESTION_IDENTIFIER], " +
-//                        "[QUES_DISPLAY_NAME], " +
-//                        "[SECTION_NM], " +
-//                        "[SENDING_SYSTEM_CD] " +
-//                        "FROM [ecr_phdc_question_lookup] " +
-//                        "WHERE [QUESTION_IDENTIFIER] = '"+ questionIdentifier +"'";
-//        Query query = entityManager.createNativeQuery(queryString);
-
+    public PhdcQuestionLookUpDto fetchPhdcQuestionByCriteria(String questionIdentifier) throws EcrCdaXmlException {
         String queryString = loadLookUpSqlFromFile("phdc_question_by_criteria.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter("QUES_IDENTIFIER", questionIdentifier);
@@ -134,21 +100,7 @@ public class EcrLookUpRepository implements IEcrLookUpRepository {
         return null;
     }
 
-    public PhdcQuestionLookUpDto fetchPhdcQuestionByCriteriaWithColumn(String column, String value) {
-//        String queryString =
-//                "SELECT [DOC_TYPE_CD], " +
-//                        "[DOC_TYPE_VERSION_TXT], " +
-//                        "[QUES_CODE_SYSTEM_CD], " +
-//                        "[QUES_CODE_SYSTEM_DESC_TXT], " +
-//                        "[DATA_TYPE], " +
-//                        "[QUESTION_IDENTIFIER], " +
-//                        "[QUES_DISPLAY_NAME], " +
-//                        "[SECTION_NM], " +
-//                        "[SENDING_SYSTEM_CD] " +
-//                        "FROM [ecr_phdc_question_lookup] " +
-//                        "WHERE "+column +" = '"+ value +"'";
-//        Query query = entityManager.createNativeQuery(queryString);
-
+    public PhdcQuestionLookUpDto fetchPhdcQuestionByCriteriaWithColumn(String column, String value) throws EcrCdaXmlException {
         String queryString = loadLookUpSqlFromFile("phdc_question_by_column.sql");
         queryString = queryString.replace("{TAB_COLUMN}", column);
 
@@ -175,15 +127,7 @@ public class EcrLookUpRepository implements IEcrLookUpRepository {
         return null;
     }
 
-    public QuestionIdentifierMapDto fetchQuestionIdentifierMapByCriteriaByCriteria(String columNm, String value) {
-//        String queryString =
-//                "SELECT [COLUMN_NM], " +
-//                        "[QUESTION_IDENTIFIER], " +
-//                        "[DYNAMIC_QUESTION_IDENTIFIER] " +
-//                        "FROM [ecr_question_identifier_map] " +
-//                        "WHERE "+columNm +" = '"+ value +"'";
-//        Query query = entityManager.createNativeQuery(queryString);
-
+    public QuestionIdentifierMapDto fetchQuestionIdentifierMapByCriteriaByCriteria(String columNm, String value) throws EcrCdaXmlException {
         String queryString = loadLookUpSqlFromFile("question_identifier.sql");
         queryString = queryString.replace("{COLUMN_NM}", columNm);
 
@@ -204,12 +148,12 @@ public class EcrLookUpRepository implements IEcrLookUpRepository {
         return null;
     }
 
-    private String loadLookUpSqlFromFile(String filename) {
+    private String loadLookUpSqlFromFile(String filename) throws EcrCdaXmlException {
         try (InputStream is = getClass().getResourceAsStream("/queries/lookup/" + filename);
              BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
             return reader.lines().collect(Collectors.joining("\n"));
         } catch (IOException e) {
-            throw new RuntimeException("Failed to load SQL file: " + filename, e);
+            throw new EcrCdaXmlException("Failed to load SQL file: " + filename + " " +  e.getMessage());
         }
     }
 

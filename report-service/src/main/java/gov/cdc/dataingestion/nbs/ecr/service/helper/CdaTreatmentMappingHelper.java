@@ -13,10 +13,7 @@ import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedTreatment;
 import gov.cdc.nedss.phdc.cda.*;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-
-import java.text.ParseException;
 import java.util.Map;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
@@ -71,8 +68,7 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
                     var o2 = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getText();
                     CdaTreatmentAdministrationMapper mappedVal = mapToTreatment(input.getMsgTreatments().get(0),
                             o1,
-                            o2,
-                            cTreatment);
+                            o2);
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getEntryArray(cTreatment).setSubstanceAdministration(mappedVal.getAdministration());
                     clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().setText(mappedVal.getText());
                     treatmentSectionCounter= treatmentSectionCounter+1;
@@ -129,12 +125,10 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
         return doc;
     }
 
+
     private CdaTreatmentAdministrationMapper mapToTreatment(
             EcrSelectedTreatment input, POCDMT000040SubstanceAdministration output,
-            StrucDocText list,
-            int counter) throws EcrCdaXmlException {
-        String PROV="";
-        String ORG="";
+            StrucDocText list) throws EcrCdaXmlException {
         String treatmentUid="";
         String TRT_TREATMENT_DT="";
         String TRT_FREQUENCY_AMT_CD="";
@@ -145,7 +139,6 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
         String treatmentName ="";
         String treatmentNameQuestion ="";
 
-        String subjectAreaTRT ="TREATMENT";
         String customTreatment="";
 
 
@@ -194,23 +187,18 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
                  TRT_TREATMENT_DT,
                  TRT_DURATION_AMT,
                  TRT_DURATION_UNIT_CD);
+
         output = mapToTreatmentTreatFrequency( output,
                  TRT_FREQUENCY_AMT_CD );
 
-        int org = 0;
-        int provider= 0;
         int performerCounter=0;
 
         if (input.getMsgTreatmentOrganizations().size() > 0 ||  input.getMsgTreatmentProviders().size() > 0) {
             var model = mapToTreatmentProviderAndParticipant( output,
                      input,
-                     performerCounter,
-                     org,
-                     provider);
+                     performerCounter);
 
             output = model.getOutput();
-            org = model.getOrg();
-            provider = model.getProvider();
         }
 
         CdaTreatmentAdministrationMapper mapper = new CdaTreatmentAdministrationMapper();
@@ -221,9 +209,7 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
 
     private TreatmentProviderAndParticipant mapToTreatmentProviderAndParticipant(POCDMT000040SubstanceAdministration output,
                                                   EcrSelectedTreatment input,
-                                                  int performerCounter,
-                                                  int org,
-                                                  int provider
+                                                  int performerCounter
                                                   ) throws EcrCdaXmlException {
         for(int i = 0; i < input.getMsgTreatmentOrganizations().size(); i++) {
             int c = 0;
@@ -238,7 +224,6 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
             output.setParticipantArray(c, mappedVal);
             output.getParticipantArray(c).getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR_ORG");
             performerCounter++;
-            org = 1;
         }
 
         for(int i = 0; i < input.getMsgTreatmentProviders().size(); i++) {
@@ -255,14 +240,11 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
             output.setParticipantArray(c, mappedVal);
             output.getParticipantArray(c).getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR_ORG");
             performerCounter++;
-            provider = 1;
         }
 
 
         TreatmentProviderAndParticipant model = new TreatmentProviderAndParticipant();
         model.setOutput(output);
-        model.setProvider(provider);
-        model.setOrg(org);
         return model;
     }
 
@@ -286,8 +268,7 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
             cursor.toEndDoc();  // Move to the root element
             cursor.beginElement("period");
 
-            String hertz = TRT_FREQUENCY_AMT_CD;
-            AttributeMapper res = mapToAttributes(hertz);
+            AttributeMapper res = mapToAttributes(TRT_FREQUENCY_AMT_CD);
             if (cursor.toFirstAttribute()) {
                 cursor.insertAttributeWithValue(VALUE_NAME, res.getAttribute1());
             }
@@ -327,14 +308,8 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
             if (TRT_DURATION_AMT != null && !TRT_DURATION_AMT.isEmpty() && TRT_DURATION_UNIT_CD != null && !TRT_DURATION_UNIT_CD.isEmpty()) {
                 cursor.toEndDoc();
                 cursor.beginElement("width");
-                if (!TRT_DURATION_AMT.isEmpty()) {
-                    cursor.insertAttributeWithValue(VALUE_NAME, TRT_DURATION_AMT);
-                }
-
-                if (!TRT_DURATION_UNIT_CD.isEmpty()) {
-                    cursor.insertAttributeWithValue("unit", TRT_DURATION_UNIT_CD);
-                }
-
+                cursor.insertAttributeWithValue(VALUE_NAME, TRT_DURATION_AMT);
+                cursor.insertAttributeWithValue("unit", TRT_DURATION_UNIT_CD);
             }
 
             cursor.dispose();
@@ -358,13 +333,11 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
             if  (output.getConsumable() == null) {
                 output.addNewConsumable().addNewManufacturedProduct().addNewManufacturedLabeledDrug().addNewCode();
             }
-            var ot = output.getConsumable().getManufacturedProduct().getManufacturedLabeledDrug().getCode();
             var ce = this.cdaMapHelper.mapToCEAnswerType(
                     treatmentName,
                     treatmentNameQuestion
             );
-            ot = ce;
-            output.getConsumable().getManufacturedProduct().getManufacturedLabeledDrug().setCode(ot);
+            output.getConsumable().getManufacturedProduct().getManufacturedLabeledDrug().setCode(ce);
 
         } else {
             if  (output.getConsumable() == null) {
@@ -409,10 +382,6 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
                                                                                 POCDMT000040SubstanceAdministration output) {
         String dosageSt = input.getMsgTreatment().getTrtDosageAmt().toString();
         if(!dosageSt.isEmpty()) {
-            String dosageStQty = "";
-            String dosageStUnit = "";
-            String dosageStCodeSystemName = "";
-            String dosageStDisplayName = "";
             if (output.getDoseQuantity() == null) {
                 output.addNewDoseQuantity();
             }
@@ -439,7 +408,7 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
     private TreatmentField mapToTreatmentFieldCheck(EcrSelectedTreatment input, POCDMT000040SubstanceAdministration output,
                                           String name,
                                           String value,
-                                          TreatmentField param) {
+                                          TreatmentField param) throws EcrCdaXmlException {
         String treatmentUid = param.getTreatmentUid();
         String TRT_TREATMENT_DT = param.getTrtTreatmentDt();
         String TRT_FREQUENCY_AMT_CD = param.getTrtFrequencyAmtCd();
@@ -466,7 +435,7 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
                      output);
         }
         if(name.equals("trtDrugCd") && value != null && input.getMsgTreatment().getTrtDrugCd() != null && !input.getMsgTreatment().getTrtDrugCd().isEmpty()) {
-            treatmentNameQuestion = this.cdaMapHelper.mapToQuestionId("TRT_DRUG_CD");;
+            treatmentNameQuestion = this.cdaMapHelper.mapToQuestionId("TRT_DRUG_CD");
             treatmentName = input.getMsgTreatment().getTrtDrugCd();
         }
         if(name.equals("trtLocalId")  && value != null&& input.getMsgTreatment().getTrtLocalId() != null && !input.getMsgTreatment().getTrtLocalId().isEmpty()) {
@@ -501,30 +470,24 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
     private AttributeMapper mapToAttributes(String input) {
         AttributeMapper model = new AttributeMapper();
         if (!input.isEmpty()) {
-            if (input.equals("BID")) {
+            if (input.equals("BID") || input.equals("Q12H")) {
                 model.setAttribute1("12");
                 model.setAttribute2("h");
             } else if (input.equals("5ID")) {
                 model.setAttribute1("4.5");
                 model.setAttribute2("h");
-            } else if (input.equals("TID")) {
+            } else if (input.equals("TID") || input.equals("Q8H")) {
                 model.setAttribute1("8");
                 model.setAttribute2("h");
             } else if (input.equals("QW")) {
                 model.setAttribute1("1");
                 model.setAttribute2("wk");
-            } else if (input.equals("QID")) {
+            } else if (input.equals("QID") || input.equals("Q6H")) {
                 model.setAttribute1("6");
                 model.setAttribute2("h");
             } else if (input.equals("QD")) {
                 model.setAttribute1("1");
                 model.setAttribute2("d");
-            } else if (input.equals("Q8H")) {
-                model.setAttribute1("8");
-                model.setAttribute2("h");
-            } else if (input.equals("Q6H")) {
-                model.setAttribute1("6");
-                model.setAttribute2("h");
             } else if (input.equals("Q5D")) {
                 model.setAttribute1("1.4");
                 model.setAttribute2("d");
@@ -536,9 +499,6 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
                 model.setAttribute2("d");
             } else if (input.equals("Once")) {
                 model.setAttribute1("24");
-                model.setAttribute2("h");
-            } else if (input.equals("Q12H")) {
-                model.setAttribute1("12");
                 model.setAttribute2("h");
             }
 

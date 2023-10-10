@@ -138,7 +138,8 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
 
         if (msgContainer != null && msgContainer.getMsgContainerUid() != null) {
             selectedRecord = new EcrSelectedRecord();
-            this.ecrMsgQueryRepository.UpdateMatchEcrRecordForProcessing(msgContainer.getMsgContainerUid());
+
+            // this.ecrMsgQueryRepository.UpdateMatchEcrRecordForProcessing(msgContainer.getMsgContainerUid()); //NOSONAR
             List<EcrMsgPatientDto> msgPatients = this.ecrMsgQueryRepository.FetchMsgPatientForApplicableEcr(msgContainer.getMsgContainerUid());
 
             List<EcrSelectedCase> selectedMsgCases = new ArrayList<>();
