@@ -1064,129 +1064,170 @@ public class CdaMapHelper implements ICdaMapHelper {
 
         int isAddressPopulated= 0;
         if(!streetAddress1.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewAddr();
-            } else {
-                out.getParticipantRole().addNewAddr();
-            }
-
-            out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
-            out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0, AdxpStreetAddressLine.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapToCData(streetAddress1));
-
+            out = mapToORGFieldStreetAddress( streetAddress1,  out);
             isAddressPopulated=1;
         }
         if(!streetAddress2.isEmpty() ){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewAddr();
-            } else {
-                out.getParticipantRole().addNewAddr();
-            }
-            out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
-            if (out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray().length > 1) {
-                out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(1, AdxpStreetAddressLine.Factory.newInstance());
-                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(1).set(mapToCData(streetAddress2));
-            }
-            else {
-                out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0, AdxpStreetAddressLine.Factory.newInstance());
-                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapToCData(streetAddress2));
-            }
-
+            out =  mapToORGFieldStreetAddress2( streetAddress2,  out);
             isAddressPopulated=1;
         }
         if(!city.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewAddr();
-            } else {
-                out.getParticipantRole().addNewAddr();
-            }
-
-            out.getParticipantRole().getAddrArray(0).addNewCity();
-            out.getParticipantRole().getAddrArray(0).setCityArray(0, AdxpCity.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getCityArray(0).set(mapToCData(city));
-
+            out = mapToORGFieldStreetCity( city,  out);
             isAddressPopulated=1;
         }
         if(!state.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewAddr();
-            } else {
-                out.getParticipantRole().addNewAddr();
-            }
-
-            out.getParticipantRole().getAddrArray(0).addNewState();
-
-            out.getParticipantRole().getAddrArray(0).setStateArray(0, AdxpState.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getStateArray(0).set(mapToCData(state));
-
+            out = mapToORGFieldStreetState( state,  out);
             isAddressPopulated=1;
         }
         if(!county.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewAddr();
-            } else {
-                out.getParticipantRole().addNewAddr();
-            }
-
-            out.getParticipantRole().getAddrArray(0).addNewCounty();
-
-            out.getParticipantRole().getAddrArray(0).setCountyArray(0, AdxpCounty.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getCountyArray(0).set(mapToCData(county));
-
+            out = mapToORGFieldStreetCounty( county,  out);
             isAddressPopulated=1;
         }
         if(!zip.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewAddr();
-            } else {
-                out.getParticipantRole().addNewAddr();
-            }
-
-            out.getParticipantRole().getAddrArray(0).addNewPostalCode();
-
-            out.getParticipantRole().getAddrArray(0).setPostalCodeArray(0, AdxpPostalCode.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getPostalCodeArray(0).set(mapToCData(zip));
+            out = mapToORGFieldZip( zip,  out);
             isAddressPopulated=1;
         }
         if(!country.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewAddr();
-            } else {
-                out.getParticipantRole().addNewAddr();
-            }
 
-            out.getParticipantRole().getAddrArray(0).addNewCountry();
-
-            out.getParticipantRole().getAddrArray(0).setCountryArray(0, AdxpCountry.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getCountryArray(0).set(mapToCData(zip));
-
+            out = mapToORGFieldCountry( country,  out);
             isAddressPopulated=1;
         }
         if(isAddressPopulated>0) {
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewAddr();
-            } else {
-                out.getParticipantRole().addNewAddr();
-            }
-            out.getParticipantRole().getAddrArray(0).setUse(new ArrayList(Arrays.asList("WP")));
+            out = mapToORGFieldAddressPopulated( out);
         }
-
-
-
         if(!phone.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewTelecom();
-            } else {
-                out.getParticipantRole().addNewTelecom();
-            }
-            out.getParticipantRole().getTelecomArray(0).setUse(new ArrayList(Arrays.asList("WP")));
-            int phoneExtnSize = extn.length();
-            if(phoneExtnSize>0){
-                phone=phone+ EXTN_STR+ extn;
-            }
-            out.getParticipantRole().getTelecomArray(0).setValue(phone);
-
+            out = mapToORGFieldPhone( phone,  extn,  out);
         }
+        return out;
+    }
+
+    private POCDMT000040Participant2 mapToORGFieldPhone(String phone, String extn, POCDMT000040Participant2 out) {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewTelecom();
+        } else {
+            out.getParticipantRole().addNewTelecom();
+        }
+        out.getParticipantRole().getTelecomArray(0).setUse(new ArrayList(Arrays.asList("WP")));
+        int phoneExtnSize = extn.length();
+        if(phoneExtnSize>0){
+            phone=phone+ EXTN_STR+ extn;
+        }
+        out.getParticipantRole().getTelecomArray(0).setValue(phone);
+        return out;
+    }
+
+    private POCDMT000040Participant2 mapToORGFieldAddressPopulated(POCDMT000040Participant2 out) {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewAddr();
+        } else {
+            out.getParticipantRole().addNewAddr();
+        }
+        out.getParticipantRole().getAddrArray(0).setUse(new ArrayList(Arrays.asList("WP")));
+        return out;
+    }
+
+    private POCDMT000040Participant2 mapToORGFieldCountry(String country, POCDMT000040Participant2 out) throws EcrCdaXmlException {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewAddr();
+        } else {
+            out.getParticipantRole().addNewAddr();
+        }
+
+        out.getParticipantRole().getAddrArray(0).addNewCountry();
+
+        out.getParticipantRole().getAddrArray(0).setCountryArray(0, AdxpCountry.Factory.newInstance());
+        out.getParticipantRole().getAddrArray(0).getCountryArray(0).set(mapToCData(country));
+        return out;
+    }
+
+    private POCDMT000040Participant2 mapToORGFieldZip(String zip, POCDMT000040Participant2 out) throws EcrCdaXmlException {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewAddr();
+        } else {
+            out.getParticipantRole().addNewAddr();
+        }
+
+        out.getParticipantRole().getAddrArray(0).addNewPostalCode();
+
+        out.getParticipantRole().getAddrArray(0).setPostalCodeArray(0, AdxpPostalCode.Factory.newInstance());
+        out.getParticipantRole().getAddrArray(0).getPostalCodeArray(0).set(mapToCData(zip));
+        return out;
+    }
+
+    private POCDMT000040Participant2 mapToORGFieldStreetCounty(String county, POCDMT000040Participant2 out) throws EcrCdaXmlException {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewAddr();
+        } else {
+            out.getParticipantRole().addNewAddr();
+        }
+
+        out.getParticipantRole().getAddrArray(0).addNewCounty();
+
+        out.getParticipantRole().getAddrArray(0).setCountyArray(0, AdxpCounty.Factory.newInstance());
+        out.getParticipantRole().getAddrArray(0).getCountyArray(0).set(mapToCData(county));
+
+        return out;
+    }
+
+    private POCDMT000040Participant2 mapToORGFieldStreetState(String state, POCDMT000040Participant2 out) throws EcrCdaXmlException {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewAddr();
+        } else {
+            out.getParticipantRole().addNewAddr();
+        }
+
+        out.getParticipantRole().getAddrArray(0).addNewState();
+
+        out.getParticipantRole().getAddrArray(0).setStateArray(0, AdxpState.Factory.newInstance());
+        out.getParticipantRole().getAddrArray(0).getStateArray(0).set(mapToCData(state));
+
+        return out;
+    }
+
+
+    private POCDMT000040Participant2 mapToORGFieldStreetCity(String city, POCDMT000040Participant2 out) throws EcrCdaXmlException {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewAddr();
+        } else {
+            out.getParticipantRole().addNewAddr();
+        }
+
+        out.getParticipantRole().getAddrArray(0).addNewCity();
+        out.getParticipantRole().getAddrArray(0).setCityArray(0, AdxpCity.Factory.newInstance());
+        out.getParticipantRole().getAddrArray(0).getCityArray(0).set(mapToCData(city));
+
+        return out;
+    }
+
+    private POCDMT000040Participant2 mapToORGFieldStreetAddress2(String streetAddress2, POCDMT000040Participant2 out) throws EcrCdaXmlException {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewAddr();
+        } else {
+            out.getParticipantRole().addNewAddr();
+        }
+        out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
+        if (out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray().length > 1) {
+            out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(1, AdxpStreetAddressLine.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(1).set(mapToCData(streetAddress2));
+        }
+        else {
+            out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0, AdxpStreetAddressLine.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapToCData(streetAddress2));
+        }
+
+        return out;
+    }
+
+    private POCDMT000040Participant2 mapToORGFieldStreetAddress(String streetAddress1, POCDMT000040Participant2 out) throws EcrCdaXmlException {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewAddr();
+        } else {
+            out.getParticipantRole().addNewAddr();
+        }
+
+        out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
+        out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0, AdxpStreetAddressLine.Factory.newInstance());
+        out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapToCData(streetAddress1));
         return out;
     }
 
