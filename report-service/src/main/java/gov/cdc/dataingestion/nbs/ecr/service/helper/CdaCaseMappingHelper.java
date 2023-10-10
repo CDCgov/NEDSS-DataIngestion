@@ -557,7 +557,15 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         else if (name.equals(COL_ANS_TO_CODE_SYSTEM_DESC_TXT) && !in.getAnsToCodeSystemDescTxt().isEmpty()) {
             ce.setCodeSystemName(in.getAnsToCodeSystemDescTxt());
         }
-        else if (name.equals(COL_ANS_TO_DISPLAY_NM) && !in.getAnsToDisplayNm().isEmpty()) {
+        else if (name.equals(COL_ANS_TO_DISPLAY_NM)) {
+            ce = setMessageAnswerArrayValueAnsDisplayNm(ce, in);
+        }
+        out.getSection().getEntryArray(counter).getObservation().getValueArray(sequenceNbr).set(ce);
+        return out;
+    }
+
+    private CE setMessageAnswerArrayValueAnsDisplayNm(CE ce, EcrMsgCaseAnswerDto in) {
+        if (!in.getAnsToDisplayNm().isEmpty()) {
             if(ce.getTranslationArray(0).getDisplayName().equals("OTH^")) {
                 ce.setDisplayName(ce.getTranslationArray(0).getDisplayName());
             }
@@ -565,8 +573,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                 ce.setDisplayName(in.getAnsToDisplayNm());
             }
         }
-        out.getSection().getEntryArray(counter).getObservation().getValueArray(sequenceNbr).set(ce);
-        return out;
+        return ce;
     }
 
     private POCDMT000040Section checkClinicalSectionCode(POCDMT000040Section out) {
@@ -663,19 +670,19 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                 out = mapMultiSelectDate( in, out, name, value, sectionCounter, componentCounter);
             }
 
-            if(name.equals(COL_QUES_IDENTIFIER)){
-                out = mapMultiSelectQuesIdentifier( in, out, sectionCounter, componentCounter);
-                questionIdentifier= value;
-            }
-            else if(name.equals(COL_QUES_CODE_SYSTEM_CD)){
-                out = mapMultiSelectCodeSystemQues( in, out, sectionCounter, componentCounter);
-            }
-            else if(name.equals(COL_QUES_CODE_SYSTEM_DESC_TXT)){
-                out = mapMultiSelectCodeSystemDescQues(in, out, sectionCounter, componentCounter);
-            }
-            else if(name.equals(COL_QUES_DISPLAY_TXT)){
-                out = mapMultiSelectDisplayQues(in, out, sectionCounter, componentCounter);
-            }
+            var param = new CdaCaseMultiSelectFields();
+            param.setSectionCounter(sectionCounter);
+            param.setComponentCounter(componentCounter);
+            param.setQuestionIdentifier(questionIdentifier);
+            var multiSelectField = mapToMultiSelectFields(
+                     name,
+                     value,
+                     in,
+                     out,
+                     param);
+
+            out = multiSelectField.getOut();
+            questionIdentifier = multiSelectField.getQuestionIdentifier();
         }
 
         model.setAnswerGroupCounter(answerGroupCounter);
@@ -683,6 +690,29 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         model.setSectionCounter(sectionCounter);
         model.setComponent(out);
         return model;
+    }
+
+    private CdaCaseMultiSelectFields mapToMultiSelectFields(
+            String name,
+            String value,
+            EcrMsgCaseAnswerRepeatDto in,
+            POCDMT000040Section out,
+            CdaCaseMultiSelectFields param) {
+        if(name.equals(COL_QUES_IDENTIFIER)){
+            out = mapMultiSelectQuesIdentifier( in, out, param.getSectionCounter(), param.getComponentCounter());
+            param.setQuestionIdentifier(value);
+        }
+        else if(name.equals(COL_QUES_CODE_SYSTEM_CD)){
+            out = mapMultiSelectCodeSystemQues( in, out, param.getSectionCounter(),  param.getComponentCounter());
+        }
+        else if(name.equals(COL_QUES_CODE_SYSTEM_DESC_TXT)){
+            out = mapMultiSelectCodeSystemDescQues(in, out, param.getSectionCounter(),  param.getComponentCounter());
+        }
+        else if(name.equals(COL_QUES_DISPLAY_TXT)){
+            out = mapMultiSelectDisplayQues(in, out, param.getSectionCounter(),  param.getComponentCounter());
+        }
+        param.setOut(out);
+        return param;
     }
 
     private POCDMT000040Section mapMultiSelectDisplayQues(EcrMsgCaseAnswerRepeatDto in,
@@ -837,14 +867,20 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         else if (name.equals(COL_ANS_TO_CODE_SYSTEM_DESC_TXT) && !in.getAnsToCodeSystemDescTxt().isEmpty()) {
             ce.setCodeSystemName(in.getAnsToCodeSystemDescTxt());
         }
-        else if (name.equals(COL_ANS_TO_DISPLAY_NM) && !in.getAnsToDisplayNm().isEmpty()) {
-            ce.setDisplayName(in.getAnsToDisplayNm());
-
+        else if (name.equals(COL_ANS_TO_DISPLAY_NM)) {
+            ce = mapMultiSelectCodedCountyFieldDisplayName(ce, in);
         }
 
         out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getValueArray(seqNbr).set(ce);
 
         return out;
+    }
+
+    private CE mapMultiSelectCodedCountyFieldDisplayName(CE ce, EcrMsgCaseAnswerRepeatDto in) {
+        if (!in.getAnsToDisplayNm().isEmpty()) {
+            ce.setDisplayName(in.getAnsToDisplayNm());
+        }
+        return ce;
     }
 
     private CdaCaseMultiGroupSeqNumber mapMultiSelectAnsGroupSeqNumber(CdaCaseMultiGroupSeqNumber param, EcrMsgCaseAnswerRepeatDto in) {
