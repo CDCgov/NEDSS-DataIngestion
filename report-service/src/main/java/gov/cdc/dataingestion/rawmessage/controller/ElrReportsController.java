@@ -1,6 +1,5 @@
 package gov.cdc.dataingestion.rawmessage.controller;
 
-import com.google.gson.Gson;
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
@@ -74,17 +73,8 @@ public class ElrReportsController {
     @GetMapping(path = "/ecr/cda-transformation")
     public ResponseEntity<String> processingMsgEcrIntoCDA() throws EcrCdaXmlException {
         var result = ecrMsgQueryService.getSelectedEcrFromJson();
-
-
-        String xmlREsult = "";
-        try {
-            xmlREsult = mapper.tranformSelectedEcrToCDAXml(result);
-
-            nbsRepositoryServiceProvider.saveEcrCdaXmlMessage("21216969", -1, xmlREsult);
-        } catch (Exception e){
-            var error = e;
-            System.out.println(e.getMessage());
-        }
+        String xmlREsult = mapper.tranformSelectedEcrToCDAXml(result);
+        nbsRepositoryServiceProvider.saveEcrCdaXmlMessage("21216969", -1, xmlREsult);
         return ResponseEntity.ok(xmlREsult);
     }
 }

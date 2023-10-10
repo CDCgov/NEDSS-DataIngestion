@@ -29,7 +29,7 @@ public class NbsRepositoryServiceProvider {
 	private static String LAB_CLIA = "HL7UniversalID";
 	private static String ORDER_TEST_CODE = "HL7AlternateIdentifier";
 
-	private static String ECR_DOC_TYPE = "PHC236";
+	private final static String ECR_DOC_TYPE = "PHC236";
 
     @Autowired
     private NbsInterfaceRepository nbsInterfaceRepo;

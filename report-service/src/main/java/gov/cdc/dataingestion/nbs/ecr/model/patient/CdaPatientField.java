@@ -34,7 +34,8 @@ public class CdaPatientField {
                            String email,
                            String urlAddress,
                            String phoneAsDateTime,
-                           String inv168) {
+                           String inv168) // NOSONAR
+    {
         this.patientIdentifier = patientIdentifier;
         this.address1 = address1;
         this.address2 = address2;
