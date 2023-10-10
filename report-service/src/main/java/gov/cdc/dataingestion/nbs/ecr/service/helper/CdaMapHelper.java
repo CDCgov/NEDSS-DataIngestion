@@ -956,14 +956,14 @@ public class CdaMapHelper implements ICdaMapHelper {
         else if(name.equals("prvNameDegreeCd") && in.getPrvNameDegreeCd()!=null && !in.getPrvNameDegreeCd().isEmpty()) {
             degree = in.getPrvNameDegreeCd();
         }
-        else if(name.equals("prvAddrStreetAddr1Txt") && in.getPrvAddrStreetAddr1Txt() !=null && !in.getPrvAddrStreetAddr1Txt().isEmpty()) {
-            address1 = in.getPrvAddrStreetAddr1Txt();
+        else if(name.equals("prvAddrStreetAddr1Txt")) {
+            address1 = mapToPSNFieldCheckAndMapAddress1( in,  address1);
         }
         else if(name.equals("prvAddrStreetAddr2Txt") && in.getPrvAddrStreetAddr2Txt() != null && !in.getPrvAddrStreetAddr2Txt().isEmpty()) {
-            address2 = in.getPrvAddrStreetAddr2Txt();
+            address2 = mapToPSNFieldCheckAndMapAddress2( in, address2);
         }
-        else if(name.equals("prvAddrCityTxt") && in.getPrvAddrCityTxt() != null && !in.getPrvAddrCityTxt().isEmpty()) {
-            city = in.getPrvAddrCityTxt();
+        else if(name.equals("prvAddrCityTxt")) {
+            city = mapToPSNFieldCheckAndMapCity(in, city);
         }
 
         param.setFirstName(firstName);
@@ -978,6 +978,25 @@ public class CdaMapHelper implements ICdaMapHelper {
         return param;
     }
 
+    private String mapToPSNFieldCheckAndMapAddress1(EcrMsgProviderDto in, String address1) {
+        if(in.getPrvAddrStreetAddr1Txt() !=null && !in.getPrvAddrStreetAddr1Txt().isEmpty()) {
+            address1 = in.getPrvAddrStreetAddr1Txt();
+        }
+        return address1;
+    }
+
+    private String mapToPSNFieldCheckAndMapAddress2(EcrMsgProviderDto in, String address2) {
+        if(in.getPrvAddrStreetAddr2Txt() != null && !in.getPrvAddrStreetAddr2Txt().isEmpty()) {
+            address2 = in.getPrvAddrStreetAddr2Txt();
+        }
+        return address2;
+    }
+    private String mapToPSNFieldCheckAndMapCity(EcrMsgProviderDto in, String city) {
+        if(in.getPrvAddrCityTxt() != null && !in.getPrvAddrCityTxt().isEmpty()) {
+            city = in.getPrvAddrCityTxt();
+        }
+        return city;
+    }
 
     private POCDMT000040Participant2 mapToPSNFieldCheckAndMapQuickCode(EcrMsgProviderDto in,
                                                                      POCDMT000040Participant2 out) {
