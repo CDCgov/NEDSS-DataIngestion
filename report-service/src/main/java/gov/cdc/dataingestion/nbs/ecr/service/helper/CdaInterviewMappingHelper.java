@@ -238,9 +238,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
                                              String name,
                                              int sectionEntryCounter,
                                              int entryCounter) throws EcrCdaXmlException {
-        if((name.equals("msgContainerUid") && in.getMsgInterview().getMsgContainerUid() != null )
-                || (name.equals("ixsAuthorId")  && in.getMsgInterview().getIxsAuthorId() != null)
-                || (name.equals("ixsEffectiveTime")  && in.getMsgInterview().getIxsEffectiveTime() != null)){
+        if(validateInterviewGeneric(name, in)){
             out = mapToInterviewFieldCheckP1GenericCheck(out, in, sectionEntryCounter);
         }
         else if (name.equals("ixsLocalId")  && in.getMsgInterview().getIxsLocalId() != null && !in.getMsgInterview().getIxsLocalId().isEmpty()){
@@ -265,7 +263,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
             out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).setObservation(obs);
             entryCounter= entryCounter+ 1;
         }
-        else if (name.equals("ixsInterviewTypeCd")  && in.getMsgInterview().getIxsInterviewTypeCd() != null && !in.getMsgInterview().getIxsInterviewTypeCd().isEmpty()){
+        else if (validateInterviewType(name, in)){
             String questionCode = this.cdaMapHelper.mapToQuestionId("IXS_INTERVIEW_TYPE_CD");
 
             var interviewType = mapToInterviewFieldCheckP1Type(out, sectionEntryCounter);
@@ -279,7 +277,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
             entryCounter= entryCounter+ 1;
 
         }
-        else if (name.equals("ixsInterviewLocCd")  && in.getMsgInterview().getIxsInterviewLocCd() != null && !in.getMsgInterview().getIxsInterviewLocCd().isEmpty()){
+        else if (validateInterviewLoc(name, in)){
             String questionCode = this.cdaMapHelper.mapToQuestionId("IXS_INTERVIEW_LOC_CD");
 
             var interviewType = mapToInterviewFieldCheckP1Loc(out, sectionEntryCounter);
@@ -296,6 +294,22 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         model.setEntryCounter(entryCounter);
         model.setOut(out);
         return model;
+    }
+
+    private boolean validateInterviewGeneric(String name, EcrSelectedInterview in) {
+        return (name.equals("msgContainerUid") && in.getMsgInterview().getMsgContainerUid() != null )
+                || (name.equals("ixsAuthorId")  && in.getMsgInterview().getIxsAuthorId() != null)
+                || (name.equals("ixsEffectiveTime")  && in.getMsgInterview().getIxsEffectiveTime() != null);
+    }
+
+    private boolean validateInterviewType(String name, EcrSelectedInterview in) {
+        return name.equals("ixsInterviewTypeCd")  && in.getMsgInterview().getIxsInterviewTypeCd() != null
+                && !in.getMsgInterview().getIxsInterviewTypeCd().isEmpty();
+    }
+
+    private boolean validateInterviewLoc(String name, EcrSelectedInterview in) {
+        return name.equals("ixsInterviewLocCd")  && in.getMsgInterview().getIxsInterviewLocCd() != null
+                && !in.getMsgInterview().getIxsInterviewLocCd().isEmpty();
     }
 
     private InterviewRole mapToInterviewFieldCheckP1Loc(POCDMT000040Component3 out, int sectionEntryCounter) {
@@ -625,15 +639,23 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         else if (name.equals(COL_ANS_TO_CODE_SYSTEM_CD) && !in.getAnsToCodeSystemCd().isEmpty()) {
             ce.setCodeSystem(in.getAnsToCodeSystemCd());
         }
-        else if (name.equals(COL_ANS_TO_CODE_SYSTEM_DESC_TXT) && !in.getAnsToCodeSystemDescTxt().isEmpty()) {
+        else if (validateMultiSelectObservationFieldP2AnsCodeDesc(name, in)) {
             ce.setCodeSystemName(in.getAnsToCodeSystemDescTxt());
         }
-        else if (name.equals(COL_ANS_TO_DISPLAY_NM) && !in.getAnsToDisplayNm().isEmpty()) {
+        else if (validateMultiSelectObservationFieldP2AnsDisplayNm(name, in)) {
             ce.setDisplayName(in.getAnsToDisplayNm());
 
         }
         out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getValueArray(seqNbr).set(ce);
         return out;
+    }
+
+    private boolean validateMultiSelectObservationFieldP2AnsCodeDesc(String name, EcrMsgInterviewAnswerRepeatDto in) {
+        return name.equals(COL_ANS_TO_CODE_SYSTEM_DESC_TXT) && !in.getAnsToCodeSystemDescTxt().isEmpty();
+    }
+
+    private boolean validateMultiSelectObservationFieldP2AnsDisplayNm(String name, EcrMsgInterviewAnswerRepeatDto in) {
+        return name.equals(COL_ANS_TO_DISPLAY_NM) && !in.getAnsToDisplayNm().isEmpty();
     }
 
     private InterviewMultiObs mapToInterviewMultiSelectObservationFieldP1(EcrMsgInterviewAnswerRepeatDto in,
@@ -667,18 +689,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
                 questionGroupCounter=questionGroupSeqNbr ;
                 answerGroupCounter=answerGroupSeqNbr;
 
-                if (out.getEntryRelationshipArray(sectionCounter).getOrganizer() == null) {
-                    out.getEntryRelationshipArray(sectionCounter).addNewOrganizer();
-                }
-
-
-                if (out.getEntryRelationshipArray(sectionCounter).getOrganizer().getCode() == null) {
-                    out.getEntryRelationshipArray(sectionCounter).getOrganizer().addNewCode();
-                }
-
-                if (out.getEntryRelationshipArray(sectionCounter).getOrganizer().getStatusCode() == null) {
-                    out.getEntryRelationshipArray(sectionCounter).getOrganizer().addNewStatusCode();
-                }
+                out = mapToInterviewMultiSelectObservationFieldP1DocCheckOrg(sectionCounter, out);
 
                 out.getEntryRelationshipArray(sectionCounter).getOrganizer().getCode().setCode(String.valueOf(questionGroupSeqNbr));
                 out.getEntryRelationshipArray(sectionCounter).getOrganizer().getCode().setCode("1234567RPT");
@@ -712,6 +723,22 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         param.setSeqNbr(seqNbr);
         return param;
 
+    }
+
+    private POCDMT000040Encounter mapToInterviewMultiSelectObservationFieldP1DocCheckOrg(int sectionCounter, POCDMT000040Encounter out) {
+        if (out.getEntryRelationshipArray(sectionCounter).getOrganizer() == null) {
+            out.getEntryRelationshipArray(sectionCounter).addNewOrganizer();
+        }
+
+
+        if (out.getEntryRelationshipArray(sectionCounter).getOrganizer().getCode() == null) {
+            out.getEntryRelationshipArray(sectionCounter).getOrganizer().addNewCode();
+        }
+
+        if (out.getEntryRelationshipArray(sectionCounter).getOrganizer().getStatusCode() == null) {
+            out.getEntryRelationshipArray(sectionCounter).getOrganizer().addNewStatusCode();
+        }
+        return out;
     }
 
     private InterviewAnswerMapper mapToInterviewObservation(EcrMsgInterviewAnswerDto in, int counter,
@@ -826,33 +853,11 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         int counter = param.getCounter();
         int sequenceNbr = param.getSequenceNbr();
         if(dataType.equalsIgnoreCase(DATA_TYPE_CODE) || dataType.equalsIgnoreCase(COUNTY)){
-            CE ce = CE.Factory.newInstance();
-            if (name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()) {
-                ce.getTranslationArray(0).setCode(in.getAnswerTxt());
-            }
-            else if (name.equals(COL_ANS_CODE_SYSTEM_CD) && !in.getAnsCodeSystemCd().isEmpty()) {
-                ce.getTranslationArray(0).setCodeSystem(in.getAnsCodeSystemCd());
-            }
-            else if (name.equals(COL_ANS_CODE_SYSTEM_DESC_TXT) && !in.getAnsCodeSystemDescTxt().isEmpty()) {
-                ce.getTranslationArray(0).setCodeSystemName(in.getAnsCodeSystemDescTxt());
-            }
-            else if (name.equals(COL_ANS_DISPLAY_TXT) && !in.getAnsDisplayTxt().isEmpty()) {
-                ce.getTranslationArray(0).setDisplayName(in.getAnsDisplayTxt());
-            }
-            else if (name.equals(COL_ANS_TO_CODE) && !in.getAnsToCode().isEmpty()) {
-                ce.setCode(in.getAnsToCode());
-            }
-            else if (name.equals(COL_ANS_TO_CODE_SYSTEM_CD) && !in.getAnsToCodeSystemCd().isEmpty()) {
-                ce.setCodeSystem(in.getAnsToCodeSystemCd());
-            }
-            else if (name.equals(COL_ANS_TO_CODE_SYSTEM_DESC_TXT) && !in.getAnsToCodeSystemDescTxt().isEmpty()) {
-                ce.setCodeSystemName(in.getAnsToCodeSystemDescTxt());
-            }
-            else if (name.equals(COL_ANS_TO_DISPLAY_NM) && !in.getAnsToDisplayNm().isEmpty()) {
-                ce.setDisplayName(in.getAnsToDisplayNm());
-
-            }
-            out.getEntryRelationshipArray(counter).getObservation().getValueArray(sequenceNbr).set(ce);
+            out = mapToInterviewObservationFieldP2County( name,
+                     out,
+                     in,
+             counter,
+             sequenceNbr);
 
         }
         else if(
@@ -866,30 +871,11 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
 
         }
         else if(dataType.equalsIgnoreCase(  "DATE")){
-            if(name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()){
-                var element = out.getEntryRelationshipArray(counter).getObservation().getValueArray(0);
-                XmlCursor cursor = element.newCursor();
-                cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "TS");
-                cursor.setAttributeText(new QName("name"), value);  // This is an assumption based on the original code
-
-                if(name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()){
-                    String newValue = cdaMapHelper.mapToTsType(in.getAnswerTxt()).toString();
-                    cursor.setAttributeText(new QName("name"), value);
-                    cursor.setTextValue(newValue);
-                }
-                else {
-                    element = out.getEntryRelationshipArray(counter).getObservation().getValueArray(0);
-                    cursor = element.newCursor();
-                    cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "ST");
-
-                    if(name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()) {
-                        cursor.setTextValue(CDATA + in.getAnswerTxt() + CDATA);
-                    }
-                }
-
-                out.getEntryRelationshipArray(counter).getObservation().setValueArray(0, element);
-                cursor.dispose();
-            }
+            out = mapToInterviewObservationFieldP2Date( name,
+                     out,
+                     in,
+             counter,
+             value);
         }
 
         param.setDataType(dataType);
@@ -897,6 +883,73 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         param.setSequenceNbr(sequenceNbr);
         param.setOut(out);
         return param;
+    }
+
+    private POCDMT000040Encounter mapToInterviewObservationFieldP2Date(String name,
+                                                 POCDMT000040Encounter out,
+                                                 EcrMsgInterviewAnswerDto in,
+                                                 int counter,
+                                                 String value) throws EcrCdaXmlException {
+        if(name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()){
+            var element = out.getEntryRelationshipArray(counter).getObservation().getValueArray(0);
+            XmlCursor cursor = element.newCursor();
+            cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "TS");
+            cursor.setAttributeText(new QName("name"), value);  // This is an assumption based on the original code
+
+            if(name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()){
+                String newValue = cdaMapHelper.mapToTsType(in.getAnswerTxt()).toString();
+                cursor.setAttributeText(new QName("name"), value);
+                cursor.setTextValue(newValue);
+            }
+            else {
+                element = out.getEntryRelationshipArray(counter).getObservation().getValueArray(0);
+                cursor = element.newCursor();
+                cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "ST");
+
+                if(name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()) {
+                    cursor.setTextValue(CDATA + in.getAnswerTxt() + CDATA);
+                }
+            }
+
+            out.getEntryRelationshipArray(counter).getObservation().setValueArray(0, element);
+            cursor.dispose();
+        }
+        return out;
+    }
+
+    private POCDMT000040Encounter mapToInterviewObservationFieldP2County(String name,
+                                                        POCDMT000040Encounter out,
+                                                        EcrMsgInterviewAnswerDto in,
+                                                        int counter,
+                                                        int sequenceNbr) {
+        CE ce = CE.Factory.newInstance();
+        if (name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()) {
+            ce.getTranslationArray(0).setCode(in.getAnswerTxt());
+        }
+        else if (name.equals(COL_ANS_CODE_SYSTEM_CD) && !in.getAnsCodeSystemCd().isEmpty()) {
+            ce.getTranslationArray(0).setCodeSystem(in.getAnsCodeSystemCd());
+        }
+        else if (name.equals(COL_ANS_CODE_SYSTEM_DESC_TXT) && !in.getAnsCodeSystemDescTxt().isEmpty()) {
+            ce.getTranslationArray(0).setCodeSystemName(in.getAnsCodeSystemDescTxt());
+        }
+        else if (name.equals(COL_ANS_DISPLAY_TXT) && !in.getAnsDisplayTxt().isEmpty()) {
+            ce.getTranslationArray(0).setDisplayName(in.getAnsDisplayTxt());
+        }
+        else if (name.equals(COL_ANS_TO_CODE) && !in.getAnsToCode().isEmpty()) {
+            ce.setCode(in.getAnsToCode());
+        }
+        else if (name.equals(COL_ANS_TO_CODE_SYSTEM_CD) && !in.getAnsToCodeSystemCd().isEmpty()) {
+            ce.setCodeSystem(in.getAnsToCodeSystemCd());
+        }
+        else if (name.equals(COL_ANS_TO_CODE_SYSTEM_DESC_TXT) && !in.getAnsToCodeSystemDescTxt().isEmpty()) {
+            ce.setCodeSystemName(in.getAnsToCodeSystemDescTxt());
+        }
+        else if (name.equals(COL_ANS_TO_DISPLAY_NM) && !in.getAnsToDisplayNm().isEmpty()) {
+            ce.setDisplayName(in.getAnsToDisplayNm());
+
+        }
+        out.getEntryRelationshipArray(counter).getObservation().getValueArray(sequenceNbr).set(ce);
+        return out;
     }
 
     private InterviewObs mapToInterviewObservationFieldP1(EcrMsgInterviewAnswerDto in,

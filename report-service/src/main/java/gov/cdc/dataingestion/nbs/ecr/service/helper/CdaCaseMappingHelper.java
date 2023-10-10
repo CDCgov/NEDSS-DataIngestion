@@ -158,8 +158,8 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                     var repeatModel = mapCaseFieldCheckHasRepeat( output,
                      componentCaseCounter,
                      value,
-                     questionId,
-                     repeats);
+                     questionId
+                     );
 
                     output = repeatModel.getOutput();
                     repeats = repeatModel.getRepeats();
@@ -208,8 +208,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
     private CdaCaseFieldRepeat mapCaseFieldCheckHasRepeat(POCDMT000040StructuredBody output,
                                        int componentCaseCounter,
                                        String value,
-                                       String questionId,
-                                       int repeats) {
+                                       String questionId) {
         int c = 0;
         if (output.getComponentArray(componentCaseCounter).getSection().getEntryArray().length == 0) {
             output.getComponentArray(componentCaseCounter).getSection().addNewEntry();
@@ -230,7 +229,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                 element
         );
         output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).setObservation(obs);
-        repeats = 0;
+        int repeats = 0;
 
         CdaCaseFieldRepeat model = new CdaCaseFieldRepeat();
         model.setOutput(output);

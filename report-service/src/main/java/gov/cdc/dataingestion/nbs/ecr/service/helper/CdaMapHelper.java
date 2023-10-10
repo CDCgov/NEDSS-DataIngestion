@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.nbs.ecr.service.helper;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
+import gov.cdc.dataingestion.nbs.ecr.model.shares.Observation;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.LookUp.PhdcAnswerDao;
 import gov.cdc.dataingestion.nbs.repository.model.dao.LookUp.QuestionIdentifierMapDao;
@@ -256,163 +257,31 @@ public class CdaMapHelper implements ICdaMapHelper {
             if (result != null) {
 
                 //region DB LOOKUP
-                if (!result.getQuestionIdentifier().isEmpty()) {
-                    questionLup.setQuestionIdentifier(result.getQuestionIdentifier());
-                }
-                if (!result.getQuesCodeSystemCd().isEmpty()) {
-                    questionLup.setQuesCodeSystemCd(result.getQuesCodeSystemCd());
-                }
-                if (!result.getQuesCodeSystemDescTxt().isEmpty()) {
-                    questionLup.setQuesCodeSystemDescTxt(result.getQuesCodeSystemDescTxt());
-                }
-                if (!result.getQuesDisplayName().isEmpty()) {
-                    questionLup.setQuesDisplayName(result.getQuesDisplayName());
-                }
-                if (!result.getDataType().isEmpty()) {
-                    questionLup.setDataType(result.getDataType());
-                }
+                var param = new Observation();
+                param.setQuestionLup(questionLup);
+                param.setDefaultQuestionIdentifier(defaultQuestionIdentifier);
+                param.setQuestionCode(questionCode);
+                var obs = mapToObservationLookupCheck(result,
+                        param);
 
-                QuestionIdentifierMapDto map = new QuestionIdentifierMapDto();
-                map.setDynamicQuestionIdentifier(NOT_FOUND_VALUE);
-                QuestionIdentifierMapDto identifierMap = ecrLookUpService.fetchQuestionIdentifierMapByCriteriaByCriteria("Question_Identifier", questionCode);
-                if(identifierMap != null && !identifierMap.getDynamicQuestionIdentifier().isEmpty()) {
-                    map.setDynamicQuestionIdentifier(identifierMap.getDynamicQuestionIdentifier());
-                }
-
-                if(map.getDynamicQuestionIdentifier().equalsIgnoreCase("STANDARD")
-                        || map.getDynamicQuestionIdentifier().equalsIgnoreCase(NOT_FOUND_VALUE)) {
-                    defaultQuestionIdentifier = questionCode;
-                }
+                questionLup = obs.getQuestionLup();
+                defaultQuestionIdentifier = obs.getDefaultQuestionIdentifier();
+                questionCode = obs.getQuestionCode();
 
                 //endregion
 
                 if (!result.getDataType().isEmpty()) {
                     if (result.getDataType().equalsIgnoreCase(DATA_TYPE_CODE)) {
-                        var dataList = GetStringsBeforePipe(data);
-                        String dataStr = "";
-                        for(int i = 0; i < dataList.size(); i++) {
-//                        int c = 0;
-//                        if (observation.getValueArray().length == 0) {
-//                            observation.addNewValue();
-//                        }
-//                        else {
-//                            c = observation.getValueArray().length;
-//                            observation.addNewValue();
-//                        }
-//                        CE ce = mapToCEAnswerTypeNoTranslation(
-//                                dataList.get(i),
-//                                defaultQuestionIdentifier);
-//                        observation.setValueArray(c, ce);
-
-                            dataStr = dataStr + " " +  dataList.get(i);
-
-                        }
-                        dataStr  = dataStr.trim();
-                        observation.addNewCode();
-                        observation.getCode().setCode(dataStr);
-                        observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
-                        observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
-                        observation.getCode().setDisplayName(result.getQuesDisplayName());
+                        observation = mapToObservationDateTypeCoded(
+                                 observation,
+                                 data,
+                                 result);
                     }
                     else {
-                        if (result.getDataType().equalsIgnoreCase("TEXT")) {
-                            // CHECK mapToSTValue from ori code
-                            observation.addNewCode();
-                            observation.getCode().setCode(data);
-                            observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
-                            observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
-                            observation.getCode().setDisplayName(result.getQuesDisplayName());
-                        }
-                        else if (result.getDataType().equalsIgnoreCase("PART")) {
-                            // CHECK mapToObservation from ori 47
-                            if (observation.getValueArray().length == 0) {
-                                observation.addNewValue();
-                            }
-
-                            if (observation.getCode() == null) {
-                                observation.addNewCode();
-                            }
-
-                            ANY any = ANY.Factory.parse(VALUE_TAG);
-                            var element = any;
-                            XmlCursor cursor = element.newCursor();
-                            cursor.toFirstAttribute();
-                            cursor.toNextToken();
-                            cursor.insertAttributeWithValue(new QName(NAME_SPACE_URL, "type"), "II");
-                            var val = ecrLookUpService.fetchPhdcQuestionByCriteriaWithColumn("Question_Identifier", defaultQuestionIdentifier);
-                            cursor.insertAttributeWithValue("root",  val.getQuesCodeSystemCd());
-
-                            cursor.insertAttributeWithValue("extension", data);
-                            cursor.dispose();
-
-                            observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
-                            observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
-                            observation.getCode().setDisplayName(result.getQuesDisplayName());
-
-                            observation.getCode().setCode(data);
-
-                            observation.setValueArray(0, element); // THIS
-
-
-
-
-                        }
-                        else if (result.getDataType().equalsIgnoreCase("DATE")) {
-                            var ts = mapToTsType(data).getValue().toString();
-                            observation.addNewCode();
-                            observation.getCode().setCode(ts);
-                            observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
-                            observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
-                            observation.getCode().setDisplayName(result.getQuesDisplayName());
-
-//                        ANY any = ANY.Factory.parse(VALUE_TAG);
-//                        var element = any;
-//                        XmlCursor cursor = element.newCursor();
-//                        if (cursor.toFirstAttribute() || !cursor.toEndToken().isStart()) { // Added check here
-//                            cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "TS");
-//                            if (cursor.getAttributeText(new QName(value)) != null) {
-//                                cursor.setAttributeText(new QName(value), mapToTsType(data).toString());
-//                            } else {
-//                                cursor.toStartDoc();
-//                                cursor.toNextToken(); // Moves to the start of the element
-//                                cursor.insertAttributeWithValue(value, mapToTsType(data).toString());
-//                            }
-//                            cursor.dispose();
-//
-//                            observation.setValueArray(0, element);
-//
-//
-//
-//
-//                        } else {
-//                            cursor.dispose();
-//                            // Handle the case where the element didn't have attributes, if necessary
-//                        }
-                        }
-                        else {
-                            // CHECK mapToObservation from ori 77
-//                        if (observation.getValueArray().length == 0) {
-//                            observation.addNewValue();
-//                        }
-//
-//                        ANY any = ANY.Factory.parse(VALUE_TAG);
-//
-//                        var element = any;
-//                        XmlCursor cursor = element.newCursor();
-//                        cursor.toFirstAttribute();
-//                        cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "ST");
-//                        cursor.toParent();
-//                        cursor.setTextValue(data);
-//                        cursor.dispose();
-//
-//                        observation.setValueArray(0,  any);
-
-                            observation.addNewCode();
-                            observation.getCode().setCode(data);
-                            observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
-                            observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
-                            observation.getCode().setDisplayName(result.getQuesDisplayName());
-                        }
+                        observation = mapToObservationDataTypeNotCoded( result,
+                                 observation,
+                                 data,
+                                 defaultQuestionIdentifier);
                     }
                 }
             } else {
@@ -429,6 +298,131 @@ public class CdaMapHelper implements ICdaMapHelper {
         } catch ( Exception e) {
             throw new EcrCdaXmlException(e.getMessage());
         }
+
+    }
+
+    private POCDMT000040Observation mapToObservationDateTypeCoded(
+            POCDMT000040Observation observation,
+            String data,
+            PhdcQuestionLookUpDto result) {
+        var dataList = GetStringsBeforePipe(data);
+        String dataStr = "";
+        for(int i = 0; i < dataList.size(); i++) {
+            dataStr = dataStr + " " +  dataList.get(i);
+
+        }
+        dataStr  = dataStr.trim();
+        observation.addNewCode();
+        observation.getCode().setCode(dataStr);
+        observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
+        observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
+        observation.getCode().setDisplayName(result.getQuesDisplayName());
+        return observation;
+    }
+
+    private  POCDMT000040Observation mapToObservationDataTypeNotCoded(PhdcQuestionLookUpDto result,
+                                                   POCDMT000040Observation observation,
+                                                   String data,
+                                                   String defaultQuestionIdentifier) throws EcrCdaXmlException {
+
+        try {
+            if (result.getDataType().equalsIgnoreCase("TEXT")) {
+                // CHECK mapToSTValue from ori code
+                observation.addNewCode();
+                observation.getCode().setCode(data);
+                observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
+                observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
+                observation.getCode().setDisplayName(result.getQuesDisplayName());
+            }
+            else if (result.getDataType().equalsIgnoreCase("PART")) {
+                // CHECK mapToObservation from ori 47
+                if (observation.getValueArray().length == 0) {
+                    observation.addNewValue();
+                }
+
+                if (observation.getCode() == null) {
+                    observation.addNewCode();
+                }
+
+                ANY any = ANY.Factory.parse(VALUE_TAG);
+                var element = any;
+                XmlCursor cursor = element.newCursor();
+                cursor.toFirstAttribute();
+                cursor.toNextToken();
+                cursor.insertAttributeWithValue(new QName(NAME_SPACE_URL, "type"), "II");
+                var val = ecrLookUpService.fetchPhdcQuestionByCriteriaWithColumn("Question_Identifier", defaultQuestionIdentifier);
+                cursor.insertAttributeWithValue("root",  val.getQuesCodeSystemCd());
+                cursor.insertAttributeWithValue("extension", data);
+                cursor.dispose();
+                observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
+                observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
+                observation.getCode().setDisplayName(result.getQuesDisplayName());
+                observation.getCode().setCode(data);
+                observation.setValueArray(0, element); // THIS
+            }
+            else if (result.getDataType().equalsIgnoreCase("DATE")) {
+                var ts = mapToTsType(data).getValue().toString();
+                observation.addNewCode();
+                observation.getCode().setCode(ts);
+                observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
+                observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
+                observation.getCode().setDisplayName(result.getQuesDisplayName());
+            }
+            else {
+                // CHECK mapToObservation from ori 77
+                observation.addNewCode();
+                observation.getCode().setCode(data);
+                observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
+                observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
+                observation.getCode().setDisplayName(result.getQuesDisplayName());
+            }
+
+            return observation;
+        } catch (Exception e) {
+            throw new EcrCdaXmlException(e.getMessage());
+        }
+
+    }
+
+    private Observation mapToObservationLookupCheck(PhdcQuestionLookUpDto result,
+                                             Observation param) {
+
+        PhdcQuestionLookUpDto questionLup = param.getQuestionLup();
+        String defaultQuestionIdentifier = param.getDefaultQuestionIdentifier();
+        String questionCode = param.getQuestionCode();
+
+        if (!result.getQuestionIdentifier().isEmpty()) {
+            questionLup.setQuestionIdentifier(result.getQuestionIdentifier());
+        }
+        if (!result.getQuesCodeSystemCd().isEmpty()) {
+            questionLup.setQuesCodeSystemCd(result.getQuesCodeSystemCd());
+        }
+        if (!result.getQuesCodeSystemDescTxt().isEmpty()) {
+            questionLup.setQuesCodeSystemDescTxt(result.getQuesCodeSystemDescTxt());
+        }
+        if (!result.getQuesDisplayName().isEmpty()) {
+            questionLup.setQuesDisplayName(result.getQuesDisplayName());
+        }
+        if (!result.getDataType().isEmpty()) {
+            questionLup.setDataType(result.getDataType());
+        }
+
+        QuestionIdentifierMapDto map = new QuestionIdentifierMapDto();
+        map.setDynamicQuestionIdentifier(NOT_FOUND_VALUE);
+        QuestionIdentifierMapDto identifierMap = ecrLookUpService.fetchQuestionIdentifierMapByCriteriaByCriteria("Question_Identifier", questionCode);
+        if(identifierMap != null && !identifierMap.getDynamicQuestionIdentifier().isEmpty()) {
+            map.setDynamicQuestionIdentifier(identifierMap.getDynamicQuestionIdentifier());
+        }
+
+        if(map.getDynamicQuestionIdentifier().equalsIgnoreCase("STANDARD")
+                || map.getDynamicQuestionIdentifier().equalsIgnoreCase(NOT_FOUND_VALUE)) {
+            defaultQuestionIdentifier = questionCode;
+        }
+        param.setQuestionLup(questionLup);
+        param.setDefaultQuestionIdentifier(defaultQuestionIdentifier);
+        param.setQuestionCode(questionCode);
+
+        return param;
 
     }
 
@@ -516,10 +510,6 @@ public class CdaMapHelper implements ICdaMapHelper {
 
         for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
             String name = entry.getKey();
-            String value = null;
-            if (entry.getValue() != null) {
-                value = entry.getValue().toString();
-            }
 
             if (name.equals("prvLocalId") && in.getPrvLocalId() != null && !in.getPrvLocalId().isEmpty()) {
                 if (out.getParticipantRole() == null) {
