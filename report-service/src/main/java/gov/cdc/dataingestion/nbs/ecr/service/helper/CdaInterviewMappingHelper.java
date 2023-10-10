@@ -4,6 +4,9 @@ import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.model.CdaInterviewMapper;
 import gov.cdc.dataingestion.nbs.ecr.model.InterviewAnswerMapper;
 import gov.cdc.dataingestion.nbs.ecr.model.InterviewAnswerMultiMapper;
+import gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewAnswer;
+import gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewField;
+import gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewRole;
 import gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewTopField;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaInterviewMappingHelper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
@@ -122,95 +125,13 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
 
             String name = entry.getKey();
 
-            if((name.equals("msgContainerUid") && in.getMsgInterview().getMsgContainerUid() != null )
-                    || (name.equals("ixsAuthorId")  && in.getMsgInterview().getIxsAuthorId() != null)
-                    || (name.equals("ixsEffectiveTime")  && in.getMsgInterview().getIxsEffectiveTime() != null)){
-                int c = 0;
-                if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray().length == 0) {
-                    out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewId();
-                } else {
-                    c = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray().length ;
-                    out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewId();
-                }
+            var interviewFieldP1 =  mapToInterviewFieldCheckP1 (in,  out,
+                     name,
+             sectionEntryCounter,
+             entryCounter);
 
-                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray(c).setExtension(in.getMsgInterview().getMsgContainerUid().toString());
-            }
-            else if (name.equals("ixsLocalId")  && in.getMsgInterview().getIxsLocalId() != null && !in.getMsgInterview().getIxsLocalId().isEmpty()){
-                int c = 0;
-                if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray().length == 0) {
-                    out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewId();
-                } else {
-                    c = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray().length ;
-                    out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewId();
-                }
-                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray(c).setExtension(in.getMsgInterview().getIxsLocalId());
-            }
-
-            else if (name.equals("ixsStatusCd")  && in.getMsgInterview().getIxsStatusCd() != null && !in.getMsgInterview().getIxsStatusCd().isEmpty()){
-                if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getStatusCode() == null) {
-                    out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewStatusCode();
-                }
-                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getStatusCode().setCode(in.getMsgInterview().getIxsStatusCd());
-            }
-            else if (name.equals("ixsInterviewDt")  && in.getMsgInterview().getIxsInterviewDt() != null){
-                var ts = cdaMapHelper.mapToTsType(in.getMsgInterview().getIxsInterviewDt().toString());
-                if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEffectiveTime() == null) {
-                    out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEffectiveTime();
-                }
-                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEffectiveTime().setValue(ts.getValue().toString());
-            }
-
-            else if (name.equals("ixsIntervieweeRoleCd")  && in.getMsgInterview().getIxsIntervieweeRoleCd() != null && !in.getMsgInterview().getIxsIntervieweeRoleCd().isEmpty()){
-                String questionCode = this.cdaMapHelper.mapToQuestionId("IXS_INTERVIEWEE_ROLE_CD");
-
-                int c = 0;
-                if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray().length == 0) {
-                    out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEntryRelationship().addNewObservation();
-                } else {
-                    c = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray().length;
-                    out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEntryRelationship().addNewObservation();
-                }
-
-                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).setTypeCode(XActRelationshipEntryRelationship.COMP);
-                var obs = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).getObservation();
-                this.cdaMapHelper.mapToObservation(questionCode, in.getMsgInterview().getIxsIntervieweeRoleCd(), obs);
-                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).setObservation(obs);
-                entryCounter= entryCounter+ 1;
-            }
-            else if (name.equals("ixsInterviewTypeCd")  && in.getMsgInterview().getIxsInterviewTypeCd() != null && !in.getMsgInterview().getIxsInterviewTypeCd().isEmpty()){
-                String questionCode = this.cdaMapHelper.mapToQuestionId("IXS_INTERVIEW_TYPE_CD");
-
-                int c = 0;
-                if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray().length == 0) {
-                    out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEntryRelationship().addNewObservation();
-                } else {
-                    c = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray().length;
-                    out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEntryRelationship().addNewObservation();
-                }
-
-                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).setTypeCode(XActRelationshipEntryRelationship.COMP);
-                var obs = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).getObservation();
-                this.cdaMapHelper.mapToObservation(questionCode, in.getMsgInterview().getIxsInterviewTypeCd(), obs);
-                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).setObservation(obs);
-                entryCounter= entryCounter+ 1;
-
-            }
-            else if (name.equals("ixsInterviewLocCd")  && in.getMsgInterview().getIxsInterviewLocCd() != null && !in.getMsgInterview().getIxsInterviewLocCd().isEmpty()){
-                String questionCode = this.cdaMapHelper.mapToQuestionId("IXS_INTERVIEW_LOC_CD");
-
-                int c = 0;
-                if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray().length == 0) {
-                    out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEntryRelationship().addNewObservation();
-                } else {
-                    c = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray().length;
-                    out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEntryRelationship().addNewObservation();
-                }
-                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).setTypeCode(XActRelationshipEntryRelationship.COMP);
-                var obs = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).getObservation();
-                this.cdaMapHelper.mapToObservation(questionCode, in.getMsgInterview().getIxsInterviewLocCd(), obs);
-                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).setObservation(obs);
-                entryCounter= entryCounter+ 1;
-            }
+            out = interviewFieldP1.getOut();
+            entryCounter = interviewFieldP1.getEntryCounter();;
         }
 
         int questionGroupCounter=0;
@@ -224,43 +145,19 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
 
 
         if (!in.getMsgInterviewProviders().isEmpty() || !in.getMsgInterviewAnswers().isEmpty() || !in.getMsgInterviewAnswerRepeats().isEmpty()) {
+            out = mapToInterviewProvider( in,  out,
+             sectionCounter,  providerRoleCounter,
+             sectionEntryCounter);
 
-            for(int i = 0; i < in.getMsgInterviewProviders().size(); i++) {
-                if ( out.getSection().getEntryArray(sectionCounter).getEncounter().getParticipantArray().length == 0) {
-                    out.getSection().getEntryArray(sectionCounter).getEncounter().addNewParticipant().addNewParticipantRole().addNewCode();
-                } else {
-                    providerRoleCounter = out.getSection().getEntryArray(sectionCounter).getEncounter().getParticipantArray().length;
-                    out.getSection().getEntryArray(sectionCounter).getEncounter().addNewParticipant().addNewParticipantRole().addNewCode();
-                }
+            var interviewAns = mapToInterviewAnswer( in,  out,
+             sectionCounter,
+             entryCounter,
+             OldQuestionId);
 
-                var element = out.getSection().getEntryArray(sectionCounter).getEncounter().getParticipantArray(providerRoleCounter);
+            entryCounter = interviewAns.getEntryCounter();
+            out = interviewAns.getOut();
+            OldQuestionId = interviewAns.getOldQuestionId();
 
-                POCDMT000040Participant2 ot = this.cdaMapHelper.mapToPSN(in.getMsgInterviewProviders().get(i), element);
-
-                out.getSection().getEntryArray(sectionCounter).getEncounter().setParticipantArray(providerRoleCounter, ot);
-                var element2 = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getParticipantArray(providerRoleCounter)
-                        .getParticipantRole().getCode();
-                CE ce = cdaMapHelper.mapToCEQuestionType("IXS102", element2);
-                out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getParticipantArray(providerRoleCounter)
-                        .getParticipantRole().setCode(ce);
-                providerRoleCounter=providerRoleCounter+1;
-            }
-            for(int i = 0; i < in.getMsgInterviewAnswers().size(); i++) {
-                String newQuestionId="";
-                var element = out.getSection().getEntryArray(sectionCounter).getEncounter();
-                var ot = mapToInterviewObservation(in.getMsgInterviewAnswers().get(i), entryCounter, OldQuestionId,
-                        element );
-
-                entryCounter = ot.getCounter();
-                OldQuestionId = ot.getQuestionSeq();
-                out.getSection().getEntryArray(sectionCounter).setEncounter(ot.getComponent());
-
-                if(newQuestionId.equals(OldQuestionId)){
-                }
-                else{
-                    OldQuestionId=newQuestionId;
-                }
-            }
             for(int i = 0; i < in.getMsgInterviewAnswerRepeats().size(); i++) {
                 var element = out.getSection().getEntryArray(sectionEntryCounter).getEncounter();
                 var mapped = mapToInterviewMultiSelectObservation(in.getMsgInterviewAnswerRepeats().get(i),
@@ -280,6 +177,210 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         }
 
 
+        return out;
+    }
+
+
+    private InterviewAnswer mapToInterviewAnswer(EcrSelectedInterview in, POCDMT000040Component3 out,
+                                      int sectionCounter,
+                                      int entryCounter,
+                                      String oldQuestionId) throws EcrCdaXmlException {
+        for(int i = 0; i < in.getMsgInterviewAnswers().size(); i++) {
+            String newQuestionId="";
+            var element = out.getSection().getEntryArray(sectionCounter).getEncounter();
+            var ot = mapToInterviewObservation(in.getMsgInterviewAnswers().get(i), entryCounter, oldQuestionId,
+                    element );
+
+            entryCounter = ot.getCounter();
+            oldQuestionId = ot.getQuestionSeq();
+            out.getSection().getEntryArray(sectionCounter).setEncounter(ot.getComponent());
+
+            if(newQuestionId.equals(oldQuestionId)){
+            }
+            else{
+                oldQuestionId=newQuestionId;
+            }
+        }
+
+        InterviewAnswer model = new InterviewAnswer();
+        model.setOldQuestionId(oldQuestionId);
+        model.setEntryCounter(entryCounter);
+        model.setOut(out);
+
+        return model;
+    }
+
+    private POCDMT000040Component3 mapToInterviewProvider(EcrSelectedInterview in, POCDMT000040Component3 out,
+                                        int sectionCounter, int providerRoleCounter,
+                                        int sectionEntryCounter) throws EcrCdaXmlException {
+        for(int i = 0; i < in.getMsgInterviewProviders().size(); i++) {
+            if ( out.getSection().getEntryArray(sectionCounter).getEncounter().getParticipantArray().length == 0) {
+                out.getSection().getEntryArray(sectionCounter).getEncounter().addNewParticipant().addNewParticipantRole().addNewCode();
+            } else {
+                providerRoleCounter = out.getSection().getEntryArray(sectionCounter).getEncounter().getParticipantArray().length;
+                out.getSection().getEntryArray(sectionCounter).getEncounter().addNewParticipant().addNewParticipantRole().addNewCode();
+            }
+
+            var element = out.getSection().getEntryArray(sectionCounter).getEncounter().getParticipantArray(providerRoleCounter);
+
+            POCDMT000040Participant2 ot = this.cdaMapHelper.mapToPSN(in.getMsgInterviewProviders().get(i), element);
+
+            out.getSection().getEntryArray(sectionCounter).getEncounter().setParticipantArray(providerRoleCounter, ot);
+            var element2 = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getParticipantArray(providerRoleCounter)
+                    .getParticipantRole().getCode();
+            CE ce = cdaMapHelper.mapToCEQuestionType("IXS102", element2);
+            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getParticipantArray(providerRoleCounter)
+                    .getParticipantRole().setCode(ce);
+            providerRoleCounter=providerRoleCounter+1;
+        }
+
+        return out;
+    }
+
+    private InterviewField mapToInterviewFieldCheckP1 (EcrSelectedInterview in, POCDMT000040Component3 out,
+                                             String name,
+                                             int sectionEntryCounter,
+                                             int entryCounter) throws EcrCdaXmlException {
+        if((name.equals("msgContainerUid") && in.getMsgInterview().getMsgContainerUid() != null )
+                || (name.equals("ixsAuthorId")  && in.getMsgInterview().getIxsAuthorId() != null)
+                || (name.equals("ixsEffectiveTime")  && in.getMsgInterview().getIxsEffectiveTime() != null)){
+            out = mapToInterviewFieldCheckP1GenericCheck(out, in, sectionEntryCounter);
+        }
+        else if (name.equals("ixsLocalId")  && in.getMsgInterview().getIxsLocalId() != null && !in.getMsgInterview().getIxsLocalId().isEmpty()){
+            out = mapToInterviewFieldCheckP1IxsLocalId(out, in, sectionEntryCounter);
+        }
+        else if (name.equals("ixsStatusCd")  && in.getMsgInterview().getIxsStatusCd() != null && !in.getMsgInterview().getIxsStatusCd().isEmpty()){
+            out = mapToInterviewFieldCheckP1StatusCd(out, in, sectionEntryCounter);
+        }
+        else if (name.equals("ixsInterviewDt")  && in.getMsgInterview().getIxsInterviewDt() != null){
+            out = mapToInterviewFieldCheckP1InterviewDt(out, in, sectionEntryCounter);
+        }
+        else if (name.equals("ixsIntervieweeRoleCd")  && in.getMsgInterview().getIxsIntervieweeRoleCd() != null && !in.getMsgInterview().getIxsIntervieweeRoleCd().isEmpty()){
+            String questionCode = this.cdaMapHelper.mapToQuestionId("IXS_INTERVIEWEE_ROLE_CD");
+
+            var interviewRole = mapToInterviewFieldCheckP1Role(out, sectionEntryCounter);
+            int c = interviewRole.getC();
+            out = interviewRole.getOut();
+
+            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).setTypeCode(XActRelationshipEntryRelationship.COMP);
+            var obs = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).getObservation();
+            this.cdaMapHelper.mapToObservation(questionCode, in.getMsgInterview().getIxsIntervieweeRoleCd(), obs);
+            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).setObservation(obs);
+            entryCounter= entryCounter+ 1;
+        }
+        else if (name.equals("ixsInterviewTypeCd")  && in.getMsgInterview().getIxsInterviewTypeCd() != null && !in.getMsgInterview().getIxsInterviewTypeCd().isEmpty()){
+            String questionCode = this.cdaMapHelper.mapToQuestionId("IXS_INTERVIEW_TYPE_CD");
+
+            var interviewType = mapToInterviewFieldCheckP1Type(out, sectionEntryCounter);
+            int c = interviewType.getC();
+            out = interviewType.getOut();
+
+            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).setTypeCode(XActRelationshipEntryRelationship.COMP);
+            var obs = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).getObservation();
+            this.cdaMapHelper.mapToObservation(questionCode, in.getMsgInterview().getIxsInterviewTypeCd(), obs);
+            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).setObservation(obs);
+            entryCounter= entryCounter+ 1;
+
+        }
+        else if (name.equals("ixsInterviewLocCd")  && in.getMsgInterview().getIxsInterviewLocCd() != null && !in.getMsgInterview().getIxsInterviewLocCd().isEmpty()){
+            String questionCode = this.cdaMapHelper.mapToQuestionId("IXS_INTERVIEW_LOC_CD");
+
+            var interviewType = mapToInterviewFieldCheckP1Loc(out, sectionEntryCounter);
+            int c = interviewType.getC();
+            out = interviewType.getOut();
+
+            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).setTypeCode(XActRelationshipEntryRelationship.COMP);
+            var obs = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).getObservation();
+            this.cdaMapHelper.mapToObservation(questionCode, in.getMsgInterview().getIxsInterviewLocCd(), obs);
+            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray(c).setObservation(obs);
+            entryCounter= entryCounter+ 1;
+        }
+        InterviewField model = new InterviewField();
+        model.setEntryCounter(entryCounter);
+        model.setOut(out);
+        return model;
+    }
+
+    private InterviewRole mapToInterviewFieldCheckP1Loc(POCDMT000040Component3 out, int sectionEntryCounter) {
+        int c = 0;
+        if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray().length == 0) {
+            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEntryRelationship().addNewObservation();
+        } else {
+            c = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray().length;
+            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEntryRelationship().addNewObservation();
+        }
+        InterviewRole model = new InterviewRole();
+        model.setC(c);
+        model.setOut(out);
+        return model;
+    }
+    private InterviewRole mapToInterviewFieldCheckP1Type(POCDMT000040Component3 out, int sectionEntryCounter) {
+        int c = 0;
+        if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray().length == 0) {
+            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEntryRelationship().addNewObservation();
+        } else {
+            c = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray().length;
+            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEntryRelationship().addNewObservation();
+        }
+        InterviewRole model = new InterviewRole();
+        model.setC(c);
+        model.setOut(out);
+        return model;
+    }
+
+    private InterviewRole mapToInterviewFieldCheckP1Role(POCDMT000040Component3 out, int sectionEntryCounter) {
+        int c = 0;
+        if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray().length == 0) {
+            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEntryRelationship().addNewObservation();
+        } else {
+            c = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray().length;
+            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEntryRelationship().addNewObservation();
+        }
+        InterviewRole model = new InterviewRole();
+        model.setC(c);
+        model.setOut(out);
+        return model;
+    }
+
+    private POCDMT000040Component3 mapToInterviewFieldCheckP1InterviewDt(POCDMT000040Component3 out, EcrSelectedInterview in, int sectionEntryCounter) throws EcrCdaXmlException {
+        var ts = cdaMapHelper.mapToTsType(in.getMsgInterview().getIxsInterviewDt().toString());
+        if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEffectiveTime() == null) {
+            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEffectiveTime();
+        }
+        out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEffectiveTime().setValue(ts.getValue().toString());
+        return out;
+    }
+
+    private POCDMT000040Component3 mapToInterviewFieldCheckP1StatusCd(POCDMT000040Component3 out, EcrSelectedInterview in, int sectionEntryCounter) {
+        if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getStatusCode() == null) {
+            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewStatusCode();
+        }
+        out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getStatusCode().setCode(in.getMsgInterview().getIxsStatusCd());
+        return out;
+    }
+
+    private POCDMT000040Component3 mapToInterviewFieldCheckP1IxsLocalId(POCDMT000040Component3 out, EcrSelectedInterview in, int sectionEntryCounter) {
+        int c = 0;
+        if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray().length == 0) {
+            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewId();
+        } else {
+            c = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray().length ;
+            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewId();
+        }
+        out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray(c).setExtension(in.getMsgInterview().getIxsLocalId());
+        return out;
+    }
+
+    private POCDMT000040Component3 mapToInterviewFieldCheckP1GenericCheck(POCDMT000040Component3 out, EcrSelectedInterview in, int sectionEntryCounter) {
+        int c = 0;
+        if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray().length == 0) {
+            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewId();
+        } else {
+            c = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray().length ;
+            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewId();
+        }
+
+        out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getIdArray(c).setExtension(in.getMsgInterview().getMsgContainerUid().toString());
         return out;
     }
 
