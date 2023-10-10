@@ -501,19 +501,24 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
         return map;
     }
 
+    private POCDMT000040ClinicalDocument1 mapPatientStructureComponentCompCheck(POCDMT000040ClinicalDocument1 clinicalDocument) {
+        if (clinicalDocument.getComponent() == null) {
+            clinicalDocument.addNewComponent();
+        }
+
+        if (!clinicalDocument.getComponent().isSetStructuredBody()) {
+            clinicalDocument.getComponent().addNewStructuredBody();
+        }
+        return clinicalDocument;
+    }
+
     private CdaPatientMapper mapPatientStructureComponent(
             int patientComponentCounter,
             POCDMT000040ClinicalDocument1 clinicalDocument,
             String inv168) throws EcrCdaXmlException {
         if (patientComponentCounter < 0 ) {
 
-            if (clinicalDocument.getComponent() == null) {
-                clinicalDocument.addNewComponent();
-            }
-
-            if (!clinicalDocument.getComponent().isSetStructuredBody()) {
-                clinicalDocument.getComponent().addNewStructuredBody();
-            }
+            clinicalDocument =  mapPatientStructureComponentCompCheck(clinicalDocument);
 
             if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
                 clinicalDocument.getComponent().getStructuredBody().addNewComponent();

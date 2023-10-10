@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.nbs.ecr.service.helper;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.model.CdaPlaceMapper;
+import gov.cdc.dataingestion.nbs.ecr.model.place.PlaceField;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaPlaceMappingHelper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
@@ -30,61 +31,12 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
             CdaPlaceMapper mapper = new CdaPlaceMapper();
             if(input.getMsgPlaces() != null && !input.getMsgPlaces().isEmpty()) {
                 for(int i = 0; i < input.getMsgPlaces().size(); i++) {
-
-                    if (section == null) {
-                        section = POCDMT000040Section.Factory.newInstance();
-                        section.addNewCode();
-                        section.addNewTitle();
-                    }
-
-
-                    if (performerComponentCounter < 1) {
-                        componentCounter++;
-                        performerComponentCounter = componentCounter;
-
-                        section.getCode().setCode(CODE);
-                        section.getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
-                        section.getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
-                        section.getCode().setDisplayName(CODE_DISPLAY_NAME);
-                        section.getTitle().set(cdaMapHelper.mapToStringData(CLINICAL_TITLE));
-                    }
-
-                    int c = 0;
-                    if ( section.getEntryArray().length == 0) {
-                        section.addNewEntry();
-                        c = 0;
-                    }
-                    else {
-                        c = section.getEntryArray().length;
-                        section.addNewEntry();
-                    }
-
-                    performerSectionCounter = c; // NOSONAR
-
-
-                    if (section.getEntryArray(c).getAct() == null) {
-                        section.getEntryArray(c).addNewAct();
-                        section.getEntryArray(c).getAct().addNewParticipant();
-                    } else {
-                        section.getEntryArray(c).getAct().addNewParticipant();
-                    }
-
-                    POCDMT000040Participant2 out = section.getEntryArray(c).getAct().getParticipantArray(0);
-                    POCDMT000040Participant2 output = mapToPlace(input.getMsgPlaces().get(i), out);
-                    section.getEntryArray(c).getAct().setParticipantArray(0, output);
-
-                    section.getEntryArray(c).setTypeCode(XActRelationshipEntry.COMP);
-                    section.getEntryArray(c).getAct().setClassCode(XActClassDocumentEntryAct.ACT);
-                    section.getEntryArray(c).getAct().setMoodCode(XDocumentActMood.EVN);
-
-                    if (section.getEntryArray(c).getAct().getCode() == null){
-                        section.getEntryArray(c).getAct().addNewCode();
-                    }
-                    section.getEntryArray(c).getAct().getCode().setCode("PLC");
-                    section.getEntryArray(c).getAct().getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
-                    section.getEntryArray(c).getAct().getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
-                    section.getEntryArray(c).getAct().getCode().setDisplayName(ACT_CODE_DISPLAY_NAME);
-
+                    section = mapToPlaceTopFieldCheck( input,
+                             section,
+                     performerComponentCounter,
+                     performerSectionCounter,
+                     componentCounter,
+                     i);
                 }
             }
 
@@ -99,8 +51,69 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
 
     }
 
+    private POCDMT000040Section mapToPlaceTopFieldCheck(EcrSelectedRecord input,
+                                         POCDMT000040Section section,
+                                         int performerComponentCounter,
+                                         int performerSectionCounter,
+                                         int componentCounter,
+                                         int i) throws EcrCdaXmlException {
+        if (section == null) {
+            section = POCDMT000040Section.Factory.newInstance();
+            section.addNewCode();
+            section.addNewTitle();
+        }
 
-    private POCDMT000040Participant2 mapToPlace(EcrMsgPlaceDto in, POCDMT000040Participant2 out) throws XmlException, EcrCdaXmlException {
+        if (performerComponentCounter < 1) {
+            componentCounter++;
+            performerComponentCounter = componentCounter;
+
+            section.getCode().setCode(CODE);
+            section.getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
+            section.getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
+            section.getCode().setDisplayName(CODE_DISPLAY_NAME);
+            section.getTitle().set(cdaMapHelper.mapToStringData(CLINICAL_TITLE));
+        }
+
+        int c = 0;
+        if ( section.getEntryArray().length == 0) {
+            section.addNewEntry();
+            c = 0;
+        }
+        else {
+            c = section.getEntryArray().length;
+            section.addNewEntry();
+        }
+
+        performerSectionCounter = c; // NOSONAR
+
+
+        if (section.getEntryArray(c).getAct() == null) {
+            section.getEntryArray(c).addNewAct();
+            section.getEntryArray(c).getAct().addNewParticipant();
+        } else {
+            section.getEntryArray(c).getAct().addNewParticipant();
+        }
+
+        POCDMT000040Participant2 out = section.getEntryArray(c).getAct().getParticipantArray(0);
+        POCDMT000040Participant2 output = mapToPlace(input.getMsgPlaces().get(i), out);
+        section.getEntryArray(c).getAct().setParticipantArray(0, output);
+
+        section.getEntryArray(c).setTypeCode(XActRelationshipEntry.COMP);
+        section.getEntryArray(c).getAct().setClassCode(XActClassDocumentEntryAct.ACT);
+        section.getEntryArray(c).getAct().setMoodCode(XDocumentActMood.EVN);
+
+        if (section.getEntryArray(c).getAct().getCode() == null){
+            section.getEntryArray(c).getAct().addNewCode();
+        }
+        section.getEntryArray(c).getAct().getCode().setCode("PLC");
+        section.getEntryArray(c).getAct().getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
+        section.getEntryArray(c).getAct().getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
+        section.getEntryArray(c).getAct().getCode().setDisplayName(ACT_CODE_DISPLAY_NAME);
+        return section;
+    }
+
+
+    private POCDMT000040Participant2 mapToPlace(EcrMsgPlaceDto in, POCDMT000040Participant2 out) throws EcrCdaXmlException {
         String state="";
         String streetAddress1="";
         String streetAddress2="";
@@ -114,6 +127,7 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
         String workEmail = "";
         String workCountryCode="";
         String placeComments="";
+
         String placeAddressComments="";
         int teleCounter=0;
         String teleAsOfDate="";
@@ -122,131 +136,100 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
 
         for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
             String name = entry.getKey();
-            String value = null;
-            if (entry.getValue() != null) {
-                value = entry.getValue().toString();
-            }
+            String value = this.cdaMapHelper.getValueFromMap(entry);
 
-            if(name.equals("plaLocalId") && value != null && !in.getPlaLocalId().isEmpty()){
-                if (out.getParticipantRole() == null) {
-                    out.addNewParticipantRole().addNewId();
-                } else {
-                    out.getParticipantRole().addNewId();
-                }
+            var param = new PlaceField();
+            param.setState(state);
+            param.setStreetAddress1(streetAddress1);
+            param.setStreetAddress2(streetAddress2);
+            param.setCity(city);
+            param.setCounty(county);
+            param.setCountry(country);
+            param.setZip(zip);
+            param.setWorkPhone(workPhone);
+            param.setWorkExtn(workExtn);
+            param.setWorkURL(workURL);
+            param.setWorkEmail(workEmail);
+            param.setWorkCountryCode(workCountryCode);
+            param.setPlaceComments(placeComments);
+            param.setPlaceAddressComments(placeAddressComments);
+            param.setTeleAsOfDate(teleAsOfDate);
+            param.setPostalAsOfDate(postalAsOfDate);
+            param.setCensusTract(censusTract);
+            param.setOut(out);
+            var placeField = mapToPlaceFieldCheckP1( in,
+                     out,
+                     name,
+                     value,
+                     param);
 
-                out.setTypeCode("PRF");
-                out.getParticipantRole().getIdArray(0).setRoot(ID_ARR_ROOT);
-                out.getParticipantRole().getIdArray(0).setExtension(in.getPlaLocalId());
-                out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
-            }
-            if (name.equals("plaNameTxt") && value != null && !in.getPlaNameTxt().isEmpty()){
-                if (out.getParticipantRole() == null) {
-                    out.addNewParticipantRole().addNewPlayingEntity().addNewName();
-                } else {
-                    out.getParticipantRole().addNewPlayingEntity().addNewName();
-                }
-
-                PN val = PN.Factory.newInstance();
-
-                XmlCursor cursor = val.newCursor();
-                cursor.setTextValue(CDATA + in.getPlaNameTxt() + CDATA);
-                cursor.dispose();
-
-                out.getParticipantRole().getPlayingEntity().addNewName();
-                out.getParticipantRole().getPlayingEntity().setNameArray(0, val);
-            }
-            if (name.equals("plaAddrStreetAddr1Txt")&& value != null && !in.getPlaAddrStreetAddr1Txt().isEmpty()){
-                streetAddress1= in.getPlaAddrStreetAddr1Txt();
-            }
-            if (name.equals("plaAddrStreetAddr2Txt")&& value != null && !in.getPlaAddrStreetAddr2Txt().isEmpty()){
-                streetAddress2 =in.getPlaAddrStreetAddr2Txt();
-            }
-            if (name.equals("plaAddrCityTxt")&& value != null && !in.getPlaAddrCityTxt().isEmpty()){
-                city= in.getPlaAddrCityTxt();
-            }
-            if (name.equals("plaAddrCountyCd")&& value != null && !in.getPlaAddrCountyCd().isEmpty()){
-                county= in.getPlaAddrCountyCd();
-            }
-            if (name.equals("plaAddrStateCd")&& value != null && !in.getPlaAddrStateCd().isEmpty()){
-                state= in.getPlaAddrStateCd();
-            }
-            if (name.equals("plaAddrZipCodeTxt")&& value != null && !in.getPlaAddrZipCodeTxt().isEmpty()){
-                zip = in.getPlaAddrZipCodeTxt();
-            }
-            if (name.equals("plaAddrCountryCd")&& value != null && !in.getPlaAddrCountryCd().isEmpty()){
-                country=in.getPlaAddrCountryCd();
-            }
-            if (name.equals("plaPhoneNbrTxt") && value != null&& !in.getPlaPhoneNbrTxt().isEmpty()){
-                workPhone=in.getPlaPhoneNbrTxt();
-            }
-            if (name.equals("plaAddrAsOfDt") && value != null&& in.getPlaAddrAsOfDt() != null){
-                postalAsOfDate=in.getPlaAddrAsOfDt().toString();
-            }
-            if (name.equals("plaCensusTractTxt") && value != null&& !in.getPlaCensusTractTxt().isEmpty()){
-                censusTract=in.getPlaCensusTractTxt();
-            }
-            if (name.equals("plaPhoneAsOfDt") && value != null&& in.getPlaPhoneAsOfDt() != null ){
-                teleAsOfDate=in.getPlaPhoneAsOfDt().toString();
-            }
-            if (name.equals("plaPhoneExtensionTxt") && value != null&& !in.getPlaPhoneExtensionTxt().isEmpty()){
-                workExtn= in.getPlaPhoneExtensionTxt();
-            }
-            if (name.equals("plaCommentTxt") && value != null&& !in.getPlaCommentTxt().isEmpty()){
-                placeAddressComments= in.getPlaCommentTxt();
-            }
-            if (name.equals("plaPhoneCountryCodeTxt") && value != null&& !in.getPlaPhoneCountryCodeTxt().isEmpty()){
-                workCountryCode= in.getPlaPhoneCountryCodeTxt();
-            }
-            if (name.equals("plaEmailAddressTxt") && value != null&& !in.getPlaEmailAddressTxt().isEmpty()){
-                workEmail= in.getPlaEmailAddressTxt();
-            }
-            if (name.equals("plaUrlAddressTxt") && value != null&& !in.getPlaUrlAddressTxt().isEmpty()){
-                workURL= in.getPlaUrlAddressTxt();
-            }
-            if (name.equals("plaPhoneCommentTxt") && value != null&& !in.getPlaPhoneCommentTxt().isEmpty()){
-                placeComments= in.getPlaPhoneCommentTxt();
-            }
-            if (name.equals("plaTypeCd") && value != null&& !in.getPlaTypeCd().isEmpty()){
-                if (out.getParticipantRole() == null) {
-                    out.addNewParticipantRole().addNewCode();
-                } else {
-                    out.getParticipantRole().addNewCode();
-                }
-
-                String questionCode= this.cdaMapHelper.mapToQuestionId("PLA_TYPE_CD");
-                out.getParticipantRole().addNewCode();
-                out.getParticipantRole().setCode(this.cdaMapHelper.mapToCEAnswerType(in.getPlaTypeCd(), questionCode));
-            }
-            if (name.equals("plaCommentTxt") && value != null&& !in.getPlaCommentTxt().isEmpty()){
-                if (out.getParticipantRole() == null) {
-                    out.addNewParticipantRole().addNewPlayingEntity().addNewDesc();
-                } else {
-                    out.getParticipantRole().addNewPlayingEntity().addNewDesc();
-                }
-
-                out.getParticipantRole().getPlayingEntity().getDesc().set(cdaMapHelper.mapToCData(in.getPlaCommentTxt()));
-            }
-
-            if (name.equals("plaIdQuickCode") && value != null&& !in.getPlaIdQuickCode().isEmpty()){
-
-                int c = 0;
-                if (out.getParticipantRole() == null) {
-                    out.addNewParticipantRole().addNewId();
-                } else {
-                    if (out.getParticipantRole().getIdArray().length > 0) {
-                        c = out.getParticipantRole().getIdArray().length;
-                    }
-                    out.addNewParticipantRole().addNewId();
-                }
-
-                out.getParticipantRole().getIdArray(c).setRoot(ID_ARR_ROOT);
-                out.getParticipantRole().getIdArray(c).setExtension(in.getPlaIdQuickCode());
-                out.getParticipantRole().getIdArray(c).setAssigningAuthorityName("LR_QEC");
-            }
-
+            state = placeField.getState();
+            streetAddress1 = placeField.getStreetAddress1();
+            streetAddress2 = placeField.getStreetAddress2();
+            city = placeField.getCity();
+            county = placeField.getCounty();
+            country = placeField.getCountry();
+            zip = placeField.getZip();
+            workPhone = placeField.getWorkPhone();
+            workExtn = placeField.getWorkExtn();
+            workURL = placeField.getWorkURL();
+            workEmail = placeField.getWorkEmail();
+            workCountryCode = placeField.getWorkCountryCode();
+            placeComments = placeField.getPlaceComments();
+            placeAddressComments = placeField.getPlaceAddressComments();
+            teleAsOfDate = placeField.getTeleAsOfDate();
+            postalAsOfDate = placeField.getPostalAsOfDate();
+            censusTract = placeField.getCensusTract();
+            out = placeField.getOut();
         }
 
+        PlaceField param2 = new PlaceField();
+        param2.setState(state);
+        param2.setStreetAddress1(streetAddress1);
+        param2.setStreetAddress2(streetAddress2);
+        param2.setCity(city);
+        param2.setCounty(county);
+        param2.setCountry(country);
+        param2.setZip(zip);
+        param2.setWorkPhone(workPhone);
+        param2.setWorkExtn(workExtn);
+        param2.setWorkURL(workURL);
+        param2.setWorkEmail(workEmail);
+        param2.setWorkCountryCode(workCountryCode);
+        param2.setPlaceAddressComments(placeAddressComments);
+        param2.setTeleAsOfDate(teleAsOfDate);
+        param2.setPostalAsOfDate(postalAsOfDate);
+        param2.setCensusTract(censusTract);
+        param2.setOut(out);
+        var field2 = mapToPlaceFieldCheckP2(
+                 out,
+                 param2,
+                teleCounter);
+        out  = field2.getOut();
 
+        return out;
+    }
+
+    private PlaceField mapToPlaceFieldCheckP2(
+                                        POCDMT000040Participant2 out,
+                                        PlaceField param,
+                                        int teleCounter) throws EcrCdaXmlException {
+        String state= param.getState();
+        String streetAddress1= param.getStreetAddress1();
+        String streetAddress2= param.getStreetAddress2();
+        String city = param.getCity();
+        String county = param.getCounty();
+        String country = param.getCountry();
+        String zip = param.getZip();
+        String workPhone= param.getWorkPhone();
+        String workExtn = param.getWorkExtn();
+        String workURL = param.getWorkURL();
+        String workEmail = param.getWorkEmail();
+        String workCountryCode= param.getWorkCountryCode();
+        String placeAddressComments= param.getPlaceAddressComments();
+        String teleAsOfDate=param.getTeleAsOfDate();
+        String postalAsOfDate= param.getPostalAsOfDate();
+        String censusTract= param.getCensusTract();
 
         int isAddressPopulated= 0;
         if(!streetAddress1.isEmpty() ){
@@ -381,7 +364,6 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
             out.getParticipantRole().getAddrArray(0).setAdditionalLocatorArray(0,  AdxpAdditionalLocator.Factory.newInstance());
             out.getParticipantRole().getAddrArray(0).getAdditionalLocatorArray(0).set(cdaMapHelper.mapToCData(placeAddressComments));
         }
-
         if(!workPhone.isEmpty()){
             if (out.getParticipantRole() == null) {
                 out.addNewParticipantRole().addNewTelecom();
@@ -440,8 +422,170 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
             }
             teleCounter=teleCounter+1;
         }
-        return out;
+
+        param.setOut(out);
+        return param;
     }
 
+    private PlaceField mapToPlaceFieldCheckP1(EcrMsgPlaceDto in,
+                                        POCDMT000040Participant2 out,
+                                        String name,
+                                        String value,
+                                        PlaceField param) throws EcrCdaXmlException {
+        String state= param.getState();
+        String streetAddress1= param.getStreetAddress1();
+        String streetAddress2= param.getStreetAddress2();
+        String city = param.getCity();
+        String county = param.getCounty();
+        String country = param.getCountry();
+        String zip = param.getZip();
+        String workPhone= param.getWorkPhone();
+        String workExtn = param.getWorkExtn();
+        String workURL = param.getWorkURL();
+        String workEmail = param.getWorkEmail();
+        String workCountryCode= param.getWorkCountryCode();
+        String placeComments= param.getPlaceComments();
+        String placeAddressComments= param.getPlaceAddressComments();
+        String teleAsOfDate=param.getTeleAsOfDate();
+        String postalAsOfDate= param.getPostalAsOfDate();
+        String censusTract= param.getCensusTract();
+
+        if(name.equals("plaLocalId") && value != null && !in.getPlaLocalId().isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewId();
+            } else {
+                out.getParticipantRole().addNewId();
+            }
+
+            out.setTypeCode("PRF");
+            out.getParticipantRole().getIdArray(0).setRoot(ID_ARR_ROOT);
+            out.getParticipantRole().getIdArray(0).setExtension(in.getPlaLocalId());
+            out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
+        }
+        if (name.equals("plaNameTxt") && value != null && !in.getPlaNameTxt().isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewPlayingEntity().addNewName();
+            } else {
+                out.getParticipantRole().addNewPlayingEntity().addNewName();
+            }
+
+            PN val = PN.Factory.newInstance();
+
+            XmlCursor cursor = val.newCursor();
+            cursor.setTextValue(CDATA + in.getPlaNameTxt() + CDATA);
+            cursor.dispose();
+
+            out.getParticipantRole().getPlayingEntity().addNewName();
+            out.getParticipantRole().getPlayingEntity().setNameArray(0, val);
+        }
+        if (name.equals("plaAddrStreetAddr1Txt")&& value != null && !in.getPlaAddrStreetAddr1Txt().isEmpty()){
+            streetAddress1= in.getPlaAddrStreetAddr1Txt();
+        }
+        if (name.equals("plaAddrStreetAddr2Txt")&& value != null && !in.getPlaAddrStreetAddr2Txt().isEmpty()){
+            streetAddress2 =in.getPlaAddrStreetAddr2Txt();
+        }
+        if (name.equals("plaAddrCityTxt")&& value != null && !in.getPlaAddrCityTxt().isEmpty()){
+            city= in.getPlaAddrCityTxt();
+        }
+        if (name.equals("plaAddrCountyCd")&& value != null && !in.getPlaAddrCountyCd().isEmpty()){
+            county= in.getPlaAddrCountyCd();
+        }
+        if (name.equals("plaAddrStateCd")&& value != null && !in.getPlaAddrStateCd().isEmpty()){
+            state= in.getPlaAddrStateCd();
+        }
+        if (name.equals("plaAddrZipCodeTxt")&& value != null && !in.getPlaAddrZipCodeTxt().isEmpty()){
+            zip = in.getPlaAddrZipCodeTxt();
+        }
+        if (name.equals("plaAddrCountryCd")&& value != null && !in.getPlaAddrCountryCd().isEmpty()){
+            country=in.getPlaAddrCountryCd();
+        }
+        if (name.equals("plaPhoneNbrTxt") && value != null&& !in.getPlaPhoneNbrTxt().isEmpty()){
+            workPhone=in.getPlaPhoneNbrTxt();
+        }
+        if (name.equals("plaAddrAsOfDt") && value != null && in.getPlaAddrAsOfDt() != null){
+            postalAsOfDate=in.getPlaAddrAsOfDt().toString();
+        }
+        if (name.equals("plaCensusTractTxt") && value != null&& !in.getPlaCensusTractTxt().isEmpty()){
+            censusTract=in.getPlaCensusTractTxt();
+        }
+        if (name.equals("plaPhoneAsOfDt") && value != null&& in.getPlaPhoneAsOfDt() != null ){
+            teleAsOfDate=in.getPlaPhoneAsOfDt().toString();
+        }
+        if (name.equals("plaPhoneExtensionTxt") && value != null&& !in.getPlaPhoneExtensionTxt().isEmpty()){
+            workExtn= in.getPlaPhoneExtensionTxt();
+        }
+        if (name.equals("plaCommentTxt") && value != null&& !in.getPlaCommentTxt().isEmpty()){
+            placeAddressComments= in.getPlaCommentTxt();
+        }
+        if (name.equals("plaPhoneCountryCodeTxt") && value != null&& !in.getPlaPhoneCountryCodeTxt().isEmpty()){
+            workCountryCode= in.getPlaPhoneCountryCodeTxt();
+        }
+        if (name.equals("plaEmailAddressTxt") && value != null&& !in.getPlaEmailAddressTxt().isEmpty()){
+            workEmail= in.getPlaEmailAddressTxt();
+        }
+        if (name.equals("plaUrlAddressTxt") && value != null&& !in.getPlaUrlAddressTxt().isEmpty()){
+            workURL= in.getPlaUrlAddressTxt();
+        }
+        if (name.equals("plaPhoneCommentTxt") && value != null&& !in.getPlaPhoneCommentTxt().isEmpty()){
+            placeComments= in.getPlaPhoneCommentTxt();
+        }
+        if (name.equals("plaTypeCd") && value != null&& !in.getPlaTypeCd().isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewCode();
+            } else {
+                out.getParticipantRole().addNewCode();
+            }
+
+            String questionCode= this.cdaMapHelper.mapToQuestionId("PLA_TYPE_CD");
+            out.getParticipantRole().addNewCode();
+            out.getParticipantRole().setCode(this.cdaMapHelper.mapToCEAnswerType(in.getPlaTypeCd(), questionCode));
+        }
+        if (name.equals("plaCommentTxt") && value != null&& !in.getPlaCommentTxt().isEmpty()){
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewPlayingEntity().addNewDesc();
+            } else {
+                out.getParticipantRole().addNewPlayingEntity().addNewDesc();
+            }
+
+            out.getParticipantRole().getPlayingEntity().getDesc().set(cdaMapHelper.mapToCData(in.getPlaCommentTxt()));
+        }
+        if (name.equals("plaIdQuickCode") && value != null&& !in.getPlaIdQuickCode().isEmpty()){
+
+            int c = 0;
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewId();
+            } else {
+                if (out.getParticipantRole().getIdArray().length > 0) {
+                    c = out.getParticipantRole().getIdArray().length;
+                }
+                out.addNewParticipantRole().addNewId();
+            }
+
+            out.getParticipantRole().getIdArray(c).setRoot(ID_ARR_ROOT);
+            out.getParticipantRole().getIdArray(c).setExtension(in.getPlaIdQuickCode());
+            out.getParticipantRole().getIdArray(c).setAssigningAuthorityName("LR_QEC");
+        }
+
+        param.setState(state);
+        param.setStreetAddress1(streetAddress1);
+        param.setStreetAddress2(streetAddress2);
+        param.setCity(city);
+        param.setCounty(county);
+        param.setCountry(country);
+        param.setZip(zip);
+        param.setWorkPhone(workPhone);
+        param.setWorkExtn(workExtn);
+        param.setWorkURL(workURL);
+        param.setWorkEmail(workEmail);
+        param.setWorkCountryCode(workCountryCode);
+        param.setPlaceComments(placeComments);
+        param.setPlaceAddressComments(placeAddressComments);
+        param.setTeleAsOfDate(teleAsOfDate);
+        param.setPostalAsOfDate(postalAsOfDate);
+        param.setCensusTract(censusTract);
+        param.setOut(out);
+
+        return param;
+    }
 
 }
