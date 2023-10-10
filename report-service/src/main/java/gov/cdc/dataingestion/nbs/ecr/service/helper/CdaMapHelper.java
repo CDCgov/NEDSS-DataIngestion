@@ -1003,7 +1003,13 @@ public class CdaMapHelper implements ICdaMapHelper {
         return out;
     }
 
-
+    public String getValueFromMap(Map.Entry<String, Object> entry) {
+        String value = null;
+        if (entry.getValue() != null) {
+            value = entry.getValue().toString();
+        }
+        return value;
+    }
 
 
 

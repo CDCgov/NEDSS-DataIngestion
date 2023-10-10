@@ -143,7 +143,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         for (Map.Entry<String, Object> entry : caseDto.getMsgCase().getDataMap().entrySet()) {
             String name = entry.getKey();
 
-            String value = getValueFromMap(entry);
+            String value = this.cdaMapHelper.getValueFromMap(entry);
 
             if (checkInvalidField(name, caseDto)) {
                 // do nothing
@@ -155,47 +155,20 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                 }
 
                 if (repeats > 1) {
-                    int c = 0;
-                    if (output.getComponentArray(componentCaseCounter).getSection().getEntryArray().length == 0) {
-                        output.getComponentArray(componentCaseCounter).getSection().addNewEntry();
-                    } else {
-                        c = output.getComponentArray(componentCaseCounter).getSection().getEntryArray().length;
-                        output.getComponentArray(componentCaseCounter).getSection().addNewEntry();
-                    }
+                    var repeatModel = mapCaseFieldCheckHasRepeat( output,
+                     componentCaseCounter,
+                     value,
+                     questionId,
+                     repeats);
 
-                    if (output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation() == null) {
-                        output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).addNewObservation();
-                    }
-
-
-                    var element = output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation();
-                    var obs = mapTripletToObservation(
-                            value,
-                            questionId,
-                            element
-                    );
-                    output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).setObservation(obs);
-                    repeats = 0;
+                    output = repeatModel.getOutput();
+                    repeats = repeatModel.getRepeats();
                 }
                 else {
-                    int c = 0;
-                    if (output.getComponentArray(componentCaseCounter).getSection().getEntryArray().length == 0) {
-                        output.getComponentArray(componentCaseCounter).getSection().addNewEntry();
-                    } else {
-                        c = output.getComponentArray(componentCaseCounter).getSection().getEntryArray().length;
-                        output.getComponentArray(componentCaseCounter).getSection().addNewEntry();
-                    }
-
-                    if (output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation() == null) {
-                        output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).addNewObservation();
-                    }
-                    var element = output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation();
-                    POCDMT000040Observation obs = this.cdaMapHelper.mapToObservation(
-                            questionId,
-                            value,
-                            element
-                    );
-                    output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).setObservation(obs);
+                    output = mapCaseFieldCheckHasNoRepeat( output,
+                     componentCaseCounter,
+                     value,
+                     questionId);
                 }
                 counter++;
             }
@@ -206,6 +179,63 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         caseField.setComponentCaseCounter(componentCaseCounter);
         caseField.setCounter(counter);
         return caseField;
+    }
+
+    private POCDMT000040StructuredBody mapCaseFieldCheckHasNoRepeat(POCDMT000040StructuredBody output,
+                                              int componentCaseCounter,
+                                              String value,
+                                              String questionId) throws EcrCdaXmlException {
+        int c = 0;
+        if (output.getComponentArray(componentCaseCounter).getSection().getEntryArray().length == 0) {
+            output.getComponentArray(componentCaseCounter).getSection().addNewEntry();
+        } else {
+            c = output.getComponentArray(componentCaseCounter).getSection().getEntryArray().length;
+            output.getComponentArray(componentCaseCounter).getSection().addNewEntry();
+        }
+
+        if (output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation() == null) {
+            output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).addNewObservation();
+        }
+        var element = output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation();
+        POCDMT000040Observation obs = this.cdaMapHelper.mapToObservation(
+                questionId,
+                value,
+                element
+        );
+        output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).setObservation(obs);
+        return output;
+    }
+    private CdaCaseFieldRepeat mapCaseFieldCheckHasRepeat(POCDMT000040StructuredBody output,
+                                       int componentCaseCounter,
+                                       String value,
+                                       String questionId,
+                                       int repeats) {
+        int c = 0;
+        if (output.getComponentArray(componentCaseCounter).getSection().getEntryArray().length == 0) {
+            output.getComponentArray(componentCaseCounter).getSection().addNewEntry();
+        } else {
+            c = output.getComponentArray(componentCaseCounter).getSection().getEntryArray().length;
+            output.getComponentArray(componentCaseCounter).getSection().addNewEntry();
+        }
+
+        if (output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation() == null) {
+            output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).addNewObservation();
+        }
+
+
+        var element = output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation();
+        var obs = mapTripletToObservation(
+                value,
+                questionId,
+                element
+        );
+        output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).setObservation(obs);
+        repeats = 0;
+
+        CdaCaseFieldRepeat model = new CdaCaseFieldRepeat();
+        model.setOutput(output);
+        model.setRepeats(repeats);
+        return model;
     }
 
     private CdaCaseParticipantRepeat mapCaseParticipantRepeat(EcrSelectedCase caseDto, POCDMT000040StructuredBody output,
@@ -366,31 +396,32 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
     }
 
 
-    private MessageAnswer mapToMessageAnswer(EcrMsgCaseAnswerDto in, String questionSeq, int counter, POCDMT000040Component3 out) throws EcrCdaXmlException {
+    private MessageAnswer mapToMessageAnswer(EcrMsgCaseAnswerDto in, String questionSeq,
+                                             int counter, POCDMT000040Component3 out) throws EcrCdaXmlException {
         String dataType="";
         int sequenceNbr = 0;
 
         MessageAnswer model = new MessageAnswer();
         for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
             String name = entry.getKey();
-            String value = getValueFromMap(entry);
+            String value = this.cdaMapHelper.getValueFromMap(entry);
 
-            if (name.equals(COL_DATA_TYPE) && !in.getDataType().isEmpty()) {
-                dataType = in.getDataType();
-            }
-            else if (name.equals(COL_SEQ_NBR) && !in.getSeqNbr().isEmpty()) {
-                sequenceNbr = out.getSection().getEntryArray(counter).getObservation().getValueArray().length;
-            }
-            else if (dataType.equalsIgnoreCase(DATA_TYPE_CODE) || dataType.equalsIgnoreCase(COUNTY)) {
-                out = setMessageAnswerArrayValue(name, in, sequenceNbr, counter, out);
-            }
+            CdaCaseMsgAnswer param = new CdaCaseMsgAnswer();
+            param.setDataType(dataType);
+            param.setSequenceNbr(sequenceNbr);
+            param.setCounter(counter);
+            var caseMsgAnsModel = mapToMessageAnswerFieldCheck(name,
+                     value,
+                     in,
+                     out,
+                     param
+            );
 
-            else if (dataType.equalsIgnoreCase("TEXT") || dataType.equalsIgnoreCase(DATA_TYPE_NUMERIC)) {
-                out = setMessageAnswerAnsText(name, in, out, counter);
-            }
-            else if (dataType.equalsIgnoreCase("DATE")) {
-                out = setMessageAnswerDate(name, in, out, counter, value);
-            }
+            out = caseMsgAnsModel.getOut();
+            dataType = caseMsgAnsModel.getDataType();
+            sequenceNbr = caseMsgAnsModel.getSequenceNbr();
+            counter = caseMsgAnsModel.getCounter();
+
 
             if (!in.getQuestionIdentifier().isEmpty()) {
                 var caseAnsQuesIdentifier = setMessageAnswerQuestionIdentifier(in, out,
@@ -418,13 +449,33 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         return model;
     }
 
-    private String getValueFromMap(Map.Entry<String, Object> entry) {
-        String value = null;
-        if (entry.getValue() != null) {
-            value = entry.getValue().toString();
+    private CdaCaseMsgAnswer mapToMessageAnswerFieldCheck(String name,
+                                         String value,
+                                         EcrMsgCaseAnswerDto in,
+                                         POCDMT000040Component3 out,
+                                         CdaCaseMsgAnswer param
+                                         ) throws EcrCdaXmlException {
+        if (name.equals(COL_DATA_TYPE) && !in.getDataType().isEmpty()) {
+            param.setDataType(in.getDataType());
         }
-        return value;
+        else if (name.equals(COL_SEQ_NBR) && !in.getSeqNbr().isEmpty()) {
+            param.setSequenceNbr(out.getSection().getEntryArray(param.getCounter()).getObservation().getValueArray().length);
+        }
+        else if (param.getDataType().equalsIgnoreCase(DATA_TYPE_CODE) || param.getDataType().equalsIgnoreCase(COUNTY)) {
+            out = setMessageAnswerArrayValue(name, in, param.getSequenceNbr(), param.getCounter(), out);
+        }
+
+        else if (param.getDataType().equalsIgnoreCase("TEXT") || param.getDataType().equalsIgnoreCase(DATA_TYPE_NUMERIC)) {
+            out = setMessageAnswerAnsText(name, in, out, param.getCounter());
+        }
+        else if (param.getDataType().equalsIgnoreCase("DATE")) {
+            out = setMessageAnswerDate(name, in, out, param.getCounter(), value);
+        }
+
+        param.setOut(out);
+        return param;
     }
+
     private CdaCaseAnsQuesIdentifier setMessageAnswerQuestionIdentifier(EcrMsgCaseAnswerDto in, POCDMT000040Component3 out,
                                                     String questionSeq, int counter,
                                                     int sequenceNbr) {

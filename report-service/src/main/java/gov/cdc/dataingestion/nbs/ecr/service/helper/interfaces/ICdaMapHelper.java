@@ -10,6 +10,7 @@ import gov.cdc.nedss.phdc.cda.*;
 import org.apache.xmlbeans.XmlObject;
 
 import java.text.ParseException;
+import java.util.Map;
 
 public interface ICdaMapHelper {
     XmlObject mapToCData(String data) throws EcrCdaXmlException;
@@ -38,4 +39,6 @@ public interface ICdaMapHelper {
     POCDMT000040Participant2 mapToORG(EcrMsgOrganizationDto in,
                                       POCDMT000040Participant2 out)
             throws EcrCdaXmlException;
+
+    String getValueFromMap(Map.Entry<String, Object> entry);
 }
