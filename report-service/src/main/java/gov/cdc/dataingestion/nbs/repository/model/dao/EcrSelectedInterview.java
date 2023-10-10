@@ -14,8 +14,8 @@ import java.util.List;
 @Getter
 @Setter
 public class EcrSelectedInterview {
-    private EcrMsgInterviewDto MsgInterview;
-    private List<EcrMsgInterviewProviderDto> MsgInterviewProviders;
-    private List<EcrMsgInterviewAnswerDto> MsgInterviewAnswers;
-    private List<EcrMsgInterviewAnswerRepeatDto> MsgInterviewAnswerRepeats;
+    private EcrMsgInterviewDto msgInterview;
+    private List<EcrMsgInterviewProviderDto> msgInterviewProviders;
+    private List<EcrMsgInterviewAnswerDto> msgInterviewAnswers;
+    private List<EcrMsgInterviewAnswerRepeatDto> msgInterviewAnswerRepeats;
 }

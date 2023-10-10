@@ -3,7 +3,6 @@ package gov.cdc.dataingestion.nbs.repository.model.dto;
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.share.helper.EcrXmlModelingHelper;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.lang.reflect.Field;

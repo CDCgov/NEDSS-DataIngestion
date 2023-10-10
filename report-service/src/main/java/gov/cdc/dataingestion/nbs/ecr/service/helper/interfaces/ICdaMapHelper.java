@@ -1,7 +1,7 @@
 package gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
-import gov.cdc.dataingestion.nbs.repository.model.dao.LookUp.PhdcAnswerDao;
+import gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgProviderDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcQuestionLookUpDto;

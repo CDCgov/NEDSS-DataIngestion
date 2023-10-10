@@ -6,6 +6,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface IEcrMsgQueryService {
-    EcrSelectedRecord GetSelectedEcrRecord() throws EcrCdaXmlException;
+    EcrSelectedRecord getSelectedEcrRecord() throws EcrCdaXmlException;
     EcrSelectedRecord getSelectedEcrFromJson() throws EcrCdaXmlException;
 }

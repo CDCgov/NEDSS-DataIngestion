@@ -5,7 +5,6 @@ import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.ConstantLookUpDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcAnswerLookUpDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcQuestionLookUpDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.QuestionIdentifierMapDto;
-import org.springframework.stereotype.Service;
 
 public interface ICdaLookUpService {
     ConstantLookUpDto fetchConstantLookUpByCriteriaWithColumn(String column, String value) throws EcrCdaXmlException;

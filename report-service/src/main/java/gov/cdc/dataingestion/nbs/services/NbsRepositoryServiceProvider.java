@@ -1,25 +1,20 @@
 package gov.cdc.dataingestion.nbs.services;
 
-import	gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
-import 	gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
-
-import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
+import gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
+import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import lombok.AllArgsConstructor;
-import 	org.springframework.beans.factory.annotation.Autowired;
-import 	org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import  org.slf4j.Logger;
-import  org.slf4j.LoggerFactory;
-
-import	lombok.NoArgsConstructor;
-
+import java.sql.Timestamp;
 import java.time.Instant;
-import  java.time.ZonedDateTime;
-import  java.time.ZoneOffset;
-import	java.util.Calendar;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Calendar;
 import java.util.Optional;
-import	java.util.TimeZone;
-import	java.sql.Timestamp;
+import java.util.TimeZone;
 
 @Service
 @AllArgsConstructor

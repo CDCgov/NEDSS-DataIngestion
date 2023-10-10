@@ -11,13 +11,13 @@ import java.util.List;
 @Getter
 @Setter
 public class EcrSelectedRecord {
-    private EcrMsgContainerDto MsgContainer;
-    private List<EcrMsgPatientDto> MsgPatients;
-    private List<EcrSelectedCase> MsgCases;
-    private List<EcrMsgXmlAnswerDto> MsgXmlAnswers;
-    private List<EcrMsgProviderDto> MsgProviders;
-    private List<EcrMsgOrganizationDto> MsgOrganizations;
-    private List<EcrMsgPlaceDto> MsgPlaces;
-    private List<EcrSelectedInterview> MsgInterviews;
-    private List<EcrSelectedTreatment> MsgTreatments;
+    private EcrMsgContainerDto msgContainer;
+    private List<EcrMsgPatientDto> msgPatients;
+    private List<EcrSelectedCase> msgCases;
+    private List<EcrMsgXmlAnswerDto> msgXmlAnswers;
+    private List<EcrMsgProviderDto> msgProviders;
+    private List<EcrMsgOrganizationDto> msgOrganizations;
+    private List<EcrMsgPlaceDto> msgPlaces;
+    private List<EcrSelectedInterview> msgInterviews;
+    private List<EcrSelectedTreatment> msgTreatments;
 }

@@ -15,9 +15,9 @@ import java.util.List;
 @Getter
 @Setter
 public class EcrSelectedCase {
-    private EcrMsgCaseDto MsgCase;
-    private List<EcrMsgCaseParticipantDto> MsgCaseParticipants = new ArrayList<>();
-    private List<EcrMsgCaseAnswerDto> MsgCaseAnswers = new ArrayList<>();
-    private List<EcrMsgCaseAnswerRepeatDto> MsgCaseAnswerRepeats = new ArrayList<>();
+    private EcrMsgCaseDto msgCase;
+    private List<EcrMsgCaseParticipantDto> msgCaseParticipants = new ArrayList<>();
+    private List<EcrMsgCaseAnswerDto> msgCaseAnswers = new ArrayList<>();
+    private List<EcrMsgCaseAnswerRepeatDto> msgCaseAnswerRepeats = new ArrayList<>();
 
 }

@@ -130,7 +130,7 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
         return selectedRecord;
     }
 
-    public EcrSelectedRecord GetSelectedEcrRecord() throws EcrCdaXmlException {
+    public EcrSelectedRecord getSelectedEcrRecord() throws EcrCdaXmlException {
         EcrSelectedRecord selectedRecord = null;
         EcrMsgContainerDto msgContainer = this.ecrMsgQueryRepository.fetchMsgContainerForApplicableEcr();
 

@@ -1,10 +1,8 @@
 package gov.cdc.dataingestion.nbs.repository.model.dto;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.lang.reflect.Field;
 import java.sql.Timestamp;
 
 @Getter

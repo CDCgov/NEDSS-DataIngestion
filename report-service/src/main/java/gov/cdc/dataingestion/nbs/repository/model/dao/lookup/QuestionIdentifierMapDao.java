@@ -1,4 +1,4 @@
-package gov.cdc.dataingestion.nbs.repository.model.dao.LookUp;
+package gov.cdc.dataingestion.nbs.repository.model.dao.lookup;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

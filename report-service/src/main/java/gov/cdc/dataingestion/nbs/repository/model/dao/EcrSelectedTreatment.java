@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 public class EcrSelectedTreatment {
-    private EcrMsgTreatmentDto MsgTreatment;
-    private List<EcrMsgTreatmentProviderDto> MsgTreatmentProviders = new ArrayList<>();
-    private List<EcrMsgTreatmentOrganizationDto> MsgTreatmentOrganizations = new ArrayList<>();
+    private EcrMsgTreatmentDto msgTreatment;
+    private List<EcrMsgTreatmentProviderDto> msgTreatmentProviders = new ArrayList<>();
+    private List<EcrMsgTreatmentOrganizationDto> msgTreatmentOrganizations = new ArrayList<>();
 }
