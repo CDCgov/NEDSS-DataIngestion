@@ -959,8 +959,8 @@ public class CdaMapHelper implements ICdaMapHelper {
         else if(name.equals("prvAddrStreetAddr1Txt")) {
             address1 = mapToPSNFieldCheckAndMapAddress1( in,  address1);
         }
-        else if(name.equals("prvAddrStreetAddr2Txt") && in.getPrvAddrStreetAddr2Txt() != null && !in.getPrvAddrStreetAddr2Txt().isEmpty()) {
-            address2 = mapToPSNFieldCheckAndMapAddress2( in, address2);
+        else if(name.equals("prvAddrStreetAddr2Txt")) {
+            address2 = mapToPSNFieldCheckAndMapGenericP1Address2( in,  address2);
         }
         else if(name.equals("prvAddrCityTxt")) {
             city = mapToPSNFieldCheckAndMapCity(in, city);
@@ -976,6 +976,13 @@ public class CdaMapHelper implements ICdaMapHelper {
         param.setCity(city);
         param.setOut(out);
         return param;
+    }
+
+    private String mapToPSNFieldCheckAndMapGenericP1Address2(EcrMsgProviderDto in, String address2) {
+      if(in.getPrvAddrStreetAddr2Txt() != null && !in.getPrvAddrStreetAddr2Txt().isEmpty()) {
+            address2 = mapToPSNFieldCheckAndMapAddress2( in, address2);
+      }
+      return address2;
     }
 
     private String mapToPSNFieldCheckAndMapAddress1(EcrMsgProviderDto in, String address1) {
