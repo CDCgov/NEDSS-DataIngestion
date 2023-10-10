@@ -1278,28 +1278,28 @@ public class CdaMapHelper implements ICdaMapHelper {
             out = mapToORGFieldCheckP1OrgName( in,
                      out);
         }
-        else if(name.equals("orgAddrStreetAddr1Txt") && in.getOrgAddrStreetAddr1Txt() != null && !in.getOrgAddrStreetAddr1Txt().isEmpty()){
+        else if(name.equals("orgAddrStreetAddr1Txt") && mapToORGFieldCheckP1ValidateField(in)){
             streetAddress1= in.getOrgAddrStreetAddr1Txt();
         }
-        else if(name.equals("orgAddrStreetAddr2Txt") && in.getOrgAddrStreetAddr2Txt() != null && !in.getOrgAddrStreetAddr2Txt().isEmpty()){
+        else if(name.equals("orgAddrStreetAddr2Txt") && mapToORGFieldCheckP1ValidateField(in)){
             streetAddress2 =in.getOrgAddrStreetAddr2Txt();
         }
-        else if(name.equals("orgAddrCityTxt") && in.getOrgAddrCityTxt() !=null && !in.getOrgAddrCityTxt().isEmpty()){
+        else if(name.equals("orgAddrCityTxt") && mapToORGFieldCheckP1ValidateField(in)){
             city= in.getOrgAddrCityTxt();
         }
-        else if(name.equals("orgAddrCountyCd") && in.getOrgAddrCountyCd() != null && !in.getOrgAddrCountyCd().isEmpty()){
+        else if(name.equals("orgAddrCountyCd") && mapToORGFieldCheckP1ValidateField(in)){
             county = mapToAddressType( in.getOrgAddrCountyCd(), county);
         }
-        else if (name.equals("orgAddrStateCd") && in.getOrgAddrStateCd() != null &&  !in.getOrgAddrStateCd().isEmpty()){
+        else if (name.equals("orgAddrStateCd") && mapToORGFieldCheckP1ValidateField(in)){
             state= mapToAddressType( in.getOrgAddrStateCd(), state);
         }
-        else if(name.equals("orgAddrZipCodeTxt") && in.getOrgAddrZipCodeTxt() != null && !in.getOrgAddrZipCodeTxt().isEmpty()){
+        else if(name.equals("orgAddrZipCodeTxt") && mapToORGFieldCheckP1ValidateField(in)){
             zip = in.getOrgAddrZipCodeTxt();
         }
-        else if(name.equals("orgAddrCountryCd") && in.getOrgAddrCountryCd() != null && !in.getOrgAddrCountryCd().isEmpty()){
+        else if(name.equals("orgAddrCountryCd") && mapToORGFieldCheckP1ValidateField(in)){
             country = mapToAddressType( in.getOrgAddrCountryCd(), country);
         }
-        else if(name.equals("orgPhoneNbrTxt") && in.getOrgPhoneNbrTxt() != null && !in.getOrgPhoneNbrTxt().isEmpty()){
+        else if(name.equals("orgPhoneNbrTxt") && mapToORGFieldCheckP1ValidateField(in)){
             phone=in.getOrgPhoneNbrTxt();
         }
         else if (name.equals("orgPhoneExtensionTxt") && in.getOrgPhoneExtensionTxt() != null)
@@ -1322,6 +1322,22 @@ public class CdaMapHelper implements ICdaMapHelper {
         param.setExtn(extn);
         param.setOut(out);
         return param;
+    }
+
+    private boolean mapToORGFieldCheckP1ValidateField(EcrMsgOrganizationDto in) {
+        if (
+                (in.getOrgAddrStreetAddr1Txt() != null && !in.getOrgAddrStreetAddr1Txt().isEmpty()) ||
+                        ( in.getOrgAddrStreetAddr2Txt() != null && !in.getOrgAddrStreetAddr2Txt().isEmpty()) ||
+                        ( in.getOrgAddrCityTxt() !=null && !in.getOrgAddrCityTxt().isEmpty()) ||
+                        ( in.getOrgAddrCountyCd() != null && !in.getOrgAddrCountyCd().isEmpty()) ||
+                        ( in.getOrgAddrStateCd() != null &&  !in.getOrgAddrStateCd().isEmpty()) ||
+                        ( in.getOrgAddrZipCodeTxt() != null && !in.getOrgAddrZipCodeTxt().isEmpty()) ||
+                        ( in.getOrgAddrCountryCd() != null && !in.getOrgAddrCountryCd().isEmpty()) ||
+                        ( in.getOrgPhoneNbrTxt() != null && !in.getOrgPhoneNbrTxt().isEmpty())
+        ) {
+            return true;
+        }
+        return false;
     }
 
     private POCDMT000040Participant2 mapToORGFieldCheckP1CliaNbr(EcrMsgOrganizationDto in,
