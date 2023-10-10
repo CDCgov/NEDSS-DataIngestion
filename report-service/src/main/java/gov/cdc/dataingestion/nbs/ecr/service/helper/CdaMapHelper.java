@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.nbs.ecr.service.helper;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.model.shares.Observation;
+import gov.cdc.dataingestion.nbs.ecr.model.shares.Org;
 import gov.cdc.dataingestion.nbs.ecr.model.shares.Psn;
 import gov.cdc.dataingestion.nbs.ecr.model.shares.PsnTelephone;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
@@ -891,7 +892,7 @@ public class CdaMapHelper implements ICdaMapHelper {
             out = mapToPSNFieldCheckAndMapQuickCode( in,
                      out);
         }
-        else if( mapToPSNFieldCheckAndMapValidateField("prvEmailAddressTxt", in)) {
+        else if( mapToPSNFieldCheckAndMapValidateField(name, in)) {
             email = in.getPrvEmailAddressTxt();
         }
 
@@ -1032,66 +1033,31 @@ public class CdaMapHelper implements ICdaMapHelper {
 
         for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
             String name = entry.getKey();
-            if(name.equals("orgLocalId") && in.getOrgLocalId()!=null && !in.getOrgLocalId().isEmpty()){
-                if (out.getParticipantRole() == null) {
-                    out.addNewParticipantRole().addNewId();
-                } else {
-                    out.getParticipantRole().addNewId();
-                }
-                out.getParticipantRole().getIdArray(0).setRoot(ID_ARR_ROOT);
-                out.getParticipantRole().getIdArray(0).setExtension(in.getOrgLocalId());
-                out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
-            }
-            else if(name.equals("orgNameTxt") && in.getOrgNameTxt() != null && !in.getOrgNameTxt().isEmpty()){
-                if (out.getParticipantRole() == null) {
-                    out.addNewParticipantRole().addNewPlayingEntity();
-                } else {
-                    out.getParticipantRole().addNewPlayingEntity();
-                }
-                var val = mapToCData(in.getOrgNameTxt());
-                out.getParticipantRole().getPlayingEntity().addNewName();
-                out.getParticipantRole().getPlayingEntity().setNameArray(0,  PN.Factory.newInstance());
-                out.getParticipantRole().getPlayingEntity().getNameArray(0).set(val);
-            }
-            else if(name.equals("orgAddrStreetAddr1Txt") && in.getOrgAddrStreetAddr1Txt() != null && !in.getOrgAddrStreetAddr1Txt().isEmpty()){
-                streetAddress1= in.getOrgAddrStreetAddr1Txt();
-            }
-            else if(name.equals("orgAddrStreetAddr2Txt") && in.getOrgAddrStreetAddr2Txt() != null && !in.getOrgAddrStreetAddr2Txt().isEmpty()){
-                streetAddress2 =in.getOrgAddrStreetAddr2Txt();
-            }
-            else if(name.equals("orgAddrCityTxt") && in.getOrgAddrCityTxt() !=null && !in.getOrgAddrCityTxt().isEmpty()){
-                city= in.getOrgAddrCityTxt();
-            }
-            else if(name.equals("orgAddrCountyCd") && in.getOrgAddrCountyCd() != null && !in.getOrgAddrCountyCd().isEmpty()){
-                county = mapToAddressType( in.getOrgAddrCountyCd(), county);
-            }
-            else if (name.equals("orgAddrStateCd") && in.getOrgAddrStateCd() != null &&  !in.getOrgAddrStateCd().isEmpty()){
-                state= mapToAddressType( in.getOrgAddrStateCd(), state);
-            }
-            else if(name.equals("orgAddrZipCodeTxt") && in.getOrgAddrZipCodeTxt() != null && !in.getOrgAddrZipCodeTxt().isEmpty()){
-                zip = in.getOrgAddrZipCodeTxt();
-            }
-            else if(name.equals("orgAddrCountryCd") && in.getOrgAddrCountryCd() != null && !in.getOrgAddrCountryCd().isEmpty()){
-                country = mapToAddressType( in.getOrgAddrCountryCd(), country);
-            }
-            else if(name.equals("orgPhoneNbrTxt") && in.getOrgPhoneNbrTxt() != null && !in.getOrgPhoneNbrTxt().isEmpty()){
-                phone=in.getOrgPhoneNbrTxt();
-            }
-            else if (name.equals("orgPhoneExtensionTxt") && in.getOrgPhoneExtensionTxt() != null)
-            {
-                extn= in.getOrgPhoneExtensionTxt().toString();
-            }
-            else if(name.equals("orgIdCliaNbrTxt") && in.getOrgIdCliaNbrTxt() != null && !in.getOrgIdCliaNbrTxt().isEmpty()){
-                if (out.getParticipantRole() == null) {
-                    out.addNewParticipantRole().addNewId();
-                } else {
-                    out.getParticipantRole().addNewId();
-                }
 
-                out.getParticipantRole().getIdArray(1).setRoot(ID_ARR_ROOT);
-                out.getParticipantRole().getIdArray(1).setExtension(in.getOrgIdCliaNbrTxt());
-                out.getParticipantRole().getIdArray(1).setAssigningAuthorityName("LR_CLIA");
-            }
+            Org param = new Org();
+            param.setState(state);
+            param.setStreetAddress1(streetAddress1);
+            param.setStreetAddress2(streetAddress2);
+            param.setCity(city);
+            param.setCounty(county);
+            param.setCountry(country);
+            param.setZip(zip);
+            param.setPhone(phone);
+            param.setExtn(extn);
+            var orgModel = mapToORGFieldCheckP1( in,
+                     out,
+                     name,
+                     param);
+             state= orgModel.getState();
+             streetAddress1= orgModel.getStreetAddress1();
+             streetAddress2= orgModel.getStreetAddress2();
+             city = orgModel.getCity();
+             county = orgModel.getCounty();
+             country = orgModel.getCountry();
+             zip = orgModel.getZip();
+             phone= orgModel.getPhone();
+             extn = orgModel.getExtn();
+             out = orgModel.getOut();
         }
 
 
@@ -1223,6 +1189,122 @@ public class CdaMapHelper implements ICdaMapHelper {
         }
         return out;
     }
+
+    private Org mapToORGFieldCheckP1(EcrMsgOrganizationDto in,
+                                      POCDMT000040Participant2 out,
+                                      String name,
+                                      Org param) throws EcrCdaXmlException {
+        String state= param.getState();
+        String streetAddress1= param.getStreetAddress1();
+        String streetAddress2= param.getStreetAddress2();
+        String city = param.getCity();
+        String county = param.getCounty();
+        String country = param.getCountry();
+        String zip = param.getZip();
+        String phone= param.getPhone();
+        String extn = param.getExtn();
+
+        if(name.equals("orgLocalId") && in.getOrgLocalId()!=null){
+            out =  mapToORGFieldCheckP1LocalId( in,out);
+        }
+        else if(name.equals("orgNameTxt") && in.getOrgNameTxt() != null){
+            out = mapToORGFieldCheckP1OrgName( in,
+                     out);
+        }
+        else if(name.equals("orgAddrStreetAddr1Txt") && in.getOrgAddrStreetAddr1Txt() != null && !in.getOrgAddrStreetAddr1Txt().isEmpty()){
+            streetAddress1= in.getOrgAddrStreetAddr1Txt();
+        }
+        else if(name.equals("orgAddrStreetAddr2Txt") && in.getOrgAddrStreetAddr2Txt() != null && !in.getOrgAddrStreetAddr2Txt().isEmpty()){
+            streetAddress2 =in.getOrgAddrStreetAddr2Txt();
+        }
+        else if(name.equals("orgAddrCityTxt") && in.getOrgAddrCityTxt() !=null && !in.getOrgAddrCityTxt().isEmpty()){
+            city= in.getOrgAddrCityTxt();
+        }
+        else if(name.equals("orgAddrCountyCd") && in.getOrgAddrCountyCd() != null && !in.getOrgAddrCountyCd().isEmpty()){
+            county = mapToAddressType( in.getOrgAddrCountyCd(), county);
+        }
+        else if (name.equals("orgAddrStateCd") && in.getOrgAddrStateCd() != null &&  !in.getOrgAddrStateCd().isEmpty()){
+            state= mapToAddressType( in.getOrgAddrStateCd(), state);
+        }
+        else if(name.equals("orgAddrZipCodeTxt") && in.getOrgAddrZipCodeTxt() != null && !in.getOrgAddrZipCodeTxt().isEmpty()){
+            zip = in.getOrgAddrZipCodeTxt();
+        }
+        else if(name.equals("orgAddrCountryCd") && in.getOrgAddrCountryCd() != null && !in.getOrgAddrCountryCd().isEmpty()){
+            country = mapToAddressType( in.getOrgAddrCountryCd(), country);
+        }
+        else if(name.equals("orgPhoneNbrTxt") && in.getOrgPhoneNbrTxt() != null && !in.getOrgPhoneNbrTxt().isEmpty()){
+            phone=in.getOrgPhoneNbrTxt();
+        }
+        else if (name.equals("orgPhoneExtensionTxt") && in.getOrgPhoneExtensionTxt() != null)
+        {
+            extn= in.getOrgPhoneExtensionTxt().toString();
+        }
+        else if(name.equals("orgIdCliaNbrTxt") && in.getOrgIdCliaNbrTxt() != null){
+            out =  mapToORGFieldCheckP1CliaNbr( in,
+                     out);
+        }
+
+        param.setState(state);
+        param.setStreetAddress1(streetAddress1);
+        param.setStreetAddress2(streetAddress2);
+        param.setCity(city);
+        param.setCounty(county);
+        param.setCountry(country);
+        param.setZip(zip);
+        param.setPhone(phone);
+        param.setExtn(extn);
+        param.setOut(out);
+        return param;
+    }
+
+    private POCDMT000040Participant2 mapToORGFieldCheckP1CliaNbr(EcrMsgOrganizationDto in,
+                                                                 POCDMT000040Participant2 out) {
+        if (!in.getOrgIdCliaNbrTxt().isEmpty()) {
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewId();
+            } else {
+                out.getParticipantRole().addNewId();
+            }
+
+            out.getParticipantRole().getIdArray(1).setRoot(ID_ARR_ROOT);
+            out.getParticipantRole().getIdArray(1).setExtension(in.getOrgIdCliaNbrTxt());
+            out.getParticipantRole().getIdArray(1).setAssigningAuthorityName("LR_CLIA");
+        }
+        return out;
+    }
+
+    private POCDMT000040Participant2 mapToORGFieldCheckP1OrgName(EcrMsgOrganizationDto in,
+                                                                 POCDMT000040Participant2 out) throws EcrCdaXmlException {
+        if ( !in.getOrgNameTxt().isEmpty()) {
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewPlayingEntity();
+            } else {
+                out.getParticipantRole().addNewPlayingEntity();
+            }
+            var val = mapToCData(in.getOrgNameTxt());
+            out.getParticipantRole().getPlayingEntity().addNewName();
+            out.getParticipantRole().getPlayingEntity().setNameArray(0,  PN.Factory.newInstance());
+            out.getParticipantRole().getPlayingEntity().getNameArray(0).set(val);
+        }
+
+        return out;
+    }
+
+    private POCDMT000040Participant2 mapToORGFieldCheckP1LocalId(EcrMsgOrganizationDto in,
+                                        POCDMT000040Participant2 out) {
+        if (!in.getOrgLocalId().isEmpty()) {
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewId();
+            } else {
+                out.getParticipantRole().addNewId();
+            }
+            out.getParticipantRole().getIdArray(0).setRoot(ID_ARR_ROOT);
+            out.getParticipantRole().getIdArray(0).setExtension(in.getOrgLocalId());
+            out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
+        }
+        return out;
+    }
+
 
     public String getValueFromMap(Map.Entry<String, Object> entry) {
         String value = null;
