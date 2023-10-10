@@ -3,6 +3,7 @@ package gov.cdc.dataingestion.nbs.ecr.service.helper;
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.model.shares.Observation;
 import gov.cdc.dataingestion.nbs.ecr.model.shares.Psn;
+import gov.cdc.dataingestion.nbs.ecr.model.shares.PsnTelephone;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.LookUp.PhdcAnswerDao;
 import gov.cdc.dataingestion.nbs.repository.model.dao.LookUp.QuestionIdentifierMapDao;
@@ -552,193 +553,276 @@ public class CdaMapHelper implements ICdaMapHelper {
              out = psn.getOut();
         }
 
-
-
         if(!firstName.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewPlayingEntity().addNewName();
-            } else {
-                out.getParticipantRole().addNewPlayingEntity().addNewName();
-            }
-            var mapVal = mapToCData(firstName);
-            EnGiven enG = EnGiven.Factory.newInstance();
-            enG.set(mapVal);
-            out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewGiven();
-            out.getParticipantRole().getPlayingEntity().getNameArray(0).setGivenArray(0,  EnGiven.Factory.newInstance());
-            out.getParticipantRole().getPlayingEntity().getNameArray(0).getGivenArray(0).set(mapVal);
-            out.getParticipantRole().getPlayingEntity().getNameArray(0).setUse(new ArrayList(Arrays.asList("L")));
+            out = mapToPSNFirstName( firstName,   out);
         }
         if(!lastName.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewPlayingEntity().addNewName();
-            } else {
-                out.getParticipantRole().addNewPlayingEntity().addNewName();
-            }
-            var mapVal = mapToCData(lastName);
-            EnFamily enG = EnFamily.Factory.newInstance();
-            enG.set(mapVal);
-            out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewFamily();
-            out.getParticipantRole().getPlayingEntity().getNameArray(0).setFamilyArray(0,  EnFamily.Factory.newInstance());
-            out.getParticipantRole().getPlayingEntity().getNameArray(0).getFamilyArray(0).set(mapVal);
-            out.getParticipantRole().getPlayingEntity().getNameArray(0).setUse(new ArrayList(Arrays.asList("L")));
+            out = mapToPSNLastName( lastName,   out);
         }
         if(!prefix.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewPlayingEntity().addNewName();
-            } else {
-                out.getParticipantRole().addNewPlayingEntity().addNewName();
-            }
-            var mapVal = mapToCData(prefix);
-            EnPrefix enG = EnPrefix.Factory.newInstance();
-            enG.set(mapVal);
-            out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewPrefix();
-            out.getParticipantRole().getPlayingEntity().getNameArray(0).setPrefixArray(0,  EnPrefix.Factory.newInstance());
-            out.getParticipantRole().getPlayingEntity().getNameArray(0).getPrefixArray(0).set(mapVal);
+            out = mapToPSNPrefix( prefix,  out);
         }
         if(!suffix.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewPlayingEntity().addNewName();
-            } else {
-                out.getParticipantRole().addNewPlayingEntity().addNewName();
-            }
-            var mapVal = mapToCData(suffix);
-            EnSuffix enG = EnSuffix.Factory.newInstance();
-            enG.set(mapVal);
-            out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewSuffix();
-
-            out.getParticipantRole().getPlayingEntity().getNameArray(0).setSuffixArray(0,  EnSuffix.Factory.newInstance());
-            out.getParticipantRole().getPlayingEntity().getNameArray(0).getSuffixArray(0).set(mapVal);
+            out =  mapToPSNSuffix( suffix,   out);
         }
         if(!address1.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewAddr();
-            } else {
-                out.getParticipantRole().addNewAddr();
-            }
-            var mapVal = mapToCData(address1);
-            AdxpStreetAddressLine enG = AdxpStreetAddressLine.Factory.newInstance();
-            enG.set(mapVal);
+            out = mapToPSNAddress1( address1,   out);
+        }
+        if(!address2.isEmpty()){
+            out = mapToPSNAddress2( address2,   out);
+
+        }
+        if(!city.isEmpty()){
+            out = mapToPSNCity( city,   out);
+        }
+        if(!county.isEmpty()){
+            out = mapToPSNCounty( county,   out);
+        }
+        if(!zip.isEmpty()){
+            out = mapToPSNZip( zip,   out);
+        }
+
+        if(!state.isEmpty()){
+            out = mapToPSNState( state,   out);
+        }
+        if(!country.isEmpty()){
+            out = mapToPSNCountry( country,   out);
+        }
+        if(!telephone.isEmpty()){
+            var tele = mapToPSNTelephone( telephone,   out,  extn,
+             teleCounter);
+            out = tele.getOut();
+            teleCounter = tele.getTeleCounter();
+        }
+        if(!email.isEmpty()){
+            var emailInfo = mapToPSNEmail( email,   out,
+             teleCounter);
+            out = emailInfo.getOut();
+            teleCounter = emailInfo.getTeleCounter();
+        }
+
+        return out;
+    }
+
+    private PsnTelephone mapToPSNEmail(String email,  POCDMT000040Participant2 out,
+                                           int teleCounter) {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewTelecom();
+        }
+        else {
+            out.getParticipantRole().addNewTelecom();
+        }
+        out.getParticipantRole().getTelecomArray(teleCounter).setUse(new ArrayList(Arrays.asList("WP")));
+        out.getParticipantRole().getTelecomArray(teleCounter).setValue(email);
+        teleCounter= teleCounter + 1;
+        PsnTelephone psnTelephone = new PsnTelephone();
+        psnTelephone.setOut(out);
+        psnTelephone.setTeleCounter(teleCounter);
+        return psnTelephone;
+    }
+
+
+    private PsnTelephone mapToPSNTelephone(String telephone,  POCDMT000040Participant2 out, String extn,
+                                                       int teleCounter) throws EcrCdaXmlException {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewTelecom();
+        } else {
+            out.getParticipantRole().addNewTelecom();
+        }
+        out.getParticipantRole().getTelecomArray(teleCounter).setUse(new ArrayList(Arrays.asList("WP")));
+        int phoneExtnSize= extn.length();
+        if(phoneExtnSize>0){
+            telephone=telephone+ EXTN_STR+ extn;
+        }
+
+        out.getParticipantRole().getTelecomArray(teleCounter).setValue(telephone);
+        teleCounter = teleCounter+1;
+
+        PsnTelephone psnTelephone = new PsnTelephone();
+        psnTelephone.setOut(out);
+        psnTelephone.setTeleCounter(teleCounter);
+        return psnTelephone;
+    }
+
+    private POCDMT000040Participant2 mapToPSNCountry(String country,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewAddr();
+        } else {
+            out.getParticipantRole().addNewAddr();
+        }
+        var mapVal = mapToCData(country);
+        AdxpCountry enG = AdxpCountry.Factory.newInstance();
+        enG.set(mapVal);
+        out.getParticipantRole().getAddrArray(0).addNewCountry();
+
+        out.getParticipantRole().getAddrArray(0).setCountryArray(0,  AdxpCountry.Factory.newInstance());
+        out.getParticipantRole().getAddrArray(0).getCountryArray(0).set(mapVal);
+        return out;
+    }
+
+    private POCDMT000040Participant2 mapToPSNState(String state,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewAddr();
+        } else {
+            out.getParticipantRole().addNewAddr();
+        }
+        var mapVal = mapToCData(state);
+        AdxpState enG = AdxpState.Factory.newInstance();
+        enG.set(mapVal);
+        out.getParticipantRole().getAddrArray(0).addNewState();
+
+        out.getParticipantRole().getAddrArray(0).setStateArray(0,  AdxpState.Factory.newInstance());
+        out.getParticipantRole().getAddrArray(0).getStateArray(0).set(mapVal);
+        return out;
+    }
+
+    private POCDMT000040Participant2 mapToPSNZip(String zip,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewAddr();
+        } else {
+            out.getParticipantRole().addNewAddr();
+        }
+        var mapVal = mapToCData(zip);
+        AdxpPostalCode enG = AdxpPostalCode.Factory.newInstance();
+        enG.set(mapVal);
+        out.getParticipantRole().getAddrArray(0).addNewPostalCode();
+
+        out.getParticipantRole().getAddrArray(0).setPostalCodeArray(0,  AdxpPostalCode.Factory.newInstance());
+        out.getParticipantRole().getAddrArray(0).getPostalCodeArray(0).set(mapVal);
+        return out;
+    }
+
+    private POCDMT000040Participant2 mapToPSNCounty(String county,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewAddr();
+        } else {
+            out.getParticipantRole().addNewAddr();
+        }
+        var mapVal = mapToCData(county);
+        AdxpCounty enG = AdxpCounty.Factory.newInstance();
+        enG.set(mapVal);
+        out.getParticipantRole().getAddrArray(0).addNewCounty();
+
+        out.getParticipantRole().getAddrArray(0).setCountyArray(0,  AdxpCounty.Factory.newInstance());
+        out.getParticipantRole().getAddrArray(0).getCountyArray(0).set(mapVal);
+        return out;
+    }
+
+    private POCDMT000040Participant2 mapToPSNCity(String city,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewAddr();
+        } else {
+            out.getParticipantRole().addNewAddr();
+        }
+        var mapVal = mapToCData(city);
+        AdxpCity enG = AdxpCity.Factory.newInstance();
+        enG.set(mapVal);
+        out.getParticipantRole().getAddrArray(0).addNewCity();
+
+        out.getParticipantRole().getAddrArray(0).setCityArray(0,  AdxpCity.Factory.newInstance());
+        out.getParticipantRole().getAddrArray(0).getCityArray(0).set(mapVal);
+        return out;
+    }
+
+    private POCDMT000040Participant2 mapToPSNAddress2(String address2,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewAddr();
+        } else {
+            out.getParticipantRole().addNewAddr();
+        }
+        var mapVal = mapToCData(address2);
+        AdxpStreetAddressLine enG = AdxpStreetAddressLine.Factory.newInstance();
+        enG.set(mapVal);
+
+        if (out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray().length > 1) {
+            out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
+            out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(1,  AdxpStreetAddressLine.Factory.newInstance());
+            out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(1).set(mapVal);
+        } else {
             out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
             out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0,  AdxpStreetAddressLine.Factory.newInstance());
             out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapVal);
         }
-        if(!address2.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewAddr();
-            } else {
-                out.getParticipantRole().addNewAddr();
-            }
-            var mapVal = mapToCData(address2);
-            AdxpStreetAddressLine enG = AdxpStreetAddressLine.Factory.newInstance();
-            enG.set(mapVal);
+        return out;
+    }
 
-            if (out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray().length > 1) {
-                out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
-                out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(1,  AdxpStreetAddressLine.Factory.newInstance());
-                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(1).set(mapVal);
-            } else {
-                out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
-                out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0,  AdxpStreetAddressLine.Factory.newInstance());
-                out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapVal);
-            }
-
+    private POCDMT000040Participant2 mapToPSNAddress1(String address1,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewAddr();
+        } else {
+            out.getParticipantRole().addNewAddr();
         }
-        if(!city.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewAddr();
-            } else {
-                out.getParticipantRole().addNewAddr();
-            }
-            var mapVal = mapToCData(city);
-            AdxpCity enG = AdxpCity.Factory.newInstance();
-            enG.set(mapVal);
-            out.getParticipantRole().getAddrArray(0).addNewCity();
+        var mapVal = mapToCData(address1);
+        AdxpStreetAddressLine enG = AdxpStreetAddressLine.Factory.newInstance();
+        enG.set(mapVal);
+        out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
+        out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0,  AdxpStreetAddressLine.Factory.newInstance());
+        out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapVal);
+        return out;
+    }
 
-            out.getParticipantRole().getAddrArray(0).setCityArray(0,  AdxpCity.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getCityArray(0).set(mapVal);
+
+    private POCDMT000040Participant2 mapToPSNSuffix(String suffix,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewPlayingEntity().addNewName();
+        } else {
+            out.getParticipantRole().addNewPlayingEntity().addNewName();
         }
-        if(!county.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewAddr();
-            } else {
-                out.getParticipantRole().addNewAddr();
-            }
-            var mapVal = mapToCData(county);
-            AdxpCounty enG = AdxpCounty.Factory.newInstance();
-            enG.set(mapVal);
-            out.getParticipantRole().getAddrArray(0).addNewCounty();
+        var mapVal = mapToCData(suffix);
+        EnSuffix enG = EnSuffix.Factory.newInstance();
+        enG.set(mapVal);
+        out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewSuffix();
 
-            out.getParticipantRole().getAddrArray(0).setCountyArray(0,  AdxpCounty.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getCountyArray(0).set(mapVal);
+        out.getParticipantRole().getPlayingEntity().getNameArray(0).setSuffixArray(0,  EnSuffix.Factory.newInstance());
+        out.getParticipantRole().getPlayingEntity().getNameArray(0).getSuffixArray(0).set(mapVal);
+        return out;
+    }
+
+
+    private POCDMT000040Participant2 mapToPSNPrefix(String prefix,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewPlayingEntity().addNewName();
+        } else {
+            out.getParticipantRole().addNewPlayingEntity().addNewName();
         }
-        if(!zip.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewAddr();
-            } else {
-                out.getParticipantRole().addNewAddr();
-            }
-            var mapVal = mapToCData(zip);
-            AdxpPostalCode enG = AdxpPostalCode.Factory.newInstance();
-            enG.set(mapVal);
-            out.getParticipantRole().getAddrArray(0).addNewPostalCode();
+        var mapVal = mapToCData(prefix);
+        EnPrefix enG = EnPrefix.Factory.newInstance();
+        enG.set(mapVal);
+        out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewPrefix();
+        out.getParticipantRole().getPlayingEntity().getNameArray(0).setPrefixArray(0,  EnPrefix.Factory.newInstance());
+        out.getParticipantRole().getPlayingEntity().getNameArray(0).getPrefixArray(0).set(mapVal);
+        return out;
+    }
 
-            out.getParticipantRole().getAddrArray(0).setPostalCodeArray(0,  AdxpPostalCode.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getPostalCodeArray(0).set(mapVal);
+    private POCDMT000040Participant2 mapToPSNFirstName(String firstName,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewPlayingEntity().addNewName();
+        } else {
+            out.getParticipantRole().addNewPlayingEntity().addNewName();
         }
+        var mapVal = mapToCData(firstName);
+        EnGiven enG = EnGiven.Factory.newInstance();
+        enG.set(mapVal);
+        out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewGiven();
+        out.getParticipantRole().getPlayingEntity().getNameArray(0).setGivenArray(0,  EnGiven.Factory.newInstance());
+        out.getParticipantRole().getPlayingEntity().getNameArray(0).getGivenArray(0).set(mapVal);
+        out.getParticipantRole().getPlayingEntity().getNameArray(0).setUse(new ArrayList(Arrays.asList("L")));
+        return out;
+    }
 
-        if(!state.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewAddr();
-            } else {
-                out.getParticipantRole().addNewAddr();
-            }
-            var mapVal = mapToCData(state);
-            AdxpState enG = AdxpState.Factory.newInstance();
-            enG.set(mapVal);
-            out.getParticipantRole().getAddrArray(0).addNewState();
-
-            out.getParticipantRole().getAddrArray(0).setStateArray(0,  AdxpState.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getStateArray(0).set(mapVal);
+    private POCDMT000040Participant2 mapToPSNLastName(String lastName,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewPlayingEntity().addNewName();
+        } else {
+            out.getParticipantRole().addNewPlayingEntity().addNewName();
         }
-        if(!country.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewAddr();
-            } else {
-                out.getParticipantRole().addNewAddr();
-            }
-            var mapVal = mapToCData(country);
-            AdxpCountry enG = AdxpCountry.Factory.newInstance();
-            enG.set(mapVal);
-            out.getParticipantRole().getAddrArray(0).addNewCountry();
-
-            out.getParticipantRole().getAddrArray(0).setCountryArray(0,  AdxpCountry.Factory.newInstance());
-            out.getParticipantRole().getAddrArray(0).getCountryArray(0).set(mapVal);
-        }
-        if(!telephone.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewTelecom();
-            } else {
-                out.getParticipantRole().addNewTelecom();
-            }
-            out.getParticipantRole().getTelecomArray(teleCounter).setUse(new ArrayList(Arrays.asList("WP")));
-            int phoneExtnSize= extn.length();
-            if(phoneExtnSize>0){
-                telephone=telephone+ EXTN_STR+ extn;
-            }
-
-            out.getParticipantRole().getTelecomArray(teleCounter).setValue(telephone);
-            teleCounter = teleCounter+1;
-        } if(!email.isEmpty()){
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewTelecom();
-            } else {
-                out.getParticipantRole().addNewTelecom();
-            }
-            out.getParticipantRole().getTelecomArray(teleCounter).setUse(new ArrayList(Arrays.asList("WP")));
-            out.getParticipantRole().getTelecomArray(teleCounter).setValue(email);
-            teleCounter= teleCounter + 1;
-        }
-
+        var mapVal = mapToCData(lastName);
+        EnFamily enG = EnFamily.Factory.newInstance();
+        enG.set(mapVal);
+        out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewFamily();
+        out.getParticipantRole().getPlayingEntity().getNameArray(0).setFamilyArray(0,  EnFamily.Factory.newInstance());
+        out.getParticipantRole().getPlayingEntity().getNameArray(0).getFamilyArray(0).set(mapVal);
+        out.getParticipantRole().getPlayingEntity().getNameArray(0).setUse(new ArrayList(Arrays.asList("L")));
         return out;
     }
 
