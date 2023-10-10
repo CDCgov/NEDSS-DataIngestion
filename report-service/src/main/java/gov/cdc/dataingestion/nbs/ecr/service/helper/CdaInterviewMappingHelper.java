@@ -4,6 +4,7 @@ import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.model.CdaInterviewMapper;
 import gov.cdc.dataingestion.nbs.ecr.model.InterviewAnswerMapper;
 import gov.cdc.dataingestion.nbs.ecr.model.InterviewAnswerMultiMapper;
+import gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewTopField;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaInterviewMappingHelper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedInterview;
@@ -35,23 +36,9 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
             CdaInterviewMapper mapper = new CdaInterviewMapper();
             if(input.getMsgInterviews() != null && !input.getMsgInterviews().isEmpty()) {
                 for(int i = 0; i < input.getMsgInterviews().size(); i++) {
-
-                    int c = 0;
-                    if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
-                        clinicalDocument.getComponent().getStructuredBody().addNewComponent();
-                    } else {
-                        c = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length;
-                        clinicalDocument.getComponent().getStructuredBody().addNewComponent();
-                    }
-                    if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).addNewSection();
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
-                    } else {
-                        if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
-                            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
-                        }
-                    }
-
+                    var interviewTop = mapToInterviewTopFieldCheck(clinicalDocument);
+                    clinicalDocument = interviewTop.getClinicalDocument();
+                    int c = interviewTop.getC();
 
                     if (interviewCounter < 1) {
                         interviewCounter = componentCounter + 1;
@@ -83,6 +70,29 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
             throw new EcrCdaXmlException(e.getMessage());
         }
 
+    }
+
+    private InterviewTopField mapToInterviewTopFieldCheck(POCDMT000040ClinicalDocument1 clinicalDocument) {
+        int c = 0;
+        if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
+            clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+        } else {
+            c = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length;
+            clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+        }
+        if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
+            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).addNewSection();
+            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
+        } else {
+            if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
+            }
+        }
+
+        InterviewTopField model = new InterviewTopField();
+        model.setClinicalDocument(clinicalDocument);
+        model.setC(c);
+        return model;
     }
 
     private POCDMT000040Component3 mapToInterview(EcrSelectedInterview in, POCDMT000040Component3 out) throws EcrCdaXmlException {
