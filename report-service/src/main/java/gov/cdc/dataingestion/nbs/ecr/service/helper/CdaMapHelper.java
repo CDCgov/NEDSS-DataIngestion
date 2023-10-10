@@ -846,9 +846,99 @@ public class CdaMapHelper implements ICdaMapHelper {
         String extn = param.getExtn();
         String email = param.getEmail();
 
+        Psn param2 = new Psn();
+        param2.setFirstName(firstName);
+        param2.setPrefix(prefix);
+        param2.setLastName(lastName);
+        param2.setSuffix(suffix);
+        param2.setDegree(degree);
+        param2.setAddress1(address1);
+        param2.setAddress2(address2);
+        param2.setCity(city);
+        param2 = mapToPSNFieldCheckAndMapGenericP1( in,
+                 out,
+                 name,
+                 param);
+         firstName = param2.getFirstName();
+         prefix = param2.getPrefix();
+         lastName = param2.getLastName();
+         suffix = param2.getSuffix();
+         degree = param2.getDegree();
+         address1 = param2.getAddress1();
+         address2 = param2.getAddress2();
+         city = param2.getCity();
+         out = param2.getOut();
+
+        if(name.equals("prvAddrCountyCd") && in.getPrvAddrCountyCd() != null && !in.getPrvAddrCountyCd().isEmpty()) {
+            county = mapToAddressType(in.getPrvAddrCountyCd(), county);
+        }
+        else if(name.equals("prvAddrStateCd") && in.getPrvAddrStateCd() != null  && !in.getPrvAddrStateCd().isEmpty()) {
+            state = mapToAddressType(in.getPrvAddrStateCd(), state);
+        }
+        else if(name.equals("prvAddrZipCodeTxt") && in.getPrvAddrZipCodeTxt() != null && !in.getPrvAddrZipCodeTxt().isEmpty()) {
+            zip = in.getPrvAddrZipCodeTxt();
+        }
+        else if(name.equals("prvAddrCountryCd") && in.getPrvAddrCountryCd() != null && !in.getPrvAddrCountryCd().isEmpty()) {
+            country = mapToAddressType(in.getPrvAddrCountryCd(), country);
+        }
+        else if(name.equals("prvPhoneNbrTxt") && in.getPrvPhoneNbrTxt() != null && !in.getPrvPhoneNbrTxt().isEmpty()) {
+            telephone = in.getPrvPhoneNbrTxt();
+        }
+        else  if(name.equals("prvPhoneExtensionTxt") && in.getPrvPhoneExtensionTxt() != null) {
+            extn = in.getPrvPhoneExtensionTxt().toString();
+        }
+        else if(name.equals("prvIdQuickCodeTxt") && in.getPrvIdQuickCodeTxt() != null && !in.getPrvIdQuickCodeTxt().isEmpty()) {
+            out = mapToPSNFieldCheckAndMapQuickCode( in,
+                     out);
+        }
+        else if( mapToPSNFieldCheckAndMapValidateField("prvEmailAddressTxt", in)) {
+            email = in.getPrvEmailAddressTxt();
+        }
+
+        param.setFirstName(firstName);
+        param.setPrefix(prefix);
+        param.setLastName(lastName);
+        param.setSuffix(suffix);
+        param.setDegree(degree);
+        param.setAddress1(address1);
+        param.setAddress2(address2);
+        param.setCity(city);
+        param.setCounty(county);
+        param.setCountry(country);
+        param.setState(state);
+        param.setZip(zip);
+        param.setTelephone(telephone);
+        param.setExtn(extn);
+        param.setEmail(email);
+        param.setOut(out);
+
+        return param;
+    }
+
+    private boolean mapToPSNFieldCheckAndMapValidateField(String name, EcrMsgProviderDto in) {
+        if (name.equals("prvEmailAddressTxt") && in.getPrvEmailAddressTxt() != null && !in.getPrvEmailAddressTxt().isEmpty()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private Psn mapToPSNFieldCheckAndMapGenericP1(EcrMsgProviderDto in,
+                                              POCDMT000040Participant2 out,
+                                              String name,
+                                              Psn param) {
+        String firstName = param.getFirstName();
+        String prefix = param.getPrefix();
+        String lastName = param.getLastName();
+        String suffix = param.getSuffix();
+        String degree = param.getDegree();
+        String address1 = param.getAddress1();
+        String address2 = param.getAddress2();
+        String city = param.getCity();
+
         if (name.equals("prvLocalId") && in.getPrvLocalId() != null && !in.getPrvLocalId().isEmpty()) {
             out = mapToPSNFieldCheckAndMapLocalId( in,
-                     out);
+                    out);
         }
         else if (name.equals("prvNameFirstTxt") && in.getPrvNameFirstTxt() !=null && !in.getPrvNameFirstTxt().isEmpty()) {
             firstName = in.getPrvNameFirstTxt();
@@ -875,32 +965,6 @@ public class CdaMapHelper implements ICdaMapHelper {
             city = in.getPrvAddrCityTxt();
         }
 
-        if(name.equals("prvAddrCountyCd") && in.getPrvAddrCountyCd() != null && !in.getPrvAddrCountyCd().isEmpty()) {
-            county = mapToAddressType(in.getPrvAddrCountyCd(), county);
-        }
-        else if(name.equals("prvAddrStateCd") && in.getPrvAddrStateCd() != null  && !in.getPrvAddrStateCd().isEmpty()) {
-            state = mapToAddressType(in.getPrvAddrStateCd(), state);
-        }
-        else if(name.equals("prvAddrZipCodeTxt") && in.getPrvAddrZipCodeTxt() != null && !in.getPrvAddrZipCodeTxt().isEmpty()) {
-            zip = in.getPrvAddrZipCodeTxt();
-        }
-        else if(name.equals("prvAddrCountryCd") && in.getPrvAddrCountryCd() != null && !in.getPrvAddrCountryCd().isEmpty()) {
-            country = mapToAddressType(in.getPrvAddrCountryCd(), country);
-        }
-        else if(name.equals("prvPhoneNbrTxt") && in.getPrvPhoneNbrTxt() != null && !in.getPrvPhoneNbrTxt().isEmpty()) {
-            telephone = in.getPrvPhoneNbrTxt();
-        }
-        else  if(name.equals("prvPhoneExtensionTxt") && in.getPrvPhoneExtensionTxt() != null) {
-            extn = in.getPrvPhoneExtensionTxt().toString();
-        }
-        else if(name.equals("prvIdQuickCodeTxt") && in.getPrvIdQuickCodeTxt() != null && !in.getPrvIdQuickCodeTxt().isEmpty()) {
-            out = mapToPSNFieldCheckAndMapQuickCode( in,
-                     out);
-        }
-        else if(name.equals("prvEmailAddressTxt") && in.getPrvEmailAddressTxt() != null && !in.getPrvEmailAddressTxt().isEmpty()) {
-            email = in.getPrvEmailAddressTxt();
-        }
-
         param.setFirstName(firstName);
         param.setPrefix(prefix);
         param.setLastName(lastName);
@@ -909,15 +973,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         param.setAddress1(address1);
         param.setAddress2(address2);
         param.setCity(city);
-        param.setCounty(county);
-        param.setCountry(country);
-        param.setState(state);
-        param.setZip(zip);
-        param.setTelephone(telephone);
-        param.setExtn(extn);
-        param.setEmail(email);
         param.setOut(out);
-
         return param;
     }
 
