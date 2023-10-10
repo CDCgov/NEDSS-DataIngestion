@@ -2,7 +2,6 @@ package gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.model.CdaCaseMapper;
-import gov.cdc.dataingestion.nbs.ecr.model.cases.CdaCaseComponent;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1;
 

@@ -23,13 +23,13 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
     @PersistenceContext(unitName = "nbs")
     private EntityManager entityManager;
 
-    private final String msgUid = "MSG_CONTAINER_UID";
-    private final String invLocalId = "INV_LOCAL_ID";
-    private final String ixsLocalId = "IXS_LOCAL_ID";
+    private static final String msgUid = "MSG_CONTAINER_UID";
+    private static final String invLocalId = "INV_LOCAL_ID";
+    private static final String ixsLocalId = "IXS_LOCAL_ID";
 
 
 
-    public EcrMsgContainerDto FetchMsgContainerForApplicableEcr() throws EcrCdaXmlException {
+    public EcrMsgContainerDto fetchMsgContainerForApplicableEcr() throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_container.sql");
         Query query = entityManager.createNativeQuery(queryString);
 
@@ -51,7 +51,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return null;
     }
 
-    public List<EcrMsgPatientDto> FetchMsgPatientForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
+    public List<EcrMsgPatientDto> fetchMsgPatientForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_patient.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
@@ -124,7 +124,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtoList;
     }
 
-    public List<EcrMsgCaseDto> FetchMsgCaseForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
+    public List<EcrMsgCaseDto> fetchMsgCaseForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_case.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
@@ -196,7 +196,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgCaseParticipantDto> FetchMsgCaseParticipantForApplicableEcr(Integer containerId, String invLocalId) throws EcrCdaXmlException {
+    public List<EcrMsgCaseParticipantDto> fetchMsgCaseParticipantForApplicableEcr(Integer containerId, String invLocalId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_case_participant.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
@@ -221,7 +221,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgCaseAnswerDto> FetchMsgCaseAnswerForApplicableEcr(Integer containerId, String invLocalId) throws EcrCdaXmlException {
+    public List<EcrMsgCaseAnswerDto> fetchMsgCaseAnswerForApplicableEcr(Integer containerId, String invLocalId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_case_answer.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
@@ -256,7 +256,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgCaseAnswerRepeatDto> FetchMsgCaseAnswerRepeatForApplicableEcr(Integer containerId, String invLocalId) throws EcrCdaXmlException {
+    public List<EcrMsgCaseAnswerRepeatDto> fetchMsgCaseAnswerRepeatForApplicableEcr(Integer containerId, String invLocalId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_case_answer_repeat.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
@@ -290,7 +290,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgXmlAnswerDto> FetchMsgXmlAnswerForApplicableEcr(Integer containerId, String invLocalId) throws EcrCdaXmlException {
+    public List<EcrMsgXmlAnswerDto> fetchMsgXmlAnswerForApplicableEcr(Integer containerId, String invLocalId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_xml_answer.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
@@ -308,7 +308,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgProviderDto> FetchMsgProviderForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
+    public List<EcrMsgProviderDto> fetchMsgProviderForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_provider.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
@@ -353,7 +353,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgOrganizationDto> FetchMsgOrganizationForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
+    public List<EcrMsgOrganizationDto> fetchMsgOrganizationForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_organization.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
@@ -394,7 +394,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgPlaceDto> FetchMsgPlaceForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
+    public List<EcrMsgPlaceDto> fetchMsgPlaceForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_place.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
@@ -435,7 +435,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgInterviewDto> FetchMsgInterviewForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
+    public List<EcrMsgInterviewDto> fetchMsgInterviewForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_interview.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
@@ -462,7 +462,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgInterviewProviderDto> FetchMsgInterviewProviderForApplicableEcr(Integer containerId,  String ixsLocalId) throws EcrCdaXmlException {
+    public List<EcrMsgInterviewProviderDto> fetchMsgInterviewProviderForApplicableEcr(Integer containerId,  String ixsLocalId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_interview_provider.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
@@ -508,7 +508,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
     }
 
 
-    public List<EcrMsgInterviewAnswerDto> FetchMsgInterviewAnswerForApplicableEcr(Integer containerId, String ixsLocalId) throws EcrCdaXmlException {
+    public List<EcrMsgInterviewAnswerDto> fetchMsgInterviewAnswerForApplicableEcr(Integer containerId, String ixsLocalId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_interview_answer.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
@@ -543,7 +543,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgInterviewAnswerRepeatDto> FetchMsgInterviewAnswerRepeatForApplicableEcr(Integer containerId, String ixsLocalId) throws EcrCdaXmlException {
+    public List<EcrMsgInterviewAnswerRepeatDto> fetchMsgInterviewAnswerRepeatForApplicableEcr(Integer containerId, String ixsLocalId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_interview_answer_repeat.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
@@ -578,7 +578,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgTreatmentDto> FetchMsgTreatmentForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
+    public List<EcrMsgTreatmentDto> fetchMsgTreatmentForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_treatment.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
@@ -609,7 +609,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgTreatmentProviderDto> FetchMsgTreatmentProviderForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
+    public List<EcrMsgTreatmentProviderDto> fetchMsgTreatmentProviderForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_treatment_provider.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
@@ -654,7 +654,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgTreatmentOrganizationDto> FetchMsgTreatmentOrganizationForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
+    public List<EcrMsgTreatmentOrganizationDto> fetchMsgTreatmentOrganizationForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_treatment_organization.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
@@ -695,7 +695,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
     }
 
     @Transactional(transactionManager = "nbsTransactionManager")
-    public void UpdateMatchEcrRecordForProcessing(Integer containerUid) throws EcrCdaXmlException {
+    public void updateMatchEcrRecordForProcessing(Integer containerUid) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_container_update_match_record.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerUid);

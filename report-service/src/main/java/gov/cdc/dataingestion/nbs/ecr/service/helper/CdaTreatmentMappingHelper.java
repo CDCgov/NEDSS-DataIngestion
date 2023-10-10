@@ -129,11 +129,11 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
             EcrSelectedTreatment input, POCDMT000040SubstanceAdministration output,
             StrucDocText list) throws EcrCdaXmlException {
         String treatmentUid="";
-        String TRT_TREATMENT_DT="";
-        String TRT_FREQUENCY_AMT_CD="";
-        String TRT_DOSAGE_UNIT_CD="";
-        String TRT_DURATION_AMT="";
-        String TRT_DURATION_UNIT_CD="";
+        String trtTreatmentDt="";
+        String trtFrequencyAmtCd="";
+        String trtDosageUnitCd="";
+        String trtDurationAmt="";
+        String trtDurationUnitCd="";
 
         String treatmentName ="";
         String treatmentNameQuestion ="";
@@ -147,11 +147,11 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
 
             TreatmentField param = new TreatmentField();
             param.setTreatmentUid(treatmentUid);
-            param.setTrtTreatmentDt(TRT_TREATMENT_DT);
-            param.setTrtFrequencyAmtCd(TRT_FREQUENCY_AMT_CD);
-            param.setTrtDosageUnitCd(TRT_DOSAGE_UNIT_CD);
-            param.setTrtDurationAmt(TRT_DURATION_AMT);
-            param.setTrtDurationUnitCd(TRT_DURATION_UNIT_CD);
+            param.setTrtTreatmentDt(trtTreatmentDt);
+            param.setTrtFrequencyAmtCd(trtFrequencyAmtCd);
+            param.setTrtDosageUnitCd(trtDosageUnitCd);
+            param.setTrtDurationAmt(trtDurationAmt);
+            param.setTrtDurationUnitCd(trtDurationUnitCd);
             param.setTreatmentName(treatmentName);
             param.setTreatmentNameQuestion(treatmentNameQuestion);
             param.setCustomTreatment(customTreatment);
@@ -160,11 +160,11 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
                      value,
                      param);
             treatmentUid = treatmentField.getTreatmentUid();
-            TRT_TREATMENT_DT = treatmentField.getTrtTreatmentDt();
-            TRT_FREQUENCY_AMT_CD = treatmentField.getTrtFrequencyAmtCd();
-            TRT_DOSAGE_UNIT_CD = treatmentField.getTrtDosageUnitCd();
-            TRT_DURATION_AMT = treatmentField.getTrtDurationAmt();
-            TRT_DURATION_UNIT_CD = treatmentField.getTrtDurationUnitCd();
+            trtTreatmentDt = treatmentField.getTrtTreatmentDt();
+            trtFrequencyAmtCd = treatmentField.getTrtFrequencyAmtCd();
+            trtDosageUnitCd = treatmentField.getTrtDosageUnitCd();
+            trtDurationAmt = treatmentField.getTrtDurationAmt();
+            trtDurationUnitCd = treatmentField.getTrtDurationUnitCd();
             treatmentName = treatmentField.getTreatmentName();
             treatmentNameQuestion = treatmentField.getTreatmentNameQuestion();
             customTreatment = treatmentField.getCustomTreatment();
@@ -182,15 +182,15 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
                  customTreatment,
                  treatmentNameQuestion);
          mapToTreatmentTreatDt( output,
-                 TRT_TREATMENT_DT,
-                 TRT_DURATION_AMT,
-                 TRT_DURATION_UNIT_CD);
+                 trtTreatmentDt,
+                 trtDurationAmt,
+                 trtDurationUnitCd);
          mapToTreatmentTreatFrequency( output,
-                 TRT_FREQUENCY_AMT_CD );
+                 trtFrequencyAmtCd );
 
         int performerCounter=0;
 
-        if (input.getMsgTreatmentOrganizations().size() > 0 ||  input.getMsgTreatmentProviders().size() > 0) {
+        if (!input.getMsgTreatmentOrganizations().isEmpty() || !input.getMsgTreatmentProviders().isEmpty()) {
             var model = mapToTreatmentProviderAndParticipant( output,
                      input,
                      performerCounter);
@@ -246,8 +246,8 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
     }
 
     private void mapToTreatmentTreatFrequency(POCDMT000040SubstanceAdministration output,
-                                              String TRT_FREQUENCY_AMT_CD ) {
-        if (!TRT_FREQUENCY_AMT_CD.isEmpty()) {
+                                              String trtFrequencyAmtCd ) {
+        if (!trtFrequencyAmtCd.isEmpty()) {
             int c = 0;
             if (output.getEffectiveTimeArray().length == 0) {
                 output.addNewEffectiveTime();
@@ -265,7 +265,7 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
             cursor.toEndDoc();  // Move to the root element
             cursor.beginElement("period");
 
-            AttributeMapper res = mapToAttributes(TRT_FREQUENCY_AMT_CD);
+            AttributeMapper res = mapToAttributes(trtFrequencyAmtCd);
             if (cursor.toFirstAttribute()) {
                 cursor.insertAttributeWithValue(VALUE_NAME, res.getAttribute1());
             }
@@ -286,10 +286,10 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
     }
 
     private void mapToTreatmentTreatDt(POCDMT000040SubstanceAdministration output,
-                                       String TRT_TREATMENT_DT,
-                                       String TRT_DURATION_AMT,
-                                       String TRT_DURATION_UNIT_CD) throws EcrCdaXmlException {
-        if(!TRT_TREATMENT_DT.isEmpty()){
+                                       String trtTreatmentDt,
+                                       String trtDurationAmt,
+                                       String trtDurationUnitCd) throws EcrCdaXmlException {
+        if(!trtTreatmentDt.isEmpty()){
             if (output.getEffectiveTimeArray().length == 0) {
                 output.addNewEffectiveTime();
             }
@@ -299,13 +299,13 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
             XmlCursor cursor = xmlOb.newCursor();
             cursor.toEndDoc();  // Move to the root element
             cursor.beginElement("low");
-            cursor.insertAttributeWithValue(VALUE_NAME,  cdaMapHelper.mapToTsType(TRT_TREATMENT_DT).getValue());
+            cursor.insertAttributeWithValue(VALUE_NAME,  cdaMapHelper.mapToTsType(trtTreatmentDt).getValue());
 
-            if (TRT_DURATION_AMT != null && !TRT_DURATION_AMT.isEmpty() && TRT_DURATION_UNIT_CD != null && !TRT_DURATION_UNIT_CD.isEmpty()) {
+            if (trtDurationAmt != null && !trtDurationAmt.isEmpty() && trtDurationUnitCd != null && !trtDurationUnitCd.isEmpty()) {
                 cursor.toEndDoc();
                 cursor.beginElement("width");
-                cursor.insertAttributeWithValue(VALUE_NAME, TRT_DURATION_AMT);
-                cursor.insertAttributeWithValue("unit", TRT_DURATION_UNIT_CD);
+                cursor.insertAttributeWithValue(VALUE_NAME, trtDurationAmt);
+                cursor.insertAttributeWithValue("unit", trtDurationUnitCd);
             }
 
             cursor.dispose();
@@ -402,25 +402,25 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
                                           String value,
                                           TreatmentField param) throws EcrCdaXmlException {
         String treatmentUid = param.getTreatmentUid();
-        String TRT_TREATMENT_DT = param.getTrtTreatmentDt();
-        String TRT_FREQUENCY_AMT_CD = param.getTrtFrequencyAmtCd();
-        String TRT_DOSAGE_UNIT_CD = param.getTrtDosageUnitCd();
-        String TRT_DURATION_AMT = param.getTrtDurationAmt();
-        String TRT_DURATION_UNIT_CD = param.getTrtDurationUnitCd();
+        String trtTreatmentDt = param.getTrtTreatmentDt();
+        String trtFrequencyAmtCd = param.getTrtFrequencyAmtCd();
+        String trtDosageUnitCd = param.getTrtDosageUnitCd();
+        String trtDurationAmt = param.getTrtDurationAmt();
+        String trtDurationUnitCd = param.getTrtDurationUnitCd();
         String treatmentName = param.getTreatmentName();
         String treatmentNameQuestion = param.getTreatmentNameQuestion();
         String customTreatment = param.getCustomTreatment();
 
 
         if(name.equals("trtTreatmentDt")  && value != null && input.getMsgTreatment().getTrtTreatmentDt() != null) {
-            TRT_TREATMENT_DT= input.getMsgTreatment().getTrtTreatmentDt().toString();
+            trtTreatmentDt= input.getMsgTreatment().getTrtTreatmentDt().toString();
         }
         if(name.equals("trtFrequencyAmtCd")  && value != null && input.getMsgTreatment().getTrtFrequencyAmtCd() != null && !input.getMsgTreatment().getTrtFrequencyAmtCd().isEmpty()) {
-            TRT_FREQUENCY_AMT_CD= input.getMsgTreatment().getTrtFrequencyAmtCd();
+            trtFrequencyAmtCd= input.getMsgTreatment().getTrtFrequencyAmtCd();
         }
         if(name.equals("trtDosageUnitCd") && value != null && input.getMsgTreatment().getTrtDosageUnitCd() != null && !input.getMsgTreatment().getTrtDosageUnitCd().isEmpty()) {
-            TRT_DOSAGE_UNIT_CD= input.getMsgTreatment().getTrtDosageUnitCd();
-            output.getDoseQuantity().setUnit(TRT_DOSAGE_UNIT_CD);
+            trtDosageUnitCd= input.getMsgTreatment().getTrtDosageUnitCd();
+            output.getDoseQuantity().setUnit(trtDosageUnitCd);
         }
         if(name.equals("trtDosageAmt") && value != null && input.getMsgTreatment().getTrtDosageAmt() != null) {
             mapToTreatmentFieldCheckDoseAmt( input,
@@ -439,18 +439,18 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
             customTreatment= input.getMsgTreatment().getTrtCustomTreatmentTxt();
         }
         if(name.equals("trtDurationAmt") && value != null && input.getMsgTreatment().getTrtDurationAmt() != null) {
-            TRT_DURATION_AMT = input.getMsgTreatment().getTrtDurationAmt().toString();
+            trtDurationAmt = input.getMsgTreatment().getTrtDurationAmt().toString();
         }
         if(name.equals("trtDurationUnitCd") && value != null && input.getMsgTreatment().getTrtDurationUnitCd() != null && !input.getMsgTreatment().getTrtDurationUnitCd().isEmpty()) {
-            TRT_DURATION_UNIT_CD = input.getMsgTreatment().getTrtDurationUnitCd();
+            trtDurationUnitCd = input.getMsgTreatment().getTrtDurationUnitCd();
         }
 
         param.setTreatmentUid(treatmentUid);
-        param.setTrtTreatmentDt(TRT_TREATMENT_DT);
-        param.setTrtFrequencyAmtCd(TRT_FREQUENCY_AMT_CD);
-        param.setTrtDosageUnitCd(TRT_DOSAGE_UNIT_CD);
-        param.setTrtDurationAmt(TRT_DURATION_AMT);
-        param.setTrtDurationUnitCd(TRT_DURATION_UNIT_CD);
+        param.setTrtTreatmentDt(trtTreatmentDt);
+        param.setTrtFrequencyAmtCd(trtFrequencyAmtCd);
+        param.setTrtDosageUnitCd(trtDosageUnitCd);
+        param.setTrtDurationAmt(trtDurationAmt);
+        param.setTrtDurationUnitCd(trtDurationUnitCd);
         param.setTreatmentName(treatmentName);
         param.setTreatmentNameQuestion(treatmentNameQuestion);
         param.setCustomTreatment(customTreatment);

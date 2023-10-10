@@ -125,36 +125,36 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
         selectedRecord.setMsgInterviews(interviewArr);
 
 
-//        var xmlAnsw = ecrMsgQueryRepository.FetchMsgXmlAnswerForApplicableEcr(10009282, "1.2.840.114350.1.13.478.2.7.8.688883.74957358"); // NOSONAR
+//        var xmlAnsw = ecrMsgQueryRepository.fetchMsgXmlAnswerForApplicableEcr(10009282, "1.2.840.114350.1.13.478.2.7.8.688883.74957358"); // NOSONAR
 //        selectedRecord.setMsgXmlAnswers(xmlAnsw); // NOSONAR
         return selectedRecord;
     }
 
     public EcrSelectedRecord GetSelectedEcrRecord() throws EcrCdaXmlException {
         EcrSelectedRecord selectedRecord = null;
-        EcrMsgContainerDto msgContainer = this.ecrMsgQueryRepository.FetchMsgContainerForApplicableEcr();
+        EcrMsgContainerDto msgContainer = this.ecrMsgQueryRepository.fetchMsgContainerForApplicableEcr();
 
         if (msgContainer != null && msgContainer.getMsgContainerUid() != null) {
             selectedRecord = new EcrSelectedRecord();
 
-            // this.ecrMsgQueryRepository.UpdateMatchEcrRecordForProcessing(msgContainer.getMsgContainerUid()); //NOSONAR
-            List<EcrMsgPatientDto> msgPatients = this.ecrMsgQueryRepository.FetchMsgPatientForApplicableEcr(msgContainer.getMsgContainerUid());
+            // this.ecrMsgQueryRepository.updateMatchEcrRecordForProcessing(msgContainer.getMsgContainerUid()); //NOSONAR
+            List<EcrMsgPatientDto> msgPatients = this.ecrMsgQueryRepository.fetchMsgPatientForApplicableEcr(msgContainer.getMsgContainerUid());
 
             List<EcrSelectedCase> selectedMsgCases = new ArrayList<>();
             List<EcrMsgXmlAnswerDto> msgXmlAnswers = new ArrayList<>();
-            List<EcrMsgCaseDto> msgCases = this.ecrMsgQueryRepository.FetchMsgCaseForApplicableEcr(msgContainer.getMsgContainerUid());
+            List<EcrMsgCaseDto> msgCases = this.ecrMsgQueryRepository.fetchMsgCaseForApplicableEcr(msgContainer.getMsgContainerUid());
             for(var item : msgCases) {
 
                 EcrSelectedCase selectedCase = new EcrSelectedCase();
-                List<EcrMsgCaseParticipantDto> msgCaseParticipants = this.ecrMsgQueryRepository.FetchMsgCaseParticipantForApplicableEcr(
+                List<EcrMsgCaseParticipantDto> msgCaseParticipants = this.ecrMsgQueryRepository.fetchMsgCaseParticipantForApplicableEcr(
                         msgContainer.getMsgContainerUid(), item.getInvLocalId()
                 );
 
-                List<EcrMsgCaseAnswerDto> msgCaseAnswers = this.ecrMsgQueryRepository.FetchMsgCaseAnswerForApplicableEcr(
+                List<EcrMsgCaseAnswerDto> msgCaseAnswers = this.ecrMsgQueryRepository.fetchMsgCaseAnswerForApplicableEcr(
                         msgContainer.getMsgContainerUid(), item.getInvLocalId()
                 );
 
-                List<EcrMsgCaseAnswerRepeatDto> msgCaseAnswerRepeats = this.ecrMsgQueryRepository.FetchMsgCaseAnswerRepeatForApplicableEcr(
+                List<EcrMsgCaseAnswerRepeatDto> msgCaseAnswerRepeats = this.ecrMsgQueryRepository.fetchMsgCaseAnswerRepeatForApplicableEcr(
                         msgContainer.getMsgContainerUid(), item.getInvLocalId()
                 );
                 selectedCase.setMsgCase(item);
@@ -163,26 +163,26 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
                 selectedCase.setMsgCaseAnswerRepeats(msgCaseAnswerRepeats);
                 selectedMsgCases.add(selectedCase);
 
-                List<EcrMsgXmlAnswerDto> msgXmlAnswer = this.ecrMsgQueryRepository.FetchMsgXmlAnswerForApplicableEcr(msgContainer.getMsgContainerUid(), item.getInvLocalId());
+                List<EcrMsgXmlAnswerDto> msgXmlAnswer = this.ecrMsgQueryRepository.fetchMsgXmlAnswerForApplicableEcr(msgContainer.getMsgContainerUid(), item.getInvLocalId());
                 msgXmlAnswers.addAll(msgXmlAnswer);
             }
 
-            List<EcrMsgProviderDto> msgProviders = this.ecrMsgQueryRepository.FetchMsgProviderForApplicableEcr(msgContainer.getMsgContainerUid());
-            List<EcrMsgOrganizationDto> msgOrganizations = this.ecrMsgQueryRepository.FetchMsgOrganizationForApplicableEcr(msgContainer.getMsgContainerUid());
-            List<EcrMsgPlaceDto> msgPlaces = this.ecrMsgQueryRepository.FetchMsgPlaceForApplicableEcr(msgContainer.getMsgContainerUid());
+            List<EcrMsgProviderDto> msgProviders = this.ecrMsgQueryRepository.fetchMsgProviderForApplicableEcr(msgContainer.getMsgContainerUid());
+            List<EcrMsgOrganizationDto> msgOrganizations = this.ecrMsgQueryRepository.fetchMsgOrganizationForApplicableEcr(msgContainer.getMsgContainerUid());
+            List<EcrMsgPlaceDto> msgPlaces = this.ecrMsgQueryRepository.fetchMsgPlaceForApplicableEcr(msgContainer.getMsgContainerUid());
 
             List<EcrSelectedInterview> selectedInterviews = new ArrayList<>();
-            List<EcrMsgInterviewDto> msgInterviews = this.ecrMsgQueryRepository.FetchMsgInterviewForApplicableEcr(msgContainer.getMsgContainerUid());
+            List<EcrMsgInterviewDto> msgInterviews = this.ecrMsgQueryRepository.fetchMsgInterviewForApplicableEcr(msgContainer.getMsgContainerUid());
             for(var item : msgInterviews) {
                 EcrSelectedInterview selectedInterview = new EcrSelectedInterview();
 
-                List<EcrMsgInterviewProviderDto> msgInterviewProviders = this.ecrMsgQueryRepository.FetchMsgInterviewProviderForApplicableEcr(
+                List<EcrMsgInterviewProviderDto> msgInterviewProviders = this.ecrMsgQueryRepository.fetchMsgInterviewProviderForApplicableEcr(
                         msgContainer.getMsgContainerUid(), item.getIxsLocalId());
 
-                List<EcrMsgInterviewAnswerDto> msgInterviewAnswers = this.ecrMsgQueryRepository.FetchMsgInterviewAnswerForApplicableEcr(
+                List<EcrMsgInterviewAnswerDto> msgInterviewAnswers = this.ecrMsgQueryRepository.fetchMsgInterviewAnswerForApplicableEcr(
                         msgContainer.getMsgContainerUid(), item.getIxsLocalId());
 
-                List<EcrMsgInterviewAnswerRepeatDto> msgInterviewAnswerRepeats = this.ecrMsgQueryRepository.FetchMsgInterviewAnswerRepeatForApplicableEcr(
+                List<EcrMsgInterviewAnswerRepeatDto> msgInterviewAnswerRepeats = this.ecrMsgQueryRepository.fetchMsgInterviewAnswerRepeatForApplicableEcr(
                         msgContainer.getMsgContainerUid(), item.getIxsLocalId());
 
                 selectedInterview.setMsgInterview(item);
@@ -193,14 +193,14 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
             }
 
             List<EcrSelectedTreatment> selectedTreatments = new ArrayList<>();
-            List<EcrMsgTreatmentDto> msgTreatments = this.ecrMsgQueryRepository.FetchMsgTreatmentForApplicableEcr(msgContainer.getMsgContainerUid());
+            List<EcrMsgTreatmentDto> msgTreatments = this.ecrMsgQueryRepository.fetchMsgTreatmentForApplicableEcr(msgContainer.getMsgContainerUid());
             for(var item : msgTreatments) {
                 EcrSelectedTreatment selectedTreatment = new EcrSelectedTreatment();
 
-                List<EcrMsgTreatmentProviderDto> ecrMsgTreatmentProviders = this.ecrMsgQueryRepository.FetchMsgTreatmentProviderForApplicableEcr(
+                List<EcrMsgTreatmentProviderDto> ecrMsgTreatmentProviders = this.ecrMsgQueryRepository.fetchMsgTreatmentProviderForApplicableEcr(
                         msgContainer.getMsgContainerUid());
 
-                List<EcrMsgTreatmentOrganizationDto> ecrMsgTreatmentOrganizations = this.ecrMsgQueryRepository.FetchMsgTreatmentOrganizationForApplicableEcr(
+                List<EcrMsgTreatmentOrganizationDto> ecrMsgTreatmentOrganizations = this.ecrMsgQueryRepository.fetchMsgTreatmentOrganizationForApplicableEcr(
                         msgContainer.getMsgContainerUid()
                 );
 
