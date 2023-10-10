@@ -26,9 +26,9 @@ public class CdaOrgMappingHelper implements ICdaOrgMappingHelper {
             CdaOrganizationMapper mapper = new CdaOrganizationMapper();
             if(input.getMsgOrganizations()!= null && !input.getMsgOrganizations().isEmpty()) {
                 for(int i = 0; i < input.getMsgOrganizations().size(); i++) {
-                    clinicalDocument = mapToOrganizationTopDocumentCheck(clinicalDocument);
+                    mapToOrganizationTopDocumentCheck(clinicalDocument);
 
-                    clinicalDocument = mapToOrganizationTopFieldMap(
+                    mapToOrganizationTopFieldMap(
                              clinicalDocument,
                              performerComponentCounter,
                              input,
@@ -45,7 +45,7 @@ public class CdaOrgMappingHelper implements ICdaOrgMappingHelper {
         }
 
     }
-    private POCDMT000040Section mapToOrganizationTopFieldMap(
+    private void mapToOrganizationTopFieldMap(
             POCDMT000040Section clinicalDocument,
             int performerComponentCounter,
             EcrSelectedRecord input,
@@ -95,11 +95,10 @@ public class CdaOrgMappingHelper implements ICdaOrgMappingHelper {
         clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
         clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
         clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setDisplayName(ACT_CODE_DISPLAY_NAME);
-        return clinicalDocument;
 
     }
 
-    private POCDMT000040Section mapToOrganizationTopDocumentCheck(POCDMT000040Section clinicalDocument) {
+    private void mapToOrganizationTopDocumentCheck(POCDMT000040Section clinicalDocument) {
         if (clinicalDocument.getCode() == null) {
             clinicalDocument.addNewCode();
         }
@@ -107,7 +106,6 @@ public class CdaOrgMappingHelper implements ICdaOrgMappingHelper {
         if (clinicalDocument.getTitle() == null) {
             clinicalDocument.addNewTitle();
         }
-        return clinicalDocument;
 
     }
 

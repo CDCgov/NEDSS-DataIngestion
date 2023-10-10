@@ -43,7 +43,7 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
                         treatmentCounter++;
                         componentCounter++;
 
-                        clinicalDocument = mapToTreatmentTopHasNoCounter( clinicalDocument,  c);
+                        mapToTreatmentTopHasNoCounter( clinicalDocument,  c);
                     }
 
                     int cTreatment = 0;
@@ -85,7 +85,7 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
         }
     }
 
-    private POCDMT000040ClinicalDocument1 mapToTreatmentTopHasNoCounter(POCDMT000040ClinicalDocument1 clinicalDocument, int c) throws EcrCdaXmlException {
+    private void mapToTreatmentTopHasNoCounter(POCDMT000040ClinicalDocument1 clinicalDocument, int c) throws EcrCdaXmlException {
             clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCode("55753-8");
             clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem(CODE_SYSTEM);
             clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName(CODE_SYSTEM_NAME);
@@ -100,7 +100,6 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
                 clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewText();
             }
 
-            return clinicalDocument;
     }
     private TreatmentDocument mapToTreatmentTopDocCheck( POCDMT000040ClinicalDocument1 clinicalDocument) {
         int c = 0;
@@ -178,17 +177,15 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
                  list);
 
 
-        output =  mapToTreatmentTreatName( output,
+         mapToTreatmentTreatName( output,
                  treatmentName,
                  customTreatment,
                  treatmentNameQuestion);
-
-        output = mapToTreatmentTreatDt( output,
+         mapToTreatmentTreatDt( output,
                  TRT_TREATMENT_DT,
                  TRT_DURATION_AMT,
                  TRT_DURATION_UNIT_CD);
-
-        output = mapToTreatmentTreatFrequency( output,
+         mapToTreatmentTreatFrequency( output,
                  TRT_FREQUENCY_AMT_CD );
 
         int performerCounter=0;
@@ -248,8 +245,8 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
         return model;
     }
 
-    private POCDMT000040SubstanceAdministration mapToTreatmentTreatFrequency(POCDMT000040SubstanceAdministration output,
-                                         String TRT_FREQUENCY_AMT_CD ) {
+    private void mapToTreatmentTreatFrequency(POCDMT000040SubstanceAdministration output,
+                                              String TRT_FREQUENCY_AMT_CD ) {
         if (!TRT_FREQUENCY_AMT_CD.isEmpty()) {
             int c = 0;
             if (output.getEffectiveTimeArray().length == 0) {
@@ -286,10 +283,9 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
 
             output.setEffectiveTimeArray(c, element);
         }
-        return output;
     }
 
-    private POCDMT000040SubstanceAdministration mapToTreatmentTreatDt(POCDMT000040SubstanceAdministration output,
+    private void mapToTreatmentTreatDt(POCDMT000040SubstanceAdministration output,
                                        String TRT_TREATMENT_DT,
                                        String TRT_DURATION_AMT,
                                        String TRT_DURATION_UNIT_CD) throws EcrCdaXmlException {
@@ -322,10 +318,9 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
 
             output.setEffectiveTimeArray(0, lowElement);
         }
-        return output;
     }
 
-    private POCDMT000040SubstanceAdministration mapToTreatmentTreatName(POCDMT000040SubstanceAdministration output,
+    private void mapToTreatmentTreatName(POCDMT000040SubstanceAdministration output,
                                          String treatmentName,
                                          String customTreatment,
                                          String treatmentNameQuestion) throws EcrCdaXmlException {
@@ -347,7 +342,6 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
             output.getConsumable().getManufacturedProduct().getManufacturedLabeledDrug().getCode().setNullFlavor("OTH");
             output.getConsumable().getManufacturedProduct().getManufacturedLabeledDrug().getName().set(cdaMapHelper.mapToCData(customTreatment));
         }
-        return output;
     }
 
     private StrucDocText mapToTreatmentCustomTreat(String customTreatment,
@@ -378,8 +372,8 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
         return list;
     }
 
-    private POCDMT000040SubstanceAdministration mapToTreatmentFieldCheckDoseAmt(EcrSelectedTreatment input,
-                                                                                POCDMT000040SubstanceAdministration output) {
+    private void mapToTreatmentFieldCheckDoseAmt(EcrSelectedTreatment input,
+                                                 POCDMT000040SubstanceAdministration output) {
         String dosageSt = input.getMsgTreatment().getTrtDosageAmt().toString();
         if(!dosageSt.isEmpty()) {
             if (output.getDoseQuantity() == null) {
@@ -387,11 +381,10 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
             }
             output.getDoseQuantity().setValue(input.getMsgTreatment().getTrtDosageAmt());
         }
-        return output;
     }
 
-    private POCDMT000040SubstanceAdministration mapToTreatmentFieldCheckLocalId(EcrSelectedTreatment input,
-                                                                                POCDMT000040SubstanceAdministration output) {
+    private void mapToTreatmentFieldCheckLocalId(EcrSelectedTreatment input,
+                                                 POCDMT000040SubstanceAdministration output) {
         int c = 0;
         if (output.getIdArray().length == 0) {
             output.addNewId();
@@ -402,7 +395,6 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
         output.getIdArray(c).setRoot(ID_ROOT);
         output.getIdArray(c).setAssigningAuthorityName("LR");
         output.getIdArray(c).setExtension(input.getMsgTreatment().getTrtLocalId());
-        return output;
     }
 
     private TreatmentField mapToTreatmentFieldCheck(EcrSelectedTreatment input, POCDMT000040SubstanceAdministration output,
@@ -431,7 +423,7 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
             output.getDoseQuantity().setUnit(TRT_DOSAGE_UNIT_CD);
         }
         if(name.equals("trtDosageAmt") && value != null && input.getMsgTreatment().getTrtDosageAmt() != null) {
-            output = mapToTreatmentFieldCheckDoseAmt( input,
+            mapToTreatmentFieldCheckDoseAmt( input,
                      output);
         }
         if(name.equals("trtDrugCd") && value != null && input.getMsgTreatment().getTrtDrugCd() != null && !input.getMsgTreatment().getTrtDrugCd().isEmpty()) {
@@ -439,7 +431,7 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
             treatmentName = input.getMsgTreatment().getTrtDrugCd();
         }
         if(name.equals("trtLocalId")  && value != null&& input.getMsgTreatment().getTrtLocalId() != null && !input.getMsgTreatment().getTrtLocalId().isEmpty()) {
-            output = mapToTreatmentFieldCheckLocalId( input,
+            mapToTreatmentFieldCheckLocalId( input,
                      output);
             treatmentUid=input.getMsgTreatment().getTrtLocalId();
         }
@@ -470,36 +462,51 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
     private AttributeMapper mapToAttributes(String input) {
         AttributeMapper model = new AttributeMapper();
         if (!input.isEmpty()) {
-            if (input.equals("BID") || input.equals("Q12H")) {
-                model.setAttribute1("12");
-                model.setAttribute2("h");
-            } else if (input.equals("5ID")) {
-                model.setAttribute1("4.5");
-                model.setAttribute2("h");
-            } else if (input.equals("TID") || input.equals("Q8H")) {
-                model.setAttribute1("8");
-                model.setAttribute2("h");
-            } else if (input.equals("QW")) {
-                model.setAttribute1("1");
-                model.setAttribute2("wk");
-            } else if (input.equals("QID") || input.equals("Q6H")) {
-                model.setAttribute1("6");
-                model.setAttribute2("h");
-            } else if (input.equals("QD")) {
-                model.setAttribute1("1");
-                model.setAttribute2("d");
-            } else if (input.equals("Q5D")) {
-                model.setAttribute1("1.4");
-                model.setAttribute2("d");
-            } else if (input.equals("Q4H")) {
-                model.setAttribute1("4");
-                model.setAttribute2("h");
-            } else if (input.equals("Q3D")) {
-                model.setAttribute1("3.5");
-                model.setAttribute2("d");
-            } else if (input.equals("Once")) {
-                model.setAttribute1("24");
-                model.setAttribute2("h");
+            switch (input) {
+                case "BID", "Q12H" -> {
+                    model.setAttribute1("12");
+                    model.setAttribute2("h");
+                }
+                case "5ID" -> {
+                    model.setAttribute1("4.5");
+                    model.setAttribute2("h");
+                }
+                case "TID", "Q8H" -> {
+                    model.setAttribute1("8");
+                    model.setAttribute2("h");
+                }
+                case "QW" -> {
+                    model.setAttribute1("1");
+                    model.setAttribute2("wk");
+                }
+                case "QID", "Q6H" -> {
+                    model.setAttribute1("6");
+                    model.setAttribute2("h");
+                }
+                case "QD" -> {
+                    model.setAttribute1("1");
+                    model.setAttribute2("d");
+                }
+                case "Q5D" -> {
+                    model.setAttribute1("1.4");
+                    model.setAttribute2("d");
+                }
+                case "Q4H" -> {
+                    model.setAttribute1("4");
+                    model.setAttribute2("h");
+                }
+                case "Q3D" -> {
+                    model.setAttribute1("3.5");
+                    model.setAttribute2("d");
+                }
+                case "Once" -> {
+                    model.setAttribute1("24");
+                    model.setAttribute2("h");
+                }
+                default -> {
+                    model.setAttribute1("");
+                    model.setAttribute2("");
+                }
             }
 
         }

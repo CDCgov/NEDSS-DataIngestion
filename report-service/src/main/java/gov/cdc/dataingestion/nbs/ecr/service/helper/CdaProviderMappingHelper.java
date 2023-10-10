@@ -55,7 +55,7 @@ public class CdaProviderMappingHelper implements ICdaProviderMappingHelper {
 
     }
 
-    private POCDMT000040Section mapToProviderTopFieldCheckDocCheck(POCDMT000040Section clinicalDocument) {
+    private void mapToProviderTopFieldCheckDocCheck(POCDMT000040Section clinicalDocument) {
         if (clinicalDocument.getTitle() == null) {
             clinicalDocument.addNewTitle();
         }
@@ -63,19 +63,16 @@ public class CdaProviderMappingHelper implements ICdaProviderMappingHelper {
         if (clinicalDocument.getCode() == null) {
             clinicalDocument.addNewCode();
         }
-        return clinicalDocument;
 
     }
 
-    private POCDMT000040Section mapToProviderTopFieldCheckActCheck(POCDMT000040Section clinicalDocument, int performerSectionCounter) {
+    private void mapToProviderTopFieldCheckActCheck(POCDMT000040Section clinicalDocument, int performerSectionCounter) {
         if (clinicalDocument.getEntryArray(performerSectionCounter).getAct() == null) {
             clinicalDocument.getEntryArray(performerSectionCounter).addNewAct();
             clinicalDocument.getEntryArray(performerSectionCounter).getAct().addNewParticipant();
         } else {
             clinicalDocument.getEntryArray(performerSectionCounter).getAct().addNewParticipant();
         }
-        return clinicalDocument;
-
     }
     private ProviderFieldCheck mapToProviderTopFieldCheck(EcrSelectedRecord input,
                                             POCDMT000040Section clinicalDocument,
@@ -90,18 +87,15 @@ public class CdaProviderMappingHelper implements ICdaProviderMappingHelper {
             // ignore
         }
         else {
-            int c = 0;
 
-            clinicalDocument =  mapToProviderTopFieldCheckDocCheck( clinicalDocument);
+            mapToProviderTopFieldCheckDocCheck( clinicalDocument);
 
             if (performerComponentCounter < 1) {
                 componentCounter++;
                 performerComponentCounter = componentCounter;
 
                 var nestedCode = CODE;
-                if (nestedCode.contains("-")) {
-                    nestedCode = nestedCode.replaceAll("-", ""); // NOSONAR
-                }
+                nestedCode = nestedCode.replaceAll("-", ""); // NOSONAR
                 clinicalDocument.getCode().setCode(nestedCode);
                 clinicalDocument.getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
                 clinicalDocument.getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
@@ -118,7 +112,7 @@ public class CdaProviderMappingHelper implements ICdaProviderMappingHelper {
                 clinicalDocument.addNewEntry();
             }
 
-            clinicalDocument = mapToProviderTopFieldCheckActCheck( clinicalDocument,  performerSectionCounter);
+            mapToProviderTopFieldCheckActCheck( clinicalDocument,  performerSectionCounter);
 
             POCDMT000040Participant2 out = clinicalDocument.getEntryArray(performerSectionCounter).getAct().getParticipantArray(0);
             POCDMT000040Participant2 output = this.cdaMapHelper.mapToPSN(
