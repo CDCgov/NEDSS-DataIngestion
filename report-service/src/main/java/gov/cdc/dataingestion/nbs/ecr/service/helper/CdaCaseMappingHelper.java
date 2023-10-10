@@ -547,12 +547,12 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             ce.setCodeSystemName(in.getAnsToCodeSystemDescTxt());
         }
         else if (name.equals(COL_ANS_TO_DISPLAY_NM)) {
-            ce = setMessageAnswerArrayValueAnsDisplayNm(ce, in);
+            setMessageAnswerArrayValueAnsDisplayNm(ce, in);
         }
         out.getSection().getEntryArray(counter).getObservation().getValueArray(sequenceNbr).set(ce);
     }
 
-    private CE setMessageAnswerArrayValueAnsDisplayNm(CE ce, EcrMsgCaseAnswerDto in) {
+    private void setMessageAnswerArrayValueAnsDisplayNm(CE ce, EcrMsgCaseAnswerDto in) {
         if (!in.getAnsToDisplayNm().isEmpty()) {
             if(ce.getTranslationArray(0).getDisplayName().equals("OTH^")) {
                 ce.setDisplayName(ce.getTranslationArray(0).getDisplayName());
@@ -561,7 +561,6 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                 ce.setDisplayName(in.getAnsToDisplayNm());
             }
         }
-        return ce;
     }
 
     private void checkClinicalSectionCode(POCDMT000040Section out) {
@@ -697,6 +696,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             case COL_QUES_DISPLAY_TXT ->
                     mapMultiSelectDisplayQues(in, out, param.getSectionCounter(), param.getComponentCounter());
             default ->
+                    param.setOut(out);
         }
         param.setOut(out);
         return param;
@@ -847,18 +847,17 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             ce.setCodeSystemName(in.getAnsToCodeSystemDescTxt());
         }
         else if (name.equals(COL_ANS_TO_DISPLAY_NM)) {
-            ce = mapMultiSelectCodedCountyFieldDisplayName(ce, in);
+            mapMultiSelectCodedCountyFieldDisplayName(ce, in);
         }
 
         out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getValueArray(seqNbr).set(ce);
 
     }
 
-    private CE mapMultiSelectCodedCountyFieldDisplayName(CE ce, EcrMsgCaseAnswerRepeatDto in) {
+    private void mapMultiSelectCodedCountyFieldDisplayName(CE ce, EcrMsgCaseAnswerRepeatDto in) {
         if (!in.getAnsToDisplayNm().isEmpty()) {
             ce.setDisplayName(in.getAnsToDisplayNm());
         }
-        return ce;
     }
 
     private CdaCaseMultiGroupSeqNumber mapMultiSelectAnsGroupSeqNumber(CdaCaseMultiGroupSeqNumber param, EcrMsgCaseAnswerRepeatDto in) {
