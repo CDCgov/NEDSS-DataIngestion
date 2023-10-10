@@ -39,11 +39,8 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
 
         try {
             CdaCaseMapper mapper = new CdaCaseMapper();
-            /**
-             * CASE - 1st PHASE TESTED
-             * **/
             if(!input.getMsgCases().isEmpty()) {
-                clinicalDocument =  checkCaseStructComponent(clinicalDocument);
+                checkCaseStructComponent(clinicalDocument);
 
                 // componentCounter should be zero initially
                 for(int i = 0; i < input.getMsgCases().size(); i++) {
@@ -104,7 +101,6 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
 
         int questionGroupCounter=0;
         int answerGroupCounter=0;
-        String OldQuestionId=CHANGE;
         int sectionCounter = 0;
         int repeatComponentCounter=0;
 
@@ -112,18 +108,15 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         if (caseDto.getMsgCaseParticipants().size() > 0
                 || caseDto.getMsgCaseAnswers().size() > 0 || caseDto.getMsgCaseAnswerRepeats().size() > 0) {
 
-            /**CASE PARTICIPANT**/
             var participantModel = mapCaseParticipant(caseDto, output, componentCaseCounter, counter);
             output = participantModel.getStructuredBody();
             componentCaseCounter = participantModel.getComponentCaseCounter();
             counter = participantModel.getCounter();
 
-            /**CASE ANSWER**/
-            var caseAnsModel = mapCaseAnswer(caseDto, output, componentCaseCounter, counter, OldQuestionId);
+            var caseAnsModel = mapCaseAnswer(caseDto, output, componentCaseCounter, counter);
             output = caseAnsModel.getStructuredBody();
             componentCaseCounter = caseAnsModel.getComponentCaseCounter();
 
-            /**CASE PARTICIPANT REPEAT**/
             var caseParRepeatModel = mapCaseParticipantRepeat(caseDto, output, repeatComponentCounter,
                     componentCaseCounter, answerGroupCounter, questionGroupCounter, sectionCounter);
             output = caseParRepeatModel.getStructuredBody();
@@ -145,7 +138,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             String value = this.cdaMapHelper.getValueFromMap(entry);
 
             if (checkInvalidField(name, caseDto)) {
-                // do nothing
+                // IGNORE
             }
             else if (value != null && !value.isEmpty()) {
                 String questionId = this.cdaMapHelper.mapToQuestionId(name);
@@ -164,7 +157,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                     repeats = repeatModel.getRepeats();
                 }
                 else {
-                    output = mapCaseFieldCheckHasNoRepeat( output,
+                     mapCaseFieldCheckHasNoRepeat( output,
                      componentCaseCounter,
                      value,
                      questionId);
@@ -180,7 +173,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         return caseField;
     }
 
-    private POCDMT000040StructuredBody mapCaseFieldCheckHasNoRepeat(POCDMT000040StructuredBody output,
+    private void mapCaseFieldCheckHasNoRepeat(POCDMT000040StructuredBody output,
                                               int componentCaseCounter,
                                               String value,
                                               String questionId) throws EcrCdaXmlException {
@@ -202,7 +195,6 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                 element
         );
         output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).setObservation(obs);
-        return output;
     }
     private CdaCaseFieldRepeat mapCaseFieldCheckHasRepeat(POCDMT000040StructuredBody output,
                                        int componentCaseCounter,
@@ -272,7 +264,8 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
     }
 
     private CdaCaseAnswer mapCaseAnswer(EcrSelectedCase caseDto, POCDMT000040StructuredBody output,
-                               int componentCaseCounter, int counter, String oldQuestionId) throws EcrCdaXmlException {
+                               int componentCaseCounter, int counter ) throws EcrCdaXmlException {
+        String oldQuestionId = CHANGE;
         CdaCaseAnswer caseModel = new CdaCaseAnswer();
         if (caseDto.getMsgCaseAnswers() != null) {
             for(int i = 0; i < caseDto.getMsgCaseAnswers().size(); i++) {
@@ -337,7 +330,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         output.setMoodCode(XActMoodDocumentObservation.EVN);
         List<String> repeats = GetStringsBeforePipe(invConditionCd);
 
-        String tripletCodedValue =  "";
+        String tripletCodedValue;
         PhdcQuestionLookUpDto questionLookUpDto = cdaMapHelper.mapToCodedQuestionType(questionId);
         output.getCode().setCode(questionLookUpDto.getQuesCodeSystemCd());
         output.getCode().setCodeSystem(questionLookUpDto.getQuesCodeSystemDescTxt());
@@ -460,14 +453,14 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             param.setSequenceNbr(out.getSection().getEntryArray(param.getCounter()).getObservation().getValueArray().length);
         }
         else if (param.getDataType().equalsIgnoreCase(DATA_TYPE_CODE) || param.getDataType().equalsIgnoreCase(COUNTY)) {
-            out = setMessageAnswerArrayValue(name, in, param.getSequenceNbr(), param.getCounter(), out);
+             setMessageAnswerArrayValue(name, in, param.getSequenceNbr(), param.getCounter(), out);
         }
 
         else if (param.getDataType().equalsIgnoreCase("TEXT") || param.getDataType().equalsIgnoreCase(DATA_TYPE_NUMERIC)) {
-            out = setMessageAnswerAnsText(name, in, out, param.getCounter());
+             setMessageAnswerAnsText(name, in, out, param.getCounter());
         }
         else if (param.getDataType().equalsIgnoreCase("DATE")) {
-            out = setMessageAnswerDate(name, in, out, param.getCounter(), value);
+             setMessageAnswerDate(name, in, out, param.getCounter(), value);
         }
 
         param.setOut(out);
@@ -506,7 +499,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         return model;
     }
 
-    private POCDMT000040Component3 setMessageAnswerDate(String name, EcrMsgCaseAnswerDto in, POCDMT000040Component3 out, int counter,
+    private void setMessageAnswerDate(String name, EcrMsgCaseAnswerDto in, POCDMT000040Component3 out, int counter,
                                       String value) throws EcrCdaXmlException {
         if (name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()) {
             var element = out.getSection().getEntryArray(counter).getObservation().getValueArray(0);
@@ -519,18 +512,16 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             cursor.dispose();
         }
 
-        return out;
     }
 
-    private POCDMT000040Component3 setMessageAnswerAnsText(String name, EcrMsgCaseAnswerDto in, POCDMT000040Component3 out, int counter) {
+    private void setMessageAnswerAnsText(String name, EcrMsgCaseAnswerDto in, POCDMT000040Component3 out, int counter) {
         if (name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()) {
             var element = out.getSection().getEntryArray(counter).getObservation();
             var ot = cdaMapHelper.mapToSTValue(in.getAnswerTxt(), element);
             out.getSection().getEntryArray(counter).setObservation((POCDMT000040Observation) ot);
         }
-        return out;
     }
-    private POCDMT000040Component3 setMessageAnswerArrayValue(String name, EcrMsgCaseAnswerDto in,
+    private void setMessageAnswerArrayValue(String name, EcrMsgCaseAnswerDto in,
                                             int sequenceNbr, int counter,
                                             POCDMT000040Component3 out) {
         CE ce = CE.Factory.newInstance();
@@ -559,7 +550,6 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             ce = setMessageAnswerArrayValueAnsDisplayNm(ce, in);
         }
         out.getSection().getEntryArray(counter).getObservation().getValueArray(sequenceNbr).set(ce);
-        return out;
     }
 
     private CE setMessageAnswerArrayValueAnsDisplayNm(CE ce, EcrMsgCaseAnswerDto in) {
@@ -574,14 +564,13 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         return ce;
     }
 
-    private POCDMT000040Section checkClinicalSectionCode(POCDMT000040Section out) {
+    private void checkClinicalSectionCode(POCDMT000040Section out) {
         if (out.getCode() == null) {
             out.addNewCode();
         }
         if (out.getTitle() == null) {
             out.addNewTitle();
         }
-        return out;
     }
 
     private MultiSelect mapToMultiSelect(EcrMsgCaseAnswerRepeatDto in,
@@ -589,7 +578,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                                          int questionGroupCounter,
                                          int sectionCounter, POCDMT000040Section out) throws EcrCdaXmlException {
 
-        out = checkClinicalSectionCode(out);
+        checkClinicalSectionCode(out);
 
         out.getCode().setCode("1234567-RPT");
         out.getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
@@ -619,7 +608,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
 
 
             if (name.equalsIgnoreCase(COL_QUES_GROUP_SEQ_NBR)) {
-                questionGroupSeqNbr = Integer.valueOf(in.getQuestionGroupSeqNbr());
+                questionGroupSeqNbr = Integer.parseInt(in.getQuestionGroupSeqNbr());
             }
             else if (name.equalsIgnoreCase(COL_ANS_GROUP_SEQ_NBR)) {
 
@@ -645,11 +634,11 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                 dataType = in.getDataType();
             }
             else if (name.equalsIgnoreCase(COL_SEQ_NBR)) {
-                seqNbr = Integer.valueOf(in.getSeqNbr());
+                seqNbr = Integer.parseInt(in.getSeqNbr());
             }
 
             if(dataType.equalsIgnoreCase(DATA_TYPE_CODE) || dataType.equalsIgnoreCase("CODED_COUNTY")){
-                out = mapMultiSelectCodedCounty(
+                mapMultiSelectCodedCounty(
                          name,
                          in,
                          out,
@@ -659,13 +648,13 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             }
             else if ((dataType.equalsIgnoreCase("TEXT") || dataType.equalsIgnoreCase(DATA_TYPE_NUMERIC)) &&
                     name.equals(COL_ANS_TXT)) {
-                out = mapMultiSelectDataNumericType(in,
+                mapMultiSelectDataNumericType(in,
                         out,
                         questionIdentifier, sectionCounter, componentCounter
                 );
             }
             else if(dataType.equalsIgnoreCase("DATE")){
-                out = mapMultiSelectDate( in, out, name, value, sectionCounter, componentCounter);
+                mapMultiSelectDate( in, out, name, value, sectionCounter, componentCounter);
             }
 
             var param = new CdaCaseMultiSelectFields();
@@ -696,24 +685,23 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             EcrMsgCaseAnswerRepeatDto in,
             POCDMT000040Section out,
             CdaCaseMultiSelectFields param) {
-        if(name.equals(COL_QUES_IDENTIFIER)){
-            out = mapMultiSelectQuesIdentifier( in, out, param.getSectionCounter(), param.getComponentCounter());
-            param.setQuestionIdentifier(value);
-        }
-        else if(name.equals(COL_QUES_CODE_SYSTEM_CD)){
-            out = mapMultiSelectCodeSystemQues( in, out, param.getSectionCounter(),  param.getComponentCounter());
-        }
-        else if(name.equals(COL_QUES_CODE_SYSTEM_DESC_TXT)){
-            out = mapMultiSelectCodeSystemDescQues(in, out, param.getSectionCounter(),  param.getComponentCounter());
-        }
-        else if(name.equals(COL_QUES_DISPLAY_TXT)){
-            out = mapMultiSelectDisplayQues(in, out, param.getSectionCounter(),  param.getComponentCounter());
+        switch (name) {
+            case COL_QUES_IDENTIFIER -> {
+                mapMultiSelectQuesIdentifier(in, out, param.getSectionCounter(), param.getComponentCounter());
+                param.setQuestionIdentifier(value);
+            }
+            case COL_QUES_CODE_SYSTEM_CD ->
+                    mapMultiSelectCodeSystemQues(in, out, param.getSectionCounter(), param.getComponentCounter());
+            case COL_QUES_CODE_SYSTEM_DESC_TXT ->
+                    mapMultiSelectCodeSystemDescQues(in, out, param.getSectionCounter(), param.getComponentCounter());
+            case COL_QUES_DISPLAY_TXT ->
+                    mapMultiSelectDisplayQues(in, out, param.getSectionCounter(), param.getComponentCounter());
         }
         param.setOut(out);
         return param;
     }
 
-    private POCDMT000040Section mapMultiSelectDisplayQues(EcrMsgCaseAnswerRepeatDto in,
+    private void mapMultiSelectDisplayQues(EcrMsgCaseAnswerRepeatDto in,
                                                                  POCDMT000040Section out,
                                                                  int sectionCounter,
                                                                  int componentCounter) {
@@ -724,10 +712,9 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         }
         out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation()
                 .getCode().setDisplayName(in.getQuesDisplayTxt());
-        return out;
     }
 
-    private POCDMT000040Section mapMultiSelectCodeSystemDescQues(EcrMsgCaseAnswerRepeatDto in,
+    private void mapMultiSelectCodeSystemDescQues(EcrMsgCaseAnswerRepeatDto in,
                                                              POCDMT000040Section out,
                                                              int sectionCounter,
                                                              int componentCounter) {
@@ -739,10 +726,9 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation()
                 .getCode().setCodeSystemName(in.getQuesCodeSystemDescTxt());
 
-        return out;
     }
 
-    private POCDMT000040Section mapMultiSelectCodeSystemQues(EcrMsgCaseAnswerRepeatDto in,
+    private void mapMultiSelectCodeSystemQues(EcrMsgCaseAnswerRepeatDto in,
                                                              POCDMT000040Section out,
                                                              int sectionCounter,
                                                              int componentCounter) {
@@ -753,10 +739,9 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         }
         out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation()
                 .getCode().setCodeSystem(in.getQuesCodeSystemCd());
-        return out;
     }
 
-    private POCDMT000040Section mapMultiSelectQuesIdentifier(EcrMsgCaseAnswerRepeatDto in,
+    private void mapMultiSelectQuesIdentifier(EcrMsgCaseAnswerRepeatDto in,
                                                              POCDMT000040Section out,
                                                              int sectionCounter,
                                                              int componentCounter) {
@@ -767,10 +752,9 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         }
         out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation()
                 .getCode().setCode(in.getQuestionIdentifier());
-        return out;
     }
 
-    private POCDMT000040Section mapMultiSelectDate(EcrMsgCaseAnswerRepeatDto in,
+    private void mapMultiSelectDate(EcrMsgCaseAnswerRepeatDto in,
                                     POCDMT000040Section out,
                                     String name,
                                     String value,
@@ -802,16 +786,13 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             cursor.toFirstChild();
             cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "TS");
             cursor.setAttributeText(new QName("", value), null);
-            if (name.equals(COL_ANS_TXT)) {
-                String newValue = cdaMapHelper.mapToTsType(in.getAnswerTxt()).toString();
-                cursor.setAttributeText(new QName("", value), newValue);
-            }
+            String newValue = cdaMapHelper.mapToTsType(in.getAnswerTxt()).toString();
+            cursor.setAttributeText(new QName("", value), newValue);
             cursor.dispose();
         }
 
-        return out;
     }
-    private POCDMT000040Section mapMultiSelectDataNumericType(EcrMsgCaseAnswerRepeatDto in,
+    private void mapMultiSelectDataNumericType(EcrMsgCaseAnswerRepeatDto in,
                                                POCDMT000040Section out,
                                                String questionIdentifier,
                                                int sectionCounter,
@@ -833,10 +814,9 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).setObservation((POCDMT000040Observation)ot);
         }
 
-        return out;
     }
 
-    private POCDMT000040Section mapMultiSelectCodedCounty(
+    private void mapMultiSelectCodedCounty(
             String name,
             EcrMsgCaseAnswerRepeatDto in,
             POCDMT000040Section out,
@@ -871,7 +851,6 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
 
         out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getValueArray(seqNbr).set(ce);
 
-        return out;
     }
 
     private CE mapMultiSelectCodedCountyFieldDisplayName(CE ce, EcrMsgCaseAnswerRepeatDto in) {
@@ -886,7 +865,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             param.getOut().getEntryArray(param.getSectionCounter()).addNewOrganizer();
         }
 
-        param.setAnswerGroupSeqNbr(Integer.valueOf(in.getAnswerGroupSeqNbr()));
+        param.setAnswerGroupSeqNbr(Integer.parseInt(in.getAnswerGroupSeqNbr()));
         if((param.getAnswerGroupSeqNbr() == param.getAnswerGroupCounter()) && (param.getQuestionGroupSeqNbr() == param.getQuestionGroupCounter())){
             param.setComponentCounter(param.getOut().getEntryArray(param.getSectionCounter()).getOrganizer().getComponentArray().length);
         }
@@ -904,9 +883,9 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
 
             param.getOut().getEntryArray(param.getSectionCounter()).getOrganizer().getCode().setCode(String.valueOf(param.getQuestionGroupSeqNbr()));
             param.getOut().getEntryArray(param.getSectionCounter()).setTypeCode(XActRelationshipEntry.COMP);
-            param.getOut().getEntryArray(param.getSectionCounter()).getOrganizer().setClassCode(XActClassDocumentEntryOrganizer.CLUSTER);;
+            param.getOut().getEntryArray(param.getSectionCounter()).getOrganizer().setClassCode(XActClassDocumentEntryOrganizer.CLUSTER);
             param.getOut().getEntryArray(param.getSectionCounter()).getOrganizer().setMoodCode("EVN");
-            param.getOut().getEntryArray(param.getSectionCounter()).getOrganizer().getStatusCode().setCode("completed");;
+            param.getOut().getEntryArray(param.getSectionCounter()).getOrganizer().getStatusCode().setCode("completed");
             param.setComponentCounter(0);
         }
 
@@ -924,7 +903,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
     }
 
 
-    private POCDMT000040ClinicalDocument1 checkCaseStructComponent(
+    private void checkCaseStructComponent(
             POCDMT000040ClinicalDocument1 clinicalDocument
     ) {
         if (clinicalDocument.getComponent() == null) {
@@ -941,7 +920,6 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                 }
             }
         }
-        return clinicalDocument;
     }
 
     private CdaCaseComponent checkCaseStructComponentWithSectionAndIndex(

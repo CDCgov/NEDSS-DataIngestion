@@ -22,10 +22,7 @@ import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
 import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforePipe;
@@ -74,7 +71,7 @@ public class CdaMapHelper implements ICdaMapHelper {
     public TS mapToTsType(String data) throws EcrCdaXmlException {
         try {
             TS ts = TS.Factory.newInstance();
-            String result = "";
+            String result;
             boolean checkerCode = data.contains("/");
             boolean checkerCodeDash = data.contains("-");
             if (!checkerCode && !checkerCodeDash) {
@@ -86,7 +83,7 @@ public class CdaMapHelper implements ICdaMapHelper {
                 Date date = inputFormat.parse(data);
                 result = outputFormat.format(date);
             }
-            else if (checkerCode) {
+            else {
                 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.S");
                 SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd HH:mm:ss.S");
                 Date date = inputFormat.parse(data);
@@ -262,13 +259,13 @@ public class CdaMapHelper implements ICdaMapHelper {
 
                 if (!result.getDataType().isEmpty()) {
                     if (result.getDataType().equalsIgnoreCase(DATA_TYPE_CODE)) {
-                        observation = mapToObservationDateTypeCoded(
+                         mapToObservationDateTypeCoded(
                                  observation,
                                  data,
                                  result);
                     }
                     else {
-                        observation = mapToObservationDataTypeNotCoded( result,
+                        mapToObservationDataTypeNotCoded( result,
                                  observation,
                                  data,
                                  defaultQuestionIdentifier);
@@ -291,26 +288,25 @@ public class CdaMapHelper implements ICdaMapHelper {
 
     }
 
-    private POCDMT000040Observation mapToObservationDateTypeCoded(
+    private void mapToObservationDateTypeCoded(
             POCDMT000040Observation observation,
             String data,
             PhdcQuestionLookUpDto result) {
         var dataList = GetStringsBeforePipe(data);
-        String dataStr = "";
-        for(int i = 0; i < dataList.size(); i++) {
-            dataStr = dataStr + " " +  dataList.get(i);
+        StringBuilder dataStr = new StringBuilder();
+        for (String s : dataList) {
+            dataStr.append(" ").append(s);
 
         }
-        dataStr  = dataStr.trim();
+        dataStr = new StringBuilder(dataStr.toString().trim());
         observation.addNewCode();
-        observation.getCode().setCode(dataStr);
+        observation.getCode().setCode(dataStr.toString());
         observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
         observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
         observation.getCode().setDisplayName(result.getQuesDisplayName());
-        return observation;
     }
 
-    private  POCDMT000040Observation mapToObservationDataTypeNotCoded(PhdcQuestionLookUpDto result,
+    private  void mapToObservationDataTypeNotCoded(PhdcQuestionLookUpDto result,
                                                    POCDMT000040Observation observation,
                                                    String data,
                                                    String defaultQuestionIdentifier) throws EcrCdaXmlException {
@@ -359,7 +355,6 @@ public class CdaMapHelper implements ICdaMapHelper {
                 observation.getCode().setDisplayName(result.getQuesDisplayName());
             }
 
-            return observation;
         } catch (Exception e) {
             throw new EcrCdaXmlException(e.getMessage());
         }
@@ -531,39 +526,38 @@ public class CdaMapHelper implements ICdaMapHelper {
         }
 
         if(!firstName.isEmpty()){
-            out = mapToPSNFirstName( firstName,   out);
+            mapToPSNFirstName( firstName,   out);
         }
         if(!lastName.isEmpty()){
-            out = mapToPSNLastName( lastName,   out);
+            mapToPSNLastName( lastName,   out);
         }
         if(!prefix.isEmpty()){
-            out = mapToPSNPrefix( prefix,  out);
+            mapToPSNPrefix( prefix,  out);
         }
         if(!suffix.isEmpty()){
-            out =  mapToPSNSuffix( suffix,   out);
+            mapToPSNSuffix( suffix,   out);
         }
         if(!address1.isEmpty()){
-            out = mapToPSNAddress1( address1,   out);
+            mapToPSNAddress1( address1,   out);
         }
         if(!address2.isEmpty()){
-            out = mapToPSNAddress2( address2,   out);
-
+            mapToPSNAddress2( address2,   out);
         }
         if(!city.isEmpty()){
-            out = mapToPSNCity( city,   out);
+            mapToPSNCity( city,   out);
         }
         if(!county.isEmpty()){
-            out = mapToPSNCounty( county,   out);
+            mapToPSNCounty( county,   out);
         }
         if(!zip.isEmpty()){
-            out = mapToPSNZip( zip,   out);
+            mapToPSNZip( zip,   out);
         }
 
         if(!state.isEmpty()){
-            out = mapToPSNState( state,   out);
+            mapToPSNState( state,   out);
         }
         if(!country.isEmpty()){
-            out = mapToPSNCountry( country,   out);
+            mapToPSNCountry( country,   out);
         }
         if(!telephone.isEmpty()){
             var tele = mapToPSNTelephone( telephone,   out,  extn,
@@ -588,7 +582,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         else {
             out.getParticipantRole().addNewTelecom();
         }
-        out.getParticipantRole().getTelecomArray(teleCounter).setUse(new ArrayList(Arrays.asList("WP")));
+        out.getParticipantRole().getTelecomArray(teleCounter).setUse(new ArrayList(List.of("WP")));
         out.getParticipantRole().getTelecomArray(teleCounter).setValue(email);
         teleCounter= teleCounter + 1;
         PsnTelephone psnTelephone = new PsnTelephone();
@@ -605,7 +599,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         } else {
             out.getParticipantRole().addNewTelecom();
         }
-        out.getParticipantRole().getTelecomArray(teleCounter).setUse(new ArrayList(Arrays.asList("WP")));
+        out.getParticipantRole().getTelecomArray(teleCounter).setUse(new ArrayList(List.of("WP")));
         int phoneExtnSize= extn.length();
         if(phoneExtnSize>0){
             telephone=telephone+ EXTN_STR+ extn;
@@ -620,7 +614,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         return psnTelephone;
     }
 
-    private POCDMT000040Participant2 mapToPSNCountry(String country,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+    private void mapToPSNCountry(String country,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewAddr();
         } else {
@@ -633,10 +627,9 @@ public class CdaMapHelper implements ICdaMapHelper {
 
         out.getParticipantRole().getAddrArray(0).setCountryArray(0,  AdxpCountry.Factory.newInstance());
         out.getParticipantRole().getAddrArray(0).getCountryArray(0).set(mapVal);
-        return out;
     }
 
-    private POCDMT000040Participant2 mapToPSNState(String state,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+    private void mapToPSNState(String state,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewAddr();
         } else {
@@ -649,10 +642,9 @@ public class CdaMapHelper implements ICdaMapHelper {
 
         out.getParticipantRole().getAddrArray(0).setStateArray(0,  AdxpState.Factory.newInstance());
         out.getParticipantRole().getAddrArray(0).getStateArray(0).set(mapVal);
-        return out;
     }
 
-    private POCDMT000040Participant2 mapToPSNZip(String zip,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+    private void mapToPSNZip(String zip,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewAddr();
         } else {
@@ -665,10 +657,9 @@ public class CdaMapHelper implements ICdaMapHelper {
 
         out.getParticipantRole().getAddrArray(0).setPostalCodeArray(0,  AdxpPostalCode.Factory.newInstance());
         out.getParticipantRole().getAddrArray(0).getPostalCodeArray(0).set(mapVal);
-        return out;
     }
 
-    private POCDMT000040Participant2 mapToPSNCounty(String county,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+    private void mapToPSNCounty(String county,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewAddr();
         } else {
@@ -681,10 +672,9 @@ public class CdaMapHelper implements ICdaMapHelper {
 
         out.getParticipantRole().getAddrArray(0).setCountyArray(0,  AdxpCounty.Factory.newInstance());
         out.getParticipantRole().getAddrArray(0).getCountyArray(0).set(mapVal);
-        return out;
     }
 
-    private POCDMT000040Participant2 mapToPSNCity(String city,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+    private void mapToPSNCity(String city,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewAddr();
         } else {
@@ -697,10 +687,9 @@ public class CdaMapHelper implements ICdaMapHelper {
 
         out.getParticipantRole().getAddrArray(0).setCityArray(0,  AdxpCity.Factory.newInstance());
         out.getParticipantRole().getAddrArray(0).getCityArray(0).set(mapVal);
-        return out;
     }
 
-    private POCDMT000040Participant2 mapToPSNAddress2(String address2,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+    private void mapToPSNAddress2(String address2,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewAddr();
         } else {
@@ -719,10 +708,9 @@ public class CdaMapHelper implements ICdaMapHelper {
             out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0,  AdxpStreetAddressLine.Factory.newInstance());
             out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapVal);
         }
-        return out;
     }
 
-    private POCDMT000040Participant2 mapToPSNAddress1(String address1,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+    private void mapToPSNAddress1(String address1,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewAddr();
         } else {
@@ -734,11 +722,10 @@ public class CdaMapHelper implements ICdaMapHelper {
         out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
         out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0,  AdxpStreetAddressLine.Factory.newInstance());
         out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapVal);
-        return out;
     }
 
 
-    private POCDMT000040Participant2 mapToPSNSuffix(String suffix,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+    private void mapToPSNSuffix(String suffix,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewPlayingEntity().addNewName();
         } else {
@@ -751,11 +738,10 @@ public class CdaMapHelper implements ICdaMapHelper {
 
         out.getParticipantRole().getPlayingEntity().getNameArray(0).setSuffixArray(0,  EnSuffix.Factory.newInstance());
         out.getParticipantRole().getPlayingEntity().getNameArray(0).getSuffixArray(0).set(mapVal);
-        return out;
     }
 
 
-    private POCDMT000040Participant2 mapToPSNPrefix(String prefix,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+    private void mapToPSNPrefix(String prefix,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewPlayingEntity().addNewName();
         } else {
@@ -767,10 +753,9 @@ public class CdaMapHelper implements ICdaMapHelper {
         out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewPrefix();
         out.getParticipantRole().getPlayingEntity().getNameArray(0).setPrefixArray(0,  EnPrefix.Factory.newInstance());
         out.getParticipantRole().getPlayingEntity().getNameArray(0).getPrefixArray(0).set(mapVal);
-        return out;
     }
 
-    private POCDMT000040Participant2 mapToPSNFirstName(String firstName,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+    private void mapToPSNFirstName(String firstName,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewPlayingEntity().addNewName();
         } else {
@@ -782,11 +767,10 @@ public class CdaMapHelper implements ICdaMapHelper {
         out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewGiven();
         out.getParticipantRole().getPlayingEntity().getNameArray(0).setGivenArray(0,  EnGiven.Factory.newInstance());
         out.getParticipantRole().getPlayingEntity().getNameArray(0).getGivenArray(0).set(mapVal);
-        out.getParticipantRole().getPlayingEntity().getNameArray(0).setUse(new ArrayList(Arrays.asList("L")));
-        return out;
+        out.getParticipantRole().getPlayingEntity().getNameArray(0).setUse(new ArrayList(List.of("L")));
     }
 
-    private POCDMT000040Participant2 mapToPSNLastName(String lastName,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
+    private void mapToPSNLastName(String lastName,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewPlayingEntity().addNewName();
         } else {
@@ -798,8 +782,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewFamily();
         out.getParticipantRole().getPlayingEntity().getNameArray(0).setFamilyArray(0,  EnFamily.Factory.newInstance());
         out.getParticipantRole().getPlayingEntity().getNameArray(0).getFamilyArray(0).set(mapVal);
-        out.getParticipantRole().getPlayingEntity().getNameArray(0).setUse(new ArrayList(Arrays.asList("L")));
-        return out;
+        out.getParticipantRole().getPlayingEntity().getNameArray(0).setUse(new ArrayList(List.of("L")));
     }
 
     private Psn mapToPSNFieldCheckAndMap(EcrMsgProviderDto in,
@@ -864,7 +847,7 @@ public class CdaMapHelper implements ICdaMapHelper {
             extn = in.getPrvPhoneExtensionTxt().toString();
         }
         else if(name.equals("prvIdQuickCodeTxt") && in.getPrvIdQuickCodeTxt() != null && !in.getPrvIdQuickCodeTxt().isEmpty()) {
-            out = mapToPSNFieldCheckAndMapQuickCode( in,
+            mapToPSNFieldCheckAndMapQuickCode( in,
                      out);
         }
         else if( mapToPSNFieldCheckAndMapValidateField(name, in)) {
@@ -892,11 +875,7 @@ public class CdaMapHelper implements ICdaMapHelper {
     }
 
     private boolean mapToPSNFieldCheckAndMapValidateField(String name, EcrMsgProviderDto in) {
-        if (name.equals("prvEmailAddressTxt") && in.getPrvEmailAddressTxt() != null && !in.getPrvEmailAddressTxt().isEmpty()) {
-            return true;
-        } else {
-            return false;
-        }
+        return name.equals("prvEmailAddressTxt") && in.getPrvEmailAddressTxt() != null && !in.getPrvEmailAddressTxt().isEmpty();
     }
 
     private Psn mapToPSNFieldCheckAndMapGenericP1(EcrMsgProviderDto in,
@@ -913,7 +892,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         String city = param.getCity();
 
         if (name.equals("prvLocalId") && in.getPrvLocalId() != null && !in.getPrvLocalId().isEmpty()) {
-            out = mapToPSNFieldCheckAndMapLocalId( in,
+            mapToPSNFieldCheckAndMapLocalId( in,
                     out);
         }
         else if (name.equals("prvNameFirstTxt") && in.getPrvNameFirstTxt() !=null && !in.getPrvNameFirstTxt().isEmpty()) {
@@ -980,7 +959,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         return city;
     }
 
-    private POCDMT000040Participant2 mapToPSNFieldCheckAndMapQuickCode(EcrMsgProviderDto in,
+    private void mapToPSNFieldCheckAndMapQuickCode(EcrMsgProviderDto in,
                                                                      POCDMT000040Participant2 out) {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewId();
@@ -1001,10 +980,9 @@ public class CdaMapHelper implements ICdaMapHelper {
         out.getParticipantRole().getIdArray(c).setRoot("2.16.840.1.113883.11.19745");
         out.getParticipantRole().getIdArray(c).setAssigningAuthorityName("LR_QEC");
 
-        return out;
     }
 
-    private POCDMT000040Participant2 mapToPSNFieldCheckAndMapLocalId(EcrMsgProviderDto in,
+    private void mapToPSNFieldCheckAndMapLocalId(EcrMsgProviderDto in,
                                     POCDMT000040Participant2 out) {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewId();
@@ -1014,7 +992,6 @@ public class CdaMapHelper implements ICdaMapHelper {
         out.getParticipantRole().getIdArray(0).setExtension(in.getPrvLocalId());
         out.getParticipantRole().getIdArray(0).setRoot("2.16.840.1.113883.11.19745");
         out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
-        return out;
     }
 
     public POCDMT000040Participant2 mapToORG(EcrMsgOrganizationDto in,
@@ -1065,69 +1042,67 @@ public class CdaMapHelper implements ICdaMapHelper {
 
         int isAddressPopulated= 0;
         if(!streetAddress1.isEmpty()){
-            out = mapToORGFieldStreetAddress( streetAddress1,  out);
+            mapToORGFieldStreetAddress( streetAddress1,  out);
             isAddressPopulated=1;
         }
         if(!streetAddress2.isEmpty() ){
-            out =  mapToORGFieldStreetAddress2( streetAddress2,  out);
+            mapToORGFieldStreetAddress2( streetAddress2,  out);
             isAddressPopulated=1;
         }
         if(!city.isEmpty()){
-            out = mapToORGFieldStreetCity( city,  out);
+            mapToORGFieldStreetCity( city,  out);
             isAddressPopulated=1;
         }
         if(!state.isEmpty()){
-            out = mapToORGFieldStreetState( state,  out);
+            mapToORGFieldStreetState( state,  out);
             isAddressPopulated=1;
         }
         if(!county.isEmpty()){
-            out = mapToORGFieldStreetCounty( county,  out);
+            mapToORGFieldStreetCounty( county,  out);
             isAddressPopulated=1;
         }
         if(!zip.isEmpty()){
-            out = mapToORGFieldZip( zip,  out);
+            mapToORGFieldZip( zip,  out);
             isAddressPopulated=1;
         }
         if(!country.isEmpty()){
 
-            out = mapToORGFieldCountry( country,  out);
+            mapToORGFieldCountry( country,  out);
             isAddressPopulated=1;
         }
         if(isAddressPopulated>0) {
-            out = mapToORGFieldAddressPopulated( out);
+            mapToORGFieldAddressPopulated( out);
         }
         if(!phone.isEmpty()){
-            out = mapToORGFieldPhone( phone,  extn,  out);
+            mapToORGFieldPhone( phone,  extn,  out);
         }
         return out;
     }
 
-    private POCDMT000040Participant2 mapToORGFieldPhone(String phone, String extn, POCDMT000040Participant2 out) {
+    private void mapToORGFieldPhone(String phone, String extn, POCDMT000040Participant2 out) {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewTelecom();
         } else {
             out.getParticipantRole().addNewTelecom();
         }
-        out.getParticipantRole().getTelecomArray(0).setUse(new ArrayList(Arrays.asList("WP")));
+        out.getParticipantRole().getTelecomArray(0).setUse(new ArrayList(List.of("WP")));
         int phoneExtnSize = extn.length();
         if(phoneExtnSize>0){
             phone=phone+ EXTN_STR+ extn;
         }
         out.getParticipantRole().getTelecomArray(0).setValue(phone);
-        return out;
     }
 
-    private POCDMT000040Participant2 mapToORGFieldAddressPopulated(POCDMT000040Participant2 out) {
+    private void mapToORGFieldAddressPopulated(POCDMT000040Participant2 out) {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewAddr();
         } else {
             out.getParticipantRole().addNewAddr();
         }
-        out.getParticipantRole().getAddrArray(0).setUse(new ArrayList(Arrays.asList("WP")));
-        return out;
+        out.getParticipantRole().getAddrArray(0).setUse(new ArrayList(List.of("WP")));
     }
 
-    private POCDMT000040Participant2 mapToORGFieldCountry(String country, POCDMT000040Participant2 out) throws EcrCdaXmlException {
+    private void mapToORGFieldCountry(String country, POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewAddr();
         } else {
@@ -1138,10 +1113,9 @@ public class CdaMapHelper implements ICdaMapHelper {
 
         out.getParticipantRole().getAddrArray(0).setCountryArray(0, AdxpCountry.Factory.newInstance());
         out.getParticipantRole().getAddrArray(0).getCountryArray(0).set(mapToCData(country));
-        return out;
     }
 
-    private POCDMT000040Participant2 mapToORGFieldZip(String zip, POCDMT000040Participant2 out) throws EcrCdaXmlException {
+    private void mapToORGFieldZip(String zip, POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewAddr();
         } else {
@@ -1152,55 +1126,43 @@ public class CdaMapHelper implements ICdaMapHelper {
 
         out.getParticipantRole().getAddrArray(0).setPostalCodeArray(0, AdxpPostalCode.Factory.newInstance());
         out.getParticipantRole().getAddrArray(0).getPostalCodeArray(0).set(mapToCData(zip));
-        return out;
     }
 
-    private POCDMT000040Participant2 mapToORGFieldStreetCounty(String county, POCDMT000040Participant2 out) throws EcrCdaXmlException {
+    private void mapToORGFieldStreetCounty(String county, POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewAddr();
         } else {
             out.getParticipantRole().addNewAddr();
         }
-
         out.getParticipantRole().getAddrArray(0).addNewCounty();
-
         out.getParticipantRole().getAddrArray(0).setCountyArray(0, AdxpCounty.Factory.newInstance());
         out.getParticipantRole().getAddrArray(0).getCountyArray(0).set(mapToCData(county));
-
-        return out;
     }
 
-    private POCDMT000040Participant2 mapToORGFieldStreetState(String state, POCDMT000040Participant2 out) throws EcrCdaXmlException {
+    private void mapToORGFieldStreetState(String state, POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewAddr();
         } else {
             out.getParticipantRole().addNewAddr();
         }
-
         out.getParticipantRole().getAddrArray(0).addNewState();
-
         out.getParticipantRole().getAddrArray(0).setStateArray(0, AdxpState.Factory.newInstance());
         out.getParticipantRole().getAddrArray(0).getStateArray(0).set(mapToCData(state));
-
-        return out;
     }
 
 
-    private POCDMT000040Participant2 mapToORGFieldStreetCity(String city, POCDMT000040Participant2 out) throws EcrCdaXmlException {
+    private void mapToORGFieldStreetCity(String city, POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewAddr();
         } else {
             out.getParticipantRole().addNewAddr();
         }
-
         out.getParticipantRole().getAddrArray(0).addNewCity();
         out.getParticipantRole().getAddrArray(0).setCityArray(0, AdxpCity.Factory.newInstance());
         out.getParticipantRole().getAddrArray(0).getCityArray(0).set(mapToCData(city));
-
-        return out;
     }
 
-    private POCDMT000040Participant2 mapToORGFieldStreetAddress2(String streetAddress2, POCDMT000040Participant2 out) throws EcrCdaXmlException {
+    private void mapToORGFieldStreetAddress2(String streetAddress2, POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewAddr();
         } else {
@@ -1215,11 +1177,9 @@ public class CdaMapHelper implements ICdaMapHelper {
             out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0, AdxpStreetAddressLine.Factory.newInstance());
             out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapToCData(streetAddress2));
         }
-
-        return out;
     }
 
-    private POCDMT000040Participant2 mapToORGFieldStreetAddress(String streetAddress1, POCDMT000040Participant2 out) throws EcrCdaXmlException {
+    private void mapToORGFieldStreetAddress(String streetAddress1, POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewAddr();
         } else {
@@ -1229,7 +1189,6 @@ public class CdaMapHelper implements ICdaMapHelper {
         out.getParticipantRole().getAddrArray(0).addNewStreetAddressLine();
         out.getParticipantRole().getAddrArray(0).setStreetAddressLineArray(0, AdxpStreetAddressLine.Factory.newInstance());
         out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapToCData(streetAddress1));
-        return out;
     }
 
     private Org mapToORGFieldCheckP1(EcrMsgOrganizationDto in,
@@ -1247,10 +1206,10 @@ public class CdaMapHelper implements ICdaMapHelper {
         String extn = param.getExtn();
 
         if(name.equals("orgLocalId") && in.getOrgLocalId()!=null){
-            out =  mapToORGFieldCheckP1LocalId( in,out);
+            mapToORGFieldCheckP1LocalId( in,out);
         }
         else if(name.equals("orgNameTxt") && in.getOrgNameTxt() != null){
-            out = mapToORGFieldCheckP1OrgName( in,
+            mapToORGFieldCheckP1OrgName( in,
                      out);
         }
         else if(name.equals("orgAddrStreetAddr1Txt") && mapToORGFieldCheckP1ValidateField(in)){
@@ -1282,7 +1241,7 @@ public class CdaMapHelper implements ICdaMapHelper {
             extn= in.getOrgPhoneExtensionTxt().toString();
         }
         else if(name.equals("orgIdCliaNbrTxt") && in.getOrgIdCliaNbrTxt() != null){
-            out =  mapToORGFieldCheckP1CliaNbr( in,
+            mapToORGFieldCheckP1CliaNbr( in,
                      out);
         }
 
@@ -1300,22 +1259,17 @@ public class CdaMapHelper implements ICdaMapHelper {
     }
 
     private boolean mapToORGFieldCheckP1ValidateField(EcrMsgOrganizationDto in) {
-        if (
-                (in.getOrgAddrStreetAddr1Txt() != null && !in.getOrgAddrStreetAddr1Txt().isEmpty()) ||
-                        ( in.getOrgAddrStreetAddr2Txt() != null && !in.getOrgAddrStreetAddr2Txt().isEmpty()) ||
-                        ( in.getOrgAddrCityTxt() !=null && !in.getOrgAddrCityTxt().isEmpty()) ||
-                        ( in.getOrgAddrCountyCd() != null && !in.getOrgAddrCountyCd().isEmpty()) ||
-                        ( in.getOrgAddrStateCd() != null &&  !in.getOrgAddrStateCd().isEmpty()) ||
-                        ( in.getOrgAddrZipCodeTxt() != null && !in.getOrgAddrZipCodeTxt().isEmpty()) ||
-                        ( in.getOrgAddrCountryCd() != null && !in.getOrgAddrCountryCd().isEmpty()) ||
-                        ( in.getOrgPhoneNbrTxt() != null && !in.getOrgPhoneNbrTxt().isEmpty())
-        ) {
-            return true;
-        }
-        return false;
+        return (in.getOrgAddrStreetAddr1Txt() != null && !in.getOrgAddrStreetAddr1Txt().isEmpty()) ||
+                (in.getOrgAddrStreetAddr2Txt() != null && !in.getOrgAddrStreetAddr2Txt().isEmpty()) ||
+                (in.getOrgAddrCityTxt() != null && !in.getOrgAddrCityTxt().isEmpty()) ||
+                (in.getOrgAddrCountyCd() != null && !in.getOrgAddrCountyCd().isEmpty()) ||
+                (in.getOrgAddrStateCd() != null && !in.getOrgAddrStateCd().isEmpty()) ||
+                (in.getOrgAddrZipCodeTxt() != null && !in.getOrgAddrZipCodeTxt().isEmpty()) ||
+                (in.getOrgAddrCountryCd() != null && !in.getOrgAddrCountryCd().isEmpty()) ||
+                (in.getOrgPhoneNbrTxt() != null && !in.getOrgPhoneNbrTxt().isEmpty());
     }
 
-    private POCDMT000040Participant2 mapToORGFieldCheckP1CliaNbr(EcrMsgOrganizationDto in,
+    private void mapToORGFieldCheckP1CliaNbr(EcrMsgOrganizationDto in,
                                                                  POCDMT000040Participant2 out) {
         if (!in.getOrgIdCliaNbrTxt().isEmpty()) {
             if (out.getParticipantRole() == null) {
@@ -1328,10 +1282,9 @@ public class CdaMapHelper implements ICdaMapHelper {
             out.getParticipantRole().getIdArray(1).setExtension(in.getOrgIdCliaNbrTxt());
             out.getParticipantRole().getIdArray(1).setAssigningAuthorityName("LR_CLIA");
         }
-        return out;
     }
 
-    private POCDMT000040Participant2 mapToORGFieldCheckP1OrgName(EcrMsgOrganizationDto in,
+    private void mapToORGFieldCheckP1OrgName(EcrMsgOrganizationDto in,
                                                                  POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if ( !in.getOrgNameTxt().isEmpty()) {
             if (out.getParticipantRole() == null) {
@@ -1345,10 +1298,9 @@ public class CdaMapHelper implements ICdaMapHelper {
             out.getParticipantRole().getPlayingEntity().getNameArray(0).set(val);
         }
 
-        return out;
     }
 
-    private POCDMT000040Participant2 mapToORGFieldCheckP1LocalId(EcrMsgOrganizationDto in,
+    private void mapToORGFieldCheckP1LocalId(EcrMsgOrganizationDto in,
                                         POCDMT000040Participant2 out) {
         if (!in.getOrgLocalId().isEmpty()) {
             if (out.getParticipantRole() == null) {
@@ -1360,7 +1312,6 @@ public class CdaMapHelper implements ICdaMapHelper {
             out.getParticipantRole().getIdArray(0).setExtension(in.getOrgLocalId());
             out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
         }
-        return out;
     }
 
 
