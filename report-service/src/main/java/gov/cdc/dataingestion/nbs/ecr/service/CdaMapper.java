@@ -1,40 +1,24 @@
 package gov.cdc.dataingestion.nbs.ecr.service;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
-import gov.cdc.dataingestion.nbs.ecr.model.*;
-import gov.cdc.dataingestion.nbs.ecr.model.cases.CdaCaseComponent;
 import gov.cdc.dataingestion.nbs.ecr.model.container.CdaContainerComp;
-import gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientTelecom;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.*;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.*;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
-import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedCase;
-import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedInterview;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
-import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedTreatment;
-import gov.cdc.dataingestion.nbs.repository.model.dto.*;
-import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcQuestionLookUpDto;
-import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.QuestionIdentifierMapDto;
 import gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService;
 import gov.cdc.nedss.phdc.cda.*;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.xml.namespace.QName;
-import java.lang.reflect.Field;
 import java.math.BigInteger;
-import java.text.ParseException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
-import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforeCaret;
-import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforePipe;
 
 @Service
 public class CdaMapper implements ICdaMapper {
@@ -95,25 +79,21 @@ public class CdaMapper implements ICdaMapper {
         clinicalDocument.addNewRecordTarget();
         clinicalDocument.getRecordTargetArray(0).addNewPatientRole();
 
-        /**MAP TO PATIENT**/
         var pat =  this.patientMappingHelper.mapToPatient(input, clinicalDocument, patientComponentCounter, inv168);
         clinicalDocument = pat.getClinicalDocument();
         inv168 = pat.getInv168();
 
-        /**MAP TO CASE**/
         var ecrCase = caseMappingHelper.mapToCaseTop(input, clinicalDocument, componentCounter, clinicalCounter,
         componentCaseCounter, inv168);
         clinicalDocument = ecrCase.getClinicalDocument();
         componentCounter = ecrCase.getComponentCounter();
         inv168 = ecrCase.getInv168();
 
-        /**XML ANSWER**/
         var ecrXmlAnswer = xmlAnswerMappingHelper.mapToXmlAnswerTop(input,
                 clinicalDocument, componentCounter);
         clinicalDocument = ecrXmlAnswer.getClinicalDocument();
         componentCounter = ecrXmlAnswer.getComponentCounter();
 
-        /**INITIATE SECTION**/
         int c = 0;
         if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
             clinicalDocument.getComponent().getStructuredBody().addNewComponent();
@@ -128,7 +108,6 @@ public class CdaMapper implements ICdaMapper {
             comp.addNewSection();
         }
 
-        /**PROVIDER**/
         var ecrProvider = this.providerMappingHelper.mapToProviderTop(input, clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection(),
                 inv168, performerComponentCounter, componentCounter,
                  performerSectionCounter);
@@ -138,7 +117,6 @@ public class CdaMapper implements ICdaMapper {
         componentCounter = ecrProvider.getComponentCounter();
         performerSectionCounter = ecrProvider.getPerformerSectionCounter();
 
-        /**ORGANIZATION**/
         var ecrOrganization = this.orgMappingHelper.mapToOrganizationTop(input, clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection(),
                 performerComponentCounter, componentCounter, performerSectionCounter);
         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).setSection(ecrProvider.getClinicalSection());
@@ -146,28 +124,23 @@ public class CdaMapper implements ICdaMapper {
         componentCounter = ecrOrganization.getComponentCounter();
         performerSectionCounter = ecrOrganization.getPerformerSectionCounter();
 
-        /**PLACE**/
         POCDMT000040Section interestedPartyComp = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection();
         var ecrPlace = this.placeMappingHelper.mapToPlaceTop(input, performerComponentCounter,
                 componentCounter, performerSectionCounter, interestedPartyComp);
         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).setSection(ecrPlace.getSection());
         componentCounter = ecrPlace.getComponentCounter();
 
-        /**INTERVIEW**/
         var ecrInterview = this.interviewMappingHelper.mapToInterviewTop(input, clinicalDocument, interviewCounter, componentCounter);
         clinicalDocument = ecrInterview.getClinicalDocument();
         componentCounter = ecrInterview.getComponentCounter();
 
-        /**TREATMENT**/
         var ecrTreatment = this.treatmentMappingHelper.mapToTreatmentTop(input, clinicalDocument,
                 treatmentCounter, componentCounter, treatmentSectionCounter);
         clinicalDocument = ecrTreatment.getClinicalDocument();
 
-        /**CUSTODIAN**/
-        clinicalDocument = mapCustodian(clinicalDocument);
+        mapCustodian(clinicalDocument);
 
-        /**AUTHOR**/
-        clinicalDocument = mapAuthor(clinicalDocument);
+        mapAuthor(clinicalDocument);
 
         //endregion
 
@@ -181,10 +154,9 @@ public class CdaMapper implements ICdaMapper {
         cursor.setAttributeText(new QName("xsi"), NAME_SPACE_URL);
         cursor.setAttributeText(new QName("schemaLocation"), XML_NAME_SPACE_HOLDER + " CDA_SDTC.xsd");
         cursor.dispose();
-        var result = convertXmlToString(rootDocument);
         //endregion
 
-        return result;
+        return convertXmlToString(rootDocument);
 
     }
 
@@ -253,9 +225,9 @@ public class CdaMapper implements ICdaMapper {
         return model;
     }
 
-    private POCDMT000040ClinicalDocument1 mapCustodian(POCDMT000040ClinicalDocument1 clinicalDocument) throws EcrCdaXmlException {
+    private void mapCustodian(POCDMT000040ClinicalDocument1 clinicalDocument) throws EcrCdaXmlException {
         int k =0;
-        String custodianValue = "";
+        String custodianValue;
         clinicalDocument.addNewCustodian().addNewAssignedCustodian().addNewRepresentedCustodianOrganization().addNewId();
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().addNewAddr();
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr();
@@ -297,11 +269,10 @@ public class CdaMapper implements ICdaMapper {
         custodianValue = mapToTranslatedValue("CUS109");
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getTelecom().setValue(custodianValue);
 
-        return clinicalDocument;
     }
 
-    private POCDMT000040ClinicalDocument1 mapAuthor(POCDMT000040ClinicalDocument1 clinicalDocument) throws EcrCdaXmlException {
-        String value ="";
+    private void mapAuthor(POCDMT000040ClinicalDocument1 clinicalDocument) throws EcrCdaXmlException {
+        String value;
         clinicalDocument.addNewAuthor().addNewAssignedAuthor();
         clinicalDocument.getAuthorArray(0).addNewTime();
         clinicalDocument.getAuthorArray(0).getAssignedAuthor().addNewId();
@@ -318,7 +289,6 @@ public class CdaMapper implements ICdaMapper {
         String formattedDateTime = formatDateTime(now);
 
         clinicalDocument.getAuthorArray(0).getTime().setValue(formattedDateTime);
-        return clinicalDocument;
     }
 
     private static String formatDateTime(OffsetDateTime dateTime) {

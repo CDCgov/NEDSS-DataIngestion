@@ -1,6 +1,5 @@
 package gov.cdc.dataingestion.nbs.repository.implementation;
 
-import com.google.gson.Gson;
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.repository.IEcrMsgQueryRepository;
 import gov.cdc.dataingestion.nbs.repository.model.dto.*;
@@ -14,22 +13,19 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static gov.cdc.dataingestion.nbs.repository.implementation.JsonReaderTester.loadContainer;
 
 @Repository
 public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
     @PersistenceContext(unitName = "nbs")
     private EntityManager entityManager;
 
-    private String msgUid = "MSG_CONTAINER_UID";
-    private String invLocalId = "INV_LOCAL_ID";
-    private String ixsLocalId = "IXS_LOCAL_ID";
+    private final String msgUid = "MSG_CONTAINER_UID";
+    private final String invLocalId = "INV_LOCAL_ID";
+    private final String ixsLocalId = "IXS_LOCAL_ID";
 
 
 
@@ -205,7 +201,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
         query.setParameter(this.invLocalId, invLocalId);
-        List<EcrMsgCaseParticipantDto> dtos = new ArrayList<EcrMsgCaseParticipantDto>();
+        List<EcrMsgCaseParticipantDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
             for(Object[] val : results) {
@@ -230,7 +226,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(msgUid, containerId);
         query.setParameter(this.invLocalId, invLocalId);
-        List<EcrMsgCaseAnswerDto> dtos = new ArrayList<EcrMsgCaseAnswerDto>();
+        List<EcrMsgCaseAnswerDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
             for(Object [] val : results) {

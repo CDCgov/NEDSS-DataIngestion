@@ -3,7 +3,6 @@ package gov.cdc.dataingestion.nbs.ecr.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.xmlbeans.XmlObject;
 
 @NoArgsConstructor
 @Getter

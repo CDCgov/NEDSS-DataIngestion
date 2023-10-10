@@ -9,7 +9,6 @@ import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedTreatment;
 import gov.cdc.dataingestion.nbs.repository.model.dto.*;
 import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
-import io.swagger.v3.core.util.Json;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +17,7 @@ import java.util.List;
 
 @Service
 public class EcrMsgQueryService implements IEcrMsgQueryService {
-    private IEcrMsgQueryRepository ecrMsgQueryRepository;
+    private final IEcrMsgQueryRepository ecrMsgQueryRepository;
 
     @Autowired
     public EcrMsgQueryService(IEcrMsgQueryRepository ecrMsgQueryRepository) {
@@ -62,7 +61,7 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
         }
 
         var interview = JsonReaderTester.loadInterview();
-        interview.initDataMap();;
+        interview.initDataMap();
         var interviewProvider = JsonReaderTester.loadInterviewProvider();
         var interviewAnswer = JsonReaderTester.loadInterviewAnswer();
         var interviewAnswerRepeat = JsonReaderTester.loadInterviewAnswerRepeat();
@@ -127,7 +126,6 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
 
 
 //        var xmlAnsw = ecrMsgQueryRepository.FetchMsgXmlAnswerForApplicableEcr(10009282, "1.2.840.114350.1.13.478.2.7.8.688883.74957358");
-//
 //        selectedRecord.setMsgXmlAnswers(xmlAnsw);
         return selectedRecord;
     }

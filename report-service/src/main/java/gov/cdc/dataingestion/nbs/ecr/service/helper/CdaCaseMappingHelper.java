@@ -696,6 +696,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                     mapMultiSelectCodeSystemDescQues(in, out, param.getSectionCounter(), param.getComponentCounter());
             case COL_QUES_DISPLAY_TXT ->
                     mapMultiSelectDisplayQues(in, out, param.getSectionCounter(), param.getComponentCounter());
+            default ->
         }
         param.setOut(out);
         return param;

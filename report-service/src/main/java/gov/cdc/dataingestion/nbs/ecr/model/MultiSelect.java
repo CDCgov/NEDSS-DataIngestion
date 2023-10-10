@@ -1,6 +1,5 @@
 package gov.cdc.dataingestion.nbs.ecr.model;
 
-import gov.cdc.nedss.phdc.cda.POCDMT000040Component3;
 import gov.cdc.nedss.phdc.cda.POCDMT000040Section;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
