@@ -48,7 +48,6 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                 // componentCounter should be zero initially
                 for(int i = 0; i < input.getMsgCases().size(); i++) {
                     if (componentCounter < 0) {
-                        componentCounter++;
                         var c = 0;
 
                         CdaCaseComponent caseComponent = checkCaseStructComponentWithSectionAndIndex(clinicalDocument, c);

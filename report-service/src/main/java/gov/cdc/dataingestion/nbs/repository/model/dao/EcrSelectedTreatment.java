@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
@@ -14,6 +15,6 @@ import java.util.List;
 @Setter
 public class EcrSelectedTreatment {
     private EcrMsgTreatmentDto MsgTreatment;
-    private List<EcrMsgTreatmentProviderDto> MsgTreatmentProviders;
-    private List<EcrMsgTreatmentOrganizationDto> MsgTreatmentOrganizations;
+    private List<EcrMsgTreatmentProviderDto> MsgTreatmentProviders = new ArrayList<>();
+    private List<EcrMsgTreatmentOrganizationDto> MsgTreatmentOrganizations = new ArrayList<>();
 }

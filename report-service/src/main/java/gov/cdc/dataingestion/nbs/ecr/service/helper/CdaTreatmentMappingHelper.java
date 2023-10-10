@@ -4,7 +4,9 @@ import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.model.AttributeMapper;
 import gov.cdc.dataingestion.nbs.ecr.model.CdaTreatmentAdministrationMapper;
 import gov.cdc.dataingestion.nbs.ecr.model.CdaTreatmentMapper;
+import gov.cdc.dataingestion.nbs.ecr.model.treatment.TreatmentDocument;
 import gov.cdc.dataingestion.nbs.ecr.model.treatment.TreatmentField;
+import gov.cdc.dataingestion.nbs.ecr.model.treatment.TreatmentProviderAndParticipant;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaTreatmentMappingHelper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
@@ -34,41 +36,17 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
             CdaTreatmentMapper mapper = new CdaTreatmentMapper();
             if(input.getMsgTreatments() != null && !input.getMsgTreatments().isEmpty()) {
                 for(int i = 0; i < input.getMsgTreatments().size(); i++) {
-
-                    int c = 0;
-                    if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
-                        clinicalDocument.getComponent().getStructuredBody().addNewComponent();
-                    } else {
-                        c = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length;
-                        clinicalDocument.getComponent().getStructuredBody().addNewComponent();
-                    }
-                    if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).addNewSection();
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
-                    } else {
-                        if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
-                            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
-                        }
-                    }
+                    var treatmentDoc =  mapToTreatmentTopDocCheck( clinicalDocument);
+                    clinicalDocument = treatmentDoc.getClinicalDocument();
+                    int c = treatmentDoc.getC();
 
 
 
                     if (treatmentCounter < 1) {
                         treatmentCounter++;
                         componentCounter++;
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCode("55753-8");
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem(CODE_SYSTEM);
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName(CODE_SYSTEM_NAME);
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setDisplayName("Treatment Information");
 
-                        if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getTitle() == null) {
-                            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewTitle();
-                        }
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getTitle().set(cdaMapHelper.mapToStringData("TREATMENT INFORMATION"));
-
-                        if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getText() == null) {
-                            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewText();
-                        }
+                        clinicalDocument = mapToTreatmentTopHasNoCounter( clinicalDocument,  c);
                     }
 
                     int cTreatment = 0;
@@ -111,10 +89,50 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
         }
     }
 
+    private POCDMT000040ClinicalDocument1 mapToTreatmentTopHasNoCounter(POCDMT000040ClinicalDocument1 clinicalDocument, int c) throws EcrCdaXmlException {
+            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCode("55753-8");
+            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem(CODE_SYSTEM);
+            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName(CODE_SYSTEM_NAME);
+            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setDisplayName("Treatment Information");
+
+            if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getTitle() == null) {
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewTitle();
+            }
+            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getTitle().set(cdaMapHelper.mapToStringData("TREATMENT INFORMATION"));
+
+            if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getText() == null) {
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewText();
+            }
+
+            return clinicalDocument;
+    }
+    private TreatmentDocument mapToTreatmentTopDocCheck( POCDMT000040ClinicalDocument1 clinicalDocument) {
+        int c = 0;
+        if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
+            clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+        } else {
+            c = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length;
+            clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+        }
+        if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
+            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).addNewSection();
+            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
+        } else {
+            if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
+            }
+        }
+
+        TreatmentDocument doc = new TreatmentDocument();
+        doc.setClinicalDocument(clinicalDocument);
+        doc.setC(c);
+        return doc;
+    }
+
     private CdaTreatmentAdministrationMapper mapToTreatment(
             EcrSelectedTreatment input, POCDMT000040SubstanceAdministration output,
             StrucDocText list,
-            int counter) throws XmlException, ParseException, EcrCdaXmlException {
+            int counter) throws EcrCdaXmlException {
         String PROV="";
         String ORG="";
         String treatmentUid="";
@@ -163,86 +181,93 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
         }
 
 
-        if(!customTreatment.isEmpty()){
+        list =  mapToTreatmentCustomTreat( customTreatment,
+                 list);
+
+
+        output =  mapToTreatmentTreatName( output,
+                 treatmentName,
+                 customTreatment,
+                 treatmentNameQuestion);
+
+        output = mapToTreatmentTreatDt( output,
+                 TRT_TREATMENT_DT,
+                 TRT_DURATION_AMT,
+                 TRT_DURATION_UNIT_CD);
+        output = mapToTreatmentTreatFrequency( output,
+                 TRT_FREQUENCY_AMT_CD );
+
+        int org = 0;
+        int provider= 0;
+        int performerCounter=0;
+
+        if (input.getMsgTreatmentOrganizations().size() > 0 ||  input.getMsgTreatmentProviders().size() > 0) {
+            var model = mapToTreatmentProviderAndParticipant( output,
+                     input,
+                     performerCounter,
+                     org,
+                     provider);
+
+            output = model.getOutput();
+            org = model.getOrg();
+            provider = model.getProvider();
+        }
+
+        CdaTreatmentAdministrationMapper mapper = new CdaTreatmentAdministrationMapper();
+        mapper.setAdministration(output);
+        mapper.setText(list);
+        return mapper;
+    }
+
+    private TreatmentProviderAndParticipant mapToTreatmentProviderAndParticipant(POCDMT000040SubstanceAdministration output,
+                                                  EcrSelectedTreatment input,
+                                                  int performerCounter,
+                                                  int org,
+                                                  int provider
+                                                  ) throws EcrCdaXmlException {
+        for(int i = 0; i < input.getMsgTreatmentOrganizations().size(); i++) {
             int c = 0;
-            if (list == null) {
-                list = StrucDocText.Factory.newInstance();
-                list.addNewList();
+            if (output.getParticipantArray().length == 0) {
+                output.addNewParticipant().addNewParticipantRole().addNewId();
             } else {
-                if ( list.getListArray().length == 0){
-                    list.addNewList();
-                } else {
-                    c = list.getListArray().length;
-                    list.addNewList();
-                }
+                c = output.getParticipantArray().length;
+                output.addNewParticipant().addNewParticipantRole().addNewId();
             }
-            list.getListArray(c).addNewItem();
-            list.getListArray(c).addNewCaption();
-            StrucDocItem item = StrucDocItem.Factory.newInstance();
-            XmlCursor cursor = item.newCursor();
-            cursor.setTextValue(CDATA + customTreatment + CDATA);
-            cursor.dispose();
-            list.getListArray(c).setItemArray(0, item);
-            list.getListArray(c).getCaption().set(cdaMapHelper.mapToCData("CDA Treatment Information Section"));
+            var ot = output.getParticipantArray(c);
+            var mappedVal = this.cdaMapHelper.mapToORG( input.getMsgTreatmentOrganizations().get(i), ot);
+            output.setParticipantArray(c, mappedVal);
+            output.getParticipantArray(c).getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR_ORG");
+            performerCounter++;
+            org = 1;
         }
 
-        if (!treatmentName.isEmpty()) {
-            if  (output.getConsumable() == null) {
-                output.addNewConsumable().addNewManufacturedProduct().addNewManufacturedLabeledDrug().addNewCode();
+        for(int i = 0; i < input.getMsgTreatmentProviders().size(); i++) {
+            int c = 0;
+            if (output.getParticipantArray().length == 0) {
+                output.addNewParticipant().addNewParticipantRole().addNewId();
+            } else {
+                c = output.getParticipantArray().length;
+                output.addNewParticipant().addNewParticipantRole().addNewId();
             }
-            var ot = output.getConsumable().getManufacturedProduct().getManufacturedLabeledDrug().getCode();
-            var ce = this.cdaMapHelper.mapToCEAnswerType(
-                    treatmentName,
-                    treatmentNameQuestion
-            );
-            ot = ce;
-            output.getConsumable().getManufacturedProduct().getManufacturedLabeledDrug().setCode(ot);
 
-        } else {
-            if  (output.getConsumable() == null) {
-                output.addNewConsumable().addNewManufacturedProduct().addNewManufacturedLabeledDrug().addNewCode();
-                output.getConsumable().getManufacturedProduct().getManufacturedLabeledDrug().addNewName();
-            }
-            output.getConsumable().getManufacturedProduct().getManufacturedLabeledDrug().getCode().setNullFlavor("OTH");
-            output.getConsumable().getManufacturedProduct().getManufacturedLabeledDrug().getName().set(cdaMapHelper.mapToCData(customTreatment));
+            var ot = output.getParticipantArray(c);
+            var mappedVal = this.cdaMapHelper.mapToPSN(input.getMsgTreatmentProviders().get(i), ot);
+            output.setParticipantArray(c, mappedVal);
+            output.getParticipantArray(c).getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR_ORG");
+            performerCounter++;
+            provider = 1;
         }
 
-        if(!TRT_TREATMENT_DT.isEmpty()){
-            if (output.getEffectiveTimeArray().length == 0) {
-                output.addNewEffectiveTime();
-            }
-            var lowElement = output.getEffectiveTimeArray(0);
 
-            XmlObject xmlOb = XmlObject.Factory.newInstance();
-            XmlCursor cursor = xmlOb.newCursor();
-            cursor.toEndDoc();  // Move to the root element
-            cursor.beginElement("low");
-            cursor.insertAttributeWithValue(VALUE_NAME,  cdaMapHelper.mapToTsType(TRT_TREATMENT_DT).getValue());
+        TreatmentProviderAndParticipant model = new TreatmentProviderAndParticipant();
+        model.setOutput(output);
+        model.setProvider(provider);
+        model.setOrg(org);
+        return model;
+    }
 
-            if (TRT_DURATION_AMT != null && !TRT_DURATION_AMT.isEmpty() && TRT_DURATION_UNIT_CD != null && !TRT_DURATION_UNIT_CD.isEmpty()) {
-                cursor.toEndDoc();
-                cursor.beginElement("width");
-                if (!TRT_DURATION_AMT.isEmpty()) {
-                    cursor.insertAttributeWithValue(VALUE_NAME, TRT_DURATION_AMT);
-                }
-
-                if (!TRT_DURATION_UNIT_CD.isEmpty()) {
-                    cursor.insertAttributeWithValue("unit", TRT_DURATION_UNIT_CD);
-                }
-
-            }
-
-            cursor.dispose();
-            lowElement.set(xmlOb);
-
-            XmlCursor parentCursor = lowElement.newCursor();
-            parentCursor.toFirstChild();
-            parentCursor.insertAttributeWithValue("type", "IVL_TS");
-            parentCursor.dispose();
-
-            output.setEffectiveTimeArray(0, lowElement);
-        }
-
+    private POCDMT000040SubstanceAdministration mapToTreatmentTreatFrequency(POCDMT000040SubstanceAdministration output,
+                                         String TRT_FREQUENCY_AMT_CD ) {
         if (!TRT_FREQUENCY_AMT_CD.isEmpty()) {
             int c = 0;
             if (output.getEffectiveTimeArray().length == 0) {
@@ -280,48 +305,135 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
 
             output.setEffectiveTimeArray(c, element);
         }
+        return output;
+    }
 
-        int org = 0;
-        int provider= 0;
-        int performerCounter=0;
-        if (input.getMsgTreatmentOrganizations().size() > 0 ||  input.getMsgTreatmentProviders().size() > 0) {
-            for(int i = 0; i < input.getMsgTreatmentOrganizations().size(); i++) {
-                int c = 0;
-                if (output.getParticipantArray().length == 0) {
-                    output.addNewParticipant().addNewParticipantRole().addNewId();
-                } else {
-                    c = output.getParticipantArray().length;
-                    output.addNewParticipant().addNewParticipantRole().addNewId();
-                }
-                var ot = output.getParticipantArray(c);
-                var mappedVal = this.cdaMapHelper.mapToORG( input.getMsgTreatmentOrganizations().get(i), ot);
-                output.setParticipantArray(c, mappedVal);
-                output.getParticipantArray(c).getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR_ORG");
-                performerCounter++;
-                org = 1;
+    private POCDMT000040SubstanceAdministration mapToTreatmentTreatDt(POCDMT000040SubstanceAdministration output,
+                                       String TRT_TREATMENT_DT,
+                                       String TRT_DURATION_AMT,
+                                       String TRT_DURATION_UNIT_CD) throws EcrCdaXmlException {
+        if(!TRT_TREATMENT_DT.isEmpty()){
+            if (output.getEffectiveTimeArray().length == 0) {
+                output.addNewEffectiveTime();
             }
+            var lowElement = output.getEffectiveTimeArray(0);
 
-            for(int i = 0; i < input.getMsgTreatmentProviders().size(); i++) {
-                int c = 0;
-                if (output.getParticipantArray().length == 0) {
-                    output.addNewParticipant().addNewParticipantRole().addNewId();
-                } else {
-                    c = output.getParticipantArray().length;
-                    output.addNewParticipant().addNewParticipantRole().addNewId();
+            XmlObject xmlOb = XmlObject.Factory.newInstance();
+            XmlCursor cursor = xmlOb.newCursor();
+            cursor.toEndDoc();  // Move to the root element
+            cursor.beginElement("low");
+            cursor.insertAttributeWithValue(VALUE_NAME,  cdaMapHelper.mapToTsType(TRT_TREATMENT_DT).getValue());
+
+            if (TRT_DURATION_AMT != null && !TRT_DURATION_AMT.isEmpty() && TRT_DURATION_UNIT_CD != null && !TRT_DURATION_UNIT_CD.isEmpty()) {
+                cursor.toEndDoc();
+                cursor.beginElement("width");
+                if (!TRT_DURATION_AMT.isEmpty()) {
+                    cursor.insertAttributeWithValue(VALUE_NAME, TRT_DURATION_AMT);
                 }
 
-                var ot = output.getParticipantArray(c);
-                var mappedVal = this.cdaMapHelper.mapToPSN(input.getMsgTreatmentProviders().get(i), ot);
-                output.getParticipantArray(c).getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR_ORG");
-                performerCounter++;
-                provider = 1;
+                if (!TRT_DURATION_UNIT_CD.isEmpty()) {
+                    cursor.insertAttributeWithValue("unit", TRT_DURATION_UNIT_CD);
+                }
+
             }
+
+            cursor.dispose();
+            lowElement.set(xmlOb);
+
+            XmlCursor parentCursor = lowElement.newCursor();
+            parentCursor.toFirstChild();
+            parentCursor.insertAttributeWithValue("type", "IVL_TS");
+            parentCursor.dispose();
+
+            output.setEffectiveTimeArray(0, lowElement);
+        }
+        return output;
+    }
+
+    private POCDMT000040SubstanceAdministration mapToTreatmentTreatName(POCDMT000040SubstanceAdministration output,
+                                         String treatmentName,
+                                         String customTreatment,
+                                         String treatmentNameQuestion) throws EcrCdaXmlException {
+        if (!treatmentName.isEmpty()) {
+            if  (output.getConsumable() == null) {
+                output.addNewConsumable().addNewManufacturedProduct().addNewManufacturedLabeledDrug().addNewCode();
+            }
+            var ot = output.getConsumable().getManufacturedProduct().getManufacturedLabeledDrug().getCode();
+            var ce = this.cdaMapHelper.mapToCEAnswerType(
+                    treatmentName,
+                    treatmentNameQuestion
+            );
+            ot = ce;
+            output.getConsumable().getManufacturedProduct().getManufacturedLabeledDrug().setCode(ot);
+
+        } else {
+            if  (output.getConsumable() == null) {
+                output.addNewConsumable().addNewManufacturedProduct().addNewManufacturedLabeledDrug().addNewCode();
+                output.getConsumable().getManufacturedProduct().getManufacturedLabeledDrug().addNewName();
+            }
+            output.getConsumable().getManufacturedProduct().getManufacturedLabeledDrug().getCode().setNullFlavor("OTH");
+            output.getConsumable().getManufacturedProduct().getManufacturedLabeledDrug().getName().set(cdaMapHelper.mapToCData(customTreatment));
+        }
+        return output;
+    }
+
+    private StrucDocText mapToTreatmentCustomTreat(String customTreatment,
+                                           StrucDocText list) throws EcrCdaXmlException {
+        if(!customTreatment.isEmpty()){
+            int c = 0;
+            if (list == null) {
+                list = StrucDocText.Factory.newInstance();
+                list.addNewList();
+            } else {
+                if ( list.getListArray().length == 0){
+                    list.addNewList();
+                } else {
+                    c = list.getListArray().length;
+                    list.addNewList();
+                }
+            }
+            list.getListArray(c).addNewItem();
+            list.getListArray(c).addNewCaption();
+            StrucDocItem item = StrucDocItem.Factory.newInstance();
+            XmlCursor cursor = item.newCursor();
+            cursor.setTextValue(CDATA + customTreatment + CDATA);
+            cursor.dispose();
+            list.getListArray(c).setItemArray(0, item);
+            list.getListArray(c).getCaption().set(cdaMapHelper.mapToCData("CDA Treatment Information Section"));
         }
 
-        CdaTreatmentAdministrationMapper mapper = new CdaTreatmentAdministrationMapper();
-        mapper.setAdministration(output);
-        mapper.setText(list);
-        return mapper;
+        return list;
+    }
+
+    private POCDMT000040SubstanceAdministration mapToTreatmentFieldCheckDoseAmt(EcrSelectedTreatment input,
+                                                                                POCDMT000040SubstanceAdministration output) {
+        String dosageSt = input.getMsgTreatment().getTrtDosageAmt().toString();
+        if(!dosageSt.isEmpty()) {
+            String dosageStQty = "";
+            String dosageStUnit = "";
+            String dosageStCodeSystemName = "";
+            String dosageStDisplayName = "";
+            if (output.getDoseQuantity() == null) {
+                output.addNewDoseQuantity();
+            }
+            output.getDoseQuantity().setValue(input.getMsgTreatment().getTrtDosageAmt());
+        }
+        return output;
+    }
+
+    private POCDMT000040SubstanceAdministration mapToTreatmentFieldCheckLocalId(EcrSelectedTreatment input,
+                                                                                POCDMT000040SubstanceAdministration output) {
+        int c = 0;
+        if (output.getIdArray().length == 0) {
+            output.addNewId();
+        }else {
+            c = output.getIdArray().length;
+            output.addNewId();
+        }
+        output.getIdArray(c).setRoot(ID_ROOT);
+        output.getIdArray(c).setAssigningAuthorityName("LR");
+        output.getIdArray(c).setExtension(input.getMsgTreatment().getTrtLocalId());
+        return output;
     }
 
     private TreatmentField mapToTreatmentFieldCheck(EcrSelectedTreatment input, POCDMT000040SubstanceAdministration output,
@@ -350,33 +462,16 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
             output.getDoseQuantity().setUnit(TRT_DOSAGE_UNIT_CD);
         }
         if(name.equals("trtDosageAmt") && value != null && input.getMsgTreatment().getTrtDosageAmt() != null) {
-            String dosageSt = input.getMsgTreatment().getTrtDosageAmt().toString();
-            if(!dosageSt.isEmpty()) {
-                String dosageStQty = "";
-                String dosageStUnit = "";
-                String dosageStCodeSystemName = "";
-                String dosageStDisplayName = "";
-                if (output.getDoseQuantity() == null) {
-                    output.addNewDoseQuantity();
-                }
-                output.getDoseQuantity().setValue(input.getMsgTreatment().getTrtDosageAmt());
-            }
+            output = mapToTreatmentFieldCheckDoseAmt( input,
+                     output);
         }
         if(name.equals("trtDrugCd") && value != null && input.getMsgTreatment().getTrtDrugCd() != null && !input.getMsgTreatment().getTrtDrugCd().isEmpty()) {
             treatmentNameQuestion = this.cdaMapHelper.mapToQuestionId("TRT_DRUG_CD");;
             treatmentName = input.getMsgTreatment().getTrtDrugCd();
         }
         if(name.equals("trtLocalId")  && value != null&& input.getMsgTreatment().getTrtLocalId() != null && !input.getMsgTreatment().getTrtLocalId().isEmpty()) {
-            int c = 0;
-            if (output.getIdArray().length == 0) {
-                output.addNewId();
-            }else {
-                c = output.getIdArray().length;
-                output.addNewId();
-            }
-            output.getIdArray(c).setRoot(ID_ROOT);
-            output.getIdArray(c).setAssigningAuthorityName("LR");
-            output.getIdArray(c).setExtension(input.getMsgTreatment().getTrtLocalId());
+            output = mapToTreatmentFieldCheckLocalId( input,
+                     output);
             treatmentUid=input.getMsgTreatment().getTrtLocalId();
         }
         if(name.equals("trtCustomTreatmentTxt")  && value != null && input.getMsgTreatment().getTrtCustomTreatmentTxt() != null && !input.getMsgTreatment().getTrtCustomTreatmentTxt().isEmpty()) {

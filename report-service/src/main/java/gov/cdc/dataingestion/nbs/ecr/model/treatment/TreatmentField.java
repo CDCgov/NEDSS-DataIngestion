@@ -9,14 +9,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TreatmentField {
-    String treatmentUid = "";
-    String trtTreatmentDt = "";
-    String trtFrequencyAmtCd = "";
-    String trtDosageUnitCd = "";
-    String trtDurationAmt = "";
-    String trtDurationUnitCd = "";
-    String treatmentName = "";
-    String treatmentNameQuestion = "";
-    String customTreatment = "";
+    String treatmentUid;
+    String trtTreatmentDt ;
+    String trtFrequencyAmtCd;
+    String trtDosageUnitCd;
+    String trtDurationAmt;
+    String trtDurationUnitCd;
+    String treatmentName ;
+    String treatmentNameQuestion ;
+    String customTreatment ;
     POCDMT000040SubstanceAdministration output;
 }
