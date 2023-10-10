@@ -1032,11 +1032,6 @@ public class CdaMapHelper implements ICdaMapHelper {
 
         for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
             String name = entry.getKey();
-            String value = null;
-            if (entry.getValue() != null) {
-                value = entry.getValue().toString();
-            }
-
             if(name.equals("orgLocalId") && in.getOrgLocalId()!=null && !in.getOrgLocalId().isEmpty()){
                 if (out.getParticipantRole() == null) {
                     out.addNewParticipantRole().addNewId();
