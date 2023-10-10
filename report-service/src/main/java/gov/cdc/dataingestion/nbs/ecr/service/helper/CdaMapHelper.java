@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.nbs.ecr.service.helper;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.model.shares.Observation;
+import gov.cdc.dataingestion.nbs.ecr.model.shares.Psn;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.LookUp.PhdcAnswerDao;
 import gov.cdc.dataingestion.nbs.repository.model.dao.LookUp.QuestionIdentifierMapDao;
@@ -503,6 +504,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         String extn="";
         String qec="";
         String email="";
+
         String prefix="";
         int teleCounter=0;
 
@@ -511,82 +513,43 @@ public class CdaMapHelper implements ICdaMapHelper {
         for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
             String name = entry.getKey();
 
-            if (name.equals("prvLocalId") && in.getPrvLocalId() != null && !in.getPrvLocalId().isEmpty()) {
-                if (out.getParticipantRole() == null) {
-                    out.addNewParticipantRole().addNewId();
-                } else {
-                    out.getParticipantRole().addNewId();
-                }
-                out.getParticipantRole().getIdArray(0).setExtension(in.getPrvLocalId());
-                out.getParticipantRole().getIdArray(0).setRoot("2.16.840.1.113883.11.19745");
-                out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
-            }
-            else if (name.equals("prvNameFirstTxt") && in.getPrvNameFirstTxt() !=null && !in.getPrvNameFirstTxt().isEmpty()) {
-                firstName = in.getPrvNameFirstTxt();
-            }
-            else if (name.equals("prvNamePrefixCd") && in.getPrvNamePrefixCd() != null && !in.getPrvNamePrefixCd().isEmpty()) {
-                prefix = in.getPrvNamePrefixCd();
-            }
-            else if (name.equals("prvNameLastTxt") && in.getPrvNameLastTxt() != null && !in.getPrvNameLastTxt().isEmpty()) {
-                lastName = in.getPrvNameLastTxt();
-            }
-            else if(name.equals("prvNameSuffixCd") && in.getPrvNameSuffixCd() != null && !in.getPrvNameSuffixCd().isEmpty()) {
-                suffix = in.getPrvNameSuffixCd();
-            }
-            else if(name.equals("prvNameDegreeCd") && in.getPrvNameDegreeCd()!=null && !in.getPrvNameDegreeCd().isEmpty()) {
-                degree = in.getPrvNameDegreeCd();
-            }
-            else if(name.equals("prvAddrStreetAddr1Txt") && in.getPrvAddrStreetAddr1Txt() !=null && !in.getPrvAddrStreetAddr1Txt().isEmpty()) {
-                address1 = in.getPrvAddrStreetAddr1Txt();
-            }
-            else if(name.equals("prvAddrStreetAddr2Txt") && in.getPrvAddrStreetAddr2Txt() != null && !in.getPrvAddrStreetAddr2Txt().isEmpty()) {
-                address2 = in.getPrvAddrStreetAddr2Txt();
-            }
-            else if(name.equals("prvAddrCityTxt") && in.getPrvAddrCityTxt() != null && !in.getPrvAddrCityTxt().isEmpty()) {
-                city = in.getPrvAddrCityTxt();
-            }
-            if(name.equals("prvAddrCountyCd") && in.getPrvAddrCountyCd() != null && !in.getPrvAddrCountyCd().isEmpty()) {
-                county = mapToAddressType(in.getPrvAddrCountyCd(), county);
-            }
-            else if(name.equals("prvAddrStateCd") && in.getPrvAddrStateCd() != null  && !in.getPrvAddrStateCd().isEmpty()) {
-                state = mapToAddressType(in.getPrvAddrStateCd(), state);
-            }
-            else if(name.equals("prvAddrZipCodeTxt") && in.getPrvAddrZipCodeTxt() != null && !in.getPrvAddrZipCodeTxt().isEmpty()) {
-                zip = in.getPrvAddrZipCodeTxt();
-            }
-            else if(name.equals("prvAddrCountryCd") && in.getPrvAddrCountryCd() != null && !in.getPrvAddrCountryCd().isEmpty()) {
-                country = mapToAddressType(in.getPrvAddrCountryCd(), country);
-            }
-            else if(name.equals("prvPhoneNbrTxt") && in.getPrvPhoneNbrTxt() != null && !in.getPrvPhoneNbrTxt().isEmpty()) {
-                telephone = in.getPrvPhoneNbrTxt();
-            }
-            else  if(name.equals("prvPhoneExtensionTxt") && in.getPrvPhoneExtensionTxt() != null) {
-                extn = in.getPrvPhoneExtensionTxt().toString();
-            }
-            else if(name.equals("prvIdQuickCodeTxt") && in.getPrvIdQuickCodeTxt() != null && !in.getPrvIdQuickCodeTxt().isEmpty()) {
-                if (out.getParticipantRole() == null) {
-                    out.addNewParticipantRole().addNewId();
-                } else {
-                    out.getParticipantRole().addNewId();
-                }
+            var param = new Psn();
+            param.setFirstName(firstName);
+            param.setPrefix(prefix);
+            param.setLastName(lastName);
+            param.setSuffix(suffix);
+            param.setDegree(degree);
+            param.setAddress1(address1);
+            param.setAddress2(address2);
+            param.setCity(city);
+            param.setCounty(county);
+            param.setCountry(country);
+            param.setState(state);
+            param.setZip(zip);
+            param.setTelephone(telephone);
+            param.setExtn(extn);
+            param.setEmail(email);
+            var psn = mapToPSNFieldCheckAndMap( in,
+                     out,
+                     name,
+                     param);
 
-
-                int c = 0;
-                if (out.getParticipantRole().getIdArray().length == 0) {
-                    out.getParticipantRole().addNewId();
-                } else {
-                    c = out.getParticipantRole().getIdArray().length;
-                    out.getParticipantRole().addNewId();
-                }
-
-                out.getParticipantRole().getIdArray(c).setExtension(in.getPrvIdQuickCodeTxt());
-                out.getParticipantRole().getIdArray(c).setRoot("2.16.840.1.113883.11.19745");
-                out.getParticipantRole().getIdArray(c).setAssigningAuthorityName("LR_QEC");
-            }
-            else if(name.equals("prvEmailAddressTxt") && in.getPrvEmailAddressTxt() != null && !in.getPrvEmailAddressTxt().isEmpty()) {
-                email = in.getPrvEmailAddressTxt();
-            }
-
+             firstName = psn.getFirstName();
+             prefix = psn.getPrefix();
+             lastName = psn.getLastName();
+             suffix = psn.getSuffix();
+             degree = psn.getDegree();
+             address1 = psn.getAddress1();
+             address2 = psn.getAddress2();
+             city = psn.getCity();
+             county = psn.getCounty();
+             country = psn.getCountry();
+             state = psn.getState();
+             zip = psn.getZip();
+             telephone = psn.getTelephone();
+             extn = psn.getExtn();
+             email = psn.getEmail();
+             out = psn.getOut();
         }
 
 
@@ -776,6 +739,139 @@ public class CdaMapHelper implements ICdaMapHelper {
             teleCounter= teleCounter + 1;
         }
 
+        return out;
+    }
+
+    private Psn mapToPSNFieldCheckAndMap(EcrMsgProviderDto in,
+                                          POCDMT000040Participant2 out,
+                                          String name,
+                                          Psn param) {
+        String firstName = param.getFirstName();
+        String prefix = param.getPrefix();
+        String lastName = param.getLastName();
+        String suffix = param.getSuffix();
+        String degree = param.getDegree();
+        String address1 = param.getAddress1();
+        String address2 = param.getAddress2();
+        String city = param.getCity();
+        String county = param.getCounty();
+        String country = param.getCountry();
+        String state = param.getState();
+        String zip = param.getZip();
+        String telephone = param.getTelephone();
+        String extn = param.getExtn();
+        String email = param.getEmail();
+
+        if (name.equals("prvLocalId") && in.getPrvLocalId() != null && !in.getPrvLocalId().isEmpty()) {
+            out = mapToPSNFieldCheckAndMapLocalId( in,
+                     out);
+        }
+        else if (name.equals("prvNameFirstTxt") && in.getPrvNameFirstTxt() !=null && !in.getPrvNameFirstTxt().isEmpty()) {
+            firstName = in.getPrvNameFirstTxt();
+        }
+        else if (name.equals("prvNamePrefixCd") && in.getPrvNamePrefixCd() != null && !in.getPrvNamePrefixCd().isEmpty()) {
+            prefix = in.getPrvNamePrefixCd();
+        }
+        else if (name.equals("prvNameLastTxt") && in.getPrvNameLastTxt() != null && !in.getPrvNameLastTxt().isEmpty()) {
+            lastName = in.getPrvNameLastTxt();
+        }
+        else if(name.equals("prvNameSuffixCd") && in.getPrvNameSuffixCd() != null && !in.getPrvNameSuffixCd().isEmpty()) {
+            suffix = in.getPrvNameSuffixCd();
+        }
+        else if(name.equals("prvNameDegreeCd") && in.getPrvNameDegreeCd()!=null && !in.getPrvNameDegreeCd().isEmpty()) {
+            degree = in.getPrvNameDegreeCd();
+        }
+        else if(name.equals("prvAddrStreetAddr1Txt") && in.getPrvAddrStreetAddr1Txt() !=null && !in.getPrvAddrStreetAddr1Txt().isEmpty()) {
+            address1 = in.getPrvAddrStreetAddr1Txt();
+        }
+        else if(name.equals("prvAddrStreetAddr2Txt") && in.getPrvAddrStreetAddr2Txt() != null && !in.getPrvAddrStreetAddr2Txt().isEmpty()) {
+            address2 = in.getPrvAddrStreetAddr2Txt();
+        }
+        else if(name.equals("prvAddrCityTxt") && in.getPrvAddrCityTxt() != null && !in.getPrvAddrCityTxt().isEmpty()) {
+            city = in.getPrvAddrCityTxt();
+        }
+
+        if(name.equals("prvAddrCountyCd") && in.getPrvAddrCountyCd() != null && !in.getPrvAddrCountyCd().isEmpty()) {
+            county = mapToAddressType(in.getPrvAddrCountyCd(), county);
+        }
+        else if(name.equals("prvAddrStateCd") && in.getPrvAddrStateCd() != null  && !in.getPrvAddrStateCd().isEmpty()) {
+            state = mapToAddressType(in.getPrvAddrStateCd(), state);
+        }
+        else if(name.equals("prvAddrZipCodeTxt") && in.getPrvAddrZipCodeTxt() != null && !in.getPrvAddrZipCodeTxt().isEmpty()) {
+            zip = in.getPrvAddrZipCodeTxt();
+        }
+        else if(name.equals("prvAddrCountryCd") && in.getPrvAddrCountryCd() != null && !in.getPrvAddrCountryCd().isEmpty()) {
+            country = mapToAddressType(in.getPrvAddrCountryCd(), country);
+        }
+        else if(name.equals("prvPhoneNbrTxt") && in.getPrvPhoneNbrTxt() != null && !in.getPrvPhoneNbrTxt().isEmpty()) {
+            telephone = in.getPrvPhoneNbrTxt();
+        }
+        else  if(name.equals("prvPhoneExtensionTxt") && in.getPrvPhoneExtensionTxt() != null) {
+            extn = in.getPrvPhoneExtensionTxt().toString();
+        }
+        else if(name.equals("prvIdQuickCodeTxt") && in.getPrvIdQuickCodeTxt() != null && !in.getPrvIdQuickCodeTxt().isEmpty()) {
+            out = mapToPSNFieldCheckAndMapQuickCode( in,
+                     out);
+        }
+        else if(name.equals("prvEmailAddressTxt") && in.getPrvEmailAddressTxt() != null && !in.getPrvEmailAddressTxt().isEmpty()) {
+            email = in.getPrvEmailAddressTxt();
+        }
+
+        param.setFirstName(firstName);
+        param.setPrefix(prefix);
+        param.setLastName(lastName);
+        param.setSuffix(suffix);
+        param.setDegree(degree);
+        param.setAddress1(address1);
+        param.setAddress2(address2);
+        param.setCity(city);
+        param.setCounty(county);
+        param.setCountry(country);
+        param.setState(state);
+        param.setZip(zip);
+        param.setTelephone(telephone);
+        param.setExtn(extn);
+        param.setEmail(email);
+        param.setOut(out);
+
+        return param;
+    }
+
+
+    private POCDMT000040Participant2 mapToPSNFieldCheckAndMapQuickCode(EcrMsgProviderDto in,
+                                                                     POCDMT000040Participant2 out) {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewId();
+        } else {
+            out.getParticipantRole().addNewId();
+        }
+
+
+        int c = 0;
+        if (out.getParticipantRole().getIdArray().length == 0) {
+            out.getParticipantRole().addNewId();
+        } else {
+            c = out.getParticipantRole().getIdArray().length;
+            out.getParticipantRole().addNewId();
+        }
+
+        out.getParticipantRole().getIdArray(c).setExtension(in.getPrvIdQuickCodeTxt());
+        out.getParticipantRole().getIdArray(c).setRoot("2.16.840.1.113883.11.19745");
+        out.getParticipantRole().getIdArray(c).setAssigningAuthorityName("LR_QEC");
+
+        return out;
+    }
+
+    private POCDMT000040Participant2 mapToPSNFieldCheckAndMapLocalId(EcrMsgProviderDto in,
+                                    POCDMT000040Participant2 out) {
+        if (out.getParticipantRole() == null) {
+            out.addNewParticipantRole().addNewId();
+        } else {
+            out.getParticipantRole().addNewId();
+        }
+        out.getParticipantRole().getIdArray(0).setExtension(in.getPrvLocalId());
+        out.getParticipantRole().getIdArray(0).setRoot("2.16.840.1.113883.11.19745");
+        out.getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR");
         return out;
     }
 

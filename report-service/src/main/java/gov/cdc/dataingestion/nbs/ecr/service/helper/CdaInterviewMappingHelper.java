@@ -944,12 +944,16 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         else if (name.equals(COL_ANS_TO_CODE_SYSTEM_DESC_TXT) && !in.getAnsToCodeSystemDescTxt().isEmpty()) {
             ce.setCodeSystemName(in.getAnsToCodeSystemDescTxt());
         }
-        else if (name.equals(COL_ANS_TO_DISPLAY_NM) && !in.getAnsToDisplayNm().isEmpty()) {
+        else if (validateMapToInterviewObservationFieldP2CountyAnsDisplayNm(name, in)) {
             ce.setDisplayName(in.getAnsToDisplayNm());
 
         }
         out.getEntryRelationshipArray(counter).getObservation().getValueArray(sequenceNbr).set(ce);
         return out;
+    }
+
+    private boolean validateMapToInterviewObservationFieldP2CountyAnsDisplayNm(String name, EcrMsgInterviewAnswerDto in) {
+        return name.equals(COL_ANS_TO_DISPLAY_NM) && !in.getAnsToDisplayNm().isEmpty();
     }
 
     private InterviewObs mapToInterviewObservationFieldP1(EcrMsgInterviewAnswerDto in,
