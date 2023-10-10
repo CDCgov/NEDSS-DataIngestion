@@ -1,12 +1,8 @@
 package gov.cdc.dataingestion.nbs.ecr.model.patient;
 
-import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto;
 import gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.lang.reflect.Field;
 
 @Getter
 @Setter
@@ -90,10 +86,4 @@ public class CdaPatientField {
     private int phoneCounter;
 
 
-    /**
-     *
-     private int raceCodeCounter;
-     private EcrMsgPatientDto patient;
-     *
-     * */
 }

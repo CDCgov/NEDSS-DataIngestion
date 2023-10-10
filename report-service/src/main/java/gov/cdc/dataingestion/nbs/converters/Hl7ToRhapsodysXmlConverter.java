@@ -1,6 +1,5 @@
 package gov.cdc.dataingestion.nbs.converters;
 
-import gov.cdc.nedss.phdc.cda.ClinicalDocumentDocument1;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ObservationRequest;

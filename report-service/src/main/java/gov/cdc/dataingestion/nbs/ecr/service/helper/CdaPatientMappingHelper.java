@@ -15,12 +15,11 @@ import org.apache.xmlbeans.XmlObject;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
-import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforePipe;
+import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.getStringsBeforePipe;
 
 public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
     ICdaMapHelper cdaMapHelper;
@@ -38,21 +37,21 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                 String address1 ="";
                 String address2 ="";
                 String homeExtn="";
-                String PAT_HOME_PHONE_NBR_TXT  ="";
-                String PAT_WORK_PHONE_EXTENSION_TXT="";
+                String patHomePhoneNbrTxt  ="";
+                String patWorkPhoneExtensionTxt ="";
                 String wpNumber="";
                 String cellNumber="";
-                String PAT_NAME_FIRST_TXT="";
-                String PAT_NAME_MIDDLE_TXT="";
-                String PAT_NAME_PREFIX_CD="";
-                String PAT_NAME_LAST_TXT="";
-                String PAT_NAME_SUFFIX_CD="";
+                String patNameFirstTxt ="";
+                String patNameMiddleTxt ="";
+                String patNamePrefixCd ="";
+                String patNameLastTxt ="";
+                String patNameSuffixCd="";
 
                 int phoneCounter = 0;
-                String PAT_EMAIL_ADDRESS_TXT="";
-                String PAT_URL_ADDRESS_TXT="";
-                String PAT_PHONE_AS_OF_DT="";
-                String PAT_PHONE_COUNTRY_CODE_TXT="";
+                String patEmailAddressTxt ="";
+                String patUrlAddressTxt ="";
+                String patPhoneAsOfDt ="";
+                String patPhoneCountryCodeTxt ="";
                 int patientIdentifier =0;
                 int k = 1;
                 CdaPatientField patientField = new CdaPatientField(
@@ -62,24 +61,24 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                         k,
                         patientComponentCounter,
                         clinicalDocument,
-                        PAT_WORK_PHONE_EXTENSION_TXT,
-                        PAT_HOME_PHONE_NBR_TXT,
+                        patWorkPhoneExtensionTxt,
+                        patHomePhoneNbrTxt,
                         wpNumber,
-                        PAT_PHONE_COUNTRY_CODE_TXT,
+                        patPhoneCountryCodeTxt,
                         cellNumber,
-                        PAT_NAME_PREFIX_CD,
-                        PAT_NAME_FIRST_TXT,
-                        PAT_NAME_MIDDLE_TXT,
-                        PAT_NAME_LAST_TXT,
-                        PAT_NAME_SUFFIX_CD,
-                        PAT_EMAIL_ADDRESS_TXT,
-                        PAT_URL_ADDRESS_TXT,
-                        PAT_PHONE_AS_OF_DT,
+                        patNamePrefixCd,
+                        patNameFirstTxt,
+                        patNameMiddleTxt,
+                        patNameLastTxt,
+                        patNameSuffixCd,
+                        patEmailAddressTxt,
+                        patUrlAddressTxt,
+                        patPhoneAsOfDt,
                         inv168
                 );
 
                 //endregion
-                if (input.getMsgPatients() != null && input.getMsgPatients().size() > 0) {
+                if (input.getMsgPatients() != null && !input.getMsgPatients().isEmpty() ) {
                     Field[] fields = EcrMsgPatientDto.class.getDeclaredFields();
                     for (Field field : fields) {
 
@@ -89,12 +88,12 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                         k = patientField.getK();
                         patientComponentCounter = patientField.getPatientComponentCounter();
                         clinicalDocument = patientField.getClinicalDocument();
-                        PAT_WORK_PHONE_EXTENSION_TXT = patientField.getWorkPhoneExt();
+                        patWorkPhoneExtensionTxt = patientField.getWorkPhoneExt();
                         wpNumber = patientField.getWpNumber();
                         cellNumber = patientField.getCellNumber();
-                        PAT_EMAIL_ADDRESS_TXT = patientField.getEmail();
-                        PAT_URL_ADDRESS_TXT = patientField.getUrlAddress();
-                        PAT_PHONE_AS_OF_DT = patientField.getPhoneAsDateTime();
+                        patEmailAddressTxt = patientField.getEmail();
+                        patUrlAddressTxt = patientField.getUrlAddress();
+                        patPhoneAsOfDt = patientField.getPhoneAsDateTime();
                         inv168 = patientField.getInv168();
 
                         patientFieldCheckKMapping(k, clinicalDocument, patient, field);
@@ -108,8 +107,8 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
 
                 // wpNumber
                 CdaPatientTelecom cdaPatientTeleComWpNumber =
-                        mapPatientWpNumber(clinicalDocument, wpNumber, PAT_WORK_PHONE_EXTENSION_TXT,
-                                PAT_PHONE_AS_OF_DT, phoneCounter);
+                        mapPatientWpNumber(clinicalDocument, wpNumber, patWorkPhoneExtensionTxt,
+                                patPhoneAsOfDt, phoneCounter);
 
                 clinicalDocument = cdaPatientTeleComWpNumber.getClinicalDocument();
                 phoneCounter= cdaPatientTeleComWpNumber.getPhoneCounter();
@@ -117,22 +116,22 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                 // cellNumber
                 CdaPatientTelecom cdaPatientTeleComCelLNumber =
                         mapPatientCellPhone(clinicalDocument, cellNumber,
-                                PAT_PHONE_AS_OF_DT, phoneCounter);
+                                patPhoneAsOfDt, phoneCounter);
                 clinicalDocument = cdaPatientTeleComCelLNumber.getClinicalDocument();
                 phoneCounter= cdaPatientTeleComCelLNumber.getPhoneCounter();
 
-                // PAT_EMAIL_ADDRESS_TXT
+                // patEmailAddressTxt
                 CdaPatientTelecom cdaPatientTelecomEmail =
-                        mapPatientEmail(clinicalDocument, PAT_EMAIL_ADDRESS_TXT,
-                                PAT_PHONE_AS_OF_DT, phoneCounter  );
+                        mapPatientEmail(clinicalDocument, patEmailAddressTxt,
+                                patPhoneAsOfDt, phoneCounter  );
                 clinicalDocument = cdaPatientTelecomEmail.getClinicalDocument();
                 phoneCounter= cdaPatientTelecomEmail.getPhoneCounter();
 
 
-                // PAT_URL_ADDRESS_TXT
+                // patUrlAddressTxt
                 CdaPatientTelecom cdaPatientTelecomUrl =
-                        mapPatientUrlAddress(clinicalDocument, PAT_URL_ADDRESS_TXT,
-                                PAT_PHONE_AS_OF_DT, phoneCounter);
+                        mapPatientUrlAddress(clinicalDocument, patUrlAddressTxt,
+                                patPhoneAsOfDt, phoneCounter);
                 clinicalDocument = cdaPatientTelecomUrl.getClinicalDocument();
 
                 mapPatientAddress1(clinicalDocument, address1);
@@ -354,7 +353,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
     private void patientFieldCheckKMapping(int k, POCDMT000040ClinicalDocument1 clinicalDocument, EcrMsgPatientDto patient, Field field) throws EcrCdaXmlException {
         if (k > 1) {
             checkPatientRoleAddrArray(clinicalDocument);
-            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).setUse(new ArrayList<>(List.of("H")));
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).setUse(new ArrayList<String>(List.of("H")));
         }
         if (k> 1 && field.getName().equals("patAddrAsOfDt") && patient.getPatAddrAsOfDt() != null ) {
             checkPatientRoleAddrArray(clinicalDocument);
@@ -673,8 +672,8 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
 
     private CdaPatientTelecom mapPatientWpNumber(POCDMT000040ClinicalDocument1 clinicalDocument,
                                                        String wpNumber,
-                                                       String PAT_WORK_PHONE_EXTENSION_TXT,
-                                                       String PAT_PHONE_AS_OF_DT,
+                                                       String patWorkPhoneExtensionTxt,
+                                                       String patPhoneAsOfDt,
                                                        int phoneCounter) throws EcrCdaXmlException {
         CdaPatientTelecom param = new CdaPatientTelecom();
         try {
@@ -687,17 +686,17 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewTelecom();
                 }
 
-                if(!PAT_WORK_PHONE_EXTENSION_TXT.isEmpty()){
-                    wpNumber=wpNumber+ ";ext="+ PAT_WORK_PHONE_EXTENSION_TXT;
+                if(!patWorkPhoneExtensionTxt.isEmpty()){
+                    wpNumber=wpNumber+ ";ext="+ patWorkPhoneExtensionTxt;
                 }
-                if(!PAT_PHONE_AS_OF_DT.isEmpty()){
+                if(!patPhoneAsOfDt.isEmpty()){
                     TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
                     element.set(XmlObject.Factory.parse(STUD));
-                    var out = cdaMapHelper.mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, USESABLE_PERIOD);
+                    var out = cdaMapHelper.mapToUsableTSElement(patPhoneAsOfDt, element, USESABLE_PERIOD);
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
 
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<>(List.of("WP")));
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<String>(List.of("WP")));
                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(wpNumber);
 
                 phoneCounter = phoneCounter +1;
@@ -715,7 +714,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
 
     private CdaPatientTelecom mapPatientCellPhone(POCDMT000040ClinicalDocument1 clinicalDocument,
                                            String cellNumber,
-                                           String PAT_PHONE_AS_OF_DT,
+                                           String patPhoneAsOfDt,
                                            int phoneCounter) throws EcrCdaXmlException {
         CdaPatientTelecom model = new CdaPatientTelecom();
         try {
@@ -728,15 +727,15 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewTelecom();
                 }
 
-                if(!PAT_PHONE_AS_OF_DT.isEmpty()){
+                if(!patPhoneAsOfDt.isEmpty()){
                     TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
                     // CHECK mapToUsableTSElement
                     element.set(XmlObject.Factory.parse(STUD));
-                    var out = cdaMapHelper.mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, USESABLE_PERIOD);
+                    var out = cdaMapHelper.mapToUsableTSElement(patPhoneAsOfDt, element, USESABLE_PERIOD);
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
 
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<>(List.of("MC")));
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<String>(List.of("MC")));
                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(cellNumber);
                 phoneCounter =phoneCounter +1;
             }
@@ -751,12 +750,12 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
     }
 
     private CdaPatientTelecom mapPatientEmail(POCDMT000040ClinicalDocument1 clinicalDocument,
-                               String PAT_EMAIL_ADDRESS_TXT,
-                                       String PAT_PHONE_AS_OF_DT,
+                               String patEmailAddressTxt,
+                                       String patPhoneAsOfDt,
                                        int phoneCounter) throws EcrCdaXmlException {
         CdaPatientTelecom model = new CdaPatientTelecom();
         try {
-            if(!PAT_EMAIL_ADDRESS_TXT.isEmpty()) {
+            if(!patEmailAddressTxt.isEmpty()) {
                 int pCount = 0;
                 if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray().length == 0) {
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewTelecom();
@@ -766,18 +765,18 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                 }
 
 
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList(List.of("HP")));
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(MAIL_TO+PAT_EMAIL_ADDRESS_TXT);
-                if(!PAT_PHONE_AS_OF_DT.isEmpty()){
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<String>(List.of("HP")));
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(MAIL_TO+patEmailAddressTxt);
+                if(!patPhoneAsOfDt.isEmpty()){
                     TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
                     // CHECK mapToUsableTSElement
                     element.set(XmlObject.Factory.parse(STUD));
-                    var out = cdaMapHelper.mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, USESABLE_PERIOD);
+                    var out = cdaMapHelper.mapToUsableTSElement(patPhoneAsOfDt, element, USESABLE_PERIOD);
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
 
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<>(List.of("HP")));
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(MAIL_TO + PAT_EMAIL_ADDRESS_TXT);
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<String>(List.of("HP")));
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(MAIL_TO + patEmailAddressTxt);
                 phoneCounter =phoneCounter +1;
             }
             model.setClinicalDocument(clinicalDocument);
@@ -792,9 +791,9 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
         List<CE> raceCode2List = new ArrayList<>();
         long counter = patient.getPatRaceCategoryCd().chars().filter(x -> x == '|').count();
 
-        List<String> raceCatList = new ArrayList<>();
+        List<String> raceCatList = new ArrayList<String>();
         if (counter > 0) {
-            raceCatList = GetStringsBeforePipe(patient.getPatRaceCategoryCd());
+            raceCatList = getStringsBeforePipe(patient.getPatRaceCategoryCd());
         } else {
             raceCatList.add(patient.getPatRaceCategoryCd());
         }
@@ -810,12 +809,12 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
     }
 
     private CdaPatientTelecom mapPatientUrlAddress(POCDMT000040ClinicalDocument1 clinicalDocument,
-                                             String PAT_URL_ADDRESS_TXT,
-                                                         String PAT_PHONE_AS_OF_DT,
+                                             String patUrlAddressTxt,
+                                                         String patPhoneAsOfDt,
                                                          int phoneCounter) throws EcrCdaXmlException {
         CdaPatientTelecom model = new CdaPatientTelecom();
         try {
-            if(!PAT_URL_ADDRESS_TXT.isEmpty()) {
+            if(!patUrlAddressTxt.isEmpty()) {
                 int pCount = 0;
                 if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray().length == 0) {
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewTelecom();
@@ -823,18 +822,18 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                     pCount = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray().length + 1 - 1;
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().addNewTelecom();
                 }
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList(List.of("HP")));
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(PAT_URL_ADDRESS_TXT);
-                if(!PAT_PHONE_AS_OF_DT.isEmpty()){
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<String>(List.of("HP")));
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(patUrlAddressTxt);
+                if(!patPhoneAsOfDt.isEmpty()){
                     TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
                     // CHECK mapToUsableTSElement
                     element.set(XmlObject.Factory.parse(STUD));
-                    var out = cdaMapHelper.mapToUsableTSElement(PAT_PHONE_AS_OF_DT, element, USESABLE_PERIOD);
+                    var out = cdaMapHelper.mapToUsableTSElement(patPhoneAsOfDt, element, USESABLE_PERIOD);
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
 
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList(List.of("HP")));
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(PAT_URL_ADDRESS_TXT);
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<String>(List.of("HP")));
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(patUrlAddressTxt);
                 phoneCounter =phoneCounter +1;
             }
             model.setClinicalDocument(clinicalDocument);
@@ -948,7 +947,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).addNewGiven();
         }
 
-        clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).setUse(new ArrayList(List.of("L")));
+        clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).setUse(new ArrayList<String>(List.of("L")));
         clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(0).getGivenArray(count).set(cdaMapHelper.mapToCData(patientFirstName));
     }
 
@@ -997,7 +996,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                 var out = cdaMapHelper.mapToUsableTSElement(phoneAsDt, element, USESABLE_PERIOD);
                 clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
             }
-            clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<>(List.of("HP")));
+            clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<String>(List.of("HP")));
             clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setValue(phoneHome);
         } catch (Exception e) {
             throw new EcrCdaXmlException(e.getMessage());

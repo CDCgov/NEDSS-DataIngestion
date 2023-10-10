@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
-import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforeCaret;
-import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforePipe;
+import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.getStringsBeforeCaret;
+import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.getStringsBeforePipe;
 
 public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
 
@@ -105,8 +105,8 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         int repeatComponentCounter=0;
 
 
-        if (caseDto.getMsgCaseParticipants().size() > 0
-                || caseDto.getMsgCaseAnswers().size() > 0 || caseDto.getMsgCaseAnswerRepeats().size() > 0) {
+        if (!caseDto.getMsgCaseParticipants().isEmpty()
+                || !caseDto.getMsgCaseAnswers().isEmpty() || !caseDto.getMsgCaseAnswerRepeats().isEmpty()) {
 
             var participantModel = mapCaseParticipant(caseDto, output, componentCaseCounter, counter);
             output = participantModel.getStructuredBody();
@@ -328,7 +328,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
     private POCDMT000040Observation mapTripletToObservation(String invConditionCd, String questionId, POCDMT000040Observation output) throws EcrCdaXmlException {
         output.setClassCode("OBS");
         output.setMoodCode(XActMoodDocumentObservation.EVN);
-        List<String> repeats = GetStringsBeforePipe(invConditionCd);
+        List<String> repeats = getStringsBeforePipe(invConditionCd);
 
         String tripletCodedValue;
         PhdcQuestionLookUpDto questionLookUpDto = cdaMapHelper.mapToCodedQuestionType(questionId);
@@ -342,12 +342,12 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             } else {
                 tripletCodedValue = repeats.get(i);
             }
-            var caretStringList = GetStringsBeforeCaret(repeats.get(i));
+            var caretStringList = getStringsBeforeCaret(repeats.get(i));
 
             if (tripletCodedValue.length() > 0 && caretStringList.size() == 4) {
                 String code = caretStringList.get(0);
                 String displayName = caretStringList.get(1);
-                String CODE_SYSTEM_NAME = caretStringList.get(2);
+                String codeSystemName = caretStringList.get(2);
                 String codeSystem = caretStringList.get(3);
                 int c = 0;
                 if (output.getValueArray().length == 0) {
@@ -361,7 +361,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                 CE ce = CE.Factory.newInstance();
                 ce.setCode(code);
                 ce.setCodeSystem(codeSystem);
-                ce.setCodeSystemName(CODE_SYSTEM_NAME);
+                ce.setCodeSystemName(codeSystemName);
                 ce.setDisplayName(displayName);
                 output.getValueArray(c).set(ce);
             }

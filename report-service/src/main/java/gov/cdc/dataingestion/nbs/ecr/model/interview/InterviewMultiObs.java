@@ -2,7 +2,6 @@ package gov.cdc.dataingestion.nbs.ecr.model.interview;
 
 import gov.cdc.nedss.phdc.cda.POCDMT000040Encounter;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter

@@ -1,6 +1,5 @@
 package gov.cdc.dataingestion.nbs.ecr.model.cases;
 
-import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerRepeatDto;
 import gov.cdc.nedss.phdc.cda.POCDMT000040Section;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

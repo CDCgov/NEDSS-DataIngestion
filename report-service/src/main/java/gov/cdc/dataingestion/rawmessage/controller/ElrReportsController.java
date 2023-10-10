@@ -73,7 +73,6 @@ public class ElrReportsController {
             summary = "Transform parsed ecr data in MSG table into CDA xml")
     @GetMapping(path = "/ecr/cda-transformation")
     public ResponseEntity<String> processingMsgEcrIntoCDA() throws EcrCdaXmlException {
-        Gson gson = new Gson();
         var result = ecrMsgQueryService.getSelectedEcrFromJson();
 
 
@@ -86,8 +85,6 @@ public class ElrReportsController {
             var error = e;
             System.out.println(e.getMessage());
         }
-        String jsonString = gson.toJson(result);
-
         return ResponseEntity.ok(xmlREsult);
     }
 }

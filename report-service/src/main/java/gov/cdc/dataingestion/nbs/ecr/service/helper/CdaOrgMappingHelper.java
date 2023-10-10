@@ -60,7 +60,7 @@ public class CdaOrgMappingHelper implements ICdaOrgMappingHelper {
 
         }
 
-        var performerSectionCounter = clinicalDocument.getEntryArray().length;
+        var performerSectionCounter = clinicalDocument.getEntryArray().length; // NOSONAR
 
         if ( clinicalDocument.getEntryArray().length == 0) {
             clinicalDocument.addNewEntry();

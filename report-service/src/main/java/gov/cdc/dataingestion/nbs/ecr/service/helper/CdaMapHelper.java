@@ -25,7 +25,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
-import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.GetStringsBeforePipe;
+import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.getStringsBeforePipe;
 
 public class CdaMapHelper implements ICdaMapHelper {
 
@@ -161,7 +161,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         String transCodeSystemName;
         String transDisplayName;
         String codeSystem;
-        String CODE_SYSTEM_NAME;
+        String codeSystemName;
         String displayName;
 
         // RhapsodyTableLookup(output, tableName, resultColumnName, defaultValue, queryColumn1, queryValue1, queryColumn2, queryValue2, ...)
@@ -172,7 +172,7 @@ public class CdaMapHelper implements ICdaMapHelper {
             transCodeSystemName = phdcAnswer.getAnsFromCodeSystemCd();
             transDisplayName = phdcAnswer.getAnsFromDisplayNm();
             codeSystem = phdcAnswer.getAnsToCodeSystemCd();
-            CODE_SYSTEM_NAME = phdcAnswer.getAnsToCodeSystemDescTxt();
+            codeSystemName = phdcAnswer.getAnsToCodeSystemDescTxt();
             displayName = phdcAnswer.getAnsToDisplayNm();
         }
         else {
@@ -181,7 +181,7 @@ public class CdaMapHelper implements ICdaMapHelper {
             code = NOT_MAPPED_VALUE;
             transCodeSystemName = NOT_MAPPED_VALUE;
             transDisplayName = NOT_MAPPED_VALUE;
-            CODE_SYSTEM_NAME =NOT_MAPPED_VALUE;
+            codeSystemName =NOT_MAPPED_VALUE;
             displayName = NOT_MAPPED_VALUE;
         }
 
@@ -192,13 +192,13 @@ public class CdaMapHelper implements ICdaMapHelper {
         if (code.equalsIgnoreCase("NULL") || code.isEmpty()) {
             code = data ;
             codeSystem = transCodeSystem;
-            CODE_SYSTEM_NAME = transCodeSystemName;
+            codeSystemName = transCodeSystemName;
             displayName = transDisplayName;
         }
 
         model.setCode(code);
         model.setCodeSystem(codeSystem);
-        model.setCodeSystemName(CODE_SYSTEM_NAME);
+        model.setCodeSystemName(codeSystemName);
         model.setDisplayName(displayName);
         model.setTransCode(data);
         model.setTransCodeSystem(transCodeSystem);
@@ -292,7 +292,7 @@ public class CdaMapHelper implements ICdaMapHelper {
             POCDMT000040Observation observation,
             String data,
             PhdcQuestionLookUpDto result) {
-        var dataList = GetStringsBeforePipe(data);
+        var dataList = getStringsBeforePipe(data);
         StringBuilder dataStr = new StringBuilder();
         for (String s : dataList) {
             dataStr.append(" ").append(s);
@@ -582,7 +582,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         else {
             out.getParticipantRole().addNewTelecom();
         }
-        out.getParticipantRole().getTelecomArray(teleCounter).setUse(new ArrayList(List.of("WP")));
+        out.getParticipantRole().getTelecomArray(teleCounter).setUse(new ArrayList<String>(List.of("WP")));
         out.getParticipantRole().getTelecomArray(teleCounter).setValue(email);
         teleCounter= teleCounter + 1;
         PsnTelephone psnTelephone = new PsnTelephone();
@@ -599,7 +599,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         } else {
             out.getParticipantRole().addNewTelecom();
         }
-        out.getParticipantRole().getTelecomArray(teleCounter).setUse(new ArrayList(List.of("WP")));
+        out.getParticipantRole().getTelecomArray(teleCounter).setUse(new ArrayList<String>(List.of("WP")));
         int phoneExtnSize= extn.length();
         if(phoneExtnSize>0){
             telephone=telephone+ EXTN_STR+ extn;
@@ -767,7 +767,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewGiven();
         out.getParticipantRole().getPlayingEntity().getNameArray(0).setGivenArray(0,  EnGiven.Factory.newInstance());
         out.getParticipantRole().getPlayingEntity().getNameArray(0).getGivenArray(0).set(mapVal);
-        out.getParticipantRole().getPlayingEntity().getNameArray(0).setUse(new ArrayList(List.of("L")));
+        out.getParticipantRole().getPlayingEntity().getNameArray(0).setUse(new ArrayList<String>(List.of("L")));
     }
 
     private void mapToPSNLastName(String lastName,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
@@ -782,7 +782,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewFamily();
         out.getParticipantRole().getPlayingEntity().getNameArray(0).setFamilyArray(0,  EnFamily.Factory.newInstance());
         out.getParticipantRole().getPlayingEntity().getNameArray(0).getFamilyArray(0).set(mapVal);
-        out.getParticipantRole().getPlayingEntity().getNameArray(0).setUse(new ArrayList(List.of("L")));
+        out.getParticipantRole().getPlayingEntity().getNameArray(0).setUse(new ArrayList<String>(List.of("L")));
     }
 
     private Psn mapToPSNFieldCheckAndMap(EcrMsgProviderDto in,
@@ -1085,7 +1085,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         } else {
             out.getParticipantRole().addNewTelecom();
         }
-        out.getParticipantRole().getTelecomArray(0).setUse(new ArrayList(List.of("WP")));
+        out.getParticipantRole().getTelecomArray(0).setUse(new ArrayList<String>(List.of("WP")));
         int phoneExtnSize = extn.length();
         if(phoneExtnSize>0){
             phone=phone+ EXTN_STR+ extn;
@@ -1099,7 +1099,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         } else {
             out.getParticipantRole().addNewAddr();
         }
-        out.getParticipantRole().getAddrArray(0).setUse(new ArrayList(List.of("WP")));
+        out.getParticipantRole().getAddrArray(0).setUse(new ArrayList<String>(List.of("WP")));
     }
 
     private void mapToORGFieldCountry(String country, POCDMT000040Participant2 out) throws EcrCdaXmlException {

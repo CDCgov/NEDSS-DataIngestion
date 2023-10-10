@@ -127,7 +127,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
 
         int questionGroupCounter=0;
         int answerGroupCounter=0;
-        String OldRepeatQuestionId=CHANGE;
+        String oldRepeatQuestionId=CHANGE;
         int sectionCounter = 0;
         int providerRoleCounter=0;
 
@@ -150,13 +150,13 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
                         answerGroupCounter,
                         questionGroupCounter,
                         sectionCounter,
-                        OldRepeatQuestionId,
+                        oldRepeatQuestionId,
                         element);
 
                 answerGroupCounter = mapped.getAnswerGroupCounter();
                 questionGroupCounter = mapped.getQuestionGroupCounter();
                 sectionCounter = mapped.getSectionCounter();
-                OldRepeatQuestionId = mapped.getQuestionId();
+                oldRepeatQuestionId = mapped.getQuestionId();
                 out.getSection().getEntryArray(sectionEntryCounter).setEncounter(mapped.getComponent());
 
             }
@@ -229,7 +229,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         else if (name.equals("ixsIntervieweeRoleCd")  && in.getMsgInterview().getIxsIntervieweeRoleCd() != null && !in.getMsgInterview().getIxsIntervieweeRoleCd().isEmpty()){
             String questionCode = this.cdaMapHelper.mapToQuestionId("IXS_INTERVIEWEE_ROLE_CD");
 
-            var interviewRole = mapToInterviewFieldCheckP1InterviewRole(out, sectionEntryCounter);
+            var interviewRole = mapToInterviewFieldCheckP1Loc(out, sectionEntryCounter);
             int c = interviewRole.getC();
             out = interviewRole.getOut();
 
@@ -242,7 +242,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         else if (validateInterviewType(name, in)){
             String questionCode = this.cdaMapHelper.mapToQuestionId("IXS_INTERVIEW_TYPE_CD");
 
-            var interviewType = mapToInterviewFieldCheckP1Type(out, sectionEntryCounter);
+            var interviewType = mapToInterviewFieldCheckP1Loc(out, sectionEntryCounter);
             int c = interviewType.getC();
             out = interviewType.getOut();
 
@@ -301,34 +301,6 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         model.setOut(out);
         return model;
     }
-    private InterviewRole mapToInterviewFieldCheckP1Type(POCDMT000040Component3 out, int sectionEntryCounter) {
-        int c = 0;
-        if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray().length == 0) {
-            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEntryRelationship().addNewObservation();
-        } else {
-            c = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray().length;
-            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEntryRelationship().addNewObservation();
-        }
-        InterviewRole model = new InterviewRole();
-        model.setC(c);
-        model.setOut(out);
-        return model;
-    }
-
-    private InterviewRole mapToInterviewFieldCheckP1InterviewRole(POCDMT000040Component3 out, int sectionEntryCounter) {
-        int c = 0;
-        if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray().length == 0) {
-            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEntryRelationship().addNewObservation();
-        } else {
-            c = out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEntryRelationshipArray().length;
-            out.getSection().getEntryArray(sectionEntryCounter).getEncounter().addNewEntryRelationship().addNewObservation();
-        }
-        InterviewRole model = new InterviewRole();
-        model.setC(c);
-        model.setOut(out);
-        return model;
-    }
-
     private void mapToInterviewFieldCheckP1InterviewDt(POCDMT000040Component3 out, EcrSelectedInterview in, int sectionEntryCounter) throws EcrCdaXmlException {
         var ts = cdaMapHelper.mapToTsType(in.getMsgInterview().getIxsInterviewDt().toString());
         if (out.getSection().getEntryArray(sectionEntryCounter).getEncounter().getEffectiveTime() == null) {
@@ -480,6 +452,8 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
                     out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getCode().setCodeSystemName(value);
             case COL_QUES_DISPLAY_TXT ->
                     out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getCode().setDisplayName(value);
+            default ->
+                    param.setOut(out);
         }
 
         param.setQuestionIdentifier(questionIdentifier);

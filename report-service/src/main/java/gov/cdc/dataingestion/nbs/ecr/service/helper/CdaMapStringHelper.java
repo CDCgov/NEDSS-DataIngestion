@@ -7,7 +7,7 @@ public class CdaMapStringHelper {
     private CdaMapStringHelper() {
         // String helper class
     }
-    public static List<String> GetStringsBeforePipe(String input) {
+    public static List<String> getStringsBeforePipe(String input) {
         List<String> result = new ArrayList<>();
         String[] parts = input.split("\\|");
 
@@ -19,7 +19,7 @@ public class CdaMapStringHelper {
         return result;
     }
 
-    public static List<String> GetStringsBeforeCaret(String input) {
+    public static List<String> getStringsBeforeCaret(String input) {
         List<String> result = new ArrayList<>();
         String[] parts = input.split("\\^");
 
