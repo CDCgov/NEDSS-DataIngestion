@@ -4,6 +4,7 @@ import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.model.AttributeMapper;
 import gov.cdc.dataingestion.nbs.ecr.model.CdaTreatmentAdministrationMapper;
 import gov.cdc.dataingestion.nbs.ecr.model.CdaTreatmentMapper;
+import gov.cdc.dataingestion.nbs.ecr.model.treatment.TreatmentField;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaTreatmentMappingHelper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
@@ -132,77 +133,33 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
 
         for (Map.Entry<String, Object> entry : input.getMsgTreatment().getDataMap().entrySet()) {
             String name = entry.getKey();
-            String value = null;
-            if (entry.getValue() != null) {
-                value = entry.getValue().toString();
-            }
+            String value = this.cdaMapHelper.getValueFromMap(entry);
 
-            if(name.equals("trtTreatmentDt")  && value != null && input.getMsgTreatment().getTrtTreatmentDt() != null) {
-                TRT_TREATMENT_DT= input.getMsgTreatment().getTrtTreatmentDt().toString();
-            }
+            TreatmentField param = new TreatmentField();
+            param.setTreatmentUid(treatmentUid);
+            param.setTrtTreatmentDt(TRT_TREATMENT_DT);
+            param.setTrtFrequencyAmtCd(TRT_FREQUENCY_AMT_CD);
+            param.setTrtDosageUnitCd(TRT_DOSAGE_UNIT_CD);
+            param.setTrtDurationAmt(TRT_DURATION_AMT);
+            param.setTrtDurationUnitCd(TRT_DURATION_UNIT_CD);
+            param.setTreatmentName(treatmentName);
+            param.setTreatmentNameQuestion(treatmentNameQuestion);
+            param.setCustomTreatment(customTreatment);
+            var treatmentField = mapToTreatmentFieldCheck( input,  output,
+                     name,
+                     value,
+                     param);
+            treatmentUid = treatmentField.getTreatmentUid();
+            TRT_TREATMENT_DT = treatmentField.getTrtTreatmentDt();
+            TRT_FREQUENCY_AMT_CD = treatmentField.getTrtFrequencyAmtCd();
+            TRT_DOSAGE_UNIT_CD = treatmentField.getTrtDosageUnitCd();
+            TRT_DURATION_AMT = treatmentField.getTrtDurationAmt();
+            TRT_DURATION_UNIT_CD = treatmentField.getTrtDurationUnitCd();
+            treatmentName = treatmentField.getTreatmentName();
+            treatmentNameQuestion = treatmentField.getTreatmentNameQuestion();
+            customTreatment = treatmentField.getCustomTreatment();
+            output = treatmentField.getOutput();
 
-            if(name.equals("trtFrequencyAmtCd")  && value != null && input.getMsgTreatment().getTrtFrequencyAmtCd() != null && !input.getMsgTreatment().getTrtFrequencyAmtCd().isEmpty()) {
-                TRT_FREQUENCY_AMT_CD= input.getMsgTreatment().getTrtFrequencyAmtCd();
-            }
-
-            if(name.equals("trtDosageUnitCd") && value != null && input.getMsgTreatment().getTrtDosageUnitCd() != null && !input.getMsgTreatment().getTrtDosageUnitCd().isEmpty()) {
-                TRT_DOSAGE_UNIT_CD= input.getMsgTreatment().getTrtDosageUnitCd();
-                output.getDoseQuantity().setUnit(TRT_DOSAGE_UNIT_CD);
-            }
-
-            if(name.equals("trtDosageAmt") && value != null && input.getMsgTreatment().getTrtDosageAmt() != null) {
-                String dosageSt = input.getMsgTreatment().getTrtDosageAmt().toString();
-                if(!dosageSt.isEmpty()) {
-                    String dosageStQty = "";
-                    String dosageStUnit = "";
-                    String dosageStCodeSystemName = "";
-                    String dosageStDisplayName = "";
-                    if (output.getDoseQuantity() == null) {
-                        output.addNewDoseQuantity();
-                    }
-                    output.getDoseQuantity().setValue(input.getMsgTreatment().getTrtDosageAmt());
-                }
-            }
-
-            if(name.equals("trtDrugCd") && value != null && input.getMsgTreatment().getTrtDrugCd() != null && !input.getMsgTreatment().getTrtDrugCd().isEmpty()) {
-                treatmentNameQuestion = this.cdaMapHelper.mapToQuestionId("TRT_DRUG_CD");;
-                treatmentName = input.getMsgTreatment().getTrtDrugCd();
-            }
-
-
-            if(name.equals("trtLocalId")  && value != null&& input.getMsgTreatment().getTrtLocalId() != null && !input.getMsgTreatment().getTrtLocalId().isEmpty()) {
-                int c = 0;
-                if (output.getIdArray().length == 0) {
-                    output.addNewId();
-                }else {
-                    c = output.getIdArray().length;
-                    output.addNewId();
-                }
-                output.getIdArray(c).setRoot(ID_ROOT);
-                output.getIdArray(c).setAssigningAuthorityName("LR");
-                output.getIdArray(c).setExtension(input.getMsgTreatment().getTrtLocalId());
-                treatmentUid=input.getMsgTreatment().getTrtLocalId();
-            }
-
-            if(name.equals("trtCustomTreatmentTxt")  && value != null && input.getMsgTreatment().getTrtCustomTreatmentTxt() != null && !input.getMsgTreatment().getTrtCustomTreatmentTxt().isEmpty()) {
-                customTreatment= input.getMsgTreatment().getTrtCustomTreatmentTxt();
-            }
-
-            if(name.equals("trtCompositeCd")  && value != null && input.getMsgTreatment().getTrtCompositeCd() != null && !input.getMsgTreatment().getTrtCompositeCd().isEmpty()) {
-
-            }
-
-            if(name.equals("trtCommentTxt")  && value != null && input.getMsgTreatment().getTrtCommentTxt() != null && !input.getMsgTreatment().getTrtCommentTxt().isEmpty()) {
-
-            }
-
-            if(name.equals("trtDurationAmt") && value != null && input.getMsgTreatment().getTrtDurationAmt() != null) {
-                TRT_DURATION_AMT = input.getMsgTreatment().getTrtDurationAmt().toString();
-            }
-
-            if(name.equals("trtDurationUnitCd") && value != null && input.getMsgTreatment().getTrtDurationUnitCd() != null && !input.getMsgTreatment().getTrtDurationUnitCd().isEmpty()) {
-                TRT_DURATION_UNIT_CD = input.getMsgTreatment().getTrtDurationUnitCd();
-            }
         }
 
 
@@ -221,19 +178,12 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
             }
             list.getListArray(c).addNewItem();
             list.getListArray(c).addNewCaption();
-
             StrucDocItem item = StrucDocItem.Factory.newInstance();
-
             XmlCursor cursor = item.newCursor();
             cursor.setTextValue(CDATA + customTreatment + CDATA);
             cursor.dispose();
-
             list.getListArray(c).setItemArray(0, item);
-
             list.getListArray(c).getCaption().set(cdaMapHelper.mapToCData("CDA Treatment Information Section"));
-
-        }else{
-            // TODO: OutXML::Element element1= (OutXML::Element)list.item[counter];
         }
 
         if (!treatmentName.isEmpty()) {
@@ -372,6 +322,85 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
         mapper.setAdministration(output);
         mapper.setText(list);
         return mapper;
+    }
+
+    private TreatmentField mapToTreatmentFieldCheck(EcrSelectedTreatment input, POCDMT000040SubstanceAdministration output,
+                                          String name,
+                                          String value,
+                                          TreatmentField param) {
+        String treatmentUid = param.getTreatmentUid();
+        String TRT_TREATMENT_DT = param.getTrtTreatmentDt();
+        String TRT_FREQUENCY_AMT_CD = param.getTrtFrequencyAmtCd();
+        String TRT_DOSAGE_UNIT_CD = param.getTrtDosageUnitCd();
+        String TRT_DURATION_AMT = param.getTrtDurationAmt();
+        String TRT_DURATION_UNIT_CD = param.getTrtDurationUnitCd();
+        String treatmentName = param.getTreatmentName();
+        String treatmentNameQuestion = param.getTreatmentNameQuestion();
+        String customTreatment = param.getCustomTreatment();
+
+
+        if(name.equals("trtTreatmentDt")  && value != null && input.getMsgTreatment().getTrtTreatmentDt() != null) {
+            TRT_TREATMENT_DT= input.getMsgTreatment().getTrtTreatmentDt().toString();
+        }
+        if(name.equals("trtFrequencyAmtCd")  && value != null && input.getMsgTreatment().getTrtFrequencyAmtCd() != null && !input.getMsgTreatment().getTrtFrequencyAmtCd().isEmpty()) {
+            TRT_FREQUENCY_AMT_CD= input.getMsgTreatment().getTrtFrequencyAmtCd();
+        }
+        if(name.equals("trtDosageUnitCd") && value != null && input.getMsgTreatment().getTrtDosageUnitCd() != null && !input.getMsgTreatment().getTrtDosageUnitCd().isEmpty()) {
+            TRT_DOSAGE_UNIT_CD= input.getMsgTreatment().getTrtDosageUnitCd();
+            output.getDoseQuantity().setUnit(TRT_DOSAGE_UNIT_CD);
+        }
+        if(name.equals("trtDosageAmt") && value != null && input.getMsgTreatment().getTrtDosageAmt() != null) {
+            String dosageSt = input.getMsgTreatment().getTrtDosageAmt().toString();
+            if(!dosageSt.isEmpty()) {
+                String dosageStQty = "";
+                String dosageStUnit = "";
+                String dosageStCodeSystemName = "";
+                String dosageStDisplayName = "";
+                if (output.getDoseQuantity() == null) {
+                    output.addNewDoseQuantity();
+                }
+                output.getDoseQuantity().setValue(input.getMsgTreatment().getTrtDosageAmt());
+            }
+        }
+        if(name.equals("trtDrugCd") && value != null && input.getMsgTreatment().getTrtDrugCd() != null && !input.getMsgTreatment().getTrtDrugCd().isEmpty()) {
+            treatmentNameQuestion = this.cdaMapHelper.mapToQuestionId("TRT_DRUG_CD");;
+            treatmentName = input.getMsgTreatment().getTrtDrugCd();
+        }
+        if(name.equals("trtLocalId")  && value != null&& input.getMsgTreatment().getTrtLocalId() != null && !input.getMsgTreatment().getTrtLocalId().isEmpty()) {
+            int c = 0;
+            if (output.getIdArray().length == 0) {
+                output.addNewId();
+            }else {
+                c = output.getIdArray().length;
+                output.addNewId();
+            }
+            output.getIdArray(c).setRoot(ID_ROOT);
+            output.getIdArray(c).setAssigningAuthorityName("LR");
+            output.getIdArray(c).setExtension(input.getMsgTreatment().getTrtLocalId());
+            treatmentUid=input.getMsgTreatment().getTrtLocalId();
+        }
+        if(name.equals("trtCustomTreatmentTxt")  && value != null && input.getMsgTreatment().getTrtCustomTreatmentTxt() != null && !input.getMsgTreatment().getTrtCustomTreatmentTxt().isEmpty()) {
+            customTreatment= input.getMsgTreatment().getTrtCustomTreatmentTxt();
+        }
+        if(name.equals("trtDurationAmt") && value != null && input.getMsgTreatment().getTrtDurationAmt() != null) {
+            TRT_DURATION_AMT = input.getMsgTreatment().getTrtDurationAmt().toString();
+        }
+        if(name.equals("trtDurationUnitCd") && value != null && input.getMsgTreatment().getTrtDurationUnitCd() != null && !input.getMsgTreatment().getTrtDurationUnitCd().isEmpty()) {
+            TRT_DURATION_UNIT_CD = input.getMsgTreatment().getTrtDurationUnitCd();
+        }
+
+        param.setTreatmentUid(treatmentUid);
+        param.setTrtTreatmentDt(TRT_TREATMENT_DT);
+        param.setTrtFrequencyAmtCd(TRT_FREQUENCY_AMT_CD);
+        param.setTrtDosageUnitCd(TRT_DOSAGE_UNIT_CD);
+        param.setTrtDurationAmt(TRT_DURATION_AMT);
+        param.setTrtDurationUnitCd(TRT_DURATION_UNIT_CD);
+        param.setTreatmentName(treatmentName);
+        param.setTreatmentNameQuestion(treatmentNameQuestion);
+        param.setCustomTreatment(customTreatment);
+        param.setOutput(output);
+        return param;
+
     }
 
     private AttributeMapper mapToAttributes(String input) {

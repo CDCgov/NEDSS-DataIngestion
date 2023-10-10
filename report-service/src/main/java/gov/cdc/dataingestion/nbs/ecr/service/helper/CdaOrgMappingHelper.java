@@ -32,7 +32,6 @@ public class CdaOrgMappingHelper implements ICdaOrgMappingHelper {
                              clinicalDocument,
                              performerComponentCounter,
                              componentCounter,
-                             performerSectionCounter,
                              input,
                              i);
                 }
@@ -51,7 +50,6 @@ public class CdaOrgMappingHelper implements ICdaOrgMappingHelper {
             POCDMT000040Section clinicalDocument,
             int performerComponentCounter,
             int componentCounter,
-            int performerSectionCounter,
             EcrSelectedRecord input,
             int i) throws EcrCdaXmlException {
         if (performerComponentCounter < 1) {
@@ -66,7 +64,7 @@ public class CdaOrgMappingHelper implements ICdaOrgMappingHelper {
 
         }
 
-        performerSectionCounter = clinicalDocument.getEntryArray().length;
+        var performerSectionCounter = clinicalDocument.getEntryArray().length;
 
         if ( clinicalDocument.getEntryArray().length == 0) {
             clinicalDocument.addNewEntry();
