@@ -1,13 +1,11 @@
 package gov.cdc.dataingestion.nbs.ecr.service.helper;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
-import gov.cdc.dataingestion.nbs.ecr.model.shares.Observation;
-import gov.cdc.dataingestion.nbs.ecr.model.shares.Org;
-import gov.cdc.dataingestion.nbs.ecr.model.shares.Psn;
-import gov.cdc.dataingestion.nbs.ecr.model.shares.PsnTelephone;
+import gov.cdc.dataingestion.nbs.ecr.model.shares.*;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao;
 import gov.cdc.dataingestion.nbs.repository.model.dao.lookup.QuestionIdentifierMapDao;
+import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerRepeatDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgProviderDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcQuestionLookUpDto;
@@ -42,6 +40,57 @@ public class CdaMapHelper implements ICdaMapHelper {
             throw new EcrCdaXmlException(e.getMessage());
         }
 
+    }
+
+    public MapParticipantRole mapToParticipantRoleCheck(
+            POCDMT000040SubstanceAdministration output) {
+        int c = 0;
+        if (output.getParticipantArray().length == 0) {
+            output.addNewParticipant().addNewParticipantRole().addNewId();
+        } else {
+            c = output.getParticipantArray().length;
+            output.addNewParticipant().addNewParticipantRole().addNewId();
+        }
+
+        MapParticipantRole model = new MapParticipantRole();
+        model.setOutput(output);
+        model.setParticipant2(output.getParticipantArray(c));
+        model.setC(c);
+        return model;
+    }
+
+    public ANY mapMultiSelectDateMapXmlElement(ANY element, String value, EcrMsgCaseAnswerRepeatDto in) throws EcrCdaXmlException {
+        XmlCursor cursor = element.newCursor();
+        cursor.toFirstChild();
+        cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "TS");
+        cursor.setAttributeText(new QName("", value), null);
+        String newValue = mapToTsType(in.getAnswerTxt()).toString();
+        cursor.setAttributeText(new QName("", value), newValue);
+        cursor.dispose();
+        return element;
+    }
+
+    public MapStructure mapToStructureBodyCheck(POCDMT000040ClinicalDocument1 clinicalDocument) {
+        int c = 0;
+        if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
+            clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+        } else {
+            c = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length;
+            clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+        }
+        if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
+            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).addNewSection();
+            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
+        } else {
+            if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
+                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
+            }
+        }
+
+        MapStructure mapStruct = new MapStructure();
+        mapStruct.setClinicalDocument(clinicalDocument);
+        mapStruct.setC(c);
+        return mapStruct;
     }
 
 

@@ -102,25 +102,10 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
 
     }
     private TreatmentDocument mapToTreatmentTopDocCheck( POCDMT000040ClinicalDocument1 clinicalDocument) {
-        int c = 0;
-        if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
-            clinicalDocument.getComponent().getStructuredBody().addNewComponent();
-        } else {
-            c = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length;
-            clinicalDocument.getComponent().getStructuredBody().addNewComponent();
-        }
-        if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
-            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).addNewSection();
-            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
-        } else {
-            if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection() == null) {
-                clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewCode();
-            }
-        }
-
+        var struct = this.cdaMapHelper.mapToStructureBodyCheck(clinicalDocument);
         TreatmentDocument doc = new TreatmentDocument();
-        doc.setClinicalDocument(clinicalDocument);
-        doc.setC(c);
+        doc.setClinicalDocument(struct.getClinicalDocument());
+        doc.setC(struct.getC());
         return doc;
     }
 
@@ -209,14 +194,11 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
                                                   int performerCounter
                                                   ) throws EcrCdaXmlException {
         for(int i = 0; i < input.getMsgTreatmentOrganizations().size(); i++) {
-            int c = 0;
-            if (output.getParticipantArray().length == 0) {
-                output.addNewParticipant().addNewParticipantRole().addNewId();
-            } else {
-                c = output.getParticipantArray().length;
-                output.addNewParticipant().addNewParticipantRole().addNewId();
-            }
-            var ot = output.getParticipantArray(c);
+            var model = this.cdaMapHelper.mapToParticipantRoleCheck(output);
+            int c = model.getC();
+            output = model.getOutput();
+            var ot = model.getParticipant2();
+
             var mappedVal = this.cdaMapHelper.mapToORG( input.getMsgTreatmentOrganizations().get(i), ot);
             output.setParticipantArray(c, mappedVal);
             output.getParticipantArray(c).getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR_ORG");
@@ -224,15 +206,11 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
         }
 
         for(int i = 0; i < input.getMsgTreatmentProviders().size(); i++) {
-            int c = 0;
-            if (output.getParticipantArray().length == 0) {
-                output.addNewParticipant().addNewParticipantRole().addNewId();
-            } else {
-                c = output.getParticipantArray().length;
-                output.addNewParticipant().addNewParticipantRole().addNewId();
-            }
+            var model = this.cdaMapHelper.mapToParticipantRoleCheck(output);
+            int c = model.getC();
+            output = model.getOutput();
+            var ot = model.getParticipant2();
 
-            var ot = output.getParticipantArray(c);
             var mappedVal = this.cdaMapHelper.mapToPSN(input.getMsgTreatmentProviders().get(i), ot);
             output.setParticipantArray(c, mappedVal);
             output.getParticipantArray(c).getParticipantRole().getIdArray(0).setAssigningAuthorityName("LR_ORG");

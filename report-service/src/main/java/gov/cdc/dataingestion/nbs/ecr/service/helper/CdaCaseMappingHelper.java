@@ -783,16 +783,12 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                 out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().addNewValue();
             }
             var element = out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getValueArray(c);
-            XmlCursor cursor = element.newCursor();
-            cursor.toFirstChild();
-            cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "TS");
-            cursor.setAttributeText(new QName("", value), null);
-            String newValue = cdaMapHelper.mapToTsType(in.getAnswerTxt()).toString();
-            cursor.setAttributeText(new QName("", value), newValue);
-            cursor.dispose();
+            this.cdaMapHelper.mapMultiSelectDateMapXmlElement( element,  value,  in);
         }
 
     }
+
+
     private void mapMultiSelectDataNumericType(EcrMsgCaseAnswerRepeatDto in,
                                                POCDMT000040Section out,
                                                String questionIdentifier,

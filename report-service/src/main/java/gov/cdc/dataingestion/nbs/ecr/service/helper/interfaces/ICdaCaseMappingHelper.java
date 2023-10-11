@@ -9,4 +9,6 @@ public interface ICdaCaseMappingHelper {
     CdaCaseMapper mapToCaseTop(EcrSelectedRecord input, POCDMT000040ClinicalDocument1 clinicalDocument,
                                       int componentCounter, int clinicalCounter, int componentCaseCounter,
                                       String inv168) throws EcrCdaXmlException;
+
+
 }

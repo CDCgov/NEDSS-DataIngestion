@@ -1,7 +1,10 @@
 package gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
+import gov.cdc.dataingestion.nbs.ecr.model.shares.MapParticipantRole;
+import gov.cdc.dataingestion.nbs.ecr.model.shares.MapStructure;
 import gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao;
+import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerRepeatDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgProviderDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcQuestionLookUpDto;
@@ -39,4 +42,7 @@ public interface ICdaMapHelper {
             throws EcrCdaXmlException;
 
     String getValueFromMap(Map.Entry<String, Object> entry);
+    MapStructure mapToStructureBodyCheck(POCDMT000040ClinicalDocument1 clinicalDocument);
+    MapParticipantRole mapToParticipantRoleCheck(POCDMT000040SubstanceAdministration output);
+    ANY mapMultiSelectDateMapXmlElement(ANY element, String value, EcrMsgCaseAnswerRepeatDto in) throws EcrCdaXmlException;
 }
