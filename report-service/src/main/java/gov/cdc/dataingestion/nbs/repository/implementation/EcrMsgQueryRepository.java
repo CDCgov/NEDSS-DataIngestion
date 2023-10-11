@@ -303,6 +303,41 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
+
+    private EcrMsgProviderDto setProviderData(Object[] val) {
+        EcrMsgProviderDto dto = new EcrMsgProviderDto();
+        dto.setPrvLocalId((nullToString(val[0])));
+        dto.setPrvAuthorId((nullToString(val[1])));
+        dto.setPrvAddrCityTxt((nullToString(val[2])));
+        dto.setPrvAddrCommentTxt((nullToString(val[3])));
+        dto.setPrvAddrCountyCd((nullToString(val[4])));
+        dto.setPrvAddrCountryCd((nullToString(val[5])));
+        dto.setPrvAddrStreetAddr1Txt((nullToString(val[6])));
+        dto.setPrvAddrStreetAddr2Txt((nullToString(val[7])));
+        dto.setPrvAddrStateCd((nullToString(val[8])));
+        dto.setPrvAddrZipCodeTxt((nullToString(val[9])));
+        dto.setPrvCommentTxt((nullToString(val[10])));
+        dto.setPrvIdAltIdNbrTxt((nullToString(val[11])));
+        dto.setPrvIdQuickCodeTxt((nullToString(val[12])));
+        dto.setPrvIdNbrTxt((nullToString(val[13])));
+        dto.setPrvIdNpiTxt((nullToString(val[14])));
+        dto.setPrvEffectiveTime((Timestamp)val[15]);
+        dto.setPrvEmailAddressTxt((nullToString(val[16])));
+        dto.setPrvNameDegreeCd((nullToString(val[17])));
+        dto.setPrvNameFirstTxt((nullToString(val[18])));
+        dto.setPrvNameLastTxt((nullToString(val[19])));
+        dto.setPrvNameMiddleTxt((nullToString(val[20])));
+        dto.setPrvNamePrefixCd((nullToString(val[21])));
+        dto.setPrvNameSuffixCd((nullToString(val[22])));
+        dto.setPrvPhoneCommentTxt((nullToString(val[23])));
+        dto.setPrvPhoneCountryCodeTxt((nullToString(val[24])));
+        dto.setPrvPhoneExtensionTxt(nullCheckInt(val[25]));
+        dto.setPrvPhoneNbrTxt((nullToString(val[26])));
+        dto.setPrvRoleCd((nullToString(val[27])));
+        dto.setPrvUrlAddressTxt((nullToString(val[28])));
+        return dto;
+    }
+
     public List<EcrMsgProviderDto> fetchMsgProviderForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_provider.sql");
         Query query = entityManager.createNativeQuery(queryString);
@@ -311,41 +346,41 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
             for(Object[] val: results) {
-                EcrMsgProviderDto dto = new EcrMsgProviderDto();
-                dto.setPrvLocalId((nullToString(val[0])));
-                dto.setPrvAuthorId((nullToString(val[1])));
-                dto.setPrvAddrCityTxt((nullToString(val[2])));
-                dto.setPrvAddrCommentTxt((nullToString(val[3])));
-                dto.setPrvAddrCountyCd((nullToString(val[4])));
-                dto.setPrvAddrCountryCd((nullToString(val[5])));
-                dto.setPrvAddrStreetAddr1Txt((nullToString(val[6])));
-                dto.setPrvAddrStreetAddr2Txt((nullToString(val[7])));
-                dto.setPrvAddrStateCd((nullToString(val[8])));
-                dto.setPrvAddrZipCodeTxt((nullToString(val[9])));
-                dto.setPrvCommentTxt((nullToString(val[10])));
-                dto.setPrvIdAltIdNbrTxt((nullToString(val[11])));
-                dto.setPrvIdQuickCodeTxt((nullToString(val[12])));
-                dto.setPrvIdNbrTxt((nullToString(val[13])));
-                dto.setPrvIdNpiTxt((nullToString(val[14])));
-                dto.setPrvEffectiveTime((Timestamp)val[15]);
-                dto.setPrvEmailAddressTxt((nullToString(val[16])));
-                dto.setPrvNameDegreeCd((nullToString(val[17])));
-                dto.setPrvNameFirstTxt((nullToString(val[18])));
-                dto.setPrvNameLastTxt((nullToString(val[19])));
-                dto.setPrvNameMiddleTxt((nullToString(val[20])));
-                dto.setPrvNamePrefixCd((nullToString(val[21])));
-                dto.setPrvNameSuffixCd((nullToString(val[22])));
-                dto.setPrvPhoneCommentTxt((nullToString(val[23])));
-                dto.setPrvPhoneCountryCodeTxt((nullToString(val[24])));
-                dto.setPrvPhoneExtensionTxt(nullCheckInt(val[25]));
-                dto.setPrvPhoneNbrTxt((nullToString(val[26])));
-                dto.setPrvRoleCd((nullToString(val[27])));
-                dto.setPrvUrlAddressTxt((nullToString(val[28])));
+                EcrMsgProviderDto dto = setProviderData(val);
                 dto.initDataMap();
                 dtos.add(dto);
             }
         }
         return dtos;
+    }
+
+    private EcrMsgOrganizationDto setOrgData(Object[] val) {
+        EcrMsgOrganizationDto dto = new EcrMsgOrganizationDto();
+        dto.setOrgLocalId((nullToString(val[0])));
+        dto.setOrgAuthorId((nullToString(val[1])));
+        dto.setOrgEffectiveTime((Timestamp)val[2]);
+        dto.setOrgNameTxt((nullToString(val[3])));
+        dto.setOrgAddrCityTxt((nullToString(val[4])));
+        dto.setOrgAddrCommentTxt((nullToString(val[5])));
+        dto.setOrgAddrCountyCd((nullToString(val[6])));
+        dto.setOrgAddrCountryCd((nullToString(val[7])));
+        dto.setOrgAddrStateCd((nullToString(val[8])));
+        dto.setOrgAddrStreetAddr1Txt((nullToString(val[9])));
+        dto.setOrgAddrStreetAddr2Txt((nullToString(val[10])));
+        dto.setOrgAddrZipCodeTxt((nullToString(val[11])));
+        dto.setOrgClassCd((nullToString(val[12])));
+        dto.setOrgCommentTxt((nullToString(val[13])));
+        dto.setOrgEmailAddressTxt((nullToString(val[14])));
+        dto.setOrgIdCliaNbrTxt((nullToString(val[15])));
+        dto.setOrgIdFacilityIdentifierTxt((nullToString(val[16])));
+        dto.setOrgIdQuickCodeTxt((nullToString(val[17])));
+        dto.setOrgPhoneCommentTxt((nullToString(val[18])));
+        dto.setOrgPhoneCountryCodeTxt((nullToString(val[19])));
+        dto.setOrgPhoneExtensionTxt(nullCheckInt(val[20]));
+        dto.setOrgPhoneNbrTxt((nullToString(val[21])));
+        dto.setOrgRoleCd((nullToString(val[22])));
+        dto.setOrgUrlAddressTxt((nullToString(val[23])));
+        return  dto;
     }
 
     public List<EcrMsgOrganizationDto> fetchMsgOrganizationForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
@@ -357,31 +392,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         if (results != null && !results.isEmpty()) {
 
             for(Object[] val: results) {
-                EcrMsgOrganizationDto dto = new EcrMsgOrganizationDto();
-                dto.setOrgLocalId((nullToString(val[0])));
-                dto.setOrgAuthorId((nullToString(val[1])));
-                dto.setOrgEffectiveTime((Timestamp)val[2]);
-                dto.setOrgNameTxt((nullToString(val[3])));
-                dto.setOrgAddrCityTxt((nullToString(val[4])));
-                dto.setOrgAddrCommentTxt((nullToString(val[5])));
-                dto.setOrgAddrCountyCd((nullToString(val[6])));
-                dto.setOrgAddrCountryCd((nullToString(val[7])));
-                dto.setOrgAddrStateCd((nullToString(val[8])));
-                dto.setOrgAddrStreetAddr1Txt((nullToString(val[9])));
-                dto.setOrgAddrStreetAddr2Txt((nullToString(val[10])));
-                dto.setOrgAddrZipCodeTxt((nullToString(val[11])));
-                dto.setOrgClassCd((nullToString(val[12])));
-                dto.setOrgCommentTxt((nullToString(val[13])));
-                dto.setOrgEmailAddressTxt((nullToString(val[14])));
-                dto.setOrgIdCliaNbrTxt((nullToString(val[15])));
-                dto.setOrgIdFacilityIdentifierTxt((nullToString(val[16])));
-                dto.setOrgIdQuickCodeTxt((nullToString(val[17])));
-                dto.setOrgPhoneCommentTxt((nullToString(val[18])));
-                dto.setOrgPhoneCountryCodeTxt((nullToString(val[19])));
-                dto.setOrgPhoneExtensionTxt(nullCheckInt(val[20]));
-                dto.setOrgPhoneNbrTxt((nullToString(val[21])));
-                dto.setOrgRoleCd((nullToString(val[22])));
-                dto.setOrgUrlAddressTxt((nullToString(val[23])));
+                EcrMsgOrganizationDto dto = setOrgData(val);
                 dto.initDataMap();
                 dtos.add(dto);
             }
@@ -457,49 +468,12 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgInterviewProviderDto> fetchMsgInterviewProviderForApplicableEcr(Integer containerId,  String ixsLocalId) throws EcrCdaXmlException {
+    public List<EcrMsgProviderDto> fetchMsgInterviewProviderForApplicableEcr(Integer containerId,  String ixsLocalId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_interview_provider.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(MSG_UID, containerId);
         query.setParameter(IXS_LOCAL_ID, ixsLocalId);
-        List<EcrMsgInterviewProviderDto> dtos = new ArrayList<>();
-        List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
-            for(Object[] val: results) {
-                EcrMsgInterviewProviderDto dto = new EcrMsgInterviewProviderDto();
-                dto.setPrvLocalId((nullToString(val[0])));
-                dto.setPrvAuthorId((nullToString(val[1])));
-                dto.setPrvAddrCityTxt((nullToString(val[2])));
-                dto.setPrvAddrCommentTxt((nullToString(val[3])));
-                dto.setPrvAddrCountyCd((nullToString(val[4])));
-                dto.setPrvAddrCountryCd((nullToString(val[5])));
-                dto.setPrvAddrStreetAddr1Txt((nullToString(val[6])));
-                dto.setPrvAddrStreetAddr2Txt((nullToString(val[7])));
-                dto.setPrvAddrStateCd((nullToString(val[8])));
-                dto.setPrvAddrZipCodeTxt((nullToString(val[9])));
-                dto.setPrvCommentTxt((nullToString(val[10])));
-                dto.setPrvIdAltIdNbrTxt((nullToString(val[11])));
-                dto.setPrvIdQuickCodeTxt((nullToString(val[12])));
-                dto.setPrvIdNbrTxt((nullToString(val[13])));
-                dto.setPrvIdNpiTxt((nullToString(val[14])));
-                dto.setPrvEffectiveTime((Timestamp)val[15]);
-                dto.setPrvEmailAddressTxt((nullToString(val[16])));
-                dto.setPrvNameDegreeCd((nullToString(val[17])));
-                dto.setPrvNameFirstTxt((nullToString(val[18])));
-                dto.setPrvNameLastTxt((nullToString(val[19])));
-                dto.setPrvNameMiddleTxt((nullToString(val[20])));
-                dto.setPrvNamePrefixCd((nullToString(val[21])));
-                dto.setPrvNameSuffixCd((nullToString(val[22])));
-                dto.setPrvPhoneCommentTxt((nullToString(val[23])));
-                dto.setPrvPhoneCountryCodeTxt((nullToString(val[24])));
-                dto.setPrvPhoneExtensionTxt(nullCheckInt(val[25]));
-                dto.setPrvPhoneNbrTxt((nullToString(val[26])));
-                dto.setPrvRoleCd((nullToString(val[27])));
-                dto.setPrvUrlAddressTxt((nullToString(val[28])));
-                dtos.add(dto);
-            }
-        }
-        return dtos;
+        return setProviderList(query);
     }
 
 
@@ -548,84 +522,34 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgTreatmentProviderDto> fetchMsgTreatmentProviderForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
-        String queryString = loadSqlFromFile("ecr_msg_treatment_provider.sql");
-        Query query = entityManager.createNativeQuery(queryString);
-        query.setParameter(MSG_UID, containerId);
-        List<EcrMsgTreatmentProviderDto> dtos = new ArrayList<>();
+    private List<EcrMsgProviderDto>  setProviderList(Query query) {
+        List<EcrMsgProviderDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
             for(Object[] val: results) {
-                EcrMsgTreatmentProviderDto dto = new EcrMsgTreatmentProviderDto();
-                dto.setPrvLocalId((nullToString(val[0])));
-                dto.setPrvAuthorId((nullToString(val[1])));
-                dto.setPrvAddrCityTxt((nullToString(val[2])));
-                dto.setPrvAddrCommentTxt((nullToString(val[3])));
-                dto.setPrvAddrCountyCd((nullToString(val[4])));
-                dto.setPrvAddrCountryCd((nullToString(val[5])));
-                dto.setPrvAddrStreetAddr1Txt((nullToString(val[6])));
-                dto.setPrvAddrStreetAddr2Txt((nullToString(val[7])));
-                dto.setPrvAddrStateCd((nullToString(val[8])));
-                dto.setPrvAddrZipCodeTxt((nullToString(val[9])));
-                dto.setPrvCommentTxt((nullToString(val[10])));
-                dto.setPrvIdAltIdNbrTxt((nullToString(val[11])));
-                dto.setPrvIdQuickCodeTxt((nullToString(val[12])));
-                dto.setPrvIdNbrTxt((nullToString(val[13])));
-                dto.setPrvIdNpiTxt((nullToString(val[14])));
-                dto.setPrvEffectiveTime((Timestamp) val[15]);
-                dto.setPrvEmailAddressTxt((nullToString(val[16])));
-                dto.setPrvNameDegreeCd((nullToString(val[17])));
-                dto.setPrvNameFirstTxt((nullToString(val[18])));
-                dto.setPrvNameLastTxt((nullToString(val[19])));
-                dto.setPrvNameMiddleTxt((nullToString(val[20])));
-                dto.setPrvNamePrefixCd((nullToString(val[21])));
-                dto.setPrvNameSuffixCd((nullToString(val[22])));
-                dto.setPrvPhoneCommentTxt((nullToString(val[23])));
-                dto.setPrvPhoneCountryCodeTxt((nullToString(val[24])));
-                dto.setPrvPhoneExtensionTxt(nullCheckInt(val[25]));
-                dto.setPrvPhoneNbrTxt((nullToString(val[26])));
-                dto.setPrvRoleCd((nullToString(val[27])));
-                dto.setPrvUrlAddressTxt((nullToString(val[28])));
+                EcrMsgProviderDto dto = setProviderData(val);
                 dtos.add(dto);
             }
-
         }
         return dtos;
     }
 
-    public List<EcrMsgTreatmentOrganizationDto> fetchMsgTreatmentOrganizationForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
+    public List<EcrMsgProviderDto> fetchMsgTreatmentProviderForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
+        String queryString = loadSqlFromFile("ecr_msg_treatment_provider.sql");
+        Query query = entityManager.createNativeQuery(queryString);
+        query.setParameter(MSG_UID, containerId);
+        return setProviderList(query);
+    }
+
+    public List<EcrMsgOrganizationDto> fetchMsgTreatmentOrganizationForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_treatment_organization.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(MSG_UID, containerId);
-        List<EcrMsgTreatmentOrganizationDto> dtos = new ArrayList<>();
+        List<EcrMsgOrganizationDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
             for(Object[] val: results) {
-                EcrMsgTreatmentOrganizationDto dto = new EcrMsgTreatmentOrganizationDto();
-                dto.setOrgLocalId((nullToString(val[0])));
-                dto.setOrgAuthorId((nullToString(val[1])));
-                dto.setOrgEffectiveTime((Timestamp) val[2]);
-                dto.setOrgNameTxt((nullToString(val[3])));
-                dto.setOrgAddrCityTxt((nullToString(val[4])));
-                dto.setOrgAddrCommentTxt((nullToString(val[5])));
-                dto.setOrgAddrCountyCd((nullToString(val[6])));
-                dto.setOrgAddrCountryCd((nullToString(val[7])));
-                dto.setOrgAddrStateCd((nullToString(val[8])));
-                dto.setOrgAddrStreetAddr1Txt((nullToString(val[9])));
-                dto.setOrgAddrStreetAddr2Txt((nullToString(val[10])));
-                dto.setOrgAddrZipCodeTxt((nullToString(val[11])));
-                dto.setOrgClassCd((nullToString(val[12])));
-                dto.setOrgCommentTxt((nullToString(val[13])));
-                dto.setOrgEmailAddressTxt((nullToString(val[14])));
-                dto.setOrgIdCliaNbrTxt((nullToString(val[15])));
-                dto.setOrgIdFacilityIdentifierTxt((nullToString(val[16])));
-                dto.setOrgIdQuickCodeTxt((nullToString(val[17])));
-                dto.setOrgPhoneCommentTxt((nullToString(val[18])));
-                dto.setOrgPhoneCountryCodeTxt((nullToString(val[19])));
-                dto.setOrgPhoneExtensionTxt(nullCheckInt(val[20]));
-                dto.setOrgPhoneNbrTxt((nullToString(val[21])));
-                dto.setOrgRoleCd((nullToString(val[22])));
-                dto.setOrgUrlAddressTxt((nullToString(val[23])));
+                EcrMsgOrganizationDto dto = setOrgData(val);
                 dtos.add(dto);
             }
 

@@ -178,7 +178,7 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
             for(var item : msgInterviews) {
                 EcrSelectedInterview selectedInterview = new EcrSelectedInterview();
 
-                List<EcrMsgInterviewProviderDto> msgInterviewProviders = this.ecrMsgQueryRepository.fetchMsgInterviewProviderForApplicableEcr(
+                List<EcrMsgProviderDto> msgInterviewProviders = this.ecrMsgQueryRepository.fetchMsgInterviewProviderForApplicableEcr(
                         msgContainer.getMsgContainerUid(), item.getIxsLocalId());
 
                 List<EcrMsgCaseAnswerDto> msgInterviewAnswers = this.ecrMsgQueryRepository.fetchMsgInterviewAnswerForApplicableEcr(
@@ -199,10 +199,10 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
             for(var item : msgTreatments) {
                 EcrSelectedTreatment selectedTreatment = new EcrSelectedTreatment();
 
-                List<EcrMsgTreatmentProviderDto> ecrMsgTreatmentProviders = this.ecrMsgQueryRepository.fetchMsgTreatmentProviderForApplicableEcr(
+                List<EcrMsgProviderDto> ecrMsgTreatmentProviders = this.ecrMsgQueryRepository.fetchMsgTreatmentProviderForApplicableEcr(
                         msgContainer.getMsgContainerUid());
 
-                List<EcrMsgTreatmentOrganizationDto> ecrMsgTreatmentOrganizations = this.ecrMsgQueryRepository.fetchMsgTreatmentOrganizationForApplicableEcr(
+                List<EcrMsgOrganizationDto> ecrMsgTreatmentOrganizations = this.ecrMsgQueryRepository.fetchMsgTreatmentOrganizationForApplicableEcr(
                         msgContainer.getMsgContainerUid()
                 );
 

@@ -19,11 +19,11 @@ public interface IEcrMsgQueryRepository {
      List<EcrMsgOrganizationDto> fetchMsgOrganizationForApplicableEcr(Integer containerId) throws EcrCdaXmlException;
      List<EcrMsgPlaceDto> fetchMsgPlaceForApplicableEcr(Integer containerId) throws EcrCdaXmlException;
      List<EcrMsgInterviewDto> fetchMsgInterviewForApplicableEcr(Integer containerId) throws EcrCdaXmlException;
-     List<EcrMsgInterviewProviderDto> fetchMsgInterviewProviderForApplicableEcr(Integer containerId,  String ixsLocalId) throws EcrCdaXmlException;
+     List<EcrMsgProviderDto> fetchMsgInterviewProviderForApplicableEcr(Integer containerId,  String ixsLocalId) throws EcrCdaXmlException;
      List<EcrMsgCaseAnswerDto> fetchMsgInterviewAnswerForApplicableEcr(Integer containerId, String ixsLocalId) throws EcrCdaXmlException;
      List<EcrMsgCaseAnswerDto> fetchMsgInterviewAnswerRepeatForApplicableEcr(Integer containerId, String ixsLocalId) throws EcrCdaXmlException;
      List<EcrMsgTreatmentDto> fetchMsgTreatmentForApplicableEcr(Integer containerId) throws EcrCdaXmlException;
-     List<EcrMsgTreatmentProviderDto> fetchMsgTreatmentProviderForApplicableEcr(Integer containerId) throws EcrCdaXmlException;
-     List<EcrMsgTreatmentOrganizationDto> fetchMsgTreatmentOrganizationForApplicableEcr(Integer containerId) throws EcrCdaXmlException;
+     List<EcrMsgProviderDto> fetchMsgTreatmentProviderForApplicableEcr(Integer containerId) throws EcrCdaXmlException;
+     List<EcrMsgOrganizationDto> fetchMsgTreatmentOrganizationForApplicableEcr(Integer containerId) throws EcrCdaXmlException;
      void updateMatchEcrRecordForProcessing(Integer containerUid) throws EcrCdaXmlException;
 }

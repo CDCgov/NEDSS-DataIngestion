@@ -196,7 +196,7 @@ public class JsonReaderTester {
         return null; // NOSONAR
     }
 
-    public static List<EcrMsgInterviewProviderDto> loadInterviewProvider() {
+    public static List<EcrMsgProviderDto> loadInterviewProvider() {
         Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         try {
             var in =  JsonReaderTester.class.getResourceAsStream("/testData/ecrMsgInterviewProvider.json");
@@ -204,8 +204,8 @@ public class JsonReaderTester {
                     in,
                     StandardCharsets.UTF_8);
             // This is the line where we provide Gson with the type information.
-            Type listType = new TypeToken<List<EcrMsgInterviewProviderDto>>() {}.getType();
-            List<EcrMsgInterviewProviderDto> res = gson.fromJson(reader, listType);
+            Type listType = new TypeToken<List<EcrMsgProviderDto>>() {}.getType();
+            List<EcrMsgProviderDto> res = gson.fromJson(reader, listType);
             return res;
         } catch (Exception e) {
             e.printStackTrace(); // NOSONAR
@@ -245,7 +245,7 @@ public class JsonReaderTester {
         return null; // NOSONAR
     }
 
-    public static List<EcrMsgTreatmentOrganizationDto> loadTreatmentOrg() {
+    public static List<EcrMsgOrganizationDto> loadTreatmentOrg() {
         Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         try {
             var in =  JsonReaderTester.class.getResourceAsStream("/testData/ecrMsgTreatmentOrg.json");
@@ -253,8 +253,8 @@ public class JsonReaderTester {
                     in,
                     StandardCharsets.UTF_8);
             // This is the line where we provide Gson with the type information.
-            Type listType = new TypeToken<List<EcrMsgTreatmentOrganizationDto>>() {}.getType();
-            List<EcrMsgTreatmentOrganizationDto> res = gson.fromJson(reader, listType);
+            Type listType = new TypeToken<List<EcrMsgOrganizationDto>>() {}.getType();
+            List<EcrMsgOrganizationDto> res = gson.fromJson(reader, listType);
             return res;
         } catch (Exception e) {
             e.printStackTrace(); // NOSONAR
@@ -262,7 +262,7 @@ public class JsonReaderTester {
         return null; // NOSONAR
     }
 
-    public static List<EcrMsgTreatmentProviderDto> loadTreatmentProvider() {
+    public static List<EcrMsgProviderDto> loadTreatmentProvider() {
         Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         try {
             var in =  JsonReaderTester.class.getResourceAsStream("/testData/ecrMsgTreatmentProvider.json");
@@ -270,8 +270,8 @@ public class JsonReaderTester {
                     in,
                     StandardCharsets.UTF_8);
             // This is the line where we provide Gson with the type information.
-            Type listType = new TypeToken<List<EcrMsgTreatmentProviderDto>>() {}.getType();
-            List<EcrMsgTreatmentProviderDto> res = gson.fromJson(reader, listType);
+            Type listType = new TypeToken<List<EcrMsgProviderDto>>() {}.getType();
+            List<EcrMsgProviderDto> res = gson.fromJson(reader, listType);
             return res;
         } catch (Exception e) {
             e.printStackTrace(); // NOSONAR
