@@ -7,6 +7,7 @@ public class CdaMapStringHelper {
     private CdaMapStringHelper() {
         // String helper class
     }
+
     public static List<String> getStringsBeforePipe(String input) {
         List<String> result = new ArrayList<>();
         String[] parts = input.split("\\|");
