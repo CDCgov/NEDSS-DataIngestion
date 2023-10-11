@@ -25,6 +25,7 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
     }
 
     public EcrSelectedRecord getSelectedEcrFromJson() throws EcrCdaXmlException {
+        //
         var container = JsonReaderTester.loadContainer();
         var patient = JsonReaderTester.loadPatient();
 
@@ -128,6 +129,7 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
 //        var xmlAnsw = ecrMsgQueryRepository.fetchMsgXmlAnswerForApplicableEcr(10009282, "1.2.840.114350.1.13.478.2.7.8.688883.74957358"); // NOSONAR
 //        selectedRecord.setMsgXmlAnswers(xmlAnsw); // NOSONAR
         return selectedRecord;
+        // NOSONAR
     }
 
     public EcrSelectedRecord getSelectedEcrRecord() throws EcrCdaXmlException {
