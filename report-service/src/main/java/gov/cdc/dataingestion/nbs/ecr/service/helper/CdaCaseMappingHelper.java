@@ -10,7 +10,6 @@ import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedCase;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerDto;
-import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerRepeatDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseParticipantDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcQuestionLookUpDto;
 import gov.cdc.nedss.phdc.cda.*;
@@ -580,7 +579,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         }
     }
 
-    private MultiSelect mapToMultiSelect(EcrMsgCaseAnswerRepeatDto in,
+    private MultiSelect mapToMultiSelect(EcrMsgCaseAnswerDto in,
                                          int answerGroupCounter,
                                          int questionGroupCounter,
                                          int sectionCounter, POCDMT000040Section out) throws EcrCdaXmlException {
@@ -689,7 +688,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
     private CdaCaseMultiSelectFields mapToMultiSelectFields(
             String name,
             String value,
-            EcrMsgCaseAnswerRepeatDto in,
+            EcrMsgCaseAnswerDto in,
             POCDMT000040Section out,
             CdaCaseMultiSelectFields param) {
         switch (name) {
@@ -710,7 +709,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         return param;
     }
 
-    private void mapMultiSelectDisplayQues(EcrMsgCaseAnswerRepeatDto in,
+    private void mapMultiSelectDisplayQues(EcrMsgCaseAnswerDto in,
                                                                  POCDMT000040Section out,
                                                                  int sectionCounter,
                                                                  int componentCounter) {
@@ -723,7 +722,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                 .getCode().setDisplayName(in.getQuesDisplayTxt());
     }
 
-    private void mapMultiSelectCodeSystemDescQues(EcrMsgCaseAnswerRepeatDto in,
+    private void mapMultiSelectCodeSystemDescQues(EcrMsgCaseAnswerDto in,
                                                              POCDMT000040Section out,
                                                              int sectionCounter,
                                                              int componentCounter) {
@@ -737,7 +736,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
 
     }
 
-    private void mapMultiSelectCodeSystemQues(EcrMsgCaseAnswerRepeatDto in,
+    private void mapMultiSelectCodeSystemQues(EcrMsgCaseAnswerDto in,
                                                              POCDMT000040Section out,
                                                              int sectionCounter,
                                                              int componentCounter) {
@@ -750,7 +749,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                 .getCode().setCodeSystem(in.getQuesCodeSystemCd());
     }
 
-    private void mapMultiSelectQuesIdentifier(EcrMsgCaseAnswerRepeatDto in,
+    private void mapMultiSelectQuesIdentifier(EcrMsgCaseAnswerDto in,
                                                              POCDMT000040Section out,
                                                              int sectionCounter,
                                                              int componentCounter) {
@@ -763,7 +762,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                 .getCode().setCode(in.getQuestionIdentifier());
     }
 
-    private void mapMultiSelectDate(EcrMsgCaseAnswerRepeatDto in,
+    private void mapMultiSelectDate(EcrMsgCaseAnswerDto in,
                                     POCDMT000040Section out,
                                     String name,
                                     String value,
@@ -797,7 +796,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
     }
 
 
-    private void mapMultiSelectDataNumericType(EcrMsgCaseAnswerRepeatDto in,
+    private void mapMultiSelectDataNumericType(EcrMsgCaseAnswerDto in,
                                                POCDMT000040Section out,
                                                String questionIdentifier,
                                                int sectionCounter,
@@ -823,7 +822,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
 
     private void mapMultiSelectCodedCounty(
             String name,
-            EcrMsgCaseAnswerRepeatDto in,
+            EcrMsgCaseAnswerDto in,
             POCDMT000040Section out,
             int sectionCounter,
             int componentCounter,
@@ -858,13 +857,13 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
 
     }
 
-    private void mapMultiSelectCodedCountyFieldDisplayName(CE ce, EcrMsgCaseAnswerRepeatDto in) {
+    private void mapMultiSelectCodedCountyFieldDisplayName(CE ce, EcrMsgCaseAnswerDto in) {
         if (!in.getAnsToDisplayNm().isEmpty()) {
             ce.setDisplayName(in.getAnsToDisplayNm());
         }
     }
 
-    private CdaCaseMultiGroupSeqNumber mapMultiSelectAnsGroupSeqNumber(CdaCaseMultiGroupSeqNumber param, EcrMsgCaseAnswerRepeatDto in) {
+    private CdaCaseMultiGroupSeqNumber mapMultiSelectAnsGroupSeqNumber(CdaCaseMultiGroupSeqNumber param, EcrMsgCaseAnswerDto in) {
         if (param.getOut().getEntryArray(param.getSectionCounter()).getOrganizer() == null) {
             param.getOut().getEntryArray(param.getSectionCounter()).addNewOrganizer();
         }

@@ -21,8 +21,6 @@ public class CdaOrgMappingHelper implements ICdaOrgMappingHelper {
                                                        int performerComponentCounter, int componentCounter,
                                                        int performerSectionCounter)
             throws EcrCdaXmlException {
-
-        try {
             CdaOrganizationMapper mapper = new CdaOrganizationMapper();
             if(input.getMsgOrganizations()!= null && !input.getMsgOrganizations().isEmpty()) {
                 for(int i = 0; i < input.getMsgOrganizations().size(); i++) {
@@ -40,9 +38,7 @@ public class CdaOrgMappingHelper implements ICdaOrgMappingHelper {
             mapper.setComponentCounter(componentCounter);
             mapper.setPerformerSectionCounter(performerSectionCounter);
             return mapper;
-        } catch (Exception e) {
-            throw new EcrCdaXmlException(e.getMessage());
-        }
+
 
     }
     private void mapToOrganizationTopFieldMap(

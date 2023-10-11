@@ -72,9 +72,15 @@ public class ElrReportsController {
             summary = "Transform parsed ecr data in MSG table into CDA xml")
     @GetMapping(path = "/ecr/cda-transformation")
     public ResponseEntity<String> processingMsgEcrIntoCDA() throws EcrCdaXmlException {
-        var result = ecrMsgQueryService.getSelectedEcrFromJson();
-        String xmlREsult = mapper.tranformSelectedEcrToCDAXml(result);
-        nbsRepositoryServiceProvider.saveEcrCdaXmlMessage("21216969", -1, xmlREsult);
-        return ResponseEntity.ok(xmlREsult);
+        var result = ecrMsgQueryService.getSelectedEcrRecord();
+        try {
+            String xmlREsult = mapper.tranformSelectedEcrToCDAXml(result);
+            nbsRepositoryServiceProvider.saveEcrCdaXmlMessage("21216969", -1, xmlREsult);
+            return ResponseEntity.ok(xmlREsult);
+        } catch ( Exception e) {
+            e.getMessage();
+        }
+
+        return ResponseEntity.ok("AA");
     }
 }

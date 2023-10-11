@@ -1,7 +1,6 @@
 package gov.cdc.dataingestion.nbs.repository.model.dao;
 
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerDto;
-import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerRepeatDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseParticipantDto;
 import lombok.Getter;
@@ -18,6 +17,6 @@ public class EcrSelectedCase {
     private EcrMsgCaseDto msgCase;
     private List<EcrMsgCaseParticipantDto> msgCaseParticipants = new ArrayList<>();
     private List<EcrMsgCaseAnswerDto> msgCaseAnswers = new ArrayList<>();
-    private List<EcrMsgCaseAnswerRepeatDto> msgCaseAnswerRepeats = new ArrayList<>();
+    private List<EcrMsgCaseAnswerDto> msgCaseAnswerRepeats = new ArrayList<>();
 
 }

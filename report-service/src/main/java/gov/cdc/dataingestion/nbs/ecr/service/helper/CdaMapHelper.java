@@ -5,7 +5,7 @@ import gov.cdc.dataingestion.nbs.ecr.model.shares.*;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao;
 import gov.cdc.dataingestion.nbs.repository.model.dao.lookup.QuestionIdentifierMapDao;
-import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerRepeatDto;
+import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgProviderDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcQuestionLookUpDto;
@@ -124,7 +124,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         return model;
     }
 
-    public ANY mapMultiSelectDateMapXmlElement(ANY element, String value, EcrMsgCaseAnswerRepeatDto in) throws EcrCdaXmlException {
+    public ANY mapMultiSelectDateMapXmlElement(ANY element, String value, EcrMsgCaseAnswerDto in) throws EcrCdaXmlException {
         XmlCursor cursor = element.newCursor();
         cursor.toFirstChild();
         cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "TS");
@@ -249,6 +249,9 @@ public class CdaMapHelper implements ICdaMapHelper {
 
     public String mapToAddressType(String data, String questionCode) throws EcrCdaXmlException {
         String output = "";
+        if (data == null) {
+            data = "";
+        }
         var answer = mapToCodedAnswer(data, questionCode);
 
         if (!answer.getCode().isEmpty()) {
@@ -1155,31 +1158,31 @@ public class CdaMapHelper implements ICdaMapHelper {
 
 
         int isAddressPopulated= 0;
-        if(!streetAddress1.isEmpty()){
+        if(streetAddress1 != null){
             mapToORGFieldStreetAddress( streetAddress1,  out);
             isAddressPopulated=1;
         }
-        if(!streetAddress2.isEmpty() ){
+        if(streetAddress2 != null){
             mapToORGFieldStreetAddress2( streetAddress2,  out);
             isAddressPopulated=1;
         }
-        if(!city.isEmpty()){
+        if(city != null){
             mapToORGFieldStreetCity( city,  out);
             isAddressPopulated=1;
         }
-        if(!state.isEmpty()){
+        if(state != null){
             mapToORGFieldStreetState( state,  out);
             isAddressPopulated=1;
         }
-        if(!county.isEmpty()){
+        if(county != null){
             mapToORGFieldStreetCounty( county,  out);
             isAddressPopulated=1;
         }
-        if(!zip.isEmpty()){
+        if(zip != null){
             mapToORGFieldZip( zip,  out);
             isAddressPopulated=1;
         }
-        if(!country.isEmpty()){
+        if(country != null){
 
             mapToORGFieldCountry( country,  out);
             isAddressPopulated=1;
@@ -1187,7 +1190,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         if(isAddressPopulated>0) {
             mapToORGFieldAddressPopulated( out);
         }
-        if(!phone.isEmpty()){
+        if(phone!= null){
             mapToORGFieldPhone( phone,  extn,  out);
         }
         return out;

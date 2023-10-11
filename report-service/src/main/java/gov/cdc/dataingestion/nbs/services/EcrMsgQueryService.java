@@ -156,7 +156,7 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
                         msgContainer.getMsgContainerUid(), item.getInvLocalId()
                 );
 
-                List<EcrMsgCaseAnswerRepeatDto> msgCaseAnswerRepeats = this.ecrMsgQueryRepository.fetchMsgCaseAnswerRepeatForApplicableEcr(
+                List<EcrMsgCaseAnswerDto> msgCaseAnswerRepeats = this.ecrMsgQueryRepository.fetchMsgCaseAnswerRepeatForApplicableEcr(
                         msgContainer.getMsgContainerUid(), item.getInvLocalId()
                 );
                 selectedCase.setMsgCase(item);
@@ -181,10 +181,10 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
                 List<EcrMsgInterviewProviderDto> msgInterviewProviders = this.ecrMsgQueryRepository.fetchMsgInterviewProviderForApplicableEcr(
                         msgContainer.getMsgContainerUid(), item.getIxsLocalId());
 
-                List<EcrMsgInterviewAnswerDto> msgInterviewAnswers = this.ecrMsgQueryRepository.fetchMsgInterviewAnswerForApplicableEcr(
+                List<EcrMsgCaseAnswerDto> msgInterviewAnswers = this.ecrMsgQueryRepository.fetchMsgInterviewAnswerForApplicableEcr(
                         msgContainer.getMsgContainerUid(), item.getIxsLocalId());
 
-                List<EcrMsgInterviewAnswerRepeatDto> msgInterviewAnswerRepeats = this.ecrMsgQueryRepository.fetchMsgInterviewAnswerRepeatForApplicableEcr(
+                List<EcrMsgCaseAnswerDto> msgInterviewAnswerRepeats = this.ecrMsgQueryRepository.fetchMsgInterviewAnswerRepeatForApplicableEcr(
                         msgContainer.getMsgContainerUid(), item.getIxsLocalId());
 
                 selectedInterview.setMsgInterview(item);

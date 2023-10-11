@@ -230,25 +230,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
             for(Object [] val : results) {
-                EcrMsgCaseAnswerDto dto = new EcrMsgCaseAnswerDto();
-                dto.setQuestionIdentifier((nullToString(val[0])));
-                dto.setMsgContainerUid(((Number)val[1]).intValue());
-                dto.setMsgEventId((nullToString(val[2])));
-                dto.setMsgEventType((nullToString(val[3])));
-                dto.setAnsCodeSystemCd((nullToString(val[4])));
-                dto.setAnsCodeSystemDescTxt((nullToString(val[5])));
-                dto.setAnsDisplayTxt((nullToString(val[6])));
-                dto.setAnswerTxt((nullToString(val[7])));
-                dto.setPartTypeCd((nullToString(val[8])));
-                dto.setQuesCodeSystemCd((nullToString(val[9])));
-                dto.setQuesCodeSystemDescTxt((nullToString(val[10])));
-                dto.setQuesDisplayTxt((nullToString(val[11])));
-                dto.setQuestionDisplayName((nullToString(val[12])));
-                dto.setAnsToCode((nullToString(val[13])));
-                dto.setAnsToCodeSystemCd((nullToString(val[14])));
-                dto.setAnsToDisplayNm((nullToString(val[15])));
-                dto.setCodeTranslationRequired((nullToString(val[16])));
-                dto.setAnsToCodeSystemDescTxt((nullToString(val[17])));
+                EcrMsgCaseAnswerDto dto = setCaseAnsData(val);
                 dto.initDataMap();
                 dtos.add(dto);
             }
@@ -256,34 +238,47 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgCaseAnswerRepeatDto> fetchMsgCaseAnswerRepeatForApplicableEcr(Integer containerId, String invLocalId) throws EcrCdaXmlException {
+    private EcrMsgCaseAnswerDto setCaseAnsData(Object [] val) {
+        EcrMsgCaseAnswerDto dto = new EcrMsgCaseAnswerDto();
+        dto.setQuestionIdentifier((nullToString(val[0])));
+        dto.setMsgContainerUid(((Number)val[1]).intValue());
+        dto.setMsgEventId((nullToString(val[2])));
+        dto.setMsgEventType((nullToString(val[3])));
+        dto.setAnsCodeSystemCd((nullToString(val[4])));
+        dto.setAnsCodeSystemDescTxt((nullToString(val[5])));
+        dto.setAnsDisplayTxt((nullToString(val[6])));
+        dto.setAnswerTxt((nullToString(val[7])));
+        dto.setPartTypeCd((nullToString(val[8])));
+        dto.setQuesCodeSystemCd((nullToString(val[9])));
+        dto.setQuesCodeSystemDescTxt((nullToString(val[10])));
+        dto.setQuesDisplayTxt((nullToString(val[11])));
+        dto.setQuestionDisplayName((nullToString(val[12])));
+        dto.setAnsToCode((nullToString(val[13])));
+        dto.setAnsToCodeSystemCd((nullToString(val[14])));
+        dto.setAnsToDisplayNm((nullToString(val[15])));
+        dto.setCodeTranslationRequired((nullToString(val[16])));
+        dto.setAnsToCodeSystemDescTxt((nullToString(val[17])));
+        return dto;
+    }
+
+    public List<EcrMsgCaseAnswerDto> fetchMsgCaseAnswerRepeatForApplicableEcr(Integer containerId, String invLocalId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_case_answer_repeat.sql");
+        return setListCaseAns( queryString,
+                 containerId,
+                 invLocalId);
+    }
+
+    private List<EcrMsgCaseAnswerDto> setListCaseAns(String queryString,
+                                                     Integer containerId,
+                                                     String invLocalId) {
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(MSG_UID, containerId);
         query.setParameter(INV_LOCAL_ID, invLocalId);
-        List<EcrMsgCaseAnswerRepeatDto> dtos = new ArrayList<>();
+        List<EcrMsgCaseAnswerDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
             for(Object[] val: results) {
-                EcrMsgCaseAnswerRepeatDto dto = new EcrMsgCaseAnswerRepeatDto();
-                dto.setQuestionIdentifier((nullToString(val[0])));
-                dto.setMsgContainerUid(((Number)val[1]).intValue());
-                dto.setMsgEventId((nullToString(val[2])));
-                dto.setMsgEventType((nullToString(val[3])));
-                dto.setAnsCodeSystemCd((nullToString(val[4])));
-                dto.setAnsCodeSystemDescTxt((nullToString(val[5])));
-                dto.setAnsDisplayTxt((nullToString(val[6])));
-                dto.setAnswerTxt((nullToString(val[7])));
-                dto.setPartTypeCd((nullToString(val[8])));
-                dto.setQuesCodeSystemCd((nullToString(val[9])));
-                dto.setQuesCodeSystemDescTxt((nullToString(val[10])));
-                dto.setQuesDisplayTxt((nullToString(val[11])));
-                dto.setQuestionDisplayName((nullToString(val[12])));
-                dto.setAnsToCode((nullToString(val[13])));
-                dto.setAnsToCodeSystemCd((nullToString(val[14])));
-                dto.setAnsToDisplayNm((nullToString(val[15])));
-                dto.setCodeTranslationRequired((nullToString(val[16])));
-                dto.setAnsToCodeSystemDescTxt((nullToString(val[17])));
+                EcrMsgCaseAnswerDto dto = setCaseAnsData(val);
                 dtos.add(dto);
             }
         }
@@ -508,74 +503,18 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
     }
 
 
-    public List<EcrMsgInterviewAnswerDto> fetchMsgInterviewAnswerForApplicableEcr(Integer containerId, String ixsLocalId) throws EcrCdaXmlException {
+    public List<EcrMsgCaseAnswerDto> fetchMsgInterviewAnswerForApplicableEcr(Integer containerId, String ixsLocalId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_interview_answer.sql");
-        Query query = entityManager.createNativeQuery(queryString);
-        query.setParameter(MSG_UID, containerId);
-        query.setParameter(IXS_LOCAL_ID, ixsLocalId);
-        List<EcrMsgInterviewAnswerDto> dtos = new ArrayList<>();
-        List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
-            for(Object[] val: results) {
-                EcrMsgInterviewAnswerDto dto = new EcrMsgInterviewAnswerDto();
-                dto.setQuestionIdentifier((nullToString(val[0])));
-                dto.setMsgContainerUid(((Number)val[1]).intValue());
-                dto.setMsgEventId((nullToString(val[2])));
-                dto.setMsgEventType((nullToString(val[3])));
-                dto.setAnsCodeSystemCd((nullToString(val[4])));
-                dto.setAnsCodeSystemDescTxt((nullToString(val[5])));
-                dto.setAnsDisplayTxt((nullToString(val[6])));
-                dto.setAnswerTxt((nullToString(val[7])));
-                dto.setPartTypeCd((nullToString(val[8])));
-                dto.setQuesCodeSystemCd((nullToString(val[9])));
-                dto.setQuesCodeSystemDescTxt((nullToString(val[10])));
-                dto.setQuesDisplayTxt((nullToString(val[11])));
-                dto.setQuestionDisplayName((nullToString(val[12])));
-                dto.setAnsToCode((nullToString(val[13])));
-                dto.setAnsToCodeSystemCd((nullToString(val[14])));
-                dto.setAnsToDisplayNm((nullToString(val[15])));
-                dto.setCodeTranslationRequired((nullToString(val[16])));
-                dto.setAnsToCodeSystemDescTxt((nullToString(val[17])));
-                dtos.add(dto);
-            }
-
-        }
-        return dtos;
+        return setListCaseAns( queryString,
+                containerId,
+                ixsLocalId);
     }
 
-    public List<EcrMsgInterviewAnswerRepeatDto> fetchMsgInterviewAnswerRepeatForApplicableEcr(Integer containerId, String ixsLocalId) throws EcrCdaXmlException {
+    public List<EcrMsgCaseAnswerDto> fetchMsgInterviewAnswerRepeatForApplicableEcr(Integer containerId, String ixsLocalId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_interview_answer_repeat.sql");
-        Query query = entityManager.createNativeQuery(queryString);
-        query.setParameter(MSG_UID, containerId);
-        query.setParameter(IXS_LOCAL_ID, ixsLocalId);
-        List<EcrMsgInterviewAnswerRepeatDto> dtos = new ArrayList<>();
-        List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
-            for(Object[] val: results) {
-                EcrMsgInterviewAnswerRepeatDto dto = new EcrMsgInterviewAnswerRepeatDto();
-                dto.setQuestionIdentifier((nullToString(val[0])));
-                dto.setMsgContainerUid(((Number)val[1]).intValue());
-                dto.setMsgEventId((nullToString(val[2])));
-                dto.setMsgEventType((nullToString(val[3])));
-                dto.setAnsCodeSystemCd((nullToString(val[4])));
-                dto.setAnsCodeSystemDescTxt((nullToString(val[5])));
-                dto.setAnsDisplayTxt((nullToString(val[6])));
-                dto.setAnswerTxt((nullToString(val[7])));
-                dto.setPartTypeCd((nullToString(val[8])));
-                dto.setQuesCodeSystemCd((nullToString(val[9])));
-                dto.setQuesCodeSystemDescTxt((nullToString(val[10])));
-                dto.setQuesDisplayTxt((nullToString(val[11])));
-                dto.setQuestionDisplayName((nullToString(val[12])));
-                dto.setAnsToCode((nullToString(val[13])));
-                dto.setAnsToCodeSystemCd((nullToString(val[14])));
-                dto.setAnsToDisplayNm((nullToString(val[15])));
-                dto.setCodeTranslationRequired((nullToString(val[16])));
-                dto.setAnsToCodeSystemDescTxt((nullToString(val[17])));
-                dtos.add(dto);
-            }
-
-        }
-        return dtos;
+        return setListCaseAns( queryString,
+                containerId,
+                ixsLocalId);
     }
 
     public List<EcrMsgTreatmentDto> fetchMsgTreatmentForApplicableEcr(Integer containerId) throws EcrCdaXmlException {

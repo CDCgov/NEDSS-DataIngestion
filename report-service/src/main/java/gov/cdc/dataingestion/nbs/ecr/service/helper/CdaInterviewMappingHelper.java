@@ -9,8 +9,7 @@ import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaInterviewMapp
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedInterview;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
-import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgInterviewAnswerDto;
-import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgInterviewAnswerRepeatDto;
+import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerDto;
 import gov.cdc.nedss.phdc.cda.*;
 import org.apache.xmlbeans.XmlCursor;
 
@@ -341,7 +340,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         return model;
     }
 
-    private InterviewAnswerMultiMapper mapToInterviewMultiSelectObservation(EcrMsgInterviewAnswerRepeatDto in,
+    private InterviewAnswerMultiMapper mapToInterviewMultiSelectObservation(EcrMsgCaseAnswerDto in,
                                                                             Integer answerGroupCounter,
                                                                             Integer questionGroupCounter,
                                                                             Integer sectionCounter,
@@ -467,7 +466,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         return param;
     }
 
-    private InterviewMultiObs mapToInterviewMultiSelectObservationFieldP2(EcrMsgInterviewAnswerRepeatDto in,
+    private InterviewMultiObs mapToInterviewMultiSelectObservationFieldP2(EcrMsgCaseAnswerDto in,
                                                              POCDMT000040Encounter out,
                                                              String name,
                                                              String value,
@@ -512,7 +511,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
     }
 
     private void mapToInterviewMultiSelectObservationFieldP2Date(String name,
-                                                                 EcrMsgInterviewAnswerRepeatDto in,
+                                                                 EcrMsgCaseAnswerDto in,
                                                                  POCDMT000040Encounter out,
                                                                  String value,
                                                                  int sectionCounter,
@@ -550,7 +549,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
     }
 
     private void mapToInterviewMultiSelectObservationFieldP2CodedCounty(String name,
-                                                                        EcrMsgInterviewAnswerRepeatDto in,
+                                                                        EcrMsgCaseAnswerDto in,
                                                                         POCDMT000040Encounter out,
                                                                         int sectionCounter,
                                                                         int componentCounter,
@@ -584,15 +583,15 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         out.getEntryRelationshipArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getValueArray(seqNbr).set(ce);
     }
 
-    private boolean validateMultiSelectObservationFieldP2AnsCodeDesc(String name, EcrMsgInterviewAnswerRepeatDto in) {
+    private boolean validateMultiSelectObservationFieldP2AnsCodeDesc(String name, EcrMsgCaseAnswerDto in) {
         return name.equals(COL_ANS_TO_CODE_SYSTEM_DESC_TXT) && !in.getAnsToCodeSystemDescTxt().isEmpty();
     }
 
-    private boolean validateMultiSelectObservationFieldP2AnsDisplayNm(String name, EcrMsgInterviewAnswerRepeatDto in) {
+    private boolean validateMultiSelectObservationFieldP2AnsDisplayNm(String name, EcrMsgCaseAnswerDto in) {
         return name.equals(COL_ANS_TO_DISPLAY_NM) && !in.getAnsToDisplayNm().isEmpty();
     }
 
-    private InterviewMultiObs mapToInterviewMultiSelectObservationFieldP1(EcrMsgInterviewAnswerRepeatDto in,
+    private InterviewMultiObs mapToInterviewMultiSelectObservationFieldP1(EcrMsgCaseAnswerDto in,
                                                              POCDMT000040Encounter out,
                                                              String name,
                                                              InterviewMultiObs param
@@ -674,7 +673,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         }
     }
 
-    private InterviewAnswerMapper mapToInterviewObservation(EcrMsgInterviewAnswerDto in, int counter,
+    private InterviewAnswerMapper mapToInterviewObservation(EcrMsgCaseAnswerDto in, int counter,
                                                             POCDMT000040Encounter out) throws EcrCdaXmlException {
         String questionSeq = CHANGE;
         String dataType="";
@@ -735,7 +734,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         return model;
     }
 
-    private InterviewObs mapToInterviewObservationFieldP3(EcrMsgInterviewAnswerDto in,
+    private InterviewObs mapToInterviewObservationFieldP3(EcrMsgCaseAnswerDto in,
                                                   POCDMT000040Encounter out,
                                                   String name,
                                                   String value,
@@ -776,7 +775,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         return param;
     }
 
-    private InterviewObs mapToInterviewObservationFieldP2(EcrMsgInterviewAnswerDto in,
+    private InterviewObs mapToInterviewObservationFieldP2(EcrMsgCaseAnswerDto in,
                                                   POCDMT000040Encounter out,
                                                   String name,
                                                   String value,
@@ -820,7 +819,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
 
     private void mapToInterviewObservationFieldP2Date(String name,
                                                  POCDMT000040Encounter out,
-                                                 EcrMsgInterviewAnswerDto in,
+                                                 EcrMsgCaseAnswerDto in,
                                                  int counter,
                                                  String value) throws EcrCdaXmlException {
         if(name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()){
@@ -851,7 +850,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
 
     private void mapToInterviewObservationFieldP2County(String name,
                                                         POCDMT000040Encounter out,
-                                                        EcrMsgInterviewAnswerDto in,
+                                                        EcrMsgCaseAnswerDto in,
                                                         int counter,
                                                         int sequenceNbr) {
         CE ce = CE.Factory.newInstance();
@@ -883,11 +882,11 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         out.getEntryRelationshipArray(counter).getObservation().getValueArray(sequenceNbr).set(ce);
     }
 
-    private boolean validateMapToInterviewObservationFieldP2CountyAnsDisplayNm(String name, EcrMsgInterviewAnswerDto in) {
+    private boolean validateMapToInterviewObservationFieldP2CountyAnsDisplayNm(String name, EcrMsgCaseAnswerDto in) {
         return name.equals(COL_ANS_TO_DISPLAY_NM) && !in.getAnsToDisplayNm().isEmpty();
     }
 
-    private InterviewObs mapToInterviewObservationFieldP1(EcrMsgInterviewAnswerDto in,
+    private InterviewObs mapToInterviewObservationFieldP1(EcrMsgCaseAnswerDto in,
                                                   String name,
                                                   InterviewObs param) {
         int questionGroupSeqNbr = param.getQuestionGroupSeqNbr();
