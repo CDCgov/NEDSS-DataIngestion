@@ -54,28 +54,28 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                 String patPhoneCountryCodeTxt ="";
                 int patientIdentifier =0;
                 int k = 1;
-                CdaPatientField patientField = new CdaPatientField(
-                        patientIdentifier,
-                        address1,
-                        address2,
-                        k,
-                        patientComponentCounter,
-                        clinicalDocument,
-                        patWorkPhoneExtensionTxt,
-                        patHomePhoneNbrTxt,
-                        wpNumber,
-                        patPhoneCountryCodeTxt,
-                        cellNumber,
-                        patNamePrefixCd,
-                        patNameFirstTxt,
-                        patNameMiddleTxt,
-                        patNameLastTxt,
-                        patNameSuffixCd,
-                        patEmailAddressTxt,
-                        patUrlAddressTxt,
-                        patPhoneAsOfDt,
-                        inv168
-                );
+                CdaPatientField patientField = new CdaPatientField();
+                patientField.setPatientIdentifier(patientIdentifier);
+                patientField.setAddress1(address1);
+                patientField.setAddress2(address2);
+                patientField.setK(k);
+                patientField.setPatientComponentCounter(patientComponentCounter);
+                patientField.setClinicalDocument(clinicalDocument);
+                patientField.setWorkPhoneExt(patWorkPhoneExtensionTxt);
+                patientField.setHomePhoneNumber(patHomePhoneNbrTxt);
+                patientField.setWpNumber(wpNumber);
+                patientField.setPhoneCountryCode(patPhoneCountryCodeTxt);
+                patientField.setCellNumber(cellNumber);
+                patientField.setPtPrefix(patNamePrefixCd);
+                patientField.setPtFirstName(patNameFirstTxt);
+                patientField.setPtMiddleName(patNameMiddleTxt);
+                patientField.setPtLastName(patNameLastTxt);
+                patientField.setPtSuffix(patNameSuffixCd);
+                patientField.setEmail(patEmailAddressTxt);
+                patientField.setUrlAddress(patUrlAddressTxt);
+                patientField.setPhoneAsDateTime(patPhoneAsOfDt);
+                patientField.setInv168(inv168);
+
 
                 //endregion
                 if (input.getMsgPatients() != null && !input.getMsgPatients().isEmpty() ) {

@@ -15,51 +15,10 @@ public class CdaPatientField {
         this.clinicalDocument = clinicalDocument;
     }
 
-    //
-    public CdaPatientField(int patientIdentifier,
-                           String address1,
-                           String address2,
-                           int k,
-                           int patientComponentCounter,
-                           POCDMT000040ClinicalDocument1 clinicalDocument,
-                           String workPhoneExt,
-                           String homePhoneNumber,
-                           String wpNumber,
-                           String phoneCountryCode,
-                           String cellNumber,
-                           String ptPrefix,
-                           String ptFirstName,
-                           String ptMiddleName,
-                           String ptLastName,
-                           String ptSuffix,
-                           String email,
-                           String urlAddress,
-                           String phoneAsDateTime,
-                           String inv168)
+    public CdaPatientField()
     {
-        this.patientIdentifier = patientIdentifier;
-        this.address1 = address1;
-        this.address2 = address2;
-        this.k = k;
-        this.patientComponentCounter = patientComponentCounter;
-        this.clinicalDocument = clinicalDocument;
-        this.workPhoneExt = workPhoneExt;
-        this.homePhoneNumber = homePhoneNumber;
-        this.wpNumber = wpNumber;
-        this.phoneCountryCode = phoneCountryCode;
-        this.cellNumber = cellNumber;
-        this.ptPrefix = ptPrefix;
-        this.ptFirstName = ptFirstName;
-        this.ptMiddleName = ptMiddleName;
-        this.ptLastName = ptLastName;
-        this.ptSuffix = ptSuffix;
-        this.email = email;
-        this.urlAddress = urlAddress;
-        this.phoneAsDateTime = phoneAsDateTime;
-        this.inv168 = inv168;
-
+        // Default
     }
-    // NOSONAR
 
     private int patientIdentifier;
     private String address1;
