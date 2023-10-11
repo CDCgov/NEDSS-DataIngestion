@@ -119,15 +119,11 @@ public class CdaProviderMappingHelper implements ICdaProviderMappingHelper {
                     input.getMsgProviders().get(i),
                     out
             );
-            clinicalDocument.getEntryArray(performerSectionCounter).getAct().setParticipantArray(0, output);
 
-            clinicalDocument.getEntryArray(performerSectionCounter).setTypeCode(XActRelationshipEntry.COMP);
-            clinicalDocument.getEntryArray(performerSectionCounter).getAct().setClassCode(XActClassDocumentEntryAct.ACT);
-            clinicalDocument.getEntryArray(performerSectionCounter).getAct().setMoodCode(XDocumentActMood.EVN);
+            clinicalDocument = this.cdaMapHelper.mapOrgPlaceProviderActCommonField( clinicalDocument,
+             performerSectionCounter,
+             output);
 
-            if (clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode() == null){
-                clinicalDocument.getEntryArray(performerSectionCounter).getAct().addNewCode();
-            }
             clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setCode("PSN");
             clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
             clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);

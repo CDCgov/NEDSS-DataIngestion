@@ -1,8 +1,10 @@
 package gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
+import gov.cdc.dataingestion.nbs.ecr.model.shares.ActParticipantArray;
 import gov.cdc.dataingestion.nbs.ecr.model.shares.MapParticipantRole;
 import gov.cdc.dataingestion.nbs.ecr.model.shares.MapStructure;
+import gov.cdc.dataingestion.nbs.ecr.model.shares.OrgPlaceDocCommonField;
 import gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerRepeatDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto;
@@ -14,6 +16,12 @@ import org.apache.xmlbeans.XmlObject;
 import java.util.Map;
 
 public interface ICdaMapHelper {
+    POCDMT000040Section mapOrgPlaceProviderActCommonField(POCDMT000040Section clinicalDocument,
+                                                          int performerSectionCounter,
+                                                          POCDMT000040Participant2 output);
+    OrgPlaceDocCommonField mapOrgPlaceDocCommonField(POCDMT000040Section clinicalDocument,
+                                                     int performerComponentCounter) throws EcrCdaXmlException;
+    ActParticipantArray mapActParticipantArray(POCDMT000040Section section);
     XmlObject mapToCData(String data) throws EcrCdaXmlException;
     XmlObject mapToStringData(String data) throws EcrCdaXmlException;
     XmlObject mapToUsableTSElement(String data, XmlObject output, String name) throws EcrCdaXmlException;

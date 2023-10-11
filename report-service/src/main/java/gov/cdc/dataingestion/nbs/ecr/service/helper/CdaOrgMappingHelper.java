@@ -50,46 +50,18 @@ public class CdaOrgMappingHelper implements ICdaOrgMappingHelper {
             int performerComponentCounter,
             EcrSelectedRecord input,
             int i) throws EcrCdaXmlException {
-        if (performerComponentCounter < 1) {
-            clinicalDocument.getCode().setCode(CODE);
-            clinicalDocument.getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
-            clinicalDocument.getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
-            clinicalDocument.getCode().setDisplayName(CODE_DISPLAY_NAME);
-            clinicalDocument.getTitle().set(cdaMapHelper.mapToStringData(CLINICAL_TITLE));
+
+        var model = this.cdaMapHelper.mapOrgPlaceDocCommonField( clinicalDocument, performerComponentCounter);
+        clinicalDocument = model.getClinicalDocument();
+        int performerSectionCounter = model.getPerformerSectionCounter(); // NOSONAR
+        POCDMT000040Participant2 out = model.getOut();
 
 
-        }
-
-        var performerSectionCounter = clinicalDocument.getEntryArray().length; // NOSONAR
-
-        if ( clinicalDocument.getEntryArray().length == 0) {
-            clinicalDocument.addNewEntry();
-            performerSectionCounter = 0;
-        }
-        else {
-            performerSectionCounter = clinicalDocument.getEntryArray().length;
-            clinicalDocument.addNewEntry();
-        }
-
-
-        if (clinicalDocument.getEntryArray(performerSectionCounter).getAct() == null) {
-            clinicalDocument.getEntryArray(performerSectionCounter).addNewAct();
-            clinicalDocument.getEntryArray(performerSectionCounter).getAct().addNewParticipant();
-        } else {
-            clinicalDocument.getEntryArray(performerSectionCounter).getAct().addNewParticipant();
-        }
-
-        POCDMT000040Participant2 out = clinicalDocument.getEntryArray(performerSectionCounter).getAct().getParticipantArray(0);
         POCDMT000040Participant2 output = this.cdaMapHelper.mapToORG(input.getMsgOrganizations().get(i), out);
-        clinicalDocument.getEntryArray(performerSectionCounter).getAct().setParticipantArray(0, output);
 
-        clinicalDocument.getEntryArray(performerSectionCounter).setTypeCode(XActRelationshipEntry.COMP);
-        clinicalDocument.getEntryArray(performerSectionCounter).getAct().setClassCode(XActClassDocumentEntryAct.ACT);
-        clinicalDocument.getEntryArray(performerSectionCounter).getAct().setMoodCode(XDocumentActMood.EVN);
-
-        if (clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode() == null){
-            clinicalDocument.getEntryArray(performerSectionCounter).getAct().addNewCode();
-        }
+        clinicalDocument = this.cdaMapHelper.mapOrgPlaceProviderActCommonField( clinicalDocument,
+                performerSectionCounter,
+                output);
 
         clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setCode("ORG");
         clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);

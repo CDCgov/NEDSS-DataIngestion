@@ -173,10 +173,8 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         return caseField;
     }
 
-    private void mapCaseFieldCheckHasNoRepeat(POCDMT000040StructuredBody output,
-                                              int componentCaseCounter,
-                                              String value,
-                                              String questionId) throws EcrCdaXmlException {
+    private CdaCaseFieldSectionCommon mapCaseFieldSectionCommon(POCDMT000040StructuredBody output,
+                                           int componentCaseCounter) {
         int c = 0;
         if (output.getComponentArray(componentCaseCounter).getSection().getEntryArray().length == 0) {
             output.getComponentArray(componentCaseCounter).getSection().addNewEntry();
@@ -189,6 +187,24 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).addNewObservation();
         }
         var element = output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation();
+
+        CdaCaseFieldSectionCommon model = new CdaCaseFieldSectionCommon();
+        model.setOutput(output);
+        model.setC(c);
+        model.setElement(element);
+        return model;
+    }
+
+    private void mapCaseFieldCheckHasNoRepeat(POCDMT000040StructuredBody output,
+                                              int componentCaseCounter,
+                                              String value,
+                                              String questionId) throws EcrCdaXmlException {
+
+        var model = mapCaseFieldSectionCommon( output,
+         componentCaseCounter);
+        int c = model.getC();
+        var element = model.getElement();
+        output = model.getOutput();
         POCDMT000040Observation obs = this.cdaMapHelper.mapToObservation(
                 questionId,
                 value,
@@ -200,20 +216,12 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                                        int componentCaseCounter,
                                        String value,
                                        String questionId) throws EcrCdaXmlException {
-        int c = 0;
-        if (output.getComponentArray(componentCaseCounter).getSection().getEntryArray().length == 0) {
-            output.getComponentArray(componentCaseCounter).getSection().addNewEntry();
-        } else {
-            c = output.getComponentArray(componentCaseCounter).getSection().getEntryArray().length;
-            output.getComponentArray(componentCaseCounter).getSection().addNewEntry();
-        }
+        var modelSection = mapCaseFieldSectionCommon( output,
+                componentCaseCounter);
+        int c = modelSection.getC();
+        var element = modelSection.getElement();
+        output = modelSection.getOutput();
 
-        if (output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation() == null) {
-            output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).addNewObservation();
-        }
-
-
-        var element = output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation();
         var obs = mapTripletToObservation(
                 value,
                 questionId,

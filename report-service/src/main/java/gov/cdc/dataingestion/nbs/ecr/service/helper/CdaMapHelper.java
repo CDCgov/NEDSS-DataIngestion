@@ -33,6 +33,44 @@ public class CdaMapHelper implements ICdaMapHelper {
         this.ecrLookUpService = ecrLookUpService;
     }
 
+    public POCDMT000040Section mapOrgPlaceProviderActCommonField(POCDMT000040Section clinicalDocument,
+                                                   int performerSectionCounter,
+                                                   POCDMT000040Participant2 output) {
+        clinicalDocument.getEntryArray(performerSectionCounter).getAct().setParticipantArray(0, output);
+
+        clinicalDocument.getEntryArray(performerSectionCounter).setTypeCode(XActRelationshipEntry.COMP);
+        clinicalDocument.getEntryArray(performerSectionCounter).getAct().setClassCode(XActClassDocumentEntryAct.ACT);
+        clinicalDocument.getEntryArray(performerSectionCounter).getAct().setMoodCode(XDocumentActMood.EVN);
+
+        if (clinicalDocument.getEntryArray(performerSectionCounter).getAct().getCode() == null){
+            clinicalDocument.getEntryArray(performerSectionCounter).getAct().addNewCode();
+        }
+
+        return clinicalDocument;
+    }
+
+    public OrgPlaceDocCommonField mapOrgPlaceDocCommonField(POCDMT000040Section clinicalDocument,
+                                     int performerComponentCounter) throws EcrCdaXmlException {
+        if (performerComponentCounter < 1) {
+            clinicalDocument.getCode().setCode(CODE);
+            clinicalDocument.getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
+            clinicalDocument.getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
+            clinicalDocument.getCode().setDisplayName(CODE_DISPLAY_NAME);
+            clinicalDocument.getTitle().set(mapToStringData(CLINICAL_TITLE));
+        }
+
+        var model = mapActParticipantArray(clinicalDocument);
+        clinicalDocument = model.getSection();
+        int performerSectionCounter = model.getC(); // NOSONAR
+        POCDMT000040Participant2 out = model.getOut();
+
+        OrgPlaceDocCommonField orgPlace = new OrgPlaceDocCommonField();
+        orgPlace.setPerformerSectionCounter(performerSectionCounter);
+        orgPlace.setOut(out);
+        orgPlace.setClinicalDocument(clinicalDocument);
+        return orgPlace;
+    }
+
     public XmlObject mapToCData(String data) throws EcrCdaXmlException {
         try {
             return XmlObject.Factory.parse("<CDATA>"+data+"</CDATA>");
@@ -40,6 +78,33 @@ public class CdaMapHelper implements ICdaMapHelper {
             throw new EcrCdaXmlException(e.getMessage());
         }
 
+    }
+
+    public ActParticipantArray mapActParticipantArray(POCDMT000040Section section) {
+        int c;
+        if ( section.getEntryArray().length == 0) {
+            section.addNewEntry();
+            c = 0;
+        }
+        else {
+            c = section.getEntryArray().length;
+            section.addNewEntry();
+        }
+
+        if (section.getEntryArray(c).getAct() == null) {
+            section.getEntryArray(c).addNewAct();
+            section.getEntryArray(c).getAct().addNewParticipant();
+        } else {
+            section.getEntryArray(c).getAct().addNewParticipant();
+        }
+
+        POCDMT000040Participant2 out = section.getEntryArray(c).getAct().getParticipantArray(0);
+
+        ActParticipantArray model = new ActParticipantArray();
+        model.setSection(section);
+        model.setOut(out);
+        model.setC(c);
+        return model;
     }
 
     public MapParticipantRole mapToParticipantRoleCheck(

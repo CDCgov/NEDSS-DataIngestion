@@ -58,42 +58,17 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
             section.addNewTitle();
         }
 
-        if (performerComponentCounter < 1) {
-            section.getCode().setCode(CODE);
-            section.getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
-            section.getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
-            section.getCode().setDisplayName(CODE_DISPLAY_NAME);
-            section.getTitle().set(cdaMapHelper.mapToStringData(CLINICAL_TITLE));
-        }
+        var model = this.cdaMapHelper.mapOrgPlaceDocCommonField( section, performerComponentCounter);
+        section = model.getClinicalDocument();
+        int c = model.getPerformerSectionCounter(); // NOSONAR
+        POCDMT000040Participant2 out = model.getOut();
 
-        int c;
-        if ( section.getEntryArray().length == 0) {
-            section.addNewEntry();
-            c = 0;
-        }
-        else {
-            c = section.getEntryArray().length;
-            section.addNewEntry();
-        }
-
-        if (section.getEntryArray(c).getAct() == null) {
-            section.getEntryArray(c).addNewAct();
-            section.getEntryArray(c).getAct().addNewParticipant();
-        } else {
-            section.getEntryArray(c).getAct().addNewParticipant();
-        }
-
-        POCDMT000040Participant2 out = section.getEntryArray(c).getAct().getParticipantArray(0);
         POCDMT000040Participant2 output = mapToPlace(input.getMsgPlaces().get(i), out);
-        section.getEntryArray(c).getAct().setParticipantArray(0, output);
 
-        section.getEntryArray(c).setTypeCode(XActRelationshipEntry.COMP);
-        section.getEntryArray(c).getAct().setClassCode(XActClassDocumentEntryAct.ACT);
-        section.getEntryArray(c).getAct().setMoodCode(XDocumentActMood.EVN);
+        section = this.cdaMapHelper.mapOrgPlaceProviderActCommonField( section,
+                c,
+                output);
 
-        if (section.getEntryArray(c).getAct().getCode() == null){
-            section.getEntryArray(c).getAct().addNewCode();
-        }
         section.getEntryArray(c).getAct().getCode().setCode("PLC");
         section.getEntryArray(c).getAct().getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
         section.getEntryArray(c).getAct().getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
