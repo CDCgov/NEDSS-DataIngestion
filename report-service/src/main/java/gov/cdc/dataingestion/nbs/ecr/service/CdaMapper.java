@@ -182,15 +182,10 @@ public class CdaMapper implements ICdaMapper {
             inv168 = input.getMsgContainer().getInvLocalId();
         }
 
-        if (input.getMsgContainer().getOngoingCase() != null &&
-                !input.getMsgContainer().getOngoingCase().isEmpty()) {
+        if (input.getMsgContainer().getOngoingCase() != null && !input.getMsgContainer().getOngoingCase().isEmpty()) {
             clinicalDocument.setSetId(II.Factory.newInstance());
             clinicalDocument.getSetId().setExtension("ONGOING_CASE");
-            if (input.getMsgContainer().getOngoingCase().equalsIgnoreCase("yes")) {
-                clinicalDocument.getSetId().setDisplayable(true);
-            } else {
-                clinicalDocument.getSetId().setDisplayable(false);
-            }
+            clinicalDocument.getSetId().setDisplayable(input.getMsgContainer().getOngoingCase().equalsIgnoreCase("yes"));
         }
 
         if (input.getMsgContainer().getVersionCtrNbr() != null) {

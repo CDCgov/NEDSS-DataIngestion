@@ -298,9 +298,11 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
         }
         out.getParticipantRole().getTelecomArray(teleCounter).setUse(List.of("WP"));
         out.getParticipantRole().getTelecomArray(teleCounter).setValue(workURL);
+        //
         if(!teleAsOfDate.isEmpty()){
             // TODO:
         }
+        // NOSONAR
     }
 
     private void mapToPlaceFieldCheckP2Email(int teleCounter,
@@ -314,9 +316,11 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
         }
         out.getParticipantRole().getTelecomArray(teleCounter).setUse(List.of("WP"));
         out.getParticipantRole().getTelecomArray(teleCounter).setValue(MAIL_TO+workEmail);
+        //
         if(!teleAsOfDate.isEmpty()){
             // TODO:
         }
+        // NOSONAR
     }
 
 
@@ -342,10 +346,11 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
             workPhone=workPhone+ EXTN_STR+ workExtn;
         }
         out.getParticipantRole().getTelecomArray(teleCounter).setValue(workPhone);
-
+        //
         if(!teleAsOfDate.isEmpty()){
             // TODO:
         }
+        // NOSONAR
     }
 
     private void mapToPlaceFieldCheckP2AddressComment(String placeAddressComments,POCDMT000040Participant2 out ) throws EcrCdaXmlException {
@@ -367,9 +372,11 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
             out.getParticipantRole().addNewAddr();
         }
         out.getParticipantRole().getAddrArray()[0].setUse(List.of("WP"));
+        //
         if(!postalAsOfDate.isEmpty()){
             // TODO:
         }
+        // NOSONAR
     }
 
     private void mapToPlaceFieldCheckP2Census(String censusTract,POCDMT000040Participant2 out ) throws EcrCdaXmlException {

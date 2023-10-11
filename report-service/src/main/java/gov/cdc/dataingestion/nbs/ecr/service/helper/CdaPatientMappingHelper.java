@@ -791,7 +791,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
         List<CE> raceCode2List = new ArrayList<>();
         long counter = patient.getPatRaceCategoryCd().chars().filter(x -> x == '|').count();
 
-        List<String> raceCatList = new ArrayList<String>();
+        List<String> raceCatList = new ArrayList<>();
         if (counter > 0) {
             raceCatList = getStringsBeforePipe(patient.getPatRaceCategoryCd());
         } else {

@@ -15,6 +15,7 @@ public class CdaPatientField {
         this.clinicalDocument = clinicalDocument;
     }
 
+    //
     public CdaPatientField(int patientIdentifier,
                            String address1,
                            String address2,
@@ -34,7 +35,7 @@ public class CdaPatientField {
                            String email,
                            String urlAddress,
                            String phoneAsDateTime,
-                           String inv168) // NOSONAR
+                           String inv168)
     {
         this.patientIdentifier = patientIdentifier;
         this.address1 = address1;
@@ -58,6 +59,7 @@ public class CdaPatientField {
         this.inv168 = inv168;
 
     }
+    // NOSONAR
 
     private int patientIdentifier;
     private String address1;
