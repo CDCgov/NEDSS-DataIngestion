@@ -94,7 +94,7 @@ task jaxb {
 compileJava.dependsOn jaxb
 
 dependencies {
-	implementation project(':hl7-parser')
+//	implementation project(':hl7-parser')
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
@@ -121,6 +121,7 @@ dependencies {
 	implementation 'software.amazon.msk:aws-msk-iam-auth:1.0.0'
 	implementation 'io.micrometer:micrometer-registry-prometheus'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.apache.xmlbeans:xmlbeans:2.6.0'
 
 	// DI HL7 Wrapper
 	if (findProject(':hl7-parser')) {
@@ -129,6 +130,14 @@ dependencies {
 		// this mostly needed when testing the app on idea
 		implementation files('libs/hl7-parser-0.0.1-SNAPSHOT.jar')
 	}
+
+	if (findProject(':cdaschema')) {
+		implementation project(':cdaschema')
+	} else {
+		// this mostly needed when testing the app on idea
+		implementation files('libs/cdaSchema.jar')
+	}
+
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
@@ -164,20 +173,41 @@ test {
 	useJUnitPlatform()
 }
 
+
 jar {
-	// task configuration goes here
+	manifest {
+		attributes(
+				'Main-Class': 'gov.cdc.dataingestion.ServiceApplication'
+		)
+	}
+	zip64 true
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+	// Gather all runtime dependencies
+	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+
+	// Conditionally add dependencies from projects
 	if (findProject(':hl7-parser')) {
 		dependsOn(':hl7-parser:jar')
-		from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+	}
+
+	if (findProject(':cdaschema')) {
+		dependsOn(':cdaschema:jar')
 	}
 }
-compileJava.mustRunAfter(":hl7-parser:build")
+
+if (project != project.rootProject || project.hasProperty('remoteBuild')) {
+	compileJava.mustRunAfter(":hl7-parser:build")
+	compileJava.mustRunAfter(":cdaschema:build")
+}
 
 sonarqube {
 	properties {
 		property "sonar.projectKey", "CDCgov_NEDSS-DataIngestion"
 		property "sonar.organization", "cdcgov"
 		property "sonar.host.url", "https://sonarcloud.io"
+		property "sonar.exclusions", "**/JsonReaderTester.java, **/DataSourceConfig.java, **/NbsDataSourceConfig.java, **/OpenAPIConfig.java, **/SecurityConfig.java, **/AnswerType.java, **/CaseType.java, **/ClinicalInformationType.java, **/CodedType.java, **/CommonQuestionsType.java, **/DiseaseSpecificQuestionsType.java, **/EpidemiologicInformationType.java, **/HeaderType.java, **/HierarchicalDesignationType.java, **/HL7NumericType.java, **/HL7OBXValueType.java, **/HL7SNType.java, **/HL7TMType.java, **/IdentifiersType.java, **/IdentifierType.java, **/InvestigationInformationType.java, **/LabReportCommmenType.java, **/LabReportType.java, **/NameType.java, **/NoteType.java, **/NumericType.java, **/ObjectFactory.java, **/ObservationsType.java, **/ObservationType.java, **/OrganizationParticipantType.java, **/ParticipantsType.java, **/PatientType.java, **/PostalAddressType.java, **/ProviderNameType.java, **/ProviderParticipantType.java, **/ReferenceRangeType.java, **/ReportingInformationType.java, **/SectionHeaderType.java, **/SpecimenType.java, **/SusceptibilityType.java, **/TelephoneType.java, **/TestResultType.java, **/TestsType.java, **/UnstructuredType.java, **/ValuesType.java"
+
 	}
 }
 

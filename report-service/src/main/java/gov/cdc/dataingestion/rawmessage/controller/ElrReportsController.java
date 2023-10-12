@@ -1,16 +1,18 @@
 package gov.cdc.dataingestion.rawmessage.controller;
 
+import gov.cdc.dataingestion.exception.EcrCdaXmlException;
+import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
+import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
+import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import gov.cdc.dataingestion.share.model.ErrorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "ELR Reports", description = "ELR reports API")
@@ -21,7 +23,26 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ElrReportsController {
 
+//    @Autowired
     private final RawELRService rawELRService;
+
+    private IEcrMsgQueryService ecrMsgQueryService;
+    private ICdaMapper mapper;
+
+    private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
+
+    @Autowired
+    public ElrReportsController(IEcrMsgQueryService ecrMsgQueryService,
+                                ICdaMapper mapper,
+                                RawELRService rawELRService,
+                                NbsRepositoryServiceProvider nbsRepositoryServiceProvider) {
+        this.ecrMsgQueryService = ecrMsgQueryService;
+        this.mapper = mapper;
+        this.rawELRService = rawELRService;
+        this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
+    }
+
+
 
     @Operation(
             summary = "Submit a plain text HL7 message",
@@ -45,5 +66,21 @@ public class ElrReportsController {
     @GetMapping(path = "/{id}")
     public ResponseEntity<RawERLDto> getById(@PathVariable String id) {
         return ResponseEntity.ok(rawELRService.getById(id));
+    }
+
+    @Operation(
+            summary = "Transform parsed ecr data in MSG table into CDA xml")
+    @GetMapping(path = "/ecr/cda-transformation")
+    public ResponseEntity<String> processingMsgEcrIntoCDA() throws EcrCdaXmlException {
+        var result = ecrMsgQueryService.getSelectedEcrRecord();
+        try {
+            String xmlREsult = mapper.tranformSelectedEcrToCDAXml(result);
+            nbsRepositoryServiceProvider.saveEcrCdaXmlMessage("21216969", -1, xmlREsult);
+            return ResponseEntity.ok(xmlREsult);
+        } catch ( Exception e) {
+            e.getMessage();
+        }
+
+        return ResponseEntity.ok("AA");
     }
 }
