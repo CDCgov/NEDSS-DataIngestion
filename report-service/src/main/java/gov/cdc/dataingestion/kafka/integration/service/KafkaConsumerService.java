@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.kafka.integration.service;
 
+
 import ca.uhn.hl7v2.HL7Exception;
 import com.google.gson.Gson;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
@@ -10,12 +11,11 @@ import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.constant.enums.EnumElrDltStatus;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
-import gov.cdc.dataingestion.exception.ConversionPrepareException;
-import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
-import gov.cdc.dataingestion.exception.FhirConversionException;
+import gov.cdc.dataingestion.exception.*;
 import gov.cdc.dataingestion.constant.TopicPreparationType;
-import gov.cdc.dataingestion.exception.XmlConversionException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
+import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
+import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
@@ -93,6 +93,8 @@ public class KafkaConsumerService {
 
     private final IElrDeadLetterRepository elrDeadLetterRepository;
 
+    private final ICdaMapper cdaMapper;
+    private final IEcrMsgQueryService ecrMsgQueryService;
     private final IReportStatusRepository iReportStatusRepository;
 
     private String errorDltMessage = "Message not found in dead letter table";
@@ -109,6 +111,8 @@ public class KafkaConsumerService {
             IHL7DuplicateValidator iHL7DuplicateValidator,
             NbsRepositoryServiceProvider nbsRepositoryServiceProvider,
             IElrDeadLetterRepository elrDeadLetterRepository,
+            ICdaMapper cdaMapper,
+            IEcrMsgQueryService ecrMsgQueryService,
             IReportStatusRepository iReportStatusRepository) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iRawELRRepository = iRawELRRepository;
@@ -119,6 +123,8 @@ public class KafkaConsumerService {
         this.iHL7DuplicateValidator = iHL7DuplicateValidator;
         this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
         this.elrDeadLetterRepository = elrDeadLetterRepository;
+        this.cdaMapper = cdaMapper;
+        this.ecrMsgQueryService = ecrMsgQueryService;
         this.iReportStatusRepository = iReportStatusRepository;
     }
     //endregion
@@ -278,6 +284,43 @@ public class KafkaConsumerService {
 
     }
     //endregion
+
+    /**
+     * Raw Data Validation Process
+     * */
+    @RetryableTopic(
+            attempts = "${kafka.consumer.max-retry}",
+            autoCreateTopics = "false",
+            dltStrategy = DltStrategy.FAIL_ON_ERROR,
+            retryTopicSuffix = "${kafka.retry.suffix}",
+            dltTopicSuffix = "${kafka.dlt.suffix}",
+            // retry topic name, such as topic-retry-1, topic-retry-2, etc
+            topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE,
+            // time to wait before attempting to retry
+            backoff = @Backoff(delay = 1000, multiplier = 2.0),
+            // if these exceptions occur, skip retry then push message to DLQ
+            exclude = {
+                    SerializationException.class,
+                    DeserializationException.class,
+                    DuplicateHL7FileFoundException.class,
+                    DiHL7Exception.class,
+                    HL7Exception.class,
+                    XmlConversionException.class,
+                    JAXBException.class
+            }
+
+    )
+    @KafkaListener(
+            topics = "ecr_cda"
+    )
+    public void handleMessageForPhdcEcrTransformToCda(String message,
+                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EcrCdaXmlException {
+        log.debug("Received message ID: {} from topic: {}", message, topic);
+        var result = ecrMsgQueryService.getSelectedEcrRecord();
+        var xmlResult = this.cdaMapper.tranformSelectedEcrToCDAXml(result);
+        nbsRepositoryServiceProvider.saveEcrCdaXmlMessage(result.getMsgContainer().getNbsInterfaceUid().toString()
+                , result.getMsgContainer().getDataMigrationStatus(), xmlResult);
+    }
 
     //region DLT HANDLER
     @DltHandler

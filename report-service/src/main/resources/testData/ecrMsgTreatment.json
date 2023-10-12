@@ -1,0 +1,16 @@
+{
+  "trtLocalId": "trtLocalId",
+  "trtAuthorId": "trtAuthorId",
+  "trtCompositeCd": "trtCompositeCd",
+  "trtCommentTxt": "trtCommentTxt",
+  "trtCustomTreatmentTxt": "trtCustomTreatmentTxt",
+  "trtDosageAmt": "123",
+  "trtDosageUnitCd": "trtDosageUnitCd",
+  "trtDrugCd": "trtDrugCd",
+  "trtDurationAmt": "123",
+  "trtDurationUnitCd": "trtDurationUnitCd",
+  "trtEffectiveTime": "1981-02-14 00:00:00.0",
+  "trtFrequencyAmtCd": "trtFrequencyAmtCd",
+  "trtRouteCd": "trtRouteCd",
+  "trtTreatmentDt": "1981-02-14 00:00:00.0"
+}

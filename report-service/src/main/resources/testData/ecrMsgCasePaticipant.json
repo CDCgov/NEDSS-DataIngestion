@@ -1,0 +1,37 @@
+[
+  {
+      "msgEventId": "8675309a-7754-r2d2-c3p0-973d9f777777",
+      "msgEventType": "CASE",
+      "answerTxt": "CSR1003001XX01",
+      "answerLargeTxt": "answerLargeTxt",
+      "answerGroupSeqNbr": "123",
+      "partTypeCd": "PerAsReporterOfPHC",
+      "questionIdentifier": "INV181",
+      "questionGroupSeqNbr": "123",
+      "seqNbr": "123"
+    }
+  ,
+  {
+      "msgEventId": "8675309a-7754-r2d2-c3p0-973d9f777777",
+      "msgEventType": "CASE",
+      "answerTxt": "CSR1003000XX01",
+      "answerLargeTxt": "answerLargeTxt",
+      "answerGroupSeqNbr": "123",
+      "partTypeCd": "PhysicianOfPHC",
+      "questionIdentifier": "INV182",
+      "questionGroupSeqNbr": "123",
+      "seqNbr": "123"
+    }
+  ,
+  {
+      "msgEventId": "8675309a-7754-r2d2-c3p0-973d9f777777",
+      "msgEventType": "CASE",
+      "answerTxt": "CSR1003003XX01",
+      "answerLargeTxt": "answerLargeTxt",
+      "answerGroupSeqNbr": "123",
+      "partTypeCd": "OrgAsReporterOfPHC",
+      "questionIdentifier": "INV183",
+      "questionGroupSeqNbr": "123",
+      "seqNbr": "123"
+    }
+]

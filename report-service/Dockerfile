@@ -9,6 +9,7 @@ COPY settings.gradle /usr/src/dataingestion/settings.gradle
 
 #Copy sources
 COPY hl7-parser /usr/src/dataingestion/hl7-parser
+COPY cdaschema /usr/src/dataingestion/cdaschema
 COPY report-service /usr/src/dataingestion/report-service
 
 COPY . /usr/src/dataingestion
