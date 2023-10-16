@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.rawmessage.controller;
 
+import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,6 +31,7 @@ public class ElrReportsController {
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<?> save(@RequestBody final String payload, @RequestHeader("msgType") String type,  @RequestHeader("validationActive") String validationActive) {
             RawERLDto rawERLDto = new RawERLDto();
+            CustomMetricsBuilder.custom_messages_processed.increment();
             rawERLDto.setType(type);
             rawERLDto.setPayload(payload);
             if (validationActive != null && !validationActive.isEmpty() && validationActive.equalsIgnoreCase("true")) {

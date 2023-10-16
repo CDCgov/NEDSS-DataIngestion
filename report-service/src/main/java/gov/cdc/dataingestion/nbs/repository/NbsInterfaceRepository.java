@@ -11,8 +11,5 @@ import java.util.Optional;
 
 @Repository
 public interface NbsInterfaceRepository extends JpaRepository<NbsInterfaceModel, Integer> {
-	@Query(value = "select max(nbs_interface_uid) from NBS_interface", nativeQuery = true)
-    BigInteger getMaxNbsInterfaceUid();
-
     Optional<NbsInterfaceModel> findByNbsInterfaceUid(Integer id);
 }
