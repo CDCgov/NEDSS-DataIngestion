@@ -22,7 +22,7 @@ public class CdaProviderMappingHelper implements ICdaProviderMappingHelper {
                                               String inv168, int performerComponentCounter, int componentCounter,
                                               int performerSectionCounter) throws EcrCdaXmlException {
 
-        try {
+
             CdaProviderMapper mapper = new CdaProviderMapper();
 
             if(input.getMsgProviders() != null && !input.getMsgProviders().isEmpty()) {
@@ -49,9 +49,7 @@ public class CdaProviderMappingHelper implements ICdaProviderMappingHelper {
             mapper.setPerformerComponentCounter(performerComponentCounter);
             mapper.setInv168(inv168);
             return mapper;
-        } catch ( Exception e) {
-            throw new EcrCdaXmlException(e.getMessage());
-        }
+
 
     }
 

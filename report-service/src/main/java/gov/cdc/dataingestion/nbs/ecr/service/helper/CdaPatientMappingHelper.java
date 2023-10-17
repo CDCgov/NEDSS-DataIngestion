@@ -29,7 +29,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
 
     public CdaPatientMapper mapToPatient(EcrSelectedRecord input, POCDMT000040ClinicalDocument1 clinicalDocument, int patientComponentCounter, String inv168)
             throws EcrCdaXmlException {
-        try {
+
             CdaPatientMapper mapper = new CdaPatientMapper();
             for(var patient : input.getMsgPatients()) {
 
@@ -142,9 +142,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
             mapper.setPatientComponentCounter(patientComponentCounter);
             mapper.setInv168(inv168);
             return mapper;
-        } catch (Exception e) {
-            throw new EcrCdaXmlException(e.getMessage());
-        }
+
     }
 
     private CdaPatientField patientFieldCheck(Field field,
@@ -846,7 +844,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
 
     private void mapPatientAddress1(POCDMT000040ClinicalDocument1 clinicalDocument,
                                           String address1) throws EcrCdaXmlException {
-        try {
+
             if(!address1.isEmpty()) {
                 int c1 = 0;
                 int c2 = 0;
@@ -861,14 +859,12 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
 
                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).getStreetAddressLineArray(c2).set(cdaMapHelper.mapToCData(address1));
             }
-        } catch (Exception e) {
-            throw new EcrCdaXmlException(e.getMessage());
-        }
+
     }
 
     private void mapPatientAddress2(POCDMT000040ClinicalDocument1 clinicalDocument,
                                                                    String address2) throws EcrCdaXmlException {
-        try {
+
             if(!address2.isEmpty()) {
                 int c1 = 0;
                 int c2 = 0;
@@ -887,9 +883,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                 }
                 clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).getStreetAddressLineArray(c2).set(cdaMapHelper.mapToCData(address2));
             }
-        } catch (Exception e) {
-            throw new EcrCdaXmlException(e.getMessage());
-        }
+
     }
 
     private void mapToPatientRaceDesc(POCDMT000040ClinicalDocument1 clinicalDocument,

@@ -291,8 +291,7 @@ public class CdaMapper implements ICdaMapper {
         return dateTime.format(formatter);
     }
 
-    private String convertXmlToString(ClinicalDocumentDocument1 clinicalDocument) throws EcrCdaXmlException {
-        try {
+    private String convertXmlToString(ClinicalDocumentDocument1 clinicalDocument) {
             XmlOptions options = new XmlOptions();
             options.setSavePrettyPrint();
             options.setSavePrettyPrintIndent(4);  // Set indentation
@@ -324,10 +323,6 @@ public class CdaMapper implements ICdaMapper {
 
             xmlOutput = "<?xml version=\"1.0\"?>\n" + xmlOutput;
             return xmlOutput;
-        } catch (Exception e) {
-            throw new EcrCdaXmlException(e.getMessage());
-        }
-
     }
 
     private String mapToTranslatedValue(String input) throws EcrCdaXmlException {

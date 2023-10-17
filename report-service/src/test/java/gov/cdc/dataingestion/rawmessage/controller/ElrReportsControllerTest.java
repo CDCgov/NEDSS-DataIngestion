@@ -1,5 +1,8 @@
 package gov.cdc.dataingestion.rawmessage.controller;
 
+import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
+import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
+import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
 import gov.cdc.dataingestion.security.config.RsaKeyProperties;
@@ -24,7 +27,12 @@ public class ElrReportsControllerTest {
     private MockMvc mockMvc;
     @MockBean
     private RawELRService rawELRService;
-
+    @MockBean
+    private ICdaMapper cdaMapper;
+    @MockBean
+    private IEcrMsgQueryService ecrMsgQueryService;
+    @MockBean
+    private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
     @Test
     public void testSaveHL7Message() throws Exception {
         String hl7Payload = "testmessage";

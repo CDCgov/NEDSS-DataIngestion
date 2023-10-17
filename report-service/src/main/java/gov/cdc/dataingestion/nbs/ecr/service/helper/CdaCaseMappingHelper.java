@@ -35,8 +35,6 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
     public CdaCaseMapper mapToCaseTop(EcrSelectedRecord input, POCDMT000040ClinicalDocument1 clinicalDocument,
                                       int componentCounter, int clinicalCounter, int componentCaseCounter,
                                       String inv168) throws EcrCdaXmlException {
-
-        try {
             CdaCaseMapper mapper = new CdaCaseMapper();
             if(!input.getMsgCases().isEmpty()) {
                 checkCaseStructComponent(clinicalDocument);
@@ -79,9 +77,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             mapper.setComponentCaseCounter(componentCaseCounter);
             mapper.setInv168(inv168);
             return mapper;
-        } catch (Exception e) {
-            throw new EcrCdaXmlException(e.getMessage());
-        }
+
 
     }
     //endregion

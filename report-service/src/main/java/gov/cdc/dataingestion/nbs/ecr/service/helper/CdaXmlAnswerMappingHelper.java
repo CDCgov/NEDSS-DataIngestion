@@ -15,38 +15,41 @@ public class CdaXmlAnswerMappingHelper implements ICdaXmlAnswerMappingHelper {
                                                 POCDMT000040ClinicalDocument1 clinicalDocument,
                                                 int componentCounter) throws EcrCdaXmlException {
 
-        try {
-            CdaXmlAnswerMapper mapper = new CdaXmlAnswerMapper();
-            if(input.getMsgXmlAnswers() != null && !input.getMsgXmlAnswers().isEmpty()) {
-                for(int i = 0; i < input.getMsgXmlAnswers().size(); i++) {
-                    componentCounter++;
-                    int c = 0;
-                    if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
-                        clinicalDocument.getComponent().getStructuredBody().addNewComponent();
-                    } else {
-                        c = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length;
-                        clinicalDocument.getComponent().getStructuredBody().addNewComponent();
-                    }
-                    POCDMT000040Component3 out = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c);
-                    var mappedData = mapToExtendedData(input.getMsgXmlAnswers().get(i), out);
-                    clinicalDocument.getComponent().getStructuredBody().setComponentArray(c, mappedData);
+
+        CdaXmlAnswerMapper mapper = new CdaXmlAnswerMapper();
+        if(input.getMsgXmlAnswers() != null && !input.getMsgXmlAnswers().isEmpty()) {
+            for(int i = 0; i < input.getMsgXmlAnswers().size(); i++) {
+                componentCounter++;
+                int c = 0;
+                if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
+                    clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+                } else {
+                    c = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length;
+                    clinicalDocument.getComponent().getStructuredBody().addNewComponent();
                 }
+                POCDMT000040Component3 out = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c);
+                var mappedData = mapToExtendedData(input.getMsgXmlAnswers().get(i), out);
+                clinicalDocument.getComponent().getStructuredBody().setComponentArray(c, mappedData);
             }
-            mapper.setClinicalDocument(clinicalDocument);
-            mapper.setComponentCounter(componentCounter);
-            return mapper;
-        } catch ( Exception e) {
-            throw new EcrCdaXmlException(e.getMessage());
         }
+        mapper.setClinicalDocument(clinicalDocument);
+        mapper.setComponentCounter(componentCounter);
+        return mapper;
+
 
     }
 
-    private POCDMT000040Component3 mapToExtendedData(EcrMsgXmlAnswerDto in, POCDMT000040Component3 out) throws XmlException {
-        if (!in.getAnswerXmlTxt().isEmpty()) {
-            ANY any = ANY.Factory.parse(in.getAnswerXmlTxt());
-            out.set(any);
+    private POCDMT000040Component3 mapToExtendedData(EcrMsgXmlAnswerDto in, POCDMT000040Component3 out) throws EcrCdaXmlException {
+        try {
+            if (!in.getAnswerXmlTxt().isEmpty()) {
+                ANY any = ANY.Factory.parse(in.getAnswerXmlTxt());
+                out.set(any);
+            }
+            return out;
+        } catch (Exception e) {
+            throw new EcrCdaXmlException(e.getMessage());
         }
-        return out;
+
     }
 
 
