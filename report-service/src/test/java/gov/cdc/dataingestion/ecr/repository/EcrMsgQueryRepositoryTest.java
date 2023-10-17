@@ -35,7 +35,6 @@ public class EcrMsgQueryRepositoryTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        // any other setup tasks you might need
     }
 
     @Test
