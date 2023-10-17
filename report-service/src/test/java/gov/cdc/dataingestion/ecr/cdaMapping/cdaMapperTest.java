@@ -9,6 +9,7 @@ import gov.cdc.dataingestion.nbs.ecr.service.CdaMapper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.*;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.*;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
+import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.ConstantLookUpDto;
 import gov.cdc.dataingestion.nbs.services.CdaLookUpService;
 import gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService;
 import org.junit.jupiter.api.Assertions;
@@ -17,9 +18,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.testcontainers.shaded.org.bouncycastle.jcajce.provider.asymmetric.ec.KeyFactorySpi;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
+
+import static gov.cdc.dataingestion.ecr.cdaMapping.helper.testDataInitiation.getTestData;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 public class cdaMapperTest {
     @Mock
@@ -31,63 +37,207 @@ public class cdaMapperTest {
     @BeforeEach
     public void setUpEach() {
         MockitoAnnotations.openMocks(this);
-        target = new CdaMapper(cdaLookUpService);
     }
+
 
     @Test
     void transformSelectedEcrToCDAXml_Test() throws EcrCdaXmlException {
-        EcrSelectedRecord input = new EcrSelectedRecord();
-        String dateFormat = "yyyy-MM-dd HH:mm:ss.S";
+        EcrSelectedRecord input = getTestData();
 
-        Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
-        try (Reader reader = new InputStreamReader(JsonReader.class.getResourceAsStream("/test-data-ecr/ecr.json"), "UTF-8")) {
-            EcrSelectedRecord ecrObject = gson.fromJson(reader, EcrSelectedRecord.class);
-            ecrObject.getMsgCases().get(0).getMsgCase().initDataMap();
-            for(int i = 0; i < ecrObject.getMsgCases().get(0).getMsgCaseAnswers().size(); i++) {
-                ecrObject.getMsgCases().get(0).getMsgCaseAnswers().get(i).initDataMap();
-            }
-            for(int i = 0; i < ecrObject.getMsgCases().get(0).getMsgCaseAnswerRepeats().size(); i++) {
-                ecrObject.getMsgCases().get(0).getMsgCaseAnswerRepeats().get(i).initDataMap();
-            }
-            for(int i = 0; i < ecrObject.getMsgProviders().size(); i++) {
-                ecrObject.getMsgProviders().get(i).initDataMap();
-            }
-            for(int i = 0; i < ecrObject.getMsgOrganizations().size(); i++) {
-                ecrObject.getMsgOrganizations().get(i).initDataMap();
-            }
-            for(int i = 0; i < ecrObject.getMsgPlaces().size(); i++) {
-                ecrObject.getMsgPlaces().get(i).initDataMap();
-            }
-            for(int i = 0; i < ecrObject.getMsgInterviews().size(); i++) {
-                ecrObject.getMsgInterviews().get(i).getMsgInterview().initDataMap();
-            }
-            for(int i = 0; i < ecrObject.getMsgInterviews().get(0).getMsgInterviewProviders().size(); i++) {
-                ecrObject.getMsgInterviews().get(0).getMsgInterviewProviders().get(i).initDataMap();
-            }
-            for(int i = 0; i < ecrObject.getMsgInterviews().get(0).getMsgInterviewAnswers().size(); i++) {
-                ecrObject.getMsgInterviews().get(0).getMsgInterviewAnswers().get(i).initDataMap();
-            }
-            for(int i = 0; i < ecrObject.getMsgInterviews().get(0).getMsgInterviewAnswerRepeats().size(); i++) {
-                ecrObject.getMsgInterviews().get(0).getMsgInterviewAnswerRepeats().get(i).initDataMap();
-            }
-            for(int i = 0; i < ecrObject.getMsgTreatments().size(); i++) {
-                ecrObject.getMsgTreatments().get(0).getMsgTreatment().initDataMap();
-            }
-            for(int i = 0; i < ecrObject.getMsgTreatments().get(0).getMsgTreatmentProviders().size(); i++) {
-                ecrObject.getMsgTreatments().get(0).getMsgTreatmentProviders().get(i).initDataMap();
-            }
-            for(int i = 0; i < ecrObject.getMsgTreatments().get(0).getMsgTreatmentOrganizations().size(); i++) {
-                ecrObject.getMsgTreatments().get(0).getMsgTreatmentOrganizations().get(i).initDataMap();
-            }
+        var lookupDto1 = new ConstantLookUpDto();
+        lookupDto1.setId("test");
+        lookupDto1.setSubjectArea("test");
+        lookupDto1.setQuestionDisplayName("test");
+        lookupDto1.setQuestionIdentifier("test");
+        lookupDto1.setSampleValue("test");
+        lookupDto1.setUsage("test");
 
+        // Using the correct mock (interface) here
+        when(cdaLookUpService.fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101"))
+                .thenReturn(lookupDto1);
 
-            var result = target.tranformSelectedEcrToCDAXml(ecrObject);
+        var result = target.tranformSelectedEcrToCDAXml(input);
 
-            Assertions.assertNotNull(result);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        Assertions.assertNotNull(result);
     }
 
+    @Test
+    void transformSelectedEcrToCDAXml_Test_PatientMulti() throws EcrCdaXmlException {
+        EcrSelectedRecord input = getTestData();
+        var patients = input.getMsgPatients();
+        var patientToDuplicate = patients.get(0);
+        patients.add(patientToDuplicate);
+        input.setMsgPatients(patients);
+        var lookupDto1 = new ConstantLookUpDto();
+        lookupDto1.setId("test");
+        lookupDto1.setSubjectArea("test");
+        lookupDto1.setQuestionDisplayName("test");
+        lookupDto1.setQuestionIdentifier("test");
+        lookupDto1.setSampleValue("test");
+        lookupDto1.setUsage("test");
+
+        // Using the correct mock (interface) here
+        when(cdaLookUpService.fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101"))
+                .thenReturn(lookupDto1);
+
+        var result = target.tranformSelectedEcrToCDAXml(input);
+
+        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    void transformSelectedEcrToCDAXml_Test_PatientOnly() throws EcrCdaXmlException {
+        EcrSelectedRecord input = getTestData();
+        EcrSelectedRecord patientOnlyInput = new EcrSelectedRecord();
+        patientOnlyInput.setMsgContainer(input.getMsgContainer());
+        patientOnlyInput.setMsgPatients(input.getMsgPatients());
+        var lookupDto1 = new ConstantLookUpDto();
+        lookupDto1.setId("test");
+        lookupDto1.setSubjectArea("test");
+        lookupDto1.setQuestionDisplayName("test");
+        lookupDto1.setQuestionIdentifier("test");
+        lookupDto1.setSampleValue("test");
+        lookupDto1.setUsage("test");
+
+        // Using the correct mock (interface) here
+        when(cdaLookUpService.fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101"))
+                .thenReturn(lookupDto1);
+
+        var result = target.tranformSelectedEcrToCDAXml(input);
+
+        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    void transformSelectedEcrToCDAXml_Test_CaseMulti() throws EcrCdaXmlException {
+        EcrSelectedRecord input = getTestData();
+
+        var cases = input.getMsgCases();
+        cases.add(cases.get(0));
+        input.setMsgCases(cases);
+
+        var lookupDto1 = new ConstantLookUpDto();
+        lookupDto1.setId("test");
+        lookupDto1.setSubjectArea("test");
+        lookupDto1.setQuestionDisplayName("test");
+        lookupDto1.setQuestionIdentifier("test");
+        lookupDto1.setSampleValue("test");
+        lookupDto1.setUsage("test");
+
+        // Using the correct mock (interface) here
+        when(cdaLookUpService.fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101"))
+                .thenReturn(lookupDto1);
+
+        var result = target.tranformSelectedEcrToCDAXml(input);
+
+        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    void transformSelectedEcrToCDAXml_Test_OrgMulti() throws EcrCdaXmlException {
+        EcrSelectedRecord input = getTestData();
+
+        var cases = input.getMsgOrganizations();
+        cases.add(cases.get(0));
+        input.setMsgOrganizations(cases);
+
+        var lookupDto1 = new ConstantLookUpDto();
+        lookupDto1.setId("test");
+        lookupDto1.setSubjectArea("test");
+        lookupDto1.setQuestionDisplayName("test");
+        lookupDto1.setQuestionIdentifier("test");
+        lookupDto1.setSampleValue("test");
+        lookupDto1.setUsage("test");
+
+        // Using the correct mock (interface) here
+        when(cdaLookUpService.fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101"))
+                .thenReturn(lookupDto1);
+
+        var result = target.tranformSelectedEcrToCDAXml(input);
+
+        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    void transformSelectedEcrToCDAXml_Test_PlaceMulti() throws EcrCdaXmlException {
+        EcrSelectedRecord input = getTestData();
+
+        var cases = input.getMsgPlaces();
+        cases.add(cases.get(0));
+        input.setMsgPlaces(cases);
+
+        var lookupDto1 = new ConstantLookUpDto();
+        lookupDto1.setId("test");
+        lookupDto1.setSubjectArea("test");
+        lookupDto1.setQuestionDisplayName("test");
+        lookupDto1.setQuestionIdentifier("test");
+        lookupDto1.setSampleValue("test");
+        lookupDto1.setUsage("test");
+
+        // Using the correct mock (interface) here
+        when(cdaLookUpService.fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101"))
+                .thenReturn(lookupDto1);
+
+        var result = target.tranformSelectedEcrToCDAXml(input);
+
+        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    void transformSelectedEcrToCDAXml_Test_InterviewMulti() throws EcrCdaXmlException {
+        EcrSelectedRecord input = getTestData();
+
+        var cases = input.getMsgInterviews();
+        cases.add(cases.get(0));
+        input.setMsgInterviews(cases);
+
+        var lookupDto1 = new ConstantLookUpDto();
+        lookupDto1.setId("test");
+        lookupDto1.setSubjectArea("test");
+        lookupDto1.setQuestionDisplayName("test");
+        lookupDto1.setQuestionIdentifier("test");
+        lookupDto1.setSampleValue("test");
+        lookupDto1.setUsage("test");
+
+        // Using the correct mock (interface) here
+        when(cdaLookUpService.fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101"))
+                .thenReturn(lookupDto1);
+
+        var result = target.tranformSelectedEcrToCDAXml(input);
+
+        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    void transformSelectedEcrToCDAXml_Test_TreatmentMulti() throws EcrCdaXmlException {
+        EcrSelectedRecord input = getTestData();
+
+        var cases = input.getMsgTreatments();
+        cases.add(cases.get(0));
+        input.setMsgTreatments(cases);
+
+        var lookupDto1 = new ConstantLookUpDto();
+        lookupDto1.setId("test");
+        lookupDto1.setSubjectArea("test");
+        lookupDto1.setQuestionDisplayName("test");
+        lookupDto1.setQuestionIdentifier("test");
+        lookupDto1.setSampleValue("test");
+        lookupDto1.setUsage("test");
+
+        // Using the correct mock (interface) here
+        when(cdaLookUpService.fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101"))
+                .thenReturn(lookupDto1);
+
+        var result = target.tranformSelectedEcrToCDAXml(input);
+
+        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        Assertions.assertNotNull(result);
+    }
 }

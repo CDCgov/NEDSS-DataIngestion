@@ -83,6 +83,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                     for (Field field : fields) {
 
                         patientField = patientFieldCheck(field, clinicalDocument, patient, patientField);
+
                         address1 = patientField.getAddress1();
                         address2 = patientField.getAddress2();
                         k = patientField.getK();
@@ -353,6 +354,8 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
             checkPatientRoleAddrArray(clinicalDocument);
             clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0).setUse(new ArrayList<String>(List.of("H")));
         }
+
+        // IGNORE: Possibly unreachable code
         if (k> 1 && field.getName().equals("patAddrAsOfDt") && patient.getPatAddrAsOfDt() != null ) {
             checkPatientRoleAddrArray(clinicalDocument);
             AD element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0);
@@ -659,6 +662,8 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().addNewName();
             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().addNewName();
         }
+
+       //IGNORE: Possible unreachable code
         else if (clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray().length == 1) {
             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().addNewName();
         }
@@ -854,10 +859,12 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                 }
                 else {
                     c2 = clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).getStreetAddressLineArray().length;
-                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).getStreetAddressLineArray();
+                    clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).addNewStreetAddressLine();
                 }
 
-                clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).getStreetAddressLineArray(c2).set(cdaMapHelper.mapToCData(address1));
+                clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(c1).getStreetAddressLineArray(c2).set(
+                        cdaMapHelper.mapToCData(address1)
+                );
             }
 
     }
