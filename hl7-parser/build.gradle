@@ -17,6 +17,12 @@ repositories {
     mavenCentral()
 }
 
+jacocoTestReport {
+    reports {
+        xml.enabled true
+    }
+}
+
 dependencies {
     implementation 'ca.uhn.hapi:hapi-base:2.3'
     implementation 'ca.uhn.hapi:hapi-structures-v251:2.3'
@@ -38,12 +44,13 @@ tasks.named('test') {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
 }
+//
+//sonarqube {
+//    properties {
+//        property 'sonar.sources', 'src/main'
+//        property 'sonar.tests', 'src/test'
+//        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
+//
+//    }
+//}
 
-sonarqube {
-    properties {
-        property 'sonar.sources', 'src/main'
-        property 'sonar.tests', 'src/test'
-        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
-
-    }
-}
