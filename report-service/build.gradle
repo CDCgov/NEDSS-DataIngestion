@@ -145,8 +145,22 @@ task jaxb {
 
 compileJava.dependsOn jaxb
 
+if (project != project.rootProject || project.hasProperty('remoteBuild')) {
+	task copyJar(type: Copy) {
+		from "${project(':cdaschema').buildDir}/libs/cda-schema.jar"
+		into 'libs'
+	}
+	copyJar.dependsOn(':cdaschema:cdaSchemaJar')
+	compileJava.dependsOn copyJar
+
+	compileJava.mustRunAfter(":hl7-parser:build")
+	compileJava.mustRunAfter(":cdaschema:build")
+}
+
+
+
+
 dependencies {
-//	implementation project(':hl7-parser')
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
@@ -183,13 +197,7 @@ dependencies {
 		implementation files('libs/hl7-parser-0.0.1-SNAPSHOT.jar')
 	}
 
-	if (findProject(':cdaschema')) {
-		implementation project(':cdaschema')
-	} else {
-		// this mostly needed when testing the app on idea
-		implementation files('libs/cdaSchema.jar')
-	}
-
+	implementation files('libs/cda-schema.jar')
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
@@ -225,7 +233,6 @@ test {
 	useJUnitPlatform()
 }
 
-
 jar {
 	manifest {
 		attributes(
@@ -238,6 +245,7 @@ jar {
 	// Gather all runtime dependencies
 	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 
+
 	// Conditionally add dependencies from projects
 	if (findProject(':hl7-parser')) {
 		dependsOn(':hl7-parser:jar')
@@ -246,11 +254,6 @@ jar {
 	if (findProject(':cdaschema')) {
 		dependsOn(':cdaschema:jar')
 	}
-}
-
-if (project != project.rootProject || project.hasProperty('remoteBuild')) {
-	compileJava.mustRunAfter(":hl7-parser:build")
-	compileJava.mustRunAfter(":cdaschema:build")
 }
 
 sonarqube {
@@ -263,9 +266,7 @@ sonarqube {
 	}
 }
 
-
 apply plugin: "org.liquibase.gradle"
-
 liquibase {
 	activities {
 		main {
@@ -276,3 +277,5 @@ liquibase {
 		}
 	}
 }
+
+
