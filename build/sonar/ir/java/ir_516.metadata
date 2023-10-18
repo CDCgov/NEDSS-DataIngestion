@@ -1,0 +1,4 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7JCCType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Jcc;)Z
+org.apache.commons.lang3.StringUtils#isEmpty(Ljava/lang/CharSequence;)Z
+==
+getJobDescriptionText gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Jcc#getJobDescriptionText()Ljava/lang/String;

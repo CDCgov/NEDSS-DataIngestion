@@ -1,0 +1,12 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7VisitType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageGroup/Visit;)Lgov/cdc/dataingestion/nbs/jaxb/HL7VisitType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7PIV2Type(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/patient/visit/PatientVisitAdditional;)Z
+gov.cdc.dataingestion.nbs.jaxb.HL7VisitType#<init>()V
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7PIV1Type(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/patient/visit/PatientVisit;)Z
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7PIV1Type(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/patient/visit/PatientVisit;)Lgov/cdc/dataingestion/nbs/jaxb/HL7PIV1Type;
+gov.cdc.dataingestion.nbs.jaxb.HL7VisitType#instance-init#
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7PIV2Type(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/patient/visit/PatientVisitAdditional;)Lgov/cdc/dataingestion/nbs/jaxb/HL7PIV2Type;
+==
+setPatientVisit gov.cdc.dataingestion.nbs.jaxb.HL7VisitType#setPatientVisit(Lgov/cdc/dataingestion/nbs/jaxb/HL7PIV1Type;)V
+getPatientVisitAdditional gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Visit#getPatientVisitAdditional()Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/patient/visit/PatientVisitAdditional;
+getPatientVisit gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Visit#getPatientVisit()Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/patient/visit/PatientVisit;
+setPatientVisitAdditionalInformation gov.cdc.dataingestion.nbs.jaxb.HL7VisitType#setPatientVisitAdditionalInformation(Lgov/cdc/dataingestion/nbs/jaxb/HL7PIV2Type;)V

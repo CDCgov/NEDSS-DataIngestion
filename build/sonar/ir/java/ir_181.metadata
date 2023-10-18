@@ -1,0 +1,93 @@
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapCommonOrder(Lca/uhn/hl7v2/model/v231/segment/ORC;Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/CommonOrder;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/CommonOrder;
+java.util.ArrayList#<init>()V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#instance-init#
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapXtn231(Lca/uhn/hl7v2/model/v231/datatype/XTN;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xtn;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xtn;
+java.util.ArrayList#instance-init#
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapEip231(Lca/uhn/hl7v2/model/v231/datatype/EIP;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Eip;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Eip;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#<init>()V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon#<init>()V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Tq#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad#<init>()V
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapXon231(Lca/uhn/hl7v2/model/v231/datatype/XON;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xon;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xon;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon#instance-init#
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapPl231(Lca/uhn/hl7v2/model/v231/datatype/PL;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Pl;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Pl;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn#<init>()V
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapXad231(Lca/uhn/hl7v2/model/v231/datatype/XAD;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xad;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xad;
+java.lang.String#isEmpty()Z
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapTq231(Lca/uhn/hl7v2/model/v231/datatype/TQ;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Tq;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Tq;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn#instance-init#
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapEi231(Lca/uhn/hl7v2/model/v231/datatype/EI;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ei;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ei;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Tq#<init>()V
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapTs231(Lca/uhn/hl7v2/model/v231/datatype/TS;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapCe231(Lca/uhn/hl7v2/model/v231/datatype/CE;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapXcn231(Lca/uhn/hl7v2/model/v231/datatype/XCN;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xcn;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xcn;
+==
+getOrderingFacilityAddress ca.uhn.hl7v2.model.v231.segment.ORC#getOrderingFacilityAddress(I)Lca/uhn/hl7v2/model/v231/datatype/XAD;
+getDateTimeOfTransaction gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#getDateTimeOfTransaction()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;
+getParentOrder gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#getParentOrder()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Eip;
+getOrderEffectiveDateTime gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#getOrderEffectiveDateTime()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;
+setActionBy gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setActionBy(Ljava/util/List;)V
+setFillerOrderNumber gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setFillerOrderNumber(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ei;)V
+setQuantityTiming gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setQuantityTiming(Ljava/util/List;)V
+getResponseFlag ca.uhn.hl7v2.model.v231.segment.ORC#getResponseFlag()Lca/uhn/hl7v2/model/v231/datatype/ID;
+setOrderStatus gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setOrderStatus(Ljava/lang/String;)V
+setOrderControl gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setOrderControl(Ljava/lang/String;)V
+getVerifiedBy ca.uhn.hl7v2.model.v231.segment.ORC#getVerifiedBy()[Lca/uhn/hl7v2/model/v231/datatype/XCN;
+getAdvancedBeneficiaryNoticeCode ca.uhn.hl7v2.model.v231.segment.ORC#getAdvancedBeneficiaryNoticeCode()Lca/uhn/hl7v2/model/v231/datatype/CE;
+getOrderingProvider ca.uhn.hl7v2.model.v231.segment.ORC#getOrderingProvider()[Lca/uhn/hl7v2/model/v231/datatype/XCN;
+getOrderingFacilityPhoneNumber ca.uhn.hl7v2.model.v231.segment.ORC#getOrderingFacilityPhoneNumber(I)Lca/uhn/hl7v2/model/v231/datatype/XTN;
+getOrderingFacilityPhoneNumber ca.uhn.hl7v2.model.v231.segment.ORC#getOrderingFacilityPhoneNumber()[Lca/uhn/hl7v2/model/v231/datatype/XTN;
+setParentOrder gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setParentOrder(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Eip;)V
+getEnteredBy ca.uhn.hl7v2.model.v231.segment.ORC#getEnteredBy()[Lca/uhn/hl7v2/model/v231/datatype/XCN;
+getEntererLocation gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#getEntererLocation()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Pl;
+setOrderingFacilityName gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setOrderingFacilityName(Ljava/util/List;)V
+setOrderingFacilityAddress gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setOrderingFacilityAddress(Ljava/util/List;)V
+getOrderingProviderAddress ca.uhn.hl7v2.model.v231.segment.ORC#getOrderingProviderAddress()[Lca/uhn/hl7v2/model/v231/datatype/XAD;
+add java.util.ArrayList#add(Ljava/lang/Object;)Z
+setEnteringOrganization gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setEnteringOrganization(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;)V
+getEnteringDevice gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#getEnteringDevice()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;
+setDateTimeOfTransaction gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setDateTimeOfTransaction(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;)V
+getAdvancedBeneficiaryNoticeCode gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#getAdvancedBeneficiaryNoticeCode()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;
+getOrderingFacilityName ca.uhn.hl7v2.model.v231.segment.ORC#getOrderingFacilityName(I)Lca/uhn/hl7v2/model/v231/datatype/XON;
+getCallBackPhoneNumber ca.uhn.hl7v2.model.v231.segment.ORC#getCallBackPhoneNumber()[Lca/uhn/hl7v2/model/v231/datatype/XTN;
+getActionBy ca.uhn.hl7v2.model.v231.segment.ORC#getActionBy()[Lca/uhn/hl7v2/model/v231/datatype/XCN;
+setVerifiedBy gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setVerifiedBy(Ljava/util/List;)V
+getDateTimeOfTransaction ca.uhn.hl7v2.model.v231.segment.ORC#getDateTimeOfTransaction()Lca/uhn/hl7v2/model/v231/datatype/TS;
+setOrderEffectiveDateTime gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setOrderEffectiveDateTime(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;)V
+getEnteredBy ca.uhn.hl7v2.model.v231.segment.ORC#getEnteredBy(I)Lca/uhn/hl7v2/model/v231/datatype/XCN;
+add java.util.List#add(Ljava/lang/Object;)Z
+getEnteringOrganization ca.uhn.hl7v2.model.v231.segment.ORC#getEnteringOrganization()Lca/uhn/hl7v2/model/v231/datatype/CE;
+getOrderEffectiveDateTime ca.uhn.hl7v2.model.v231.segment.ORC#getOrderEffectiveDateTime()Lca/uhn/hl7v2/model/v231/datatype/TS;
+getOrderControlCodeReason gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#getOrderControlCodeReason()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;
+getEnteringDevice ca.uhn.hl7v2.model.v231.segment.ORC#getEnteringDevice()Lca/uhn/hl7v2/model/v231/datatype/CE;
+setOrderingFacilityPhoneNumber gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setOrderingFacilityPhoneNumber(Ljava/util/List;)V
+setAdvancedBeneficiaryNoticeCode gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setAdvancedBeneficiaryNoticeCode(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;)V
+getPlacerGroupNumber gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#getPlacerGroupNumber()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ei;
+getOrderingProviderAddress ca.uhn.hl7v2.model.v231.segment.ORC#getOrderingProviderAddress(I)Lca/uhn/hl7v2/model/v231/datatype/XAD;
+getOrderStatus ca.uhn.hl7v2.model.v231.segment.ORC#getOrderStatus()Lca/uhn/hl7v2/model/v231/datatype/ID;
+setOrderingProviderAddress gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setOrderingProviderAddress(Ljava/util/List;)V
+getPlacerOrderNumber ca.uhn.hl7v2.model.v231.segment.ORC#getPlacerOrderNumber()Lca/uhn/hl7v2/model/v231/datatype/EI;
+setPlacerGroupNumber gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setPlacerGroupNumber(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ei;)V
+setEnteringDevice gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setEnteringDevice(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;)V
+getEnteringOrganization gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#getEnteringOrganization()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;
+getEntererSLocation ca.uhn.hl7v2.model.v231.segment.ORC#getEntererSLocation()Lca/uhn/hl7v2/model/v231/datatype/PL;
+getOrderingFacilityAddress ca.uhn.hl7v2.model.v231.segment.ORC#getOrderingFacilityAddress()[Lca/uhn/hl7v2/model/v231/datatype/XAD;
+getQuantityTiming ca.uhn.hl7v2.model.v231.segment.ORC#getQuantityTiming()Lca/uhn/hl7v2/model/v231/datatype/TQ;
+getFillerOrderNumber gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#getFillerOrderNumber()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ei;
+setCallBackPhoneNumber gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setCallBackPhoneNumber(Ljava/util/List;)V
+setOrderControlCodeReason gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setOrderControlCodeReason(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;)V
+getOrderControl ca.uhn.hl7v2.model.v231.segment.ORC#getOrderControl()Lca/uhn/hl7v2/model/v231/datatype/ID;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
+getQuantityTiming gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#getQuantityTiming()Ljava/util/List;
+getOrderControlCodeReason ca.uhn.hl7v2.model.v231.segment.ORC#getOrderControlCodeReason()Lca/uhn/hl7v2/model/v231/datatype/CE;
+getParentOrder ca.uhn.hl7v2.model.v231.segment.ORC#getParentOrder()Lca/uhn/hl7v2/model/v231/datatype/EIP;
+getOrderingFacilityName ca.uhn.hl7v2.model.v231.segment.ORC#getOrderingFacilityName()[Lca/uhn/hl7v2/model/v231/datatype/XON;
+setResponseFlag gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setResponseFlag(Ljava/lang/String;)V
+getPlacerGroupNumber ca.uhn.hl7v2.model.v231.segment.ORC#getPlacerGroupNumber()Lca/uhn/hl7v2/model/v231/datatype/EI;
+setEnteredBy gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setEnteredBy(Ljava/util/List;)V
+setEntererLocation gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setEntererLocation(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Pl;)V
+getFillerOrderNumber ca.uhn.hl7v2.model.v231.segment.ORC#getFillerOrderNumber()Lca/uhn/hl7v2/model/v231/datatype/EI;
+setOrderingProvider gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setOrderingProvider(Ljava/util/List;)V
+getCallBackPhoneNumber ca.uhn.hl7v2.model.v231.segment.ORC#getCallBackPhoneNumber(I)Lca/uhn/hl7v2/model/v231/datatype/XTN;
+getActionBy ca.uhn.hl7v2.model.v231.segment.ORC#getActionBy(I)Lca/uhn/hl7v2/model/v231/datatype/XCN;

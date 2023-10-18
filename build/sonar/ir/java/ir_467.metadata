@@ -1,0 +1,5 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7TXType(Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/jaxb/HL7TXType;
+gov.cdc.dataingestion.nbs.jaxb.HL7TXType#instance-init#
+gov.cdc.dataingestion.nbs.jaxb.HL7TXType#<init>()V
+==
+setHL7String gov.cdc.dataingestion.nbs.jaxb.HL7TXType#setHL7String(Ljava/lang/String;)V

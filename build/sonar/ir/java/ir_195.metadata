@@ -1,0 +1,15 @@
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapCe231(Lca/uhn/hl7v2/model/v231/datatype/CE;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;
+==
+getAlternateText ca.uhn.hl7v2.model.v231.datatype.CE#getAlternateText()Lca/uhn/hl7v2/model/v231/datatype/ST;
+getText ca.uhn.hl7v2.model.v231.datatype.CE#getText()Lca/uhn/hl7v2/model/v231/datatype/ST;
+setNameOfAlternateCodingSystem gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#setNameOfAlternateCodingSystem(Ljava/lang/String;)V
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
+setAlternateIdentifier gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#setAlternateIdentifier(Ljava/lang/String;)V
+setIdentifier gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#setIdentifier(Ljava/lang/String;)V
+setText gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#setText(Ljava/lang/String;)V
+getNameOfCodingSystem ca.uhn.hl7v2.model.v231.datatype.CE#getNameOfCodingSystem()Lca/uhn/hl7v2/model/v231/datatype/ST;
+setNameOfCodingSystem gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#setNameOfCodingSystem(Ljava/lang/String;)V
+getIdentifier ca.uhn.hl7v2.model.v231.datatype.CE#getIdentifier()Lca/uhn/hl7v2/model/v231/datatype/ST;
+getAlternateIdentifier ca.uhn.hl7v2.model.v231.datatype.CE#getAlternateIdentifier()Lca/uhn/hl7v2/model/v231/datatype/ST;
+setAlternateText gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#setAlternateText(Ljava/lang/String;)V
+getNameOfAlternateCodingSystem ca.uhn.hl7v2.model.v231.datatype.CE#getNameOfAlternateCodingSystem()Lca/uhn/hl7v2/model/v231/datatype/ST;

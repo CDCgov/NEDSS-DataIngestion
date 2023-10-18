@@ -1,0 +1,3 @@
+gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService#handleMessageForRawElr(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService#validationHandler(Ljava/lang/String;Z)V
+java.lang.String#equalsIgnoreCase(Ljava/lang/String;)Z

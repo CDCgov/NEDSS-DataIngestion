@@ -1,0 +1,18 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ContactData#<init>(Lca/uhn/hl7v2/model/v251/segment/CTD;)V
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetXadList([Lca/uhn/hl7v2/model/v251/datatype/XAD;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#<init>(Lca/uhn/hl7v2/model/v251/datatype/CE;)V
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetCeList([Lca/uhn/hl7v2/model/v251/datatype/CE;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetXpnList([Lca/uhn/hl7v2/model/v251/datatype/XPN;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetPlnList([Lca/uhn/hl7v2/model/v251/datatype/PLN;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pl#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pl#<init>(Lca/uhn/hl7v2/model/v251/datatype/PL;)V
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetXtnList([Lca/uhn/hl7v2/model/v251/datatype/XTN;)Ljava/util/ArrayList;
+==
+getContactRole ca.uhn.hl7v2.model.v251.segment.CTD#getContactRole()[Lca/uhn/hl7v2/model/v251/datatype/CE;
+getContactIdentifiers ca.uhn.hl7v2.model.v251.segment.CTD#getContactIdentifiers()[Lca/uhn/hl7v2/model/v251/datatype/PLN;
+getContactAddress ca.uhn.hl7v2.model.v251.segment.CTD#getContactAddress()[Lca/uhn/hl7v2/model/v251/datatype/XAD;
+getContactLocation ca.uhn.hl7v2.model.v251.segment.CTD#getContactLocation()Lca/uhn/hl7v2/model/v251/datatype/PL;
+getPreferredMethodOfContact ca.uhn.hl7v2.model.v251.segment.CTD#getPreferredMethodOfContact()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getContactCommunicationInformation ca.uhn.hl7v2.model.v251.segment.CTD#getContactCommunicationInformation()[Lca/uhn/hl7v2/model/v251/datatype/XTN;
+getContactName ca.uhn.hl7v2.model.v251.segment.CTD#getContactName()[Lca/uhn/hl7v2/model/v251/datatype/XPN;

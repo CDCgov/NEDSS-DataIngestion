@@ -1,0 +1,25 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Tq#<init>(Lca/uhn/hl7v2/model/v251/datatype/TQ;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ri#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#<init>(Lca/uhn/hl7v2/model/v251/datatype/CE;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cq#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cq#<init>(Lca/uhn/hl7v2/model/v251/datatype/CQ;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Osd#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#<init>(Lca/uhn/hl7v2/model/v251/datatype/TS;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Osd#<init>(Lca/uhn/hl7v2/model/v251/datatype/OSD;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ri#<init>(Lca/uhn/hl7v2/model/v251/datatype/RI;)V
+==
+getStartDateTime ca.uhn.hl7v2.model.v251.datatype.TQ#getStartDateTime()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getText ca.uhn.hl7v2.model.v251.datatype.TQ#getText()Lca/uhn/hl7v2/model/v251/datatype/TX;
+getConjunction ca.uhn.hl7v2.model.v251.datatype.TQ#getConjunction()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getOccurrenceDuration ca.uhn.hl7v2.model.v251.datatype.TQ#getOccurrenceDuration()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getInterval ca.uhn.hl7v2.model.v251.datatype.TQ#getInterval()Lca/uhn/hl7v2/model/v251/datatype/RI;
+getCondition ca.uhn.hl7v2.model.v251.datatype.TQ#getCondition()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getQuantity ca.uhn.hl7v2.model.v251.datatype.TQ#getQuantity()Lca/uhn/hl7v2/model/v251/datatype/CQ;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
+getOrderSequencing ca.uhn.hl7v2.model.v251.datatype.TQ#getOrderSequencing()Lca/uhn/hl7v2/model/v251/datatype/OSD;
+getPriority ca.uhn.hl7v2.model.v251.datatype.TQ#getPriority()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getTotalOccurrences ca.uhn.hl7v2.model.v251.datatype.TQ#getTotalOccurrences()Lca/uhn/hl7v2/model/v251/datatype/NM;
+getDuration ca.uhn.hl7v2.model.v251.datatype.TQ#getDuration()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getEndDateTime ca.uhn.hl7v2.model.v251.datatype.TQ#getEndDateTime()Lca/uhn/hl7v2/model/v251/datatype/TS;

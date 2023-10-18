@@ -1,0 +1,3 @@
+gov.cdc.dataingestion.hl7.helper.helper.hapi.MandatoryFieldsVisitor#start(Lca/uhn/hl7v2/model/Group;Lca/uhn/hl7v2/Location;)Z
+gov.cdc.dataingestion.hl7.helper.helper.validator.OruR01Validator#patientResultValidator(Lca/uhn/hl7v2/model/Group;)V
+java.lang.String#equalsIgnoreCase(Ljava/lang/String;)Z

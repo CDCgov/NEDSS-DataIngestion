@@ -1,0 +1,9 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#mapToSTValue(Ljava/lang/String;Lorg/apache/xmlbeans/XmlObject;)Lorg/apache/xmlbeans/XmlObject;
+null
+==
+setAttributeText org.apache.xmlbeans.XmlCursor#setAttributeText(Ljavax/xml/namespace/QName;Ljava/lang/String;)Z
+newCursor org.apache.xmlbeans.XmlTokenSource#newCursor()Lorg/apache/xmlbeans/XmlCursor;
+dispose org.apache.xmlbeans.XmlCursor#dispose()V
+insertChars org.apache.xmlbeans.XmlCursor#insertChars(Ljava/lang/String;)V
+toChild org.apache.xmlbeans.XmlCursor#toChild(Ljava/lang/String;)Z
+toNextToken org.apache.xmlbeans.XmlCursor#toNextToken()Lorg/apache/xmlbeans/XmlCursor$TokenType;

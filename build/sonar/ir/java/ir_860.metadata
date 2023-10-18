@@ -1,0 +1,9 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPlaceMappingHelper#mapToPlaceFieldCheckP2Postal(Ljava/lang/String;Lgov/cdc/nedss/phdc/cda/POCDMT000040Participant2;)V
+java.util.List#of(Ljava/lang/Object;)Ljava/util/List;
+java.lang.String#isEmpty()Z
+==
+addNewParticipantRole gov.cdc.nedss.phdc.cda.POCDMT000040Participant2#addNewParticipantRole()Lgov/cdc/nedss/phdc/cda/POCDMT000040ParticipantRole;
+getAddrArray gov.cdc.nedss.phdc.cda.POCDMT000040ParticipantRole#getAddrArray()[Lgov/cdc/nedss/phdc/cda/AD;
+getParticipantRole gov.cdc.nedss.phdc.cda.POCDMT000040Participant2#getParticipantRole()Lgov/cdc/nedss/phdc/cda/POCDMT000040ParticipantRole;
+setUse gov.cdc.nedss.phdc.cda.AD#setUse(Ljava/util/List;)V
+addNewAddr gov.cdc.nedss.phdc.cda.POCDMT000040ParticipantRole#addNewAddr()Lgov/cdc/nedss/phdc/cda/AD;

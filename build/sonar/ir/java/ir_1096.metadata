@@ -1,0 +1,14 @@
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamHHL7OrderObservationType(Lgov/cdc/dataingestion/nbs/jaxb/HL7OrderObservationType;)Ljava/lang/String;
+java.lang.StringBuilder#instance-init#
+java.lang.StringBuilder#append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamCommonOrders(Lgov/cdc/dataingestion/nbs/jaxb/HL7ORCType;)Ljava/lang/String;
+java.lang.StringBuilder#<init>()V
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamOrderObservationResults(Lgov/cdc/dataingestion/nbs/jaxb/PatientResultOrderObservation;)Ljava/lang/String;
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamObservationRequests(Lgov/cdc/dataingestion/nbs/jaxb/HL7OBRType;)Ljava/lang/String;
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamHL7NTETypeList(Ljava/util/List;)Ljava/lang/String;
+java.lang.StringBuilder#toString()Ljava/lang/String;
+==
+getObservationRequest gov.cdc.dataingestion.nbs.jaxb.HL7OrderObservationType#getObservationRequest()Lgov/cdc/dataingestion/nbs/jaxb/HL7OBRType;
+getPatientResultOrderObservation gov.cdc.dataingestion.nbs.jaxb.HL7OrderObservationType#getPatientResultOrderObservation()Lgov/cdc/dataingestion/nbs/jaxb/PatientResultOrderObservation;
+getCommonOrder gov.cdc.dataingestion.nbs.jaxb.HL7OrderObservationType#getCommonOrder()Lgov/cdc/dataingestion/nbs/jaxb/HL7ORCType;
+getNotesAndComments gov.cdc.dataingestion.nbs.jaxb.HL7OrderObservationType#getNotesAndComments()Ljava/util/List;

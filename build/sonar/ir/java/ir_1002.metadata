@@ -1,0 +1,8 @@
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#setProviderList(Ljakarta/persistence/Query;)Ljava/util/List;
+java.util.ArrayList#<init>()V
+java.util.ArrayList#instance-init#
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#setProviderData([Ljava/lang/Object;)Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgProviderDto;
+==
+add java.util.List#add(Ljava/lang/Object;)Z
+getResultList jakarta.persistence.Query#getResultList()Ljava/util/List;
+isEmpty java.util.List#isEmpty()Z

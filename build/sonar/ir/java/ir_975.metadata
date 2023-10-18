@@ -1,0 +1,22 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaInterviewMappingHelper#mapToInterviewObservationFieldP3(Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgCaseAnswerDto;Lgov/cdc/nedss/phdc/cda/POCDMT000040Encounter;Ljava/lang/String;Ljava/lang/String;Lgov/cdc/dataingestion/nbs/ecr/model/interview/InterviewObs;)Lgov/cdc/dataingestion/nbs/ecr/model/interview/InterviewObs;
+java.lang.String#equals(Ljava/lang/Object;)Z
+java.lang.String#isEmpty()Z
+==
+setCode gov.cdc.nedss.phdc.cda.CD#setCode(Ljava/lang/String;)V
+setDisplayName gov.cdc.nedss.phdc.cda.CD#setDisplayName(Ljava/lang/String;)V
+setCodeSystemName gov.cdc.nedss.phdc.cda.CD#setCodeSystemName(Ljava/lang/String;)V
+setCounter gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewObs#setCounter(I)V
+getObservation gov.cdc.nedss.phdc.cda.POCDMT000040EntryRelationship#getObservation()Lgov/cdc/nedss/phdc/cda/POCDMT000040Observation;
+getQuestionSeq gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewObs#getQuestionSeq()Ljava/lang/String;
+getCode gov.cdc.nedss.phdc.cda.POCDMT000040Observation#getCode()Lgov/cdc/nedss/phdc/cda/CD;
+setQuestionSeq gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewObs#setQuestionSeq(Ljava/lang/String;)V
+setClassCode gov.cdc.nedss.phdc.cda.POCDMT000040Observation#setClassCode(Ljava/lang/String;)V
+getQuesCodeSystemCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerDto#getQuesCodeSystemCd()Ljava/lang/String;
+setMoodCode gov.cdc.nedss.phdc.cda.POCDMT000040Observation#setMoodCode(Lgov/cdc/nedss/phdc/cda/XActMoodDocumentObservation$Enum;)V
+getQuestionIdentifier gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerDto#getQuestionIdentifier()Ljava/lang/String;
+getEntryRelationshipArray gov.cdc.nedss.phdc.cda.POCDMT000040Encounter#getEntryRelationshipArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040EntryRelationship;
+setOut gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewObs#setOut(Lgov/cdc/nedss/phdc/cda/POCDMT000040Encounter;)V
+getCounter gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewObs#getCounter()I
+setCodeSystem gov.cdc.nedss.phdc.cda.CD#setCodeSystem(Ljava/lang/String;)V
+getQuesDisplayTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerDto#getQuesDisplayTxt()Ljava/lang/String;
+getQuesCodeSystemDescTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerDto#getQuesCodeSystemDescTxt()Ljava/lang/String;

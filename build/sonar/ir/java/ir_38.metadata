@@ -1,0 +1,6 @@
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetTmStringList([Lca/uhn/hl7v2/model/v251/datatype/TM;)Ljava/util/ArrayList;
+java.util.ArrayList#<init>()V
+java.util.ArrayList#instance-init#
+==
+add java.util.ArrayList#add(Ljava/lang/Object;)Z
+getValue ca.uhn.hl7v2.model.primitive.TM#getValue()Ljava/lang/String;

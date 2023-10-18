@@ -1,0 +1,4 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7PIV1Type(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/patient/visit/PatientVisit;)Z
+org.apache.commons.lang3.StringUtils#isEmpty(Ljava/lang/CharSequence;)Z
+==
+getSetIdPv1 gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit.PatientVisit#getSetIdPv1()Ljava/lang/String;

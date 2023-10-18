@@ -1,0 +1,6 @@
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetDtStringList([Lca/uhn/hl7v2/model/v251/datatype/DT;)Ljava/util/ArrayList;
+java.util.ArrayList#<init>()V
+java.util.ArrayList#instance-init#
+==
+add java.util.ArrayList#add(Ljava/lang/Object;)Z
+getValue ca.uhn.hl7v2.model.primitive.DT#getValue()Ljava/lang/String;

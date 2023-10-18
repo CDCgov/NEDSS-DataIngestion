@@ -1,0 +1,18 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#mapToCEAnswerType(Ljava/lang/String;Ljava/lang/String;)Lgov/cdc/nedss/phdc/cda/CE;
+gov.cdc.nedss.phdc.cda.CD$Factory#newInstance()Lgov/cdc/nedss/phdc/cda/CD;
+gov.cdc.nedss.phdc.cda.CE$Factory#newInstance()Lgov/cdc/nedss/phdc/cda/CE;
+==
+setCode gov.cdc.nedss.phdc.cda.CD#setCode(Ljava/lang/String;)V
+setDisplayName gov.cdc.nedss.phdc.cda.CD#setDisplayName(Ljava/lang/String;)V
+setCodeSystemName gov.cdc.nedss.phdc.cda.CD#setCodeSystemName(Ljava/lang/String;)V
+mapToCodedAnswer gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#mapToCodedAnswer(Ljava/lang/String;Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/repository/model/dao/lookup/PhdcAnswerDao;
+getTransCode gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#getTransCode()Ljava/lang/String;
+setTranslationArray gov.cdc.nedss.phdc.cda.CD#setTranslationArray([Lgov/cdc/nedss/phdc/cda/CD;)V
+getCodeSystem gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#getCodeSystem()Ljava/lang/String;
+getCode gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#getCode()Ljava/lang/String;
+getTransCodeSystem gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#getTransCodeSystem()Ljava/lang/String;
+getCodeSystemName gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#getCodeSystemName()Ljava/lang/String;
+getTransCodeSystemName gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#getTransCodeSystemName()Ljava/lang/String;
+getTransDisplayName gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#getTransDisplayName()Ljava/lang/String;
+getDisplayName gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#getDisplayName()Ljava/lang/String;
+setCodeSystem gov.cdc.nedss.phdc.cda.CD#setCodeSystem(Ljava/lang/String;)V

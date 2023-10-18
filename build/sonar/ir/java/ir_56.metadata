@@ -1,0 +1,3 @@
+gov.cdc.dataingestion.hl7.helper.HL7Helper#convert231To251(Ljava/lang/String;)Lgov/cdc/dataingestion/hl7/helper/model/HL7ParsedMessage;
+==
+convert231To251 gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser#convert231To251(Ljava/lang/String;Lgov/cdc/dataingestion/hl7/helper/model/HL7ParsedMessage;)Lgov/cdc/dataingestion/hl7/helper/model/HL7ParsedMessage;

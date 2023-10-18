@@ -1,0 +1,40 @@
+
+M__sonar_lambda_27$gov.cdc.dataingestion.security.service.ClientDetailsServiceü
+î/Users/DucNguyen/Desktop/CDC_Repos/NEDSS-DataIngestion/report-service/src/main/java/gov/cdc/dataingestion/security/service/ClientDetailsService.java (d"startingBlock*Õ
+startingBlock (d¨
+©
+
+__unknown_file (
+usernamejava.lang.String"__id*i
+
+__unknown_file (M*K=
+;gov.cdc.dataingestion.security.service.ClientDetailsService"
+
+username*
+1*¥
+1A (XÅ
+
+A (c
+%4java.lang.String"__concat*%
+A (X
+Client Id not found: **
+[ (c
+
+usernamejava.lang.String•¢
+' (@M
+%5Gorg.springframework.security.core.userdetails.UsernameNotFoundException"Gorg.springframework.security.core.userdetails.UsernameNotFoundExceptionõ
+ò
+# (d
+%6"corg.springframework.security.core.userdetails.UsernameNotFoundException#<init>(Ljava/lang/String;)V*k
+
+__unknown_file (O
+M
+%5Gorg.springframework.security.core.userdetails.UsernameNotFoundException*4
+
+__unknown_file (
+
+%4java.lang.String"[
+# (dO
+M
+%5Gorg.springframework.security.core.userdetails.UsernameNotFoundExceptionB
+java.util.function.Supplier

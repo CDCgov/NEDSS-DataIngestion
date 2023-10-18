@@ -1,0 +1,24 @@
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapSoftwareSegment(Ljava/util/List;)Ljava/util/List;
+java.util.ArrayList#<init>()V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment#<init>()V
+java.util.ArrayList#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon#<init>()V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#<init>()V
+==
+add java.util.List#add(Ljava/lang/Object;)Z
+setOrganizationName gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon#setOrganizationName(Ljava/lang/String;)V
+setUniversalId gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#setUniversalId(Ljava/lang/String;)V
+isEmpty java.util.List#isEmpty()Z
+setAssignAuthority gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon#setAssignAuthority(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;)V
+setUniversalIdType gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#setUniversalIdType(Ljava/lang/String;)V
+setSoftwareProductName gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment#setSoftwareProductName(Ljava/lang/String;)V
+setOrganizationNameTypeCode gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon#setOrganizationNameTypeCode(Ljava/lang/String;)V
+setSoftwareBinaryId gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment#setSoftwareBinaryId(Ljava/lang/String;)V
+setSoftwareCertifiedVersionOrReleaseNumber gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment#setSoftwareCertifiedVersionOrReleaseNumber(Ljava/lang/String;)V
+setOrganizationIdentifier gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon#setOrganizationIdentifier(Ljava/lang/String;)V
+setSoftwareVendorOrganization gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment#setSoftwareVendorOrganization(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xon;)V
+setIdentifierTypeCode gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon#setIdentifierTypeCode(Ljava/lang/String;)V
+set java.util.List#set(ILjava/lang/Object;)Ljava/lang/Object;

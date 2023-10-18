@@ -1,0 +1,4 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7XCNType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xcn;)Z
+org.apache.commons.lang3.StringUtils#isEmpty(Ljava/lang/CharSequence;)Z
+==
+getIdNumber gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#getIdNumber()Ljava/lang/String;

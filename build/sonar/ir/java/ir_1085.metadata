@@ -1,0 +1,17 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaOrgMappingHelper#mapToOrganizationTopFieldMap(Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;ILgov/cdc/dataingestion/nbs/repository/model/dao/EcrSelectedRecord;I)V
+==
+setCode gov.cdc.nedss.phdc.cda.CD#setCode(Ljava/lang/String;)V
+setDisplayName gov.cdc.nedss.phdc.cda.CD#setDisplayName(Ljava/lang/String;)V
+setCodeSystemName gov.cdc.nedss.phdc.cda.CD#setCodeSystemName(Ljava/lang/String;)V
+get java.util.List#get(I)Ljava/lang/Object;
+getEntryArray gov.cdc.nedss.phdc.cda.POCDMT000040Section#getEntryArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040Entry;
+getCode gov.cdc.nedss.phdc.cda.POCDMT000040Act#getCode()Lgov/cdc/nedss/phdc/cda/CD;
+mapOrgPlaceDocCommonField gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper#mapOrgPlaceDocCommonField(Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;I)Lgov/cdc/dataingestion/nbs/ecr/model/shares/OrgPlaceDocCommonField;
+getMsgOrganizations gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord#getMsgOrganizations()Ljava/util/List;
+getPerformerSectionCounter gov.cdc.dataingestion.nbs.ecr.model.shares.OrgPlaceDocCommonField#getPerformerSectionCounter()I
+getOut gov.cdc.dataingestion.nbs.ecr.model.shares.OrgPlaceDocCommonField#getOut()Lgov/cdc/nedss/phdc/cda/POCDMT000040Participant2;
+getAct gov.cdc.nedss.phdc.cda.POCDMT000040Entry#getAct()Lgov/cdc/nedss/phdc/cda/POCDMT000040Act;
+getClinicalDocument gov.cdc.dataingestion.nbs.ecr.model.shares.OrgPlaceDocCommonField#getClinicalDocument()Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;
+mapOrgPlaceProviderActCommonField gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper#mapOrgPlaceProviderActCommonField(Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;ILgov/cdc/nedss/phdc/cda/POCDMT000040Participant2;)Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;
+mapToORG gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper#mapToORG(Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgOrganizationDto;Lgov/cdc/nedss/phdc/cda/POCDMT000040Participant2;)Lgov/cdc/nedss/phdc/cda/POCDMT000040Participant2;
+setCodeSystem gov.cdc.nedss.phdc.cda.CD#setCodeSystem(Ljava/lang/String;)V

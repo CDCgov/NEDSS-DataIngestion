@@ -1,0 +1,20 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ndl#<init>(Lca/uhn/hl7v2/model/v251/datatype/NDL;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#<init>(Lca/uhn/hl7v2/model/v251/datatype/HD;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#<init>(Lca/uhn/hl7v2/model/v251/datatype/TS;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cnn#<init>(Lca/uhn/hl7v2/model/v251/datatype/CNN;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cnn#instance-init#
+==
+getPointOfCare ca.uhn.hl7v2.model.v251.datatype.NDL#getPointOfCare()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getLocationStatus ca.uhn.hl7v2.model.v251.datatype.NDL#getLocationStatus()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getFloor ca.uhn.hl7v2.model.v251.datatype.NDL#getFloor()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getEndDateTime ca.uhn.hl7v2.model.v251.datatype.NDL#getEndDateTime()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getStartDateTime ca.uhn.hl7v2.model.v251.datatype.NDL#getStartDateTime()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getFacility ca.uhn.hl7v2.model.v251.datatype.NDL#getFacility()Lca/uhn/hl7v2/model/v251/datatype/HD;
+getBed ca.uhn.hl7v2.model.v251.datatype.NDL#getBed()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getPatientLocationType ca.uhn.hl7v2.model.v251.datatype.NDL#getPatientLocationType()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getNDLName ca.uhn.hl7v2.model.v251.datatype.NDL#getNDLName()Lca/uhn/hl7v2/model/v251/datatype/CNN;
+getRoom ca.uhn.hl7v2.model.v251.datatype.NDL#getRoom()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getBuilding ca.uhn.hl7v2.model.v251.datatype.NDL#getBuilding()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;

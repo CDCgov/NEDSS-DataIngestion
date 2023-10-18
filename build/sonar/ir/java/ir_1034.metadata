@@ -1,0 +1,12 @@
+gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService#sendMessageFromCSVController(Ljava/util/List;Ljava/lang/String;Ljava/lang/String;)V
+java.util.UUID#randomUUID()Ljava/util/UUID;
+com.google.gson.Gson#<init>()V
+com.google.gson.Gson#instance-init#
+org.apache.kafka.clients.producer.ProducerRecord#<init>(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService#sendMessage(Lorg/apache/kafka/clients/producer/ProducerRecord;)V
+com.google.gson.Gson#toJson(Ljava/lang/Object;)Ljava/lang/String;
+org.apache.kafka.clients.producer.ProducerRecord#instance-init#
+java.lang.String#getBytes()[B
+==
+headers org.apache.kafka.clients.producer.ProducerRecord#headers()Lorg/apache/kafka/common/header/Headers;
+add org.apache.kafka.common.header.Headers#add(Ljava/lang/String;[B)Lorg/apache/kafka/common/header/Headers;

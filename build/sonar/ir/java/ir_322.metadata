@@ -1,0 +1,8 @@
+gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService#getDltRecordById(Ljava/lang/String;)Lgov/cdc/dataingestion/deadletter/model/ElrDeadLetterDto;
+java.util.Optional#isPresent()Z
+gov.cdc.dataingestion.exception.DeadLetterTopicException#instance-init#
+gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService#convertModelToDto(Lgov/cdc/dataingestion/deadletter/repository/model/ElrDeadLetterModel;)Lgov/cdc/dataingestion/deadletter/model/ElrDeadLetterDto;
+java.util.Optional#get()Ljava/lang/Object;
+gov.cdc.dataingestion.exception.DeadLetterTopicException#<init>(Ljava/lang/String;)V
+==
+findById org.springframework.data.repository.CrudRepository#findById(Ljava/lang/Object;)Ljava/util/Optional;

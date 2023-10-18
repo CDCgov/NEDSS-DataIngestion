@@ -1,0 +1,55 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#<init>(Lca/uhn/hl7v2/model/v251/segment/FT1;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Dr#<init>(Lca/uhn/hl7v2/model/v251/datatype/DR;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#<init>(Lca/uhn/hl7v2/model/v251/datatype/CE;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ei#<init>(Lca/uhn/hl7v2/model/v251/datatype/EI;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cwe#instance-init#
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetCeList([Lca/uhn/hl7v2/model/v251/datatype/CE;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cx#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pl#instance-init#
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetXcnList([Lca/uhn/hl7v2/model/v251/datatype/XCN;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Dr#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cwe#<init>(Lca/uhn/hl7v2/model/v251/datatype/CWE;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cp#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cp#<init>(Lca/uhn/hl7v2/model/v251/datatype/CP;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cne#<init>(Lca/uhn/hl7v2/model/v251/datatype/CNE;)V
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetSiStringList([Lca/uhn/hl7v2/model/v251/datatype/SI;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cne#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#<init>(Lca/uhn/hl7v2/model/v251/datatype/TS;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cx#<init>(Lca/uhn/hl7v2/model/v251/datatype/CX;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pl#<init>(Lca/uhn/hl7v2/model/v251/datatype/PL;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ei#instance-init#
+==
+getTransactionDate ca.uhn.hl7v2.model.v251.segment.FT1#getTransactionDate()Lca/uhn/hl7v2/model/v251/datatype/DR;
+getEnteredByCode ca.uhn.hl7v2.model.v251.segment.FT1#getEnteredByCode()[Lca/uhn/hl7v2/model/v251/datatype/XCN;
+getInsurancePlanID ca.uhn.hl7v2.model.v251.segment.FT1#getInsurancePlanID()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getTransactionAmountExtended ca.uhn.hl7v2.model.v251.segment.FT1#getTransactionAmountExtended()Lca/uhn/hl7v2/model/v251/datatype/CP;
+getTransactionDescription ca.uhn.hl7v2.model.v251.segment.FT1#getTransactionDescription()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getInsuranceAmount ca.uhn.hl7v2.model.v251.segment.FT1#getInsuranceAmount()Lca/uhn/hl7v2/model/v251/datatype/CP;
+getPerformedByCode ca.uhn.hl7v2.model.v251.segment.FT1#getPerformedByCode()[Lca/uhn/hl7v2/model/v251/datatype/XCN;
+getFillerOrderNumber ca.uhn.hl7v2.model.v251.segment.FT1#getFillerOrderNumber()Lca/uhn/hl7v2/model/v251/datatype/EI;
+getTransactionType ca.uhn.hl7v2.model.v251.segment.FT1#getTransactionType()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getAssignedPatientLocation ca.uhn.hl7v2.model.v251.segment.FT1#getAssignedPatientLocation()Lca/uhn/hl7v2/model/v251/datatype/PL;
+getTransactionBatchID ca.uhn.hl7v2.model.v251.segment.FT1#getTransactionBatchID()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getDepartmentCode ca.uhn.hl7v2.model.v251.segment.FT1#getDepartmentCode()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getProcedureCodeModifier ca.uhn.hl7v2.model.v251.segment.FT1#getProcedureCodeModifier()[Lca/uhn/hl7v2/model/v251/datatype/CE;
+getTransactionReferenceKey ca.uhn.hl7v2.model.v251.segment.FT1#getTransactionReferenceKey()[Lca/uhn/hl7v2/model/v251/datatype/SI;
+getTransactionCode ca.uhn.hl7v2.model.v251.segment.FT1#getTransactionCode()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getNDCCode ca.uhn.hl7v2.model.v251.segment.FT1#getNDCCode()Lca/uhn/hl7v2/model/v251/datatype/CNE;
+getTransactionAmountUnit ca.uhn.hl7v2.model.v251.segment.FT1#getTransactionAmountUnit()Lca/uhn/hl7v2/model/v251/datatype/CP;
+getDiagnosisCodeFT1 ca.uhn.hl7v2.model.v251.segment.FT1#getDiagnosisCodeFT1()[Lca/uhn/hl7v2/model/v251/datatype/CE;
+getProcedureCode ca.uhn.hl7v2.model.v251.segment.FT1#getProcedureCode()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getAdvancedBeneficiaryNoticeCode ca.uhn.hl7v2.model.v251.segment.FT1#getAdvancedBeneficiaryNoticeCode()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getMedicallyNecessaryDuplicateProcedureReason ca.uhn.hl7v2.model.v251.segment.FT1#getMedicallyNecessaryDuplicateProcedureReason()Lca/uhn/hl7v2/model/v251/datatype/CWE;
+getSetIDFT1 ca.uhn.hl7v2.model.v251.segment.FT1#getSetIDFT1()Lca/uhn/hl7v2/model/v251/datatype/SI;
+getOrderedByCode ca.uhn.hl7v2.model.v251.segment.FT1#getOrderedByCode()[Lca/uhn/hl7v2/model/v251/datatype/XCN;
+getUnitCost ca.uhn.hl7v2.model.v251.segment.FT1#getUnitCost()Lca/uhn/hl7v2/model/v251/datatype/CP;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
+getTransactionID ca.uhn.hl7v2.model.v251.segment.FT1#getTransactionID()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getPatientType ca.uhn.hl7v2.model.v251.segment.FT1#getPatientType()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getTransactionPostingDate ca.uhn.hl7v2.model.v251.segment.FT1#getTransactionPostingDate()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getFeeSchedule ca.uhn.hl7v2.model.v251.segment.FT1#getFeeSchedule()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getTransactionDescriptionAlt ca.uhn.hl7v2.model.v251.segment.FT1#getTransactionDescriptionAlt()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getPaymentReferenceID ca.uhn.hl7v2.model.v251.segment.FT1#getPaymentReferenceID()Lca/uhn/hl7v2/model/v251/datatype/CX;
+getTransactionQuantity ca.uhn.hl7v2.model.v251.segment.FT1#getTransactionQuantity()Lca/uhn/hl7v2/model/v251/datatype/NM;

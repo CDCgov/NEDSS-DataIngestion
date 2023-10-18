@@ -1,0 +1,2 @@
+gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService#handleMessageForXmlConversionElr(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService#xmlConversionHandler(Ljava/lang/String;Ljava/lang/String;)V

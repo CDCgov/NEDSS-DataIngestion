@@ -1,0 +1,75 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7FT1Type(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/FinancialTransaction;)Lgov/cdc/dataingestion/nbs/jaxb/HL7FT1Type;
+gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#instance-init#
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7CEType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;)Lgov/cdc/dataingestion/nbs/jaxb/HL7CEType;
+gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#<init>()V
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7PLType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Pl;)Lgov/cdc/dataingestion/nbs/jaxb/HL7PLType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7XCNType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xcn;)Lgov/cdc/dataingestion/nbs/jaxb/HL7XCNType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7CEType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;)Z
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7CXType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cx;)Lgov/cdc/dataingestion/nbs/jaxb/HL7CXType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7SIType(Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/jaxb/HL7SIType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7DRType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Dr;)Lgov/cdc/dataingestion/nbs/jaxb/HL7DRType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7TSType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;)Lgov/cdc/dataingestion/nbs/jaxb/HL7TSType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHl7NMType(Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/jaxb/HL7NMType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7CWEType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cwe;)Z
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildEmptyValue(Ljava/lang/String;)Ljava/lang/String;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7CPType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cp;)Lgov/cdc/dataingestion/nbs/jaxb/HL7CPType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7CNEType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cne;)Lgov/cdc/dataingestion/nbs/jaxb/HL7CNEType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7CWEType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cwe;)Lgov/cdc/dataingestion/nbs/jaxb/HL7CWEType;
+==
+getProcedureCodeModifier gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#getProcedureCodeModifier()Ljava/util/List;
+setTransactionCode gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setTransactionCode(Lgov/cdc/dataingestion/nbs/jaxb/HL7CEType;)V
+getPaymentReferenceId gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getPaymentReferenceId()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cx;
+setPaymentReferenceID gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setPaymentReferenceID(Lgov/cdc/dataingestion/nbs/jaxb/HL7CXType;)V
+setNDCCode gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setNDCCode(Lgov/cdc/dataingestion/nbs/jaxb/HL7CNEType;)V
+setTransactionDate gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setTransactionDate(Lgov/cdc/dataingestion/nbs/jaxb/HL7DRType;)V
+setDepartmentCode gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setDepartmentCode(Lgov/cdc/dataingestion/nbs/jaxb/HL7CEType;)V
+getNdcCode gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getNdcCode()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cne;
+getTransactionDescription gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getTransactionDescription()Ljava/lang/String;
+getPerformedByCode gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getPerformedByCode()Ljava/util/List;
+getAdvancedBeneficiaryNoticeCode gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getAdvancedBeneficiaryNoticeCode()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;
+getSetIdFT1 gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getSetIdFT1()Ljava/lang/String;
+getProcedureCodeModifier gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getProcedureCodeModifier()Ljava/util/List;
+setAdvancedBeneficiaryNoticeCode gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setAdvancedBeneficiaryNoticeCode(Lgov/cdc/dataingestion/nbs/jaxb/HL7CEType;)V
+setProcedureCode gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setProcedureCode(Lgov/cdc/dataingestion/nbs/jaxb/HL7CEType;)V
+getTransactionCode gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getTransactionCode()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;
+getFeeSchedule gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getFeeSchedule()Ljava/lang/String;
+getTransactionPostingDate gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getTransactionPostingDate()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;
+getTransactionReferenceKey gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getTransactionReferenceKey()Ljava/util/List;
+getTransactionDescriptionAlter gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getTransactionDescriptionAlter()Ljava/lang/String;
+getPatientType gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getPatientType()Ljava/lang/String;
+getInsuranceAmount gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getInsuranceAmount()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cp;
+getTransactionQuantity gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getTransactionQuantity()Ljava/lang/String;
+setInsurancePlanID gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setInsurancePlanID(Lgov/cdc/dataingestion/nbs/jaxb/HL7CEType;)V
+getTransactionDate gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getTransactionDate()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Dr;
+getDiagnosisCodeFT1 gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#getDiagnosisCodeFT1()Ljava/util/List;
+getDiagnosisCode gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getDiagnosisCode()Ljava/util/List;
+getMedicallyNecessaryDuplicateProcedureReason gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getMedicallyNecessaryDuplicateProcedureReason()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cwe;
+getTransactionId gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getTransactionId()Ljava/lang/String;
+getAssignedPatientLocation gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getAssignedPatientLocation()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Pl;
+add java.util.List#add(Ljava/lang/Object;)Z
+setMedicallyNecessaryDuplicateProcedureReason gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setMedicallyNecessaryDuplicateProcedureReason(Lgov/cdc/dataingestion/nbs/jaxb/HL7CWEType;)V
+setTransactionID gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setTransactionID(Ljava/lang/String;)V
+setTransactionBatchID gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setTransactionBatchID(Ljava/lang/String;)V
+getTransactionType gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getTransactionType()Ljava/lang/String;
+setPatientType gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setPatientType(Ljava/lang/String;)V
+getInsurancePlanId gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getInsurancePlanId()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;
+setAssignedPatientLocation gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setAssignedPatientLocation(Lgov/cdc/dataingestion/nbs/jaxb/HL7PLType;)V
+setTransactionQuantity gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setTransactionQuantity(Lgov/cdc/dataingestion/nbs/jaxb/HL7NMType;)V
+getTransactionReferenceKey gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#getTransactionReferenceKey()Ljava/util/List;
+getProcedureCode gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getProcedureCode()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;
+setInsuranceAmount gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setInsuranceAmount(Lgov/cdc/dataingestion/nbs/jaxb/HL7CPType;)V
+getOrderedByCode gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#getOrderedByCode()Ljava/util/List;
+setTransactionPostingDate gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setTransactionPostingDate(Lgov/cdc/dataingestion/nbs/jaxb/HL7TSType;)V
+getOrderedByCode gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getOrderedByCode()Ljava/util/List;
+setTransactionAmountExtended gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setTransactionAmountExtended(Lgov/cdc/dataingestion/nbs/jaxb/HL7CPType;)V
+getTransactionBatchId gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getTransactionBatchId()Ljava/lang/String;
+getPerformedByCode gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#getPerformedByCode()Ljava/util/List;
+setSetIDFT1 gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setSetIDFT1(Lgov/cdc/dataingestion/nbs/jaxb/HL7SIType;)V
+getTransactionAmountUnit gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getTransactionAmountUnit()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cp;
+setTransactionType gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setTransactionType(Ljava/lang/String;)V
+setTransactionDescription gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setTransactionDescription(Ljava/lang/String;)V
+setFeeSchedule gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setFeeSchedule(Ljava/lang/String;)V
+getDepartmentCode gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getDepartmentCode()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;
+getTransactionAmountExt gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#getTransactionAmountExt()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cp;
+setTransactionDescriptionAlt gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setTransactionDescriptionAlt(Ljava/lang/String;)V
+setTransactionAmountUnit gov.cdc.dataingestion.nbs.jaxb.HL7FT1Type#setTransactionAmountUnit(Lgov/cdc/dataingestion/nbs/jaxb/HL7CPType;)V

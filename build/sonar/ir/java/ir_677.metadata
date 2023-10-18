@@ -1,0 +1,11 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#mapToORGFieldCheckP1CliaNbr(Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgOrganizationDto;Lgov/cdc/nedss/phdc/cda/POCDMT000040Participant2;)V
+java.lang.String#isEmpty()Z
+==
+getIdArray gov.cdc.nedss.phdc.cda.POCDMT000040ParticipantRole#getIdArray(I)Lgov/cdc/nedss/phdc/cda/II;
+setExtension gov.cdc.nedss.phdc.cda.II#setExtension(Ljava/lang/String;)V
+addNewParticipantRole gov.cdc.nedss.phdc.cda.POCDMT000040Participant2#addNewParticipantRole()Lgov/cdc/nedss/phdc/cda/POCDMT000040ParticipantRole;
+getParticipantRole gov.cdc.nedss.phdc.cda.POCDMT000040Participant2#getParticipantRole()Lgov/cdc/nedss/phdc/cda/POCDMT000040ParticipantRole;
+addNewId gov.cdc.nedss.phdc.cda.POCDMT000040ParticipantRole#addNewId()Lgov/cdc/nedss/phdc/cda/II;
+setAssigningAuthorityName gov.cdc.nedss.phdc.cda.II#setAssigningAuthorityName(Ljava/lang/String;)V
+getOrgIdCliaNbrTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#getOrgIdCliaNbrTxt()Ljava/lang/String;
+setRoot gov.cdc.nedss.phdc.cda.II#setRoot(Ljava/lang/String;)V

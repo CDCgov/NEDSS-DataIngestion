@@ -1,0 +1,7 @@
+gov.cdc.dataingestion.security.model.SecurityUser#getAuthorities()Ljava/util/Collection;
+java.lang.String#split(Ljava/lang/String;)[Ljava/lang/String;
+java.util.Arrays#stream([Ljava/lang/Object;)Ljava/util/stream/Stream;
+==
+getRoles gov.cdc.dataingestion.security.model.Client#getRoles()Ljava/lang/String;
+map java.util.stream.Stream#map(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+toList java.util.stream.Stream#toList()Ljava/util/List;

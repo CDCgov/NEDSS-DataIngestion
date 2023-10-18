@@ -1,0 +1,24 @@
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapCxWithNullToCx(Lca/uhn/hl7v2/model/v231/datatype/CX;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cx;Ljava/lang/String;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cx;
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapHd231(Lca/uhn/hl7v2/model/v231/datatype/HD;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;
+java.lang.String#isEmpty()Z
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapAssignedFacility(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;
+==
+getAssignAuthority gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cx#getAssignAuthority()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;
+setCheckDigitScheme gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cx#setCheckDigitScheme(Ljava/lang/String;)V
+setUniversalId gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#setUniversalId(Ljava/lang/String;)V
+getUniversalID ca.uhn.hl7v2.model.v231.datatype.HD#getUniversalID()Lca/uhn/hl7v2/model/v231/datatype/ST;
+setCheckDigit gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cx#setCheckDigit(Ljava/lang/String;)V
+getNamespaceID ca.uhn.hl7v2.model.v231.datatype.HD#getNamespaceID()Lca/uhn/hl7v2/model/v231/datatype/IS;
+getAssignFacility gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cx#getAssignFacility()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;
+setAssignFacility gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cx#setAssignFacility(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;)V
+getID ca.uhn.hl7v2.model.v231.datatype.CX#getID()Lca/uhn/hl7v2/model/v231/datatype/ST;
+setUniversalIdType gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#setUniversalIdType(Ljava/lang/String;)V
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
+getCodeIdentifyingTheCheckDigitSchemeEmployed ca.uhn.hl7v2.model.v231.datatype.CX#getCodeIdentifyingTheCheckDigitSchemeEmployed()Lca/uhn/hl7v2/model/v231/datatype/ID;
+getAssigningFacility ca.uhn.hl7v2.model.v231.datatype.CX#getAssigningFacility()Lca/uhn/hl7v2/model/v231/datatype/HD;
+setIdNumber gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cx#setIdNumber(Ljava/lang/String;)V
+setNameSpaceId gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#setNameSpaceId(Ljava/lang/String;)V
+getUniversalIDType ca.uhn.hl7v2.model.v231.datatype.HD#getUniversalIDType()Lca/uhn/hl7v2/model/v231/datatype/ID;
+getCheckDigit ca.uhn.hl7v2.model.v231.datatype.CX#getCheckDigit()Lca/uhn/hl7v2/model/v231/datatype/ST;
+getAssigningAuthority ca.uhn.hl7v2.model.v231.datatype.CX#getAssigningAuthority()Lca/uhn/hl7v2/model/v231/datatype/HD;
+setIdentifierTypeCode gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cx#setIdentifierTypeCode(Ljava/lang/String;)V

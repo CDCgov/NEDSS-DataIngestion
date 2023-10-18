@@ -1,0 +1,7 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Fc#<init>(Lca/uhn/hl7v2/model/v251/datatype/FC;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#<init>(Lca/uhn/hl7v2/model/v251/datatype/TS;)V
+==
+getFinancialClassCode ca.uhn.hl7v2.model.v251.datatype.FC#getFinancialClassCode()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getEffectiveDate ca.uhn.hl7v2.model.v251.datatype.FC#getEffectiveDate()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;

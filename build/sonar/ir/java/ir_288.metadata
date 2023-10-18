@@ -1,0 +1,12 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cwe#<init>(Lca/uhn/hl7v2/model/v251/datatype/CWE;)V
+==
+getIdentifier ca.uhn.hl7v2.model.v251.datatype.CWE#getIdentifier()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getAlternateText ca.uhn.hl7v2.model.v251.datatype.CWE#getAlternateText()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getNameOfAlternateCodingSystem ca.uhn.hl7v2.model.v251.datatype.CWE#getNameOfAlternateCodingSystem()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getText ca.uhn.hl7v2.model.v251.datatype.CWE#getText()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getOriginalText ca.uhn.hl7v2.model.v251.datatype.CWE#getOriginalText()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getAlternateIdentifier ca.uhn.hl7v2.model.v251.datatype.CWE#getAlternateIdentifier()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getAlternateCodingSystemVersionID ca.uhn.hl7v2.model.v251.datatype.CWE#getAlternateCodingSystemVersionID()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getNameOfCodingSystem ca.uhn.hl7v2.model.v251.datatype.CWE#getNameOfCodingSystem()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getCodingSystemVersionID ca.uhn.hl7v2.model.v251.datatype.CWE#getCodingSystemVersionID()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;

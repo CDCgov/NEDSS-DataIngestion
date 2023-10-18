@@ -1,0 +1,6 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Sad#<init>(Lca/uhn/hl7v2/model/v251/datatype/SAD;)V
+==
+getStreetName ca.uhn.hl7v2.model.v251.datatype.SAD#getStreetName()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getDwellingNumber ca.uhn.hl7v2.model.v251.datatype.SAD#getDwellingNumber()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getStreetOrMailingAddress ca.uhn.hl7v2.model.v251.datatype.SAD#getStreetOrMailingAddress()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;

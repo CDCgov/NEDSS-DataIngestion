@@ -1,0 +1,10 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7MOCType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Moc;)Lgov/cdc/dataingestion/nbs/jaxb/HL7MOCType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7MOType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Mo;)Lgov/cdc/dataingestion/nbs/jaxb/HL7MOType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7CEType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;)Lgov/cdc/dataingestion/nbs/jaxb/HL7CEType;
+gov.cdc.dataingestion.nbs.jaxb.HL7MOCType#instance-init#
+gov.cdc.dataingestion.nbs.jaxb.HL7MOCType#<init>()V
+==
+getMonetaryAmount gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Moc#getMonetaryAmount()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Mo;
+setHL7ChargeCode gov.cdc.dataingestion.nbs.jaxb.HL7MOCType#setHL7ChargeCode(Lgov/cdc/dataingestion/nbs/jaxb/HL7CEType;)V
+setHL7MonetaryAmount gov.cdc.dataingestion.nbs.jaxb.HL7MOCType#setHL7MonetaryAmount(Lgov/cdc/dataingestion/nbs/jaxb/HL7MOType;)V
+getChargeCode gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Moc#getChargeCode()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;

@@ -1,0 +1,4 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7DLNType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Dln;)Z
+org.apache.commons.lang3.StringUtils#isEmpty(Ljava/lang/CharSequence;)Z
+==
+getLicenseNumber gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Dln#getLicenseNumber()Ljava/lang/String;

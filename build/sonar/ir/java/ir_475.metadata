@@ -1,0 +1,16 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHl7FNType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Fn;)Lgov/cdc/dataingestion/nbs/jaxb/HL7FNType;
+gov.cdc.dataingestion.nbs.jaxb.HL7FNType#instance-init#
+gov.cdc.dataingestion.nbs.jaxb.HL7FNType#<init>()V
+org.apache.commons.lang3.StringUtils#isNotEmpty(Ljava/lang/CharSequence;)Z
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildEmptyValue(Ljava/lang/String;)Ljava/lang/String;
+==
+setHL7SurnamePrefixFromPartnerSpouse gov.cdc.dataingestion.nbs.jaxb.HL7FNType#setHL7SurnamePrefixFromPartnerSpouse(Ljava/lang/String;)V
+setHL7OwnSurnamePrefix gov.cdc.dataingestion.nbs.jaxb.HL7FNType#setHL7OwnSurnamePrefix(Ljava/lang/String;)V
+getSurnamePrefixFromPartner gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Fn#getSurnamePrefixFromPartner()Ljava/lang/String;
+getOwnSurname gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Fn#getOwnSurname()Ljava/lang/String;
+setHL7OwnSurname gov.cdc.dataingestion.nbs.jaxb.HL7FNType#setHL7OwnSurname(Ljava/lang/String;)V
+getSurnameFromPartner gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Fn#getSurnameFromPartner()Ljava/lang/String;
+setHL7SurnameFromPartnerSpouse gov.cdc.dataingestion.nbs.jaxb.HL7FNType#setHL7SurnameFromPartnerSpouse(Ljava/lang/String;)V
+setHL7Surname gov.cdc.dataingestion.nbs.jaxb.HL7FNType#setHL7Surname(Ljava/lang/String;)V
+getOwnSurnamePrefix gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Fn#getOwnSurnamePrefix()Ljava/lang/String;
+getSurname gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Fn#getSurname()Ljava/lang/String;

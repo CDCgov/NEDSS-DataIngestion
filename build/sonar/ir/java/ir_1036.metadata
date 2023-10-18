@@ -1,0 +1,9 @@
+gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService#sendMessagePreparationTopic(Lgov/cdc/dataingestion/validation/repository/model/ValidatedELRModel;Ljava/lang/String;Lgov/cdc/dataingestion/constant/TopicPreparationType;Ljava/lang/Integer;)V
+java.util.UUID#randomUUID()Ljava/util/UUID;
+gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService#sendMessageHelper(Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+gov.cdc.dataingestion.exception.ConversionPrepareException#instance-init#
+gov.cdc.dataingestion.exception.ConversionPrepareException#<init>(Ljava/lang/String;)V
+==
+getMessageVersion gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel#getMessageVersion()Ljava/lang/String;
+getId gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel#getId()Ljava/lang/String;
+getMessageType gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel#getMessageType()Ljava/lang/String;

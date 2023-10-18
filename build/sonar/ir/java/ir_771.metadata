@@ -1,0 +1,3 @@
+gov.cdc.dataingestion.nbs.services.CdaLookUpService#fetchPhdcQuestionByCriteria(Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/repository/model/dto/lookup/PhdcQuestionLookUpDto;
+==
+fetchPhdcQuestionByCriteria gov.cdc.dataingestion.nbs.repository.model.IEcrLookUpRepository#fetchPhdcQuestionByCriteria(Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/repository/model/dto/lookup/PhdcQuestionLookUpDto;

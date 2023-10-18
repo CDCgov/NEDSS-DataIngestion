@@ -1,0 +1,9 @@
+gov.cdc.dataingestion.hl7.helper.integration.HL7Parser#getMessageFromValidationAndParserContext(Ljava/lang/String;Lca/uhn/hl7v2/HapiContext;)Lca/uhn/hl7v2/model/Message;
+ca.uhn.hl7v2.validation.impl.ValidationContextFactory#defaultValidation()Lca/uhn/hl7v2/validation/ValidationContext;
+ca.uhn.hl7v2.parser.DefaultModelClassFactory#<init>()V
+ca.uhn.hl7v2.parser.DefaultModelClassFactory#instance-init#
+==
+setValidationContext ca.uhn.hl7v2.HapiContext#setValidationContext(Lca/uhn/hl7v2/validation/ValidationContext;)V
+getPipeParser ca.uhn.hl7v2.HapiContext#getPipeParser()Lca/uhn/hl7v2/parser/PipeParser;
+setModelClassFactory ca.uhn.hl7v2.HapiContext#setModelClassFactory(Lca/uhn/hl7v2/parser/ModelClassFactory;)V
+parse ca.uhn.hl7v2.parser.PipeParser#parse(Ljava/lang/String;)Lca/uhn/hl7v2/model/Message;

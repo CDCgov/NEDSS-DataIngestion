@@ -1,0 +1,19 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#mapOrgPlaceDocCommonField(Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;I)Lgov/cdc/dataingestion/nbs/ecr/model/shares/OrgPlaceDocCommonField;
+gov.cdc.dataingestion.nbs.ecr.model.shares.OrgPlaceDocCommonField#instance-init#
+gov.cdc.dataingestion.nbs.ecr.model.shares.OrgPlaceDocCommonField#<init>()V
+==
+setCode gov.cdc.nedss.phdc.cda.CD#setCode(Ljava/lang/String;)V
+setPerformerSectionCounter gov.cdc.dataingestion.nbs.ecr.model.shares.OrgPlaceDocCommonField#setPerformerSectionCounter(I)V
+setDisplayName gov.cdc.nedss.phdc.cda.CD#setDisplayName(Ljava/lang/String;)V
+setCodeSystemName gov.cdc.nedss.phdc.cda.CD#setCodeSystemName(Ljava/lang/String;)V
+getSection gov.cdc.dataingestion.nbs.ecr.model.shares.ActParticipantArray#getSection()Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;
+setOut gov.cdc.dataingestion.nbs.ecr.model.shares.OrgPlaceDocCommonField#setOut(Lgov/cdc/nedss/phdc/cda/POCDMT000040Participant2;)V
+mapActParticipantArray gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#mapActParticipantArray(Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;)Lgov/cdc/dataingestion/nbs/ecr/model/shares/ActParticipantArray;
+getC gov.cdc.dataingestion.nbs.ecr.model.shares.ActParticipantArray#getC()I
+getCode gov.cdc.nedss.phdc.cda.POCDMT000040Section#getCode()Lgov/cdc/nedss/phdc/cda/CE;
+setClinicalDocument gov.cdc.dataingestion.nbs.ecr.model.shares.OrgPlaceDocCommonField#setClinicalDocument(Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;)V
+mapToStringData gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#mapToStringData(Ljava/lang/String;)Lorg/apache/xmlbeans/XmlObject;
+getOut gov.cdc.dataingestion.nbs.ecr.model.shares.ActParticipantArray#getOut()Lgov/cdc/nedss/phdc/cda/POCDMT000040Participant2;
+setCodeSystem gov.cdc.nedss.phdc.cda.CD#setCodeSystem(Ljava/lang/String;)V
+getTitle gov.cdc.nedss.phdc.cda.POCDMT000040Section#getTitle()Lgov/cdc/nedss/phdc/cda/ST;
+set org.apache.xmlbeans.XmlObject#set(Lorg/apache/xmlbeans/XmlObject;)Lorg/apache/xmlbeans/XmlObject;

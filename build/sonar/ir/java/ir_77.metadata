@@ -1,0 +1,8 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Moc#<init>(Lca/uhn/hl7v2/model/v251/datatype/MOC;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#<init>(Lca/uhn/hl7v2/model/v251/datatype/CE;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Mo#<init>(Lca/uhn/hl7v2/model/v251/datatype/MO;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Mo#instance-init#
+==
+getChargeCode ca.uhn.hl7v2.model.v251.datatype.MOC#getChargeCode()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getMonetaryAmount ca.uhn.hl7v2.model.v251.datatype.MOC#getMonetaryAmount()Lca/uhn/hl7v2/model/v251/datatype/MO;

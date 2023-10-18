@@ -1,0 +1,9 @@
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapHd231(Lca/uhn/hl7v2/model/v231/datatype/HD;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;
+==
+setNameSpaceId gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#setNameSpaceId(Ljava/lang/String;)V
+setUniversalId gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#setUniversalId(Ljava/lang/String;)V
+getUniversalIDType ca.uhn.hl7v2.model.v231.datatype.HD#getUniversalIDType()Lca/uhn/hl7v2/model/v231/datatype/ID;
+getUniversalID ca.uhn.hl7v2.model.v231.datatype.HD#getUniversalID()Lca/uhn/hl7v2/model/v231/datatype/ST;
+getNamespaceID ca.uhn.hl7v2.model.v231.datatype.HD#getNamespaceID()Lca/uhn/hl7v2/model/v231/datatype/IS;
+setUniversalIdType gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#setUniversalIdType(Ljava/lang/String;)V
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;

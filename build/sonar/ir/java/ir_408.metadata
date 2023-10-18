@@ -1,0 +1,32 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7OrderObservationType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageGroup/OrderObservation;)Lgov/cdc/dataingestion/nbs/jaxb/HL7OrderObservationType;
+gov.cdc.dataingestion.nbs.jaxb.HL7OrderObservationType#instance-init#
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7NTEType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/shared/NoteAndComment;)Lgov/cdc/dataingestion/nbs/jaxb/HL7NTEType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7FT1Type(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/FinancialTransaction;)Lgov/cdc/dataingestion/nbs/jaxb/HL7FT1Type;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7OBRType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/ObservationRequest;)Lgov/cdc/dataingestion/nbs/jaxb/HL7OBRType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7CTIType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/ClinicalTrialIdentification;)Lgov/cdc/dataingestion/nbs/jaxb/HL7CTIType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7PatientResultSPMType(Ljava/util/List;)Lgov/cdc/dataingestion/nbs/jaxb/HL7PatientResultSPMType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7CTDType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/ContactData;)Lgov/cdc/dataingestion/nbs/jaxb/HL7CTDType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7ORCType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/CommonOrder;)Lgov/cdc/dataingestion/nbs/jaxb/HL7ORCType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7CTDType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/ContactData;)Z
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7ORCType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/CommonOrder;)Z
+gov.cdc.dataingestion.nbs.jaxb.HL7OrderObservationType#<init>()V
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildPatientResultOrderObservation(Ljava/util/List;)Lgov/cdc/dataingestion/nbs/jaxb/PatientResultOrderObservation;
+==
+setPatientResultOrderSPMObservation gov.cdc.dataingestion.nbs.jaxb.HL7OrderObservationType#setPatientResultOrderSPMObservation(Lgov/cdc/dataingestion/nbs/jaxb/HL7PatientResultSPMType;)V
+getSpecimen gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.OrderObservation#getSpecimen()Ljava/util/List;
+setCommonOrder gov.cdc.dataingestion.nbs.jaxb.HL7OrderObservationType#setCommonOrder(Lgov/cdc/dataingestion/nbs/jaxb/HL7ORCType;)V
+getNoteAndComment gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.OrderObservation#getNoteAndComment()Ljava/util/List;
+add java.util.List#add(Ljava/lang/Object;)Z
+getClinicalTrialIdentification gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.OrderObservation#getClinicalTrialIdentification()Ljava/util/List;
+getObservationRequest gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.OrderObservation#getObservationRequest()Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/ObservationRequest;
+getFinancialTransaction gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.OrderObservation#getFinancialTransaction()Ljava/util/List;
+setObservationRequest gov.cdc.dataingestion.nbs.jaxb.HL7OrderObservationType#setObservationRequest(Lgov/cdc/dataingestion/nbs/jaxb/HL7OBRType;)V
+getClinicalTrialIdentification gov.cdc.dataingestion.nbs.jaxb.HL7OrderObservationType#getClinicalTrialIdentification()Ljava/util/List;
+setPatientResultOrderObservation gov.cdc.dataingestion.nbs.jaxb.HL7OrderObservationType#setPatientResultOrderObservation(Lgov/cdc/dataingestion/nbs/jaxb/PatientResultOrderObservation;)V
+getFinancialTransaction gov.cdc.dataingestion.nbs.jaxb.HL7OrderObservationType#getFinancialTransaction()Ljava/util/List;
+setContactData gov.cdc.dataingestion.nbs.jaxb.HL7OrderObservationType#setContactData(Lgov/cdc/dataingestion/nbs/jaxb/HL7CTDType;)V
+getCommonOrder gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.OrderObservation#getCommonOrder()Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/CommonOrder;
+getContactData gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.OrderObservation#getContactData()Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/ContactData;
+getObservation gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.OrderObservation#getObservation()Ljava/util/List;
+getNotesAndComments gov.cdc.dataingestion.nbs.jaxb.HL7OrderObservationType#getNotesAndComments()Ljava/util/List;
+size java.util.List#size()I

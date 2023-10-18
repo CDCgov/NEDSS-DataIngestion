@@ -1,0 +1,9 @@
+gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService#handleMessageForPhdcEcrTransformToCda(Ljava/lang/String;Ljava/lang/String;)V
+java.lang.Integer#toString()Ljava/lang/String;
+==
+getNbsInterfaceUid gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgContainerDto#getNbsInterfaceUid()Ljava/lang/Integer;
+getMsgContainer gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord#getMsgContainer()Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgContainerDto;
+getSelectedEcrRecord gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService#getSelectedEcrRecord()Lgov/cdc/dataingestion/nbs/repository/model/dao/EcrSelectedRecord;
+saveEcrCdaXmlMessage gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider#saveEcrCdaXmlMessage(Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;)V
+tranformSelectedEcrToCDAXml gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper#tranformSelectedEcrToCDAXml(Lgov/cdc/dataingestion/nbs/repository/model/dao/EcrSelectedRecord;)Ljava/lang/String;
+getDataMigrationStatus gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgContainerDto#getDataMigrationStatus()Ljava/lang/Integer;

@@ -1,0 +1,7 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ei#<init>(Lca/uhn/hl7v2/model/v251/datatype/EI;)V
+==
+getEntityIdentifier ca.uhn.hl7v2.model.v251.datatype.EI#getEntityIdentifier()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getNamespaceID ca.uhn.hl7v2.model.v251.datatype.EI#getNamespaceID()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getUniversalID ca.uhn.hl7v2.model.v251.datatype.EI#getUniversalID()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getUniversalIDType ca.uhn.hl7v2.model.v251.datatype.EI#getUniversalIDType()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;

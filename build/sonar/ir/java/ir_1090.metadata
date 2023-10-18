@@ -1,0 +1,17 @@
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#convertToHl7(Ljava/lang/String;)Ljava/lang/String;
+java.lang.StringBuilder#instance-init#
+java.lang.String#getBytes(Ljava/nio/charset/Charset;)[B
+jakarta.xml.bind.JAXBContext#newInstance(Ljava/lang/String;)Ljakarta/xml/bind/JAXBContext;
+java.lang.StringBuilder#append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+java.io.ByteArrayInputStream#instance-init#
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamPaientIdentifications(Ljava/util/List;)Ljava/lang/String;
+java.lang.StringBuilder#<init>()V
+java.io.ByteArrayInputStream#<init>([B)V
+java.lang.StringBuilder#toString()Ljava/lang/String;
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamHeader(Lgov/cdc/dataingestion/nbs/jaxb/HL7MSHType;)Ljava/lang/String;
+==
+unmarshal jakarta.xml.bind.Unmarshaller#unmarshal(Ljava/io/InputStream;)Ljava/lang/Object;
+getHL7MSH gov.cdc.dataingestion.nbs.jaxb.HL7LabReportType#getHL7MSH()Lgov/cdc/dataingestion/nbs/jaxb/HL7MSHType;
+createUnmarshaller jakarta.xml.bind.JAXBContext#createUnmarshaller()Ljakarta/xml/bind/Unmarshaller;
+getHL7LabReport gov.cdc.dataingestion.nbs.jaxb.Container#getHL7LabReport()Lgov/cdc/dataingestion/nbs/jaxb/HL7LabReportType;
+getHL7PATIENTRESULT gov.cdc.dataingestion.nbs.jaxb.HL7LabReportType#getHL7PATIENTRESULT()Ljava/util/List;

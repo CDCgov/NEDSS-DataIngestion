@@ -1,0 +1,6 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Dr#<init>(Lca/uhn/hl7v2/model/v251/datatype/DR;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#<init>(Lca/uhn/hl7v2/model/v251/datatype/TS;)V
+==
+getRangeStartDateTime ca.uhn.hl7v2.model.v251.datatype.DR#getRangeStartDateTime()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getRangeEndDateTime ca.uhn.hl7v2.model.v251.datatype.DR#getRangeEndDateTime()Lca/uhn/hl7v2/model/v251/datatype/TS;

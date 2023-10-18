@@ -1,0 +1,7 @@
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetXcnList([Lca/uhn/hl7v2/model/v251/datatype/XCN;)Ljava/util/ArrayList;
+java.util.ArrayList#<init>()V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#<init>(Lca/uhn/hl7v2/model/v251/datatype/XCN;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#instance-init#
+java.util.ArrayList#instance-init#
+==
+add java.util.ArrayList#add(Ljava/lang/Object;)Z

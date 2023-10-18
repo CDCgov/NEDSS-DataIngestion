@@ -1,0 +1,4 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkLanguageCode(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+==
+isSetLanguageCode gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#isSetLanguageCode()Z
+addNewLanguageCode gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#addNewLanguageCode()Lgov/cdc/nedss/phdc/cda/CS;

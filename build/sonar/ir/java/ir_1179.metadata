@@ -1,0 +1,18 @@
+gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider#saveEcrCdaXmlMessage(Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;)V
+java.sql.Timestamp#from(Ljava/time/Instant;)Ljava/sql/Timestamp;
+java.util.Optional#isPresent()Z
+java.lang.Integer#valueOf(Ljava/lang/String;)Ljava/lang/Integer;
+gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#instance-init#
+gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#<init>()V
+java.util.Optional#get()Ljava/lang/Object;
+java.time.Instant#now()Ljava/time/Instant;
+==
+setRecordStatusCd gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setRecordStatusCd(Ljava/lang/String;)V
+setSystemNm gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setSystemNm(Ljava/lang/String;)V
+setAddTime gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setAddTime(Ljava/sql/Timestamp;)V
+save org.springframework.data.repository.CrudRepository#save(Ljava/lang/Object;)Ljava/lang/Object;
+setImpExpIndCd gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setImpExpIndCd(Ljava/lang/String;)V
+setPayload gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setPayload(Ljava/lang/String;)V
+setDocTypeCd gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setDocTypeCd(Ljava/lang/String;)V
+getNbsInterfaceByIdAndDocType gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository#getNbsInterfaceByIdAndDocType(Ljava/lang/Integer;Ljava/lang/String;)Ljava/util/Optional;
+setRecordStatusTime gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setRecordStatusTime(Ljava/sql/Timestamp;)V

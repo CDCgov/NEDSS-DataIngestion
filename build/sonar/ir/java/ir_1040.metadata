@@ -1,0 +1,12 @@
+gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService#sendMessageAfterCheckingDuplicateHL7(Lgov/cdc/dataingestion/validation/repository/model/ValidatedELRModel;Ljava/lang/String;Ljava/lang/Integer;)V
+java.util.UUID#randomUUID()Ljava/util/UUID;
+java.lang.Integer#toString()Ljava/lang/String;
+org.apache.kafka.clients.producer.ProducerRecord#<init>(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService#sendMessage(Lorg/apache/kafka/clients/producer/ProducerRecord;)V
+java.lang.Enum#name()Ljava/lang/String;
+org.apache.kafka.clients.producer.ProducerRecord#instance-init#
+java.lang.String#getBytes()[B
+==
+headers org.apache.kafka.clients.producer.ProducerRecord#headers()Lorg/apache/kafka/common/header/Headers;
+add org.apache.kafka.common.header.Headers#add(Ljava/lang/String;[B)Lorg/apache/kafka/common/header/Headers;
+getRawId gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel#getRawId()Ljava/lang/String;

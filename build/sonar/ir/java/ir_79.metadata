@@ -1,0 +1,7 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1#instance-init#
+java.util.ArrayList#<init>()V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.ContinuationPointer#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.ContinuationPointer#<init>()V
+java.util.ArrayList#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader#<init>()V

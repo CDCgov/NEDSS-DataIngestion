@@ -1,0 +1,40 @@
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapXcn231(Lca/uhn/hl7v2/model/v231/datatype/XCN;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xcn;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xcn;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Fn#<init>()V
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapHd231(Lca/uhn/hl7v2/model/v231/datatype/HD;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Fn#instance-init#
+==
+getFamilyLastName ca.uhn.hl7v2.model.v231.datatype.XCN#getFamilyLastName()Lca/uhn/hl7v2/model/v231/datatype/FN;
+setFamilyName gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#setFamilyName(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Fn;)V
+setAssignAuthority gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#setAssignAuthority(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;)V
+getAssignAuthority gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#getAssignAuthority()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;
+setSurname gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Fn#setSurname(Ljava/lang/String;)V
+setSuffix gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#setSuffix(Ljava/lang/String;)V
+setDegree gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#setDegree(Ljava/lang/String;)V
+setIdentifierTypeCode gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#setIdentifierTypeCode(Ljava/lang/String;)V
+setGivenName gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#setGivenName(Ljava/lang/String;)V
+setCheckDigitScheme gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#setCheckDigitScheme(Ljava/lang/String;)V
+getFamilyName ca.uhn.hl7v2.model.v231.datatype.FN#getFamilyName()Lca/uhn/hl7v2/model/v231/datatype/ST;
+getAssigningAuthority ca.uhn.hl7v2.model.v231.datatype.XCN#getAssigningAuthority()Lca/uhn/hl7v2/model/v231/datatype/HD;
+setNameTypeCode gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#setNameTypeCode(Ljava/lang/String;)V
+getSourceTable ca.uhn.hl7v2.model.v231.datatype.XCN#getSourceTable()Lca/uhn/hl7v2/model/v231/datatype/IS;
+getIdentifierCheckDigit ca.uhn.hl7v2.model.v231.datatype.XCN#getIdentifierCheckDigit()Lca/uhn/hl7v2/model/v231/datatype/ST;
+getIdentifierTypeCode ca.uhn.hl7v2.model.v231.datatype.XCN#getIdentifierTypeCode()Lca/uhn/hl7v2/model/v231/datatype/IS;
+getDegreeEgMD ca.uhn.hl7v2.model.v231.datatype.XCN#getDegreeEgMD()Lca/uhn/hl7v2/model/v231/datatype/IS;
+getGivenName ca.uhn.hl7v2.model.v231.datatype.XCN#getGivenName()Lca/uhn/hl7v2/model/v231/datatype/ST;
+getNameTypeCode ca.uhn.hl7v2.model.v231.datatype.XCN#getNameTypeCode()Lca/uhn/hl7v2/model/v231/datatype/ID;
+getMiddleInitialOrName ca.uhn.hl7v2.model.v231.datatype.XCN#getMiddleInitialOrName()Lca/uhn/hl7v2/model/v231/datatype/ST;
+setNameRepresentationCode gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#setNameRepresentationCode(Ljava/lang/String;)V
+setSecondAndFurtherGivenNameOrInitial gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#setSecondAndFurtherGivenNameOrInitial(Ljava/lang/String;)V
+setIdentifierCheckDigit gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#setIdentifierCheckDigit(Ljava/lang/String;)V
+setPrefix gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#setPrefix(Ljava/lang/String;)V
+getCodeIdentifyingTheCheckDigitSchemeEmployed ca.uhn.hl7v2.model.v231.datatype.XCN#getCodeIdentifyingTheCheckDigitSchemeEmployed()Lca/uhn/hl7v2/model/v231/datatype/ID;
+setIdNumber gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#setIdNumber(Ljava/lang/String;)V
+getNameRepresentationCode ca.uhn.hl7v2.model.v231.datatype.XCN#getNameRepresentationCode()Lca/uhn/hl7v2/model/v231/datatype/ID;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
+getSuffixEgJRorIII ca.uhn.hl7v2.model.v231.datatype.XCN#getSuffixEgJRorIII()Lca/uhn/hl7v2/model/v231/datatype/ST;
+getAssigningFacility ca.uhn.hl7v2.model.v231.datatype.XCN#getAssigningFacility()Lca/uhn/hl7v2/model/v231/datatype/HD;
+getIDNumber ca.uhn.hl7v2.model.v231.datatype.XCN#getIDNumber()Lca/uhn/hl7v2/model/v231/datatype/ST;
+setSourceTable gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#setSourceTable(Ljava/lang/String;)V
+getPrefixEgDR ca.uhn.hl7v2.model.v231.datatype.XCN#getPrefixEgDR()Lca/uhn/hl7v2/model/v231/datatype/ST;
+getAssignFacility gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#getAssignFacility()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;
+setAssignFacility gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn#setAssignFacility(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;)V

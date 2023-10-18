@@ -1,0 +1,2 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#isFieldValid(Ljava/lang/String;)Z
+java.lang.String#isEmpty()Z

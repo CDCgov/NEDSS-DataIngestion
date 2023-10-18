@@ -1,0 +1,83 @@
+
+ùgov.cdc.dataingestion.security.service.ClientDetailsService#loadUserByUsername(Ljava/lang/String;)Lorg/springframework/security/core/userdetails/UserDetails;ü
+î/Users/DucNguyen/Desktop/CDC_Repos/NEDSS-DataIngestion/report-service/src/main/java/gov/cdc/dataingestion/security/service/ClientDetailsService.java ()"startingBlock*é
+startingBlock) (:è
+å
+ (
+%8"
+__annotate*2
+
+__unknown_file (
+java.lang.Override*:
+
+__unknown_file (
+
+usernamejava.lang.String\
+Z
+1 (9
+usernamejava.lang.String"__annotation*"
+
+__unknown_file (
+
+%8*
+1*¸
+1 (  
+«
+ ( A
+%0;gov.cdc.dataingestion.security.repository.IClientRepository"__id*r
+
+__unknown_file (V*T=
+;gov.cdc.dataingestion.security.service.ClientDetailsService"
+iClientRepository‹Ÿ
+ ()
+%1java.util.Optional"rgov.cdc.dataingestion.security.repository.IClientRepository#findByUsername(Ljava/lang/String;)Ljava/util/Optional;*_
+
+__unknown_file (C
+A
+%0;gov.cdc.dataingestion.security.repository.IClientRepository*:
+
+__unknown_file (
+
+usernamejava.lang.String2"findByUsername(Ljava/lang/String;)ÚÔ
+ ('
+%2java.util.Optional"Ijava.util.Optional#map(Ljava/util/function/Function;)Ljava/util/Optional;*6
+
+__unknown_file (
+
+%1java.util.Optional*"
+
+__unknown_file (
+""2"map(Ljava/util/function/Function;)≤
+Ø
+ (d!
+%3java.util.function.Supplier"__declareFunction*m
+
+__unknown_file (QO
+M__sonar_lambda_27$gov.cdc.dataingestion.security.service.ClientDetailsServiceê
+ç
+
+__unknown_file (/
+!
+%3java.util.function.Supplier"
+
+username"__id*:
+
+__unknown_file (
+
+usernamejava.lang.Stringºπ
+ (e7
+%71gov.cdc.dataingestion.security.model.SecurityUser"Ojava.util.Optional#orElseThrow(Ljava/util/function/Supplier;)Ljava/lang/Object;*6
+
+__unknown_file (
+
+%2java.util.Optional*?
+
+__unknown_file (#
+!
+%3java.util.function.Supplier2*orElseThrow(Ljava/util/function/Supplier;)"E
+ (f9
+7
+%71gov.cdc.dataingestion.security.model.SecurityUser:(
+* (9
+usernamejava.lang.StringB?=
+;gov.cdc.dataingestion.security.service.ClientDetailsServiceH

@@ -1,0 +1,51 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#<init>(Lca/uhn/hl7v2/model/v251/segment/ORC;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#instance-init#
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetXadList([Lca/uhn/hl7v2/model/v251/datatype/XAD;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ei#<init>(Lca/uhn/hl7v2/model/v251/datatype/EI;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#<init>(Lca/uhn/hl7v2/model/v251/datatype/CE;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cwe#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Eip#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pl#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Eip#<init>(Lca/uhn/hl7v2/model/v251/datatype/EIP;)V
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetXcnList([Lca/uhn/hl7v2/model/v251/datatype/XCN;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetXtnList([Lca/uhn/hl7v2/model/v251/datatype/XTN;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cwe#<init>(Lca/uhn/hl7v2/model/v251/datatype/CWE;)V
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetTqList([Lca/uhn/hl7v2/model/v251/datatype/TQ;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cne#<init>(Lca/uhn/hl7v2/model/v251/datatype/CNE;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cne#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#<init>(Lca/uhn/hl7v2/model/v251/datatype/TS;)V
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetXonList([Lca/uhn/hl7v2/model/v251/datatype/XON;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pl#<init>(Lca/uhn/hl7v2/model/v251/datatype/PL;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ei#instance-init#
+==
+getOrderEffectiveDateTime ca.uhn.hl7v2.model.v251.segment.ORC#getOrderEffectiveDateTime()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getDateTimeOfTransaction ca.uhn.hl7v2.model.v251.segment.ORC#getDateTimeOfTransaction()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getResponseFlag ca.uhn.hl7v2.model.v251.segment.ORC#getResponseFlag()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getOrderControl ca.uhn.hl7v2.model.v251.segment.ORC#getOrderControl()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getPlacerOrderNumber ca.uhn.hl7v2.model.v251.segment.ORC#getPlacerOrderNumber()Lca/uhn/hl7v2/model/v251/datatype/EI;
+getEnteringDevice ca.uhn.hl7v2.model.v251.segment.ORC#getEnteringDevice()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getOrderType ca.uhn.hl7v2.model.v251.segment.ORC#getOrderType()Lca/uhn/hl7v2/model/v251/datatype/CWE;
+getFillerOrderNumber ca.uhn.hl7v2.model.v251.segment.ORC#getFillerOrderNumber()Lca/uhn/hl7v2/model/v251/datatype/EI;
+getActionBy ca.uhn.hl7v2.model.v251.segment.ORC#getActionBy()[Lca/uhn/hl7v2/model/v251/datatype/XCN;
+getCallBackPhoneNumber ca.uhn.hl7v2.model.v251.segment.ORC#getCallBackPhoneNumber()[Lca/uhn/hl7v2/model/v251/datatype/XTN;
+getOrderingProvider ca.uhn.hl7v2.model.v251.segment.ORC#getOrderingProvider()[Lca/uhn/hl7v2/model/v251/datatype/XCN;
+getAdvancedBeneficiaryNoticeOverrideReason ca.uhn.hl7v2.model.v251.segment.ORC#getAdvancedBeneficiaryNoticeOverrideReason()Lca/uhn/hl7v2/model/v251/datatype/CWE;
+getConfidentialityCode ca.uhn.hl7v2.model.v251.segment.ORC#getConfidentialityCode()Lca/uhn/hl7v2/model/v251/datatype/CWE;
+getOrderStatusModifier ca.uhn.hl7v2.model.v251.segment.ORC#getOrderStatusModifier()Lca/uhn/hl7v2/model/v251/datatype/CWE;
+getAdvancedBeneficiaryNoticeCode ca.uhn.hl7v2.model.v251.segment.ORC#getAdvancedBeneficiaryNoticeCode()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getEnteredBy ca.uhn.hl7v2.model.v251.segment.ORC#getEnteredBy()[Lca/uhn/hl7v2/model/v251/datatype/XCN;
+getFillerSExpectedAvailabilityDateTime ca.uhn.hl7v2.model.v251.segment.ORC#getFillerSExpectedAvailabilityDateTime()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getOrderingFacilityAddress ca.uhn.hl7v2.model.v251.segment.ORC#getOrderingFacilityAddress()[Lca/uhn/hl7v2/model/v251/datatype/XAD;
+getVerifiedBy ca.uhn.hl7v2.model.v251.segment.ORC#getVerifiedBy()[Lca/uhn/hl7v2/model/v251/datatype/XCN;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
+getOrderingFacilityPhoneNumber ca.uhn.hl7v2.model.v251.segment.ORC#getOrderingFacilityPhoneNumber()[Lca/uhn/hl7v2/model/v251/datatype/XTN;
+getParentUniversalServiceIdentifier ca.uhn.hl7v2.model.v251.segment.ORC#getParentUniversalServiceIdentifier()Lca/uhn/hl7v2/model/v251/datatype/CWE;
+getOrderingProviderAddress ca.uhn.hl7v2.model.v251.segment.ORC#getOrderingProviderAddress()[Lca/uhn/hl7v2/model/v251/datatype/XAD;
+getQuantityTiming ca.uhn.hl7v2.model.v251.segment.ORC#getQuantityTiming()[Lca/uhn/hl7v2/model/v251/datatype/TQ;
+getEntererSLocation ca.uhn.hl7v2.model.v251.segment.ORC#getEntererSLocation()Lca/uhn/hl7v2/model/v251/datatype/PL;
+getOrderControlCodeReason ca.uhn.hl7v2.model.v251.segment.ORC#getOrderControlCodeReason()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getEntererAuthorizationMode ca.uhn.hl7v2.model.v251.segment.ORC#getEntererAuthorizationMode()Lca/uhn/hl7v2/model/v251/datatype/CNE;
+getOrderingFacilityName ca.uhn.hl7v2.model.v251.segment.ORC#getOrderingFacilityName()[Lca/uhn/hl7v2/model/v251/datatype/XON;
+getORCParent ca.uhn.hl7v2.model.v251.segment.ORC#getORCParent()Lca/uhn/hl7v2/model/v251/datatype/EIP;
+getOrderStatus ca.uhn.hl7v2.model.v251.segment.ORC#getOrderStatus()Lca/uhn/hl7v2/model/v251/datatype/ID;

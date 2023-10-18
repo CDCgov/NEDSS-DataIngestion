@@ -1,0 +1,253 @@
+
+ïgov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapXtn231(Lca/uhn/hl7v2/model/v231/datatype/XTN;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xtn;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xtn;Ÿ
+’/Users/DucNguyen/Desktop/CDC_Repos/NEDSS-DataIngestion/hl7-parser/src/main/java/gov/cdc/dataingestion/hl7/helper/helper/Mapping231To251Helper.javaÙ Ù("1*†7
+1
+Ú Ú(òï
+
+Ú Ú(2)
+%0#ca.uhn.hl7v2.model.v231.datatype.NM"Zca.uhn.hl7v2.model.v231.datatype.XTN#getPhoneNumber()Lca/uhn/hl7v2/model/v231/datatype/NM;*H
+
+__unknown_file (,
+*
+in$ca.uhn.hl7v2.model.v231.datatype.XTN2getPhoneNumber()¿¼
+
+Ú Ú(=
+%1java.lang.String"Aca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;*G
+
+__unknown_file (+
+)
+%0#ca.uhn.hl7v2.model.v231.datatype.NM2
+getValue()ÆÃ
+
+Ú Ú(>
+
+%2void"fgov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn#setTelephoneNumber(Ljava/lang/String;)V*c
+
+__unknown_file (G
+E
+out>gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn*4
+
+__unknown_file (
+
+%1java.lang.String2&setTelephoneNumber(Ljava/lang/String;)Œ‰
+
+Û Û(;)
+%3#ca.uhn.hl7v2.model.v231.datatype.ID"gca.uhn.hl7v2.model.v231.datatype.XTN#getTelecommunicationUseCode()Lca/uhn/hl7v2/model/v231/datatype/ID;*H
+
+__unknown_file (,
+*
+in$ca.uhn.hl7v2.model.v231.datatype.XTN2getTelecommunicationUseCode()¿¼
+
+Û Û(F
+%4java.lang.String"Aca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;*G
+
+__unknown_file (+
+)
+%3#ca.uhn.hl7v2.model.v231.datatype.ID2
+getValue()¾»
+
+Û Û(G
+
+%5void"bgov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn#setTeleComCode(Ljava/lang/String;)V*c
+
+__unknown_file (G
+E
+out>gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn*4
+
+__unknown_file (
+
+%4java.lang.String2"setTeleComCode(Ljava/lang/String;)¢Ÿ
+
+Ü$ Ü(O)
+%6#ca.uhn.hl7v2.model.v231.datatype.ID"rca.uhn.hl7v2.model.v231.datatype.XTN#getXtn3_TelecommunicationEquipmentType()Lca/uhn/hl7v2/model/v231/datatype/ID;*H
+
+__unknown_file (,
+*
+in$ca.uhn.hl7v2.model.v231.datatype.XTN2(getXtn3_TelecommunicationEquipmentType()¿¼
+
+Ü$ Ü(Z
+%7java.lang.String"Aca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;*G
+
+__unknown_file (+
+)
+%6#ca.uhn.hl7v2.model.v231.datatype.ID2
+getValue()ÐÍ
+
+Ü Ü([
+
+%8void"kgov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn#setTeleComEquipmentType(Ljava/lang/String;)V*c
+
+__unknown_file (G
+E
+out>gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn*4
+
+__unknown_file (
+
+%7java.lang.String2+setTeleComEquipmentType(Ljava/lang/String;)ôñ
+
+Ý Ý(0)
+%9#ca.uhn.hl7v2.model.v231.datatype.ST"[ca.uhn.hl7v2.model.v231.datatype.XTN#getEmailAddress()Lca/uhn/hl7v2/model/v231/datatype/ST;*H
+
+__unknown_file (,
+*
+in$ca.uhn.hl7v2.model.v231.datatype.XTN2getEmailAddress()À½
+
+Ý Ý(;
+%10java.lang.String"Aca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;*G
+
+__unknown_file (+
+)
+%9#ca.uhn.hl7v2.model.v231.datatype.ST2
+getValue()Â¿
+
+Ý Ý(<
+%11void"cgov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn#setEmailAddress(Ljava/lang/String;)V*c
+
+__unknown_file (G
+E
+out>gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn*5
+
+__unknown_file (
+
+%10java.lang.String2#setEmailAddress(Ljava/lang/String;)óð
+
+Þ Þ(.*
+%12#ca.uhn.hl7v2.model.v231.datatype.NM"Zca.uhn.hl7v2.model.v231.datatype.XTN#getCountryCode()Lca/uhn/hl7v2/model/v231/datatype/NM;*H
+
+__unknown_file (,
+*
+in$ca.uhn.hl7v2.model.v231.datatype.XTN2getCountryCode()Á¾
+
+Þ Þ(9
+%13java.lang.String"Aca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;*H
+
+__unknown_file (,
+*
+%12#ca.uhn.hl7v2.model.v231.datatype.NM2
+getValue()À½
+
+Þ Þ(:
+%14void"bgov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn#setCountryCode(Ljava/lang/String;)V*c
+
+__unknown_file (G
+E
+out>gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn*5
+
+__unknown_file (
+
+%13java.lang.String2"setCountryCode(Ljava/lang/String;)õò
+
+ß ß(,*
+%15#ca.uhn.hl7v2.model.v231.datatype.NM"[ca.uhn.hl7v2.model.v231.datatype.XTN#getAreaCityCode()Lca/uhn/hl7v2/model/v231/datatype/NM;*H
+
+__unknown_file (,
+*
+in$ca.uhn.hl7v2.model.v231.datatype.XTN2getAreaCityCode()Á¾
+
+ß ß(7
+%16java.lang.String"Aca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;*H
+
+__unknown_file (,
+*
+%15#ca.uhn.hl7v2.model.v231.datatype.NM2
+getValue()º·
+
+ß ß(8
+%17void"_gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn#setCityCode(Ljava/lang/String;)V*c
+
+__unknown_file (G
+E
+out>gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn*5
+
+__unknown_file (
+
+%16java.lang.String2setCityCode(Ljava/lang/String;)óð
+
+à à(.*
+%18#ca.uhn.hl7v2.model.v231.datatype.NM"Zca.uhn.hl7v2.model.v231.datatype.XTN#getPhoneNumber()Lca/uhn/hl7v2/model/v231/datatype/NM;*H
+
+__unknown_file (,
+*
+in$ca.uhn.hl7v2.model.v231.datatype.XTN2getPhoneNumber()Á¾
+
+à à(9
+%19java.lang.String"Aca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;*H
+
+__unknown_file (,
+*
+%18#ca.uhn.hl7v2.model.v231.datatype.NM2
+getValue()À½
+
+à à(:
+%20void"bgov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn#setLocalNumber(Ljava/lang/String;)V*c
+
+__unknown_file (G
+E
+out>gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn*5
+
+__unknown_file (
+
+%19java.lang.String2"setLocalNumber(Ljava/lang/String;)ïì
+
+á á(**
+%21#ca.uhn.hl7v2.model.v231.datatype.NM"Xca.uhn.hl7v2.model.v231.datatype.XTN#getExtension()Lca/uhn/hl7v2/model/v231/datatype/NM;*H
+
+__unknown_file (,
+*
+in$ca.uhn.hl7v2.model.v231.datatype.XTN2getExtension()Á¾
+
+á á(5
+%22java.lang.String"Aca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;*H
+
+__unknown_file (,
+*
+%21#ca.uhn.hl7v2.model.v231.datatype.NM2
+getValue()¼¹
+
+á á(6
+%23void"`gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn#setExtension(Ljava/lang/String;)V*c
+
+__unknown_file (G
+E
+out>gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn*5
+
+__unknown_file (
+
+%22java.lang.String2 setExtension(Ljava/lang/String;)ëè
+
+â â(&*
+%24#ca.uhn.hl7v2.model.v231.datatype.ST"Vca.uhn.hl7v2.model.v231.datatype.XTN#getAnyText()Lca/uhn/hl7v2/model/v231/datatype/ST;*H
+
+__unknown_file (,
+*
+in$ca.uhn.hl7v2.model.v231.datatype.XTN2getAnyText()Á¾
+
+â â(1
+%25java.lang.String"Aca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;*H
+
+__unknown_file (,
+*
+%24#ca.uhn.hl7v2.model.v231.datatype.ST2
+getValue()¸µ
+
+â â(2
+%26void"^gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn#setAnyText(Ljava/lang/String;)V*c
+
+__unknown_file (G
+E
+out>gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn*5
+
+__unknown_file (
+
+%25java.lang.String2setAnyText(Ljava/lang/String;)"U
+
+ã ã(G
+E
+out>gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn:8
+
+Ù  Ù('*
+in$ca.uhn.hl7v2.model.v231.datatype.XTN:S
+
+Ù( Ù(/E
+out>gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.XtnBA"?
+=gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251HelperH

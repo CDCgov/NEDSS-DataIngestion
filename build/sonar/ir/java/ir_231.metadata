@@ -1,0 +1,6 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Msg#<init>(Lca/uhn/hl7v2/model/v251/datatype/MSG;)V
+==
+getMessageCode ca.uhn.hl7v2.model.v251.datatype.MSG#getMessageCode()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getTriggerEvent ca.uhn.hl7v2.model.v251.datatype.MSG#getTriggerEvent()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getMessageStructure ca.uhn.hl7v2.model.v251.datatype.MSG#getMessageStructure()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;

@@ -1,0 +1,10 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#mapMultiSelectDateMapXmlElement(Lgov/cdc/nedss/phdc/cda/ANY;Ljava/lang/String;Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgCaseAnswerDto;)Lgov/cdc/nedss/phdc/cda/ANY;
+null
+==
+mapToTsType gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#mapToTsType(Ljava/lang/String;)Lgov/cdc/nedss/phdc/cda/TS;
+setAttributeText org.apache.xmlbeans.XmlCursor#setAttributeText(Ljavax/xml/namespace/QName;Ljava/lang/String;)Z
+newCursor org.apache.xmlbeans.XmlTokenSource#newCursor()Lorg/apache/xmlbeans/XmlCursor;
+getAnswerTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerDto#getAnswerTxt()Ljava/lang/String;
+dispose org.apache.xmlbeans.XmlCursor#dispose()V
+toString org.apache.xmlbeans.XmlObject#toString()Ljava/lang/String;
+toFirstChild org.apache.xmlbeans.XmlCursor#toFirstChild()Z

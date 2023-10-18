@@ -1,0 +1,67 @@
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#fetchMsgCaseForApplicableEcr(Ljava/lang/Integer;)Ljava/util/List;
+java.util.ArrayList#<init>()V
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#nullCheckInt(Ljava/lang/Object;)Ljava/lang/Integer;
+gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#instance-init#
+java.util.ArrayList#instance-init#
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#loadSqlFromFile(Ljava/lang/String;)Ljava/lang/String;
+gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#<init>()V
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#nullToString(Ljava/lang/Object;)Ljava/lang/String;
+==
+setInvInfectiousFromDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvInfectiousFromDt(Ljava/lang/String;)V
+setInvDiseaseAcquiredLocCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvDiseaseAcquiredLocCd(Ljava/lang/String;)V
+createNativeQuery jakarta.persistence.EntityManager#createNativeQuery(Ljava/lang/String;)Ljakarta/persistence/Query;
+initDataMap gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#initDataMap()V
+setInvDaycareIndCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvDaycareIndCd(Ljava/lang/String;)V
+setInvDiagnosisDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvDiagnosisDt(Ljava/lang/String;)V
+setParameter jakarta.persistence.Query#setParameter(Ljava/lang/String;Ljava/lang/Object;)Ljakarta/persistence/Query;
+setInvReportToStateDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvReportToStateDt(Ljava/lang/String;)V
+setInvImportCityTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvImportCityTxt(Ljava/lang/String;)V
+setInvOutbreakIndCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvOutbreakIndCd(Ljava/lang/String;)V
+setInvStateId gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvStateId(Ljava/lang/String;)V
+setInvHospitalizedDischargeDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvHospitalizedDischargeDt(Ljava/lang/String;)V
+setInvPatientDeathDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvPatientDeathDt(Ljava/lang/String;)V
+setInvIllnessDurationUnitCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvIllnessDurationUnitCd(Ljava/lang/String;)V
+setInvFoodhandlerIndCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvFoodhandlerIndCd(Ljava/lang/String;)V
+setInvOutbreakNameCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvOutbreakNameCd(Ljava/lang/String;)V
+setInvMmwrYearTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvMmwrYearTxt(Ljava/lang/String;)V
+setInvHospitalizedIndCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvHospitalizedIndCd(Ljava/lang/String;)V
+setInvHospStayDuration gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvHospStayDuration(Ljava/lang/Integer;)V
+setInvLegacyCaseId gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvLegacyCaseId(Ljava/lang/String;)V
+setInvIllnessOnsetAge gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvIllnessOnsetAge(Ljava/lang/Integer;)V
+setInvIllnessOnsetAgeUnitCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvIllnessOnsetAgeUnitCd(Ljava/lang/String;)V
+setInvAuthorId gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvAuthorId(Ljava/lang/String;)V
+getResultList jakarta.persistence.Query#getResultList()Ljava/util/List;
+setInvCommentTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvCommentTxt(Ljava/lang/String;)V
+setInvIllnessEndDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvIllnessEndDt(Ljava/lang/String;)V
+setInvPregnancyIndCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvPregnancyIndCd(Ljava/lang/String;)V
+setInvDetectionMethodCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvDetectionMethodCd(Ljava/lang/String;)V
+setInvSharedIndCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvSharedIndCd(Ljava/lang/String;)V
+setInvContactInvStatusCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvContactInvStatusCd(Ljava/lang/String;)V
+setInvInfectiousToDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvInfectiousToDt(Ljava/lang/String;)V
+setInvCaseStatusCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvCaseStatusCd(Ljava/lang/String;)V
+add java.util.List#add(Ljava/lang/Object;)Z
+setInvTransmissionModeCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvTransmissionModeCd(Ljava/lang/String;)V
+setInvSourceTypeCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvSourceTypeCd(Ljava/lang/String;)V
+setInvReportDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvReportDt(Ljava/lang/String;)V
+setInvReportToCountyDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvReportToCountyDt(Ljava/lang/String;)V
+setInvMmwrWeekTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvMmwrWeekTxt(Ljava/lang/String;)V
+setInvCloseDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvCloseDt(Ljava/lang/String;)V
+setInvContactInvCommentTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvContactInvCommentTxt(Ljava/lang/String;)V
+setInvReferralBasisCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvReferralBasisCd(Ljava/lang/String;)V
+setInvStartDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvStartDt(Ljava/lang/String;)V
+setInvIllnessDuration gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvIllnessDuration(Ljava/lang/Integer;)V
+setInvLocalId gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvLocalId(Ljava/lang/String;)V
+setPatLocalId gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setPatLocalId(Ljava/lang/String;)V
+setInvEffectiveTime gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvEffectiveTime(Ljava/sql/Timestamp;)V
+setInvReportingCountyCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvReportingCountyCd(Ljava/lang/String;)V
+setInvIllnessStartDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvIllnessStartDt(Ljava/lang/String;)V
+setInvPatientDeathIndCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvPatientDeathIndCd(Ljava/lang/String;)V
+setInvCurrProcessStateCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvCurrProcessStateCd(Ljava/lang/String;)V
+setInvImportCountyCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvImportCountyCd(Ljava/lang/String;)V
+setInvImportCountryCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvImportCountryCd(Ljava/lang/String;)V
+setInvStatusCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvStatusCd(Ljava/lang/String;)V
+setInvInvestigatorAssignedDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvInvestigatorAssignedDt(Ljava/lang/String;)V
+setInvConditionCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvConditionCd(Ljava/lang/String;)V
+setInvHospitalizedAdmitDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvHospitalizedAdmitDt(Ljava/lang/String;)V
+setInvImportStateCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvImportStateCd(Ljava/lang/String;)V
+setInvContactInvPriorityCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#setInvContactInvPriorityCd(Ljava/lang/String;)V

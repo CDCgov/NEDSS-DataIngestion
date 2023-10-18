@@ -1,0 +1,63 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit.PatientVisitAdditional#<init>(Lca/uhn/hl7v2/model/v251/segment/PV2;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#<init>(Lca/uhn/hl7v2/model/v251/datatype/CE;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#instance-init#
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetCeList([Lca/uhn/hl7v2/model/v251/datatype/CE;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetStStringList([Lca/uhn/hl7v2/model/v251/datatype/ST;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#<init>(Lca/uhn/hl7v2/model/v251/datatype/TS;)V
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetXonList([Lca/uhn/hl7v2/model/v251/datatype/XON;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pl#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pl#<init>(Lca/uhn/hl7v2/model/v251/datatype/PL;)V
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetIsStringList([Lca/uhn/hl7v2/model/v251/datatype/IS;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetXcnList([Lca/uhn/hl7v2/model/v251/datatype/XCN;)Ljava/util/ArrayList;
+==
+getPatientStatusCode ca.uhn.hl7v2.model.v251.segment.PV2#getPatientStatusCode()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getFirstSimilarIllnessDate ca.uhn.hl7v2.model.v251.segment.PV2#getFirstSimilarIllnessDate()Lca/uhn/hl7v2/model/v251/datatype/DT;
+getMilitaryPartnershipCode ca.uhn.hl7v2.model.v251.segment.PV2#getMilitaryPartnershipCode()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getAccommodationCode ca.uhn.hl7v2.model.v251.segment.PV2#getAccommodationCode()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getVisitDescription ca.uhn.hl7v2.model.v251.segment.PV2#getVisitDescription()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getNotifyClergyCode ca.uhn.hl7v2.model.v251.segment.PV2#getNotifyClergyCode()[Lca/uhn/hl7v2/model/v251/datatype/IS;
+getRecurringServiceCode ca.uhn.hl7v2.model.v251.segment.PV2#getRecurringServiceCode()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getOrganDonorCode ca.uhn.hl7v2.model.v251.segment.PV2#getOrganDonorCode()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getExpectedAdmitDateTime ca.uhn.hl7v2.model.v251.segment.PV2#getExpectedAdmitDateTime()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getSpecialProgramCode ca.uhn.hl7v2.model.v251.segment.PV2#getSpecialProgramCode()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getExpectedDischargeDisposition ca.uhn.hl7v2.model.v251.segment.PV2#getExpectedDischargeDisposition()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getPatientValuablesLocation ca.uhn.hl7v2.model.v251.segment.PV2#getPatientValuablesLocation()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getExpectedPreAdmissionTestingDateTime ca.uhn.hl7v2.model.v251.segment.PV2#getExpectedPreAdmissionTestingDateTime()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getTransferReason ca.uhn.hl7v2.model.v251.segment.PV2#getTransferReason()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getVisitProtectionIndicator ca.uhn.hl7v2.model.v251.segment.PV2#getVisitProtectionIndicator()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getRetentionIndicator ca.uhn.hl7v2.model.v251.segment.PV2#getRetentionIndicator()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getEstimatedLengthOfInpatientStay ca.uhn.hl7v2.model.v251.segment.PV2#getEstimatedLengthOfInpatientStay()Lca/uhn/hl7v2/model/v251/datatype/NM;
+getBabyDetainedIndicator ca.uhn.hl7v2.model.v251.segment.PV2#getBabyDetainedIndicator()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getPreviousServiceDate ca.uhn.hl7v2.model.v251.segment.PV2#getPreviousServiceDate()Lca/uhn/hl7v2/model/v251/datatype/DT;
+getMilitaryNonAvailabilityCode ca.uhn.hl7v2.model.v251.segment.PV2#getMilitaryNonAvailabilityCode()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getRecreationalDrugUseCode ca.uhn.hl7v2.model.v251.segment.PV2#getRecreationalDrugUseCode()[Lca/uhn/hl7v2/model/v251/datatype/CE;
+getSignatureOnFileDate ca.uhn.hl7v2.model.v251.segment.PV2#getSignatureOnFileDate()Lca/uhn/hl7v2/model/v251/datatype/DT;
+getEmploymentIllnessRelatedIndicator ca.uhn.hl7v2.model.v251.segment.PV2#getEmploymentIllnessRelatedIndicator()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getVisitUserCode ca.uhn.hl7v2.model.v251.segment.PV2#getVisitUserCode()[Lca/uhn/hl7v2/model/v251/datatype/IS;
+getPatientValuables ca.uhn.hl7v2.model.v251.segment.PV2#getPatientValuables()[Lca/uhn/hl7v2/model/v251/datatype/ST;
+getExpectedDischargeDateTime ca.uhn.hl7v2.model.v251.segment.PV2#getExpectedDischargeDateTime()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getAdvanceDirectiveCode ca.uhn.hl7v2.model.v251.segment.PV2#getAdvanceDirectiveCode()[Lca/uhn/hl7v2/model/v251/datatype/CE;
+getAdmitReason ca.uhn.hl7v2.model.v251.segment.PV2#getAdmitReason()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getLivingWillCode ca.uhn.hl7v2.model.v251.segment.PV2#getLivingWillCode()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getExpectedLOAReturnDateTime ca.uhn.hl7v2.model.v251.segment.PV2#getExpectedLOAReturnDateTime()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getReferralSourceCode ca.uhn.hl7v2.model.v251.segment.PV2#getReferralSourceCode()[Lca/uhn/hl7v2/model/v251/datatype/XCN;
+getNewbornBabyIndicator ca.uhn.hl7v2.model.v251.segment.PV2#getNewbornBabyIndicator()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getModeOfArrivalCode ca.uhn.hl7v2.model.v251.segment.PV2#getModeOfArrivalCode()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getPatientStatusEffectiveDate ca.uhn.hl7v2.model.v251.segment.PV2#getPatientStatusEffectiveDate()Lca/uhn/hl7v2/model/v251/datatype/DT;
+getPriorPendingLocation ca.uhn.hl7v2.model.v251.segment.PV2#getPriorPendingLocation()Lca/uhn/hl7v2/model/v251/datatype/PL;
+getBillingMediaCode ca.uhn.hl7v2.model.v251.segment.PV2#getBillingMediaCode()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getExpectedNumberOfInsurancePlans ca.uhn.hl7v2.model.v251.segment.PV2#getExpectedNumberOfInsurancePlans()Lca/uhn/hl7v2/model/v251/datatype/NM;
+getPatientChargeAdjustmentCode ca.uhn.hl7v2.model.v251.segment.PV2#getPatientChargeAdjustmentCode()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getPatientConditionCode ca.uhn.hl7v2.model.v251.segment.PV2#getPatientConditionCode()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getClinicOrganizationName ca.uhn.hl7v2.model.v251.segment.PV2#getClinicOrganizationName()[Lca/uhn/hl7v2/model/v251/datatype/XON;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
+getPurgeStatusDate ca.uhn.hl7v2.model.v251.segment.PV2#getPurgeStatusDate()Lca/uhn/hl7v2/model/v251/datatype/DT;
+getActualLengthOfInpatientStay ca.uhn.hl7v2.model.v251.segment.PV2#getActualLengthOfInpatientStay()Lca/uhn/hl7v2/model/v251/datatype/NM;
+getPreviousTreatmentDate ca.uhn.hl7v2.model.v251.segment.PV2#getPreviousTreatmentDate()Lca/uhn/hl7v2/model/v251/datatype/DT;
+getPurgeStatusCode ca.uhn.hl7v2.model.v251.segment.PV2#getPurgeStatusCode()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getVisitPublicityCode ca.uhn.hl7v2.model.v251.segment.PV2#getVisitPublicityCode()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getPrecautionCode ca.uhn.hl7v2.model.v251.segment.PV2#getPrecautionCode()[Lca/uhn/hl7v2/model/v251/datatype/CE;
+getVisitPriorityCode ca.uhn.hl7v2.model.v251.segment.PV2#getVisitPriorityCode()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getAdmissionLevelOfCareCode ca.uhn.hl7v2.model.v251.segment.PV2#getAdmissionLevelOfCareCode()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getValue ca.uhn.hl7v2.model.primitive.DT#getValue()Ljava/lang/String;

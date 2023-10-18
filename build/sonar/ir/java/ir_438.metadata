@@ -1,0 +1,65 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7OBXType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/observation/ObservationResult;)Lgov/cdc/dataingestion/nbs/jaxb/HL7OBXType;
+gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#instance-init#
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7CEType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;)Lgov/cdc/dataingestion/nbs/jaxb/HL7CEType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7XCNType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xcn;)Lgov/cdc/dataingestion/nbs/jaxb/HL7XCNType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7XCNType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xcn;)Z
+gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#<init>()V
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7EIType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ei;)Lgov/cdc/dataingestion/nbs/jaxb/HL7EIType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7XONType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xon;)Lgov/cdc/dataingestion/nbs/jaxb/HL7XONType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7TSType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;I)Lgov/cdc/dataingestion/nbs/jaxb/HL7TSType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7CEType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;)Z
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7SIType(Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/jaxb/HL7SIType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7TSType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;)Lgov/cdc/dataingestion/nbs/jaxb/HL7TSType;
+java.lang.String#equals(Ljava/lang/Object;)Z
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHl7NMType(Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/jaxb/HL7NMType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7XADType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xad;)Lgov/cdc/dataingestion/nbs/jaxb/HL7XADType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7XONType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xon;)Z
+java.lang.String#replaceAll(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7XADType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xad;)Z
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildEmptyValue(Ljava/lang/String;)Ljava/lang/String;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7CWEType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;)Lgov/cdc/dataingestion/nbs/jaxb/HL7CWEType;
+==
+setPerformingOrganizationMedicalDirector gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#setPerformingOrganizationMedicalDirector(Lgov/cdc/dataingestion/nbs/jaxb/HL7XCNType;)V
+getDateTimeOfTheObservation gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getDateTimeOfTheObservation()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;
+getEffectiveDateOfReferenceRange gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getEffectiveDateOfReferenceRange()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;
+getNatureOfAbnormalTest gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getNatureOfAbnormalTest()Ljava/util/List;
+getProbability gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getProbability()Ljava/lang/String;
+getObservationMethod gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#getObservationMethod()Ljava/util/List;
+add java.util.List#add(Ljava/lang/Object;)Z
+getObservationMethod gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getObservationMethod()Ljava/util/List;
+setPerformingOrganizationName gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#setPerformingOrganizationName(Lgov/cdc/dataingestion/nbs/jaxb/HL7XONType;)V
+getObservationResultStatus gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getObservationResultStatus()Ljava/lang/String;
+setProducersReference gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#setProducersReference(Lgov/cdc/dataingestion/nbs/jaxb/HL7CWEType;)V
+setPerformingOrganizationAddress gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#setPerformingOrganizationAddress(Lgov/cdc/dataingestion/nbs/jaxb/HL7XADType;)V
+setDateTimeOftheObservation gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#setDateTimeOftheObservation(Lgov/cdc/dataingestion/nbs/jaxb/HL7TSType;)V
+getValueType gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getValueType()Ljava/lang/String;
+setDateTimeOftheAnalysis gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#setDateTimeOftheAnalysis(Lgov/cdc/dataingestion/nbs/jaxb/HL7TSType;)V
+getValueType gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#getValueType()Ljava/lang/String;
+getNatureOfAbnormalTest gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#getNatureOfAbnormalTest()Ljava/util/List;
+getProducerId gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getProducerId()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;
+getObservationValue gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#getObservationValue()Ljava/util/List;
+setEffectiveDateOfReferenceRangeValues gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#setEffectiveDateOfReferenceRangeValues(Lgov/cdc/dataingestion/nbs/jaxb/HL7TSType;)V
+setObservationIdentifier gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#setObservationIdentifier(Lgov/cdc/dataingestion/nbs/jaxb/HL7CWEType;)V
+setObservationResultStatus gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#setObservationResultStatus(Ljava/lang/String;)V
+setUserDefinedAccessChecks gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#setUserDefinedAccessChecks(Ljava/lang/String;)V
+getSetIdObx gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getSetIdObx()Ljava/lang/String;
+getObservationValue gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getObservationValue()Ljava/util/List;
+setObservationSubID gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#setObservationSubID(Ljava/lang/String;)V
+getEquipmentInstanceIdentifier gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getEquipmentInstanceIdentifier()Ljava/util/List;
+setReferencesRange gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#setReferencesRange(Ljava/lang/String;)V
+getPerformingOrganizationMedicalDirector gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getPerformingOrganizationMedicalDirector()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xcn;
+setUnits gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#setUnits(Lgov/cdc/dataingestion/nbs/jaxb/HL7CEType;)V
+getProbability gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#getProbability()Ljava/util/List;
+setSetIDOBX gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#setSetIDOBX(Lgov/cdc/dataingestion/nbs/jaxb/HL7SIType;)V
+getPerformingOrganizationAddress gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getPerformingOrganizationAddress()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xad;
+getResponsibleObserver gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getResponsibleObserver()Ljava/util/List;
+getUnits gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getUnits()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;
+setValueType gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#setValueType(Ljava/lang/String;)V
+getUserDefinedAccessChecks gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getUserDefinedAccessChecks()Ljava/lang/String;
+getObservationSubId gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getObservationSubId()Ljava/lang/String;
+getReferencesRange gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getReferencesRange()Ljava/lang/String;
+getPerformingOrganizationName gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getPerformingOrganizationName()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xon;
+getResponsibleObserver gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#getResponsibleObserver()Ljava/util/List;
+getDateTimeOfTheAnalysis gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getDateTimeOfTheAnalysis()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;
+getEquipmentInstanceIdentifier gov.cdc.dataingestion.nbs.jaxb.HL7OBXType#getEquipmentInstanceIdentifier()Ljava/util/List;
+getObservationIdentifier gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getObservationIdentifier()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;

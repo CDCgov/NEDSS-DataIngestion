@@ -1,0 +1,12 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7PATIENTRESULTType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageGroup/PatientResult;)Lgov/cdc/dataingestion/nbs/jaxb/HL7PATIENTRESULTType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#validateHL7PATIENTRESULTType(Ljava/util/List;)V
+gov.cdc.dataingestion.nbs.jaxb.HL7PATIENTRESULTType#instance-init#
+gov.cdc.dataingestion.nbs.jaxb.HL7PATIENTRESULTType#<init>()V
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7PATIENTType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageGroup/Patient;)Lgov/cdc/dataingestion/nbs/jaxb/HL7PATIENTType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7OrderObservationType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageGroup/OrderObservation;)Lgov/cdc/dataingestion/nbs/jaxb/HL7OrderObservationType;
+==
+getOrderObservation gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.PatientResult#getOrderObservation()Ljava/util/List;
+getPatient gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.PatientResult#getPatient()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageGroup/Patient;
+setPATIENT gov.cdc.dataingestion.nbs.jaxb.HL7PATIENTRESULTType#setPATIENT(Lgov/cdc/dataingestion/nbs/jaxb/HL7PATIENTType;)V
+add java.util.List#add(Ljava/lang/Object;)Z
+getORDEROBSERVATION gov.cdc.dataingestion.nbs.jaxb.HL7PATIENTRESULTType#getORDEROBSERVATION()Ljava/util/List;

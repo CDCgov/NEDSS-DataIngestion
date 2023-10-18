@@ -1,0 +1,21 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7LabReportType(Lgov/cdc/dataingestion/hl7/helper/model/HL7ParsedMessage;)Lgov/cdc/dataingestion/nbs/jaxb/HL7LabReportType;
+java.lang.Object#getClass()Ljava/lang/Class;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7MSHType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageSegment/MessageHeader;)Lgov/cdc/dataingestion/nbs/jaxb/HL7MSHType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7ContinuationPointerType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageType/OruR1;)Lgov/cdc/dataingestion/nbs/jaxb/HL7ContinuationPointerType;
+gov.cdc.dataingestion.nbs.jaxb.HL7LabReportType#<init>()V
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildSoftwareSegments(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageType/OruR1;)Ljava/util/List;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7ContinuationPointerType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageType/OruR1;)Z
+gov.cdc.dataingestion.nbs.jaxb.HL7LabReportType#instance-init#
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7PATIENTRESULTType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageGroup/PatientResult;)Lgov/cdc/dataingestion/nbs/jaxb/HL7PATIENTRESULTType;
+java.lang.Class#isNestmateOf(Ljava/lang/Class;)Z
+==
+setHL7MSH gov.cdc.dataingestion.nbs.jaxb.HL7LabReportType#setHL7MSH(Lgov/cdc/dataingestion/nbs/jaxb/HL7MSHType;)V
+addAll java.util.List#addAll(Ljava/util/Collection;)Z
+getParsedMessage gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage#getParsedMessage()Ljava/lang/Object;
+getHL7SoftwareSegment gov.cdc.dataingestion.nbs.jaxb.HL7LabReportType#getHL7SoftwareSegment()Ljava/util/List;
+error org.slf4j.Logger#error(Ljava/lang/String;)V
+add java.util.List#add(Ljava/lang/Object;)Z
+setHL7ContinuationPointer gov.cdc.dataingestion.nbs.jaxb.HL7LabReportType#setHL7ContinuationPointer(Lgov/cdc/dataingestion/nbs/jaxb/HL7ContinuationPointerType;)V
+getPatientResult gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1#getPatientResult()Ljava/util/List;
+getHL7PATIENTRESULT gov.cdc.dataingestion.nbs.jaxb.HL7LabReportType#getHL7PATIENTRESULT()Ljava/util/List;
+getMessageHeader gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1#getMessageHeader()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageSegment/MessageHeader;

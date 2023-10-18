@@ -1,0 +1,9 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaTreatmentMappingHelper#mapToTreatmentTopDocCheck(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)Lgov/cdc/dataingestion/nbs/ecr/model/treatment/TreatmentDocument;
+gov.cdc.dataingestion.nbs.ecr.model.treatment.TreatmentDocument#<init>()V
+gov.cdc.dataingestion.nbs.ecr.model.treatment.TreatmentDocument#instance-init#
+==
+setClinicalDocument gov.cdc.dataingestion.nbs.ecr.model.treatment.TreatmentDocument#setClinicalDocument(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+setC gov.cdc.dataingestion.nbs.ecr.model.treatment.TreatmentDocument#setC(I)V
+getC gov.cdc.dataingestion.nbs.ecr.model.shares.MapStructure#getC()I
+getClinicalDocument gov.cdc.dataingestion.nbs.ecr.model.shares.MapStructure#getClinicalDocument()Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;
+mapToStructureBodyCheck gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper#mapToStructureBodyCheck(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)Lgov/cdc/dataingestion/nbs/ecr/model/shares/MapStructure;

@@ -1,0 +1,17 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaInterviewMappingHelper#mapToInterviewObservationFieldP1(Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgCaseAnswerDto;Ljava/lang/String;Lgov/cdc/dataingestion/nbs/ecr/model/interview/InterviewObs;)Lgov/cdc/dataingestion/nbs/ecr/model/interview/InterviewObs;
+java.lang.Integer#parseInt(Ljava/lang/String;)I
+java.lang.String#equals(Ljava/lang/Object;)Z
+java.lang.String#isEmpty()Z
+==
+getDataType gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerDto#getDataType()Ljava/lang/String;
+getQuestionGroupSeqNbr gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerDto#getQuestionGroupSeqNbr()Ljava/lang/String;
+getSeqNbr gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerDto#getSeqNbr()Ljava/lang/String;
+getQuestionGroupSeqNbr gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewObs#getQuestionGroupSeqNbr()I
+setAnswerGroupSeqNbr gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewObs#setAnswerGroupSeqNbr(I)V
+setSequenceNbr gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewObs#setSequenceNbr(I)V
+setQuestionGroupSeqNbr gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewObs#setQuestionGroupSeqNbr(I)V
+setDataType gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewObs#setDataType(Ljava/lang/String;)V
+getAnswerGroupSeqNbr gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewObs#getAnswerGroupSeqNbr()I
+getSequenceNbr gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewObs#getSequenceNbr()I
+getDataType gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewObs#getDataType()Ljava/lang/String;
+getAnswerGroupSeqNbr gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerDto#getAnswerGroupSeqNbr()Ljava/lang/String;

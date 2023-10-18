@@ -1,0 +1,21 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#mapToCodedAnswer(Ljava/lang/String;Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/repository/model/dao/lookup/PhdcAnswerDao;
+gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#<init>()V
+java.lang.String#isEmpty()Z
+gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#instance-init#
+java.lang.String#equalsIgnoreCase(Ljava/lang/String;)Z
+==
+fetchPhdcAnswerByCriteriaForTranslationCode gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService#fetchPhdcAnswerByCriteriaForTranslationCode(Ljava/lang/String;Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/repository/model/dto/lookup/PhdcAnswerLookUpDto;
+getAnsToCode gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcAnswerLookUpDto#getAnsToCode()Ljava/lang/String;
+getAnsFromCodeSystemCd gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcAnswerLookUpDto#getAnsFromCodeSystemCd()Ljava/lang/String;
+setDisplayName gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#setDisplayName(Ljava/lang/String;)V
+setTransCodeSystemName gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#setTransCodeSystemName(Ljava/lang/String;)V
+getAnsToCodeSystemCd gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcAnswerLookUpDto#getAnsToCodeSystemCd()Ljava/lang/String;
+setCode gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#setCode(Ljava/lang/String;)V
+setCodeSystemName gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#setCodeSystemName(Ljava/lang/String;)V
+getAnsFromDisplayNm gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcAnswerLookUpDto#getAnsFromDisplayNm()Ljava/lang/String;
+setTransCodeSystem gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#setTransCodeSystem(Ljava/lang/String;)V
+setCodeSystem gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#setCodeSystem(Ljava/lang/String;)V
+getAnsToCodeSystemDescTxt gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcAnswerLookUpDto#getAnsToCodeSystemDescTxt()Ljava/lang/String;
+setTransDisplayName gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#setTransDisplayName(Ljava/lang/String;)V
+getAnsToDisplayNm gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcAnswerLookUpDto#getAnsToDisplayNm()Ljava/lang/String;
+setTransCode gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#setTransCode(Ljava/lang/String;)V

@@ -1,0 +1,12 @@
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#fetchMsgProviderForApplicableEcr(Ljava/lang/Integer;)Ljava/util/List;
+java.util.ArrayList#<init>()V
+java.util.ArrayList#instance-init#
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#loadSqlFromFile(Ljava/lang/String;)Ljava/lang/String;
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#setProviderData([Ljava/lang/Object;)Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgProviderDto;
+==
+createNativeQuery jakarta.persistence.EntityManager#createNativeQuery(Ljava/lang/String;)Ljakarta/persistence/Query;
+initDataMap gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgProviderDto#initDataMap()V
+add java.util.List#add(Ljava/lang/Object;)Z
+setParameter jakarta.persistence.Query#setParameter(Ljava/lang/String;Ljava/lang/Object;)Ljakarta/persistence/Query;
+getResultList jakarta.persistence.Query#getResultList()Ljava/util/List;
+isEmpty java.util.List#isEmpty()Z

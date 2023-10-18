@@ -1,0 +1,5 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildTrailingComments(Ljava/lang/String;)Ljava/lang/String;
+java.lang.StringBuilder#instance-init#
+java.lang.StringBuilder#append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+java.lang.StringBuilder#<init>()V
+java.lang.StringBuilder#toString()Ljava/lang/String;

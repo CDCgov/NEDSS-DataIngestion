@@ -1,0 +1,11 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPlaceMappingHelper#mapToPlaceFieldCheckP2WorkPhone(ILgov/cdc/nedss/phdc/cda/POCDMT000040Participant2;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+java.util.List#of(Ljava/lang/Object;)Ljava/util/List;
+java.lang.String#length()I
+java.lang.String#isEmpty()Z
+==
+getTelecomArray gov.cdc.nedss.phdc.cda.POCDMT000040ParticipantRole#getTelecomArray(I)Lgov/cdc/nedss/phdc/cda/TEL;
+addNewParticipantRole gov.cdc.nedss.phdc.cda.POCDMT000040Participant2#addNewParticipantRole()Lgov/cdc/nedss/phdc/cda/POCDMT000040ParticipantRole;
+setUse gov.cdc.nedss.phdc.cda.TEL#setUse(Ljava/util/List;)V
+addNewTelecom gov.cdc.nedss.phdc.cda.POCDMT000040ParticipantRole#addNewTelecom()Lgov/cdc/nedss/phdc/cda/TEL;
+getParticipantRole gov.cdc.nedss.phdc.cda.POCDMT000040Participant2#getParticipantRole()Lgov/cdc/nedss/phdc/cda/POCDMT000040ParticipantRole;
+setValue gov.cdc.nedss.phdc.cda.URL#setValue(Ljava/lang/String;)V

@@ -1,0 +1,5 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pt#<init>(Lca/uhn/hl7v2/model/v251/datatype/PT;)V
+==
+getProcessingMode ca.uhn.hl7v2.model.v251.datatype.PT#getProcessingMode()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getProcessingID ca.uhn.hl7v2.model.v251.datatype.PT#getProcessingID()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;

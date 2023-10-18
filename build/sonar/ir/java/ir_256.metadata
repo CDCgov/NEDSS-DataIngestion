@@ -1,0 +1,23 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad#<init>(Lca/uhn/hl7v2/model/v251/datatype/XAD;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Dr#<init>(Lca/uhn/hl7v2/model/v251/datatype/DR;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Sad#<init>(Lca/uhn/hl7v2/model/v251/datatype/SAD;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Sad#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#<init>(Lca/uhn/hl7v2/model/v251/datatype/TS;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Dr#instance-init#
+==
+getOtherDesignation ca.uhn.hl7v2.model.v251.datatype.XAD#getOtherDesignation()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getCity ca.uhn.hl7v2.model.v251.datatype.XAD#getCity()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getStreetAddress ca.uhn.hl7v2.model.v251.datatype.XAD#getStreetAddress()Lca/uhn/hl7v2/model/v251/datatype/SAD;
+getStateOrProvince ca.uhn.hl7v2.model.v251.datatype.XAD#getStateOrProvince()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getAddressValidityRange ca.uhn.hl7v2.model.v251.datatype.XAD#getAddressValidityRange()Lca/uhn/hl7v2/model/v251/datatype/DR;
+getAddressType ca.uhn.hl7v2.model.v251.datatype.XAD#getAddressType()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
+getCountry ca.uhn.hl7v2.model.v251.datatype.XAD#getCountry()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getOtherGeographicDesignation ca.uhn.hl7v2.model.v251.datatype.XAD#getOtherGeographicDesignation()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getCensusTract ca.uhn.hl7v2.model.v251.datatype.XAD#getCensusTract()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getExpirationDate ca.uhn.hl7v2.model.v251.datatype.XAD#getExpirationDate()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getEffectiveDate ca.uhn.hl7v2.model.v251.datatype.XAD#getEffectiveDate()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getZipOrPostalCode ca.uhn.hl7v2.model.v251.datatype.XAD#getZipOrPostalCode()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getAddressRepresentationCode ca.uhn.hl7v2.model.v251.datatype.XAD#getAddressRepresentationCode()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getCountyParishCode ca.uhn.hl7v2.model.v251.datatype.XAD#getCountyParishCode()Lca/uhn/hl7v2/model/v251/datatype/IS;

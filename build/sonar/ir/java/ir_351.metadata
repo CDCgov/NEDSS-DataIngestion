@@ -1,0 +1,3 @@
+gov.cdc.dataingestion.config.ClassConfig#csvValidator()Lgov/cdc/dataingestion/validation/integration/validator/interfaces/ICsvValidator;
+gov.cdc.dataingestion.validation.integration.validator.CsvValidator#<init>()V
+gov.cdc.dataingestion.validation.integration.validator.CsvValidator#instance-init#

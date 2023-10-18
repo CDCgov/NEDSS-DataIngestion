@@ -1,0 +1,4 @@
+gov.cdc.dataingestion.rawmessage.service.RawELRService#getById(Ljava/lang/String;)Lgov/cdc/dataingestion/rawmessage/dto/RawERLDto;
+gov.cdc.dataingestion.rawmessage.service.RawELRService#convert(Lgov/cdc/dataingestion/report/repository/model/RawERLModel;)Lgov/cdc/dataingestion/rawmessage/dto/RawERLDto;
+==
+getById org.springframework.data.jpa.repository.JpaRepository#getById(Ljava/lang/Object;)Ljava/lang/Object;

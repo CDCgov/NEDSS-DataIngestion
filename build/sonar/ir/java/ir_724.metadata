@@ -1,0 +1,18 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaTreatmentMappingHelper#mapToTreatmentTreatName(Lgov/cdc/nedss/phdc/cda/POCDMT000040SubstanceAdministration;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+java.lang.String#isEmpty()Z
+==
+addNewManufacturedProduct gov.cdc.nedss.phdc.cda.POCDMT000040Consumable#addNewManufacturedProduct()Lgov/cdc/nedss/phdc/cda/POCDMT000040ManufacturedProduct;
+addNewCode gov.cdc.nedss.phdc.cda.POCDMT000040LabeledDrug#addNewCode()Lgov/cdc/nedss/phdc/cda/CE;
+setCode gov.cdc.nedss.phdc.cda.POCDMT000040LabeledDrug#setCode(Lgov/cdc/nedss/phdc/cda/CE;)V
+addNewManufacturedLabeledDrug gov.cdc.nedss.phdc.cda.POCDMT000040ManufacturedProduct#addNewManufacturedLabeledDrug()Lgov/cdc/nedss/phdc/cda/POCDMT000040LabeledDrug;
+getName gov.cdc.nedss.phdc.cda.POCDMT000040LabeledDrug#getName()Lgov/cdc/nedss/phdc/cda/EN;
+mapToCEAnswerType gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper#mapToCEAnswerType(Ljava/lang/String;Ljava/lang/String;)Lgov/cdc/nedss/phdc/cda/CE;
+getConsumable gov.cdc.nedss.phdc.cda.POCDMT000040SubstanceAdministration#getConsumable()Lgov/cdc/nedss/phdc/cda/POCDMT000040Consumable;
+getManufacturedProduct gov.cdc.nedss.phdc.cda.POCDMT000040Consumable#getManufacturedProduct()Lgov/cdc/nedss/phdc/cda/POCDMT000040ManufacturedProduct;
+getCode gov.cdc.nedss.phdc.cda.POCDMT000040LabeledDrug#getCode()Lgov/cdc/nedss/phdc/cda/CE;
+setNullFlavor gov.cdc.nedss.phdc.cda.ANY#setNullFlavor(Ljava/lang/String;)V
+addNewName gov.cdc.nedss.phdc.cda.POCDMT000040LabeledDrug#addNewName()Lgov/cdc/nedss/phdc/cda/EN;
+mapToCData gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper#mapToCData(Ljava/lang/String;)Lorg/apache/xmlbeans/XmlObject;
+getManufacturedLabeledDrug gov.cdc.nedss.phdc.cda.POCDMT000040ManufacturedProduct#getManufacturedLabeledDrug()Lgov/cdc/nedss/phdc/cda/POCDMT000040LabeledDrug;
+set org.apache.xmlbeans.XmlObject#set(Lorg/apache/xmlbeans/XmlObject;)Lorg/apache/xmlbeans/XmlObject;
+addNewConsumable gov.cdc.nedss.phdc.cda.POCDMT000040SubstanceAdministration#addNewConsumable()Lgov/cdc/nedss/phdc/cda/POCDMT000040Consumable;

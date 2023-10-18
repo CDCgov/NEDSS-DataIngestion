@@ -1,0 +1,33 @@
+
+Ðgov.cdc.dataingestion.nbs.services.CdaLookUpService#fetchPhdcAnswerByCriteriaForTranslationCode(Ljava/lang/String;Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/repository/model/dto/lookup/PhdcAnswerLookUpDto;—
+Œ/Users/DucNguyen/Desktop/CDC_Repos/NEDSS-DataIngestion/report-service/src/main/java/gov/cdc/dataingestion/nbs/services/CdaLookUpService.java (J"1*´
+1 (È
+Å
+ ('E
+%0?gov.cdc.dataingestion.nbs.repository.model.IEcrLookUpRepository"__id*l
+
+__unknown_file (P*N5
+3gov.cdc.dataingestion.nbs.services.CdaLookUpService"
+ecrLookUpRepositoryú÷
+ (tO
+%1Igov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcAnswerLookUpDto"Ügov.cdc.dataingestion.nbs.repository.model.IEcrLookUpRepository#fetchPhdcAnswerByCriteriaForTranslationCode(Ljava/lang/String;Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/repository/model/dto/lookup/PhdcAnswerLookUpDto;*c
+
+__unknown_file (G
+E
+%0?gov.cdc.dataingestion.nbs.repository.model.IEcrLookUpRepository*D
+
+__unknown_file ((
+&
+questionIdentifierjava.lang.String*=
+
+__unknown_file (!
+
+ansFromCodejava.lang.String2QfetchPhdcAnswerByCriteriaForTranslationCode(Ljava/lang/String;Ljava/lang/String;)"]
+ (uQ
+O
+%1Igov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcAnswerLookUpDto:2
+K (e&
+questionIdentifierjava.lang.String:+
+f (x
+ansFromCodejava.lang.StringB75
+3gov.cdc.dataingestion.nbs.services.CdaLookUpServiceH

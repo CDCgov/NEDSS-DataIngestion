@@ -1,0 +1,4 @@
+gov.cdc.dataingestion.security.controller.TokenController#token(Lorg/springframework/security/core/Authentication;)Ljava/lang/String;
+==
+generateToken gov.cdc.dataingestion.security.service.TokenService#generateToken(Lorg/springframework/security/core/Authentication;)Ljava/lang/String;
+getName java.security.Principal#getName()Ljava/lang/String;

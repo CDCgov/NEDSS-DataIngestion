@@ -1,0 +1,14 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#mapToPSNSuffix(Ljava/lang/String;Lgov/cdc/nedss/phdc/cda/POCDMT000040Participant2;)V
+gov.cdc.nedss.phdc.cda.EnSuffix$Factory#newInstance()Lgov/cdc/nedss/phdc/cda/EnSuffix;
+==
+addNewPlayingEntity gov.cdc.nedss.phdc.cda.POCDMT000040ParticipantRole#addNewPlayingEntity()Lgov/cdc/nedss/phdc/cda/POCDMT000040PlayingEntity;
+getSuffixArray gov.cdc.nedss.phdc.cda.EN#getSuffixArray(I)Lgov/cdc/nedss/phdc/cda/EnSuffix;
+addNewName gov.cdc.nedss.phdc.cda.POCDMT000040PlayingEntity#addNewName()Lgov/cdc/nedss/phdc/cda/PN;
+getNameArray gov.cdc.nedss.phdc.cda.POCDMT000040PlayingEntity#getNameArray(I)Lgov/cdc/nedss/phdc/cda/PN;
+addNewSuffix gov.cdc.nedss.phdc.cda.EN#addNewSuffix()Lgov/cdc/nedss/phdc/cda/EnSuffix;
+addNewParticipantRole gov.cdc.nedss.phdc.cda.POCDMT000040Participant2#addNewParticipantRole()Lgov/cdc/nedss/phdc/cda/POCDMT000040ParticipantRole;
+getParticipantRole gov.cdc.nedss.phdc.cda.POCDMT000040Participant2#getParticipantRole()Lgov/cdc/nedss/phdc/cda/POCDMT000040ParticipantRole;
+setSuffixArray gov.cdc.nedss.phdc.cda.EN#setSuffixArray(ILgov/cdc/nedss/phdc/cda/EnSuffix;)V
+getPlayingEntity gov.cdc.nedss.phdc.cda.POCDMT000040ParticipantRole#getPlayingEntity()Lgov/cdc/nedss/phdc/cda/POCDMT000040PlayingEntity;
+mapToCData gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#mapToCData(Ljava/lang/String;)Lorg/apache/xmlbeans/XmlObject;
+set org.apache.xmlbeans.XmlObject#set(Lorg/apache/xmlbeans/XmlObject;)Lorg/apache/xmlbeans/XmlObject;

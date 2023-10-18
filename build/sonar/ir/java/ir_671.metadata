@@ -1,0 +1,12 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#mapToORGFieldStreetState(Ljava/lang/String;Lgov/cdc/nedss/phdc/cda/POCDMT000040Participant2;)V
+gov.cdc.nedss.phdc.cda.AdxpState$Factory#newInstance()Lgov/cdc/nedss/phdc/cda/AdxpState;
+==
+getStateArray gov.cdc.nedss.phdc.cda.AD#getStateArray(I)Lgov/cdc/nedss/phdc/cda/AdxpState;
+setStateArray gov.cdc.nedss.phdc.cda.AD#setStateArray(ILgov/cdc/nedss/phdc/cda/AdxpState;)V
+addNewParticipantRole gov.cdc.nedss.phdc.cda.POCDMT000040Participant2#addNewParticipantRole()Lgov/cdc/nedss/phdc/cda/POCDMT000040ParticipantRole;
+getParticipantRole gov.cdc.nedss.phdc.cda.POCDMT000040Participant2#getParticipantRole()Lgov/cdc/nedss/phdc/cda/POCDMT000040ParticipantRole;
+mapToCData gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#mapToCData(Ljava/lang/String;)Lorg/apache/xmlbeans/XmlObject;
+getAddrArray gov.cdc.nedss.phdc.cda.POCDMT000040ParticipantRole#getAddrArray(I)Lgov/cdc/nedss/phdc/cda/AD;
+addNewState gov.cdc.nedss.phdc.cda.AD#addNewState()Lgov/cdc/nedss/phdc/cda/AdxpState;
+set org.apache.xmlbeans.XmlObject#set(Lorg/apache/xmlbeans/XmlObject;)Lorg/apache/xmlbeans/XmlObject;
+addNewAddr gov.cdc.nedss.phdc.cda.POCDMT000040ParticipantRole#addNewAddr()Lgov/cdc/nedss/phdc/cda/AD;

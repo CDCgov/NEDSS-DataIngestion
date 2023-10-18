@@ -1,0 +1,8 @@
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapTs231(Lca/uhn/hl7v2/model/v231/datatype/TS;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;
+==
+getValue ca.uhn.hl7v2.model.primitive.TSComponentOne#getValue()Ljava/lang/String;
+getDegreeOfPrecision ca.uhn.hl7v2.model.v231.datatype.TS#getDegreeOfPrecision()Lca/uhn/hl7v2/model/v231/datatype/ST;
+getTimeOfAnEvent ca.uhn.hl7v2.model.v231.datatype.TS#getTimeOfAnEvent()Lca/uhn/hl7v2/model/v231/datatype/TSComponentOne;
+setTime gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#setTime(Ljava/lang/String;)V
+setDegreeOfPrecision gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#setDegreeOfPrecision(Ljava/lang/String;)V
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;

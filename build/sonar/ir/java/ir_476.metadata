@@ -1,0 +1,23 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildSoftwareSegments(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageType/OruR1;)Ljava/util/List;
+java.util.ArrayList#<init>()V
+gov.cdc.dataingestion.nbs.jaxb.HL7SoftwareSegmentType#instance-init#
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7XONType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xon;)Lgov/cdc/dataingestion/nbs/jaxb/HL7XONType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7TSType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;I)Lgov/cdc/dataingestion/nbs/jaxb/HL7TSType;
+java.util.ArrayList#instance-init#
+gov.cdc.dataingestion.nbs.jaxb.HL7SoftwareSegmentType#<init>()V
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7TXType(Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/jaxb/HL7TXType;
+==
+getSoftwareVendorOrganization gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment#getSoftwareVendorOrganization()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xon;
+getSoftwareProductName gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment#getSoftwareProductName()Ljava/lang/String;
+setSoftwareProductInformation gov.cdc.dataingestion.nbs.jaxb.HL7SoftwareSegmentType#setSoftwareProductInformation(Lgov/cdc/dataingestion/nbs/jaxb/HL7TXType;)V
+getSoftwareInstallDate gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment#getSoftwareInstallDate()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;
+setSoftwareCertifiedVersionOrReleaseNumber gov.cdc.dataingestion.nbs.jaxb.HL7SoftwareSegmentType#setSoftwareCertifiedVersionOrReleaseNumber(Ljava/lang/String;)V
+setSoftwareBinaryID gov.cdc.dataingestion.nbs.jaxb.HL7SoftwareSegmentType#setSoftwareBinaryID(Ljava/lang/String;)V
+add java.util.ArrayList#add(Ljava/lang/Object;)Z
+setSoftwareProductName gov.cdc.dataingestion.nbs.jaxb.HL7SoftwareSegmentType#setSoftwareProductName(Ljava/lang/String;)V
+setSoftwareVendorOrganization gov.cdc.dataingestion.nbs.jaxb.HL7SoftwareSegmentType#setSoftwareVendorOrganization(Lgov/cdc/dataingestion/nbs/jaxb/HL7XONType;)V
+getSoftwareCertifiedVersionOrReleaseNumber gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment#getSoftwareCertifiedVersionOrReleaseNumber()Ljava/lang/String;
+getSoftwareSegment gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1#getSoftwareSegment()Ljava/util/List;
+getSoftwareBinaryId gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment#getSoftwareBinaryId()Ljava/lang/String;
+getSoftwareProductInformation gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment#getSoftwareProductInformation()Ljava/lang/String;
+setSoftwareInstallDate gov.cdc.dataingestion.nbs.jaxb.HL7SoftwareSegmentType#setSoftwareInstallDate(Lgov/cdc/dataingestion/nbs/jaxb/HL7TSType;)V

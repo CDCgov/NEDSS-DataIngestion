@@ -1,0 +1,6 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#<init>(Lca/uhn/hl7v2/model/v251/datatype/TS;)V
+==
+getValue ca.uhn.hl7v2.model.primitive.TSComponentOne#getValue()Ljava/lang/String;
+getDegreeOfPrecision ca.uhn.hl7v2.model.v251.datatype.TS#getDegreeOfPrecision()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getTime ca.uhn.hl7v2.model.v251.datatype.TS#getTime()Lca/uhn/hl7v2/model/v251/datatype/DTM;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;

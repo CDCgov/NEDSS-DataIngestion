@@ -1,0 +1,15 @@
+
+Zgov.cdc.dataingestion.report.repository.model.RawERLModel#getCreatedBy()Ljava/lang/String;ù
+í/Users/DucNguyen/Desktop/CDC_Repos/NEDSS-DataIngestion/report-service/src/main/java/gov/cdc/dataingestion/report/repository/model/RawERLModel.javaL L("1*À
+1M M(ï
+í
+M M(
+%0java.lang.String"__id*h
+
+__unknown_file (L*J;
+9gov.cdc.dataingestion.report.repository.model.RawERLModel"
+	createdBy"$
+M M(
+
+%0java.lang.StringB=;
+9gov.cdc.dataingestion.report.repository.model.RawERLModelH

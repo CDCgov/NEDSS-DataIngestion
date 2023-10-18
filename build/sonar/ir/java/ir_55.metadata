@@ -1,0 +1,3 @@
+gov.cdc.dataingestion.hl7.helper.HL7Helper#hl7StringParser231(Ljava/lang/String;)Lca/uhn/hl7v2/model/v231/message/ORU_R01;
+==
+hl7v231StringParser gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser#hl7v231StringParser(Ljava/lang/String;)Lca/uhn/hl7v2/model/v231/message/ORU_R01;

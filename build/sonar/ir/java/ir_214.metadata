@@ -1,0 +1,38 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader#<init>(Lca/uhn/hl7v2/model/v251/segment/MSH;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#<init>(Lca/uhn/hl7v2/model/v251/datatype/HD;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#<init>(Lca/uhn/hl7v2/model/v251/datatype/CE;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pt#<init>(Lca/uhn/hl7v2/model/v251/datatype/PT;)V
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetIdStringList([Lca/uhn/hl7v2/model/v251/datatype/ID;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Msg#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pt#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Vid#<init>(Lca/uhn/hl7v2/model/v251/datatype/VID;)V
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetEiList([Lca/uhn/hl7v2/model/v251/datatype/EI;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#<init>(Lca/uhn/hl7v2/model/v251/datatype/TS;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Vid#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Msg#<init>(Lca/uhn/hl7v2/model/v251/datatype/MSG;)V
+==
+getMessageType ca.uhn.hl7v2.model.v251.segment.MSH#getMessageType()Lca/uhn/hl7v2/model/v251/datatype/MSG;
+getCharacterSet ca.uhn.hl7v2.model.v251.segment.MSH#getCharacterSet()[Lca/uhn/hl7v2/model/v251/datatype/ID;
+getSendingApplication ca.uhn.hl7v2.model.v251.segment.MSH#getSendingApplication()Lca/uhn/hl7v2/model/v251/datatype/HD;
+getApplicationAcknowledgmentType ca.uhn.hl7v2.model.v251.segment.MSH#getApplicationAcknowledgmentType()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getSecurity ca.uhn.hl7v2.model.v251.segment.MSH#getSecurity()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getReceivingApplication ca.uhn.hl7v2.model.v251.segment.MSH#getReceivingApplication()Lca/uhn/hl7v2/model/v251/datatype/HD;
+getContinuationPointer ca.uhn.hl7v2.model.v251.segment.MSH#getContinuationPointer()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getAcceptAcknowledgmentType ca.uhn.hl7v2.model.v251.segment.MSH#getAcceptAcknowledgmentType()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
+getMessageControlID ca.uhn.hl7v2.model.v251.segment.MSH#getMessageControlID()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getReceivingFacility ca.uhn.hl7v2.model.v251.segment.MSH#getReceivingFacility()Lca/uhn/hl7v2/model/v251/datatype/HD;
+getMessageProfileIdentifier ca.uhn.hl7v2.model.v251.segment.MSH#getMessageProfileIdentifier()[Lca/uhn/hl7v2/model/v251/datatype/EI;
+getVersionID ca.uhn.hl7v2.model.v251.segment.MSH#getVersionID()Lca/uhn/hl7v2/model/v251/datatype/VID;
+getAlternateCharacterSetHandlingScheme ca.uhn.hl7v2.model.v251.segment.MSH#getAlternateCharacterSetHandlingScheme()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getSequenceNumber ca.uhn.hl7v2.model.v251.segment.MSH#getSequenceNumber()Lca/uhn/hl7v2/model/v251/datatype/NM;
+getFieldSeparator ca.uhn.hl7v2.model.v251.segment.MSH#getFieldSeparator()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getEncodingCharacters ca.uhn.hl7v2.model.v251.segment.MSH#getEncodingCharacters()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getCountryCode ca.uhn.hl7v2.model.v251.segment.MSH#getCountryCode()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getDateTimeOfMessage ca.uhn.hl7v2.model.v251.segment.MSH#getDateTimeOfMessage()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getSendingFacility ca.uhn.hl7v2.model.v251.segment.MSH#getSendingFacility()Lca/uhn/hl7v2/model/v251/datatype/HD;
+getProcessingID ca.uhn.hl7v2.model.v251.segment.MSH#getProcessingID()Lca/uhn/hl7v2/model/v251/datatype/PT;
+getPrincipalLanguageOfMessage ca.uhn.hl7v2.model.v251.segment.MSH#getPrincipalLanguageOfMessage()Lca/uhn/hl7v2/model/v251/datatype/CE;

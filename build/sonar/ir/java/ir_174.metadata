@@ -1,0 +1,16 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.timingQty.TimingQuantityRelationship#<init>(Lca/uhn/hl7v2/model/v251/segment/TQ2;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cq#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cq#<init>(Lca/uhn/hl7v2/model/v251/datatype/CQ;)V
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetEiList([Lca/uhn/hl7v2/model/v251/datatype/EI;)Ljava/util/ArrayList;
+==
+getSequenceConditionTimeInterval ca.uhn.hl7v2.model.v251.segment.TQ2#getSequenceConditionTimeInterval()Lca/uhn/hl7v2/model/v251/datatype/CQ;
+getSetIDTQ2 ca.uhn.hl7v2.model.v251.segment.TQ2#getSetIDTQ2()Lca/uhn/hl7v2/model/v251/datatype/SI;
+getCyclicGroupMaximumNumberOfRepeats ca.uhn.hl7v2.model.v251.segment.TQ2#getCyclicGroupMaximumNumberOfRepeats()Lca/uhn/hl7v2/model/v251/datatype/NM;
+getSequenceResultsFlag ca.uhn.hl7v2.model.v251.segment.TQ2#getSequenceResultsFlag()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getSequenceConditionCode ca.uhn.hl7v2.model.v251.segment.TQ2#getSequenceConditionCode()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getRelatedPlacerNumber ca.uhn.hl7v2.model.v251.segment.TQ2#getRelatedPlacerNumber()[Lca/uhn/hl7v2/model/v251/datatype/EI;
+getRelatedPlacerGroupNumber ca.uhn.hl7v2.model.v251.segment.TQ2#getRelatedPlacerGroupNumber()[Lca/uhn/hl7v2/model/v251/datatype/EI;
+getSpecialServiceRequestRelationship ca.uhn.hl7v2.model.v251.segment.TQ2#getSpecialServiceRequestRelationship()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getCyclicEntryExitIndicator ca.uhn.hl7v2.model.v251.segment.TQ2#getCyclicEntryExitIndicator()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
+getRelatedFillerNumber ca.uhn.hl7v2.model.v251.segment.TQ2#getRelatedFillerNumber()[Lca/uhn/hl7v2/model/v251/datatype/EI;

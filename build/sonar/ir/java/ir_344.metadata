@@ -1,0 +1,8 @@
+gov.cdc.dataingestion.rawmessage.service.RawELRService#submission(Lgov/cdc/dataingestion/rawmessage/dto/RawERLDto;)Ljava/lang/String;
+gov.cdc.dataingestion.rawmessage.service.RawELRService#convert(Lgov/cdc/dataingestion/rawmessage/dto/RawERLDto;)Lgov/cdc/dataingestion/report/repository/model/RawERLModel;
+==
+save org.springframework.data.repository.CrudRepository#save(Ljava/lang/Object;)Ljava/lang/Object;
+sendMessageFromController gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService#sendMessageFromController(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Boolean;)V
+getId gov.cdc.dataingestion.report.repository.model.RawERLModel#getId()Ljava/lang/String;
+getValidationActive gov.cdc.dataingestion.rawmessage.dto.RawERLDto#getValidationActive()Ljava/lang/Boolean;
+getType gov.cdc.dataingestion.rawmessage.dto.RawERLDto#getType()Ljava/lang/String;

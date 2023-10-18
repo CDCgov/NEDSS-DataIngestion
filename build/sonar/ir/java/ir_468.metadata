@@ -1,0 +1,8 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7RIType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ri;)Lgov/cdc/dataingestion/nbs/jaxb/HL7RIType;
+gov.cdc.dataingestion.nbs.jaxb.HL7RIType#instance-init#
+gov.cdc.dataingestion.nbs.jaxb.HL7RIType#<init>()V
+==
+setRepeatPattern gov.cdc.dataingestion.nbs.jaxb.HL7RIType#setRepeatPattern(Ljava/lang/String;)V
+getExplicitTimeInterval gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ri#getExplicitTimeInterval()Ljava/lang/String;
+setExplicitTimeInterval gov.cdc.dataingestion.nbs.jaxb.HL7RIType#setExplicitTimeInterval(Ljava/lang/String;)V
+getRepeatPattern gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ri#getRepeatPattern()Ljava/lang/String;

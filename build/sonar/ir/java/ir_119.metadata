@@ -1,0 +1,78 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ObservationRequest#<init>(Lca/uhn/hl7v2/model/v251/segment/OBR;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ei#<init>(Lca/uhn/hl7v2/model/v251/datatype/EI;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cwe#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cq#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cq#<init>(Lca/uhn/hl7v2/model/v251/datatype/CQ;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ndl#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Eip#<init>(Lca/uhn/hl7v2/model/v251/datatype/EIP;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ndl#<init>(Lca/uhn/hl7v2/model/v251/datatype/NDL;)V
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetXtnList([Lca/uhn/hl7v2/model/v251/datatype/XTN;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cwe#<init>(Lca/uhn/hl7v2/model/v251/datatype/CWE;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Moc#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Prl#<init>(Lca/uhn/hl7v2/model/v251/datatype/PRL;)V
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetTqList([Lca/uhn/hl7v2/model/v251/datatype/TQ;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Prl#instance-init#
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetNdlList([Lca/uhn/hl7v2/model/v251/datatype/NDL;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ei#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#<init>(Lca/uhn/hl7v2/model/v251/datatype/CE;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#instance-init#
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetCeList([Lca/uhn/hl7v2/model/v251/datatype/CE;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Sps#<init>(Lca/uhn/hl7v2/model/v251/datatype/SPS;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Eip#instance-init#
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetXcnList([Lca/uhn/hl7v2/model/v251/datatype/XCN;)Ljava/util/ArrayList;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Moc#<init>(Lca/uhn/hl7v2/model/v251/datatype/MOC;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Sps#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#<init>(Lca/uhn/hl7v2/model/v251/datatype/TS;)V
+==
+getRelevantClinicalInformation ca.uhn.hl7v2.model.v251.segment.OBR#getRelevantClinicalInformation()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getProcedureCode ca.uhn.hl7v2.model.v251.segment.OBR#getProcedureCode()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getResultStatus ca.uhn.hl7v2.model.v251.segment.OBR#getResultStatus()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getParentResult ca.uhn.hl7v2.model.v251.segment.OBR#getParentResult()Lca/uhn/hl7v2/model/v251/datatype/PRL;
+getReasonForStudy ca.uhn.hl7v2.model.v251.segment.OBR#getReasonForStudy()[Lca/uhn/hl7v2/model/v251/datatype/CE;
+getEscortRequired ca.uhn.hl7v2.model.v251.segment.OBR#getEscortRequired()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getSpecimenSource ca.uhn.hl7v2.model.v251.segment.OBR#getSpecimenSource()Lca/uhn/hl7v2/model/v251/datatype/SPS;
+getPlannedPatientTransportComment ca.uhn.hl7v2.model.v251.segment.OBR#getPlannedPatientTransportComment()[Lca/uhn/hl7v2/model/v251/datatype/CE;
+getMedicallyNecessaryDuplicateProcedureReason ca.uhn.hl7v2.model.v251.segment.OBR#getMedicallyNecessaryDuplicateProcedureReason()Lca/uhn/hl7v2/model/v251/datatype/CWE;
+getFillerSupplementalServiceInformation ca.uhn.hl7v2.model.v251.segment.OBR#getFillerSupplementalServiceInformation()[Lca/uhn/hl7v2/model/v251/datatype/CE;
+getParentUniversalServiceIdentifier ca.uhn.hl7v2.model.v251.segment.OBR#getParentUniversalServiceIdentifier()Lca/uhn/hl7v2/model/v251/datatype/CWE;
+getPlacerOrderNumber ca.uhn.hl7v2.model.v251.segment.OBR#getPlacerOrderNumber()Lca/uhn/hl7v2/model/v251/datatype/EI;
+getResultsRptStatusChngDateTime ca.uhn.hl7v2.model.v251.segment.OBR#getResultsRptStatusChngDateTime()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getOrderCallbackPhoneNumber ca.uhn.hl7v2.model.v251.segment.OBR#getOrderCallbackPhoneNumber()[Lca/uhn/hl7v2/model/v251/datatype/XTN;
+getResultCopiesTo ca.uhn.hl7v2.model.v251.segment.OBR#getResultCopiesTo()[Lca/uhn/hl7v2/model/v251/datatype/XCN;
+getPrincipalResultInterpreter ca.uhn.hl7v2.model.v251.segment.OBR#getPrincipalResultInterpreter()Lca/uhn/hl7v2/model/v251/datatype/NDL;
+getQuantityTiming ca.uhn.hl7v2.model.v251.segment.OBR#getQuantityTiming()[Lca/uhn/hl7v2/model/v251/datatype/TQ;
+getRequestedDateTime ca.uhn.hl7v2.model.v251.segment.OBR#getRequestedDateTime()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getProcedureCodeModifier ca.uhn.hl7v2.model.v251.segment.OBR#getProcedureCodeModifier()[Lca/uhn/hl7v2/model/v251/datatype/CE;
+getScheduledDateTime ca.uhn.hl7v2.model.v251.segment.OBR#getScheduledDateTime()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getPlacerSupplementalServiceInformation ca.uhn.hl7v2.model.v251.segment.OBR#getPlacerSupplementalServiceInformation()[Lca/uhn/hl7v2/model/v251/datatype/CE;
+getObservationEndDateTime ca.uhn.hl7v2.model.v251.segment.OBR#getObservationEndDateTime()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getTechnician ca.uhn.hl7v2.model.v251.segment.OBR#getTechnician()[Lca/uhn/hl7v2/model/v251/datatype/NDL;
+getTransportLogisticsOfCollectedSample ca.uhn.hl7v2.model.v251.segment.OBR#getTransportLogisticsOfCollectedSample()[Lca/uhn/hl7v2/model/v251/datatype/CE;
+getSetIDOBR ca.uhn.hl7v2.model.v251.segment.OBR#getSetIDOBR()Lca/uhn/hl7v2/model/v251/datatype/SI;
+getCollectionVolume ca.uhn.hl7v2.model.v251.segment.OBR#getCollectionVolume()Lca/uhn/hl7v2/model/v251/datatype/CQ;
+getPlacerField1 ca.uhn.hl7v2.model.v251.segment.OBR#getPlacerField1()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getFillerField2 ca.uhn.hl7v2.model.v251.segment.OBR#getFillerField2()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getCollectorIdentifier ca.uhn.hl7v2.model.v251.segment.OBR#getCollectorIdentifier()[Lca/uhn/hl7v2/model/v251/datatype/XCN;
+getDiagnosticServSectID ca.uhn.hl7v2.model.v251.segment.OBR#getDiagnosticServSectID()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getPlacerField2 ca.uhn.hl7v2.model.v251.segment.OBR#getPlacerField2()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getFillerField1 ca.uhn.hl7v2.model.v251.segment.OBR#getFillerField1()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getChargeToPractice ca.uhn.hl7v2.model.v251.segment.OBR#getChargeToPractice()Lca/uhn/hl7v2/model/v251/datatype/MOC;
+getCollectorSComment ca.uhn.hl7v2.model.v251.segment.OBR#getCollectorSComment()[Lca/uhn/hl7v2/model/v251/datatype/CE;
+getTransportArranged ca.uhn.hl7v2.model.v251.segment.OBR#getTransportArranged()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getNumberOfSampleContainers ca.uhn.hl7v2.model.v251.segment.OBR#getNumberOfSampleContainers()Lca/uhn/hl7v2/model/v251/datatype/NM;
+getOBRParent ca.uhn.hl7v2.model.v251.segment.OBR#getOBRParent()Lca/uhn/hl7v2/model/v251/datatype/EIP;
+getUniversalServiceIdentifier ca.uhn.hl7v2.model.v251.segment.OBR#getUniversalServiceIdentifier()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getAssistantResultInterpreter ca.uhn.hl7v2.model.v251.segment.OBR#getAssistantResultInterpreter()[Lca/uhn/hl7v2/model/v251/datatype/NDL;
+getTransportationMode ca.uhn.hl7v2.model.v251.segment.OBR#getTransportationMode()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getObservationDateTime ca.uhn.hl7v2.model.v251.segment.OBR#getObservationDateTime()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getTranscriptionist ca.uhn.hl7v2.model.v251.segment.OBR#getTranscriptionist()[Lca/uhn/hl7v2/model/v251/datatype/NDL;
+getOrderingProvider ca.uhn.hl7v2.model.v251.segment.OBR#getOrderingProvider()[Lca/uhn/hl7v2/model/v251/datatype/XCN;
+getTransportArrangementResponsibility ca.uhn.hl7v2.model.v251.segment.OBR#getTransportArrangementResponsibility()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getSpecimenActionCode ca.uhn.hl7v2.model.v251.segment.OBR#getSpecimenActionCode()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getSpecimenReceivedDateTime ca.uhn.hl7v2.model.v251.segment.OBR#getSpecimenReceivedDateTime()Lca/uhn/hl7v2/model/v251/datatype/TS;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
+getDangerCode ca.uhn.hl7v2.model.v251.segment.OBR#getDangerCode()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getFillerOrderNumber ca.uhn.hl7v2.model.v251.segment.OBR#getFillerOrderNumber()Lca/uhn/hl7v2/model/v251/datatype/EI;
+getResultHandling ca.uhn.hl7v2.model.v251.segment.OBR#getResultHandling()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getPriorityOBR ca.uhn.hl7v2.model.v251.segment.OBR#getPriorityOBR()Lca/uhn/hl7v2/model/v251/datatype/ID;

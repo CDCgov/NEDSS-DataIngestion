@@ -1,0 +1,5 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ri#<init>(Lca/uhn/hl7v2/model/v251/datatype/RI;)V
+==
+getRepeatPattern ca.uhn.hl7v2.model.v251.datatype.RI#getRepeatPattern()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
+getExplicitTimeInterval ca.uhn.hl7v2.model.v251.datatype.RI#getExplicitTimeInterval()Lca/uhn/hl7v2/model/v251/datatype/ST;

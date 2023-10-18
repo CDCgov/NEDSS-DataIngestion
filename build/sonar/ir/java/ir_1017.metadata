@@ -1,0 +1,2 @@
+gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService#handleMessageForFhirConversionElr(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService#conversionHandlerForFhir(Ljava/lang/String;Ljava/lang/String;)V

@@ -1,0 +1,10 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaInterviewMappingHelper#mapToInterviewFieldCheckP1StatusCd(Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;Lgov/cdc/dataingestion/nbs/repository/model/dao/EcrSelectedInterview;I)V
+==
+getSection gov.cdc.nedss.phdc.cda.POCDMT000040Component3#getSection()Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;
+setCode gov.cdc.nedss.phdc.cda.CD#setCode(Ljava/lang/String;)V
+getMsgInterview gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedInterview#getMsgInterview()Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgInterviewDto;
+addNewStatusCode gov.cdc.nedss.phdc.cda.POCDMT000040Encounter#addNewStatusCode()Lgov/cdc/nedss/phdc/cda/CS;
+getIxsStatusCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgInterviewDto#getIxsStatusCd()Ljava/lang/String;
+getStatusCode gov.cdc.nedss.phdc.cda.POCDMT000040Encounter#getStatusCode()Lgov/cdc/nedss/phdc/cda/CS;
+getEntryArray gov.cdc.nedss.phdc.cda.POCDMT000040Section#getEntryArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040Entry;
+getEncounter gov.cdc.nedss.phdc.cda.POCDMT000040Entry#getEncounter()Lgov/cdc/nedss/phdc/cda/POCDMT000040Encounter;

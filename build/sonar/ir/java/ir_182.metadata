@@ -1,0 +1,9 @@
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapOBR2and3ToORC2and3(Lca/uhn/hl7v2/model/v231/segment/OBR;Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/CommonOrder;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/CommonOrder;
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapEi231(Lca/uhn/hl7v2/model/v231/datatype/EI;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ei;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ei;
+==
+getPlacerOrderNumber gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#getPlacerOrderNumber()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ei;
+getFillerOrderNumber gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#getFillerOrderNumber()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ei;
+setPlacerGroupNumber gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setPlacerGroupNumber(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ei;)V
+getPlacerOrderNumber ca.uhn.hl7v2.model.v231.segment.OBR#getPlacerOrderNumber()Lca/uhn/hl7v2/model/v231/datatype/EI;
+getFillerOrderNumber ca.uhn.hl7v2.model.v231.segment.OBR#getFillerOrderNumber()Lca/uhn/hl7v2/model/v231/datatype/EI;
+setFillerOrderNumber gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#setFillerOrderNumber(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ei;)V

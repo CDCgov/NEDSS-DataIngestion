@@ -1,0 +1,3 @@
+gov.cdc.dataingestion.hl7.helper.integration.HL7Parser#hl7MessageStringValidation(Ljava/lang/String;)Ljava/lang/String;
+java.lang.String#contains(Ljava/lang/CharSequence;)Z
+java.lang.String#replaceAll(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;

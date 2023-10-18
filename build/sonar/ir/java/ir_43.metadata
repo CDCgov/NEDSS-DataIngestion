@@ -1,0 +1,7 @@
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetCqList([Lca/uhn/hl7v2/model/v251/datatype/CQ;)Ljava/util/ArrayList;
+java.util.ArrayList#<init>()V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cq#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cq#<init>(Lca/uhn/hl7v2/model/v251/datatype/CQ;)V
+java.util.ArrayList#instance-init#
+==
+add java.util.ArrayList#add(Ljava/lang/Object;)Z

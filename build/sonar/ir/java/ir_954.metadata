@@ -1,0 +1,16 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaInterviewMappingHelper#mapInterviewDuplicateLoc(Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;I)Lgov/cdc/dataingestion/nbs/ecr/model/interview/InterviewEntryRelation;
+gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewEntryRelation#<init>()V
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaInterviewMappingHelper#mapToInterviewFieldCheckP1Loc(Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;I)Lgov/cdc/dataingestion/nbs/ecr/model/interview/InterviewRole;
+gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewEntryRelation#instance-init#
+==
+setTypeCode gov.cdc.nedss.phdc.cda.POCDMT000040EntryRelationship#setTypeCode(Lgov/cdc/nedss/phdc/cda/XActRelationshipEntryRelationship$Enum;)V
+getSection gov.cdc.nedss.phdc.cda.POCDMT000040Component3#getSection()Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;
+getOut gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewRole#getOut()Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;
+getEntryRelationshipArray gov.cdc.nedss.phdc.cda.POCDMT000040Encounter#getEntryRelationshipArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040EntryRelationship;
+getObservation gov.cdc.nedss.phdc.cda.POCDMT000040EntryRelationship#getObservation()Lgov/cdc/nedss/phdc/cda/POCDMT000040Observation;
+setOut gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewEntryRelation#setOut(Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;)V
+getEntryArray gov.cdc.nedss.phdc.cda.POCDMT000040Section#getEntryArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040Entry;
+getEncounter gov.cdc.nedss.phdc.cda.POCDMT000040Entry#getEncounter()Lgov/cdc/nedss/phdc/cda/POCDMT000040Encounter;
+setC gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewEntryRelation#setC(I)V
+setObs gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewEntryRelation#setObs(Lgov/cdc/nedss/phdc/cda/POCDMT000040Observation;)V
+getC gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewRole#getC()I

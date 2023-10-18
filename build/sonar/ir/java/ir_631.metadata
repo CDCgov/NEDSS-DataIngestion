@@ -1,0 +1,7 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#mapToAddressType(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+java.lang.String#isEmpty()Z
+==
+getCode gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#getCode()Ljava/lang/String;
+getCodeSystemName gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#getCodeSystemName()Ljava/lang/String;
+mapToCodedAnswer gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#mapToCodedAnswer(Ljava/lang/String;Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/repository/model/dao/lookup/PhdcAnswerDao;
+getDisplayName gov.cdc.dataingestion.nbs.repository.model.dao.lookup.PhdcAnswerDao#getDisplayName()Ljava/lang/String;

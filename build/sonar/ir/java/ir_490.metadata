@@ -1,0 +1,15 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7CWEType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;)Lgov/cdc/dataingestion/nbs/jaxb/HL7CWEType;
+gov.cdc.dataingestion.nbs.jaxb.HL7CWEType#<init>()V
+org.apache.commons.lang3.StringUtils#isNotEmpty(Ljava/lang/CharSequence;)Z
+gov.cdc.dataingestion.nbs.jaxb.HL7CWEType#instance-init#
+==
+getAlternateText gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#getAlternateText()Ljava/lang/String;
+getIdentifier gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#getIdentifier()Ljava/lang/String;
+setHL7Identifier gov.cdc.dataingestion.nbs.jaxb.HL7CWEType#setHL7Identifier(Ljava/lang/String;)V
+getNameOfCodingSystem gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#getNameOfCodingSystem()Ljava/lang/String;
+getAlternateIdentifier gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#getAlternateIdentifier()Ljava/lang/String;
+getText gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#getText()Ljava/lang/String;
+setHL7Text gov.cdc.dataingestion.nbs.jaxb.HL7CWEType#setHL7Text(Ljava/lang/String;)V
+setHL7NameofCodingSystem gov.cdc.dataingestion.nbs.jaxb.HL7CWEType#setHL7NameofCodingSystem(Ljava/lang/String;)V
+setHL7AlternateText gov.cdc.dataingestion.nbs.jaxb.HL7CWEType#setHL7AlternateText(Ljava/lang/String;)V
+setHL7AlternateIdentifier gov.cdc.dataingestion.nbs.jaxb.HL7CWEType#setHL7AlternateIdentifier(Ljava/lang/String;)V

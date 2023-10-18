@@ -1,0 +1,30 @@
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#setOrgData([Ljava/lang/Object;)Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgOrganizationDto;
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#nullCheckInt(Ljava/lang/Object;)Ljava/lang/Integer;
+gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#instance-init#
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#nullToString(Ljava/lang/Object;)Ljava/lang/String;
+gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#<init>()V
+==
+setOrgAddrZipCodeTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgAddrZipCodeTxt(Ljava/lang/String;)V
+setOrgPhoneCountryCodeTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgPhoneCountryCodeTxt(Ljava/lang/String;)V
+setOrgIdCliaNbrTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgIdCliaNbrTxt(Ljava/lang/String;)V
+setOrgAddrCommentTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgAddrCommentTxt(Ljava/lang/String;)V
+setOrgNameTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgNameTxt(Ljava/lang/String;)V
+setOrgAddrCityTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgAddrCityTxt(Ljava/lang/String;)V
+setOrgClassCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgClassCd(Ljava/lang/String;)V
+setOrgAuthorId gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgAuthorId(Ljava/lang/String;)V
+setOrgAddrCountyCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgAddrCountyCd(Ljava/lang/String;)V
+setOrgLocalId gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgLocalId(Ljava/lang/String;)V
+setOrgPhoneExtensionTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgPhoneExtensionTxt(Ljava/lang/Integer;)V
+setOrgEffectiveTime gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgEffectiveTime(Ljava/sql/Timestamp;)V
+setOrgEmailAddressTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgEmailAddressTxt(Ljava/lang/String;)V
+setOrgUrlAddressTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgUrlAddressTxt(Ljava/lang/String;)V
+setOrgAddrCountryCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgAddrCountryCd(Ljava/lang/String;)V
+setOrgIdFacilityIdentifierTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgIdFacilityIdentifierTxt(Ljava/lang/String;)V
+setOrgIdQuickCodeTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgIdQuickCodeTxt(Ljava/lang/String;)V
+setOrgCommentTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgCommentTxt(Ljava/lang/String;)V
+setOrgAddrStreetAddr1Txt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgAddrStreetAddr1Txt(Ljava/lang/String;)V
+setOrgAddrStateCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgAddrStateCd(Ljava/lang/String;)V
+setOrgPhoneCommentTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgPhoneCommentTxt(Ljava/lang/String;)V
+setOrgRoleCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgRoleCd(Ljava/lang/String;)V
+setOrgAddrStreetAddr2Txt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgAddrStreetAddr2Txt(Ljava/lang/String;)V
+setOrgPhoneNbrTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgOrganizationDto#setOrgPhoneNbrTxt(Ljava/lang/String;)V

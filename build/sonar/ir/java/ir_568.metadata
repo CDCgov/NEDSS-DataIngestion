@@ -1,0 +1,8 @@
+gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerDto#initDataMap()V
+java.util.HashMap#<init>()V
+gov.cdc.dataingestion.share.helper.EcrXmlModelingHelper#<init>()V
+java.util.HashMap#instance-init#
+gov.cdc.dataingestion.share.helper.EcrXmlModelingHelper#instance-init#
+java.lang.Class#getDeclaredFields()[Ljava/lang/reflect/Field;
+==
+setupDataMap gov.cdc.dataingestion.share.helper.EcrXmlModelingHelper#setupDataMap([Ljava/lang/reflect/Field;Ljava/util/Map;Ljava/lang/Object;)Ljava/util/Map;

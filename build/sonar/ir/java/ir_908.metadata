@@ -1,0 +1,7 @@
+gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto#extractCustomMessageAfterColon(Ljava/lang/String;I)Ljava/lang/String;
+java.util.regex.Pattern#matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
+gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto#extractCustomMessageAfterColon(Ljava/lang/String;I)Ljava/lang/String;
+java.util.regex.Matcher#find()Z
+java.util.regex.Pattern#compile(Ljava/lang/String;)Ljava/util/regex/Pattern;
+java.util.regex.Matcher#group(I)Ljava/lang/String;
+java.lang.String#trim()Ljava/lang/String;

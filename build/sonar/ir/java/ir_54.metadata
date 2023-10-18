@@ -1,0 +1,3 @@
+gov.cdc.dataingestion.hl7.helper.HL7Helper#hl7StringParser(Ljava/lang/String;)Lgov/cdc/dataingestion/hl7/helper/model/HL7ParsedMessage;
+==
+hl7StringParser gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser#hl7StringParser(Ljava/lang/String;)Lgov/cdc/dataingestion/hl7/helper/model/HL7ParsedMessage;

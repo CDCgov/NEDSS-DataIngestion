@@ -1,0 +1,6 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaProviderMappingHelper#mapToProviderTopFieldCheckDocCheck(Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;)V
+==
+getTitle gov.cdc.nedss.phdc.cda.POCDMT000040Section#getTitle()Lgov/cdc/nedss/phdc/cda/ST;
+addNewCode gov.cdc.nedss.phdc.cda.POCDMT000040Section#addNewCode()Lgov/cdc/nedss/phdc/cda/CE;
+getCode gov.cdc.nedss.phdc.cda.POCDMT000040Section#getCode()Lgov/cdc/nedss/phdc/cda/CE;
+addNewTitle gov.cdc.nedss.phdc.cda.POCDMT000040Section#addNewTitle()Lgov/cdc/nedss/phdc/cda/ST;

@@ -1,0 +1,23 @@
+gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider#saveXmlMessage(Ljava/lang/String;Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/repository/model/NbsInterfaceModel;
+gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider#getGmtTimestamp()J
+gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#instance-init#
+gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#<init>()V
+java.sql.Timestamp#<init>(J)V
+java.sql.Timestamp#instance-init#
+==
+setRecordStatusCd gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setRecordStatusCd(Ljava/lang/String;)V
+setSystemNm gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setSystemNm(Ljava/lang/String;)V
+setObservationUid gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setObservationUid(Ljava/lang/Integer;)V
+setAddTime gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setAddTime(Ljava/sql/Timestamp;)V
+setOriginalPayload gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setOriginalPayload(Ljava/lang/String;)V
+save org.springframework.data.repository.CrudRepository#save(Ljava/lang/Object;)Ljava/lang/Object;
+debug org.slf4j.Logger#debug(Ljava/lang/String;Ljava/lang/Object;)V
+setSpecimenCollDate gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setSpecimenCollDate(Ljava/sql/Timestamp;)V
+setPayload gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setPayload(Ljava/lang/String;)V
+setDocTypeCd gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setDocTypeCd(Ljava/lang/String;)V
+setOriginalDocTypeCd gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setOriginalDocTypeCd(Ljava/lang/String;)V
+setRecordStatusTime gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setRecordStatusTime(Ljava/sql/Timestamp;)V
+setImpExpIndCd gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setImpExpIndCd(Ljava/lang/String;)V
+setLabClia gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setLabClia(Ljava/lang/String;)V
+setOrderTestCode gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setOrderTestCode(Ljava/lang/String;)V
+setFillerOrderNbr gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel#setFillerOrderNbr(Ljava/lang/String;)V

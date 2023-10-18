@@ -1,0 +1,7 @@
+gov.cdc.dataingestion.config.KafkaConsumerConfig#consumerFactory()Lorg/springframework/kafka/core/ConsumerFactory;
+java.util.HashMap#<init>()V
+java.util.HashMap#instance-init#
+org.springframework.kafka.core.DefaultKafkaConsumerFactory#instance-init#
+org.springframework.kafka.core.DefaultKafkaConsumerFactory#<init>(Ljava/util/Map;)V
+==
+put java.util.Map#put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;

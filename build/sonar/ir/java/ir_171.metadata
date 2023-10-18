@@ -1,0 +1,18 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pl#<init>(Lca/uhn/hl7v2/model/v251/datatype/PL;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#<init>(Lca/uhn/hl7v2/model/v251/datatype/HD;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ei#<init>(Lca/uhn/hl7v2/model/v251/datatype/EI;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ei#instance-init#
+==
+getPersonLocationType ca.uhn.hl7v2.model.v251.datatype.PL#getPersonLocationType()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getPointOfCare ca.uhn.hl7v2.model.v251.datatype.PL#getPointOfCare()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getBed ca.uhn.hl7v2.model.v251.datatype.PL#getBed()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getFacility ca.uhn.hl7v2.model.v251.datatype.PL#getFacility()Lca/uhn/hl7v2/model/v251/datatype/HD;
+getRoom ca.uhn.hl7v2.model.v251.datatype.PL#getRoom()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getComprehensiveLocationIdentifier ca.uhn.hl7v2.model.v251.datatype.PL#getComprehensiveLocationIdentifier()Lca/uhn/hl7v2/model/v251/datatype/EI;
+getLocationStatus ca.uhn.hl7v2.model.v251.datatype.PL#getLocationStatus()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getLocationDescription ca.uhn.hl7v2.model.v251.datatype.PL#getLocationDescription()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getAssigningAuthorityForLocation ca.uhn.hl7v2.model.v251.datatype.PL#getAssigningAuthorityForLocation()Lca/uhn/hl7v2/model/v251/datatype/HD;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
+getBuilding ca.uhn.hl7v2.model.v251.datatype.PL#getBuilding()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getFloor ca.uhn.hl7v2.model.v251.datatype.PL#getFloor()Lca/uhn/hl7v2/model/v251/datatype/IS;

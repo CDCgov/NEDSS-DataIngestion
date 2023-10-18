@@ -1,0 +1,148 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#patientFieldCheck(Ljava/lang/reflect/Field;Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgPatientDto;Lgov/cdc/dataingestion/nbs/ecr/model/patient/CdaPatientField;)Lgov/cdc/dataingestion/nbs/ecr/model/patient/CdaPatientField;
+java.util.List#of(Ljava/lang/Object;)Ljava/util/List;
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRoleGenderCode(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+gov.cdc.nedss.phdc.cda.IVLTS$Factory#newInstance()Lgov/cdc/nedss/phdc/cda/IVLTS;
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#mapPatientRaceCategory(Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgPatientDto;Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRoleAddrState(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRole(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRoleNameArray(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRoleAddrCountry(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+gov.cdc.nedss.phdc.cda.POCDMT000040Place$Factory#newInstance()Lgov/cdc/nedss/phdc/cda/POCDMT000040Place;
+java.lang.Integer#toString()Ljava/lang/String;
+gov.cdc.nedss.phdc.cda.PN$Factory#newInstance()Lgov/cdc/nedss/phdc/cda/PN;
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#mapToPatientNested(ILjava/lang/String;Ljava/lang/String;Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;)Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRoleAlias(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRoleAddrCounty(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#mapPatientAddrCensusTract(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgPatientDto;)V
+gov.cdc.nedss.phdc.cda.AdxpCounty$Factory#newInstance()Lgov/cdc/nedss/phdc/cda/AdxpCounty;
+java.util.ArrayList#instance-init#
+java.util.ArrayList#<init>(Ljava/util/Collection;)V
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRoleAddrPostal(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#mapPatientStructureComponent(ILgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/ecr/model/CdaPatientMapper;
+gov.cdc.nedss.phdc.cda.AD$Factory#newInstance()Lgov/cdc/nedss/phdc/cda/AD;
+java.lang.reflect.Field#getName()Ljava/lang/String;
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#mapToPatientRaceDesc(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgPatientDto;)V
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRoleAddrCity(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRoleBirthCountry(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#validatePatientGenericField(Ljava/lang/reflect/Field;Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgPatientDto;)Z
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkLanguageCode(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+java.lang.String#equals(Ljava/lang/Object;)Z
+java.lang.String#isEmpty()Z
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#getPatientVariableNameAndValue(Ljava/lang/reflect/Field;Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgPatientDto;)Lgov/cdc/dataingestion/nbs/ecr/model/ValueMapper;
+java.lang.String#trim()Ljava/lang/String;
+==
+getPatWorkPhoneNbrTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatWorkPhoneNbrTxt()Ljava/lang/String;
+getPatIdMedicalRecordNbrTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatIdMedicalRecordNbrTxt()Ljava/lang/String;
+getPatNameAsOfDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatNameAsOfDt()Ljava/sql/Timestamp;
+setComponentArray gov.cdc.nedss.phdc.cda.POCDMT000040StructuredBody#setComponentArray(ILgov/cdc/nedss/phdc/cda/POCDMT000040Component3;)V
+getIdArray gov.cdc.nedss.phdc.cda.POCDMT000040PatientRole#getIdArray(I)Lgov/cdc/nedss/phdc/cda/II;
+getAddress1 gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#getAddress1()Ljava/lang/String;
+getPatientIdentifier gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#getPatientIdentifier()I
+setPtPrefix gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#setPtPrefix(Ljava/lang/String;)V
+getPatient gov.cdc.nedss.phdc.cda.POCDMT000040PatientRole#getPatient()Lgov/cdc/nedss/phdc/cda/POCDMT000040Patient;
+getPatLocalId gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatLocalId()Ljava/lang/String;
+getK gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#getK()I
+getPatRaceCategoryCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatRaceCategoryCd()Ljava/lang/String;
+mapToTsType gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper#mapToTsType(Ljava/lang/String;)Lgov/cdc/nedss/phdc/cda/TS;
+setRoot gov.cdc.nedss.phdc.cda.II#setRoot(Ljava/lang/String;)V
+setCellNumber gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#setCellNumber(Ljava/lang/String;)V
+mapToAddressType gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper#mapToAddressType(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+setMaritalStatusCode gov.cdc.nedss.phdc.cda.POCDMT000040Patient#setMaritalStatusCode(Lgov/cdc/nedss/phdc/cda/CE;)V
+getPatNameAliasTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatNameAliasTxt()Ljava/lang/String;
+getPatHomePhoneNbrTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatHomePhoneNbrTxt()Ljava/lang/String;
+mapToQuestionId gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper#mapToQuestionId(Ljava/lang/String;)Ljava/lang/String;
+getNameArray gov.cdc.nedss.phdc.cda.POCDMT000040Patient#getNameArray(I)Lgov/cdc/nedss/phdc/cda/PN;
+getBirthplace gov.cdc.nedss.phdc.cda.POCDMT000040Patient#getBirthplace()Lgov/cdc/nedss/phdc/cda/POCDMT000040Birthplace;
+getPatUrlAddressTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatUrlAddressTxt()Ljava/lang/String;
+toString java.sql.Timestamp#toString()Ljava/lang/String;
+getPlace gov.cdc.nedss.phdc.cda.POCDMT000040Birthplace#getPlace()Lgov/cdc/nedss/phdc/cda/POCDMT000040Place;
+addNewId gov.cdc.nedss.phdc.cda.POCDMT000040PatientRole#addNewId()Lgov/cdc/nedss/phdc/cda/II;
+getPostalCodeArray gov.cdc.nedss.phdc.cda.AD#getPostalCodeArray(I)Lgov/cdc/nedss/phdc/cda/AdxpPostalCode;
+setNameArray gov.cdc.nedss.phdc.cda.POCDMT000040Patient#setNameArray(ILgov/cdc/nedss/phdc/cda/PN;)V
+setWpNumber gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#setWpNumber(Ljava/lang/String;)V
+mapToCEAnswerType gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper#mapToCEAnswerType(Ljava/lang/String;Ljava/lang/String;)Lgov/cdc/nedss/phdc/cda/CE;
+getPatBirthDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatBirthDt()Ljava/sql/Timestamp;
+getValue gov.cdc.nedss.phdc.cda.TS#getValue()Ljava/lang/String;
+getComponent gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#getComponent()Lgov/cdc/nedss/phdc/cda/POCDMT000040Component2;
+getPatNameFirstTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatNameFirstTxt()Ljava/lang/String;
+setPatientIdentifier gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#setPatientIdentifier(I)V
+dispose org.apache.xmlbeans.XmlCursor#dispose()V
+getRecordTargetArray gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#getRecordTargetArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040RecordTarget;
+getPatPhoneCountryCodeTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatPhoneCountryCodeTxt()Ljava/lang/Integer;
+getPatCellPhoneNbrTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatCellPhoneNbrTxt()Ljava/lang/String;
+getCountyArray gov.cdc.nedss.phdc.cda.AD#getCountyArray(I)Lgov/cdc/nedss/phdc/cda/AdxpCounty;
+setUse gov.cdc.nedss.phdc.cda.EN#setUse(Ljava/util/List;)V
+setPtFirstName gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#setPtFirstName(Ljava/lang/String;)V
+newCursor org.apache.xmlbeans.XmlTokenSource#newCursor()Lorg/apache/xmlbeans/XmlCursor;
+getPatPrimaryLanguageCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatPrimaryLanguageCd()Ljava/lang/String;
+setK gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#setK(I)V
+getLanguageCode gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#getLanguageCode()Lgov/cdc/nedss/phdc/cda/CS;
+getEntryArray gov.cdc.nedss.phdc.cda.POCDMT000040Section#getEntryArray()[Lgov/cdc/nedss/phdc/cda/POCDMT000040Entry;
+getPatEthnicGroupIndCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatEthnicGroupIndCd()Ljava/lang/String;
+getPatIdSsnTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatIdSsnTxt()Ljava/lang/String;
+setAddress2 gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#setAddress2(Ljava/lang/String;)V
+getPatAddrZipCodeTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatAddrZipCodeTxt()Ljava/lang/String;
+setValidTime gov.cdc.nedss.phdc.cda.EN#setValidTime(Lgov/cdc/nedss/phdc/cda/IVLTS;)V
+getPatAddrCityTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatAddrCityTxt()Ljava/lang/String;
+getValue gov.cdc.dataingestion.nbs.ecr.model.ValueMapper#getValue()Ljava/lang/String;
+getPatAddrStateCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatAddrStateCd()Ljava/lang/String;
+getPatNameMiddleTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatNameMiddleTxt()Ljava/lang/String;
+setCode gov.cdc.nedss.phdc.cda.CD#setCode(Ljava/lang/String;)V
+getColName gov.cdc.dataingestion.nbs.ecr.model.ValueMapper#getColName()Ljava/lang/String;
+getPatEmailAddressTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatEmailAddressTxt()Ljava/lang/String;
+getPatWorkPhoneExtensionTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatWorkPhoneExtensionTxt()Ljava/lang/Integer;
+removeXml org.apache.xmlbeans.XmlCursor#removeXml()Z
+setPatientComponentCounter gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#setPatientComponentCounter(I)V
+setEmail gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#setEmail(Ljava/lang/String;)V
+setEthnicGroupCode gov.cdc.nedss.phdc.cda.POCDMT000040Patient#setEthnicGroupCode(Lgov/cdc/nedss/phdc/cda/CE;)V
+getSection gov.cdc.nedss.phdc.cda.POCDMT000040Component3#getSection()Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;
+getInv168 gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#getInv168()Ljava/lang/String;
+getPatNamePrefixCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatNamePrefixCd()Ljava/lang/String;
+setBirthTime gov.cdc.nedss.phdc.cda.POCDMT000040Patient#setBirthTime(Lgov/cdc/nedss/phdc/cda/TS;)V
+getCityArray gov.cdc.nedss.phdc.cda.AD#getCityArray(I)Lgov/cdc/nedss/phdc/cda/AdxpCity;
+getPatAddrCountyCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatAddrCountyCd()Ljava/lang/String;
+setPhoneAsDateTime gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#setPhoneAsDateTime(Ljava/lang/String;)V
+getPatientComponentCounter gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#getPatientComponentCounter()I
+setPtLastName gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#setPtLastName(Ljava/lang/String;)V
+setUrlAddress gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#setUrlAddress(Ljava/lang/String;)V
+getPatAddrStreetAddr2Txt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatAddrStreetAddr2Txt()Ljava/lang/String;
+setPhoneCountryCode gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#setPhoneCountryCode(Ljava/lang/String;)V
+setWorkPhoneExt gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#setWorkPhoneExt(Ljava/lang/String;)V
+setCountyArray gov.cdc.nedss.phdc.cda.AD#setCountyArray([Lgov/cdc/nedss/phdc/cda/AdxpCounty;)V
+setHomePhoneNumber gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#setHomePhoneNumber(Ljava/lang/String;)V
+getPatNameLastTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatNameLastTxt()Ljava/lang/String;
+getPatientRole gov.cdc.nedss.phdc.cda.POCDMT000040RecordTarget#getPatientRole()Lgov/cdc/nedss/phdc/cda/POCDMT000040PatientRole;
+getPatientComponentCounter gov.cdc.dataingestion.nbs.ecr.model.CdaPatientMapper#getPatientComponentCounter()I
+set org.apache.xmlbeans.XmlObject#set(Lorg/apache/xmlbeans/XmlObject;)Lorg/apache/xmlbeans/XmlObject;
+getPatBirthCountryCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatBirthCountryCd()Ljava/lang/String;
+getAddrArray gov.cdc.nedss.phdc.cda.POCDMT000040PatientRole#getAddrArray(I)Lgov/cdc/nedss/phdc/cda/AD;
+setClinicalDocument gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#setClinicalDocument(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+getAddress2 gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#getAddress2()Ljava/lang/String;
+setExtension gov.cdc.nedss.phdc.cda.II#setExtension(Ljava/lang/String;)V
+setPlace gov.cdc.nedss.phdc.cda.POCDMT000040Birthplace#setPlace(Lgov/cdc/nedss/phdc/cda/POCDMT000040Place;)V
+getPatAddrStreetAddr1Txt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatAddrStreetAddr1Txt()Ljava/lang/String;
+getPatNameSuffixCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatNameSuffixCd()Ljava/lang/String;
+beginElement org.apache.xmlbeans.XmlCursor#beginElement(Ljava/lang/String;)V
+getClinicalDocument gov.cdc.dataingestion.nbs.ecr.model.CdaPatientMapper#getClinicalDocument()Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;
+getPatCurrentSexCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatCurrentSexCd()Ljava/lang/String;
+getCountryArray gov.cdc.nedss.phdc.cda.AD#getCountryArray(I)Lgov/cdc/nedss/phdc/cda/AdxpCountry;
+getPatPhoneAsOfDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatPhoneAsOfDt()Ljava/sql/Timestamp;
+setAddress1 gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#setAddress1(Ljava/lang/String;)V
+setAddr gov.cdc.nedss.phdc.cda.POCDMT000040Place#setAddr(Lgov/cdc/nedss/phdc/cda/AD;)V
+getStructuredBody gov.cdc.nedss.phdc.cda.POCDMT000040Component2#getStructuredBody()Lgov/cdc/nedss/phdc/cda/POCDMT000040StructuredBody;
+toEndDoc org.apache.xmlbeans.XmlCursor#toEndDoc()V
+getComponentArray gov.cdc.nedss.phdc.cda.POCDMT000040StructuredBody#getComponentArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;
+insertAttributeWithValue org.apache.xmlbeans.XmlCursor#insertAttributeWithValue(Ljava/lang/String;Ljava/lang/String;)V
+getAddr gov.cdc.nedss.phdc.cda.POCDMT000040Place#getAddr()Lgov/cdc/nedss/phdc/cda/AD;
+getPatMaritalStatusCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatMaritalStatusCd()Ljava/lang/String;
+setTextValue org.apache.xmlbeans.XmlCursor#setTextValue(Ljava/lang/String;)V
+getPatAddrCensusTractTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatAddrCensusTractTxt()Ljava/lang/String;
+getPatRaceDescTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatRaceDescTxt()Ljava/lang/String;
+setAssigningAuthorityName gov.cdc.nedss.phdc.cda.II#setAssigningAuthorityName(Ljava/lang/String;)V
+getStateArray gov.cdc.nedss.phdc.cda.AD#getStateArray(I)Lgov/cdc/nedss/phdc/cda/AdxpState;
+mapToCData gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper#mapToCData(Ljava/lang/String;)Lorg/apache/xmlbeans/XmlObject;
+getPatAddrCountryCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatAddrCountryCd()Ljava/lang/String;
+setAdministrativeGenderCode gov.cdc.nedss.phdc.cda.POCDMT000040Patient#setAdministrativeGenderCode(Lgov/cdc/nedss/phdc/cda/CE;)V
+getGivenArray gov.cdc.nedss.phdc.cda.EN#getGivenArray(I)Lgov/cdc/nedss/phdc/cda/EnGiven;
+setPtMiddleName gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#setPtMiddleName(Ljava/lang/String;)V
+setPtSuffix gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField#setPtSuffix(Ljava/lang/String;)V

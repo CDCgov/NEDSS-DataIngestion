@@ -1,0 +1,8 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Vid#<init>(Lca/uhn/hl7v2/model/v251/datatype/VID;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#<init>(Lca/uhn/hl7v2/model/v251/datatype/CE;)V
+==
+getInternationalizationCode ca.uhn.hl7v2.model.v251.datatype.VID#getInternationalizationCode()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getVersionID ca.uhn.hl7v2.model.v251.datatype.VID#getVersionID()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
+getInternationalVersionID ca.uhn.hl7v2.model.v251.datatype.VID#getInternationalVersionID()Lca/uhn/hl7v2/model/v251/datatype/CE;

@@ -1,0 +1,8 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Visit#<init>(Lca/uhn/hl7v2/model/v251/group/ORU_R01_VISIT;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit.PatientVisitAdditional#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit.PatientVisitAdditional#<init>(Lca/uhn/hl7v2/model/v251/segment/PV2;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit.PatientVisit#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit.PatientVisit#<init>(Lca/uhn/hl7v2/model/v251/segment/PV1;)V
+==
+getPV2 ca.uhn.hl7v2.model.v251.group.ORU_R01_VISIT#getPV2()Lca/uhn/hl7v2/model/v251/segment/PV2;
+getPV1 ca.uhn.hl7v2.model.v251.group.ORU_R01_VISIT#getPV1()Lca/uhn/hl7v2/model/v251/segment/PV1;

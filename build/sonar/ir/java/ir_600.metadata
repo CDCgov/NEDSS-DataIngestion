@@ -1,0 +1,14 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#mapPatientAddrCensusTract(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgPatientDto;)V
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRoleAddrArray(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+gov.cdc.nedss.phdc.cda.AdxpCensusTract$Factory#newInstance()Lgov/cdc/nedss/phdc/cda/AdxpCensusTract;
+==
+getAddrArray gov.cdc.nedss.phdc.cda.POCDMT000040PatientRole#getAddrArray(I)Lgov/cdc/nedss/phdc/cda/AD;
+setCensusTractArray gov.cdc.nedss.phdc.cda.AD#setCensusTractArray(ILgov/cdc/nedss/phdc/cda/AdxpCensusTract;)V
+newCursor org.apache.xmlbeans.XmlTokenSource#newCursor()Lorg/apache/xmlbeans/XmlCursor;
+getPatAddrCensusTractTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatAddrCensusTractTxt()Ljava/lang/String;
+setTextValue org.apache.xmlbeans.XmlCursor#setTextValue(Ljava/lang/String;)V
+getCensusTractArray gov.cdc.nedss.phdc.cda.AD#getCensusTractArray()[Lgov/cdc/nedss/phdc/cda/AdxpCensusTract;
+getPatientRole gov.cdc.nedss.phdc.cda.POCDMT000040RecordTarget#getPatientRole()Lgov/cdc/nedss/phdc/cda/POCDMT000040PatientRole;
+addNewCensusTract gov.cdc.nedss.phdc.cda.AD#addNewCensusTract()Lgov/cdc/nedss/phdc/cda/AdxpCensusTract;
+dispose org.apache.xmlbeans.XmlCursor#dispose()V
+getRecordTargetArray gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#getRecordTargetArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040RecordTarget;

@@ -1,0 +1,6 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaCaseMappingHelper#mapToObsFromParticipant(Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgCaseParticipantDto;Lgov/cdc/nedss/phdc/cda/POCDMT000040Observation;)Lgov/cdc/nedss/phdc/cda/POCDMT000040Observation;
+java.lang.String#isEmpty()Z
+==
+getQuestionIdentifier gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseParticipantDto#getQuestionIdentifier()Ljava/lang/String;
+mapToObservation gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper#mapToObservation(Ljava/lang/String;Ljava/lang/String;Lgov/cdc/nedss/phdc/cda/POCDMT000040Observation;)Lgov/cdc/nedss/phdc/cda/POCDMT000040Observation;
+getAnswerTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseParticipantDto#getAnswerTxt()Ljava/lang/String;

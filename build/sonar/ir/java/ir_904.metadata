@@ -1,0 +1,13 @@
+gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto#<init>(Lgov/cdc/dataingestion/deadletter/repository/model/ElrDeadLetterModel;Lgov/cdc/dataingestion/constant/enums/EnumElrServiceOperation;)V
+==
+getUpdatedOn gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel#getUpdatedOn()Ljava/sql/Timestamp;
+getDltStatus gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel#getDltStatus()Ljava/lang/String;
+getMessage gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel#getMessage()Ljava/lang/String;
+getUpdatedBy gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel#getUpdatedBy()Ljava/lang/String;
+getErrorStackTraceShort gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel#getErrorStackTraceShort()Ljava/lang/String;
+getErrorMessageSource gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel#getErrorMessageSource()Ljava/lang/String;
+getCreatedOn gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel#getCreatedOn()Ljava/sql/Timestamp;
+getErrorStackTrace gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel#getErrorStackTrace()Ljava/lang/String;
+getErrorMessageId gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel#getErrorMessageId()Ljava/lang/String;
+getCreatedBy gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel#getCreatedBy()Ljava/lang/String;
+getDltOccurrence gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel#getDltOccurrence()I

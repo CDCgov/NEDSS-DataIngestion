@@ -1,0 +1,4 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#addCXsToPIDType(Ljava/util/List;Ljava/util/function/Consumer;)V
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7CXType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cx;)Lgov/cdc/dataingestion/nbs/jaxb/HL7CXType;
+==
+accept java.util.function.Consumer#accept(Ljava/lang/Object;)V

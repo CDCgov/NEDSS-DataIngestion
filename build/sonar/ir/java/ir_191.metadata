@@ -1,0 +1,21 @@
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapOsd231(Lca/uhn/hl7v2/model/v231/datatype/OSD;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Osd;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Osd;
+==
+setSequenceConditionValue gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Osd#setSequenceConditionValue(Ljava/lang/String;)V
+setPlacerOrderNumberEntityIdentifier gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Osd#setPlacerOrderNumberEntityIdentifier(Ljava/lang/String;)V
+getFillerOrderNumberNamespaceID ca.uhn.hl7v2.model.v231.datatype.OSD#getFillerOrderNumberNamespaceID()Lca/uhn/hl7v2/model/v231/datatype/IS;
+setMaximumNumberOfRepeats gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Osd#setMaximumNumberOfRepeats(Ljava/lang/String;)V
+getPlacerOrderNumberUniversalID ca.uhn.hl7v2.model.v231.datatype.OSD#getPlacerOrderNumberUniversalID()Lca/uhn/hl7v2/model/v231/datatype/ST;
+getPlacerOrderNumberUniversalIDType ca.uhn.hl7v2.model.v231.datatype.OSD#getPlacerOrderNumberUniversalIDType()Lca/uhn/hl7v2/model/v231/datatype/ID;
+getMaximumNumberOfRepeats ca.uhn.hl7v2.model.v231.datatype.OSD#getMaximumNumberOfRepeats()Lca/uhn/hl7v2/model/v231/datatype/NM;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
+setPlacerOrderNumberUniversalIdType gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Osd#setPlacerOrderNumberUniversalIdType(Ljava/lang/String;)V
+getSequenceResultsFlag ca.uhn.hl7v2.model.v231.datatype.OSD#getSequenceResultsFlag()Lca/uhn/hl7v2/model/v231/datatype/ID;
+setFillerOrderNumberNamespaceId gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Osd#setFillerOrderNumberNamespaceId(Ljava/lang/String;)V
+getSequenceConditionValue ca.uhn.hl7v2.model.v231.datatype.OSD#getSequenceConditionValue()Lca/uhn/hl7v2/model/v231/datatype/ST;
+setPlacerOrderNumberUniversalId gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Osd#setPlacerOrderNumberUniversalId(Ljava/lang/String;)V
+getPlacerOrderNumberEntityIdentifier ca.uhn.hl7v2.model.v231.datatype.OSD#getPlacerOrderNumberEntityIdentifier()Lca/uhn/hl7v2/model/v231/datatype/ST;
+setFillerOrderNumberUniversalIdType gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Osd#setFillerOrderNumberUniversalIdType(Ljava/lang/String;)V
+getFillerOrderNumberEntityIdentifier ca.uhn.hl7v2.model.v231.datatype.OSD#getFillerOrderNumberEntityIdentifier()Lca/uhn/hl7v2/model/v231/datatype/ST;
+setFillerOrderNumberEntityIdentifier gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Osd#setFillerOrderNumberEntityIdentifier(Ljava/lang/String;)V
+getFillerOrderNumberUniversalIDType ca.uhn.hl7v2.model.v231.datatype.OSD#getFillerOrderNumberUniversalIDType()Lca/uhn/hl7v2/model/v231/datatype/ID;
+setSequenceResultFlag gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Osd#setSequenceResultFlag(Ljava/lang/String;)V

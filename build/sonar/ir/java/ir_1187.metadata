@@ -1,0 +1,5 @@
+gov.cdc.dataingestion.security.service.ClientDetailsService#loadUserByUsername(Ljava/lang/String;)Lorg/springframework/security/core/userdetails/UserDetails;
+java.util.Optional#orElseThrow(Ljava/util/function/Supplier;)Ljava/lang/Object;
+java.util.Optional#map(Ljava/util/function/Function;)Ljava/util/Optional;
+==
+findByUsername gov.cdc.dataingestion.security.repository.IClientRepository#findByUsername(Ljava/lang/String;)Ljava/util/Optional;

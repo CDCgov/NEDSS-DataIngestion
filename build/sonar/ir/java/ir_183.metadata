@@ -1,0 +1,27 @@
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapXad231(Lca/uhn/hl7v2/model/v231/datatype/XAD;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xad;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xad;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Sad#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Sad#<init>()V
+==
+getCensusTract ca.uhn.hl7v2.model.v231.datatype.XAD#getCensusTract()Lca/uhn/hl7v2/model/v231/datatype/IS;
+setAddressRepresentationCode gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad#setAddressRepresentationCode(Ljava/lang/String;)V
+setAddressType gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad#setAddressType(Ljava/lang/String;)V
+setCity gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad#setCity(Ljava/lang/String;)V
+setCountry gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad#setCountry(Ljava/lang/String;)V
+getCountyParishCode ca.uhn.hl7v2.model.v231.datatype.XAD#getCountyParishCode()Lca/uhn/hl7v2/model/v231/datatype/IS;
+setOtherGeographic gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad#setOtherGeographic(Ljava/lang/String;)V
+setCensusTract gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad#setCensusTract(Ljava/lang/String;)V
+setOtherDesignation gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad#setOtherDesignation(Ljava/lang/String;)V
+getAddressType ca.uhn.hl7v2.model.v231.datatype.XAD#getAddressType()Lca/uhn/hl7v2/model/v231/datatype/ID;
+getZipOrPostalCode ca.uhn.hl7v2.model.v231.datatype.XAD#getZipOrPostalCode()Lca/uhn/hl7v2/model/v231/datatype/ST;
+getAddressRepresentationCode ca.uhn.hl7v2.model.v231.datatype.XAD#getAddressRepresentationCode()Lca/uhn/hl7v2/model/v231/datatype/ID;
+setZip gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad#setZip(Ljava/lang/String;)V
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
+getCountry ca.uhn.hl7v2.model.v231.datatype.XAD#getCountry()Lca/uhn/hl7v2/model/v231/datatype/ID;
+setCountyCode gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad#setCountyCode(Ljava/lang/String;)V
+getCity ca.uhn.hl7v2.model.v231.datatype.XAD#getCity()Lca/uhn/hl7v2/model/v231/datatype/ST;
+getStateOrProvince ca.uhn.hl7v2.model.v231.datatype.XAD#getStateOrProvince()Lca/uhn/hl7v2/model/v231/datatype/ST;
+setStreetAddress gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad#setStreetAddress(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Sad;)V
+getStreetAddress ca.uhn.hl7v2.model.v231.datatype.XAD#getStreetAddress()Lca/uhn/hl7v2/model/v231/datatype/ST;
+setState gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad#setState(Ljava/lang/String;)V
+getOtherDesignation ca.uhn.hl7v2.model.v231.datatype.XAD#getOtherDesignation()Lca/uhn/hl7v2/model/v231/datatype/ST;
+setStreetMailingAddress gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Sad#setStreetMailingAddress(Ljava/lang/String;)V

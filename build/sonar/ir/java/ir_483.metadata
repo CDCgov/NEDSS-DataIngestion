@@ -1,0 +1,7 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHl7MsgType()Lgov/cdc/dataingestion/nbs/jaxb/HL7MSGType;
+gov.cdc.dataingestion.nbs.jaxb.HL7MSGType#instance-init#
+gov.cdc.dataingestion.nbs.jaxb.HL7MSGType#<init>()V
+==
+setMessageStructure gov.cdc.dataingestion.nbs.jaxb.HL7MSGType#setMessageStructure(Ljava/lang/String;)V
+setMessageCode gov.cdc.dataingestion.nbs.jaxb.HL7MSGType#setMessageCode(Ljava/lang/String;)V
+setTriggerEvent gov.cdc.dataingestion.nbs.jaxb.HL7MSGType#setTriggerEvent(Ljava/lang/String;)V

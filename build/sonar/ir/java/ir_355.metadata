@@ -1,0 +1,3 @@
+gov.cdc.dataingestion.security.model.SecurityUser#getUsername()Ljava/lang/String;
+==
+getUsername gov.cdc.dataingestion.security.model.Client#getUsername()Ljava/lang/String;

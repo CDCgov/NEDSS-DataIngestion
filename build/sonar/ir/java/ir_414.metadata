@@ -1,0 +1,11 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7SPECIMENType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageGroup/Specimen;)Lgov/cdc/dataingestion/nbs/jaxb/HL7SPECIMENType;
+gov.cdc.dataingestion.nbs.jaxb.HL7SPECIMENType#<init>()V
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7SPMType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/specimen/Specimen;)Lgov/cdc/dataingestion/nbs/jaxb/HL7SPMType;
+gov.cdc.dataingestion.nbs.jaxb.HL7SPECIMENType#instance-init#
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7OBXType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/observation/ObservationResult;)Lgov/cdc/dataingestion/nbs/jaxb/HL7OBXType;
+==
+getObservationResult gov.cdc.dataingestion.nbs.jaxb.HL7SPECIMENType#getObservationResult()Ljava/util/List;
+getObservationResult gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Specimen#getObservationResult()Ljava/util/List;
+getSpecimen gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Specimen#getSpecimen()Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/specimen/Specimen;
+add java.util.List#add(Ljava/lang/Object;)Z
+setSPECIMEN gov.cdc.dataingestion.nbs.jaxb.HL7SPECIMENType#setSPECIMEN(Lgov/cdc/dataingestion/nbs/jaxb/HL7SPMType;)V

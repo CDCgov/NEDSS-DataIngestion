@@ -1,0 +1,15 @@
+
+Ngov.cdc.dataingestion.security.model.Client#getUpdatedOn()Ljava/sql/Timestamp;
+„/Users/DucNguyen/Desktop/CDC_Repos/NEDSS-DataIngestion/report-service/src/main/java/gov/cdc/dataingestion/security/model/Client.javaO O(!"1*Á
+1P P(‰
+†
+P P(
+%0java.sql.Timestamp"__id*Z
+
+__unknown_file (>*<-
++gov.cdc.dataingestion.security.model.Client"
+	updatedOn"&
+P P(
+
+%0java.sql.TimestampB/-
++gov.cdc.dataingestion.security.model.ClientH

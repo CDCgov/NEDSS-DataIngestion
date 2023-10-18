@@ -1,0 +1,69 @@
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#fetchMsgPatientForApplicableEcr(Ljava/lang/Integer;)Ljava/util/List;
+java.util.ArrayList#<init>()V
+gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#instance-init#
+gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#<init>()V
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#nullCheckInt(Ljava/lang/Object;)Ljava/lang/Integer;
+java.util.ArrayList#instance-init#
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#loadSqlFromFile(Ljava/lang/String;)Ljava/lang/String;
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#nullToString(Ljava/lang/Object;)Ljava/lang/String;
+==
+setPatMaritalStatusCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatMaritalStatusCd(Ljava/lang/String;)V
+setPatNamePrefixCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatNamePrefixCd(Ljava/lang/String;)V
+createNativeQuery jakarta.persistence.EntityManager#createNativeQuery(Ljava/lang/String;)Ljakarta/persistence/Query;
+setPatReportedAge gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatReportedAge(Ljava/lang/Integer;)V
+setPatIdMedicalRecordNbrTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatIdMedicalRecordNbrTxt(Ljava/lang/String;)V
+setPatIdSsnTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatIdSsnTxt(Ljava/lang/String;)V
+setPatPhoneAsOfDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatPhoneAsOfDt(Ljava/sql/Timestamp;)V
+setParameter jakarta.persistence.Query#setParameter(Ljava/lang/String;Ljava/lang/Object;)Ljakarta/persistence/Query;
+setPatAddrCountyCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatAddrCountyCd(Ljava/lang/String;)V
+setPatAddrStreetAddr1Txt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatAddrStreetAddr1Txt(Ljava/lang/String;)V
+setPatBirthCountryCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatBirthCountryCd(Ljava/lang/String;)V
+setPatNameAliasTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatNameAliasTxt(Ljava/lang/String;)V
+intValue java.lang.Number#intValue()I
+setPatNameLastTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatNameLastTxt(Ljava/lang/String;)V
+setPatHomePhoneNbrTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatHomePhoneNbrTxt(Ljava/lang/String;)V
+setPatAdditionalGenderTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatAdditionalGenderTxt(Ljava/lang/String;)V
+setPatPrimaryLanguageCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatPrimaryLanguageCd(Ljava/lang/String;)V
+setPatCellPhoneNbrTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatCellPhoneNbrTxt(Ljava/lang/String;)V
+setMsgContainerUid gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setMsgContainerUid(Ljava/lang/Integer;)V
+setPatAddrAsOfDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatAddrAsOfDt(Ljava/sql/Timestamp;)V
+setPatAddrCensusTractTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatAddrCensusTractTxt(Ljava/lang/String;)V
+setPatCurrentSexCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatCurrentSexCd(Ljava/lang/String;)V
+setPatUrlAddressTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatUrlAddressTxt(Ljava/lang/String;)V
+getResultList jakarta.persistence.Query#getResultList()Ljava/util/List;
+setPatNameDegreeCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatNameDegreeCd(Ljava/lang/String;)V
+setPatRaceCategoryCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatRaceCategoryCd(Ljava/lang/String;)V
+setPatNameMiddleTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatNameMiddleTxt(Ljava/lang/String;)V
+setPatSexUnkReasonCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatSexUnkReasonCd(Ljava/lang/String;)V
+setPatAuthorId gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatAuthorId(Ljava/lang/String;)V
+setPatDeceasedDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatDeceasedDt(Ljava/sql/Timestamp;)V
+setPatNameFirstTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatNameFirstTxt(Ljava/lang/String;)V
+setPatAddrCommentTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatAddrCommentTxt(Ljava/lang/String;)V
+setPatEthnicGroupIndCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatEthnicGroupIndCd(Ljava/lang/String;)V
+add java.util.List#add(Ljava/lang/Object;)Z
+setPatPhoneCountryCodeTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatPhoneCountryCodeTxt(Ljava/lang/Integer;)V
+setPatAddrCityTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatAddrCityTxt(Ljava/lang/String;)V
+setPatWorkPhoneNbrTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatWorkPhoneNbrTxt(Ljava/lang/String;)V
+setPatSpeaksEnglishIndCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatSpeaksEnglishIndCd(Ljava/lang/String;)V
+setPatWorkPhoneExtensionTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatWorkPhoneExtensionTxt(Ljava/lang/Integer;)V
+setPatInfoAsOfDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatInfoAsOfDt(Ljava/sql/Timestamp;)V
+setPatPreferredGenderCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatPreferredGenderCd(Ljava/lang/String;)V
+setPatEthnicityUnkReasonCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatEthnicityUnkReasonCd(Ljava/lang/String;)V
+setPatNameAsOfDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatNameAsOfDt(Ljava/sql/Timestamp;)V
+setPatDeceasedIndCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatDeceasedIndCd(Ljava/lang/String;)V
+setPatIdStateHivCaseNbrTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatIdStateHivCaseNbrTxt(Ljava/lang/String;)V
+setPatAddrCountryCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatAddrCountryCd(Ljava/lang/String;)V
+setPatBirthSexCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatBirthSexCd(Ljava/lang/String;)V
+setPatEmailAddressTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatEmailAddressTxt(Ljava/lang/String;)V
+isEmpty java.util.List#isEmpty()Z
+setPatRaceDescTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatRaceDescTxt(Ljava/lang/String;)V
+setPatCommentTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatCommentTxt(Ljava/lang/String;)V
+setPatAddrStreetAddr2Txt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatAddrStreetAddr2Txt(Ljava/lang/String;)V
+setPatNameSuffixCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatNameSuffixCd(Ljava/lang/String;)V
+setPatReportedAgeUnitCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatReportedAgeUnitCd(Ljava/lang/String;)V
+setPatPhoneCommentTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatPhoneCommentTxt(Ljava/lang/String;)V
+setPatLocalId gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatLocalId(Ljava/lang/String;)V
+setPatBirthDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatBirthDt(Ljava/sql/Timestamp;)V
+setPatAddrZipCodeTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatAddrZipCodeTxt(Ljava/lang/String;)V
+setPatEffectiveTime gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatEffectiveTime(Ljava/lang/String;)V
+setPatAddrStateCd gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#setPatAddrStateCd(Ljava/lang/String;)V

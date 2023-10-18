@@ -1,0 +1,8 @@
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamHL7PTType(Lgov/cdc/dataingestion/nbs/jaxb/HL7PTType;)Ljava/lang/String;
+java.lang.StringBuilder#instance-init#
+java.lang.StringBuilder#append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+java.lang.StringBuilder#<init>()V
+java.lang.StringBuilder#toString()Ljava/lang/String;
+==
+getHL7ProcessingMode gov.cdc.dataingestion.nbs.jaxb.HL7PTType#getHL7ProcessingMode()Ljava/lang/String;
+getHL7ProcessingID gov.cdc.dataingestion.nbs.jaxb.HL7PTType#getHL7ProcessingID()Ljava/lang/String;

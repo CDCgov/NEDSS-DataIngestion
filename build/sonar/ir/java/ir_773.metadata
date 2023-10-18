@@ -1,0 +1,3 @@
+gov.cdc.dataingestion.nbs.services.CdaLookUpService#fetchQuestionIdentifierMapByCriteriaByCriteria(Ljava/lang/String;Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/repository/model/dto/lookup/QuestionIdentifierMapDto;
+==
+fetchQuestionIdentifierMapByCriteriaByCriteria gov.cdc.dataingestion.nbs.repository.model.IEcrLookUpRepository#fetchQuestionIdentifierMapByCriteriaByCriteria(Ljava/lang/String;Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/repository/model/dto/lookup/QuestionIdentifierMapDto;

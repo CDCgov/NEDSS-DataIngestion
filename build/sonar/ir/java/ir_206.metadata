@@ -1,0 +1,9 @@
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapCeToXon(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xon;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xon;
+==
+setOrganizationIdentifier gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon#setOrganizationIdentifier(Ljava/lang/String;)V
+setOrganizationName gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon#setOrganizationName(Ljava/lang/String;)V
+setNameSpaceId gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#setNameSpaceId(Ljava/lang/String;)V
+getIdentifier gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#getIdentifier()Ljava/lang/String;
+getAssignAuthority gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon#getAssignAuthority()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;
+getNameOfCodingSystem gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#getNameOfCodingSystem()Ljava/lang/String;
+getText gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#getText()Ljava/lang/String;

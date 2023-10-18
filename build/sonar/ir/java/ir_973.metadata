@@ -1,0 +1,9 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaInterviewMappingHelper#mapToInterviewMultiSelectObservationFieldP1DocCheckOrg(ILgov/cdc/nedss/phdc/cda/POCDMT000040Encounter;)V
+==
+addNewOrganizer gov.cdc.nedss.phdc.cda.POCDMT000040EntryRelationship#addNewOrganizer()Lgov/cdc/nedss/phdc/cda/POCDMT000040Organizer;
+getEntryRelationshipArray gov.cdc.nedss.phdc.cda.POCDMT000040Encounter#getEntryRelationshipArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040EntryRelationship;
+getOrganizer gov.cdc.nedss.phdc.cda.POCDMT000040EntryRelationship#getOrganizer()Lgov/cdc/nedss/phdc/cda/POCDMT000040Organizer;
+addNewStatusCode gov.cdc.nedss.phdc.cda.POCDMT000040Organizer#addNewStatusCode()Lgov/cdc/nedss/phdc/cda/CS;
+getCode gov.cdc.nedss.phdc.cda.POCDMT000040Organizer#getCode()Lgov/cdc/nedss/phdc/cda/CD;
+addNewCode gov.cdc.nedss.phdc.cda.POCDMT000040Organizer#addNewCode()Lgov/cdc/nedss/phdc/cda/CD;
+getStatusCode gov.cdc.nedss.phdc.cda.POCDMT000040Organizer#getStatusCode()Lgov/cdc/nedss/phdc/cda/CS;

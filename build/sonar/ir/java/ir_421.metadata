@@ -1,0 +1,22 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7PATIENTType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageGroup/Patient;)Lgov/cdc/dataingestion/nbs/jaxb/HL7PATIENTType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7PIDType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/patient/PatientIdentification;)Lgov/cdc/dataingestion/nbs/jaxb/HL7PIDType;
+gov.cdc.dataingestion.nbs.jaxb.HL7PATIENTType#instance-init#
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7PID1Type(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/patient/PatientAdditionalDemographic;)Z
+gov.cdc.dataingestion.nbs.jaxb.HL7PATIENTType#<init>()V
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7NTEType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/shared/NoteAndComment;)Lgov/cdc/dataingestion/nbs/jaxb/HL7NTEType;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7NK1Type(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/patient/NextOfKin;)Lgov/cdc/dataingestion/nbs/jaxb/HL7NK1Type;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7PID1Type(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/patient/PatientAdditionalDemographic;)Lgov/cdc/dataingestion/nbs/jaxb/HL7PID1Type;
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7VisitType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageGroup/Visit;)Z
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7VisitType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageGroup/Visit;)Lgov/cdc/dataingestion/nbs/jaxb/HL7VisitType;
+==
+getNextofKinAssociatedParties gov.cdc.dataingestion.nbs.jaxb.HL7PATIENTType#getNextofKinAssociatedParties()Ljava/util/List;
+getVisit gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Patient#getVisit()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageGroup/Visit;
+setVisit gov.cdc.dataingestion.nbs.jaxb.HL7PATIENTType#setVisit(Lgov/cdc/dataingestion/nbs/jaxb/HL7VisitType;)V
+getNoteAndComment gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Patient#getNoteAndComment()Ljava/util/List;
+add java.util.List#add(Ljava/lang/Object;)Z
+setPatientAdditionalDemographic gov.cdc.dataingestion.nbs.jaxb.HL7PATIENTType#setPatientAdditionalDemographic(Lgov/cdc/dataingestion/nbs/jaxb/HL7PID1Type;)V
+setPatientIdentification gov.cdc.dataingestion.nbs.jaxb.HL7PATIENTType#setPatientIdentification(Lgov/cdc/dataingestion/nbs/jaxb/HL7PIDType;)V
+getPatientAdditionalDemographic gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Patient#getPatientAdditionalDemographic()Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/patient/PatientAdditionalDemographic;
+getNotesandComments gov.cdc.dataingestion.nbs.jaxb.HL7PATIENTType#getNotesandComments()Ljava/util/List;
+getNextOfKin gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Patient#getNextOfKin()Ljava/util/List;
+getPatientIdentification gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Patient#getPatientIdentification()Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/patient/PatientIdentification;

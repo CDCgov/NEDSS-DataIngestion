@@ -1,0 +1,9 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaTreatmentMappingHelper#mapToTreatmentFieldCheckDoseAmt(Lgov/cdc/dataingestion/nbs/repository/model/dao/EcrSelectedTreatment;Lgov/cdc/nedss/phdc/cda/POCDMT000040SubstanceAdministration;)V
+java.lang.Integer#toString()Ljava/lang/String;
+java.lang.String#isEmpty()Z
+==
+getDoseQuantity gov.cdc.nedss.phdc.cda.POCDMT000040SubstanceAdministration#getDoseQuantity()Lgov/cdc/nedss/phdc/cda/IVLPQ;
+getTrtDosageAmt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgTreatmentDto#getTrtDosageAmt()Ljava/lang/Integer;
+addNewDoseQuantity gov.cdc.nedss.phdc.cda.POCDMT000040SubstanceAdministration#addNewDoseQuantity()Lgov/cdc/nedss/phdc/cda/IVLPQ;
+setValue gov.cdc.nedss.phdc.cda.PQ#setValue(Ljava/lang/Object;)V
+getMsgTreatment gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedTreatment#getMsgTreatment()Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgTreatmentDto;

@@ -1,0 +1,25 @@
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamCommonOrders(Lgov/cdc/dataingestion/nbs/jaxb/HL7ORCType;)Ljava/lang/String;
+java.lang.StringBuilder#instance-init#
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamHL7XADTypeList(Ljava/util/List;)Ljava/lang/String;
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamHL7XTNTypeList(Ljava/util/List;)Ljava/lang/String;
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamHL7EIType(Lgov/cdc/dataingestion/nbs/jaxb/HL7EIType;)Ljava/lang/String;
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamHL7XCNTypeList(Ljava/util/List;)Ljava/lang/String;
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamHL7XONTypeList(Ljava/util/List;)Ljava/lang/String;
+java.lang.StringBuilder#append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+java.lang.StringBuilder#<init>()V
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamHL7TSType(Lgov/cdc/dataingestion/nbs/jaxb/HL7TSType;)Ljava/lang/String;
+java.lang.StringBuilder#toString()Ljava/lang/String;
+==
+getOrderingFacilityPhoneNumber gov.cdc.dataingestion.nbs.jaxb.HL7ORCType#getOrderingFacilityPhoneNumber()Ljava/util/List;
+getOrderingProviderAddress gov.cdc.dataingestion.nbs.jaxb.HL7ORCType#getOrderingProviderAddress()Ljava/util/List;
+getPlacerOrderNumber gov.cdc.dataingestion.nbs.jaxb.HL7ORCType#getPlacerOrderNumber()Lgov/cdc/dataingestion/nbs/jaxb/HL7EIType;
+getOrderStatus gov.cdc.dataingestion.nbs.jaxb.HL7ORCType#getOrderStatus()Ljava/lang/String;
+getResponseFlag gov.cdc.dataingestion.nbs.jaxb.HL7ORCType#getResponseFlag()Ljava/lang/String;
+getDateTimeOfTransaction gov.cdc.dataingestion.nbs.jaxb.HL7ORCType#getDateTimeOfTransaction()Lgov/cdc/dataingestion/nbs/jaxb/HL7TSType;
+getOrderEffectiveDateTime gov.cdc.dataingestion.nbs.jaxb.HL7ORCType#getOrderEffectiveDateTime()Lgov/cdc/dataingestion/nbs/jaxb/HL7TSType;
+getOrderControl gov.cdc.dataingestion.nbs.jaxb.HL7ORCType#getOrderControl()Ljava/lang/String;
+getOrderingFacilityName gov.cdc.dataingestion.nbs.jaxb.HL7ORCType#getOrderingFacilityName()Ljava/util/List;
+getFillerOrderNumber gov.cdc.dataingestion.nbs.jaxb.HL7ORCType#getFillerOrderNumber()Lgov/cdc/dataingestion/nbs/jaxb/HL7EIType;
+getOrderingFacilityAddress gov.cdc.dataingestion.nbs.jaxb.HL7ORCType#getOrderingFacilityAddress()Ljava/util/List;
+getPlacerGroupNumber gov.cdc.dataingestion.nbs.jaxb.HL7ORCType#getPlacerGroupNumber()Lgov/cdc/dataingestion/nbs/jaxb/HL7EIType;
+getOrderingProvider gov.cdc.dataingestion.nbs.jaxb.HL7ORCType#getOrderingProvider()Ljava/util/List;

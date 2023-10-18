@@ -1,0 +1,12 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#mapToQuestionId(Ljava/lang/String;)Ljava/lang/String;
+gov.cdc.dataingestion.nbs.repository.model.dao.lookup.QuestionIdentifierMapDao#<init>()V
+gov.cdc.dataingestion.nbs.repository.model.dao.lookup.QuestionIdentifierMapDao#instance-init#
+java.lang.String#equalsIgnoreCase(Ljava/lang/String;)Z
+==
+fetchQuestionIdentifierMapByCriteriaByCriteria gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService#fetchQuestionIdentifierMapByCriteriaByCriteria(Ljava/lang/String;Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/repository/model/dto/lookup/QuestionIdentifierMapDto;
+getQuestionIdentifier gov.cdc.dataingestion.nbs.repository.model.dao.lookup.QuestionIdentifierMapDao#getQuestionIdentifier()Ljava/lang/String;
+getDynamicQuestionIdentifier gov.cdc.dataingestion.nbs.repository.model.dao.lookup.QuestionIdentifierMapDao#getDynamicQuestionIdentifier()Ljava/lang/String;
+setDynamicQuestionIdentifier gov.cdc.dataingestion.nbs.repository.model.dao.lookup.QuestionIdentifierMapDao#setDynamicQuestionIdentifier(Ljava/lang/String;)V
+getQuestionIdentifier gov.cdc.dataingestion.nbs.repository.model.dto.lookup.QuestionIdentifierMapDto#getQuestionIdentifier()Ljava/lang/String;
+getDynamicQuestionIdentifier gov.cdc.dataingestion.nbs.repository.model.dto.lookup.QuestionIdentifierMapDto#getDynamicQuestionIdentifier()Ljava/lang/String;
+setQuestionIdentifier gov.cdc.dataingestion.nbs.repository.model.dao.lookup.QuestionIdentifierMapDao#setQuestionIdentifier(Ljava/lang/String;)V

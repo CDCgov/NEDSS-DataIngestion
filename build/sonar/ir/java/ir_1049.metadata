@@ -1,0 +1,7 @@
+gov.cdc.dataingestion.reportstatus.service.ReportStatusService#getStatusForReport(Ljava/lang/String;)Ljava/lang/String;
+java.util.Optional#isEmpty()Z
+java.util.Optional#get()Ljava/lang/Object;
+==
+getNbsInterfaceUid gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData#getNbsInterfaceUid()Ljava/lang/Integer;
+findByRawMessageId gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository#findByRawMessageId(Ljava/lang/String;)Ljava/util/Optional;
+findByNbsInterfaceUid gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository#findByNbsInterfaceUid(Ljava/lang/Integer;)Ljava/util/Optional;

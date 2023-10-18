@@ -1,0 +1,9 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaCaseMappingHelper#checkCaseStructComponent(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+==
+getComponentArray gov.cdc.nedss.phdc.cda.POCDMT000040StructuredBody#getComponentArray()[Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;
+getStructuredBody gov.cdc.nedss.phdc.cda.POCDMT000040Component2#getStructuredBody()Lgov/cdc/nedss/phdc/cda/POCDMT000040StructuredBody;
+getComponent gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#getComponent()Lgov/cdc/nedss/phdc/cda/POCDMT000040Component2;
+addNewStructuredBody gov.cdc.nedss.phdc.cda.POCDMT000040Component2#addNewStructuredBody()Lgov/cdc/nedss/phdc/cda/POCDMT000040StructuredBody;
+addNewComponent gov.cdc.nedss.phdc.cda.POCDMT000040StructuredBody#addNewComponent()Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;
+isSetStructuredBody gov.cdc.nedss.phdc.cda.POCDMT000040Component2#isSetStructuredBody()Z
+addNewComponent gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#addNewComponent()Lgov/cdc/nedss/phdc/cda/POCDMT000040Component2;

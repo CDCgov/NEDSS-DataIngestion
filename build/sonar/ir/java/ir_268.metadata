@@ -1,0 +1,6 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Jcc#<init>(Lca/uhn/hl7v2/model/v251/datatype/JCC;)V
+==
+getJobDescriptionText ca.uhn.hl7v2.model.v251.datatype.JCC#getJobDescriptionText()Lca/uhn/hl7v2/model/v251/datatype/TX;
+getJobClass ca.uhn.hl7v2.model.v251.datatype.JCC#getJobClass()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getJobCode ca.uhn.hl7v2.model.v251.datatype.JCC#getJobCode()Lca/uhn/hl7v2/model/v251/datatype/IS;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;

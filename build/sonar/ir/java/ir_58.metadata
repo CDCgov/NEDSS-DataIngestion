@@ -1,0 +1,3 @@
+gov.cdc.dataingestion.hl7.helper.HL7Helper#hl7Validation(Ljava/lang/String;)Ljava/lang/String;
+==
+hl7ORUValidation gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser#hl7ORUValidation(Ljava/lang/String;)Ljava/lang/String;

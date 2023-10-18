@@ -1,0 +1,19 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaCaseMappingHelper#checkCaseStructComponentWithSectionAndIndex(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;I)Lgov/cdc/dataingestion/nbs/ecr/model/cases/CdaCaseComponent;
+gov.cdc.dataingestion.nbs.ecr.model.cases.CdaCaseComponent#<init>()V
+gov.cdc.dataingestion.nbs.ecr.model.cases.CdaCaseComponent#instance-init#
+==
+getStructuredBody gov.cdc.nedss.phdc.cda.POCDMT000040Component2#getStructuredBody()Lgov/cdc/nedss/phdc/cda/POCDMT000040StructuredBody;
+getId gov.cdc.nedss.phdc.cda.POCDMT000040Section#getId()Lgov/cdc/nedss/phdc/cda/II;
+getComponentArray gov.cdc.nedss.phdc.cda.POCDMT000040StructuredBody#getComponentArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;
+getComponent gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#getComponent()Lgov/cdc/nedss/phdc/cda/POCDMT000040Component2;
+addNewComponent gov.cdc.nedss.phdc.cda.POCDMT000040StructuredBody#addNewComponent()Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;
+addNewCode gov.cdc.nedss.phdc.cda.POCDMT000040Section#addNewCode()Lgov/cdc/nedss/phdc/cda/CE;
+getCode gov.cdc.nedss.phdc.cda.POCDMT000040Section#getCode()Lgov/cdc/nedss/phdc/cda/CE;
+addNewId gov.cdc.nedss.phdc.cda.POCDMT000040Section#addNewId()Lgov/cdc/nedss/phdc/cda/II;
+addNewTitle gov.cdc.nedss.phdc.cda.POCDMT000040Section#addNewTitle()Lgov/cdc/nedss/phdc/cda/ST;
+getComponentArray gov.cdc.nedss.phdc.cda.POCDMT000040StructuredBody#getComponentArray()[Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;
+getSection gov.cdc.nedss.phdc.cda.POCDMT000040Component3#getSection()Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;
+setComponentIndex gov.cdc.dataingestion.nbs.ecr.model.cases.CdaCaseComponent#setComponentIndex(I)V
+addNewSection gov.cdc.nedss.phdc.cda.POCDMT000040Component3#addNewSection()Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;
+getTitle gov.cdc.nedss.phdc.cda.POCDMT000040Section#getTitle()Lgov/cdc/nedss/phdc/cda/ST;
+setClinicalDocument gov.cdc.dataingestion.nbs.ecr.model.cases.CdaCaseComponent#setClinicalDocument(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V

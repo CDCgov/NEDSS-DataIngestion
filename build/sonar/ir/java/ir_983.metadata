@@ -1,0 +1,18 @@
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#fetchMsgContainerForApplicableEcr()Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgContainerDto;
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#nullCheckInt(Ljava/lang/Object;)Ljava/lang/Integer;
+gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgContainerDto#<init>()V
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#loadSqlFromFile(Ljava/lang/String;)Ljava/lang/String;
+gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#nullToString(Ljava/lang/Object;)Ljava/lang/String;
+gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgContainerDto#instance-init#
+==
+setNbsInterfaceUid gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgContainerDto#setNbsInterfaceUid(Ljava/lang/Integer;)V
+createNativeQuery jakarta.persistence.EntityManager#createNativeQuery(Ljava/lang/String;)Ljakarta/persistence/Query;
+setReceivingSystem gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgContainerDto#setReceivingSystem(Ljava/lang/String;)V
+setOngoingCase gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgContainerDto#setOngoingCase(Ljava/lang/String;)V
+getResultList jakarta.persistence.Query#getResultList()Ljava/util/List;
+isEmpty java.util.List#isEmpty()Z
+get java.util.List#get(I)Ljava/lang/Object;
+setVersionCtrNbr gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgContainerDto#setVersionCtrNbr(Ljava/lang/Integer;)V
+setMsgContainerUid gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgContainerDto#setMsgContainerUid(Ljava/lang/Integer;)V
+setInvLocalId gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgContainerDto#setInvLocalId(Ljava/lang/String;)V
+setDataMigrationStatus gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgContainerDto#setDataMigrationStatus(Ljava/lang/Integer;)V

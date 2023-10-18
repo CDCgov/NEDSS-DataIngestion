@@ -1,0 +1,8 @@
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamOrderObservationResults(Lgov/cdc/dataingestion/nbs/jaxb/PatientResultOrderObservation;)Ljava/lang/String;
+java.lang.StringBuilder#instance-init#
+java.lang.StringBuilder#append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+java.lang.StringBuilder#<init>()V
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamHL7OBSERVATIONType(Lgov/cdc/dataingestion/nbs/jaxb/HL7OBSERVATIONType;)Ljava/lang/String;
+java.lang.StringBuilder#toString()Ljava/lang/String;
+==
+getOBSERVATION gov.cdc.dataingestion.nbs.jaxb.PatientResultOrderObservation#getOBSERVATION()Ljava/util/List;

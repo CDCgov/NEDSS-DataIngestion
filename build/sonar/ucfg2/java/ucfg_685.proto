@@ -1,0 +1,15 @@
+
+Zgov.cdc.dataingestion.registration.model.RegisterClient#getUpdatedOn()Ljava/sql/Timestamp;õ
+ê/Users/DucNguyen/Desktop/CDC_Repos/NEDSS-DataIngestion/report-service/src/main/java/gov/cdc/dataingestion/registration/model/RegisterClient.javaO O(!"1*Õ
+1P P(ï
+í
+P P(
+%0java.sql.Timestamp"__id*f
+
+__unknown_file (J*H9
+7gov.cdc.dataingestion.registration.model.RegisterClient"
+	updatedOn"&
+P P(
+
+%0java.sql.TimestampB;9
+7gov.cdc.dataingestion.registration.model.RegisterClientH

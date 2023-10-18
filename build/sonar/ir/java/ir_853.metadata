@@ -1,0 +1,20 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPlaceMappingHelper#mapToPlaceTopFieldCheck(Lgov/cdc/dataingestion/nbs/repository/model/dao/EcrSelectedRecord;Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;II)Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;
+gov.cdc.nedss.phdc.cda.POCDMT000040Section$Factory#newInstance()Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPlaceMappingHelper#mapToPlace(Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgPlaceDto;Lgov/cdc/nedss/phdc/cda/POCDMT000040Participant2;)Lgov/cdc/nedss/phdc/cda/POCDMT000040Participant2;
+==
+setCode gov.cdc.nedss.phdc.cda.CD#setCode(Ljava/lang/String;)V
+setDisplayName gov.cdc.nedss.phdc.cda.CD#setDisplayName(Ljava/lang/String;)V
+setCodeSystemName gov.cdc.nedss.phdc.cda.CD#setCodeSystemName(Ljava/lang/String;)V
+get java.util.List#get(I)Ljava/lang/Object;
+getEntryArray gov.cdc.nedss.phdc.cda.POCDMT000040Section#getEntryArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040Entry;
+getCode gov.cdc.nedss.phdc.cda.POCDMT000040Act#getCode()Lgov/cdc/nedss/phdc/cda/CD;
+addNewCode gov.cdc.nedss.phdc.cda.POCDMT000040Section#addNewCode()Lgov/cdc/nedss/phdc/cda/CE;
+mapOrgPlaceDocCommonField gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper#mapOrgPlaceDocCommonField(Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;I)Lgov/cdc/dataingestion/nbs/ecr/model/shares/OrgPlaceDocCommonField;
+addNewTitle gov.cdc.nedss.phdc.cda.POCDMT000040Section#addNewTitle()Lgov/cdc/nedss/phdc/cda/ST;
+getPerformerSectionCounter gov.cdc.dataingestion.nbs.ecr.model.shares.OrgPlaceDocCommonField#getPerformerSectionCounter()I
+getOut gov.cdc.dataingestion.nbs.ecr.model.shares.OrgPlaceDocCommonField#getOut()Lgov/cdc/nedss/phdc/cda/POCDMT000040Participant2;
+getMsgPlaces gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord#getMsgPlaces()Ljava/util/List;
+getAct gov.cdc.nedss.phdc.cda.POCDMT000040Entry#getAct()Lgov/cdc/nedss/phdc/cda/POCDMT000040Act;
+getClinicalDocument gov.cdc.dataingestion.nbs.ecr.model.shares.OrgPlaceDocCommonField#getClinicalDocument()Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;
+mapOrgPlaceProviderActCommonField gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper#mapOrgPlaceProviderActCommonField(Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;ILgov/cdc/nedss/phdc/cda/POCDMT000040Participant2;)Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;
+setCodeSystem gov.cdc.nedss.phdc.cda.CD#setCodeSystem(Ljava/lang/String;)V

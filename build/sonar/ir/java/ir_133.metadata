@@ -1,0 +1,15 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn#<init>(Lca/uhn/hl7v2/model/v251/datatype/XTN;)V
+==
+getTelecommunicationEquipmentType ca.uhn.hl7v2.model.v251.datatype.XTN#getTelecommunicationEquipmentType()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getLocalNumber ca.uhn.hl7v2.model.v251.datatype.XTN#getLocalNumber()Lca/uhn/hl7v2/model/v251/datatype/NM;
+getExtensionPrefix ca.uhn.hl7v2.model.v251.datatype.XTN#getExtensionPrefix()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
+getTelephoneNumber ca.uhn.hl7v2.model.v251.datatype.XTN#getTelephoneNumber()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getExtension ca.uhn.hl7v2.model.v251.datatype.XTN#getExtension()Lca/uhn/hl7v2/model/v251/datatype/NM;
+getAreaCityCode ca.uhn.hl7v2.model.v251.datatype.XTN#getAreaCityCode()Lca/uhn/hl7v2/model/v251/datatype/NM;
+getTelecommunicationUseCode ca.uhn.hl7v2.model.v251.datatype.XTN#getTelecommunicationUseCode()Lca/uhn/hl7v2/model/v251/datatype/ID;
+getEmailAddress ca.uhn.hl7v2.model.v251.datatype.XTN#getEmailAddress()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getAnyText ca.uhn.hl7v2.model.v251.datatype.XTN#getAnyText()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getUnformattedTelephoneNumber ca.uhn.hl7v2.model.v251.datatype.XTN#getUnformattedTelephoneNumber()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getSpeedDialCode ca.uhn.hl7v2.model.v251.datatype.XTN#getSpeedDialCode()Lca/uhn/hl7v2/model/v251/datatype/ST;
+getCountryCode ca.uhn.hl7v2.model.v251.datatype.XTN#getCountryCode()Lca/uhn/hl7v2/model/v251/datatype/NM;

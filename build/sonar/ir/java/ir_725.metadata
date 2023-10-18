@@ -1,0 +1,17 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaTreatmentMappingHelper#mapToTreatmentCustomTreat(Ljava/lang/String;Lgov/cdc/nedss/phdc/cda/StrucDocText;)Lgov/cdc/nedss/phdc/cda/StrucDocText;
+gov.cdc.nedss.phdc.cda.StrucDocItem$Factory#newInstance()Lgov/cdc/nedss/phdc/cda/StrucDocItem;
+java.lang.String#isEmpty()Z
+gov.cdc.nedss.phdc.cda.StrucDocText$Factory#newInstance()Lgov/cdc/nedss/phdc/cda/StrucDocText;
+==
+getListArray gov.cdc.nedss.phdc.cda.StrucDocText#getListArray()[Lgov/cdc/nedss/phdc/cda/StrucDocList;
+addNewCaption gov.cdc.nedss.phdc.cda.StrucDocList#addNewCaption()Lgov/cdc/nedss/phdc/cda/StrucDocCaption;
+mapToCData gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper#mapToCData(Ljava/lang/String;)Lorg/apache/xmlbeans/XmlObject;
+setItemArray gov.cdc.nedss.phdc.cda.StrucDocList#setItemArray(ILgov/cdc/nedss/phdc/cda/StrucDocItem;)V
+getListArray gov.cdc.nedss.phdc.cda.StrucDocText#getListArray(I)Lgov/cdc/nedss/phdc/cda/StrucDocList;
+getCaption gov.cdc.nedss.phdc.cda.StrucDocList#getCaption()Lgov/cdc/nedss/phdc/cda/StrucDocCaption;
+newCursor org.apache.xmlbeans.XmlTokenSource#newCursor()Lorg/apache/xmlbeans/XmlCursor;
+setTextValue org.apache.xmlbeans.XmlCursor#setTextValue(Ljava/lang/String;)V
+addNewList gov.cdc.nedss.phdc.cda.StrucDocText#addNewList()Lgov/cdc/nedss/phdc/cda/StrucDocList;
+dispose org.apache.xmlbeans.XmlCursor#dispose()V
+set org.apache.xmlbeans.XmlObject#set(Lorg/apache/xmlbeans/XmlObject;)Lorg/apache/xmlbeans/XmlObject;
+addNewItem gov.cdc.nedss.phdc.cda.StrucDocList#addNewItem()Lgov/cdc/nedss/phdc/cda/StrucDocItem;

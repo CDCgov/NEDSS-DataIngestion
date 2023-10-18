@@ -1,0 +1,23 @@
+gov.cdc.dataingestion.nbs.ecr.service.CdaMapper#mapAuthor(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+java.time.OffsetDateTime#now()Ljava/time/OffsetDateTime;
+gov.cdc.dataingestion.nbs.ecr.service.CdaMapper#mapToTranslatedValue(Ljava/lang/String;)Ljava/lang/String;
+gov.cdc.dataingestion.nbs.ecr.service.CdaMapper#formatDateTime(Ljava/time/OffsetDateTime;)Ljava/lang/String;
+==
+addNewTime gov.cdc.nedss.phdc.cda.POCDMT000040Author#addNewTime()Lgov/cdc/nedss/phdc/cda/TS;
+getAssignedPerson gov.cdc.nedss.phdc.cda.POCDMT000040AssignedAuthor#getAssignedPerson()Lgov/cdc/nedss/phdc/cda/POCDMT000040Person;
+getNameArray gov.cdc.nedss.phdc.cda.POCDMT000040Person#getNameArray(I)Lgov/cdc/nedss/phdc/cda/PN;
+getAssignedAuthor gov.cdc.nedss.phdc.cda.POCDMT000040Author#getAssignedAuthor()Lgov/cdc/nedss/phdc/cda/POCDMT000040AssignedAuthor;
+addNewFamily gov.cdc.nedss.phdc.cda.EN#addNewFamily()Lgov/cdc/nedss/phdc/cda/EnFamily;
+mapToCData gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper#mapToCData(Ljava/lang/String;)Lorg/apache/xmlbeans/XmlObject;
+addNewAssignedAuthor gov.cdc.nedss.phdc.cda.POCDMT000040Author#addNewAssignedAuthor()Lgov/cdc/nedss/phdc/cda/POCDMT000040AssignedAuthor;
+addNewId gov.cdc.nedss.phdc.cda.POCDMT000040AssignedAuthor#addNewId()Lgov/cdc/nedss/phdc/cda/II;
+getIdArray gov.cdc.nedss.phdc.cda.POCDMT000040AssignedAuthor#getIdArray(I)Lgov/cdc/nedss/phdc/cda/II;
+getTime gov.cdc.nedss.phdc.cda.POCDMT000040Author#getTime()Lgov/cdc/nedss/phdc/cda/TS;
+addNewAuthor gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#addNewAuthor()Lgov/cdc/nedss/phdc/cda/POCDMT000040Author;
+getFamilyArray gov.cdc.nedss.phdc.cda.EN#getFamilyArray(I)Lgov/cdc/nedss/phdc/cda/EnFamily;
+set org.apache.xmlbeans.XmlObject#set(Lorg/apache/xmlbeans/XmlObject;)Lorg/apache/xmlbeans/XmlObject;
+getAuthorArray gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#getAuthorArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040Author;
+setValue gov.cdc.nedss.phdc.cda.TS#setValue(Ljava/lang/String;)V
+setRoot gov.cdc.nedss.phdc.cda.II#setRoot(Ljava/lang/String;)V
+addNewAssignedPerson gov.cdc.nedss.phdc.cda.POCDMT000040AssignedAuthor#addNewAssignedPerson()Lgov/cdc/nedss/phdc/cda/POCDMT000040Person;
+addNewName gov.cdc.nedss.phdc.cda.POCDMT000040Person#addNewName()Lgov/cdc/nedss/phdc/cda/PN;

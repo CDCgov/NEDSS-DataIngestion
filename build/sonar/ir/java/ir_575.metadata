@@ -1,0 +1,16 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#patientFieldCheckKMapping(ILgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgPatientDto;Ljava/lang/reflect/Field;)V
+java.lang.reflect.Field#getName()Ljava/lang/String;
+java.util.List#of(Ljava/lang/Object;)Ljava/util/List;
+java.util.ArrayList#instance-init#
+java.util.ArrayList#<init>(Ljava/util/Collection;)V
+java.lang.String#equals(Ljava/lang/Object;)Z
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRoleAddrArray(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+==
+getAddrArray gov.cdc.nedss.phdc.cda.POCDMT000040PatientRole#getAddrArray(I)Lgov/cdc/nedss/phdc/cda/AD;
+getPatAddrAsOfDt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto#getPatAddrAsOfDt()Ljava/sql/Timestamp;
+setAddrArray gov.cdc.nedss.phdc.cda.POCDMT000040PatientRole#setAddrArray(ILgov/cdc/nedss/phdc/cda/AD;)V
+setUse gov.cdc.nedss.phdc.cda.AD#setUse(Ljava/util/List;)V
+toString java.sql.Timestamp#toString()Ljava/lang/String;
+getPatientRole gov.cdc.nedss.phdc.cda.POCDMT000040RecordTarget#getPatientRole()Lgov/cdc/nedss/phdc/cda/POCDMT000040PatientRole;
+mapToUsableTSElement gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper#mapToUsableTSElement(Ljava/lang/String;Lorg/apache/xmlbeans/XmlObject;Ljava/lang/String;)Lorg/apache/xmlbeans/XmlObject;
+getRecordTargetArray gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#getRecordTargetArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040RecordTarget;

@@ -1,0 +1,11 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Specimen#<init>(Lca/uhn/hl7v2/model/v251/group/ORU_R01_SPECIMEN;)V
+java.util.ArrayList#<init>()V
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen#<init>(Lca/uhn/hl7v2/model/v251/segment/SPM;)V
+java.util.ArrayList#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#<init>(Lca/uhn/hl7v2/model/v251/segment/OBX;)V
+==
+getSPM ca.uhn.hl7v2.model.v251.group.ORU_R01_SPECIMEN#getSPM()Lca/uhn/hl7v2/model/v251/segment/SPM;
+add java.util.List#add(Ljava/lang/Object;)Z
+getOBXAll ca.uhn.hl7v2.model.v251.group.ORU_R01_SPECIMEN#getOBXAll()Ljava/util/List;

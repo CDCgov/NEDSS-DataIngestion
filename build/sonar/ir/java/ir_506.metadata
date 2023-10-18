@@ -1,0 +1,4 @@
+gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7CQType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cq;)Z
+org.apache.commons.lang3.StringUtils#isEmpty(Ljava/lang/CharSequence;)Z
+==
+getQuantity gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cq#getQuantity()Ljava/lang/String;

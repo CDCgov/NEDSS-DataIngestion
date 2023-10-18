@@ -1,0 +1,4 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#mapToPSNFieldCheckAndMapCity(Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgProviderDto;Ljava/lang/String;)Ljava/lang/String;
+java.lang.String#isEmpty()Z
+==
+getPrvAddrCityTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgProviderDto#getPrvAddrCityTxt()Ljava/lang/String;

@@ -1,0 +1,29 @@
+gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService#updateAndReprocessingMessage(Ljava/lang/String;Ljava/lang/String;)Lgov/cdc/dataingestion/deadletter/model/ElrDeadLetterDto;
+java.util.Optional#isPresent()Z
+java.sql.Timestamp#from(Ljava/time/Instant;)Ljava/sql/Timestamp;
+gov.cdc.dataingestion.exception.DeadLetterTopicException#instance-init#
+java.lang.Enum#name()Ljava/lang/String;
+java.util.Optional#get()Ljava/lang/Object;
+java.time.Instant#now()Ljava/time/Instant;
+java.lang.String#equalsIgnoreCase(Ljava/lang/String;)Z
+gov.cdc.dataingestion.exception.DeadLetterTopicException#<init>(Ljava/lang/String;)V
+==
+save org.springframework.data.repository.CrudRepository#save(Ljava/lang/Object;)Ljava/lang/Object;
+setRawMessage gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel#setRawMessage(Ljava/lang/String;)V
+setMessage gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto#setMessage(Ljava/lang/String;)V
+getId gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel#getId()Ljava/lang/String;
+getDltOccurrence gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto#getDltOccurrence()Ljava/lang/Integer;
+getType gov.cdc.dataingestion.report.repository.model.RawERLModel#getType()Ljava/lang/String;
+setDltStatus gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto#setDltStatus(Ljava/lang/String;)V
+getDltRecordById gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService#getDltRecordById(Ljava/lang/String;)Lgov/cdc/dataingestion/deadletter/model/ElrDeadLetterDto;
+saveDltRecord gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService#saveDltRecord(Lgov/cdc/dataingestion/deadletter/model/ElrDeadLetterDto;)Lgov/cdc/dataingestion/deadletter/model/ElrDeadLetterDto;
+getMessageType gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel#getMessageType()Ljava/lang/String;
+setUpdatedOn gov.cdc.dataingestion.report.repository.model.RawERLModel#setUpdatedOn(Ljava/sql/Timestamp;)V
+getErrorMessageId gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto#getErrorMessageId()Ljava/lang/String;
+findById org.springframework.data.repository.CrudRepository#findById(Ljava/lang/Object;)Ljava/util/Optional;
+setDltOccurrence gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto#setDltOccurrence(Ljava/lang/Integer;)V
+getErrorMessageSource gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto#getErrorMessageSource()Ljava/lang/String;
+getId gov.cdc.dataingestion.report.repository.model.RawERLModel#getId()Ljava/lang/String;
+setPayload gov.cdc.dataingestion.report.repository.model.RawERLModel#setPayload(Ljava/lang/String;)V
+setUpdatedOn gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel#setUpdatedOn(Ljava/sql/Timestamp;)V
+sendMessageFromDltController gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService#sendMessageFromDltController(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)V

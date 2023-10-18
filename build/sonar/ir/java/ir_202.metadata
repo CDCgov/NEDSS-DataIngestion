@@ -1,0 +1,24 @@
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapObservationResultToObservationResult(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/observation/ObservationResult;Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/observation/ObservationResult;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/observation/ObservationResult;
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapXad(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xad;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xad;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xad;
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon#instance-init#
+java.lang.String#isEmpty()Z
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon#<init>()V
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapCeToXon(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xon;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xon;
+==
+getDateTimeOfTheObservation gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getDateTimeOfTheObservation()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;
+getStreetAddress gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad#getStreetAddress()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Sad;
+getTime gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#getTime()Ljava/lang/String;
+setOrganizationName gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon#setOrganizationName(Ljava/lang/String;)V
+getCity gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad#getCity()Ljava/lang/String;
+getState gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad#getState()Ljava/lang/String;
+getCountry gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad#getCountry()Ljava/lang/String;
+getZip gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad#getZip()Ljava/lang/String;
+setDateTimeOfTheAnalysis gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#setDateTimeOfTheAnalysis(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;)V
+getPerformingOrganizationAddress gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getPerformingOrganizationAddress()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xad;
+setPerformingOrganizationName gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#setPerformingOrganizationName(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xon;)V
+getStreetName gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Sad#getStreetName()Ljava/lang/String;
+getProducerId gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getProducerId()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;
+getDateTimeOfTheAnalysis gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#getDateTimeOfTheAnalysis()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;
+setStreetMailingAddress gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Sad#setStreetMailingAddress(Ljava/lang/String;)V
+getStreetMailingAddress gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Sad#getStreetMailingAddress()Ljava/lang/String;
+setPerformingOrganizationAddress gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult#setPerformingOrganizationAddress(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xad;)V

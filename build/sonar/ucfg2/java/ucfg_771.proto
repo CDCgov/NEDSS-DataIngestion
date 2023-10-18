@@ -1,0 +1,70 @@
+
+Ögov.cdc.dataingestion.security.controller.TokenController#token(Lorg/springframework/security/core/Authentication;)Ljava/lang/String;ù
+í/Users/DucNguyen/Desktop/CDC_Repos/NEDSS-DataIngestion/report-service/src/main/java/gov/cdc/dataingestion/security/controller/TokenController.java ("startingBlock*˝
+startingBlock (6÷
+”
+ (
+%4"
+__annotate*S
+
+__unknown_file (75
+3org.springframework.web.bind.annotation.PostMapping*`
+
+__unknown_file (D
+B
+authentication0org.springframework.security.core.AuthenticationÉ
+Ä
+' (5B
+authentication0org.springframework.security.core.Authentication"__annotation*"
+
+__unknown_file (
+
+%4*
+1*ê	
+1 («ƒ
+4 (L
+%0java.lang.String"3java.security.Principal#getName()Ljava/lang/String;*`
+
+__unknown_file (D
+B
+authentication0org.springframework.security.core.Authentication2	getName()ª
+∏
+ (#9
+%13gov.cdc.dataingestion.security.service.TokenService"__id*k
+
+__unknown_file (O*M;
+9gov.cdc.dataingestion.security.controller.TokenController"
+tokenService≠™
+ (A
+%2java.lang.String"ágov.cdc.dataingestion.security.service.TokenService#generateToken(Lorg/springframework/security/core/Authentication;)Ljava/lang/String;*W
+
+__unknown_file (;
+9
+%13gov.cdc.dataingestion.security.service.TokenService*`
+
+__unknown_file (D
+B
+authentication0org.springframework.security.core.Authentication2AgenerateToken(Lorg/springframework/security/core/Authentication;)c
+a
+ (B
+tokenjava.lang.String"__id*4
+
+__unknown_file (
+
+%2java.lang.String∫
+∑
+ (
+%3"Horg.springframework.web.servlet.ModelAndView#<init>(Ljava/lang/String;)V*"
+
+__unknown_file (
+""*7
+
+__unknown_file (
+
+tokenjava.lang.String"'
+ (
+
+tokenjava.lang.String:N
+ (5B
+authentication0org.springframework.security.core.AuthenticationB=;
+9gov.cdc.dataingestion.security.controller.TokenControllerH

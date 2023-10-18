@@ -1,0 +1,32 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.OrderObservation#<init>(Lca/uhn/hl7v2/model/v251/group/ORU_R01_ORDER_OBSERVATION;)V
+java.util.ArrayList#<init>()V
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ContactData#<init>(Lca/uhn/hl7v2/model/v251/segment/CTD;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ClinicalTrialIdentification#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ObservationRequest#<init>(Lca/uhn/hl7v2/model/v251/segment/OBR;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ContactData#instance-init#
+java.util.ArrayList#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#<init>(Lca/uhn/hl7v2/model/v251/segment/ORC;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ObservationRequest#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.TimingQty#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.shared.NoteAndComment#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Observation#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Specimen#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction#<init>(Lca/uhn/hl7v2/model/v251/segment/FT1;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.shared.NoteAndComment#<init>(Lca/uhn/hl7v2/model/v251/segment/NTE;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ClinicalTrialIdentification#<init>(Lca/uhn/hl7v2/model/v251/segment/CTI;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.TimingQty#<init>(Lca/uhn/hl7v2/model/v251/group/ORU_R01_TIMING_QTY;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Observation#<init>(Lca/uhn/hl7v2/model/v251/group/ORU_R01_OBSERVATION;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Specimen#<init>(Lca/uhn/hl7v2/model/v251/group/ORU_R01_SPECIMEN;)V
+==
+getOBR ca.uhn.hl7v2.model.v251.group.ORU_R01_ORDER_OBSERVATION#getOBR()Lca/uhn/hl7v2/model/v251/segment/OBR;
+getFT1All ca.uhn.hl7v2.model.v251.group.ORU_R01_ORDER_OBSERVATION#getFT1All()Ljava/util/List;
+getOBSERVATIONAll ca.uhn.hl7v2.model.v251.group.ORU_R01_ORDER_OBSERVATION#getOBSERVATIONAll()Ljava/util/List;
+getCTD ca.uhn.hl7v2.model.v251.group.ORU_R01_ORDER_OBSERVATION#getCTD()Lca/uhn/hl7v2/model/v251/segment/CTD;
+getORC ca.uhn.hl7v2.model.v251.group.ORU_R01_ORDER_OBSERVATION#getORC()Lca/uhn/hl7v2/model/v251/segment/ORC;
+add java.util.List#add(Ljava/lang/Object;)Z
+getCTIAll ca.uhn.hl7v2.model.v251.group.ORU_R01_ORDER_OBSERVATION#getCTIAll()Ljava/util/List;
+getSPECIMENAll ca.uhn.hl7v2.model.v251.group.ORU_R01_ORDER_OBSERVATION#getSPECIMENAll()Ljava/util/List;
+getTIMING_QTYAll ca.uhn.hl7v2.model.v251.group.ORU_R01_ORDER_OBSERVATION#getTIMING_QTYAll()Ljava/util/List;
+getNTEAll ca.uhn.hl7v2.model.v251.group.ORU_R01_ORDER_OBSERVATION#getNTEAll()Ljava/util/List;

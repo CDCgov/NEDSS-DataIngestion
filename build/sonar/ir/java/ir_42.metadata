@@ -1,0 +1,7 @@
+gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetEipList([Lca/uhn/hl7v2/model/v251/datatype/EIP;)Ljava/util/ArrayList;
+java.util.ArrayList#<init>()V
+java.util.ArrayList#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Eip#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Eip#<init>(Lca/uhn/hl7v2/model/v251/datatype/EIP;)V
+==
+add java.util.ArrayList#add(Ljava/lang/Object;)Z

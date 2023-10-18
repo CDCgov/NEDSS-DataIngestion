@@ -1,0 +1,17 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaXmlAnswerMappingHelper#mapToXmlAnswerTop(Lgov/cdc/dataingestion/nbs/repository/model/dao/EcrSelectedRecord;Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;I)Lgov/cdc/dataingestion/nbs/ecr/model/CdaXmlAnswerMapper;
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaXmlAnswerMappingHelper#mapToExtendedData(Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgXmlAnswerDto;Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;)Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;
+gov.cdc.dataingestion.nbs.ecr.model.CdaXmlAnswerMapper#<init>()V
+gov.cdc.dataingestion.nbs.ecr.model.CdaXmlAnswerMapper#instance-init#
+==
+getMsgXmlAnswers gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord#getMsgXmlAnswers()Ljava/util/List;
+getComponentArray gov.cdc.nedss.phdc.cda.POCDMT000040StructuredBody#getComponentArray()[Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;
+getStructuredBody gov.cdc.nedss.phdc.cda.POCDMT000040Component2#getStructuredBody()Lgov/cdc/nedss/phdc/cda/POCDMT000040StructuredBody;
+getComponentArray gov.cdc.nedss.phdc.cda.POCDMT000040StructuredBody#getComponentArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;
+setClinicalDocument gov.cdc.dataingestion.nbs.ecr.model.CdaXmlAnswerMapper#setClinicalDocument(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+setComponentArray gov.cdc.nedss.phdc.cda.POCDMT000040StructuredBody#setComponentArray(ILgov/cdc/nedss/phdc/cda/POCDMT000040Component3;)V
+getComponent gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#getComponent()Lgov/cdc/nedss/phdc/cda/POCDMT000040Component2;
+isEmpty java.util.List#isEmpty()Z
+get java.util.List#get(I)Ljava/lang/Object;
+addNewComponent gov.cdc.nedss.phdc.cda.POCDMT000040StructuredBody#addNewComponent()Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;
+setComponentCounter gov.cdc.dataingestion.nbs.ecr.model.CdaXmlAnswerMapper#setComponentCounter(I)V
+size java.util.List#size()I

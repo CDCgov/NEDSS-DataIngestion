@@ -1,0 +1,19 @@
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamHL7XONType(Lgov/cdc/dataingestion/nbs/jaxb/HL7XONType;)Ljava/lang/String;
+java.lang.StringBuilder#instance-init#
+java.lang.String#length()I
+gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamHL7HDType(Lgov/cdc/dataingestion/nbs/jaxb/HL7HDType;)Ljava/lang/String;
+java.lang.StringBuilder#append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+java.lang.StringBuilder#<init>()V
+java.lang.StringBuilder#toString()Ljava/lang/String;
+java.lang.StringBuilder#append(F)Ljava/lang/StringBuilder;
+==
+getHL7IdentifierTypeCode gov.cdc.dataingestion.nbs.jaxb.HL7XONType#getHL7IdentifierTypeCode()Ljava/lang/String;
+getHL7OrganizationIdentifier gov.cdc.dataingestion.nbs.jaxb.HL7XONType#getHL7OrganizationIdentifier()Ljava/lang/String;
+getHL7AssigningAuthority gov.cdc.dataingestion.nbs.jaxb.HL7XONType#getHL7AssigningAuthority()Lgov/cdc/dataingestion/nbs/jaxb/HL7HDType;
+getHL7OrganizationName gov.cdc.dataingestion.nbs.jaxb.HL7XONType#getHL7OrganizationName()Ljava/lang/String;
+getHL7Numeric gov.cdc.dataingestion.nbs.jaxb.HL7NMType#getHL7Numeric()Ljava/math/BigInteger;
+floatValue java.math.BigInteger#floatValue()F
+getHL7OrganizationNameTypeCode gov.cdc.dataingestion.nbs.jaxb.HL7XONType#getHL7OrganizationNameTypeCode()Ljava/lang/String;
+getHL7NameRepresentationCode gov.cdc.dataingestion.nbs.jaxb.HL7XONType#getHL7NameRepresentationCode()Ljava/lang/String;
+getHL7IDNumber gov.cdc.dataingestion.nbs.jaxb.HL7XONType#getHL7IDNumber()Lgov/cdc/dataingestion/nbs/jaxb/HL7NMType;
+getHL7AssigningFacility gov.cdc.dataingestion.nbs.jaxb.HL7XONType#getHL7AssigningFacility()Lgov/cdc/dataingestion/nbs/jaxb/HL7HDType;

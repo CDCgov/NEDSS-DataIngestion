@@ -1,0 +1,9 @@
+gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapAssignedFacility(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Hd;
+java.lang.String#isEmpty()Z
+==
+getNameSpaceId gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#getNameSpaceId()Ljava/lang/String;
+getUniversalIdType gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#getUniversalIdType()Ljava/lang/String;
+setNameSpaceId gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#setNameSpaceId(Ljava/lang/String;)V
+setUniversalId gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#setUniversalId(Ljava/lang/String;)V
+getUniversalId gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#getUniversalId()Ljava/lang/String;
+setUniversalIdType gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd#setUniversalIdType(Ljava/lang/String;)V

@@ -1,0 +1,17 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1#<init>(Lca/uhn/hl7v2/model/v251/message/ORU_R01;)V
+java.util.ArrayList#<init>()V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.ContinuationPointer#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader#<init>(Lca/uhn/hl7v2/model/v251/segment/MSH;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.PatientResult#<init>(Lca/uhn/hl7v2/model/v251/group/ORU_R01_PATIENT_RESULT;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.ContinuationPointer#<init>(Lca/uhn/hl7v2/model/v251/segment/DSC;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment#<init>(Lca/uhn/hl7v2/model/v251/segment/SFT;)V
+java.util.ArrayList#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.PatientResult#instance-init#
+==
+getSFTAll ca.uhn.hl7v2.model.v251.message.ORU_R01#getSFTAll()Ljava/util/List;
+getMSH ca.uhn.hl7v2.model.v251.message.ORU_R01#getMSH()Lca/uhn/hl7v2/model/v251/segment/MSH;
+add java.util.List#add(Ljava/lang/Object;)Z
+getPATIENT_RESULTAll ca.uhn.hl7v2.model.v251.message.ORU_R01#getPATIENT_RESULTAll()Ljava/util/List;
+getDSC ca.uhn.hl7v2.model.v251.message.ORU_R01#getDSC()Lca/uhn/hl7v2/model/v251/segment/DSC;

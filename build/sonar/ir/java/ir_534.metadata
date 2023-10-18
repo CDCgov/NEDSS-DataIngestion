@@ -1,0 +1,17 @@
+gov.cdc.dataingestion.nbs.ecr.service.helper.CdaCaseMappingHelper#setMessageAnswerDate(Ljava/lang/String;Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgCaseAnswerDto;Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;ILjava/lang/String;)V
+null
+java.lang.String#equals(Ljava/lang/Object;)Z
+java.lang.String#isEmpty()Z
+==
+getValueArray gov.cdc.nedss.phdc.cda.POCDMT000040Observation#getValueArray(I)Lgov/cdc/nedss/phdc/cda/ANY;
+getSection gov.cdc.nedss.phdc.cda.POCDMT000040Component3#getSection()Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;
+setAttributeText org.apache.xmlbeans.XmlCursor#setAttributeText(Ljavax/xml/namespace/QName;Ljava/lang/String;)Z
+insertAttributeWithValue org.apache.xmlbeans.XmlCursor#insertAttributeWithValue(Ljava/lang/String;Ljava/lang/String;)V
+newCursor org.apache.xmlbeans.XmlTokenSource#newCursor()Lorg/apache/xmlbeans/XmlCursor;
+getEntryArray gov.cdc.nedss.phdc.cda.POCDMT000040Section#getEntryArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040Entry;
+getAnswerTxt gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerDto#getAnswerTxt()Ljava/lang/String;
+dispose org.apache.xmlbeans.XmlCursor#dispose()V
+mapToTsType gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper#mapToTsType(Ljava/lang/String;)Lgov/cdc/nedss/phdc/cda/TS;
+toFirstAttribute org.apache.xmlbeans.XmlCursor#toFirstAttribute()Z
+toString org.apache.xmlbeans.XmlObject#toString()Ljava/lang/String;
+getObservation gov.cdc.nedss.phdc.cda.POCDMT000040Entry#getObservation()Lgov/cdc/nedss/phdc/cda/POCDMT000040Observation;

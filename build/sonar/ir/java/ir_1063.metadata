@@ -1,0 +1,54 @@
+gov.cdc.dataingestion.nbs.ecr.service.CdaMapper#tranformSelectedEcrToCDAXml(Lgov/cdc/dataingestion/nbs/repository/model/dao/EcrSelectedRecord;)Ljava/lang/String;
+gov.cdc.dataingestion.nbs.ecr.service.CdaMapper#mapParentContainer(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;Lgov/cdc/dataingestion/nbs/repository/model/dao/EcrSelectedRecord;Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/ecr/model/container/CdaContainerComp;
+null
+gov.cdc.dataingestion.nbs.ecr.service.CdaMapper#convertXmlToString(Lgov/cdc/nedss/phdc/cda/ClinicalDocumentDocument1;)Ljava/lang/String;
+gov.cdc.dataingestion.nbs.ecr.service.CdaMapper#mapAuthor(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1$Factory#newInstance()Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;
+gov.cdc.nedss.phdc.cda.ClinicalDocumentDocument1$Factory#newInstance()Lgov/cdc/nedss/phdc/cda/ClinicalDocumentDocument1;
+gov.cdc.dataingestion.nbs.ecr.service.CdaMapper#mapCustodian(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+==
+setSection gov.cdc.nedss.phdc.cda.POCDMT000040Component3#setSection(Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;)V
+getComponentCounter gov.cdc.dataingestion.nbs.ecr.model.CdaPlaceMapper#getComponentCounter()I
+mapToProviderTop gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaProviderMappingHelper#mapToProviderTop(Lgov/cdc/dataingestion/nbs/repository/model/dao/EcrSelectedRecord;Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;Ljava/lang/String;III)Lgov/cdc/dataingestion/nbs/ecr/model/CdaProviderMapper;
+setAttributeText org.apache.xmlbeans.XmlCursor#setAttributeText(Ljavax/xml/namespace/QName;Ljava/lang/String;)Z
+getClinicalDocument gov.cdc.dataingestion.nbs.ecr.model.CdaCaseMapper#getClinicalDocument()Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;
+getComponent gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#getComponent()Lgov/cdc/nedss/phdc/cda/POCDMT000040Component2;
+getPerformerSectionCounter gov.cdc.dataingestion.nbs.ecr.model.CdaProviderMapper#getPerformerSectionCounter()I
+mapToOrganizationTop gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaOrgMappingHelper#mapToOrganizationTop(Lgov/cdc/dataingestion/nbs/repository/model/dao/EcrSelectedRecord;Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;III)Lgov/cdc/dataingestion/nbs/ecr/model/CdaOrganizationMapper;
+getPerformerSectionCounter gov.cdc.dataingestion.nbs.ecr.model.CdaOrganizationMapper#getPerformerSectionCounter()I
+getClinicalDocument gov.cdc.dataingestion.nbs.ecr.model.CdaPatientMapper#getClinicalDocument()Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;
+dispose org.apache.xmlbeans.XmlCursor#dispose()V
+getRecordTargetArray gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#getRecordTargetArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040RecordTarget;
+getComponentCounter gov.cdc.dataingestion.nbs.ecr.model.CdaProviderMapper#getComponentCounter()I
+mapToPlaceTop gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaPlaceMappingHelper#mapToPlaceTop(Lgov/cdc/dataingestion/nbs/repository/model/dao/EcrSelectedRecord;IIILgov/cdc/nedss/phdc/cda/POCDMT000040Section;)Lgov/cdc/dataingestion/nbs/ecr/model/CdaPlaceMapper;
+getInv168 gov.cdc.dataingestion.nbs.ecr.model.CdaPatientMapper#getInv168()Ljava/lang/String;
+setClinicalDocument gov.cdc.nedss.phdc.cda.ClinicalDocumentDocument1#setClinicalDocument(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
+getComponentArray gov.cdc.nedss.phdc.cda.POCDMT000040StructuredBody#getComponentArray()[Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;
+getSection gov.cdc.nedss.phdc.cda.POCDMT000040Component3#getSection()Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;
+getInv168 gov.cdc.dataingestion.nbs.ecr.model.CdaCaseMapper#getInv168()Ljava/lang/String;
+getClinicalSection gov.cdc.dataingestion.nbs.ecr.model.CdaProviderMapper#getClinicalSection()Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;
+getClinicalDocument gov.cdc.dataingestion.nbs.ecr.model.CdaTreatmentMapper#getClinicalDocument()Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;
+addNewSection gov.cdc.nedss.phdc.cda.POCDMT000040Component3#addNewSection()Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;
+newCursor org.apache.xmlbeans.XmlTokenSource#newCursor()Lorg/apache/xmlbeans/XmlCursor;
+getSection gov.cdc.dataingestion.nbs.ecr.model.CdaPlaceMapper#getSection()Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;
+getStructuredBody gov.cdc.nedss.phdc.cda.POCDMT000040Component2#getStructuredBody()Lgov/cdc/nedss/phdc/cda/POCDMT000040StructuredBody;
+getComponentArray gov.cdc.nedss.phdc.cda.POCDMT000040StructuredBody#getComponentArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;
+getClinicalDocument gov.cdc.dataingestion.nbs.ecr.model.CdaXmlAnswerMapper#getClinicalDocument()Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;
+getPerformerComponentCounter gov.cdc.dataingestion.nbs.ecr.model.CdaOrganizationMapper#getPerformerComponentCounter()I
+getPerformerComponentCounter gov.cdc.dataingestion.nbs.ecr.model.CdaProviderMapper#getPerformerComponentCounter()I
+mapToCaseTop gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaCaseMappingHelper#mapToCaseTop(Lgov/cdc/dataingestion/nbs/repository/model/dao/EcrSelectedRecord;Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;IIILjava/lang/String;)Lgov/cdc/dataingestion/nbs/ecr/model/CdaCaseMapper;
+addNewComponent gov.cdc.nedss.phdc.cda.POCDMT000040StructuredBody#addNewComponent()Lgov/cdc/nedss/phdc/cda/POCDMT000040Component3;
+mapToTreatmentTop gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaTreatmentMappingHelper#mapToTreatmentTop(Lgov/cdc/dataingestion/nbs/repository/model/dao/EcrSelectedRecord;Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;III)Lgov/cdc/dataingestion/nbs/ecr/model/CdaTreatmentMapper;
+mapToXmlAnswerTop gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaXmlAnswerMappingHelper#mapToXmlAnswerTop(Lgov/cdc/dataingestion/nbs/repository/model/dao/EcrSelectedRecord;Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;I)Lgov/cdc/dataingestion/nbs/ecr/model/CdaXmlAnswerMapper;
+mapToInterviewTop gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaInterviewMappingHelper#mapToInterviewTop(Lgov/cdc/dataingestion/nbs/repository/model/dao/EcrSelectedRecord;Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;II)Lgov/cdc/dataingestion/nbs/ecr/model/CdaInterviewMapper;
+toFirstChild org.apache.xmlbeans.XmlCursor#toFirstChild()Z
+addNewPatientRole gov.cdc.nedss.phdc.cda.POCDMT000040RecordTarget#addNewPatientRole()Lgov/cdc/nedss/phdc/cda/POCDMT000040PatientRole;
+getClinicalDocument gov.cdc.dataingestion.nbs.ecr.model.container.CdaContainerComp#getClinicalDocument()Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;
+getComponentCounter gov.cdc.dataingestion.nbs.ecr.model.CdaOrganizationMapper#getComponentCounter()I
+getInv168 gov.cdc.dataingestion.nbs.ecr.model.container.CdaContainerComp#getInv168()Ljava/lang/String;
+getComponentCounter gov.cdc.dataingestion.nbs.ecr.model.CdaCaseMapper#getComponentCounter()I
+addNewRecordTarget gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#addNewRecordTarget()Lgov/cdc/nedss/phdc/cda/POCDMT000040RecordTarget;
+getComponentCounter gov.cdc.dataingestion.nbs.ecr.model.CdaInterviewMapper#getComponentCounter()I
+getComponentCounter gov.cdc.dataingestion.nbs.ecr.model.CdaXmlAnswerMapper#getComponentCounter()I
+getClinicalDocument gov.cdc.dataingestion.nbs.ecr.model.CdaInterviewMapper#getClinicalDocument()Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;
+mapToPatient gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaPatientMappingHelper#mapToPatient(Lgov/cdc/dataingestion/nbs/repository/model/dao/EcrSelectedRecord;Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;ILjava/lang/String;)Lgov/cdc/dataingestion/nbs/ecr/model/CdaPatientMapper;

@@ -1,0 +1,9 @@
+gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ClinicalTrialIdentification#<init>(Lca/uhn/hl7v2/model/v251/segment/CTI;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#instance-init#
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ei#<init>(Lca/uhn/hl7v2/model/v251/datatype/EI;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#<init>(Lca/uhn/hl7v2/model/v251/datatype/CE;)V
+gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ei#instance-init#
+==
+getStudyScheduledTimePoint ca.uhn.hl7v2.model.v251.segment.CTI#getStudyScheduledTimePoint()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getStudyPhaseIdentifier ca.uhn.hl7v2.model.v251.segment.CTI#getStudyPhaseIdentifier()Lca/uhn/hl7v2/model/v251/datatype/CE;
+getSponsorStudyID ca.uhn.hl7v2.model.v251.segment.CTI#getSponsorStudyID()Lca/uhn/hl7v2/model/v251/datatype/EI;

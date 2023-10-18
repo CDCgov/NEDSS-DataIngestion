@@ -1,0 +1,4 @@
+gov.cdc.dataingestion.deadletter.controller.ElrDeadLetterController#getAllNewErrorMessage()Lorg/springframework/http/ResponseEntity;
+org.springframework.http.ResponseEntity#ok(Ljava/lang/Object;)Lorg/springframework/http/ResponseEntity;
+==
+getAllErrorDltRecord gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService#getAllErrorDltRecord()Ljava/util/List;

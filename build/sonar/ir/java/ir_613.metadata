@@ -1,0 +1,5 @@
+gov.cdc.dataingestion.config.KafkaProducerConfig#kafkaTemplate()Lorg/springframework/kafka/core/KafkaTemplate;
+org.springframework.kafka.core.KafkaTemplate#<init>(Lorg/springframework/kafka/core/ProducerFactory;)V
+org.springframework.kafka.core.KafkaTemplate#instance-init#
+==
+producerFactory gov.cdc.dataingestion.config.KafkaProducerConfig#producerFactory()Lorg/springframework/kafka/core/ProducerFactory;
