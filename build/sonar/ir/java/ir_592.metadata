@@ -1,9 +1,0 @@
-gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRoleFamilyName(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
-gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRoleNameArray(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
-==
-getNameArray gov.cdc.nedss.phdc.cda.POCDMT000040Patient#getNameArray(I)Lgov/cdc/nedss/phdc/cda/PN;
-addNewFamily gov.cdc.nedss.phdc.cda.EN#addNewFamily()Lgov/cdc/nedss/phdc/cda/EnFamily;
-getPatient gov.cdc.nedss.phdc.cda.POCDMT000040PatientRole#getPatient()Lgov/cdc/nedss/phdc/cda/POCDMT000040Patient;
-getFamilyArray gov.cdc.nedss.phdc.cda.EN#getFamilyArray()[Lgov/cdc/nedss/phdc/cda/EnFamily;
-getPatientRole gov.cdc.nedss.phdc.cda.POCDMT000040RecordTarget#getPatientRole()Lgov/cdc/nedss/phdc/cda/POCDMT000040PatientRole;
-getRecordTargetArray gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#getRecordTargetArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040RecordTarget;

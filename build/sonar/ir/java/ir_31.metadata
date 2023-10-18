@@ -1,7 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetXonList([Lca/uhn/hl7v2/model/v251/datatype/XON;)Ljava/util/ArrayList;
-java.util.ArrayList#<init>()V
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon#instance-init#
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon#<init>(Lca/uhn/hl7v2/model/v251/datatype/XON;)V
-java.util.ArrayList#instance-init#
-==
-add java.util.ArrayList#add(Ljava/lang/Object;)Z

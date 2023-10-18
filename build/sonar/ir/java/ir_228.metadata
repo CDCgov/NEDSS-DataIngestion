@@ -1,6 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Eip#<init>(Lca/uhn/hl7v2/model/v251/datatype/EIP;)V
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ei#<init>(Lca/uhn/hl7v2/model/v251/datatype/EI;)V
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ei#instance-init#
-==
-getFillerAssignedIdentifier ca.uhn.hl7v2.model.v251.datatype.EIP#getFillerAssignedIdentifier()Lca/uhn/hl7v2/model/v251/datatype/EI;
-getPlacerAssignedIdentifier ca.uhn.hl7v2.model.v251.datatype.EIP#getPlacerAssignedIdentifier()Lca/uhn/hl7v2/model/v251/datatype/EI;

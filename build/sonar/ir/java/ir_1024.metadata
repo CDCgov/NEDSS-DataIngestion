@@ -1,3 +1,0 @@
-gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService#saveValidatedELRMessage(Lgov/cdc/dataingestion/validation/repository/model/ValidatedELRModel;)V
-==
-save org.springframework.data.repository.CrudRepository#save(Ljava/lang/Object;)Ljava/lang/Object;

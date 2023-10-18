@@ -1,5 +1,0 @@
-gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#getCurrentUtcDateTimeInCdaFormat()Ljava/lang/String;
-java.time.ZoneId#of(Ljava/lang/String;)Ljava/time/ZoneId;
-java.time.ZonedDateTime#now(Ljava/time/ZoneId;)Ljava/time/ZonedDateTime;
-java.time.ZonedDateTime#format(Ljava/time/format/DateTimeFormatter;)Ljava/lang/String;
-java.time.format.DateTimeFormatter#ofPattern(Ljava/lang/String;)Ljava/time/format/DateTimeFormatter;

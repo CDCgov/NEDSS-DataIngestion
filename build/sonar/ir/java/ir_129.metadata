@@ -1,9 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit.PatientVisitAdditional#instance-init#
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#instance-init#
-java.util.ArrayList#<init>()V
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#instance-init#
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts#<init>()V
-java.util.ArrayList#instance-init#
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pl#instance-init#
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pl#<init>()V
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#<init>()V

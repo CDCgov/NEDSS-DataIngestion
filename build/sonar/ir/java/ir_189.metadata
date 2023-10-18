@@ -1,9 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapEip231(Lca/uhn/hl7v2/model/v231/datatype/EIP;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Eip;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Eip;
-gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapEi231(Lca/uhn/hl7v2/model/v231/datatype/EI;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ei;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ei;
-==
-setFillerAssignedIdentifier gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Eip#setFillerAssignedIdentifier(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ei;)V
-getFillerAssignedIdentifier gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Eip#getFillerAssignedIdentifier()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ei;
-getParentSFillerOrderNumber ca.uhn.hl7v2.model.v231.datatype.EIP#getParentSFillerOrderNumber()Lca/uhn/hl7v2/model/v231/datatype/EI;
-setPlacerAssignedIdentifier gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Eip#setPlacerAssignedIdentifier(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ei;)V
-getPlacerAssignedIdentifier gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Eip#getPlacerAssignedIdentifier()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ei;
-getParentSPlacerOrderNumber ca.uhn.hl7v2.model.v231.datatype.EIP#getParentSPlacerOrderNumber()Lca/uhn/hl7v2/model/v231/datatype/EI;

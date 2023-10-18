@@ -1,9 +1,0 @@
-gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamHL7SADType(Lgov/cdc/dataingestion/nbs/jaxb/HL7SADType;)Ljava/lang/String;
-java.lang.StringBuilder#instance-init#
-java.lang.StringBuilder#append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-java.lang.StringBuilder#<init>()V
-java.lang.StringBuilder#toString()Ljava/lang/String;
-==
-getHL7DwellingNumber gov.cdc.dataingestion.nbs.jaxb.HL7SADType#getHL7DwellingNumber()Ljava/lang/String;
-getHL7StreetOrMailingAddress gov.cdc.dataingestion.nbs.jaxb.HL7SADType#getHL7StreetOrMailingAddress()Ljava/lang/String;
-getHL7StreetName gov.cdc.dataingestion.nbs.jaxb.HL7SADType#getHL7StreetName()Ljava/lang/String;

@@ -1,8 +1,0 @@
-gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHl7PtType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Pt;)Lgov/cdc/dataingestion/nbs/jaxb/HL7PTType;
-gov.cdc.dataingestion.nbs.jaxb.HL7PTType#instance-init#
-gov.cdc.dataingestion.nbs.jaxb.HL7PTType#<init>()V
-==
-setHL7ProcessingID gov.cdc.dataingestion.nbs.jaxb.HL7PTType#setHL7ProcessingID(Ljava/lang/String;)V
-getProcessingMode gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pt#getProcessingMode()Ljava/lang/String;
-setHL7ProcessingMode gov.cdc.dataingestion.nbs.jaxb.HL7PTType#setHL7ProcessingMode(Ljava/lang/String;)V
-getProcessingId gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pt#getProcessingId()Ljava/lang/String;

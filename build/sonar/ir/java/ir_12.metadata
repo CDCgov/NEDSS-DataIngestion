@@ -1,8 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pln#<init>(Lca/uhn/hl7v2/model/v251/datatype/PLN;)V
-==
-getExpirationDate ca.uhn.hl7v2.model.v251.datatype.PLN#getExpirationDate()Lca/uhn/hl7v2/model/v251/datatype/DT;
-getIDNumber ca.uhn.hl7v2.model.v251.datatype.PLN#getIDNumber()Lca/uhn/hl7v2/model/v251/datatype/ST;
-getStateOtherQualifyingInformation ca.uhn.hl7v2.model.v251.datatype.PLN#getStateOtherQualifyingInformation()Lca/uhn/hl7v2/model/v251/datatype/ST;
-getTypeOfIDNumber ca.uhn.hl7v2.model.v251.datatype.PLN#getTypeOfIDNumber()Lca/uhn/hl7v2/model/v251/datatype/IS;
-getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
-getValue ca.uhn.hl7v2.model.primitive.DT#getValue()Ljava/lang/String;

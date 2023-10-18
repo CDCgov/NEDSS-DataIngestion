@@ -1,8 +1,0 @@
-gov.cdc.dataingestion.nbs.ecr.service.helper.CdaCaseMappingHelper#checkInvalidField(Ljava/lang/String;Lgov/cdc/dataingestion/nbs/repository/model/dao/EcrSelectedCase;)Z
-java.lang.String#isEmpty()Z
-java.lang.String#equalsIgnoreCase(Ljava/lang/String;)Z
-==
-getMsgCase gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedCase#getMsgCase()Lgov/cdc/dataingestion/nbs/repository/model/dto/EcrMsgCaseDto;
-getPatLocalId gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#getPatLocalId()Ljava/lang/String;
-getInvAuthorId gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#getInvAuthorId()Ljava/lang/String;
-getInvEffectiveTime gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseDto#getInvEffectiveTime()Ljava/sql/Timestamp;

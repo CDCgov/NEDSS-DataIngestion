@@ -1,6 +1,0 @@
-gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#mapPatientStructureComponentCompCheck(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
-==
-getComponent gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#getComponent()Lgov/cdc/nedss/phdc/cda/POCDMT000040Component2;
-addNewStructuredBody gov.cdc.nedss.phdc.cda.POCDMT000040Component2#addNewStructuredBody()Lgov/cdc/nedss/phdc/cda/POCDMT000040StructuredBody;
-isSetStructuredBody gov.cdc.nedss.phdc.cda.POCDMT000040Component2#isSetStructuredBody()Z
-addNewComponent gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#addNewComponent()Lgov/cdc/nedss/phdc/cda/POCDMT000040Component2;

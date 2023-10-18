@@ -1,9 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapCq231(Lca/uhn/hl7v2/model/v231/datatype/CQ;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cq;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cq;
-gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapCe231(Lca/uhn/hl7v2/model/v231/datatype/CE;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;
-==
-getUnits gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cq#getUnits()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;
-getUnits ca.uhn.hl7v2.model.v231.datatype.CQ#getUnits()Lca/uhn/hl7v2/model/v231/datatype/CE;
-setQuantity gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cq#setQuantity(Ljava/lang/String;)V
-getQuantity ca.uhn.hl7v2.model.v231.datatype.CQ#getQuantity()Lca/uhn/hl7v2/model/v231/datatype/NM;
-getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
-setUnits gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cq#setUnits(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ce;)V

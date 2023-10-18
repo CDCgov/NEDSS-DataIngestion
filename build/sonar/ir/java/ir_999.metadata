@@ -1,3 +1,0 @@
-gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#fetchMsgInterviewAnswerForApplicableEcr(Ljava/lang/Integer;Ljava/lang/String;)Ljava/util/List;
-gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#loadSqlFromFile(Ljava/lang/String;)Ljava/lang/String;
-gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#setListCaseAns(Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;)Ljava/util/List;

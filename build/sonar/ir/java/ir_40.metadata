@@ -1,7 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetVariesStringList([Lca/uhn/hl7v2/model/Varies;)Ljava/util/ArrayList;
-java.util.ArrayList#<init>()V
-java.util.ArrayList#instance-init#
-==
-add java.util.ArrayList#add(Ljava/lang/Object;)Z
-getData ca.uhn.hl7v2.model.Varies#getData()Lca/uhn/hl7v2/model/Type;
-toString java.lang.Object#toString()Ljava/lang/String;

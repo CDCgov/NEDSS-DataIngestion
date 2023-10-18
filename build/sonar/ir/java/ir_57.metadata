@@ -1,3 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.HL7Helper#convertHl7ToFhir(Ljava/lang/String;)Lgov/cdc/dataingestion/hl7/helper/model/FhirConvertedMessage;
-==
-HL7ToFHIRConversion gov.cdc.dataingestion.hl7.helper.integration.interfaces.IFhirConverter#HL7ToFHIRConversion(Ljava/lang/String;)Lgov/cdc/dataingestion/hl7/helper/model/FhirConvertedMessage;

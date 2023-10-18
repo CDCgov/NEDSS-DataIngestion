@@ -1,5 +1,0 @@
-gov.cdc.dataingestion.nbs.ecr.service.CdaMapper#mapToTranslatedValue(Ljava/lang/String;)Ljava/lang/String;
-java.lang.String#isEmpty()Z
-==
-fetchConstantLookUpByCriteriaWithColumn gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService#fetchConstantLookUpByCriteriaWithColumn(Ljava/lang/String;Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/repository/model/dto/lookup/ConstantLookUpDto;
-getSampleValue gov.cdc.dataingestion.nbs.repository.model.dto.lookup.ConstantLookUpDto#getSampleValue()Ljava/lang/String;

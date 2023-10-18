@@ -1,57 +1,0 @@
-
-Xgov.cdc.dataingestion.security.model.SecurityUser#getAuthorities()Ljava/util/Collection;ï
-ä/Users/DucNguyen/Desktop/CDC_Repos/NEDSS-DataIngestion/report-service/src/main/java/gov/cdc/dataingestion/security/model/SecurityUser.java2 (@"1*ç
-
-1 (•
-¢
- (#1
-%0+gov.cdc.dataingestion.security.model.Client"__id*]
-
-__unknown_file (A*?3
-1gov.cdc.dataingestion.security.model.SecurityUser"
-clientÃ…
- (#
-%1java.lang.String"Hgov.cdc.dataingestion.security.model.Client#getRoles()Ljava/lang/String;*O
-
-__unknown_file (3
-1
-%0+gov.cdc.dataingestion.security.model.Client2
-getRoles()⁄◊
-  (#
-%2java.lang.String[]"=java.lang.String#split(Ljava/lang/String;)[Ljava/lang/String;*4
-
-__unknown_file (
-
-%1java.lang.String*!
-
-__unknown_file (
-,2split(Ljava/lang/String;)›
-⁄
-  ($
-%3java.util.stream.Stream"Ejava.util.Arrays#stream([Ljava/lang/Object;)Ljava/util/stream/Stream;*0
-
-__unknown_file ("
-java.util.Arrays*6
-
-__unknown_file (
-
-%2java.lang.String[]ÜÉ
- !(1
-%4java.util.stream.Stream"Sjava.util.stream.Stream#map(Ljava/util/function/Function;)Ljava/util/stream/Stream;*;
-
-__unknown_file (
-
-%3java.util.stream.Stream*"
-
-__unknown_file (
-""2"map(Ljava/util/function/Function;)úô
- "(
-%5java.util.List"0java.util.stream.Stream#toList()Ljava/util/List;*;
-
-__unknown_file (
-
-%4java.util.stream.Stream2toList()""
- "(
-
-%5java.util.ListB53
-1gov.cdc.dataingestion.security.model.SecurityUserH

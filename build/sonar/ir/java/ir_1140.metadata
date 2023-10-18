@@ -1,4 +1,0 @@
-gov.cdc.dataingestion.registration.controller.RegisterController#createUser(Ljava/lang/String;Ljava/lang/String;)Lorg/springframework/http/HttpStatus;
-java.lang.String#isEmpty()Z
-==
-createUser gov.cdc.dataingestion.registration.service.RegistrationService#createUser(Ljava/lang/String;Ljava/lang/String;)Z

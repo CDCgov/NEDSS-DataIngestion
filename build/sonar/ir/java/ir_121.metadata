@@ -1,8 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Prl#<init>(Lca/uhn/hl7v2/model/v251/datatype/PRL;)V
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#instance-init#
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#<init>(Lca/uhn/hl7v2/model/v251/datatype/CE;)V
-==
-getParentObservationSubIdentifier ca.uhn.hl7v2.model.v251.datatype.PRL#getParentObservationSubIdentifier()Lca/uhn/hl7v2/model/v251/datatype/ST;
-getParentObservationIdentifier ca.uhn.hl7v2.model.v251.datatype.PRL#getParentObservationIdentifier()Lca/uhn/hl7v2/model/v251/datatype/CE;
-getParentObservationValueDescriptor ca.uhn.hl7v2.model.v251.datatype.PRL#getParentObservationValueDescriptor()Lca/uhn/hl7v2/model/v251/datatype/TX;
-getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;

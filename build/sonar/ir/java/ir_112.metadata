@@ -1,8 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Fn#<init>(Lca/uhn/hl7v2/model/v251/datatype/FN;)V
-==
-getOwnSurname ca.uhn.hl7v2.model.v251.datatype.FN#getOwnSurname()Lca/uhn/hl7v2/model/v251/datatype/ST;
-getOwnSurnamePrefix ca.uhn.hl7v2.model.v251.datatype.FN#getOwnSurnamePrefix()Lca/uhn/hl7v2/model/v251/datatype/ST;
-getSurnamePrefixFromPartnerSpouse ca.uhn.hl7v2.model.v251.datatype.FN#getSurnamePrefixFromPartnerSpouse()Lca/uhn/hl7v2/model/v251/datatype/ST;
-getSurname ca.uhn.hl7v2.model.v251.datatype.FN#getSurname()Lca/uhn/hl7v2/model/v251/datatype/ST;
-getSurnameFromPartnerSpouse ca.uhn.hl7v2.model.v251.datatype.FN#getSurnameFromPartnerSpouse()Lca/uhn/hl7v2/model/v251/datatype/ST;
-getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;

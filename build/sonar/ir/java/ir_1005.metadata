@@ -1,6 +1,0 @@
-gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#updateMatchEcrRecordForProcessing(Ljava/lang/Integer;)V
-gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#loadSqlFromFile(Ljava/lang/String;)Ljava/lang/String;
-==
-createNativeQuery jakarta.persistence.EntityManager#createNativeQuery(Ljava/lang/String;)Ljakarta/persistence/Query;
-executeUpdate jakarta.persistence.Query#executeUpdate()I
-setParameter jakarta.persistence.Query#setParameter(Ljava/lang/String;Ljava/lang/Object;)Ljakarta/persistence/Query;

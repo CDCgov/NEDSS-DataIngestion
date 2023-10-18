@@ -1,7 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper#MapRi231(Lca/uhn/hl7v2/model/v231/datatype/RI;Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ri;)Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ri;
-==
-setExplicitTimeInterval gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ri#setExplicitTimeInterval(Ljava/lang/String;)V
-getExplicitTimeInterval ca.uhn.hl7v2.model.v231.datatype.RI#getExplicitTimeInterval()Lca/uhn/hl7v2/model/v231/datatype/ST;
-setRepeatPattern gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ri#setRepeatPattern(Ljava/lang/String;)V
-getRepeatPattern ca.uhn.hl7v2.model.v231.datatype.RI#getRepeatPattern()Lca/uhn/hl7v2/model/v231/datatype/IS;
-getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;

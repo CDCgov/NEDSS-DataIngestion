@@ -1,9 +1,0 @@
-gov.cdc.dataingestion.nbs.ecr.service.helper.CdaInterviewMappingHelper#mapToInterviewTopFieldCheck(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)Lgov/cdc/dataingestion/nbs/ecr/model/interview/InterviewTopField;
-gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewTopField#<init>()V
-gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewTopField#instance-init#
-==
-getC gov.cdc.dataingestion.nbs.ecr.model.shares.MapStructure#getC()I
-getClinicalDocument gov.cdc.dataingestion.nbs.ecr.model.shares.MapStructure#getClinicalDocument()Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;
-setC gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewTopField#setC(I)V
-mapToStructureBodyCheck gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper#mapToStructureBodyCheck(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)Lgov/cdc/dataingestion/nbs/ecr/model/shares/MapStructure;
-setClinicalDocument gov.cdc.dataingestion.nbs.ecr.model.interview.InterviewTopField#setClinicalDocument(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V

@@ -1,3 +1,0 @@
-gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#nullCheckInt(Ljava/lang/Object;)Ljava/lang/Integer;
-==
-intValue java.lang.Number#intValue()I

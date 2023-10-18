@@ -1,5 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.PatientResult#instance-init#
-java.util.ArrayList#<init>()V
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Patient#<init>()V
-java.util.ArrayList#instance-init#
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Patient#instance-init#

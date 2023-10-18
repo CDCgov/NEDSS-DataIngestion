@@ -1,6 +1,0 @@
-gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#fetchMsgInterviewProviderForApplicableEcr(Ljava/lang/Integer;Ljava/lang/String;)Ljava/util/List;
-gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#loadSqlFromFile(Ljava/lang/String;)Ljava/lang/String;
-gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository#setProviderList(Ljakarta/persistence/Query;)Ljava/util/List;
-==
-createNativeQuery jakarta.persistence.EntityManager#createNativeQuery(Ljava/lang/String;)Ljakarta/persistence/Query;
-setParameter jakarta.persistence.Query#setParameter(Ljava/lang/String;Ljava/lang/Object;)Ljakarta/persistence/Query;

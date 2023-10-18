@@ -1,7 +1,0 @@
-gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildPatientResultOrderObservation(Ljava/util/List;)Lgov/cdc/dataingestion/nbs/jaxb/PatientResultOrderObservation;
-gov.cdc.dataingestion.nbs.jaxb.PatientResultOrderObservation#instance-init#
-gov.cdc.dataingestion.nbs.jaxb.PatientResultOrderObservation#<init>()V
-gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7OBSERVATIONType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageGroup/Observation;)Lgov/cdc/dataingestion/nbs/jaxb/HL7OBSERVATIONType;
-==
-add java.util.List#add(Ljava/lang/Object;)Z
-getOBSERVATION gov.cdc.dataingestion.nbs.jaxb.PatientResultOrderObservation#getOBSERVATION()Ljava/util/List;

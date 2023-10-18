@@ -1,7 +1,0 @@
-gov.cdc.dataingestion.nbs.ecr.service.helper.CdaTreatmentMappingHelper#mapToAttributes(Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/ecr/model/AttributeMapper;
-gov.cdc.dataingestion.nbs.ecr.model.AttributeMapper#<init>()V
-gov.cdc.dataingestion.nbs.ecr.model.AttributeMapper#instance-init#
-java.lang.String#isEmpty()Z
-==
-setAttribute1 gov.cdc.dataingestion.nbs.ecr.model.AttributeMapper#setAttribute1(Ljava/lang/String;)V
-setAttribute2 gov.cdc.dataingestion.nbs.ecr.model.AttributeMapper#setAttribute2(Ljava/lang/String;)V

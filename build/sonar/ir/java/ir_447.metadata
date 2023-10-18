@@ -1,9 +1,0 @@
-gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7FCType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Fc;)Lgov/cdc/dataingestion/nbs/jaxb/HL7FCType;
-gov.cdc.dataingestion.nbs.jaxb.HL7FCType#instance-init#
-gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7TSType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;)Lgov/cdc/dataingestion/nbs/jaxb/HL7TSType;
-gov.cdc.dataingestion.nbs.jaxb.HL7FCType#<init>()V
-==
-setEffectiveDate gov.cdc.dataingestion.nbs.jaxb.HL7FCType#setEffectiveDate(Lgov/cdc/dataingestion/nbs/jaxb/HL7TSType;)V
-setFinancialClassCode gov.cdc.dataingestion.nbs.jaxb.HL7FCType#setFinancialClassCode(Ljava/lang/String;)V
-getEffectiveDate gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Fc#getEffectiveDate()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ts;
-getFinancialClassCode gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Fc#getFinancialClassCode()Ljava/lang/String;

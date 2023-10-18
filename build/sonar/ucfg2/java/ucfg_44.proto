@@ -1,27 +1,0 @@
-
-Œgov.cdc.dataingestion.hl7.helper.HL7Helper#convertHl7ToFhir(Ljava/lang/String;)Lgov/cdc/dataingestion/hl7/helper/model/FhirConvertedMessage;‰
-/Users/DucNguyen/Desktop/CDC_Repos/NEDSS-DataIngestion/hl7-parser/src/main/java/gov/cdc/dataingestion/hl7/helper/HL7Helper.java1  1(0"1*ò
-12 2(À
-½
-2 2(L
-%0Fgov.cdc.dataingestion.hl7.helper.integration.interfaces.IFhirConverter"__id*]
-
-__unknown_file (A*?,
-*gov.cdc.dataingestion.hl7.helper.HL7Helper"
-fhirConverterÎË
-2 2(9A
-%1;gov.cdc.dataingestion.hl7.helper.model.FhirConvertedMessage"«gov.cdc.dataingestion.hl7.helper.integration.interfaces.IFhirConverter#HL7ToFHIRConversion(Ljava/lang/String;)Lgov/cdc/dataingestion/hl7/helper/model/FhirConvertedMessage;*j
-
-__unknown_file (N
-L
-%0Fgov.cdc.dataingestion.hl7.helper.integration.interfaces.IFhirConverter*9
-
-__unknown_file (
-
-messagejava.lang.String2'HL7ToFHIRConversion(Ljava/lang/String;)"O
-2 2(:C
-A
-%1;gov.cdc.dataingestion.hl7.helper.model.FhirConvertedMessage:'
-11 1(?
-messagejava.lang.StringB.,
-*gov.cdc.dataingestion.hl7.helper.HL7HelperH

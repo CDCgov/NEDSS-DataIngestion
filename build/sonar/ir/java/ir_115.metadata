@@ -1,5 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.ContinuationPointer#<init>(Lca/uhn/hl7v2/model/v251/segment/DSC;)V
-==
-getContinuationStyle ca.uhn.hl7v2.model.v251.segment.DSC#getContinuationStyle()Lca/uhn/hl7v2/model/v251/datatype/ID;
-getContinuationPointer ca.uhn.hl7v2.model.v251.segment.DSC#getContinuationPointer()Lca/uhn/hl7v2/model/v251/datatype/ST;
-getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;

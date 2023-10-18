@@ -1,4 +1,0 @@
-gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7ORCType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/order/CommonOrder;)Z
-org.apache.commons.lang3.StringUtils#isEmpty(Ljava/lang/CharSequence;)Z
-==
-getOrderControl gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder#getOrderControl()Ljava/lang/String;

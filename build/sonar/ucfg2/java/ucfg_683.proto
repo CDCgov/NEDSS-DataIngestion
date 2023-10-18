@@ -1,15 +1,0 @@
-
-Zgov.cdc.dataingestion.registration.model.RegisterClient#getCreatedOn()Ljava/sql/Timestamp;õ
-ê/Users/DucNguyen/Desktop/CDC_Repos/NEDSS-DataIngestion/report-service/src/main/java/gov/cdc/dataingestion/registration/model/RegisterClient.javaG G(!"1*Õ
-1H H(ï
-í
-H H(
-%0java.sql.Timestamp"__id*f
-
-__unknown_file (J*H9
-7gov.cdc.dataingestion.registration.model.RegisterClient"
-	createdOn"&
-H H(
-
-%0java.sql.TimestampB;9
-7gov.cdc.dataingestion.registration.model.RegisterClientH

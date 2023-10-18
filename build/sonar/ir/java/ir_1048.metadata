@@ -1,1 +1,0 @@
-gov.cdc.dataingestion.reportstatus.service.ReportStatusService#<init>(Lgov/cdc/dataingestion/reportstatus/repository/IReportStatusRepository;Lgov/cdc/dataingestion/nbs/repository/NbsInterfaceRepository;)V

@@ -1,3 +1,0 @@
-gov.cdc.dataingestion.nbs.ecr.service.CdaMapper#formatDateTime(Ljava/time/OffsetDateTime;)Ljava/lang/String;
-java.time.OffsetDateTime#format(Ljava/time/format/DateTimeFormatter;)Ljava/lang/String;
-java.time.format.DateTimeFormatter#ofPattern(Ljava/lang/String;)Ljava/time/format/DateTimeFormatter;

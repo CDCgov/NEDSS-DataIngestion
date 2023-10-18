@@ -1,6 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetIdStringList([Lca/uhn/hl7v2/model/v251/datatype/ID;)Ljava/util/ArrayList;
-java.util.ArrayList#<init>()V
-java.util.ArrayList#instance-init#
-==
-add java.util.ArrayList#add(Ljava/lang/Object;)Z
-getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;

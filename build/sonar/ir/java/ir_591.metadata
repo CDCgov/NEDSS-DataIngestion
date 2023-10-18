@@ -1,8 +1,0 @@
-gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRoleNameArray(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
-gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRole(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
-==
-getPatient gov.cdc.nedss.phdc.cda.POCDMT000040PatientRole#getPatient()Lgov/cdc/nedss/phdc/cda/POCDMT000040Patient;
-addNewName gov.cdc.nedss.phdc.cda.POCDMT000040Patient#addNewName()Lgov/cdc/nedss/phdc/cda/PN;
-getPatientRole gov.cdc.nedss.phdc.cda.POCDMT000040RecordTarget#getPatientRole()Lgov/cdc/nedss/phdc/cda/POCDMT000040PatientRole;
-getNameArray gov.cdc.nedss.phdc.cda.POCDMT000040Patient#getNameArray()[Lgov/cdc/nedss/phdc/cda/PN;
-getRecordTargetArray gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#getRecordTargetArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040RecordTarget;

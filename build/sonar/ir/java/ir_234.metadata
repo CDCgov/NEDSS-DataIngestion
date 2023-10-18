@@ -1,7 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Dln#<init>(Lca/uhn/hl7v2/model/v251/datatype/DLN;)V
-==
-getIssuingStateProvinceCountry ca.uhn.hl7v2.model.v251.datatype.DLN#getIssuingStateProvinceCountry()Lca/uhn/hl7v2/model/v251/datatype/IS;
-getLicenseNumber ca.uhn.hl7v2.model.v251.datatype.DLN#getLicenseNumber()Lca/uhn/hl7v2/model/v251/datatype/ST;
-getExpirationDate ca.uhn.hl7v2.model.v251.datatype.DLN#getExpirationDate()Lca/uhn/hl7v2/model/v251/datatype/DT;
-getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;
-getValue ca.uhn.hl7v2.model.primitive.DT#getValue()Ljava/lang/String;

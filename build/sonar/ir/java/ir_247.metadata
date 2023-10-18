@@ -1,6 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.helper.validator.OruR01Validator#patientResultValidator(Lca/uhn/hl7v2/model/Group;)V
-gov.cdc.dataingestion.hl7.helper.helper.validator.OruR01Validator#orderObservationValidator(Lca/uhn/hl7v2/model/Group;)V
-gov.cdc.dataingestion.hl7.helper.helper.validator.OruR01Validator#patientValidator(Lca/uhn/hl7v2/model/Group;)V
-java.lang.String#equalsIgnoreCase(Ljava/lang/String;)Z
-==
-getName ca.uhn.hl7v2.model.Structure#getName()Ljava/lang/String;

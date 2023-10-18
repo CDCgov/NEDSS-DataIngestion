@@ -1,15 +1,0 @@
-
-\gov.cdc.dataingestion.report.repository.model.RawERLModel#getUpdatedOn()Ljava/sql/Timestamp;ù
-í/Users/DucNguyen/Desktop/CDC_Repos/NEDSS-DataIngestion/report-service/src/main/java/gov/cdc/dataingestion/report/repository/model/RawERLModel.javaD D(!"1*œ
-1E E(ó
-î
-E E(
-%0java.sql.Timestamp"__id*h
-
-__unknown_file (L*J;
-9gov.cdc.dataingestion.report.repository.model.RawERLModel"
-	updatedOn"&
-E E(
-
-%0java.sql.TimestampB=;
-9gov.cdc.dataingestion.report.repository.model.RawERLModelH

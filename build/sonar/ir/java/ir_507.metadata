@@ -1,4 +1,0 @@
-gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7SPSType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Sps;)Z
-gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7CWEType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cwe;)Z
-==
-getSpecimenSourceNameOrCode gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Sps#getSpecimenSourceNameOrCode()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cwe;

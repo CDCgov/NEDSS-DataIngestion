@@ -1,3 +1,0 @@
-gov.cdc.dataingestion.security.model.SecurityUser#getPassword()Ljava/lang/String;
-==
-getPassword gov.cdc.dataingestion.security.model.Client#getPassword()Ljava/lang/String;

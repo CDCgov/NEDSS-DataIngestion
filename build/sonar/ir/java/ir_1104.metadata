@@ -1,8 +1,0 @@
-gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamHL7PATIENTType(Lgov/cdc/dataingestion/nbs/jaxb/HL7PATIENTType;)Ljava/lang/String;
-java.lang.StringBuilder#instance-init#
-gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamHL7PIDType(Lgov/cdc/dataingestion/nbs/jaxb/HL7PIDType;)Ljava/lang/String;
-java.lang.StringBuilder#append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-java.lang.StringBuilder#<init>()V
-java.lang.StringBuilder#toString()Ljava/lang/String;
-==
-getPatientIdentification gov.cdc.dataingestion.nbs.jaxb.HL7PATIENTType#getPatientIdentification()Lgov/cdc/dataingestion/nbs/jaxb/HL7PIDType;

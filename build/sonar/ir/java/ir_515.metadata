@@ -1,4 +1,0 @@
-gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7ContinuationPointerType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageType/OruR1;)Z
-==
-getContinuationPointer gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.ContinuationPointer#getContinuationPointer()Ljava/lang/String;
-getContinuationPointer gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1#getContinuationPointer()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageSegment/ContinuationPointer;

@@ -1,4 +1,0 @@
-gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7VisitType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageGroup/Visit;)Z
-gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7PIV1Type(Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/patient/visit/PatientVisit;)Z
-==
-getPatientVisit gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Visit#getPatientVisit()Lgov/cdc/dataingestion/hl7/helper/model/hl7/group/patient/visit/PatientVisit;

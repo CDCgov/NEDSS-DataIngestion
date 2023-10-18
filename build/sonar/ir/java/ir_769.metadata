@@ -1,3 +1,0 @@
-gov.cdc.dataingestion.nbs.services.CdaLookUpService#fetchConstantLookUpByCriteriaWithColumn(Ljava/lang/String;Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/repository/model/dto/lookup/ConstantLookUpDto;
-==
-fetchConstantLookUpByCriteriaWithColumn gov.cdc.dataingestion.nbs.repository.model.IEcrLookUpRepository#fetchConstantLookUpByCriteriaWithColumn(Ljava/lang/String;Ljava/lang/String;)Lgov/cdc/dataingestion/nbs/repository/model/dto/lookup/ConstantLookUpDto;

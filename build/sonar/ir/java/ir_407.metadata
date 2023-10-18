@@ -1,5 +1,0 @@
-gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#findAssumedOBRType(Ljava/util/List;Z)Lgov/cdc/dataingestion/nbs/jaxb/HL7OBRType;
-==
-getParent gov.cdc.dataingestion.nbs.jaxb.HL7OBRType#getParent()Lgov/cdc/dataingestion/nbs/jaxb/HL7EIPType;
-getObservationRequest gov.cdc.dataingestion.nbs.jaxb.HL7OrderObservationType#getObservationRequest()Lgov/cdc/dataingestion/nbs/jaxb/HL7OBRType;
-getParentResult gov.cdc.dataingestion.nbs.jaxb.HL7OBRType#getParentResult()Lgov/cdc/dataingestion/nbs/jaxb/HL7PRLType;

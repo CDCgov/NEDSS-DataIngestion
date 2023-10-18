@@ -1,7 +1,0 @@
-gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7PatientResultSPMType(Ljava/util/List;)Lgov/cdc/dataingestion/nbs/jaxb/HL7PatientResultSPMType;
-gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7SPECIMENType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageGroup/Specimen;)Lgov/cdc/dataingestion/nbs/jaxb/HL7SPECIMENType;
-gov.cdc.dataingestion.nbs.jaxb.HL7PatientResultSPMType#<init>()V
-gov.cdc.dataingestion.nbs.jaxb.HL7PatientResultSPMType#instance-init#
-==
-add java.util.List#add(Ljava/lang/Object;)Z
-getSPECIMEN gov.cdc.dataingestion.nbs.jaxb.HL7PatientResultSPMType#getSPECIMEN()Ljava/util/List;

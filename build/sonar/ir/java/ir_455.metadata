@@ -1,4 +1,0 @@
-gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#addXTNsToPIDType(Ljava/util/List;Ljava/util/function/Consumer;)V
-gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#buildHL7XTNType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Xtn;)Lgov/cdc/dataingestion/nbs/jaxb/HL7XTNType;
-==
-accept java.util.function.Consumer#accept(Ljava/lang/Object;)V

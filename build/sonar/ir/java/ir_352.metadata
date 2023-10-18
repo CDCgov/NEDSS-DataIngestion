@@ -1,5 +1,0 @@
-gov.cdc.dataingestion.config.ClassConfig#hl7ToFHIRConversion()Lgov/cdc/dataingestion/conversion/integration/interfaces/IHL7ToFHIRConversion;
-io.github.linuxforhealth.hl7.HL7ToFHIRConverter#instance-init#
-gov.cdc.dataingestion.conversion.integration.HL7ToFHIRConversion#<init>(Lio/github/linuxforhealth/hl7/HL7ToFHIRConverter;)V
-io.github.linuxforhealth.hl7.HL7ToFHIRConverter#<init>()V
-gov.cdc.dataingestion.conversion.integration.HL7ToFHIRConversion#instance-init#

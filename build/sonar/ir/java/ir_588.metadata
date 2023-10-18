@@ -1,8 +1,0 @@
-gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRoleAddrCounty(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
-gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRoleAddrArray(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
-==
-getAddrArray gov.cdc.nedss.phdc.cda.POCDMT000040PatientRole#getAddrArray(I)Lgov/cdc/nedss/phdc/cda/AD;
-getCountyArray gov.cdc.nedss.phdc.cda.AD#getCountyArray()[Lgov/cdc/nedss/phdc/cda/AdxpCounty;
-addNewCounty gov.cdc.nedss.phdc.cda.AD#addNewCounty()Lgov/cdc/nedss/phdc/cda/AdxpCounty;
-getPatientRole gov.cdc.nedss.phdc.cda.POCDMT000040RecordTarget#getPatientRole()Lgov/cdc/nedss/phdc/cda/POCDMT000040PatientRole;
-getRecordTargetArray gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#getRecordTargetArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040RecordTarget;

@@ -1,5 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.integration.HL7Parser#hl7InitContext(Lca/uhn/hl7v2/HapiContext;Ljava/lang/String;)Lca/uhn/hl7v2/HapiContext;
-ca.uhn.hl7v2.parser.CanonicalModelClassFactory#instance-init#
-ca.uhn.hl7v2.parser.CanonicalModelClassFactory#<init>(Ljava/lang/String;)V
-==
-setModelClassFactory ca.uhn.hl7v2.HapiContext#setModelClassFactory(Lca/uhn/hl7v2/parser/ModelClassFactory;)V

@@ -1,7 +1,0 @@
-gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper#mapToObservationPlace(Ljava/lang/String;Lorg/apache/xmlbeans/XmlObject;)Lorg/apache/xmlbeans/XmlObject;
-null
-==
-setAttributeText org.apache.xmlbeans.XmlCursor#setAttributeText(Ljavax/xml/namespace/QName;Ljava/lang/String;)Z
-newCursor org.apache.xmlbeans.XmlTokenSource#newCursor()Lorg/apache/xmlbeans/XmlCursor;
-dispose org.apache.xmlbeans.XmlCursor#dispose()V
-toFirstChild org.apache.xmlbeans.XmlCursor#toFirstChild()Z

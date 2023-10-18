@@ -1,4 +1,0 @@
-gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter#isEmptyHL7NDLType(Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Ndl;)Z
-==
-getName gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ndl#getName()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageDataType/Cnn;
-getIdNumber gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cnn#getIdNumber()Ljava/lang/String;

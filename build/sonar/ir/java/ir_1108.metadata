@@ -1,7 +1,0 @@
-gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#streamHL7VIDType(Lgov/cdc/dataingestion/nbs/jaxb/HL7VIDType;)Ljava/lang/String;
-java.lang.StringBuilder#instance-init#
-java.lang.StringBuilder#append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-java.lang.StringBuilder#<init>()V
-java.lang.StringBuilder#toString()Ljava/lang/String;
-==
-getHL7VersionID gov.cdc.dataingestion.nbs.jaxb.HL7VIDType#getHL7VersionID()Ljava/lang/String;

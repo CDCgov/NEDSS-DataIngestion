@@ -1,5 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Mo#<init>(Lca/uhn/hl7v2/model/v251/datatype/MO;)V
-==
-getDenomination ca.uhn.hl7v2.model.v251.datatype.MO#getDenomination()Lca/uhn/hl7v2/model/v251/datatype/ID;
-getQuantity ca.uhn.hl7v2.model.v251.datatype.MO#getQuantity()Lca/uhn/hl7v2/model/v251/datatype/NM;
-getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;

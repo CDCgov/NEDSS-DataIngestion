@@ -1,2 +1,0 @@
-gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService#handleMessageForValidatedElr(Ljava/lang/String;Ljava/lang/String;)V
-gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService#preparationForConversionHandler(Ljava/lang/String;)V

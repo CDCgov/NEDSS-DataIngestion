@@ -1,6 +1,0 @@
-gov.cdc.dataingestion.nbs.ecr.service.helper.CdaCaseMappingHelper#checkClinicalSectionCode(Lgov/cdc/nedss/phdc/cda/POCDMT000040Section;)V
-==
-addNewCode gov.cdc.nedss.phdc.cda.POCDMT000040Section#addNewCode()Lgov/cdc/nedss/phdc/cda/CE;
-getTitle gov.cdc.nedss.phdc.cda.POCDMT000040Section#getTitle()Lgov/cdc/nedss/phdc/cda/ST;
-getCode gov.cdc.nedss.phdc.cda.POCDMT000040Section#getCode()Lgov/cdc/nedss/phdc/cda/CE;
-addNewTitle gov.cdc.nedss.phdc.cda.POCDMT000040Section#addNewTitle()Lgov/cdc/nedss/phdc/cda/ST;

@@ -1,8 +1,0 @@
-gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRoleGenderCode(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
-gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper#checkPatientRole(Lgov/cdc/nedss/phdc/cda/POCDMT000040ClinicalDocument1;)V
-==
-getPatient gov.cdc.nedss.phdc.cda.POCDMT000040PatientRole#getPatient()Lgov/cdc/nedss/phdc/cda/POCDMT000040Patient;
-addNewAdministrativeGenderCode gov.cdc.nedss.phdc.cda.POCDMT000040Patient#addNewAdministrativeGenderCode()Lgov/cdc/nedss/phdc/cda/CE;
-isSetAdministrativeGenderCode gov.cdc.nedss.phdc.cda.POCDMT000040Patient#isSetAdministrativeGenderCode()Z
-getPatientRole gov.cdc.nedss.phdc.cda.POCDMT000040RecordTarget#getPatientRole()Lgov/cdc/nedss/phdc/cda/POCDMT000040PatientRole;
-getRecordTargetArray gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1#getRecordTargetArray(I)Lgov/cdc/nedss/phdc/cda/POCDMT000040RecordTarget;

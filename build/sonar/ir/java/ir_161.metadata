@@ -1,9 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#<init>(Lca/uhn/hl7v2/model/v251/datatype/CE;)V
-==
-getNameOfAlternateCodingSystem ca.uhn.hl7v2.model.v251.datatype.CE#getNameOfAlternateCodingSystem()Lca/uhn/hl7v2/model/v251/datatype/ID;
-getNameOfCodingSystem ca.uhn.hl7v2.model.v251.datatype.CE#getNameOfCodingSystem()Lca/uhn/hl7v2/model/v251/datatype/ID;
-getAlternateIdentifier ca.uhn.hl7v2.model.v251.datatype.CE#getAlternateIdentifier()Lca/uhn/hl7v2/model/v251/datatype/ST;
-getAlternateText ca.uhn.hl7v2.model.v251.datatype.CE#getAlternateText()Lca/uhn/hl7v2/model/v251/datatype/ST;
-getIdentifier ca.uhn.hl7v2.model.v251.datatype.CE#getIdentifier()Lca/uhn/hl7v2/model/v251/datatype/ST;
-getText ca.uhn.hl7v2.model.v251.datatype.CE#getText()Lca/uhn/hl7v2/model/v251/datatype/ST;
-getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;

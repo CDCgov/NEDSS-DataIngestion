@@ -1,7 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.helper.modelListHelper#GetRptList([Lca/uhn/hl7v2/model/v251/datatype/RPT;)Ljava/util/ArrayList;
-java.util.ArrayList#<init>()V
-java.util.ArrayList#instance-init#
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Rpt#instance-init#
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Rpt#<init>(Lca/uhn/hl7v2/model/v251/datatype/RPT;)V
-==
-add java.util.ArrayList#add(Ljava/lang/Object;)Z

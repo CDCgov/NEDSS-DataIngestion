@@ -1,3 +1,0 @@
-gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter#buildMessageHeader()Lgov/cdc/dataingestion/hl7/helper/model/hl7/messageSegment/MessageHeader;
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader#instance-init#
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader#<init>()V

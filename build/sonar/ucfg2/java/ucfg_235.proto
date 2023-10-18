@@ -1,77 +1,0 @@
-
-´gov.cdc.dataingestion.rawmessage.service.RawELRService#convert(Lgov/cdc/dataingestion/report/repository/model/RawERLModel;)Lgov/cdc/dataingestion/rawmessage/dto/RawERLDto;ö
-è/Users/DucNguyen/Desktop/CDC_Repos/NEDSS-DataIngestion/report-service/src/main/java/gov/cdc/dataingestion/rawmessage/service/RawELRService.java4 4("1*∂
-16 6(-rp
-6" 6(+4
-%0.gov.cdc.dataingestion.rawmessage.dto.RawERLDto".gov.cdc.dataingestion.rawmessage.dto.RawERLDto°
-û
-6 6(-
-%1"8gov.cdc.dataingestion.rawmessage.dto.RawERLDto#<init>()V*R
-
-__unknown_file (6
-4
-%0.gov.cdc.dataingestion.rawmessage.dto.RawERLDto§
-°
-6 6(.;
-	rawERLDto.gov.cdc.dataingestion.rawmessage.dto.RawERLDto"__id*R
-
-__unknown_file (6
-4
-%0.gov.cdc.dataingestion.rawmessage.dto.RawERLDtoÎË
-7 7(+
-%2java.lang.String"Sgov.cdc.dataingestion.report.repository.model.RawERLModel#getId()Ljava/lang/String;*f
-
-__unknown_file (J
-H
-rawERLModel9gov.cdc.dataingestion.report.repository.model.RawERLModel2getId()êç
-7 7(,
-
-%3void"Igov.cdc.dataingestion.rawmessage.dto.RawERLDto#setId(Ljava/lang/String;)V*Y
-
-__unknown_file (=
-;
-	rawERLDto.gov.cdc.dataingestion.rawmessage.dto.RawERLDto*4
-
-__unknown_file (
-
-%2java.lang.String2setId(Ljava/lang/String;)ÔÏ
-8 8(/
-%4java.lang.String"Ugov.cdc.dataingestion.report.repository.model.RawERLModel#getType()Ljava/lang/String;*f
-
-__unknown_file (J
-H
-rawERLModel9gov.cdc.dataingestion.report.repository.model.RawERLModel2	getType()îë
-8 8(0
-
-%5void"Kgov.cdc.dataingestion.rawmessage.dto.RawERLDto#setType(Ljava/lang/String;)V*Y
-
-__unknown_file (=
-;
-	rawERLDto.gov.cdc.dataingestion.rawmessage.dto.RawERLDto*4
-
-__unknown_file (
-
-%4java.lang.String2setType(Ljava/lang/String;)ıÚ
-9 9(5
-%6java.lang.String"Xgov.cdc.dataingestion.report.repository.model.RawERLModel#getPayload()Ljava/lang/String;*f
-
-__unknown_file (J
-H
-rawERLModel9gov.cdc.dataingestion.report.repository.model.RawERLModel2getPayload()öó
-9 9(6
-
-%7void"Ngov.cdc.dataingestion.rawmessage.dto.RawERLDto#setPayload(Ljava/lang/String;)V*Y
-
-__unknown_file (=
-;
-	rawERLDto.gov.cdc.dataingestion.rawmessage.dto.RawERLDto*4
-
-__unknown_file (
-
-%6java.lang.String2setPayload(Ljava/lang/String;)"I
-: :(=
-;
-	rawERLDto.gov.cdc.dataingestion.rawmessage.dto.RawERLDto:T
-4 4(5H
-rawERLModel9gov.cdc.dataingestion.report.repository.model.RawERLModelB:8
-6gov.cdc.dataingestion.rawmessage.service.RawELRService

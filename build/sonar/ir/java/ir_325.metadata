@@ -1,5 +1,0 @@
-gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService#convertModelToDtoList(Ljava/util/List;)Ljava/util/List;
-gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto#<init>(Lgov/cdc/dataingestion/deadletter/repository/model/ElrDeadLetterModel;Lgov/cdc/dataingestion/constant/enums/EnumElrServiceOperation;)V
-gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto#instance-init#
-==
-add java.util.List#add(Ljava/lang/Object;)Z

@@ -1,7 +1,0 @@
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cq#<init>(Lca/uhn/hl7v2/model/v251/datatype/CQ;)V
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#instance-init#
-gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce#<init>(Lca/uhn/hl7v2/model/v251/datatype/CE;)V
-==
-getQuantity ca.uhn.hl7v2.model.v251.datatype.CQ#getQuantity()Lca/uhn/hl7v2/model/v251/datatype/NM;
-getUnits ca.uhn.hl7v2.model.v251.datatype.CQ#getUnits()Lca/uhn/hl7v2/model/v251/datatype/CE;
-getValue ca.uhn.hl7v2.model.AbstractPrimitive#getValue()Ljava/lang/String;

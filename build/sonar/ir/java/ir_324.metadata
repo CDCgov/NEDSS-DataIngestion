@@ -1,7 +1,0 @@
-gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService#saveDltRecord(Lgov/cdc/dataingestion/deadletter/model/ElrDeadLetterDto;)Lgov/cdc/dataingestion/deadletter/model/ElrDeadLetterDto;
-gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService#convertDtoToModel(Lgov/cdc/dataingestion/deadletter/model/ElrDeadLetterDto;)Lgov/cdc/dataingestion/deadletter/repository/model/ElrDeadLetterModel;
-java.sql.Timestamp#from(Ljava/time/Instant;)Ljava/sql/Timestamp;
-java.time.Instant#now()Ljava/time/Instant;
-==
-save org.springframework.data.repository.CrudRepository#save(Ljava/lang/Object;)Ljava/lang/Object;
-setUpdatedOn gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto#setUpdatedOn(Ljava/sql/Timestamp;)V
