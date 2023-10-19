@@ -528,6 +528,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                                             int sequenceNbr, int counter,
                                             POCDMT000040Component3 out) {
         CE ce = CE.Factory.newInstance();
+        ce.addNewTranslation();
         if (name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()) {
             ce.getTranslationArray(0).setCode(in.getAnswerTxt());
         }
@@ -552,11 +553,18 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         else if (name.equals(COL_ANS_TO_DISPLAY_NM)) {
             setMessageAnswerArrayValueAnsDisplayNm(ce, in);
         }
+
+        if (out.getSection().getEntryArray(counter).getObservation().getValueArray().length == 0) {
+            out.getSection().getEntryArray(counter).getObservation().addNewValue();
+        }
         out.getSection().getEntryArray(counter).getObservation().getValueArray(sequenceNbr).set(ce);
     }
 
     private void setMessageAnswerArrayValueAnsDisplayNm(CE ce, EcrMsgCaseAnswerDto in) {
         if (!in.getAnsToDisplayNm().isEmpty()) {
+            if (ce.getTranslationArray(0).getDisplayName() == null) {
+                ce.getTranslationArray(0).setDisplayName("");
+            }
             if(ce.getTranslationArray(0).getDisplayName().equals("OTH^")) {
                 ce.setDisplayName(ce.getTranslationArray(0).getDisplayName());
             }
@@ -824,6 +832,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             int componentCounter,
             int seqNbr) {
         CE ce = CE.Factory.newInstance();
+        ce.addNewTranslation();
         if (name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()) {
             ce.getTranslationArray(0).setCode(in.getAnswerTxt());
         }
@@ -848,8 +857,14 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         else if (name.equals(COL_ANS_TO_DISPLAY_NM)) {
             mapMultiSelectCodedCountyFieldDisplayName(ce, in);
         }
+        if (out.getEntryArray(sectionCounter)
+                .getOrganizer().getComponentArray(componentCounter).getObservation().getValueArray().length == 0){
+            out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().addNewValue();
+        }
 
-        out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getValueArray(seqNbr).set(ce);
+        var idx = out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getValueArray().length;
+        out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().addNewValue();
+        out.getEntryArray(sectionCounter).getOrganizer().getComponentArray(componentCounter).getObservation().getValueArray(idx).set(ce);
 
     }
 
