@@ -1,16 +1,9 @@
 package gov.cdc.dataingestion.ecr.cdaMapping;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.stream.JsonReader;
-import gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService;
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.service.CdaMapper;
-import gov.cdc.dataingestion.nbs.ecr.service.helper.*;
-import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.*;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.ConstantLookUpDto;
-import gov.cdc.dataingestion.nbs.services.CdaLookUpService;
 import gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,16 +11,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.testcontainers.shaded.org.bouncycastle.jcajce.provider.asymmetric.ec.KeyFactorySpi;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
-
-import static gov.cdc.dataingestion.ecr.cdaMapping.helper.testDataInitiation.getTestData;
+import static gov.cdc.dataingestion.ecr.cdaMapping.helper.TestDataInitiation.getTestData;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
-public class cdaMapperTest {
+class CdaMapperTest {
     @Mock
     private ICdaLookUpService cdaLookUpService;
 

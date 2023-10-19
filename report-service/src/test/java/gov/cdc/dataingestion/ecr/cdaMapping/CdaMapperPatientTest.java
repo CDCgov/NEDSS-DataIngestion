@@ -1,7 +1,6 @@
 package gov.cdc.dataingestion.ecr.cdaMapping;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
-import gov.cdc.dataingestion.nbs.ecr.service.CdaMapper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.CdaPatientMappingHelper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
@@ -16,9 +15,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static gov.cdc.dataingestion.ecr.cdaMapping.helper.testDataInitiation.getTestData;
+import static gov.cdc.dataingestion.ecr.cdaMapping.helper.TestDataInitiation.getTestData;
 
-public class cdaMapperPatientTest {
+class CdaMapperPatientTest {
 
     @Mock
     private ICdaLookUpService cdaLookUpService;
@@ -34,7 +33,7 @@ public class cdaMapperPatientTest {
     }
 
     @Test
-    public void mapToPatientTest() throws XmlException, EcrCdaXmlException {
+    void mapToPatientTest() throws XmlException, EcrCdaXmlException {
         EcrSelectedRecord input = getTestData();
         var doc = getPatientDocument();
         int patientComponentCounter = -1;

@@ -1,6 +1,5 @@
 package gov.cdc.dataingestion.ecr.cdaMapping;
 
-import gov.cdc.dataingestion.nbs.ecr.service.CdaMapper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +10,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.List;
 
-public class cdaMapStringHelperTest {
+class CdaMapStringHelperTest {
     @InjectMocks
     private CdaMapStringHelper target;
 

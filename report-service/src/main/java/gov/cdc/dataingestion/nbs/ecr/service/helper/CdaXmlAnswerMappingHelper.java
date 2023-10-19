@@ -8,7 +8,6 @@ import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgXmlAnswerDto;
 import gov.cdc.nedss.phdc.cda.ANY;
 import gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1;
 import gov.cdc.nedss.phdc.cda.POCDMT000040Component3;
-import org.apache.xmlbeans.XmlException;
 
 public class CdaXmlAnswerMappingHelper implements ICdaXmlAnswerMappingHelper {
     public CdaXmlAnswerMapper mapToXmlAnswerTop(EcrSelectedRecord input,

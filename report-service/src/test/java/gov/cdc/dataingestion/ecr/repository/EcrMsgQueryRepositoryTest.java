@@ -25,7 +25,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EcrMsgQueryRepositoryTest {
+class EcrMsgQueryRepositoryTest {
     @InjectMocks
     private EcrMsgQueryRepository target;
 
@@ -38,7 +38,7 @@ public class EcrMsgQueryRepositoryTest {
     }
 
     @Test
-    public void fetchMsgContainerForApplicableEcr_Test() throws Exception {
+    void fetchMsgContainerForApplicableEcr_Test() throws Exception {
         // Arrange
         Query mockQuery = mock(Query.class);
         when(entityManager.createNativeQuery(anyString())).thenReturn(mockQuery);
@@ -70,7 +70,7 @@ public class EcrMsgQueryRepositoryTest {
 
 
     @Test
-    public void fetchMsgPatientForApplicableEcr_Test() throws Exception {
+    void fetchMsgPatientForApplicableEcr_Test() throws Exception {
         // Arrange
         Query mockQuery = mock(Query.class);
         when(entityManager.createNativeQuery(anyString())).thenReturn(mockQuery);
@@ -107,21 +107,12 @@ public class EcrMsgQueryRepositoryTest {
         assertEquals("9", resultDto.getPatAddrCensusTractTxt());
         assertEquals("10", resultDto.getPatAddrStateCd());
         assertEquals("11", resultDto.getPatAddrStreetAddr1Txt());
-        assertEquals("12", resultDto.getPatAddrStreetAddr2Txt());
-        assertEquals("13", resultDto.getPatAddrZipCodeTxt());
-        assertEquals("14", resultDto.getPatBirthCountryCd());
-        assertEquals("16", resultDto.getPatBirthSexCd());
-        assertEquals("17", resultDto.getPatCellPhoneNbrTxt());
-        assertEquals("18", resultDto.getPatCommentTxt());
-        assertEquals("19", resultDto.getPatCurrentSexCd());
-        assertEquals("20", resultDto.getPatDeceasedIndCd());
-        assertEquals("22", resultDto.getPatEffectiveTime());
-        assertEquals("23", resultDto.getPatIdMedicalRecordNbrTxt());
-        assertEquals("24", resultDto.getPatIdStateHivCaseNbrTxt());
-        assertEquals("26", resultDto.getPatIdSsnTxt());
-        assertEquals("27", resultDto.getPatEmailAddressTxt());
-        assertEquals("28", resultDto.getPatEthnicGroupIndCd());
-        assertEquals("29", resultDto.getPatEthnicityUnkReasonCd());
+
+        fetchMsgPatientForApplicableEcr_TestAssertionCheck2(resultDto);
+        fetchMsgPatientForApplicableEcr_TestAssertionCheck(resultDto);
+    }
+
+    private void fetchMsgPatientForApplicableEcr_TestAssertionCheck( EcrMsgPatientDto resultDto ) {
         assertEquals("30", resultDto.getPatHomePhoneNbrTxt());
         assertEquals("31", resultDto.getPatNameAliasTxt());
         assertEquals("33", resultDto.getPatNameDegreeCd());
@@ -145,9 +136,26 @@ public class EcrMsgQueryRepositoryTest {
         assertEquals("52", resultDto.getPatWorkPhoneNbrTxt());
         assertEquals(53, resultDto.getPatWorkPhoneExtensionTxt());
     }
+    private void fetchMsgPatientForApplicableEcr_TestAssertionCheck2( EcrMsgPatientDto resultDto ) {
+        assertEquals("12", resultDto.getPatAddrStreetAddr2Txt());
+        assertEquals("13", resultDto.getPatAddrZipCodeTxt());
+        assertEquals("14", resultDto.getPatBirthCountryCd());
+        assertEquals("16", resultDto.getPatBirthSexCd());
+        assertEquals("17", resultDto.getPatCellPhoneNbrTxt());
+        assertEquals("18", resultDto.getPatCommentTxt());
+        assertEquals("19", resultDto.getPatCurrentSexCd());
+        assertEquals("20", resultDto.getPatDeceasedIndCd());
+        assertEquals("22", resultDto.getPatEffectiveTime());
+        assertEquals("23", resultDto.getPatIdMedicalRecordNbrTxt());
+        assertEquals("24", resultDto.getPatIdStateHivCaseNbrTxt());
+        assertEquals("26", resultDto.getPatIdSsnTxt());
+        assertEquals("27", resultDto.getPatEmailAddressTxt());
+        assertEquals("28", resultDto.getPatEthnicGroupIndCd());
+        assertEquals("29", resultDto.getPatEthnicityUnkReasonCd());
+    }
 
     @Test
-    public void fetchMsgCaseParticipantForApplicableEcr_Test() throws Exception {
+    void fetchMsgCaseParticipantForApplicableEcr_Test() throws Exception {
         // Arrange
         Query mockQuery = mock(Query.class);
         when(entityManager.createNativeQuery(anyString())).thenReturn(mockQuery);
@@ -182,7 +190,7 @@ public class EcrMsgQueryRepositoryTest {
     }
 
     @Test
-    public void fetchMsgCaseAnswerForApplicableEcr_Test() throws Exception {
+    void fetchMsgCaseAnswerForApplicableEcr_Test() throws Exception {
         // Arrange
         Query mockQuery = mock(Query.class);
         when(entityManager.createNativeQuery(anyString())).thenReturn(mockQuery);
@@ -243,7 +251,7 @@ public class EcrMsgQueryRepositoryTest {
     }
 
     @Test
-    public void fetchMsgCaseAnswerRepeatForApplicableEcr_Test() throws Exception {
+    void fetchMsgCaseAnswerRepeatForApplicableEcr_Test() throws Exception {
         // Arrange
         Query mockQuery = mock(Query.class);
         when(entityManager.createNativeQuery(anyString())).thenReturn(mockQuery);
@@ -330,7 +338,7 @@ public class EcrMsgQueryRepositoryTest {
     }
 
     @Test
-    public void testFetchMsgProviderForApplicableEcr() throws EcrCdaXmlException {
+    void testFetchMsgProviderForApplicableEcr() throws EcrCdaXmlException {
         // Arrange
         Query query = mock(Query.class);
         Integer containerId = 1;
@@ -359,6 +367,10 @@ public class EcrMsgQueryRepositoryTest {
         assertEquals("StreetAddr1Txt", dto.getPrvAddrStreetAddr1Txt());
         assertEquals("StreetAddr2Txt", dto.getPrvAddrStreetAddr2Txt());
         assertEquals("StateCd", dto.getPrvAddrStateCd());
+        testFetchMsgProviderForApplicableEcrAssertion(dto);
+    }
+
+    private void testFetchMsgProviderForApplicableEcrAssertion(EcrMsgProviderDto dto) {
         assertEquals("ZipCodeTxt", dto.getPrvAddrZipCodeTxt());
         assertEquals("CommentTxt", dto.getPrvCommentTxt());
         assertEquals("AltIdNbrTxt", dto.getPrvIdAltIdNbrTxt());
@@ -379,11 +391,10 @@ public class EcrMsgQueryRepositoryTest {
         assertEquals("PhoneNbrTxt", dto.getPrvPhoneNbrTxt());
         assertEquals("RoleCd", dto.getPrvRoleCd());
         assertEquals("UrlAddressTxt", dto.getPrvUrlAddressTxt());
-
     }
 
     @Test
-    public void testFetchMsgOrganizationForApplicableEcr() throws EcrCdaXmlException {
+    void testFetchMsgOrganizationForApplicableEcr() throws EcrCdaXmlException {
         // Given
         Query query = mock(Query.class);
         Integer containerId = 123;
@@ -419,6 +430,10 @@ public class EcrMsgQueryRepositoryTest {
         assertEquals("orgAddrStateCd", dto.getOrgAddrStateCd());
         assertEquals("orgAddrStreetAddr1Txt", dto.getOrgAddrStreetAddr1Txt());
         assertEquals("orgAddrStreetAddr2Txt", dto.getOrgAddrStreetAddr2Txt());
+        testFetchMsgOrganizationForApplicableEcrAssertion(dto);
+
+    }
+    private void testFetchMsgOrganizationForApplicableEcrAssertion(EcrMsgOrganizationDto dto ) {
         assertEquals("orgAddrZipCodeTxt", dto.getOrgAddrZipCodeTxt());
         assertEquals("orgClassCd", dto.getOrgClassCd());
         assertEquals("orgCommentTxt", dto.getOrgCommentTxt());
@@ -435,7 +450,7 @@ public class EcrMsgQueryRepositoryTest {
     }
 
     @Test
-    public void testFetchMsgPlaceForApplicableEcr() throws EcrCdaXmlException {
+    void testFetchMsgPlaceForApplicableEcr() throws EcrCdaXmlException {
         // Given
         Query query = mock(Query.class);
         Integer containerId = 123;
@@ -471,6 +486,10 @@ public class EcrMsgQueryRepositoryTest {
         assertEquals("plaAddrStreetAddr1Txt", dto.getPlaAddrStreetAddr1Txt());
         assertEquals("plaAddrStreetAddr2Txt", dto.getPlaAddrStreetAddr2Txt());
         assertEquals("plaAddrZipCodeTxt", dto.getPlaAddrZipCodeTxt());
+        testFetchMsgPlaceForApplicableEcrAssertion(dto);
+    }
+
+    private void testFetchMsgPlaceForApplicableEcrAssertion(EcrMsgPlaceDto dto) {
         assertEquals("plaAddrCommentTxt", dto.getPlaAddrCommentTxt());
         assertEquals("plaCensusTractTxt", dto.getPlaCensusTractTxt());
         assertEquals("plaCommentTxt", dto.getPlaCommentTxt());
@@ -487,7 +506,7 @@ public class EcrMsgQueryRepositoryTest {
     }
 
     @Test
-    public void testFetchMsgInterviewForApplicableEcr() throws EcrCdaXmlException {
+    void testFetchMsgInterviewForApplicableEcr() throws EcrCdaXmlException {
         // Given
         Query query = mock(Query.class);
 
@@ -523,7 +542,7 @@ public class EcrMsgQueryRepositoryTest {
     }
 
     @Test
-    public void testFetchMsgInterviewProviderForApplicableEcr() throws EcrCdaXmlException {
+    void testFetchMsgInterviewProviderForApplicableEcr() throws EcrCdaXmlException {
         // Given
         Integer containerId = 123;
         String ixsLocalId = "testIxsLocalId";
@@ -558,7 +577,7 @@ public class EcrMsgQueryRepositoryTest {
     }
 
     @Test
-    public void testFetchMsgInterviewAnswerForApplicableEcr() throws EcrCdaXmlException {
+    void testFetchMsgInterviewAnswerForApplicableEcr() throws EcrCdaXmlException {
         // Given
         Integer containerId = 123;
         String ixsLocalId = "testIxsLocalId";
@@ -592,7 +611,7 @@ public class EcrMsgQueryRepositoryTest {
     }
 
     @Test
-    public void fetchMsgInterviewAnswerRepeatForApplicableEcr_Test() throws EcrCdaXmlException {
+    void fetchMsgInterviewAnswerRepeatForApplicableEcr_Test() throws EcrCdaXmlException {
         // Given
         Integer containerId = 123;
         String ixsLocalId = "testIxsLocalId";
@@ -626,7 +645,7 @@ public class EcrMsgQueryRepositoryTest {
     }
 
     @Test
-    public void testFetchMsgTreatmentForApplicableEcr() throws EcrCdaXmlException {
+    void testFetchMsgTreatmentForApplicableEcr() throws EcrCdaXmlException {
         // Given
         Integer containerId = 123;
         Object[] treatmentArray = {
@@ -670,7 +689,7 @@ public class EcrMsgQueryRepositoryTest {
     }
 
     @Test
-    public void testFetchMsgTreatmentProviderForApplicableEcr() throws EcrCdaXmlException {
+    void testFetchMsgTreatmentProviderForApplicableEcr() throws EcrCdaXmlException {
         // Given
         Integer containerId = 123;
         Object[] providerArray = {
@@ -710,6 +729,10 @@ public class EcrMsgQueryRepositoryTest {
         assertEquals("commentTxt", resultDto.getPrvCommentTxt());
         assertEquals("altIdNbrTxt", resultDto.getPrvIdAltIdNbrTxt());
         assertEquals("quickCodeTxt", resultDto.getPrvIdQuickCodeTxt());
+        testFetchMsgTreatmentProviderForApplicableEcrAssertion(resultDto);
+    }
+
+    private void testFetchMsgTreatmentProviderForApplicableEcrAssertion( EcrMsgProviderDto resultDto) {
         assertEquals("idNbrTxt", resultDto.getPrvIdNbrTxt());
         assertEquals("npiTxt", resultDto.getPrvIdNpiTxt());
         assertNotNull(resultDto.getPrvEffectiveTime());
@@ -728,9 +751,8 @@ public class EcrMsgQueryRepositoryTest {
         assertEquals("urlTxt", resultDto.getPrvUrlAddressTxt());
     }
 
-
     @Test
-    public void testFetchMsgTreatmentOrganizationForApplicableEcr() throws EcrCdaXmlException {
+    void testFetchMsgTreatmentOrganizationForApplicableEcr() throws EcrCdaXmlException {
         // Given
         Integer containerId = 123;
         Object[] organizationArray = {
@@ -767,6 +789,10 @@ public class EcrMsgQueryRepositoryTest {
         assertEquals("stateCd", resultDto.getOrgAddrStateCd());
         assertEquals("streetAddr1", resultDto.getOrgAddrStreetAddr1Txt());
         assertEquals("streetAddr2", resultDto.getOrgAddrStreetAddr2Txt());
+        testFetchMsgTreatmentOrganizationForApplicableEcrAssertion(resultDto);
+    }
+
+    private void testFetchMsgTreatmentOrganizationForApplicableEcrAssertion(EcrMsgOrganizationDto resultDto ) {
         assertEquals("zipCode", resultDto.getOrgAddrZipCodeTxt());
         assertEquals("classCd", resultDto.getOrgClassCd());
         assertEquals("commentTxt", resultDto.getOrgCommentTxt());
@@ -783,7 +809,7 @@ public class EcrMsgQueryRepositoryTest {
     }
 
     @Test
-    public void testUpdateMatchEcrRecordForProcessing() throws EcrCdaXmlException {
+    void testUpdateMatchEcrRecordForProcessing() throws EcrCdaXmlException {
         // Given
         Integer containerUid = 123;
 

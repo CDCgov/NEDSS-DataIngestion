@@ -9,7 +9,7 @@ import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
-public class testDataInitiation {
+public class TestDataInitiation {
     private static EcrSelectedRecord initTestData(EcrSelectedRecord ecrObject) throws EcrCdaXmlException {
         for(int i = 0; i < ecrObject.getMsgCases().get(0).getMsgCaseAnswers().size(); i++) {
             ecrObject.getMsgCases().get(0).getMsgCaseAnswers().get(i).initDataMap();

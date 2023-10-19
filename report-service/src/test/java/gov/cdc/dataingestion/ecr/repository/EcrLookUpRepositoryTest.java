@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 
-public class EcrLookUpRepositoryTest {
+class EcrLookUpRepositoryTest {
     @InjectMocks
     private EcrLookUpRepository target;
 
@@ -39,7 +39,7 @@ public class EcrLookUpRepositoryTest {
     }
 
     @Test
-    public void testFetchConstantLookUpByCriteriaWithColumn() throws EcrCdaXmlException {
+    void testFetchConstantLookUpByCriteriaWithColumn() throws EcrCdaXmlException {
         // Given
         String column = "sampleColumn";
         String value = "sampleValue";
@@ -72,7 +72,7 @@ public class EcrLookUpRepositoryTest {
     }
 
     @Test
-    public void testFetchPhdcAnswerByCriteriaForTranslationCode() throws EcrCdaXmlException {
+    void testFetchPhdcAnswerByCriteriaForTranslationCode() throws EcrCdaXmlException {
         // Given
         String questionIdentifier = "sampleQuestionIdentifier";
         String ansFromCode = "sampleAnsFromCode";
@@ -114,7 +114,7 @@ public class EcrLookUpRepositoryTest {
     }
 
     @Test
-    public void testFetchPhdcQuestionByCriteria() throws EcrCdaXmlException {
+    void testFetchPhdcQuestionByCriteria() throws EcrCdaXmlException {
         // Given
         String questionIdentifier = "sampleQuestionIdentifier";
 
@@ -150,7 +150,7 @@ public class EcrLookUpRepositoryTest {
     }
 
     @Test
-    public void testFetchPhdcQuestionByCriteriaWithColumn() throws EcrCdaXmlException {
+    void testFetchPhdcQuestionByCriteriaWithColumn() throws EcrCdaXmlException {
         // Given
         String column = "sampleColumn";
         String value = "sampleValue";
@@ -187,7 +187,7 @@ public class EcrLookUpRepositoryTest {
     }
 
     @Test
-    public void testFetchQuestionIdentifierMapByCriteriaByCriteria() throws EcrCdaXmlException {
+    void testFetchQuestionIdentifierMapByCriteriaByCriteria() throws EcrCdaXmlException {
         // Given
         String columNm = "sampleColumn";
         String value = "sampleValue";
