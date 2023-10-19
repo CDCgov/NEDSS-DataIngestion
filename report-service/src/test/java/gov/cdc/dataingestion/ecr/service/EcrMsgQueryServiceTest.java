@@ -19,7 +19,7 @@ import java.util.List;
 import static org.mockito.Mockito.when;
 
 
-public class EcrMsgQueryServiceTest {
+class EcrMsgQueryServiceTest {
     @Mock
     private IEcrMsgQueryRepository ecrMsgQueryRepository;
     @InjectMocks

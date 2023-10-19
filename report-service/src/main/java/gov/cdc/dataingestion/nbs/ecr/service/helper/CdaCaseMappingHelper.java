@@ -601,7 +601,6 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         out.getTitle().set(cdaMapHelper.mapToStringData("REPEATING QUESTIONS"));
         int componentCounter = 0;
         String dataType="DATE";
-        int seqNbr = 0;
         int questionGroupSeqNbr = 0;
         int answerGroupSeqNbr = 0;
         String questionIdentifier="";

@@ -17,7 +17,7 @@ import org.mockito.MockitoAnnotations;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class CdaLookUpServiceTest {
+class CdaLookUpServiceTest {
     @Mock
     private IEcrLookUpRepository ecrLookUpRepository;
     @InjectMocks
