@@ -9,6 +9,7 @@ import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.builder.ValidationRuleBuilder;
 import ca.uhn.hl7v2.validation.builder.support.DefaultValidationBuilder;
+import ca.uhn.hl7v2.validation.impl.NoValidation;
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
 import gov.cdc.dataingestion.hl7.helper.helper.hapi.MandatoryFields;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
@@ -37,6 +38,16 @@ public class HL7Parser implements IHL7Parser {
 
     public HL7Parser(HapiContext context) {
         this.context = context;
+    }
+
+    public String processFhsMessage(String message) {
+        message = message.replaceAll("FHS[^\\r]*\\r?", "");
+        message = message.replaceAll("BHS[^\\r]*\\r?", "");
+        message = message.replaceAll("BTS[^\\r]*\\r?", "");
+        message = message.replaceAll("FTS[^\\r]*\\r?", "");
+
+
+        return message;
     }
 
     public String hl7ORUValidation(String message) throws DiHL7Exception {
@@ -115,6 +126,10 @@ public class HL7Parser implements IHL7Parser {
             }
             else if (message.contains(newLine)) {
                 message = message.replaceAll(newLine, carrier);
+            }
+            else if (message.contains("\r\r")) {
+                message = message.replaceAll("\r\r", carrier);
+
             }
         } else {
             if (message.contains("\\n")) {
@@ -342,7 +357,7 @@ public class HL7Parser implements IHL7Parser {
     // Context for terser
     private Message getMessageFromValidationAndParserContext(String message, HapiContext context) throws HL7Exception {
         context.setModelClassFactory(new DefaultModelClassFactory());
-        context.setValidationContext(ValidationContextFactory.defaultValidation());
+        context.setValidationContext(new NoValidation());
         PipeParser parser = context.getPipeParser();
         Message parsedMessage = parser.parse(message);
         return parsedMessage;

@@ -135,7 +135,7 @@ dependencies {
 		implementation project(':cdaschema')
 	} else {
 		// this mostly needed when testing the app on idea
-		implementation files('libs/cdaSchema.jar')
+		implementation files('libs/cda-schema.jar')
 	}
 
 
