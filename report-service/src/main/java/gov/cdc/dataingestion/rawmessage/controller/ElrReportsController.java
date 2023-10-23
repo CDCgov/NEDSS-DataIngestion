@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ElrReportsController {
 
-    @Autowired
     private final RawELRService rawELRService;
 
     private IEcrMsgQueryService ecrMsgQueryService;

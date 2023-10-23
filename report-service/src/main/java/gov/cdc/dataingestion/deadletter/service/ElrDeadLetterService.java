@@ -51,7 +51,7 @@ public class ElrDeadLetterService {
     @Value("${kafka.raw.topic}")
     private String rawTopic = "elr_raw";
 
-    private final String deadLetterIsNullExceptionMessage = "The Record Is Not Existing in Dead Letter Topic. Please Try With The Different Id.";
+    private static final String deadLetterIsNullExceptionMessage = "The Record Is Not Existing in Dead Letter Topic. Please Try With The Different Id.";
 
     public ElrDeadLetterService(
             IElrDeadLetterRepository dltRepository,
