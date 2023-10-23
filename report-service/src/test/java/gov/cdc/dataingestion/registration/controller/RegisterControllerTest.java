@@ -26,10 +26,10 @@ public class RegisterControllerTest {
     @MockBean
     private RegistrationService registrationService;
 
-    private String USERNAME_PWD_REQ_MSG="Username and/or password are required.";
-    private String USERNAME_PWD_MIN_LENGTH_MSG="The username and password must be eight characters in length.";
-    private String USER_CREATED_MSG="User Created Successfully.";
-    private String USER_ALREADY_EXIST_MSG="User already exists.Please choose another.";
+    private final String USER_INPUT_REQ_MSG="Username and/or password are required.";
+    private final String USER_INPUT_MIN_LENGTH_MSG="The username and password must be eight characters in length.";
+    private final String USER_CREATED_MSG="User Created Successfully.";
+    private final String USER_ALREADY_EXIST_MSG="User already exists.Please choose another.";
 
     @Test
     void createUserTestSuccess() throws Exception {
@@ -62,7 +62,7 @@ public class RegisterControllerTest {
                         .param("password", "")
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        Assertions.assertEquals(USERNAME_PWD_REQ_MSG, result.getResponse().getContentAsString());
+        Assertions.assertEquals(USER_INPUT_REQ_MSG, result.getResponse().getContentAsString());
     }
     @Test
     void createUserTestSuccessUsernameMinLength() throws Exception {
@@ -71,7 +71,7 @@ public class RegisterControllerTest {
                         .param("password", "password456")
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        Assertions.assertEquals(USERNAME_PWD_MIN_LENGTH_MSG, result.getResponse().getContentAsString());
+        Assertions.assertEquals(USER_INPUT_MIN_LENGTH_MSG, result.getResponse().getContentAsString());
     }
     @Test
     void createUserTestSuccessPasswordMinLength() throws Exception {
@@ -80,6 +80,6 @@ public class RegisterControllerTest {
                         .param("password", "pwd123")
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        Assertions.assertEquals(USERNAME_PWD_MIN_LENGTH_MSG, result.getResponse().getContentAsString());
+        Assertions.assertEquals(USER_INPUT_MIN_LENGTH_MSG, result.getResponse().getContentAsString());
     }
 }
