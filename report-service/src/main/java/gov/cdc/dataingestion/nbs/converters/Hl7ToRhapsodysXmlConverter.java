@@ -2316,6 +2316,11 @@ public class Hl7ToRhapsodysXmlConverter {
             int index = ts.indexOf("-");
             String subStr = ts.substring(0, index);
             String subStrTimeZone =  ts.substring(index);
+            // 20120821140551-0500000
+            // this is remove additional value from timezone which suppose to have 6 character
+            if (subStrTimeZone.length() >= 7) {
+                subStrTimeZone = subStrTimeZone.substring(0, 6);
+            }
             ts = appendingTimeStamp(subStr) + subStrTimeZone;
         } else {
             ts = appendingTimeStamp(ts);
