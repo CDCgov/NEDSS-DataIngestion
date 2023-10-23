@@ -17,12 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import java.util.UUID;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +51,7 @@ public class ElrDeadLetterService {
     @Value("${kafka.raw.topic}")
     private String rawTopic = "elr_raw";
 
-    private final String deadLetterIsNullExceptionMessage = "Dead Letter Record Is Null";
+    private final String deadLetterIsNullExceptionMessage = "The Record Is Not Existing in Dead Letter Topic. Please Try With The Different Id.";
 
     public ElrDeadLetterService(
             IElrDeadLetterRepository dltRepository,
@@ -80,6 +78,9 @@ public class ElrDeadLetterService {
     }
 
     public ElrDeadLetterDto getDltRecordById(String id) throws DeadLetterTopicException {
+        if (!isValidUUID(id)) {
+            throw new DeadLetterTopicException(id + " is an Invalid Unique Id, please provided the correct id.");
+        }
         Optional<ElrDeadLetterModel> model = dltRepository.findById(id);
         if (model.isPresent()) {
             return convertModelToDto(model.get());
@@ -87,6 +88,8 @@ public class ElrDeadLetterService {
             throw new DeadLetterTopicException(deadLetterIsNullExceptionMessage);
         }
     }
+
+
 
     public ElrDeadLetterDto updateAndReprocessingMessage(String id, String body) throws DeadLetterTopicException {
         var existingRecord = getDltRecordById(id);
@@ -177,5 +180,14 @@ public class ElrDeadLetterService {
         model.setCreatedBy(dtoModel.getCreatedBy());
         model.setUpdatedBy(dtoModel.getUpdatedBy());
         return model;
+    }
+
+    private boolean isValidUUID(String uuidString) {
+        try {
+            UUID.fromString(uuidString);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 }
