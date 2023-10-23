@@ -41,7 +41,6 @@ public class RegisterControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         verify(registrationService).createUser(eq("newuser123"), eq("password123"));
         Assertions.assertEquals(USER_CREATED_MSG, result.getResponse().getContentAsString());
-        //Assertions.assertEquals("\"CREATED\"", result.getResponse().getContentAsString());
     }
 
     @Test
@@ -54,7 +53,6 @@ public class RegisterControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         verify(registrationService).createUser(eq("newuser123"), eq("password123"));
         Assertions.assertEquals(USER_ALREADY_EXIST_MSG, result.getResponse().getContentAsString());
-        // Assertions.assertEquals("\"NOT_ACCEPTABLE\"", result.getResponse().getContentAsString());
     }
 
     @Test
@@ -65,7 +63,6 @@ public class RegisterControllerTest {
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         Assertions.assertEquals(USERNAME_PWD_REQ_MSG, result.getResponse().getContentAsString());
-        //Assertions.assertEquals("\"BAD_REQUEST\"", result.getResponse().getContentAsString());
     }
     @Test
     void createUserTestSuccessUsernameMinLength() throws Exception {
@@ -75,7 +72,6 @@ public class RegisterControllerTest {
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         Assertions.assertEquals(USERNAME_PWD_MIN_LENGTH_MSG, result.getResponse().getContentAsString());
-        //Assertions.assertEquals("\"LENGTH_REQUIRED\"", result.getResponse().getContentAsString());USERNAME_PWD_MIN_LENGTH_MSG
     }
     @Test
     void createUserTestSuccessPasswordMinLength() throws Exception {
@@ -85,6 +81,5 @@ public class RegisterControllerTest {
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         Assertions.assertEquals(USERNAME_PWD_MIN_LENGTH_MSG, result.getResponse().getContentAsString());
-        //Assertions.assertEquals("\"LENGTH_REQUIRED\"", result.getResponse().getContentAsString());
     }
 }
