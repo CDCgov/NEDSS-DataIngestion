@@ -889,4 +889,18 @@ public class Hl7ToRhapsodysXmlConverterTest {
         Assertions.assertEquals(expectedMessage, result);
     }
 
+    @ParameterizedTest
+    @CsvSource({
+            "20230615123059-050",
+            "20230615123059-0500",
+            "20230615123059-05000"
+    })
+    public void testBuildHL7TSType(String payload) throws Exception {
+        var instance = new Hl7ToRhapsodysXmlConverter();
+        Method method = Hl7ToRhapsodysXmlConverter.class.getDeclaredMethod("buildHL7TSType", String.class, int.class);
+        method.setAccessible(true);
+        HL7TSType result = (HL7TSType) method.invoke(instance, payload, 0);
+        Assertions.assertNotNull(result);
+    }
+
 }
