@@ -51,7 +51,7 @@ public class ElrDeadLetterService {
     @Value("${kafka.raw.topic}")
     private String rawTopic = "elr_raw";
 
-    private static final String deadLetterIsNullExceptionMessage = "The Record Is Not Existing in Dead Letter Topic. Please Try With The Different Id.";
+    private static final String DEAD_LETTER_NULL_EXCEPTION = "The Record Is Not Existing in Dead Letter Topic. Please Try With The Different Id.";
 
     public ElrDeadLetterService(
             IElrDeadLetterRepository dltRepository,
@@ -85,7 +85,7 @@ public class ElrDeadLetterService {
         if (model.isPresent()) {
             return convertModelToDto(model.get());
         } else {
-            throw new DeadLetterTopicException(deadLetterIsNullExceptionMessage);
+            throw new DeadLetterTopicException(DEAD_LETTER_NULL_EXCEPTION);
         }
     }
 
@@ -99,7 +99,7 @@ public class ElrDeadLetterService {
         if(existingRecord.getErrorMessageSource().equalsIgnoreCase(rawTopic)) {
             var rawRecord = rawELRRepository.findById(existingRecord.getErrorMessageId());
             if (!rawRecord.isPresent()) {
-                throw new DeadLetterTopicException(deadLetterIsNullExceptionMessage);
+                throw new DeadLetterTopicException(DEAD_LETTER_NULL_EXCEPTION);
             }
             RawERLModel rawModel = rawRecord.get();
             rawModel.setPayload(body);
@@ -114,7 +114,7 @@ public class ElrDeadLetterService {
         else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(validatedTopic)) {
             var validateRecord = validatedELRRepository.findById(existingRecord.getErrorMessageId());
             if (!validateRecord.isPresent()) {
-                throw new DeadLetterTopicException(deadLetterIsNullExceptionMessage);
+                throw new DeadLetterTopicException(DEAD_LETTER_NULL_EXCEPTION);
             }
             ValidatedELRModel validateModel = validateRecord.get();
             validateModel.setRawMessage(body);

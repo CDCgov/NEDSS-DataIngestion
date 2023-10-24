@@ -128,7 +128,7 @@ public class HL7Parser implements IHL7Parser {
                 message = message.replaceAll(newLine, carrier);
             }
             else if (message.contains("\r\r")) {
-                message = message.replaceAll("\r\r", carrier);
+                message = message.replaceAll("\r\r", carrier); //NOSONAR
 
             }
         } else {
