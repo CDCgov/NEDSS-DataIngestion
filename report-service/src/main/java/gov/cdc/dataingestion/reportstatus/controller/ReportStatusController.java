@@ -28,8 +28,8 @@ public class ReportStatusController {
     public String getReportStatus(@PathVariable String id) throws JsonProcessingException {
         logger.debug("Status requested for record with id: '{}'", id);
 
-        if(id == null || id.isEmpty() || id.isBlank()) {
-            throw new IllegalArgumentException("Invalid 'id' parameter provided.");
+        if(id == null || id.isEmpty() || !isValidUUID(id)) {
+            throw new IllegalArgumentException("Invalid 'UUID' parameter provided.");
         }
 
         String status = reportStatusService.getStatusForReport(id);
@@ -44,5 +44,10 @@ public class ReportStatusController {
         }
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(returnJson);
+    }
+
+    private boolean isValidUUID(String id) {
+        String regex = "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
+        return id.matches(regex);
     }
 }

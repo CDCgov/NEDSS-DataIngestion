@@ -61,7 +61,7 @@ class ReportStatusServiceTest {
         when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.empty());
 
         String status = reportStatusServiceMock.getStatusForReport(id);
-        assertEquals("Provided UUID is not present in the database.", status);
+        assertEquals("Provided UUID is not present in the database. Either provided an invalid UUID or the injected message failed validation.", status);
     }
 
     @Test
@@ -72,7 +72,7 @@ class ReportStatusServiceTest {
         when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(1234)).thenReturn(Optional.empty());
 
         String status = reportStatusServiceMock.getStatusForReport(id);
-        assertEquals("Couldn't find status for the requested ID.", status);
+        assertEquals("Couldn't find status for the requested UUID.", status);
     }
 
     @Test

@@ -27,7 +27,7 @@ class ReportStatusControllerTest {
 
     @Test
     void testGetReportStatusSuccess() throws IOException {
-        String id = "test_uuid_from_user";
+        String id = "11111111-2222-3333-4444-555555555555";
         String status = "Success";
 
         when(reportStatusServiceMock.getStatusForReport(id)).thenReturn(status);
@@ -51,7 +51,7 @@ class ReportStatusControllerTest {
             reportStatusController.getReportStatus(id);
         }
         catch (IllegalArgumentException e) {
-            assertEquals("Invalid 'id' parameter provided.", e.getMessage());
+            assertEquals("Invalid 'UUID' parameter provided.", e.getMessage());
         }
 
         verify(reportStatusServiceMock, never()).getStatusForReport(id);
@@ -65,7 +65,21 @@ class ReportStatusControllerTest {
             reportStatusController.getReportStatus(id);
         }
         catch (IllegalArgumentException e) {
-            assertEquals("Invalid 'id' parameter provided.", e.getMessage());
+            assertEquals("Invalid 'UUID' parameter provided.", e.getMessage());
+        }
+
+        verify(reportStatusServiceMock, never()).getStatusForReport(id);
+    }
+
+    @Test
+    void testGetReportStatusInvalidIdProvided() throws IOException {
+        String id = "test_some_invalid_uuid";
+
+        try {
+            reportStatusController.getReportStatus(id);
+        }
+        catch (IllegalArgumentException e) {
+            assertEquals("Invalid 'UUID' parameter provided.", e.getMessage());
         }
 
         verify(reportStatusServiceMock, never()).getStatusForReport(id);
@@ -73,8 +87,8 @@ class ReportStatusControllerTest {
 
     @Test
     void testGetReportStatusBlankResponseFromDITable() throws IOException {
-        String id = "test_uuid_from_user_not_in_database";
-        String status = "Provided UUID is not present in the database.";
+        String id = "11111111-3333-2222-4444-555555555555";
+        String status = "Provided UUID is not present in the database. Either provided an invalid UUID or the injected message failed validation.";
 
         when(reportStatusServiceMock.getStatusForReport(id)).thenReturn(status);
 
@@ -85,13 +99,14 @@ class ReportStatusControllerTest {
         ObjectMapper mapper = new ObjectMapper();
         Map<String, String> responeMap = mapper.readValue(jsonResponse, Map.class);
 
+        System.out.println("responseMap is..." + responeMap);
         assertEquals(id, responeMap.get("id"));
-        assertEquals(status, responeMap.get("error_message"));
+        assertEquals(status, responeMap.get("status"));
     }
 
     @Test
     void testGetReportStatusBlankResponseFromNbsTable() throws IOException {
-        String id = "test_uuid_from_user_not_in_database";
+        String id = "11111111-4444-3333-2222-555555555555";
         String status = "Couldn't find status for the requested ID.";
 
         when(reportStatusServiceMock.getStatusForReport(id)).thenReturn(status);
