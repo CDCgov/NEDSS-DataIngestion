@@ -11,10 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class RegisterController {
     private final RegistrationService registrationService;
-    private final String USER_INPUT_REQ_MSG="Username and/or password are required.";
-    private final String USER_INPUT_MIN_LENGTH_MSG="The username and password must be eight characters in length.";
-    private final String USER_CREATED_MSG="User Created Successfully.";
-    private final String USER_ALREADY_EXIST_MSG="User already exists.Please choose another.";
+    private final String userNamePwdReqMsg="Username and/or password are required.";
+    private final String userNameMinLength="The username must be six characters in length.";
+    private final String pwdMinLength="The password must be eight characters in length.";
+    private final String userCreatedMsg="User Created Successfully.";
+    private final String userAlreadyExistMsg="User already exists.Please choose another.";
     public RegisterController(RegistrationService registrationService) {
         this.registrationService = registrationService;
     }
@@ -24,17 +25,21 @@ public class RegisterController {
         log.info("Inside registration controller...");
         if(username.isEmpty() || password.isEmpty()) {
             log.error("Username and/or password are required.");
-            return USER_INPUT_REQ_MSG;
+            return userNamePwdReqMsg;
         }
-        if(username.trim().length()<8 || password.trim().length()<8){
-            log.error("The username and password must be eight characters in length.");
-            return USER_INPUT_MIN_LENGTH_MSG;
+        if(username.trim().length()<6){
+            log.error("The username must be six characters in length.");
+            return userNameMinLength;
+        }
+        if(password.trim().length()<8){
+            log.error("The password must be eight characters in length.");
+            return pwdMinLength;
         }
         if(registrationService.createUser(username, password)==true) {
             log.debug("New User Created Successfully");
-            return USER_CREATED_MSG;
+            return userCreatedMsg;
         }
         log.error("Username already exists");
-        return USER_ALREADY_EXIST_MSG;
+        return userAlreadyExistMsg;
     }
 }

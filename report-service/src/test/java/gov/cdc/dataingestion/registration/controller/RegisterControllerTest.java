@@ -26,33 +26,34 @@ public class RegisterControllerTest {
     @MockBean
     private RegistrationService registrationService;
 
-    private final String USER_INPUT_REQ_MSG="Username and/or password are required.";
-    private final String USER_INPUT_MIN_LENGTH_MSG="The username and password must be eight characters in length.";
-    private final String USER_CREATED_MSG="User Created Successfully.";
-    private final String USER_ALREADY_EXIST_MSG="User already exists.Please choose another.";
+    private final String userNamePwdReqMsg="Username and/or password are required.";
+    private final String userNameMinLength="The username must be six characters in length.";
+    private final String pwdMinLength="The password must be eight characters in length.";
+    private final String userCreatedMsg="User Created Successfully.";
+    private final String userAlreadyExistMsg="User already exists.Please choose another.";
 
     @Test
     void createUserTestSuccess() throws Exception {
-        when(registrationService.createUser("newuser123", "password123")).thenReturn(true);
+        when(registrationService.createUser("newuser", "password123")).thenReturn(true);
         var result = mockMvc.perform(MockMvcRequestBuilders.post("/registration")
-                        .param("username", "newuser123")
+                        .param("username", "newuser")
                         .param("password", "password123")
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        verify(registrationService).createUser(eq("newuser123"), eq("password123"));
-        Assertions.assertEquals(USER_CREATED_MSG, result.getResponse().getContentAsString());
+        verify(registrationService).createUser(eq("newuser"), eq("password123"));
+        Assertions.assertEquals(userCreatedMsg, result.getResponse().getContentAsString());
     }
 
     @Test
     void createUserTestSuccessSaveReturnFalse() throws Exception {
-        when(registrationService.createUser("newuser123", "password123")).thenReturn(false);
+        when(registrationService.createUser("newuser", "password123")).thenReturn(false);
         var result = mockMvc.perform(MockMvcRequestBuilders.post("/registration")
-                        .param("username", "newuser123")
+                        .param("username", "newuser")
                         .param("password", "password123")
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        verify(registrationService).createUser(eq("newuser123"), eq("password123"));
-        Assertions.assertEquals(USER_ALREADY_EXIST_MSG, result.getResponse().getContentAsString());
+        verify(registrationService).createUser(eq("newuser"), eq("password123"));
+        Assertions.assertEquals(userAlreadyExistMsg, result.getResponse().getContentAsString());
     }
 
     @Test
@@ -62,24 +63,24 @@ public class RegisterControllerTest {
                         .param("password", "")
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        Assertions.assertEquals(USER_INPUT_REQ_MSG, result.getResponse().getContentAsString());
+        Assertions.assertEquals(userNamePwdReqMsg, result.getResponse().getContentAsString());
     }
     @Test
     void createUserTestSuccessUsernameMinLength() throws Exception {
         var result = mockMvc.perform(MockMvcRequestBuilders.post("/registration")
-                        .param("username", "newuser")
+                        .param("username", "user")
                         .param("password", "password456")
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        Assertions.assertEquals(USER_INPUT_MIN_LENGTH_MSG, result.getResponse().getContentAsString());
+        Assertions.assertEquals(userNameMinLength, result.getResponse().getContentAsString());
     }
     @Test
     void createUserTestSuccessPasswordMinLength() throws Exception {
         var result = mockMvc.perform(MockMvcRequestBuilders.post("/registration")
-                        .param("username", "newuser456")
+                        .param("username", "newuser")
                         .param("password", "pwd123")
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        Assertions.assertEquals(USER_INPUT_MIN_LENGTH_MSG, result.getResponse().getContentAsString());
+        Assertions.assertEquals(pwdMinLength, result.getResponse().getContentAsString());
     }
 }
