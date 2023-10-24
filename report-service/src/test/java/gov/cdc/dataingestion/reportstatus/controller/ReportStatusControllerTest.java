@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.ResponseEntity;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -32,12 +33,12 @@ class ReportStatusControllerTest {
 
         when(reportStatusServiceMock.getStatusForReport(id)).thenReturn(status);
 
-        String jsonResponse = reportStatusController.getReportStatus(id);
+        ResponseEntity<String> jsonResponse = reportStatusController.getReportStatus(id);
 
         verify(reportStatusServiceMock, times(1)).getStatusForReport(id);
 
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, String> responeMap = mapper.readValue(jsonResponse, Map.class);
+        Map<String, String> responeMap = mapper.readValue(jsonResponse.getBody(), Map.class);
 
         assertEquals(id, responeMap.get("id"));
         assertEquals(status, responeMap.get("status"));
@@ -92,16 +93,16 @@ class ReportStatusControllerTest {
 
         when(reportStatusServiceMock.getStatusForReport(id)).thenReturn(status);
 
-        String jsonResponse = reportStatusController.getReportStatus(id);
+        ResponseEntity<String> jsonResponse = reportStatusController.getReportStatus(id);
 
         verify(reportStatusServiceMock, times(1)).getStatusForReport(id);
 
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, String> responeMap = mapper.readValue(jsonResponse, Map.class);
+        Map<String, String> responeMap = mapper.readValue(jsonResponse.getBody(), Map.class);
 
         System.out.println("responseMap is..." + responeMap);
         assertEquals(id, responeMap.get("id"));
-        assertEquals(status, responeMap.get("status"));
+        assertEquals(status, responeMap.get("error_message"));
     }
 
     @Test
@@ -111,12 +112,12 @@ class ReportStatusControllerTest {
 
         when(reportStatusServiceMock.getStatusForReport(id)).thenReturn(status);
 
-        String jsonResponse = reportStatusController.getReportStatus(id);
+        ResponseEntity<String> jsonResponse = reportStatusController.getReportStatus(id);
 
         verify(reportStatusServiceMock, times(1)).getStatusForReport(id);
 
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, String> responeMap = mapper.readValue(jsonResponse, Map.class);
+        Map<String, String> responeMap = mapper.readValue(jsonResponse.getBody(), Map.class);
 
         assertEquals(id, responeMap.get("id"));
         assertEquals(status, responeMap.get("error_message"));
