@@ -24,12 +24,12 @@ public class ReportStatusService {
     public String getStatusForReport(String id) {
         Optional<ReportStatusIdData > reportStatusIdData = iReportStatusRepository.findByRawMessageId(id);
         if(reportStatusIdData.isEmpty()) {
-            return "Provided UUID is not present in the database.";
+            return "Provided UUID is not present in the database. Either provided an invalid UUID or the injected message failed validation.";
         }
 
         Optional<NbsInterfaceModel> nbsInterfaceModel = nbsInterfaceRepository.findByNbsInterfaceUid(reportStatusIdData.get().getNbsInterfaceUid());
         if(nbsInterfaceModel.isEmpty()) {
-            return "Couldn't find status for the requested ID.";
+            return "Couldn't find status for the requested UUID.";
         }
         return nbsInterfaceModel.get().getRecordStatusCd();
     }
