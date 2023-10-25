@@ -26,11 +26,11 @@ public class RegisterControllerTest {
     @MockBean
     private RegistrationService registrationService;
 
-    private final String userNamePwdReqMsg="Username and/or password are required.";
-    private final String userNameMinLength="The username must be six characters in length.";
-    private final String pwdMinLength="The password must be eight characters in length.";
-    private final String userCreatedMsg="User Created Successfully.";
-    private final String userAlreadyExistMsg="User already exists.Please choose another.";
+    private static final String userNamePwdReqMsg="Username and/or password are required.";
+    private static final String userNameMinLength="The username must be atleast six characters in length.";
+    private static final String pwdMinLength="The password must be atleast eight characters in length.";
+    private static final String userCreatedMsg="User Created Successfully.";
+    private static final String userAlreadyExistMsg="User already exists.Please choose another.";
 
     @Test
     void createUserTestSuccess() throws Exception {
