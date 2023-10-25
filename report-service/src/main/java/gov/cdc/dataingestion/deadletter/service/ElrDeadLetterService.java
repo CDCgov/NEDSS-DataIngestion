@@ -51,7 +51,7 @@ public class ElrDeadLetterService {
     @Value("${kafka.raw.topic}")
     private String rawTopic = "elr_raw";
 
-    private static final String DEAD_LETTER_NULL_EXCEPTION = "The Record Is Not Existing in Dead Letter Topic. Please Try With The Different Id.";
+    private static final String DEAD_LETTER_NULL_EXCEPTION = "The Record Is Not Existing in Dead Letter Table. Please Try With The Different Id.";
 
     public ElrDeadLetterService(
             IElrDeadLetterRepository dltRepository,
@@ -79,7 +79,11 @@ public class ElrDeadLetterService {
 
     public ElrDeadLetterDto getDltRecordById(String id) throws DeadLetterTopicException {
         if (!isValidUUID(id)) {
-            throw new DeadLetterTopicException(id + " is an Invalid Unique Id, please provided the correct id.");
+            if (id.isEmpty()) {
+                throw new DeadLetterTopicException("Please provide the correct id.");
+            } else {
+                throw new DeadLetterTopicException(id + " is an Invalid Unique Id, please provide the correct id.");
+            }
         }
         Optional<ElrDeadLetterModel> model = dltRepository.findById(id);
         if (model.isPresent()) {

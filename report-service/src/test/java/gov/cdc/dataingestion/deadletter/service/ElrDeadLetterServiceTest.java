@@ -90,7 +90,7 @@ class ElrDeadLetterServiceTest {
         var exception = Assertions.assertThrows(DeadLetterTopicException.class, () -> {
             elrDeadLetterService.getDltRecordById(guidForTesting);
         });
-        Assertions.assertEquals("The Record Is Not Existing in Dead Letter Topic. Please Try With The Different Id.", exception.getMessage());
+        Assertions.assertEquals("The Record Is Not Existing in Dead Letter Table. Please Try With The Different Id.", exception.getMessage());
 
     }
 
