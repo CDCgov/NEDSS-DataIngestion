@@ -26,29 +26,34 @@ public class RegisterControllerTest {
     @MockBean
     private RegistrationService registrationService;
 
+    private static final String userNamePwdReqMsg="Username and/or password are required.";
+    private static final String userNameMinLength="The username must be atleast six characters in length.";
+    private static final String pwdMinLength="The password must be atleast eight characters in length.";
+    private static final String userCreatedMsg="User Created Successfully.";
+    private static final String userAlreadyExistMsg="User already exists.Please choose another.";
+
     @Test
     void createUserTestSuccess() throws Exception {
-        when(registrationService.createUser("u", "p")).thenReturn(true);
+        when(registrationService.createUser("newuser", "password123")).thenReturn(true);
         var result = mockMvc.perform(MockMvcRequestBuilders.post("/registration")
-                        .param("username", "u")
-                        .param("password", "p")
+                        .param("username", "newuser")
+                        .param("password", "password123")
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        verify(registrationService).createUser(eq("u"), eq("p"));
-        Assertions.assertEquals("\"CREATED\"", result.getResponse().getContentAsString());
-
+        verify(registrationService).createUser(eq("newuser"), eq("password123"));
+        Assertions.assertEquals(userCreatedMsg, result.getResponse().getContentAsString());
     }
 
     @Test
     void createUserTestSuccessSaveReturnFalse() throws Exception {
-        when(registrationService.createUser("u", "p")).thenReturn(false);
+        when(registrationService.createUser("newuser", "password123")).thenReturn(false);
         var result = mockMvc.perform(MockMvcRequestBuilders.post("/registration")
-                        .param("username", "u")
-                        .param("password", "p")
+                        .param("username", "newuser")
+                        .param("password", "password123")
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        verify(registrationService).createUser(eq("u"), eq("p"));
-        Assertions.assertEquals("\"NOT_ACCEPTABLE\"", result.getResponse().getContentAsString());
+        verify(registrationService).createUser(eq("newuser"), eq("password123"));
+        Assertions.assertEquals(userAlreadyExistMsg, result.getResponse().getContentAsString());
     }
 
     @Test
@@ -58,6 +63,24 @@ public class RegisterControllerTest {
                         .param("password", "")
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        Assertions.assertEquals("\"BAD_REQUEST\"", result.getResponse().getContentAsString());
+        Assertions.assertEquals(userNamePwdReqMsg, result.getResponse().getContentAsString());
+    }
+    @Test
+    void createUserTestSuccessUsernameMinLength() throws Exception {
+        var result = mockMvc.perform(MockMvcRequestBuilders.post("/registration")
+                        .param("username", "user")
+                        .param("password", "password456")
+                        .with(SecurityMockMvcRequestPostProcessors.jwt()))
+                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        Assertions.assertEquals(userNameMinLength, result.getResponse().getContentAsString());
+    }
+    @Test
+    void createUserTestSuccessPasswordMinLength() throws Exception {
+        var result = mockMvc.perform(MockMvcRequestBuilders.post("/registration")
+                        .param("username", "newuser")
+                        .param("password", "pwd123")
+                        .with(SecurityMockMvcRequestPostProcessors.jwt()))
+                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        Assertions.assertEquals(pwdMinLength, result.getResponse().getContentAsString());
     }
 }
