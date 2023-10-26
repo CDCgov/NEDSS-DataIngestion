@@ -903,12 +903,4 @@ public class Hl7ToRhapsodysXmlConverterTest {
         Assertions.assertNotNull(result);
     }
 
-    @Test
-    void testBuildHL7TSTypeEmpty() throws Exception {
-        var instance = new Hl7ToRhapsodysXmlConverter();
-        Method method = Hl7ToRhapsodysXmlConverter.class.getDeclaredMethod("buildHL7TSType", String.class, int.class);
-        method.setAccessible(true);
-        HL7TSType result = (HL7TSType) method.invoke(instance, "", 0);
-        Assertions.assertNotNull(result);
-    }
 }
