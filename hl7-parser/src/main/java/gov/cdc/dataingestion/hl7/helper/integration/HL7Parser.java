@@ -81,7 +81,7 @@ public class HL7Parser implements IHL7Parser {
             @Override
             protected  void configure() {
                 super.configure();
-                forVersion(Version.V251).message(ORU, ORU_01).onlyKnownSegments();
+                forAllVersions().message(ORU, ORU_01).onlyKnownSegments();
 
             }
         };
@@ -103,7 +103,7 @@ public class HL7Parser implements IHL7Parser {
             @Override
             protected  void configure() {
                 super.configure();
-                forVersion(Version.V251).message(ORU, ORU_01)
+                forAllVersions().message(ORU, ORU_01)
                         .inspect(mandatoryFields);
 
             }

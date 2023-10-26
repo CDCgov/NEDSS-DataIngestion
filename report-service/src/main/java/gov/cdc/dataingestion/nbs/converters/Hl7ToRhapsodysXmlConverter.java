@@ -2285,7 +2285,6 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     private HL7TSType buildHL7TSType(Ts ts, int outFmt) {
-        if ((null == ts) || (null == ts.time)) return null;
         return buildHL7TSType(ts.time, outFmt);
     }
 
@@ -2304,11 +2303,19 @@ public class Hl7ToRhapsodysXmlConverter {
         return ts;
     }
 
+    private String dateTimeGenerator(String ts) {
+        if (ts == null || ts.isEmpty()) {
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+            ts = now.format(formatter);
+        }
+        return ts;
+    }
 
     private HL7TSType buildHL7TSType(String ts, int outFmt) {
         HL7TSType hl7TSType = new HL7TSType();
 
-        if (null == ts) return hl7TSType;
+        ts = dateTimeGenerator(ts);
 
         DateTimeFormatter tsFormatter = formatter;
         if (ts.indexOf("-") > 0) {

@@ -50,9 +50,7 @@ public class HL7DuplicateValidator implements IHL7DuplicateValidator {
         } else {
             kafkaProducerService.sendMessageAfterCheckingDuplicateHL7(hl7ValidatedModel, validatedElrDuplicateTopic, 0);
             throw new DuplicateHL7FileFoundException("HL7 document already exists in the database. " +
-                    "Please check elr_duplicate table for    l'.l[];?the failed document. Record Id: " + hl7ValidatedModel.getRawId());
-
-
+                    "Please check elr_duplicate table for the failed document. Record Id: " + hl7ValidatedModel.getRawId());
         }
     }
 
