@@ -27,18 +27,18 @@ public class RegistrationServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
-    private RegistrationService target;
+    private RegistrationService registrationService;
 
     @BeforeEach
     public void setUpEach() {
         MockitoAnnotations.openMocks(this);
-        target = new RegistrationService(passwordEncoder, iClientRegisterRepository);
+        registrationService = new RegistrationService(passwordEncoder, iClientRegisterRepository);
     }
 
     @Test
     void createUserTestExistUser(){
-        String userName = "u";
-        String pass = "p";
+        String username = "u";
+        String password = "p";
         RegisterClient model = new RegisterClient();
         model.setId("id");
         model.setUsername("user");
@@ -49,11 +49,11 @@ public class RegistrationServiceTest {
         model.setCreatedOn( new Timestamp(System.currentTimeMillis()));
         model.setUpdatedOn( new Timestamp(System.currentTimeMillis()));
 
-        when(iClientRegisterRepository.findByUsername(userName)).thenReturn(Optional.of(model));
+        when(iClientRegisterRepository.findByUsername(username)).thenReturn(Optional.of(model));
 
-        var result = target.createUser(userName, pass);
+        var result = registrationService.createUser(username, password);
         Assertions.assertFalse(result);
-        verify(iClientRegisterRepository).findByUsername(eq(userName));
+        verify(iClientRegisterRepository).findByUsername(eq(username));
         Assertions.assertEquals("id", model.getId());
         Assertions.assertEquals("user", model.getUsername());
         Assertions.assertEquals("pass", model.getPassword());
@@ -65,23 +65,25 @@ public class RegistrationServiceTest {
     }
 
     @Test
-    void createUserTestNotExistUserAdmin(){
-        String userName = "admin";
-        String pass = "p";
-        when(iClientRegisterRepository.findByUsername(userName)).thenReturn(Optional.empty());
+    void testCreateUserNotExistUserAdmin(){
+        String username = "admin";
+        String password = "password";
 
-        var result = target.createUser(userName, pass);
+        when(iClientRegisterRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        var result = registrationService.createUser(username, password);
         Assertions.assertTrue(result);
 
     }
 
     @Test
-    void createUserTestNotExistUserUser(){
-        String userName = "user";
-        String pass = "p";
-        when(iClientRegisterRepository.findByUsername(userName)).thenReturn(Optional.empty());
+    void testCreateUserNotExistUserUser(){
+        String username = "user";
+        String password = "password";
 
-        var result = target.createUser(userName, pass);
+        when(iClientRegisterRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        var result = registrationService.createUser(username, password);
         Assertions.assertTrue(result);
 
     }
