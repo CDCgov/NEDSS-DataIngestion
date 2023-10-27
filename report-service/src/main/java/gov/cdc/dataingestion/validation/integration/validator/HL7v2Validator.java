@@ -5,6 +5,7 @@ import ca.uhn.hl7v2.HapiContext;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
+import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.hl7.helper.HL7Helper;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
@@ -33,18 +34,19 @@ public class HL7v2Validator implements IHL7v2Validator {
         }
 
         ValidatedELRModel model = new ValidatedELRModel();
-        var parsedMessage = this.hl7Helper.hl7StringParser(replaceSpecialCharacters);
-
-
-
-
-        model.setRawId(id);
-        model.setRawMessage(replaceSpecialCharacters);
-        model.setMessageType(EnumMessageType.HL7.name());
-        model.setMessageVersion(parsedMessage.getOriginalVersion());
-        model.setCreatedBy(topicName);
-        model.setUpdatedBy(topicName);
-
+        try {
+            var parsedMessage = this.hl7Helper.hl7StringParser(replaceSpecialCharacters);
+            model.setRawId(id);
+            model.setRawMessage(replaceSpecialCharacters);
+            model.setMessageType(EnumMessageType.HL7.name());
+            model.setMessageVersion(parsedMessage.getOriginalVersion());
+            model.setCreatedBy(topicName);
+            model.setUpdatedBy(topicName);
+        } catch (DiHL7Exception e) {
+            CustomMetricsBuilder.custom_validated_failure.increment();
+            throw new RuntimeException(e);
+        }
+        CustomMetricsBuilder.custom_validated_failure.increment();
         return model;
     }
 }
