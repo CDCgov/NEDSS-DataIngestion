@@ -1,9 +1,11 @@
 package gov.cdc.dataingestion.registration.controller;
 
+import gov.cdc.dataingestion.registration.dto.RegistrationRequestDTO;
 import gov.cdc.dataingestion.registration.service.RegistrationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,13 +18,17 @@ public class RegisterController {
     private static final String pwdMinLength="The password must be atleast eight characters in length.";
     private static final String userCreatedMsg="User Created Successfully.";
     private static final String userAlreadyExistMsg="User already exists.Please choose another.";
+
     public RegisterController(RegistrationService registrationService) {
         this.registrationService = registrationService;
     }
 
     @PostMapping("/registration")
-    public String createUser(@RequestParam(value = "username") String username, @RequestParam(value = "password") String password) {
-        log.info("Inside registration controller...");
+    public String createUser(@RequestBody RegistrationRequestDTO request) {
+
+        String username = request.getUsername();
+        String password = request.getPassword();
+
         if(username.isEmpty() || password.isEmpty()) {
             log.error(userNamePwdReqMsg);
             return userNamePwdReqMsg;
