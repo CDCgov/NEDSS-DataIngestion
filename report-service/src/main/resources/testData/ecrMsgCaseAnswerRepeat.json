@@ -1,0 +1,25 @@
+[
+  {
+    "questionGroupSeqNbr": "123",
+    "answerGroupSeqNbr": "123",
+    "seqNbr": "123",
+    "dataType": "dataType",
+    "questionIdentifier": "questionIdentifier",
+    "msgEventId": "msgEventId",
+    "msgEventType": "msgEventType",
+    "ansCodeSystemCd": "ansCodeSystemCd",
+    "ansCodeSystemDescTxt": "ansCodeSystemDescTxt",
+    "ansDisplayTxt": "ansDisplayTxt",
+    "answerTxt": "answerTxt",
+    "partTypeCd": "partTypeCd",
+    "quesCodeSystemCd": "quesCodeSystemCd",
+    "quesCodeSystemDescTxt": "quesCodeSystemDescTxt",
+    "quesDisplayTxt": "quesDisplayTxt",
+    "questionDisplayName": "questionDisplayName",
+    "ansToCode": "ansToCode",
+    "ansToCodeSystemCd": "ansToCodeSystemCd",
+    "ansToDisplayNm": "ansToDisplayNm",
+    "codeTranslationRequired": "codeTranslationRequired",
+    "ansToCodeSystemDescTxt": "ansToCodeSystemDescTxt"
+  }
+]

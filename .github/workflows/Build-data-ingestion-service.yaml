@@ -5,7 +5,6 @@ on:
       - main
       - master
       - rel-**
-      - CNDIT-640-github-**
     paths-ignore:
       - "docker-compose.yml"
       - "**.md"
@@ -28,6 +27,19 @@ jobs:
     secrets:
       CDC_NBS_SANDBOX_SHARED_SERVICES_ACCOUNTID: ${{secrets.CDC_NBS_SANDBOX_SHARED_SERVICES_ACCOUNTID}}
       ECR_REPO_BASE_NAME: ${{secrets.ECR_REPO_BASE_NAME}}
+      GIT_USER_EMAIL: ${{secrets.GIT_USER_EMAIL}}
+      GIT_USER_NAME: ${{secrets.GIT_USER_NAME}}
+      HELM_TOKEN: ${{secrets.HELM_TOKEN}}
+
+  call-update-helm:
+    name: Request DEV deployment
+    needs: call-build-microservice-container-workflow
+    uses: CDCgov/NEDSS-Workflows/.github/workflows/Update-helm-charts.yaml@main
+    with:
+      microservice_name: data-ingestion-service
+      values_file_with_path: charts/dataingestion-service/values-dev.yaml
+      new_image_tag: ${{ needs.call-build-microservice-container-workflow.outputs.output_image_tag }}
+    secrets:
       GIT_USER_EMAIL: ${{secrets.GIT_USER_EMAIL}}
       GIT_USER_NAME: ${{secrets.GIT_USER_NAME}}
       HELM_TOKEN: ${{secrets.HELM_TOKEN}}

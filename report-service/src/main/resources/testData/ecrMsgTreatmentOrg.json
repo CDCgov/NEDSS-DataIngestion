@@ -1,0 +1,28 @@
+[
+{
+  "orgLocalId": "orgLocalId",
+  "orgAuthorId": "orgAuthorId",
+  "orgEffectiveTime": "1981-02-14 00:00:00.0",
+  "orgNameTxt": "orgNameTxt",
+  "orgAddrCityTxt": "orgAddrCityTxt",
+  "orgAddrCommentTxt": "orgAddrCommentTxt",
+  "orgAddrCountyCd": "orgAddrCountyCd",
+  "orgAddrCountryCd": "orgAddrCountryCd",
+  "orgAddrStateCd": "orgAddrStateCd",
+  "orgAddrStreetAddr1Txt": "orgAddrStreetAddr1Txt",
+  "orgAddrStreetAddr2Txt": "orgAddrStreetAddr2Txt",
+  "orgAddrZipCodeTxt": "orgAddrZipCodeTxt",
+  "orgClassCd": "orgClassCd",
+  "orgCommentTxt": "orgCommentTxt",
+  "orgEmailAddressTxt": "orgEmailAddressTxt",
+  "orgIdCliaNbrTxt": "orgIdCliaNbrTxt",
+  "orgIdFacilityIdentifierTxt": "orgIdFacilityIdentifierTxt",
+  "orgIdQuickCodeTxt": "orgIdQuickCodeTxt",
+  "orgPhoneCommentTxt": "orgPhoneCommentTxt",
+  "orgPhoneCountryCodeTxt": "orgPhoneCountryCodeTxt",
+  "orgPhoneExtensionTxt": "123",
+  "orgPhoneNbrTxt": "orgPhoneNbrTxt",
+  "orgRoleCd": "orgRoleCd",
+  "orgUrlAddressTxt": "orgUrlAddressTxt"
+}
+]
