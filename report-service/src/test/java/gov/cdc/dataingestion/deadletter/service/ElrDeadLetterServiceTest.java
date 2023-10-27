@@ -52,7 +52,7 @@ class ElrDeadLetterServiceTest {
     @InjectMocks
     private ElrDeadLetterService elrDeadLetterService;
 
-    private String guidForTesting = "";
+    private String guidForTesting = "8DC5E410-4A2E-4018-8C28-A4F6AB99E802";
 
     @BeforeEach
     public void setUpEach() {
@@ -90,7 +90,7 @@ class ElrDeadLetterServiceTest {
         var exception = Assertions.assertThrows(DeadLetterTopicException.class, () -> {
             elrDeadLetterService.getDltRecordById(guidForTesting);
         });
-        Assertions.assertEquals("Dead Letter Record Is Null", exception.getMessage());
+        Assertions.assertEquals("The Record Is Not Existing in Dead Letter Table. Please Try With The Different Id.", exception.getMessage());
 
     }
 

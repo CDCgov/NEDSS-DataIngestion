@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.hl7.helper.helper;
 
+import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.v231.datatype.*;
 import ca.uhn.hl7v2.model.v231.segment.MSH;
 import ca.uhn.hl7v2.model.v231.segment.OBR;
@@ -15,13 +16,15 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Mapping231To251Helper {
 
     //region Map Message Header - 231 to 251
-    public static MessageHeader MapMsh(MSH inMsh231, MessageHeader outMsh251) {
+    public static MessageHeader MapMsh(MSH inMsh231, MessageHeader outMsh251) throws DiHL7Exception {
         outMsh251.getMessageType().setMessageCode("ORU");
         outMsh251.getMessageType().setTriggerEvent("R01");
         outMsh251.getMessageType().setMessageStructure("ORU_R01");
@@ -32,6 +35,25 @@ public class Mapping231To251Helper {
         messageProfileIdentifier.setNameSpaceId("ELR_Receiver");
         messageProfileIdentifier.setUniversalId("2.16.840.1.113883.9.11");
         messageProfileIdentifier.setUniversalIdType("ISO");
+
+        try {
+            if (inMsh231 != null) {
+                Ts ts = new Ts();
+                if(inMsh231.getDateTimeOfMessage() != null && !inMsh231.getDateTimeOfMessage().isEmpty()) {
+                    ts.setTime(inMsh231.getDateTimeOfMessage().getTimeOfAnEvent().getValue());
+                    ts.setDegreeOfPrecision(inMsh231.getDateTimeOfMessage().getDegreeOfPrecision().getValue());
+                } else {
+                    LocalDateTime now = LocalDateTime.now();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+                    String formattedDateTime = now.format(formatter);
+                    ts.setTime(formattedDateTime);
+                }
+                outMsh251.setDateTimeOfMessage(ts);
+            }
+        } catch (HL7Exception e) {
+            throw new DiHL7Exception("MSH Error at DateTime Field");
+        }
+
 
         if(outMsh251.getMessageProfileIdentifier() != null) {
 

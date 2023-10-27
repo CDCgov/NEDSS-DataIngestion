@@ -170,7 +170,7 @@ public class HL7v2ValidatorTests
                 }
         );
 
-        String expectedMessage = "Unsupported HL7 Version, please only specify either 2.3.1 or 2.5.1. Provided version is: \t\t2.3";
+        String expectedMessage = "Unsupported HL7 Version, please only specify either 2.3.1 or 2.5.1.";
         String actualMessage = exception.getMessage();
         Assertions.assertTrue(actualMessage.contains(expectedMessage));
     }

@@ -17,12 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import java.util.UUID;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +51,7 @@ public class ElrDeadLetterService {
     @Value("${kafka.raw.topic}")
     private String rawTopic = "elr_raw";
 
-    private final String deadLetterIsNullExceptionMessage = "Dead Letter Record Is Null";
+    private static final String DEAD_LETTER_NULL_EXCEPTION = "The Record Is Not Existing in Dead Letter Table. Please Try With The Different Id.";
 
     public ElrDeadLetterService(
             IElrDeadLetterRepository dltRepository,
@@ -80,13 +78,22 @@ public class ElrDeadLetterService {
     }
 
     public ElrDeadLetterDto getDltRecordById(String id) throws DeadLetterTopicException {
+        if (!isValidUUID(id)) {
+            if (id.isEmpty()) {
+                throw new DeadLetterTopicException("Please provide the correct id.");
+            } else {
+                throw new DeadLetterTopicException(id + " is an Invalid Unique Id, please provide the correct id.");
+            }
+        }
         Optional<ElrDeadLetterModel> model = dltRepository.findById(id);
         if (model.isPresent()) {
             return convertModelToDto(model.get());
         } else {
-            throw new DeadLetterTopicException(deadLetterIsNullExceptionMessage);
+            throw new DeadLetterTopicException(DEAD_LETTER_NULL_EXCEPTION);
         }
     }
+
+
 
     public ElrDeadLetterDto updateAndReprocessingMessage(String id, String body) throws DeadLetterTopicException {
         var existingRecord = getDltRecordById(id);
@@ -96,7 +103,7 @@ public class ElrDeadLetterService {
         if(existingRecord.getErrorMessageSource().equalsIgnoreCase(rawTopic)) {
             var rawRecord = rawELRRepository.findById(existingRecord.getErrorMessageId());
             if (!rawRecord.isPresent()) {
-                throw new DeadLetterTopicException(deadLetterIsNullExceptionMessage);
+                throw new DeadLetterTopicException(DEAD_LETTER_NULL_EXCEPTION);
             }
             RawERLModel rawModel = rawRecord.get();
             rawModel.setPayload(body);
@@ -111,7 +118,7 @@ public class ElrDeadLetterService {
         else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(validatedTopic)) {
             var validateRecord = validatedELRRepository.findById(existingRecord.getErrorMessageId());
             if (!validateRecord.isPresent()) {
-                throw new DeadLetterTopicException(deadLetterIsNullExceptionMessage);
+                throw new DeadLetterTopicException(DEAD_LETTER_NULL_EXCEPTION);
             }
             ValidatedELRModel validateModel = validateRecord.get();
             validateModel.setRawMessage(body);
@@ -177,5 +184,14 @@ public class ElrDeadLetterService {
         model.setCreatedBy(dtoModel.getCreatedBy());
         model.setUpdatedBy(dtoModel.getUpdatedBy());
         return model;
+    }
+
+    private boolean isValidUUID(String uuidString) {
+        try {
+            UUID.fromString(uuidString);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 }

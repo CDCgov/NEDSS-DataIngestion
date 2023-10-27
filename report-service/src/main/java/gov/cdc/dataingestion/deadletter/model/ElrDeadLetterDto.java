@@ -91,15 +91,15 @@ public class ElrDeadLetterDto {
         Matcher matcher = pattern.matcher(result);
         if (matcher.find()) {
             String extractedString = matcher.group(1).trim();
-            return extractCustomExceptionMessage(extractedString);
+            return removeExceptionHeader(extractedString);
         } else {
             return extractGenericExceptionMessage(result ,stackTrace);
         }
     }
 
-    private String extractCustomExceptionMessage(String extractedString) {
-        int colonCount = extractedString.split(":").length - 1;
-        return extractCustomMessageAfterColon(extractedString, colonCount);
+    private String removeExceptionHeader(String message) {
+        message = message.replaceAll("^.*exception\\.", ""); //NOSONAR
+        return message;
     }
 
     private String extractGenericExceptionMessage(String message, String originalMessage) {

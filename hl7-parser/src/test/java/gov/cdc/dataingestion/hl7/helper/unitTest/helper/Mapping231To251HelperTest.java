@@ -32,7 +32,7 @@ class Mapping231To251HelperTest {
     }
 
     @Test
-    void mapMsh_TestElse() {
+    void mapMsh_TestElse() throws DiHL7Exception {
         var oru = (OruR1) testObject.getParsedMessage();
         oru.getMessageHeader().setMessageProfileIdentifier(null);
         var result = target.MapMsh(null, oru.getMessageHeader());
