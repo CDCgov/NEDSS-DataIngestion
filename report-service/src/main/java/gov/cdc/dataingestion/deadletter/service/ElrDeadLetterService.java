@@ -51,7 +51,7 @@ public class ElrDeadLetterService {
     @Value("${kafka.raw.topic}")
     private String rawTopic = "elr_raw";
 
-    private static final String DEAD_LETTER_NULL_EXCEPTION = "The Record Is Not Existing in Dead Letter Table. Please Try With The Different Id.";
+    private static final String DEAD_LETTER_NULL_EXCEPTION = "The Record does not exist in elr_dlt. Please try with a different ID";
 
     public ElrDeadLetterService(
             IElrDeadLetterRepository dltRepository,
@@ -97,6 +97,9 @@ public class ElrDeadLetterService {
 
     public ElrDeadLetterDto updateAndReprocessingMessage(String id, String body) throws DeadLetterTopicException {
         var existingRecord = getDltRecordById(id);
+        if(!existingRecord.getDltStatus().equalsIgnoreCase(EnumElrDltStatus.ERROR.name())) {
+            throw new DeadLetterTopicException("Selected record is in REINJECTED state. Please either wait for the ERROR state to occur or select a different record.");
+        }
         existingRecord.setDltStatus(EnumElrDltStatus.REINJECTED.name());
         existingRecord.setDltOccurrence(existingRecord.getDltOccurrence());
         existingRecord.setMessage(body);
@@ -176,7 +179,11 @@ public class ElrDeadLetterService {
         model.setErrorMessageSource(dtoModel.getErrorMessageSource());
         model.setErrorStackTrace(dtoModel.getErrorStackTrace());
         model.setErrorStackTraceShort(dtoModel.getErrorStackTraceShort());
-        model.setMessage(dtoModel.getMessage());
+
+        var msg =  dtoModel.getMessage();
+        msg.replaceAll("\n", "\\n"); //NOSONAR
+        msg.replaceAll("\r", "\\r"); //NOSONAR
+        model.setMessage(msg);
         model.setDltOccurrence(dtoModel.getDltOccurrence());
         model.setDltStatus(dtoModel.getDltStatus());
         model.setCreatedOn(dtoModel.getCreatedOn());

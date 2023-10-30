@@ -26,6 +26,10 @@ public class HL7v2Validator implements IHL7v2Validator {
         return this.hl7Helper.hl7StringValidator(message);
     }
 
+    public String processFhsMessage (String message) {
+        return this.hl7Helper.processFhsMessage(message);
+    }
+
     public ValidatedELRModel MessageValidation(String id, RawERLModel rawERLModel, String topicName, boolean validationActive) throws DiHL7Exception {
         String replaceSpecialCharacters = MessageStringValidation(rawERLModel.getPayload());
 

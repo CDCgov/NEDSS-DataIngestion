@@ -6,6 +6,7 @@ import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
+import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
@@ -26,6 +27,7 @@ import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7Dup
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -93,6 +95,10 @@ class KafkaConsumerServiceTest {
 
     @Mock
     private IEcrMsgQueryService ecrMsgQueryService;
+
+
+    @Mock
+    private CustomMetricsBuilder customMetricsBuilder;
 
 
     @Container
@@ -177,7 +183,7 @@ class KafkaConsumerServiceTest {
     @Test
     void rawConsumerTest() throws HL7Exception, DuplicateHL7FileFoundException, DiHL7Exception {
         // Produce a test message to the topic
-        initialDataInsertionAndSelection(rawTopic);
+//        initialDataInsertionAndSelection(rawTopic);
         String message =  guidForTesting;
         produceMessage(rawTopic, message, EnumKafkaOperation.INJECTION);
 
@@ -264,7 +270,6 @@ class KafkaConsumerServiceTest {
     @Test
     void xmlPreparationConsumerTest() throws Exception {
         // Produce a test message to the topic
-        initialDataInsertionAndSelection(xmlPrepTopic);
         String message =  guidForTesting;
         produceMessage(xmlPrepTopic, message, EnumKafkaOperation.INJECTION);
 
@@ -294,7 +299,6 @@ class KafkaConsumerServiceTest {
     @Test
     void xmlPreparationConsumerTestReInjection() throws Exception {
         // Produce a test message to the topic
-        initialDataInsertionAndSelection(xmlPrepTopic);
         String message =  guidForTesting;
         produceMessage(xmlPrepTopic, message, EnumKafkaOperation.REINJECTION);
 
