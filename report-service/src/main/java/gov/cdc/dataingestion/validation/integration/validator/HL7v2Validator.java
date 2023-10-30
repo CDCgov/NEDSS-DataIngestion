@@ -26,7 +26,7 @@ public class HL7v2Validator implements IHL7v2Validator {
         return this.hl7Helper.hl7StringValidator(message);
     }
 
-    public String ProcessFhsMessage (String message) {
+    public String processFhsMessage (String message) {
         return this.hl7Helper.processFhsMessage(message);
     }
 

@@ -97,6 +97,9 @@ public class ElrDeadLetterService {
 
     public ElrDeadLetterDto updateAndReprocessingMessage(String id, String body) throws DeadLetterTopicException {
         var existingRecord = getDltRecordById(id);
+        if(!existingRecord.getDltStatus().equalsIgnoreCase(EnumElrDltStatus.ERROR.name())) {
+            throw new DeadLetterTopicException("Selected record is in REINJECTED state. Please either wait for the ERROR state to occur or select a different record.");
+        }
         existingRecord.setDltStatus(EnumElrDltStatus.REINJECTED.name());
         existingRecord.setDltOccurrence(existingRecord.getDltOccurrence());
         existingRecord.setMessage(body);
@@ -178,8 +181,8 @@ public class ElrDeadLetterService {
         model.setErrorStackTraceShort(dtoModel.getErrorStackTraceShort());
 
         var msg =  dtoModel.getMessage();
-        msg.replaceAll("\n", "\\n");
-        msg.replaceAll("\r", "\\r");
+        msg.replaceAll("\n", "\\n"); //NOSONAR
+        msg.replaceAll("\r", "\\r"); //NOSONAR
         model.setMessage(msg);
         model.setDltOccurrence(dtoModel.getDltOccurrence());
         model.setDltStatus(dtoModel.getDltStatus());
