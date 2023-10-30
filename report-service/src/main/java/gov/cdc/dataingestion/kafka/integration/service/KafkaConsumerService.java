@@ -447,6 +447,7 @@ public class KafkaConsumerService {
             Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(message);
             if (response.isPresent()) {
                 var validMessage = iHl7v2Validator.MessageStringValidation(response.get().getMessage());
+                validMessage = iHl7v2Validator.ProcessFhsMessage(validMessage);
                 hl7Msg = validMessage;
             } else {
                 throw new XmlConversionException(errorDltMessage);

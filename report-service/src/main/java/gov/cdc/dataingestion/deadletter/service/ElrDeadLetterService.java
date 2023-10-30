@@ -176,7 +176,11 @@ public class ElrDeadLetterService {
         model.setErrorMessageSource(dtoModel.getErrorMessageSource());
         model.setErrorStackTrace(dtoModel.getErrorStackTrace());
         model.setErrorStackTraceShort(dtoModel.getErrorStackTraceShort());
-        model.setMessage(dtoModel.getMessage());
+
+        var msg =  dtoModel.getMessage();
+        msg.replaceAll("\n", "\\n");
+        msg.replaceAll("\r", "\\r");
+        model.setMessage(msg);
         model.setDltOccurrence(dtoModel.getDltOccurrence());
         model.setDltStatus(dtoModel.getDltStatus());
         model.setCreatedOn(dtoModel.getCreatedOn());
