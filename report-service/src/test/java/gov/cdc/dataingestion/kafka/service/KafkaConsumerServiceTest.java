@@ -270,7 +270,6 @@ class KafkaConsumerServiceTest {
     @Test
     void xmlPreparationConsumerTest() throws Exception {
         // Produce a test message to the topic
-//        initialDataInsertionAndSelection(xmlPrepTopic);
         String message =  guidForTesting;
         produceMessage(xmlPrepTopic, message, EnumKafkaOperation.INJECTION);
 
@@ -300,7 +299,6 @@ class KafkaConsumerServiceTest {
     @Test
     void xmlPreparationConsumerTestReInjection() throws Exception {
         // Produce a test message to the topic
-//        initialDataInsertionAndSelection(xmlPrepTopic);
         String message =  guidForTesting;
         produceMessage(xmlPrepTopic, message, EnumKafkaOperation.REINJECTION);
 
