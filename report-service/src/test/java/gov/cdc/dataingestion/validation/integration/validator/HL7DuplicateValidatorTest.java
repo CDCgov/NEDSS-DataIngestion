@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.validation.integration.validator;
 
+import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
@@ -21,12 +22,14 @@ class HL7DuplicateValidatorTest {
     HL7DuplicateValidator hl7DuplicateValidator;
     IValidatedELRRepository iValidatedELRRepositoryMock;
     KafkaProducerService kafkaProducerServiceMock;
+    CustomMetricsBuilder customMetricsBuilderMock;
 
     @BeforeEach
     void setUp() {
         iValidatedELRRepositoryMock = mock(IValidatedELRRepository.class);
         kafkaProducerServiceMock = mock(KafkaProducerService.class);
-        hl7DuplicateValidator = new HL7DuplicateValidator(iValidatedELRRepositoryMock, kafkaProducerServiceMock);
+        customMetricsBuilderMock = mock(CustomMetricsBuilder.class);
+        hl7DuplicateValidator = new HL7DuplicateValidator(iValidatedELRRepositoryMock, kafkaProducerServiceMock, customMetricsBuilderMock);
     }
 
     @AfterEach

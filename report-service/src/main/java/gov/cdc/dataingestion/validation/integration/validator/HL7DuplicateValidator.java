@@ -20,12 +20,15 @@ public class HL7DuplicateValidator implements IHL7DuplicateValidator {
 
     private final IValidatedELRRepository iValidatedELRRepository;
     private final KafkaProducerService kafkaProducerService;
+    private final CustomMetricsBuilder customMetricsBuilder;
     @Value("${kafka.elr-duplicate.topic}")
     private String validatedElrDuplicateTopic = "";
 
-    public HL7DuplicateValidator(IValidatedELRRepository iValidatedELRRepository, KafkaProducerService kafkaProducerService) {
+    public HL7DuplicateValidator(IValidatedELRRepository iValidatedELRRepository, KafkaProducerService kafkaProducerService,
+                                 CustomMetricsBuilder customMetricsBuilder) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.kafkaProducerService = kafkaProducerService;
+        this.customMetricsBuilder = customMetricsBuilder;
     }
 
     @Override
@@ -49,7 +52,7 @@ public class HL7DuplicateValidator implements IHL7DuplicateValidator {
         if (!checkForDuplicateHL7HashString(hashedString)) {
             hl7ValidatedModel.setHashedHL7String(hashedString);
         } else {
-            CustomMetricsBuilder.custom_duplicate_hl7_found.increment();
+            customMetricsBuilder.incrementDuplicateHL7Messages();
             kafkaProducerService.sendMessageAfterCheckingDuplicateHL7(hl7ValidatedModel, validatedElrDuplicateTopic, 0);
             throw new DuplicateHL7FileFoundException("HL7 document already exists in the database. " +
                     "Please check elr_raw table for the failed document. Record Id: " + hl7ValidatedModel.getRawId());

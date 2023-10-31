@@ -12,9 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class TokenController {
 
     private final TokenService tokenService;
+    private final CustomMetricsBuilder customMetricsBuilder;
 
-    public TokenController(TokenService tokenService) {
+    public TokenController(TokenService tokenService, CustomMetricsBuilder customMetricsBuilder) {
+
         this.tokenService = tokenService;
+        this.customMetricsBuilder = customMetricsBuilder;
     }
 
     @PostMapping("/token")
@@ -22,7 +25,7 @@ public class TokenController {
         log.debug("Token requested for user: '{}'", authentication.getName());
 
         String token = tokenService.generateToken(authentication);
-        CustomMetricsBuilder.custom_tokens_requested.increment();
+        customMetricsBuilder.incrementTokensRequested();
         log.debug("Token granted: {}", token);
         return token;
     }

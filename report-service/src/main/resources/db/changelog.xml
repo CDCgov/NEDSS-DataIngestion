@@ -13,4 +13,8 @@ http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibas
         <sqlFile path="src/main/resources/db/report-service-001.sql" />
     </changeSet>
 
+    <changeSet id="2" author="liquibase">
+        <sqlFile path="src/main/resources/db/report-service-002.sql" />
+    </changeSet>
+
 </databaseChangeLog>
