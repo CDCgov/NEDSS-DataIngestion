@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.rawmessage;
 
+import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.nbs.ecr.service.CdaMapper;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.services.EcrMsgQueryService;
@@ -38,6 +39,8 @@ class ElrReportsControllerTest {
     private CdaMapper mapper;
     @MockBean
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
+    @MockBean
+    private CustomMetricsBuilder customMetricsBuilder;
 
     @Test
     void testSave() throws Exception {

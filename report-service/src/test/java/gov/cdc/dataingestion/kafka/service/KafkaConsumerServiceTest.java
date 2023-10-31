@@ -297,6 +297,9 @@ class KafkaConsumerServiceTest {
     @Test
     void xmlPreparationConsumerTestReInjection() throws Exception {
         // Produce a test message to the topic
+      //  initialDataInsertionAndSelection(xmlPrepTopic);
+
+        var guidForTesting = "test";
         String message =  guidForTesting;
         produceMessage(xmlPrepTopic, message, EnumKafkaOperation.REINJECTION);
 
@@ -318,6 +321,12 @@ class KafkaConsumerServiceTest {
 
         when(iHl7v2Validator.MessageStringValidation(eq(testHL7Message)))
                 .thenReturn(testHL7Message);
+
+        when(iHl7v2Validator.processFhsMessage(eq(testHL7Message))).thenReturn(testHL7Message);
+
+
+        validatedELRModel.setRawMessage(testHL7Message);
+        nbsInterfaceModel.setPayload(testHL7Message);
         when(iValidatedELRRepository.findById(anyString())).thenReturn(Optional.of(validatedELRModel));
         when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString())).thenReturn(nbsInterfaceModel);
 
