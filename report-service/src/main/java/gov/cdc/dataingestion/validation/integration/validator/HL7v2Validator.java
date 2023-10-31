@@ -46,8 +46,8 @@ public class HL7v2Validator implements IHL7v2Validator {
             model.setMessageVersion(parsedMessage.getOriginalVersion());
             model.setCreatedBy(topicName);
             model.setUpdatedBy(topicName);
-        } catch (DiHL7Exception e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new DiHL7Exception(e.getMessage());
         }
         return model;
     }
