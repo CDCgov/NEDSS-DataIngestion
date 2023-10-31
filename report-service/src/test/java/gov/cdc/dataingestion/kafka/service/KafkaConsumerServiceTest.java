@@ -86,6 +86,8 @@ class KafkaConsumerServiceTest {
     private IElrDeadLetterRepository elrDeadLetterRepository;
     @Mock
     private IReportStatusRepository iReportStatusRepository;
+    @Mock
+    private CustomMetricsBuilder customMetricsBuilder;
 
     private NbsInterfaceModel nbsInterfaceModel;
     private ValidatedELRModel validatedELRModel;
@@ -170,7 +172,8 @@ class KafkaConsumerServiceTest {
                 elrDeadLetterRepository,
                 cdaMapper,
                 ecrMsgQueryService,
-                iReportStatusRepository);
+                iReportStatusRepository,
+                customMetricsBuilder);
         nbsInterfaceModel = new NbsInterfaceModel();
         validatedELRModel = new ValidatedELRModel();
     }

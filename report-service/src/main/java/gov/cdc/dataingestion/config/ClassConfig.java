@@ -1,5 +1,5 @@
 package gov.cdc.dataingestion.config;
-import ca.uhn.hl7v2.DefaultHapiContext;
+
 import gov.cdc.dataingestion.conversion.integration.HL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.hl7.helper.HL7Helper;

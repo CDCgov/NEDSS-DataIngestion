@@ -47,10 +47,8 @@ public class HL7v2Validator implements IHL7v2Validator {
             model.setCreatedBy(topicName);
             model.setUpdatedBy(topicName);
         } catch (DiHL7Exception e) {
-            CustomMetricsBuilder.custom_validated_failure.increment();
             throw new RuntimeException(e);
         }
-        CustomMetricsBuilder.custom_validated_failure.increment();
         return model;
     }
 }
