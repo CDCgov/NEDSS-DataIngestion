@@ -98,11 +98,6 @@ class KafkaConsumerServiceTest {
     @Mock
     private IEcrMsgQueryService ecrMsgQueryService;
 
-
-    @Mock
-    private CustomMetricsBuilder customMetricsBuilder;
-
-
     @Container
     public static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"))
             .withStartupTimeout(Duration.ofMinutes(5));
