@@ -4,73 +4,63 @@
 -- Creates the tables used by Data Ingestion Service
 --
 CREATE TABLE elr_raw (
-	id uniqueidentifier DEFAULT newid() NOT NULL,
-	message_type nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	payload ntext COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	created_by nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	updated_by nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	created_on datetime DEFAULT getdate() NOT NULL,
-	updated_on datetime NULL,
-	CONSTRAINT PK__elr_raw__3213E83F108B8188 PRIMARY KEY (id)
+    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    message_type NVARCHAR(255) NOT NULL,
+    payload NTEXT NOT NULL,
+    created_by NVARCHAR(255) NOT NULL,
+    updated_by NVARCHAR(255) NOT NULL,
+    created_on DATETIME NOT NULL DEFAULT getdate(),
+    updated_on DATETIME NULL
 );
 
 
 CREATE TABLE elr_validated (
-	id uniqueidentifier DEFAULT newid() NOT NULL,
-	raw_message_id uniqueidentifier NULL,
-	message_type nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	message_version nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	validated_message ntext COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	created_by nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	updated_by nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	created_on datetime DEFAULT getdate() NOT NULL,
-	updated_on datetime NULL,
-	hashed_hl7_string varchar(64) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	CONSTRAINT PK__elr_vali__3213E83FBDBA6B93 PRIMARY KEY (id)
+    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    raw_message_id UNIQUEIDENTIFIER FOREIGN KEY REFERENCES elr_raw(id),
+    message_type NVARCHAR(255) NOT NULL,
+    message_version NVARCHAR(255),
+    validated_message ntext NOT NULL,
+    hashed_hl7_string varchar(64) NULL,
+    created_by NVARCHAR(255) NOT NULL,
+    updated_by NVARCHAR(255) NOT NULL,
+    created_on DATETIME NOT NULL DEFAULT getdate(),
+    updated_on DATETIME NULL
 );
-
-ALTER TABLE elr_validated ADD CONSTRAINT FK__elr_valid__raw_i__5FB337D6 FOREIGN KEY (raw_message_id) REFERENCES elr_raw(id);
 
 
 CREATE TABLE elr_fhir (
-	id uniqueidentifier DEFAULT newid() NOT NULL,
-	fhir_message nvarchar(max) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	raw_message_id uniqueidentifier NULL,
-	created_by nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	updated_by nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	created_on datetime DEFAULT getdate() NOT NULL,
-	updated_on datetime NULL,
-	CONSTRAINT PK__elr_fhir__3213E83FC8183E1D PRIMARY KEY (id)
+    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    fhir_message NVARCHAR(MAX) NOT NULL,
+    raw_message_id UNIQUEIDENTIFIER FOREIGN KEY REFERENCES elr_raw(id),
+    created_by NVARCHAR(255) NOT NULL,
+    updated_by NVARCHAR(255) NOT NULL,
+    created_on DATETIME NOT NULL DEFAULT getdate(),
+    updated_on DATETIME NULL
 );
-
-ALTER TABLE elr_fhir ADD CONSTRAINT FK__elr_fhir__raw_me__5AEE82B9 FOREIGN KEY (raw_message_id) REFERENCES elr_raw(id);
 
 
 CREATE TABLE elr_dlt (
-	error_message_id uniqueidentifier NOT NULL,
-	error_message_source nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	error_stack_trace nvarchar(max) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	error_stack_trace_short nvarchar(max) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	dlt_status nvarchar(10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	dlt_occurrence int NULL,
-	message ntext COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	created_by nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	updated_by nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	created_on datetime DEFAULT getdate() NOT NULL,
-	updated_on datetime NULL,
-	CONSTRAINT PK__elr_dlt__CCC56D623E5B71D2 PRIMARY KEY (error_message_id)
+    error_message_id UNIQUEIDENTIFIER PRIMARY KEY,
+    error_message_source NVARCHAR(255) NOT NULL,
+    error_stack_trace NVARCHAR(MAX) NOT NULL,
+    error_stack_trace_short NVARCHAR(MAX) NOT NULL,
+    dlt_status NVARCHAR(10) NOT NULL,
+    dlt_occurrence INT,
+    message ntext NOT NULL,
+    created_by NVARCHAR(255) NOT NULL,
+    updated_by NVARCHAR(255) NOT NULL,
+    created_on DATETIME NOT NULL DEFAULT getdate(),
+    updated_on DATETIME NULL
 );
 
 
 CREATE TABLE clients (
-	id uniqueidentifier DEFAULT newid() NOT NULL,
-	client_id varchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	client_secret varchar(512) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	client_roles varchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	created_by varchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	updated_by varchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	created_on datetime DEFAULT getdate() NOT NULL,
-	updated_on datetime NULL,
-	CONSTRAINT PK__clients__3213E83F1D101DC2 PRIMARY KEY (id),
-	CONSTRAINT UQ__clients__BF21A425ECA9C5BB UNIQUE (client_id)
+    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    client_id VARCHAR(255) NOT NULL UNIQUE,
+    client_secret VARCHAR(255) NOT NULL,
+    client_roles VARCHAR(255) NULL,
+    created_by VARCHAR(255) NOT NULL,
+    updated_by VARCHAR(255) NOT NULL,
+    created_on DATETIME NOT NULL DEFAULT getdate(),
+    updated_on DATETIME NULL
 );

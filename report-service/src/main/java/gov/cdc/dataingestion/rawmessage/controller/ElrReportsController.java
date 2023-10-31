@@ -30,16 +30,19 @@ public class ElrReportsController {
     private ICdaMapper mapper;
 
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
+    private final CustomMetricsBuilder customMetricsBuilder;
 
     @Autowired
     public ElrReportsController(IEcrMsgQueryService ecrMsgQueryService,
                                 ICdaMapper mapper,
                                 RawELRService rawELRService,
-                                NbsRepositoryServiceProvider nbsRepositoryServiceProvider) {
+                                NbsRepositoryServiceProvider nbsRepositoryServiceProvider,
+                                CustomMetricsBuilder customMetricsBuilder) {
         this.ecrMsgQueryService = ecrMsgQueryService;
         this.mapper = mapper;
         this.rawELRService = rawELRService;
         this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
+        this.customMetricsBuilder = customMetricsBuilder;
     }
 
 
@@ -51,7 +54,7 @@ public class ElrReportsController {
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<?> save(@RequestBody final String payload, @RequestHeader("msgType") String type,  @RequestHeader("validationActive") String validationActive) {
             RawERLDto rawERLDto = new RawERLDto();
-            CustomMetricsBuilder.custom_messages_processed.increment();
+            customMetricsBuilder.incrementMessagesProcessed();
             rawERLDto.setType(type);
             rawERLDto.setPayload(payload);
             if (validationActive != null && !validationActive.isEmpty() && validationActive.equalsIgnoreCase("true")) {

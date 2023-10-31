@@ -86,6 +86,8 @@ class KafkaConsumerServiceTest {
     private IElrDeadLetterRepository elrDeadLetterRepository;
     @Mock
     private IReportStatusRepository iReportStatusRepository;
+    @Mock
+    private CustomMetricsBuilder customMetricsBuilder;
 
     private NbsInterfaceModel nbsInterfaceModel;
     private ValidatedELRModel validatedELRModel;
@@ -95,11 +97,6 @@ class KafkaConsumerServiceTest {
 
     @Mock
     private IEcrMsgQueryService ecrMsgQueryService;
-
-
-    @Mock
-    private CustomMetricsBuilder customMetricsBuilder;
-
 
     @Container
     public static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"))
@@ -170,7 +167,8 @@ class KafkaConsumerServiceTest {
                 elrDeadLetterRepository,
                 cdaMapper,
                 ecrMsgQueryService,
-                iReportStatusRepository);
+                iReportStatusRepository,
+                customMetricsBuilder);
         nbsInterfaceModel = new NbsInterfaceModel();
         validatedELRModel = new ValidatedELRModel();
     }
