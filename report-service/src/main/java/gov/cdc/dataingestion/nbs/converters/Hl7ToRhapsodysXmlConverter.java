@@ -2308,7 +2308,9 @@ public class Hl7ToRhapsodysXmlConverter {
     private HL7TSType buildHL7TSType(String ts, int outFmt) {
         HL7TSType hl7TSType = new HL7TSType();
 
-        if (null == ts) return hl7TSType;
+        if (ts == null || ts.isEmpty()) {
+            return hl7TSType;
+        }
 
         DateTimeFormatter tsFormatter = formatter;
         if (ts.indexOf("-") > 0) {
@@ -2316,6 +2318,16 @@ public class Hl7ToRhapsodysXmlConverter {
             int index = ts.indexOf("-");
             String subStr = ts.substring(0, index);
             String subStrTimeZone =  ts.substring(index);
+            // 20120821140551-0500
+            // this is remove additional value from timezone which suppose to have 5 character (including the dash)
+            if (subStrTimeZone.length() > 5) {
+                subStrTimeZone = subStrTimeZone.substring(0, 5);
+            } else
+            {
+                while (subStrTimeZone.length() < 5) {
+                    subStrTimeZone += "0";
+                }
+            }
             ts = appendingTimeStamp(subStr) + subStrTimeZone;
         } else {
             ts = appendingTimeStamp(ts);

@@ -1,8 +1,9 @@
 package gov.cdc.dataingestion.rawmessage;
 
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
+import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
+import gov.cdc.dataingestion.nbs.services.EcrMsgQueryService;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
-import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.rawmessage.controller.ElrReportsController;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
@@ -28,13 +29,16 @@ class ElrReportsControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
+    private EcrMsgQueryService ecrMsgQueryService;
+    @MockBean
     private RawELRService rawELRService;
     @MockBean
     private ICdaMapper cdaMapper;
     @MockBean
-    private IEcrMsgQueryService ecrMsgQueryService;
-    @MockBean
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
+
+    @MockBean
+    private CustomMetricsBuilder customMetricsBuilder;
 
     @Test
     void testSave() throws Exception {

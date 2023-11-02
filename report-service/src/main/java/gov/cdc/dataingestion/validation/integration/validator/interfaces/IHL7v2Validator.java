@@ -8,4 +8,5 @@ import org.springframework.stereotype.Component;
 public interface IHL7v2Validator {
     ValidatedELRModel MessageValidation(String message, RawERLModel rawERLModel, String topicName, boolean validationActive) throws DiHL7Exception;
     String MessageStringValidation(String message) throws DiHL7Exception;
+    String processFhsMessage (String message);
 }

@@ -5,6 +5,7 @@ import ca.uhn.hl7v2.HapiContext;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
+import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.hl7.helper.HL7Helper;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
@@ -25,6 +26,10 @@ public class HL7v2Validator implements IHL7v2Validator {
         return this.hl7Helper.hl7StringValidator(message);
     }
 
+    public String processFhsMessage (String message) {
+        return this.hl7Helper.processFhsMessage(message);
+    }
+
     public ValidatedELRModel MessageValidation(String id, RawERLModel rawERLModel, String topicName, boolean validationActive) throws DiHL7Exception {
         String replaceSpecialCharacters = MessageStringValidation(rawERLModel.getPayload());
 
@@ -33,18 +38,17 @@ public class HL7v2Validator implements IHL7v2Validator {
         }
 
         ValidatedELRModel model = new ValidatedELRModel();
-        var parsedMessage = this.hl7Helper.hl7StringParser(replaceSpecialCharacters);
-
-
-
-
-        model.setRawId(id);
-        model.setRawMessage(replaceSpecialCharacters);
-        model.setMessageType(EnumMessageType.HL7.name());
-        model.setMessageVersion(parsedMessage.getOriginalVersion());
-        model.setCreatedBy(topicName);
-        model.setUpdatedBy(topicName);
-
+        try {
+            var parsedMessage = this.hl7Helper.hl7StringParser(replaceSpecialCharacters);
+            model.setRawId(id);
+            model.setRawMessage(replaceSpecialCharacters);
+            model.setMessageType(EnumMessageType.HL7.name());
+            model.setMessageVersion(parsedMessage.getOriginalVersion());
+            model.setCreatedBy(topicName);
+            model.setUpdatedBy(topicName);
+        } catch (Exception e) {
+            throw new DiHL7Exception(e.getMessage());
+        }
         return model;
     }
 }

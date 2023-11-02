@@ -7,6 +7,7 @@ import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
+import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.constant.enums.EnumElrDltStatus;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
@@ -96,6 +97,7 @@ public class KafkaConsumerService {
     private final ICdaMapper cdaMapper;
     private final IEcrMsgQueryService ecrMsgQueryService;
     private final IReportStatusRepository iReportStatusRepository;
+    private final CustomMetricsBuilder customMetricsBuilder;
 
     private String errorDltMessage = "Message not found in dead letter table";
     //endregion
@@ -113,7 +115,8 @@ public class KafkaConsumerService {
             IElrDeadLetterRepository elrDeadLetterRepository,
             ICdaMapper cdaMapper,
             IEcrMsgQueryService ecrMsgQueryService,
-            IReportStatusRepository iReportStatusRepository) {
+            IReportStatusRepository iReportStatusRepository,
+            CustomMetricsBuilder customMetricsBuilder) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.kafkaProducerService = kafkaProducerService;
@@ -126,6 +129,7 @@ public class KafkaConsumerService {
         this.cdaMapper = cdaMapper;
         this.ecrMsgQueryService = ecrMsgQueryService;
         this.iReportStatusRepository = iReportStatusRepository;
+        this.customMetricsBuilder = customMetricsBuilder;
     }
     //endregion
 
@@ -247,6 +251,7 @@ public class KafkaConsumerService {
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                                  @Header(KafkaHeaderValue.MessageOperation) String operation) throws Exception {
         log.debug("Received message ID: {} from topic: {}", message, topic);
+        customMetricsBuilder.incrementXmlConversionRequested();
         xmlConversionHandler(message, operation);
 
     }
@@ -445,6 +450,7 @@ public class KafkaConsumerService {
             Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(message);
             if (response.isPresent()) {
                 var validMessage = iHl7v2Validator.MessageStringValidation(response.get().getMessage());
+                validMessage = iHl7v2Validator.processFhsMessage(validMessage);
                 hl7Msg = validMessage;
             } else {
                 throw new XmlConversionException(errorDltMessage);
@@ -465,14 +471,20 @@ public class KafkaConsumerService {
         // in the Data Ingestion elr_record_status_id table, so that we can get the status
         // of the record straight-forward from the NBS_Interface table.
 
-        ReportStatusIdData reportStatusIdData = new ReportStatusIdData();
-        Optional<ValidatedELRModel> validatedELRModel = iValidatedELRRepository.findById(message);
-        reportStatusIdData.setRawMessageId(validatedELRModel.get().getRawId());
-        reportStatusIdData.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
-        reportStatusIdData.setCreatedBy(convertedToXmlTopic);
-        reportStatusIdData.setUpdatedBy(convertedToXmlTopic);
+        if(nbsInterfaceModel == null) {
+            customMetricsBuilder.incrementXmlConversionRequestedFailure();
+        }
+        else {
+            customMetricsBuilder.incrementXmlConversionRequestedSuccess();
+            ReportStatusIdData reportStatusIdData = new ReportStatusIdData();
+            Optional<ValidatedELRModel> validatedELRModel = iValidatedELRRepository.findById(message);
+            reportStatusIdData.setRawMessageId(validatedELRModel.get().getRawId());
+            reportStatusIdData.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
+            reportStatusIdData.setCreatedBy(convertedToXmlTopic);
+            reportStatusIdData.setUpdatedBy(convertedToXmlTopic);
 
-        iReportStatusRepository.save(reportStatusIdData);
+            iReportStatusRepository.save(reportStatusIdData);
+        }
     }
     private void validationHandler(String message, boolean hl7ValidationActivated) throws DuplicateHL7FileFoundException, DiHL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);
@@ -480,7 +492,15 @@ public class KafkaConsumerService {
         String messageType = elrModel.getType();
         switch (messageType) {
             case KafkaHeaderValue.MessageType_HL7v2:
-                ValidatedELRModel hl7ValidatedModel = iHl7v2Validator.MessageValidation(message, elrModel, validatedTopic, hl7ValidationActivated);
+                customMetricsBuilder.incrementMessagesValidated();
+                ValidatedELRModel hl7ValidatedModel;
+                try {
+                    hl7ValidatedModel = iHl7v2Validator.MessageValidation(message, elrModel, validatedTopic, hl7ValidationActivated);
+                    customMetricsBuilder.incrementMessagesValidatedSuccess();
+                } catch (DiHL7Exception e) {
+                    customMetricsBuilder.incrementMessagesValidatedFailure();
+                    throw new RuntimeException(e);
+                }
                 // Duplication check
                 iHL7DuplicateValidator.ValidateHL7Document(hl7ValidatedModel);
                 saveValidatedELRMessage(hl7ValidatedModel);

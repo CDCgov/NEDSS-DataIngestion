@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.validation.integration.validator;
 
+import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
@@ -19,12 +20,15 @@ public class HL7DuplicateValidator implements IHL7DuplicateValidator {
 
     private final IValidatedELRRepository iValidatedELRRepository;
     private final KafkaProducerService kafkaProducerService;
+    private final CustomMetricsBuilder customMetricsBuilder;
     @Value("${kafka.elr-duplicate.topic}")
     private String validatedElrDuplicateTopic = "";
 
-    public HL7DuplicateValidator(IValidatedELRRepository iValidatedELRRepository, KafkaProducerService kafkaProducerService) {
+    public HL7DuplicateValidator(IValidatedELRRepository iValidatedELRRepository, KafkaProducerService kafkaProducerService,
+                                 CustomMetricsBuilder customMetricsBuilder) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.kafkaProducerService = kafkaProducerService;
+        this.customMetricsBuilder = customMetricsBuilder;
     }
 
     @Override
@@ -48,9 +52,10 @@ public class HL7DuplicateValidator implements IHL7DuplicateValidator {
         if (!checkForDuplicateHL7HashString(hashedString)) {
             hl7ValidatedModel.setHashedHL7String(hashedString);
         } else {
+            customMetricsBuilder.incrementDuplicateHL7Messages();
             kafkaProducerService.sendMessageAfterCheckingDuplicateHL7(hl7ValidatedModel, validatedElrDuplicateTopic, 0);
             throw new DuplicateHL7FileFoundException("HL7 document already exists in the database. " +
-                    "Please check " + validatedElrDuplicateTopic + " kafka topic for the failed document.");
+                    "Please check elr_raw table for the failed document. Record Id: " + hl7ValidatedModel.getRawId());
         }
     }
 

@@ -4,9 +4,13 @@ buildscript {
 	repositories {
 		mavenCentral()
 		gradlePluginPortal()
+		maven {
+			url "https://plugins.gradle.org/m2/"
+		}
 	}
 	dependencies {
 		classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
+		classpath "org.liquibase:liquibase-gradle-plugin:2.2.0"
 	}
 }
 
@@ -23,9 +27,21 @@ plugins {
 
 group = 'gov.cdc.dataingestion'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17'
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_17
+}
+ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 tasks.withType(Jar).all { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
+
+if ( isReleaseVersion ) {
+	println "Using staging URL"
+	ext.mavenCentralUploadUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+} else {
+	println "Using snapshot URL"
+	ext.mavenCentralUploadUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+}
 
 configurations {
 	jaxb
@@ -35,6 +51,7 @@ configurations {
 }
 
 repositories {
+	mavenLocal()
 	mavenCentral()
 }
 
@@ -48,7 +65,7 @@ test {
 }
 jacocoTestReport {
 	reports {
-		xml.required = false
+		xml.required = true
 		csv.required = false
 		html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
 	}
@@ -189,6 +206,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.apache.xmlbeans:xmlbeans:2.6.0'
 
+	implementation 'io.prometheus:simpleclient:0.16.0'
+	implementation 'io.prometheus:simpleclient_hotspot:0.16.0'
+	implementation 'io.prometheus:simpleclient_httpserver:0.16.0'
+	implementation 'io.prometheus:simpleclient_pushgateway:0.16.0'
+
 	// DI HL7 Wrapper
 	if (findProject(':hl7-parser')) {
 		implementation project(':hl7-parser')
@@ -227,6 +249,11 @@ dependencies {
 	// Only need below two dependencies for java code generation from xsd file(s)
 	jaxb 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
 	jaxb 'org.glassfish.jaxb:jaxb-xjc:4.0.2'
+
+	// Liquibase
+	liquibaseRuntime 'org.liquibase:liquibase-core:4.3.1'
+	liquibaseRuntime group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+	liquibaseRuntime 'com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11'
 }
 
 test {

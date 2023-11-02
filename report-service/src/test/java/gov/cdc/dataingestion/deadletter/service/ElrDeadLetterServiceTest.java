@@ -52,7 +52,7 @@ class ElrDeadLetterServiceTest {
     @InjectMocks
     private ElrDeadLetterService elrDeadLetterService;
 
-    private String guidForTesting = "";
+    private String guidForTesting = "8DC5E410-4A2E-4018-8C28-A4F6AB99E802";
 
     @BeforeEach
     public void setUpEach() {
@@ -90,7 +90,7 @@ class ElrDeadLetterServiceTest {
         var exception = Assertions.assertThrows(DeadLetterTopicException.class, () -> {
             elrDeadLetterService.getDltRecordById(guidForTesting);
         });
-        Assertions.assertEquals("Dead Letter Record Is Null", exception.getMessage());
+        Assertions.assertEquals("The Record does not exist in elr_dlt. Please try with a different ID", exception.getMessage());
 
     }
 
@@ -136,7 +136,7 @@ class ElrDeadLetterServiceTest {
         RawERLModel rawERLModel = new RawERLModel();
         rawERLModel.setPayload("HL7 message");
         rawERLModel.setId(elrDltModel.getErrorMessageId());
-
+        elrDltModel.setDltStatus(EnumElrDltStatus.ERROR.name());
 
         when(dltRepository.findById(eq(elrDltModel.getErrorMessageId())))
                 .thenReturn(Optional.of(elrDltModel));
@@ -164,6 +164,7 @@ class ElrDeadLetterServiceTest {
         elrDltModel.setErrorMessageId(primaryIdForTesting);
         elrDltModel.setDltOccurrence(1);
         elrDltModel.setErrorMessageSource("elr_validated");
+        elrDltModel.setDltStatus(EnumElrDltStatus.ERROR.name());
 
         ValidatedELRModel validatedERLModel = new ValidatedELRModel();
         validatedERLModel.setRawMessage("HL7 message validated");
@@ -192,7 +193,7 @@ class ElrDeadLetterServiceTest {
         elrDltModel.setErrorMessageId(primaryIdForTesting);
         elrDltModel.setDltOccurrence(1);
         elrDltModel.setErrorMessageSource("fhir_prep");
-
+        elrDltModel.setDltStatus(EnumElrDltStatus.ERROR.name());
 
         when(dltRepository.findById(eq(elrDltModel.getErrorMessageId())))
                 .thenReturn(Optional.of(elrDltModel));
@@ -215,6 +216,7 @@ class ElrDeadLetterServiceTest {
         elrDltModel.setErrorMessageId(primaryIdForTesting);
         elrDltModel.setDltOccurrence(1);
         elrDltModel.setErrorMessageSource("xml_prep");
+        elrDltModel.setDltStatus(EnumElrDltStatus.ERROR.name());
 
 
         when(dltRepository.findById(eq(elrDltModel.getErrorMessageId())))
@@ -240,6 +242,7 @@ class ElrDeadLetterServiceTest {
         dto.setDltStatus("status1");
         dto.setCreatedBy("creator1");
         dto.setUpdatedBy("updater1");
+        dto.setMessage("test");
 
         ElrDeadLetterModel model = new ElrDeadLetterModel();
         model.setErrorMessageId(dto.getErrorMessageId());

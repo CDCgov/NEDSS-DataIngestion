@@ -17,12 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import java.util.UUID;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +51,7 @@ public class ElrDeadLetterService {
     @Value("${kafka.raw.topic}")
     private String rawTopic = "elr_raw";
 
-    private final String deadLetterIsNullExceptionMessage = "Dead Letter Record Is Null";
+    private static final String DEAD_LETTER_NULL_EXCEPTION = "The Record does not exist in elr_dlt. Please try with a different ID";
 
     public ElrDeadLetterService(
             IElrDeadLetterRepository dltRepository,
@@ -80,23 +78,35 @@ public class ElrDeadLetterService {
     }
 
     public ElrDeadLetterDto getDltRecordById(String id) throws DeadLetterTopicException {
+        if (!isValidUUID(id)) {
+            if (id.isEmpty()) {
+                throw new DeadLetterTopicException("Please provide the correct id.");
+            } else {
+                throw new DeadLetterTopicException(id + " is an Invalid Unique Id, please provide the correct id.");
+            }
+        }
         Optional<ElrDeadLetterModel> model = dltRepository.findById(id);
         if (model.isPresent()) {
             return convertModelToDto(model.get());
         } else {
-            throw new DeadLetterTopicException(deadLetterIsNullExceptionMessage);
+            throw new DeadLetterTopicException(DEAD_LETTER_NULL_EXCEPTION);
         }
     }
 
+
+
     public ElrDeadLetterDto updateAndReprocessingMessage(String id, String body) throws DeadLetterTopicException {
         var existingRecord = getDltRecordById(id);
+        if(!existingRecord.getDltStatus().equalsIgnoreCase(EnumElrDltStatus.ERROR.name())) {
+            throw new DeadLetterTopicException("Selected record is in REINJECTED state. Please either wait for the ERROR state to occur or select a different record.");
+        }
         existingRecord.setDltStatus(EnumElrDltStatus.REINJECTED.name());
         existingRecord.setDltOccurrence(existingRecord.getDltOccurrence());
         existingRecord.setMessage(body);
         if(existingRecord.getErrorMessageSource().equalsIgnoreCase(rawTopic)) {
             var rawRecord = rawELRRepository.findById(existingRecord.getErrorMessageId());
             if (!rawRecord.isPresent()) {
-                throw new DeadLetterTopicException(deadLetterIsNullExceptionMessage);
+                throw new DeadLetterTopicException(DEAD_LETTER_NULL_EXCEPTION);
             }
             RawERLModel rawModel = rawRecord.get();
             rawModel.setPayload(body);
@@ -111,7 +121,7 @@ public class ElrDeadLetterService {
         else if(existingRecord.getErrorMessageSource().equalsIgnoreCase(validatedTopic)) {
             var validateRecord = validatedELRRepository.findById(existingRecord.getErrorMessageId());
             if (!validateRecord.isPresent()) {
-                throw new DeadLetterTopicException(deadLetterIsNullExceptionMessage);
+                throw new DeadLetterTopicException(DEAD_LETTER_NULL_EXCEPTION);
             }
             ValidatedELRModel validateModel = validateRecord.get();
             validateModel.setRawMessage(body);
@@ -169,7 +179,11 @@ public class ElrDeadLetterService {
         model.setErrorMessageSource(dtoModel.getErrorMessageSource());
         model.setErrorStackTrace(dtoModel.getErrorStackTrace());
         model.setErrorStackTraceShort(dtoModel.getErrorStackTraceShort());
-        model.setMessage(dtoModel.getMessage());
+
+        var msg =  dtoModel.getMessage();
+        msg.replaceAll("\n", "\\n"); //NOSONAR
+        msg.replaceAll("\r", "\\r"); //NOSONAR
+        model.setMessage(msg);
         model.setDltOccurrence(dtoModel.getDltOccurrence());
         model.setDltStatus(dtoModel.getDltStatus());
         model.setCreatedOn(dtoModel.getCreatedOn());
@@ -177,5 +191,14 @@ public class ElrDeadLetterService {
         model.setCreatedBy(dtoModel.getCreatedBy());
         model.setUpdatedBy(dtoModel.getUpdatedBy());
         return model;
+    }
+
+    private boolean isValidUUID(String uuidString) {
+        try {
+            UUID.fromString(uuidString);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 }

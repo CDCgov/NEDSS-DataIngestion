@@ -11,4 +11,6 @@ public interface IHL7Parser {
     ca.uhn.hl7v2.model.v231.message.ORU_R01 hl7v231StringParser(String message) throws DiHL7Exception;
 
     String hl7ORUValidation(String message) throws DiHL7Exception;
+
+    String processFhsMessage(String message);
 }

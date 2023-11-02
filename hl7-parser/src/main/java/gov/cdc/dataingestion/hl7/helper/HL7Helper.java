@@ -32,6 +32,7 @@ public class HL7Helper {
      * Parser to be updated
      * */
     public HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception {
+        message = parser.processFhsMessage(message);
         return parser.hl7StringParser(message);
     }
 
@@ -51,7 +52,12 @@ public class HL7Helper {
     }
 
     public String hl7Validation(String message) throws DiHL7Exception{
+        message = parser.processFhsMessage(message);
         return parser.hl7ORUValidation(message);
+    }
+
+    public String processFhsMessage(String message)  {
+        return parser.processFhsMessage(message);
     }
 
 

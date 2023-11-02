@@ -1,12 +1,12 @@
 package gov.cdc.dataingestion.rawmessage.controller;
 
+import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
 import gov.cdc.dataingestion.security.config.RsaKeyProperties;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -33,6 +33,11 @@ public class ElrReportsControllerTest {
     private IEcrMsgQueryService ecrMsgQueryService;
     @MockBean
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
+    @MockBean
+    private ICdaMapper mapper;
+    @MockBean
+    private CustomMetricsBuilder customMetricsBuilder;
+
     @Test
     public void testSaveHL7Message() throws Exception {
         String hl7Payload = "testmessage";
