@@ -11,7 +11,9 @@ import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.security.config.RsaKeyProperties;
+import gov.cdc.dataingestion.validation.services.interfaces.IHl7Service;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -41,6 +43,8 @@ class ElrReportsControllerTest {
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
     @MockBean
     private CustomMetricsBuilder customMetricsBuilder;
+    @MockBean
+    private IHl7Service hl7Service;
 
     @Test
     void testSave() throws Exception {
