@@ -11,7 +11,7 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-public class Hl7ServiceTest {
+class Hl7ServiceTest {
     @Mock
     private IHL7v2Validator hl7v2Validator;
 
@@ -42,7 +42,7 @@ public class Hl7ServiceTest {
         when(hl7v2Validator.MessageStringValidation(hl7Msg))
                 .thenReturn(hl7MsgAfterStringSet);
 
-        when(hl7v2Validator.messageValidation(hl7MsgAfterStringSet))
+        when(hl7v2Validator.hl7MessageValidation(hl7MsgAfterStringSet))
                 .thenReturn(hl7MsgAfterStringSet);
 
         String result   = target.hl7Validator(hl7Msg);

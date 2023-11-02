@@ -26,7 +26,7 @@ public class HL7v2Validator implements IHL7v2Validator {
         return this.hl7Helper.hl7StringValidator(message);
     }
 
-    public String messageValidation(String message) throws DiHL7Exception {
+    public String hl7MessageValidation(String message) throws DiHL7Exception {
         return this.hl7Helper.hl7Validation(message);
     }
 

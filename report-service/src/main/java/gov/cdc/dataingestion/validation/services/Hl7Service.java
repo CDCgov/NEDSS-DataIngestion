@@ -17,7 +17,7 @@ public class Hl7Service implements IHl7Service {
 
     public String hl7Validator(String message) throws DiHL7Exception {
         var msg = this.hl7v2Validator.MessageStringValidation(message);
-        msg = this.hl7v2Validator.messageValidation(msg);
+        msg = this.hl7v2Validator.hl7MessageValidation(msg);
         return msg;
     }
 }
