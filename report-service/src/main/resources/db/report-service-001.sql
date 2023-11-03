@@ -2,17 +2,11 @@
 --
 -- Creates the tables used by Data Ingestion Service
 --
-IF NOT EXISTS(SELECT *
-              FROM sys.databases
-              WHERE name = 'NBS_DataIngest')
-    BEGIN
-        CREATE DATABASE NBS_DataIngest
-    END
-GO
-USE NBS_DataIngest
-GO
 
-IF OBJECT_ID(N'dbo.elr_raw', N'U') IS NULL
+IF NOT EXISTS(
+        SELECT 'X'
+        FROM INFORMATION_SCHEMA.TABLES
+        WHERE TABLE_NAME = 'elr_raw')
     BEGIN
         CREATE TABLE elr_raw
         (
@@ -26,7 +20,10 @@ IF OBJECT_ID(N'dbo.elr_raw', N'U') IS NULL
         );
     END
 
-IF OBJECT_ID(N'dbo.elr_validated', N'U') IS NULL
+IF NOT EXISTS(
+        SELECT 'X'
+        FROM INFORMATION_SCHEMA.TABLES
+        WHERE TABLE_NAME = 'elr_validated')
     BEGIN
         CREATE TABLE elr_validated
         (
@@ -43,7 +40,10 @@ IF OBJECT_ID(N'dbo.elr_validated', N'U') IS NULL
         );
     END
 
-IF OBJECT_ID(N'dbo.elr_fhir', N'U') IS NULL
+IF NOT EXISTS(
+        SELECT 'X'
+        FROM INFORMATION_SCHEMA.TABLES
+        WHERE TABLE_NAME = 'elr_fhir')
     BEGIN
         CREATE TABLE elr_fhir
         (
@@ -57,7 +57,10 @@ IF OBJECT_ID(N'dbo.elr_fhir', N'U') IS NULL
         );
     END
 
-IF OBJECT_ID(N'dbo.elr_dlt', N'U') IS NULL
+IF NOT EXISTS(
+        SELECT 'X'
+        FROM INFORMATION_SCHEMA.TABLES
+        WHERE TABLE_NAME = 'elr_dlt')
     BEGIN
         CREATE TABLE elr_dlt
         (
@@ -76,8 +79,10 @@ IF OBJECT_ID(N'dbo.elr_dlt', N'U') IS NULL
     END
 
 
-IF OBJECT_ID(N'dbo.clients', N'U') IS NULL
-    BEGIN
+IF NOT EXISTS(
+        SELECT ' X'
+        FROM INFORMATION_SCHEMA.TABLES
+        WHERE TABLE_NAME = 'clients')    BEGIN
         CREATE TABLE clients
         (
             id            UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),

@@ -1,5 +1,7 @@
-IF
-    OBJECT_ID(N'dbo.elr_raw', N'U') IS NULL
+IF NOT EXISTS(
+        SELECT 'X'
+        FROM INFORMATION_SCHEMA.TABLES
+        WHERE TABLE_NAME = 'elr_record_status_id')
     BEGIN
         CREATE TABLE elr_record_status_id
         (
