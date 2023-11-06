@@ -4,7 +4,9 @@ import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.service.CdaMapper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.ConstantLookUpDto;
+import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcQuestionLookUpDto;
 import gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService;
+import org.apache.xmlbeans.XmlObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -223,6 +225,93 @@ class CdaMapperTest {
         // Using the correct mock (interface) here
         when(cdaLookUpService.fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101"))
                 .thenReturn(lookupDto1);
+
+        var result = target.tranformSelectedEcrToCDAXml(input);
+
+        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    void transformSelectedEcrToCDAXml_Test_TypePart() throws EcrCdaXmlException {
+        EcrSelectedRecord input = getTestData();
+        input.getMsgPatients().get(0).setPatAddrCommentTxt("PART");
+        var patients = input.getMsgPatients();
+        var patientToDuplicate = patients.get(0);
+        patients.add(patientToDuplicate);
+        input.setMsgPatients(patients);
+        var lookupDto1 = new ConstantLookUpDto();
+        lookupDto1.setId("test");
+        lookupDto1.setSubjectArea("test");
+        lookupDto1.setQuestionDisplayName("test");
+        lookupDto1.setQuestionIdentifier("test");
+        lookupDto1.setSampleValue("test");
+        lookupDto1.setUsage("test");
+
+
+        var questionLookup = new PhdcQuestionLookUpDto();
+        questionLookup.setDocTypeCd("test");
+        questionLookup.setDocTypeVersionTxt("test");
+        questionLookup.setQuesCodeSystemCd("test");
+        questionLookup.setQuesCodeSystemDescTxt("test");
+        questionLookup.setDataType("PART");
+        questionLookup.setQuestionIdentifier("test");
+        questionLookup.setQuesDisplayName("test");
+        questionLookup.setSectionNm("test");
+        questionLookup.setSendingSystemCd("test");
+        // Using the correct mock (interface) here
+        when(cdaLookUpService.fetchPhdcQuestionByCriteria( ""))
+                .thenReturn(questionLookup);
+
+        when(cdaLookUpService.fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101"))
+                .thenReturn(lookupDto1);
+
+        when(cdaLookUpService.fetchPhdcQuestionByCriteriaWithColumn("Question_Identifier", ""))
+                .thenReturn(questionLookup);
+
+        var result = target.tranformSelectedEcrToCDAXml(input);
+
+        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        Assertions.assertNotNull(result);
+    }
+
+
+    @Test
+    void transformSelectedEcrToCDAXml_Test_TypeCODED() throws EcrCdaXmlException {
+        EcrSelectedRecord input = getTestData();
+        input.getMsgPatients().get(0).setPatAddrCommentTxt("CODED");
+        var patients = input.getMsgPatients();
+        var patientToDuplicate = patients.get(0);
+        patients.add(patientToDuplicate);
+        input.setMsgPatients(patients);
+        var lookupDto1 = new ConstantLookUpDto();
+        lookupDto1.setId("test");
+        lookupDto1.setSubjectArea("test");
+        lookupDto1.setQuestionDisplayName("test");
+        lookupDto1.setQuestionIdentifier("test");
+        lookupDto1.setSampleValue("test");
+        lookupDto1.setUsage("test");
+
+
+        var questionLookup = new PhdcQuestionLookUpDto();
+        questionLookup.setDocTypeCd("test");
+        questionLookup.setDocTypeVersionTxt("test");
+        questionLookup.setQuesCodeSystemCd("test");
+        questionLookup.setQuesCodeSystemDescTxt("test");
+        questionLookup.setDataType("CODED");
+        questionLookup.setQuestionIdentifier("test");
+        questionLookup.setQuesDisplayName("test");
+        questionLookup.setSectionNm("test");
+        questionLookup.setSendingSystemCd("test");
+        // Using the correct mock (interface) here
+        when(cdaLookUpService.fetchPhdcQuestionByCriteria( ""))
+                .thenReturn(questionLookup);
+
+        when(cdaLookUpService.fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101"))
+                .thenReturn(lookupDto1);
+
+        when(cdaLookUpService.fetchPhdcQuestionByCriteriaWithColumn("Question_Identifier", ""))
+                .thenReturn(questionLookup);
 
         var result = target.tranformSelectedEcrToCDAXml(input);
 
