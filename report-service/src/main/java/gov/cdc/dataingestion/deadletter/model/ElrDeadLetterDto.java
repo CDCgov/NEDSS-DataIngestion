@@ -3,9 +3,9 @@ package gov.cdc.dataingestion.deadletter.model;
 
 import gov.cdc.dataingestion.constant.enums.EnumElrServiceOperation;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
 
 import java.sql.Timestamp;
 import java.util.regex.Matcher;
