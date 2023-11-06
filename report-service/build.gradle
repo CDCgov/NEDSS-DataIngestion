@@ -186,7 +186,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 	implementation 'org.springframework.kafka:spring-kafka:3.0.12'
 	implementation 'org.apache.kafka:kafka-clients:3.6.0'
-	implementation 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.8.5'
+	implementation 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.4.3'
 	implementation 'io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19'
 	implementation 'com.google.code.gson:gson:2.10.1'
 	implementation 'com.opencsv:opencsv:5.7.1'
@@ -204,7 +204,7 @@ dependencies {
 	implementation 'software.amazon.msk:aws-msk-iam-auth:1.1.6'
 	implementation 'io.micrometer:micrometer-registry-prometheus'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.apache.xmlbeans:xmlbeans:3.0.0'
+	implementation 'org.apache.xmlbeans:xmlbeans:3.1.0'
 
 	implementation 'io.prometheus:simpleclient:0.16.0'
 	implementation 'io.prometheus:simpleclient_hotspot:0.16.0'
