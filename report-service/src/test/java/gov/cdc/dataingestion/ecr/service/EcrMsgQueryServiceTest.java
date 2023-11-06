@@ -143,6 +143,63 @@ class EcrMsgQueryServiceTest {
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(1, result.getMsgPatients().size());
+
+
+        var ecrCaseDto = result.getMsgCases().get(0).getMsgCase();
+        nullCheckAssertionForEcrMsgCase(ecrCaseDto);
+    }
+
+    private void nullCheckAssertionForEcrMsgCase(EcrMsgCaseDto ecrCaseDto) {
+        Assertions.assertNull(ecrCaseDto.getInvCaseStatusCd());
+        Assertions.assertNull(ecrCaseDto.getInvCloseDt());
+        Assertions.assertNull(ecrCaseDto.getInvCommentTxt());
+        Assertions.assertNull(ecrCaseDto.getInvConditionCd());
+        Assertions.assertNull(ecrCaseDto.getInvContactInvCommentTxt());
+        Assertions.assertNull(ecrCaseDto.getInvContactInvPriorityCd());
+        Assertions.assertNull(ecrCaseDto.getInvContactInvStatusCd());
+        Assertions.assertNull(ecrCaseDto.getInvCurrProcessStateCd());
+        Assertions.assertNull(ecrCaseDto.getInvDaycareIndCd());
+        Assertions.assertNull(ecrCaseDto.getInvDetectionMethodCd());
+        Assertions.assertNull(ecrCaseDto.getInvDiagnosisDt());
+        Assertions.assertNull(ecrCaseDto.getInvDiseaseAcquiredLocCd());
+        Assertions.assertNull(ecrCaseDto.getInvEffectiveTime());
+        Assertions.assertNull(ecrCaseDto.getInvFoodhandlerIndCd());
+        Assertions.assertNull(ecrCaseDto.getInvHospitalizedAdmitDt());
+        Assertions.assertNull(ecrCaseDto.getInvHospitalizedDischargeDt());
+        Assertions.assertNull(ecrCaseDto.getInvHospitalizedIndCd());
+        Assertions.assertNull(ecrCaseDto.getInvHospStayDuration());
+        Assertions.assertNull(ecrCaseDto.getInvIllnessStartDt());
+        Assertions.assertNull(ecrCaseDto.getInvIllnessEndDt());
+        Assertions.assertNull(ecrCaseDto.getInvIllnessDuration());
+        Assertions.assertNull(ecrCaseDto.getInvIllnessDurationUnitCd());
+        Assertions.assertNull(ecrCaseDto.getInvIllnessOnsetAge());
+        Assertions.assertNull(ecrCaseDto.getInvIllnessOnsetAgeUnitCd());
+        Assertions.assertNull(ecrCaseDto.getInvInvestigatorAssignedDt());
+        Assertions.assertNull(ecrCaseDto.getInvImportCityTxt());
+        Assertions.assertNull(ecrCaseDto.getInvImportCountyCd());
+        Assertions.assertNull(ecrCaseDto.getInvImportCountryCd());
+        Assertions.assertNull(ecrCaseDto.getInvImportStateCd());
+        Assertions.assertNull(ecrCaseDto.getInvInfectiousFromDt());
+        Assertions.assertNull(ecrCaseDto.getInvInfectiousToDt());
+        Assertions.assertNull(ecrCaseDto.getInvLegacyCaseId());
+        Assertions.assertNull(ecrCaseDto.getInvMmwrWeekTxt());
+        Assertions.assertNull(ecrCaseDto.getInvMmwrYearTxt());
+        Assertions.assertNull(ecrCaseDto.getInvOutbreakIndCd());
+        Assertions.assertNull(ecrCaseDto.getInvOutbreakNameCd());
+        Assertions.assertNull(ecrCaseDto.getInvPatientDeathDt());
+        Assertions.assertNull(ecrCaseDto.getInvPatientDeathIndCd());
+        Assertions.assertNull(ecrCaseDto.getInvPregnancyIndCd());
+        Assertions.assertNull(ecrCaseDto.getInvReferralBasisCd());
+        Assertions.assertNull(ecrCaseDto.getInvReportDt());
+        Assertions.assertNull(ecrCaseDto.getInvReportToCountyDt());
+        Assertions.assertNull(ecrCaseDto.getInvReportToStateDt());
+        Assertions.assertNull(ecrCaseDto.getInvReportingCountyCd());
+        Assertions.assertNull(ecrCaseDto.getInvSharedIndCd());
+        Assertions.assertNull(ecrCaseDto.getInvSourceTypeCd());
+        Assertions.assertNull(ecrCaseDto.getInvStartDt());
+        Assertions.assertNull(ecrCaseDto.getInvStateId());
+        Assertions.assertNull(ecrCaseDto.getInvStatusCd());
+        Assertions.assertNull(ecrCaseDto.getInvTransmissionModeCd());
     }
 
 }
