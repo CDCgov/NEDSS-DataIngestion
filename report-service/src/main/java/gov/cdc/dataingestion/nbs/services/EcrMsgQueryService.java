@@ -2,7 +2,6 @@ package gov.cdc.dataingestion.nbs.services;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.repository.IEcrMsgQueryRepository;
-import gov.cdc.dataingestion.nbs.repository.implementation.JsonReaderTester;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedCase;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedInterview;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
@@ -22,114 +21,6 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
     @Autowired
     public EcrMsgQueryService(IEcrMsgQueryRepository ecrMsgQueryRepository) {
         this.ecrMsgQueryRepository = ecrMsgQueryRepository;
-    }
-
-    public EcrSelectedRecord getSelectedEcrFromJson() throws EcrCdaXmlException {
-        //
-        var container = JsonReaderTester.loadContainer();
-        var patient = JsonReaderTester.loadPatient();
-
-        var msgCase = JsonReaderTester.loadCase();
-        msgCase.initDataMap();
-        var msgCasePar = JsonReaderTester.loadCasePar();
-        var msgCaseAns = JsonReaderTester.loadCaseAnswer();
-        for( int i = 0; i < msgCaseAns.size(); i++) {
-            msgCaseAns.get(i).initDataMap();
-        }
-        var msgCaseAnsRepeat = JsonReaderTester.loadCaseAnswerRepeat();
-        for( int i = 0; i < msgCaseAnsRepeat.size(); i++) {
-            msgCaseAnsRepeat.get(i).initDataMap();
-        }
-        var org = JsonReaderTester.loadOrg();
-        org.initDataMap();
-        var provider = JsonReaderTester.loadProvider();
-        for( int i = 0; i < provider.size(); i++) {
-            provider.get(i).initDataMap();
-        }
-
-        var place = JsonReaderTester.loadPlace();
-        place.initDataMap();
-
-        var treatment = JsonReaderTester.loadTreatment();
-        treatment.initDataMap();
-        var treatmentOrg = JsonReaderTester.loadTreatmentOrg();
-        for( int i = 0; i < treatmentOrg.size(); i++) {
-            treatmentOrg.get(i).initDataMap();
-        }
-        var treatmentProvider = JsonReaderTester.loadTreatmentProvider();
-        for( int i = 0; i < treatmentProvider.size(); i++) {
-            treatmentProvider.get(i).initDataMap();
-        }
-
-        var interview = JsonReaderTester.loadInterview();
-        interview.initDataMap();
-        var interviewProvider = JsonReaderTester.loadInterviewProvider();
-        var interviewAnswer = JsonReaderTester.loadInterviewAnswer();
-        var interviewAnswerRepeat = JsonReaderTester.loadInterviewAnswerRepeat();
-        for( int i = 0; i < interviewProvider.size(); i++) {
-            interviewProvider.get(i).initDataMap();
-        }
-        for( int i = 0; i < interviewAnswer.size(); i++) {
-            interviewAnswer.get(i).initDataMap();
-        }
-        for( int i = 0; i < interviewAnswerRepeat.size(); i++) {
-            interviewAnswerRepeat.get(i).initDataMap();
-        }
-
-
-        EcrSelectedRecord selectedRecord = new EcrSelectedRecord();
-        selectedRecord.setMsgContainer(container);
-
-        var paArr = new ArrayList<EcrMsgPatientDto>();
-        paArr.add(patient);
-        selectedRecord.setMsgPatients(paArr);
-
-        EcrSelectedCase selectedCase = new EcrSelectedCase();
-        selectedCase.setMsgCase(msgCase);
-        selectedCase.setMsgCaseParticipants(msgCasePar);
-        selectedCase.setMsgCaseAnswers(msgCaseAns);
-        selectedCase.setMsgCaseAnswerRepeats(msgCaseAnsRepeat);
-
-        var caseSelectedArr = new ArrayList<EcrSelectedCase>();
-        caseSelectedArr.add(selectedCase);
-        selectedRecord.setMsgCases(caseSelectedArr);
-
-        selectedRecord.setMsgXmlAnswers(new ArrayList<>());
-
-        selectedRecord.setMsgProviders(provider);
-
-        var orgArr = new ArrayList<EcrMsgOrganizationDto>();
-        orgArr.add(org);
-        selectedRecord.setMsgOrganizations(orgArr);
-
-
-        var placeArr = new ArrayList<EcrMsgPlaceDto>();
-        placeArr.add(place);
-        selectedRecord.setMsgPlaces(placeArr);
-
-        var treatmentArr = new ArrayList<EcrSelectedTreatment>();
-        var selectedTreat = new EcrSelectedTreatment();
-        selectedTreat.setMsgTreatment(treatment);
-        selectedTreat.setMsgTreatmentOrganizations(treatmentOrg);
-        selectedTreat.setMsgTreatmentProviders(treatmentProvider);
-        treatmentArr.add(selectedTreat);
-        selectedRecord.setMsgTreatments(treatmentArr);
-
-
-        var interviewArr = new ArrayList<EcrSelectedInterview>();
-        var selectedInterview = new EcrSelectedInterview();
-        selectedInterview.setMsgInterview(interview);
-        selectedInterview.setMsgInterviewProviders(interviewProvider);
-        selectedInterview.setMsgInterviewAnswers(interviewAnswer);
-        selectedInterview.setMsgInterviewAnswerRepeats(interviewAnswerRepeat);
-        interviewArr.add(selectedInterview);
-        selectedRecord.setMsgInterviews(interviewArr);
-
-
-//        var xmlAnsw = ecrMsgQueryRepository.fetchMsgXmlAnswerForApplicableEcr(10009282, "1.2.840.114350.1.13.478.2.7.8.688883.74957358"); // NOSONAR
-//        selectedRecord.setMsgXmlAnswers(xmlAnsw); // NOSONAR
-        return selectedRecord;
-        // NOSONAR
     }
 
     public EcrSelectedRecord getSelectedEcrRecord() throws EcrCdaXmlException {

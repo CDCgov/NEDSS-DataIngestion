@@ -348,7 +348,7 @@ public class CdaMapHelper implements ICdaMapHelper {
      * */
     public POCDMT000040Observation mapToObservation(String questionCode, String data,
         POCDMT000040Observation observation) throws EcrCdaXmlException {
-        try {
+
             observation.setClassCode("OBS");
             observation.setMoodCode(XActMoodDocumentObservation.EVN);
             String defaultQuestionIdentifier = "";
@@ -399,9 +399,6 @@ public class CdaMapHelper implements ICdaMapHelper {
                 observation.getCode().setDisplayName(CODE_NODE_MAPPED_VALUE);
             }
             return observation;
-        } catch ( Exception e) {
-            throw new EcrCdaXmlException(e.getMessage());
-        }
 
     }
 
@@ -427,7 +424,6 @@ public class CdaMapHelper implements ICdaMapHelper {
                                                    POCDMT000040Observation observation,
                                                    String data,
                                                    String defaultQuestionIdentifier) throws EcrCdaXmlException {
-
         try {
             if (result.getDataType().equalsIgnoreCase("PART")) {
                 // CHECK mapToObservation from ori 47
@@ -471,10 +467,10 @@ public class CdaMapHelper implements ICdaMapHelper {
                 observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
                 observation.getCode().setDisplayName(result.getQuesDisplayName());
             }
-
         } catch (Exception e) {
-            throw new EcrCdaXmlException(e.getMessage());
+            throw  new EcrCdaXmlException(e.getMessage());
         }
+
 
     }
 

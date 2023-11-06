@@ -29,7 +29,6 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
     public CdaInterviewMapper mapToInterviewTop(EcrSelectedRecord input, POCDMT000040ClinicalDocument1 clinicalDocument,
                                                  int interviewCounter, int componentCounter)
             throws EcrCdaXmlException {
-        try {
             CdaInterviewMapper mapper = new CdaInterviewMapper();
             if(input.getMsgInterviews() != null && !input.getMsgInterviews().isEmpty()) {
                 for(int i = 0; i < input.getMsgInterviews().size(); i++) {
@@ -58,15 +57,10 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
                     clinicalDocument.getComponent().getStructuredBody().setComponentArray(c, output);
                 }
             }
-
             mapper.setClinicalDocument(clinicalDocument);
             mapper.setInterviewCounter(interviewCounter);
             mapper.setComponentCounter(componentCounter);
             return mapper;
-        } catch (Exception e) {
-            throw new EcrCdaXmlException(e.getMessage());
-        }
-
     }
 
     private InterviewTopField mapToInterviewTopFieldCheck(POCDMT000040ClinicalDocument1 clinicalDocument) {
