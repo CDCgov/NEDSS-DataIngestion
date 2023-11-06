@@ -827,5 +827,81 @@ class EcrMsgQueryRepositoryTest {
     }
 
 
+    @Test
+    void fetchMsgCaseForApplicableEcrTest() throws Exception {
+        // Arrange
+        Query mockQuery = mock(Query.class);
+        when(entityManager.createNativeQuery(anyString())).thenReturn(mockQuery);
 
+        List<Object[]> mockResults = new ArrayList<>();
+        mockResults.add(new Object[]{
+                "1", // InvLocalId
+                "2", // PatLocalId
+                "3", // InvAuthorId
+                "4", // InvCaseStatusCd
+                "5", // InvCloseDt
+                "6", // InvCommentTxt
+                "7", // InvConditionCd
+                "8", // InvContactInvCommentTxt
+                "9", // InvContactInvPriorityCd
+                "10", // InvContactInvStatusCd
+                "11", // InvCurrProcessStateCd
+                "12", // InvDaycareIndCd
+                "13", // InvDetectionMethodCd
+                "14", // InvDiagnosisDt
+                "15", // InvDiseaseAcquiredLocCd
+                new Timestamp(System.currentTimeMillis()), // InvEffectiveTime
+                "17", // InvFoodhandlerIndCd
+                "18", // InvHospitalizedAdmitDt
+                "19", // InvHospitalizedDischargeDt
+                "20", // InvHospitalizedIndCd
+                21, // InvHospStayDuration
+                "22", // InvIllnessStartDt
+                "23", // InvIllnessEndDt
+                24, // InvIllnessDuration
+                "25", // InvIllnessDurationUnitCd
+                26, // InvIllnessOnsetAge
+                "27", // InvIllnessOnsetAgeUnitCd
+                "28", // InvInvestigatorAssignedDt
+                "29", // InvImportCityTxt
+                "30", // InvImportCountyCd
+                "31", // InvImportCountryCd
+                "32", // InvImportStateCd
+                "33", // InvInfectiousFromDt
+                "34", // InvInfectiousToDt
+                "35", // InvLegacyCaseId
+                "36", // InvMmwrWeekTxt
+                "37", // InvMmwrYearTxt
+                "38", // InvOutbreakIndCd
+                "39", // InvOutbreakNameCd
+                "40", // InvPatientDeathDt
+                "41", // InvPatientDeathIndCd
+                "42", // InvPregnancyIndCd
+                "43", // InvReferralBasisCd
+                "44", // InvReportDt
+                "45", // InvReportToCountyDt
+                "46", // InvReportToStateDt
+                "47", // InvReportingCountyCd
+                "48", // InvSharedIndCd
+                "49", // InvSourceTypeCd
+                "50", // InvStartDt
+                "51", // InvStateId
+                "52",  // InvStatusCd,
+                "53"  // InvStatusCd
+        });
+        when(mockQuery.getResultList()).thenReturn(mockResults);
+
+        Integer containerId = 1;
+
+        // Act
+        List<EcrMsgCaseDto> results = target.fetchMsgCaseForApplicableEcr(containerId);
+
+        // Assert
+        assertNotNull(results);
+        assertEquals(1, results.size());
+
+        EcrMsgCaseDto resultDto = results.get(0);
+
+        assertEquals("1", resultDto.getInvLocalId());
+    }
 }
