@@ -21,8 +21,10 @@ public class CsvValidator implements ICsvValidator {
     }
 
     public ValidatedELRModel ValidateCSVAgainstCVSSchema(String message) throws Exception {
-        CSVReader reader = new CSVReader(new FileReader(schemaPath));
-        String[] header = reader.readNext();
+        String[] header;
+        try (CSVReader reader = new CSVReader(new FileReader(schemaPath))) {
+            header = reader.readNext();
+        }
         int headerLength = header.length;
         List<List<String>> kafkaMsg = gson.fromJson(message, List.class);
 

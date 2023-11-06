@@ -208,6 +208,39 @@ class KafkaConsumerServiceTest {
     }
 
     @Test
+    void rawConsumerTestRawRecordNotFound() throws DuplicateHL7FileFoundException, DiHL7Exception {
+        // Produce a test message to the topic
+        String message =  guidForTesting;
+        produceMessage(rawTopic, message, EnumKafkaOperation.INJECTION);
+
+        // Consume the message
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
+
+        // Perform assertions
+        assertEquals(1, records.count());
+
+        ConsumerRecord<String, String> firstRecord = records.iterator().next();
+        String value = firstRecord.value();
+
+        RawERLModel rawModel = new RawERLModel();
+        rawModel.setId(guidForTesting);
+        rawModel.setType("HL7");
+
+        when(iRawELRRepository.findById(guidForTesting))
+                .thenReturn(Optional.empty());
+
+        DiHL7Exception exception = Assertions.assertThrows(
+                DiHL7Exception.class, () -> {
+                    kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false");
+                }
+        );
+
+        String expectedMessage = "Raw ELR record is empty for Id: ";
+        Assertions.assertTrue(exception.getMessage().contains(expectedMessage));
+
+    }
+
+    @Test
     void validateConsumerTest() throws ConversionPrepareException {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(validateTopic);
