@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.ecr.cdaMapping;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper;
+import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcAnswerLookUpDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.QuestionIdentifierMapDto;
 import gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService;
 import org.junit.jupiter.api.Assertions;
@@ -35,14 +36,21 @@ class CdaMapHelperTest {
 
     @Test
     void mapToQuestionIdTestIdentifierNotNull() throws EcrCdaXmlException {
-        String time = "2023/04/15 10:30:45.123";
-        var result = target.mapToTsType(time);
-        Assertions.assertNotNull(result);
-
-        var lookup = new QuestionIdentifierMapDto();
+        var lookup = new PhdcAnswerLookUpDto();
+        lookup.setAnsToCode("");
+        lookup.setAnsToCodeSystemCd("test");
+        lookup.setAnsFromCodeSystemDescTxt("test");
+        lookup.setAnsFromDisplayNm("test");
+        lookup.setAnsToCodeSystemCd("test");
+        lookup.setAnsToCodeSystemDescTxt("test");
+        lookup.setAnsToDisplayNm("Test");
         String data ="test";
-        when(cdaLookUpService.fetchQuestionIdentifierMapByCriteriaByCriteria(
-                "COLUMN_NM", data))
+        when(cdaLookUpService.fetchPhdcAnswerByCriteriaForTranslationCode(
+                "test", data))
                 .thenReturn(lookup);
+
+        var result = target.mapToCodedAnswer("test", "test");
+        Assertions.assertEquals("test", result.getCode());
+
     }
 }
