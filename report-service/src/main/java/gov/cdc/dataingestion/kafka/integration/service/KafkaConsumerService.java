@@ -488,7 +488,12 @@ public class KafkaConsumerService {
     }
     private void validationHandler(String message, boolean hl7ValidationActivated) throws DuplicateHL7FileFoundException, DiHL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);
-        RawERLModel elrModel = rawElrResponse.get();
+        RawERLModel elrModel;
+        if (!rawElrResponse.isEmpty()) {
+            elrModel = rawElrResponse.get();
+        } else {
+            throw new  DiHL7Exception("Raw ELR record is empty for Id: " + message);
+        }
         String messageType = elrModel.getType();
         switch (messageType) {
             case KafkaHeaderValue.MessageType_HL7v2:
