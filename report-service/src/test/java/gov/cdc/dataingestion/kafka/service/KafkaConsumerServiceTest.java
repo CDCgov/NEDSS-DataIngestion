@@ -226,7 +226,7 @@ class KafkaConsumerServiceTest {
         rawModel.setId(guidForTesting);
         rawModel.setType("HL7");
 
-        when(iRawELRRepository.findById(eq(guidForTesting)))
+        when(iRawELRRepository.findById(guidForTesting))
                 .thenReturn(Optional.empty());
 
         DiHL7Exception exception = Assertions.assertThrows(
