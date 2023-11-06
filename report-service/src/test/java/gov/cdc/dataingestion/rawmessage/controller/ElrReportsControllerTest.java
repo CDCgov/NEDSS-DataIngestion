@@ -34,8 +34,6 @@ public class ElrReportsControllerTest {
     @MockBean
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
     @MockBean
-    private ICdaMapper mapper;
-    @MockBean
     private CustomMetricsBuilder customMetricsBuilder;
 
     @Test
