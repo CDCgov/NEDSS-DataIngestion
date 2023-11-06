@@ -26,7 +26,7 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
                                          int performerComponentCounter, int componentCounter,
                                          int performerSectionCounter,
                                          POCDMT000040Section section) throws EcrCdaXmlException {
-        try {
+
             CdaPlaceMapper mapper = new CdaPlaceMapper();
             if(input.getMsgPlaces() != null && !input.getMsgPlaces().isEmpty()) {
                 for(int i = 0; i < input.getMsgPlaces().size(); i++) {
@@ -42,9 +42,7 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
             mapper.setComponentCounter(componentCounter);
             mapper.setPerformerComponentCounter(performerComponentCounter);
             return mapper;
-        } catch (Exception e) {
-            throw new EcrCdaXmlException(e.getMessage());
-        }
+
 
     }
 

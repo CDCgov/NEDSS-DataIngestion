@@ -7,7 +7,6 @@ import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
 import gov.cdc.dataingestion.security.config.RsaKeyProperties;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -29,11 +28,13 @@ public class ElrReportsControllerTest {
     @MockBean
     private RawELRService rawELRService;
     @MockBean
+    private ICdaMapper cdaMapper;
+    @MockBean
     private IEcrMsgQueryService ecrMsgQueryService;
     @MockBean
-    private ICdaMapper mapper;
-    @MockBean
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
+    @MockBean
+    private ICdaMapper mapper;
     @MockBean
     private CustomMetricsBuilder customMetricsBuilder;
 
