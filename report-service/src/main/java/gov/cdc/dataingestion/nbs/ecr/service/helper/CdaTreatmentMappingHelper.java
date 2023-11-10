@@ -29,7 +29,7 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
                                                  int treatmentCounter, int componentCounter,
                                                  int treatmentSectionCounter)
             throws EcrCdaXmlException {
-        try {
+
             CdaTreatmentMapper mapper = new CdaTreatmentMapper();
             if(input.getMsgTreatments() != null && !input.getMsgTreatments().isEmpty()) {
                 for(int i = 0; i < input.getMsgTreatments().size(); i++) {
@@ -80,9 +80,7 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
             mapper.setComponentCounter(componentCounter);
             mapper.setTreatmentSectionCounter(treatmentSectionCounter);
             return mapper;
-        } catch (Exception e) {
-            throw new EcrCdaXmlException(e.getMessage());
-        }
+
     }
 
     private void mapToTreatmentTopHasNoCounter(POCDMT000040ClinicalDocument1 clinicalDocument, int c) throws EcrCdaXmlException {

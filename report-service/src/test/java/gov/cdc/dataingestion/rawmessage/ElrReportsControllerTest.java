@@ -1,15 +1,12 @@
 package gov.cdc.dataingestion.rawmessage;
 
-import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
-import gov.cdc.dataingestion.nbs.ecr.service.CdaMapper;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
+import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.nbs.services.EcrMsgQueryService;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
-import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.rawmessage.controller.ElrReportsController;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
-import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.security.config.RsaKeyProperties;
 import gov.cdc.dataingestion.validation.services.interfaces.IHl7Service;
 import org.junit.jupiter.api.Test;
@@ -38,9 +35,10 @@ class ElrReportsControllerTest {
     @MockBean
     private RawELRService rawELRService;
     @MockBean
-    private CdaMapper mapper;
+    private ICdaMapper cdaMapper;
     @MockBean
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
+
     @MockBean
     private CustomMetricsBuilder customMetricsBuilder;
     @MockBean
