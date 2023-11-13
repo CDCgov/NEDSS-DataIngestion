@@ -7,7 +7,7 @@ import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
 import gov.cdc.dataingestion.security.config.RsaKeyProperties;
-import gov.cdc.dataingestion.validation.services.interfaces.IHl7Service;
+import gov.cdc.dataingestion.validation.services.interfaces.IHL7Service;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -37,7 +37,7 @@ public class ElrReportsControllerTest {
     @MockBean
     private CustomMetricsBuilder customMetricsBuilder;
     @MockBean
-    private IHl7Service hl7Service;
+    private IHL7Service hl7Service;
     @Test
     public void testSaveHL7Message() throws Exception {
         String hl7Payload = "testmessage";
@@ -82,7 +82,7 @@ public class ElrReportsControllerTest {
     @Test
     void testHl7Validator() throws Exception {
         String hl7Payload = "testmessage";
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports/hl7-validator")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports/validate-hl7")
                         .contentType("text/plain")
                         .content(hl7Payload)
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))

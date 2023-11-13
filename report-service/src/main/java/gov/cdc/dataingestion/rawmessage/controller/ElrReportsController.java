@@ -8,7 +8,7 @@ import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
-import gov.cdc.dataingestion.validation.services.interfaces.IHl7Service;
+import gov.cdc.dataingestion.validation.services.interfaces.IHL7Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class ElrReportsController {
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
     private final CustomMetricsBuilder customMetricsBuilder;
 
-    private IHl7Service hl7Service;
+    private IHL7Service hl7Service;
 
     @Autowired
     public ElrReportsController(IEcrMsgQueryService ecrMsgQueryService,
@@ -42,7 +42,7 @@ public class ElrReportsController {
                                 RawELRService rawELRService,
                                 NbsRepositoryServiceProvider nbsRepositoryServiceProvider,
                                 CustomMetricsBuilder customMetricsBuilder,
-                                IHl7Service hl7Service) {
+                                IHL7Service hl7Service) {
         this.ecrMsgQueryService = ecrMsgQueryService;
         this.mapper = mapper;
         this.rawELRService = rawELRService;
@@ -97,7 +97,7 @@ public class ElrReportsController {
     @Operation(
             summary = "Verifying whether the payload is a valid hl7 message or not"
     )
-    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/hl7-validator")
+    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/validate-hl7")
     public ResponseEntity<String> hl7Validator(@RequestBody final String payload) throws DiHL7Exception {
         return ResponseEntity.ok(hl7Service.hl7Validator(payload));
     }

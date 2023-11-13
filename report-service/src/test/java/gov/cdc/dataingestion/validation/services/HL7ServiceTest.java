@@ -11,12 +11,12 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-class Hl7ServiceTest {
+class HL7ServiceTest {
     @Mock
     private IHL7v2Validator hl7v2Validator;
 
     @InjectMocks
-    private Hl7Service target;
+    private HL7Service target;
 
     @BeforeEach
     void setUp() {
