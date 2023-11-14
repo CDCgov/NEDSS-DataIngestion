@@ -15,6 +15,7 @@ import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.exception.*;
 import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
+import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
@@ -456,15 +457,15 @@ public class KafkaConsumerService {
                 throw new XmlConversionException(errorDltMessage);
             }
         }
-
-        String rhapsodyXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(message, hl7Msg);
+        HL7ParsedMessage parsedMessage = Hl7ToRhapsodysXmlConverter.getInstance().parsedStringToHL7(hl7Msg);
+        String rhapsodyXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(message, parsedMessage);
 
         // Modified from debug ==> info to capture xml for analysis.
         // Please leave below at "info" level for the time being, before going live,
         // this will be changed to debug
         log.info("rhapsodyXml: {}", rhapsodyXml);
       
-        NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml);
+        NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml, parsedMessage);
         kafkaProducerService.sendMessageAfterConvertedToXml(rhapsodyXml, convertedToXmlTopic, 0);
 
         // Once the XML is saved to the NBS_Interface table, we get the ID to save it

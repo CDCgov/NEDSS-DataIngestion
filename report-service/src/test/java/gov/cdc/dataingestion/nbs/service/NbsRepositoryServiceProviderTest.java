@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.nbs.service;
 
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
+import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 import gov.cdc.dataingestion.nbs.TestHelper;
 import gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
@@ -38,10 +39,10 @@ public class NbsRepositoryServiceProviderTest {
     void saveToNbsTest() {
         String id = "whatever";
         String xmlMsg =  testXmlData;
-
+        HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
         when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
 
-        var saved = target.saveXmlMessage(id, xmlMsg);
+        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage);
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
 }

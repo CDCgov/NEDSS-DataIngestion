@@ -45,7 +45,7 @@ public class Hl7ToRhapsodysXmlConverterTest {
         String rawId = "whatever";
         String hl7Message = TestData.randomGenerated251WithDataInAllFieldV1;
 
-        var result = target.convert(rawId, hl7Message);
+        var result = target.convert(rawId, target.parsedStringToHL7(hl7Message));
 
         Assertions.assertTrue(result.contains(rawId));
     }
