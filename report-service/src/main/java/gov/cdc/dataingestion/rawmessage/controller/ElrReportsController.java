@@ -62,6 +62,16 @@ public class ElrReportsController {
             if (type.isEmpty() || validationActive.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Required headers should not be null");
             }
+
+            if (!type.equalsIgnoreCase("HL7")) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide valid value for msgType header");
+            }
+
+            boolean validationCheck = "true".equalsIgnoreCase(validationActive) || "false".equalsIgnoreCase(validationActive);
+            if (!validationCheck) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide valid value for validationActive header: value must be either true or false");
+            }
+
             RawERLDto rawERLDto = new RawERLDto();
             customMetricsBuilder.incrementMessagesProcessed();
             rawERLDto.setType(type);

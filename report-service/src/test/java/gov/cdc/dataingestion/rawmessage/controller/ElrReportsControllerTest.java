@@ -101,4 +101,28 @@ public class ElrReportsControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isInternalServerError());
     }
 
+    @Test
+    void testSaveHL7MessageHeaderTypeInvalid() throws Exception {
+        String hl7Payload = "testmessage";
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
+                        .header("msgType", "AAA")
+                        .header("validationActive", "true")
+                        .contentType("text/plain")
+                        .content(hl7Payload)
+                        .with(SecurityMockMvcRequestPostProcessors.jwt()))
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError());
+    }
+
+    @Test
+    void testSaveHL7MessageHeaderValidationInvalid() throws Exception {
+        String hl7Payload = "testmessage";
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
+                        .header("msgType", "HL7")
+                        .header("validationActive", "AAA")
+                        .contentType("text/plain")
+                        .content(hl7Payload)
+                        .with(SecurityMockMvcRequestPostProcessors.jwt()))
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError());
+    }
+
 }
