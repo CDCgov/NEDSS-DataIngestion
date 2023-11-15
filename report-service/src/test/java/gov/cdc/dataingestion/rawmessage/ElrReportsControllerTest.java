@@ -8,6 +8,7 @@ import gov.cdc.dataingestion.rawmessage.controller.ElrReportsController;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
 import gov.cdc.dataingestion.security.config.RsaKeyProperties;
+import gov.cdc.dataingestion.validation.services.interfaces.IHL7Service;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -39,6 +40,8 @@ class ElrReportsControllerTest {
 
     @MockBean
     private CustomMetricsBuilder customMetricsBuilder;
+    @MockBean
+    private IHL7Service hl7Service;
 
     @Test
     void testSave() throws Exception {
