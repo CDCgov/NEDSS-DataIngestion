@@ -76,4 +76,29 @@ public class ElrReportsControllerTest {
         verify(rawELRService).submission(rawERLDto);
     }
 
+    @Test
+    void testSaveHL7MessageHeaderIsEmpty() throws Exception {
+        String hl7Payload = "testmessage";
+        String messageType = "HL7";
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
+                        .header("msgType", messageType)
+                        .header("validationActive", "")
+                        .contentType("text/plain")
+                        .content(hl7Payload)
+                        .with(SecurityMockMvcRequestPostProcessors.jwt()))
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError());
+    }
+
+    @Test
+    void testSaveHL7MessageHeaderIsEmptyType() throws Exception {
+        String hl7Payload = "testmessage";
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
+                        .header("msgType", "")
+                        .header("validationActive", "true")
+                        .contentType("text/plain")
+                        .content(hl7Payload)
+                        .with(SecurityMockMvcRequestPostProcessors.jwt()))
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError());
+    }
+
 }
