@@ -20,8 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collections;
-
 @Tag(name = "ELR Reports", description = "ELR reports API")
 
 @RestController
@@ -81,7 +79,7 @@ public class ElrReportsController {
             customMetricsBuilder.incrementMessagesProcessed();
             rawERLDto.setType(type);
             rawERLDto.setPayload(payload);
-            if (validationActive != null && !validationActive.isEmpty() && validationActive.equalsIgnoreCase("true")) {
+            if (validationActive.equalsIgnoreCase("true")) {
                 rawERLDto.setValidationActive(true);
             }
             return ResponseEntity.ok(rawELRService.submission(rawERLDto));

@@ -17,8 +17,8 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         errorResponse.setMessage("An internal server error occurred.");
 
         String errMessage;
-        if (ex instanceof ResponseStatusException) {
-            errMessage = ((ResponseStatusException) ex).getReason();
+        if (ex instanceof ResponseStatusException responseStatusException) {
+            errMessage = responseStatusException.getReason();
         } else {
             errMessage = ex.getMessage();
         }
