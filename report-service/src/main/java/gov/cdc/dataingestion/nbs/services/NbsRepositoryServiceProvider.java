@@ -120,13 +120,23 @@ public class NbsRepositoryServiceProvider {
 				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest() != null
 				? oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest().getFillerOrderNumber().getEntityIdentifier() : null;
 
-		String orderTestCode = oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
+		var orderTestCodeObj = oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
 				&& oru.getPatientResult().get(0).getOrderObservation() != null
 				&& !oru.getPatientResult().get(0).getOrderObservation().isEmpty()
 				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest() != null
-				? oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest().getUniversalServiceIdentifier().getIdentifier() : null;
+				? oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest() : null;
 
-		String specimenColDateStr = oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
+		String orderTestCode = null;
+		if (orderTestCodeObj.getUniversalServiceIdentifier() != null ) {
+			if (orderTestCodeObj.getUniversalServiceIdentifier().getIdentifier() != null) {
+				orderTestCode = orderTestCodeObj.getUniversalServiceIdentifier().getIdentifier();
+			}
+			else if (orderTestCodeObj.getUniversalServiceIdentifier().getAlternateIdentifier() != null){
+				orderTestCode = orderTestCodeObj.getUniversalServiceIdentifier().getAlternateIdentifier();
+			}
+		}
+
+			String specimenColDateStr = oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
 				&& oru.getPatientResult().get(0).getOrderObservation() != null
 				&& !oru.getPatientResult().get(0).getOrderObservation().isEmpty()
 				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen() != null
