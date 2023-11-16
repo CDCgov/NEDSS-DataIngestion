@@ -106,13 +106,13 @@ public class Hl7ToRhapsodysXmlConverter {
     public Hl7ToRhapsodysXmlConverter() {
     }
 
-    public HL7ParsedMessage parsedStringToHL7(String hl7Msg) throws DiHL7Exception {
+    public HL7ParsedMessage<OruR1> parsedStringToHL7(String hl7Msg) throws DiHL7Exception {
         HL7Helper hl7Helper = new HL7Helper();
         HL7ParsedMessage hl7ParsedMsg = hl7Helper.hl7StringParser(hl7Msg);
         return hl7ParsedMsg;
     }
 
-    public String convert(String rawMessageId, HL7ParsedMessage hl7ParsedMsg) throws JAXBException, IOException {
+    public String convert(String rawMessageId, HL7ParsedMessage<OruR1> hl7ParsedMsg) throws JAXBException, IOException {
         String rhapsodyXml = "";
 
         Container c = new Container();

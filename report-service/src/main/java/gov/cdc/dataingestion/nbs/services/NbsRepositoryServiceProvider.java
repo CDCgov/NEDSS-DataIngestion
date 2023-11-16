@@ -72,7 +72,7 @@ public class NbsRepositoryServiceProvider {
 		}
 	}
     
-    public NbsInterfaceModel saveXmlMessage(String msgId, String xmlMsg, HL7ParsedMessage hl7ParsedMessage) {
+    public NbsInterfaceModel saveXmlMessage(String msgId, String xmlMsg, HL7ParsedMessage<OruR1> hl7ParsedMessage) {
 		NbsInterfaceModel item = new NbsInterfaceModel();
 
 		log.debug("{} : Xml being persisted to NBS Legacy database", msgId);
@@ -93,7 +93,7 @@ public class NbsRepositoryServiceProvider {
 
 
 		item.setSpecimenCollDate(null);
-		OruR1 oru = (OruR1) hl7ParsedMessage.getParsedMessage();
+		OruR1 oru = hl7ParsedMessage.getParsedMessage();
 		if (oru != null) {
 			item = savingNbsInterfaceModelHelper(oru, item);
 		}
@@ -127,7 +127,7 @@ public class NbsRepositoryServiceProvider {
 				? oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest() : null;
 
 		String orderTestCode = null;
-		if (orderTestCodeObj.getUniversalServiceIdentifier() != null ) {
+		if (orderTestCodeObj != null && orderTestCodeObj.getUniversalServiceIdentifier() != null ) {
 			if (orderTestCodeObj.getUniversalServiceIdentifier().getIdentifier() != null) {
 				orderTestCode = orderTestCodeObj.getUniversalServiceIdentifier().getIdentifier();
 			}
