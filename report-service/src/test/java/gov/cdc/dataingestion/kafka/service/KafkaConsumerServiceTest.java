@@ -734,7 +734,7 @@ class KafkaConsumerServiceTest {
 
         // Send the message to the Kafka topic
         ProducerRecord<String, String> record = new ProducerRecord<>(topic, uniqueID, message);
-        record.headers().add(KafkaHeaderValue.MessageOperation, operation.name().getBytes());
+        record.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, operation.name().getBytes());
         producer.send(record);
 
         // Flush and close the producer

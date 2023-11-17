@@ -102,8 +102,8 @@ public class Hl7ToRhapsodysXmlConverter {
         return instance;
     }
 
-    // For Unit Test
     public Hl7ToRhapsodysXmlConverter() {
+        // For Unit Test
     }
 
 

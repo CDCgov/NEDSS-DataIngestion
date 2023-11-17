@@ -33,9 +33,9 @@ public class KafkaProducerService {
     public void sendMessageFromController(String msg, String topic, String msgType, Integer dltOccurrence, Boolean validationActive) {
         String uniqueID = msgType + "_" + UUID.randomUUID();
         var record = new ProducerRecord<>(topic, uniqueID, msg);
-        record.headers().add(KafkaHeaderValue.MessageType, msgType.getBytes());
-        record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
-        record.headers().add(KafkaHeaderValue.MessageOperation, EnumKafkaOperation.INJECTION.name().getBytes());
+        record.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msgType.getBytes());
+        record.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
+        record.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
         record.headers().add(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE, validationActive.toString().getBytes());
 
         sendMessage(record);
@@ -45,9 +45,9 @@ public class KafkaProducerService {
             String msg, String topic, String msgType, Integer dltOccurrence) {
         String uniqueID = msgType + "_" + UUID.randomUUID();
         var record = new ProducerRecord<>(topic, uniqueID, msg);
-        record.headers().add(KafkaHeaderValue.MessageType, msgType.getBytes());
-        record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
-        record.headers().add(KafkaHeaderValue.MessageOperation, EnumKafkaOperation.REINJECTION.name().getBytes());
+        record.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msgType.getBytes());
+        record.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
+        record.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.REINJECTION.name().getBytes());
         sendMessage(record);
     }
 
@@ -59,17 +59,17 @@ public class KafkaProducerService {
         String json = gson.toJson(msg);
 
         var record = new ProducerRecord<>(topic, uniqueID, json);
-        record.headers().add(KafkaHeaderValue.MessageType, msgType.getBytes());
+        record.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msgType.getBytes());
         sendMessage(record);
     }
 
     public void sendMessageAfterValidatingMessage(ValidatedELRModel msg, String topic, Integer dltOccurrence) {
         String uniqueID =  validMessageKeyPrefix + msg.getMessageType() + "_" + UUID.randomUUID();
         var record = new ProducerRecord<>(topic, uniqueID, msg.getId());
-        record.headers().add(KafkaHeaderValue.MessageType, msg.getMessageType().getBytes());
-        record.headers().add(KafkaHeaderValue.MessageVersion, msg.getMessageVersion().getBytes());
-        record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
-        record.headers().add(KafkaHeaderValue.MessageOperation, EnumKafkaOperation.INJECTION.name().getBytes());
+        record.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msg.getMessageType().getBytes());
+        record.headers().add(KafkaHeaderValue.MESSAGE_VERSION, msg.getMessageVersion().getBytes());
+        record.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
+        record.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
         sendMessage(record);
     }
 
@@ -90,18 +90,18 @@ public class KafkaProducerService {
 
     private void sendMessageHelper(String topic, Integer dltOccurrence, String uniqueId, String messageOriginId, String messageType, String messageVersion) {
         var record = new ProducerRecord<>(topic, uniqueId, messageOriginId);
-        record.headers().add(KafkaHeaderValue.MessageType, messageType.getBytes());
-        record.headers().add(KafkaHeaderValue.MessageVersion, messageVersion.getBytes());
-        record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
-        record.headers().add(KafkaHeaderValue.MessageOperation, EnumKafkaOperation.INJECTION.name().getBytes());
+        record.headers().add(KafkaHeaderValue.MESSAGE_TYPE, messageType.getBytes());
+        record.headers().add(KafkaHeaderValue.MESSAGE_VERSION, messageVersion.getBytes());
+        record.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
+        record.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
         sendMessage(record);
     }
 
     public void sendMessageAfterConvertedToFhirMessage(HL7ToFHIRModel msg, String topic, Integer dltOccurrence) {
         String uniqueID = fhirMessageKeyPrefix + UUID.randomUUID();
         var record = new ProducerRecord<>(topic, uniqueID, msg.getId());
-        record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
-        record.headers().add(KafkaHeaderValue.MessageOperation, EnumKafkaOperation.INJECTION.name().getBytes());
+        record.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
+        record.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
         sendMessage(record);
     }
 
@@ -109,16 +109,16 @@ public class KafkaProducerService {
     public void sendMessageAfterConvertedToXml(String xmlMsg, String topic, Integer dltOccurrence) {
         String uniqueID = xmlMessageKeyPrefix + UUID.randomUUID();
         var record = new ProducerRecord<>(topic, uniqueID, xmlMsg);
-        record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
-        record.headers().add(KafkaHeaderValue.MessageOperation, EnumKafkaOperation.INJECTION.name().getBytes());
+        record.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
+        record.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
         sendMessage(record);
     }
 
     public void sendMessageAfterCheckingDuplicateHL7(ValidatedELRModel msg, String validatedElrDuplicateTopic, Integer dltOccurrence) {
         String uniqueID = hl7MessageKeyPrefix + UUID.randomUUID();
         var record = new ProducerRecord<>(validatedElrDuplicateTopic, uniqueID, msg.getRawId());
-        record.headers().add(KafkaHeaderValue.DltOccurrence, dltOccurrence.toString().getBytes());
-        record.headers().add(KafkaHeaderValue.MessageOperation, EnumKafkaOperation.INJECTION.name().getBytes());
+        record.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
+        record.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
         sendMessage(record);
     }
 
