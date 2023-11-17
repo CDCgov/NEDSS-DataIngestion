@@ -250,7 +250,6 @@ public class HL7Parser implements IHL7Parser {
                     var orderORC231 = patientResult231.get(a).getORCOBRNTEOBXNTECTI(0).getORC();
                     var orderOBR231 = patientResult231.get(a).getORCOBRNTEOBXNTECTI(0).getOBR();
                     var orderORC251 = oru.getPatientResult().get(a).getOrderObservation().get(0).getCommonOrder();
-                    //FIXME - Map ORC to ORC -- noted on Rhapsody; only map the first record
                     orderORC251 = MapCommonOrder(orderORC231, orderORC251);
                     oru.getPatientResult().get(a).getOrderObservation().get(0).setCommonOrder(MapOBR2and3ToORC2and3(orderOBR231, orderORC251));
                     //endregion
@@ -279,8 +278,8 @@ public class HL7Parser implements IHL7Parser {
      * */
     public  ca.uhn.hl7v2.model.v231.message.ORU_R01 hl7v231StringParser(String message) throws DiHL7Exception {
         try {
-            var context = hl7InitContext(this.context, this.supportedHL7version231);
-            PipeParser parser = context.getPipeParser();
+            var contextLocal = hl7InitContext(this.context, this.supportedHL7version231);
+            PipeParser parser = contextLocal.getPipeParser();
             ca.uhn.hl7v2.model.v231.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v231.message.ORU_R01) parser.parse(message);
             return msg;
         }catch (Exception e) {
@@ -297,8 +296,8 @@ public class HL7Parser implements IHL7Parser {
             parsedMessage.setEventTrigger(genericParsedMessage.getEventTrigger());
             parsedMessage.setOriginalVersion(genericParsedMessage.getOriginalVersion());
 
-            var context = hl7InitContext(this.context, this.supportedHL7version);
-            PipeParser parser = context.getPipeParser();
+            var contextLocal = hl7InitContext(this.context, this.supportedHL7version);
+            PipeParser parser = contextLocal.getPipeParser();
 
 
             if (genericParsedMessage.getOriginalVersion().equalsIgnoreCase(this.supportedHL7version231) ||

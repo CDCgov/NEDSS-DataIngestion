@@ -31,7 +31,6 @@ public class ElrDeadLetterService {
     private final IElrDeadLetterRepository dltRepository;
     private final IRawELRRepository rawELRRepository;
     private final IValidatedELRRepository validatedELRRepository;
-    private final IHL7ToFHIRRepository fhirRepository;
     private final KafkaProducerService kafkaProducerService;
 
     @Value("${kafka.validation.topic}")
@@ -57,13 +56,11 @@ public class ElrDeadLetterService {
             IElrDeadLetterRepository dltRepository,
             IRawELRRepository rawELRRepository,
             IValidatedELRRepository validatedELRRepository,
-            KafkaProducerService kafkaProducerService,
-            IHL7ToFHIRRepository fhirRepository) {
+            KafkaProducerService kafkaProducerService) {
         this.dltRepository = dltRepository;
         this.rawELRRepository = rawELRRepository;
         this.validatedELRRepository = validatedELRRepository;
         this.kafkaProducerService = kafkaProducerService;
-        this.fhirRepository = fhirRepository;
     }
 
     public List<ElrDeadLetterDto> getAllErrorDltRecord() {

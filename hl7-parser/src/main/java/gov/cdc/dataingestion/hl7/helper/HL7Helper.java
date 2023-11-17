@@ -19,8 +19,6 @@ public class HL7Helper {
     private IHL7Parser parser = new HL7Parser(new DefaultHapiContext());
     private IFhirConverter fhirConverter = new FhirConverter(new HL7ToFHIRConverter());
 
-    private static HL7Helper instance = new HL7Helper();
-
     /**
      * HL7 string validator, replacing "\n" by "\r"
      * */

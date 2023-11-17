@@ -46,9 +46,6 @@ class ElrDeadLetterServiceTest {
     @Mock
     private KafkaProducerService kafkaProducerService;
 
-    @Mock
-    private IHL7ToFHIRRepository fhirRepository;
-
     @InjectMocks
     private ElrDeadLetterService elrDeadLetterService;
 
@@ -57,7 +54,7 @@ class ElrDeadLetterServiceTest {
     @BeforeEach
     public void setUpEach() {
         MockitoAnnotations.openMocks(this);
-        elrDeadLetterService = new ElrDeadLetterService(dltRepository, rawELRRepository, validatedELRRepository, kafkaProducerService, fhirRepository);
+        elrDeadLetterService = new ElrDeadLetterService(dltRepository, rawELRRepository, validatedELRRepository, kafkaProducerService);
     }
 
 

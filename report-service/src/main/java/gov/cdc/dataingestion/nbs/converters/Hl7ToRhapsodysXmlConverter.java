@@ -1444,8 +1444,7 @@ public class Hl7ToRhapsodysXmlConverter {
             hl7NK1Type.setNationality(buildHL7CWEType(nok.getNationality()));
         }
 
-        //
-        hl7NK1Type = buildHL7NK1TypeHelperNested( nok,  hl7NK1Type);
+        buildHL7NK1TypeHelperNested( nok,  hl7NK1Type);
         return hl7NK1Type;
     }
     private HL7NK1Type buildHL7NK1Type(NextOfKin nok) {
@@ -1836,7 +1835,7 @@ public class Hl7ToRhapsodysXmlConverter {
                 hl7ORCType.getOrderingProviderAddress().add(buildHL7XADType(xad));
             }
         }
-        hl7ORCType = buildHL7ORCTypeHelper1Nst( commonOrder, hl7ORCType);
+        buildHL7ORCTypeHelper1Nst( commonOrder, hl7ORCType);
         return hl7ORCType;
     }
 
@@ -1925,7 +1924,7 @@ public class Hl7ToRhapsodysXmlConverter {
         }
 
         hl7ORCType = buildHL7ORCTypeHelper2(commonOrder, hl7ORCType);
-        hl7ORCType = buildHL7ORCTypeHelper1(commonOrder, hl7ORCType);
+        buildHL7ORCTypeHelper1(commonOrder, hl7ORCType);
 
 
         return hl7ORCType;

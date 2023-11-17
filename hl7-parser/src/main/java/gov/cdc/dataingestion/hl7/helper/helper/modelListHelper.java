@@ -7,6 +7,9 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
 import java.util.ArrayList;
 
 public class modelListHelper {
+    private modelListHelper() {
+
+    }
     public static ArrayList<Xpn> GetXpnList(XPN[] xpns) {
         var lst = new ArrayList<Xpn>();
         for(var data: xpns) {

@@ -24,6 +24,9 @@ import java.util.List;
 public class Mapping231To251Helper {
     private static final String UNIVERSAL_ID = "2.16.840.1.113883.5.1008";
 
+    private Mapping231To251Helper() {
+
+    }
     //region Map Message Header - 231 to 251
     public static MessageHeader MapMsh(MSH inMsh231, MessageHeader outMsh251) throws DiHL7Exception {
         outMsh251.getMessageType().setMessageCode("ORU");
@@ -215,11 +218,11 @@ public class Mapping231To251Helper {
             outOrc251.setEntererLocation(MapPl231(inOrc231.getEntererSLocation(), outOrc251.getEntererLocation()));
         }
 
-        outOrc251 = MapCommonOrderListHelper1stNested(inOrc231, outOrc251);
+        outOrc251 = mapCommonOrderListHelper1stNested(inOrc231, outOrc251);
         return outOrc251;
     }
 
-    private static CommonOrder MapCommonOrderListHelper1stNested(ORC inOrc231, CommonOrder outOrc251) {
+    private static CommonOrder mapCommonOrderListHelper1stNested(ORC inOrc231, CommonOrder outOrc251) {
         List<Xtn> phoneList = new ArrayList<>();
         for(int d = 0; d < inOrc231.getCallBackPhoneNumber().length; d++) {
             if(inOrc231.getCallBackPhoneNumber()[d] != null) {

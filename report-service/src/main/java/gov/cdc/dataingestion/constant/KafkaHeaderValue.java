@@ -1,6 +1,9 @@
 package gov.cdc.dataingestion.constant;
 
 public class KafkaHeaderValue {
+    private KafkaHeaderValue() {
+
+    }
     public static final String MESSAGE_TYPE = "MESSAGE-TYPE";
     public static final String MESSAGE_VALIDATION_ACTIVE = "MESSAGE-VALIDATION-APPLIED";
     public static final String DLT_OCCURRENCE = "DLT-OCCURRENCE";
