@@ -12,6 +12,7 @@ import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IFhirConverter;
 import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser;
 import gov.cdc.dataingestion.hl7.helper.model.FhirConvertedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
 import io.github.linuxforhealth.hl7.HL7ToFHIRConverter;
 
 public class HL7Helper {
@@ -29,7 +30,7 @@ public class HL7Helper {
     /**
      * Parser to be updated
      * */
-    public HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception {
+    public HL7ParsedMessage<OruR1> hl7StringParser(String message) throws DiHL7Exception {
         message = parser.processFhsMessage(message);
         return parser.hl7StringParser(message);
     }
@@ -38,7 +39,7 @@ public class HL7Helper {
         return parser.hl7v231StringParser(message);
     }
 
-    public HL7ParsedMessage convert231To251(String message) throws DiHL7Exception {
+    public HL7ParsedMessage<OruR1> convert231To251(String message) throws DiHL7Exception {
         return parser.convert231To251(message, null);
     }
 

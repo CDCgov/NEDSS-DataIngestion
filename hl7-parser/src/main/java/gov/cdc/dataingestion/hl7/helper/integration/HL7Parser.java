@@ -147,7 +147,7 @@ public class HL7Parser implements IHL7Parser {
 
     public HL7ParsedMessage convert231To251(String message, HL7ParsedMessage preParsedMessage) throws DiHL7Exception {
         try {
-            HL7ParsedMessage parsedMessage;
+            HL7ParsedMessage<OruR1> parsedMessage;
             if (preParsedMessage == null) {
                 parsedMessage = hl7StringParser(message);
             } else {
@@ -161,7 +161,7 @@ public class HL7Parser implements IHL7Parser {
             var msh231 = parsed231Message.getMSH();
 
             if (parsedMessage.getOriginalVersion().equalsIgnoreCase(supportedHL7version231)) {
-                OruR1 oru = (OruR1) parsedMessage.getParsedMessage();
+                OruR1 oru = parsedMessage.getParsedMessage();
                 Ts messageHeaderDateTime = oru.getMessageHeader().getDateTimeOfMessage();
 
                 //region Message Header Conversion
@@ -289,7 +289,7 @@ public class HL7Parser implements IHL7Parser {
 
     public HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception{
         try {
-            HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
+            HL7ParsedMessage<OruR1> parsedMessage = new HL7ParsedMessage();
             var genericParsedMessage = hl7StringParseHelperWithTerser(message);
             parsedMessage.setMessage(message);
             parsedMessage.setType(genericParsedMessage.getType());
@@ -333,7 +333,7 @@ public class HL7Parser implements IHL7Parser {
     }
 
     // parse message with terser so we can get type, event trigger
-    private HL7ParsedMessage hl7StringParseHelperWithTerser(String message) throws DiHL7Exception {
+    private HL7ParsedMessage<OruR1> hl7StringParseHelperWithTerser(String message) throws DiHL7Exception {
         try {
             Message parsedMessage = getMessageFromValidationAndParserContext(message, context);
             Terser terser = new Terser(parsedMessage);
@@ -342,7 +342,7 @@ public class HL7Parser implements IHL7Parser {
             String messageEventTrigger = terser.get("/MSH-9-2");
             String messageVersion = parsedMessage.getVersion();
 
-            HL7ParsedMessage model = new HL7ParsedMessage();
+            HL7ParsedMessage<OruR1> model = new HL7ParsedMessage();
             model.setType(messageType);
             model.setEventTrigger(messageEventTrigger);
             model.setOriginalVersion(messageVersion);

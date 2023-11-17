@@ -36,7 +36,7 @@ class Mapping231To251HelperTest {
         var oru = (OruR1) testObject.getParsedMessage();
         oru.getMessageHeader().setMessageProfileIdentifier(null);
         var result = target.MapMsh(null, oru.getMessageHeader());
-        Assertions.assertTrue(result.getMessageProfileIdentifier().get(0).getUniversalIdType().equals("ISO"));
+        Assertions.assertEquals("ISO",result.getMessageProfileIdentifier().get(0).getUniversalIdType());
     }
 
     @Test

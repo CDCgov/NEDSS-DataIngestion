@@ -30,7 +30,7 @@ public class KafkaProducerConfig {
     @Bean
     public KafkaTemplate<String, String> kafkaTemplate() {
         // set factory for both producer and consumer
-        KafkaTemplate template = new KafkaTemplate<>(producerFactory());
+        KafkaTemplate<String, String> template = new KafkaTemplate<>(producerFactory());
         return template;
     }
 

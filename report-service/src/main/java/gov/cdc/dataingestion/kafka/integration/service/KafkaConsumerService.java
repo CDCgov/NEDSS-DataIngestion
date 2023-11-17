@@ -364,34 +364,26 @@ public class KafkaConsumerService {
         try {
             if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(rawTopic)) {
                 var message = this.iRawELRRepository.findById(elrDeadLetterDto.getErrorMessageId())
-                        .orElseThrow(() -> new RuntimeException(processDltErrorMessage + elrDeadLetterDto.getErrorMessageId()));
+                        .orElseThrow(() -> new DeadLetterTopicException(processDltErrorMessage + elrDeadLetterDto.getErrorMessageId()));
                 elrDeadLetterDto.setMessage(message.getPayload());
             }
-            else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(validatedTopic)) {
+            else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(validatedTopic) ||
+                    elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(prepXmlTopic) ||
+                    elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(prepFhirTopic)) {
                 var message = this.iValidatedELRRepository.findById(elrDeadLetterDto.getErrorMessageId())
-                        .orElseThrow(() -> new RuntimeException(processDltErrorMessage + elrDeadLetterDto.getErrorMessageId()));
-                elrDeadLetterDto.setMessage(message.getRawMessage());
-            }
-            else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(prepXmlTopic)) {
-                var message = this.iValidatedELRRepository.findById(elrDeadLetterDto.getErrorMessageId())
-                        .orElseThrow(() -> new RuntimeException(processDltErrorMessage + elrDeadLetterDto.getErrorMessageId()));
-                elrDeadLetterDto.setMessage(message.getRawMessage());
-            }
-            else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(prepFhirTopic)) {
-                var message = this.iValidatedELRRepository.findById(elrDeadLetterDto.getErrorMessageId())
-                        .orElseThrow(() -> new RuntimeException(processDltErrorMessage + elrDeadLetterDto.getErrorMessageId()));
+                        .orElseThrow(() -> new DeadLetterTopicException(processDltErrorMessage + elrDeadLetterDto.getErrorMessageId()));
                 elrDeadLetterDto.setMessage(message.getRawMessage());
             }
             else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(convertedToXmlTopic)) {
                 //todo: this to handle error that may occur after xml conversion
-                throw new RuntimeException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());
+                throw new DeadLetterTopicException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());
             }
             else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(convertedToFhirTopic)) {
                 var message = this.iHL7ToFHIRRepository.findById(elrDeadLetterDto.getErrorMessageId())
-                        .orElseThrow(() -> new RuntimeException(processDltErrorMessage + elrDeadLetterDto.getErrorMessageId()));
+                        .orElseThrow(() -> new DeadLetterTopicException(processDltErrorMessage + elrDeadLetterDto.getErrorMessageId()));
                 elrDeadLetterDto.setMessage(message.getFhirMessage());
             } else {
-                throw new RuntimeException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());
+                throw new DeadLetterTopicException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());
             }
 
             model.setErrorMessageId(elrDeadLetterDto.getErrorMessageId());

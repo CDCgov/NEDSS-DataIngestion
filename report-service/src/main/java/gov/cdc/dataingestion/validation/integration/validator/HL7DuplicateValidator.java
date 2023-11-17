@@ -47,7 +47,7 @@ public class HL7DuplicateValidator implements IHL7DuplicateValidator {
             }
             hashedString = hexString.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new DuplicateHL7FileFoundException(e.getMessage());
         }
         if (!checkForDuplicateHL7HashString(hashedString)) {
             hl7ValidatedModel.setHashedHL7String(hashedString);
@@ -62,11 +62,9 @@ public class HL7DuplicateValidator implements IHL7DuplicateValidator {
     public boolean checkForDuplicateHL7HashString(String hashedString) {
         log.debug("Generated HashString is being checked for duplicate if already present in the database");
         Optional<ValidatedELRModel> validatedELRResponseFromDatabase = iValidatedELRRepository.findByHashedHL7String(hashedString);
-        if (!validatedELRResponseFromDatabase.isEmpty()) {
-            if (hashedString.equals(validatedELRResponseFromDatabase.get().getHashedHL7String())) {
-                log.error("Duplicate hashed string found for the HL7 message in the database. Sending details to kafka dlt topic.");
-                return true;
-            }
+        if (!validatedELRResponseFromDatabase.isEmpty() && hashedString.equals(validatedELRResponseFromDatabase.get().getHashedHL7String())) {
+            log.error("Duplicate hashed string found for the HL7 message in the database. Sending details to kafka dlt topic.");
+            return true;
         }
         log.debug("HashString doesn't exists in the database. Moving forward to FHIR conversion.");
         return false;

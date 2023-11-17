@@ -117,7 +117,7 @@ class ElrDeadLetterServiceTest {
     @Test
     void testGetAllErrorDltRecord_NoDataFound() {
         var result = elrDeadLetterService.getAllErrorDltRecord();
-        assertEquals(result.size(), 0);
+        assertEquals(0 ,result.size());
     }
 
     @Test
@@ -144,8 +144,8 @@ class ElrDeadLetterServiceTest {
 
         var result = elrDeadLetterService.updateAndReprocessingMessage(primaryIdForTesting, "HL7 message");
 
-        assertEquals(result.getMessage(), "HL7 message");
-        assertEquals(result.getDltOccurrence(), 1);
+        assertEquals("HL7 message", result.getMessage());
+        assertEquals(1, result.getDltOccurrence());
 
 
 
@@ -178,8 +178,8 @@ class ElrDeadLetterServiceTest {
 
         var result = elrDeadLetterService.updateAndReprocessingMessage(primaryIdForTesting, "HL7 message");
 
-        assertEquals(result.getMessage(), "HL7 message");
-        assertEquals(result.getDltOccurrence(), 1);
+        assertEquals( "HL7 message", result.getMessage());
+        assertEquals( 1, result.getDltOccurrence());
     }
 
     @Test
@@ -201,8 +201,8 @@ class ElrDeadLetterServiceTest {
 
         var result = elrDeadLetterService.updateAndReprocessingMessage(primaryIdForTesting, "HL7 message");
 
-        assertEquals(result.getMessage(), "HL7 message");
-        assertEquals(result.getDltOccurrence(), 1);
+        assertEquals("HL7 message", result.getMessage() );
+        assertEquals(1, result.getDltOccurrence());
     }
 
     @Test
@@ -223,8 +223,8 @@ class ElrDeadLetterServiceTest {
 
         var result = elrDeadLetterService.updateAndReprocessingMessage(primaryIdForTesting, "HL7 message");
 
-        assertEquals(result.getMessage(), "HL7 message");
-        assertEquals(result.getDltOccurrence(), 1);
+        assertEquals("HL7 message", result.getMessage());
+        assertEquals(1, result.getDltOccurrence());
     }
 
 

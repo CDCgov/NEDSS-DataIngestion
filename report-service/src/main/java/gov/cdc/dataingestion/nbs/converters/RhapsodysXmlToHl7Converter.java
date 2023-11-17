@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.nbs.converters;
 
+import gov.cdc.dataingestion.exception.XmlConversionException;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.*;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit.PatientVisit;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit.PatientVisitAdditional;
@@ -41,8 +42,6 @@ import  org.springframework.stereotype.Component;
 
 @Component
 public class RhapsodysXmlToHl7Converter {
-    private static Logger log = LoggerFactory.getLogger(RhapsodysXmlToHl7Converter.class);
-    private static String EMPTY_STRING = "";
     private static String NEWLINE = "\n";
     private static String COLUMNS_SEPARATOR = "|";
     private static String LISTS_SEPARATOR = "~";     // Ex: Two patient identifiers, DL and LabID
@@ -59,23 +58,28 @@ public class RhapsodysXmlToHl7Converter {
         // For Unit Testing
     }
 
-    public String convertToHl7(String xmlContent) throws Exception {
-        StringBuilder sb = new StringBuilder();
+    public String convertToHl7(String xmlContent) throws XmlConversionException {
+        try {
+            StringBuilder sb = new StringBuilder();
 
-        JAXBContext contextObj = JAXBContext.newInstance("gov.cdc.dataingestion.nbs.jaxb");
-        Unmarshaller unmarshaller = contextObj.createUnmarshaller();
+            JAXBContext contextObj = JAXBContext.newInstance("gov.cdc.dataingestion.nbs.jaxb");
+            Unmarshaller unmarshaller = contextObj.createUnmarshaller();
 
-        InputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8));
-        Container container = (Container) unmarshaller.unmarshal(inputStream);
+            InputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8));
+            Container container = (Container) unmarshaller.unmarshal(inputStream);
 
-        sb.append(streamHeader(container.getHL7LabReport().getHL7MSH()));
-        sb.append(NEWLINE);
-        sb.append(streamPaientIdentifications(container.getHL7LabReport().getHL7PATIENTRESULT()));
-        sb.append(NEWLINE);
+            sb.append(streamHeader(container.getHL7LabReport().getHL7MSH()));
+            sb.append(NEWLINE);
+            sb.append(streamPaientIdentifications(container.getHL7LabReport().getHL7PATIENTRESULT()));
+            sb.append(NEWLINE);
 
-        String hl7Str = sb.toString();
+            String hl7Str = sb.toString();
 
-        return hl7Str;
+            return hl7Str;
+        } catch (Exception e) {
+            throw new XmlConversionException(e.getMessage());
+        }
+
     }
 
     private String streamOrderObservations(List<HL7OrderObservationType> orderObsTypeList) {
@@ -101,14 +105,6 @@ public class RhapsodysXmlToHl7Converter {
             sb.append(streamHL7OBSERVATIONType(obsType));
             sb.append(NEWLINE);
         }
-
-        // Output NTE records
-        /*
-        for(HL7OBSERVATIONType obsType : results.getOBSERVATION()) {
-            sb.append(streamHL7OBSERVATIONTypeNotesAndComments(obsType));
-            sb.append(NEWLINE);
-        }
-        */
 
         return sb.toString();
     }
@@ -153,7 +149,7 @@ public class RhapsodysXmlToHl7Converter {
     private String streamHHL7OrderObservationType(HL7OrderObservationType obsType) {
         StringBuilder sb = new StringBuilder();
 
-        if(null == obsType) return sb.toString();;
+        if(null == obsType) return sb.toString();
 
         sb.append(streamCommonOrders(obsType.getCommonOrder()));
         sb.append(NEWLINE);
@@ -163,7 +159,6 @@ public class RhapsodysXmlToHl7Converter {
         sb.append(NEWLINE);
         sb.append(streamHL7NTETypeList(obsType.getNotesAndComments()));
         sb.append(NEWLINE);
-        //sb.append(obsType.getPatientResultOrderSPMObservation()); // HL7PatientResultSPMType
 
         return sb.toString();
     }

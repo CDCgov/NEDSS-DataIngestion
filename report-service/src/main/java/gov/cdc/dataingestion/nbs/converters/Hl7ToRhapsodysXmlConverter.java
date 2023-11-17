@@ -111,7 +111,7 @@ public class Hl7ToRhapsodysXmlConverter {
         String rhapsodyXml = "";
 
         HL7Helper hl7Helper = new HL7Helper();
-        HL7ParsedMessage hl7ParsedMsg = hl7Helper.hl7StringParser(hl7Msg);
+        HL7ParsedMessage<OruR1> hl7ParsedMsg = hl7Helper.hl7StringParser(hl7Msg);
 
         Container c = new Container();
 
@@ -147,7 +147,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return sb.toString();
     }
 
-    private HL7LabReportType buildHL7LabReportType(HL7ParsedMessage hl7ParsedMsg) {
+    private HL7LabReportType buildHL7LabReportType(HL7ParsedMessage<OruR1> hl7ParsedMsg) {
         HL7LabReportType lbt = new HL7LabReportType();
 
         if (!hl7ParsedMsg.getParsedMessage().getClass().isNestmateOf(OruR1.class)) {
@@ -189,12 +189,11 @@ public class Hl7ToRhapsodysXmlConverter {
         HL7OBRType assumedChildOBRType = findAssumedOBRType(listOfOOTypes, false);
         for (HL7OrderObservationType ooType : listOfOOTypes) {
             HL7OBRType hl7OBRType = ooType.getObservationRequest();
-            if ((null == hl7OBRType.getParent()) && (null == hl7OBRType.getParentResult())) {
-                if ((assumedParentOBRType != hl7OBRType) && (assumedChildOBRType != hl7OBRType) &&
-                        (assumedChildOBRType != null) && (assumedChildOBRType.getParent() != null)) {
-                    hl7OBRType.setParent(assumedChildOBRType.getParent());
-                    hl7OBRType.setParentResult(assumedChildOBRType.getParentResult());
-                }
+            if ((null == hl7OBRType.getParent()) && (null == hl7OBRType.getParentResult()) &&
+                    ((assumedParentOBRType != hl7OBRType) && (assumedChildOBRType != hl7OBRType) &&
+                    (assumedChildOBRType != null) && (assumedChildOBRType.getParent() != null))) {
+                hl7OBRType.setParent(assumedChildOBRType.getParent());
+                hl7OBRType.setParentResult(assumedChildOBRType.getParentResult());
             }
         }
     }
@@ -231,7 +230,6 @@ public class Hl7ToRhapsodysXmlConverter {
             hl7OrderObservationType.getNotesAndComments().add(buildHL7NTEType(nac));
         }
 
-        //hl7OrderObservationType.setHL7TIMINGQuantiyType(buildHL7TIMINGQuantiyType(oo.getTimingQty()));
 
         if (!isEmptyHL7CTDType(oo.getContactData())) {
             hl7OrderObservationType.setContactData(buildHL7CTDType(oo.getContactData()));
@@ -841,7 +839,6 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7XCNType.setHL7NameAssemblyOrder(xcn.getNameAssemblyOrder());
         hl7XCNType.setHL7EffectiveDate(buildHL7TSType(xcn.getEffectiveDate()));
         hl7XCNType.setHL7ExpirationDate(buildHL7TSType(xcn.getExpirationDate()));
-        //hl7XCNType.setHL7ProfessionalSuffix(xcn.getPrefix());
 
         if (!isEmptyHL7CWEType(xcn.getAssignJurisdiction())) {
             hl7XCNType.setHL7AssigningJurisdiction(buildHL7CWEType(xcn.getAssignJurisdiction()));
@@ -931,11 +928,6 @@ public class Hl7ToRhapsodysXmlConverter {
 
         hl7OBXType.setReferencesRange(or.getReferencesRange());
 
-        /*
-        for(String s : or.getAbnormalFlag()) {
-            hl7OBXType.getAbnormalFlags().add(buildHL7CWEType(s));
-        }
-        */
 
         hl7OBXType.getProbability().add(buildHl7NMType(or.getProbability()));
 
@@ -965,10 +957,6 @@ public class Hl7ToRhapsodysXmlConverter {
         }
 
         hl7OBXType.setDateTimeOftheAnalysis(buildHL7TSType(or.getDateTimeOfTheAnalysis(), TS_FMT_DATE_ONLY));
-
-        //hl7OBXType.setReservedforHarmonizationWithV261(or.getReservedForHarmonizationWithV261());
-        //hl7OBXType.setReservedForHarmonizationwithV262(or.getReservedForHarmonizationWithV262());
-        //hl7OBXType.setReservedForHarmonizationWithV263(or.getReservedForHarmonizationWithV263());
 
         if (!isEmptyHL7XONType(or.getPerformingOrganizationName())) {
             hl7OBXType.setPerformingOrganizationName(buildHL7XONType(or.getPerformingOrganizationName()));
@@ -1347,16 +1335,6 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7PIV1Type;
     }
 
-    // --------------------------------------------------------------------------------------------
-
-    /*
-    protected BigInteger hours;
-    protected BigInteger minutes;
-    protected BigInteger seconds;
-    protected BigInteger millis;
-    protected String gmtOffset;
-    */
-
     private HL7DLDType buildHL7DLDType(Dld dld) {
         HL7DLDType hl7DLDType = new HL7DLDType();
 
@@ -1716,7 +1694,6 @@ public class Hl7ToRhapsodysXmlConverter {
             hl7PIDType.setReligion(buildHL7CEType(pi.getReligion()));
         }
 
-        //hl7PIDType.setPatientAccountNumber(buildHL7CXType(pi.getPatientAccountNumber()));
         if( StringUtils.isNotEmpty(pi.getSsnNumberPatient())) {
             hl7PIDType.setSSNNumberPatient(pi.getSsnNumberPatient());
         }
@@ -2059,7 +2036,6 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7XADType.setHL7ZipOrPostalCode(xad.getZip());
         hl7XADType.setHL7Country(xad.getCountry());
         hl7XADType.setHL7AddressType(xad.getAddressType());
-        //hl7XADType.setHL7OtherGeographicDesignation(xad.getOtherGeographic());
         hl7XADType.setHL7CountyParishCode(xad.getCountyCode());
         hl7XADType.setHL7CensusTract(xad.getCensusTract());
         hl7XADType.setHL7AddressRepresentationCode(xad.getAddressRepresentationCode());
@@ -2107,7 +2083,6 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7XPNType.setHL7NameAssemblyOrder(xpn.getNameAssemblyOrder());
         hl7XPNType.setHL7EffectiveDate(buildHL7TSType(xpn.getEffectiveDate()));
         hl7XPNType.setHL7ExpirationDate(buildHL7TSType(xpn.getExpirationDate()));
-        //hl7XPNType.setHL7ProfessionalSuffix(xpn.getProfessionalSuffix());
 
         return hl7XPNType;
     }
@@ -2439,8 +2414,8 @@ public class Hl7ToRhapsodysXmlConverter {
             hld7Dt = hld7Dt.substring(0, (14 - 1));
         }
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        LocalDateTime localDtTime = LocalDateTime.parse(hld7Dt, formatter);
+        DateTimeFormatter formatterDateTime = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        LocalDateTime localDtTime = LocalDateTime.parse(hld7Dt, formatterDateTime);
 
         HL7DTType hl7DTType = new HL7DTType();
 
