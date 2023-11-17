@@ -56,6 +56,7 @@ public class RhapsodysXmlToHl7Converter {
     }
 
     public RhapsodysXmlToHl7Converter() {
+        // For Unit Testing
     }
 
     public String convertToHl7(String xmlContent) throws Exception {
@@ -778,11 +779,7 @@ public class RhapsodysXmlToHl7Converter {
         return sb.toString();
     }
 
-    private String streamHL7XTNType(HL7XTNType hl7XTNType) {
-        StringBuilder sb = new StringBuilder();
-
-        if(null == hl7XTNType) return sb.toString();
-
+    private StringBuilder streamHL7XTNTypeStringCheck(HL7XTNType hl7XTNType,  StringBuilder sb) {
         if(null != hl7XTNType.getHL7TelephoneNumber()) {
             sb.append(hl7XTNType.getHL7TelephoneNumber());
         }
@@ -800,6 +797,15 @@ public class RhapsodysXmlToHl7Converter {
         }
 
         sb.append(ATTRIBUTES_SEPARATOR);
+
+        return sb;
+
+    }
+    private String streamHL7XTNType(HL7XTNType hl7XTNType) {
+        StringBuilder sb = new StringBuilder();
+
+        if(null == hl7XTNType) return sb.toString();
+        sb = streamHL7XTNTypeStringCheck(hl7XTNType, sb);
 
         if(null != hl7XTNType.getHL7EmailAddress()) {
             sb.append(hl7XTNType.getHL7EmailAddress());

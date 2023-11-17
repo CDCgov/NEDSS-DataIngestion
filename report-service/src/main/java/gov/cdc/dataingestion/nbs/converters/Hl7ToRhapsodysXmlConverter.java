@@ -1773,84 +1773,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7PIDType;
     }
 
-    private HL7ORCType buildHL7ORCType(CommonOrder commonOrder) {
-        HL7ORCType hl7ORCType = new HL7ORCType();
-
-        hl7ORCType.setOrderControl(buildEmptyValue(commonOrder.getOrderControl()));
-
-        if (!isEmptyHL7EIType(commonOrder.getPlacerOrderNumber())) {
-            hl7ORCType.setPlacerOrderNumber(buildHL7EIType(commonOrder.getPlacerOrderNumber()));
-        }
-
-        if (!isEmptyHL7EIType(commonOrder.getFillerOrderNumber())) {
-            hl7ORCType.setFillerOrderNumber(buildHL7EIType(commonOrder.getFillerOrderNumber()));
-        }
-
-        if (!isEmptyHL7EIType(commonOrder.getPlacerGroupNumber())) {
-            HL7EIType eiType = buildHL7EIType(commonOrder.getPlacerGroupNumber());
-            if (null != eiType) hl7ORCType.setPlacerGroupNumber(eiType);
-        }
-
-        hl7ORCType.setOrderStatus(commonOrder.getOrderStatus());
-        hl7ORCType.setResponseFlag(commonOrder.getResponseFlag());
-
-        for (Tq tq : commonOrder.getQuantityTiming()) {
-            hl7ORCType.getQuantityTiming().add(buildHL7TQType(tq));
-        }
-
-        HL7EIPType hl7EIPType = buildHL7EIPType(commonOrder.getParentOrder());
-        if (null != hl7EIPType) {
-            hl7ORCType.setParent(hl7EIPType);
-        }
-
-        hl7ORCType.setDateTimeOfTransaction(buildHL7TSType(commonOrder.getDateTimeOfTransaction()));
-
-        if (commonOrder.getEnteredBy().size() > 0) {
-            for (Xcn xcn : commonOrder.getEnteredBy()) {
-                hl7ORCType.getEnteredBy().add(buildHL7XCNType(xcn));
-            }
-        }
-
-        if (commonOrder.getVerifiedBy().size() > 0) {
-            for (Xcn xcn : commonOrder.getVerifiedBy()) {
-                hl7ORCType.getVerifiedBy().add(buildHL7XCNType(xcn));
-            }
-        }
-
-        if (commonOrder.getOrderingProvider().size() > 0) {
-            for (Xcn xcn : commonOrder.getOrderingProvider()) {
-                hl7ORCType.getOrderingProvider().add(buildHL7XCNType(xcn));
-            }
-        }
-
-        if (!isEmptyHL7PLType(commonOrder.getEntererLocation())) {
-            hl7ORCType.setEnterersLocation(buildHL7PLType(commonOrder.getEntererLocation()));
-        }
-
-        for (Xtn xtn : commonOrder.getCallBackPhoneNumber()) {
-            hl7ORCType.getCallBackPhoneNumber().add(buildHL7XTNType(xtn));
-        }
-
-        hl7ORCType.setOrderEffectiveDateTime(buildHL7TSType(commonOrder.getOrderEffectiveDateTime()));
-
-        if (!isEmptyHL7CEType(commonOrder.getOrderControlCodeReason())) {
-            hl7ORCType.setOrderControlCodeReason(buildHL7CWEType(commonOrder.getOrderControlCodeReason()));
-        }
-
-        if (!isEmptyHL7CEType(commonOrder.getEnteringOrganization())) {
-            hl7ORCType.setEnteringOrganization(buildHL7CWEType(commonOrder.getEnteringOrganization()));
-        }
-
-        if (!isEmptyHL7CEType(commonOrder.getEnteringOrganization())) {
-            hl7ORCType.setEnteringDevice(buildHL7CWEType(commonOrder.getEnteringDevice()));
-        }
-
-        if (commonOrder.getActionBy().size() > 0) {
-            for (Xcn xcn : commonOrder.getActionBy()) {
-                hl7ORCType.getActionBy().add(buildHL7XCNType(xcn));
-            }
-        }
-
+    private HL7ORCType buildHL7ORCTypeHelper1(CommonOrder commonOrder, HL7ORCType hl7ORCType) {
         if (!isEmptyHL7CEType(commonOrder.getAdvancedBeneficiaryNoticeCode())) {
             hl7ORCType.setAdvancedBeneficiaryNoticeCode(buildHL7CWEType(commonOrder.getAdvancedBeneficiaryNoticeCode()));
         }
@@ -1904,6 +1827,91 @@ public class Hl7ToRhapsodysXmlConverter {
         if (!isEmptyHL7CWEType(commonOrder.getParentUniversalServiceIdentifier())) {
             hl7ORCType.setParentUniversalServiceIdentifier(buildHL7CWEType(commonOrder.getParentUniversalServiceIdentifier()));
         }
+        return hl7ORCType;
+    }
+    private HL7ORCType buildHL7ORCTypeHelper2(CommonOrder commonOrder, HL7ORCType hl7ORCType) {
+        HL7EIPType hl7EIPType = buildHL7EIPType(commonOrder.getParentOrder());
+        if (null != hl7EIPType) {
+            hl7ORCType.setParent(hl7EIPType);
+        }
+
+        hl7ORCType.setDateTimeOfTransaction(buildHL7TSType(commonOrder.getDateTimeOfTransaction()));
+
+        if (commonOrder.getEnteredBy().size() > 0) {
+            for (Xcn xcn : commonOrder.getEnteredBy()) {
+                hl7ORCType.getEnteredBy().add(buildHL7XCNType(xcn));
+            }
+        }
+
+        if (commonOrder.getVerifiedBy().size() > 0) {
+            for (Xcn xcn : commonOrder.getVerifiedBy()) {
+                hl7ORCType.getVerifiedBy().add(buildHL7XCNType(xcn));
+            }
+        }
+
+        if (commonOrder.getOrderingProvider().size() > 0) {
+            for (Xcn xcn : commonOrder.getOrderingProvider()) {
+                hl7ORCType.getOrderingProvider().add(buildHL7XCNType(xcn));
+            }
+        }
+
+        if (!isEmptyHL7PLType(commonOrder.getEntererLocation())) {
+            hl7ORCType.setEnterersLocation(buildHL7PLType(commonOrder.getEntererLocation()));
+        }
+
+        for (Xtn xtn : commonOrder.getCallBackPhoneNumber()) {
+            hl7ORCType.getCallBackPhoneNumber().add(buildHL7XTNType(xtn));
+        }
+
+        hl7ORCType.setOrderEffectiveDateTime(buildHL7TSType(commonOrder.getOrderEffectiveDateTime()));
+
+        if (!isEmptyHL7CEType(commonOrder.getOrderControlCodeReason())) {
+            hl7ORCType.setOrderControlCodeReason(buildHL7CWEType(commonOrder.getOrderControlCodeReason()));
+        }
+
+        if (!isEmptyHL7CEType(commonOrder.getEnteringOrganization())) {
+            hl7ORCType.setEnteringOrganization(buildHL7CWEType(commonOrder.getEnteringOrganization()));
+        }
+
+        if (!isEmptyHL7CEType(commonOrder.getEnteringOrganization())) {
+            hl7ORCType.setEnteringDevice(buildHL7CWEType(commonOrder.getEnteringDevice()));
+        }
+
+        if (commonOrder.getActionBy().size() > 0) {
+            for (Xcn xcn : commonOrder.getActionBy()) {
+                hl7ORCType.getActionBy().add(buildHL7XCNType(xcn));
+            }
+        }
+        return hl7ORCType;
+    }
+    private HL7ORCType buildHL7ORCType(CommonOrder commonOrder) {
+        HL7ORCType hl7ORCType = new HL7ORCType();
+
+        hl7ORCType.setOrderControl(buildEmptyValue(commonOrder.getOrderControl()));
+
+        if (!isEmptyHL7EIType(commonOrder.getPlacerOrderNumber())) {
+            hl7ORCType.setPlacerOrderNumber(buildHL7EIType(commonOrder.getPlacerOrderNumber()));
+        }
+
+        if (!isEmptyHL7EIType(commonOrder.getFillerOrderNumber())) {
+            hl7ORCType.setFillerOrderNumber(buildHL7EIType(commonOrder.getFillerOrderNumber()));
+        }
+
+        if (!isEmptyHL7EIType(commonOrder.getPlacerGroupNumber())) {
+            HL7EIType eiType = buildHL7EIType(commonOrder.getPlacerGroupNumber());
+            if (null != eiType) hl7ORCType.setPlacerGroupNumber(eiType);
+        }
+
+        hl7ORCType.setOrderStatus(commonOrder.getOrderStatus());
+        hl7ORCType.setResponseFlag(commonOrder.getResponseFlag());
+
+        for (Tq tq : commonOrder.getQuantityTiming()) {
+            hl7ORCType.getQuantityTiming().add(buildHL7TQType(tq));
+        }
+
+        hl7ORCType = buildHL7ORCTypeHelper2(commonOrder, hl7ORCType);
+        hl7ORCType = buildHL7ORCTypeHelper1(commonOrder, hl7ORCType);
+
 
         return hl7ORCType;
     }
