@@ -1,16 +1,17 @@
-name: Karate tests
+name: Karate Test Workflow
 
 on:
   push:
     branches:
-      - CNDIT-390_Karate-framework
+      - karate
   pull_request:
     branches:
-      - CNDIT-390_Karate-framework
+      - karate
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: TEST
 
     steps:
       - uses: actions/checkout@v2
@@ -27,7 +28,11 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
 
+      - name: Grant execute permission for gradlew
+        run: chmod +x karatetest/gradlew
+
       - name: Build and run Karate tests
+        working-directory: ./karatetest
         env:
           KARATE_OPTIONS: ${{ vars.KARATE_OPTIONS }}
           KARATE_ENV: ${{ vars.ENV }}
@@ -36,37 +41,36 @@ jobs:
           READ_TIMEOUT: ${{ vars.KARATE_READTIMEOUT }}
           RETRY_COUNT: ${{ vars.KARATE_RETRYCOUNT }}
           RETRY_INTERVAL: ${{vars.RETRYINTERVAL }}
-          TEST_USERNAME: ${{ secrets.DATAINGEST_DB_USERNAME }}
-          TEST_PASSWORD: ${{ secrets.DATAINGEST_DB_PASSWORD }}
-          TEST_URL: ${{ secrets.DATAINGEST_SERVER_URL }}
-          TEST_DRIVER_CLASS_NAME: ${{ vars.DRIVERCLASSNAME }}
-          TEST_BOOTSTRAP_SERVERS: ${{ secrets.KAFKA_SERVER }}
-          TEST_GROUP_ID: ${{ vars.GROUPID }}
           TEST_API_USERNAME: ${{ secrets.API_USERNAME }}
           TEST_API_PASSWORD: ${{ secrets.API_PASSWORD }}
-          TEST_NBS_URL: ${{ vars.NBS_URL }}
+          TEST_WRONGAPIURL: ${{ secrets.WRONGAPIURL }}
+          TEST_TOKENURL: ${{ secrets.TOKENURL }}
+          TEST_CHECKERRORURL: ${{ secrets.CHECKERRORURL }}
+          TEST_REGISTRATIONAPIURL: ${{ secrets.REGISTRATIONAPIURL }}
+          TEST_CHECKSTATUSURL: ${{ secrets.CHECKSTATUSURL }}
         run: |
-          ls -R src
           ./gradlew test \
-            -Dkarate.options="--tags $KARATE_OPTIONS" \
+            -Dkarate.options="$KARATE_OPTIONS" \
             -Dkarate.env="$KARATE_ENV" \
             -Dtest.apiurl="$TEST_API_URL" \
             -DconnectTimeout="$CONNECT_TIMEOUT" \
             -DreadTimeout="$READ_TIMEOUT" \
             -DretryCount="$RETRY_COUNT" \
             -DretryInterval="$RETRY_INTERVAL" \
-            -Dtest.username="$TEST_USERNAME" \
-            -Dtest.password="$TEST_PASSWORD" \
-            -Dtest.url="$TEST_URL" \
-            -Dtest.driverClassName="$TEST_DRIVER_CLASS_NAME" \
-            -Dtest.bootstrapServers="$TEST_BOOTSTRAP_SERVERS" \
-            -Dtest.groupId="$TEST_GROUP_ID" \
             -Dtest.apiusername="$TEST_API_USERNAME" \
             -Dtest.apipassword="$TEST_API_PASSWORD" \
-            -Dtest.nbsurl="$TEST_NBS_URL"
-          
+            -Dtest.wrongapiurl="$TEST_WRONGAPIURL" \
+            -Dtest.checkstatusurl="$TEST_CHECKSTATUSURL" \
+            -Dtest.checkerrorurl="$TEST_CHECKERRORURL" \
+            -Dtest.registrationapiurl="$TEST_REGISTRATIONAPIURL" \
+            -Dtest.tokenurl="$TEST_TOKENURL"
+
       - name: Upload Karate Test Report
         uses: actions/upload-artifact@v2
+        if: always()
         with:
           name: karate-report
-          path: ./karatetest/build/karate-reports
+          retention-days: 1
+          path: |
+           ./karatetest/build/cucumber-html-reports
+           ./karatetest/build/karate-reports
