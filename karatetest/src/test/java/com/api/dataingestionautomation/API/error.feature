@@ -25,7 +25,7 @@ Feature: Verify if DI system can handle certain validation issues
     When method POST
     Then status 200
     * def postid = response
-    Given url 'https://dataingestion.test.nbspreview.com/api/reports-dlt/get-message?id=' + postid
+    Given url '' + postid
     * header Authorization = 'Bearer ' + token
     And retry until response.errorMessageId == postid
     When method GET
@@ -55,7 +55,7 @@ Feature: Verify if DI system can handle certain validation issues
     When method POST
     Then status 200
     * def dupid = response
-    Given url 'https://dataingestion.test.nbspreview.com/api/reports-dlt/get-message?id=' + dupid
+    Given url '' + dupid
     * header Authorization = 'Bearer ' + token
     And retry until response.errorMessageId == dupid
     When method GET
@@ -75,7 +75,7 @@ Feature: Verify if DI system can handle certain validation issues
     When method POST
     Then status 200
     * def postiddd = response
-    Given url 'https://dataingestion.test.nbspreview.com/api/reports-dlt/get-message?id=' + postiddd
+    Given url ' + postiddd
     * header Authorization = 'Bearer ' + token
     And retry until response.errorMessageId == postiddd
     When method GET
@@ -98,7 +98,7 @@ Feature: Verify if DI system can handle certain validation issues
     When method POST
     Then status 200
     * def postidddd = response
-    Given url 'https://dataingestion.test.nbspreview.com/api/reports-dlt/get-message?id=' + postidddd
+    Given url '' + postidddd
     * header Authorization = 'Bearer ' + token
     And retry until response.errorMessageId == postidddd
     When method GET
