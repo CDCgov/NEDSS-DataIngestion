@@ -27,7 +27,6 @@ import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7Dup
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
-import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;

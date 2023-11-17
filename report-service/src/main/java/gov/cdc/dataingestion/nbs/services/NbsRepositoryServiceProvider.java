@@ -111,19 +111,21 @@ public class NbsRepositoryServiceProvider {
     }
 
 	private NbsInterfaceModel savingNbsInterfaceModelHelper(OruR1 oru, NbsInterfaceModel nbsInterface) {
-		String labClia = oru.getMessageHeader() != null && oru.getMessageHeader().getSendingFacility() != null
+		String labClia = (oru.getMessageHeader() != null && oru.getMessageHeader().getSendingFacility() != null)
 				? oru.getMessageHeader().getSendingFacility().getUniversalId() : null;
 
-		String filterOrderNumber = oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
+		String filterOrderNumber = (oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
 				&& oru.getPatientResult().get(0).getOrderObservation() != null
 				&& !oru.getPatientResult().get(0).getOrderObservation().isEmpty()
 				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest() != null
+				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest().getFillerOrderNumber() != null)
 				? oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest().getFillerOrderNumber().getEntityIdentifier() : null;
 
-		var orderTestCodeObj = oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
+
+		var orderTestCodeObj = (oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
 				&& oru.getPatientResult().get(0).getOrderObservation() != null
 				&& !oru.getPatientResult().get(0).getOrderObservation().isEmpty()
-				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest() != null
+				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest() != null)
 				? oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest() : null;
 
 		String orderTestCode = null;
