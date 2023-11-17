@@ -138,12 +138,13 @@ public class NbsRepositoryServiceProvider {
 			}
 		}
 
-			String specimenColDateStr = oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
+			String specimenColDateStr = (oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
 				&& oru.getPatientResult().get(0).getOrderObservation() != null
 				&& !oru.getPatientResult().get(0).getOrderObservation().isEmpty()
 				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen() != null
 				&& !oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().isEmpty()
 				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime() != null
+				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime() != null)
 				? oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime().getTime() : null;
 
 		if (specimenColDateStr != null) {
