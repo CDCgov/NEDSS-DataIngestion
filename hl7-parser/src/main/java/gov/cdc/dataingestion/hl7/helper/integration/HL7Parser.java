@@ -33,7 +33,7 @@ public class HL7Parser implements IHL7Parser {
     // this is the support hl7 structure
     private final String supportedHL7version = "2.5.1";
     private final String supportedHL7version231 = "2.3.1";
-    private static final String exMessage = "Invalid Message ";
+    private static final String EX_MESSAGE = "Invalid Message ";
 
 
     public HL7Parser(HapiContext context) {
@@ -73,7 +73,7 @@ public class HL7Parser implements IHL7Parser {
         try {
             parser.parse(message);
         } catch (HL7Exception e){
-            throw new DiHL7Exception(exMessage + e.getMessage());
+            throw new DiHL7Exception(EX_MESSAGE + e.getMessage());
         }
 
         // Ignore sonar queue complain as this is coming from Library
@@ -91,7 +91,7 @@ public class HL7Parser implements IHL7Parser {
         try {
             parser.parse(message);
         } catch (HL7Exception e){
-            throw new DiHL7Exception(exMessage + e.getMessage());
+            throw new DiHL7Exception(EX_MESSAGE + e.getMessage());
         }
     }
 
@@ -115,17 +115,17 @@ public class HL7Parser implements IHL7Parser {
         try {
             parser.parse(message);
         } catch (HL7Exception e){
-            throw new DiHL7Exception(exMessage + e.getMessage());
+            throw new DiHL7Exception(EX_MESSAGE + e.getMessage());
         }
     }
 
     public String hl7MessageStringValidation(String message)  {
          if (message.contains(newLineWithCarrier) || message.contains(carrier) || message.contains(newLine)) {
             if (message.contains(newLineWithCarrier)) {
-                message = message.replaceAll(newLineWithCarrier, carrier);
+                message = message.replaceAll(newLineWithCarrier, carrier); //NOSONAR
             }
             else if (message.contains(newLine)) {
-                message = message.replaceAll(newLine, carrier);
+                message = message.replaceAll(newLine, carrier); //NOSONAR
             }
             else if (message.contains("\r\r")) {
                 message = message.replaceAll("\r\r", carrier); //NOSONAR
@@ -133,15 +133,15 @@ public class HL7Parser implements IHL7Parser {
             }
         } else {
             if (message.contains("\\n")) {
-                message = message.replaceAll("\\\\n",carrier);
+                message = message.replaceAll("\\\\n",carrier); //NOSONAR
             }
             else if (message.contains("\\r")) {
-                message = message.replaceAll("\\\\r",carrier);
+                message = message.replaceAll("\\\\r",carrier); //NOSONAR
             }
         }
 
         // make sure message only contain `\` on MSH
-        message = message.replaceAll("\\\\+", "\\\\");
+        message = message.replaceAll("\\\\+", "\\\\"); //NOSONAR
         return message;
     }
 
