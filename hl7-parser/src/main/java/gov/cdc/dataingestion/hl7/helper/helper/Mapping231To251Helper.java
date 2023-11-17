@@ -24,7 +24,7 @@ import java.util.List;
 public class Mapping231To251Helper {
     private static final String UNIVERSAL_ID = "2.16.840.1.113883.5.1008";
 
-    public Mapping231To251Helper() {
+    public Mapping231To251Helper() { // NOSONAR
         // Default constructor
     }
     //region Map Message Header - 231 to 251

@@ -1,6 +1,5 @@
 package gov.cdc.dataingestion.deadletter.service;
 
-import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.constant.enums.EnumElrDltStatus;
 import gov.cdc.dataingestion.constant.enums.EnumElrServiceOperation;
