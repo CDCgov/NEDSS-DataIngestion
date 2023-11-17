@@ -9,7 +9,7 @@ Feature: Test the API functionality scenarios
 
 
 @api
-  Scenario: Transmit an empty HL7 message via POST method successfully and capture the error response
+  Scenario: Transmit an empty HL7 message via POST method successfully and capture the error response.
     * header msgType = 'HL7'
     * header validationActive = 'true'
     Given url apiurl
