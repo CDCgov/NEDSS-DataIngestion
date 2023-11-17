@@ -9,7 +9,7 @@ import java.util.Collection;
 
 public class SecurityUser implements UserDetails {
 
-    private transient  final Client client;
+    private final transient Client client;
 
     public SecurityUser(Client client) {
         this.client = client;

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Mapping231To251Helper {
-    private static String UNIVERSAL_ID = "2.16.840.1.113883.5.1008";
+    private static final String UNIVERSAL_ID = "2.16.840.1.113883.5.1008";
 
     //region Map Message Header - 231 to 251
     public static MessageHeader MapMsh(MSH inMsh231, MessageHeader outMsh251) throws DiHL7Exception {
@@ -116,7 +116,7 @@ public class Mapping231To251Helper {
         }
 
         // PatientIdentifierList
-        outPid251 = GetPatientIdentifierList(inPid231, outPid251);
+        outPid251 = getPatientIdentifierList(inPid231, outPid251);
 
         // Patient ID
         if (outPid251.getPatientId() != null) {
@@ -160,7 +160,7 @@ public class Mapping231To251Helper {
         return outPid251;
     }
 
-    private static PatientIdentification GetPatientIdentifierList(PID inPid231, PatientIdentification outPid251) {
+    private static PatientIdentification getPatientIdentifierList(PID inPid231, PatientIdentification outPid251) {
         for(int a = 0; a < inPid231.getPatientIdentifierList().length; a++) {
             if (inPid231.getPatientIdentifierList(a) != null) {
                 var patientIdentifier = inPid231.getPatientIdentifierList(a);
@@ -186,7 +186,7 @@ public class Mapping231To251Helper {
 
     //region Map ORC to ORC - 231 to 251
 
-    private static CommonOrder MapCommonOrderListHelper1st(ORC inOrc231, CommonOrder outOrc251) {
+    private static CommonOrder mapCommonOrderListHelper1st(ORC inOrc231, CommonOrder outOrc251) {
         List<Xcn> enterBys = new ArrayList<>();
         for(int a = 0; a < inOrc231.getEnteredBy().length; a++) {
             if(inOrc231.getEnteredBy()[a] != null) {
@@ -254,7 +254,7 @@ public class Mapping231To251Helper {
         return outOrc251;
     }
 
-    private static CommonOrder MapCommonOrderListHelper2st(ORC inOrc231, CommonOrder outOrc251) {
+    private static CommonOrder mapCommonOrderListHelper2st(ORC inOrc231, CommonOrder outOrc251) {
         List<Xon> facilityList = new ArrayList<>();
         for(int f= 0; f < inOrc231.getOrderingFacilityName().length; f++) {
             if(inOrc231.getOrderingFacilityName(f) != null) {
@@ -333,13 +333,13 @@ public class Mapping231To251Helper {
             outOrc251.setDateTimeOfTransaction(MapTs231(inOrc231.getDateTimeOfTransaction(), outOrc251.getDateTimeOfTransaction()));
         }
 
-        outOrc251 =  MapCommonOrderListHelper1st(inOrc231, outOrc251);
+        outOrc251 =  mapCommonOrderListHelper1st(inOrc231, outOrc251);
 
         if(inOrc231.getAdvancedBeneficiaryNoticeCode() != null) {
             outOrc251.setAdvancedBeneficiaryNoticeCode(MapCe231(inOrc231.getAdvancedBeneficiaryNoticeCode(), outOrc251.getAdvancedBeneficiaryNoticeCode()));
         }
 
-        outOrc251 = MapCommonOrderListHelper2st( inOrc231, outOrc251);
+        outOrc251 = mapCommonOrderListHelper2st( inOrc231, outOrc251);
 
         return outOrc251;
     }
@@ -560,7 +560,7 @@ public class Mapping231To251Helper {
         return out;
     }
 
-    private static Cx MapCxWithNullToCxAuthority(CX inOri,  Cx cxOut) {
+    private static Cx mapCxWithNullToCxAuthority(CX inOri,  Cx cxOut) {
         if(inOri.getAssigningAuthority().getUniversalID() == null
                 || inOri.getAssigningAuthority().getUniversalID().getValue() == null
                 || (inOri.getAssigningAuthority().getUniversalID().getValue() != null &&
@@ -581,7 +581,7 @@ public class Mapping231To251Helper {
         }
         return cxOut;
     }
-    private static Cx MapCxWithNullToCxFacility(CX inOri,  Cx cxOut) {
+    private static Cx mapCxWithNullToCxFacility(CX inOri,  Cx cxOut) {
         if(inOri.getAssigningFacility() != null
                 && inOri.getAssigningFacility().getNamespaceID() != null
                 && inOri.getAssigningFacility().getNamespaceID().getValue() != null
@@ -619,8 +619,8 @@ public class Mapping231To251Helper {
                 && inOri.getAssigningAuthority().getNamespaceID().getValue() != null
                 && !inOri.getAssigningAuthority().getNamespaceID().getValue().isEmpty()) {
             cxOut.getAssignAuthority().setNameSpaceId(inOri.getAssigningAuthority().getNamespaceID().getValue());
-            cxOut = MapCxWithNullToCxAuthority(inOri, cxOut);
-            cxOut = MapCxWithNullToCxFacility(inOri, cxOut);
+            mapCxWithNullToCxAuthority(inOri, cxOut);
+            mapCxWithNullToCxFacility(inOri, cxOut);
         }
         else  if (inOri.getAssigningFacility() != null
                 && inOri.getAssigningFacility().getNamespaceID() != null
