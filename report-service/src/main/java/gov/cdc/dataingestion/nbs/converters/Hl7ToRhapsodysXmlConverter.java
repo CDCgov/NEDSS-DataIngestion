@@ -155,7 +155,7 @@ public class Hl7ToRhapsodysXmlConverter {
             return lbt;
         }
 
-        OruR1 oruR1 = (OruR1) hl7ParsedMsg.getParsedMessage();
+        OruR1 oruR1 = hl7ParsedMsg.getParsedMessage();
 
         lbt.setHL7MSH(buildHL7MSHType(oruR1.getMessageHeader()));
         lbt.getHL7SoftwareSegment().addAll(buildSoftwareSegments(oruR1));

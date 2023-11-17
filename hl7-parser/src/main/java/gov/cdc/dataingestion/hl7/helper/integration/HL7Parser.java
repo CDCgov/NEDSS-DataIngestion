@@ -289,7 +289,7 @@ public class HL7Parser implements IHL7Parser {
 
     public HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception{
         try {
-            HL7ParsedMessage<OruR1> parsedMessage = new HL7ParsedMessage();
+            HL7ParsedMessage<OruR1> parsedMessage = new HL7ParsedMessage<>();
             var genericParsedMessage = hl7StringParseHelperWithTerser(message);
             parsedMessage.setMessage(message);
             parsedMessage.setType(genericParsedMessage.getType());
@@ -342,7 +342,7 @@ public class HL7Parser implements IHL7Parser {
             String messageEventTrigger = terser.get("/MSH-9-2");
             String messageVersion = parsedMessage.getVersion();
 
-            HL7ParsedMessage<OruR1> model = new HL7ParsedMessage();
+            HL7ParsedMessage<OruR1> model = new HL7ParsedMessage<>();
             model.setType(messageType);
             model.setEventTrigger(messageEventTrigger);
             model.setOriginalVersion(messageVersion);

@@ -1,43 +1,19 @@
 package gov.cdc.dataingestion.nbs.converters;
 
 import gov.cdc.dataingestion.exception.XmlConversionException;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.*;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit.PatientVisit;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit.PatientVisitAdditional;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.timingQty.TimingQuantity;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.timingQty.TimingQuantityRelationship;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.shared.NoteAndComment;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
-
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.PatientIdentification;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.NextOfKin;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.PatientAdditionalDemographic;
-
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.*;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult;
-import  gov.cdc.dataingestion.hl7.helper.HL7Helper;
-import  gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader;
 
 import  gov.cdc.dataingestion.nbs.jaxb.*;
 
-import  ca.uhn.hl7v2.DefaultHapiContext;
-import  ca.uhn.hl7v2.parser.PipeParser;
-
 import  jakarta.xml.bind.JAXBContext;
 import  jakarta.xml.bind.Unmarshaller;
 
-import  java.io.File;
 import  java.io.InputStream;
 import  java.io.ByteArrayInputStream;
 import  java.nio.charset.StandardCharsets;
 
 import  java.util.List;
 
-import  org.slf4j.Logger;
-import  org.slf4j.LoggerFactory;
 import  org.springframework.stereotype.Component;
 
 @Component
