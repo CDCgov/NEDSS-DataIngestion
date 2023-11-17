@@ -8,10 +8,17 @@ on:
     branches:
       - karate
 
+  workflow_dispatch:
+    inputs:
+      environmentName:
+        description: 'Environment Name (e.g., dev, test)'
+        required: true
+        default: 'TEST'
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: TEST
+    environment: ${{ github.event.inputs.environmentName }}
 
     steps:
       - uses: actions/checkout@v2
