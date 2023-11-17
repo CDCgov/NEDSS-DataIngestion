@@ -185,51 +185,8 @@ public class Mapping231To251Helper {
     //endregion
 
     //region Map ORC to ORC - 231 to 251
-    public static CommonOrder MapCommonOrder(ORC inOrc231, CommonOrder outOrc251) {
-        if (
-                (inOrc231.getOrderControl() == null) ||
-                        (inOrc231.getOrderControl() != null && inOrc231.getOrderControl().getValue() == null) ||
-                        (inOrc231.getOrderControl() != null && inOrc231.getOrderControl().getValue() != null && inOrc231.getOrderControl().getValue().isEmpty())
-        ) {
-            outOrc251.setOrderControl("RE");
-        } else {
-            outOrc251.setOrderControl(inOrc231.getOrderControl().getValue());
-        }
 
-        if (inOrc231.getPlacerOrderNumber() != null) {
-            outOrc251.setPlacerGroupNumber(MapEi231(inOrc231.getPlacerOrderNumber(), outOrc251.getPlacerGroupNumber()));
-        }
-
-        if (inOrc231.getFillerOrderNumber() != null) {
-            outOrc251.setFillerOrderNumber(MapEi231(inOrc231.getFillerOrderNumber(), outOrc251.getFillerOrderNumber()));
-        }
-
-        if (inOrc231.getPlacerGroupNumber() != null) {
-            outOrc251.setPlacerGroupNumber(MapEi231(inOrc231.getPlacerGroupNumber(), outOrc251.getPlacerGroupNumber()));
-        }
-
-        outOrc251.setOrderStatus(inOrc231.getOrderStatus().getValue());
-        outOrc251.setResponseFlag(inOrc231.getResponseFlag().getValue());
-
-        if (inOrc231.getQuantityTiming() != null) {
-            Tq timeQty = MapTq231(inOrc231.getQuantityTiming(), new Tq());
-            if(outOrc251.getQuantityTiming() != null) {
-                outOrc251.getQuantityTiming().add(timeQty);
-            } else {
-                var quantityTimeList = new ArrayList<Tq>();
-                quantityTimeList.add(timeQty);
-                outOrc251.setQuantityTiming(quantityTimeList);
-            }
-        }
-
-        if(inOrc231.getParentOrder() != null) {
-            outOrc251.setParentOrder(MapEip231(inOrc231.getParentOrder(), outOrc251.getParentOrder()));
-        }
-
-        if(inOrc231.getDateTimeOfTransaction() != null) {
-            outOrc251.setDateTimeOfTransaction(MapTs231(inOrc231.getDateTimeOfTransaction(), outOrc251.getDateTimeOfTransaction()));
-        }
-
+    private static CommonOrder MapCommonOrderListHelper1st(ORC inOrc231, CommonOrder outOrc251) {
         List<Xcn> enterBys = new ArrayList<>();
         for(int a = 0; a < inOrc231.getEnteredBy().length; a++) {
             if(inOrc231.getEnteredBy()[a] != null) {
@@ -289,11 +246,9 @@ public class Mapping231To251Helper {
             }
         }
         outOrc251.setActionBy(actionbyList);
-
-        if(inOrc231.getAdvancedBeneficiaryNoticeCode() != null) {
-            outOrc251.setAdvancedBeneficiaryNoticeCode(MapCe231(inOrc231.getAdvancedBeneficiaryNoticeCode(), outOrc251.getAdvancedBeneficiaryNoticeCode()));
-        }
-
+        return outOrc251;
+    }
+    private static CommonOrder MapCommonOrderListHelper2st(ORC inOrc231, CommonOrder outOrc251) {
         List<Xon> facilityList = new ArrayList<>();
         for(int f= 0; f < inOrc231.getOrderingFacilityName().length; f++) {
             if(inOrc231.getOrderingFacilityName(f) != null) {
@@ -325,6 +280,60 @@ public class Mapping231To251Helper {
             }
         }
         outOrc251.setOrderingProviderAddress(orderingProviderAddressList);
+        return outOrc251;
+    }
+    public static CommonOrder MapCommonOrder(ORC inOrc231, CommonOrder outOrc251) {
+        if (
+                (inOrc231.getOrderControl() == null) ||
+                        (inOrc231.getOrderControl() != null && inOrc231.getOrderControl().getValue() == null) ||
+                        (inOrc231.getOrderControl() != null && inOrc231.getOrderControl().getValue() != null && inOrc231.getOrderControl().getValue().isEmpty())
+        ) {
+            outOrc251.setOrderControl("RE");
+        } else {
+            outOrc251.setOrderControl(inOrc231.getOrderControl().getValue());
+        }
+
+        if (inOrc231.getPlacerOrderNumber() != null) {
+            outOrc251.setPlacerGroupNumber(MapEi231(inOrc231.getPlacerOrderNumber(), outOrc251.getPlacerGroupNumber()));
+        }
+
+        if (inOrc231.getFillerOrderNumber() != null) {
+            outOrc251.setFillerOrderNumber(MapEi231(inOrc231.getFillerOrderNumber(), outOrc251.getFillerOrderNumber()));
+        }
+
+        if (inOrc231.getPlacerGroupNumber() != null) {
+            outOrc251.setPlacerGroupNumber(MapEi231(inOrc231.getPlacerGroupNumber(), outOrc251.getPlacerGroupNumber()));
+        }
+
+        outOrc251.setOrderStatus(inOrc231.getOrderStatus().getValue());
+        outOrc251.setResponseFlag(inOrc231.getResponseFlag().getValue());
+
+        if (inOrc231.getQuantityTiming() != null) {
+            Tq timeQty = MapTq231(inOrc231.getQuantityTiming(), new Tq());
+            if(outOrc251.getQuantityTiming() != null) {
+                outOrc251.getQuantityTiming().add(timeQty);
+            } else {
+                var quantityTimeList = new ArrayList<Tq>();
+                quantityTimeList.add(timeQty);
+                outOrc251.setQuantityTiming(quantityTimeList);
+            }
+        }
+
+        if(inOrc231.getParentOrder() != null) {
+            outOrc251.setParentOrder(MapEip231(inOrc231.getParentOrder(), outOrc251.getParentOrder()));
+        }
+
+        if(inOrc231.getDateTimeOfTransaction() != null) {
+            outOrc251.setDateTimeOfTransaction(MapTs231(inOrc231.getDateTimeOfTransaction(), outOrc251.getDateTimeOfTransaction()));
+        }
+
+        outOrc251 =  MapCommonOrderListHelper1st(inOrc231, outOrc251);
+
+        if(inOrc231.getAdvancedBeneficiaryNoticeCode() != null) {
+            outOrc251.setAdvancedBeneficiaryNoticeCode(MapCe231(inOrc231.getAdvancedBeneficiaryNoticeCode(), outOrc251.getAdvancedBeneficiaryNoticeCode()));
+        }
+
+        outOrc251 = MapCommonOrderListHelper2st( inOrc231, outOrc251);
 
         return outOrc251;
     }
@@ -545,6 +554,53 @@ public class Mapping231To251Helper {
         return out;
     }
 
+    private static Cx MapCxWithNullToCxAuthority(CX inOri,  Cx cxOut) {
+        if(inOri.getAssigningAuthority().getUniversalID() == null
+                || inOri.getAssigningAuthority().getUniversalID().getValue() == null
+                || (inOri.getAssigningAuthority().getUniversalID().getValue() != null &&
+                inOri.getAssigningAuthority().getUniversalID().getValue().isEmpty())
+        ) {
+            cxOut.getAssignAuthority().setUniversalId(UNIVERSAL_ID);
+        } else {
+            cxOut.getAssignAuthority().setUniversalId(inOri.getAssigningAuthority().getUniversalID().getValue());
+        }
+
+        if (inOri.getAssigningAuthority().getUniversalIDType() == null
+                || inOri.getAssigningAuthority().getUniversalIDType().getValue() == null
+                || (inOri.getAssigningAuthority().getUniversalIDType().getValue() != null &&
+                inOri.getAssigningAuthority().getUniversalIDType().getValue().isEmpty())) {
+            cxOut.getAssignAuthority().setUniversalIdType("NI");
+        } else {
+            cxOut.getAssignAuthority().setUniversalIdType(inOri.getAssigningAuthority().getUniversalIDType().getValue());
+        }
+        return cxOut;
+    }
+    private static Cx MapCxWithNullToCxFacility(CX inOri,  Cx cxOut) {
+        if(inOri.getAssigningFacility() != null
+                && inOri.getAssigningFacility().getNamespaceID() != null
+                && inOri.getAssigningFacility().getNamespaceID().getValue() != null
+                &&  !inOri.getAssigningFacility().getNamespaceID().getValue().isEmpty()) {
+            cxOut.getAssignFacility().setNameSpaceId(inOri.getAssigningFacility().getNamespaceID().getValue());
+            if(inOri.getAssigningFacility().getUniversalID() == null
+                    || inOri.getAssigningFacility().getUniversalID().getValue() == null
+                    || (inOri.getAssigningFacility().getUniversalID().getValue() != null &&
+                    inOri.getAssigningFacility().getUniversalID().getValue().isEmpty()) ) {
+                cxOut.getAssignFacility().setUniversalId(UNIVERSAL_ID);
+            } else {
+                cxOut.getAssignFacility().setUniversalId(inOri.getAssigningFacility().getUniversalID().getValue());
+            }
+
+            if(inOri.getAssigningFacility().getUniversalIDType() == null
+                    || inOri.getAssigningFacility().getUniversalIDType().getValue() == null
+                    || (inOri.getAssigningFacility().getUniversalIDType().getValue() != null &&
+                    inOri.getAssigningFacility().getUniversalIDType().getValue().isEmpty()) ) {
+                cxOut.getAssignFacility().setUniversalIdType("NI");
+            } else {
+                cxOut.getAssignFacility().setUniversalIdType(inOri.getAssigningFacility().getUniversalIDType().getValue());
+            }
+        }
+        return cxOut;
+    }
     public static Cx MapCxWithNullToCx (CX inOri, Cx cxOut, String defaultValue) {
         cxOut.setIdNumber(inOri.getID().getValue());
         cxOut.setCheckDigit(inOri.getCheckDigit().getValue());
@@ -556,51 +612,9 @@ public class Mapping231To251Helper {
                 && inOri.getAssigningAuthority().getNamespaceID() != null
                 && inOri.getAssigningAuthority().getNamespaceID().getValue() != null
                 && !inOri.getAssigningAuthority().getNamespaceID().getValue().isEmpty()) {
-
             cxOut.getAssignAuthority().setNameSpaceId(inOri.getAssigningAuthority().getNamespaceID().getValue());
-
-            if(inOri.getAssigningAuthority().getUniversalID() == null
-                    || inOri.getAssigningAuthority().getUniversalID().getValue() == null
-                    || (inOri.getAssigningAuthority().getUniversalID().getValue() != null &&
-                    inOri.getAssigningAuthority().getUniversalID().getValue().isEmpty())
-            ) {
-                cxOut.getAssignAuthority().setUniversalId(UNIVERSAL_ID);
-            } else {
-                cxOut.getAssignAuthority().setUniversalId(inOri.getAssigningAuthority().getUniversalID().getValue());
-            }
-
-            if (inOri.getAssigningAuthority().getUniversalIDType() == null
-                    || inOri.getAssigningAuthority().getUniversalIDType().getValue() == null
-                    || (inOri.getAssigningAuthority().getUniversalIDType().getValue() != null &&
-                    inOri.getAssigningAuthority().getUniversalIDType().getValue().isEmpty())) {
-                cxOut.getAssignAuthority().setUniversalIdType("NI");
-            } else {
-                cxOut.getAssignAuthority().setUniversalIdType(inOri.getAssigningAuthority().getUniversalIDType().getValue());
-            }
-
-            if(inOri.getAssigningFacility() != null
-                    && inOri.getAssigningFacility().getNamespaceID() != null
-                    && inOri.getAssigningFacility().getNamespaceID().getValue() != null
-                    &&  !inOri.getAssigningFacility().getNamespaceID().getValue().isEmpty()) {
-                cxOut.getAssignFacility().setNameSpaceId(inOri.getAssigningFacility().getNamespaceID().getValue());
-                if(inOri.getAssigningFacility().getUniversalID() == null
-                        || inOri.getAssigningFacility().getUniversalID().getValue() == null
-                        || (inOri.getAssigningFacility().getUniversalID().getValue() != null &&
-                        inOri.getAssigningFacility().getUniversalID().getValue().isEmpty()) ) {
-                    cxOut.getAssignFacility().setUniversalId(UNIVERSAL_ID);
-                } else {
-                    cxOut.getAssignFacility().setUniversalId(inOri.getAssigningFacility().getUniversalID().getValue());
-                }
-
-                if(inOri.getAssigningFacility().getUniversalIDType() == null
-                        || inOri.getAssigningFacility().getUniversalIDType().getValue() == null
-                        || (inOri.getAssigningFacility().getUniversalIDType().getValue() != null &&
-                        inOri.getAssigningFacility().getUniversalIDType().getValue().isEmpty()) ) {
-                    cxOut.getAssignFacility().setUniversalIdType("NI");
-                } else {
-                    cxOut.getAssignFacility().setUniversalIdType(inOri.getAssigningFacility().getUniversalIDType().getValue());
-                }
-            }
+            cxOut = MapCxWithNullToCxAuthority(inOri, cxOut);
+            cxOut = MapCxWithNullToCxFacility(inOri, cxOut);
         }
         else  if (inOri.getAssigningFacility() != null
                 && inOri.getAssigningFacility().getNamespaceID() != null
