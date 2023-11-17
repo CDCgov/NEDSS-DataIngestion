@@ -24,8 +24,8 @@ import java.util.List;
 public class Mapping231To251Helper {
     private static final String UNIVERSAL_ID = "2.16.840.1.113883.5.1008";
 
-    private Mapping231To251Helper() {
-
+    public Mapping231To251Helper() {
+        // Default constructor
     }
     //region Map Message Header - 231 to 251
     public static MessageHeader MapMsh(MSH inMsh231, MessageHeader outMsh251) throws DiHL7Exception {
