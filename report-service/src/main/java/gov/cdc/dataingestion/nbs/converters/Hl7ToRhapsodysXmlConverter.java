@@ -619,6 +619,77 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7CNNType;
     }
 
+    private HL7OBRType buildHL7OBRTypeHelper(ObservationRequest or, HL7OBRType hl7OBRType) {
+        for (Ce ce : or.getReasonForStudy()) {
+            hl7OBRType.getReasonforStudy().add(buildHL7CWEType(ce));
+        }
+
+        if (!isEmptyHL7NDLType(or.getPrincipalResultInterpreter())) {
+            hl7OBRType.setPrincipalResultInterpreter(buildHL7NDLType(or.getPrincipalResultInterpreter()));
+        }
+
+        for (Ndl ndl : or.getAssistantResultInterpreter()) {
+            hl7OBRType.getAssistantResultInterpreter().add(buildHL7NDLType(ndl));
+        }
+
+        for (Ndl ndl : or.getTechnician()) {
+            hl7OBRType.getTechnician().add(buildHL7NDLType(ndl));
+        }
+
+        for (Ndl ndl : or.getTranscriptionist()) {
+            hl7OBRType.getTranscriptionist().add(buildHL7NDLType(ndl));
+        }
+
+        hl7OBRType.setScheduledDateTime(buildHL7TSType(or.getScheduledDateTime()));
+        hl7OBRType.setNumberofSampleContainers(buildHl7NMType(or.getNumberOfSampleContainers()));
+
+        for (Ce ce : or.getTransportLogisticsOfCollectedSample()) {
+            hl7OBRType.getTransportLogisticsofCollectedSample().add(buildHL7CWEType(ce));
+        }
+
+        for (Ce ce : or.getCollectorComment()) {
+            hl7OBRType.getCollectorsComment().add(buildHL7CWEType(ce));
+        }
+
+        if (!isEmptyHL7CEType(or.getTransportArrangementResponsibility())) {
+            hl7OBRType.setTransportArrangementResponsibility(buildHL7CWEType(or.getTransportArrangementResponsibility()));
+        }
+
+        hl7OBRType.setTransportArranged(or.getTransportArranged());
+        hl7OBRType.setEscortRequired(or.getEscortRequired());
+
+        for (Ce ce : or.getPlannedPatientTransportComment()) {
+            hl7OBRType.getPlannedPatientTransportComment().add(buildHL7CWEType(ce));
+        }
+
+        if (!isEmptyHL7CEType(or.getProcedureCode())) {
+            hl7OBRType.setProcedureCode(buildHL7CWEType(or.getProcedureCode()));
+        }
+
+        for (Ce ce : or.getProcedureCodeModifier()) {
+            hl7OBRType.getProcedureCodeModifier().add(buildHL7CWEType(ce));
+        }
+
+        for (Ce ce : or.getPlacerSupplementalServiceInformation()) {
+            hl7OBRType.getPlacerSupplementalServiceInformation().add(buildHL7CWEType(ce));
+        }
+
+        for (Ce ce : or.getFillerSupplementalServiceInformation()) {
+            hl7OBRType.getFillerSupplementalServiceInformation().add(buildHL7CWEType(ce));
+        }
+
+        if (!isEmptyHL7CWEType(or.getMedicallyNecessaryDuplicateProcedureReason())) {
+            hl7OBRType.setMedicallyNecessaryDuplicateProcedureReason(buildHL7CWEType(or.getMedicallyNecessaryDuplicateProcedureReason()));
+        }
+
+        hl7OBRType.setResultHandling(or.getResultHandling());
+
+        if (!isEmptyHL7CWEType(or.getParentUniversalServiceIdentifier())) {
+            hl7OBRType.setParentUniversalServiceIdentifier(buildHL7CWEType(or.getParentUniversalServiceIdentifier()));
+        }
+
+        return hl7OBRType;
+    }
     private HL7OBRType buildHL7OBRType(ObservationRequest or) {
         HL7OBRType hl7OBRType = new HL7OBRType();
 
@@ -700,74 +771,7 @@ public class Hl7ToRhapsodysXmlConverter {
 
         hl7OBRType.setTransportationMode(or.getTransportationMode());
 
-        for (Ce ce : or.getReasonForStudy()) {
-            hl7OBRType.getReasonforStudy().add(buildHL7CWEType(ce));
-        }
-
-        if (!isEmptyHL7NDLType(or.getPrincipalResultInterpreter())) {
-            hl7OBRType.setPrincipalResultInterpreter(buildHL7NDLType(or.getPrincipalResultInterpreter()));
-        }
-
-        for (Ndl ndl : or.getAssistantResultInterpreter()) {
-            hl7OBRType.getAssistantResultInterpreter().add(buildHL7NDLType(ndl));
-        }
-
-        for (Ndl ndl : or.getTechnician()) {
-            hl7OBRType.getTechnician().add(buildHL7NDLType(ndl));
-        }
-
-        for (Ndl ndl : or.getTranscriptionist()) {
-            hl7OBRType.getTranscriptionist().add(buildHL7NDLType(ndl));
-        }
-
-        hl7OBRType.setScheduledDateTime(buildHL7TSType(or.getScheduledDateTime()));
-        hl7OBRType.setNumberofSampleContainers(buildHl7NMType(or.getNumberOfSampleContainers()));
-
-        for (Ce ce : or.getTransportLogisticsOfCollectedSample()) {
-            hl7OBRType.getTransportLogisticsofCollectedSample().add(buildHL7CWEType(ce));
-        }
-
-        for (Ce ce : or.getCollectorComment()) {
-            hl7OBRType.getCollectorsComment().add(buildHL7CWEType(ce));
-        }
-
-        if (!isEmptyHL7CEType(or.getTransportArrangementResponsibility())) {
-            hl7OBRType.setTransportArrangementResponsibility(buildHL7CWEType(or.getTransportArrangementResponsibility()));
-        }
-
-        hl7OBRType.setTransportArranged(or.getTransportArranged());
-        hl7OBRType.setEscortRequired(or.getEscortRequired());
-
-        for (Ce ce : or.getPlannedPatientTransportComment()) {
-            hl7OBRType.getPlannedPatientTransportComment().add(buildHL7CWEType(ce));
-        }
-
-        if (!isEmptyHL7CEType(or.getProcedureCode())) {
-            hl7OBRType.setProcedureCode(buildHL7CWEType(or.getProcedureCode()));
-        }
-
-        for (Ce ce : or.getProcedureCodeModifier()) {
-            hl7OBRType.getProcedureCodeModifier().add(buildHL7CWEType(ce));
-        }
-
-        for (Ce ce : or.getPlacerSupplementalServiceInformation()) {
-            hl7OBRType.getPlacerSupplementalServiceInformation().add(buildHL7CWEType(ce));
-        }
-
-        for (Ce ce : or.getFillerSupplementalServiceInformation()) {
-            hl7OBRType.getFillerSupplementalServiceInformation().add(buildHL7CWEType(ce));
-        }
-
-        if (!isEmptyHL7CWEType(or.getMedicallyNecessaryDuplicateProcedureReason())) {
-            hl7OBRType.setMedicallyNecessaryDuplicateProcedureReason(buildHL7CWEType(or.getMedicallyNecessaryDuplicateProcedureReason()));
-        }
-
-        hl7OBRType.setResultHandling(or.getResultHandling());
-
-        if (!isEmptyHL7CWEType(or.getParentUniversalServiceIdentifier())) {
-            hl7OBRType.setParentUniversalServiceIdentifier(buildHL7CWEType(or.getParentUniversalServiceIdentifier()));
-        }
-
+        hl7OBRType = buildHL7OBRTypeHelper( or,  hl7OBRType);
         return hl7OBRType;
     }
 
@@ -914,7 +918,7 @@ public class Hl7ToRhapsodysXmlConverter {
 
         for (String s : or.getObservationValue()) {
             if (OBX_VALUE_TYPE_SN.equals(hl7OBXType.getValueType())) {
-                String refinedValue = s.replaceAll(CARET_SEPARATOR, "");
+                String refinedValue = s.replaceAll(CARET_SEPARATOR, ""); // NOSONAR
                 hl7OBXType.getObservationValue().add(refinedValue);
             } else {
                 hl7OBXType.getObservationValue().add(s);
