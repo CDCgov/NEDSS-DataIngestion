@@ -1375,65 +1375,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7FCType;
     }
 
-    private HL7NK1Type buildHL7NK1Type(NextOfKin nok) {
-        HL7NK1Type hl7NK1Type = new HL7NK1Type();
-
-        hl7NK1Type.setSetIDNK1(nok.getSetIdNK1());
-
-        for (Xpn xpn : nok.getNkName()) {
-            hl7NK1Type.getName().add(buildHL7XPNType(xpn));
-        }
-
-        hl7NK1Type.setRelationship(buildHL7CWEType(nok.getRelationship()));
-
-        for (Xad xad : nok.getAddress()) {
-            hl7NK1Type.getAddress().add(buildHL7XADType(xad));
-        }
-
-        for (Xtn xtn : nok.getPhoneNumber()) {
-            hl7NK1Type.getPhoneNumber().add(buildHL7XTNType(xtn));
-        }
-
-        for (Xtn xtn : nok.getBusinessPhoneNumber()) {
-            hl7NK1Type.getBusinessPhoneNumber().add(buildHL7XTNType(xtn));
-        }
-
-        if (!isEmptyHL7CEType(nok.getContactRole())) {
-            hl7NK1Type.setContactRole(buildHL7CWEType(nok.getContactRole()));
-        }
-
-        hl7NK1Type.setStartDate(buildHL7DTType(nok.getStartDate()));
-        hl7NK1Type.setEndDate(buildHL7DTType(nok.getEndDate()));
-        hl7NK1Type.getNextOfKinAssociatedPartiesJobTitle().add(nok.getNextOfKinAssociatedPartiesJobTitle());
-
-        if (!isEmptyHL7JCCType(nok.getNextOfKinAssociatedPartiesJobCode())) {
-            hl7NK1Type.setNextOfKinAssociatedPartiesJobCodeClass(buildHL7JCCType(nok.getNextOfKinAssociatedPartiesJobCode()));
-        }
-
-        HL7CXType hl7CXType = buildHL7CXType(nok.getNextOfKinAssociatedPartiesEmployee());
-        if (null != hl7CXType) {
-            hl7NK1Type.setNextOfKinAssociatedPartiesEmployeeNumber(hl7CXType);
-        }
-
-        for (Xon xon : nok.getOrganizationNameNk1()) {
-            hl7NK1Type.getOrganizationNameNK1().add(buildHL7XONType(xon));
-        }
-
-        if (!isEmptyHL7CEType(nok.getMartialStatus())) {
-            hl7NK1Type.getMaritalStatus().add(buildHL7CWEType(nok.getMartialStatus()));
-        }
-
-        hl7NK1Type.getAdministrativeSex().add(nok.getAdministrativeSex());
-        hl7NK1Type.setDateTimeOfBirth(buildHL7TSType(nok.getDateTimeOfBirth()));
-
-        for (String s : nok.getLivingDependency()) {
-            hl7NK1Type.getLivingDependency().add(s);
-        }
-
-        for (String s : nok.getAmbulatoryStatus()) {
-            hl7NK1Type.getAmbulatoryStatus().add(s);
-        }
-
+    private HL7NK1Type buildHL7NK1TypeHelper(NextOfKin nok, HL7NK1Type hl7NK1Type,  HL7CXType hl7CXType) {
         for (Ce ce : nok.getCitizenship()) {
             hl7NK1Type.getCitizenship().add(buildHL7CWEType(ce));
         }
@@ -1498,6 +1440,68 @@ public class Hl7ToRhapsodysXmlConverter {
         for (Ce ce : nok.getRace()) {
             hl7NK1Type.getRace().add(buildHL7CWEType(ce));
         }
+        return hl7NK1Type;
+    }
+    private HL7NK1Type buildHL7NK1Type(NextOfKin nok) {
+        HL7NK1Type hl7NK1Type = new HL7NK1Type();
+
+        hl7NK1Type.setSetIDNK1(nok.getSetIdNK1());
+
+        for (Xpn xpn : nok.getNkName()) {
+            hl7NK1Type.getName().add(buildHL7XPNType(xpn));
+        }
+
+        hl7NK1Type.setRelationship(buildHL7CWEType(nok.getRelationship()));
+
+        for (Xad xad : nok.getAddress()) {
+            hl7NK1Type.getAddress().add(buildHL7XADType(xad));
+        }
+
+        for (Xtn xtn : nok.getPhoneNumber()) {
+            hl7NK1Type.getPhoneNumber().add(buildHL7XTNType(xtn));
+        }
+
+        for (Xtn xtn : nok.getBusinessPhoneNumber()) {
+            hl7NK1Type.getBusinessPhoneNumber().add(buildHL7XTNType(xtn));
+        }
+
+        if (!isEmptyHL7CEType(nok.getContactRole())) {
+            hl7NK1Type.setContactRole(buildHL7CWEType(nok.getContactRole()));
+        }
+
+        hl7NK1Type.setStartDate(buildHL7DTType(nok.getStartDate()));
+        hl7NK1Type.setEndDate(buildHL7DTType(nok.getEndDate()));
+        hl7NK1Type.getNextOfKinAssociatedPartiesJobTitle().add(nok.getNextOfKinAssociatedPartiesJobTitle());
+
+        if (!isEmptyHL7JCCType(nok.getNextOfKinAssociatedPartiesJobCode())) {
+            hl7NK1Type.setNextOfKinAssociatedPartiesJobCodeClass(buildHL7JCCType(nok.getNextOfKinAssociatedPartiesJobCode()));
+        }
+
+        HL7CXType hl7CXType = buildHL7CXType(nok.getNextOfKinAssociatedPartiesEmployee());
+        if (null != hl7CXType) {
+            hl7NK1Type.setNextOfKinAssociatedPartiesEmployeeNumber(hl7CXType);
+        }
+
+        for (Xon xon : nok.getOrganizationNameNk1()) {
+            hl7NK1Type.getOrganizationNameNK1().add(buildHL7XONType(xon));
+        }
+
+        if (!isEmptyHL7CEType(nok.getMartialStatus())) {
+            hl7NK1Type.getMaritalStatus().add(buildHL7CWEType(nok.getMartialStatus()));
+        }
+
+        hl7NK1Type.getAdministrativeSex().add(nok.getAdministrativeSex());
+        hl7NK1Type.setDateTimeOfBirth(buildHL7TSType(nok.getDateTimeOfBirth()));
+
+        for (String s : nok.getLivingDependency()) {
+            hl7NK1Type.getLivingDependency().add(s);
+        }
+
+        for (String s : nok.getAmbulatoryStatus()) {
+            hl7NK1Type.getAmbulatoryStatus().add(s);
+        }
+
+        hl7NK1Type = buildHL7NK1TypeHelper( nok,  hl7NK1Type,  hl7CXType);
 
         hl7NK1Type.setHandicap(nok.getHandicap());
         hl7NK1Type.setContactPersonSocialSecurityNumber(nok.getContactPersonSocialSecurityNumber());
