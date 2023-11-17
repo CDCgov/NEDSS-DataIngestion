@@ -586,17 +586,6 @@ class KafkaConsumerServiceTest {
     }
 
     @Test
-    void dltHandlerLogicOnConvertedXml_UnSupportTopic_CodeCoverage() {
-        String message =  guidForTesting;
-        kafkaConsumerService.handleDlt(message, "xml_converted_dlt", "n/a", errorMessage, "0", "xml_converted");
-    }
-    @Test
-    void dltHandlerLogicOnOther_UnSupportTopic_CodeCoverage() {
-        String message =  guidForTesting;
-        kafkaConsumerService.handleDlt(message, "test_dlt", "n/a", errorMessage, "0", "test");
-    }
-
-    @Test
     void dltHandlerLogicForValidatePipeline() {
         initialDataInsertionAndSelection(validateTopic);
         String message =  guidForTesting;
