@@ -1375,7 +1375,43 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7FCType;
     }
 
-    private HL7NK1Type buildHL7NK1TypeHelper(NextOfKin nok, HL7NK1Type hl7NK1Type,  HL7CXType hl7CXType) {
+    private HL7NK1Type buildHL7NK1TypeHelperNested(NextOfKin nok, HL7NK1Type hl7NK1Type) {
+        for (Ce ce : nok.getEthnicGroup()) {
+            hl7NK1Type.getEthnicGroup().add(buildHL7CWEType(ce));
+        }
+
+        for (Ce ce : nok.getContactReason()) {
+            hl7NK1Type.getContactReason().add(buildHL7CWEType(ce));
+        }
+
+        for (Xpn xpn : nok.getContactPersonName()) {
+            hl7NK1Type.getContactPersonsName().add(buildHL7XPNType(xpn));
+        }
+
+        for (Xpn xpn : nok.getContactPersonName()) {
+            hl7NK1Type.getContactPersonsName().add(buildHL7XPNType(xpn));
+        }
+
+        for (Xad xad : nok.getContactPersonAddress()) {
+            hl7NK1Type.getContactPersonsAddress().add(buildHL7XADType(xad));
+        }
+
+        for (Cx cx : nok.getNextOfKinAssociatedPartyIdentifier()) {
+            var hl7CXType = buildHL7CXType(cx);
+            if (null != hl7CXType) {
+                hl7NK1Type.getNextOfKinAssociatedPartysIdentifiers().add(hl7CXType);
+            }
+        }
+
+        hl7NK1Type.setJobStatus(nok.getJobStatus());
+
+        for (Ce ce : nok.getRace()) {
+            hl7NK1Type.getRace().add(buildHL7CWEType(ce));
+        }
+        return hl7NK1Type;
+    }
+
+    private HL7NK1Type buildHL7NK1TypeHelper(NextOfKin nok, HL7NK1Type hl7NK1Type) {
         for (Ce ce : nok.getCitizenship()) {
             hl7NK1Type.getCitizenship().add(buildHL7CWEType(ce));
         }
@@ -1408,38 +1444,8 @@ public class Hl7ToRhapsodysXmlConverter {
             hl7NK1Type.setNationality(buildHL7CWEType(nok.getNationality()));
         }
 
-        for (Ce ce : nok.getEthnicGroup()) {
-            hl7NK1Type.getEthnicGroup().add(buildHL7CWEType(ce));
-        }
-
-        for (Ce ce : nok.getContactReason()) {
-            hl7NK1Type.getContactReason().add(buildHL7CWEType(ce));
-        }
-
-        for (Xpn xpn : nok.getContactPersonName()) {
-            hl7NK1Type.getContactPersonsName().add(buildHL7XPNType(xpn));
-        }
-
-        for (Xpn xpn : nok.getContactPersonName()) {
-            hl7NK1Type.getContactPersonsName().add(buildHL7XPNType(xpn));
-        }
-
-        for (Xad xad : nok.getContactPersonAddress()) {
-            hl7NK1Type.getContactPersonsAddress().add(buildHL7XADType(xad));
-        }
-
-        for (Cx cx : nok.getNextOfKinAssociatedPartyIdentifier()) {
-            hl7CXType = buildHL7CXType(cx);
-            if (null != hl7CXType) {
-                hl7NK1Type.getNextOfKinAssociatedPartysIdentifiers().add(hl7CXType);
-            }
-        }
-
-        hl7NK1Type.setJobStatus(nok.getJobStatus());
-
-        for (Ce ce : nok.getRace()) {
-            hl7NK1Type.getRace().add(buildHL7CWEType(ce));
-        }
+        //
+        hl7NK1Type = buildHL7NK1TypeHelperNested( nok,  hl7NK1Type);
         return hl7NK1Type;
     }
     private HL7NK1Type buildHL7NK1Type(NextOfKin nok) {
@@ -1501,7 +1507,7 @@ public class Hl7ToRhapsodysXmlConverter {
             hl7NK1Type.getAmbulatoryStatus().add(s);
         }
 
-        hl7NK1Type = buildHL7NK1TypeHelper( nok,  hl7NK1Type,  hl7CXType);
+        hl7NK1Type = buildHL7NK1TypeHelper( nok,  hl7NK1Type);
 
         hl7NK1Type.setHandicap(nok.getHandicap());
         hl7NK1Type.setContactPersonSocialSecurityNumber(nok.getContactPersonSocialSecurityNumber());
@@ -1773,6 +1779,35 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7PIDType;
     }
 
+    private HL7ORCType buildHL7ORCTypeHelper1Nst(CommonOrder commonOrder, HL7ORCType hl7ORCType) {
+
+        if (!isEmptyHL7CWEType(commonOrder.getOrderStatusModifier())) {
+            hl7ORCType.setOrderStatusModifier(buildHL7CWEType(commonOrder.getOrderStatusModifier()));
+        }
+
+        if (!isEmptyHL7CWEType(commonOrder.getAdvancedBeneficiaryNoticeOverrideReason())) {
+            hl7ORCType.setAdvancedBeneficiaryNoticeOverrideReason(buildHL7CWEType(commonOrder.getAdvancedBeneficiaryNoticeOverrideReason()));
+        }
+
+        hl7ORCType.setFillersExpectedAvailabilityDateTime(buildHL7TSType(commonOrder.getFillerExpectedAvailabilityDateTime()));
+
+        if (!isEmptyHL7CWEType(commonOrder.getConfidentialityCode())) {
+            hl7ORCType.setConfidentialityCode(buildHL7CWEType(commonOrder.getConfidentialityCode()));
+        }
+
+        if (!isEmptyHL7CWEType(commonOrder.getOrderType())) {
+            hl7ORCType.setOrderType(buildHL7CWEType(commonOrder.getOrderType()));
+        }
+
+        if (!isEmptyHL7CNEType(commonOrder.getEntererAuthorizationMode())) {
+            hl7ORCType.setEntererAuthorizationMode(buildHL7CNEType(commonOrder.getEntererAuthorizationMode()));
+        }
+
+        if (!isEmptyHL7CWEType(commonOrder.getParentUniversalServiceIdentifier())) {
+            hl7ORCType.setParentUniversalServiceIdentifier(buildHL7CWEType(commonOrder.getParentUniversalServiceIdentifier()));
+        }
+        return hl7ORCType;
+    }
     private HL7ORCType buildHL7ORCTypeHelper1(CommonOrder commonOrder, HL7ORCType hl7ORCType) {
         if (!isEmptyHL7CEType(commonOrder.getAdvancedBeneficiaryNoticeCode())) {
             hl7ORCType.setAdvancedBeneficiaryNoticeCode(buildHL7CWEType(commonOrder.getAdvancedBeneficiaryNoticeCode()));
@@ -1801,31 +1836,27 @@ public class Hl7ToRhapsodysXmlConverter {
                 hl7ORCType.getOrderingProviderAddress().add(buildHL7XADType(xad));
             }
         }
+        hl7ORCType = buildHL7ORCTypeHelper1Nst( commonOrder, hl7ORCType);
+        return hl7ORCType;
+    }
 
-        if (!isEmptyHL7CWEType(commonOrder.getOrderStatusModifier())) {
-            hl7ORCType.setOrderStatusModifier(buildHL7CWEType(commonOrder.getOrderStatusModifier()));
+    private HL7ORCType buildHL7ORCTypeHelper2Nst(CommonOrder commonOrder, HL7ORCType hl7ORCType) {
+        if (!isEmptyHL7CEType(commonOrder.getOrderControlCodeReason())) {
+            hl7ORCType.setOrderControlCodeReason(buildHL7CWEType(commonOrder.getOrderControlCodeReason()));
         }
 
-        if (!isEmptyHL7CWEType(commonOrder.getAdvancedBeneficiaryNoticeOverrideReason())) {
-            hl7ORCType.setAdvancedBeneficiaryNoticeOverrideReason(buildHL7CWEType(commonOrder.getAdvancedBeneficiaryNoticeOverrideReason()));
+        if (!isEmptyHL7CEType(commonOrder.getEnteringOrganization())) {
+            hl7ORCType.setEnteringOrganization(buildHL7CWEType(commonOrder.getEnteringOrganization()));
         }
 
-        hl7ORCType.setFillersExpectedAvailabilityDateTime(buildHL7TSType(commonOrder.getFillerExpectedAvailabilityDateTime()));
-
-        if (!isEmptyHL7CWEType(commonOrder.getConfidentialityCode())) {
-            hl7ORCType.setConfidentialityCode(buildHL7CWEType(commonOrder.getConfidentialityCode()));
+        if (!isEmptyHL7CEType(commonOrder.getEnteringOrganization())) {
+            hl7ORCType.setEnteringDevice(buildHL7CWEType(commonOrder.getEnteringDevice()));
         }
 
-        if (!isEmptyHL7CWEType(commonOrder.getOrderType())) {
-            hl7ORCType.setOrderType(buildHL7CWEType(commonOrder.getOrderType()));
-        }
-
-        if (!isEmptyHL7CNEType(commonOrder.getEntererAuthorizationMode())) {
-            hl7ORCType.setEntererAuthorizationMode(buildHL7CNEType(commonOrder.getEntererAuthorizationMode()));
-        }
-
-        if (!isEmptyHL7CWEType(commonOrder.getParentUniversalServiceIdentifier())) {
-            hl7ORCType.setParentUniversalServiceIdentifier(buildHL7CWEType(commonOrder.getParentUniversalServiceIdentifier()));
+        if (commonOrder.getActionBy().size() > 0) {
+            for (Xcn xcn : commonOrder.getActionBy()) {
+                hl7ORCType.getActionBy().add(buildHL7XCNType(xcn));
+            }
         }
         return hl7ORCType;
     }
@@ -1865,23 +1896,7 @@ public class Hl7ToRhapsodysXmlConverter {
 
         hl7ORCType.setOrderEffectiveDateTime(buildHL7TSType(commonOrder.getOrderEffectiveDateTime()));
 
-        if (!isEmptyHL7CEType(commonOrder.getOrderControlCodeReason())) {
-            hl7ORCType.setOrderControlCodeReason(buildHL7CWEType(commonOrder.getOrderControlCodeReason()));
-        }
-
-        if (!isEmptyHL7CEType(commonOrder.getEnteringOrganization())) {
-            hl7ORCType.setEnteringOrganization(buildHL7CWEType(commonOrder.getEnteringOrganization()));
-        }
-
-        if (!isEmptyHL7CEType(commonOrder.getEnteringOrganization())) {
-            hl7ORCType.setEnteringDevice(buildHL7CWEType(commonOrder.getEnteringDevice()));
-        }
-
-        if (commonOrder.getActionBy().size() > 0) {
-            for (Xcn xcn : commonOrder.getActionBy()) {
-                hl7ORCType.getActionBy().add(buildHL7XCNType(xcn));
-            }
-        }
+        hl7ORCType =  buildHL7ORCTypeHelper2Nst( commonOrder, hl7ORCType);
         return hl7ORCType;
     }
     private HL7ORCType buildHL7ORCType(CommonOrder commonOrder) {

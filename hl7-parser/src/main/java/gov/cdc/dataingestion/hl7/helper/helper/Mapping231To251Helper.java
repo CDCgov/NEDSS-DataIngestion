@@ -215,6 +215,11 @@ public class Mapping231To251Helper {
             outOrc251.setEntererLocation(MapPl231(inOrc231.getEntererSLocation(), outOrc251.getEntererLocation()));
         }
 
+        outOrc251 = MapCommonOrderListHelper1stNested(inOrc231, outOrc251);
+        return outOrc251;
+    }
+
+    private static CommonOrder MapCommonOrderListHelper1stNested(ORC inOrc231, CommonOrder outOrc251) {
         List<Xtn> phoneList = new ArrayList<>();
         for(int d = 0; d < inOrc231.getCallBackPhoneNumber().length; d++) {
             if(inOrc231.getCallBackPhoneNumber()[d] != null) {
@@ -248,6 +253,7 @@ public class Mapping231To251Helper {
         outOrc251.setActionBy(actionbyList);
         return outOrc251;
     }
+
     private static CommonOrder MapCommonOrderListHelper2st(ORC inOrc231, CommonOrder outOrc251) {
         List<Xon> facilityList = new ArrayList<>();
         for(int f= 0; f < inOrc231.getOrderingFacilityName().length; f++) {
