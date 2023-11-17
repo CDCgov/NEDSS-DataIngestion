@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Mapping231To251Helper {
+    private static String UNIVERSAL_ID = "2.16.840.1.113883.5.1008";
 
     //region Map Message Header - 231 to 251
     public static MessageHeader MapMsh(MSH inMsh231, MessageHeader outMsh251) throws DiHL7Exception {
@@ -102,6 +103,7 @@ public class Mapping231To251Helper {
     }
     //endregion
 
+
     //region Map Patient Identification - 231 to 251
     public static PatientIdentification MapPid(PID inPid231, PatientIdentification outPid251) {
         outPid251.setSetPid("1");
@@ -114,24 +116,7 @@ public class Mapping231To251Helper {
         }
 
         // PatientIdentifierList
-        for(int a = 0; a < inPid231.getPatientIdentifierList().length; a++) {
-            if (inPid231.getPatientIdentifierList(a) != null) {
-                var patientIdentifier = inPid231.getPatientIdentifierList(a);
-                var newPatientIdentifier = new Cx();
-                if (patientIdentifier.getIdentifierTypeCode() == null ||
-                        (patientIdentifier.getIdentifierTypeCode() != null && patientIdentifier.getIdentifierTypeCode().getValue() == null)
-                        ||
-                        (patientIdentifier.getIdentifierTypeCode() != null &&
-                                patientIdentifier.getIdentifierTypeCode().getValue() != null &&
-                                patientIdentifier.getIdentifierTypeCode().getValue().isEmpty())
-                ) {
-                    newPatientIdentifier = MapCxWithNullToCx(inPid231.getPatientIdentifierList(a), outPid251.getPatientIdentifierList().get(a), "U");
-                } else {
-                    newPatientIdentifier = MapCxWithNullToCx(inPid231.getPatientIdentifierList(a),  outPid251.getPatientIdentifierList().get(a), patientIdentifier.getIdentifierTypeCode().getValue());
-                }
-                outPid251.getPatientIdentifierList().set(a, newPatientIdentifier);
-            }
-        }
+        outPid251 = GetPatientIdentifierList(inPid231, outPid251);
 
         // Patient ID
         if (outPid251.getPatientId() != null) {
@@ -174,6 +159,29 @@ public class Mapping231To251Helper {
         outPid251.getPatientIdentifierList().add(MapDlnToCx(outPid251.getDriverLicenseNumberPatient(), new Cx()));
         return outPid251;
     }
+
+    private static PatientIdentification GetPatientIdentifierList(PID inPid231, PatientIdentification outPid251) {
+        for(int a = 0; a < inPid231.getPatientIdentifierList().length; a++) {
+            if (inPid231.getPatientIdentifierList(a) != null) {
+                var patientIdentifier = inPid231.getPatientIdentifierList(a);
+                var newPatientIdentifier = new Cx();
+                if (patientIdentifier.getIdentifierTypeCode() == null ||
+                        (patientIdentifier.getIdentifierTypeCode() != null && patientIdentifier.getIdentifierTypeCode().getValue() == null)
+                        ||
+                        (patientIdentifier.getIdentifierTypeCode() != null &&
+                                patientIdentifier.getIdentifierTypeCode().getValue() != null &&
+                                patientIdentifier.getIdentifierTypeCode().getValue().isEmpty())
+                ) {
+                    newPatientIdentifier = MapCxWithNullToCx(inPid231.getPatientIdentifierList(a), outPid251.getPatientIdentifierList().get(a), "U");
+                } else {
+                    newPatientIdentifier = MapCxWithNullToCx(inPid231.getPatientIdentifierList(a),  outPid251.getPatientIdentifierList().get(a), patientIdentifier.getIdentifierTypeCode().getValue());
+                }
+                outPid251.getPatientIdentifierList().set(a, newPatientIdentifier);
+            }
+        }
+        return outPid251;
+    }
+
     //endregion
 
     //region Map ORC to ORC - 231 to 251
@@ -556,7 +564,7 @@ public class Mapping231To251Helper {
                     || (inOri.getAssigningAuthority().getUniversalID().getValue() != null &&
                     inOri.getAssigningAuthority().getUniversalID().getValue().isEmpty())
             ) {
-                cxOut.getAssignAuthority().setUniversalId("2.16.840.1.113883.5.1008");
+                cxOut.getAssignAuthority().setUniversalId(UNIVERSAL_ID);
             } else {
                 cxOut.getAssignAuthority().setUniversalId(inOri.getAssigningAuthority().getUniversalID().getValue());
             }
@@ -579,7 +587,7 @@ public class Mapping231To251Helper {
                         || inOri.getAssigningFacility().getUniversalID().getValue() == null
                         || (inOri.getAssigningFacility().getUniversalID().getValue() != null &&
                         inOri.getAssigningFacility().getUniversalID().getValue().isEmpty()) ) {
-                    cxOut.getAssignFacility().setUniversalId("2.16.840.1.113883.5.1008");
+                    cxOut.getAssignFacility().setUniversalId(UNIVERSAL_ID);
                 } else {
                     cxOut.getAssignFacility().setUniversalId(inOri.getAssigningFacility().getUniversalID().getValue());
                 }
@@ -608,7 +616,7 @@ public class Mapping231To251Helper {
                     || inOri.getAssigningFacility().getUniversalID().getValue() == null
                     || (inOri.getAssigningFacility().getUniversalID().getValue() != null &&
                     inOri.getAssigningFacility().getUniversalID().getValue().isEmpty()) ) {
-                cxOut.getAssignAuthority().setUniversalId("2.16.840.1.113883.5.1008");
+                cxOut.getAssignAuthority().setUniversalId(UNIVERSAL_ID);
             }
             else {
                 cxOut.getAssignAuthority().setUniversalId(inOri.getAssigningFacility().getUniversalID().getValue());
@@ -629,7 +637,7 @@ public class Mapping231To251Helper {
         }
         else  {
             cxOut.getAssignAuthority().setNameSpaceId("");
-            cxOut.getAssignAuthority().setUniversalId("2.16.840.1.113883.5.1008");
+            cxOut.getAssignAuthority().setUniversalId(UNIVERSAL_ID);
             cxOut.getAssignAuthority().setUniversalIdType("NI");
         }
 
@@ -687,7 +695,7 @@ public class Mapping231To251Helper {
             cx.getAssignAuthority().setUniversalIdType("ISO");
         } else {
             cx.getAssignAuthority().setNameSpaceId("");
-            cx.getAssignAuthority().setUniversalId("2.16.840.1.113883.5.1008");
+            cx.getAssignAuthority().setUniversalId(UNIVERSAL_ID);
             cx.getAssignAuthority().setUniversalIdType("NI");
         }
 
