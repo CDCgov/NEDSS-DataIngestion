@@ -1,5 +1,5 @@
 name: Karate Test Workflow
-
+ 
 on:
   push:
     branches:
@@ -7,37 +7,30 @@ on:
   pull_request:
     branches:
       - karate
-
-  workflow_dispatch:
-    inputs:
-      environmentName:
-        description: 'Environment Name (e.g., dev, test)'
-        required: true
-        default: 'TEST'
-
+ 
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environmentName }}
-
+    environment: TEST
+ 
     steps:
       - uses: actions/checkout@v2
-
+ 
       - name: Set up Java
         uses: actions/setup-java@v1
         with:
           java-version: '17'
-
+ 
       - name: Cache Gradle packages
         uses: actions/cache@v2
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
-
+ 
       - name: Grant execute permission for gradlew
         run: chmod +x karatetest/gradlew
-
+ 
       - name: Build and run Karate tests
         working-directory: ./karatetest
         env:
@@ -70,8 +63,8 @@ jobs:
             -Dtest.checkstatusurl="$TEST_CHECKSTATUSURL" \
             -Dtest.checkerrorurl="$TEST_CHECKERRORURL" \
             -Dtest.registrationapiurl="$TEST_REGISTRATIONAPIURL" \
-            -Dtest.tokenurl="$TEST_TOKENURL"
-
+            -Dtest.tokenurl="$TEST_TOKENURL" \
+ 
       - name: Upload Karate Test Report
         uses: actions/upload-artifact@v2
         if: always()
