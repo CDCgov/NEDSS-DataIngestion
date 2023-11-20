@@ -25,7 +25,7 @@ public class ElrDeadLetterController {
             description = "Get all dead letter messages",
             tags = { "dataingestion", "deadletter" })
     @GetMapping(path = "/get-error-messages")
-    public ResponseEntity<List<ElrDeadLetterDto>> getAllNewErrorMessage() throws DeadLetterTopicException {
+    public ResponseEntity<List<ElrDeadLetterDto>> getAllNewErrorMessage() {
         return ResponseEntity.ok(elrDeadLetterService.getAllErrorDltRecord());
     }
 

@@ -26,13 +26,13 @@ import static gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper.*;
 public class HL7Parser implements IHL7Parser {
 
     private HapiContext context;
-    private final String newLine = "\n";
-    private final String newLineWithCarrier = "\n\r";
-    private final String carrier = "\r";
+    private static final String newLine = "\n";
+    private static final String newLineWithCarrier = "\n\r";
+    private static final String carrier = "\r";
 
     // this is the support hl7 structure
-    private final String supportedHL7version = "2.5.1";
-    private final String supportedHL7version231 = "2.3.1";
+    private static final String supportedHL7version = "2.5.1";
+    private static final String supportedHL7version231 = "2.3.1";
     private static final String EX_MESSAGE = "Invalid Message ";
 
 
@@ -165,11 +165,11 @@ public class HL7Parser implements IHL7Parser {
                 Ts messageHeaderDateTime = oru.getMessageHeader().getDateTimeOfMessage();
 
                 //region Message Header Conversion
-                oru.setMessageHeader(MapMsh(msh231, oru.getMessageHeader()));
+                oru.setMessageHeader(mapMsh(msh231, oru.getMessageHeader()));
                 //endregion
 
                 //region Software Segment conversion
-                oru.setSoftwareSegment(MapSoftwareSegment(oru.getSoftwareSegment()));
+                oru.setSoftwareSegment(mapSoftwareSegment(oru.getSoftwareSegment()));
                 //endregion
 
                 for (int a = 0; a < oru.getPatientResult().size(); a++) {
@@ -177,7 +177,7 @@ public class HL7Parser implements IHL7Parser {
                     var pid231 = patientResult231.get(a).getPIDPD1NK1NTEPV1PV2().getPID();
                     var pid = oru.getPatientResult().get(a).getPatient().getPatientIdentification();
                     oru.getPatientResult().get(a).getPatient().setPatientIdentification(
-                            MapPid(pid231, pid));
+                            mapPid(pid231, pid));
                     //endregion
 
                     //region Patient Result - PATIENT - PD1
@@ -207,7 +207,7 @@ public class HL7Parser implements IHL7Parser {
                             // Mapping OBX
                             oru.getPatientResult().get(a).getOrderObservation()
                                     .get(c).getObservation().get(d).setObservationResult(
-                                            MapObservationResultToObservationResult(
+                                            mapObservationResultToObservationResult(
                                                     oru.getPatientResult().get(a).getOrderObservation().get(c).getObservation().get(d).getObservationResult(),
                                                     oru.getPatientResult().get(a).getOrderObservation().get(c).getObservation().get(d).getObservationResult()
                                             ));
@@ -219,7 +219,7 @@ public class HL7Parser implements IHL7Parser {
 
                         var obr231 = patientResult231.get(a).getORCOBRNTEOBXNTECTIAll().get(c).getOBR();
                         oru.getPatientResult().get(a).getOrderObservation().get(c).setObservationRequest(
-                                ObservationRequestToObservationRequest(
+                                observationRequestToObservationRequest(
                                         obr231,
                                         oru.getPatientResult().get(a).getOrderObservation().get(c).getObservationRequest(),
                                         oru.getPatientResult().get(a).getOrderObservation().get(c).getObservationRequest(),
@@ -237,7 +237,7 @@ public class HL7Parser implements IHL7Parser {
                         //endregion
 
                         //region OBSERVATION - OBR to SPM
-                        var spc = ObservationRequestToSpecimen(
+                        var spc = observationRequestToSpecimen(
                                 oru.getPatientResult().get(a).getOrderObservation().get(c).getObservationRequest(),
                                 new Specimen());
                         oru.getPatientResult().get(a).getOrderObservation().get(c).getSpecimen().add(
@@ -250,8 +250,8 @@ public class HL7Parser implements IHL7Parser {
                     var orderORC231 = patientResult231.get(a).getORCOBRNTEOBXNTECTI(0).getORC();
                     var orderOBR231 = patientResult231.get(a).getORCOBRNTEOBXNTECTI(0).getOBR();
                     var orderORC251 = oru.getPatientResult().get(a).getOrderObservation().get(0).getCommonOrder();
-                    orderORC251 = MapCommonOrder(orderORC231, orderORC251);
-                    oru.getPatientResult().get(a).getOrderObservation().get(0).setCommonOrder(MapOBR2and3ToORC2and3(orderOBR231, orderORC251));
+                    orderORC251 = mapCommonOrder(orderORC231, orderORC251);
+                    oru.getPatientResult().get(a).getOrderObservation().get(0).setCommonOrder(mapOBR2and3ToORC2and3(orderOBR231, orderORC251));
                     //endregion
 
 

@@ -1,6 +1,5 @@
 package gov.cdc.dataingestion.nbs.service;
 
-import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.nbs.TestHelper;
 import gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
@@ -17,7 +16,7 @@ import java.io.IOException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-public class NbsRepositoryServiceProviderTest {
+class NbsRepositoryServiceProviderTest {
     @Mock
     private NbsInterfaceRepository nbsInterfaceRepo;
 

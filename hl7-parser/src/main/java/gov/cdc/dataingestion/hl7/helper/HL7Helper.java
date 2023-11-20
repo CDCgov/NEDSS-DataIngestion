@@ -47,7 +47,7 @@ public class HL7Helper {
      * Convert HL7 message into fhir
      * */
     public FhirConvertedMessage convertHl7ToFhir(String message) throws DiFhirException {
-        return fhirConverter.HL7ToFHIRConversion(message);
+        return fhirConverter.hL7ToFHIRConversion(message);
     }
 
     public String hl7Validation(String message) throws DiHL7Exception{

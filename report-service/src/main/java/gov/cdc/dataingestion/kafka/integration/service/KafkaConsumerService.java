@@ -443,7 +443,7 @@ public class KafkaConsumerService {
         } else {
             Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(message);
             if (response.isPresent()) {
-                var validMessage = iHl7v2Validator.MessageStringValidation(response.get().getMessage());
+                var validMessage = iHl7v2Validator.messageStringValidation(response.get().getMessage());
                 validMessage = iHl7v2Validator.processFhsMessage(validMessage);
                 hl7Msg = validMessage;
             } else {
@@ -494,14 +494,14 @@ public class KafkaConsumerService {
                 customMetricsBuilder.incrementMessagesValidated();
                 ValidatedELRModel hl7ValidatedModel;
                 try {
-                    hl7ValidatedModel = iHl7v2Validator.MessageValidation(message, elrModel, validatedTopic, hl7ValidationActivated);
+                    hl7ValidatedModel = iHl7v2Validator.messageValidation(message, elrModel, validatedTopic, hl7ValidationActivated);
                     customMetricsBuilder.incrementMessagesValidatedSuccess();
                 } catch (DiHL7Exception e) {
                     customMetricsBuilder.incrementMessagesValidatedFailure();
                     throw new RuntimeException(e);
                 }
                 // Duplication check
-                iHL7DuplicateValidator.ValidateHL7Document(hl7ValidatedModel);
+                iHL7DuplicateValidator.validateHL7Document(hl7ValidatedModel);
                 saveValidatedELRMessage(hl7ValidatedModel);
                 kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic, 0);
                 break;
@@ -530,7 +530,7 @@ public class KafkaConsumerService {
             Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(message);
             if (response.isPresent()) {
                 payloadMessage =  response.get().getMessage();
-                var validMessage = iHl7v2Validator.MessageStringValidation(payloadMessage);
+                var validMessage = iHl7v2Validator.messageStringValidation(payloadMessage);
                 model.setRawId(message);
                 model.setRawMessage(validMessage);
             } else {
@@ -539,7 +539,7 @@ public class KafkaConsumerService {
         }
 
         try {
-            HL7ToFHIRModel convertedModel = iHl7ToFHIRConversion.ConvertHL7v2ToFhir(model, convertedToFhirTopic);
+            HL7ToFHIRModel convertedModel = iHl7ToFHIRConversion.convertHL7v2ToFhir(model, convertedToFhirTopic);
             iHL7ToFHIRRepository.save(convertedModel);
             kafkaProducerService.sendMessageAfterConvertedToFhirMessage(convertedModel, convertedToFhirTopic, 0);
         } catch (Exception e) {

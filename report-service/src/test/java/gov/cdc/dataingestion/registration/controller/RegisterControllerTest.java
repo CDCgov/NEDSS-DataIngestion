@@ -1,7 +1,5 @@
 package gov.cdc.dataingestion.registration.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import gov.cdc.dataingestion.registration.dto.RegistrationRequestDTO;
 import gov.cdc.dataingestion.registration.service.RegistrationService;
 import gov.cdc.dataingestion.security.config.RsaKeyProperties;
 import org.junit.jupiter.api.Assertions;
@@ -22,7 +20,7 @@ import static org.mockito.Mockito.when;
 
 @WebMvcTest(RegisterController.class)
 @EnableConfigurationProperties(RsaKeyProperties.class)
-public class RegisterControllerTest {
+class RegisterControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -46,7 +44,7 @@ public class RegisterControllerTest {
                         .content(requestBody)
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        verify(registrationService).createUser(eq("newuser"), eq("password123"));
+        verify(registrationService).createUser("newuser", "password123");
         Assertions.assertEquals(userCreatedMsg, result.getResponse().getContentAsString());
     }
 
@@ -61,7 +59,7 @@ public class RegisterControllerTest {
                         .content(requestBody)
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        verify(registrationService).createUser(eq("newuser"), eq("password123"));
+        verify(registrationService).createUser("newuser", "password123");
         Assertions.assertEquals(userAlreadyExistMsg, result.getResponse().getContentAsString());
     }
 

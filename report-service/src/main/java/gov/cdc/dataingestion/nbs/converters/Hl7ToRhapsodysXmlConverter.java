@@ -245,7 +245,7 @@ public class Hl7ToRhapsodysXmlConverter {
             hl7OrderObservationType.getClinicalTrialIdentification().add(buildHL7CTIType(cti));
         }
 
-        if ((null != oo.getSpecimen() && (oo.getSpecimen().size() > 0))) {
+        if ((null != oo.getSpecimen() && (!oo.getSpecimen().isEmpty()))) {
             for (Specimen specimen : oo.getSpecimen()) {
                 hl7OrderObservationType.setPatientResultOrderSPMObservation(buildHL7PatientResultSPMType(oo.getSpecimen()));
             }
@@ -479,7 +479,7 @@ public class Hl7ToRhapsodysXmlConverter {
     private HL7CTDType buildHL7CTDType(ContactData contactData) {
         HL7CTDType hl7CTDType = new HL7CTDType();
 
-        if ((null == contactData.getContactRole()) || (contactData.getContactRole().size() <= 0)) {
+        if ((null == contactData.getContactRole()) || (contactData.getContactRole().isEmpty())) {
             hl7CTDType.getContactRole().add(buildHL7CEType(null));
         } else {
             for (Ce ce : contactData.getContactRole()) {
@@ -1789,25 +1789,25 @@ public class Hl7ToRhapsodysXmlConverter {
             hl7ORCType.setAdvancedBeneficiaryNoticeCode(buildHL7CWEType(commonOrder.getAdvancedBeneficiaryNoticeCode()));
         }
 
-        if (commonOrder.getOrderingFacilityName().size() > 0) {
+        if (!commonOrder.getOrderingFacilityName().isEmpty()) {
             for (Xon xon : commonOrder.getOrderingFacilityName()) {
                 hl7ORCType.getOrderingFacilityName().add(buildHL7XONType(xon));
             }
         }
 
-        if (commonOrder.getOrderingFacilityAddress().size() > 0) {
+        if (!commonOrder.getOrderingFacilityAddress().isEmpty()) {
             for (Xad xad : commonOrder.getOrderingFacilityAddress()) {
                 hl7ORCType.getOrderingFacilityAddress().add(buildHL7XADType(xad));
             }
         }
 
-        if (commonOrder.getOrderingFacilityPhoneNumber().size() > 0) {
+        if (!commonOrder.getOrderingFacilityPhoneNumber().isEmpty()) {
             for (Xtn xtn : commonOrder.getOrderingFacilityPhoneNumber()) {
                 hl7ORCType.getOrderingFacilityPhoneNumber().add(buildHL7XTNType(xtn));
             }
         }
 
-        if (commonOrder.getOrderingProviderAddress().size() > 0) {
+        if (!commonOrder.getOrderingProviderAddress().isEmpty()) {
             for (Xad xad : commonOrder.getOrderingProviderAddress()) {
                 hl7ORCType.getOrderingProviderAddress().add(buildHL7XADType(xad));
             }
@@ -1829,7 +1829,7 @@ public class Hl7ToRhapsodysXmlConverter {
             hl7ORCType.setEnteringDevice(buildHL7CWEType(commonOrder.getEnteringDevice()));
         }
 
-        if (commonOrder.getActionBy().size() > 0) {
+        if (!commonOrder.getActionBy().isEmpty()) {
             for (Xcn xcn : commonOrder.getActionBy()) {
                 hl7ORCType.getActionBy().add(buildHL7XCNType(xcn));
             }
@@ -1844,19 +1844,19 @@ public class Hl7ToRhapsodysXmlConverter {
 
         hl7ORCType.setDateTimeOfTransaction(buildHL7TSType(commonOrder.getDateTimeOfTransaction()));
 
-        if (commonOrder.getEnteredBy().size() > 0) {
+        if (!commonOrder.getEnteredBy().isEmpty()) {
             for (Xcn xcn : commonOrder.getEnteredBy()) {
                 hl7ORCType.getEnteredBy().add(buildHL7XCNType(xcn));
             }
         }
 
-        if (commonOrder.getVerifiedBy().size() > 0) {
+        if (!commonOrder.getVerifiedBy().isEmpty()) {
             for (Xcn xcn : commonOrder.getVerifiedBy()) {
                 hl7ORCType.getVerifiedBy().add(buildHL7XCNType(xcn));
             }
         }
 
-        if (commonOrder.getOrderingProvider().size() > 0) {
+        if (!commonOrder.getOrderingProvider().isEmpty()) {
             for (Xcn xcn : commonOrder.getOrderingProvider()) {
                 hl7ORCType.getOrderingProvider().add(buildHL7XCNType(xcn));
             }
@@ -2479,7 +2479,7 @@ public class Hl7ToRhapsodysXmlConverter {
 
     private boolean isEmptyHL7PID1Type(PatientAdditionalDemographic pad) {
         if (null == pad) return true;
-        if (pad.getLivingDependency().size() <= 0) return true;
+        if (pad.getLivingDependency().isEmpty()) return true;
         return false;
     }
 
@@ -2534,7 +2534,7 @@ public class Hl7ToRhapsodysXmlConverter {
 
     private boolean isEmptyHL7CTDType(ContactData contactData) {
         if (null == contactData) return true;
-        if ((null == contactData.getContactRole()) || (contactData.getContactRole().size() <= 0)) return true;
+        if ((null == contactData.getContactRole()) || (contactData.getContactRole().isEmpty())) return true;
         return false;
     }
 

@@ -5,7 +5,7 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
+import static gov.cdc.dataingestion.hl7.helper.helper.ModelListHelper.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public class MessageHeader {
     Hd sendingFacility = new Hd();
     Hd receivingApplication = new Hd();
     Hd receivingFacility = new Hd();
-    Ts DateTimeOfMessage = new Ts();
+    Ts dateTimeOfMessage = new Ts();
     String security;
     Msg messageType = new Msg();
     String messageControlId;
@@ -45,7 +45,7 @@ public class MessageHeader {
         this.sendingFacility = new Hd(msh.getSendingFacility());
         this.receivingApplication = new Hd(msh.getReceivingApplication());
         this.receivingFacility = new Hd(msh.getReceivingFacility());
-        DateTimeOfMessage =  new Ts(msh.getDateTimeOfMessage());
+        dateTimeOfMessage =  new Ts(msh.getDateTimeOfMessage());
         this.security = msh.getSecurity().getValue();
         this.messageType = new Msg(msh.getMessageType());
         this.messageControlId = msh.getMessageControlID().getValue();
@@ -56,9 +56,9 @@ public class MessageHeader {
         this.acceptAckType = msh.getAcceptAcknowledgmentType().getValue();
         this.applicationAckType = msh.getApplicationAcknowledgmentType().getValue();
         this.countryCode = msh.getCountryCode().getValue();
-        this.characterSet = GetIdStringList(msh.getCharacterSet());
+        this.characterSet = getIdStringList(msh.getCharacterSet());
         this.principalLanguageOfMessage = new Ce(msh.getPrincipalLanguageOfMessage());
         this.alternateCharacterSetHandlingScheme = msh.getAlternateCharacterSetHandlingScheme().getValue();
-        this.messageProfileIdentifier = GetEiList(msh.getMessageProfileIdentifier());
+        this.messageProfileIdentifier = getEiList(msh.getMessageProfileIdentifier());
     }
 }

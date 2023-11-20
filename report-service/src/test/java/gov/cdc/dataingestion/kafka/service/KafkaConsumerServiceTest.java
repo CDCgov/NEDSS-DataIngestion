@@ -27,7 +27,6 @@ import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7Dup
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
-import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -59,7 +58,6 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -198,12 +196,12 @@ class KafkaConsumerServiceTest {
         rawModel.setId(guidForTesting);
         rawModel.setType("HL7");
 
-        when(iRawELRRepository.findById(eq(guidForTesting)))
+        when(iRawELRRepository.findById(guidForTesting))
                 .thenReturn(Optional.of(rawModel));
 
         kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false");
 
-        verify(iRawELRRepository, times(1)).findById(eq(guidForTesting));
+        verify(iRawELRRepository, times(1)).findById(guidForTesting);
 
     }
 
@@ -259,12 +257,12 @@ class KafkaConsumerServiceTest {
         ValidatedELRModel model = new ValidatedELRModel();
         model.setId(guidForTesting);
 
-        when(iValidatedELRRepository.findById(eq(guidForTesting)))
+        when(iValidatedELRRepository.findById(guidForTesting))
                 .thenReturn(Optional.of(model));
 
         kafkaConsumerService.handleMessageForValidatedElr(value, validateTopic);
 
-        verify(iValidatedELRRepository, times(1)).findById(eq(guidForTesting));
+        verify(iValidatedELRRepository, times(1)).findById(guidForTesting);
 
     }
 
@@ -287,14 +285,14 @@ class KafkaConsumerServiceTest {
         ValidatedELRModel model = new ValidatedELRModel();
         model.setId(guidForTesting);
 
-        when(iValidatedELRRepository.findById(eq(guidForTesting)))
+        when(iValidatedELRRepository.findById(guidForTesting))
                 .thenReturn(Optional.empty());
 
 
         assertThrows(ConversionPrepareException.class, () -> kafkaConsumerService.handleMessageForValidatedElr(value, validateTopic));
 
 
-        verify(iValidatedELRRepository, times(1)).findById(eq(guidForTesting));
+        verify(iValidatedELRRepository, times(1)).findById(guidForTesting);
 
     }
 
@@ -317,13 +315,13 @@ class KafkaConsumerServiceTest {
         model.setId(guidForTesting);
         model.setRawMessage(testHL7Message);
 
-        when(iValidatedELRRepository.findById(eq(guidForTesting)))
+        when(iValidatedELRRepository.findById(guidForTesting))
                 .thenReturn(Optional.of(model));
         when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString())).thenReturn(nbsInterfaceModel);
 
         kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.INJECTION.name());
 
-        verify(iValidatedELRRepository, times(2)).findById(eq(guidForTesting));
+        verify(iValidatedELRRepository, times(2)).findById(guidForTesting);
 
     }
 
@@ -349,13 +347,13 @@ class KafkaConsumerServiceTest {
         ElrDeadLetterModel model = new ElrDeadLetterModel();
         model.setErrorMessageId(guidForTesting);
         model.setMessage(testHL7Message);
-        when(elrDeadLetterRepository.findById(eq(guidForTesting)))
+        when(elrDeadLetterRepository.findById(guidForTesting))
                 .thenReturn(Optional.of(model));
 
-        when(iHl7v2Validator.MessageStringValidation(eq(testHL7Message)))
+        when(iHl7v2Validator.messageStringValidation(testHL7Message))
                 .thenReturn(testHL7Message);
 
-        when(iHl7v2Validator.processFhsMessage(eq(testHL7Message))).thenReturn(testHL7Message);
+        when(iHl7v2Validator.processFhsMessage(testHL7Message)).thenReturn(testHL7Message);
 
 
         validatedELRModel.setRawMessage(testHL7Message);
@@ -365,8 +363,8 @@ class KafkaConsumerServiceTest {
 
         kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.name());
 
-        verify(iHl7v2Validator, times(1)).MessageStringValidation(eq(testHL7Message));
-        verify(elrDeadLetterRepository, times(1)).findById(eq(guidForTesting));
+        verify(iHl7v2Validator, times(1)).messageStringValidation(testHL7Message);
+        verify(elrDeadLetterRepository, times(1)).findById(guidForTesting);
 
     }
 
@@ -390,13 +388,13 @@ class KafkaConsumerServiceTest {
         model.setId(guidForTesting);
         model.setRawMessage(testHL7Message);
 
-        when(iValidatedELRRepository.findById(eq(guidForTesting)))
+        when(iValidatedELRRepository.findById(guidForTesting))
                 .thenReturn(Optional.of(model));
 
 
         kafkaConsumerService.handleMessageForFhirConversionElr(value, fhirPrepTopic, EnumKafkaOperation.INJECTION.name());
 
-        verify(iValidatedELRRepository, times(1)).findById(eq(guidForTesting));
+        verify(iValidatedELRRepository, times(1)).findById(guidForTesting);
 
     }
 
@@ -418,7 +416,7 @@ class KafkaConsumerServiceTest {
 
 
 
-        when(iValidatedELRRepository.findById(eq(guidForTesting)))
+        when(iValidatedELRRepository.findById(guidForTesting))
                 .thenReturn(Optional.empty());
 
 
@@ -427,7 +425,7 @@ class KafkaConsumerServiceTest {
         );
 
 
-        verify(iValidatedELRRepository, times(1)).findById(eq(guidForTesting));
+        verify(iValidatedELRRepository, times(1)).findById(guidForTesting);
 
     }
 
@@ -450,17 +448,17 @@ class KafkaConsumerServiceTest {
         ElrDeadLetterModel model = new ElrDeadLetterModel();
         model.setErrorMessageId(guidForTesting);
         model.setMessage(testHL7Message);
-        when(elrDeadLetterRepository.findById(eq(guidForTesting)))
+        when(elrDeadLetterRepository.findById(guidForTesting))
                 .thenReturn(Optional.of(model));
 
-        when(iHl7v2Validator.MessageStringValidation(eq(testHL7Message)))
+        when(iHl7v2Validator.messageStringValidation(testHL7Message))
                 .thenReturn(testHL7Message);
 
 
         kafkaConsumerService.handleMessageForFhirConversionElr(value, fhirPrepTopic, EnumKafkaOperation.REINJECTION.name());
 
-        verify(iHl7v2Validator, times(1)).MessageStringValidation(eq(testHL7Message));
-        verify(elrDeadLetterRepository, times(1)).findById(eq(guidForTesting));
+        verify(iHl7v2Validator, times(1)).messageStringValidation(testHL7Message);
+        verify(elrDeadLetterRepository, times(1)).findById(guidForTesting);
 
     }
 
@@ -552,12 +550,12 @@ class KafkaConsumerServiceTest {
         rawModel.setId(guidForTesting);
         rawModel.setType("HL7");
         rawModel.setPayload(testHL7Message);
-        when(iRawELRRepository.findById(eq(guidForTesting)))
+        when(iRawELRRepository.findById(guidForTesting))
                 .thenReturn(Optional.of(rawModel));
 
         kafkaConsumerService.handleDlt(message, rawTopic + "_dlt", "n/a", errorMessage, "0", rawTopic);
 
-        verify(iRawELRRepository, times(1)).findById(eq(guidForTesting));
+        verify(iRawELRRepository, times(1)).findById(guidForTesting);
     }
 
     @Test
@@ -593,12 +591,12 @@ class KafkaConsumerServiceTest {
         ValidatedELRModel rawModel = new ValidatedELRModel();
         rawModel.setId(guidForTesting);
         rawModel.setRawMessage(testHL7Message);
-        when(iValidatedELRRepository.findById(eq(guidForTesting)))
+        when(iValidatedELRRepository.findById(guidForTesting))
                 .thenReturn(Optional.of(rawModel));
 
         kafkaConsumerService.handleDlt(message, validateTopic + "_dlt", "n/a", errorMessage, "0", validateTopic);
 
-        verify(iValidatedELRRepository, times(1)).findById(eq(guidForTesting));
+        verify(iValidatedELRRepository, times(1)).findById(guidForTesting);
     }
 
     @Test
@@ -609,12 +607,12 @@ class KafkaConsumerServiceTest {
         ValidatedELRModel rawModel = new ValidatedELRModel();
         rawModel.setId(guidForTesting);
         rawModel.setRawMessage(testHL7Message);
-        when(iValidatedELRRepository.findById(eq(guidForTesting)))
+        when(iValidatedELRRepository.findById(guidForTesting))
                 .thenReturn(Optional.of(rawModel));
 
         kafkaConsumerService.handleDlt(message, xmlPrepTopic + "_dlt", "n/a", errorMessage, "0", xmlPrepTopic);
 
-        verify(iValidatedELRRepository, times(1)).findById(eq(guidForTesting));
+        verify(iValidatedELRRepository, times(1)).findById(guidForTesting);
     }
 
     @Test
@@ -625,12 +623,12 @@ class KafkaConsumerServiceTest {
         ValidatedELRModel rawModel = new ValidatedELRModel();
         rawModel.setId(guidForTesting);
         rawModel.setRawMessage(testHL7Message);
-        when(iValidatedELRRepository.findById(eq(guidForTesting)))
+        when(iValidatedELRRepository.findById(guidForTesting))
                 .thenReturn(Optional.of(rawModel));
 
         kafkaConsumerService.handleDlt(message, fhirPrepTopic + "_dlt", "n/a", errorMessage, "0", fhirPrepTopic);
 
-        verify(iValidatedELRRepository, times(1)).findById(eq(guidForTesting));
+        verify(iValidatedELRRepository, times(1)).findById(guidForTesting);
     }
 
     private void initialDataInsertionAndSelection(String dltSourceMessage) {

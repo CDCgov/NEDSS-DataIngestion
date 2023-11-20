@@ -3,7 +3,6 @@ package gov.cdc.dataingestion.kafka.integration.service;
 import com.google.gson.Gson;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
-import gov.cdc.dataingestion.constant.enums.EnumElrDltStatus;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
 import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
@@ -17,11 +16,11 @@ import java.util.UUID;
 
 @Service
 public class KafkaProducerService {
-    private final String prefixMessagePreparation = "PREP_";
-    private final String xmlMessageKeyPrefix = "XML_";
-    private final String fhirMessageKeyPrefix = "FHIR_";
-    private final String validMessageKeyPrefix = "VALID_";
-    private final String hl7MessageKeyPrefix = "HL7_";
+    private static final String prefixMessagePreparation = "PREP_";
+    private static final String xmlMessageKeyPrefix = "XML_";
+    private static final String fhirMessageKeyPrefix = "FHIR_";
+    private static final String validMessageKeyPrefix = "VALID_";
+    private static final String hl7MessageKeyPrefix = "HL7_";
 
 
     private final KafkaTemplate<String, String> kafkaTemplate;

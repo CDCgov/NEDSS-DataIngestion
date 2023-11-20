@@ -1,5 +1,5 @@
 package gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit;
-import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
+import static gov.cdc.dataingestion.hl7.helper.helper.ModelListHelper.*;
 
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
 import lombok.Getter;
@@ -70,15 +70,15 @@ public class PatientVisitAdditional {
         this.accommodationCode = new Ce(pv2.getAccommodationCode());
         this.admitReason = new Ce(pv2.getAdmitReason());
         this.transferReason = new Ce(pv2.getTransferReason());
-        this.patientValuables = GetStStringList(pv2.getPatientValuables());
+        this.patientValuables = getStStringList(pv2.getPatientValuables());
         this.patientValuablesLocation = pv2.getPatientValuablesLocation().getValue();
-        this.visitUserCode = GetIsStringList(pv2.getVisitUserCode());
+        this.visitUserCode = getIsStringList(pv2.getVisitUserCode());
         this.expectedAdmitDateTime = new Ts(pv2.getExpectedAdmitDateTime());
         this.expectedDischargeDateTime = new Ts(pv2.getExpectedDischargeDateTime());
         this.estimateLengthOfInpatientDay = pv2.getEstimatedLengthOfInpatientStay().getValue();
         this.actualLengthOfInpatientDay = pv2.getActualLengthOfInpatientStay().getValue();
         this.visitDescription = pv2.getVisitDescription().getValue();
-        this.referralSourceCode = GetXcnList(pv2.getReferralSourceCode());
+        this.referralSourceCode = getXcnList(pv2.getReferralSourceCode());
         this.previousServiceDate = pv2.getPreviousServiceDate().getValue();
         this.employmentIllnessRelatedIndicator = pv2.getEmploymentIllnessRelatedIndicator().getValue();
         this.purgeStatusCode = pv2.getPurgeStatusCode().getValue();
@@ -88,7 +88,7 @@ public class PatientVisitAdditional {
         this.expectedNumberOfInsurancePlans = pv2.getExpectedNumberOfInsurancePlans().getValue();
         this.visitPublicityCode = pv2.getVisitPublicityCode().getValue();
         this.visitProtectionIndicator = pv2.getVisitProtectionIndicator().getValue();
-        this.clinicOrganizationName = GetXonList(pv2.getClinicOrganizationName());
+        this.clinicOrganizationName = getXonList(pv2.getClinicOrganizationName());
         this.patientStatusCode = pv2.getPatientStatusCode().getValue();
         this.visitPriorityCode = pv2.getVisitPriorityCode().getValue();
         this.previousTreatmentCode = pv2.getPreviousTreatmentDate().getValue();
@@ -104,16 +104,16 @@ public class PatientVisitAdditional {
         this.newbornBabyIndicator = pv2.getNewbornBabyIndicator().getValue();
         this.babyDetainedIndicator = pv2.getBabyDetainedIndicator().getValue();
         this.modeOfArrivalCode = new Ce(pv2.getModeOfArrivalCode());
-        this.recreationalDrugUseCode = GetCeList(pv2.getRecreationalDrugUseCode());
+        this.recreationalDrugUseCode = getCeList(pv2.getRecreationalDrugUseCode());
         this.admissionLevelOfCareCode = new Ce(pv2.getAdmissionLevelOfCareCode());
-        this.precautionCode = GetCeList(pv2.getPrecautionCode());
+        this.precautionCode = getCeList(pv2.getPrecautionCode());
         this.patientConditionCode = new Ce(pv2.getPatientConditionCode());
         this.livingWillCode = pv2.getLivingWillCode().getValue();
         this.organDonorCode = pv2.getOrganDonorCode().getValue();
-        this.advanceDirectiveCode = GetCeList(pv2.getAdvanceDirectiveCode());
+        this.advanceDirectiveCode = getCeList(pv2.getAdvanceDirectiveCode());
         this.patientStatusEffectiveDate = pv2.getPatientStatusEffectiveDate().getValue();
         this.expectedLoaReturnDateTime = new Ts(pv2.getExpectedLOAReturnDateTime());
         this.expectedPreAdmissionTestingDateTime = new Ts(pv2.getExpectedPreAdmissionTestingDateTime());
-        this.notifyClergyCode = GetIsStringList(pv2.getNotifyClergyCode());
+        this.notifyClergyCode = getIsStringList(pv2.getNotifyClergyCode());
     }
 }

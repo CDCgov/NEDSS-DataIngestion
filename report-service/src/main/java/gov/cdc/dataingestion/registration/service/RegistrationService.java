@@ -4,7 +4,6 @@ package gov.cdc.dataingestion.registration.service;
 import gov.cdc.dataingestion.registration.model.RegisterClient;
 import gov.cdc.dataingestion.registration.repository.IClientRegisterRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

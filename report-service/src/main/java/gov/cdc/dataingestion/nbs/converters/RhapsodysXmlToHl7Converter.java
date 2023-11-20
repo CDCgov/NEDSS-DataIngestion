@@ -18,11 +18,11 @@ import  org.springframework.stereotype.Component;
 
 @Component
 public class RhapsodysXmlToHl7Converter {
-    private static String NEWLINE = "\n";
-    private static String COLUMNS_SEPARATOR = "|";
-    private static String LISTS_SEPARATOR = "~";     // Ex: Two patient identifiers, DL and LabID
-    private static String ATTRIBUTES_SEPARATOR = "^";// Ex: Id, First Name, Last Name; 7654^JONES^INDIANA
-    private static String INNTER_ATTRIBUTES_SEPARATOR = "&";     // EX: Lab tech comments, multiple last names
+    private static final String NEWLINE = "\n";
+    private static final String COLUMNS_SEPARATOR = "|";
+    private static final String LISTS_SEPARATOR = "~";     // Ex: Two patient identifiers, DL and LabID
+    private static final String ATTRIBUTES_SEPARATOR = "^";// Ex: Id, First Name, Last Name; 7654^JONES^INDIANA
+    private static final String INNTER_ATTRIBUTES_SEPARATOR = "&";     // EX: Lab tech comments, multiple last names
 
     private static RhapsodysXmlToHl7Converter instance = new RhapsodysXmlToHl7Converter();
 

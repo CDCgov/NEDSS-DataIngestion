@@ -9,21 +9,14 @@ import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
-import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Sort;
-import org.testcontainers.containers.MSSQLServerContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
-import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -108,7 +101,7 @@ class ElrDeadLetterServiceTest {
         rawModel.setId(guidForTesting);
         rawModel.setPayload("HL7 message");
 
-        when(dltRepository.findAllDltRecordByDltStatus(eq(EnumElrDltStatus.ERROR.name()), eq(Sort.by(Sort.Direction.DESC, "createdOn")))).thenReturn(Optional.of(listData));
+        when(dltRepository.findAllDltRecordByDltStatus(EnumElrDltStatus.ERROR.name(), Sort.by(Sort.Direction.DESC, "createdOn"))).thenReturn(Optional.of(listData));
         var result = elrDeadLetterService.getAllErrorDltRecord();
         assertEquals(result.get(0).getErrorMessageId(), model.getErrorMessageId());
 
@@ -135,11 +128,11 @@ class ElrDeadLetterServiceTest {
         rawERLModel.setId(elrDltModel.getErrorMessageId());
         elrDltModel.setDltStatus(EnumElrDltStatus.ERROR.name());
 
-        when(dltRepository.findById(eq(elrDltModel.getErrorMessageId())))
+        when(dltRepository.findById(elrDltModel.getErrorMessageId()))
                 .thenReturn(Optional.of(elrDltModel));
-        when(rawELRRepository.findById(eq(elrDltModel.getErrorMessageId())))
+        when(rawELRRepository.findById(elrDltModel.getErrorMessageId()))
                 .thenReturn(Optional.of(rawERLModel));
-        when(rawELRRepository.save(eq(rawERLModel))).thenReturn(rawERLModel);
+        when(rawELRRepository.save(rawERLModel)).thenReturn(rawERLModel);
         when(dltRepository.save(any(ElrDeadLetterModel.class))).thenReturn(elrDltModel);
 
         var result = elrDeadLetterService.updateAndReprocessingMessage(primaryIdForTesting, "HL7 message");
@@ -167,10 +160,10 @@ class ElrDeadLetterServiceTest {
         validatedERLModel.setRawMessage("HL7 message validated");
         validatedERLModel.setId(elrDltModel.getErrorMessageId());
 
-        when(dltRepository.findById(eq(elrDltModel.getErrorMessageId())))
+        when(dltRepository.findById(elrDltModel.getErrorMessageId()))
                 .thenReturn(Optional.of(elrDltModel));
 
-        when(validatedELRRepository.findById(eq(elrDltModel.getErrorMessageId())))
+        when(validatedELRRepository.findById(elrDltModel.getErrorMessageId()))
                 .thenReturn(Optional.of(validatedERLModel));
 
         when(validatedELRRepository.save(any(ValidatedELRModel.class))).thenReturn(validatedERLModel);
@@ -192,7 +185,7 @@ class ElrDeadLetterServiceTest {
         elrDltModel.setErrorMessageSource("fhir_prep");
         elrDltModel.setDltStatus(EnumElrDltStatus.ERROR.name());
 
-        when(dltRepository.findById(eq(elrDltModel.getErrorMessageId())))
+        when(dltRepository.findById(elrDltModel.getErrorMessageId()))
                 .thenReturn(Optional.of(elrDltModel));
 
 
@@ -216,7 +209,7 @@ class ElrDeadLetterServiceTest {
         elrDltModel.setDltStatus(EnumElrDltStatus.ERROR.name());
 
 
-        when(dltRepository.findById(eq(elrDltModel.getErrorMessageId())))
+        when(dltRepository.findById(elrDltModel.getErrorMessageId()))
                 .thenReturn(Optional.of(elrDltModel));
 
         when(dltRepository.save(any(ElrDeadLetterModel.class))).thenReturn(elrDltModel);

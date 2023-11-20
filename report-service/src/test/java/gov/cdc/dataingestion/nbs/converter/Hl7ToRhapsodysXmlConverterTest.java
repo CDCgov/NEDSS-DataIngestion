@@ -36,7 +36,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Hl7ToRhapsodysXmlConverterTest {
+class Hl7ToRhapsodysXmlConverterTest {
     Hl7ToRhapsodysXmlConverter target = new Hl7ToRhapsodysXmlConverter();
     HL7Helper hl7Helper = new HL7Helper();
 

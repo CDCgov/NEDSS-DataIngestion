@@ -35,7 +35,7 @@ class Mapping231To251HelperTest {
     void mapMsh_TestElse() throws DiHL7Exception {
         var oru = (OruR1) testObject.getParsedMessage();
         oru.getMessageHeader().setMessageProfileIdentifier(null);
-        var result = target.MapMsh(null, oru.getMessageHeader());
+        var result = target.mapMsh(null, oru.getMessageHeader());
         Assertions.assertEquals("ISO",result.getMessageProfileIdentifier().get(0).getUniversalIdType());
     }
 
@@ -47,7 +47,7 @@ class Mapping231To251HelperTest {
         oru.getPatientResult().get(0).getPatient().getPatientIdentification().setPatientIdentifierList(null);
         oru.getPatientResult().get(0).getPatient().getPatientIdentification().setPatientName(null);
         var exception = Assertions.assertThrows(Exception.class, () -> {
-            target.MapPid(pid, oru.getPatientResult().get(0).getPatient().getPatientIdentification());
+            target.mapPid(pid, oru.getPatientResult().get(0).getPatient().getPatientIdentification());
         });
         Assertions.assertNotNull(exception);
 
@@ -77,7 +77,7 @@ class Mapping231To251HelperTest {
         xad.setEffectiveDate(ts);
         xad.setExpirationDate(ts);
 
-        var result = target.MapXad(xad, xad);
+        var result = target.mapXad(xad, xad);
 
         Assertions.assertEquals(sad,result.getStreetAddress());
         Assertions.assertEquals("test",result.getOtherDesignation());

@@ -3,7 +3,6 @@ package gov.cdc.dataingestion.report.repository.model;
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 
 @Entity
@@ -22,7 +21,7 @@ public class RawERLModel {
 
     @Transient
     @Column(name = "created_on")
-    private Timestamp CreatedOn;
+    private Timestamp createdOn;
 
     @Column(name = "updated_on")
     private Timestamp updatedOn;
@@ -58,11 +57,11 @@ public class RawERLModel {
     }
 
     public Timestamp getCreatedOn() {
-        return CreatedOn;
+        return createdOn;
     }
 
     public void setCreatedOn(Timestamp createdOn) {
-        CreatedOn = createdOn;
+        this.createdOn = createdOn;
     }
 
     public Timestamp getUpdatedOn() {

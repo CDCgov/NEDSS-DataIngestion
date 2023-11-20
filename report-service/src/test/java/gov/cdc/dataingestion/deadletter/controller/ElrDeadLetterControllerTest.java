@@ -97,6 +97,6 @@ class ElrDeadLetterControllerTest {
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
-        verify(elrDeadLetterService).updateAndReprocessingMessage(eq("1"), eq("HL7 message"));
+        verify(elrDeadLetterService).updateAndReprocessingMessage("1", "HL7 message");
     }
 }

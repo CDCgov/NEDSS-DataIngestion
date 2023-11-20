@@ -9,8 +9,8 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
-import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.GetCweList;
+import static gov.cdc.dataingestion.hl7.helper.helper.ModelListHelper.*;
+import static gov.cdc.dataingestion.hl7.helper.helper.ModelListHelper.getCweList;
 
 @Getter
 public class TimingQuantity {
@@ -32,13 +32,13 @@ public class TimingQuantity {
     public TimingQuantity(ca.uhn.hl7v2.model.v251.segment.TQ1 tq1) {
         this.setIdTq1 = tq1.getSetIDTQ1().getValue();
         this.quantity = new Cq(tq1.getQuantity());
-        this.repeatPattern = GetRptList(tq1.getRepeatPattern());
-        this.explicitTime = GetTmStringList(tq1.getExplicitTime());
-        this.relativeTimeAndUnits = GetCqList(tq1.getRelativeTimeAndUnits());
+        this.repeatPattern = getRptList(tq1.getRepeatPattern());
+        this.explicitTime = getTmStringList(tq1.getExplicitTime());
+        this.relativeTimeAndUnits = getCqList(tq1.getRelativeTimeAndUnits());
         this.serviceDuration = new Cq(tq1.getServiceDuration());
         this.startDateTime = new Ts(tq1.getStartDateTime());
         this.endDateTime = new Ts(tq1.getEndDateTime());
-        this.priority = GetCweList(tq1.getPriority());
+        this.priority = getCweList(tq1.getPriority());
         this.conditionText = tq1.getConditionText().getValue();
         this.textInstruction = tq1.getTextInstruction().getValue();
         this.conjunction = tq1.getConjunction().getValue();

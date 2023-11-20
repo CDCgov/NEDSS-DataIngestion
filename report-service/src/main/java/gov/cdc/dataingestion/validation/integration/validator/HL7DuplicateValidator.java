@@ -32,7 +32,7 @@ public class HL7DuplicateValidator implements IHL7DuplicateValidator {
     }
 
     @Override
-    public void ValidateHL7Document(ValidatedELRModel hl7ValidatedModel) throws DuplicateHL7FileFoundException {
+    public void validateHL7Document(ValidatedELRModel hl7ValidatedModel) throws DuplicateHL7FileFoundException {
         String hashedString = null;
         try {
             MessageDigest digestString = MessageDigest.getInstance("SHA-256");

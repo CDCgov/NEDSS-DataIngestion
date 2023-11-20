@@ -10,7 +10,7 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
+import static gov.cdc.dataingestion.hl7.helper.helper.ModelListHelper.*;
 
 @Getter
 @Setter
@@ -42,21 +42,21 @@ public class PatientAdditionalDemographic {
     }
 
     public PatientAdditionalDemographic(ca.uhn.hl7v2.model.v251.segment.PD1 pd1) {
-        this.livingDependency = GetIsStringList(pd1.getLivingDependency());
+        this.livingDependency = getIsStringList(pd1.getLivingDependency());
         this.livingArrangement = pd1.getLivingArrangement().getValue();
-        this.patientPrimaryFacility = GetXonList(pd1.getPatientPrimaryFacility());
-        this.patientPrimaryCareProviderNameAndIdNo = GetXcnList(pd1.getPatientPrimaryCareProviderNameIDNo());
+        this.patientPrimaryFacility = getXonList(pd1.getPatientPrimaryFacility());
+        this.patientPrimaryCareProviderNameAndIdNo = getXcnList(pd1.getPatientPrimaryCareProviderNameIDNo());
         this.studentIndicator = pd1.getStudentIndicator().getValue();
         this.handiCap = pd1.getHandicap().getValue();
         this.livingWillCode = pd1.getLivingWillCode().getValue();
         this.organDonorCode = pd1.getOrganDonorCode().getValue();
         this.separateBill = pd1.getSeparateBill().getValue();
-        this.duplicatePatient = GetCxList(pd1.getDuplicatePatient());
+        this.duplicatePatient = getCxList(pd1.getDuplicatePatient());
         this.publicityCode = new Ce(pd1.getPublicityCode());
         this.protectionIndicator = pd1.getProtectionIndicator().getValue();
         this.protectionIndicatorEffectiveDate = pd1.getProtectionIndicatorEffectiveDate().getValue();
-        this.placeOfWorship = GetXonList(pd1.getPlaceOfWorship());
-        this.advanceDirectiveCode = GetCeList(pd1.getAdvanceDirectiveCode());
+        this.placeOfWorship = getXonList(pd1.getPlaceOfWorship());
+        this.advanceDirectiveCode = getCeList(pd1.getAdvanceDirectiveCode());
         this.immunizationRegistryStatus = pd1.getImmunizationRegistryStatus().getValue();
         this.immunizationRegistryStatusEffectiveDate = pd1.getImmunizationRegistryStatusEffectiveDate().getValue();
         this.publicityCodeEffectiveDate = pd1.getPublicityCodeEffectiveDate().getValue();

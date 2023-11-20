@@ -41,7 +41,7 @@ public class RegisterController {
             log.error(PWD_MIN_LENGTH);
             return PWD_MIN_LENGTH;
         }
-        if(registrationService.createUser(username, password)==true) {
+        if(registrationService.createUser(username, password)) {
             log.debug(USER_CREATED_MSG);
             return USER_CREATED_MSG;
         }

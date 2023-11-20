@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 
 @WebMvcTest(ElrReportsController.class)
 @EnableConfigurationProperties(RsaKeyProperties.class)
-public class ElrReportsControllerTest {
+class ElrReportsControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -39,7 +39,7 @@ public class ElrReportsControllerTest {
     @MockBean
     private IHL7Service hl7Service;
     @Test
-    public void testSaveHL7Message() throws Exception {
+    void testSaveHL7Message() throws Exception {
         String hl7Payload = "testmessage";
         String messageType = "HL7";
         mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")

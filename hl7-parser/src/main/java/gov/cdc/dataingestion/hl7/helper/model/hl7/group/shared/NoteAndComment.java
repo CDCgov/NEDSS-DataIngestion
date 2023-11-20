@@ -6,7 +6,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
-import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
+import static gov.cdc.dataingestion.hl7.helper.helper.ModelListHelper.*;
 @Getter
 @Setter
 public class NoteAndComment {
@@ -18,7 +18,7 @@ public class NoteAndComment {
     public NoteAndComment(ca.uhn.hl7v2.model.v251.segment.NTE nte) {
         this.setIdNte = nte.getSetIDNTE().getValue();
         this.sourceOfComment = nte.getSourceOfComment().getValue();
-        this.comment = GetFtStringList(nte.getComment());
+        this.comment = getFtStringList(nte.getComment());
         this.commentType = new Ce(nte.getCommentType());
     }
 
