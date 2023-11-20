@@ -46,7 +46,7 @@ class ElrReportsControllerTest {
     @Test
     void testSave() throws Exception {
         String payload = "Test payload";
-        String messageType = "Test message type";
+        String messageType = "HL7";
         RawERLDto rawERLDto = new RawERLDto();
         rawERLDto.setType(messageType);
         rawERLDto.setPayload(payload);
