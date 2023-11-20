@@ -27,7 +27,6 @@ import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7Dup
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
-import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -319,7 +318,7 @@ class KafkaConsumerServiceTest {
 
         when(iValidatedELRRepository.findById(eq(guidForTesting)))
                 .thenReturn(Optional.of(model));
-        when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString())).thenReturn(nbsInterfaceModel);
+        when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any())).thenReturn(nbsInterfaceModel);
 
         kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.INJECTION.name());
 
@@ -361,7 +360,7 @@ class KafkaConsumerServiceTest {
         validatedELRModel.setRawMessage(testHL7Message);
         nbsInterfaceModel.setPayload(testHL7Message);
         when(iValidatedELRRepository.findById(anyString())).thenReturn(Optional.of(validatedELRModel));
-        when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString())).thenReturn(nbsInterfaceModel);
+        when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any())).thenReturn(nbsInterfaceModel);
 
         kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.name());
 

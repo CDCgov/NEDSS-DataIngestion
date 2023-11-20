@@ -1,5 +1,7 @@
 package gov.cdc.dataingestion.nbs.services;
 
+import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
 import gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import lombok.AllArgsConstructor;
@@ -10,8 +12,10 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -68,7 +72,7 @@ public class NbsRepositoryServiceProvider {
 		}
 	}
     
-    public NbsInterfaceModel saveXmlMessage(String msgId, String xmlMsg) {
+    public NbsInterfaceModel saveXmlMessage(String msgId, String xmlMsg, HL7ParsedMessage<OruR1> hl7ParsedMessage) {
 		NbsInterfaceModel item = new NbsInterfaceModel();
 
 		log.debug("{} : Xml being persisted to NBS Legacy database", msgId);
@@ -86,17 +90,76 @@ public class NbsRepositoryServiceProvider {
 		item.setDocTypeCd(DOCUMENT_TYPE_CODE);
 		item.setOriginalPayload(null);
 		item.setOriginalDocTypeCd(null);
-		item.setFillerOrderNbr(FILLER_ORDER_NBR);
-		item.setLabClia(LAB_CLIA);
+
+
 		item.setSpecimenCollDate(null);
-		item.setOrderTestCode(ORDER_TEST_CODE);
+		OruR1 oru = hl7ParsedMessage.getParsedMessage();
+		if (oru != null) {
+			item = savingNbsInterfaceModelHelper(oru, item);
+		}
+		else {
+			item.setLabClia(null);
+			item.setFillerOrderNbr(null);
+			item.setOrderTestCode(null);
+		}
 		item.setObservationUid(null);
 
-    	NbsInterfaceModel nbsInterfaceModel = nbsInterfaceRepo.save(item);
+		NbsInterfaceModel nbsInterfaceModel = nbsInterfaceRepo.save(item);
 		log.debug("{} : Persisted xml to nbs database", msgId);
 
     	return nbsInterfaceModel;
     }
+
+	private NbsInterfaceModel savingNbsInterfaceModelHelper(OruR1 oru, NbsInterfaceModel nbsInterface) {
+		String labClia = (oru.getMessageHeader() != null && oru.getMessageHeader().getSendingFacility() != null)
+				? oru.getMessageHeader().getSendingFacility().getUniversalId() : null;
+
+		String filterOrderNumber = (oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
+				&& oru.getPatientResult().get(0).getOrderObservation() != null
+				&& !oru.getPatientResult().get(0).getOrderObservation().isEmpty()
+				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest() != null
+				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest().getFillerOrderNumber() != null)
+				? oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest().getFillerOrderNumber().getEntityIdentifier() : null;
+
+
+		var orderTestCodeObj = (oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
+				&& oru.getPatientResult().get(0).getOrderObservation() != null
+				&& !oru.getPatientResult().get(0).getOrderObservation().isEmpty()
+				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest() != null)
+				? oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest() : null;
+
+		String orderTestCode = null;
+		if (orderTestCodeObj != null && orderTestCodeObj.getUniversalServiceIdentifier() != null ) {
+			if (orderTestCodeObj.getUniversalServiceIdentifier().getIdentifier() != null) {
+				orderTestCode = orderTestCodeObj.getUniversalServiceIdentifier().getIdentifier();
+			}
+			else if (orderTestCodeObj.getUniversalServiceIdentifier().getAlternateIdentifier() != null){
+				orderTestCode = orderTestCodeObj.getUniversalServiceIdentifier().getAlternateIdentifier();
+			}
+		}
+
+			String specimenColDateStr = (oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
+				&& oru.getPatientResult().get(0).getOrderObservation() != null
+				&& !oru.getPatientResult().get(0).getOrderObservation().isEmpty()
+				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen() != null
+				&& !oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().isEmpty()
+				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime() != null
+				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime() != null)
+				? oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime().getTime() : null;
+
+		if (specimenColDateStr != null) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+			LocalDateTime localDateTime = LocalDateTime.parse(specimenColDateStr, formatter);
+			nbsInterface.setSpecimenCollDate(Timestamp.valueOf(localDateTime));
+		} else {
+			nbsInterface.setSpecimenCollDate(null);
+		}
+
+		nbsInterface.setLabClia(labClia);
+		nbsInterface.setFillerOrderNbr(filterOrderNumber);
+		nbsInterface.setOrderTestCode(orderTestCode);
+		return nbsInterface;
+	}
 
 	private long getGmtTimestamp() {
 		ZonedDateTime currentDate = ZonedDateTime.now( ZoneOffset.UTC );
