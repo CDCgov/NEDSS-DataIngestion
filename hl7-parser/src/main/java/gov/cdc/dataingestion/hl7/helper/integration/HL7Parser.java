@@ -26,13 +26,13 @@ import static gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper.*;
 public class HL7Parser implements IHL7Parser {
 
     private HapiContext context;
-    private static final String newLine = "\n";
-    private static final String newLineWithCarrier = "\n\r";
-    private static final String carrier = "\r";
+    private static final String NEW_LINE = "\n";
+    private static final String NEW_LINE_WITH_CARRIER = "\n\r";
+    private static final String CARRIER = "\r";
 
     // this is the support hl7 structure
-    private static final String supportedHL7version = "2.5.1";
-    private static final String supportedHL7version231 = "2.3.1";
+    private static final String SUPPORTED_HL7_VERSION = "2.5.1";
+    private static final String SUPPORTED_HL7_VERSION_231 = "2.3.1";
     private static final String EX_MESSAGE = "Invalid Message ";
 
 
@@ -120,23 +120,23 @@ public class HL7Parser implements IHL7Parser {
     }
 
     public String hl7MessageStringValidation(String message)  {
-         if (message.contains(newLineWithCarrier) || message.contains(carrier) || message.contains(newLine)) {
-            if (message.contains(newLineWithCarrier)) {
-                message = message.replaceAll(newLineWithCarrier, carrier); //NOSONAR
+         if (message.contains(NEW_LINE_WITH_CARRIER) || message.contains(CARRIER) || message.contains(NEW_LINE)) {
+            if (message.contains(NEW_LINE_WITH_CARRIER)) {
+                message = message.replaceAll(NEW_LINE_WITH_CARRIER, CARRIER); //NOSONAR
             }
-            else if (message.contains(newLine)) {
-                message = message.replaceAll(newLine, carrier); //NOSONAR
+            else if (message.contains(NEW_LINE)) {
+                message = message.replaceAll(NEW_LINE, CARRIER); //NOSONAR
             }
             else if (message.contains("\r\r")) {
-                message = message.replaceAll("\r\r", carrier); //NOSONAR
+                message = message.replaceAll("\r\r", CARRIER); //NOSONAR
 
             }
         } else {
             if (message.contains("\\n")) {
-                message = message.replaceAll("\\\\n",carrier); //NOSONAR
+                message = message.replaceAll("\\\\n",CARRIER); //NOSONAR
             }
             else if (message.contains("\\r")) {
-                message = message.replaceAll("\\\\r",carrier); //NOSONAR
+                message = message.replaceAll("\\\\r",CARRIER); //NOSONAR
             }
         }
 
@@ -160,7 +160,7 @@ public class HL7Parser implements IHL7Parser {
             var patientResult231 = parsed231Message.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTIAll();
             var msh231 = parsed231Message.getMSH();
 
-            if (parsedMessage.getOriginalVersion().equalsIgnoreCase(supportedHL7version231)) {
+            if (parsedMessage.getOriginalVersion().equalsIgnoreCase(SUPPORTED_HL7_VERSION_231)) {
                 OruR1 oru = parsedMessage.getParsedMessage();
                 Ts messageHeaderDateTime = oru.getMessageHeader().getDateTimeOfMessage();
 
@@ -278,7 +278,7 @@ public class HL7Parser implements IHL7Parser {
      * */
     public  ca.uhn.hl7v2.model.v231.message.ORU_R01 hl7v231StringParser(String message) throws DiHL7Exception {
         try {
-            var contextLocal = hl7InitContext(this.context, this.supportedHL7version231);
+            var contextLocal = hl7InitContext(this.context, this.SUPPORTED_HL7_VERSION_231);
             PipeParser parser = contextLocal.getPipeParser();
             ca.uhn.hl7v2.model.v231.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v231.message.ORU_R01) parser.parse(message);
             return msg;
@@ -296,12 +296,12 @@ public class HL7Parser implements IHL7Parser {
             parsedMessage.setEventTrigger(genericParsedMessage.getEventTrigger());
             parsedMessage.setOriginalVersion(genericParsedMessage.getOriginalVersion());
 
-            var contextLocal = hl7InitContext(this.context, this.supportedHL7version);
+            var contextLocal = hl7InitContext(this.context, this.SUPPORTED_HL7_VERSION);
             PipeParser parser = contextLocal.getPipeParser();
 
 
-            if (genericParsedMessage.getOriginalVersion().equalsIgnoreCase(this.supportedHL7version231) ||
-                    genericParsedMessage.getOriginalVersion().equalsIgnoreCase(this.supportedHL7version)) {
+            if (genericParsedMessage.getOriginalVersion().equalsIgnoreCase(this.SUPPORTED_HL7_VERSION_231) ||
+                    genericParsedMessage.getOriginalVersion().equalsIgnoreCase(this.SUPPORTED_HL7_VERSION)) {
                 switch(genericParsedMessage.getType()) {
                     case  ORU:
                         switch (genericParsedMessage.getEventTrigger()){
@@ -310,7 +310,7 @@ public class HL7Parser implements IHL7Parser {
                                 OruR1 oru = new OruR1(msg);
                                 parsedMessage.setParsedMessage(oru);
 
-                                if (genericParsedMessage.getOriginalVersion().equalsIgnoreCase(this.supportedHL7version231)) {
+                                if (genericParsedMessage.getOriginalVersion().equalsIgnoreCase(this.SUPPORTED_HL7_VERSION_231)) {
                                     parsedMessage = convert231To251(genericParsedMessage.getMessage(), parsedMessage);
                                 }
                                 break;

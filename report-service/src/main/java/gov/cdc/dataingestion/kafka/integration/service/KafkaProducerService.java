@@ -16,11 +16,11 @@ import java.util.UUID;
 
 @Service
 public class KafkaProducerService {
-    private static final String prefixMessagePreparation = "PREP_";
-    private static final String xmlMessageKeyPrefix = "XML_";
-    private static final String fhirMessageKeyPrefix = "FHIR_";
-    private static final String validMessageKeyPrefix = "VALID_";
-    private static final String hl7MessageKeyPrefix = "HL7_";
+    private static final String PREFIX_MSG_PREP = "PREP_";
+    private static final String PREFIX_MSG_XML = "XML_";
+    private static final String PREFIX_MSG_FHIR = "FHIR_";
+    private static final String PREFIX_MSG_VALID = "VALID_";
+    private static final String PREFIX_MSG_HL7 = "HL7_";
 
 
     private final KafkaTemplate<String, String> kafkaTemplate;
@@ -62,7 +62,7 @@ public class KafkaProducerService {
     }
 
     public void sendMessageAfterValidatingMessage(ValidatedELRModel msg, String topic, Integer dltOccurrence) {
-        String uniqueID =  validMessageKeyPrefix + msg.getMessageType() + "_" + UUID.randomUUID();
+        String uniqueID =  PREFIX_MSG_VALID + msg.getMessageType() + "_" + UUID.randomUUID();
         var prodRecord = new ProducerRecord<>(topic, uniqueID, msg.getId());
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msg.getMessageType().getBytes());
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_VERSION, msg.getMessageVersion().getBytes());
@@ -75,10 +75,10 @@ public class KafkaProducerService {
 
         String uniqueId;
         if (topicType == TopicPreparationType.XML) {
-            uniqueId =  prefixMessagePreparation + xmlMessageKeyPrefix + msg.getMessageType() + "_" + UUID.randomUUID();
+            uniqueId =  PREFIX_MSG_PREP + PREFIX_MSG_XML + msg.getMessageType() + "_" + UUID.randomUUID();
         }
         else if (topicType == TopicPreparationType.FHIR) {
-            uniqueId =  prefixMessagePreparation +  fhirMessageKeyPrefix + msg.getMessageType() + "_" + UUID.randomUUID();
+            uniqueId =  PREFIX_MSG_PREP +  PREFIX_MSG_FHIR + msg.getMessageType() + "_" + UUID.randomUUID();
         }
         else {
             throw new ConversionPrepareException("Unsupported Topic");
@@ -96,7 +96,7 @@ public class KafkaProducerService {
     }
 
     public void sendMessageAfterConvertedToFhirMessage(HL7ToFHIRModel msg, String topic, Integer dltOccurrence) {
-        String uniqueID = fhirMessageKeyPrefix + UUID.randomUUID();
+        String uniqueID = PREFIX_MSG_FHIR + UUID.randomUUID();
         var prodRecord = new ProducerRecord<>(topic, uniqueID, msg.getId());
         prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
@@ -105,7 +105,7 @@ public class KafkaProducerService {
 
 
     public void sendMessageAfterConvertedToXml(String xmlMsg, String topic, Integer dltOccurrence) {
-        String uniqueID = xmlMessageKeyPrefix + UUID.randomUUID();
+        String uniqueID = PREFIX_MSG_XML + UUID.randomUUID();
         var prodRecord = new ProducerRecord<>(topic, uniqueID, xmlMsg);
         prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
@@ -113,7 +113,7 @@ public class KafkaProducerService {
     }
 
     public void sendMessageAfterCheckingDuplicateHL7(ValidatedELRModel msg, String validatedElrDuplicateTopic, Integer dltOccurrence) {
-        String uniqueID = hl7MessageKeyPrefix + UUID.randomUUID();
+        String uniqueID = PREFIX_MSG_HL7 + UUID.randomUUID();
         var prodRecord = new ProducerRecord<>(validatedElrDuplicateTopic, uniqueID, msg.getRawId());
         prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
