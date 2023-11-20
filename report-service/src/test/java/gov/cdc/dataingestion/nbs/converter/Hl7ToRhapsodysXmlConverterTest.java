@@ -1,7 +1,5 @@
 package gov.cdc.dataingestion.nbs.converter;
 
-import ca.uhn.hl7v2.HL7Exception;
-import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
 import gov.cdc.dataingestion.hl7.helper.HL7Helper;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
@@ -20,14 +18,12 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.TimingQty;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
 import gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter;
-import gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter;
 import gov.cdc.dataingestion.nbs.jaxb.*;
 import jakarta.xml.bind.JAXBException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.runners.Parameterized;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -45,7 +41,7 @@ public class Hl7ToRhapsodysXmlConverterTest {
         String rawId = "whatever";
         String hl7Message = TestData.randomGenerated251WithDataInAllFieldV1;
 
-        var result = target.convert(rawId, hl7Message);
+        var result = target.convert(rawId, target.parsedStringToHL7(hl7Message));
 
         Assertions.assertTrue(result.contains(rawId));
     }
