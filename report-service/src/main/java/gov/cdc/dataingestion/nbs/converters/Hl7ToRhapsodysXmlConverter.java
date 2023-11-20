@@ -2480,9 +2480,7 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     private boolean isEmptyHL7PID1Type(PatientAdditionalDemographic pad) {
-        if (null == pad) return true;
-        if (pad.getLivingDependency().isEmpty()) return true;
-        return false;
+        return pad == null || pad.getLivingDependency().isEmpty();
     }
 
     private boolean isEmptyHL7PIV1Type(PatientVisit pv) {
@@ -2535,9 +2533,7 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     private boolean isEmptyHL7CTDType(ContactData contactData) {
-        if (null == contactData) return true;
-        if ((null == contactData.getContactRole()) || (contactData.getContactRole().isEmpty())) return true;
-        return false;
+        return contactData == null || (contactData.getContactRole() == null || contactData.getContactRole().isEmpty());
     }
 
     private boolean isEmptyHL7XONType(Xon xon) {

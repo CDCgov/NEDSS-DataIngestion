@@ -278,7 +278,7 @@ public class HL7Parser implements IHL7Parser {
      * */
     public  ca.uhn.hl7v2.model.v231.message.ORU_R01 hl7v231StringParser(String message) throws DiHL7Exception {
         try {
-            var contextLocal = hl7InitContext(this.context, this.SUPPORTED_HL7_VERSION_231);
+            var contextLocal = hl7InitContext(this.context, SUPPORTED_HL7_VERSION_231);
             PipeParser parser = contextLocal.getPipeParser();
             ca.uhn.hl7v2.model.v231.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v231.message.ORU_R01) parser.parse(message);
             return msg;
@@ -296,12 +296,12 @@ public class HL7Parser implements IHL7Parser {
             parsedMessage.setEventTrigger(genericParsedMessage.getEventTrigger());
             parsedMessage.setOriginalVersion(genericParsedMessage.getOriginalVersion());
 
-            var contextLocal = hl7InitContext(this.context, this.SUPPORTED_HL7_VERSION);
+            var contextLocal = hl7InitContext(this.context, SUPPORTED_HL7_VERSION);
             PipeParser parser = contextLocal.getPipeParser();
 
 
-            if (genericParsedMessage.getOriginalVersion().equalsIgnoreCase(this.SUPPORTED_HL7_VERSION_231) ||
-                    genericParsedMessage.getOriginalVersion().equalsIgnoreCase(this.SUPPORTED_HL7_VERSION)) {
+            if (genericParsedMessage.getOriginalVersion().equalsIgnoreCase(SUPPORTED_HL7_VERSION_231) ||
+                    genericParsedMessage.getOriginalVersion().equalsIgnoreCase(SUPPORTED_HL7_VERSION)) {
                 switch(genericParsedMessage.getType()) {
                     case  ORU:
                         switch (genericParsedMessage.getEventTrigger()){
@@ -310,7 +310,7 @@ public class HL7Parser implements IHL7Parser {
                                 OruR1 oru = new OruR1(msg);
                                 parsedMessage.setParsedMessage(oru);
 
-                                if (genericParsedMessage.getOriginalVersion().equalsIgnoreCase(this.SUPPORTED_HL7_VERSION_231)) {
+                                if (genericParsedMessage.getOriginalVersion().equalsIgnoreCase(SUPPORTED_HL7_VERSION_231)) {
                                     parsedMessage = convert231To251(genericParsedMessage.getMessage(), parsedMessage);
                                 }
                                 break;
