@@ -14,9 +14,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @Tag(name = "ELR Reports", description = "ELR reports API")
 
@@ -59,11 +61,24 @@ public class ElrReportsController {
             tags = { "dataingestion", "elr" })
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> save(@RequestBody final String payload, @RequestHeader("msgType") String type,  @RequestHeader("validationActive") String validationActive) {
+            if (type.isEmpty() || validationActive.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Required headers should not be null");
+            }
+
+            if (!type.equalsIgnoreCase("HL7")) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide valid value for msgType header");
+            }
+
+            boolean validationCheck = "true".equalsIgnoreCase(validationActive) || "false".equalsIgnoreCase(validationActive);
+            if (!validationCheck) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide valid value for validationActive header: value must be either true or false");
+            }
+
             RawERLDto rawERLDto = new RawERLDto();
             customMetricsBuilder.incrementMessagesProcessed();
             rawERLDto.setType(type);
             rawERLDto.setPayload(payload);
-            if (validationActive != null && !validationActive.isEmpty() && validationActive.equalsIgnoreCase("true")) {
+            if (validationActive.equalsIgnoreCase("true")) {
                 rawERLDto.setValidationActive(true);
             }
             return ResponseEntity.ok(rawELRService.submission(rawERLDto));
