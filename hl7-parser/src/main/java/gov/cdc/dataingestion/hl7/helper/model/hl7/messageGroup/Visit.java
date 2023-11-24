@@ -1,5 +1,4 @@
 package gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup;
-import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
 
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit.PatientVisit;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit.PatientVisitAdditional;

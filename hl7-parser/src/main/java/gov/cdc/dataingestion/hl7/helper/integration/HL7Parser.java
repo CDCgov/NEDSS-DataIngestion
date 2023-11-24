@@ -26,14 +26,14 @@ import static gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper.*;
 public class HL7Parser implements IHL7Parser {
 
     private HapiContext context;
-    private final String newLine = "\n";
-    private final String newLineWithCarrier = "\n\r";
-    private final String carrier = "\r";
+    private static final String NEW_LINE = "\n";
+    private static final String NEW_LINE_WITH_CARRIER = "\n\r";
+    private static final String CARRIER = "\r";
 
     // this is the support hl7 structure
-    private final String supportedHL7version = "2.5.1";
-    private final String supportedHL7version231 = "2.3.1";
-    private static final String exMessage = "Invalid Message ";
+    private static final String SUPPORTED_HL7_VERSION = "2.5.1";
+    private static final String SUPPORTED_HL7_VERSION_231 = "2.3.1";
+    private static final String EX_MESSAGE = "Invalid Message ";
 
 
     public HL7Parser(HapiContext context) {
@@ -73,7 +73,7 @@ public class HL7Parser implements IHL7Parser {
         try {
             parser.parse(message);
         } catch (HL7Exception e){
-            throw new DiHL7Exception(exMessage + e.getMessage());
+            throw new DiHL7Exception(EX_MESSAGE + e.getMessage());
         }
 
         // Ignore sonar queue complain as this is coming from Library
@@ -91,7 +91,7 @@ public class HL7Parser implements IHL7Parser {
         try {
             parser.parse(message);
         } catch (HL7Exception e){
-            throw new DiHL7Exception(exMessage + e.getMessage());
+            throw new DiHL7Exception(EX_MESSAGE + e.getMessage());
         }
     }
 
@@ -115,39 +115,39 @@ public class HL7Parser implements IHL7Parser {
         try {
             parser.parse(message);
         } catch (HL7Exception e){
-            throw new DiHL7Exception(exMessage + e.getMessage());
+            throw new DiHL7Exception(EX_MESSAGE + e.getMessage());
         }
     }
 
     public String hl7MessageStringValidation(String message)  {
-         if (message.contains(newLineWithCarrier) || message.contains(carrier) || message.contains(newLine)) {
-            if (message.contains(newLineWithCarrier)) {
-                message = message.replaceAll(newLineWithCarrier, carrier);
+         if (message.contains(NEW_LINE_WITH_CARRIER) || message.contains(CARRIER) || message.contains(NEW_LINE)) {
+            if (message.contains(NEW_LINE_WITH_CARRIER)) {
+                message = message.replaceAll(NEW_LINE_WITH_CARRIER, CARRIER); //NOSONAR
             }
-            else if (message.contains(newLine)) {
-                message = message.replaceAll(newLine, carrier);
+            else if (message.contains(NEW_LINE)) {
+                message = message.replaceAll(NEW_LINE, CARRIER); //NOSONAR
             }
             else if (message.contains("\r\r")) {
-                message = message.replaceAll("\r\r", carrier); //NOSONAR
+                message = message.replaceAll("\r\r", CARRIER); //NOSONAR
 
             }
         } else {
             if (message.contains("\\n")) {
-                message = message.replaceAll("\\\\n",carrier);
+                message = message.replaceAll("\\\\n",CARRIER); //NOSONAR
             }
             else if (message.contains("\\r")) {
-                message = message.replaceAll("\\\\r",carrier);
+                message = message.replaceAll("\\\\r",CARRIER); //NOSONAR
             }
         }
 
         // make sure message only contain `\` on MSH
-        message = message.replaceAll("\\\\+", "\\\\");
+        message = message.replaceAll("\\\\+", "\\\\"); //NOSONAR
         return message;
     }
 
     public HL7ParsedMessage convert231To251(String message, HL7ParsedMessage preParsedMessage) throws DiHL7Exception {
         try {
-            HL7ParsedMessage parsedMessage;
+            HL7ParsedMessage<OruR1> parsedMessage;
             if (preParsedMessage == null) {
                 parsedMessage = hl7StringParser(message);
             } else {
@@ -160,16 +160,16 @@ public class HL7Parser implements IHL7Parser {
             var patientResult231 = parsed231Message.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTIAll();
             var msh231 = parsed231Message.getMSH();
 
-            if (parsedMessage.getOriginalVersion().equalsIgnoreCase(supportedHL7version231)) {
-                OruR1 oru = (OruR1) parsedMessage.getParsedMessage();
+            if (parsedMessage.getOriginalVersion().equalsIgnoreCase(SUPPORTED_HL7_VERSION_231)) {
+                OruR1 oru = parsedMessage.getParsedMessage();
                 Ts messageHeaderDateTime = oru.getMessageHeader().getDateTimeOfMessage();
 
                 //region Message Header Conversion
-                oru.setMessageHeader(MapMsh(msh231, oru.getMessageHeader()));
+                oru.setMessageHeader(mapMsh(msh231, oru.getMessageHeader()));
                 //endregion
 
                 //region Software Segment conversion
-                oru.setSoftwareSegment(MapSoftwareSegment(oru.getSoftwareSegment()));
+                oru.setSoftwareSegment(mapSoftwareSegment(oru.getSoftwareSegment()));
                 //endregion
 
                 for (int a = 0; a < oru.getPatientResult().size(); a++) {
@@ -177,7 +177,7 @@ public class HL7Parser implements IHL7Parser {
                     var pid231 = patientResult231.get(a).getPIDPD1NK1NTEPV1PV2().getPID();
                     var pid = oru.getPatientResult().get(a).getPatient().getPatientIdentification();
                     oru.getPatientResult().get(a).getPatient().setPatientIdentification(
-                            MapPid(pid231, pid));
+                            mapPid(pid231, pid));
                     //endregion
 
                     //region Patient Result - PATIENT - PD1
@@ -207,7 +207,7 @@ public class HL7Parser implements IHL7Parser {
                             // Mapping OBX
                             oru.getPatientResult().get(a).getOrderObservation()
                                     .get(c).getObservation().get(d).setObservationResult(
-                                            MapObservationResultToObservationResult(
+                                            mapObservationResultToObservationResult(
                                                     oru.getPatientResult().get(a).getOrderObservation().get(c).getObservation().get(d).getObservationResult(),
                                                     oru.getPatientResult().get(a).getOrderObservation().get(c).getObservation().get(d).getObservationResult()
                                             ));
@@ -219,7 +219,7 @@ public class HL7Parser implements IHL7Parser {
 
                         var obr231 = patientResult231.get(a).getORCOBRNTEOBXNTECTIAll().get(c).getOBR();
                         oru.getPatientResult().get(a).getOrderObservation().get(c).setObservationRequest(
-                                ObservationRequestToObservationRequest(
+                                observationRequestToObservationRequest(
                                         obr231,
                                         oru.getPatientResult().get(a).getOrderObservation().get(c).getObservationRequest(),
                                         oru.getPatientResult().get(a).getOrderObservation().get(c).getObservationRequest(),
@@ -237,7 +237,7 @@ public class HL7Parser implements IHL7Parser {
                         //endregion
 
                         //region OBSERVATION - OBR to SPM
-                        var spc = ObservationRequestToSpecimen(
+                        var spc = observationRequestToSpecimen(
                                 oru.getPatientResult().get(a).getOrderObservation().get(c).getObservationRequest(),
                                 new Specimen());
                         oru.getPatientResult().get(a).getOrderObservation().get(c).getSpecimen().add(
@@ -250,9 +250,8 @@ public class HL7Parser implements IHL7Parser {
                     var orderORC231 = patientResult231.get(a).getORCOBRNTEOBXNTECTI(0).getORC();
                     var orderOBR231 = patientResult231.get(a).getORCOBRNTEOBXNTECTI(0).getOBR();
                     var orderORC251 = oru.getPatientResult().get(a).getOrderObservation().get(0).getCommonOrder();
-                    //FIXME - Map ORC to ORC -- noted on Rhapsody; only map the first record
-                    orderORC251 = MapCommonOrder(orderORC231, orderORC251);
-                    oru.getPatientResult().get(a).getOrderObservation().get(0).setCommonOrder(MapOBR2and3ToORC2and3(orderOBR231, orderORC251));
+                    orderORC251 = mapCommonOrder(orderORC231, orderORC251);
+                    oru.getPatientResult().get(a).getOrderObservation().get(0).setCommonOrder(mapOBR2and3ToORC2and3(orderOBR231, orderORC251));
                     //endregion
 
 
@@ -279,8 +278,8 @@ public class HL7Parser implements IHL7Parser {
      * */
     public  ca.uhn.hl7v2.model.v231.message.ORU_R01 hl7v231StringParser(String message) throws DiHL7Exception {
         try {
-            var context = hl7InitContext(this.context, this.supportedHL7version231);
-            PipeParser parser = context.getPipeParser();
+            var contextLocal = hl7InitContext(this.context, SUPPORTED_HL7_VERSION_231);
+            PipeParser parser = contextLocal.getPipeParser();
             ca.uhn.hl7v2.model.v231.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v231.message.ORU_R01) parser.parse(message);
             return msg;
         }catch (Exception e) {
@@ -290,19 +289,19 @@ public class HL7Parser implements IHL7Parser {
 
     public HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception{
         try {
-            HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
+            HL7ParsedMessage<OruR1> parsedMessage = new HL7ParsedMessage<>();
             var genericParsedMessage = hl7StringParseHelperWithTerser(message);
             parsedMessage.setMessage(message);
             parsedMessage.setType(genericParsedMessage.getType());
             parsedMessage.setEventTrigger(genericParsedMessage.getEventTrigger());
             parsedMessage.setOriginalVersion(genericParsedMessage.getOriginalVersion());
 
-            var context = hl7InitContext(this.context, this.supportedHL7version);
-            PipeParser parser = context.getPipeParser();
+            var contextLocal = hl7InitContext(this.context, SUPPORTED_HL7_VERSION);
+            PipeParser parser = contextLocal.getPipeParser();
 
 
-            if (genericParsedMessage.getOriginalVersion().equalsIgnoreCase(this.supportedHL7version231) ||
-                    genericParsedMessage.getOriginalVersion().equalsIgnoreCase(this.supportedHL7version)) {
+            if (genericParsedMessage.getOriginalVersion().equalsIgnoreCase(SUPPORTED_HL7_VERSION_231) ||
+                    genericParsedMessage.getOriginalVersion().equalsIgnoreCase(SUPPORTED_HL7_VERSION)) {
                 switch(genericParsedMessage.getType()) {
                     case  ORU:
                         switch (genericParsedMessage.getEventTrigger()){
@@ -311,7 +310,7 @@ public class HL7Parser implements IHL7Parser {
                                 OruR1 oru = new OruR1(msg);
                                 parsedMessage.setParsedMessage(oru);
 
-                                if (genericParsedMessage.getOriginalVersion().equalsIgnoreCase(this.supportedHL7version231)) {
+                                if (genericParsedMessage.getOriginalVersion().equalsIgnoreCase(SUPPORTED_HL7_VERSION_231)) {
                                     parsedMessage = convert231To251(genericParsedMessage.getMessage(), parsedMessage);
                                 }
                                 break;
@@ -334,7 +333,7 @@ public class HL7Parser implements IHL7Parser {
     }
 
     // parse message with terser so we can get type, event trigger
-    private HL7ParsedMessage hl7StringParseHelperWithTerser(String message) throws DiHL7Exception {
+    private HL7ParsedMessage<OruR1> hl7StringParseHelperWithTerser(String message) throws DiHL7Exception {
         try {
             Message parsedMessage = getMessageFromValidationAndParserContext(message, context);
             Terser terser = new Terser(parsedMessage);
@@ -343,7 +342,7 @@ public class HL7Parser implements IHL7Parser {
             String messageEventTrigger = terser.get("/MSH-9-2");
             String messageVersion = parsedMessage.getVersion();
 
-            HL7ParsedMessage model = new HL7ParsedMessage();
+            HL7ParsedMessage<OruR1> model = new HL7ParsedMessage<>();
             model.setType(messageType);
             model.setEventTrigger(messageEventTrigger);
             model.setOriginalVersion(messageVersion);

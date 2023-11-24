@@ -6,7 +6,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
-import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
+import static gov.cdc.dataingestion.hl7.helper.helper.ModelListHelper.*;
 
 @Getter
 @Setter
@@ -20,13 +20,13 @@ public class ContactData {
     List<Pln> contactIdentifiers = new ArrayList<>();
 
     public ContactData(ca.uhn.hl7v2.model.v251.segment.CTD ctd) {
-        this.contactRole = GetCeList(ctd.getContactRole());
-        this.contactName = GetXpnList(ctd.getContactName());
-        this.contactAddress = GetXadList(ctd.getContactAddress());
+        this.contactRole = getCeList(ctd.getContactRole());
+        this.contactName = getXpnList(ctd.getContactName());
+        this.contactAddress = getXadList(ctd.getContactAddress());
         this.contactLocation = new Pl(ctd.getContactLocation());
-        this.contactCommunicationInformation = GetXtnList(ctd.getContactCommunicationInformation());
+        this.contactCommunicationInformation = getXtnList(ctd.getContactCommunicationInformation());
         this.preferredMethodOfContact = new Ce(ctd.getPreferredMethodOfContact());
-        this.contactIdentifiers = GetPlnList(ctd.getContactIdentifiers());
+        this.contactIdentifiers = getPlnList(ctd.getContactIdentifiers());
     }
 
     public ContactData() {

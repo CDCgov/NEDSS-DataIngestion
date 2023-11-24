@@ -32,7 +32,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Hl7ToRhapsodysXmlConverterTest {
+class Hl7ToRhapsodysXmlConverterTest {
     Hl7ToRhapsodysXmlConverter target = new Hl7ToRhapsodysXmlConverter();
     HL7Helper hl7Helper = new HL7Helper();
 
@@ -49,8 +49,8 @@ public class Hl7ToRhapsodysXmlConverterTest {
     @Test
     void buildHL7LabReportTypeAllMissingConditional() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         var parentClass = new Hl7ToRhapsodysXmlConverter();
-        HL7ParsedMessage model = new HL7ParsedMessage();
-        model.setParsedMessage("test");
+        HL7ParsedMessage<OruR1> model = new HL7ParsedMessage();
+        model.setParsedMessage(new OruR1());
         Method privateMethod = Hl7ToRhapsodysXmlConverter.class.getDeclaredMethod("buildHL7LabReportType", HL7ParsedMessage.class);
         privateMethod.setAccessible(true);
         var result = (HL7LabReportType) privateMethod.invoke(parentClass, model);

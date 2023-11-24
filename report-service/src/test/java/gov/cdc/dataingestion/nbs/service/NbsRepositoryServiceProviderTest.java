@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.nbs.service;
 
+
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.OrderObservation;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.PatientResult;
@@ -21,7 +22,7 @@ import java.io.IOException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-public class NbsRepositoryServiceProviderTest {
+class NbsRepositoryServiceProviderTest {
     @Mock
     private NbsInterfaceRepository nbsInterfaceRepo;
 

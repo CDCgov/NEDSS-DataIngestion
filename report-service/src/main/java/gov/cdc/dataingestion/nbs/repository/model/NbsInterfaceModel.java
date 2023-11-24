@@ -19,7 +19,7 @@ import	lombok.Setter;
 @Getter
 @Setter
 public class NbsInterfaceModel {
-	private static String TOSTRING_COLUMN_SPACER = ", ";
+	private static final String TOSTRING_COLUMN_SPACER = ", ";
 	
 	@Id
 	@GeneratedValue( strategy = GenerationType.IDENTITY )

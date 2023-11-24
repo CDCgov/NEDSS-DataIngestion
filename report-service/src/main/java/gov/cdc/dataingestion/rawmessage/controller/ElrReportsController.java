@@ -60,8 +60,7 @@ public class ElrReportsController {
             description = "Submit a plain text HL7 message with msgType header",
             tags = { "dataingestion", "elr" })
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity<?> save(@RequestBody final String payload, @RequestHeader("msgType") String type,  @RequestHeader("validationActive") String validationActive) {
-
+    public ResponseEntity<String> save(@RequestBody final String payload, @RequestHeader("msgType") String type,  @RequestHeader("validationActive") String validationActive) {
             if (type.isEmpty() || validationActive.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Required headers should not be null");
             }

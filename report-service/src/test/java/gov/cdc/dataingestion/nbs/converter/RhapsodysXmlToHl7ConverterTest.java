@@ -1,21 +1,18 @@
 package gov.cdc.dataingestion.nbs.converter;
 
-import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.nbs.TestHelper;
 import gov.cdc.dataingestion.nbs.converters.RhapsodysXmlToHl7Converter;
 import gov.cdc.dataingestion.nbs.jaxb.*;
-import jakarta.xml.bind.JAXBException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RhapsodysXmlToHl7ConverterTest {
+class RhapsodysXmlToHl7ConverterTest {
     RhapsodysXmlToHl7Converter target = new RhapsodysXmlToHl7Converter();
 
     @Test

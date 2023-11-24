@@ -22,7 +22,7 @@ public class HL7ToFHIRModel {
 
     @Transient
     @Column(name = "created_on")
-    private Timestamp CreatedOn;
+    private Timestamp createdOn;
 
     @Column(name = "updated_on")
     private Timestamp updatedOn;
@@ -59,11 +59,11 @@ public class HL7ToFHIRModel {
     }
 
     public Timestamp getCreatedOn() {
-        return CreatedOn;
+        return createdOn;
     }
 
     public void setCreatedOn(Timestamp createdOn) {
-        CreatedOn = createdOn;
+        this.createdOn = createdOn;
     }
 
     public Timestamp getUpdatedOn() {

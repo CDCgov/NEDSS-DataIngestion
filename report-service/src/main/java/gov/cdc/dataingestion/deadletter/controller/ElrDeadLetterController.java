@@ -25,7 +25,7 @@ public class ElrDeadLetterController {
             description = "Get all dead letter messages",
             tags = { "dataingestion", "deadletter" })
     @GetMapping(path = "/get-error-messages")
-    public ResponseEntity<List<ElrDeadLetterDto>> getAllNewErrorMessage() throws DeadLetterTopicException {
+    public ResponseEntity<List<ElrDeadLetterDto>> getAllNewErrorMessage() {
         return ResponseEntity.ok(elrDeadLetterService.getAllErrorDltRecord());
     }
 
@@ -39,7 +39,7 @@ public class ElrDeadLetterController {
     }
 
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/inject-message")
-    public ResponseEntity<?> messageReInject(@RequestParam("id") String id, @RequestBody final String payload) throws Exception {
+    public ResponseEntity<ElrDeadLetterDto> messageReInject(@RequestParam("id") String id, @RequestBody final String payload) throws DeadLetterTopicException {
         return ResponseEntity.ok(elrDeadLetterService.updateAndReprocessingMessage(id, payload));
     }
 }

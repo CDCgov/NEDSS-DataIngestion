@@ -11,7 +11,7 @@ public class HL7ToFHIRConversion implements IHL7ToFHIRConversion {
         this.converter = converter;
     }
 
-    public HL7ToFHIRModel ConvertHL7v2ToFhir(ValidatedELRModel validatedELRModel, String topicName) throws UnsupportedOperationException {
+    public HL7ToFHIRModel convertHL7v2ToFhir(ValidatedELRModel validatedELRModel, String topicName) throws UnsupportedOperationException {
         HL7ToFHIRModel model = new HL7ToFHIRModel();
         String output = this.converter.convert(validatedELRModel.getRawMessage());
         model.setRawId(validatedELRModel.getRawId());

@@ -1,7 +1,7 @@
 package gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation;
 
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
-import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
+import static gov.cdc.dataingestion.hl7.helper.helper.ModelListHelper.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,7 +24,7 @@ public class ObservationResult {
     String observationResultStatus;
     Ts effectiveDateOfReferenceRange = new Ts();
     String userDefinedAccessChecks;
-    Ts DateTimeOfTheObservation = new Ts();
+    Ts dateTimeOfTheObservation = new Ts();
     Ce producerId = new Ce();
     List<Xcn> responsibleObserver = new ArrayList<>();
     List<Ce> observationMethod = new ArrayList<>();
@@ -46,20 +46,20 @@ public class ObservationResult {
         this.valueType = obx.getValueType().getValue();
         this.observationIdentifier = new Ce(obx.getObservationIdentifier());
         this.observationSubId = obx.getObservationSubID().getValue();
-        this.observationValue = GetVariesStringList(obx.getObservationValue());
+        this.observationValue = getVariesStringList(obx.getObservationValue());
         this.units = new Ce(obx.getUnits());
         this.referencesRange = obx.getReferencesRange().getValue();
-        this.abnormalFlag = GetIsStringList(obx.getAbnormalFlags());
+        this.abnormalFlag = getIsStringList(obx.getAbnormalFlags());
         this.probability = obx.getProbability().getValue();
-        this.natureOfAbnormalTest = GetIdStringList(obx.getNatureOfAbnormalTest());
+        this.natureOfAbnormalTest = getIdStringList(obx.getNatureOfAbnormalTest());
         this.observationResultStatus = obx.getObservationResultStatus().getValue();
         this.effectiveDateOfReferenceRange = new Ts(obx.getEffectiveDateOfReferenceRangeValues());
         this.userDefinedAccessChecks = obx.getUserDefinedAccessChecks().getValue();
-        this.DateTimeOfTheObservation = new Ts(obx.getDateTimeOfTheObservation());
+        this.dateTimeOfTheObservation = new Ts(obx.getDateTimeOfTheObservation());
         this.producerId = new Ce(obx.getProducerSReference());
-        this.responsibleObserver = GetXcnList(obx.getResponsibleObserver());
-        this.observationMethod = GetCeList(obx.getObservationMethod());
-        this.equipmentInstanceIdentifier = GetEiList(obx.getEquipmentInstanceIdentifier());
+        this.responsibleObserver = getXcnList(obx.getResponsibleObserver());
+        this.observationMethod = getCeList(obx.getObservationMethod());
+        this.equipmentInstanceIdentifier = getEiList(obx.getEquipmentInstanceIdentifier());
         this.dateTimeOfTheAnalysis = new Ts(obx.getDateTimeOfTheAnalysis());
         this.reservedForHarmonizationWithV261 = obx.getReservedForHarmonizationWithV26().toString();
         this.reservedForHarmonizationWithV262 = obx.getReservedForHarmonizationWithV26Number2().toString();
