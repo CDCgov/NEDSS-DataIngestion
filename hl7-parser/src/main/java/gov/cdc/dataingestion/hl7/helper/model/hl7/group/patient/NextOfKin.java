@@ -7,7 +7,7 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
+import static gov.cdc.dataingestion.hl7.helper.helper.ModelListHelper.*;
 
 @Getter
 @Setter
@@ -15,40 +15,40 @@ public class NextOfKin {
 
     public NextOfKin(ca.uhn.hl7v2.model.v251.segment.NK1 nk1) {
         this.setIdNK1 = nk1.getSetIDNK1().getValue();
-        this.nkName = GetXpnList(nk1.getNK1Name());
+        this.nkName = getXpnList(nk1.getNK1Name());
         this.relationship = new Ce(nk1.getRelationship());
-        this.address = GetXadList(nk1.getAddress());
-        this.phoneNumber = GetXtnList(nk1.getPhoneNumber());
-        this.businessPhoneNumber = GetXtnList(nk1.getBusinessPhoneNumber());
+        this.address = getXadList(nk1.getAddress());
+        this.phoneNumber = getXtnList(nk1.getPhoneNumber());
+        this.businessPhoneNumber = getXtnList(nk1.getBusinessPhoneNumber());
         this.contactRole = new Ce(nk1.getContactRole());
         this.startDate = nk1.getStartDate().getValue();
         this.endDate = nk1.getEndDate().getValue();
         this.nextOfKinAssociatedPartiesJobTitle = nk1.getNextOfKinAssociatedPartiesJobTitle().getValue();
         this.nextOfKinAssociatedPartiesJobCode = new Jcc(nk1.getNextOfKinAssociatedPartiesJobCodeClass());
         this.nextOfKinAssociatedPartiesEmployee = new Cx(nk1.getNextOfKinAssociatedPartiesEmployeeNumber());
-        this.organizationNameNk1 = GetXonList(nk1.getOrganizationNameNK1());
+        this.organizationNameNk1 = getXonList(nk1.getOrganizationNameNK1());
         this.martialStatus = new Ce(nk1.getMaritalStatus());
         this.administrativeSex = nk1.getAdministrativeSex().getValue();
         this.dateTimeOfBirth = new Ts(nk1.getDateTimeOfBirth());
-        this.livingDependency = GetIsStringList(nk1.getLivingDependency());
-        this.ambulatoryStatus = GetIsStringList(nk1.getAmbulatoryStatus());
-        this.citizenship = GetCeList(nk1.getCitizenship());
+        this.livingDependency = getIsStringList(nk1.getLivingDependency());
+        this.ambulatoryStatus = getIsStringList(nk1.getAmbulatoryStatus());
+        this.citizenship = getCeList(nk1.getCitizenship());
         this.primaryLanguage = new Ce(nk1.getPrimaryLanguage());
         this.livingArrangement = nk1.getLivingArrangement().getValue();
         this.publicityCode = new Ce(nk1.getPublicityCode());
         this.protectionIndicator = nk1.getProtectionIndicator().getValue();
         this.studentIndicator = nk1.getStudentIndicator().getValue();
         this.religion = new Ce(nk1.getReligion());
-        this.motherMaidenName = GetXpnList(nk1.getMotherSMaidenName());
+        this.motherMaidenName = getXpnList(nk1.getMotherSMaidenName());
         this.nationality = new Ce(nk1.getNationality());
-        this.ethnicGroup = GetCeList(nk1.getEthnicGroup());
-        this.contactReason = GetCeList(nk1.getContactReason());
-        this.contactPersonName = GetXpnList(nk1.getContactPersonSName());
-        this.contactPersonTelephoneNumber = GetXtnList(nk1.getContactPersonSTelephoneNumber());
-        this.contactPersonAddress = GetXadList(nk1.getContactPersonSAddress());
-        this.nextOfKinAssociatedPartyIdentifier = GetCxList(nk1.getNextOfKinAssociatedPartySIdentifiers());
+        this.ethnicGroup = getCeList(nk1.getEthnicGroup());
+        this.contactReason = getCeList(nk1.getContactReason());
+        this.contactPersonName = getXpnList(nk1.getContactPersonSName());
+        this.contactPersonTelephoneNumber = getXtnList(nk1.getContactPersonSTelephoneNumber());
+        this.contactPersonAddress = getXadList(nk1.getContactPersonSAddress());
+        this.nextOfKinAssociatedPartyIdentifier = getCxList(nk1.getNextOfKinAssociatedPartySIdentifiers());
         this.jobStatus = nk1.getJobStatus().getValue();
-        this.race = GetCeList(nk1.getRace());
+        this.race = getCeList(nk1.getRace());
         this.handicap = nk1.getHandicap().getValue();
         this.contactPersonSocialSecurityNumber = nk1.getContactPersonSocialSecurityNumber().getValue();
         this.nextOfKinBirthPlace = nk1.getNextOfKinBirthPlace().getValue();

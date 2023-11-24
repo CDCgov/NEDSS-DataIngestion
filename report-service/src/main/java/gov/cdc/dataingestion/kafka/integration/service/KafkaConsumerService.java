@@ -102,6 +102,8 @@ public class KafkaConsumerService {
     private final CustomMetricsBuilder customMetricsBuilder;
 
     private String errorDltMessage = "Message not found in dead letter table";
+    private String topicDebugLog = "Received message ID: {} from topic: {}";
+    private String processDltErrorMessage = "Raw data not found; id: ";
     //endregion
 
     //region CONSTRUCTOR
@@ -179,7 +181,7 @@ public class KafkaConsumerService {
     public void handleMessageForRawElr(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                @Header(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE) String messageValidationActive) throws DuplicateHL7FileFoundException, DiHL7Exception {
-        log.debug("Received message ID: {} from topic: {}", message, topic);
+        log.debug(topicDebugLog, message, topic);
         boolean hl7ValidationActivated = false;
 
         if (messageValidationActive != null && messageValidationActive.equalsIgnoreCase("true")) {
@@ -220,7 +222,7 @@ public class KafkaConsumerService {
     @KafkaListener(topics = "${kafka.validation.topic}")
     public void handleMessageForValidatedElr(String message,
                                        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws ConversionPrepareException {
-        log.debug("Received message ID: {} from topic: {}", message, topic);
+        log.debug(topicDebugLog, message, topic);
         preparationForConversionHandler(message);
     }
 
@@ -251,8 +253,8 @@ public class KafkaConsumerService {
     @KafkaListener(topics = "${kafka.xml-conversion-prep.topic}")
     public void handleMessageForXmlConversionElr(String message,
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                                                 @Header(KafkaHeaderValue.MessageOperation) String operation) throws Exception {
-        log.debug("Received message ID: {} from topic: {}", message, topic);
+                                                 @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation) throws Exception {
+        log.debug(topicDebugLog, message, topic);
         customMetricsBuilder.incrementXmlConversionRequested();
         xmlConversionHandler(message, operation);
 
@@ -285,8 +287,8 @@ public class KafkaConsumerService {
     @KafkaListener(topics = "${kafka.fhir-conversion-prep.topic}")
     public void handleMessageForFhirConversionElr(String message,
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                                                  @Header(KafkaHeaderValue.MessageOperation) String operation) throws FhirConversionException, DiHL7Exception {
-        log.debug("Received message ID: {} from topic: {}", message, topic);
+                                                  @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation) throws FhirConversionException, DiHL7Exception {
+        log.debug(topicDebugLog, message, topic);
         conversionHandlerForFhir(message, operation);
 
     }
@@ -322,7 +324,7 @@ public class KafkaConsumerService {
     )
     public void handleMessageForPhdcEcrTransformToCda(String message,
                                        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EcrCdaXmlException {
-        log.debug("Received message ID: {} from topic: {}", message, topic);
+        log.debug(topicDebugLog, message, topic);
         var result = ecrMsgQueryService.getSelectedEcrRecord();
         var xmlResult = this.cdaMapper.tranformSelectedEcrToCDAXml(result);
         nbsRepositoryServiceProvider.saveEcrCdaXmlMessage(result.getMsgContainer().getNbsInterfaceUid().toString()
@@ -336,8 +338,8 @@ public class KafkaConsumerService {
             @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
             @Header(KafkaHeaders.RECEIVED_TIMESTAMP) String timeStamp,
             @Header(KafkaHeaders.EXCEPTION_STACKTRACE) String stacktrace,
-            @Header(KafkaHeaderValue.DltOccurrence) String dltOccurrence,
-            @Header(KafkaHeaderValue.OriginalTopic) String originalTopic
+            @Header(KafkaHeaderValue.DLT_OCCURRENCE) String dltOccurrence,
+            @Header(KafkaHeaderValue.ORIGINAL_TOPIC) String originalTopic
     ) {
         log.debug("Message ID: {} handled by dlq topic: {}", message, topic);
 
@@ -364,34 +366,26 @@ public class KafkaConsumerService {
         try {
             if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(rawTopic)) {
                 var message = this.iRawELRRepository.findById(elrDeadLetterDto.getErrorMessageId())
-                        .orElseThrow(() -> new RuntimeException("Raw data not found; id: " + elrDeadLetterDto.getErrorMessageId()));
+                        .orElseThrow(() -> new DeadLetterTopicException(processDltErrorMessage + elrDeadLetterDto.getErrorMessageId()));
                 elrDeadLetterDto.setMessage(message.getPayload());
             }
-            else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(validatedTopic)) {
+            else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(validatedTopic) ||
+                    elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(prepXmlTopic) ||
+                    elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(prepFhirTopic)) {
                 var message = this.iValidatedELRRepository.findById(elrDeadLetterDto.getErrorMessageId())
-                        .orElseThrow(() -> new RuntimeException("Raw data not found; id: " + elrDeadLetterDto.getErrorMessageId()));
-                elrDeadLetterDto.setMessage(message.getRawMessage());
-            }
-            else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(prepXmlTopic)) {
-                var message = this.iValidatedELRRepository.findById(elrDeadLetterDto.getErrorMessageId())
-                        .orElseThrow(() -> new RuntimeException("Raw data not found; id: " + elrDeadLetterDto.getErrorMessageId()));
-                elrDeadLetterDto.setMessage(message.getRawMessage());
-            }
-            else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(prepFhirTopic)) {
-                var message = this.iValidatedELRRepository.findById(elrDeadLetterDto.getErrorMessageId())
-                        .orElseThrow(() -> new RuntimeException("Raw data not found; id: " + elrDeadLetterDto.getErrorMessageId()));
+                        .orElseThrow(() -> new DeadLetterTopicException(processDltErrorMessage + elrDeadLetterDto.getErrorMessageId()));
                 elrDeadLetterDto.setMessage(message.getRawMessage());
             }
             else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(convertedToXmlTopic)) {
                 //todo: this to handle error that may occur after xml conversion
-                throw new RuntimeException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());
+                throw new DeadLetterTopicException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());
             }
             else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(convertedToFhirTopic)) {
                 var message = this.iHL7ToFHIRRepository.findById(elrDeadLetterDto.getErrorMessageId())
-                        .orElseThrow(() -> new RuntimeException("Raw data not found; id: " + elrDeadLetterDto.getErrorMessageId()));
+                        .orElseThrow(() -> new DeadLetterTopicException(processDltErrorMessage + elrDeadLetterDto.getErrorMessageId()));
                 elrDeadLetterDto.setMessage(message.getFhirMessage());
             } else {
-                throw new RuntimeException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());
+                throw new DeadLetterTopicException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());
             }
 
             model.setErrorMessageId(elrDeadLetterDto.getErrorMessageId());
@@ -451,7 +445,7 @@ public class KafkaConsumerService {
         } else {
             Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(message);
             if (response.isPresent()) {
-                var validMessage = iHl7v2Validator.MessageStringValidation(response.get().getMessage());
+                var validMessage = iHl7v2Validator.messageStringValidation(response.get().getMessage());
                 validMessage = iHl7v2Validator.processFhsMessage(validMessage);
                 hl7Msg = validMessage;
             } else {
@@ -498,22 +492,22 @@ public class KafkaConsumerService {
         }
         String messageType = elrModel.getType();
         switch (messageType) {
-            case KafkaHeaderValue.MessageType_HL7v2:
+            case KafkaHeaderValue.MESSAGE_TYPE_HL7:
                 customMetricsBuilder.incrementMessagesValidated();
                 ValidatedELRModel hl7ValidatedModel;
                 try {
-                    hl7ValidatedModel = iHl7v2Validator.MessageValidation(message, elrModel, validatedTopic, hl7ValidationActivated);
+                    hl7ValidatedModel = iHl7v2Validator.messageValidation(message, elrModel, validatedTopic, hl7ValidationActivated);
                     customMetricsBuilder.incrementMessagesValidatedSuccess();
                 } catch (DiHL7Exception e) {
                     customMetricsBuilder.incrementMessagesValidatedFailure();
                     throw new RuntimeException(e);
                 }
                 // Duplication check
-                iHL7DuplicateValidator.ValidateHL7Document(hl7ValidatedModel);
+                iHL7DuplicateValidator.validateHL7Document(hl7ValidatedModel);
                 saveValidatedELRMessage(hl7ValidatedModel);
                 kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic, 0);
                 break;
-            case KafkaHeaderValue.MessageType_CSV:
+            case KafkaHeaderValue.MESSAGE_TYPE_CSV:
                 // TODO: implement csv validation, this is not in the scope of data ingestion at the moment
                 break;
             default:
@@ -538,7 +532,7 @@ public class KafkaConsumerService {
             Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(message);
             if (response.isPresent()) {
                 payloadMessage =  response.get().getMessage();
-                var validMessage = iHl7v2Validator.MessageStringValidation(payloadMessage);
+                var validMessage = iHl7v2Validator.messageStringValidation(payloadMessage);
                 model.setRawId(message);
                 model.setRawMessage(validMessage);
             } else {
@@ -547,7 +541,7 @@ public class KafkaConsumerService {
         }
 
         try {
-            HL7ToFHIRModel convertedModel = iHl7ToFHIRConversion.ConvertHL7v2ToFhir(model, convertedToFhirTopic);
+            HL7ToFHIRModel convertedModel = iHl7ToFHIRConversion.convertHL7v2ToFhir(model, convertedToFhirTopic);
             iHL7ToFHIRRepository.save(convertedModel);
             kafkaProducerService.sendMessageAfterConvertedToFhirMessage(convertedModel, convertedToFhirTopic, 0);
         } catch (Exception e) {

@@ -5,7 +5,7 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
-import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
+import static gov.cdc.dataingestion.hl7.helper.helper.ModelListHelper.*;
 
 @Getter
 public class TimingQuantityRelationship {
@@ -23,9 +23,9 @@ public class TimingQuantityRelationship {
     public TimingQuantityRelationship(ca.uhn.hl7v2.model.v251.segment.TQ2 tq2) {
         this.setIdTq2 = tq2.getSetIDTQ2().getValue();
         this.sequenceResultFlag = tq2.getSequenceResultsFlag().getValue();
-        this.relatedPlacerNumber = GetEiList(tq2.getRelatedPlacerNumber());
-        this.relatedFillerNumber = GetEiList(tq2.getRelatedFillerNumber());
-        this.relatedPlacerGroupNumber = GetEiList(tq2.getRelatedPlacerGroupNumber());
+        this.relatedPlacerNumber = getEiList(tq2.getRelatedPlacerNumber());
+        this.relatedFillerNumber = getEiList(tq2.getRelatedFillerNumber());
+        this.relatedPlacerGroupNumber = getEiList(tq2.getRelatedPlacerGroupNumber());
         this.sequenceConditionCode = tq2.getSequenceConditionCode().getValue();
         this.cyclicEntryExitIndicator = tq2.getCyclicEntryExitIndicator().getValue();
         this.sequenceConditionTimeInterval = new Cq(tq2.getSequenceConditionTimeInterval());

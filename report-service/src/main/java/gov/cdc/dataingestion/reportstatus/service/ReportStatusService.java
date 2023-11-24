@@ -12,7 +12,6 @@ import java.util.Optional;
 
 @Service
 public class ReportStatusService {
-    private static Logger logger = LoggerFactory.getLogger(ReportStatusService.class);
     private final IReportStatusRepository iReportStatusRepository;
     private final NbsInterfaceRepository nbsInterfaceRepository;
 

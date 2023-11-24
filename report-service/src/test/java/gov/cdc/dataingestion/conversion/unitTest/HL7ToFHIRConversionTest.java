@@ -36,7 +36,7 @@ class HL7ToFHIRConversionTest {
         model.setUpdatedBy("test");
         model.setCreatedOn(null);
         model.setUpdatedOn(null);
-        var result = target.ConvertHL7v2ToFhir(model, "test");
+        var result = target.convertHL7v2ToFhir(model, "test");
 
         Assertions.assertEquals("test", result.getRawId());
         Assertions.assertNull(result.getUpdatedOn());
@@ -58,7 +58,7 @@ class HL7ToFHIRConversionTest {
 
         Exception exception = Assertions.assertThrows(
                 IllegalArgumentException.class, () -> {
-                    target.ConvertHL7v2ToFhir(model, "test");
+                    target.convertHL7v2ToFhir(model, "test");
                 }
         );
 

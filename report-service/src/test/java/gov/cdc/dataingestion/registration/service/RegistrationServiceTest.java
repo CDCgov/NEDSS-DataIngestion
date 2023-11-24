@@ -1,6 +1,5 @@
 package gov.cdc.dataingestion.registration.service;
 
-import gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService;
 import gov.cdc.dataingestion.registration.model.RegisterClient;
 import gov.cdc.dataingestion.registration.repository.IClientRegisterRepository;
 import org.junit.jupiter.api.Assertions;
@@ -14,12 +13,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.sql.Timestamp;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class RegistrationServiceTest {
+class RegistrationServiceTest {
     @Mock
     private IClientRegisterRepository iClientRegisterRepository;
 
@@ -53,7 +51,7 @@ public class RegistrationServiceTest {
 
         var result = registrationService.createUser(username, password);
         Assertions.assertFalse(result);
-        verify(iClientRegisterRepository).findByUsername(eq(username));
+        verify(iClientRegisterRepository).findByUsername(username);
         Assertions.assertEquals("id", model.getId());
         Assertions.assertEquals("user", model.getUsername());
         Assertions.assertEquals("pass", model.getPassword());

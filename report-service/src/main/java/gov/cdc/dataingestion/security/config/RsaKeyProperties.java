@@ -41,9 +41,7 @@ public class RsaKeyProperties {
         log.debug("Inside RsaKeyProperties privateKey");
         RSAPrivateKey privKey = null;
         try {
-            String privateKeyFormatted = privateKeyContent.replace(BEGIN_PRIVATE_KEY, "").replace(BEGIN_RSA_PRIVATE_KEY, "")
-                    .replaceAll(LINE_SEPARATOR, "")
-                    .replace(END_PRIVATE_KEY, "").replace(END_RSA_PRIVATE_KEY, "");
+            String privateKeyFormatted = privateKeyContent.replace(BEGIN_PRIVATE_KEY, "").replace(BEGIN_RSA_PRIVATE_KEY, "").replaceAll(LINE_SEPARATOR, "").replace(END_PRIVATE_KEY, "").replace(END_RSA_PRIVATE_KEY, ""); //NOSONAR
             byte[] encodedPrivateKey = DatatypeConverter.parseBase64Binary(privateKeyFormatted);
             privKey = (RSAPrivateKey) KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(encodedPrivateKey));
         } catch (Exception e) {
@@ -57,9 +55,7 @@ public class RsaKeyProperties {
         log.debug("Inside RsaKeyProperties publicKey");
         RSAPublicKey pubKey = null;
         try {
-            String publicKeyFormatted = publicKeyContent.replace(BEGIN_PUBLIC_KEY, "")
-                    .replaceAll(LINE_SEPARATOR, "")
-                    .replace(END_PUBLIC_KEY, "");
+            String publicKeyFormatted = publicKeyContent.replace(BEGIN_PUBLIC_KEY, "").replaceAll(LINE_SEPARATOR, "").replace(END_PUBLIC_KEY, ""); //NOSONAR
             byte[] encoded = DatatypeConverter.parseBase64Binary(publicKeyFormatted.trim());
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encoded);

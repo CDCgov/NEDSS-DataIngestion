@@ -1,8 +1,5 @@
 package gov.cdc.dataingestion.validation.integration.validator;
 
-import ca.uhn.hl7v2.DefaultHapiContext;
-import ca.uhn.hl7v2.HL7Exception;
-import ca.uhn.hl7v2.HapiContext;
 import gov.cdc.dataingestion.hl7.helper.HL7Helper;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
@@ -12,13 +9,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
-public class HL7v2ValidatorTests
+class HL7v2ValidatorTests
 {
     private IHL7v2Validator target;
     private HL7Helper hl7Helper;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         hl7Helper = new HL7Helper();
         target = new HL7v2Validator(hl7Helper);
     }
@@ -40,7 +37,7 @@ public class HL7v2ValidatorTests
 
 
         Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
-            target.MessageValidation(id, model, "test", true);
+            target.messageValidation(id, model, "test", true);
         });
 
         String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Error Occurred at OBR-4";
@@ -49,7 +46,7 @@ public class HL7v2ValidatorTests
 
 
     @Test
-    public void MessageValidation_Success_ValidMessage_NotContainNewLine() throws DiHL7Exception {
+    void MessageValidation_Success_ValidMessage_NotContainNewLine() throws DiHL7Exception {
 
         String data = "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
                 + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
@@ -65,7 +62,7 @@ public class HL7v2ValidatorTests
         model.setId(id);
         model.setCreatedOn(null);
         model.setUpdatedOn(null);
-        var result = target.MessageValidation(id, model, "test", false);
+        var result = target.messageValidation(id, model, "test", false);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("2.5.1",result.getMessageVersion());
@@ -78,7 +75,7 @@ public class HL7v2ValidatorTests
     }
 
     @Test
-    public void MessageValidation_Success_ValidMessage_NotContainNewLine_231() throws DiHL7Exception {
+    void MessageValidation_Success_ValidMessage_NotContainNewLine_231() throws DiHL7Exception {
 
         String data = "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.3.1\r"
                 + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
@@ -94,7 +91,7 @@ public class HL7v2ValidatorTests
         model.setId(id);
         model.setCreatedOn(null);
         model.setUpdatedOn(null);
-        var result = target.MessageValidation(id, model, "test", false);
+        var result = target.messageValidation(id, model, "test", false);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("2.3.1",result.getMessageVersion());
@@ -107,7 +104,7 @@ public class HL7v2ValidatorTests
     }
 
     @Test
-    public void MessageValidation_Success_ValidMessage_ContainNewLine() throws DiHL7Exception {
+    void MessageValidation_Success_ValidMessage_ContainNewLine() throws DiHL7Exception {
 
         String data = "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\n"
                 + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\n"
@@ -129,7 +126,7 @@ public class HL7v2ValidatorTests
         model.setPayload(data);
         model.setId(id);
 
-        var result = target.MessageValidation(id, model, "test", false);
+        var result = target.messageValidation(id, model, "test", false);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("2.5.1",result.getMessageVersion());
@@ -138,7 +135,7 @@ public class HL7v2ValidatorTests
     }
 
     @Test
-    public void MessageValidation_Exception_NotSupportedVersion()  {
+    void MessageValidation_Exception_NotSupportedVersion()  {
 
         String data = "MSH|^~\\&|OneAbbottSol.STAG^2.16.840.1.113883.3.8589.4.2.7.2^ISO|AbbottInformatics^00Z0000002^CLIA|AIMS.INTEGRATION.STG^2.16.840.1.114222.4.3.15.2^ISO|AIMS.PLATFORM^2.16.840.1.114222.4.1.217446^ISO|20210128162413-0500||ORU^R01^ORU_R01|20210128162413.806_P21-0000105078|T|2.3|||NE|NE|||||PHLabReport-NoAck^ELR251R1_Rcvr_Prof^2.16.840.1.113883.9.11^ISO\n" +
                 "SFT|Abbott Informatics|PH12.1|STARLIMS PH|Binary ID Unknown\n" +
@@ -166,7 +163,7 @@ public class HL7v2ValidatorTests
 
         Exception exception = Assertions.assertThrows(
                 DiHL7Exception.class, () -> {
-                    target.MessageValidation(id, model, "test", false);
+                    target.messageValidation(id, model, "test", false);
                 }
         );
 
@@ -176,7 +173,7 @@ public class HL7v2ValidatorTests
     }
 
     @Test
-    public void MessageValidation_InvalidMessage_ThrowException() {
+    void MessageValidation_InvalidMessage_ThrowException() {
 
         String data = "Invalid Message";
         String id = "1";
@@ -187,7 +184,7 @@ public class HL7v2ValidatorTests
 
         Exception exception = Assertions.assertThrows(
                 DiHL7Exception.class, () -> {
-                    target.MessageValidation(id, model, "test", false);
+                    target.messageValidation(id, model, "test", false);
                 }
         );
         String expectedMessage = "Determine encoding for message. The following is the first 50 chars of the message for reference, although this may not be where the issue is: Invalid Message";

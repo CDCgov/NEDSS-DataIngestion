@@ -4,7 +4,7 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
+import static gov.cdc.dataingestion.hl7.helper.helper.ModelListHelper.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,18 +67,18 @@ public class FinancialTransaction {
         this.assignedPatientLocation = new Pl(ft1.getAssignedPatientLocation());
         this.feeSchedule = ft1.getFeeSchedule().getValue();
         this.patientType = ft1.getPatientType().getValue();
-        this.diagnosisCode = GetCeList(ft1.getDiagnosisCodeFT1());
-        this.performedByCode = GetXcnList(ft1.getPerformedByCode());
-        this.orderedByCode = GetXcnList(ft1.getOrderedByCode());
+        this.diagnosisCode = getCeList(ft1.getDiagnosisCodeFT1());
+        this.performedByCode = getXcnList(ft1.getPerformedByCode());
+        this.orderedByCode = getXcnList(ft1.getOrderedByCode());
         this.unitCost = new Cp(ft1.getUnitCost());
         this.fillerOrderNumber = new Ei(ft1.getFillerOrderNumber());
-        this.enteredByCode = GetXcnList(ft1.getEnteredByCode());
+        this.enteredByCode = getXcnList(ft1.getEnteredByCode());
         this.procedureCode = new Ce(ft1.getProcedureCode());
-        this.procedureCodeModifier = GetCeList(ft1.getProcedureCodeModifier());
+        this.procedureCodeModifier = getCeList(ft1.getProcedureCodeModifier());
         this.advancedBeneficiaryNoticeCode = new Ce(ft1.getAdvancedBeneficiaryNoticeCode());
         this.medicallyNecessaryDuplicateProcedureReason = new Cwe(ft1.getMedicallyNecessaryDuplicateProcedureReason());
         this.ndcCode = new Cne(ft1.getNDCCode());
         this.paymentReferenceId = new Cx(ft1.getPaymentReferenceID());
-        this.transactionReferenceKey = GetSiStringList(ft1.getTransactionReferenceKey());
+        this.transactionReferenceKey = getSiStringList(ft1.getTransactionReferenceKey());
     }
 }

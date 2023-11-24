@@ -12,14 +12,13 @@ import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IFhirConverter;
 import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser;
 import gov.cdc.dataingestion.hl7.helper.model.FhirConvertedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
 import io.github.linuxforhealth.hl7.HL7ToFHIRConverter;
 
 public class HL7Helper {
 
     private IHL7Parser parser = new HL7Parser(new DefaultHapiContext());
     private IFhirConverter fhirConverter = new FhirConverter(new HL7ToFHIRConverter());
-
-    private static HL7Helper instance = new HL7Helper();
 
     /**
      * HL7 string validator, replacing "\n" by "\r"
@@ -31,7 +30,7 @@ public class HL7Helper {
     /**
      * Parser to be updated
      * */
-    public HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception {
+    public HL7ParsedMessage<OruR1> hl7StringParser(String message) throws DiHL7Exception {
         message = parser.processFhsMessage(message);
         return parser.hl7StringParser(message);
     }
@@ -40,7 +39,7 @@ public class HL7Helper {
         return parser.hl7v231StringParser(message);
     }
 
-    public HL7ParsedMessage convert231To251(String message) throws DiHL7Exception {
+    public HL7ParsedMessage<OruR1> convert231To251(String message) throws DiHL7Exception {
         return parser.convert231To251(message, null);
     }
 
@@ -48,7 +47,7 @@ public class HL7Helper {
      * Convert HL7 message into fhir
      * */
     public FhirConvertedMessage convertHl7ToFhir(String message) throws DiFhirException {
-        return fhirConverter.HL7ToFHIRConversion(message);
+        return fhirConverter.hL7ToFHIRConversion(message);
     }
 
     public String hl7Validation(String message) throws DiHL7Exception{

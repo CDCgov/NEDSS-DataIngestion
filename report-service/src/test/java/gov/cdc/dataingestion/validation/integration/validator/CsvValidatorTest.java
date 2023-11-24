@@ -21,7 +21,7 @@ class CsvValidatorTest {
         String message = "[[\"value1\", \"value2\", \"value3\", \"value4\", \"value5\", \"value6\", \"value7\", \"value8\"]]";
 
         // Act
-        var result = target.ValidateCSVAgainstCVSSchema(message);
+        var result = target.validateCSVAgainstCVSSchema(message);
 
         // Assert
         Assertions.assertNotNull(result);
@@ -37,7 +37,7 @@ class CsvValidatorTest {
         // Act
         Exception exception = Assertions.assertThrows(
                 Exception.class, () -> {
-                    target.ValidateCSVAgainstCVSSchema(message);
+                    target.validateCSVAgainstCVSSchema(message);
                 }
         );
 

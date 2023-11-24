@@ -1,5 +1,5 @@
 package gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit;
-import static gov.cdc.dataingestion.hl7.helper.helper.modelListHelper.*;
+import static gov.cdc.dataingestion.hl7.helper.helper.ModelListHelper.*;
 
 import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
 import lombok.Getter;
@@ -13,7 +13,7 @@ import java.util.List;
 public class PatientVisit {
     String setIdPv1;
     String patientClass;
-    Pl AssignPatientLocation = new Pl();
+    Pl assignPatientLocation = new Pl();
     String admissionType;
     Cx preadmitNumber = new Cx();
     Pl priorPatientLocation = new Pl();
@@ -71,31 +71,31 @@ public class PatientVisit {
     public PatientVisit(ca.uhn.hl7v2.model.v251.segment.PV1 pv1) {
         this.setIdPv1 = pv1.getSetIDPV1().getValue();
         this.patientClass = pv1.getPatientClass().getValue();
-        this.AssignPatientLocation = new Pl(pv1.getAssignedPatientLocation());
+        this.assignPatientLocation = new Pl(pv1.getAssignedPatientLocation());
         this.admissionType = pv1.getAdmissionType().getValue();
         this.preadmitNumber = new Cx(pv1.getPreadmitNumber());
         this.priorPatientLocation = new Pl(pv1.getPriorPatientLocation());
-        this.attendingDoctor = GetXcnList(pv1.getAttendingDoctor());
-        this.referringDoctor = GetXcnList(pv1.getReferringDoctor());
-        this.consultingDoctor = GetXcnList(pv1.getConsultingDoctor());
+        this.attendingDoctor = getXcnList(pv1.getAttendingDoctor());
+        this.referringDoctor = getXcnList(pv1.getReferringDoctor());
+        this.consultingDoctor = getXcnList(pv1.getConsultingDoctor());
         this.hospitalService = pv1.getHospitalService().getValue();
         this.temporaryLocation = new Pl(pv1.getTemporaryLocation());
         this.preadmitTestIndicator = pv1.getPreadmitTestIndicator().getValue();
         this.reAdmissionIndicator = pv1.getReAdmissionIndicator().getValue();
         this.admitSource = pv1.getAdmitSource().getValue();
-        this.ambulatoryStatus = GetIsStringList(pv1.getAmbulatoryStatus());
+        this.ambulatoryStatus = getIsStringList(pv1.getAmbulatoryStatus());
         this.vipStatus = pv1.getVisitIndicator().getValue();
-        this.admittingDoctor = GetXcnList(pv1.getAdmittingDoctor());
+        this.admittingDoctor = getXcnList(pv1.getAdmittingDoctor());
         this.patientType = pv1.getPatientType().getValue();
         this.visitNumber = new Cx(pv1.getVisitNumber());
-        this.financialClass = GetFcList(pv1.getFinancialClass());
+        this.financialClass = getFcList(pv1.getFinancialClass());
         this.chargePriceIndicator = pv1.getChargePriceIndicator().getValue();
         this.courtesyCode = pv1.getCourtesyCode().getValue();
         this.creditRating = pv1.getCreditRating().getValue();
-        this.contractRole = GetIsStringList(pv1.getContractCode());
-        this.contractEffectiveDate = GetDtStringList(pv1.getContractEffectiveDate());
-        this.contractAmount = GetNmStringList(pv1.getContractAmount());
-        this.contractPeriod = GetNmStringList(pv1.getContractPeriod());
+        this.contractRole = getIsStringList(pv1.getContractCode());
+        this.contractEffectiveDate = getDtStringList(pv1.getContractEffectiveDate());
+        this.contractAmount = getNmStringList(pv1.getContractAmount());
+        this.contractPeriod = getNmStringList(pv1.getContractPeriod());
         this.interestCode = pv1.getInterestCode().getValue();
         this.transferToBadDebtCode = pv1.getTransferToBadDebtCode().getValue();
         this.transferToBadDebtDate = pv1.getTransferToBadDebtDate().getValue();
@@ -113,13 +113,13 @@ public class PatientVisit {
         this.pendingLocation = new Pl(pv1.getPendingLocation());
         this.priorTemporaryLocation = new Pl(pv1.getPriorPatientLocation());
         this.admitDateTime = new Ts(pv1.getAdmitDateTime());
-        this.dischargeDateTime = GetTsList(pv1.getDischargeDateTime());
+        this.dischargeDateTime = getTsList(pv1.getDischargeDateTime());
         this.currentPatientBalance = pv1.getCurrentPatientBalance().getValue();
         this.totalCharge = pv1.getTotalCharges().getValue();
         this.totalAdjustment = pv1.getTotalAdjustments().getValue();
         this.totalPayment = pv1.getTotalPayments().getValue();
         this.alternateVisitId = new Cx(pv1.getAlternateVisitID());
         this.visitIndicator = pv1.getVisitIndicator().getValue();
-        this.otherHealthcareProvider = GetXcnList(pv1.getOtherHealthcareProvider());
+        this.otherHealthcareProvider = getXcnList(pv1.getOtherHealthcareProvider());
     }
 }
