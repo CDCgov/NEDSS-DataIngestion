@@ -19,7 +19,7 @@ rsa:
   public-key-content: ${DI_RSA_PUBLIC_KEY}
 spring:
   application:
-    name: report-service
+    name: data-ingestion-service
 logging:
   #  Only one config can be active at a time
   config: classpath:logback-config.xml

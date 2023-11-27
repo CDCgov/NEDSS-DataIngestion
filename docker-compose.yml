@@ -1,13 +1,13 @@
 services:
-  report-service:
+  data-ingestion-service:
     build:
       context: ./
-      dockerfile: ./report-service/Dockerfile
+      dockerfile: ./data-ingestion-service/Dockerfile
     ports:
       - "8083:8083"
     depends_on:
       - broker
-    container_name: report-service
+    container_name: data-ingestion-service
     env_file:
       - dataingestion.env
     environment:

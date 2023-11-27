@@ -10,11 +10,11 @@ http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/
 http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
 
     <changeSet id="1" author="liquibase">
-        <sqlFile path="src/main/resources/db/report-service-001.sql" splitStatements="false"/>
+        <sqlFile path="src/main/resources/db/data-ingestion-service-001.sql" splitStatements="false"/>
     </changeSet>
 
     <changeSet id="2" author="liquibase">
-        <sqlFile path="src/main/resources/db/report-service-002.sql" splitStatements="false"/>
+        <sqlFile path="src/main/resources/db/data-ingestion-service-002.sql" splitStatements="false"/>
     </changeSet>
 
 </databaseChangeLog>

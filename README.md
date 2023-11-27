@@ -34,14 +34,14 @@ Data Ingestion for Modernization of NEDSS Project by Enquizit
 
 - Build project with gradle (no docker)
   - ./gradlew :hl7-parser:build
-  - ./gradlew :report-service:build
+  - ./gradlew :data-ingestion-service:build
   - ./gradlew build
 
 # Building Docker image for EKS (1)
 - If you are on Mac OS Environnment, look into Docker Buildx, so linux image can be built
 - This example assume local machine run Mac OS.
-- ```Run "docker buildx  build --platform linux/amd64 -t <DOCKER_REPOS>/<IMAGE_NAME>:<VERSION> -f report-service/Dockerfile . --push"```
-    - This command look for Dockerfile inside report-service directory and build image from the top level of the project's hierarchy 
+- ```Run "docker buildx  build --platform linux/amd64 -t <DOCKER_REPOS>/<IMAGE_NAME>:<VERSION> -f data-ingestion-service/Dockerfile . --push"```
+    - This command look for Dockerfile inside data-ingestion-service directory and build image from the top level of the project's hierarchy 
 
 # Deploy Docker image on EKS (2)
 - These steps assume EKS cluster already exist and running, and it is being manage by Helm Charts 
