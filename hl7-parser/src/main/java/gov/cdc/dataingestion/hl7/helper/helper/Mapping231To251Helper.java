@@ -167,7 +167,7 @@ public class Mapping231To251Helper {
         for(int a = 0; a < inPid231.getPatientIdentifierList().length; a++) {
             if (inPid231.getPatientIdentifierList(a) != null) {
                 var patientIdentifier = inPid231.getPatientIdentifierList(a);
-                var newPatientIdentifier = new Cx();
+                Cx newPatientIdentifier;
                 if (patientIdentifier.getIdentifierTypeCode() == null ||
                         (patientIdentifier.getIdentifierTypeCode() != null && patientIdentifier.getIdentifierTypeCode().getValue() == null)
                         ||

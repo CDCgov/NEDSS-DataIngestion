@@ -500,7 +500,7 @@ public class KafkaConsumerService {
                     customMetricsBuilder.incrementMessagesValidatedSuccess();
                 } catch (DiHL7Exception e) {
                     customMetricsBuilder.incrementMessagesValidatedFailure();
-                    throw new RuntimeException(e);
+                    throw new DiHL7Exception(e.getMessage());
                 }
                 // Duplication check
                 iHL7DuplicateValidator.validateHL7Document(hl7ValidatedModel);

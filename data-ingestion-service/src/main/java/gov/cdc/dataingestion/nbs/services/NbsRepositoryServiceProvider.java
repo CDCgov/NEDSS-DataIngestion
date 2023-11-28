@@ -28,7 +28,6 @@ public class NbsRepositoryServiceProvider {
 
 	private static final String ECR_DOC_TYPE = "PHC236";
 
-    @Autowired
     private NbsInterfaceRepository nbsInterfaceRepo;
 
 	public void saveEcrCdaXmlMessage (String nbsInterfaceUid,

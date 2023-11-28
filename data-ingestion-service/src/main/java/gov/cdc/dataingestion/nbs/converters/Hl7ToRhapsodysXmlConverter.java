@@ -2320,7 +2320,8 @@ public class Hl7ToRhapsodysXmlConverter {
         }
 
         DateTimeFormatter tsFormatter = formatter;
-        if (ts.indexOf("-") > 0) {
+        if (ts.indexOf("-") > 0) //NOSONAR
+        {
             tsFormatter = formatterWithZone;
             int index = ts.indexOf("-");
             String subStr = ts.substring(0, index);

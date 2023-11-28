@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ContinuationPointer {
-    String continuationPointer;
+    String continuationPointer; //NOSONAR
     String continuationStyle;
 
     public ContinuationPointer(DSC dsc) {
