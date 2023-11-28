@@ -9,7 +9,7 @@
 
 <!-- Appender for File -->
 <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-    <file>${LOG_PATH}/report-service.log</file>
+    <file>${LOG_PATH}/data-ingestion-service.log</file>
     <encoder>
         <pattern>%d %-5level [%thread] %logger : %msg%n</pattern>
     </encoder>

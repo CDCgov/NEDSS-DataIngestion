@@ -11,7 +11,7 @@ on:
         description: "Relative path of your dockerfile, may include -f flag (ex. ./apps/<microservice>/Dockerfile)."
         required: true
         type: string
-        default: -f ./report-service/Dockerfile .
+        default: -f ./data-ingestion-service/Dockerfile .
       existing-image-tag:
         description: "Image tag of existing container in ECR (not used if build-new-container=true)."
         required: false

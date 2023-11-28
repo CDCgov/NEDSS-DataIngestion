@@ -10,7 +10,7 @@ version = '0.0.1-SNAPSHOT'
 dependencies {
 
     jacocoAggregation project(':hl7-parser')
-    jacocoAggregation project(':report-service')
+    jacocoAggregation project(':data-ingestion-service')
 }
 
 reporting {

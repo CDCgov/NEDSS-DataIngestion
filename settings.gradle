@@ -10,4 +10,4 @@ include 'phdc-xsd-jaxb'
 include 'cdaschema'
 
 // App
-include 'report-service'
+include 'data-ingestion-service'
