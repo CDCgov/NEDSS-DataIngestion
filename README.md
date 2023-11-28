@@ -61,10 +61,10 @@ Data Ingestion for Modernization of NEDSS Project by Enquizit
      
 # Unit Testing and Code Coverage
 - Requirement:
-  - Code coverage must be greater than 90%
+  - Code coverage must be greater than 80%
 - Progress:
-  - HL7-parser at 91%.
-  - Report-service at 93%.
+  - hl7-parser is greater than 80%.
+  - data-ingestion-service is greater than 80%.
     - Excluding classes and files.
       - Unused model classes in Jaxb package
         - models in this package are generated after built based on given xml definition
