@@ -25,9 +25,6 @@ public class NbsRepositoryServiceProvider {
 	private static final String STATUS_UNPROCESSED = "QUEUED";
 	private static final String SYSTEM_NAME_NBS = "NBS";
 	private static final String DOCUMENT_TYPE_CODE = "11648804";
-	private static final String FILLER_ORDER_NBR = "HL7EntityIdentifier";
-	private static final String LAB_CLIA = "HL7UniversalID";
-	private static final String ORDER_TEST_CODE = "HL7AlternateIdentifier";
 
 	private static final String ECR_DOC_TYPE = "PHC236";
 
