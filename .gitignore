@@ -22,8 +22,8 @@
 hs_err_pid*
 
 # mongo data replica
-report-service/data
-report-service/dlt_records
+data-ingestion-service/data
+data-ingestion-service/dlt_records
 
 .DS_Store
 .gradle/
@@ -34,7 +34,7 @@ karatetest/.gradle
 karatetest/.idea
 
 # private pem
-report-service/src/main/resources/certs/private.pem
+data-ingestion-service/src/main/resources/certs/private.pem
 
 # hl7 parser build
 hl7-parser/build/

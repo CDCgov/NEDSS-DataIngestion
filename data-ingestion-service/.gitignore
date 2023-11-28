@@ -39,7 +39,7 @@ out/
 .vscode/
 
 /src/main/java/gov/cdc/dataingestion/nbs/jaxb/*.java
-/logs/report-service.log*
+/logs/data-ingestion-service.log*
 
 ### Private Key File ###
 /src/main/resources/certs/private.pem

@@ -10,19 +10,19 @@ COPY settings.gradle /usr/src/dataingestion/settings.gradle
 #Copy sources
 COPY hl7-parser /usr/src/dataingestion/hl7-parser
 COPY cdaschema /usr/src/dataingestion/cdaschema
-COPY report-service /usr/src/dataingestion/report-service
+COPY data-ingestion-service /usr/src/dataingestion/data-ingestion-service
 
 COPY . /usr/src/dataingestion
 
 WORKDIR /usr/src/dataingestion
 
 #Build report service along with any required libraries
-RUN ./gradlew :report-service:buildNeeded -x test --no-daemon
+RUN ./gradlew :data-ingestion-service:buildNeeded -x test --no-daemon
 
 FROM amazoncorretto:17
 
-COPY --from=builder /usr/src/dataingestion/report-service/build/libs/report-service*.jar report-service.jar
+COPY --from=builder /usr/src/dataingestion/data-ingestion-service/build/libs/data-ingestion-service*.jar data-ingestion-service.jar
 
 # Run jar
-ENTRYPOINT ["java", "-jar", "report-service.jar"]
-CMD ["java", "-jar", "report-service.jar"]
+ENTRYPOINT ["java", "-jar", "data-ingestion-service.jar"]
+CMD ["java", "-jar", "data-ingestion-service.jar"]
