@@ -29,7 +29,7 @@ class CustomMetricsBuilderTest {
     @Test
     void testIncrementMessagesProcessed() {
         when(meterRegistryMock.counter("custom_messages_processed")).thenReturn(counterMock);
-        customMetricsBuilder.custom_messages_processed = counterMock;
+        customMetricsBuilder.customMessagesProcessed = counterMock;
 
         customMetricsBuilder.incrementMessagesProcessed();
 
@@ -39,7 +39,7 @@ class CustomMetricsBuilderTest {
     @Test
     void testIncrementMessagesValidated() {
         when(meterRegistryMock.counter("custom_messages_validated")).thenReturn(counterMock);
-        customMetricsBuilder.custom_messages_validated = counterMock;
+        customMetricsBuilder.customMessagesValidated = counterMock;
 
         customMetricsBuilder.incrementMessagesValidated();
 
@@ -49,7 +49,7 @@ class CustomMetricsBuilderTest {
     @Test
     void testIncrementMessagesValidatedSuccess() {
         when(meterRegistryMock.counter("custom_messages_validated_success")).thenReturn(counterMock);
-        customMetricsBuilder.custom_messages_validated_success = counterMock;
+        customMetricsBuilder.customMessagesValidatedSuccess = counterMock;
 
         customMetricsBuilder.incrementMessagesValidatedSuccess();
 
@@ -59,7 +59,7 @@ class CustomMetricsBuilderTest {
     @Test
     void testIncrementMessagesValidatedFailure() {
         when(meterRegistryMock.counter("custom_messages_validated_failure")).thenReturn(counterMock);
-        customMetricsBuilder.custom_messages_validated_failure = counterMock;
+        customMetricsBuilder.customMessagesValidatedFailure = counterMock;
 
         customMetricsBuilder.incrementMessagesValidatedFailure();
 
@@ -69,7 +69,7 @@ class CustomMetricsBuilderTest {
     @Test
     void testIncrementDuplicateHL7Messages() {
         when(meterRegistryMock.counter("custom_duplicate_hl7_found")).thenReturn(counterMock);
-        customMetricsBuilder.custom_duplicate_hl7_found = counterMock;
+        customMetricsBuilder.customDuplicateHl7Found = counterMock;
 
         customMetricsBuilder.incrementDuplicateHL7Messages();
 
@@ -79,7 +79,7 @@ class CustomMetricsBuilderTest {
     @Test
     void testIncrementXmlConversionRequested() {
         when(meterRegistryMock.counter("custom_xml_conversion_requested")).thenReturn(counterMock);
-        customMetricsBuilder.custom_xml_conversion_requested = counterMock;
+        customMetricsBuilder.customXmlConversionRequested = counterMock;
 
         customMetricsBuilder.incrementXmlConversionRequested();
 
@@ -89,7 +89,7 @@ class CustomMetricsBuilderTest {
     @Test
     void testIncrementXmlConversionRequestedSuccess() {
         when(meterRegistryMock.counter("custom_xml_converted_success")).thenReturn(counterMock);
-        customMetricsBuilder.custom_xml_converted_success = counterMock;
+        customMetricsBuilder.customXmlConvertedSuccess = counterMock;
 
         customMetricsBuilder.incrementXmlConversionRequestedSuccess();
 
@@ -99,7 +99,7 @@ class CustomMetricsBuilderTest {
     @Test
     void testIncrementXmlConversionRequestedFailure() {
         when(meterRegistryMock.counter("custom_xml_converted_failure")).thenReturn(counterMock);
-        customMetricsBuilder.custom_xml_converted_failure = counterMock;
+        customMetricsBuilder.customXmlConvertedFailure = counterMock;
 
         customMetricsBuilder.incrementXmlConversionRequestedFailure();
 
@@ -109,7 +109,7 @@ class CustomMetricsBuilderTest {
     @Test
     void testIncrementTokensRequested() {
         when(meterRegistryMock.counter("custom_tokens_requested")).thenReturn(counterMock);
-        customMetricsBuilder.custom_tokens_requested = counterMock;
+        customMetricsBuilder.customTokensRequested = counterMock;
 
         customMetricsBuilder.incrementTokensRequested();
 

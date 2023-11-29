@@ -16,7 +16,7 @@ import gov.cdc.dataingestion.exception.*;
 import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
@@ -377,7 +377,6 @@ public class KafkaConsumerService {
                 elrDeadLetterDto.setMessage(message.getRawMessage());
             }
             else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(convertedToXmlTopic)) {
-                //todo: this to handle error that may occur after xml conversion
                 throw new DeadLetterTopicException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());
             }
             else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(convertedToFhirTopic)) {
@@ -398,12 +397,9 @@ public class KafkaConsumerService {
             model.setCreatedBy(elrDeadLetterDto.getCreatedBy());
             model.setUpdatedBy(elrDeadLetterDto.getUpdatedBy());
             this.elrDeadLetterRepository.save(model);
-            // TODO: push notification to notify user, error happened, and it was saved of  into rds db
         } catch (Exception e) {
             Gson gson = new Gson();
             String data = gson.toJson(model);
-
-            // TODO: If this happened, then push notification to notify user
             logger.error("Error occurred while processing DLT record: {}", data);
 
         }

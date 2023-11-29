@@ -26,7 +26,6 @@ public class ReportStatusController {
     }
 
     @GetMapping("/report-status/{id}")
-    @ResponseBody
     public ResponseEntity<String> getReportStatus(@PathVariable String id) throws JsonProcessingException {
         logger.debug("Status requested for record with id: '{}'", id);
 

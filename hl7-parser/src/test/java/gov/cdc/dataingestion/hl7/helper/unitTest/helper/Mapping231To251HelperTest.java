@@ -6,17 +6,14 @@ import gov.cdc.dataingestion.hl7.helper.HL7Helper;
 import gov.cdc.dataingestion.hl7.helper.helper.Mapping231To251Helper;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.NextOfKin;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Sad;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Sad;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Ts;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Xad;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static gov.cdc.dataingestion.hl7.helper.unitTest.Hl7TestData.messageByRhapsody;
 import static gov.cdc.dataingestion.hl7.helper.unitTest.Hl7TestData.randomGenerated231WithDataInAllFieldV2;
 
 class Mapping231To251HelperTest {

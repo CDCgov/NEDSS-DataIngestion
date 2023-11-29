@@ -1,6 +1,6 @@
 package gov.cdc.dataingestion.hl7.helper.model.hl7.group.shared;
 
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Ce;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -12,9 +12,9 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ObservationRequest
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.PatientIdentification;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.*;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_segment.MessageHeader;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_segment.SoftwareSegment;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -843,7 +843,7 @@ public class Mapping231To251Helper {
         if(compositeResult != null && compositeResult.getExtraComponents() != null && compositeResult.getExtraComponents().numComponents() > 0) {
             for(int i = 0; i < compositeResult.getExtraComponents().numComponents(); i++) {
                 try {
-                    descriptor = descriptor + "&" + compositeResult.getExtraComponents().getComponent(i).getData().encode().toString();
+                    descriptor = descriptor + "&" + compositeResult.getExtraComponents().getComponent(i).getData().encode();
                 } catch (Exception e) {
                     throw new DiHL7Exception(e.getMessage());
                 }

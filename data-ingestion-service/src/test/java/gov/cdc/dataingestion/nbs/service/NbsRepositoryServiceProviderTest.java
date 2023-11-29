@@ -2,10 +2,10 @@ package gov.cdc.dataingestion.nbs.service;
 
 
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.OrderObservation;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.PatientResult;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Specimen;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.OrderObservation;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.PatientResult;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.Specimen;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 import gov.cdc.dataingestion.nbs.TestHelper;
 import gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
