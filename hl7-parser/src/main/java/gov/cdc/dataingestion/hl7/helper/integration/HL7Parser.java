@@ -286,6 +286,7 @@ public class HL7Parser implements IHL7Parser {
         }
     }
 
+    @SuppressWarnings("java:S1301")
     public HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception{
         try {
             HL7ParsedMessage<OruR1> parsedMessage = new HL7ParsedMessage<>();

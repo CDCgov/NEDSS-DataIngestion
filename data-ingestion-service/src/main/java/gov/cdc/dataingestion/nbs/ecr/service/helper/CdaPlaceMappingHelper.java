@@ -451,19 +451,52 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
         out.getParticipantRole().getAddrArray(c).setStreetAddressLineArray(0, val);
     }
 
-    private PlaceField mapToPlaceFieldCheckP1Helper1(String value, String name, EcrMsgPlaceDto in, PlaceField param) {
-        String workExtn = param.getWorkExtn();
+    private PlaceField mapToPlaceFieldCheckP1Helper4(String value, String name, EcrMsgPlaceDto in, PlaceField param) {
+        String workPhone= param.getWorkPhone();
         String teleAsOfDate=param.getTeleAsOfDate();
         String censusTract= param.getCensusTract();
         String postalAsOfDate= param.getPostalAsOfDate();
-        String workPhone= param.getWorkPhone();
         String country = param.getCountry();
+        String workExtn = param.getWorkExtn();
+
+
+        if (name.equals("plaAddrCountryCd")&& value != null && !in.getPlaAddrCountryCd().isEmpty()){
+            country=in.getPlaAddrCountryCd();
+        }
+        if (name.equals("plaPhoneNbrTxt") && value != null&& !in.getPlaPhoneNbrTxt().isEmpty()){
+            workPhone=in.getPlaPhoneNbrTxt();
+        }
+        if (name.equals("plaAddrAsOfDt") && value != null && in.getPlaAddrAsOfDt() != null){
+            postalAsOfDate=in.getPlaAddrAsOfDt().toString();
+        }
+        if (name.equals("plaCensusTractTxt") && value != null&& !in.getPlaCensusTractTxt().isEmpty()){
+            censusTract=in.getPlaCensusTractTxt();
+        }
+        if (name.equals("plaPhoneAsOfDt") && value != null&& in.getPlaPhoneAsOfDt() != null ){
+            teleAsOfDate=in.getPlaPhoneAsOfDt().toString();
+        }
+        if (name.equals("plaPhoneExtensionTxt") && value != null&& !in.getPlaPhoneExtensionTxt().isEmpty()){
+            workExtn= in.getPlaPhoneExtensionTxt();
+        }
+        param.setWorkExtn(workExtn);
+        param.setTeleAsOfDate(teleAsOfDate);
+        param.setPostalAsOfDate(postalAsOfDate);
+        param.setCensusTract(censusTract);
+        param.setCountry(country);
+        param.setWorkPhone(workPhone);
+
+        return param;
+
+    }
+
+    private PlaceField mapToPlaceFieldCheckP1Helper1(String value, String name, EcrMsgPlaceDto in, PlaceField param) {
         String zip = param.getZip();
         String state= param.getState();
-        String county = param.getCounty();
         String city = param.getCity();
         String streetAddress1= param.getStreetAddress1();
         String streetAddress2= param.getStreetAddress2();
+        String county = param.getCounty();
+
 
         if (name.equals("plaAddrStreetAddr1Txt")&& value != null && !in.getPlaAddrStreetAddr1Txt().isEmpty()){
             streetAddress1= in.getPlaAddrStreetAddr1Txt();
@@ -483,42 +516,37 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
         if (name.equals("plaAddrZipCodeTxt")&& value != null && !in.getPlaAddrZipCodeTxt().isEmpty()){
             zip = in.getPlaAddrZipCodeTxt();
         }
-        if (name.equals("plaAddrCountryCd")&& value != null && !in.getPlaAddrCountryCd().isEmpty()){
-            country=in.getPlaAddrCountryCd();
-        }
-        if (name.equals("plaPhoneNbrTxt") && value != null&& !in.getPlaPhoneNbrTxt().isEmpty()){
-            workPhone=in.getPlaPhoneNbrTxt();
-        }
-        if (name.equals("plaAddrAsOfDt") && value != null && in.getPlaAddrAsOfDt() != null){
-            postalAsOfDate=in.getPlaAddrAsOfDt().toString();
-        }
-        if (name.equals("plaCensusTractTxt") && value != null&& !in.getPlaCensusTractTxt().isEmpty()){
-            censusTract=in.getPlaCensusTractTxt();
-        }
-        if (name.equals("plaPhoneAsOfDt") && value != null&& in.getPlaPhoneAsOfDt() != null ){
-            teleAsOfDate=in.getPlaPhoneAsOfDt().toString();
-        }
-        if (name.equals("plaPhoneExtensionTxt") && value != null&& !in.getPlaPhoneExtensionTxt().isEmpty()){
-            workExtn= in.getPlaPhoneExtensionTxt();
-        }
 
-
-        param.setWorkExtn(workExtn);
-        param.setTeleAsOfDate(teleAsOfDate);
-        param.setPostalAsOfDate(postalAsOfDate);
-        param.setCensusTract(censusTract);
         param.setState(state);
         param.setStreetAddress1(streetAddress1);
         param.setStreetAddress2(streetAddress2);
         param.setCity(city);
         param.setCounty(county);
-        param.setCountry(country);
         param.setZip(zip);
-        param.setWorkPhone(workPhone);
 
         return param;
     }
 
+    private  POCDMT000040Participant2 mapToPlaceFieldCheckP1Helper5(String value, String name, EcrMsgPlaceDto in,
+                                                POCDMT000040Participant2 out) {
+        if (name.equals("plaIdQuickCode") && value != null&& !in.getPlaIdQuickCode().isEmpty()){
+
+            int c = 0;
+            if (out.getParticipantRole() == null) {
+                out.addNewParticipantRole().addNewId();
+            } else {
+                if (out.getParticipantRole().getIdArray().length > 0) {
+                    c = out.getParticipantRole().getIdArray().length;
+                }
+                out.addNewParticipantRole().addNewId();
+            }
+
+            out.getParticipantRole().getIdArray(c).setRoot(ID_ARR_ROOT);
+            out.getParticipantRole().getIdArray(c).setExtension(in.getPlaIdQuickCode());
+            out.getParticipantRole().getIdArray(c).setAssigningAuthorityName("LR_QEC");
+        }
+        return out;
+    }
     private POCDMT000040Participant2 mapToPlaceFieldCheckP1Helper2(String value, String name, EcrMsgPlaceDto in,
                                                      POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (name.equals("plaTypeCd") && value != null&& !in.getPlaTypeCd().isEmpty()){
@@ -541,22 +569,7 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
 
             out.getParticipantRole().getPlayingEntity().getDesc().set(cdaMapHelper.mapToCData(in.getPlaCommentTxt()));
         }
-        if (name.equals("plaIdQuickCode") && value != null&& !in.getPlaIdQuickCode().isEmpty()){
 
-            int c = 0;
-            if (out.getParticipantRole() == null) {
-                out.addNewParticipantRole().addNewId();
-            } else {
-                if (out.getParticipantRole().getIdArray().length > 0) {
-                    c = out.getParticipantRole().getIdArray().length;
-                }
-                out.addNewParticipantRole().addNewId();
-            }
-
-            out.getParticipantRole().getIdArray(c).setRoot(ID_ARR_ROOT);
-            out.getParticipantRole().getIdArray(c).setExtension(in.getPlaIdQuickCode());
-            out.getParticipantRole().getIdArray(c).setAssigningAuthorityName("LR_QEC");
-        }
         return out;
     }
 
@@ -593,6 +606,8 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
         }
         return out;
     }
+
+    @SuppressWarnings("java:S6541")
     private PlaceField mapToPlaceFieldCheckP1(EcrMsgPlaceDto in,
                                         POCDMT000040Participant2 out,
                                         String name,
@@ -627,8 +642,11 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
 
         mapToPlaceFieldCheckP1Helper2( value,  name,  in,
                  out);
+        mapToPlaceFieldCheckP1Helper5( value,  name,  in,
+                out);
 
         mapToPlaceFieldCheckP1Helper1( value,  name,  in,  param);
+        mapToPlaceFieldCheckP1Helper4( value,  name,  in,  param);
         param.setWorkURL(workURL);
         param.setWorkEmail(workEmail);
         param.setWorkCountryCode(workCountryCode);

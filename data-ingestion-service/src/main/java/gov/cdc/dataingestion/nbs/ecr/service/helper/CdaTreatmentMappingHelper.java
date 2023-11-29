@@ -11,12 +11,10 @@ import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaTreatmentMappingHelper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedTreatment;
-import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgTreatmentDto;
 import gov.cdc.nedss.phdc.cda.*;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.VALUE_NAME;

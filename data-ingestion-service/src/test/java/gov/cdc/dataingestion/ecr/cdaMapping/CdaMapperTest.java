@@ -234,6 +234,7 @@ class CdaMapperTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5976")
     void transformSelectedEcrToCDAXml_Test_TypePart() throws EcrCdaXmlException {
         EcrSelectedRecord input = getTestData();
         input.getMsgPatients().get(0).setPatAddrCommentTxt("PART");
@@ -277,6 +278,7 @@ class CdaMapperTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5976")
     void transformSelectedEcrToCDAXml_Test_TypeCODED() throws EcrCdaXmlException {
         EcrSelectedRecord input = getTestData();
         input.getMsgPatients().get(0).setPatAddrCommentTxt("CODED");
@@ -320,6 +322,7 @@ class CdaMapperTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5976")
     void transformSelectedEcrToCDAXml_Test_ElseCase() throws EcrCdaXmlException {
         EcrSelectedRecord input = getTestData();
         input.getMsgPatients().get(0).setPatAddrCommentTxt("CODED");

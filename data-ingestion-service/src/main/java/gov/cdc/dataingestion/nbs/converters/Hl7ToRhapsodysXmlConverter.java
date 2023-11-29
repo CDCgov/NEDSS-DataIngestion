@@ -284,6 +284,7 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
+    @SuppressWarnings({"java:S1144", "java:S1135"})
     private HL7TIMINGQuantiyType buildHL7TIMINGQuantiyType(List<TimingQty> timingQty) {
         HL7TIMINGQuantiyType hl7TIMINGQuantiyType = new HL7TIMINGQuantiyType();
 
@@ -295,6 +296,7 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
+    @SuppressWarnings({"java:S1144", "java:S1135"})
     private HL7TIMINGQTYType buildHL7TIMINGQTYType(TimingQty tq) {
         HL7TIMINGQTYType hl7TIMINGQTYType = new HL7TIMINGQTYType();
 
@@ -773,6 +775,7 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
+    @SuppressWarnings("java:S1135")
     private HL7TQ2Type buildHL7TQ2Type(TimingQuantityRelationship tqr) {
         HL7TQ2Type hl7TQ2Type = new HL7TQ2Type();
 
@@ -851,6 +854,7 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
+    @SuppressWarnings("java:S1135")
     private HL7TQ1Type buildHL7TQ1Type(TimingQuantity tq) {
         HL7TQ1Type hl7TQ1Type = new HL7TQ1Type();
 
@@ -887,6 +891,7 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
+    @SuppressWarnings("java:S1135")
     private HL7RPTType buildHL7RPTType(Rpt rpt) {
         HL7RPTType hl7RPTType = new HL7RPTType();
 
@@ -1220,7 +1225,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7PIV2Type;
     }
 
-
+    @SuppressWarnings("java:S1172")
     private HL7TMType buildHL7TMType(String s) {
         return new HL7TMType();
     }

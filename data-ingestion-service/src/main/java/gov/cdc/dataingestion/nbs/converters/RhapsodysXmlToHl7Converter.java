@@ -109,6 +109,7 @@ public class RhapsodysXmlToHl7Converter {
     }
 
     //TODO: Dead Code
+    @SuppressWarnings({"java:S3776", "java:S1135"})
     private String streamHL7OBSERVATIONTypeNotesAndComments(HL7OBSERVATIONType hl7ObsType) {
         StringBuilder sb = new StringBuilder();
 
@@ -1419,6 +1420,7 @@ public class RhapsodysXmlToHl7Converter {
     }
 
     //TODO Dead Code
+    @SuppressWarnings("java:S3776")
     private MessageHeader buildMessageHeader() {
         MessageHeader mh = new MessageHeader();
 
