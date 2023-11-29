@@ -148,7 +148,11 @@ public class NbsRepositoryServiceProvider {
 				? oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime().getTime() : null;
 
 		if (specimenColDateStr != null) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+			String pattern = "yyyyMMddHHmm";
+			if (specimenColDateStr.contains("-")) {
+				pattern = "yyyyMMddHHmmssX";
+			}
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
 			LocalDateTime localDateTime = LocalDateTime.parse(specimenColDateStr, formatter);
 			nbsInterface.setSpecimenCollDate(Timestamp.valueOf(localDateTime));
 		} else {
