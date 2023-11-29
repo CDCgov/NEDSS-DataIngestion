@@ -11,10 +11,12 @@ import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaTreatmentMappingHelper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedTreatment;
+import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgTreatmentDto;
 import gov.cdc.nedss.phdc.cda.*;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.VALUE_NAME;
@@ -373,20 +375,42 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
         output.getIdArray(c).setExtension(input.getMsgTreatment().getTrtLocalId());
     }
 
+    private TreatmentField mapToTreatmentFieldCheckHelper1(String name,
+                                                           String value,
+                                                           EcrSelectedTreatment input,
+                                                           TreatmentField param) {
+        String customTreatment = param.getCustomTreatment();
+        String trtDurationAmt = param.getTrtDurationAmt();
+        String trtDurationUnitCd = param.getTrtDurationUnitCd();
+
+
+        if(name.equals("trtCustomTreatmentTxt")  && value != null && input.getMsgTreatment().getTrtCustomTreatmentTxt() != null && !input.getMsgTreatment().getTrtCustomTreatmentTxt().isEmpty()) {
+            customTreatment= input.getMsgTreatment().getTrtCustomTreatmentTxt();
+        }
+        if(name.equals("trtDurationAmt") && value != null && input.getMsgTreatment().getTrtDurationAmt() != null) {
+            trtDurationAmt = input.getMsgTreatment().getTrtDurationAmt().toString();
+        }
+        if(name.equals("trtDurationUnitCd") && value != null && input.getMsgTreatment().getTrtDurationUnitCd() != null && !input.getMsgTreatment().getTrtDurationUnitCd().isEmpty()) {
+            trtDurationUnitCd = input.getMsgTreatment().getTrtDurationUnitCd();
+        }
+        param.setTrtDurationAmt(trtDurationAmt);
+        param.setTrtDurationUnitCd(trtDurationUnitCd);
+        param.setCustomTreatment(customTreatment);
+        return param;
+    }
     private TreatmentField mapToTreatmentFieldCheck(EcrSelectedTreatment input, POCDMT000040SubstanceAdministration output,
                                           String name,
                                           String value,
                                           TreatmentField param) throws EcrCdaXmlException {
-        String treatmentUid = param.getTreatmentUid();
+
+
+
         String trtTreatmentDt = param.getTrtTreatmentDt();
         String trtFrequencyAmtCd = param.getTrtFrequencyAmtCd();
         String trtDosageUnitCd = param.getTrtDosageUnitCd();
-        String trtDurationAmt = param.getTrtDurationAmt();
-        String trtDurationUnitCd = param.getTrtDurationUnitCd();
         String treatmentName = param.getTreatmentName();
         String treatmentNameQuestion = param.getTreatmentNameQuestion();
-        String customTreatment = param.getCustomTreatment();
-
+        String treatmentUid = param.getTreatmentUid();
 
         if(name.equals("trtTreatmentDt")  && value != null && input.getMsgTreatment().getTrtTreatmentDt() != null) {
             trtTreatmentDt= input.getMsgTreatment().getTrtTreatmentDt().toString();
@@ -408,28 +432,22 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
         }
         if(name.equals("trtLocalId")  && value != null&& input.getMsgTreatment().getTrtLocalId() != null && !input.getMsgTreatment().getTrtLocalId().isEmpty()) {
             mapToTreatmentFieldCheckLocalId( input,
-                     output);
+                    output);
             treatmentUid=input.getMsgTreatment().getTrtLocalId();
         }
-        if(name.equals("trtCustomTreatmentTxt")  && value != null && input.getMsgTreatment().getTrtCustomTreatmentTxt() != null && !input.getMsgTreatment().getTrtCustomTreatmentTxt().isEmpty()) {
-            customTreatment= input.getMsgTreatment().getTrtCustomTreatmentTxt();
-        }
-        if(name.equals("trtDurationAmt") && value != null && input.getMsgTreatment().getTrtDurationAmt() != null) {
-            trtDurationAmt = input.getMsgTreatment().getTrtDurationAmt().toString();
-        }
-        if(name.equals("trtDurationUnitCd") && value != null && input.getMsgTreatment().getTrtDurationUnitCd() != null && !input.getMsgTreatment().getTrtDurationUnitCd().isEmpty()) {
-            trtDurationUnitCd = input.getMsgTreatment().getTrtDurationUnitCd();
-        }
 
-        param.setTreatmentUid(treatmentUid);
+        mapToTreatmentFieldCheckHelper1(name,
+                 value,
+                 input,
+                 param);
+
         param.setTrtTreatmentDt(trtTreatmentDt);
         param.setTrtFrequencyAmtCd(trtFrequencyAmtCd);
         param.setTrtDosageUnitCd(trtDosageUnitCd);
-        param.setTrtDurationAmt(trtDurationAmt);
-        param.setTrtDurationUnitCd(trtDurationUnitCd);
         param.setTreatmentName(treatmentName);
         param.setTreatmentNameQuestion(treatmentNameQuestion);
-        param.setCustomTreatment(customTreatment);
+        param.setTreatmentUid(treatmentUid);
+
         param.setOutput(output);
         return param;
 
