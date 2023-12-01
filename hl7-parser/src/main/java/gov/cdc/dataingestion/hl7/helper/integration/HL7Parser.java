@@ -16,8 +16,8 @@ import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.*;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 
 import static gov.cdc.dataingestion.hl7.helper.constant.hl7.EventTrigger.ORU_01;
 import static gov.cdc.dataingestion.hl7.helper.constant.hl7.MessageType.ORU;
@@ -241,7 +241,7 @@ public class HL7Parser implements IHL7Parser {
                                 oru.getPatientResult().get(a).getOrderObservation().get(c).getObservationRequest(),
                                 new Specimen());
                         oru.getPatientResult().get(a).getOrderObservation().get(c).getSpecimen().add(
-                                new gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Specimen(spc)
+                                new gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.Specimen(spc)
                         );
                         //endregion
                     }
@@ -280,13 +280,13 @@ public class HL7Parser implements IHL7Parser {
         try {
             var contextLocal = hl7InitContext(this.context, SUPPORTED_HL7_VERSION_231);
             PipeParser parser = contextLocal.getPipeParser();
-            ca.uhn.hl7v2.model.v231.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v231.message.ORU_R01) parser.parse(message);
-            return msg;
+            return (ca.uhn.hl7v2.model.v231.message.ORU_R01) parser.parse(message);
         }catch (Exception e) {
             throw new DiHL7Exception(e.getMessage());
         }
     }
 
+    @SuppressWarnings("java:S1301")
     public HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception{
         try {
             HL7ParsedMessage<OruR1> parsedMessage = new HL7ParsedMessage<>();
@@ -358,8 +358,7 @@ public class HL7Parser implements IHL7Parser {
         context.setModelClassFactory(new DefaultModelClassFactory());
         context.setValidationContext(new NoValidation());
         PipeParser parser = context.getPipeParser();
-        Message parsedMessage = parser.parse(message);
-        return parsedMessage;
+        return parser.parse(message);
     }
 
     // Context for parser with model factory

@@ -2,7 +2,7 @@ package gov.cdc.dataingestion.hl7.helper.integration.interfaces;
 
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 
 public interface IHL7Parser {
     String hl7MessageStringValidation(String message) throws DiHL7Exception;

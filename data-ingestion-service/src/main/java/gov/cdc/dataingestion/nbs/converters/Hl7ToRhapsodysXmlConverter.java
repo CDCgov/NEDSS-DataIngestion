@@ -8,63 +8,63 @@ import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ClinicalTrialIden
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ContactData;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit.PatientVisit;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit.PatientVisitAdditional;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.timingQty.TimingQuantity;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.timingQty.TimingQuantityRelationship;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.timing_qty.TimingQuantity;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.timing_qty.TimingQuantityRelationship;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.shared.NoteAndComment;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Jcc;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ei;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cne;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cwe;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pl;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Hd;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xon;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xpn;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xad;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xtn;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pln;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Sps;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Moc;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Mo;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Prl;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ndl;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ts;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cnn;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Xcn;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Tq;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cq;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Rpt;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Eip;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Fn;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Dr;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cp;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Cx;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Fc;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Dld;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Dln;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ri;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Vid;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Osd;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Sad;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Pt;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Jcc;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Ei;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Ce;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Cne;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Cwe;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Pl;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Hd;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Xon;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Xpn;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Xad;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Xtn;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Pln;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Sps;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Moc;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Mo;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Prl;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Ndl;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Ts;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Cnn;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Xcn;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Tq;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Cq;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Rpt;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Eip;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Fn;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Dr;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Cp;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Cx;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Fc;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Dld;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Dln;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Ri;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Vid;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Osd;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Sad;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Pt;
 
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.PatientIdentification;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.NextOfKin;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.PatientAdditionalDemographic;
 
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.OrderObservation;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Specimen;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Observation;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.TimingQty;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Patient;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Visit;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.PatientResult;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.SoftwareSegment;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.OrderObservation;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.Specimen;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.Observation;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.TimingQty;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.Patient;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.Visit;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.PatientResult;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_segment.SoftwareSegment;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult;
 import  gov.cdc.dataingestion.hl7.helper.HL7Helper;
 import  gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_segment.MessageHeader;
 
 import gov.cdc.dataingestion.nbs.jaxb.*;
 import  jakarta.xml.bind.JAXBContext;
@@ -108,8 +108,7 @@ public class Hl7ToRhapsodysXmlConverter {
 
     public HL7ParsedMessage<OruR1> parsedStringToHL7(String hl7Msg) throws DiHL7Exception {
         HL7Helper hl7Helper = new HL7Helper();
-        HL7ParsedMessage<OruR1> hl7ParsedMsg = hl7Helper.hl7StringParser(hl7Msg);
-        return hl7ParsedMsg;
+        return hl7Helper.hl7StringParser(hl7Msg);
     }
 
     public String convert(String rawMessageId, HL7ParsedMessage<OruR1> hl7ParsedMsg) throws JAXBException, IOException {
@@ -248,9 +247,7 @@ public class Hl7ToRhapsodysXmlConverter {
         }
 
         if ((null != oo.getSpecimen() && (!oo.getSpecimen().isEmpty()))) {
-            for (Specimen specimen : oo.getSpecimen()) {
-                hl7OrderObservationType.setPatientResultOrderSPMObservation(buildHL7PatientResultSPMType(oo.getSpecimen()));
-            }
+            hl7OrderObservationType.setPatientResultOrderSPMObservation(buildHL7PatientResultSPMType(oo.getSpecimen()));
         }
 
         return hl7OrderObservationType;
@@ -287,6 +284,7 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
+    @SuppressWarnings({"java:S1144", "java:S1135"})
     private HL7TIMINGQuantiyType buildHL7TIMINGQuantiyType(List<TimingQty> timingQty) {
         HL7TIMINGQuantiyType hl7TIMINGQuantiyType = new HL7TIMINGQuantiyType();
 
@@ -298,6 +296,7 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
+    @SuppressWarnings({"java:S1144", "java:S1135"})
     private HL7TIMINGQTYType buildHL7TIMINGQTYType(TimingQty tq) {
         HL7TIMINGQTYType hl7TIMINGQTYType = new HL7TIMINGQTYType();
 
@@ -776,6 +775,7 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
+    @SuppressWarnings("java:S1135")
     private HL7TQ2Type buildHL7TQ2Type(TimingQuantityRelationship tqr) {
         HL7TQ2Type hl7TQ2Type = new HL7TQ2Type();
 
@@ -854,6 +854,7 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
+    @SuppressWarnings("java:S1135")
     private HL7TQ1Type buildHL7TQ1Type(TimingQuantity tq) {
         HL7TQ1Type hl7TQ1Type = new HL7TQ1Type();
 
@@ -890,6 +891,7 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     //TODO: Unused Code, added unit test, probably wil be needed in the future as we might need to process this data type
+    @SuppressWarnings("java:S1135")
     private HL7RPTType buildHL7RPTType(Rpt rpt) {
         HL7RPTType hl7RPTType = new HL7RPTType();
 
@@ -1223,10 +1225,9 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7PIV2Type;
     }
 
-
+    @SuppressWarnings("java:S1172")
     private HL7TMType buildHL7TMType(String s) {
-        HL7TMType hl7TMType = new HL7TMType();
-        return hl7TMType;
+        return new HL7TMType();
     }
 
     private HL7PIV1Type buildHL7PIV1Type(PatientVisit pv) {
@@ -2320,7 +2321,8 @@ public class Hl7ToRhapsodysXmlConverter {
         }
 
         DateTimeFormatter tsFormatter = formatter;
-        if (ts.indexOf("-") > 0) {
+        if (ts.indexOf("-") > 0) //NOSONAR
+        {
             tsFormatter = formatterWithZone;
             int index = ts.indexOf("-");
             String subStr = ts.substring(0, index);
@@ -2429,20 +2431,16 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     private boolean isEmptyHL7CEType(Ce ce) {
-        if (null == ce) return true;
-        if (null == ce.getIdentifier()) return true;
-        if( StringUtils.isEmpty(ce.getIdentifier()) ) return true;
-
-        return false;
+        return ce == null || StringUtils.isEmpty(ce.getIdentifier());
     }
+
 
     private boolean isEmptyHL7PRLType(Prl prl) {
         return isEmptyHL7CEType(prl.getParentObservationIdentifier());
     }
 
     private boolean isEmptyHL7EIType(Ei ei) {
-        if( StringUtils.isEmpty(ei.getEntityIdentifier()) ) return true;
-        return false;
+        return StringUtils.isEmpty(ei.getEntityIdentifier());
     }
 
     private boolean isEmptyHL7EIPType(Eip eip) {
@@ -2450,132 +2448,111 @@ public class Hl7ToRhapsodysXmlConverter {
     }
 
     private boolean isEmptyHL7DLNType(Dln dln) {
-        if (null == dln) return true;
-        if( StringUtils.isEmpty(dln.getLicenseNumber()) ) return true;
-        return false;
+        return dln == null || StringUtils.isEmpty(dln.getLicenseNumber());
     }
 
     private boolean isEmptyHL7DRType(Dr dr) {
-        if ((null != dr.getRangeStartDateTime()) && (null == dr.getRangeStartDateTime().getTime())) return true;
-        if ((null != dr.getRangeEndDateTime()) && (null == dr.getRangeEndDateTime().getTime())) return true;
-        return false;
+        return (dr != null && (dr.getRangeStartDateTime() == null || dr.getRangeStartDateTime().getTime() == null)) ||
+                (dr != null && (dr.getRangeEndDateTime() == null || dr.getRangeEndDateTime().getTime() == null));
     }
 
     private boolean isEmptyHL7HDType(Hd hdType) {
-        if (null == hdType) return true;
-        if( StringUtils.isEmpty(hdType.getUniversalId()) ) return true;
-        return false;
+        return hdType == null || StringUtils.isEmpty(hdType.getUniversalId());
     }
+
 
     private boolean isEmptyHL7CWEType(Cwe ce) {
-        if (null == ce) return true;
-        if( StringUtils.isEmpty(ce.getIdentifier()) ) return true;
-        return false;
+        return ce == null || StringUtils.isEmpty(ce.getIdentifier());
     }
 
+
     private boolean isEmptyHL7CNEType(Cne cne) {
-        if (null == cne) return true;
-        if( StringUtils.isEmpty(cne.getIdentifier()) ) return true;
-        return false;
+        return cne == null || StringUtils.isEmpty(cne.getIdentifier());
     }
+
 
     private boolean isEmptyHL7PID1Type(PatientAdditionalDemographic pad) {
         return pad == null || pad.getLivingDependency().isEmpty();
     }
 
     private boolean isEmptyHL7PIV1Type(PatientVisit pv) {
-        if (null == pv) return true;
-        if( StringUtils.isEmpty(pv.getSetIdPv1()) ) return true;
-        return false;
+        return pv == null || StringUtils.isEmpty(pv.getSetIdPv1());
     }
+
 
     private boolean isEmptyHL7PLType(Pl pl) {
-        if (null == pl) return true;
-        if( StringUtils.isEmpty(pl.getPointOfCare()) ) return true;
-        if( isEmptyHL7HDType(pl.getFacility()) ) return true;
-        return false;
+        return pl == null || StringUtils.isEmpty(pl.getPointOfCare()) || isEmptyHL7HDType(pl.getFacility());
     }
+
 
     private boolean isEmptyHL7PIV2Type(PatientVisitAdditional pva) {
-        if(null == pva) return true;
-        if( isEmptyHL7PLType(pva.getPriorPendingLocation())) return true;
-        return false;
+        return pva == null || isEmptyHL7PLType(pva.getPriorPendingLocation());
     }
+
 
     private boolean isEmptyHL7VisitType(Visit v) {
-        if (null == v) return true;
-        if (isEmptyHL7PIV1Type(v.getPatientVisit())) return true;
-        return false;
+        return v == null || isEmptyHL7PIV1Type(v.getPatientVisit());
     }
+
 
     private boolean isEmptyHL7CQType(Cq cq) {
-        if (null == cq) return true;
-        if( StringUtils.isEmpty(cq.getQuantity()) ) return true;
-        return false;
+        return cq == null || StringUtils.isEmpty(cq.getQuantity());
     }
+
 
     private boolean isEmptyHL7SPSType(Sps sps) {
-        if (null == sps) return true;
-        if (isEmptyHL7CWEType(sps.getSpecimenSourceNameOrCode())) return true;
-        return false;
+        return sps == null || isEmptyHL7CWEType(sps.getSpecimenSourceNameOrCode());
     }
+
 
     private boolean isEmptyHL7MOCType(Moc moc) {
-        if (null == moc) return true;
-        if ((null == moc.getMonetaryAmount()) || (null == moc.getMonetaryAmount().getQuantity())) return true;
-        return false;
+        return moc == null || moc.getMonetaryAmount() == null || moc.getMonetaryAmount().getQuantity() == null;
     }
 
+
     private boolean isEmptyHL7NDLType(Ndl ndl) {
-        if (null == ndl) return true;
-        if ((null == ndl.getName()) || (null == ndl.getName().getIdNumber())) return true;
-        return false;
+        return ndl == null || ndl.getName() == null || ndl.getName().getIdNumber() == null;
     }
+
 
     private boolean isEmptyHL7CTDType(ContactData contactData) {
         return contactData == null || (contactData.getContactRole() == null || contactData.getContactRole().isEmpty());
     }
 
     private boolean isEmptyHL7XONType(Xon xon) {
-        if (null == xon) return true;
-        if( StringUtils.isEmpty(xon.getOrganizationName()) ) return true;
-        return false;
+        return xon == null || StringUtils.isEmpty(xon.getOrganizationName());
     }
+
 
     private boolean isEmptyHL7XADType(Xad xad) {
-        if (null == xad) return true;
-        if ((null == xad.getStreetAddress()) || isEmptyHL7SADType(xad.getStreetAddress())) return true;
-        return false;
+        return xad == null || xad.getStreetAddress() == null || isEmptyHL7SADType(xad.getStreetAddress());
     }
+
 
     private boolean isEmptyHL7SADType(Sad sad) {
-        if (null == sad) return true;
-        if( StringUtils.isEmpty(sad.getStreetMailingAddress()) ) return true;
-        return false;
+        return sad == null || StringUtils.isEmpty(sad.getStreetMailingAddress());
     }
+
 
     private boolean isEmptyHL7XCNType(Xcn xcn) {
-        if (null == xcn) return true;
-        if( StringUtils.isEmpty(xcn.getIdNumber()) ) return true;
-        return false;
+        return xcn == null || StringUtils.isEmpty(xcn.getIdNumber());
     }
+
 
     private boolean isEmptyHL7ContinuationPointerType(OruR1 oruR1) {
-        if (null == oruR1) return true;
-        if ((null == oruR1.getContinuationPointer()) || (null == oruR1.getContinuationPointer().getContinuationPointer()))
-            return true;
-        return false;
+        return oruR1 == null ||
+                oruR1.getContinuationPointer() == null ||
+                oruR1.getContinuationPointer().getContinuationPointer() == null;
     }
+
 
     private boolean isEmptyHL7JCCType(Jcc jcc) {
-        if(null == jcc) return true;
-        if( StringUtils.isEmpty(jcc.getJobDescriptionText()) ) return true;
-        return false;
+        return jcc == null || StringUtils.isEmpty(jcc.getJobDescriptionText());
     }
 
+
     private boolean isEmptyHL7ORCType(CommonOrder co) {
-        if(null == co) return true;
-        if( StringUtils.isEmpty(co.getOrderControl()) ) return true;
-        return false;
+        return co == null || StringUtils.isEmpty(co.getOrderControl());
     }
+
 }

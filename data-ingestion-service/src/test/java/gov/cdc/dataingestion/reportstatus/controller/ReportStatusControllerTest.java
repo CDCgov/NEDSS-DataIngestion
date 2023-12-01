@@ -45,6 +45,7 @@ class ReportStatusControllerTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5976")
     void testGetReportStatusNullIdProvided() throws IOException {
         String id = null;
 
@@ -59,6 +60,7 @@ class ReportStatusControllerTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5976")
     void testGetReportStatusBlankIdProvided() throws IOException {
         String id = " ";
 
@@ -73,6 +75,7 @@ class ReportStatusControllerTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5976")
     void testGetReportStatusInvalidIdProvided() throws IOException {
         String id = "test_some_invalid_uuid";
 
