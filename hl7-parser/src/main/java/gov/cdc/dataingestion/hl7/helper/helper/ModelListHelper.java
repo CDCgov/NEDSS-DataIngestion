@@ -2,7 +2,7 @@ package gov.cdc.dataingestion.hl7.helper.helper;
 
 import ca.uhn.hl7v2.model.Varies;
 import ca.uhn.hl7v2.model.v251.datatype.*;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.*;
 
 import java.util.ArrayList;
 import java.util.List;

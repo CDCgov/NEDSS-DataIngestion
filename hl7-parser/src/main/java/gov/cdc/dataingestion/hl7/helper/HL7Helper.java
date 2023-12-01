@@ -12,7 +12,7 @@ import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IFhirConverter;
 import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser;
 import gov.cdc.dataingestion.hl7.helper.model.FhirConvertedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 import io.github.linuxforhealth.hl7.HL7ToFHIRConverter;
 
 public class HL7Helper {

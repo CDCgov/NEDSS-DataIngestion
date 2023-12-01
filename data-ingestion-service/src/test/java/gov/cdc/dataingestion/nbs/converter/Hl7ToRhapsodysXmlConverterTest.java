@@ -7,16 +7,16 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ObservationRequest;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.observation.ObservationResult;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.timingQty.TimingQuantity;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.timingQty.TimingQuantityRelationship;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.timing_qty.TimingQuantity;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.timing_qty.TimingQuantityRelationship;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.NextOfKin;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.PatientIdentification;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit.PatientVisit;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.visit.PatientVisitAdditional;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.TimingQty;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.*;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.TimingQty;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_segment.MessageHeader;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 import gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter;
 import gov.cdc.dataingestion.nbs.jaxb.*;
 import jakarta.xml.bind.JAXBException;
@@ -254,6 +254,9 @@ class Hl7ToRhapsodysXmlConverterTest {
         Assertions.assertNull(result.getBillingMediaCode());
         Assertions.assertNull(result.getExpectedSurgeryDateAndTime());
         Assertions.assertNull(result.getMilitaryPartnershipCode());
+        buildHL7PIV2TypeAllMissingConditional_CoverageAssertionHelper(result);
+    }
+    private void buildHL7PIV2TypeAllMissingConditional_CoverageAssertionHelper(HL7PIV2Type result) {
         Assertions.assertNull(result.getMilitaryNonAvailabilityCode());
         Assertions.assertNull(result.getNewbornBabyIndicator());
         Assertions.assertNull(result.getBabyDetainedIndicator());
@@ -266,7 +269,6 @@ class Hl7ToRhapsodysXmlConverterTest {
         Assertions.assertNull(result.getPatientStatusEffectiveDate());
         Assertions.assertNull(result.getExpectedLOAReturnDateTime());
         Assertions.assertNull(result.getExpectedPreadmissionTestingDateTime());
-
     }
 
     @Test
@@ -413,32 +415,58 @@ class Hl7ToRhapsodysXmlConverterTest {
         Assertions.assertEquals(expectedMessage, result.getAssignedPatientLocation().getHL7PointofCare());
         Assertions.assertNull(result.getAssignedPatientLocation().getHL7Room());
         Assertions.assertNull(result.getAssignedPatientLocation().getHL7Bed());
-        Assertions.assertNull(result.getAssignedPatientLocation().getHL7Facility());
-        Assertions.assertNull(result.getAssignedPatientLocation().getHL7LocationStatus());
-        Assertions.assertNull(result.getAssignedPatientLocation().getHL7PersonLocationType());
-        Assertions.assertNull(result.getAssignedPatientLocation().getHL7Building());
-        Assertions.assertNull(result.getAssignedPatientLocation().getHL7Floor());
-        Assertions.assertNull(result.getAssignedPatientLocation().getHL7LocationDescription());
-        Assertions.assertNotNull(result.getAssignedPatientLocation().getHL7ComprehensiveLocationIdentifier());
-        Assertions.assertNotNull(result.getAssignedPatientLocation().getHL7AssigningAuthorityforLocation());
-        Assertions.assertEquals(expectedMessage, result.getAdmissionType());
-        Assertions.assertNotNull(result.getPreadmitNumber());
-        Assertions.assertNotNull(result.getPriorPatientLocation());
-        Assertions.assertNotNull(result.getAttendingDoctor());
-        Assertions.assertEquals(expectedMessage, result.getAttendingDoctor().get(0).getHL7IDNumber());
-        Assertions.assertEquals(null, result.getAttendingDoctor().get(0).getHL7FamilyName().getHL7OwnSurname());
-        Assertions.assertNull(result.getAttendingDoctor().get(0)
-                .getHL7GivenName());
-        Assertions.assertNull(result.getAttendingDoctor().get(0)
-                .getHL7SecondAndFurtherGivenNamesOrInitialsThereof());
-        Assertions.assertNull(result.getAttendingDoctor().get(0)
-                .getHL7Suffix());
-        Assertions.assertNull(result.getAttendingDoctor().get(0)
-                .getHL7Prefix());
-        Assertions.assertNull(result.getAttendingDoctor().get(0)
-                .getHL7Degree());
-        Assertions.assertNull(result.getAttendingDoctor().get(0)
-                .getHL7SourceTable());
+
+        buildHL7PIV1TypeAllMissingConditionalHelper1(expectedMessage, result);
+        buildHL7PIV1TypeAllMissingConditionalHelper2(expectedMessage, result);
+        buildHL7PIV1TypeAllMissingConditionalHelper3(expectedMessage, result);
+        buildHL7PIV1TypeAllMissingConditionalHelper4(expectedMessage, result);
+    }
+
+    private void buildHL7PIV1TypeAllMissingConditionalHelper1(String expectedMessage, HL7PIV1Type result) {
+        Assertions.assertEquals(expectedMessage,result.getDeleteAccountIndicator());
+        Assertions.assertNotNull(result.getDeleteAccountDate());
+        Assertions.assertEquals(expectedMessage,result.getDischargeDisposition());
+        Assertions.assertEquals(expectedMessage,result.getDischargedToLocation().getDischargeLocation());
+        Assertions.assertNull(result.getDischargedToLocation().getEffectiveDate());
+        Assertions.assertNotNull(result.getDietType());
+        Assertions.assertEquals(expectedMessage,result.getServicingFacility());
+        Assertions.assertEquals(expectedMessage,result.getBedStatus());
+        Assertions.assertEquals(expectedMessage,result.getAccountStatus());
+        Assertions.assertNotNull(result.getPendingLocation());
+        Assertions.assertNotNull(result.getPriorTemporaryLocation());
+        Assertions.assertNotNull(result.getAdmitDateTime());
+        Assertions.assertNotNull(result.getDischargeDateTime());
+        Assertions.assertNotNull(result.getCurrentPatientBalance());
+        Assertions.assertNotNull(result.getTotalCharges());
+        Assertions.assertNotNull(result.getTotalAdjustments());
+        Assertions.assertNotNull(result.getTotalPayments());
+        Assertions.assertNotNull(result.getAlternateVisitID());
+        Assertions.assertEquals(expectedMessage,result.getVisitIndicator());
+        Assertions.assertNotNull(result.getOtherHealthcareProvider());
+    }
+    private void buildHL7PIV1TypeAllMissingConditionalHelper2(String expectedMessage, HL7PIV1Type result) {
+        Assertions.assertNull(result.getVIPIndicator());
+        Assertions.assertNotNull(result.getAdmittingDoctor());
+        Assertions.assertEquals(expectedMessage,result.getPatientType());
+        Assertions.assertNotNull(result.getVisitNumber());
+        Assertions.assertNotNull(result.getFinancialClass());
+        Assertions.assertEquals(expectedMessage,result.getChargePriceIndicator());
+        Assertions.assertEquals(expectedMessage,result.getCourtesyCode());
+        Assertions.assertEquals(expectedMessage,result.getCreditRating());
+        Assertions.assertNotNull(result.getContractCode());
+        Assertions.assertNotNull(result.getContractEffectiveDate());
+        Assertions.assertNotNull(result.getContractAmount());
+        Assertions.assertNotNull(result.getContractPeriod());
+        Assertions.assertEquals(expectedMessage,result.getInterestCode());
+        Assertions.assertEquals(expectedMessage,result.getTransferToBadDebtCode());
+        Assertions.assertEquals(new BigInteger("2023"),result.getTransferToBadDebtDate().getYear());
+        Assertions.assertEquals(new BigInteger("6"),result.getTransferToBadDebtDate().getMonth());
+        Assertions.assertEquals(new BigInteger("15"),result.getTransferToBadDebtDate().getDay());
+        Assertions.assertEquals(expectedMessage,result.getBadDebtAgencyCode());
+        Assertions.assertNotNull(result.getBadDebtRecoveryAmount());
+        Assertions.assertNotNull(result.getBadDebtTransferAmount());
+    }
+    private void buildHL7PIV1TypeAllMissingConditionalHelper3(String expectedMessage, HL7PIV1Type result){
         Assertions.assertNull(result.getAttendingDoctor().get(0)
                 .getHL7AssigningAuthority());
         Assertions.assertNull(result.getAttendingDoctor().get(0)
@@ -471,47 +499,34 @@ class Hl7ToRhapsodysXmlConverterTest {
         Assertions.assertEquals(expectedMessage,result.getReAdmissionIndicator());
         Assertions.assertNull(result.getAdmitSource());
         Assertions.assertNotNull(result.getAmbulatoryStatus());
-        Assertions.assertNull(result.getVIPIndicator());
-        Assertions.assertNotNull(result.getAdmittingDoctor());
-        Assertions.assertEquals(expectedMessage,result.getPatientType());
-        Assertions.assertNotNull(result.getVisitNumber());
-        Assertions.assertNotNull(result.getFinancialClass());
-        Assertions.assertEquals(expectedMessage,result.getChargePriceIndicator());
-        Assertions.assertEquals(expectedMessage,result.getCourtesyCode());
-        Assertions.assertEquals(expectedMessage,result.getCreditRating());
-        Assertions.assertNotNull(result.getContractCode());
-        Assertions.assertNotNull(result.getContractEffectiveDate());
-        Assertions.assertNotNull(result.getContractAmount());
-        Assertions.assertNotNull(result.getContractPeriod());
-        Assertions.assertEquals(expectedMessage,result.getInterestCode());
-        Assertions.assertEquals(expectedMessage,result.getTransferToBadDebtCode());
-        Assertions.assertEquals(new BigInteger("2023"),result.getTransferToBadDebtDate().getYear());
-        Assertions.assertEquals(new BigInteger("6"),result.getTransferToBadDebtDate().getMonth());
-        Assertions.assertEquals(new BigInteger("15"),result.getTransferToBadDebtDate().getDay());
-        Assertions.assertEquals(expectedMessage,result.getBadDebtAgencyCode());
-        Assertions.assertNotNull(result.getBadDebtRecoveryAmount());
-        Assertions.assertNotNull(result.getBadDebtTransferAmount());
-        Assertions.assertEquals(expectedMessage,result.getDeleteAccountIndicator());
-        Assertions.assertNotNull(result.getDeleteAccountDate());
-        Assertions.assertEquals(expectedMessage,result.getDischargeDisposition());
-        Assertions.assertEquals(expectedMessage,result.getDischargedToLocation().getDischargeLocation());
-        Assertions.assertNull(result.getDischargedToLocation().getEffectiveDate());
-        Assertions.assertNotNull(result.getDietType());
-        Assertions.assertEquals(expectedMessage,result.getServicingFacility());
-        Assertions.assertEquals(expectedMessage,result.getBedStatus());
-        Assertions.assertEquals(expectedMessage,result.getAccountStatus());
-        Assertions.assertNotNull(result.getPendingLocation());
-        Assertions.assertNotNull(result.getPriorTemporaryLocation());
-        Assertions.assertNotNull(result.getAdmitDateTime());
-        Assertions.assertNotNull(result.getDischargeDateTime());
-        Assertions.assertNotNull(result.getCurrentPatientBalance());
-        Assertions.assertNotNull(result.getTotalCharges());
-        Assertions.assertNotNull(result.getTotalAdjustments());
-        Assertions.assertNotNull(result.getTotalPayments());
-        Assertions.assertNotNull(result.getAlternateVisitID());
-        Assertions.assertEquals(expectedMessage,result.getVisitIndicator());
-        Assertions.assertNotNull(result.getOtherHealthcareProvider());
-
+    }
+    private void buildHL7PIV1TypeAllMissingConditionalHelper4(String expectedMessage, HL7PIV1Type result) {
+        Assertions.assertNull(result.getAssignedPatientLocation().getHL7Facility());
+        Assertions.assertNull(result.getAssignedPatientLocation().getHL7LocationStatus());
+        Assertions.assertNull(result.getAssignedPatientLocation().getHL7PersonLocationType());
+        Assertions.assertNull(result.getAssignedPatientLocation().getHL7Building());
+        Assertions.assertNull(result.getAssignedPatientLocation().getHL7Floor());
+        Assertions.assertNull(result.getAssignedPatientLocation().getHL7LocationDescription());
+        Assertions.assertNotNull(result.getAssignedPatientLocation().getHL7ComprehensiveLocationIdentifier());
+        Assertions.assertNotNull(result.getAssignedPatientLocation().getHL7AssigningAuthorityforLocation());
+        Assertions.assertEquals(expectedMessage, result.getAdmissionType());
+        Assertions.assertNotNull(result.getPreadmitNumber());
+        Assertions.assertNotNull(result.getPriorPatientLocation());
+        Assertions.assertNotNull(result.getAttendingDoctor());
+        Assertions.assertEquals(expectedMessage, result.getAttendingDoctor().get(0).getHL7IDNumber());
+        Assertions.assertEquals(null, result.getAttendingDoctor().get(0).getHL7FamilyName().getHL7OwnSurname());
+        Assertions.assertNull(result.getAttendingDoctor().get(0)
+                .getHL7GivenName());
+        Assertions.assertNull(result.getAttendingDoctor().get(0)
+                .getHL7SecondAndFurtherGivenNamesOrInitialsThereof());
+        Assertions.assertNull(result.getAttendingDoctor().get(0)
+                .getHL7Suffix());
+        Assertions.assertNull(result.getAttendingDoctor().get(0)
+                .getHL7Prefix());
+        Assertions.assertNull(result.getAttendingDoctor().get(0)
+                .getHL7Degree());
+        Assertions.assertNull(result.getAttendingDoctor().get(0)
+                .getHL7SourceTable());
     }
 
     @Test
@@ -544,75 +559,14 @@ class Hl7ToRhapsodysXmlConverterTest {
         Assertions.assertEquals(expectedMessage,result.getSpecimenActionCode());
         Assertions.assertNotNull(result.getDangerCode());
         Assertions.assertEquals(expectedMessage,result.getRelevantClinicalInformation());
-        Assertions.assertNotNull(result.getSpecimenReceivedDateTime());
-        Assertions.assertNotNull(result.getSpecimenSource());
-        Assertions.assertNotNull(result.getSpecimenSource().getHL7SpecimenSourceNameOrCode());
-        Assertions.assertNotNull(result.getSpecimenSource().getHL7Additives());
-        Assertions.assertNull(result.getSpecimenSource().getHL7SpecimenCollectionMethod());
-        Assertions.assertNotNull(result.getSpecimenSource().getHL7BodySite());
-        Assertions.assertNotNull(result.getSpecimenSource().getHL7SiteModifier());
-        Assertions.assertNotNull(result.getSpecimenSource().getHL7CollectionMethodModifierCode());
-        Assertions.assertNotNull(result.getSpecimenSource().getHL7SpecimenRole());
-        Assertions.assertEquals(expectedMessage,result.getPlacerField1());
-        Assertions.assertEquals(expectedMessage,result.getPlacerField2());
-        Assertions.assertEquals(expectedMessage,result.getFillerField1());
-        Assertions.assertEquals(expectedMessage,result.getFillerField2());
-        Assertions.assertNotNull(result.getResultsRptStatusChngDateTime());
-        Assertions.assertNotNull(result.getChargeToPractice());
-        Assertions.assertNotNull(result.getChargeToPractice().getHL7ChargeCode());
-        Assertions.assertNotNull(result.getChargeToPractice().getHL7MonetaryAmount().getHL7Quantity());
-        Assertions.assertNull(result.getChargeToPractice().getHL7MonetaryAmount().getHL7Denomination());
-        Assertions.assertEquals(expectedMessage,result.getDiagnosticServSectID());
-        Assertions.assertEquals(expectedMessage,result.getResultStatus());
-        Assertions.assertNotNull(result.getQuantityTiming());
-        Assertions.assertNotNull(result.getQuantityTiming().getHL7Quantity().getHL7Quantity());
-        Assertions.assertNotNull(result.getQuantityTiming().getHL7Quantity().getHL7Units());
-        Assertions.assertNotNull(result.getQuantityTiming().getHL7Quantity());
-        Assertions.assertNotNull(result.getQuantityTiming().getHL7Interval());
-        Assertions.assertNull(result.getQuantityTiming().getHL7Interval().getRepeatPattern());
-        Assertions.assertNull(result.getQuantityTiming().getHL7Interval().getExplicitTimeInterval());
-        Assertions.assertNull(result.getQuantityTiming().getHL7Duration());
-        Assertions.assertNull(result.getQuantityTiming().getHL7StartDateTime());
-        Assertions.assertNull(result.getQuantityTiming().getHL7EndDateTime());
-        Assertions.assertNull(result.getQuantityTiming().getHL7Priority());
-        Assertions.assertNull(result.getQuantityTiming().getHL7Condition());
-        Assertions.assertNotNull(result.getQuantityTiming().getHL7Text());
-        Assertions.assertNull(result.getQuantityTiming().getHL7Conjunction());
-        Assertions.assertNotNull(result.getQuantityTiming().getHL7TotalOccurrences());
-        Assertions.assertNotNull(result.getQuantityTiming().getHL7OccurrenceDuration());
-        Assertions.assertNull(result.getQuantityTiming().getHL7OccurrenceDuration().getHL7Identifier());
-        Assertions.assertNull(result.getQuantityTiming().getHL7OccurrenceDuration().getHL7Text());
-        Assertions.assertNull(result.getQuantityTiming().getHL7OccurrenceDuration().getHL7NameofAlternateCodingSystem());
-        Assertions.assertNull(result.getQuantityTiming().getHL7OccurrenceDuration().getHL7AlternateIdentifier());
-        Assertions.assertNull(result.getQuantityTiming().getHL7OccurrenceDuration().getHL7AlternateText());
-        Assertions.assertNull(result.getQuantityTiming().getHL7OccurrenceDuration().getHL7NameofAlternateCodingSystem());
-        Assertions.assertNotNull(result.getQuantityTiming().getHL7OrderSequencing());
-        Assertions.assertEquals("",result.getQuantityTiming().getHL7OrderSequencing().getHL7SequenceResultsFlag());
-        Assertions.assertEquals("",result.getQuantityTiming().getHL7OrderSequencing().getHL7PlacerOrderNumberEntityIdentifier());
-        Assertions.assertEquals(null,result.getQuantityTiming().getHL7OrderSequencing().getHL7PlacerOrderNumberNamespaceID());
-        Assertions.assertEquals("",result.getQuantityTiming().getHL7OrderSequencing().getHL7FillerOrderNumberEntityIdentifier());
-        Assertions.assertEquals(null,result.getQuantityTiming().getHL7OrderSequencing().getHL7FillerOrderNumberNamespaceID());
-        Assertions.assertEquals(null,result.getQuantityTiming().getHL7OrderSequencing().getHL7SequenceConditionValue());
-        Assertions.assertNotNull(result.getQuantityTiming().getHL7OrderSequencing().getHL7MaximumNumberOfRepeats());
-        Assertions.assertNull(result.getQuantityTiming().getHL7OrderSequencing().getHL7FillerOrderNumberUniversalIDType());
-        Assertions.assertEquals("",result.getQuantityTiming().getHL7OrderSequencing().getHL7PlacerOrderNumberUniversalID());
-        Assertions.assertEquals("",result.getQuantityTiming().getHL7OrderSequencing().getHL7PlacerOrderNumberUniversalIDType());
-        Assertions.assertEquals("",result.getQuantityTiming().getHL7OrderSequencing().getHL7FillerOrderNumberUniversalID());
-        Assertions.assertNotNull(result.getResultCopiesTo());
-        Assertions.assertNull(result.getResultCopiesTo().get(0).getHL7IdentifierCheckDigit());
-        Assertions.assertNull(result.getResultCopiesTo().get(0).getHL7CheckDigitScheme());
-        Assertions.assertNotNull(result.getParent());
-        Assertions.assertNotNull(result.getParent().getHL7PlacerAssignedIdentifier());
-        Assertions.assertNotNull(result.getParent().getHL7FillerAssignedIdentifier());
-        Assertions.assertEquals(expectedMessage,result.getTransportationMode());
-        Assertions.assertNotNull(result.getReasonforStudy());
-        Assertions.assertNotNull(result.getPrincipalResultInterpreter());
-        Assertions.assertEquals(expectedMessage,result.getPrincipalResultInterpreter().getHL7Name().getHL7IDNumber());
-        Assertions.assertNull(result.getPrincipalResultInterpreter().getHL7Name().getHL7FamilyName());
-        Assertions.assertNull(result.getPrincipalResultInterpreter().getHL7Name().getHL7GivenName());
-        Assertions.assertNull(result.getPrincipalResultInterpreter().getHL7Name().getHL7SecondAndFurtherGivenNamesOrInitialsThereof());
-        Assertions.assertNull(result.getPrincipalResultInterpreter().getHL7Name().getHL7Suffix());
-        Assertions.assertNull(result.getPrincipalResultInterpreter().getHL7Name().getHL7Prefix());
+
+        buildHL7OBRTypeAllMissingConditionalHelper1(expectedMessage, result);
+        buildHL7OBRTypeAllMissingConditionalHelper2(expectedMessage, result);
+        buildHL7OBRTypeAllMissingConditionalHelper3(result);
+        buildHL7OBRTypeAllMissingConditionalHelper4(expectedMessage, result);
+    }
+
+    private void buildHL7OBRTypeAllMissingConditionalHelper1(String expectedMessage, HL7OBRType result) {
         Assertions.assertNull(result.getPrincipalResultInterpreter().getHL7Name().getHL7Degree());
         Assertions.assertNull(result.getPrincipalResultInterpreter().getHL7Name().getHL7SourceTable());
         Assertions.assertNull(result.getPrincipalResultInterpreter().getHL7Name().getHL7AssigningAuthorityNamespaceID());
@@ -636,9 +590,82 @@ class Hl7ToRhapsodysXmlConverterTest {
         Assertions.assertNotNull(result.getMedicallyNecessaryDuplicateProcedureReason());
         Assertions.assertEquals(expectedMessage,result.getResultHandling());
         Assertions.assertNotNull(result.getParentUniversalServiceIdentifier());
-
     }
-
+    private void buildHL7OBRTypeAllMissingConditionalHelper2(String expectedMessage, HL7OBRType result) {
+        Assertions.assertEquals("",result.getQuantityTiming().getHL7OrderSequencing().getHL7FillerOrderNumberEntityIdentifier());
+        Assertions.assertEquals(null,result.getQuantityTiming().getHL7OrderSequencing().getHL7FillerOrderNumberNamespaceID());
+        Assertions.assertEquals(null,result.getQuantityTiming().getHL7OrderSequencing().getHL7SequenceConditionValue());
+        Assertions.assertNotNull(result.getQuantityTiming().getHL7OrderSequencing().getHL7MaximumNumberOfRepeats());
+        Assertions.assertNull(result.getQuantityTiming().getHL7OrderSequencing().getHL7FillerOrderNumberUniversalIDType());
+        Assertions.assertEquals("",result.getQuantityTiming().getHL7OrderSequencing().getHL7PlacerOrderNumberUniversalID());
+        Assertions.assertEquals("",result.getQuantityTiming().getHL7OrderSequencing().getHL7PlacerOrderNumberUniversalIDType());
+        Assertions.assertEquals("",result.getQuantityTiming().getHL7OrderSequencing().getHL7FillerOrderNumberUniversalID());
+        Assertions.assertNotNull(result.getResultCopiesTo());
+        Assertions.assertNull(result.getResultCopiesTo().get(0).getHL7IdentifierCheckDigit());
+        Assertions.assertNull(result.getResultCopiesTo().get(0).getHL7CheckDigitScheme());
+        Assertions.assertNotNull(result.getParent());
+        Assertions.assertNotNull(result.getParent().getHL7PlacerAssignedIdentifier());
+        Assertions.assertNotNull(result.getParent().getHL7FillerAssignedIdentifier());
+        Assertions.assertEquals(expectedMessage,result.getTransportationMode());
+        Assertions.assertNotNull(result.getReasonforStudy());
+        Assertions.assertNotNull(result.getPrincipalResultInterpreter());
+        Assertions.assertEquals(expectedMessage,result.getPrincipalResultInterpreter().getHL7Name().getHL7IDNumber());
+        Assertions.assertNull(result.getPrincipalResultInterpreter().getHL7Name().getHL7FamilyName());
+        Assertions.assertNull(result.getPrincipalResultInterpreter().getHL7Name().getHL7GivenName());
+        Assertions.assertNull(result.getPrincipalResultInterpreter().getHL7Name().getHL7SecondAndFurtherGivenNamesOrInitialsThereof());
+        Assertions.assertNull(result.getPrincipalResultInterpreter().getHL7Name().getHL7Suffix());
+        Assertions.assertNull(result.getPrincipalResultInterpreter().getHL7Name().getHL7Prefix());
+    }
+    private void buildHL7OBRTypeAllMissingConditionalHelper3(HL7OBRType result) {
+        Assertions.assertNotNull(result.getQuantityTiming().getHL7Quantity());
+        Assertions.assertNotNull(result.getQuantityTiming().getHL7Interval());
+        Assertions.assertNull(result.getQuantityTiming().getHL7Interval().getRepeatPattern());
+        Assertions.assertNull(result.getQuantityTiming().getHL7Interval().getExplicitTimeInterval());
+        Assertions.assertNull(result.getQuantityTiming().getHL7Duration());
+        Assertions.assertNull(result.getQuantityTiming().getHL7StartDateTime());
+        Assertions.assertNull(result.getQuantityTiming().getHL7EndDateTime());
+        Assertions.assertNull(result.getQuantityTiming().getHL7Priority());
+        Assertions.assertNull(result.getQuantityTiming().getHL7Condition());
+        Assertions.assertNotNull(result.getQuantityTiming().getHL7Text());
+        Assertions.assertNull(result.getQuantityTiming().getHL7Conjunction());
+        Assertions.assertNotNull(result.getQuantityTiming().getHL7TotalOccurrences());
+        Assertions.assertNotNull(result.getQuantityTiming().getHL7OccurrenceDuration());
+        Assertions.assertNull(result.getQuantityTiming().getHL7OccurrenceDuration().getHL7Identifier());
+        Assertions.assertNull(result.getQuantityTiming().getHL7OccurrenceDuration().getHL7Text());
+        Assertions.assertNull(result.getQuantityTiming().getHL7OccurrenceDuration().getHL7NameofAlternateCodingSystem());
+        Assertions.assertNull(result.getQuantityTiming().getHL7OccurrenceDuration().getHL7AlternateIdentifier());
+        Assertions.assertNull(result.getQuantityTiming().getHL7OccurrenceDuration().getHL7AlternateText());
+        Assertions.assertNull(result.getQuantityTiming().getHL7OccurrenceDuration().getHL7NameofAlternateCodingSystem());
+        Assertions.assertNotNull(result.getQuantityTiming().getHL7OrderSequencing());
+        Assertions.assertEquals("",result.getQuantityTiming().getHL7OrderSequencing().getHL7SequenceResultsFlag());
+        Assertions.assertEquals("",result.getQuantityTiming().getHL7OrderSequencing().getHL7PlacerOrderNumberEntityIdentifier());
+        Assertions.assertEquals(null,result.getQuantityTiming().getHL7OrderSequencing().getHL7PlacerOrderNumberNamespaceID());
+    }
+    private void buildHL7OBRTypeAllMissingConditionalHelper4(String expectedMessage, HL7OBRType result) {
+        Assertions.assertNotNull(result.getSpecimenReceivedDateTime());
+        Assertions.assertNotNull(result.getSpecimenSource());
+        Assertions.assertNotNull(result.getSpecimenSource().getHL7SpecimenSourceNameOrCode());
+        Assertions.assertNotNull(result.getSpecimenSource().getHL7Additives());
+        Assertions.assertNull(result.getSpecimenSource().getHL7SpecimenCollectionMethod());
+        Assertions.assertNotNull(result.getSpecimenSource().getHL7BodySite());
+        Assertions.assertNotNull(result.getSpecimenSource().getHL7SiteModifier());
+        Assertions.assertNotNull(result.getSpecimenSource().getHL7CollectionMethodModifierCode());
+        Assertions.assertNotNull(result.getSpecimenSource().getHL7SpecimenRole());
+        Assertions.assertEquals(expectedMessage,result.getPlacerField1());
+        Assertions.assertEquals(expectedMessage,result.getPlacerField2());
+        Assertions.assertEquals(expectedMessage,result.getFillerField1());
+        Assertions.assertEquals(expectedMessage,result.getFillerField2());
+        Assertions.assertNotNull(result.getResultsRptStatusChngDateTime());
+        Assertions.assertNotNull(result.getChargeToPractice());
+        Assertions.assertNotNull(result.getChargeToPractice().getHL7ChargeCode());
+        Assertions.assertNotNull(result.getChargeToPractice().getHL7MonetaryAmount().getHL7Quantity());
+        Assertions.assertNull(result.getChargeToPractice().getHL7MonetaryAmount().getHL7Denomination());
+        Assertions.assertEquals(expectedMessage,result.getDiagnosticServSectID());
+        Assertions.assertEquals(expectedMessage,result.getResultStatus());
+        Assertions.assertNotNull(result.getQuantityTiming());
+        Assertions.assertNotNull(result.getQuantityTiming().getHL7Quantity().getHL7Quantity());
+        Assertions.assertNotNull(result.getQuantityTiming().getHL7Quantity().getHL7Units());
+    }
     @Test
     void buildHL7FT1TypeAllMissingConditional() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, DiHL7Exception {
         String hl7Message = TestData.randomGenerated251WithDataInAllFieldV1;
@@ -719,6 +746,10 @@ class Hl7ToRhapsodysXmlConverterTest {
         Assertions.assertNotNull(result.getSpecimenCollectionAmount());
         Assertions.assertNotNull(result.getGroupedSpecimenCount());
         Assertions.assertNotNull(result.getSpecimenDescription());
+        buildHL7SPMTypeAllMissingConditionalHelper(result);
+    }
+
+    private void buildHL7SPMTypeAllMissingConditionalHelper(HL7SPMType result) {
         Assertions.assertNotNull(result.getSpecimenHandlingCode());
         Assertions.assertNotNull(result.getSpecimenRiskCode());
         Assertions.assertNull(result.getSpecimenCollectionDateTime());
@@ -734,7 +765,6 @@ class Hl7ToRhapsodysXmlConverterTest {
         Assertions.assertNotNull(result.getContainerType());
         Assertions.assertNotNull(result.getContainerCondition());
         Assertions.assertNotNull(result.getSpecimenChildRole());
-
     }
 
     @Test
@@ -851,6 +881,10 @@ class Hl7ToRhapsodysXmlConverterTest {
         Assertions.assertNotNull(result.getReligion());
         Assertions.assertNull(result.getPatientAccountNumber());
         Assertions.assertEquals(expectedMessage, result.getSSNNumberPatient());
+        buildHL7PIDTypeAllMissingConditionalHelper(expectedMessage, result);
+    }
+    
+    private void buildHL7PIDTypeAllMissingConditionalHelper(String expectedMessage, HL7PIDType result) {
         Assertions.assertNotNull(result.getDriversLicenseNumberPatient());
         Assertions.assertEquals(expectedMessage, result.getDriversLicenseNumberPatient().getHL7LicenseNumber());
         Assertions.assertNull(result.getDriversLicenseNumberPatient().getHL7IssuingStateProvinceCountry());
@@ -869,6 +903,7 @@ class Hl7ToRhapsodysXmlConverterTest {
         Assertions.assertNotNull(result.getBreedCode());
         Assertions.assertEquals(expectedMessage, result.getStrain());
     }
+
 
     @ParameterizedTest
     @CsvSource({
