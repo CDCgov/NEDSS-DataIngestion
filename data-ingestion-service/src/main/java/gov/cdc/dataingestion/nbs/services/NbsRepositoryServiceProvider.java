@@ -137,17 +137,28 @@ public class NbsRepositoryServiceProvider {
 				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime() != null)
 				? oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime().getTime() : null;
 
+		savingNbsInterfaceModelTimeStampHelper( specimenColDateStr,
+				 nbsInterface);
+
+		nbsInterface.setLabClia(labClia);
+		nbsInterface.setFillerOrderNbr(filterOrderNumber);
+		nbsInterface.setOrderTestCode(orderTestCode);
+		return nbsInterface;
+	}
+
+	private NbsInterfaceModel savingNbsInterfaceModelTimeStampHelper(String specimenColDateStr,
+														NbsInterfaceModel nbsInterface) {
 		if (specimenColDateStr != null) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+			String pattern = "yyyyMMddHHmm";
+			if (specimenColDateStr.contains("-")) {
+				pattern = "yyyyMMddHHmmssX";
+			}
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
 			LocalDateTime localDateTime = LocalDateTime.parse(specimenColDateStr, formatter);
 			nbsInterface.setSpecimenCollDate(Timestamp.valueOf(localDateTime));
 		} else {
 			nbsInterface.setSpecimenCollDate(null);
 		}
-
-		nbsInterface.setLabClia(labClia);
-		nbsInterface.setFillerOrderNbr(filterOrderNumber);
-		nbsInterface.setOrderTestCode(orderTestCode);
 		return nbsInterface;
 	}
 }
