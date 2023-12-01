@@ -1304,6 +1304,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         out.getParticipantRole().getAddrArray(0).getStreetAddressLineArray(0).set(mapToCData(streetAddress1));
     }
 
+    @SuppressWarnings("java:S3776")
     private Org mapToORGFieldCheckP1(EcrMsgOrganizationDto in,
                                       POCDMT000040Participant2 out,
                                       String name,

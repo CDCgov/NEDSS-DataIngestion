@@ -146,6 +146,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
 
     }
 
+    @SuppressWarnings("java:S3776")
     private CdaPatientField patientFieldCheck(Field field,
                                    POCDMT000040ClinicalDocument1 clinicalDocument,
                                    EcrMsgPatientDto patient,
@@ -438,6 +439,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
         }
     }
 
+    @SuppressWarnings("java:S3776")
     private ValueMapper getPatientVariableNameAndValue(Field field,
                                                   EcrMsgPatientDto patient) {
         String colName = "";

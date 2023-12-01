@@ -29,13 +29,7 @@ public class RsaKeyProperties {
     private static final String END_PRIVATE_KEY = "-----END PRIVATE KEY-----";
     private static final String BEGIN_RSA_PRIVATE_KEY = "-----BEGIN RSA PRIVATE KEY-----";
     private static final String END_RSA_PRIVATE_KEY = "-----END RSA PRIVATE KEY-----";
-    private final RSAPublicKey publicKey;
-    private final RSAPrivateKey privateKey;
 
-    public RsaKeyProperties(RSAPublicKey publicKey, RSAPrivateKey privateKey) {
-        this.publicKey = publicKey;
-        this.privateKey = privateKey;
-    }
     @Bean
     public RSAPrivateKey privateKey() {
         log.debug("Inside RsaKeyProperties privateKey");
@@ -45,7 +39,7 @@ public class RsaKeyProperties {
             byte[] encodedPrivateKey = DatatypeConverter.parseBase64Binary(privateKeyFormatted);
             privKey = (RSAPrivateKey) KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(encodedPrivateKey));
         } catch (Exception e) {
-            log.error("Error in privateKey:"+e.getMessage());
+            log.error("Error in privateKey:"+e.getMessage()); //NOSONAR
         }
         return privKey;
     }
@@ -61,7 +55,7 @@ public class RsaKeyProperties {
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encoded);
             pubKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
         } catch (Exception e) {
-            log.error("Error in publicKey:"+e.getMessage());
+            log.error("Error in publicKey:"+e.getMessage()); //NOSONAR
         }
         return pubKey;
     }

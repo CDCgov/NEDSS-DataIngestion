@@ -1,5 +1,5 @@
 package gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.*;
 import lombok.Getter;
 import lombok.Setter;
 

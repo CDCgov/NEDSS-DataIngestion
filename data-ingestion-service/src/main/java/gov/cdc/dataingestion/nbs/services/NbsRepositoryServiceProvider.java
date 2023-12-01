@@ -1,24 +1,19 @@
 package gov.cdc.dataingestion.nbs.services;
 
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 import gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
 import java.util.Optional;
-import java.util.TimeZone;
 
 @Service
 @AllArgsConstructor
@@ -29,13 +24,9 @@ public class NbsRepositoryServiceProvider {
 	private static final String STATUS_UNPROCESSED = "QUEUED";
 	private static final String SYSTEM_NAME_NBS = "NBS";
 	private static final String DOCUMENT_TYPE_CODE = "11648804";
-	private static final String FILLER_ORDER_NBR = "HL7EntityIdentifier";
-	private static final String LAB_CLIA = "HL7UniversalID";
-	private static final String ORDER_TEST_CODE = "HL7AlternateIdentifier";
 
 	private static final String ECR_DOC_TYPE = "PHC236";
 
-    @Autowired
     private NbsInterfaceRepository nbsInterfaceRepo;
 
 	public void saveEcrCdaXmlMessage (String nbsInterfaceUid,
@@ -81,10 +72,9 @@ public class NbsRepositoryServiceProvider {
 		item.setImpExpIndCd(IMPEXP_CD);
 		item.setRecordStatusCd(STATUS_UNPROCESSED);
 
-		Timestamp recordTimestamp = new Timestamp(getGmtTimestamp());
-
-		item.setRecordStatusTime(recordTimestamp);
-		item.setAddTime(recordTimestamp);
+		var time = Timestamp.from(Instant.now());
+		item.setRecordStatusTime(time);
+		item.setAddTime(time);
 
 		item.setSystemNm(SYSTEM_NAME_NBS);
 		item.setDocTypeCd(DOCUMENT_TYPE_CODE);
@@ -163,14 +153,5 @@ public class NbsRepositoryServiceProvider {
 		nbsInterface.setFillerOrderNbr(filterOrderNumber);
 		nbsInterface.setOrderTestCode(orderTestCode);
 		return nbsInterface;
-	}
-
-	private long getGmtTimestamp() {
-		ZonedDateTime currentDate = ZonedDateTime.now( ZoneOffset.UTC );
-		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-		cal.set(Calendar.HOUR, currentDate.getHour());
-		cal.set(Calendar.MINUTE, currentDate.getMinute());
-		cal.set(Calendar.SECOND, currentDate.getSecond());
-		return cal.getTimeInMillis();
 	}
 }

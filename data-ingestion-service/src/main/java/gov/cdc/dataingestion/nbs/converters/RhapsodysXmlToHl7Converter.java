@@ -1,7 +1,7 @@
 package gov.cdc.dataingestion.nbs.converters;
 
 import gov.cdc.dataingestion.exception.XmlConversionException;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.messageSegment.MessageHeader;
+import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_segment.MessageHeader;
 
 import  gov.cdc.dataingestion.nbs.jaxb.*;
 
@@ -48,10 +48,7 @@ public class RhapsodysXmlToHl7Converter {
             sb.append(NEWLINE);
             sb.append(streamPaientIdentifications(container.getHL7LabReport().getHL7PATIENTRESULT()));
             sb.append(NEWLINE);
-
-            String hl7Str = sb.toString();
-
-            return hl7Str;
+            return sb.toString();
         } catch (Exception e) {
             throw new XmlConversionException(e.getMessage());
         }
@@ -112,6 +109,7 @@ public class RhapsodysXmlToHl7Converter {
     }
 
     //TODO: Dead Code
+    @SuppressWarnings({"java:S3776", "java:S1135"})
     private String streamHL7OBSERVATIONTypeNotesAndComments(HL7OBSERVATIONType hl7ObsType) {
         StringBuilder sb = new StringBuilder();
 
@@ -1422,6 +1420,7 @@ public class RhapsodysXmlToHl7Converter {
     }
 
     //TODO Dead Code
+    @SuppressWarnings("java:S3776")
     private MessageHeader buildMessageHeader() {
         MessageHeader mh = new MessageHeader();
 
