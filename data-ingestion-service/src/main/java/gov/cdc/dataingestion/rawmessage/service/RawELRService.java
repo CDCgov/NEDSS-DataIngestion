@@ -13,6 +13,8 @@ import java.sql.Timestamp;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
+import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -42,8 +44,8 @@ public class RawELRService {
         rawERLModel.setId(UUID.randomUUID().toString());
         rawERLModel.setType(rawERLDto.getType());
         rawERLModel.setPayload(rawERLDto.getPayload());
-        rawERLModel.setCreatedOn(Timestamp.from(ZonedDateTime.now().toInstant()));
-        rawERLModel.setUpdatedOn(Timestamp.from(ZonedDateTime.now().toInstant()));
+        rawERLModel.setCreatedOn(getCurrentTimeStamp());
+        rawERLModel.setUpdatedOn(getCurrentTimeStamp());
         rawERLModel.setCreatedBy(CREATED_BY);
         rawERLModel.setUpdatedBy(CREATED_BY);
         return rawERLModel;

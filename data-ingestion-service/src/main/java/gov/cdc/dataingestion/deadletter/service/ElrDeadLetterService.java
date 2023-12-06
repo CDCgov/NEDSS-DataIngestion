@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
+
 @Service
 @Slf4j
 public class ElrDeadLetterService {
@@ -106,7 +108,7 @@ public class ElrDeadLetterService {
             }
             RawERLModel rawModel = rawRecord.get();
             rawModel.setPayload(body);
-            rawModel.setUpdatedOn(Timestamp.from(Instant.now()));
+            rawModel.setUpdatedOn(getCurrentTimeStamp());
 
             // persisting data to raw table and dlt table
             rawELRRepository.save(rawModel);
@@ -121,7 +123,7 @@ public class ElrDeadLetterService {
             }
             ValidatedELRModel validateModel = validateRecord.get();
             validateModel.setRawMessage(body);
-            validateModel.setUpdatedOn(Timestamp.from(Instant.now()));
+            validateModel.setUpdatedOn(getCurrentTimeStamp());
 
             // persisting data to raw table and dlt table
             validatedELRRepository.save(validateModel);
@@ -152,7 +154,7 @@ public class ElrDeadLetterService {
     }
 
     public ElrDeadLetterDto saveDltRecord(ElrDeadLetterDto model) {
-        model.setUpdatedOn(Timestamp.from(Instant.now()));
+        model.setUpdatedOn(getCurrentTimeStamp());
         dltRepository.save(convertDtoToModel(model));
         return model;
     }

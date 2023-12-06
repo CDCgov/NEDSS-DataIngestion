@@ -50,7 +50,11 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.ZonedDateTime;
 import java.util.Optional;
+
+import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
 
 @Service
 @Slf4j
@@ -474,7 +478,8 @@ public class KafkaConsumerService {
             reportStatusIdData.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
             reportStatusIdData.setCreatedBy(convertedToXmlTopic);
             reportStatusIdData.setUpdatedBy(convertedToXmlTopic);
-
+            reportStatusIdData.setCreatedOn(getCurrentTimeStamp());
+            reportStatusIdData.setUpdatedOn(getCurrentTimeStamp());
             iReportStatusRepository.save(reportStatusIdData);
         }
     }
@@ -545,6 +550,8 @@ public class KafkaConsumerService {
         }
     }
     private void saveValidatedELRMessage(ValidatedELRModel model) {
+        model.setCreatedOn(getCurrentTimeStamp());
+        model.setUpdatedOn(getCurrentTimeStamp());
         iValidatedELRRepository.save(model);
     }
     //endregion
