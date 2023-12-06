@@ -13,34 +13,34 @@ import java.util.UUID;
 @Service
 @Slf4j
 public class RegistrationService {
-    private final IClientRegisterRepository iClientRegisterRepository;
-
-    private final PasswordEncoder passwordEncoder;
-
-    RegisterClient clientObject = new RegisterClient();
-
-    public RegistrationService(PasswordEncoder passwordEncoder, IClientRegisterRepository iClientRegisterRepository) {
-        this.iClientRegisterRepository = iClientRegisterRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+//    private final IClientRegisterRepository iClientRegisterRepository;
+//
+//    private final PasswordEncoder passwordEncoder;
+//
+//    RegisterClient clientObject = new RegisterClient();
+//
+//    public RegistrationService(PasswordEncoder passwordEncoder, IClientRegisterRepository iClientRegisterRepository) {
+//        this.iClientRegisterRepository = iClientRegisterRepository;
+//        this.passwordEncoder = passwordEncoder;
+//    }
 
     public boolean createUser(String username, String password) {
-        Optional<RegisterClient> client = iClientRegisterRepository.findByUsername(username);
-        if(client.isEmpty()) {
-            clientObject.setId(UUID.randomUUID().toString());
-            clientObject.setUsername(username);
-            clientObject.setPassword(passwordEncoder.encode(password));
-            if(username.contains("admin")) {
-                clientObject.setRoles("ADMIN");
-            }
-            else {
-                clientObject.setRoles("USER");
-            }
-            clientObject.setCreatedBy("diteamadmin");
-            clientObject.setUpdatedBy("diteamadmin");
-            iClientRegisterRepository.save(clientObject);
-            return true;
-        }
+//        Optional<RegisterClient> client = iClientRegisterRepository.findByUsername(username);
+//        if(client.isEmpty()) {
+//            clientObject.setId(UUID.randomUUID().toString());
+//            clientObject.setUsername(username);
+//            clientObject.setPassword(passwordEncoder.encode(password));
+//            if(username.contains("admin")) {
+//                clientObject.setRoles("ADMIN");
+//            }
+//            else {
+//                clientObject.setRoles("USER");
+//            }
+//            clientObject.setCreatedBy("diteamadmin");
+//            clientObject.setUpdatedBy("diteamadmin");
+//            iClientRegisterRepository.save(clientObject);
+//            return true;
+//        }
         return false;
     }
 }

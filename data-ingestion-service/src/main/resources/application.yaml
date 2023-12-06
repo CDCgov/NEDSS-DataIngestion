@@ -14,12 +14,19 @@ management:
       export:
         enabled: true
 
-rsa:
-  private-key-content: ${DI_RSA_PRIVATE_KEY}
-  public-key-content: ${DI_RSA_PUBLIC_KEY}
 spring:
   application:
     name: data-ingestion-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://127.0.0.1:8080/auth/realms/DIKeycloakRealm
+          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+
+auth:
+  token-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/token
+
 logging:
   #  Only one config can be active at a time
   config: classpath:logback-config.xml
@@ -138,3 +145,11 @@ sasl:
     config: software.amazon.msk.auth.iam.IAMLoginModule required;
   client:
     callback.handler.class: software.amazon.msk.auth.iam.IAMClientCallbackHandler
+
+
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+
+debug: true

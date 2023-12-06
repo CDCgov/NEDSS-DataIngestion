@@ -1,37 +1,40 @@
 package gov.cdc.dataingestion.security.controller;
 
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
-import gov.cdc.dataingestion.security.service.TokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-
+import org.mockito.ArgumentMatchers;
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
+import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 class TokenControllerTest {
-
-    TokenService tokenService;
     CustomMetricsBuilder customMetricsBuilder;
-    Authentication authentication;
+    RestTemplate restTemplate;
     String expectedToken = "testToken";
-
     @BeforeEach
     void setUp() {
-        tokenService = mock(TokenService.class);
-        authentication = new UsernamePasswordAuthenticationToken("username", "password");
         customMetricsBuilder = mock(CustomMetricsBuilder.class);
+        restTemplate = mock(RestTemplate.class);
     }
-
     @Test
     void testTokenEndpoint() {
-        when(tokenService.generateToken(authentication)).thenReturn("testToken");
+        String authTokenUri = "http://localhost:8080/realms/test/openid-connect/token";
+        TokenController tokenController = new TokenController(restTemplate, customMetricsBuilder);
+        tokenController.authTokenUri = authTokenUri;
 
-        TokenController tokenController = new TokenController(tokenService, customMetricsBuilder);
-        String generatedToken = tokenController.token(authentication);
+        String expectedTokenString = "{\"access_token\":\"testToken\"}";
 
-        verify(tokenService, times(1)).generateToken(authentication);
+        ResponseEntity responseEntity = new ResponseEntity(expectedTokenString, HttpStatus.OK);
+        when(restTemplate.exchange(ArgumentMatchers.anyString(),
+                ArgumentMatchers.any(HttpMethod.class),
+                ArgumentMatchers.any(), ArgumentMatchers.<Class<List<String>>>any()))
+                .thenReturn(responseEntity);
+
+        String generatedToken = tokenController.token("test-keycloak-client", "testclientsecret");
+
         assertEquals(expectedToken, generatedToken);
         verify(customMetricsBuilder, times(1)).incrementTokensRequested();
     }
