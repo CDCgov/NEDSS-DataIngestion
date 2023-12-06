@@ -5,7 +5,7 @@
         "builtIn": 1,
         "datasource": {
           "type": "grafana",
-          "uid": "{DS_PROMETHEUS}"
+          "uid": "aws-prometheus"
         },
         "enable": true,
         "hide": true,
@@ -33,8 +33,8 @@
     {
       "collapsed": true,
       "datasource": {
-        "type": "prometheus",
-        "uid": "{DS_PROMETHEUS}"
+        "type": "aws-prometheus",
+        "uid": "aws-prometheus"
       },
       "gridPos": {
         "h": 1,
@@ -46,8 +46,8 @@
       "panels": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -108,7 +108,7 @@
           "pluginVersion": "10.1.1",
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "process_uptime_seconds{application=\"$application\", instance=\"$instance\"}",
               "format": "time_series",
               "intervalFactor": 2,
@@ -123,8 +123,8 @@
         },
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -189,7 +189,7 @@
           "pluginVersion": "10.1.1",
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "sum(jvm_memory_used_bytes{application=\"$application\", instance=\"$instance\", area=\"heap\"})*100/sum(jvm_memory_max_bytes{application=\"$application\",instance=\"$instance\", area=\"heap\"})",
               "format": "time_series",
               "intervalFactor": 1,
@@ -203,8 +203,8 @@
         },
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -279,7 +279,7 @@
           "pluginVersion": "10.1.1",
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "sum(jvm_memory_used_bytes{application=\"$application\", instance=\"$instance\", area=\"nonheap\"})*100/sum(jvm_memory_max_bytes{application=\"$application\",instance=\"$instance\", area=\"nonheap\"})",
               "format": "time_series",
               "intervalFactor": 2,
@@ -297,8 +297,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -337,16 +337,16 @@
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "process_files_open{application=\"$application\", instance=\"$instance\"}",
+              "datasource": "aws-prometheus",
+              "expr": "process_files_open_files{application=\"$application\", instance=\"$instance\"}",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Open Files",
               "refId": "A"
             },
             {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "process_files_max{application=\"$application\", instance=\"$instance\"}",
+              "datasource": "aws-prometheus",
+              "expr": "process_files_max_files{application=\"$application\", instance=\"$instance\"}",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Max Files",
@@ -385,8 +385,8 @@
         },
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -446,7 +446,7 @@
           "pluginVersion": "10.1.1",
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "process_start_time_seconds{application=\"$application\", instance=\"$instance\"}*1000",
               "format": "time_series",
               "intervalFactor": 2,
@@ -465,8 +465,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -506,7 +506,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "system_cpu_usage{instance=\"$instance\", application=\"$application\"}",
               "format": "time_series",
               "intervalFactor": 1,
@@ -514,7 +514,7 @@
               "refId": "A"
             },
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "process_cpu_usage{instance=\"$instance\", application=\"$application\"}",
               "format": "time_series",
               "intervalFactor": 1,
@@ -558,8 +558,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -599,7 +599,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "system_load_average_1m{instance=\"$instance\", application=\"$application\"}",
               "format": "time_series",
               "intervalFactor": 1,
@@ -607,7 +607,7 @@
               "refId": "A"
             },
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "system_cpu_count{instance=\"$instance\", application=\"$application\"}",
               "format": "time_series",
               "intervalFactor": 1,
@@ -661,8 +661,8 @@
       "panels": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -738,8 +738,8 @@
           "targets": [
             {
               "datasource": {
-                "type": "prometheus",
-                "uid": "{DS_PROMETHEUS}"
+                "type": "aws-prometheus",
+                "uid": "aws-prometheus"
               },
               "disableTextWrap": false,
               "editorMode": "builder",
@@ -757,8 +757,8 @@
         },
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -834,8 +834,8 @@
           "targets": [
             {
               "datasource": {
-                "type": "prometheus",
-                "uid": "{DS_PROMETHEUS}"
+                "type": "aws-prometheus",
+                "uid": "aws-prometheus"
               },
               "disableTextWrap": false,
               "editorMode": "builder",
@@ -853,8 +853,8 @@
         },
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -930,8 +930,8 @@
           "targets": [
             {
               "datasource": {
-                "type": "prometheus",
-                "uid": "{DS_PROMETHEUS}"
+                "type": "aws-prometheus",
+                "uid": "aws-prometheus"
               },
               "disableTextWrap": false,
               "editorMode": "builder",
@@ -945,8 +945,8 @@
             },
             {
               "datasource": {
-                "type": "prometheus",
-                "uid": "{DS_PROMETHEUS}"
+                "type": "aws-prometheus",
+                "uid": "aws-prometheus"
               },
               "disableTextWrap": false,
               "editorMode": "builder",
@@ -961,8 +961,8 @@
             },
             {
               "datasource": {
-                "type": "prometheus",
-                "uid": "{DS_PROMETHEUS}"
+                "type": "aws-prometheus",
+                "uid": "aws-prometheus"
               },
               "disableTextWrap": false,
               "editorMode": "builder",
@@ -981,8 +981,8 @@
         },
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -1058,8 +1058,8 @@
           "targets": [
             {
               "datasource": {
-                "type": "prometheus",
-                "uid": "{DS_PROMETHEUS}"
+                "type": "aws-prometheus",
+                "uid": "aws-prometheus"
               },
               "disableTextWrap": false,
               "editorMode": "builder",
@@ -1077,8 +1077,8 @@
         },
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -1154,8 +1154,8 @@
           "targets": [
             {
               "datasource": {
-                "type": "prometheus",
-                "uid": "{DS_PROMETHEUS}"
+                "type": "aws-prometheus",
+                "uid": "aws-prometheus"
               },
               "disableTextWrap": false,
               "editorMode": "builder",
@@ -1169,8 +1169,8 @@
             },
             {
               "datasource": {
-                "type": "prometheus",
-                "uid": "{DS_PROMETHEUS}"
+                "type": "aws-prometheus",
+                "uid": "aws-prometheus"
               },
               "disableTextWrap": false,
               "editorMode": "builder",
@@ -1185,8 +1185,8 @@
             },
             {
               "datasource": {
-                "type": "prometheus",
-                "uid": "{DS_PROMETHEUS}"
+                "type": "aws-prometheus",
+                "uid": "aws-prometheus"
               },
               "disableTextWrap": false,
               "editorMode": "builder",
@@ -1212,8 +1212,8 @@
     {
       "collapsed": true,
       "datasource": {
-        "type": "prometheus",
-        "uid": "{DS_PROMETHEUS}"
+        "type": "aws-prometheus",
+        "uid": "aws-prometheus"
       },
       "gridPos": {
         "h": 1,
@@ -1229,8 +1229,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -1271,7 +1271,7 @@
           "targets": [
             {
               "alias": "",
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "irate(logback_events_total{instance=\"$instance\", application=\"$application\", level=\"info\"}[5m])",
               "format": "time_series",
               "intervalFactor": 1,
@@ -1316,8 +1316,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -1358,7 +1358,7 @@
           "targets": [
             {
               "alias": "",
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "irate(logback_events_total{instance=\"$instance\", application=\"$application\", level=\"error\"}[5m])",
               "format": "time_series",
               "intervalFactor": 1,
@@ -1403,8 +1403,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -1445,7 +1445,7 @@
           "targets": [
             {
               "alias": "",
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "irate(logback_events_total{instance=\"$instance\", application=\"$application\", level=\"warn\"}[5m])",
               "format": "time_series",
               "intervalFactor": 1,
@@ -1490,8 +1490,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -1532,7 +1532,7 @@
           "targets": [
             {
               "alias": "",
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "irate(logback_events_total{instance=\"$instance\", application=\"$application\", level=\"debug\"}[5m])",
               "format": "time_series",
               "intervalFactor": 1,
@@ -1577,8 +1577,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -1619,7 +1619,7 @@
           "targets": [
             {
               "alias": "",
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "irate(logback_events_total{instance=\"$instance\", application=\"$application\", level=\"trace\"}[5m])",
               "format": "time_series",
               "intervalFactor": 1,
@@ -1665,8 +1665,8 @@
     {
       "collapsed": true,
       "datasource": {
-        "type": "prometheus",
-        "uid": "{DS_PROMETHEUS}"
+        "type": "aws-prometheus",
+        "uid": "aws-prometheus"
       },
       "gridPos": {
         "h": 1,
@@ -1682,8 +1682,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -1725,24 +1725,24 @@
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "jvm_memory_used_bytes{instance=\"$instance\", application=\"$application\", id=\"$memory_pool_heap\"}",
+              "datasource": "aws-prometheus",
+              "expr": "jvm_memory_used_bytes",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Used",
               "refId": "C"
             },
             {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "jvm_memory_committed_bytes{instance=\"$instance\", application=\"$application\", id=\"$memory_pool_heap\"}",
+              "datasource": "aws-prometheus",
+              "expr": "jvm_memory_committed_bytes",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Commited",
               "refId": "A"
             },
             {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "jvm_memory_max_bytes{instance=\"$instance\", application=\"$application\", id=\"$memory_pool_heap\"}",
+              "datasource": "aws-prometheus",
+              "expr": "jvm_memory_max_bytes",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Max",
@@ -1785,8 +1785,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -1828,24 +1828,24 @@
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "jvm_memory_used_bytes{instance=\"$instance\", application=\"$application\", id=\"$memory_pool_nonheap\"}",
+              "datasource": "aws-prometheus",
+              "expr": "jvm_memory_used_bytes",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Used",
               "refId": "C"
             },
             {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "jvm_memory_committed_bytes{instance=\"$instance\", application=\"$application\", id=\"$memory_pool_nonheap\"}",
+              "datasource": "aws-prometheus",
+              "expr": "jvm_memory_committed_bytes",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Commited",
               "refId": "A"
             },
             {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "jvm_memory_max_bytes{instance=\"$instance\", application=\"$application\", id=\"$memory_pool_nonheap\"}",
+              "datasource": "aws-prometheus",
+              "expr": "jvm_memory_max_bytes",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Max",
@@ -1888,8 +1888,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "decimals": 0,
           "fill": 1,
@@ -1930,8 +1930,8 @@
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "jvm_classes_loaded{instance=\"$instance\", application=\"$application\"}",
+              "datasource": "aws-prometheus",
+              "expr": "jvm_classes_loaded_classes{instance=\"$instance\", application=\"$application\"}",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Classes Loaded",
@@ -1976,8 +1976,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -2016,8 +2016,8 @@
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "irate(jvm_classes_unloaded_total{instance=\"$instance\", application=\"$application\"}[5m])",
+              "datasource": "aws-prometheus",
+              "expr": "irate(jvm_classes_unloaded_classes_total{instance=\"$instance\", application=\"$application\"}[5m])",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Classes Unloaded",
@@ -2060,8 +2060,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "gridPos": {
@@ -2094,7 +2094,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "jvm_buffer_memory_used_bytes{instance=\"$instance\", application=\"$application\", id=\"direct\"}",
               "format": "time_series",
               "intervalFactor": 1,
@@ -2102,7 +2102,7 @@
               "refId": "A"
             },
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "jvm_buffer_total_capacity_bytes{instance=\"$instance\", application=\"$application\", id=\"direct\"}",
               "format": "time_series",
               "intervalFactor": 1,
@@ -2145,8 +2145,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -2185,7 +2185,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "jvm_buffer_memory_used_bytes{instance=\"$instance\", application=\"$application\", id=\"mapped\"}",
               "format": "time_series",
               "intervalFactor": 1,
@@ -2193,7 +2193,7 @@
               "refId": "A"
             },
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "jvm_buffer_total_capacity_bytes{instance=\"$instance\", application=\"$application\", id=\"mapped\"}",
               "format": "time_series",
               "intervalFactor": 1,
@@ -2237,8 +2237,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "gridPos": {
@@ -2272,24 +2272,24 @@
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "jvm_threads_daemon{instance=\"$instance\", application=\"$application\"}",
+              "datasource": "aws-prometheus",
+              "expr": "jvm_threads_daemon_threads{instance=\"$instance\", application=\"$application\"}",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Daemon",
               "refId": "A"
             },
             {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "jvm_threads_live{instance=\"$instance\", application=\"$application\"}",
+              "datasource": "aws-prometheus",
+              "expr": "jvm_threads_live_threads{instance=\"$instance\", application=\"$application\"}",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Live",
               "refId": "B"
             },
             {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "jvm_threads_peak{instance=\"$instance\", application=\"$application\"}",
+              "datasource": "aws-prometheus",
+              "expr": "jvm_threads_peak_threads{instance=\"$instance\", application=\"$application\"}",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Peak",
@@ -2331,8 +2331,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "gridPos": {
@@ -2365,7 +2365,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "irate(jvm_gc_memory_allocated_bytes_total{instance=\"$instance\", application=\"$application\"}[5m])",
               "format": "time_series",
               "intervalFactor": 1,
@@ -2373,7 +2373,7 @@
               "refId": "A"
             },
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "irate(jvm_gc_memory_promoted_bytes_total{instance=\"$instance\", application=\"$application\"}[5m])",
               "format": "time_series",
               "intervalFactor": 1,
@@ -2417,8 +2417,8 @@
     {
       "collapsed": true,
       "datasource": {
-        "type": "prometheus",
-        "uid": "{DS_PROMETHEUS}"
+        "type": "aws-prometheus",
+        "uid": "aws-prometheus"
       },
       "gridPos": {
         "h": 1,
@@ -2434,8 +2434,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -2477,7 +2477,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "irate(jvm_gc_pause_seconds_count{instance=\"$instance\", application=\"$application\"}[5m])",
               "format": "time_series",
               "intervalFactor": 1,
@@ -2521,8 +2521,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -2564,7 +2564,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "irate(jvm_gc_pause_seconds_sum{instance=\"$instance\", application=\"$application\"}[5m])",
               "format": "time_series",
               "intervalFactor": 1,
@@ -2609,8 +2609,8 @@
     {
       "collapsed": true,
       "datasource": {
-        "type": "prometheus",
-        "uid": "{DS_PROMETHEUS}"
+        "type": "aws-prometheus",
+        "uid": "aws-prometheus"
       },
       "gridPos": {
         "h": 1,
@@ -2622,8 +2622,8 @@
       "panels": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -2683,7 +2683,7 @@
           "pluginVersion": "10.0.3",
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "hikaricp_connections{instance=\"$instance\", application=\"$application\", pool=\"$hikaricp\"}",
               "format": "time_series",
               "intervalFactor": 1,
@@ -2700,8 +2700,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -2743,7 +2743,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "hikaricp_connections_active{instance=\"$instance\", application=\"$application\", pool=\"$hikaricp\"}",
               "format": "time_series",
               "intervalFactor": 1,
@@ -2751,7 +2751,7 @@
               "refId": "B"
             },
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "hikaricp_connections_idle{instance=\"$instance\", application=\"$application\", pool=\"$hikaricp\"}",
               "format": "time_series",
               "intervalFactor": 1,
@@ -2759,7 +2759,7 @@
               "refId": "A"
             },
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "hikaricp_connections_pending{instance=\"$instance\", application=\"$application\", pool=\"$hikaricp\"}",
               "format": "time_series",
               "intervalFactor": 1,
@@ -2799,8 +2799,8 @@
         },
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -2860,7 +2860,7 @@
           "pluginVersion": "10.0.3",
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "hikaricp_connections_timeout_total{instance=\"$instance\", application=\"$application\", pool=\"$hikaricp\"}",
               "format": "time_series",
               "intervalFactor": 1,
@@ -2877,8 +2877,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -2917,7 +2917,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "hikaricp_connections_creation_seconds_sum{instance=\"$instance\", application=\"$application\", pool=\"$hikaricp\"} / hikaricp_connections_creation_seconds_count{instance=\"$instance\", application=\"$application\", pool=\"$hikaricp\"}",
               "format": "time_series",
               "intervalFactor": 1,
@@ -2961,8 +2961,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -3001,7 +3001,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "hikaricp_connections_usage_seconds_sum{instance=\"$instance\", application=\"$application\", pool=\"$hikaricp\"} / hikaricp_connections_usage_seconds_count{instance=\"$instance\", application=\"$application\", pool=\"$hikaricp\"}",
               "format": "time_series",
               "intervalFactor": 1,
@@ -3045,8 +3045,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -3085,7 +3085,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "hikaricp_connections_acquire_seconds_sum{instance=\"$instance\", application=\"$application\", pool=\"$hikaricp\"} / hikaricp_connections_acquire_seconds_count{instance=\"$instance\", application=\"$application\", pool=\"$hikaricp\"}",
               "format": "time_series",
               "intervalFactor": 1,
@@ -3130,8 +3130,8 @@
     {
       "collapsed": true,
       "datasource": {
-        "type": "prometheus",
-        "uid": "{DS_PROMETHEUS}"
+        "type": "aws-prometheus",
+        "uid": "aws-prometheus"
       },
       "gridPos": {
         "h": 1,
@@ -3147,8 +3147,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -3189,7 +3189,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
+              "datasource": "aws-prometheus",
               "expr": "irate(http_server_requests_seconds_count{instance=\"$instance\", application=\"$application\", uri!~\".*actuator.*\"}[5m])",
               "format": "time_series",
               "intervalFactor": 1,
@@ -3233,8 +3233,8 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
+            "type": "aws-prometheus",
+            "uid": "aws-prometheus"
           },
           "fill": 1,
           "fillGradient": 0,
@@ -3275,8 +3275,8 @@
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "irate(http_server_requests_seconds_sum{instance=\"$instance\", application=\"$application\", exception=\"None\", uri!~\".*actuator.*\"}[5m]) / irate(http_server_requests_seconds_count{instance=\"$instance\", application=\"$application\", exception=\"None\", uri!~\".*actuator.*\"}[5m])",
+              "datasource": "aws-prometheus",
+              "expr": "irate(http_server_requests_seconds_sum{instance=\"$instance\", application=\"$application\", exception=\"none\", uri!~\".*actuator.*\"}[5m]) / irate(http_server_requests_seconds_count{instance=\"$instance\", application=\"$application\", exception=\"none\", uri!~\".*actuator.*\"}[5m])",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "{{method}} [{{status}}] - {{uri}}",
@@ -3317,445 +3317,6 @@
       ],
       "title": "HTTP Statistics",
       "type": "row"
-    },
-    {
-      "collapsed": true,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "{DS_PROMETHEUS}"
-      },
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 7
-      },
-      "id": 22,
-      "panels": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "mappings": [
-                {
-                  "options": {
-                    "match": "null",
-                    "result": {
-                      "text": "N/A"
-                    }
-                  },
-                  "type": "special"
-                }
-              ],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "locale"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 4,
-            "x": 0,
-            "y": 78
-          },
-          "id": 28,
-          "links": [],
-          "maxDataPoints": 100,
-          "options": {
-            "colorMode": "none",
-            "graphMode": "none",
-            "justifyMode": "auto",
-            "orientation": "horizontal",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "pluginVersion": "10.0.3",
-          "targets": [
-            {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "tomcat_global_error_total{instance=\"$instance\", application=\"$application\"}",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "",
-              "refId": "A"
-            }
-          ],
-          "title": "Total Error Count",
-          "type": "stat"
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
-          },
-          "decimals": 0,
-          "fill": 1,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 7,
-            "w": 9,
-            "x": 4,
-            "y": 78
-          },
-          "hiddenSeries": false,
-          "id": 24,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": true,
-            "show": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "options": {
-            "alertThreshold": true
-          },
-          "percentage": false,
-          "pluginVersion": "10.0.3",
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "tomcat_sessions_active_current{instance=\"$instance\", application=\"$application\"}",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "active sessions",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeRegions": [],
-          "title": "Active Sessions",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "none",
-              "label": "",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
-          },
-          "fill": 1,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 7,
-            "w": 11,
-            "x": 13,
-            "y": 78
-          },
-          "hiddenSeries": false,
-          "id": 26,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": true,
-            "show": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "options": {
-            "alertThreshold": true
-          },
-          "percentage": false,
-          "pluginVersion": "10.0.3",
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "irate(tomcat_global_sent_bytes_total{instance=\"$instance\", application=\"$application\"}[5m])",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "Sent Bytes",
-              "refId": "A"
-            },
-            {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "irate(tomcat_global_received_bytes_total{instance=\"$instance\", application=\"$application\"}[5m])",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "Recieved Bytes",
-              "refId": "B"
-            }
-          ],
-          "thresholds": [],
-          "timeRegions": [],
-          "title": "Sent & Recieved Bytes",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "bytes",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "mappings": [
-                {
-                  "options": {
-                    "match": "null",
-                    "result": {
-                      "text": "N/A"
-                    }
-                  },
-                  "type": "special"
-                }
-              ],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "locale"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 3,
-            "w": 4,
-            "x": 0,
-            "y": 82
-          },
-          "id": 32,
-          "links": [],
-          "maxDataPoints": 100,
-          "options": {
-            "colorMode": "none",
-            "graphMode": "none",
-            "justifyMode": "auto",
-            "orientation": "horizontal",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "pluginVersion": "10.0.3",
-          "targets": [
-            {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "tomcat_threads_config_max{instance=\"$instance\", application=\"$application\"}",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "",
-              "refId": "A"
-            }
-          ],
-          "title": "Thread Config Max",
-          "type": "stat"
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "{DS_PROMETHEUS}"
-          },
-          "fill": 1,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 7,
-            "w": 13,
-            "x": 0,
-            "y": 85
-          },
-          "hiddenSeries": false,
-          "id": 30,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": true,
-            "show": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "options": {
-            "alertThreshold": true
-          },
-          "percentage": false,
-          "pluginVersion": "10.0.3",
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "tomcat_threads_current{instance=\"$instance\", application=\"$application\"}",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "Current thread",
-              "refId": "A"
-            },
-            {
-              "datasource": "{DS_PROMETHEUS}",
-              "expr": "tomcat_threads_busy{instance=\"$instance\", application=\"$application\"}",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "Current thread busy",
-              "refId": "B"
-            }
-          ],
-          "thresholds": [],
-          "timeRegions": [],
-          "title": "Threads",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
-        }
-      ],
-      "title": "Tomcat Statistics",
-      "type": "row"
     }
   ],
   "refresh": "5s",
@@ -3772,8 +3333,8 @@
           "value": ""
         },
         "datasource": {
-          "type": "prometheus",
-          "uid": "{DS_PROMETHEUS}"
+          "type": "aws-prometheus",
+          "uid": "aws-prometheus"
         },
         "definition": "label_values(jvm_classes_loaded_classes, instance)",
         "hide": 0,
@@ -3803,8 +3364,8 @@
           "value": ""
         },
         "datasource": {
-          "type": "prometheus",
-          "uid": "{DS_PROMETHEUS}"
+          "type": "aws-prometheus",
+          "uid": "aws-prometheus"
         },
         "definition": "label_values(jvm_classes_loaded_classes{instance=\"$instance\"}, application)",
         "hide": 0,
@@ -3834,8 +3395,8 @@
           "value": ""
         },
         "datasource": {
-          "type": "prometheus",
-          "uid": "{DS_PROMETHEUS}"
+          "type": "aws-prometheus",
+          "uid": "aws-prometheus"
         },
         "definition": "label_values(hikaricp_connections{instance=\"$instance\", application=\"$application\"}, pool)",
         "hide": 0,
@@ -3864,8 +3425,8 @@
           "value": "$__all"
         },
         "datasource": {
-          "type": "prometheus",
-          "uid": "{DS_PROMETHEUS}"
+          "type": "aws-prometheus",
+          "uid": "aws-prometheus"
         },
         "definition": "",
         "hide": 0,
@@ -3876,7 +3437,7 @@
         "options": [],
         "query": {
           "query": "label_values(jvm_memory_used_bytes{application=\"$application\", instance=\"$instance\", area=\"heap\"},id)",
-          "refId": "Prometheus-memory_pool_heap-Variable-Query"
+          "refId": "prometheus-memory_pool_heap-Variable-Query"
         },
         "refresh": 1,
         "regex": "",
@@ -3894,8 +3455,8 @@
           "value": "$__all"
         },
         "datasource": {
-          "type": "prometheus",
-          "uid": "{DS_PROMETHEUS}"
+          "type": "aws-prometheus",
+          "uid": "aws-prometheus"
         },
         "definition": "",
         "hide": 0,
@@ -3906,7 +3467,7 @@
         "options": [],
         "query": {
           "query": "label_values(jvm_memory_used_bytes{application=\"$application\", instance=\"$instance\", area=\"nonheap\"},id)",
-          "refId": "Prometheus-memory_pool_nonheap-Variable-Query"
+          "refId": "aws-prometheus-memory_pool_nonheap-Variable-Query"
         },
         "refresh": 1,
         "regex": "",
@@ -3950,7 +3511,7 @@
   },
   "timezone": "",
   "title": "Data Ingestion Service Custom Metrics",
-  "uid": "{DS_PROMETHEUS}",
+  "uid": "aws-prometheus",
   "version": 9,
   "weekStart": ""
 }
