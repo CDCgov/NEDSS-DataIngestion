@@ -14,7 +14,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/reports-dlt")
-@Slf4j
 @RequiredArgsConstructor
 public class ElrDeadLetterController {
 

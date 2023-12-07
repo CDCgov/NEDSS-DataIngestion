@@ -24,7 +24,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/reports")
-@Slf4j
 @RequiredArgsConstructor
 public class ElrReportsController {
 
