@@ -1,6 +1,5 @@
 package gov.cdc.dataingestion.kafka.service;
 
-import ca.uhn.hl7v2.HL7Exception;
 import gov.cdc.dataingestion.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;

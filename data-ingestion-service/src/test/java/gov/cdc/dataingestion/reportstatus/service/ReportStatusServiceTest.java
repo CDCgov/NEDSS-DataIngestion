@@ -19,11 +19,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 class ReportStatusServiceTest {
