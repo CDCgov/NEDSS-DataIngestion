@@ -27,7 +27,6 @@ public class ValidatedELRModel {
     @Column(name = "message_version")
     private String messageVersion;
 
-    @Transient
     @Column(name = "created_on")
     private Timestamp createdOn;
 
