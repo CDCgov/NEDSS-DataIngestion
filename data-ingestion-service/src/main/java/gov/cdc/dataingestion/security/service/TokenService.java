@@ -12,6 +12,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.stream.Collectors;
 
+import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getInstantNow;
+
 @Service
 @Slf4j
 public class TokenService {
@@ -23,7 +25,7 @@ public class TokenService {
     }
 
     public String generateToken(Authentication authentication) {
-        Instant now = Instant.now();
+        Instant now = getInstantNow();
         String scope = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));

@@ -10,10 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+
+import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
 
 @Service
 @AllArgsConstructor
@@ -32,7 +33,7 @@ public class NbsRepositoryServiceProvider {
 	public void saveEcrCdaXmlMessage (String nbsInterfaceUid,
 									  Integer dataMigrationStatus, String xmlMsg) {
 		Optional<NbsInterfaceModel>  response = nbsInterfaceRepo.getNbsInterfaceByIdAndDocType(Integer.valueOf(nbsInterfaceUid), ECR_DOC_TYPE);
-		var time = Timestamp.from(Instant.now());
+		var time = getCurrentTimeStamp();
 		NbsInterfaceModel model = new NbsInterfaceModel();
 		if (response.isPresent()) {
 			model = response.get();
@@ -72,7 +73,7 @@ public class NbsRepositoryServiceProvider {
 		item.setImpExpIndCd(IMPEXP_CD);
 		item.setRecordStatusCd(STATUS_UNPROCESSED);
 
-		var time = Timestamp.from(Instant.now());
+		var time = getCurrentTimeStamp();
 		item.setRecordStatusTime(time);
 		item.setAddTime(time);
 

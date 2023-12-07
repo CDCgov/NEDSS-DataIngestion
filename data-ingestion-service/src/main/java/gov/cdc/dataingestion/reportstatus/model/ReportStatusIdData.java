@@ -24,7 +24,6 @@ public class ReportStatusIdData {
     @Column(name = "nbs_interface_id")
     private Integer nbsInterfaceUid;
 
-    @Transient
     @Column(name = "created_on")
     private Timestamp createdOn;
 
