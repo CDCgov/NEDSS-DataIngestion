@@ -21,7 +21,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://127.0.0.1:8080/auth/realms/DIKeycloakRealm
+          issuer-uri: http://127.0.0.1:8080/auth/realms/NBS
           jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
 
 auth:
@@ -145,11 +145,3 @@ sasl:
     config: software.amazon.msk.auth.iam.IAMLoginModule required;
   client:
     callback.handler.class: software.amazon.msk.auth.iam.IAMClientCallbackHandler
-
-
-
-logging:
-  level:
-    org.springframework.security: DEBUG
-
-debug: true

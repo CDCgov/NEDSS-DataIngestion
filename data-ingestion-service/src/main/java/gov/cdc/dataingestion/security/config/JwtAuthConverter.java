@@ -26,6 +26,10 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
                 extractResourceRoles(jwt).stream()).collect(Collectors.toSet());
         return new JwtAuthenticationToken(jwt, authorities);
     }
+
+    /**
+     *This function verifies whether the role is present in the 'realm_access' claims available.
+     */
     private Collection<? extends GrantedAuthority> extractResourceRoles(Jwt jwt) {
         Map<String, Object> realmAccess = (Map<String, Object>) jwt.getClaims().get("realm_access");
 

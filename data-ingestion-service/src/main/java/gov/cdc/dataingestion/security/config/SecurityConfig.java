@@ -4,7 +4,6 @@ import gov.cdc.dataingestion.share.CustomAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -33,6 +32,11 @@ public class SecurityConfig {
     };
 
 
+    /**
+     * As we are not checking role validation, the default JWT converter is sufficient.
+     * However, the custom JWT converter is not required. Once role validation is included,
+     * the application would work without any security code changes.
+     */
     private final JwtAuthConverter jwtAuthConverter;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
