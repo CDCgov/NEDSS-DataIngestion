@@ -21,7 +21,7 @@ dependencies {
     implementation 'ca.uhn.hapi:hapi-base:2.3'
     implementation 'ca.uhn.hapi:hapi-structures-v251:2.3'
     implementation 'ca.uhn.hapi:hapi-structures-v231:2.3'
-    implementation 'io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19'
+    implementation 'io.github.linuxforhealth:hl7v2-fhir-converter:v1.1.0'
     implementation 'com.google.code.gson:gson:2.10.1'
     compileOnly 'org.projectlombok:lombok:1.18.26'
     annotationProcessor 'org.projectlombok:lombok:1.18.26'
