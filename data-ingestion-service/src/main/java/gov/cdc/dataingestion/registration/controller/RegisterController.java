@@ -2,16 +2,15 @@ package gov.cdc.dataingestion.registration.controller;
 
 import gov.cdc.dataingestion.registration.dto.RegistrationRequestDTO;
 import gov.cdc.dataingestion.registration.service.RegistrationService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Slf4j
 public class RegisterController {
+    private static Logger logger = LoggerFactory.getLogger(RegisterController.class);
     private final RegistrationService registrationService;
     private static final String USER_NAME_PWD_REQ_MSG ="Username and/or password are required.";
     private static final String USER_NAME_MIN_LENGTH ="The username must be atleast six characters in length.";
@@ -30,22 +29,22 @@ public class RegisterController {
         String password = request.getPassword();
 
         if(username.isEmpty() || password.isEmpty()) {
-            log.error(USER_NAME_PWD_REQ_MSG);
+            logger.error(USER_NAME_PWD_REQ_MSG);
             return USER_NAME_PWD_REQ_MSG;
         }
         if(username.trim().length()<6){
-            log.error(USER_NAME_MIN_LENGTH);
+            logger.error(USER_NAME_MIN_LENGTH);
             return USER_NAME_MIN_LENGTH;
         }
         if(password.trim().length()<8){
-            log.error(PWD_MIN_LENGTH);
+            logger.error(PWD_MIN_LENGTH);
             return PWD_MIN_LENGTH;
         }
         if(registrationService.createUser(username, password)) {
-            log.debug(USER_CREATED_MSG);
+            logger.debug(USER_CREATED_MSG);
             return USER_CREATED_MSG;
         }
-        log.error(USER_ALREADY_EXIST_MSG);
+        logger.error(USER_ALREADY_EXIST_MSG);
         return USER_ALREADY_EXIST_MSG;
     }
 }
