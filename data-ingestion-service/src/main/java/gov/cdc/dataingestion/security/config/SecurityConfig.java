@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.security.config;
 
 import gov.cdc.dataingestion.share.CustomAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,6 +15,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    @Value("${auth.introspect-uri}")
+    String introspectionUri;
+    @Value("${auth.client-id}")
+    String clientId;
+    @Value("${auth.client-secret}")
+    String clientSecret;
     private static final String[] AUTH_WHITELIST = {
             "/v2/api-docs",
             "/swagger-resources",
@@ -31,13 +38,6 @@ public class SecurityConfig {
             "/test/token"
     };
 
-
-    /**
-     * As we are not checking role validation, the default JWT converter is sufficient.
-     * However, the custom JWT converter is not required. Once role validation is included,
-     * the application would work without any security code changes.
-     */
-    private final JwtAuthConverter jwtAuthConverter;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -46,9 +46,11 @@ public class SecurityConfig {
                         .requestMatchers(AUTH_WHITELIST).permitAll()
                         .anyRequest().authenticated());
 
-        http.oauth2ResourceServer()
-                .jwt()
-                .jwtAuthenticationConverter(jwtAuthConverter);
+        http.oauth2ResourceServer(oauth2 -> oauth2
+                .opaqueToken(opaque -> opaque
+                        .introspectionUri(this.introspectionUri)
+                        .introspectionClientCredentials(this.clientId, this.clientSecret)
+                ));
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.oauth2ResourceServer().authenticationEntryPoint(new CustomAuthenticationEntryPoint()).and()
                 .exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint());

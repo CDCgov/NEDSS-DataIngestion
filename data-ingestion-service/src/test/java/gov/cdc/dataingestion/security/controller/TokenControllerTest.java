@@ -24,6 +24,8 @@ class TokenControllerTest {
         String authTokenUri = "http://localhost:8080/realms/test/openid-connect/token";
         TokenController tokenController = new TokenController(restTemplate, customMetricsBuilder);
         tokenController.authTokenUri = authTokenUri;
+        tokenController.clientId="test-keycloak-client";
+        tokenController.clientSecret="testclientsecret";
 
         String expectedTokenString = "{\"access_token\":\"testToken\"}";
 
@@ -33,7 +35,8 @@ class TokenControllerTest {
                 ArgumentMatchers.any(), ArgumentMatchers.<Class<List<String>>>any()))
                 .thenReturn(responseEntity);
 
-        String generatedToken = tokenController.token("test-keycloak-client", "testclientsecret");
+        //String generatedToken = tokenController.token("test-keycloak-client", "testclientsecret");
+        String generatedToken = tokenController.token();
 
         assertEquals(expectedToken, generatedToken);
         verify(customMetricsBuilder, times(1)).incrementTokensRequested();

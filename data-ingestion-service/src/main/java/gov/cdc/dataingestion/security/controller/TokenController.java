@@ -25,6 +25,10 @@ import org.springframework.web.client.RestTemplate;
 public class TokenController {
     @Value("${auth.token-uri}")
     String authTokenUri;
+    @Value("${auth.client-id}")
+    String clientId;
+    @Value("${auth.client-secret}")
+    String clientSecret;
     private final CustomMetricsBuilder customMetricsBuilder;
    private RestTemplate restTemplate;
     public TokenController( @Qualifier("restTemplate") RestTemplate restTemplate, CustomMetricsBuilder customMetricsBuilder) {
@@ -36,7 +40,7 @@ public class TokenController {
         return builder.build();
     }
     @PostMapping("/token")
-    public String token(@RequestParam(value = "client_id") String clientId, @RequestParam(value = "client_secret") String clientSecret) {
+    public String token() {
         System.out.println("****calling getToken ******");
         log.info("Token URL : " + authTokenUri);
         String post_body = "grant_type=client_credentials" +
