@@ -245,6 +245,8 @@ dependencies {
 
 	// Below is needed for runtime with jaxb generated code
 	runtimeOnly 'org.glassfish.jaxb:jaxb-runtime:4.0.2'
+	//It's needed for dynamic token resolver
+	runtimeOnly 'com.nimbusds:oauth2-oidc-sdk:11.8'
 
 	// Only need below two dependencies for java code generation from xsd file(s)
 	jaxb 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'

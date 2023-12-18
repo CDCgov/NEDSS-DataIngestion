@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.security.config;
 
 import gov.cdc.dataingestion.share.CustomAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,10 +18,6 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
     @Value("${auth.introspect-uri}")
     String introspectionUri;
-    @Value("${auth.client-id}")
-    String clientId;
-    @Value("${auth.client-secret}")
-    String clientSecret;
     private static final String[] AUTH_WHITELIST = {
             "/v2/api-docs",
             "/swagger-resources",
@@ -37,6 +34,8 @@ public class SecurityConfig {
             "/token",
             "/test/token"
     };
+    @Autowired
+    private CustomAuthenticationManagerResolver customauthenticationmanagerresolver;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -46,11 +45,8 @@ public class SecurityConfig {
                         .requestMatchers(AUTH_WHITELIST).permitAll()
                         .anyRequest().authenticated());
 
-        http.oauth2ResourceServer(oauth2 -> oauth2
-                .opaqueToken(opaque -> opaque
-                        .introspectionUri(this.introspectionUri)
-                        .introspectionClientCredentials(this.clientId, this.clientSecret)
-                ));
+        http.oauth2ResourceServer().authenticationManagerResolver(customauthenticationmanagerresolver);
+
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.oauth2ResourceServer().authenticationEntryPoint(new CustomAuthenticationEntryPoint()).and()
                 .exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint());

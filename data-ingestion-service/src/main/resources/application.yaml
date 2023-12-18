@@ -21,14 +21,12 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://127.0.0.1:8080/auth/realms/NBS
+          issuer-uri: ${AUTH_ISSUER_URI}
           jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
 
 auth:
   token-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/token
   introspect-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/token/introspect
-  client-id: di-keycloak-client
-  client-secret: XSKCrM13HMt1qh64OY7aiYOZTs9y0age
 
 logging:
   #  Only one config can be active at a time

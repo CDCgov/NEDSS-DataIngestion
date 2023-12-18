@@ -4,9 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
-import gov.cdc.dataingestion.security.service.TokenService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -16,7 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -25,10 +23,6 @@ import org.springframework.web.client.RestTemplate;
 public class TokenController {
     @Value("${auth.token-uri}")
     String authTokenUri;
-    @Value("${auth.client-id}")
-    String clientId;
-    @Value("${auth.client-secret}")
-    String clientSecret;
     private final CustomMetricsBuilder customMetricsBuilder;
    private RestTemplate restTemplate;
     public TokenController( @Qualifier("restTemplate") RestTemplate restTemplate, CustomMetricsBuilder customMetricsBuilder) {
@@ -40,8 +34,7 @@ public class TokenController {
         return builder.build();
     }
     @PostMapping("/token")
-    public String token() {
-        System.out.println("****calling getToken ******");
+    public String token(@RequestHeader("client_id") String clientId, @RequestHeader("client_secret") String clientSecret) {
         log.info("Token URL : " + authTokenUri);
         String post_body = "grant_type=client_credentials" +
                 "&client_id=" + clientId
@@ -56,21 +49,17 @@ public class TokenController {
                         HttpMethod.POST,
                         request,
                         String.class);
-        //System.out.println("******status code:"+exchange.getStatusCode());
+        log.info("Token response status code: " + exchange.getStatusCode());
         String response = exchange.getBody();
-        System.out.println("Token Response  : " + response);
-        log.info("Token Response  : " + response);
         String accessToken = null;
         try {
             JsonElement jsonElement = JsonParser.parseString(response);
             JsonObject jsonObject = jsonElement.getAsJsonObject();
             accessToken = jsonObject.get("access_token").getAsString();
             customMetricsBuilder.incrementTokensRequested();
-            System.out.println("access_token:" + jsonObject.get("access_token"));
         } catch (Exception e) {
             e.printStackTrace();
         }
-        log.info("Access Token : " + accessToken);
         return accessToken;
     }
 }
