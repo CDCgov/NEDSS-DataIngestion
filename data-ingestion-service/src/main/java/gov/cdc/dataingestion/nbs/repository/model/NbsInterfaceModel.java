@@ -70,7 +70,7 @@ public class NbsInterfaceModel {
 
     @Override
     public String toString() {
-        String sb = this.getNbsInterfaceUid() +
+        return this.getNbsInterfaceUid() +
                 TOSTRING_COLUMN_SPACER +
                 this.getImpExpIndCd() +
                 TOSTRING_COLUMN_SPACER +
@@ -83,7 +83,5 @@ public class NbsInterfaceModel {
                 this.getRecordStatusTime().toString() +
                 TOSTRING_COLUMN_SPACER +
                 this.getAddTime().toString();
-    	
-        return sb;
     }
 }

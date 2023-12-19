@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.reportstatus.controller;
 
+import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
 import gov.cdc.dataingestion.reportstatus.service.ReportStatusService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 class ReportStatusControllerTest {
@@ -24,6 +26,21 @@ class ReportStatusControllerTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         reportStatusController = new ReportStatusController(reportStatusServiceMock);
+    }
+
+    @Test
+    void testGetMessageDetailStatus() {
+        String rawId = "test";
+        MessageStatus status = new MessageStatus();
+        status.getRawInfo().setRawMessageId(rawId);
+        when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(
+                status
+        );
+
+        ResponseEntity<MessageStatus> jsonResponse = reportStatusController.getMessageStatus(rawId);
+        verify(reportStatusServiceMock, times(1)).getMessageStatus(rawId);
+
+        assertEquals(rawId, jsonResponse.getBody().getRawInfo().getRawMessageId());
     }
 
     @Test
@@ -45,6 +62,7 @@ class ReportStatusControllerTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5976")
     void testGetReportStatusNullIdProvided() throws IOException {
         String id = null;
 
@@ -59,6 +77,7 @@ class ReportStatusControllerTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5976")
     void testGetReportStatusBlankIdProvided() throws IOException {
         String id = " ";
 
@@ -73,6 +92,7 @@ class ReportStatusControllerTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5976")
     void testGetReportStatusInvalidIdProvided() throws IOException {
         String id = "test_some_invalid_uuid";
 

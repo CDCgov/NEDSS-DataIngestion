@@ -9,5 +9,6 @@ import java.util.Optional;
 @Repository
 public interface IValidatedELRRepository extends JpaRepository<ValidatedELRModel, String> {
     Optional<ValidatedELRModel> findByHashedHL7String(String hashedString);
+    Optional<ValidatedELRModel> findByRawId(String rawId);
 
 }

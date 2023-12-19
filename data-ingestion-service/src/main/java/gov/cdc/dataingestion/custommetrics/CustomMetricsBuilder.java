@@ -6,72 +6,72 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CustomMetricsBuilder {
-    Counter custom_messages_processed;
-    Counter custom_messages_validated;
-    Counter custom_messages_validated_success;
-    Counter custom_messages_validated_failure;
-    Counter custom_duplicate_hl7_found;
-    Counter custom_xml_conversion_requested;
-    Counter custom_xml_converted_success;
-    Counter custom_xml_converted_failure;
-    Counter custom_tokens_requested;
+    Counter customMessagesProcessed;
+    Counter customMessagesValidated;
+    Counter customMessagesValidatedSuccess;
+    Counter customMessagesValidatedFailure;
+    Counter customDuplicateHl7Found;
+    Counter customXmlConversionRequested;
+    Counter customXmlConvertedSuccess;
+    Counter customXmlConvertedFailure;
+    Counter customTokensRequested;
 
 
     public CustomMetricsBuilder(MeterRegistry meterRegistry) {
-        this.custom_messages_processed = Counter
+        this.customMessagesProcessed = Counter
                 .builder("custom_messages_processed")
                 .register(meterRegistry);
-        this.custom_messages_validated = Counter
+        this.customMessagesValidated = Counter
                 .builder("custom_messages_validated")
                 .register(meterRegistry);
-        this.custom_messages_validated_success = Counter
+        this.customMessagesValidatedSuccess = Counter
                 .builder("custom_messages_validated_success")
                 .register(meterRegistry);
-        this.custom_messages_validated_failure = Counter
+        this.customMessagesValidatedFailure = Counter
                 .builder("custom_messages_validated_failure")
                 .register(meterRegistry);
-        this.custom_duplicate_hl7_found = Counter
+        this.customDuplicateHl7Found = Counter
                 .builder("custom_duplicate_hl7_found")
                 .register(meterRegistry);
-        this.custom_xml_conversion_requested = Counter
+        this.customXmlConversionRequested = Counter
                 .builder("custom_xml_conversion_requested")
                 .register(meterRegistry);
-        this.custom_xml_converted_success = Counter
+        this.customXmlConvertedSuccess = Counter
                 .builder("custom_xml_converted_success")
                 .register(meterRegistry);
-        this.custom_xml_converted_failure = Counter
+        this.customXmlConvertedFailure = Counter
                 .builder("custom_xml_converted_failure")
                 .register(meterRegistry);
-        this.custom_tokens_requested = Counter
+        this.customTokensRequested = Counter
                 .builder("custom_tokens_requested")
                 .register(meterRegistry);
     }
 
     public void incrementMessagesProcessed() {
-        custom_messages_processed.increment();
+        customMessagesProcessed.increment();
     }
     public void incrementMessagesValidated() {
-        custom_messages_validated.increment();
+        customMessagesValidated.increment();
     }
     public void incrementMessagesValidatedSuccess() {
-        custom_messages_validated_success.increment();
+        customMessagesValidatedSuccess.increment();
     }
     public void incrementMessagesValidatedFailure() {
-        custom_messages_validated_failure.increment();
+        customMessagesValidatedFailure.increment();
     }
     public void incrementDuplicateHL7Messages() {
-        custom_duplicate_hl7_found.increment();
+        customDuplicateHl7Found.increment();
     }
     public void incrementXmlConversionRequested() {
-        custom_xml_conversion_requested.increment();
+        customXmlConversionRequested.increment();
     }
     public void incrementXmlConversionRequestedSuccess() {
-        custom_xml_converted_success.increment();
+        customXmlConvertedSuccess.increment();
     }
     public void incrementXmlConversionRequestedFailure() {
-        custom_xml_converted_failure.increment();
+        customXmlConvertedFailure.increment();
     }
     public void incrementTokensRequested() {
-        custom_tokens_requested.increment();
+        customTokensRequested.increment();
     }
 }

@@ -1,6 +1,8 @@
 package gov.cdc.dataingestion.validation.integration.validator;
 import com.google.gson.Gson;
 import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
+import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.ICsvValidator;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import gov.cdc.dataingestion.constant.enums.EnumMessageType;
@@ -15,7 +17,7 @@ public class CsvValidator implements ICsvValidator {
         gson = new Gson();
     }
 
-    public ValidatedELRModel validateCSVAgainstCVSSchema(String message) throws Exception {
+    public ValidatedELRModel validateCSVAgainstCVSSchema(String message) throws IOException, CsvValidationException, DiHL7Exception {
         String[] header;
         try (CSVReader reader = new CSVReader(new FileReader(schemaPath))) {
             header = reader.readNext();
@@ -26,7 +28,7 @@ public class CsvValidator implements ICsvValidator {
         for(var item : kafkaMsg ){
             if(item.size() != headerLength) {
                 // do specific expcetion maybe CSV
-                throw new Exception("Invalid record, one or more record does not match with schema definition");
+                throw new DiHL7Exception("Invalid record, one or more record does not match with schema definition");
             }
         }
 

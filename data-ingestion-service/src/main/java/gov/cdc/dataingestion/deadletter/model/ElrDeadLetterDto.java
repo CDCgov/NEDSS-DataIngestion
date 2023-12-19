@@ -37,7 +37,7 @@ public class ElrDeadLetterDto {
 
     private String updatedBy;
 
-    public ElrDeadLetterDto() {};
+    public ElrDeadLetterDto() {}
 
     // Constructor for DLT in Kafka Consumer Service
     public ElrDeadLetterDto(String errorMessageId, String errorMessageSource,

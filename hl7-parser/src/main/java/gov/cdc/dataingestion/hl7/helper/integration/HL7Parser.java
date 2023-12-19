@@ -10,14 +10,13 @@ import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.builder.ValidationRuleBuilder;
 import ca.uhn.hl7v2.validation.builder.support.DefaultValidationBuilder;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
-import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
 import gov.cdc.dataingestion.hl7.helper.helper.hapi.MandatoryFields;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.*;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.*;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 
 import static gov.cdc.dataingestion.hl7.helper.constant.hl7.EventTrigger.ORU_01;
 import static gov.cdc.dataingestion.hl7.helper.constant.hl7.MessageType.ORU;
@@ -51,51 +50,18 @@ public class HL7Parser implements IHL7Parser {
     }
 
     public String hl7ORUValidation(String message) throws DiHL7Exception {
-        /**
-         * Default validation include
-         * - number of sensible
-         * - max length on string type
-         * - format for telephone and timestamp, etc
-         * */
-        defaultOruR01Validator(message);
 
         /**
-         * This goes in-dept into message structure and validate based on the custom definition
+         Rule can be expanded if guideline is specified in the future - for now this is just the template
+         - Only enforcing Phone Number Rule
          * */
-        customOruR01Validator(message);
+        oruR01Validator(message);
 
         return message;
     }
 
-    private void defaultOruR01Validator(String message) throws DiHL7Exception {
-        this.context.setValidationContext(ValidationContextFactory.defaultValidation());
-        PipeParser parser = context.getPipeParser();
-        try {
-            parser.parse(message);
-        } catch (HL7Exception e){
-            throw new DiHL7Exception(EX_MESSAGE + e.getMessage());
-        }
 
-        // Ignore sonar queue complain as this is coming from Library
-        ValidationRuleBuilder builder = new DefaultValidationBuilder() { // NOSONAR
-            @Override
-            protected  void configure() {
-                super.configure();
-                forAllVersions().message(ORU, ORU_01).onlyKnownSegments();
-
-            }
-        };
-        this.context.setValidationRuleBuilder(builder);
-        parser = context.getPipeParser();
-
-        try {
-            parser.parse(message);
-        } catch (HL7Exception e){
-            throw new DiHL7Exception(EX_MESSAGE + e.getMessage());
-        }
-    }
-
-    private void customOruR01Validator(String message) throws DiHL7Exception {
+    private void oruR01Validator(String message) throws DiHL7Exception {
         MandatoryFields mandatoryFields = new MandatoryFields(ORU + "_" + ORU_01);
 
         // Ignore sonar queue complain as this is coming from Library
@@ -103,8 +69,10 @@ public class HL7Parser implements IHL7Parser {
             @Override
             protected  void configure() {
                 super.configure();
-                forAllVersions().message(ORU, ORU_01)
-                        .inspect(mandatoryFields);
+                forAllVersions()
+                        .message(ORU, ORU_01)
+                        .inspect(mandatoryFields)
+                        .primitive("TN").is(emptyOr(usPhoneNumber()));
 
             }
         };
@@ -241,7 +209,7 @@ public class HL7Parser implements IHL7Parser {
                                 oru.getPatientResult().get(a).getOrderObservation().get(c).getObservationRequest(),
                                 new Specimen());
                         oru.getPatientResult().get(a).getOrderObservation().get(c).getSpecimen().add(
-                                new gov.cdc.dataingestion.hl7.helper.model.hl7.messageGroup.Specimen(spc)
+                                new gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.Specimen(spc)
                         );
                         //endregion
                     }
@@ -280,13 +248,13 @@ public class HL7Parser implements IHL7Parser {
         try {
             var contextLocal = hl7InitContext(this.context, SUPPORTED_HL7_VERSION_231);
             PipeParser parser = contextLocal.getPipeParser();
-            ca.uhn.hl7v2.model.v231.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v231.message.ORU_R01) parser.parse(message);
-            return msg;
+            return (ca.uhn.hl7v2.model.v231.message.ORU_R01) parser.parse(message);
         }catch (Exception e) {
             throw new DiHL7Exception(e.getMessage());
         }
     }
 
+    @SuppressWarnings("java:S1301")
     public HL7ParsedMessage hl7StringParser(String message) throws DiHL7Exception{
         try {
             HL7ParsedMessage<OruR1> parsedMessage = new HL7ParsedMessage<>();
@@ -358,8 +326,7 @@ public class HL7Parser implements IHL7Parser {
         context.setModelClassFactory(new DefaultModelClassFactory());
         context.setValidationContext(new NoValidation());
         PipeParser parser = context.getPipeParser();
-        Message parsedMessage = parser.parse(message);
-        return parsedMessage;
+        return parser.parse(message);
     }
 
     // Context for parser with model factory

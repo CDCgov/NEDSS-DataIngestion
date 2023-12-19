@@ -1,20 +1,20 @@
 package gov.cdc.dataingestion.nbs.services;
 
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 import gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+
+import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
 
 @Service
 @AllArgsConstructor
@@ -28,13 +28,12 @@ public class NbsRepositoryServiceProvider {
 
 	private static final String ECR_DOC_TYPE = "PHC236";
 
-    @Autowired
     private NbsInterfaceRepository nbsInterfaceRepo;
 
 	public void saveEcrCdaXmlMessage (String nbsInterfaceUid,
 									  Integer dataMigrationStatus, String xmlMsg) {
 		Optional<NbsInterfaceModel>  response = nbsInterfaceRepo.getNbsInterfaceByIdAndDocType(Integer.valueOf(nbsInterfaceUid), ECR_DOC_TYPE);
-		var time = Timestamp.from(Instant.now());
+		var time = getCurrentTimeStamp();
 		NbsInterfaceModel model = new NbsInterfaceModel();
 		if (response.isPresent()) {
 			model = response.get();
@@ -74,7 +73,7 @@ public class NbsRepositoryServiceProvider {
 		item.setImpExpIndCd(IMPEXP_CD);
 		item.setRecordStatusCd(STATUS_UNPROCESSED);
 
-		var time = Timestamp.from(Instant.now());
+		var time = getCurrentTimeStamp();
 		item.setRecordStatusTime(time);
 		item.setAddTime(time);
 
@@ -139,17 +138,28 @@ public class NbsRepositoryServiceProvider {
 				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime() != null)
 				? oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime().getTime() : null;
 
+		savingNbsInterfaceModelTimeStampHelper( specimenColDateStr,
+				 nbsInterface);
+
+		nbsInterface.setLabClia(labClia);
+		nbsInterface.setFillerOrderNbr(filterOrderNumber);
+		nbsInterface.setOrderTestCode(orderTestCode);
+		return nbsInterface;
+	}
+
+	private NbsInterfaceModel savingNbsInterfaceModelTimeStampHelper(String specimenColDateStr,
+														NbsInterfaceModel nbsInterface) {
 		if (specimenColDateStr != null) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+			String pattern = "yyyyMMddHHmm";
+			if (specimenColDateStr.contains("-")) {
+				pattern = "yyyyMMddHHmmssX";
+			}
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
 			LocalDateTime localDateTime = LocalDateTime.parse(specimenColDateStr, formatter);
 			nbsInterface.setSpecimenCollDate(Timestamp.valueOf(localDateTime));
 		} else {
 			nbsInterface.setSpecimenCollDate(null);
 		}
-
-		nbsInterface.setLabClia(labClia);
-		nbsInterface.setFillerOrderNbr(filterOrderNumber);
-		nbsInterface.setOrderTestCode(orderTestCode);
 		return nbsInterface;
 	}
 }

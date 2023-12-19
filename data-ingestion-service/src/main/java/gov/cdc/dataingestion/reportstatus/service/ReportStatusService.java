@@ -1,11 +1,18 @@
 package gov.cdc.dataingestion.reportstatus.service;
 
+import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
+import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
+import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
+import gov.cdc.dataingestion.report.repository.IRawELRRepository;
+import gov.cdc.dataingestion.report.repository.model.RawERLModel;
+import gov.cdc.dataingestion.reportstatus.model.DltMessageStatus;
+import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
+import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,9 +22,129 @@ public class ReportStatusService {
     private final IReportStatusRepository iReportStatusRepository;
     private final NbsInterfaceRepository nbsInterfaceRepository;
 
-    public ReportStatusService(IReportStatusRepository iReportStatusRepository, NbsInterfaceRepository nbsInterfaceRepository) {
+    private final IRawELRRepository iRawELRRepository;
+    private final IValidatedELRRepository iValidatedELRRepository;
+    private final IElrDeadLetterRepository iElrDeadLetterRepository;
+    private static final String MSG_STATUS_SUCCESS = "COMPLETED";
+    private static final String MSG_STATUS_FAILED = "FAILED";
+    private static final String MSG_STATUS_PROGRESS = "IN PROGRESS";
+    private static final String DLT_ORIGIN_RAW = "RAW";
+    private static final String DLT_ORIGIN_VALIDATED = "VALIDATED";
+
+    public ReportStatusService(IReportStatusRepository iReportStatusRepository,
+                               NbsInterfaceRepository nbsInterfaceRepository,
+                               IRawELRRepository iRawELRRepository,
+                               IValidatedELRRepository iValidatedELRRepository,
+                               IElrDeadLetterRepository iElrDeadLetterRepository) {
         this.iReportStatusRepository = iReportStatusRepository;
         this.nbsInterfaceRepository = nbsInterfaceRepository;
+        this.iRawELRRepository = iRawELRRepository;
+        this.iValidatedELRRepository = iValidatedELRRepository;
+        this.iElrDeadLetterRepository = iElrDeadLetterRepository;
+    }
+
+    public MessageStatus getMessageStatus(String rawMessageID) {
+        MessageStatus msgStatus = new MessageStatus();
+        Optional<RawERLModel> rawMessageData = iRawELRRepository.findById(rawMessageID);
+        if (!rawMessageData.isEmpty()) {
+            msgStatus.getRawInfo().setRawMessageId(rawMessageData.get().getId());
+            msgStatus.getRawInfo().setRawPayload(rawMessageData.get().getPayload());
+            msgStatus.getRawInfo().setRawCreatedBy(rawMessageData.get().getCreatedBy());
+            msgStatus.getRawInfo().setRawCreatedOn(rawMessageData.get().getCreatedOn());
+            msgStatus.getRawInfo().setRawPipeLineStatus(MSG_STATUS_SUCCESS);
+
+            Optional<ValidatedELRModel> validatedMessageData = iValidatedELRRepository.findByRawId(msgStatus.getRawInfo().getRawMessageId());
+            if (!validatedMessageData.isEmpty()) {
+                msgStatus.getValidatedInfo().setValidatedMessageId(validatedMessageData.get().getId());
+                msgStatus.getValidatedInfo().setValidatedMessage(validatedMessageData.get().getRawMessage());
+                msgStatus.getValidatedInfo().setValidatedCreatedOn(validatedMessageData.get().getCreatedOn());
+                msgStatus.getValidatedInfo().setValidatedPipeLineStatus(MSG_STATUS_SUCCESS);
+
+                // XML
+                setDiXmlTransformationInfo(msgStatus);
+            }
+            else {
+                setDltInfo(rawMessageID, msgStatus, DLT_ORIGIN_RAW);
+            }
+        }
+        return msgStatus;
+    }
+
+    private MessageStatus setDiXmlTransformationInfo(MessageStatus msgStatus) {
+        Optional<ReportStatusIdData > reportStatusIdData = iReportStatusRepository.findByRawMessageId(msgStatus.getRawInfo().getRawMessageId());
+        if (!reportStatusIdData.isEmpty()) {
+            msgStatus.getNbsInfo().setNbsInterfaceId(reportStatusIdData.get().getNbsInterfaceUid());
+            msgStatus.getNbsInfo().setNbsCreatedOn(reportStatusIdData.get().getCreatedOn());
+            msgStatus.getNbsInfo().setNbsInterfacePipeLineStatus(MSG_STATUS_SUCCESS);
+            setNbsInfo(msgStatus);
+        } else {
+            setDltInfo(msgStatus.getValidatedInfo().getValidatedMessageId(), msgStatus, DLT_ORIGIN_VALIDATED);
+        }
+        return msgStatus;
+    }
+
+    private MessageStatus setNbsInfo(MessageStatus msgStatus) {
+        Optional<NbsInterfaceModel> nbsInterfaceModel = nbsInterfaceRepository.findByNbsInterfaceUid(msgStatus.getNbsInfo().getNbsInterfaceId());
+        if (!nbsInterfaceModel.isEmpty()) {
+            msgStatus.getNbsInfo().setNbsInterfaceStatus(nbsInterfaceModel.get().getRecordStatusCd());
+            msgStatus.getNbsInfo().setNbsInterfacePayload(nbsInterfaceModel.get().getPayload());
+        } else {
+            msgStatus.getNbsInfo().setNbsInterfacePipeLineStatus(MSG_STATUS_PROGRESS);
+        }
+        return msgStatus;
+    }
+
+    private MessageStatus setDltInfo(String id, MessageStatus msgStatus, String origin) {
+        var dlt = iElrDeadLetterRepository.findById(id);
+        if (!dlt.isEmpty() ) {
+            switch (origin) {
+                case DLT_ORIGIN_RAW:
+                    msgStatus.getRawInfo().setDltInfo(new DltMessageStatus());
+                    msgStatus.getRawInfo().getDltInfo().setDltId(id);
+                    msgStatus.getRawInfo().getDltInfo().setDltStatus(dlt.get().getDltStatus());
+                    msgStatus.getRawInfo().getDltInfo().setDltCreatedOn(dlt.get().getCreatedOn());
+                    msgStatus.getRawInfo().getDltInfo().setDltOrigin(dlt.get().getErrorMessageSource());
+                    msgStatus.getRawInfo().getDltInfo().setDltShortTrace(dlt.get().getErrorStackTraceShort());
+
+                    if (dlt.get().getDltStatus().equals("ERROR")) {
+                        msgStatus.getValidatedInfo().setValidatedPipeLineStatus(MSG_STATUS_FAILED);
+                    }
+                    break;
+                case DLT_ORIGIN_VALIDATED:
+                    msgStatus.getValidatedInfo().setDltInfo(new DltMessageStatus());
+                    msgStatus.getValidatedInfo().getDltInfo().setDltId(id);
+                    msgStatus.getValidatedInfo().getDltInfo().setDltStatus(dlt.get().getDltStatus());
+                    msgStatus.getValidatedInfo().getDltInfo().setDltCreatedOn(dlt.get().getCreatedOn());
+                    msgStatus.getValidatedInfo().getDltInfo().setDltOrigin(dlt.get().getErrorMessageSource());
+                    msgStatus.getValidatedInfo().getDltInfo().setDltShortTrace(dlt.get().getErrorStackTraceShort());
+
+                    if (dlt.get().getDltStatus().equals("ERROR")) {
+                        msgStatus.getNbsInfo().setNbsInterfacePipeLineStatus(MSG_STATUS_FAILED);
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+        } else {
+            setPipeLineStatus(msgStatus, origin);
+        }
+
+        return msgStatus;
+    }
+
+    private MessageStatus setPipeLineStatus(MessageStatus msgStatus, String origin) {
+        switch (origin) {
+            case DLT_ORIGIN_RAW:
+                msgStatus.getValidatedInfo().setValidatedPipeLineStatus(MSG_STATUS_PROGRESS);
+                break;
+            case DLT_ORIGIN_VALIDATED:
+                msgStatus.getNbsInfo().setNbsInterfacePipeLineStatus(MSG_STATUS_PROGRESS);
+                break;
+            default:
+                break;
+        }
+        return msgStatus;
     }
 
     public String getStatusForReport(String id) {

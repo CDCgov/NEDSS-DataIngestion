@@ -2,14 +2,16 @@ package gov.cdc.dataingestion.reportstatus.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
 import gov.cdc.dataingestion.reportstatus.service.ReportStatusService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
@@ -26,7 +28,6 @@ public class ReportStatusController {
     }
 
     @GetMapping("/report-status/{id}")
-    @ResponseBody
     public ResponseEntity<String> getReportStatus(@PathVariable String id) throws JsonProcessingException {
         logger.debug("Status requested for record with id: '{}'", id);
 
@@ -47,6 +48,16 @@ public class ReportStatusController {
         }
         ObjectMapper mapper = new ObjectMapper();
         return ResponseEntity.ok(mapper.writeValueAsString(returnJson));
+    }
+
+    @Operation(
+            summary = "Get all status related to raw id",
+            description = "return all info such as the pipeline which the message is currently at, dlt info, etc.."
+            )
+    @GetMapping(path = "/get-message-info")
+    public ResponseEntity<MessageStatus> getMessageStatus(@RequestParam("raw-id") String rawMessageId)  {
+        var info = reportStatusService.getMessageStatus(rawMessageId);
+        return ResponseEntity.ok(info);
     }
 
     private boolean isValidUUID(String id) {

@@ -3,8 +3,10 @@ package gov.cdc.dataingestion.hl7.helper.unitTest;
 import com.google.gson.Gson;
 import gov.cdc.dataingestion.hl7.helper.HL7Helper;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageDataType.Ce;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.messageType.OruR1;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.NextOfKin;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.*;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -126,92 +128,132 @@ class HL7HelperTest {
         Assertions.assertEquals("20230615",observationRequest.getResultHandling());
         //endregion
 
-        //region finance
-        var finance = oru.getPatientResult().get(0).getOrderObservation().get(0).getFinancialTransaction().get(0);
-        var financeCne = finance.getNdcCode();
-        var financeCp = finance.getTransactionAmountExt();
-        var financeCx = finance.getPaymentReferenceId();
-        var financeCwe = finance.getMedicallyNecessaryDuplicateProcedureReason();
-        var financePl = finance.getAssignedPatientLocation();
-        var financeXcn = finance.getPerformedByCode().get(0);
-        var financeEi = finance.getFillerOrderNumber();
-        Assertions.assertEquals("20230615",financeEi.getEntityIdentifier());
-        Assertions.assertNull(financeEi.getNameSpaceId());
-        Assertions.assertNull(financeEi.getUniversalId());
-        Assertions.assertNull(financeEi.getUniversalIdType());
-        Assertions.assertEquals("20230615",financeXcn.getIdNumber());
-        Assertions.assertNull(financeXcn.getGivenName());
-        Assertions.assertNull(financeXcn.getSecondAndFurtherGivenNameOrInitial());
-        Assertions.assertNull(financeXcn.getSuffix());
-        Assertions.assertNull(financeXcn.getPrefix());
-        Assertions.assertNull(financeXcn.getDegree());
-        Assertions.assertNull(financeXcn.getSourceTable());
-        Assertions.assertNull(financeXcn.getNameTypeCode());
-        Assertions.assertNull(financeXcn.getIdentifierCheckDigit());
-        Assertions.assertNull(financeXcn.getCheckDigitScheme());
-        Assertions.assertNull(financeXcn.getIdentifierTypeCode());
-        Assertions.assertNull(financeXcn.getNameRepresentationCode());
-        Assertions.assertNull(financeXcn.getNameAssemblyOrder());
-        Assertions.assertNull(financeXcn.getProfessionalSuffix());
-        Assertions.assertEquals("20230615",financePl.getPointOfCare());
-        Assertions.assertNull(financePl.getRoom());
-        Assertions.assertNull(financePl.getBed());
-        Assertions.assertNull(financePl.getPersonLocationType());
-        Assertions.assertNull(financePl.getBuilding());
-        Assertions.assertNull(financePl.getFloor());
-        Assertions.assertNull(financePl.getLocationDescription());
-        Assertions.assertEquals("20230615",financeCwe.getIdentifier());
-        Assertions.assertNull(financeCwe.getText());
-        Assertions.assertNull(financeCwe.getNameOfAlterCodeSystem());
-        Assertions.assertNull(financeCwe.getNameOfCodingSystem());
-        Assertions.assertNull(financeCwe.getAlternateIdentifier());
-        Assertions.assertNull(financeCwe.getAlternateText());
-        Assertions.assertNull(financeCwe.getCodeSystemVerId());
-        Assertions.assertNull(financeCwe.getAlterCodeSystemVerId());
-        Assertions.assertNull(financeCwe.getOriginalText());
-        Assertions.assertEquals("20230615",financeCx.getIdNumber());
-        Assertions.assertNull(financeCx.getCheckDigit());
-        Assertions.assertNull(financeCx.getCheckDigitScheme());
-        Assertions.assertNull(financeCx.getIdentifierTypeCode());
-        Assertions.assertNull(financeCx.getEffectiveDate());
-        Assertions.assertNull(financeCx.getExpirationDate());
-        Assertions.assertNull(financeCp.getPriceType());
-        Assertions.assertNull(financeCp.getFromValue());
-        Assertions.assertNull(financeCp.getToValue());
-        Assertions.assertNull(financeCp.getRangeType());
-        Assertions.assertEquals("20230615",financeCne.getIdentifier());
-        Assertions.assertNull(financeCne.getText());
-        Assertions.assertNull(financeCne.getNameOfCodingSystem());
-        Assertions.assertNull(financeCne.getAlternateIdentifier());
-        Assertions.assertNull(financeCne.getAlternateText());
-        Assertions.assertNull(financeCne.getNameOfAlternateCodingSystem());
-        Assertions.assertNull(financeCne.getCodingSystemVersionId());
-        Assertions.assertNull(financeCne.getAlternateCodingSystemVersionId());
-        Assertions.assertNull(financeCne.getOriginalText());
-        Assertions.assertEquals("1",finance.getSetIdFT1());
-        Assertions.assertEquals("20230615",finance.getTransactionId());
-        Assertions.assertEquals("20230615",finance.getTransactionBatchId());
-        Assertions.assertEquals("20230615",finance.getTransactionType());
-        Assertions.assertEquals("20230615",finance.getTransactionDescription());
-        Assertions.assertEquals("20230615",finance.getTransactionDescriptionAlter());
-        Assertions.assertEquals("20230615",finance.getTransactionQuantity());
-        Assertions.assertEquals("20230615",finance.getFeeSchedule());
-        Assertions.assertEquals("20230615",finance.getPatientType());
+
+
+        hl7StringParserWith251_ReturnValidMessage_RandomV2Helper7(oru);
+        hl7StringParserWith251_ReturnValidMessage_RandomV2Helper6(oru);
+        hl7StringParserWith251_ReturnValidMessage_RandomV2Helper5(oru);
+        hl7StringParserWith251_ReturnValidMessage_RandomV2Helper4(oru);
+        hl7StringParserWith251_ReturnValidMessage_RandomV2Helper3(oru);
+        hl7StringParserWith251_ReturnValidMessage_RandomV2Helper2(oru);
+        hl7StringParserWith251_ReturnValidMessage_RandomV2Helper1(oru);
+    }
+
+    private void hl7StringParserWith251_ReturnValidMessage_RandomV2Helper1(OruR1 oru) {
+
+        //region HEADER
+        Assertions.assertEquals("|",oru.getMessageHeader().getFieldSeparator());
+        Assertions.assertEquals("^~\\&",oru.getMessageHeader().getEncodingCharacters());
+        Assertions.assertEquals("20230615",oru.getMessageHeader().getSecurity());
+        Assertions.assertEquals("123456789",oru.getMessageHeader().getMessageControlId());
+
+        Assertions.assertEquals("20230615",oru.getMessageHeader().getSequenceNumber());
+        Assertions.assertEquals("20230615",oru.getMessageHeader().getContinuationPointer());
+        Assertions.assertEquals("20230615",oru.getMessageHeader().getAcceptAckType());
+        Assertions.assertEquals("20230615",oru.getMessageHeader().getApplicationAckType());
+        Assertions.assertEquals("20230615",oru.getMessageHeader().getCountryCode());
+        Assertions.assertEquals("20230615",oru.getMessageHeader().getAlternateCharacterSetHandlingScheme());
         //endregion
 
-        //region Time Qty
-        var timeQty = oru.getPatientResult().get(0).getOrderObservation().get(0).getTimingQty().get(0).getTimeQuantity();
-        var timeQtyRelation = oru.getPatientResult().get(0).getOrderObservation().get(0).getTimingQty().get(0).getTimeQuantityRelationship();
-        Assertions.assertEquals("1",timeQty.getSetIdTq1());
-        Assertions.assertEquals("20230615",timeQty.getConditionText());
-        Assertions.assertEquals("20230615",timeQty.getTextInstruction());
-        Assertions.assertEquals("20230615",timeQty.getConjunction());
-        Assertions.assertEquals("20230615",timeQty.getTotalOccurrences());
-        Assertions.assertEquals("1",timeQtyRelation.get(0).getSetIdTq2());
-        Assertions.assertEquals("20230615",timeQtyRelation.get(0).getSequenceResultFlag());
-        Assertions.assertEquals("20230615",timeQtyRelation.get(0).getSequenceConditionCode());
-        Assertions.assertEquals("20230615",timeQtyRelation.get(0).getCyclicGroupMaximumNumberOfRepeats());
-        Assertions.assertEquals("20230615",timeQtyRelation.get(0).getSpecialServiceRequestRelationship());
+        Assertions.assertEquals("20230615",oru.getSoftwareSegment().get(0).getSoftwareCertifiedVersionOrReleaseNumber());
+        Assertions.assertEquals("20230615",oru.getSoftwareSegment().get(0).getSoftwareProductName());
+        Assertions.assertEquals("20230615",oru.getSoftwareSegment().get(0).getSoftwareBinaryId());
+        Assertions.assertEquals("20230615",oru.getSoftwareSegment().get(0).getSoftwareProductInformation());
+
+        Assertions.assertEquals("1",oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).getSetIdNte());
+        Assertions.assertEquals("20230615",oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).getSourceOfComment());
+
+        // Code coverage for setter
+        oru.getContinuationPointer().setContinuationPointer("AA");
+        oru.getContinuationPointer().setContinuationStyle("AA");
+        Assertions.assertEquals("AA",oru.getContinuationPointer().getContinuationPointer());
+        Assertions.assertEquals("AA",oru.getContinuationPointer().getContinuationStyle());
+
+        oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).setSetIdNte("3");
+        oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).setSourceOfComment("AA");
+        oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).setComment(new ArrayList<>());
+        oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).setCommentType(new Ce());
+        Assertions.assertEquals("3",oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).getSetIdNte());
+        Assertions.assertEquals("AA",oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).getSourceOfComment());
+    }
+    private void hl7StringParserWith251_ReturnValidMessage_RandomV2Helper2(OruR1 oru) {
+        //region NEXT OF KIN
+        var nextKin = oru.getPatientResult().get(0).getPatient().getNextOfKin().get(0);
+        Assertions.assertEquals("1", nextKin.getSetIdNK1());
+        var familyName = nextKin.getNkName().get(0).getFamilyName();
+        Assertions.assertEquals("TESTNOK114B",familyName.getSurname());
+        Assertions.assertNull(familyName.getOwnSurnamePrefix());
+        Assertions.assertNull(familyName.getOwnSurname());
+        Assertions.assertNull(familyName.getSurnameFromPartner());
+        Assertions.assertNull(familyName.getSurnamePrefixFromPartner());
+        Assertions.assertEquals("FIRSTNOK1", nextKin.getNkName().get(0).getGivenName());
+        Assertions.assertEquals("X", nextKin.getNkName().get(0).getSecondAndFurtherGivenNameOrInitial());
+        Assertions.assertEquals("JR", nextKin.getNkName().get(0).getSuffix());
+        Assertions.assertEquals("DR", nextKin.getNkName().get(0).getPrefix());
+        Assertions.assertEquals("MD", nextKin.getNkName().get(0).getDegree());
+        Assertions.assertNull( nextKin.getNkName().get(0).getNameTypeCode());
+        Assertions.assertNull( nextKin.getNkName().get(0).getNameRepresentationCode());
+        hl7StringParserWith251_ReturnValidMessage_RandomV2Helper2_1(nextKin);
+        //endregion
+
+        Assertions.assertEquals("20230615",oru.getContinuationPointer().getContinuationPointer());
+        Assertions.assertEquals("20230615",oru.getContinuationPointer().getContinuationStyle());
+    }
+    private void hl7StringParserWith251_ReturnValidMessage_RandomV2Helper2_1(NextOfKin nextKin) {
+        Assertions.assertNull( nextKin.getNkName().get(0).getNameContext().getIdentifier());
+        Assertions.assertNull( nextKin.getNkName().get(0).getNameContext().getText());
+        Assertions.assertNull( nextKin.getNkName().get(0).getNameContext().getNameOfCodingSystem());
+        Assertions.assertNull( nextKin.getNkName().get(0).getNameContext().getAlternateIdentifier());
+        Assertions.assertNull( nextKin.getNkName().get(0).getNameContext().getAlternateText());
+        Assertions.assertNull( nextKin.getNkName().get(0).getNameContext().getNameOfAlternateCodingSystem());
+        Assertions.assertNull( nextKin.getNkName().get(0).getProfessionalSuffix());
+        Assertions.assertEquals("20230615", nextKin.getStartDate());
+        Assertions.assertEquals("20230615", nextKin.getEndDate());
+        Assertions.assertEquals("20230615", nextKin.getNextOfKinAssociatedPartiesJobTitle());
+        Assertions.assertEquals("20230615", nextKin.getAdministrativeSex());
+        Assertions.assertEquals("20230615", nextKin.getLivingArrangement());
+        Assertions.assertEquals("20230615", nextKin.getProtectionIndicator());
+        Assertions.assertEquals("20230615", nextKin.getStudentIndicator());
+        Assertions.assertEquals("20230615", nextKin.getJobStatus());
+        Assertions.assertEquals("20230615", nextKin.getHandicap());
+        Assertions.assertEquals("20230615", nextKin.getContactPersonSocialSecurityNumber());
+        Assertions.assertEquals("20230615", nextKin.getNextOfKinBirthPlace());
+        Assertions.assertEquals("20230615", nextKin.getVipIndicator());
+    }
+
+    private void hl7StringParserWith251_ReturnValidMessage_RandomV2Helper3(OruR1 oru){
+        //region patient additional demo
+        var patientAdditionalDemo = oru.getPatientResult().get(0).getPatient().getPatientAdditionalDemographic();
+        Assertions.assertEquals("20230615",patientAdditionalDemo.getLivingDependency().get(0));
+        Assertions.assertEquals("20230615",patientAdditionalDemo.getLivingArrangement());
+        Assertions.assertNotNull(patientAdditionalDemo.getPatientPrimaryFacility().get(0));
+        Assertions.assertEquals("20230615",patientAdditionalDemo.getStudentIndicator());
+        Assertions.assertEquals("20230615",patientAdditionalDemo.getHandiCap());
+        Assertions.assertEquals("20230615",patientAdditionalDemo.getLivingWillCode());
+        Assertions.assertEquals("20230615",patientAdditionalDemo.getOrganDonorCode());
+        Assertions.assertEquals("20230615",patientAdditionalDemo.getSeparateBill());
+        Assertions.assertEquals("20230615",patientAdditionalDemo.getProtectionIndicator());
+        Assertions.assertEquals("20230615",patientAdditionalDemo.getProtectionIndicatorEffectiveDate());
+        Assertions.assertEquals("20230615",patientAdditionalDemo.getImmunizationRegistryStatus());
+        Assertions.assertEquals("20230615",patientAdditionalDemo.getImmunizationRegistryStatusEffectiveDate());
+        Assertions.assertEquals("20230615",patientAdditionalDemo.getPublicityCodeEffectiveDate());
+        Assertions.assertEquals("20230615",patientAdditionalDemo.getMilitaryBranch());
+        Assertions.assertEquals("20230615",patientAdditionalDemo.getMilitaryRank());
+        Assertions.assertNull(patientAdditionalDemo.getMilitaryStatus());
+        //endregion
+    }
+    private void hl7StringParserWith251_ReturnValidMessage_RandomV2Helper4(OruR1 oru) {
+        //region patient identification
+        var patientIdentify = oru.getPatientResult().get(0).getPatient().getPatientIdentification();
+        Assertions.assertNotNull(patientIdentify.getPatientId());
+        Assertions.assertEquals("20230615", patientIdentify.getAdministrativeSex());
+        Assertions.assertEquals("20230615", patientIdentify.getCountyCode());
+        Assertions.assertEquals("20230615", patientIdentify.getBirthPlace());
+        Assertions.assertEquals("20230615", patientIdentify.getMultipleBirthIndicator());
+        Assertions.assertEquals("20230615", patientIdentify.getBirthOrder());
+        Assertions.assertEquals("20230615", patientIdentify.getPatientDeathIndicator());
+        Assertions.assertEquals("20230615", patientIdentify.getIdentityUnknownIndicator());
+        Assertions.assertEquals("20230615", patientIdentify.getStrain());
         //endregion
 
         //region Observation Result
@@ -227,7 +269,8 @@ class HL7HelperTest {
         Assertions.assertEquals("Varies[20230615]",observationResult.getReservedForHarmonizationWithV262());
         Assertions.assertEquals("Varies[20230615]",observationResult.getReservedForHarmonizationWithV263());
         //endregion
-
+    }
+    private void hl7StringParserWith251_ReturnValidMessage_RandomV2Helper5(OruR1 oru) {
         //region patient visit
         var patientVisit = oru.getPatientResult().get(0).getPatient().getVisit().getPatientVisit();
         Assertions.assertEquals("20230615",patientVisit.getSetIdPv1());
@@ -257,117 +300,106 @@ class HL7HelperTest {
         Assertions.assertEquals("20230615",patientVisit.getVisitIndicator());
         //endregion
 
-        //region patient identification
-        var patientIdentify = oru.getPatientResult().get(0).getPatient().getPatientIdentification();
-        Assertions.assertNotNull(patientIdentify.getPatientId());
-        Assertions.assertEquals("20230615", patientIdentify.getAdministrativeSex());
-        Assertions.assertEquals("20230615", patientIdentify.getCountyCode());
-        Assertions.assertEquals("20230615", patientIdentify.getBirthPlace());
-        Assertions.assertEquals("20230615", patientIdentify.getMultipleBirthIndicator());
-        Assertions.assertEquals("20230615", patientIdentify.getBirthOrder());
-        Assertions.assertEquals("20230615", patientIdentify.getPatientDeathIndicator());
-        Assertions.assertEquals("20230615", patientIdentify.getIdentityUnknownIndicator());
-        Assertions.assertEquals("20230615", patientIdentify.getStrain());
-        //endregion
-
-        //region patient additional demo
-        var patientAdditionalDemo = oru.getPatientResult().get(0).getPatient().getPatientAdditionalDemographic();
-        Assertions.assertEquals("20230615",patientAdditionalDemo.getLivingDependency().get(0));
-        Assertions.assertEquals("20230615",patientAdditionalDemo.getLivingArrangement());
-        Assertions.assertNotNull(patientAdditionalDemo.getPatientPrimaryFacility().get(0));
-        Assertions.assertEquals("20230615",patientAdditionalDemo.getStudentIndicator());
-        Assertions.assertEquals("20230615",patientAdditionalDemo.getHandiCap());
-        Assertions.assertEquals("20230615",patientAdditionalDemo.getLivingWillCode());
-        Assertions.assertEquals("20230615",patientAdditionalDemo.getOrganDonorCode());
-        Assertions.assertEquals("20230615",patientAdditionalDemo.getSeparateBill());
-        Assertions.assertEquals("20230615",patientAdditionalDemo.getProtectionIndicator());
-        Assertions.assertEquals("20230615",patientAdditionalDemo.getProtectionIndicatorEffectiveDate());
-        Assertions.assertEquals("20230615",patientAdditionalDemo.getImmunizationRegistryStatus());
-        Assertions.assertEquals("20230615",patientAdditionalDemo.getImmunizationRegistryStatusEffectiveDate());
-        Assertions.assertEquals("20230615",patientAdditionalDemo.getPublicityCodeEffectiveDate());
-        Assertions.assertEquals("20230615",patientAdditionalDemo.getMilitaryBranch());
-        Assertions.assertEquals("20230615",patientAdditionalDemo.getMilitaryRank());
-        Assertions.assertNull(patientAdditionalDemo.getMilitaryStatus());
-        //endregion
-
-        //region NEXT OF KIN
-        var nextKin = oru.getPatientResult().get(0).getPatient().getNextOfKin().get(0);
-        Assertions.assertEquals("1", nextKin.getSetIdNK1());
-        var familyName = nextKin.getNkName().get(0).getFamilyName();
-        Assertions.assertEquals("TESTNOK114B",familyName.getSurname());
-        Assertions.assertNull(familyName.getOwnSurnamePrefix());
-        Assertions.assertNull(familyName.getOwnSurname());
-        Assertions.assertNull(familyName.getSurnameFromPartner());
-        Assertions.assertNull(familyName.getSurnamePrefixFromPartner());
-        Assertions.assertEquals("FIRSTNOK1", nextKin.getNkName().get(0).getGivenName());
-        Assertions.assertEquals("X", nextKin.getNkName().get(0).getSecondAndFurtherGivenNameOrInitial());
-        Assertions.assertEquals("JR", nextKin.getNkName().get(0).getSuffix());
-        Assertions.assertEquals("DR", nextKin.getNkName().get(0).getPrefix());
-        Assertions.assertEquals("MD", nextKin.getNkName().get(0).getDegree());
-        Assertions.assertNull( nextKin.getNkName().get(0).getNameTypeCode());
-        Assertions.assertNull( nextKin.getNkName().get(0).getNameRepresentationCode());
-        Assertions.assertNull( nextKin.getNkName().get(0).getNameContext().getIdentifier());
-        Assertions.assertNull( nextKin.getNkName().get(0).getNameContext().getText());
-        Assertions.assertNull( nextKin.getNkName().get(0).getNameContext().getNameOfCodingSystem());
-        Assertions.assertNull( nextKin.getNkName().get(0).getNameContext().getAlternateIdentifier());
-        Assertions.assertNull( nextKin.getNkName().get(0).getNameContext().getAlternateText());
-        Assertions.assertNull( nextKin.getNkName().get(0).getNameContext().getNameOfAlternateCodingSystem());
-        Assertions.assertNull( nextKin.getNkName().get(0).getProfessionalSuffix());
-        Assertions.assertEquals("20230615", nextKin.getStartDate());
-        Assertions.assertEquals("20230615", nextKin.getEndDate());
-        Assertions.assertEquals("20230615", nextKin.getNextOfKinAssociatedPartiesJobTitle());
-        Assertions.assertEquals("20230615", nextKin.getAdministrativeSex());
-        Assertions.assertEquals("20230615", nextKin.getLivingArrangement());
-        Assertions.assertEquals("20230615", nextKin.getProtectionIndicator());
-        Assertions.assertEquals("20230615", nextKin.getStudentIndicator());
-        Assertions.assertEquals("20230615", nextKin.getJobStatus());
-        Assertions.assertEquals("20230615", nextKin.getHandicap());
-        Assertions.assertEquals("20230615", nextKin.getContactPersonSocialSecurityNumber());
-        Assertions.assertEquals("20230615", nextKin.getNextOfKinBirthPlace());
-        Assertions.assertEquals("20230615", nextKin.getVipIndicator());
-        //endregion
-
-        Assertions.assertEquals("20230615",oru.getContinuationPointer().getContinuationPointer());
-        Assertions.assertEquals("20230615",oru.getContinuationPointer().getContinuationStyle());
-
-        //region HEADER
-        Assertions.assertEquals("|",oru.getMessageHeader().getFieldSeparator());
-        Assertions.assertEquals("^~\\&",oru.getMessageHeader().getEncodingCharacters());
-        Assertions.assertEquals("20230615",oru.getMessageHeader().getSecurity());
-        Assertions.assertEquals("123456789",oru.getMessageHeader().getMessageControlId());
-
-        Assertions.assertEquals("20230615",oru.getMessageHeader().getSequenceNumber());
-        Assertions.assertEquals("20230615",oru.getMessageHeader().getContinuationPointer());
-        Assertions.assertEquals("20230615",oru.getMessageHeader().getAcceptAckType());
-        Assertions.assertEquals("20230615",oru.getMessageHeader().getApplicationAckType());
-        Assertions.assertEquals("20230615",oru.getMessageHeader().getCountryCode());
-        Assertions.assertEquals("20230615",oru.getMessageHeader().getAlternateCharacterSetHandlingScheme());
-        //endregion
-
-        Assertions.assertEquals("20230615",oru.getSoftwareSegment().get(0).getSoftwareCertifiedVersionOrReleaseNumber());
-        Assertions.assertEquals("20230615",oru.getSoftwareSegment().get(0).getSoftwareProductName());
-        Assertions.assertEquals("20230615",oru.getSoftwareSegment().get(0).getSoftwareBinaryId());
-        Assertions.assertEquals("20230615",oru.getSoftwareSegment().get(0).getSoftwareProductInformation());
-
-        Assertions.assertEquals("1",oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).getSetIdNte());
-        Assertions.assertEquals("20230615",oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).getSourceOfComment());
-
-
-        // Code coverage for setter
-        oru.getContinuationPointer().setContinuationPointer("AA");
-        oru.getContinuationPointer().setContinuationStyle("AA");
-        Assertions.assertEquals("AA",oru.getContinuationPointer().getContinuationPointer());
-        Assertions.assertEquals("AA",oru.getContinuationPointer().getContinuationStyle());
-
-        oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).setSetIdNte("3");
-        oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).setSourceOfComment("AA");
-        oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).setComment(new ArrayList<>());
-        oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).setCommentType(new Ce());
-        Assertions.assertEquals("3",oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).getSetIdNte());
-        Assertions.assertEquals("AA",oru.getPatientResult().get(0).getPatient().getNoteAndComment().get(0).getSourceOfComment());
-
-
     }
+    private void hl7StringParserWith251_ReturnValidMessage_RandomV2Helper6(OruR1 oru) {
+        //region Time Qty
+        var timeQty = oru.getPatientResult().get(0).getOrderObservation().get(0).getTimingQty().get(0).getTimeQuantity();
+        var timeQtyRelation = oru.getPatientResult().get(0).getOrderObservation().get(0).getTimingQty().get(0).getTimeQuantityRelationship();
+        Assertions.assertEquals("1",timeQty.getSetIdTq1());
+        Assertions.assertEquals("20230615",timeQty.getConditionText());
+        Assertions.assertEquals("20230615",timeQty.getTextInstruction());
+        Assertions.assertEquals("20230615",timeQty.getConjunction());
+        Assertions.assertEquals("20230615",timeQty.getTotalOccurrences());
+        Assertions.assertEquals("1",timeQtyRelation.get(0).getSetIdTq2());
+        Assertions.assertEquals("20230615",timeQtyRelation.get(0).getSequenceResultFlag());
+        Assertions.assertEquals("20230615",timeQtyRelation.get(0).getSequenceConditionCode());
+        Assertions.assertEquals("20230615",timeQtyRelation.get(0).getCyclicGroupMaximumNumberOfRepeats());
+        Assertions.assertEquals("20230615",timeQtyRelation.get(0).getSpecialServiceRequestRelationship());
+        //endregion
+    }
+    private void hl7StringParserWith251_ReturnValidMessage_RandomV2Helper7(OruR1 oru) {
+        //region finance
+        var finance = oru.getPatientResult().get(0).getOrderObservation().get(0).getFinancialTransaction().get(0);
+        var financeCne = finance.getNdcCode();
+        var financeCp = finance.getTransactionAmountExt();
+        var financeCx = finance.getPaymentReferenceId();
+        var financeCwe = finance.getMedicallyNecessaryDuplicateProcedureReason();
+        var financePl = finance.getAssignedPatientLocation();
+        var financeXcn = finance.getPerformedByCode().get(0);
+        var financeEi = finance.getFillerOrderNumber();
+        Assertions.assertEquals("20230615",financeEi.getEntityIdentifier());
+        Assertions.assertNull(financeEi.getNameSpaceId());
+        Assertions.assertNull(financeEi.getUniversalId());
+        Assertions.assertNull(financeEi.getUniversalIdType());
+        Assertions.assertEquals("20230615",financeXcn.getIdNumber());
+        Assertions.assertNull(financeXcn.getGivenName());
+        Assertions.assertNull(financeXcn.getSecondAndFurtherGivenNameOrInitial());
+        Assertions.assertNull(financeXcn.getSuffix());
+        Assertions.assertNull(financeXcn.getPrefix());
+        Assertions.assertNull(financeXcn.getDegree());
+        Assertions.assertNull(financeXcn.getSourceTable());
+        Assertions.assertNull(financeXcn.getNameTypeCode());
+        Assertions.assertNull(financeXcn.getIdentifierCheckDigit());
+        Assertions.assertNull(financeXcn.getCheckDigitScheme());
+        Assertions.assertNull(financeXcn.getIdentifierTypeCode());
+        Assertions.assertNull(financeXcn.getNameRepresentationCode());
+        hl7StringParserWith251_ReturnValidMessage_RandomV2Helper7_1( financeCx,  financeCp,  financeCne,  finance);
+        hl7StringParserWith251_ReturnValidMessage_RandomV2Helper7_2( financeXcn,  financePl,  financeCwe,  financeCx);
+        //endregion
+    }
+
+    private void hl7StringParserWith251_ReturnValidMessage_RandomV2Helper7_1(Cx financeCx, Cp financeCp, Cne financeCne, FinancialTransaction finance) {
+        Assertions.assertNull(financeCx.getExpirationDate());
+        Assertions.assertNull(financeCp.getPriceType());
+        Assertions.assertNull(financeCp.getFromValue());
+        Assertions.assertNull(financeCp.getToValue());
+        Assertions.assertNull(financeCp.getRangeType());
+        Assertions.assertEquals("20230615",financeCne.getIdentifier());
+        Assertions.assertNull(financeCne.getText());
+        Assertions.assertNull(financeCne.getNameOfCodingSystem());
+        Assertions.assertNull(financeCne.getAlternateIdentifier());
+        Assertions.assertNull(financeCne.getAlternateText());
+        Assertions.assertNull(financeCne.getNameOfAlternateCodingSystem());
+        Assertions.assertNull(financeCne.getCodingSystemVersionId());
+        Assertions.assertNull(financeCne.getAlternateCodingSystemVersionId());
+        Assertions.assertNull(financeCne.getOriginalText());
+        Assertions.assertEquals("1",finance.getSetIdFT1());
+        Assertions.assertEquals("20230615",finance.getTransactionId());
+        Assertions.assertEquals("20230615",finance.getTransactionBatchId());
+        Assertions.assertEquals("20230615",finance.getTransactionType());
+        Assertions.assertEquals("20230615",finance.getTransactionDescription());
+        Assertions.assertEquals("20230615",finance.getTransactionDescriptionAlter());
+        Assertions.assertEquals("20230615",finance.getTransactionQuantity());
+        Assertions.assertEquals("20230615",finance.getFeeSchedule());
+        Assertions.assertEquals("20230615",finance.getPatientType());
+    }
+    private void hl7StringParserWith251_ReturnValidMessage_RandomV2Helper7_2(Xcn financeXcn, Pl financePl, Cwe financeCwe, Cx financeCx) {
+
+        Assertions.assertNull(financeXcn.getNameAssemblyOrder());
+        Assertions.assertNull(financeXcn.getProfessionalSuffix());
+        Assertions.assertEquals("20230615",financePl.getPointOfCare());
+        Assertions.assertNull(financePl.getRoom());
+        Assertions.assertNull(financePl.getBed());
+        Assertions.assertNull(financePl.getPersonLocationType());
+        Assertions.assertNull(financePl.getBuilding());
+        Assertions.assertNull(financePl.getFloor());
+        Assertions.assertNull(financePl.getLocationDescription());
+        Assertions.assertEquals("20230615",financeCwe.getIdentifier());
+        Assertions.assertNull(financeCwe.getText());
+        Assertions.assertNull(financeCwe.getNameOfAlterCodeSystem());
+        Assertions.assertNull(financeCwe.getNameOfCodingSystem());
+        Assertions.assertNull(financeCwe.getAlternateIdentifier());
+        Assertions.assertNull(financeCwe.getAlternateText());
+        Assertions.assertNull(financeCwe.getCodeSystemVerId());
+        Assertions.assertNull(financeCwe.getAlterCodeSystemVerId());
+        Assertions.assertNull(financeCwe.getOriginalText());
+        Assertions.assertEquals("20230615",financeCx.getIdNumber());
+        Assertions.assertNull(financeCx.getCheckDigit());
+        Assertions.assertNull(financeCx.getCheckDigitScheme());
+        Assertions.assertNull(financeCx.getIdentifierTypeCode());
+        Assertions.assertNull(financeCx.getEffectiveDate());
+    }
+
 
     @Test
     void hl7StringParserWith231_ReturnValidMessage_RandomV1() throws  DiHL7Exception {
@@ -515,45 +547,6 @@ class HL7HelperTest {
         Assertions.assertEquals(expectedMessage, exception.getMessage());
     }
 
-    @Test
-    void hl7Validation_Invalid_BogusSegment() {
-        String oruR1MessageSmall =
-                "MSH|^~\\&|LABADT|MCM|LAAAB|ELAB-3|20230630122000||ORU^R01|CNTRL-3456|P|2.5.1\r" +
-                        "OBR|1|86427531000^LAB|17747^LAB|008342^CBC (INCLUDEES DIFF/PLT)^L|||202306301221|||L|||^456^123^A||1234567890^M10||202306301228|||F\r" +
-                        "PV1||O|O/R|||01^DOCTOR\r" +
-                        "PID|||1234^5^M11||EVERYMANN^ADAM^A||19610615|X|||222 W MAIN ST^^BOSTON^MA^111^USA||(617)555-1212|(617)555-1212||S||123456789|876-54-3210\r" +
-                        "ORC|RE|86427531000^LAB|17747^LAB||Final||202306301220||||674-111^^^ACME HOSPITAL^L\r" +
-                        "AAA|RE|86427531000^LAB|17747^LAB||Final||202306301220||||674-111^^^ACME HOSPITAL^L\r" +
-                        "OBX|1|NM|008342^WBC^L||11|X10^3/uL^Universal|||123||||||202306301228|||^^^456^123";
-
-
-        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
-            target.hl7Validation(oruR1MessageSmall);
-        });
-
-        String expectedMessage = "Invalid Message Found unknown segment: AAA at AAA";
-        Assertions.assertEquals(expectedMessage, exception.getMessage());
-    }
-
-    @Test
-    void hl7Validation_Invalid_BadSegment() {
-        String oruR1MessageSmall =
-                "MSH|^~\\&|LABADT|MCM|LAAAB|ELAB-3|20230630122000||ORU^R01|CNTRL-3456|P|2.5.1\r" +
-                        "OBR|1|86427531000^LAB|17747^LAB|008342^CBC (INCLUDEES DIFF/PLT)^L|||202306301221|||L|||^456^123^A||1234567890^M10||202306301228|||F\r" +
-                        "PV1||O|O/R|||01^DOCTOR\r" +
-
-                        "PID|||1234^5^M11||EVERYMANN^ADAM^A||19610615|X|||222 W MAIN ST^^BOSTON^MA^111^USA||(617)555-1212|(617)555-1212||S||123456789|876-54-3210\r" +
-                        "ORC|RE|86427531000^LAB|17747^LAB||Final||202306301220||||674-111^^^ACME HOSPITAL^L\r" +
-                        "OBX|1|NM|008342^WBC^L||11|X10^3/uL^Universal|||123||||||202306301228|||^^^456^123";
-
-
-        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
-            target.hl7Validation(oruR1MessageSmall);
-        });
-
-        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Patient Group is Empty";
-        Assertions.assertEquals(expectedMessage, exception.getMessage());
-    }
 
     @Test
     void hl7Validation_Invalid_NoPatientName() {
@@ -678,6 +671,42 @@ class HL7HelperTest {
         message = target.hl7StringValidator(message);
         var result = target.processFhsMessage(message);
         Assertions.assertNotNull(result);
+    }
+
+
+    @Test
+    void processingSFTWithSPMMessage_Test() throws DiHL7Exception {
+        String message = "MSH|^~\\&|LABCORP-CORP^OID^ISO|LABCORP^34D0655059^CLIA|SCDOH^OID^ISO|SC^OID^ISO|201204200100||ORU^R01^ORU_R01|20120605034370001A|D|2.3.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
+                "SFT|Mirth Corp.|2.0|Mirth Connect|789654||20110101\n" +
+                "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\n" +
+                "ORC|RE|||||||||||||||||||HUFF MEDICAL CENTER|1212 DOGGIE TRAIL.^SUITE 500^^GA^30004|^^^^^770^1234567\n" +
+                "OBR|1||06050205112A^namespace^OID^ISO|699-9^ORGANISM COUNT^LN|||200603241455|||||||||||||||201205091533|||F\n" +
+                "OBX|1|ST|11475-1^MICROORGANISM IDENTIFIED^LN||||||||F||||||||201205301200\n" +
+                "AAA|1|^08660205112&namespace&OID&ISO||UNK^Unknown^NullFlavor|";
+
+        var msg = target.hl7StringValidator(message);
+        msg = target.hl7Validation(msg);
+        var data = target.hl7StringParser(msg);
+        Assertions.assertEquals("R01", data.getParsedMessage().getMessageHeader().getMessageType().getTriggerEvent());
+    }
+
+    @Test
+    void processingNonSFTWithSPMMessage_Test() throws DiHL7Exception {
+        String message = "FHS|^~\\&|ELR|M.E. HETL|MEDOH|ME|20150224||FHSeg|Generated by ELR Route|FHSAppGen20150224|Application Generate\n" +
+                "BHS|^~\\&|STARLIMS|M.E. HETL|MEDOH|ME|20150224||BHSeg|Application Generated|BHSAppGen20150224|P\n" +
+                "MSH|^~\\&|STARLIMS|M.E. HETL^TBD^CLIA|MEDOH|ME|20150219133042||ORU^R01|20150219133042-1|T|2.3.1\n" +
+                "PID|1||PID00111111^^^M.E. HETL&TBD&CLIA^PI||JONES^JAMES^J^^^^L||19710820|M||U|^^^ME^^^H|||||||||||U\n" +
+                "ORC|RE||M00200000-01||||||||||||||||||Central Maine Medical Center - Laboratory|300 Main St^^Lewiston^ME^04240|^^^^^^7950111\n" +
+                "OBR|1||M00200000-01-001|^^^135^CT/GC^L|||20150214||||||||UR&Urine&TBD|28824^DUQUETTE^ADAM|^^^^^0^0||||||||F\n" +
+                "OBX|1|CE|4993-2^C trach rRNA XXX Ql Prb^LN||10828004^Positivetesters^SNM|||A|||F|||20150219\n" +
+                "NTE|1\n" +
+                "BTS|1|Generated by ELR Route\n" +
+                "FTS|1|Generated by NBS ELR Routesess";
+
+        var msg = target.hl7StringValidator(message);
+        msg = target.hl7Validation(msg);
+        var data = target.hl7StringParser(msg);
+        Assertions.assertEquals("R01", data.getParsedMessage().getMessageHeader().getMessageType().getTriggerEvent());
     }
 
 }

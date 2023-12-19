@@ -10,12 +10,15 @@ buildscript {
     }
     dependencies {
         classpath("com.dipien:semantic-version-gradle-plugin:2.0.0")
+        classpath 'org.owasp:dependency-check-gradle:9.0.3'
     }
 }
 
 plugins {
     id "org.sonarqube" version "4.2.1.3168"
 }
+
+apply plugin: 'org.owasp.dependencycheck'
 
 version = '1.0.1-SNAPSHOT'  // The plugin will assign the root project version to all its subprojects.
 apply plugin: "com.dipien.semantic-version"

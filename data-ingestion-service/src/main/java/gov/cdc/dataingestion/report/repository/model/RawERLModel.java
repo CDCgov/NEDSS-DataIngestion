@@ -19,7 +19,6 @@ public class RawERLModel {
     private String type;
     private String payload;
 
-    @Transient
     @Column(name = "created_on")
     private Timestamp createdOn;
 
