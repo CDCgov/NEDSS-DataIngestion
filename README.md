@@ -27,6 +27,8 @@ Data Ingestion for Modernization of NEDSS Project by Enquizit
          DI_NBS_DBPASSWORD=value
 
          DI_LOG_PATH=value
+         
+         DI_AUTH_URI=value
          ```
   - Run "docker-compose up -d"
   - If encounter gradle exception such as missing wrapper then run the following command
