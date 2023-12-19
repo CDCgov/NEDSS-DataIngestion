@@ -10,12 +10,11 @@ import org.springframework.security.oauth2.server.resource.introspection.OpaqueT
 import org.springframework.stereotype.Component;
 
 @Component
-public class CustomAuthenticationManagerResolver implements AuthenticationManagerResolver {
+public class CustomAuthenticationManagerResolver implements AuthenticationManagerResolver<HttpServletRequest> {
     @Value("${auth.introspect-uri}")
     String introspectionUri;
     @Override
-    public AuthenticationManager resolve(Object context) {
-        HttpServletRequest request=(HttpServletRequest)context;
+    public AuthenticationManager resolve(HttpServletRequest request) {
         String clientId = request.getHeader("client_id");
         String clientSecret = request.getHeader("client_secret");
         OpaqueTokenIntrospector opaquetokenintrospector;
