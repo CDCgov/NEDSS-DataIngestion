@@ -36,13 +36,13 @@ public class TokenController {
     @PostMapping("/token")
     public String token(@RequestHeader("client_id") String clientId, @RequestHeader("client_secret") String clientSecret) {
         log.info("Token URL : " + authTokenUri);
-        String post_body = "grant_type=client_credentials" +
+        String postBody = "grant_type=client_credentials" +
                 "&client_id=" + clientId
                 + "&client_secret=" + clientSecret;
-        log.info("Post body : " + post_body);
+        log.info("Post body : " + postBody);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/x-www-form-urlencoded");
-        HttpEntity<String> request = new HttpEntity<>(post_body, headers);
+        HttpEntity<String> request = new HttpEntity<>(postBody, headers);
         ResponseEntity<String> exchange =
                 restTemplate.exchange(
                         authTokenUri,
