@@ -22,7 +22,7 @@ class TokenControllerTest {
     @Test
     void testTokenEndpoint() {
         String authTokenUri = "http://localhost:8080/realms/test/openid-connect/token";
-        TokenController tokenController = new TokenController(restTemplate, customMetricsBuilder);
+        TokenController tokenController = new TokenController(customMetricsBuilder);
         tokenController.authTokenUri = authTokenUri;
         String clientId="test-keycloak-client";
         String clientSecret="testclientsecret";

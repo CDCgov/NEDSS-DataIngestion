@@ -5,10 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -24,14 +21,9 @@ public class TokenController {
     @Value("${auth.token-uri}")
     String authTokenUri;
     private final CustomMetricsBuilder customMetricsBuilder;
-   private RestTemplate restTemplate;
-    public TokenController( @Qualifier("restTemplate") RestTemplate restTemplate, CustomMetricsBuilder customMetricsBuilder) {
-        this.restTemplate=restTemplate;
+    private RestTemplate restTemplate= new RestTemplate();
+    public TokenController(CustomMetricsBuilder customMetricsBuilder) {
         this.customMetricsBuilder = customMetricsBuilder;
-    }
-    @Bean(name = "restTemplate")
-    public static RestTemplate restTemplate(RestTemplateBuilder builder) {
-        return builder.build();
     }
     @PostMapping("/token")
     public String token(@RequestHeader("client_id") String clientId, @RequestHeader("client_secret") String clientSecret) {
@@ -58,7 +50,7 @@ public class TokenController {
             accessToken = jsonObject.get("access_token").getAsString();
             customMetricsBuilder.incrementTokensRequested();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error in TokenController token method : " + e.getMessage());
         }
         return accessToken;
     }
