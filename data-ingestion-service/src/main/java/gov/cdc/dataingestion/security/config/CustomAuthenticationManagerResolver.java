@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.security.config;
 
+import gov.cdc.dataingestion.share.CustomAuthenticationException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,9 +15,15 @@ public class CustomAuthenticationManagerResolver implements AuthenticationManage
     @Value("${auth.introspect-uri}")
     String introspectionUri;
     @Override
-    public AuthenticationManager resolve(HttpServletRequest request) {
+    public AuthenticationManager resolve(HttpServletRequest request){
         String clientId = request.getHeader("client_id");
         String clientSecret = request.getHeader("client_secret");
+        if(introspectionUri ==null || introspectionUri.isEmpty()){
+            throw new CustomAuthenticationException("Introspection URI is required");
+        }
+        if(clientId ==null || clientId.isEmpty() || clientSecret ==null || clientSecret.isEmpty()){
+            throw new CustomAuthenticationException("Client ID and Client Secret are required");
+        }
         OpaqueTokenIntrospector opaquetokenintrospector;
         opaquetokenintrospector =  new NimbusOpaqueTokenIntrospector(
                 introspectionUri,
