@@ -24,6 +24,8 @@ public class KafkaConsumerConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers = "";
 
+    // Higher value for more intensive operation, also increase latency
+    // default is 30000, equivalent to 5 min
     @Value("${spring.kafka.consumer.maxPollIntervalMs}")
     private String maxPollInterval = "";
 
