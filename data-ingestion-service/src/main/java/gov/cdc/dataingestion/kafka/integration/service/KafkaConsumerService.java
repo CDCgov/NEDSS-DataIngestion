@@ -438,8 +438,8 @@ public class KafkaConsumerService {
     }
     private void xmlConversionHandler(String message, String operation) {
 
-        // Update: change method to Async process, intensive process in this method cause consumer lagging and strange behavior
-        // TODO: consider breaking down this logic
+        // Update: changed method to async process, intensive process in this method cause consumer lagging, delay and strange behavior
+        // TODO: considering breaking down this logic (NOTE)
         // PROCESS as follow:
         //  - HL7 -> XML
                 // xml conversion can be broke down into multiple smaller pipeline
