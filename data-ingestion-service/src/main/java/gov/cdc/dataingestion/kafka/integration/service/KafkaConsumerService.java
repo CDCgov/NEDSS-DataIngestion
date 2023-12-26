@@ -486,7 +486,7 @@ public class KafkaConsumerService {
                     Optional<ValidatedELRModel> validatedELRModel = iValidatedELRRepository.findById(message);
                     reportStatusIdData.setRawMessageId(validatedELRModel.get().getRawId());
                     reportStatusIdData.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
-                    reportStatusIdData.setCreatedBy("SPECIAL_TESTER_1_" + convertedToXmlTopic);
+                    reportStatusIdData.setCreatedBy(convertedToXmlTopic);
                     reportStatusIdData.setUpdatedBy(convertedToXmlTopic);
                     reportStatusIdData.setCreatedOn(getCurrentTimeStamp());
                     reportStatusIdData.setUpdatedOn(getCurrentTimeStamp());
