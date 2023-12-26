@@ -9,9 +9,7 @@ import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
-import gov.cdc.dataingestion.exception.ConversionPrepareException;
-import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
-import gov.cdc.dataingestion.exception.FhirConversionException;
+import gov.cdc.dataingestion.exception.*;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
@@ -54,7 +52,9 @@ import java.sql.*;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -212,7 +212,7 @@ class KafkaConsumerServiceTest {
     }
 
     @Test
-    void rawConsumerTestRawRecordNotFound() throws DuplicateHL7FileFoundException, DiHL7Exception {
+    void rawConsumerTestRawRecordNotFound() {
         // Produce a test message to the topic
         String message =  guidForTesting;
         produceMessage(rawTopic, message, EnumKafkaOperation.INJECTION);
@@ -335,6 +335,52 @@ class KafkaConsumerServiceTest {
 
             verify(iValidatedELRRepository, times(2)).findById(guidForTesting);
         });
+
+    }
+
+    @Test
+    void xmlPreparationConsumerTestReInjection_Exception() {
+        // Produce a test message to the topic
+        //  initialDataInsertionAndSelection(xmlPrepTopic);
+
+
+        var guidForTesting = "test";
+        String message =  guidForTesting;
+        produceMessage(xmlPrepTopic, message, EnumKafkaOperation.REINJECTION);
+
+        // Consume the message
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
+
+        // Perform assertions
+        assertEquals(1, records.count());
+
+        ConsumerRecord<String, String> firstRecord = records.iterator().next();
+        String value = firstRecord.value();
+
+
+        ElrDeadLetterModel model = new ElrDeadLetterModel();
+        model.setErrorMessageId(guidForTesting);
+        model.setMessage(testHL7Message);
+
+
+        var future = CompletableFuture.runAsync(() -> {
+            try {
+                assertThrows(DiAsyncException.class, () ->
+                        kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.name())
+                );
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+        });
+
+        ExecutionException thrownException = assertThrows(ExecutionException.class, () -> {
+            future.get(30, TimeUnit.SECONDS);
+        });
+
+        Assertions.assertNotNull(thrownException);
+
+
 
     }
 
