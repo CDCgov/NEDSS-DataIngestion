@@ -364,11 +364,7 @@ class KafkaConsumerServiceTest {
 
          CompletableFuture.runAsync(() -> {
             try {
-                assertThrows(DiAsyncException.class, () ->
-                        kafkaConsumerService.
-                        handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.
-                                name())
-                ); //NOSONAR
+                assertThrows(DiAsyncException.class, () -> kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.name())); //NOSONAR
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
