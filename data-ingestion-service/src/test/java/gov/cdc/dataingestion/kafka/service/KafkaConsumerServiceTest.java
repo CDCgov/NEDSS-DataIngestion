@@ -368,7 +368,7 @@ class KafkaConsumerServiceTest {
                         kafkaConsumerService.
                         handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.
                                 name())
-                );
+                ); //NOSONAR
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
