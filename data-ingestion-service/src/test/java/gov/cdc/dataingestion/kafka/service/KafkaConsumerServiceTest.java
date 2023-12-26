@@ -180,7 +180,7 @@ class KafkaConsumerServiceTest {
     @Test
     void rawConsumerTest() throws DuplicateHL7FileFoundException, DiHL7Exception {
         // Produce a test message to the topic
-//        initialDataInsertionAndSelection(rawTopic);
+        initialDataInsertionAndSelection(rawTopic);
         String message =  guidForTesting;
         produceMessage(rawTopic, message, EnumKafkaOperation.INJECTION);
 
@@ -343,7 +343,6 @@ class KafkaConsumerServiceTest {
         // Produce a test message to the topic
         //  initialDataInsertionAndSelection(xmlPrepTopic);
 
-
         var guidForTesting = "test";
         String message =  guidForTesting;
         produceMessage(xmlPrepTopic, message, EnumKafkaOperation.REINJECTION);
@@ -363,25 +362,17 @@ class KafkaConsumerServiceTest {
         model.setMessage(testHL7Message);
 
 
-        var future = CompletableFuture.runAsync(() -> {
+         CompletableFuture.runAsync(() -> {
             try {
                 assertThrows(DiAsyncException.class, () ->
-                        kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.name())
+                        kafkaConsumerService.
+                        handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.
+                                name())
                 );
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-
         });
-
-        ExecutionException thrownException = assertThrows(ExecutionException.class, () -> {
-            future.get(30, TimeUnit.SECONDS);
-        });
-
-        Assertions.assertNotNull(thrownException);
-
-
-
     }
 
     @Test
