@@ -91,6 +91,8 @@ public class KafkaConsumerService {
 
     @Value("${kafka.fhir-conversion-prep.topic}")
     private String prepFhirTopic = "fhir_prep";
+
+    private String notificationTopic = "dlt_alarm_notification";
     private final KafkaProducerService kafkaProducerService;
     private final IHL7v2Validator iHl7v2Validator;
     private final IRawELRRepository iRawELRRepository;
@@ -407,7 +409,7 @@ public class KafkaConsumerService {
             model.setCreatedBy(elrDeadLetterDto.getCreatedBy());
             model.setUpdatedBy(elrDeadLetterDto.getUpdatedBy());
             this.elrDeadLetterRepository.save(model);
-            this.diEmailService.sendDltEmailNotification(model);
+            sendMessageToNotificationTopic(model);
         } catch (Exception e) {
             Gson gson = new Gson();
             String data = gson.toJson(model);
@@ -415,6 +417,14 @@ public class KafkaConsumerService {
 
         }
     }
+
+    private void sendMessageToNotificationTopic(ElrDeadLetterModel dltModel) {
+        // this.diEmailService.sendDltEmailNotification(model);
+        Gson gson = new Gson();
+        String dltString = gson.toJson(dltModel);
+        this.kafkaProducerService.sendMessageToNotificationTopic(dltString, notificationTopic);
+    }
+
     private String getDltErrorSource(String incomingTopic) {
         String erroredSource = "";
         if (incomingTopic.equalsIgnoreCase(rawTopic)) {

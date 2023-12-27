@@ -22,6 +22,8 @@ public class KafkaProducerService {
     private static final String PREFIX_MSG_VALID = "VALID_";
     private static final String PREFIX_MSG_HL7 = "HL7_";
 
+    private static final String PREFIX_NOTIFICATION = "Notification_";
+
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     public KafkaProducerService( KafkaTemplate<String, String> kafkaTemplate) {
@@ -88,6 +90,11 @@ public class KafkaProducerService {
         sendMessageHelper(topic, dltOccurrence, uniqueId, msg.getId(), msg.getMessageType(), msg.getMessageVersion());
     }
 
+    public void sendMessageToNotificationTopic(String content, String topic) {
+        String uniqueID =  PREFIX_NOTIFICATION  + UUID.randomUUID();
+        var prodRecord = new ProducerRecord<>(topic, uniqueID, content);
+        sendMessage(prodRecord);
+    }
     private void sendMessageHelper(String topic, Integer dltOccurrence, String uniqueId, String messageOriginId, String messageType, String messageVersion) {
         var prodRecord = new ProducerRecord<>(topic, uniqueId, messageOriginId);
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, messageType.getBytes());
