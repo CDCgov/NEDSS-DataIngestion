@@ -12,6 +12,8 @@ import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.constant.enums.EnumElrDltStatus;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
+import gov.cdc.dataingestion.email_notification.service.DiEmailService;
+import gov.cdc.dataingestion.email_notification.service.interfaces.IDiEmailService;
 import gov.cdc.dataingestion.exception.*;
 import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
@@ -105,6 +107,8 @@ public class KafkaConsumerService {
     private final IReportStatusRepository iReportStatusRepository;
     private final CustomMetricsBuilder customMetricsBuilder;
 
+    private final IDiEmailService diEmailService;
+
     private String errorDltMessage = "Message not found in dead letter table";
     private String topicDebugLog = "Received message ID: {} from topic: {}";
     private String processDltErrorMessage = "Raw data not found; id: ";
@@ -124,7 +128,8 @@ public class KafkaConsumerService {
             ICdaMapper cdaMapper,
             IEcrMsgQueryService ecrMsgQueryService,
             IReportStatusRepository iReportStatusRepository,
-            CustomMetricsBuilder customMetricsBuilder) {
+            CustomMetricsBuilder customMetricsBuilder,
+            IDiEmailService diEmailService) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.kafkaProducerService = kafkaProducerService;
@@ -138,6 +143,7 @@ public class KafkaConsumerService {
         this.ecrMsgQueryService = ecrMsgQueryService;
         this.iReportStatusRepository = iReportStatusRepository;
         this.customMetricsBuilder = customMetricsBuilder;
+        this.diEmailService = diEmailService;
     }
     //endregion
 
@@ -401,6 +407,7 @@ public class KafkaConsumerService {
             model.setCreatedBy(elrDeadLetterDto.getCreatedBy());
             model.setUpdatedBy(elrDeadLetterDto.getUpdatedBy());
             this.elrDeadLetterRepository.save(model);
+            this.diEmailService.sendDltEmailNotification(model);
         } catch (Exception e) {
             Gson gson = new Gson();
             String data = gson.toJson(model);

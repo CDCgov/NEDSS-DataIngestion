@@ -51,7 +51,16 @@ spring:
     group-id: data-ingestion-group
     consumer:
       maxPollIntervalMs: 30000
-
+aws:
+  authentication:
+    access: ${AWS_ACCESS_KEY}
+    secret: ${AWS_SECRET}
+    token: ${AWS_TOKEN}
+    region: ${AWS_REGION}
+  ses:
+    email:
+      source: ${AWS_SES_SOURCE}
+      recipients: ${AWS_SES_RECIPIENTS}
 kafka:
   consumer:
     max-retry: 2
@@ -104,7 +113,16 @@ spring:
     group-id: data-ingestion-group
     consumer:
       maxPollIntervalMs: 30000
-
+aws:
+  authentication:
+    access: ${AWS_ACCESS_KEY}
+    secret: ${AWS_SECRET}
+    token: ${AWS_TOKEN}
+    region: ${AWS_REGION}
+  ses:
+    email:
+      source: ${AWS_SES_SOURCE}
+      recipients: ${AWS_SES_RECIPIENTS}
 kafka:
   consumer:
     max-retry: 2

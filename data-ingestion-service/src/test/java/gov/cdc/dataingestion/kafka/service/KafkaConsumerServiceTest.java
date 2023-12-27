@@ -9,6 +9,7 @@ import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
+import gov.cdc.dataingestion.email_notification.service.interfaces.IDiEmailService;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
 import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
 import gov.cdc.dataingestion.exception.FhirConversionException;
@@ -95,6 +96,9 @@ class KafkaConsumerServiceTest {
     @Mock
     private IEcrMsgQueryService ecrMsgQueryService;
 
+    @Mock
+    private IDiEmailService diEmailService;
+
     @Container
     public static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"))
             .withStartupTimeout(Duration.ofMinutes(5));
@@ -165,7 +169,8 @@ class KafkaConsumerServiceTest {
                 cdaMapper,
                 ecrMsgQueryService,
                 iReportStatusRepository,
-                customMetricsBuilder);
+                customMetricsBuilder,
+                diEmailService);
         nbsInterfaceModel = new NbsInterfaceModel();
         validatedELRModel = new ValidatedELRModel();
     }
