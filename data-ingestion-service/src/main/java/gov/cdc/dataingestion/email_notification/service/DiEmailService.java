@@ -1,6 +1,5 @@
 package gov.cdc.dataingestion.email_notification.service;
 
-import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.email_notification.service.interfaces.IDiEmailService;
 import org.springframework.stereotype.Service;
@@ -37,7 +36,6 @@ public class DiEmailService implements IDiEmailService {
     }
 
     private String getEmailTextBodyTemplate(String dltId) {
-        String textBody = "Alarm Detail. Id " + dltId;
-        return textBody;
+        return  "Alarm Detail. Id " + dltId;
     }
 }

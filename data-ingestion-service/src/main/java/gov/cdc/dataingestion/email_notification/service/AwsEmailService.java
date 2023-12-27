@@ -12,6 +12,7 @@ import software.amazon.awssdk.services.ses.SesClient;
 import software.amazon.awssdk.services.ses.model.*;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 @Service
 public class AwsEmailService implements IAwsEmailService {
@@ -30,7 +31,7 @@ public class AwsEmailService implements IAwsEmailService {
                            @Value("${aws.authentication.token}") String token,
                            @Value("${aws.authentication.region}") String region) {
         AwsCredentialsProvider awsCredentialsProvider;
-        if (token.isEmpty() || token == null) {
+        if (token.isEmpty()) {
             awsCredentialsProvider = StaticCredentialsProvider.create(
                     AwsBasicCredentials.create(accessKey, secretKey)
             );
@@ -57,19 +58,17 @@ public class AwsEmailService implements IAwsEmailService {
 
         Content subjectContent = Content.builder().data(subject).build();
 
-        Content htmlContent = Content.builder()
+        Consumer<Content.Builder> htmlContentBuilder = builder -> builder
                 .data(htmlBody)
-                .charset("UTF-8")
-                .build();
+                .charset("UTF-8");
 
-        Content textContent = Content.builder()
+        Consumer<Content.Builder> textContentBuilder = builder -> builder
                 .data(textBody)
-                .charset("UTF-8")
-                .build();
+                .charset("UTF-8");
 
         Body body = Body.builder()
-                .html(htmlContent)
-                .text(textContent)
+                .html(htmlContentBuilder)
+                .text(textContentBuilder)
                 .build();
 
         Message message = Message.builder()
@@ -77,12 +76,19 @@ public class AwsEmailService implements IAwsEmailService {
                 .body(body)
                 .build();
 
-        SendEmailRequest emailRequest = SendEmailRequest.builder()
+        Consumer<SendEmailRequest.Builder> requestBuilder = builder -> builder
                 .destination(destination)
                 .message(message)
-                .source(sourceEmail)
-                .build();
+                .source(sourceEmail);
+
+        SendEmailRequest emailRequest = buildRequest(requestBuilder);
 
         sesClient.sendEmail(emailRequest);
+    }
+
+    private SendEmailRequest buildRequest(Consumer<SendEmailRequest.Builder> requestBuilder) {
+        SendEmailRequest.Builder builder = SendEmailRequest.builder();
+        requestBuilder.accept(builder);
+        return builder.build();
     }
 }
