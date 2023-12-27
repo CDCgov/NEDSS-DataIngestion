@@ -12,7 +12,6 @@ import software.amazon.awssdk.services.ses.SesClient;
 import software.amazon.awssdk.services.ses.model.*;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 @Service
 public class AwsEmailService implements IAwsEmailService {
@@ -48,6 +47,7 @@ public class AwsEmailService implements IAwsEmailService {
                 .build();
     }
 
+    @SuppressWarnings("java:S6244")
     public void sendEmailNotificationForDlt(
             String textBody,
             String htmlBody,
@@ -58,17 +58,19 @@ public class AwsEmailService implements IAwsEmailService {
 
         Content subjectContent = Content.builder().data(subject).build();
 
-        Consumer<Content.Builder> htmlContentBuilder = builder -> builder
+        Content htmlContent = Content.builder()
                 .data(htmlBody)
-                .charset("UTF-8");
+                .charset("UTF-8")
+                .build();
 
-        Consumer<Content.Builder> textContentBuilder = builder -> builder
+        Content textContent = Content.builder()
                 .data(textBody)
-                .charset("UTF-8");
+                .charset("UTF-8")
+                .build();
 
         Body body = Body.builder()
-                .html(htmlContentBuilder)
-                .text(textContentBuilder)
+                .html(htmlContent)
+                .text(textContent)
                 .build();
 
         Message message = Message.builder()
@@ -76,19 +78,12 @@ public class AwsEmailService implements IAwsEmailService {
                 .body(body)
                 .build();
 
-        Consumer<SendEmailRequest.Builder> requestBuilder = builder -> builder
+        SendEmailRequest emailRequest = SendEmailRequest.builder()
                 .destination(destination)
                 .message(message)
-                .source(sourceEmail);
-
-        SendEmailRequest emailRequest = buildRequest(requestBuilder);
+                .source(sourceEmail)
+                .build();
 
         sesClient.sendEmail(emailRequest);
-    }
-
-    private SendEmailRequest buildRequest(Consumer<SendEmailRequest.Builder> requestBuilder) {
-        SendEmailRequest.Builder builder = SendEmailRequest.builder();
-        requestBuilder.accept(builder);
-        return builder.build();
     }
 }
