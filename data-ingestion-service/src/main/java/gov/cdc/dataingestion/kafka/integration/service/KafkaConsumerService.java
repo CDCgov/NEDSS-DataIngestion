@@ -92,6 +92,7 @@ public class KafkaConsumerService {
     @Value("${kafka.fhir-conversion-prep.topic}")
     private String prepFhirTopic = "fhir_prep";
 
+    @Value("${kafka.dlt-alarm-notification.topic}")
     private String notificationTopic = "dlt_alarm_notification";
     private final KafkaProducerService kafkaProducerService;
     private final IHL7v2Validator iHl7v2Validator;
@@ -419,7 +420,6 @@ public class KafkaConsumerService {
     }
 
     private void sendMessageToNotificationTopic(ElrDeadLetterModel dltModel) {
-        // this.diEmailService.sendDltEmailNotification(model);
         Gson gson = new Gson();
         String dltString = gson.toJson(dltModel);
         this.kafkaProducerService.sendMessageToNotificationTopic(dltString, notificationTopic);

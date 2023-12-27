@@ -24,6 +24,12 @@ logging:
   #  Only one config can be active at a time
   config: classpath:logback-config.xml
 LOG_PATH: ${DI_LOG_PATH}
+notification-config:
+  email:
+    aws: true
+    azure: false
+  chat:
+    slack: false
 ---
 spring:
   config:
@@ -80,6 +86,10 @@ kafka:
     topic: xml_prep
   elr-duplicate:
     topic: elr_duplicate
+  dlt-alarm-notification:
+    topic: dlt_alarm_notification
+  dlt-alarm-notification-email-aws:
+    topic: dlt_alarm_notification_email_aws
   topics: elr_raw,elr_validated
   retry:
       suffix: _retry
@@ -142,6 +152,10 @@ kafka:
     topic: xml_prep
   elr-duplicate:
     topic: elr_duplicate
+  dlt-alarm-notification:
+    topic: dlt_alarm_notification
+  dlt-alarm-notification-email-aws:
+    topic: dlt_alarm_notification_email_aws
   topics: elr_raw,elr_validated
   retry:
     suffix: _retry
