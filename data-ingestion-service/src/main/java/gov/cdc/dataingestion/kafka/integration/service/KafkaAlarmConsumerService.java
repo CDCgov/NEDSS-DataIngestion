@@ -10,8 +10,12 @@ import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
 import gov.cdc.dataingestion.exception.XmlConversionException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import jakarta.xml.bind.JAXBException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.SerializationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.RetryableTopic;
 import org.springframework.kafka.retrytopic.DltStrategy;
@@ -23,7 +27,9 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class KafkaAlarmConsumerService {
+
 
     @Value("${kafka.dlt-alarm-notification.topic}")
     private String notificationTopic = "dlt_alarm_notification";
@@ -51,33 +57,10 @@ public class KafkaAlarmConsumerService {
         this.diEmailService = diEmailService;
     }
 
-    @RetryableTopic(
-            attempts = "${kafka.consumer.max-retry}",
-            autoCreateTopics = "false",
-            dltStrategy = DltStrategy.FAIL_ON_ERROR,
-            retryTopicSuffix = "${kafka.retry.suffix}",
-            dltTopicSuffix = "${kafka.dlt.suffix}",
-            // retry topic name, such as topic-retry-1, topic-retry-2, etc
-            topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE,
-            // time to wait before attempting to retry
-            backoff = @Backoff(delay = 1000, multiplier = 2.0),
-            // if these exceptions occur, skip retry then push message to DLQ
-            exclude = {
-                    SerializationException.class,
-                    DeserializationException.class,
-                    DuplicateHL7FileFoundException.class,
-                    DiHL7Exception.class,
-                    HL7Exception.class,
-                    XmlConversionException.class,
-                    JAXBException.class
-            }
-
-    )
     @KafkaListener(
             topics = "${kafka.dlt-alarm-notification.topic}"
     )
-    public void handleMessageForNotification(String message)
-    {
+    public void handleMessageForNotification(String message) {
         // Handle multiple notification service here
         // There could be multiple service such as email (aws, azure, or native), 3rd party tool (slack, ms team)
         if (emailAwsApplied) {
@@ -124,4 +107,6 @@ public class KafkaAlarmConsumerService {
         ElrDeadLetterModel dltObj = gson.fromJson(message, ElrDeadLetterModel.class);
         this.diEmailService.sendDltEmailNotification(dltObj);
     }
+
+
 }
