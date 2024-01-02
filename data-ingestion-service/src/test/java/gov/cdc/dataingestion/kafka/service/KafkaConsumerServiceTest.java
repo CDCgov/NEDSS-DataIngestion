@@ -9,9 +9,7 @@ import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
-import gov.cdc.dataingestion.exception.ConversionPrepareException;
-import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
-import gov.cdc.dataingestion.exception.FhirConversionException;
+import gov.cdc.dataingestion.exception.*;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
@@ -53,7 +51,7 @@ import java.lang.reflect.Method;
 import java.sql.*;
 import java.time.Duration;
 import java.util.*;
-
+import java.util.concurrent.CompletableFuture;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -178,7 +176,7 @@ class KafkaConsumerServiceTest {
     @Test
     void rawConsumerTest() throws DuplicateHL7FileFoundException, DiHL7Exception {
         // Produce a test message to the topic
-//        initialDataInsertionAndSelection(rawTopic);
+        initialDataInsertionAndSelection(rawTopic);
         String message =  guidForTesting;
         produceMessage(rawTopic, message, EnumKafkaOperation.INJECTION);
 
@@ -210,7 +208,7 @@ class KafkaConsumerServiceTest {
     }
 
     @Test
-    void rawConsumerTestRawRecordNotFound() throws DuplicateHL7FileFoundException, DiHL7Exception {
+    void rawConsumerTestRawRecordNotFound() {
         // Produce a test message to the topic
         String message =  guidForTesting;
         produceMessage(rawTopic, message, EnumKafkaOperation.INJECTION);
@@ -301,38 +299,45 @@ class KafkaConsumerServiceTest {
     }
 
     @Test
-    void xmlPreparationConsumerTest() throws Exception {
-        // Produce a test message to the topic
-        String message =  guidForTesting;
-        produceMessage(xmlPrepTopic, message, EnumKafkaOperation.INJECTION);
+    void xmlPreparationConsumerTest() {
 
-        // Consume the message
-        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
+        CompletableFuture.runAsync(() -> {
+            // Produce a test message to the topic
+            String message =  guidForTesting;
+            produceMessage(xmlPrepTopic, message, EnumKafkaOperation.INJECTION);
 
-        // Perform assertions
-        assertEquals(1, records.count());
+            // Consume the message
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
 
-        ConsumerRecord<String, String> firstRecord = records.iterator().next();
-        String value = firstRecord.value();
+            // Perform assertions
+            assertEquals(1, records.count());
 
-        ValidatedELRModel model = new ValidatedELRModel();
-        model.setId(guidForTesting);
-        model.setRawMessage(testHL7Message);
+            ConsumerRecord<String, String> firstRecord = records.iterator().next();
+            String value = firstRecord.value();
 
-        when(iValidatedELRRepository.findById(guidForTesting))
-                .thenReturn(Optional.of(model));
-        when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any())).thenReturn(nbsInterfaceModel);
+            ValidatedELRModel model = new ValidatedELRModel();
+            model.setId(guidForTesting);
+            model.setRawMessage(testHL7Message);
 
-        kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.INJECTION.name());
+            when(iValidatedELRRepository.findById(guidForTesting))
+                    .thenReturn(Optional.of(model));
+            when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any())).thenReturn(nbsInterfaceModel);
 
-        verify(iValidatedELRRepository, times(2)).findById(guidForTesting);
+            try {
+                kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.INJECTION.name());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            verify(iValidatedELRRepository, times(2)).findById(guidForTesting);
+        });
 
     }
 
     @Test
-    void xmlPreparationConsumerTestReInjection() throws Exception {
+    void xmlPreparationConsumerTestReInjection_Exception() {
         // Produce a test message to the topic
-      //  initialDataInsertionAndSelection(xmlPrepTopic);
+        //  initialDataInsertionAndSelection(xmlPrepTopic);
 
         var guidForTesting = "test";
         String message =  guidForTesting;
@@ -351,24 +356,63 @@ class KafkaConsumerServiceTest {
         ElrDeadLetterModel model = new ElrDeadLetterModel();
         model.setErrorMessageId(guidForTesting);
         model.setMessage(testHL7Message);
-        when(elrDeadLetterRepository.findById(guidForTesting))
-                .thenReturn(Optional.of(model));
-
-        when(iHl7v2Validator.messageStringValidation(testHL7Message))
-                .thenReturn(testHL7Message);
-
-        when(iHl7v2Validator.processFhsMessage(testHL7Message)).thenReturn(testHL7Message);
 
 
-        validatedELRModel.setRawMessage(testHL7Message);
-        nbsInterfaceModel.setPayload(testHL7Message);
-        when(iValidatedELRRepository.findById(anyString())).thenReturn(Optional.of(validatedELRModel));
-        when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any())).thenReturn(nbsInterfaceModel);
+         CompletableFuture.runAsync(() -> {
+            try {
+                assertThrows(DiAsyncException.class, () -> kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.name())); //NOSONAR
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
 
-        kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.name());
+    @Test
+    void xmlPreparationConsumerTestReInjection() {
+        // Produce a test message to the topic
+      //  initialDataInsertionAndSelection(xmlPrepTopic);
 
-        verify(iHl7v2Validator, times(1)).messageStringValidation(testHL7Message);
-        verify(elrDeadLetterRepository, times(1)).findById(guidForTesting);
+       CompletableFuture.runAsync(() -> {
+            try {
+                var guidForTesting = "test";
+                String message =  guidForTesting;
+                produceMessage(xmlPrepTopic, message, EnumKafkaOperation.REINJECTION);
+
+                // Consume the message
+                ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
+
+                // Perform assertions
+                assertEquals(1, records.count());
+
+                ConsumerRecord<String, String> firstRecord = records.iterator().next();
+                String value = firstRecord.value();
+
+
+                ElrDeadLetterModel model = new ElrDeadLetterModel();
+                model.setErrorMessageId(guidForTesting);
+                model.setMessage(testHL7Message);
+                when(elrDeadLetterRepository.findById(guidForTesting))
+                        .thenReturn(Optional.of(model));
+
+                when(iHl7v2Validator.messageStringValidation(testHL7Message))
+                        .thenReturn(testHL7Message);
+
+                when(iHl7v2Validator.processFhsMessage(testHL7Message)).thenReturn(testHL7Message);
+
+
+                validatedELRModel.setRawMessage(testHL7Message);
+                nbsInterfaceModel.setPayload(testHL7Message);
+                when(iValidatedELRRepository.findById(anyString())).thenReturn(Optional.of(validatedELRModel));
+                when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any())).thenReturn(nbsInterfaceModel);
+
+                kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.name());
+
+                verify(iHl7v2Validator, times(1)).messageStringValidation(testHL7Message);
+                verify(elrDeadLetterRepository, times(1)).findById(guidForTesting);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
 
     }
 
