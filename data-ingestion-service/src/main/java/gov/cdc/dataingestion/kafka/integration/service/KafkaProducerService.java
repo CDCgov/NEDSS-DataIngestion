@@ -74,7 +74,7 @@ public class KafkaProducerService {
     }
 
     public void sendMessagePreparationTopic(ValidatedELRModel msg, String topic, TopicPreparationType topicType, Integer dltOccurrence) throws ConversionPrepareException {
-
+        //
         String uniqueId;
         if (topicType == TopicPreparationType.XML) {
             uniqueId =  PREFIX_MSG_PREP + PREFIX_MSG_XML + msg.getMessageType() + "_" + UUID.randomUUID();
