@@ -49,9 +49,6 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.sql.Timestamp;
-import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -488,8 +485,10 @@ public class KafkaConsumerService {
                     reportStatusIdData.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
                     reportStatusIdData.setCreatedBy(convertedToXmlTopic);
                     reportStatusIdData.setUpdatedBy(convertedToXmlTopic);
-                    reportStatusIdData.setCreatedOn(getCurrentTimeStamp());
-                    reportStatusIdData.setUpdatedOn(getCurrentTimeStamp());
+
+                    var timestamp = getCurrentTimeStamp();
+                    reportStatusIdData.setCreatedOn(timestamp);
+                    reportStatusIdData.setUpdatedOn(timestamp);
                     iReportStatusRepository.save(reportStatusIdData);
                 }
 
