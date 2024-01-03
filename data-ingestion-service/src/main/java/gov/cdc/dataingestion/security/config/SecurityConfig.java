@@ -32,7 +32,7 @@ public class SecurityConfig {
             "/actuator/prometheus/**",
             "/swagger-ui/**",
             "/token",
-            "/test/token"
+            "/api/reports"
     };
     @Autowired
     private CustomAuthenticationManagerResolver customauthenticationmanagerresolver;

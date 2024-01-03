@@ -16,6 +16,7 @@ public class CustomAuthenticationManagerResolver implements AuthenticationManage
     String introspectionUri;
     @Override
     public AuthenticationManager resolve(HttpServletRequest request){
+        System.out.println("Header values:"+request.getHeaderNames());
         String clientId = request.getHeader("client_id");
         String clientSecret = request.getHeader("client_secret");
         if(introspectionUri ==null || introspectionUri.isEmpty()){
