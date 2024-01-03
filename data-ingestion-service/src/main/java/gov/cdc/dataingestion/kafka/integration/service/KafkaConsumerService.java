@@ -51,6 +51,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
 
@@ -107,6 +108,10 @@ public class KafkaConsumerService {
     private String topicDebugLog = "Received message ID: {} from topic: {}";
     private String processDltErrorMessage = "Raw data not found; id: ";
     //endregion
+
+
+    private ConcurrentLinkedQueue<Exception> exceptionQueue = new ConcurrentLinkedQueue<>();
+
 
     //region CONSTRUCTOR
     public KafkaConsumerService(
@@ -259,7 +264,14 @@ public class KafkaConsumerService {
         log.debug(topicDebugLog, message, topic);
         customMetricsBuilder.incrementXmlConversionRequested();
         xmlConversionHandler(message, operation);
+        checkAndThrowExceptions();
+    }
 
+    @SuppressWarnings("java:S112")
+    private void checkAndThrowExceptions() throws Exception {
+        if (!exceptionQueue.isEmpty()) {
+            throw exceptionQueue.poll();
+        }
     }
 
     /**
@@ -496,13 +508,9 @@ public class KafkaConsumerService {
 
             } catch (Exception e) {
                 // Handle any exceptions here
-                throw new DiAsyncException(e.getMessage());
+                exceptionQueue.add(e);
             }
-        });
-
-
-
-
+        }).join();
     }
     private void validationHandler(String message, boolean hl7ValidationActivated) throws DuplicateHL7FileFoundException, DiHL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -149,13 +150,26 @@ public class NbsRepositoryServiceProvider {
 
 	private NbsInterfaceModel savingNbsInterfaceModelTimeStampHelper(String specimenColDateStr,
 														NbsInterfaceModel nbsInterface) {
+
 		if (specimenColDateStr != null) {
+			boolean noTimeStamp = false;
 			String pattern = "yyyyMMddHHmm";
 			if (specimenColDateStr.contains("-")) {
 				pattern = "yyyyMMddHHmmssX";
 			}
+			// date without time
+			if (specimenColDateStr.length() == 8) {
+				pattern = "yyyyMMdd";
+				noTimeStamp = true;
+			}
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-			LocalDateTime localDateTime = LocalDateTime.parse(specimenColDateStr, formatter);
+			LocalDateTime localDateTime;
+			if (noTimeStamp) {
+				LocalDate localDate = LocalDate.parse(specimenColDateStr, formatter);
+				localDateTime = localDate.atStartOfDay();
+			} else {
+				localDateTime = LocalDateTime.parse(specimenColDateStr, formatter);
+			}
 			nbsInterface.setSpecimenCollDate(Timestamp.valueOf(localDateTime));
 		} else {
 			nbsInterface.setSpecimenCollDate(null);
