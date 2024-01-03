@@ -267,6 +267,7 @@ public class KafkaConsumerService {
         checkAndThrowExceptions();
     }
 
+    @SuppressWarnings("java:S112")
     private void checkAndThrowExceptions() throws Exception {
         if (!exceptionQueue.isEmpty()) {
             throw exceptionQueue.poll();
