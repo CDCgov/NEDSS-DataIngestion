@@ -11,6 +11,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.firewall.DefaultHttpFirewall;
+import org.springframework.security.web.firewall.HttpFirewall;
 
 @RequiredArgsConstructor
 @Configuration
@@ -31,8 +33,7 @@ public class SecurityConfig {
             "/actuator/prometheus",
             "/actuator/prometheus/**",
             "/swagger-ui/**",
-            "/token",
-            "/api/reports"
+            "/token"
     };
     @Autowired
     private CustomAuthenticationManagerResolver customauthenticationmanagerresolver;
@@ -51,5 +52,9 @@ public class SecurityConfig {
         http.oauth2ResourceServer().authenticationEntryPoint(new CustomAuthenticationEntryPoint()).and()
                 .exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint());
         return http.build();
+    }
+    @Bean
+    public HttpFirewall getHttpFirewall() {
+        return new DefaultHttpFirewall();
     }
 }
