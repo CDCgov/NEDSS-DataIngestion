@@ -24,8 +24,8 @@ public class CustomAuthenticationManagerResolver implements AuthenticationManage
             while (headerNames.hasMoreElements())
                 System.out.println(headerNames.nextElement());
         }
-        String clientId = request.getHeader("client_id");
-        String clientSecret = request.getHeader("client_secret");
+        String clientId = request.getHeader("clientid");
+        String clientSecret = request.getHeader("clientsecret");
         if(introspectionUri ==null || introspectionUri.isEmpty()){
             throw new CustomAuthenticationException("Introspection URI is required");
         }
