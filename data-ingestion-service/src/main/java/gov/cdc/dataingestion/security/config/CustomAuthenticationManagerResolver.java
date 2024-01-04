@@ -10,13 +10,20 @@ import org.springframework.security.oauth2.server.resource.introspection.NimbusO
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.stereotype.Component;
 
+import java.util.Enumeration;
+
 @Component
 public class CustomAuthenticationManagerResolver implements AuthenticationManagerResolver<HttpServletRequest> {
     @Value("${auth.introspect-uri}")
     String introspectionUri;
     @Override
     public AuthenticationManager resolve(HttpServletRequest request){
-        System.out.println("Header values:"+request.getHeaderNames());
+        System.out.println("Header names:"+request.getHeaderNames());
+        Enumeration<String> headerNames=request.getHeaderNames();
+        if (headerNames!=null){
+            while (headerNames.hasMoreElements())
+                System.out.println(headerNames.nextElement());
+        }
         String clientId = request.getHeader("client_id");
         String clientSecret = request.getHeader("client_secret");
         if(introspectionUri ==null || introspectionUri.isEmpty()){
