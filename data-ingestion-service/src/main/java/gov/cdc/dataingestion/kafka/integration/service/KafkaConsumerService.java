@@ -262,7 +262,6 @@ public class KafkaConsumerService {
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                                  @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation) throws Exception {
         log.debug(topicDebugLog, message, topic);
-        customMetricsBuilder.incrementXmlConversionRequested();
         xmlConversionHandler(message, operation);
         checkAndThrowExceptions();
     }
@@ -458,6 +457,7 @@ public class KafkaConsumerService {
 
             String hl7Msg = "";
             try {
+                customMetricsBuilder.incrementXmlConversionRequested();
                 if (operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
                     Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
                     hl7Msg = validatedElrResponse.map(ValidatedELRModel::getRawMessage).orElse("");
