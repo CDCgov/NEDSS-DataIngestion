@@ -7,11 +7,12 @@ on:
   pull_request:
     branches:
       - karate
+  workflow_dispatch:
  
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: TEST
+    environment: DI-INT
  
     steps:
       - uses: actions/checkout@v2

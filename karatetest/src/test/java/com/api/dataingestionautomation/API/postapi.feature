@@ -52,8 +52,4 @@ Feature: Read various HL7 messages from JSON file and Post them using a REST API
     When method get
     Then status 200
     * print response
-    * if (response.error_message)
-    * print 'Validation failed for UUID:', id, 'with error:', response.error_message
-    * assert false
-    * else
     * match response.status == 'Success'
