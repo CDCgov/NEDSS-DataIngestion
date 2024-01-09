@@ -2,14 +2,14 @@
 Feature: Test the API functionality scenarios
 
   Background:
-    * def configauth = { username: '#(apiusername)', password: '#(apipassword)' }
+    * callonce read('common.feature')
+    * header Authorization = 'Bearer ' + token
     * def basicAuth = karate.call('classpath:basic-auth.js', configauth)
-    * header Authorization = basicAuth
     * header Content-Type = 'text/plain'
 
 
 @api
-  Scenario: Transmit an empty HL7 message via POST method successfully and capture the error response.
+  Scenario: Transmit an empty HL7 message via POST method successfully and capture the error response
     * header msgType = 'HL7'
     * header validationActive = 'true'
     Given url apiurl
@@ -53,4 +53,17 @@ Feature: Test the API functionality scenarios
     When method POST
     Then status 400
     Then match response.detail == "Required header 'msgType' is not present."
-    #dummycomment2-p0=
+
+  @api
+  Scenario: Transmit a valid Hl7 message with just the HL7 header information
+    * header msgType = 'HL7'
+    * header validationActive = 'true'
+    * def FakerHelper = Java.type('com.api.dataingestionautomation.API.FakerHelper')
+    * def oldfirstname = 'LinkLogic'
+    * def randomFirstName = FakerHelper.getRandomFirstName()
+    * def hl7Message = "MSH|^~\&|LinkLogic^^|LABCORP^34D0655059^CLIA|ALDOH^^|AL^^|202305251105||ORU^R01^ORU_R01|202305221034-A|P^|2.5.1"
+    * def modifiedmsg = hl7Message.replace(oldfirstname, randomFirstName)
+    Given url apiurl
+    And request modifiedmsg
+    When method POST
+    Then status 200
