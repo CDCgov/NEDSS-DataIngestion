@@ -457,7 +457,6 @@ public class KafkaConsumerService {
 
             String hl7Msg = "";
             try {
-                customMetricsBuilder.incrementXmlConversionRequested();
                 if (operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
                     Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
                     hl7Msg = validatedElrResponse.map(ValidatedELRModel::getRawMessage).orElse("");
@@ -481,7 +480,7 @@ public class KafkaConsumerService {
 
                 NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml, parsedMessage);
 
-
+                customMetricsBuilder.incrementXmlConversionRequested();
                 // Once the XML is saved to the NBS_Interface table, we get the ID to save it
                 // in the Data Ingestion elr_record_status_id table, so that we can get the status
                 // of the record straight-forward from the NBS_Interface table.
