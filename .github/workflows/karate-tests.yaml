@@ -2,6 +2,8 @@ name: Karate Test Workflow
 
 on:
   push:
+    branches:
+      - karate-**
   pull_request:
     branches:
       - karate-**
