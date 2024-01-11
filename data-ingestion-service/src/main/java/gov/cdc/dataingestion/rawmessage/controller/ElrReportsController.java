@@ -58,8 +58,8 @@ public class ElrReportsController {
             description = "Submit a plain text HL7 message with msgType header",
             tags = { "dataingestion", "elr" })
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity<String> save(@RequestBody final String payload, @RequestHeader("msgType") String type,  @RequestHeader("validationActive") String validationActive) {
-            if (type.isEmpty() || validationActive.isEmpty()) {
+    public ResponseEntity<String> save(@RequestBody final String payload, @RequestHeader("msgType") String type) {
+            if (type.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Required headers should not be null");
             }
 
@@ -67,18 +67,13 @@ public class ElrReportsController {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide valid value for msgType header");
             }
 
-            boolean validationCheck = "true".equalsIgnoreCase(validationActive) || "false".equalsIgnoreCase(validationActive);
-            if (!validationCheck) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide valid value for validationActive header: value must be either true or false");
-            }
 
             RawERLDto rawERLDto = new RawERLDto();
             customMetricsBuilder.incrementMessagesProcessed();
             rawERLDto.setType(type);
             rawERLDto.setPayload(payload);
-            if (validationActive.equalsIgnoreCase("true")) {
-                rawERLDto.setValidationActive(true);
-            }
+            rawERLDto.setValidationActive(true);
+
             return ResponseEntity.ok(rawELRService.submission(rawERLDto));
     }
 
