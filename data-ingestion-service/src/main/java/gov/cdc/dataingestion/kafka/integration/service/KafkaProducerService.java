@@ -9,6 +9,7 @@ import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import gov.cdc.dataingestion.constant.KafkaHeaderValue;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -88,6 +89,8 @@ public class KafkaProducerService {
         sendMessageHelper(topic, dltOccurrence, uniqueId, msg.getId(), msg.getMessageType(), msg.getMessageVersion());
     }
 
+
+
     private void sendMessageHelper(String topic, Integer dltOccurrence, String uniqueId, String messageOriginId, String messageType, String messageVersion) {
         var prodRecord = new ProducerRecord<>(topic, uniqueId, messageOriginId);
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, messageType.getBytes());
@@ -96,6 +99,17 @@ public class KafkaProducerService {
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
         sendMessage(prodRecord);
     }
+
+    public void sendMessageDlt(String msg, String topic, Integer dltOccurrence,
+                               String stackTrace, String originalTopic) {
+        String uniqueID = "DLT_" + UUID.randomUUID();
+        var prodRecord = new ProducerRecord<>(topic, uniqueID, msg);
+        prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
+        prodRecord.headers().add(KafkaHeaders.EXCEPTION_STACKTRACE, stackTrace.toString().getBytes());
+        prodRecord.headers().add(KafkaHeaders.ORIGINAL_TOPIC, originalTopic.toString().getBytes());
+        sendMessage(prodRecord);
+    }
+
 
     public void sendMessageAfterConvertedToFhirMessage(HL7ToFHIRModel msg, String topic, Integer dltOccurrence) {
         String uniqueID = PREFIX_MSG_FHIR + UUID.randomUUID();
