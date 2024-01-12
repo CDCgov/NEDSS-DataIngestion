@@ -236,31 +236,10 @@ public class KafkaConsumerService {
     /**
      * XML Conversion
      * */
-//    @RetryableTopic(
-//            attempts = "${kafka.consumer.max-retry}",
-//            autoCreateTopics = "false",
-//            dltStrategy = DltStrategy.FAIL_ON_ERROR,
-//            retryTopicSuffix = "${kafka.retry.suffix}",
-//            dltTopicSuffix = "${kafka.dlt.suffix}",
-//            // retry topic name, such as topic-retry-1, topic-retry-2, etc
-//            topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE,
-//            // time to wait before attempting to retry
-//            backoff = @Backoff(delay = 1000, multiplier = 2.0),
-//            // if these exceptions occur, skip retry then push message to DLQ
-//            exclude = {
-//                    SerializationException.class,
-//                    DeserializationException.class,
-//                    DuplicateHL7FileFoundException.class,
-//                    DiHL7Exception.class,
-//                    HL7Exception.class,
-//                    XmlConversionException.class,
-//                    JAXBException.class
-//            }
-//    )
     @KafkaListener(topics = "${kafka.xml-conversion-prep.topic}")
     public void handleMessageForXmlConversionElr(String message,
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                                                 @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation) throws Exception {
+                                                 @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation)  {
         log.debug(topicDebugLog, message, topic);
         customMetricsBuilder.incrementXmlConversionRequested();
         xmlConversionHandler(message, operation);
