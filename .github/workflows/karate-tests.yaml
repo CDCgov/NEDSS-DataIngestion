@@ -1,12 +1,12 @@
 name: Karate Test Workflow
- 
+
 on:
   push:
     branches:
-      - main
+      - karate-**
   pull_request:
     branches:
-      - main
+      - karate-**
   workflow_dispatch:
  
 jobs:
