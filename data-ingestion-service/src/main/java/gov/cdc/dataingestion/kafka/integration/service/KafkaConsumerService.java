@@ -262,7 +262,6 @@ public class KafkaConsumerService {
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                                  @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation) throws Exception {
         log.debug(topicDebugLog, message, topic);
-        customMetricsBuilder.incrementXmlConversionRequested();
         xmlConversionHandler(message, operation);
         checkAndThrowExceptions();
     }
@@ -481,7 +480,7 @@ public class KafkaConsumerService {
 
                 NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml, parsedMessage);
 
-
+                customMetricsBuilder.incrementXmlConversionRequested();
                 // Once the XML is saved to the NBS_Interface table, we get the ID to save it
                 // in the Data Ingestion elr_record_status_id table, so that we can get the status
                 // of the record straight-forward from the NBS_Interface table.
