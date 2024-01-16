@@ -12,6 +12,8 @@ import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.constant.enums.EnumElrDltStatus;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
+import gov.cdc.dataingestion.email_notification.service.DiEmailService;
+import gov.cdc.dataingestion.email_notification.service.interfaces.IDiEmailService;
 import gov.cdc.dataingestion.exception.*;
 import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
@@ -88,6 +90,9 @@ public class KafkaConsumerService {
 
     @Value("${kafka.fhir-conversion-prep.topic}")
     private String prepFhirTopic = "fhir_prep";
+
+    @Value("${kafka.dlt-alarm-notification.topic}")
+    private String notificationTopic = "dlt_alarm_notification";
     private final KafkaProducerService kafkaProducerService;
     private final IHL7v2Validator iHl7v2Validator;
     private final IRawELRRepository iRawELRRepository;
@@ -103,6 +108,8 @@ public class KafkaConsumerService {
     private final IEcrMsgQueryService ecrMsgQueryService;
     private final IReportStatusRepository iReportStatusRepository;
     private final CustomMetricsBuilder customMetricsBuilder;
+
+    private final IDiEmailService diEmailService;
 
     private String errorDltMessage = "Message not found in dead letter table";
     private String topicDebugLog = "Received message ID: {} from topic: {}";
@@ -127,7 +134,8 @@ public class KafkaConsumerService {
             ICdaMapper cdaMapper,
             IEcrMsgQueryService ecrMsgQueryService,
             IReportStatusRepository iReportStatusRepository,
-            CustomMetricsBuilder customMetricsBuilder) {
+            CustomMetricsBuilder customMetricsBuilder,
+            IDiEmailService diEmailService) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.kafkaProducerService = kafkaProducerService;
@@ -141,6 +149,7 @@ public class KafkaConsumerService {
         this.ecrMsgQueryService = ecrMsgQueryService;
         this.iReportStatusRepository = iReportStatusRepository;
         this.customMetricsBuilder = customMetricsBuilder;
+        this.diEmailService = diEmailService;
     }
     //endregion
 
@@ -410,6 +419,7 @@ public class KafkaConsumerService {
             model.setCreatedBy(elrDeadLetterDto.getCreatedBy());
             model.setUpdatedBy(elrDeadLetterDto.getUpdatedBy());
             this.elrDeadLetterRepository.save(model);
+            sendMessageToNotificationTopic(model);
         } catch (Exception e) {
             Gson gson = new Gson();
             String data = gson.toJson(model);
@@ -417,6 +427,13 @@ public class KafkaConsumerService {
 
         }
     }
+
+    private void sendMessageToNotificationTopic(ElrDeadLetterModel dltModel) {
+        Gson gson = new Gson();
+        String dltString = gson.toJson(dltModel);
+        this.kafkaProducerService.sendMessageToNotificationTopic(dltString, notificationTopic);
+    }
+
     private String getDltErrorSource(String incomingTopic) {
         String erroredSource = "";
         if (incomingTopic.equalsIgnoreCase(rawTopic)) {

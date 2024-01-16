@@ -24,6 +24,12 @@ logging:
   #  Only one config can be active at a time
   config: classpath:logback-config.xml
 LOG_PATH: ${DI_LOG_PATH}
+notification-config:
+  email:
+    aws: true
+    azure: false
+  chat:
+    slack: false
 ---
 spring:
   config:
@@ -51,7 +57,16 @@ spring:
     group-id: data-ingestion-group
     consumer:
       maxPollIntervalMs: 30000
-
+aws:
+  authentication:
+    access: ${AWS_ACCESS_KEY}
+    secret: ${AWS_SECRET}
+    token: ${AWS_TOKEN}
+    region: ${AWS_REGION}
+  ses:
+    email:
+      source: ${AWS_SES_SOURCE}
+      recipients: ${AWS_SES_RECIPIENTS}
 kafka:
   consumer:
     max-retry: 2
@@ -71,6 +86,10 @@ kafka:
     topic: xml_prep
   elr-duplicate:
     topic: elr_duplicate
+  dlt-alarm-notification:
+    topic: dlt_alarm_notification
+  dlt-alarm-notification-email-aws:
+    topic: dlt_alarm_notification_email_aws
   topics: elr_raw,elr_validated
   retry:
       suffix: _retry
@@ -104,7 +123,16 @@ spring:
     group-id: data-ingestion-group
     consumer:
       maxPollIntervalMs: 30000
-
+aws:
+  authentication:
+    access: ${AWS_ACCESS_KEY}
+    secret: ${AWS_SECRET}
+    token: ${AWS_TOKEN}
+    region: ${AWS_REGION}
+  ses:
+    email:
+      source: ${AWS_SES_SOURCE}
+      recipients: ${AWS_SES_RECIPIENTS}
 kafka:
   consumer:
     max-retry: 2
@@ -124,6 +152,10 @@ kafka:
     topic: xml_prep
   elr-duplicate:
     topic: elr_duplicate
+  dlt-alarm-notification:
+    topic: dlt_alarm_notification
+  dlt-alarm-notification-email-aws:
+    topic: dlt_alarm_notification_email_aws
   topics: elr_raw,elr_validated
   retry:
     suffix: _retry
