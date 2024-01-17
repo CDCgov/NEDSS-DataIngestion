@@ -110,9 +110,6 @@ public class KafkaConsumerService {
     //endregion
 
 
-    private ConcurrentLinkedQueue<Exception> exceptionQueue = new ConcurrentLinkedQueue<>();
-
-
     //region CONSTRUCTOR
     public KafkaConsumerService(
             IValidatedELRRepository iValidatedELRRepository,
