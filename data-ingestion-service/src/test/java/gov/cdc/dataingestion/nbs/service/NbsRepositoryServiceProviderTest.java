@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.nbs.service;
 
 
+import gov.cdc.dataingestion.exception.XmlConversionException;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.OrderObservation;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.PatientResult;
@@ -39,7 +40,7 @@ class NbsRepositoryServiceProviderTest {
     }
 
     @Test
-    void saveToNbsTestNoOruFound() {
+    void saveToNbsTestNoOruFound() throws XmlConversionException {
         String id = "whatever";
         String xmlMsg =  testXmlData;
         HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
@@ -50,7 +51,7 @@ class NbsRepositoryServiceProviderTest {
     }
 
     @Test
-    void saveToNbsTest() {
+    void saveToNbsTest() throws XmlConversionException {
         String id = "whatever";
         String xmlMsg =  testXmlData;
         HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
@@ -70,7 +71,7 @@ class NbsRepositoryServiceProviderTest {
     }
 
     @Test
-    void saveToNbsTestUniversalMsgNull() {
+    void saveToNbsTestUniversalMsgNull() throws XmlConversionException {
         String id = "whatever";
         String xmlMsg =  testXmlData;
         HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
@@ -90,7 +91,7 @@ class NbsRepositoryServiceProviderTest {
     }
 
     @Test
-    void saveToNbsTestUniversalMsgFacilityNull() {
+    void saveToNbsTestUniversalMsgFacilityNull() throws XmlConversionException {
         String id = "whatever";
         String xmlMsg =  testXmlData;
         HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
@@ -110,7 +111,7 @@ class NbsRepositoryServiceProviderTest {
     }
 
     @Test
-    void saveToNbsTestOrderNumPatientResultEmpty() {
+    void saveToNbsTestOrderNumPatientResultEmpty() throws XmlConversionException {
         String id = "whatever";
         String xmlMsg =  testXmlData;
         HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
@@ -124,7 +125,7 @@ class NbsRepositoryServiceProviderTest {
     }
 
     @Test
-    void saveToNbsTestOrderNumPatientResultNull() {
+    void saveToNbsTestOrderNumPatientResultNull() throws XmlConversionException {
         String id = "whatever";
         String xmlMsg =  testXmlData;
         HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
@@ -139,7 +140,7 @@ class NbsRepositoryServiceProviderTest {
     }
 
     @Test
-    void saveToNbsTestOrderNumObservationEmpty() {
+    void saveToNbsTestOrderNumObservationEmpty() throws XmlConversionException {
         String id = "whatever";
         String xmlMsg =  testXmlData;
         HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
@@ -154,7 +155,7 @@ class NbsRepositoryServiceProviderTest {
     }
 
     @Test
-    void saveToNbsTestOrderNumObservationNull() {
+    void saveToNbsTestOrderNumObservationNull() throws XmlConversionException {
         String id = "whatever";
         String xmlMsg =  testXmlData;
         HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
@@ -170,7 +171,7 @@ class NbsRepositoryServiceProviderTest {
     }
 
     @Test
-    void saveToNbsTestObrNull() {
+    void saveToNbsTestObrNull() throws XmlConversionException {
         String id = "whatever";
         String xmlMsg =  testXmlData;
         HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
@@ -187,7 +188,7 @@ class NbsRepositoryServiceProviderTest {
     }
 
     @Test
-    void saveToNbsTestObrEntityIdentifierNull() {
+    void saveToNbsTestObrEntityIdentifierNull() throws XmlConversionException {
         String id = "whatever";
         String xmlMsg =  testXmlData;
         HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
@@ -204,7 +205,7 @@ class NbsRepositoryServiceProviderTest {
     }
 
     @Test
-    void saveToNbsTestTestCodeNull() {
+    void saveToNbsTestTestCodeNull() throws XmlConversionException {
         String id = "whatever";
         String xmlMsg =  testXmlData;
         HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
@@ -224,7 +225,7 @@ class NbsRepositoryServiceProviderTest {
 
 
     @Test
-    void saveToNbsTestDateOnly() {
+    void saveToNbsTestDateOnly() throws XmlConversionException {
         String id = "whatever";
         String xmlMsg =  testXmlData;
         HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
