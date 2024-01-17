@@ -243,14 +243,6 @@ public class KafkaConsumerService {
         log.debug(topicDebugLog, message, topic);
         customMetricsBuilder.incrementXmlConversionRequested();
         xmlConversionHandler(message, operation);
-        //checkAndThrowExceptions();
-    }
-
-    @SuppressWarnings("java:S112")
-    private void checkAndThrowExceptions() throws Exception {
-        if (!exceptionQueue.isEmpty()) {
-            throw exceptionQueue.poll();
-        }
     }
 
     /**

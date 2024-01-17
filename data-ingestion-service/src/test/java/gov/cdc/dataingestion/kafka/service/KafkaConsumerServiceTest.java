@@ -589,6 +589,23 @@ class KafkaConsumerServiceTest {
         Assertions.assertEquals(expectedMessage, result);
     }
 
+    @Test
+    void dltHandlerLogicPipelineCustom() {
+        initialDataInsertionAndSelection(rawTopic);
+        String message =  guidForTesting;
+
+        RawERLModel rawModel = new RawERLModel();
+        rawModel.setId(guidForTesting);
+        rawModel.setType("HL7");
+        rawModel.setPayload(testHL7Message);
+        when(iRawELRRepository.findById(guidForTesting))
+                .thenReturn(Optional.of(rawModel));
+
+        kafkaConsumerService.handleDltManual(message, errorMessage, "0", rawTopic);
+
+        verify(iRawELRRepository, times(1)).findById(guidForTesting);
+    }
+
 
     @Test
     void dltHandlerLogicForRawPipeline() {

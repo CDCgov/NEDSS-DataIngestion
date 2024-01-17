@@ -108,6 +108,15 @@ class KafkaProducerServiceTest {
     }
 
     @Test
+    void sendMessageDlt()  {
+        String topic = "test-topic";
+        kafkaProducerService.sendMessageDlt("test", topic, 1,
+                "error", topic);
+        verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
+    }
+
+
+    @Test
     void testSendMessageAfterConvertedToXml()  {
         String topic = "test-topic";
         String msg = "test";

@@ -105,8 +105,8 @@ public class KafkaProducerService {
         String uniqueID = "DLT_" + UUID.randomUUID();
         var prodRecord = new ProducerRecord<>(topic, uniqueID, msg);
         prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
-        prodRecord.headers().add(KafkaHeaders.EXCEPTION_STACKTRACE, stackTrace.toString().getBytes());
-        prodRecord.headers().add(KafkaHeaders.ORIGINAL_TOPIC, originalTopic.toString().getBytes());
+        prodRecord.headers().add(KafkaHeaders.EXCEPTION_STACKTRACE, stackTrace.getBytes());
+        prodRecord.headers().add(KafkaHeaders.ORIGINAL_TOPIC, originalTopic.getBytes());
         sendMessage(prodRecord);
     }
 

@@ -149,7 +149,7 @@ public class NbsRepositoryServiceProvider {
 		return nbsInterface;
 	}
 
-	private NbsInterfaceModel savingNbsInterfaceModelTimeStampHelper(String specimenColDateStr,
+	private void savingNbsInterfaceModelTimeStampHelper(String specimenColDateStr,
 														NbsInterfaceModel nbsInterface) throws XmlConversionException {
 
 		try {
@@ -176,7 +176,6 @@ public class NbsRepositoryServiceProvider {
 			} else {
 				nbsInterface.setSpecimenCollDate(null);
 			}
-			return nbsInterface;
 		} catch (Exception e) {
 			throw new XmlConversionException(e.getMessage());
 		}
