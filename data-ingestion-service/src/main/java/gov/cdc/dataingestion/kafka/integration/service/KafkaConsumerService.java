@@ -110,9 +110,6 @@ public class KafkaConsumerService {
     //endregion
 
 
-    private ConcurrentLinkedQueue<Exception> exceptionQueue = new ConcurrentLinkedQueue<>();
-
-
     //region CONSTRUCTOR
     public KafkaConsumerService(
             IValidatedELRRepository iValidatedELRRepository,
@@ -236,41 +233,12 @@ public class KafkaConsumerService {
     /**
      * XML Conversion
      * */
-    @RetryableTopic(
-            attempts = "${kafka.consumer.max-retry}",
-            autoCreateTopics = "false",
-            dltStrategy = DltStrategy.FAIL_ON_ERROR,
-            retryTopicSuffix = "${kafka.retry.suffix}",
-            dltTopicSuffix = "${kafka.dlt.suffix}",
-            // retry topic name, such as topic-retry-1, topic-retry-2, etc
-            topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE,
-            // time to wait before attempting to retry
-            backoff = @Backoff(delay = 1000, multiplier = 2.0),
-            // if these exceptions occur, skip retry then push message to DLQ
-            exclude = {
-                    SerializationException.class,
-                    DeserializationException.class,
-                    DuplicateHL7FileFoundException.class,
-                    DiHL7Exception.class,
-                    HL7Exception.class,
-                    XmlConversionException.class,
-                    JAXBException.class
-            }
-    )
     @KafkaListener(topics = "${kafka.xml-conversion-prep.topic}")
     public void handleMessageForXmlConversionElr(String message,
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                                                 @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation) throws Exception {
+                                                 @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation)  {
         log.debug(topicDebugLog, message, topic);
         xmlConversionHandler(message, operation);
-        checkAndThrowExceptions();
-    }
-
-    @SuppressWarnings("java:S112")
-    private void checkAndThrowExceptions() throws Exception {
-        if (!exceptionQueue.isEmpty()) {
-            throw exceptionQueue.poll();
-        }
     }
 
     /**
@@ -344,6 +312,18 @@ public class KafkaConsumerService {
                 , result.getMsgContainer().getDataMigrationStatus(), xmlResult);
     }
 
+    @KafkaListener(
+            topics = "xml_prep_dlt_manual"
+    )
+    public void handleDltManual(
+            String message,
+            @Header(KafkaHeaders.EXCEPTION_STACKTRACE) String stacktrace,
+            @Header(KafkaHeaderValue.DLT_OCCURRENCE) String dltOccurrence,
+            @Header(KafkaHeaderValue.ORIGINAL_TOPIC) String originalTopic
+    ) {
+        shareProcessingDlt(dltOccurrence, originalTopic, message, stacktrace);
+    }
+
     //region DLT HANDLER
     @DltHandler
     public void handleDlt(
@@ -354,7 +334,11 @@ public class KafkaConsumerService {
             @Header(KafkaHeaderValue.DLT_OCCURRENCE) String dltOccurrence,
             @Header(KafkaHeaderValue.ORIGINAL_TOPIC) String originalTopic
     ) {
-        log.debug("Message ID: {} handled by dlq topic: {}", message, topic);
+        shareProcessingDlt(dltOccurrence, originalTopic, message, stacktrace);
+    }
+    //endregion
+
+    private void shareProcessingDlt(String dltOccurrence, String originalTopic, String message, String stacktrace) {
 
         // increase by 1, indicate the dlt had been occurred
         Integer dltCount = Integer.parseInt(dltOccurrence) + 1;
@@ -371,7 +355,6 @@ public class KafkaConsumerService {
         );
         processingDltRecord(elrDeadLetterDto);
     }
-    //endregion
 
     //region PRIVATE METHOD
     private void processingDltRecord(ElrDeadLetterDto elrDeadLetterDto) {
@@ -507,9 +490,12 @@ public class KafkaConsumerService {
 
             } catch (Exception e) {
                 // Handle any exceptions here
-                exceptionQueue.add(e);
+                kafkaProducerService.sendMessageDlt(
+                        message, "xml_prep_dlt_manual", 0 ,
+                        e.getMessage(),prepXmlTopic
+                );
             }
-        }).join();
+        });
     }
     private void validationHandler(String message, boolean hl7ValidationActivated) throws DuplicateHL7FileFoundException, DiHL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);
