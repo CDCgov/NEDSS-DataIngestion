@@ -2,10 +2,8 @@ package gov.cdc.dataingestion.deadletter.controller;
 
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService;
-import gov.cdc.dataingestion.security.config.RsaKeyProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -16,11 +14,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @WebMvcTest(ElrDeadLetterController.class)
-@EnableConfigurationProperties(RsaKeyProperties.class)
+//@EnableConfigurationProperties(RsaKeyProperties.class)
 
 class ElrDeadLetterControllerTest {
     @Autowired

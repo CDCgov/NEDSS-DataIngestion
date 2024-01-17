@@ -1,17 +1,15 @@
 package gov.cdc.dataingestion.rawmessage;
 
-import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
+import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.services.EcrMsgQueryService;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 import gov.cdc.dataingestion.rawmessage.controller.ElrReportsController;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
-import gov.cdc.dataingestion.security.config.RsaKeyProperties;
 import gov.cdc.dataingestion.validation.services.interfaces.IHL7Service;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -19,10 +17,11 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import static org.mockito.Mockito.*;
+
+import static org.mockito.Mockito.when;
 
 
-@EnableConfigurationProperties(RsaKeyProperties.class)
+//@EnableConfigurationProperties(RsaKeyProperties.class)
 @WebMvcTest(ElrReportsController.class)
 class ElrReportsControllerTest {
 

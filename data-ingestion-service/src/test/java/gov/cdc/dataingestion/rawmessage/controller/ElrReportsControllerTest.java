@@ -6,11 +6,9 @@ import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
-import gov.cdc.dataingestion.security.config.RsaKeyProperties;
 import gov.cdc.dataingestion.validation.services.interfaces.IHL7Service;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -21,7 +19,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import static org.mockito.Mockito.verify;
 
 @WebMvcTest(ElrReportsController.class)
-@EnableConfigurationProperties(RsaKeyProperties.class)
+//@EnableConfigurationProperties(RsaKeyProperties.class)
 class ElrReportsControllerTest {
 
     @Autowired
