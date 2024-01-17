@@ -1,32 +1,60 @@
 package gov.cdc.dataingestion.security.controller;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
-import gov.cdc.dataingestion.security.service.TokenService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 @RestController
 @Slf4j
 public class TokenController {
-
-    private final TokenService tokenService;
+    @Value("${auth.token-uri}")
+    String authTokenUri;
     private final CustomMetricsBuilder customMetricsBuilder;
-
-    public TokenController(TokenService tokenService, CustomMetricsBuilder customMetricsBuilder) {
-
-        this.tokenService = tokenService;
+   private RestTemplate restTemplate;
+    public TokenController( @Qualifier("restTemplate") RestTemplate restTemplate, CustomMetricsBuilder customMetricsBuilder) {
+        this.restTemplate=restTemplate;
         this.customMetricsBuilder = customMetricsBuilder;
     }
-
+    @Bean(name = "restTemplate")
+    public static RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder.build();
+    }
     @PostMapping("/token")
-    public String token(Authentication authentication) {
-        log.debug("Token requested for user: '{}'", authentication.getName());
-
-        String token = tokenService.generateToken(authentication);
-        customMetricsBuilder.incrementTokensRequested();
-        log.debug("Token granted: {}", token);
-        return token;
+    public String token(@RequestHeader("clientid") String clientId, @RequestHeader("clientsecret") String clientSecret) {
+        log.info("Token URL : " + authTokenUri);
+        String postBody = "grant_type=client_credentials" +
+                "&client_id=" + clientId
+                + "&client_secret=" + clientSecret;
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/x-www-form-urlencoded");
+        HttpEntity<String> request = new HttpEntity<>(postBody, headers);
+        ResponseEntity<String> exchange =
+                restTemplate.exchange(
+                        authTokenUri,
+                        HttpMethod.POST,
+                        request,
+                        String.class);
+        log.info("Token response status code: " + exchange.getStatusCode());
+        String response = exchange.getBody();
+        String accessToken = null;
+            JsonElement jsonElement = JsonParser.parseString(response);
+            JsonObject jsonObject = jsonElement.getAsJsonObject();
+            accessToken = jsonObject.get("access_token").getAsString();
+            customMetricsBuilder.incrementTokensRequested();
+        return accessToken;
     }
 }
