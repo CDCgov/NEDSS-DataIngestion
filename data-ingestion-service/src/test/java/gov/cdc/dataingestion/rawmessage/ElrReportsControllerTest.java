@@ -55,7 +55,6 @@ class ElrReportsControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
                         .param("id", "1").with(SecurityMockMvcRequestPostProcessors.jwt())
                         .header("msgType", messageType)
-                        .header("validationActive", "false")
                         .contentType(MediaType.TEXT_PLAIN_VALUE)
                         .content(payload))
                 .andExpect(MockMvcResultMatchers.status().isOk());
