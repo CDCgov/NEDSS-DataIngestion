@@ -2,7 +2,6 @@ package gov.cdc.dataingestion.nbs.service;
 
 
 import gov.cdc.dataingestion.exception.XmlConversionException;
-import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.OrderObservation;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.PatientResult;
