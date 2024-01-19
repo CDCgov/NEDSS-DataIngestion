@@ -51,6 +51,7 @@ class NbsRepositoryServiceProviderTest {
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
 
+    @SuppressWarnings({"java:S5976"})
     @Test
     void saveToNbsTest() throws XmlConversionException {
         String id = "whatever";
@@ -71,6 +72,7 @@ class NbsRepositoryServiceProviderTest {
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
 
+    @SuppressWarnings({"java:S5976"})
     @Test
     void saveToNbsTestWithSpecificTimeZone() throws XmlConversionException {
         String id = "whatever";
@@ -91,6 +93,7 @@ class NbsRepositoryServiceProviderTest {
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
 
+    @SuppressWarnings({"java:S5976"})
     @Test
     void saveToNbsTestWithSpecificTimeZone2() throws XmlConversionException {
         String id = "whatever";
