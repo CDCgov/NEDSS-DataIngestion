@@ -156,7 +156,7 @@ public class NbsRepositoryServiceProvider {
 			if (specimenColDateStr != null) {
 				boolean noTimeStamp = false;
 				String pattern = "yyyyMMddHHmm";
-				if (specimenColDateStr.contains("-")) {
+				if (specimenColDateStr.contains("-") || specimenColDateStr.contains("+") ) {
 					pattern = "yyyyMMddHHmmssX";
 				}
 				// date without time
