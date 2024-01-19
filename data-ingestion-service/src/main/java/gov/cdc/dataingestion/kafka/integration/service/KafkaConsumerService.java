@@ -49,6 +49,8 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Service;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -489,10 +491,14 @@ public class KafkaConsumerService {
                 kafkaProducerService.sendMessageAfterConvertedToXml(rhapsodyXml, convertedToXmlTopic, 0);
 
             } catch (Exception e) {
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                e.printStackTrace(pw);
+                String stackTrace = sw.toString();
                 // Handle any exceptions here
                 kafkaProducerService.sendMessageDlt(
                         message, "xml_prep_dlt_manual", 0 ,
-                        e.getMessage(),prepXmlTopic
+                        stackTrace,prepXmlTopic
                 );
             }
         });
