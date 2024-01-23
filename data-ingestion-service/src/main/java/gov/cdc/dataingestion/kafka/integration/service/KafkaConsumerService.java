@@ -3,6 +3,7 @@ package gov.cdc.dataingestion.kafka.integration.service;
 
 import ca.uhn.hl7v2.HL7Exception;
 import com.google.gson.Gson;
+import gov.cdc.dataingestion.constant.IngestionMode;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
@@ -86,6 +87,9 @@ public class KafkaConsumerService {
 
     @Value("${kafka.xml-conversion-prep.topic}")
     private String prepXmlTopic = "xml_prep";
+
+    @Value("micro_prep")
+    private String prepMicroTopic = "micro_prep";
 
     @Value("${kafka.fhir-conversion-prep.topic}")
     private String prepFhirTopic = "fhir_prep";
@@ -226,9 +230,10 @@ public class KafkaConsumerService {
     )
     @KafkaListener(topics = "${kafka.validation.topic}")
     public void handleMessageForValidatedElr(String message,
-                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws ConversionPrepareException {
+                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+                                             @Header(KafkaHeaderValue.INGESTION_MODE) String ingestionMode ) throws ConversionPrepareException {
         log.debug(topicDebugLog, message, topic);
-        preparationForConversionHandler(message);
+        preparationForConversionHandler(message, ingestionMode);
     }
 
     /**
@@ -419,10 +424,15 @@ public class KafkaConsumerService {
         return erroredSource;
     }
 
-    private void preparationForConversionHandler(String message) throws ConversionPrepareException {
+    private void preparationForConversionHandler(String message, String ingestionModel) throws ConversionPrepareException {
         Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
         if(validatedElrResponse.isPresent()) {
-            kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepXmlTopic, TopicPreparationType.XML, 0);
+            if (ingestionModel.equals(IngestionMode.CLASSIC)) {
+                kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepXmlTopic, TopicPreparationType.XML, 0);
+            }
+            else if (ingestionModel.equals(IngestionMode.MICRO)) {
+                kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepMicroTopic, TopicPreparationType.MICRO, 0);
+            }
             kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepFhirTopic, TopicPreparationType.FHIR, 0);
         } else {
             throw new ConversionPrepareException("Validation ELR Record Not Found");

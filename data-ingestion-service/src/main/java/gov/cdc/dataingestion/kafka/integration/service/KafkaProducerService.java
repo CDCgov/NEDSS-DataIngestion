@@ -20,6 +20,7 @@ public class KafkaProducerService {
     private static final String PREFIX_MSG_PREP = "PREP_";
     private static final String PREFIX_MSG_XML = "XML_";
     private static final String PREFIX_MSG_FHIR = "FHIR_";
+    private static final String PREFIX_MSG_MICRO = "MICRO_";
     private static final String PREFIX_MSG_VALID = "VALID_";
     private static final String PREFIX_MSG_HL7 = "HL7_";
 
@@ -82,6 +83,9 @@ public class KafkaProducerService {
         }
         else if (topicType == TopicPreparationType.FHIR) {
             uniqueId =  PREFIX_MSG_PREP +  PREFIX_MSG_FHIR + msg.getMessageType() + "_" + UUID.randomUUID();
+        }
+        else if (topicType == TopicPreparationType.MICRO) {
+            uniqueId =  PREFIX_MSG_PREP +  PREFIX_MSG_MICRO + msg.getMessageType() + "_" + UUID.randomUUID();
         }
         else {
             throw new ConversionPrepareException("Unsupported Topic");
