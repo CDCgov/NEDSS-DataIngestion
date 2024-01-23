@@ -535,6 +535,8 @@ public class KafkaConsumerService {
                 // Duplication check
                 iHL7DuplicateValidator.validateHL7Document(hl7ValidatedModel);
                 saveValidatedELRMessage(hl7ValidatedModel);
+
+                // Determine whether the process is Classic or Micro here
                 kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic, 0);
                 break;
             case KafkaHeaderValue.MESSAGE_TYPE_CSV:

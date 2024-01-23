@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.kafka.integration.service;
 
 import com.google.gson.Gson;
+import gov.cdc.dataingestion.constant.IngestionMode;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
@@ -72,6 +73,8 @@ public class KafkaProducerService {
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_VERSION, msg.getMessageVersion().getBytes());
         prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
+        // Default it to classic for now
+        prodRecord.headers().add(KafkaHeaderValue.INGESTION_MODE, IngestionMode.CLASSIC.getBytes());
         sendMessage(prodRecord);
     }
 
