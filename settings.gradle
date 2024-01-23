@@ -11,3 +11,6 @@ include 'cdaschema'
 
 // App
 include 'data-ingestion-service'
+include 'data-processing-service'
+include 'data-processing-service'
+
