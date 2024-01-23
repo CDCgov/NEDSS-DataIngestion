@@ -25,6 +25,17 @@ kafka:
     elr_patient: elr_processing_patient
     elr_nok: elr_processing_nok
     elr_provider: elr_processing_provider
+    elr_org: elr_processing_org
+    elr_prog_area: elr_processing_program_area
+    elr_jurisdiction: elr_processing_jurisdiction
+    elr_process_lab: elr_processing_lab_result
+    elr_health_case: elr_processing_public_health_case
+    elr_auto_investigation: elr_processing_auto_investigation
+    elr_handle_lab: elr_processing_handle_lab
+    elr_handle_reviewed_lab: elr_processing_handle_reviewed_lab
+    elr_handle_non_review_lab_1: elr_processing_handle_non_lab_1
+    elr_handle_non_review_lab_2: elr_processing_handle_non_lab_2
+    elr_edx_log: elr_edx_log
 
 ---
 spring:
