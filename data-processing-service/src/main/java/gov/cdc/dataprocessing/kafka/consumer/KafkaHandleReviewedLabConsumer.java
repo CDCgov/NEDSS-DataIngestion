@@ -66,7 +66,7 @@ public class KafkaHandleReviewedLabConsumer {
         boolean reviewed = true;
         String destinationTopic = "";
         if (reviewed) {
-            destinationTopic = handleLabTopic;
+            destinationTopic = reviewedLabTopic;
         } else {
             boolean actObjIsNotNull = true;
             if (actObjIsNotNull) {

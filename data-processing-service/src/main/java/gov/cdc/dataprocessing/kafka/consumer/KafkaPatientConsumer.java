@@ -22,7 +22,7 @@ public class KafkaPatientConsumer {
     private String patientTopic = "elr_processing_patient";
     @Value("${kafka.topic.elr_nok}")
     private String nokTopic = "elr_processing_nok";
-    @Value("${kafka.topic.elr_provider")
+    @Value("${kafka.topic.elr_provider}")
     private String providerTopic = "elr_processing_provider";
 
     private final KafkaPatientProducer kafkaPatientProducer;

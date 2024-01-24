@@ -52,7 +52,7 @@ public class KafkaProgramAreaJurisdictionConsumer {
     }
 
     @KafkaListener(
-            topics = "${kafka.topic.elr_jurisdiction}"
+            topics = "${kafka.topic.elr_prog_area}"
     )
     public void handleMessageFromProgArea(String message,
                                      @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)
