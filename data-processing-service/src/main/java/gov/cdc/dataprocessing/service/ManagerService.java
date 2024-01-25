@@ -26,13 +26,16 @@ public class ManagerService implements IManagerService {
 
     private final IHandleLabService handleLabService;
 
+    private final IDataExtractionService dataExtractionService;
+
     public ManagerService(IObservationService observationService,
                           IPatientService patientService,
                           IOrganizationService organizationService,
                           IProgramAreaJurisdictionService programAreaJurisdictionService,
                           ILabProcessingService labProcessingService,
                           IPublicHealthCaseService publicHealthCaseService,
-                          IEdxLogService edxLogService, IHandleLabService handleLabService) {
+                          IEdxLogService edxLogService, IHandleLabService handleLabService,
+                          IDataExtractionService dataExtractionService) {
         this.observationService = observationService;
         this.patientService = patientService;
         this.organizationService = organizationService;
@@ -41,6 +44,7 @@ public class ManagerService implements IManagerService {
         this.publicHealthCaseService = publicHealthCaseService;
         this.edxLogService = edxLogService;
         this.handleLabService = handleLabService;
+        this.dataExtractionService = dataExtractionService;
     }
 
     public Object processDistribution(String eventType, String data) throws DataProcessingConsumerException {
@@ -107,6 +111,9 @@ public class ManagerService implements IManagerService {
         //TODO logic to execute data here
         Object result = new Object();
         try {
+            //TODO: Parsing Data to Object
+            var parsedData = dataExtractionService.parsingDataToObject(data);
+
             //TODO: OBSERVATION
             var observation = observationService.processingObservation();
 
