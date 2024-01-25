@@ -14,12 +14,12 @@ public class LabProcessingService implements ILabProcessingService {
     public LabProcessingService() {
 
     }
-    public String processingLabResult() throws DataProcessingConsumerException {
+    public Object processingLabResult() throws DataProcessingConsumerException {
         //TODO: Adding logic here
         try {
             return "processing lab result";
         } catch (Exception e) {
-            throw new DataProcessingConsumerException("ERROR");
+            throw new DataProcessingConsumerException("ERROR", "Data");
         }
 
     }

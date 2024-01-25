@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.service;
 
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
-import gov.cdc.dataprocessing.kafka.producer.KafkaObservationProducer;
 import gov.cdc.dataprocessing.service.interfaces.IObservationService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -17,12 +16,12 @@ public class ObservationService implements IObservationService {
 
     }
 
-    public String processingObservation() throws DataProcessingConsumerException {
+    public Object processingObservation() throws DataProcessingConsumerException {
         //TODO: Adding Observation logic here
         try {
             return "processing observation";
         } catch (Exception e) {
-            throw new DataProcessingConsumerException("ERROR");
+            throw new DataProcessingConsumerException("ERROR", "Data");
         }
 
     }

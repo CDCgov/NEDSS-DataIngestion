@@ -15,22 +15,22 @@ public class ProgramAreaJurisdictionService implements IProgramAreaJurisdictionS
 
     }
 
-    public String processingProgramArea() throws DataProcessingConsumerException {
+    public Object processingProgramArea() throws DataProcessingConsumerException {
         //TODO: Adding logic here
         try {
             return "processing program area";
         } catch (Exception e) {
-            throw new DataProcessingConsumerException("ERROR");
+            throw new DataProcessingConsumerException("ERROR", "Data");
         }
 
     }
 
-    public String processingJurisdiction() throws DataProcessingConsumerException {
+    public Object processingJurisdiction() throws DataProcessingConsumerException {
         //TODO: Adding logic here
         try {
             return "processing jurisdiction";
         } catch (Exception e) {
-            throw new DataProcessingConsumerException("ERROR");
+            throw new DataProcessingConsumerException("ERROR", "Data");
         }
 
     }

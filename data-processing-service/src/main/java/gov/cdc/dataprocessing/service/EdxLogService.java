@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.service;
 
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
+import gov.cdc.dataprocessing.exception.EdxLogException;
 import gov.cdc.dataprocessing.service.interfaces.IEdxLogService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -16,12 +17,12 @@ public class EdxLogService implements IEdxLogService {
 
     }
 
-    public String processingLog() throws DataProcessingConsumerException {
+    public Object processingLog() throws EdxLogException {
         //TODO: Adding logic here
         try {
             return "processing log";
         } catch (Exception e) {
-            throw new DataProcessingConsumerException("ERROR");
+            throw new EdxLogException("ERROR", "Data");
         }
 
     }

@@ -15,22 +15,22 @@ public class PublicHealthCaseService implements IPublicHealthCaseService {
 
     }
 
-    public String processingPublicHealthCase() throws DataProcessingConsumerException {
+    public Object processingPublicHealthCase() throws DataProcessingConsumerException {
         //TODO: Adding logic here
         try {
             return "processing public health case";
         } catch (Exception e) {
-            throw new DataProcessingConsumerException("ERROR");
+            throw new DataProcessingConsumerException("ERROR", "Data");
         }
 
     }
 
-    public String processingAutoInvestigation() throws DataProcessingConsumerException {
+    public Object processingAutoInvestigation() throws DataProcessingConsumerException {
         //TODO: Adding logic here
         try {
             return "processing auto investigation";
         } catch (Exception e) {
-            throw new DataProcessingConsumerException("ERROR");
+            throw new DataProcessingConsumerException("ERROR", "Data");
         }
 
     }

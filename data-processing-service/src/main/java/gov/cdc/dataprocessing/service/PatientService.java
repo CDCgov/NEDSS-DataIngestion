@@ -15,30 +15,30 @@ public class PatientService implements IPatientService {
 
     }
 
-    public String processingPatient() throws DataProcessingConsumerException {
+    public Object processingPatient() throws DataProcessingConsumerException {
         //TODO: Adding Logic Here
         try {
             return "processing patient";
         } catch (Exception e) {
-            throw new DataProcessingConsumerException("ERROR");
+            throw new DataProcessingConsumerException("ERROR", "Data");
         }
     }
 
-    public String processingNextOfKin() throws DataProcessingConsumerException {
+    public Object processingNextOfKin() throws DataProcessingConsumerException {
         //TODO: Adding Logic Here
         try {
             return "processing next of kin";
         } catch (Exception e) {
-            throw new DataProcessingConsumerException("ERROR");
+            throw new DataProcessingConsumerException("ERROR", "Data");
         }
     }
 
-    public String processingProvider() throws DataProcessingConsumerException {
+    public Object processingProvider() throws DataProcessingConsumerException {
         //TODO: Adding Logic Here
         try {
             return "processing provider";
         } catch (Exception e) {
-            throw new DataProcessingConsumerException("ERROR");
+            throw new DataProcessingConsumerException("ERROR", "Data");
         }
     }
 

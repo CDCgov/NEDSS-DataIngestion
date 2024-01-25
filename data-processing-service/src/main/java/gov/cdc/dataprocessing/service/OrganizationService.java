@@ -16,12 +16,12 @@ public class OrganizationService implements IOrganizationService {
 
     }
 
-    public String processingOrganization() throws DataProcessingConsumerException {
+    public Object processingOrganization() throws DataProcessingConsumerException {
         //TODO: Adding logic here
         try {
             return "processing org";
         } catch (Exception e) {
-            throw new DataProcessingConsumerException("ERROR");
+            throw new DataProcessingConsumerException("ERROR", "Data");
         }
 
     }
