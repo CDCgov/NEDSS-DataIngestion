@@ -52,7 +52,35 @@ class CustomAuthenticationEntryPointTest {
 
         Assertions.assertEquals(expectedJson, stringWriter.toString());
     }
+    @Test
+    void commence_RespondsInvalidClientCredentials() throws IOException {
+        // Arrange
+        authException = new CustomAuthenticationException("Full authentication is required to access this resource");
 
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(stringWriter);
+        Mockito.when(response.getWriter()).thenReturn(writer);
+
+        Mockito.when(request.getHeader("clientid")).thenReturn("testclientId");
+        Mockito.when(request.getHeader("clientsecret")).thenReturn("testclientsecret");
+        Mockito.when(request.getHeader("authorization")).thenReturn("Bearer token123");
+        // Act
+        entryPoint.commence(request, response, authException);
+        writer.flush();
+
+        // Assert
+        Mockito.verify(response).setContentType("application/json");
+        Mockito.verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+        Gson gson = new Gson();
+        ErrorResponse expectedErrorResponse = new ErrorResponse();
+        expectedErrorResponse.setStatusCode(HttpServletResponse.SC_UNAUTHORIZED);
+        expectedErrorResponse.setMessage("Unauthorized");
+        expectedErrorResponse.setDetails("Invalid client or Invalid client credentials");//authException.getMessage()
+        String expectedJson = gson.toJson(expectedErrorResponse);
+        System.out.println("stringWriter.toString():"+stringWriter.toString());
+        Assertions.assertEquals(expectedJson, stringWriter.toString());
+    }
     private static class CustomAuthenticationException extends AuthenticationException {
         public CustomAuthenticationException(String message) {
             super(message);
