@@ -47,7 +47,7 @@ def generate_unique_patient_messages(num_messages, output_folder):
         apt_no = fake.random_int(min= 100, max= 10000)
         alternate_identifier = fake.random_int(min= 999, max= 99999)
         fake_message = (
-            f"MSH|^~\&|LABCORP-CORP^OID^ISO|LABCORP^34D0655059^CLIA|ALDOH^OID^ISO|AL^OID^ISO|200604040100||ORU^R01^ORU_R01|20120509010020114_251.2|D|2.5.1|||NE|NE|USA||||V251_IG_LB_LABRPTPH_R1_INFORM_2010FEB^^2.16.840.1.114222.4.3.2.5.2.5^ISO\r"
+            f"MSH|^~\\&|LABCORP-CORP^OID^ISO|LABCORP^34D0655059^CLIA|ALDOH^OID^ISO|AL^OID^ISO|200604040100||ORU^R01^ORU_R01|20120509010020114_251.2|D|2.5.1|||NE|NE|USA||||V251_IG_LB_LABRPTPH_R1_INFORM_2010FEB^^2.16.840.1.114222.4.3.2.5.2.5^ISO\r"
             f"SFT|Mirth Corp.|2.0|Mirth Connect|789654||20110101\r"
             f"PID|1|{patient_id}^^^^SS|{person_number}^^^Baker-Robbins&94534&CLIA^PN^{family_name}^{given_name}||{family_name}^{given_name}^^^^^^^^^^||{date_of_birth}|{administrative_sex}|||0605 Lin Creek Apt. {apt_no} Davieshaven, RI 70327^^West Rebecca^Vermont^95855||^^^^^{ssn}||^^^^^79335\r"
             f"ORC|RE||20120601{filler_order_entity_id}^LABCORP^34D0655059^CLIA||||||||||||||||||COOSA VALLEY MEDICAL CENTER|315 WEST HICKORY ST.^SUITE 100^SYLACAUGA^AL^35150^USA^^^RICHLAND|^^^^^256^2495780^123|380 WEST HILL ST.^^SYLACAUGA^AL^35150^USA^^^RICHLAND\r"
@@ -60,4 +60,4 @@ def generate_unique_patient_messages(num_messages, output_folder):
             text_file.write(fake_message)
 
 if __name__ == "__main__":
-    generate_unique_patient_messages(100, "/Users/DucNguyen/Downloads/python_code_for_di/data")
+    generate_unique_patient_messages(5, "/Users/DucNguyen/Desktop/CDC_Repos/NEDSS-DataIngestion/data-ingestion-service/src/test/load-testing/data")

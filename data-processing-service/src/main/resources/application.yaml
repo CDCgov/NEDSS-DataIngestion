@@ -52,3 +52,5 @@ spring:
     group-id: data-processing-group
     consumer:
       maxPollIntervalMs: 30000
+
+#K8S Profile goes here
