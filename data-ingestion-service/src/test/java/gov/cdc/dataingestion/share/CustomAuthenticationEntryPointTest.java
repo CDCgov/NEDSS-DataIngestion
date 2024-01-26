@@ -76,7 +76,7 @@ class CustomAuthenticationEntryPointTest {
         ErrorResponse expectedErrorResponse = new ErrorResponse();
         expectedErrorResponse.setStatusCode(HttpServletResponse.SC_UNAUTHORIZED);
         expectedErrorResponse.setMessage("Unauthorized");
-        expectedErrorResponse.setDetails("Invalid client or Invalid client credentials");//authException.getMessage()
+        expectedErrorResponse.setDetails("Invalid client or Invalid client credentials");
         String expectedJson = gson.toJson(expectedErrorResponse);
         System.out.println("stringWriter.toString():"+stringWriter.toString());
         Assertions.assertEquals(expectedJson, stringWriter.toString());
