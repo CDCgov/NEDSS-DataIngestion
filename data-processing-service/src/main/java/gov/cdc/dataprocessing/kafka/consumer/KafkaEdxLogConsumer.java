@@ -23,11 +23,10 @@ public class KafkaEdxLogConsumer {
     }
 
     @KafkaListener(
-            topics = "${kafka.topic.elr_handle_lab}"
+            topics = "${kafka.topic.elr_edx_log}"
     )
     public void handleMessage(String message,
-                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                              @Header(KafkaCustomHeader.DATA_TYPE) String dataType) throws EdxLogException, DataProcessingConsumerException {
+                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EdxLogException, DataProcessingConsumerException {
         managerService.processingEdxLog("data");
     }
 }

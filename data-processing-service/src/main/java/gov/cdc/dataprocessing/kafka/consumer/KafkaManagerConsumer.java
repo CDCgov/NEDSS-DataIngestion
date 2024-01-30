@@ -7,13 +7,17 @@ import gov.cdc.dataprocessing.service.ManagerService;
 import gov.cdc.dataprocessing.service.ObservationService;
 import gov.cdc.dataprocessing.service.interfaces.IManagerService;
 import gov.cdc.dataprocessing.service.interfaces.IObservationService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.stereotype.Service;
 
+@Service
+@Slf4j
 public class KafkaManagerConsumer {
     private static final Logger logger = LoggerFactory.getLogger(KafkaManagerConsumer.class);
 

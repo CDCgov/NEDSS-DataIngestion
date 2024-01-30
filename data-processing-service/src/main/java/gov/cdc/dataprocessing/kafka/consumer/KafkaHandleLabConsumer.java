@@ -4,11 +4,15 @@ import gov.cdc.dataprocessing.constant.KafkaCustomHeader;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
 import gov.cdc.dataprocessing.service.interfaces.IManagerService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.stereotype.Service;
 
+@Service
+@Slf4j
 public class KafkaHandleLabConsumer {
     @Value("${kafka.topic.elr_edx_log}")
     private String logTopic = "elr_edx_log";
@@ -26,8 +30,7 @@ public class KafkaHandleLabConsumer {
             topics = "${kafka.topic.elr_handle_lab}"
     )
     public void handleMessage(String message,
-                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                              @Header(KafkaCustomHeader.DATA_TYPE) String dataType)
+                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)
             throws DataProcessingConsumerException {
         //TODO: Logic to handle goes here
         Object result = new Object();
