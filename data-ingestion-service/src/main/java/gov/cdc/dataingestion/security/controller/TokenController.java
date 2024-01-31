@@ -31,7 +31,7 @@ public class TokenController {
         return builder.build();
     }
     @PostMapping("/token")
-    public ResponseEntity token(@RequestHeader("clientid") String clientId, @RequestHeader("clientsecret") String clientSecret) {
+    public ResponseEntity<String> token(@RequestHeader("clientid") String clientId, @RequestHeader("clientsecret") String clientSecret) {
         log.info("Token URL : " + authTokenUri);
         String accessToken = null;
         String postBody = "grant_type=client_credentials" +
