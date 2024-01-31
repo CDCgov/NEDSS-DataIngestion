@@ -3,7 +3,6 @@ package gov.cdc.dataingestion.security.controller;
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.mockito.ArgumentMatchers;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
@@ -14,7 +13,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 class TokenControllerTest {
@@ -45,13 +45,13 @@ class TokenControllerTest {
                 ArgumentMatchers.any(), ArgumentMatchers.<Class<List<String>>>any()))
                 .thenReturn(responseEntity);
 
-        String generatedToken = tokenController.token(clientId,clientSecret);
+        String generatedToken = tokenController.token(clientId,clientSecret).getBody().toString();
 
         assertEquals(expectedToken, generatedToken);
         verify(customMetricsBuilder, times(1)).incrementTokensRequested();
     }
     @Test
-    void throws_exception_when_invoke_token() {
+    void test_tokenendpoint_for_invalid_client_credentials() {
         String authTokenUri = "http://localhost:8080/realms/test/openid-connect/token";
         TokenController tokenController = new TokenController(restTemplate,customMetricsBuilder);
         tokenController.authTokenUri = authTokenUri;
@@ -62,8 +62,9 @@ class TokenControllerTest {
                 ArgumentMatchers.any(), ArgumentMatchers.<Class<List<String>>>any()))
                 .thenThrow(HttpClientErrorException.class);
 
-        Executable executable= ()->tokenController.token(clientId,clientSecret);
-        assertThrows(HttpClientErrorException.class,executable);
+        String expectedResult="401 UNAUTHORIZED";
+        String statusCode = tokenController.token(clientId,clientSecret).getStatusCode().toString();
+        assertEquals(expectedResult, statusCode);
     }
 
     @Test
