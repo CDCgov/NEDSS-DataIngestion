@@ -5,6 +5,7 @@ Feature: Read various HL7 messages from JSON file and Post them using a REST API
   Background:
     * callonce read('common.feature')
     * header Authorization = 'Bearer ' + token
+    * configure headers = { clientid: '#(clientid)', clientsecret: '#(clientsecret)' }
     * def responses = {}
     * def Thread = Java.type('java.lang.Thread')
     * def oldfirstname = 'LinkLogic'
