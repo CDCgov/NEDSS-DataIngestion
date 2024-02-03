@@ -35,7 +35,6 @@ Feature: Read various HL7 messages from JSON file and Post them using a REST API
   Scenario: Post a single message
     * header Content-Type = 'text/plain'
     * header msgType = 'HL7'
-    * header validationActive = 'true'
     * url apiurl
     * def hl7Message = data
     * def modifiedmsg = hl7Message.replace(oldfirstname, randomFirstName)

@@ -10,7 +10,6 @@ Feature: Test the API functionality scenarios
 @api
   Scenario: Transmit an empty HL7 message via POST method successfully and capture the error response
     * header msgType = 'HL7'
-    * header validationActive = 'true'
     Given url apiurl
     And request ''
     When method POST
@@ -20,7 +19,6 @@ Feature: Test the API functionality scenarios
   @api
   Scenario: Transmit a valid Hl7 message via incorrect endpoint URL and validate the error response
     * header msgType = 'HL7'
-    * header validationActive = 'true'
     Given url wrongapiurl
     And request 'abdef'
     When method POST
@@ -39,7 +37,6 @@ Feature: Test the API functionality scenarios
   @api
   Scenario: Transmit a valid Hl7 message with just the HL7 header information
     * header msgType = 'HL7'
-    * header validationActive = 'true'
     * def FakerHelper = Java.type('com.api.dataingestionautomation.API.FakerHelper')
     * def oldfirstname = 'LinkLogic'
     * def randomFirstName = FakerHelper.getRandomFirstName()
@@ -99,7 +96,6 @@ Feature: Test the API functionality scenarios
   @api
   Scenario: System should not let users transmit an HL7 message with incorrect msgType header value
     * header msgType = 'dummyvalue'
-    * header validationActive = 'true'
     Given url apiurl
     And request 'abdef'
     When method POST
@@ -109,7 +105,6 @@ Feature: Test the API functionality scenarios
   @api
   Scenario: System should not let users transmit an HL7 message with empty msgType header value
     * header msgType = ''
-    * header validationActive = 'true'
     Given url apiurl
     And request 'abdef'
     When method POST
@@ -120,7 +115,6 @@ Feature: Test the API functionality scenarios
   @api
   Scenario: System should not let users transmit an HL7 message with empty clientid header value
     * header msgType = 'HL7'
-    * header validationActive = 'true'
     * configure headers = { clientid: '', clientsecret: 'dummycleintsecret' }
     Given url apiurl
     And request 'abdef'
@@ -131,7 +125,6 @@ Feature: Test the API functionality scenarios
   @api
   Scenario: System should not let users transmit an HL7 message with empty clientsecret header value
     * header msgType = 'HL7'
-    * header validationActive = 'true'
     * configure headers = { clientid: '#(clientid)', clientsecret: '' }
     Given url apiurl
     And request 'abdef'
@@ -142,7 +135,6 @@ Feature: Test the API functionality scenarios
   @api
   Scenario: System should not let users transmit an HL7 message with missing authorization
     * header msgType = 'HL7'
-    * header validationActive = 'true'
     * header Authorization = null
     Given url apiurl
     And request 'abdef'
@@ -153,7 +145,6 @@ Feature: Test the API functionality scenarios
   @api
   Scenario: System should not let users transmit an HL7 message with incorrect token
     * header msgType = 'HL7'
-    * header validationActive = 'true'
     * header Authorization = 'Bearer ' + 'abcdedgdgdfgdfhgdfhdfhjdfhjdjj'
     Given url apiurl
     And request 'abdef'

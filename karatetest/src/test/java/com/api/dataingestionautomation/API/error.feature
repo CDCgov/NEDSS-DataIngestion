@@ -10,7 +10,6 @@ Feature: Verify if DI system can handle certain validation issues
     * configure retry = { count: 5, interval: 10000 }
     * header Content-Type = 'text/plain'
     * header msgType = 'HL7'
-    * header validationActive = 'true'
     * def Thread = Java.type('java.lang.Thread')
     * callonce read('common.feature')
     * header Authorization = 'Bearer ' + token
@@ -28,7 +27,6 @@ Feature: Verify if DI system can handle certain validation issues
     And request modifiedData
     * header Content-Type = 'text/plain'
     * header msgType = 'HL7'
-    * header validationActive = 'true'
     * header Authorization = 'Bearer ' + token
     When method POST
     Then status 200
