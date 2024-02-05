@@ -451,10 +451,12 @@ public class KafkaConsumerService {
 
             String hl7Msg = "";
             try {
+                // HIT THIS first
                 if (operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
                     Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
                     hl7Msg = validatedElrResponse.map(ValidatedELRModel::getRawMessage).orElse("");
                 } else {
+                    // THIS IS REINJECT FLOW
                     Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(message);
                     if (response.isPresent()) {
                         var validMessage = iHl7v2Validator.messageStringValidation(response.get().getMessage());
