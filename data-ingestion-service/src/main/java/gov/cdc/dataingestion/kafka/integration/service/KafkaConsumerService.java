@@ -88,9 +88,6 @@ public class KafkaConsumerService {
     @Value("${kafka.xml-conversion-prep.topic}")
     private String prepXmlTopic = "xml_prep";
 
-    @Value("micro_prep")
-    private String prepMicroTopic = "micro_prep";
-
     @Value("${kafka.fhir-conversion-prep.topic}")
     private String prepFhirTopic = "fhir_prep";
     private final KafkaProducerService kafkaProducerService;
@@ -230,10 +227,9 @@ public class KafkaConsumerService {
     )
     @KafkaListener(topics = "${kafka.validation.topic}")
     public void handleMessageForValidatedElr(String message,
-                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                                             @Header(KafkaHeaderValue.INGESTION_MODE) String ingestionMode ) throws ConversionPrepareException {
+                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws ConversionPrepareException {
         log.debug(topicDebugLog, message, topic);
-        preparationForConversionHandler(message, ingestionMode);
+        preparationForConversionHandler(message);
     }
 
     /**
@@ -424,15 +420,10 @@ public class KafkaConsumerService {
         return erroredSource;
     }
 
-    private void preparationForConversionHandler(String message, String ingestionModel) throws ConversionPrepareException {
+    private void preparationForConversionHandler(String message) throws ConversionPrepareException {
         Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
         if(validatedElrResponse.isPresent()) {
-            if (ingestionModel.equals(IngestionMode.CLASSIC)) {
-                kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepXmlTopic, TopicPreparationType.XML, 0);
-            }
-            else if (ingestionModel.equals(IngestionMode.MICRO)) {
-                kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepMicroTopic, TopicPreparationType.MICRO, 0);
-            }
+            kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepXmlTopic, TopicPreparationType.XML, 0);
             kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepFhirTopic, TopicPreparationType.FHIR, 0);
         } else {
             throw new ConversionPrepareException("Validation ELR Record Not Found");
@@ -451,12 +442,10 @@ public class KafkaConsumerService {
 
             String hl7Msg = "";
             try {
-                // HIT THIS first
                 if (operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
                     Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
                     hl7Msg = validatedElrResponse.map(ValidatedELRModel::getRawMessage).orElse("");
                 } else {
-                    // THIS IS REINJECT FLOW
                     Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(message);
                     if (response.isPresent()) {
                         var validMessage = iHl7v2Validator.messageStringValidation(response.get().getMessage());
@@ -538,7 +527,6 @@ public class KafkaConsumerService {
                 iHL7DuplicateValidator.validateHL7Document(hl7ValidatedModel);
                 saveValidatedELRMessage(hl7ValidatedModel);
 
-                // Determine whether the process is Classic or Micro here
                 kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic, 0);
                 break;
             case KafkaHeaderValue.MESSAGE_TYPE_CSV:

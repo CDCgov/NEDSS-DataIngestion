@@ -1,7 +1,6 @@
 package gov.cdc.dataingestion.kafka.integration.service;
 
 import com.google.gson.Gson;
-import gov.cdc.dataingestion.constant.IngestionMode;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
@@ -21,7 +20,6 @@ public class KafkaProducerService {
     private static final String PREFIX_MSG_PREP = "PREP_";
     private static final String PREFIX_MSG_XML = "XML_";
     private static final String PREFIX_MSG_FHIR = "FHIR_";
-    private static final String PREFIX_MSG_MICRO = "MICRO_";
     private static final String PREFIX_MSG_VALID = "VALID_";
     private static final String PREFIX_MSG_HL7 = "HL7_";
 
@@ -38,7 +36,6 @@ public class KafkaProducerService {
         prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE, validationActive.toString().getBytes());
-        prodRecord.headers().add("DATA-TYPE", "ELR".getBytes());
 
         sendMessage(prodRecord);
     }
@@ -74,8 +71,6 @@ public class KafkaProducerService {
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_VERSION, msg.getMessageVersion().getBytes());
         prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
-        // Default it to classic for now
-        prodRecord.headers().add(KafkaHeaderValue.INGESTION_MODE, IngestionMode.CLASSIC.getBytes());
         sendMessage(prodRecord);
     }
 
@@ -87,9 +82,6 @@ public class KafkaProducerService {
         }
         else if (topicType == TopicPreparationType.FHIR) {
             uniqueId =  PREFIX_MSG_PREP +  PREFIX_MSG_FHIR + msg.getMessageType() + "_" + UUID.randomUUID();
-        }
-        else if (topicType == TopicPreparationType.MICRO) {
-            uniqueId =  PREFIX_MSG_PREP +  PREFIX_MSG_MICRO + msg.getMessageType() + "_" + UUID.randomUUID();
         }
         else {
             throw new ConversionPrepareException("Unsupported Topic");
