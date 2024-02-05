@@ -3,7 +3,6 @@ package gov.cdc.dataingestion.kafka.integration.service;
 
 import ca.uhn.hl7v2.HL7Exception;
 import com.google.gson.Gson;
-import gov.cdc.dataingestion.constant.IngestionMode;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
@@ -526,7 +525,6 @@ public class KafkaConsumerService {
                 // Duplication check
                 iHL7DuplicateValidator.validateHL7Document(hl7ValidatedModel);
                 saveValidatedELRMessage(hl7ValidatedModel);
-
                 kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic, 0);
                 break;
             case KafkaHeaderValue.MESSAGE_TYPE_CSV:
