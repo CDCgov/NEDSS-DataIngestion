@@ -1,0 +1,56 @@
+server:
+  port: 8082
+
+management:
+  endpoint:
+    prometheus:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+spring:
+  application:
+    name: data-processing-service
+
+kafka:
+  topic:
+    elr_micro: elr_processing_micro
+    elr_health_case: elr_processing_public_health_case
+    elr_handle_lab: elr_processing_handle_lab
+    elr_edx_log: elr_edx_log
+
+---
+spring:
+  config:
+    activate:
+      on-profile: default
+  datasource:
+    url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_DBNAME};encrypt=true;trustServerCertificate=true;
+    username: ${DI_USERNAME}
+    password: ${DI_PASSWORD}
+    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    hikari:
+      connection-timeout: 60000
+      maximum-pool-size: 5
+    nbs:
+      url: jdbc:sqlserver://${DI_NBS_DBSERVER};databaseName=${DI_NBS_DBNAME};encrypt=true;trustServerCertificate=true;
+      username: ${DI_NBS_DBUSER}
+      password: ${DI_NBS_DBPASSWORD}
+      driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+  kafka:
+    bootstrap-servers: ${BOOTSTRAP_SERVERS}
+    group-id: data-processing-group
+    consumer:
+      maxPollIntervalMs: 30000
+
+#K8S Profile goes here

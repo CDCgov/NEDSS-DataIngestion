@@ -1,0 +1,162 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
+        classpath 'org.owasp:dependency-check-gradle:9.0.3'
+    }
+}
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.0.0'
+    id 'io.spring.dependency-management' version '1.1.0'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'jacoco'
+    id "org.sonarqube" version "4.2.1.3168"
+}
+
+apply plugin: 'org.owasp.dependencycheck'
+
+group = 'gov.cdc.dataprocessing'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+}
+ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
+
+tasks.withType(Jar).all { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
+
+if ( isReleaseVersion ) {
+    println "Using staging URL"
+    ext.mavenCentralUploadUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+} else {
+    println "Using snapshot URL"
+    ext.mavenCentralUploadUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+jacoco {
+    toolVersion = "0.8.8"
+    reportsDirectory = layout.buildDirectory.dir('customJacocoReportDir')
+}
+
+test {
+    finalizedBy jacocoTestReport // report is always generated after tests run
+}
+jacocoTestReport {
+    reports {
+        xml.required = true
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+    }
+    getExecutionData().setFrom(fileTree(buildDir).include("/jacoco/*.exec"))
+}
+
+task integration(type: Test) {
+    useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'gov.cdc.dataprocessing.ServiceApplication'
+        )
+    }
+    zip64 true
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+if (project != project.rootProject || project.hasProperty('remoteBuild')) {
+    compileJava.mustRunAfter(":hl7-parser:build")
+}
+
+
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web:3.2.0'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server:3.2.0'
+    implementation 'org.springframework.kafka:spring-kafka:3.0.12'
+    implementation 'org.apache.kafka:kafka-clients:3.6.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11'
+    implementation 'com.zaxxer:HikariCP:5.0.1'
+
+    implementation 'ca.uhn.hapi:hapi-base:2.3'
+    implementation 'ca.uhn.hapi:hapi-structures-v251:2.3'
+    implementation 'ca.uhn.hapi:hapi-structures-v231:2.3'
+    implementation 'org.springframework.boot:spring-boot-starter-logging'
+    implementation 'org.slf4j:slf4j-api'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator:3.2.0'
+
+    implementation 'io.prometheus:simpleclient:0.16.0'
+    implementation 'io.prometheus:simpleclient_hotspot:0.16.0'
+    implementation 'io.prometheus:simpleclient_httpserver:0.16.0'
+    implementation 'io.prometheus:simpleclient_pushgateway:0.16.0'
+
+    // DI HL7 Wrapper
+    if (findProject(':hl7-parser')) {
+        implementation project(':hl7-parser')
+    } else {
+        // this mostly needed when testing the app on idea
+        implementation files('libs/hl7-parser-0.0.1-SNAPSHOT.jar')
+    }
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation(platform('org.junit:junit-bom:5.9.1'))
+    testImplementation('org.junit.jupiter:junit-jupiter')
+    testImplementation 'org.springframework.kafka:spring-kafka-test:3.1.0'
+    testImplementation(platform('org.junit:junit-bom:5.9.1'))
+    testImplementation('org.junit.jupiter:junit-jupiter:5.9.2')
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:3.2.0'
+    testImplementation 'org.springframework.security:spring-security-test:6.2.0'
+    runtimeOnly 'org.springframework.boot:spring-boot-devtools:3.2.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'gov.cdc.dataprocessing.ServiceApplication'
+        )
+    }
+    zip64 true
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    // Gather all runtime dependencies
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+
+
+    // Conditionally add dependencies from projects
+    if (findProject(':hl7-parser')) {
+        dependsOn(':hl7-parser:jar')
+    }
+
+}
