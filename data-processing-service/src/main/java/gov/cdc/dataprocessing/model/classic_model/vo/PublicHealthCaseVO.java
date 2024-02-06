@@ -1,9 +1,9 @@
 package gov.cdc.dataprocessing.model.classic_model.vo;
 
-import gov.cdc.dataprocessing.model.classic_model.dt.CaseManagementDT;
-import gov.cdc.dataprocessing.model.classic_model.dt.EDXActivityDetailLogDT;
+import gov.cdc.dataprocessing.model.classic_model.dto.CaseManagementDT;
+import gov.cdc.dataprocessing.model.classic_model.dto.EDXActivityDetailLogDT;
 import gov.cdc.dataprocessing.model.classic_model.dt.EDXEventProcessDT;
-import gov.cdc.dataprocessing.model.classic_model.dt.PublicHealthCaseDT;
+import gov.cdc.dataprocessing.model.classic_model.dto.PublicHealthCaseDT;
 import lombok.Getter;
 import lombok.Setter;
 

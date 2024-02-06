@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.model.classic_model.vo;
 
-import gov.cdc.dataprocessing.model.classic_model.dt.MessageLogDT;
+import gov.cdc.dataprocessing.model.classic_model.dto.MessageLogDT;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,7 +16,7 @@ public class LabResultProxyVO extends PageActProxyVO {
     public boolean associatedInvInd=false;
     //private Collection<Object> thePersonVOCollection;
     private Collection<ObservationVO> theObservationVOCollection;
-    //private Collection<Object> theOrganizationVOCollection;
+    private Collection<Object> theOrganizationVOCollection = new ArrayList<>();
     private Collection<Object> theMaterialVOCollection;
     //private Collection<Object> theParticipationDTCollection;
     //  private Collection<Object> theActRelationshipDTCollection;

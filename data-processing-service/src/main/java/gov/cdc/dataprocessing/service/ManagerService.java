@@ -1,7 +1,10 @@
 package gov.cdc.dataprocessing.service;
 
+import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.EdxLogException;
+import gov.cdc.dataprocessing.model.classic_model.dt.EdxLabInformationDT;
+import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.service.interfaces.*;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -111,8 +114,19 @@ public class ManagerService implements IManagerService {
         //TODO logic to execute data here
         Object result = new Object();
         try {
+            EdxLabInformationDT edxLabInformationDT = new EdxLabInformationDT();
+            edxLabInformationDT.setStatus(NbsInterfaceStatus.Success);
+            edxLabInformationDT.setUserName("Test");
+
+            NbsInterfaceModel nbsInterfaceModel = new NbsInterfaceModel();
+            edxLabInformationDT.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
+            //TODO: Find record by ID here
+
             //TODO: Parsing Data to Object
-            var parsedData = dataExtractionService.parsingDataToObject(data);
+            var parsedData = dataExtractionService.parsingDataToObject(nbsInterfaceModel, edxLabInformationDT);
+
+
+
 
             //TODO: OBSERVATION
             var observation = observationService.processingObservation();

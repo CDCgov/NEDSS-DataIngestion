@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.model.classic_model.dt;
+package gov.cdc.dataprocessing.model.classic_model.dto;
 
 import gov.cdc.dataprocessing.model.classic_model.vo.AbstractVO;
 import lombok.Getter;
@@ -20,6 +20,8 @@ public class EDXActivityDetailLogDT extends AbstractVO implements Serializable {
     private String logTypeHtml;
     private String commentHtml;
 
+
+    // not in db
     private boolean itNew;
     private boolean itDelete;
     private boolean itDirty;

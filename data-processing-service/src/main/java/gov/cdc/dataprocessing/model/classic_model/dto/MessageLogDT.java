@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.model.classic_model.dt;
+package gov.cdc.dataprocessing.model.classic_model.dto;
 
 import gov.cdc.dataprocessing.model.classic_model.vo.AbstractVO;
 import lombok.Getter;
