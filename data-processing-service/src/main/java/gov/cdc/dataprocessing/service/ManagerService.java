@@ -1,7 +1,11 @@
 package gov.cdc.dataprocessing.service;
 
+import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.EdxLogException;
+import gov.cdc.dataprocessing.model.classic_model.dt.EdxLabInformationDT;
+import gov.cdc.dataprocessing.repository.nbs.msgoute.NbsInterfaceRepository;
+import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.service.interfaces.*;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -28,6 +32,8 @@ public class ManagerService implements IManagerService {
 
     private final IDataExtractionService dataExtractionService;
 
+    private final NbsInterfaceRepository nbsInterfaceRepository;
+
     public ManagerService(IObservationService observationService,
                           IPatientService patientService,
                           IOrganizationService organizationService,
@@ -35,7 +41,8 @@ public class ManagerService implements IManagerService {
                           ILabProcessingService labProcessingService,
                           IPublicHealthCaseService publicHealthCaseService,
                           IEdxLogService edxLogService, IHandleLabService handleLabService,
-                          IDataExtractionService dataExtractionService) {
+                          IDataExtractionService dataExtractionService,
+                          NbsInterfaceRepository nbsInterfaceRepository) {
         this.observationService = observationService;
         this.patientService = patientService;
         this.organizationService = organizationService;
@@ -45,6 +52,7 @@ public class ManagerService implements IManagerService {
         this.edxLogService = edxLogService;
         this.handleLabService = handleLabService;
         this.dataExtractionService = dataExtractionService;
+        this.nbsInterfaceRepository = nbsInterfaceRepository;
     }
 
     public Object processDistribution(String eventType, String data) throws DataProcessingConsumerException {
@@ -111,8 +119,23 @@ public class ManagerService implements IManagerService {
         //TODO logic to execute data here
         Object result = new Object();
         try {
+            EdxLabInformationDT edxLabInformationDT = new EdxLabInformationDT();
+            edxLabInformationDT.setStatus(NbsInterfaceStatus.Success);
+            edxLabInformationDT.setUserName("Test");
+
+            NbsInterfaceModel nbsInterfaceModel;
+            var nbsModel = nbsInterfaceRepository.findByNbsInterfaceUid(Integer.valueOf(data));
+            nbsInterfaceModel = nbsModel.get();
+            edxLabInformationDT.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
+
             //TODO: Parsing Data to Object
-            var parsedData = dataExtractionService.parsingDataToObject(data);
+            var parsedData = dataExtractionService.parsingDataToObject(nbsInterfaceModel, edxLabInformationDT);
+
+            edxLabInformationDT.setLabResultProxyVO(parsedData);
+
+            if(nbsInterfaceModel.getObservationUid() !=null && nbsInterfaceModel.getObservationUid()>0) {
+                edxLabInformationDT.setRootObserbationUid(nbsInterfaceModel.getObservationUid());
+            }
 
             //TODO: OBSERVATION
             var observation = observationService.processingObservation();

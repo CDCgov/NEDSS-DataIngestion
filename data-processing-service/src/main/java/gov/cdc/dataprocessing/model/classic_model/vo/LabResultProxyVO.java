@@ -1,6 +1,9 @@
 package gov.cdc.dataprocessing.model.classic_model.vo;
 
-import gov.cdc.dataprocessing.model.classic_model.dt.MessageLogDT;
+import gov.cdc.dataprocessing.model.classic_model.dto.EDXDocumentDT;
+import gov.cdc.dataprocessing.model.classic_model.dto.MessageLogDT;
+import gov.cdc.dataprocessing.model.classic_model.dto.ParticipationDT;
+import gov.cdc.dataprocessing.model.classic_model.dto.RoleDT;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,15 +18,15 @@ public class LabResultProxyVO extends PageActProxyVO {
     private Long sendingFacilityUid;
     public boolean associatedInvInd=false;
     //private Collection<Object> thePersonVOCollection;
-    private Collection<ObservationVO> theObservationVOCollection;
-    //private Collection<Object> theOrganizationVOCollection;
-    private Collection<Object> theMaterialVOCollection;
-    //private Collection<Object> theParticipationDTCollection;
+    private Collection<ObservationVO> theObservationVOCollection = new ArrayList<>();
+    private Collection<OrganizationVO> theOrganizationVOCollection = new ArrayList<>();
+    private Collection<MaterialVO> theMaterialVOCollection = new ArrayList<>();
+    private Collection<ParticipationDT> theParticipationDTCollection = new ArrayList<>();
     //  private Collection<Object> theActRelationshipDTCollection;
-    private Collection<Object> theRoleDTCollection;
+    private Collection<RoleDT> theRoleDTCollection = new ArrayList<>();
     private Collection<Object> theActIdDTCollection;
     public Collection<Object> theInterventionVOCollection;
-    public Collection<Object> eDXDocumentCollection;
+    public Collection<EDXDocumentDT> eDXDocumentCollection;
     private ArrayList<String> theConditionsList;
     private Collection<MessageLogDT> messageLogDCollection =null;
 

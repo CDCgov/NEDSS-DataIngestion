@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.model.classic_model.dt;
 
+import gov.cdc.dataprocessing.model.classic_model.dto.NBSDocumentDT;
 import lombok.Getter;
 import lombok.Setter;
 

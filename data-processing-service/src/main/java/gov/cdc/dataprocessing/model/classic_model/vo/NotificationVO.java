@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model.vo;
 
-import gov.cdc.dataprocessing.model.classic_model.dt.NotificationDT;
-import gov.cdc.dataprocessing.model.classic_model.dt.UpdatedNotificationDT;
+import gov.cdc.dataprocessing.model.classic_model.dto.NotificationDT;
+import gov.cdc.dataprocessing.model.classic_model.dto.UpdatedNotificationDT;
 import lombok.Getter;
 import lombok.Setter;
 
