@@ -177,4 +177,6 @@ public class LabResultHandler {
 
         return labResultProxy;
     }
+
+
 }

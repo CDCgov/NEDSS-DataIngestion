@@ -3,14 +3,15 @@ package gov.cdc.dataprocessing.service;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.kafka.consumer.KafkaEdxLogConsumer;
 import gov.cdc.dataprocessing.model.classic_model.dto.EDXDocumentDT;
 import gov.cdc.dataprocessing.model.classic_model.dt.EdxLabInformationDT;
 import gov.cdc.dataprocessing.model.classic_model.vo.LabResultProxyVO;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.service.interfaces.IDataExtractionService;
-import gov.cdc.dataprocessing.utilities.LabResultHandler;
+import gov.cdc.dataprocessing.utilities.*;
+import gov.cdc.dataprocessing.utilities.component.HL7PatientHandler;
+import gov.cdc.dataprocessing.utilities.component.ObservationRequestHandler;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
@@ -31,11 +32,16 @@ import java.util.List;
 public class DataExtractionService implements IDataExtractionService {
     private static final Logger logger = LoggerFactory.getLogger(DataExtractionService.class);
 
-    public DataExtractionService () {
-
+    private final HL7PatientHandler hl7PatientHandler;
+    private final ObservationRequestHandler observationRequestHandler;
+    public DataExtractionService (
+            HL7PatientHandler hl7PatientHandler,
+            ObservationRequestHandler observationRequestHandler) {
+        this.hl7PatientHandler = hl7PatientHandler;
+        this.observationRequestHandler = observationRequestHandler;
     }
 
-    public LabResultProxyVO parsingDataToObject(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDT edxLabInformationDT) throws DataProcessingConsumerException, JAXBException {
+    public LabResultProxyVO parsingDataToObject(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDT edxLabInformationDT) throws DataProcessingConsumerException, JAXBException, DataProcessingException {
         LabResultProxyVO labResultProxyVO = null;
         int rootObsUid = 0;
         Long userId = 123L;
@@ -95,11 +101,84 @@ public class DataExtractionService implements IDataExtractionService {
              * The If Else above ensure there is only Record with Single Patient Result can move forward
              * */
             HL7PATIENTRESULTType hl7PATIENTRESULTType = HL7PatientResultArray.get(0);
+            labResultProxyVO = hl7PatientHandler.getPatientAndNextOfKin(hl7PATIENTRESULTType, labResultProxyVO, edxLabInformationDT);
 
+            List<HL7OrderObservationType> hl7OrderObservationArray = hl7PATIENTRESULTType.getORDEROBSERVATION();
+
+            if(hl7OrderObservationArray==null){
+                edxLabInformationDT.setOrderTestNameMissing(true);
+                logger.error("HL7CommonLabUtil.processELR error thrown as NO OBR segment is found.Please check message with NBS_INTERFACE_UID:-"+ nbsInterfaceModel.getNbsInterfaceUid());
+                throw new DataProcessingException(EdxELRConstant.NO_ORDTEST_NAME);
+            }
+
+            for (int j = 0; j < hl7OrderObservationArray.size(); j++) {
+                HL7OrderObservationType hl7OrderObservationType = hl7OrderObservationArray.get(j);
+                if (hl7OrderObservationType.getCommonOrder() != null) {
+                    ORCHandler.getORCProcessing(hl7OrderObservationType.getCommonOrder(), labResultProxyVO, edxLabInformationDT);
+                }
+                
+                if (hl7OrderObservationType.getPatientResultOrderSPMObservation() != null) {
+                    hl7PatientResultSPMType = hl7OrderObservationType.getPatientResultOrderSPMObservation();
+                }
+
+                if(
+                    j==0 && 
+                    (hl7OrderObservationType.getObservationRequest().getParent() != null
+                    ||hl7OrderObservationType.getObservationRequest().getParentResult() != null)
+                )
+                {
+                    edxLabInformationDT.setOrderOBRWithParent(true);
+                    edxLabInformationDT.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
+                    logger.error("HL7CommonLabUtil.processELR error thrown as either OBR26 is null OR OBR 29 is \"NOT NULL\" for the first OBR section.Please check message with NBS_INTERFACE_UID:-"+ nbsInterfaceModel.getNbsInterfaceUid());
+                    throw new DataProcessingException(EdxELRConstant.ORDER_OBR_WITH_PARENT);
+
+                }
+                else if(
+                        j>0 && (hl7OrderObservationType.getObservationRequest().getParent()==null
+                        || hl7OrderObservationType.getObservationRequest().getParentResult()==null
+                        || hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationValueDescriptor()== null
+                        || hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationValueDescriptor().getHL7String() == null
+                        || hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationValueDescriptor().getHL7String().trim().equals("")
+                        || hl7OrderObservationType.getObservationRequest().getParent().getHL7FillerAssignedIdentifier()==null
+                        || hl7OrderObservationType.getObservationRequest().getParent().getHL7FillerAssignedIdentifier().getHL7EntityIdentifier()==null
+                        || hl7OrderObservationType.getObservationRequest().getParent().getHL7FillerAssignedIdentifier().getHL7EntityIdentifier().trim().equals("")
+                        || hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier()==null
+                        || (hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier().getHL7Identifier()==null
+                        && hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier().getHL7AlternateIdentifier()==null)
+                        || (hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier().getHL7Text()==null
+                        && hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier().getHL7AlternateText()==null))
+                )
+                {
+
+                    edxLabInformationDT.setMultipleOBR(true);
+                    logger.error("HL7CommonLabUtil.processELR error thrown as either OBR26 is null OR OBR 29 is null for the OBR "+(j+1)+".Please check message with NBS_INTERFACE_UID:-"+ nbsInterfaceModel.getNbsInterfaceUid());
+                    edxLabInformationDT.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
+                    throw new DataProcessingException(EdxELRConstant.MULTIPLE_OBR);
+                }
+
+                observationRequestHandler.getObservationRequest(hl7OrderObservationType.getObservationRequest(), hl7PatientResultSPMType, labResultProxyVO, edxLabInformationDT);
+
+                if(
+                    edxLabInformationDT.getRootObservationVO()!=null
+                    && edxLabInformationDT.getRootObservationVO().getTheObservationDT()!=null
+                    && edxLabInformationDT.getRootObservationVO().getTheObservationDT().getEffectiveFromTime()!=null
+                )
+                {
+                    //TODO: LOGIC TO UPDATE   nbsInterfaceDAOImpl.updateNBSInterfaceRecord(edxLabInformationDT);
+                    NbsInterfaceDAOImpl nbsInterfaceDAOImpl = new NbsInterfaceDAOImpl();
+                    nbsInterfaceDAOImpl.updateNBSInterfaceRecord(edxLabInformationDT);
+                }
+
+                ObservationResultRequestHandler.getObservationResultRequest(hl7OrderObservationType.getPatientResultOrderObservation().getOBSERVATION(),
+                        labResultProxyVO, edxLabInformationDT);
+
+            }
+            labResultProxyVO.setEDXDocumentCollection(collectionXmlDoc);
 
             return labResultProxyVO;
         }catch (Exception e) {
-            throw new DataProcessingConsumerException(e.getMessage(), "Data");
+            logger.error("HL7CommonLabUtil.processELR Exception thrown while parsing XML document. Please checkPlease check message with NBS_INTERFACE_UID:-"+ nbsInterfaceModel.getNbsInterfaceUid(), e);
+            throw new DataProcessingException("Exception thrown at HL7CommonLabUtil.processELR:" + e.getMessage());
         }
     }
 

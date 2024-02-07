@@ -1,11 +1,13 @@
 package gov.cdc.dataprocessing.model.classic_model.vo;
 
 import gov.cdc.dataprocessing.model.classic_model.dto.EntityIdDT;
+import gov.cdc.dataprocessing.model.classic_model.dto.EntityLocatorParticipationDT;
 import gov.cdc.dataprocessing.model.classic_model.dto.OrganizationDT;
 import gov.cdc.dataprocessing.model.classic_model.dto.OrganizationNameDT;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Getter
@@ -13,8 +15,8 @@ import java.util.Collection;
 public class OrganizationVO extends LdfBaseVO {
     public OrganizationDT theOrganizationDT = new OrganizationDT();
     public Collection<OrganizationNameDT> theOrganizationNameDTCollection;
-    public Collection<Object> theEntityLocatorParticipationDTCollection;
-    public Collection<EntityIdDT> theEntityIdDTCollection;
+    public Collection<EntityLocatorParticipationDT> theEntityLocatorParticipationDTCollection = new ArrayList<>();
+    public Collection<EntityIdDT> theEntityIdDTCollection = new ArrayList<>();
 
     //collections for role and participation object association added by John Park
     public Collection<Object> theParticipationDTCollection;

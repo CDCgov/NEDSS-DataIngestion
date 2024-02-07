@@ -38,7 +38,7 @@ public class EdxLabInformationDT  extends EdxRuleAlgorothmManagerDT  implements 
     private LabResultProxyVO labResultProxyVO;
     private String localId;
     private boolean isParentObsInd;
-    private Collection<Object> edxLabIdentiferDTColl;
+    private Collection<EdxLabIdentiferDT> edxLabIdentiferDTColl;
     private String entityName;
     private String reportingSourceName;
     private String userName;
