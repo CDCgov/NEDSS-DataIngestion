@@ -11,6 +11,7 @@ import gov.cdc.dataprocessing.model.classic_model.vo.OrganizationVO;
 import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.service.interfaces.ICheckingValueService;
+import gov.cdc.dataprocessing.utilities.CommonLabUtil;
 import gov.cdc.dataprocessing.utilities.HL7SpecimenHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -187,7 +188,7 @@ public class ObservationRequestHandler {
                     edxLabInformationDT.setOrderTestNameMissing(true);
                     edxLabInformationDT.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_19);
                     //TODO: This convert to XML and store as string
-                    String xmlElementName = hL7CommonLabUtil.getXMLElementName(hl7OBRType)+".UniversalServiceIdentifier";
+                    String xmlElementName = CommonLabUtil.getXMLElementNameForOBR(hl7OBRType)+".UniversalServiceIdentifier";
                     throw new DataProcessingException(EdxELRConstant.NO_ORDTEST_NAME+" XMLElementName: "+xmlElementName);
                 }
 
@@ -216,7 +217,7 @@ public class ObservationRequestHandler {
                     edxLabInformationDT.setReasonforStudyCdMissing(true);
                     edxLabInformationDT.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_19);
                     //TODO: This convert to XML and store as string
-                    String xmlElementName = hL7CommonLabUtil.getXMLElementName(hl7OBRType)+".ReasonforStudy";
+                    String xmlElementName = CommonLabUtil.getXMLElementNameForOBR(hl7OBRType)+".ReasonforStudy";
                     throw new DataProcessingException(EdxELRConstant.NO_REASON_FOR_STUDY+" XMLElementName: "+xmlElementName);
                 }
 

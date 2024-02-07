@@ -9,9 +9,11 @@ import gov.cdc.dataprocessing.model.classic_model.vo.LabResultProxyVO;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.service.interfaces.IDataExtractionService;
+import gov.cdc.dataprocessing.service.interfaces.IMsgOutEStoredProcService;
 import gov.cdc.dataprocessing.utilities.*;
 import gov.cdc.dataprocessing.utilities.component.HL7PatientHandler;
 import gov.cdc.dataprocessing.utilities.component.ObservationRequestHandler;
+import gov.cdc.dataprocessing.utilities.component.ObservationResultRequestHandler;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
@@ -34,11 +36,17 @@ public class DataExtractionService implements IDataExtractionService {
 
     private final HL7PatientHandler hl7PatientHandler;
     private final ObservationRequestHandler observationRequestHandler;
+    private final ObservationResultRequestHandler observationResultRequestHandler;
+    private final IMsgOutEStoredProcService msgOutEStoredProcService;
     public DataExtractionService (
             HL7PatientHandler hl7PatientHandler,
-            ObservationRequestHandler observationRequestHandler) {
+            ObservationRequestHandler observationRequestHandler,
+            ObservationResultRequestHandler observationResultRequestHandler,
+            IMsgOutEStoredProcService msgOutEStoredProcService) {
         this.hl7PatientHandler = hl7PatientHandler;
         this.observationRequestHandler = observationRequestHandler;
+        this.observationResultRequestHandler = observationResultRequestHandler;
+        this.msgOutEStoredProcService = msgOutEStoredProcService;
     }
 
     public LabResultProxyVO parsingDataToObject(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDT edxLabInformationDT) throws DataProcessingConsumerException, JAXBException, DataProcessingException {
@@ -165,11 +173,10 @@ public class DataExtractionService implements IDataExtractionService {
                 )
                 {
                     //TODO: LOGIC TO UPDATE   nbsInterfaceDAOImpl.updateNBSInterfaceRecord(edxLabInformationDT);
-                    NbsInterfaceDAOImpl nbsInterfaceDAOImpl = new NbsInterfaceDAOImpl();
-                    nbsInterfaceDAOImpl.updateNBSInterfaceRecord(edxLabInformationDT);
+                    msgOutEStoredProcService.callUpdateSpecimenCollDateSP(edxLabInformationDT);
                 }
 
-                ObservationResultRequestHandler.getObservationResultRequest(hl7OrderObservationType.getPatientResultOrderObservation().getOBSERVATION(),
+                observationResultRequestHandler.getObservationResultRequest(hl7OrderObservationType.getPatientResultOrderObservation().getOBSERVATION(),
                         labResultProxyVO, edxLabInformationDT);
 
             }

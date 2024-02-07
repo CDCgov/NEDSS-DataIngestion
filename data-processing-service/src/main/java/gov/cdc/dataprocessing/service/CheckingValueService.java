@@ -3,17 +3,14 @@ package gov.cdc.dataprocessing.service;
 import gov.cdc.dataprocessing.constant.elr.ELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.repository.nbs.srte.*;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.JurisdictionCode;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.RaceCode;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCountyCodeValue;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.*;
 import gov.cdc.dataprocessing.service.interfaces.ICheckingValueService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -29,16 +26,34 @@ public class CheckingValueService implements ICheckingValueService {
     private  final RaceCodeRepository raceCodeRepository;
     private final StateCountyCodeValueRepository stateCountyCodeValueRepository;
 
+    private final LOINCCodeRepository loincCodeRepository;
+
     public CheckingValueService(JurisdictionCodeRepository jurisdictionCodeRepository,
                                 CodeValueGeneralRepository codeValueGeneralRepository,
                                 ElrXrefRepository elrXrefRepository,
                                 RaceCodeRepository raceCodeRepository,
-                                StateCountyCodeValueRepository stateCountyCodeValueRepository) {
+                                StateCountyCodeValueRepository stateCountyCodeValueRepository, LOINCCodeRepository loincCodeRepository) {
         this.jurisdictionCodeRepository = jurisdictionCodeRepository;
         this.codeValueGeneralRepository = codeValueGeneralRepository;
         this.elrXrefRepository = elrXrefRepository;
         this.raceCodeRepository = raceCodeRepository;
         this.stateCountyCodeValueRepository = stateCountyCodeValueRepository;
+        this.loincCodeRepository = loincCodeRepository;
+    }
+
+    public TreeMap<String, String>  getAOELOINCCodes() throws DataProcessingException {
+        TreeMap<String, String> map = new TreeMap<>();
+        try {
+            var result = loincCodeRepository.findLoincCodes();
+            if (result.isPresent()) {
+                for (LOINCCode obj :result.get()) {
+                    map.put(obj.getLoincCode(), obj.getLoincCode());
+                }
+            }
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage());
+        }
+        return map;
     }
 
     public TreeMap<String, String> getRaceCodes() throws DataProcessingException {
@@ -50,8 +65,6 @@ public class CheckingValueService implements ICheckingValueService {
                 for (RaceCode obj :raceCode) {
                     map.put(obj.getCode(), obj.getCodeShortDescTxt());
                 }
-            } else {
-                throw  new DataProcessingException("Race Code Not Found In Database");
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
@@ -86,7 +99,7 @@ public class CheckingValueService implements ICheckingValueService {
                 return result.get().getToCode();
             }
             else {
-                throw new DataProcessingException("Error");
+                return "";
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
@@ -96,7 +109,7 @@ public class CheckingValueService implements ICheckingValueService {
 
     public String getCountyCdByDesc(String county, String stateCd) throws DataProcessingException {
         try {
-            String code;
+            String code = "";
             String cnty = county.toUpperCase();
             if (!cnty.endsWith("COUNTY")) {
                 cnty = cnty + " COUNTY";
@@ -113,9 +126,6 @@ public class CheckingValueService implements ICheckingValueService {
                 var res = result.get().stream().filter(x -> x.getCode().equals(comparer)).findFirst();
                 code = res.get().getCode();
             }
-            else {
-                throw new DataProcessingException("Error");
-            }
             return code;
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
@@ -131,9 +141,6 @@ public class CheckingValueService implements ICheckingValueService {
                 for (JurisdictionCode obj : codes.get()) {
                     map.put(obj.getCode(), obj.getCodeDescTxt());
                 }
-            }
-            else {
-                throw new DataProcessingException("Jurisdiction Code Not Exist In Database");
             }
         } catch (Exception e) {
             throw  new DataProcessingException(e.getMessage());
@@ -153,9 +160,6 @@ public class CheckingValueService implements ICheckingValueService {
                          map.put(obj.getCode(), obj.getCodeDescTxt());
                      }
                  }
-                 else {
-                     throw new DataProcessingException("Coded Value Not Exist In Database");
-                 }
             }
             else {
                 var result = codeValueGeneralRepository.findCodeValuesByCodeSetNm(code);
@@ -164,9 +168,6 @@ public class CheckingValueService implements ICheckingValueService {
                     for (CodeValueGeneral obj : codeValueGeneralList) {
                         map.put(obj.getCode(), obj.getCodeShortDescTxt());
                     }
-                }
-                else {
-                    throw new DataProcessingException("Coded Value Not Exist In Database");
                 }
             }
 

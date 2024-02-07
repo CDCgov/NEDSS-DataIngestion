@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities;
+package gov.cdc.dataprocessing.utilities.component;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
@@ -11,13 +11,15 @@ import gov.cdc.dataprocessing.model.classic_model.vo.ObservationVO;
 import gov.cdc.dataprocessing.model.classic_model.vo.OrganizationVO;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.service.interfaces.ICheckingValueService;
-import gov.cdc.dataprocessing.utilities.component.NBSObjectConverter;
+import gov.cdc.dataprocessing.utilities.CommonLabUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.*;
 
+@Component
 public class ObservationResultRequestHandler {
     private static final Logger logger = LoggerFactory.getLogger(ObservationResultRequestHandler.class);
 
@@ -84,7 +86,7 @@ public class ObservationResultRequestHandler {
                 edxLabInformationDT.setResultedTestNameMissing(true);
                 edxLabInformationDT.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_19);
                 //TODO: Logic to convert to XML
-                String xmlElementName = hL7CommonLabUtil.getXMLElementName(hl7OBXType)+".ObservationIdentifier";
+                String xmlElementName = CommonLabUtil.getXMLElementNameForOBX(hl7OBXType)+".ObservationIdentifier";
                 throw new DataProcessingException(EdxELRConstant.NO_RESULT_NAME+" XMLElementName: "+xmlElementName);
             }
 
@@ -210,7 +212,7 @@ public class ObservationResultRequestHandler {
                     observationDT.setCdSystemCd(EdxELRConstant.ELR_LOINC_CD);
                     observationDT.setCdSystemDescTxt(EdxELRConstant.ELR_LOINC_DESC);
 
-                    Map<String, String> aOELOINCs = CachedDropDowns.getAOELOINCCodes();
+                    var aOELOINCs = checkingValueService.getAOELOINCCodes();
                     if (aOELOINCs != null && aOELOINCs.containsKey(observationDT.getCd())) {
                         observationDT.setMethodCd(NEDSSConstant.AOE_OBS);
                     }
@@ -300,7 +302,7 @@ public class ObservationResultRequestHandler {
                 observationIntrepDT.setObservationUid(observationDT.getObservationUid());
                 observationIntrepDT.setInterpretationCd(hl7OBXType.getAbnormalFlags().get(0).getHL7Identifier());
 
-                String str=cdv.getDescForCode("OBS_INTRP",observationIntrepDT.getInterpretationCd());
+                String str= checkingValueService.getCodeDescTxtForCd("OBS_INTRP",observationIntrepDT.getInterpretationCd());
                 if(str==null || str.trim().length()==0) {
                     observationIntrepDT.setInterpretationDescTxt(hl7OBXType.getAbnormalFlags().get(0).getHL7Text());
                 }
@@ -345,7 +347,7 @@ public class ObservationResultRequestHandler {
                     else
                         methodCd = methodCd + method.getHL7Identifier() + delimiter;
 
-                    String str = cdv.getDescForCode("OBS_METH", method.getHL7Identifier());
+                    String str = checkingValueService.getCodeDescTxtForCd("OBS_METH", method.getHL7Identifier());
                     if (str == null || str.trim().equals("")) {
 
                         logger.warn(
@@ -522,7 +524,7 @@ public class ObservationResultRequestHandler {
                             edxLabInformationDT.setReflexResultedTestCdMissing(true);
                             edxLabInformationDT.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_19);
                             // TODO: XML
-                            String xmlElementName = hL7CommonLabUtil.getXMLElementName(hl7OBXType)+"."+elementName;
+                            String xmlElementName = CommonLabUtil.getXMLElementNameForOBX(hl7OBXType)+"."+elementName;
                             throw new DataProcessingException(EdxELRConstant.NO_REFLEX_RESULT_NM+" XMLElementName: "+xmlElementName);
                         }
 

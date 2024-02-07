@@ -96,7 +96,7 @@ public class HL7SpecimenHandler {
     }
 
 
-    private void processMaterialVO(LabResultProxyVO labResultProxyVO,PersonVO collectorVO,MaterialVO materialVO, 
+    private static void processMaterialVO(LabResultProxyVO labResultProxyVO,PersonVO collectorVO,MaterialVO materialVO,
                                    EdxLabInformationDT edxLabInformationDT) throws DataProcessingException{
         try {
             EntityIdDT matEntityIdDT = new EntityIdDT();
