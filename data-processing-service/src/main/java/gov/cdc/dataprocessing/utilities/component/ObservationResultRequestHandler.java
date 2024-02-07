@@ -37,6 +37,7 @@ public class ObservationResultRequestHandler {
                                                         LabResultProxyVO labResultProxyVO,
                                                         EdxLabInformationDT edxLabInformationDT) throws DataProcessingException{
         try {
+            //TODO: This process taking some time, pershap move the caching from legacy is a good move
             for(int j=0; j<observationRequestArray.size(); j++){
                 try {
                     HL7OBSERVATIONType observationRequest= observationRequestArray.get(j);

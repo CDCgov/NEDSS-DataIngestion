@@ -180,6 +180,7 @@ public class DataExtractionService implements IDataExtractionService {
                     //msgOutEStoredProcService.callUpdateSpecimenCollDateSP(edxLabInformationDT);
                 }
 
+                //TODO: Check this one
                 observationResultRequestHandler.getObservationResultRequest(hl7OrderObservationType.getPatientResultOrderObservation().getOBSERVATION(),
                         labResultProxyVO, edxLabInformationDT);
 
