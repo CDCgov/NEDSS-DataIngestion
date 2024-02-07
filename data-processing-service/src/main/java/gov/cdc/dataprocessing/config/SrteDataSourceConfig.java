@@ -17,20 +17,22 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 import java.util.HashMap;
 
+
+
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        entityManagerFactoryRef = "nbsEntityManagerFactory",
-        transactionManagerRef = "nbsTransactionManager",
+        entityManagerFactoryRef = "srteEntityManagerFactory",
+        transactionManagerRef = "srteTransactionManager",
         basePackages = {
-                "gov.cdc.dataprocessing.repository.nbs.msgoute",
+                "gov.cdc.dataprocessing.repository.nbs.srte",
         }
 )
-public class NbsDataSourceConfig {
+public class SrteDataSourceConfig {
     @Value("${spring.datasource.nbs.driverClassName}")
     private String driverClassName;
 
-    @Value("${spring.datasource.nbs.url}")
+    @Value("${spring.datasource.srte.url}")
     private String dbUrl;
 
     @Value("${spring.datasource.nbs.username}")
@@ -39,8 +41,8 @@ public class NbsDataSourceConfig {
     @Value("${spring.datasource.nbs.password}")
     private String dbUserPassword;
 
-    @Bean(name = "nbsDataSource")
-    public DataSource nbsDataSource() {
+    @Bean(name = "srteDataSource")
+    public DataSource srteDataSource() {
         DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
 
         dataSourceBuilder.driverClassName(driverClassName);
@@ -51,25 +53,25 @@ public class NbsDataSourceConfig {
         return dataSourceBuilder.build();
     }
 
-    @Bean(name = "nbsEntityManagerFactoryBuilder")
-    public EntityManagerFactoryBuilder nbsEntityManagerFactoryBuilder() {
+    @Bean(name = "srteEntityManagerFactoryBuilder")
+    public EntityManagerFactoryBuilder srteEntityManagerFactoryBuilder() {
         return new EntityManagerFactoryBuilder(new HibernateJpaVendorAdapter(), new HashMap<>(), null);
     }
 
-    @Bean(name = "nbsEntityManagerFactory")
-    public LocalContainerEntityManagerFactoryBean nbsEntityManagerFactory(
-            EntityManagerFactoryBuilder nbsEntityManagerFactoryBuilder,
-            @Qualifier("nbsDataSource") DataSource nbsDataSource ) {
-        return nbsEntityManagerFactoryBuilder
-                .dataSource(nbsDataSource)
-                .packages("gov.cdc.dataprocessing.repository.nbs.msgoute.model")
-                .persistenceUnit("nbs")
+    @Bean(name = "srteEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean srteEntityManagerFactory(
+            EntityManagerFactoryBuilder srteEntityManagerFactoryBuilder,
+            @Qualifier("srteDataSource") DataSource srteDataSource ) {
+        return srteEntityManagerFactoryBuilder
+                .dataSource(srteDataSource)
+                .packages("gov.cdc.dataprocessing.repository.nbs.srte.model")
+                .persistenceUnit("srte")
                 .build();
     }
 
-    @Bean(name = "nbsTransactionManager")
-    public PlatformTransactionManager nbsTransactionManager(
-            @Qualifier("nbsEntityManagerFactory") EntityManagerFactory nbsEntityManagerFactory ) {
-        return new JpaTransactionManager(nbsEntityManagerFactory);
+    @Bean(name = "srteTransactionManager")
+    public PlatformTransactionManager srteTransactionManager(
+            @Qualifier("srteEntityManagerFactory") EntityManagerFactory srteEntityManagerFactory ) {
+        return new JpaTransactionManager(srteEntityManagerFactory);
     }
 }

@@ -16,23 +16,18 @@ public class ElrXref {
     @Column(name = "from_code_set_nm", nullable = false, length = 256)
     private String fromCodeSetNm;
 
-    @Id
     @Column(name = "from_seq_num", nullable = false)
     private Short fromSeqNum;
 
-    @Id
     @Column(name = "from_code", nullable = false, length = 20)
     private String fromCode;
 
-    @Id
     @Column(name = "to_code_set_nm", nullable = false, length = 256)
     private String toCodeSetNm;
 
-    @Id
     @Column(name = "to_seq_num", nullable = false)
     private Short toSeqNum;
 
-    @Id
     @Column(name = "to_code", nullable = false, length = 20)
     private String toCode;
 

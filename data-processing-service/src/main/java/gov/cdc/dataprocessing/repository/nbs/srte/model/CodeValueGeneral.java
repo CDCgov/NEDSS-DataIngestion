@@ -17,7 +17,6 @@ public class CodeValueGeneral {
     @Column(name = "code_set_nm", nullable = false, length = 256)
     private String codeSetNm;
 
-    @Id
     @Column(name = "code", nullable = false, length = 20)
     private String code;
 

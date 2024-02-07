@@ -17,20 +17,21 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 import java.util.HashMap;
 
+
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        entityManagerFactoryRef = "nbsEntityManagerFactory",
-        transactionManagerRef = "nbsTransactionManager",
+        entityManagerFactoryRef = "odseEntityManagerFactory",
+        transactionManagerRef = "odseTransactionManager",
         basePackages = {
-                "gov.cdc.dataprocessing.repository.nbs.msgoute",
+                "gov.cdc.dataprocessing.repository.nbs.odse",
         }
 )
-public class NbsDataSourceConfig {
+public class OdseDataSourceConfig {
     @Value("${spring.datasource.nbs.driverClassName}")
     private String driverClassName;
 
-    @Value("${spring.datasource.nbs.url}")
+    @Value("${spring.datasource.odse.url}")
     private String dbUrl;
 
     @Value("${spring.datasource.nbs.username}")
@@ -39,8 +40,8 @@ public class NbsDataSourceConfig {
     @Value("${spring.datasource.nbs.password}")
     private String dbUserPassword;
 
-    @Bean(name = "nbsDataSource")
-    public DataSource nbsDataSource() {
+    @Bean(name = "odseDataSource")
+    public DataSource odseDataSource() {
         DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
 
         dataSourceBuilder.driverClassName(driverClassName);
@@ -51,25 +52,25 @@ public class NbsDataSourceConfig {
         return dataSourceBuilder.build();
     }
 
-    @Bean(name = "nbsEntityManagerFactoryBuilder")
-    public EntityManagerFactoryBuilder nbsEntityManagerFactoryBuilder() {
+    @Bean(name = "odseEntityManagerFactoryBuilder")
+    public EntityManagerFactoryBuilder odseEntityManagerFactoryBuilder() {
         return new EntityManagerFactoryBuilder(new HibernateJpaVendorAdapter(), new HashMap<>(), null);
     }
 
-    @Bean(name = "nbsEntityManagerFactory")
-    public LocalContainerEntityManagerFactoryBean nbsEntityManagerFactory(
-            EntityManagerFactoryBuilder nbsEntityManagerFactoryBuilder,
-            @Qualifier("nbsDataSource") DataSource nbsDataSource ) {
-        return nbsEntityManagerFactoryBuilder
-                .dataSource(nbsDataSource)
-                .packages("gov.cdc.dataprocessing.repository.nbs.msgoute.model")
-                .persistenceUnit("nbs")
+    @Bean(name = "odseEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean odseEntityManagerFactory(
+            EntityManagerFactoryBuilder odseEntityManagerFactoryBuilder,
+            @Qualifier("odseDataSource") DataSource odseDataSource ) {
+        return odseEntityManagerFactoryBuilder
+                .dataSource(odseDataSource)
+                .packages("gov.cdc.dataprocessing.repository.nbs.odse.model")
+                .persistenceUnit("odse")
                 .build();
     }
 
-    @Bean(name = "nbsTransactionManager")
-    public PlatformTransactionManager nbsTransactionManager(
-            @Qualifier("nbsEntityManagerFactory") EntityManagerFactory nbsEntityManagerFactory ) {
-        return new JpaTransactionManager(nbsEntityManagerFactory);
+    @Bean(name = "odseTransactionManager")
+    public PlatformTransactionManager odseTransactionManager(
+            @Qualifier("odseEntityManagerFactory") EntityManagerFactory odseEntityManagerFactory ) {
+        return new JpaTransactionManager(odseEntityManagerFactory);
     }
 }

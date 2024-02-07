@@ -12,6 +12,7 @@ import gov.cdc.dataprocessing.service.interfaces.IDataExtractionService;
 import gov.cdc.dataprocessing.service.interfaces.IMsgOutEStoredProcService;
 import gov.cdc.dataprocessing.utilities.*;
 import gov.cdc.dataprocessing.utilities.component.HL7PatientHandler;
+import gov.cdc.dataprocessing.utilities.component.ORCHandler;
 import gov.cdc.dataprocessing.utilities.component.ObservationRequestHandler;
 import gov.cdc.dataprocessing.utilities.component.ObservationResultRequestHandler;
 import jakarta.xml.bind.JAXBContext;
@@ -38,15 +39,17 @@ public class DataExtractionService implements IDataExtractionService {
     private final ObservationRequestHandler observationRequestHandler;
     private final ObservationResultRequestHandler observationResultRequestHandler;
     private final IMsgOutEStoredProcService msgOutEStoredProcService;
+    private final ORCHandler orcHandler;
     public DataExtractionService (
             HL7PatientHandler hl7PatientHandler,
             ObservationRequestHandler observationRequestHandler,
             ObservationResultRequestHandler observationResultRequestHandler,
-            IMsgOutEStoredProcService msgOutEStoredProcService) {
+            IMsgOutEStoredProcService msgOutEStoredProcService, ORCHandler orcHandler) {
         this.hl7PatientHandler = hl7PatientHandler;
         this.observationRequestHandler = observationRequestHandler;
         this.observationResultRequestHandler = observationResultRequestHandler;
         this.msgOutEStoredProcService = msgOutEStoredProcService;
+        this.orcHandler = orcHandler;
     }
 
     public LabResultProxyVO parsingDataToObject(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDT edxLabInformationDT) throws DataProcessingConsumerException, JAXBException, DataProcessingException {
@@ -122,7 +125,7 @@ public class DataExtractionService implements IDataExtractionService {
             for (int j = 0; j < hl7OrderObservationArray.size(); j++) {
                 HL7OrderObservationType hl7OrderObservationType = hl7OrderObservationArray.get(j);
                 if (hl7OrderObservationType.getCommonOrder() != null) {
-                    ORCHandler.getORCProcessing(hl7OrderObservationType.getCommonOrder(), labResultProxyVO, edxLabInformationDT);
+                    orcHandler.getORCProcessing(hl7OrderObservationType.getCommonOrder(), labResultProxyVO, edxLabInformationDT);
                 }
                 
                 if (hl7OrderObservationType.getPatientResultOrderSPMObservation() != null) {

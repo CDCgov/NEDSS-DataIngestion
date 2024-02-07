@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities;
+package gov.cdc.dataprocessing.utilities.component;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
@@ -11,18 +11,26 @@ import gov.cdc.dataprocessing.model.phdc.HL7ORCType;
 import gov.cdc.dataprocessing.model.phdc.HL7XADType;
 import gov.cdc.dataprocessing.model.phdc.HL7XONType;
 import gov.cdc.dataprocessing.model.phdc.HL7XTNType;
-import gov.cdc.dataprocessing.utilities.component.NBSObjectConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@Component
 public class ORCHandler {
     private static final Logger logger = LoggerFactory.getLogger(ORCHandler.class);
 
-    public static void getORCProcessing(HL7ORCType hl7ORCType,
+    private final NBSObjectConverter nbsObjectConverter;
+
+    public ORCHandler(NBSObjectConverter nbsObjectConverter) {
+        this.nbsObjectConverter = nbsObjectConverter;
+    }
+
+
+    public void getORCProcessing(HL7ORCType hl7ORCType,
                                  LabResultProxyVO labResultProxyVO,
                                  EdxLabInformationDT edxLabInformationDT) throws DataProcessingException {
         try {
@@ -39,7 +47,7 @@ public class ORCHandler {
         }
     }
 
-    private static LabResultProxyVO getOrderingProvider(HL7ORCType hl7ORCType,
+    private LabResultProxyVO getOrderingProvider(HL7ORCType hl7ORCType,
                                                  LabResultProxyVO labResultProxyVO,
                                                  EdxLabInformationDT edxLabInformationDT) throws DataProcessingException {
         try {
@@ -54,7 +62,7 @@ public class ORCHandler {
                 for (int i = 0; i < addressArray.size(); ) {
                     address = addressArray.get(i);
                     if (address != null) {
-                        NBSObjectConverter.personAddressType(address,
+                        nbsObjectConverter.personAddressType(address,
                                 EdxELRConstant.ELR_OP_CD, personVO);
                         break;
                     }
@@ -75,7 +83,7 @@ public class ORCHandler {
 
     }
 
-    private static OrganizationVO getOrderingFacility(HL7ORCType hl7ORCType,
+    private OrganizationVO getOrderingFacility(HL7ORCType hl7ORCType,
                                                       LabResultProxyVO labResultProxyVO,
                                                       EdxLabInformationDT edxLabInformationDT) throws DataProcessingException {
         OrganizationVO organizationVO = new OrganizationVO();
@@ -133,7 +141,7 @@ public class ORCHandler {
                 if (addressArray != null) {
                     for (int i = 0; i < addressArray.size(); ) {
                         HL7XADType addressType = addressArray.get(i);
-                        EntityLocatorParticipationDT elpDT = NBSObjectConverter.organizationAddressType(addressType, EdxELRConstant.ELR_OP_CD, organizationVO);
+                        EntityLocatorParticipationDT elpDT = nbsObjectConverter.organizationAddressType(addressType, EdxELRConstant.ELR_OP_CD, organizationVO);
                         addressCollection.add(elpDT);
                         break;
                     }

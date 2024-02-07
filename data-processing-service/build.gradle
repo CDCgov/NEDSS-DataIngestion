@@ -146,6 +146,7 @@ dependencies {
         // this mostly needed when testing the app on idea
         implementation files('libs/hl7-parser-0.0.1-SNAPSHOT.jar')
     }
+    implementation 'org.hibernate.validator:hibernate-validator'
 
     implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
     // Below is needed for runtime with jaxb generated code
