@@ -40,7 +40,7 @@ public class HL7SpecimenHandler {
                     materialDT.setRiskCd(edxLabInformationDT.getDangerCode());
 
                     if(hl7SPMType.getSpecimenCollectionAmount()!=null && hl7SPMType.getSpecimenCollectionAmount().getHL7Quantity()!=null){
-                        materialDT.setQty(hl7SPMType.getSpecimenCollectionAmount().getHL7Quantity().getHL7Numeric()+"");
+                        materialDT.setQty(String.valueOf(hl7SPMType.getSpecimenCollectionAmount().getHL7Quantity().getHL7Numeric()));
                         if(hl7SPMType.getSpecimenCollectionAmount().getHL7Units()!=null)
                             materialDT.setQtyUnitCd(hl7SPMType.getSpecimenCollectionAmount().getHL7Units().getHL7Identifier());
                     }
