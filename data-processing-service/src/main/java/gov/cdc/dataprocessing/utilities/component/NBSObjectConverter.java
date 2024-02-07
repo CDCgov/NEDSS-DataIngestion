@@ -326,6 +326,9 @@ public class NBSObjectConverter {
         elp.setEntityUid(personVO.getThePersonDT().getPersonUid());
         elp.setAddUserId(personVO.getThePersonDT().getAddUserId());
         elp.setAsOfDate(personVO.getThePersonDT().getLastChgTime());
+        if (elp.getThePostalLocatorDT() == null) {
+            elp.setThePostalLocatorDT(new PostalLocatorDT());
+        }
         elp.getThePostalLocatorDT().setAddUserId(Long.valueOf(personVO.getThePersonDT().getAddUserId()));
         personVO.getTheEntityLocatorParticipationDTCollection().add(elp);
         return elp;
@@ -336,6 +339,9 @@ public class NBSObjectConverter {
         elp.setEntityUid(organizationVO.getTheOrganizationDT().getOrganizationUid());
         elp.setAddUserId(organizationVO.getTheOrganizationDT().getAddUserId());
         elp.setAsOfDate(organizationVO.getTheOrganizationDT().getLastChgTime());
+        if (elp.getThePostalLocatorDT() == null) {
+            elp.setThePostalLocatorDT(new PostalLocatorDT());
+        }
         elp.getThePostalLocatorDT().setAddUserId(organizationVO.getTheOrganizationDT().getAddUserId());
         organizationVO.getTheEntityLocatorParticipationDTCollection().add(elp);
         return elp;
@@ -500,8 +506,10 @@ public class NBSObjectConverter {
         elp.setAddUserId(personVO.getThePersonDT().getAddUserId());
         elp.setEntityUid(personVO.getThePersonDT().getPersonUid());
         elp.setAsOfDate(personVO.getThePersonDT().getLastChgTime());
-        elp.getTheTeleLocatorDT().setAddUserId(
-                personVO.getThePersonDT().getAddUserId());
+        if (elp.getTheTeleLocatorDT() == null) {
+            elp.setTheTeleLocatorDT(new TeleLocatorDT());
+        }
+        elp.getTheTeleLocatorDT().setAddUserId(personVO.getThePersonDT().getAddUserId());
         if (personVO.getTheEntityLocatorParticipationDTCollection() == null) {
             personVO.setTheEntityLocatorParticipationDTCollection(new ArrayList<>());
         }
@@ -596,15 +604,17 @@ public class NBSObjectConverter {
              * is not great, and the number changes. That is the reason I am treating the local number as String. NBSCentral defect related is #2758*/
             if (hl7LocalNumber != null) {
 
-                String localNumberString = hl7LocalNumber.toString();
-                int begin = localNumberString.indexOf(">");
-                if(begin!=-1){
-                    String subString1 = localNumberString.substring(begin+1);
-                    int end = subString1.indexOf("<");
-                    if(end!=-1)
-                        number = subString1.substring(0,end);
-                }
+//                String localNumberString = hl7LocalNumber.toString();
+//                int begin = localNumberString.indexOf(">");
+//                if(begin!=-1){
+//                    String subString1 = localNumberString.substring(begin+1);
+//                    int end = subString1.indexOf("<");
+//                    if(end!=-1)
+//                        number = subString1.substring(0,end);
+//                }
                 //number = (String.format ("%.0f", hl7LocalNumber.getHL7Numeric()));
+
+                number = hl7LocalNumber.getHL7Numeric().toString();
 
             }
         }
@@ -640,11 +650,8 @@ public class NBSObjectConverter {
         boolean incorrectLength = false;
         String areaCode="", number="";
 
-        if (HL7Type != null && !HL7Type.toString().equalsIgnoreCase("<xml-fragment/>")) {
-
-            String hl7segment =  HL7Type.toString();
-            hl7segment = hl7segment.substring(hl7segment.indexOf("\">")+2);
-            String areaCodeString = hl7segment.substring(0,hl7segment.indexOf("<"));
+        if (HL7Type != null) {
+            String areaCodeString = HL7Type.getHL7Numeric().toString();
 
             if(areaCodeString.length()>10){//Phone number more than 10 digits
                 int length = areaCodeString.length();
@@ -699,11 +706,9 @@ public class NBSObjectConverter {
 
         boolean incorrectLength = false;
         String areaCode="", number="";
-        if (HL7Type != null && !HL7Type.toString().equalsIgnoreCase("<xml-fragment/>")) {
+        if (HL7Type != null) {
 
-            String hl7segment =  HL7Type.toString();
-            hl7segment = hl7segment.substring(hl7segment.indexOf("\">")+2);
-            String areaCodeString = hl7segment.substring(0,hl7segment.indexOf("<"));
+            String areaCodeString =HL7Type.getHL7Numeric().toString();
 
             if(areaCodeString.length()>3){//Area code more than 3 digits
                 incorrectLength= true;
@@ -742,6 +747,9 @@ public class NBSObjectConverter {
         elp.setAddUserId(organizationVO.getTheOrganizationDT().getAddUserId());
         elp.setEntityUid(organizationVO.getTheOrganizationDT().getOrganizationUid());
         elp.setAsOfDate(organizationVO.getTheOrganizationDT().getLastChgTime());
+        if (elp.getTheTeleLocatorDT() == null) {
+            elp.setTheTeleLocatorDT(new TeleLocatorDT());
+        }
         elp.getTheTeleLocatorDT().setAddUserId(organizationVO.getTheOrganizationDT().getAddUserId());
         return elp;
 

@@ -176,7 +176,8 @@ public class DataExtractionService implements IDataExtractionService {
                 )
                 {
                     //TODO: LOGIC TO UPDATE   nbsInterfaceDAOImpl.updateNBSInterfaceRecord(edxLabInformationDT);
-                    msgOutEStoredProcService.callUpdateSpecimenCollDateSP(edxLabInformationDT);
+                    System.out.println("UPDATE");
+                    //msgOutEStoredProcService.callUpdateSpecimenCollDateSP(edxLabInformationDT);
                 }
 
                 observationResultRequestHandler.getObservationResultRequest(hl7OrderObservationType.getPatientResultOrderObservation().getOBSERVATION(),

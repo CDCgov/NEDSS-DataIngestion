@@ -11,6 +11,6 @@ import java.util.Optional;
 @Repository
 public interface LOINCCodeRepository  extends JpaRepository<LOINCCode, String> {
 
-    @Query(value = "select * from LOINCCode where time_aspect = 'Pt' and system_cd = '^Patient'", nativeQuery = true)
+    @Query(value = "select * from LOINC_code where time_aspect = 'Pt' and system_cd = '^Patient'", nativeQuery = true)
     Optional<List<LOINCCode>> findLoincCodes();
 }
