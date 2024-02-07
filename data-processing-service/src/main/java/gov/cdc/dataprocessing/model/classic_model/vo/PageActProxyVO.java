@@ -1,6 +1,8 @@
 package gov.cdc.dataprocessing.model.classic_model.vo;
 
-import gov.cdc.dataprocessing.model.classic_model.dt.ExportReceivingFacilityDT;
+import gov.cdc.dataprocessing.model.classic_model.dto.ActRelationshipDT;
+import gov.cdc.dataprocessing.model.classic_model.dto.ExportReceivingFacilityDT;
+import gov.cdc.dataprocessing.model.classic_model.dto.ParticipationDT;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,7 +25,7 @@ public class PageActProxyVO  extends AbstractVO {
     private String                    fieldSupervisor;
     private String                    caseSupervisor;
     private boolean                   isSTDProgramArea = false;
-    private Collection<Object>        thePersonVOCollection;
+    private Collection<PersonVO>        thePersonVOCollection;
 
     private PamVO                     pageVO;
     // contains answer maps
@@ -33,11 +35,11 @@ public class PageActProxyVO  extends AbstractVO {
     private Collection<Object>        theTreatmentSummaryVOCollection;
     private Collection<Object>        theLabReportSummaryVOCollection;
     private Collection<Object>        theMorbReportSummaryVOCollection;
-    private Collection<Object>        theParticipationDTCollection;
+    private Collection<ParticipationDT>        theParticipationDTCollection;
 
-    private Collection<Object>        theActRelationshipDTCollection;
+    private Collection<ActRelationshipDT>        theActRelationshipDTCollection;
     private Collection<Object>        theInvestigationAuditLogSummaryVOCollection;
-    private Collection<Object>        theOrganizationVOCollection;
+    private Collection<OrganizationVO>        theOrganizationVOCollection;
     private Collection<Object>        theCTContactSummaryDTCollection;
     private Collection<Object>        theInterviewSummaryDTCollection;
     private Collection<Object>        theNotificationVOCollection;

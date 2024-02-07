@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model.vo;
 
 import gov.cdc.dataprocessing.model.classic_model.dt.EDXEventProcessDT;
-import gov.cdc.dataprocessing.model.classic_model.dt.InterviewDT;
+import gov.cdc.dataprocessing.model.classic_model.dto.InterviewDT;
 import lombok.Getter;
 import lombok.Setter;
 

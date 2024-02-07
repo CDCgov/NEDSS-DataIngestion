@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.model.classic_model.dt;
 
+import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.model.classic_model.vo.LabResultProxyVO;
 import gov.cdc.dataprocessing.model.classic_model.vo.ObservationVO;
 import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
@@ -37,7 +38,7 @@ public class EdxLabInformationDT  extends EdxRuleAlgorothmManagerDT  implements 
     private LabResultProxyVO labResultProxyVO;
     private String localId;
     private boolean isParentObsInd;
-    private Collection<Object> edxLabIdentiferDTColl;
+    private Collection<EdxLabIdentiferDT> edxLabIdentiferDTColl;
     private String entityName;
     private String reportingSourceName;
     private String userName;
@@ -137,4 +138,5 @@ public class EdxLabInformationDT  extends EdxRuleAlgorothmManagerDT  implements 
     private boolean reasonforStudyCdMissing;
     private Collection<Object> matchingPublicHealthCaseDTColl;
     private String investigationType;
+    private NbsInterfaceStatus status;
 }

@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.model.classic_model.vo;
 
-import gov.cdc.dataprocessing.model.classic_model.dt.InterventionDT;
+import gov.cdc.dataprocessing.model.classic_model.dto.InterventionDT;
 import lombok.Getter;
 import lombok.Setter;
 
