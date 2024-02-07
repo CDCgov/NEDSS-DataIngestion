@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.service;
 
+import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
@@ -53,6 +54,7 @@ public class DataExtractionService implements IDataExtractionService {
     }
 
     public LabResultProxyVO parsingDataToObject(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDT edxLabInformationDT) throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+
         LabResultProxyVO labResultProxyVO = null;
         int rootObsUid = 0;
         Long userId = 123L;

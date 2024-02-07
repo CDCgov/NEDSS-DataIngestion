@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.utilities.component;
 
+import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.elr.ELRConstant;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
@@ -14,6 +15,7 @@ import gov.cdc.dataprocessing.service.interfaces.ICheckingValueService;
 import gov.cdc.dataprocessing.utilities.EntityIdHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -28,7 +30,9 @@ public class HL7PatientHandler {
     private final ICheckingValueService checkingValueService;
     private final NBSObjectConverter nbsObjectConverter;
 
-    public HL7PatientHandler(ICheckingValueService checkingValueService, NBSObjectConverter nbsObjectConverter) {
+
+    public HL7PatientHandler(ICheckingValueService checkingValueService,
+                             NBSObjectConverter nbsObjectConverter) {
         this.checkingValueService = checkingValueService;
         this.nbsObjectConverter = nbsObjectConverter;
     }
@@ -176,7 +180,7 @@ public class HL7PatientHandler {
                 }
                 if (personEthnicGroupDT.getEthnicGroupCd() != null && !personEthnicGroupDT.getEthnicGroupCd().trim().equals(""))
                 {
-                    var map = checkingValueService.getCodedValues("P_ETHN_GRP");
+                    var map = checkingValueService.getCodedValues("P_ETHN_GRP", personEthnicGroupDT.getEthnicGroupCd());
                     if (map.containsKey(personEthnicGroupDT.getEthnicGroupCd())) {
                         edxLabInformationDT.setEthnicityCodeTranslated(false);
                     }
@@ -317,7 +321,7 @@ public class HL7PatientHandler {
                             raceDT.setRaceCd(newRaceCat);
                             raceDT.setRaceCategoryCd(newRaceCat);
                         }
-                        var codeMap = checkingValueService.getRaceCodes();
+                        var codeMap = SrteCache.raceCodesMap;
                         if (!codeMap.containsKey(raceDT.getRaceCd())) {
                             edxLabInformationDT.setRaceTranslated(false);
                         }

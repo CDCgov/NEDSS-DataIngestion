@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.utilities.component;
 
+import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
@@ -14,6 +15,7 @@ import gov.cdc.dataprocessing.service.interfaces.ICheckingValueService;
 import gov.cdc.dataprocessing.utilities.CommonLabUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -25,6 +27,7 @@ public class ObservationResultRequestHandler {
 
     private final ICheckingValueService checkingValueService;
     private final NBSObjectConverter nbsObjectConverter;
+
 
     public ObservationResultRequestHandler(
             ICheckingValueService checkingValueService,
@@ -213,7 +216,7 @@ public class ObservationResultRequestHandler {
                     observationDT.setCdSystemCd(EdxELRConstant.ELR_LOINC_CD);
                     observationDT.setCdSystemDescTxt(EdxELRConstant.ELR_LOINC_DESC);
 
-                    var aOELOINCs = checkingValueService.getAOELOINCCodes();
+                    var aOELOINCs = SrteCache.loincCodesMap;
                     if (aOELOINCs != null && aOELOINCs.containsKey(observationDT.getCd())) {
                         observationDT.setMethodCd(NEDSSConstant.AOE_OBS);
                     }

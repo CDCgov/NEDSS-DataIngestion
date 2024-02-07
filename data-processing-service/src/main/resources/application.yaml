@@ -17,6 +17,11 @@ management:
 spring:
   application:
     name: data-processing-service
+  cache:
+    cache-names: srte
+    type: caffeine
+    caffeine:
+      spec: maximumSize=500,expireAfterAccess=0
 
 kafka:
   topic:
