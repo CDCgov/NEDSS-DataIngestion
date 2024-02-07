@@ -25,68 +25,63 @@ public class HL7SpecimenHandler {
             List<HL7SPECIMENType> hl7SPECIMENTypeArray =hL7PatientResultSPMType.getSPECIMEN();
             if(hl7SPECIMENTypeArray!=null && hl7SPECIMENTypeArray.size()>1)
                 edxLabInformationDT.setMultipleSpecimen(true);
-            if(hl7SPECIMENTypeArray!=null){
-                for(int i=0; i<hl7SPECIMENTypeArray.size();){
-                    if(hl7SPECIMENTypeArray.size()>1) {
-                        edxLabInformationDT.setMultipleSpecimen(true);
+            if(hl7SPECIMENTypeArray!=null && !hl7SPECIMENTypeArray.isEmpty()){
+
+                if(hl7SPECIMENTypeArray.size()>1) {
+                    edxLabInformationDT.setMultipleSpecimen(true);
+                }
+                HL7SPECIMENType hl7SPECIMENType = hl7SPECIMENTypeArray.get(0);
+                if(hl7SPECIMENType!=null && hl7SPECIMENType.getSPECIMEN()!=null){
+                    HL7SPMType hl7SPMType  =hl7SPECIMENType.getSPECIMEN();
+                    MaterialVO materialVO = new MaterialVO();
+                    MaterialDT materialDT = new MaterialDT();
+                    materialVO.setTheMaterialDT(materialDT);
+                    materialDT.setMaterialUid((long)(edxLabInformationDT.getNextUid()));
+                    materialDT.setRiskCd(edxLabInformationDT.getDangerCode());
+
+                    if(hl7SPMType.getSpecimenCollectionAmount()!=null && hl7SPMType.getSpecimenCollectionAmount().getHL7Quantity()!=null){
+                        materialDT.setQty(hl7SPMType.getSpecimenCollectionAmount().getHL7Quantity().getHL7Numeric()+"");
+                        if(hl7SPMType.getSpecimenCollectionAmount().getHL7Units()!=null)
+                            materialDT.setQtyUnitCd(hl7SPMType.getSpecimenCollectionAmount().getHL7Units().getHL7Identifier());
                     }
-                    HL7SPECIMENType hl7SPECIMENType = hl7SPECIMENTypeArray.get(i);
-                    if(hl7SPECIMENType!=null && hl7SPECIMENType.getSPECIMEN()!=null){
-                        HL7SPMType hl7SPMType  =hl7SPECIMENType.getSPECIMEN();
-                        MaterialVO materialVO = new MaterialVO();
-                        MaterialDT materialDT = new MaterialDT();
-                        materialVO.setTheMaterialDT(materialDT);
-                        materialDT.setMaterialUid((long)(edxLabInformationDT.getNextUid()));
-                        materialDT.setRiskCd(edxLabInformationDT.getDangerCode());
-
-                        if(hl7SPMType.getSpecimenCollectionAmount()!=null && hl7SPMType.getSpecimenCollectionAmount().getHL7Quantity()!=null){
-                            materialDT.setQty(hl7SPMType.getSpecimenCollectionAmount().getHL7Quantity().getHL7Numeric()+"");
-                            if(hl7SPMType.getSpecimenCollectionAmount().getHL7Units()!=null)
-                                materialDT.setQtyUnitCd(hl7SPMType.getSpecimenCollectionAmount().getHL7Units().getHL7Identifier());
-                        }
-                        if(hl7SPMType.getSpecimenType()!=null){
-                            materialDT.setCd(hl7SPMType.getSpecimenType().getHL7Identifier());
-                            materialDT.setCdDescTxt(hl7SPMType.getSpecimenType().getHL7Text());
-                        }
-                        
-                        List<String> specimenDec = hl7SPMType.getSpecimenDescription();
-                        if (specimenDec!=null && specimenDec.size()>0) {
-                            materialDT.setDescription(specimenDec.get(0));
-                        }
-                        if(hl7SPMType.getSpecimenSourceSite()!=null){
-                            observationDT.setTargetSiteCd(hl7SPMType.getSpecimenSourceSite().getHL7Identifier());
-                            observationDT.setTargetSiteDescTxt(hl7SPMType.getSpecimenSourceSite().getHL7Text());
-                        }
-                        if(hl7SPMType.getSpecimenCollectionDateTime()!=null) {
-                            observationDT.setEffectiveFromTime(NBSObjectConverter.processHL7TSTypeWithMillis(hl7SPMType.getSpecimenCollectionDateTime().getHL7RangeStartDateTime(), EdxELRConstant.DATE_VALIDATION_SPM_SPECIMEN_COLLECTION_DATE_MSG));
-                        }
-                        processMaterialVO(labResultProxyVO,collectorVO, materialVO, edxLabInformationDT);
-                        //use  Filler Specimen ID (SPM.2.2.1) is present for specimen ID - Defect #14343 Jira
-                        if (hl7SPMType.getSpecimenID() != null
-                                && hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier() != null
-                                && hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier()
-                                .getHL7EntityIdentifier() != null) {
-                            String specimenID = hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier().getHL7EntityIdentifier();
-                            materialVO.getTheEntityIdDTCollection().get(0).setRootExtensionTxt(specimenID);
-                            if (hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier().getHL7UniversalID() != null) {
-                                materialVO.getTheEntityIdDTCollection().get(0).setAssigningAuthorityCd(hl7SPMType.getSpecimenID()
-                                        .getHL7FillerAssignedIdentifier().getHL7UniversalID());
-                            }
-                            if (hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier().getHL7NamespaceID() != null) {
-                                materialVO.getTheEntityIdDTCollection().get(0).setAssigningAuthorityDescTxt(hl7SPMType.getSpecimenID()
-                                        .getHL7FillerAssignedIdentifier().getHL7NamespaceID());
-                            }
-                            if (hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier()
-                                    .getHL7UniversalIDType() != null) {
-                                materialVO.getTheEntityIdDTCollection().get(0).setAssigningAuthorityIdType(hl7SPMType.getSpecimenID()
-                                        .getHL7FillerAssignedIdentifier().getHL7UniversalIDType());
-                            }
-
-                        }
-
-                        break;
+                    if(hl7SPMType.getSpecimenType()!=null){
+                        materialDT.setCd(hl7SPMType.getSpecimenType().getHL7Identifier());
+                        materialDT.setCdDescTxt(hl7SPMType.getSpecimenType().getHL7Text());
                     }
-                    break;
+
+                    List<String> specimenDec = hl7SPMType.getSpecimenDescription();
+                    if (specimenDec!=null && specimenDec.size()>0) {
+                        materialDT.setDescription(specimenDec.get(0));
+                    }
+                    if(hl7SPMType.getSpecimenSourceSite()!=null){
+                        observationDT.setTargetSiteCd(hl7SPMType.getSpecimenSourceSite().getHL7Identifier());
+                        observationDT.setTargetSiteDescTxt(hl7SPMType.getSpecimenSourceSite().getHL7Text());
+                    }
+                    if(hl7SPMType.getSpecimenCollectionDateTime()!=null) {
+                        observationDT.setEffectiveFromTime(NBSObjectConverter.processHL7TSTypeWithMillis(hl7SPMType.getSpecimenCollectionDateTime().getHL7RangeStartDateTime(), EdxELRConstant.DATE_VALIDATION_SPM_SPECIMEN_COLLECTION_DATE_MSG));
+                    }
+                    processMaterialVO(labResultProxyVO,collectorVO, materialVO, edxLabInformationDT);
+                    //use  Filler Specimen ID (SPM.2.2.1) is present for specimen ID - Defect #14343 Jira
+                    if (hl7SPMType.getSpecimenID() != null
+                            && hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier() != null
+                            && hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier().getHL7EntityIdentifier() != null) {
+                        String specimenID = hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier().getHL7EntityIdentifier();
+                        materialVO.getTheEntityIdDTCollection().get(0).setRootExtensionTxt(specimenID);
+                        if (hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier().getHL7UniversalID() != null) {
+                            materialVO.getTheEntityIdDTCollection().get(0).setAssigningAuthorityCd(hl7SPMType.getSpecimenID()
+                                    .getHL7FillerAssignedIdentifier().getHL7UniversalID());
+                        }
+                        if (hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier().getHL7NamespaceID() != null) {
+                            materialVO.getTheEntityIdDTCollection().get(0).setAssigningAuthorityDescTxt(hl7SPMType.getSpecimenID()
+                                    .getHL7FillerAssignedIdentifier().getHL7NamespaceID());
+                        }
+                        if (hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier()
+                                .getHL7UniversalIDType() != null) {
+                            materialVO.getTheEntityIdDTCollection().get(0).setAssigningAuthorityIdType(hl7SPMType.getSpecimenID()
+                                    .getHL7FillerAssignedIdentifier().getHL7UniversalIDType());
+                        }
+
+                    }
                 }
             }
         } catch (Exception e) {

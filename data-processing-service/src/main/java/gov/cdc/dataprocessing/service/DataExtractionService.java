@@ -59,9 +59,9 @@ public class DataExtractionService implements IDataExtractionService {
         Timestamp time = new Timestamp(new Date().getTime());
         try {
 
-            edxLabInformationDT.setRootObserbationUid(rootObsUid);
-            edxLabInformationDT.setPatientUid(rootObsUid);
-            edxLabInformationDT.setNextUid(rootObsUid);
+            edxLabInformationDT.setRootObserbationUid(--rootObsUid);
+            edxLabInformationDT.setPatientUid(--rootObsUid);
+            edxLabInformationDT.setNextUid(--rootObsUid);
             edxLabInformationDT.setUserId(userId);
             edxLabInformationDT.setAddTime(time);
 
@@ -88,23 +88,20 @@ public class DataExtractionService implements IDataExtractionService {
              *  Organization
              * */
             labResultProxyVO = LabResultHandler.getLabResultMessage(hl7MSHType, edxLabInformationDT);
-
             List<HL7PATIENTRESULTType> HL7PatientResultArray = hl7LabReportType.getHL7PATIENTRESULT();
             HL7PatientResultSPMType hl7PatientResultSPMType = null;
 
             if(HL7PatientResultArray == null){
                 edxLabInformationDT.setNoSubject(true);
                 edxLabInformationDT.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
-                logger.error("HL7CommonLabUtil.processELR error thrown as NO patient segment is found.Please check message with NBS_INTERFACE_UID:-"
-                        + nbsInterfaceModel.getNbsInterfaceUid());
+                logger.error("HL7CommonLabUtil.processELR error thrown as NO patient segment is found.Please check message with NBS_INTERFACE_UID:-" + nbsInterfaceModel.getNbsInterfaceUid());
                 throw new DataProcessingException(EdxELRConstant.NO_SUBJECT);
             }
             // ENSURE HL7 Patient Result Array only has 1 record
             else if(HL7PatientResultArray.size() > 1){
                 edxLabInformationDT.setMultipleSubject(true);
                 edxLabInformationDT.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
-                logger.error("HL7CommonLabUtil.processELR error thrown as multiple patient segment is found.Please check message with NBS_INTERFACE_UID:-"
-                        + nbsInterfaceModel.getNbsInterfaceUid());
+                logger.error("HL7CommonLabUtil.processELR error thrown as multiple patient segment is found.Please check message with NBS_INTERFACE_UID:-" + nbsInterfaceModel.getNbsInterfaceUid());
                 throw new DataProcessingException(EdxELRConstant.MULTIPLE_SUBJECT);
             }
 

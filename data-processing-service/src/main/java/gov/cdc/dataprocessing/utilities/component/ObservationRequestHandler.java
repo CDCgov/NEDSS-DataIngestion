@@ -401,13 +401,10 @@ public class ObservationRequestHandler {
             if(collectorArray!=null && collectorArray.size() > 1) {
                 edxLabInformationDT.setMultipleCollector(true);
             }
-            if(collectorArray!=null){
-                for(int i=0; i<collectorArray.size();){
-                    HL7XCNType collector= collectorArray.get(i);
-                    collectorVO = getCollectorVO(collector, labResultProxyVO,edxLabInformationDT);
-                    labResultProxyVO.getThePersonVOCollection().add(collectorVO);
-                    break;
-                }
+            if(collectorArray!=null && !collectorArray.isEmpty()){
+                HL7XCNType collector= collectorArray.get(0);
+                collectorVO = getCollectorVO(collector, labResultProxyVO,edxLabInformationDT);
+                labResultProxyVO.getThePersonVOCollection().add(collectorVO);
             }
             if(hl7OBRType.getRelevantClinicalInformation()!=null) {
                 observationDT.setTxt(hl7OBRType.getRelevantClinicalInformation());
@@ -421,31 +418,26 @@ public class ObservationRequestHandler {
                 edxLabInformationDT.setMultipleOrderingProvider(true);
             }
             PersonVO orderingProviderVO= null;
-            if(orderingProviderArray!=null && orderingProviderArray.size() >0){
-                for(int i=0; i<orderingProviderArray.size();){
-                    HL7XCNType orderingProvider=orderingProviderArray.get(i);
-                    Collection<EntityLocatorParticipationDT> entitylocatorColl =null;
+            if(orderingProviderArray!=null && !orderingProviderArray.isEmpty()){
+                HL7XCNType orderingProvider=orderingProviderArray.get(0);
+                Collection<EntityLocatorParticipationDT> entitylocatorColl =null;
 
-                    PersonVO providerVO =null;
-                    if(edxLabInformationDT.getOrderingProviderVO()!=null){
-                        providerVO =edxLabInformationDT.getOrderingProviderVO();
-                        entitylocatorColl=providerVO.getTheEntityLocatorParticipationDTCollection();
-                        if(labResultProxyVO.getThePersonVOCollection().contains(providerVO)) {
-                            labResultProxyVO.getThePersonVOCollection().remove(providerVO);
-                        }
+                PersonVO providerVO =null;
+                if(edxLabInformationDT.getOrderingProviderVO()!=null){
+                    providerVO =edxLabInformationDT.getOrderingProviderVO();
+                    entitylocatorColl=providerVO.getTheEntityLocatorParticipationDTCollection();
+                    if(labResultProxyVO.getThePersonVOCollection().contains(providerVO)) {
+                        labResultProxyVO.getThePersonVOCollection().remove(providerVO);
                     }
-                    edxLabInformationDT.setRole(EdxELRConstant.ELR_OP_CD);
-                    orderingProviderVO= getProviderVO(orderingProvider,entitylocatorColl,labResultProxyVO, edxLabInformationDT);
-                    edxLabInformationDT.setOrderingProvider(true);
-                    break;
                 }
-                if(hl7OBRType.getOrderCallbackPhoneNumber()!=null && orderingProviderVO!=null){
-                    for(int i=0; i<hl7OBRType.getOrderCallbackPhoneNumber().size(); ){
-                        HL7XTNType orderingProvPhone  =hl7OBRType.getOrderCallbackPhoneNumber().get(i);
-                        EntityLocatorParticipationDT elpt = NBSObjectConverter.personTelePhoneType(orderingProvPhone, EdxELRConstant.ELR_PROVIDER_CD, orderingProviderVO);
-                        elpt.setUseCd(EdxELRConstant.ELR_WORKPLACE_CD);
-                        break;
-                    }
+                edxLabInformationDT.setRole(EdxELRConstant.ELR_OP_CD);
+                orderingProviderVO= getProviderVO(orderingProvider,entitylocatorColl,labResultProxyVO, edxLabInformationDT);
+                edxLabInformationDT.setOrderingProvider(true);
+
+                if(hl7OBRType.getOrderCallbackPhoneNumber()!=null && orderingProviderVO!=null && !hl7OBRType.getOrderCallbackPhoneNumber().isEmpty()){
+                    HL7XTNType orderingProvPhone  =hl7OBRType.getOrderCallbackPhoneNumber().get(0);
+                    EntityLocatorParticipationDT elpt = NBSObjectConverter.personTelePhoneType(orderingProvPhone, EdxELRConstant.ELR_PROVIDER_CD, orderingProviderVO);
+                    elpt.setUseCd(EdxELRConstant.ELR_WORKPLACE_CD);
                 }
                 if(labResultProxyVO.getThePersonVOCollection()==null) {
                     labResultProxyVO.setThePersonVOCollection(new ArrayList<>());

@@ -54,19 +54,17 @@ public class ORCHandler {
             HL7XADType address = null;
             List<HL7XADType> addressArray = hl7ORCType
                     .getOrderingProviderAddress();
-            if(addressArray!=null && addressArray.size()!=0){
+            if(addressArray!=null && !addressArray.isEmpty()){
                 edxLabInformationDT.setRole(EdxELRConstant.ELR_OP_CD);
                 edxLabInformationDT.setOrderingProvider(true);
                 PersonVO personVO = new PersonVO();
                 personVO.getThePersonDT().setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
-                for (int i = 0; i < addressArray.size(); ) {
-                    address = addressArray.get(i);
-                    if (address != null) {
-                        nbsObjectConverter.personAddressType(address,
-                                EdxELRConstant.ELR_OP_CD, personVO);
-                        break;
-                    }
+                //Only need first index
+                address = addressArray.get(0);
+                if (address != null) {
+                    nbsObjectConverter.personAddressType(address, EdxELRConstant.ELR_OP_CD, personVO);
                 }
+
                 personVO.setRole(EdxELRConstant.ELR_OP_CD);
                 edxLabInformationDT.setOrderingProviderVO(personVO);
                 labResultProxyVO.getThePersonVOCollection().add(personVO);
@@ -138,40 +136,33 @@ public class ORCHandler {
                 labResultProxyVO.getTheRoleDTCollection().add(roleDT);
 
                 Collection<EntityLocatorParticipationDT> addressCollection = new ArrayList<>();
-                if (addressArray != null) {
-                    for (int i = 0; i < addressArray.size(); ) {
-                        HL7XADType addressType = addressArray.get(i);
-                        EntityLocatorParticipationDT elpDT = nbsObjectConverter.organizationAddressType(addressType, EdxELRConstant.ELR_OP_CD, organizationVO);
-                        addressCollection.add(elpDT);
-                        break;
-                    }
+                if (!addressArray.isEmpty()) {
+                    HL7XADType addressType = addressArray.get(0);
+                    EntityLocatorParticipationDT elpDT = nbsObjectConverter.organizationAddressType(addressType, EdxELRConstant.ELR_OP_CD, organizationVO);
+                    addressCollection.add(elpDT);
                 }
 
 
                 List<HL7XTNType> phoneArray = hl7ORCType.getOrderingFacilityPhoneNumber();
-                for (int i = 0; i < phoneArray.size(); ) {
-                    HL7XTNType phone = phoneArray.get(i);
+                if (!phoneArray.isEmpty()) {
+                    HL7XTNType phone = phoneArray.get(0);
                     if (phone != null) {
                         EntityLocatorParticipationDT elpdt = NBSObjectConverter.orgTelePhoneType(phone, EdxELRConstant.ELR_OP_CD, organizationVO);
                         elpdt.setUseCd(EdxELRConstant.ELR_WORKPLACE_CD);
                         organizationVO.getTheEntityLocatorParticipationDTCollection().add(elpdt);
-                        break;
                     }
                 }
 
                 Collection<OrganizationNameDT> orgNameColl = new ArrayList<>();
                 List<HL7XONType> nameArray = hl7ORCType.getOrderingFacilityName();
-                if (nameArray != null) {
-                    for (int i = 0; i < nameArray.size();) {
-                        HL7XONType orgName = nameArray.get(i);
-                        OrganizationNameDT organizationNameDT = new OrganizationNameDT();
-                        organizationNameDT.setNmTxt(orgName.getHL7OrganizationName());
-                        organizationNameDT.setNmUseCd(EdxELRConstant.ELR_LEGAL_NAME);
-                        organizationNameDT.setOrganizationNameSeq(i);
-                        organizationDT.setDisplayNm(organizationNameDT.getNmTxt());
-                        orgNameColl.add(organizationNameDT);
-                        break;
-                    }
+                if (nameArray != null && !nameArray.isEmpty()) {
+                    HL7XONType orgName = nameArray.get(0);
+                    OrganizationNameDT organizationNameDT = new OrganizationNameDT();
+                    organizationNameDT.setNmTxt(orgName.getHL7OrganizationName());
+                    organizationNameDT.setNmUseCd(EdxELRConstant.ELR_LEGAL_NAME);
+                    organizationNameDT.setOrganizationNameSeq(0);
+                    organizationDT.setDisplayNm(organizationNameDT.getNmTxt());
+                    orgNameColl.add(organizationNameDT);
                 }
                 organizationVO.setTheOrganizationNameDTCollection(orgNameColl);
                 edxLabInformationDT.setMissingOrderingFacility(false);

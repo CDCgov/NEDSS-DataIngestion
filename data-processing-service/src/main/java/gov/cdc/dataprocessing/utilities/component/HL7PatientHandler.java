@@ -52,10 +52,10 @@ public class HL7PatientHandler {
                 // Processing Next of kin
                 if (hl7PatientResult.getPATIENT().getNextofKinAssociatedParties() != null) {
                     List<HL7NK1Type> hl7NK1TypeList = hl7PatientResult.getPATIENT().getNextofKinAssociatedParties();
-                    for (int j = 0; j < hl7NK1TypeList.size(); j++) {
-                        HL7NK1Type hl7NK1Type = hl7NK1TypeList.get(j);
+                    // Only need the first index
+                    if (!hl7NK1TypeList.isEmpty()) {
+                        HL7NK1Type hl7NK1Type = hl7NK1TypeList.get(0);
                         getNextOfKinVO(hl7NK1Type, labResultProxyVO, edxLabInformationDT);
-                        break;
                     }
                 }
 
@@ -260,12 +260,10 @@ public class HL7PatientHandler {
             List<HL7XADType> addressArray = hl7PIDType.getPatientAddress();
             Collection<Object> addressCollection = new ArrayList<Object>();
 
-            for (int j = 0; j < addressArray.size(); ) {
-                HL7XADType addressType = addressArray.get(j);
+            if (!addressArray.isEmpty()) {
+                HL7XADType addressType = addressArray.get(0);
                 nbsObjectConverter.personAddressType(addressType, EdxELRConstant.ELR_PATIENT_CD, personVO);
-                break;
             }
-
             //Setup Person Deceased Status
             personVO.getThePersonDT().setDeceasedIndCd(hl7PIDType.getPatientDeathIndicator());
             if (hl7PIDType.getPatientDeathDateAndTime() != null) {
@@ -283,24 +281,22 @@ public class HL7PatientHandler {
             //Setup Person Business Phone Number
             if(hl7PIDType.getPhoneNumberBusiness() != null){
                 List<HL7XTNType> phoneBusinessArray = hl7PIDType.getPhoneNumberBusiness();
-                for (int j = 0; j < phoneBusinessArray.size(); j++) {
-                    HL7XTNType phoneType = phoneBusinessArray.get(j);
+                if (phoneBusinessArray != null && !phoneBusinessArray.isEmpty()) {
+                    HL7XTNType phoneType = phoneBusinessArray.get(0);
                     EntityLocatorParticipationDT elpDT = NBSObjectConverter.personTelePhoneType(phoneType, EdxELRConstant.ELR_PATIENT_CD, personVO);
                     elpDT.setUseCd(NEDSSConstant.WORK_PHONE);
                     addressCollection.add(elpDT);
-                    break;
                 }
             }
 
             //Setup Person Home Phone Number
             if(hl7PIDType.getPhoneNumberHome()!=null ){
                 List<HL7XTNType> phoneHomeArray = hl7PIDType.getPhoneNumberHome();
-                for (int j = 0; j < phoneHomeArray.size(); j++) {
-                    HL7XTNType phoneType = phoneHomeArray.get(j);
+                if (!phoneHomeArray.isEmpty()) {
+                    HL7XTNType phoneType = phoneHomeArray.get(0);
                     EntityLocatorParticipationDT elpDT = NBSObjectConverter.personTelePhoneType(phoneType, EdxELRConstant.ELR_PATIENT_CD, personVO);
                     elpDT.setUseCd(NEDSSConstant.HOME);
                     addressCollection.add(elpDT);
-                    break;
                 }
             }
 
@@ -525,26 +521,22 @@ public class HL7PatientHandler {
 
             List<HL7XADType> addressArray = hl7NK1Type.getAddress();
             Collection<Object> addressCollection = new ArrayList<Object>();
-            for (int j = 0; j < addressArray.size();) {
-                HL7XADType addressType = addressArray.get(j);
+            if (!addressArray.isEmpty()) {
+                HL7XADType addressType = addressArray.get(0);
                 nbsObjectConverter.personAddressType(addressType, EdxELRConstant.ELR_NEXT_OF_KIN, personVO);
-                break;
             }
 
             List<HL7XPNType> nameArray = hl7NK1Type.getName();
-
-            for (int j = 0; j < nameArray.size(); j++) {
-                HL7XPNType hl7XPNType = nameArray.get(j);
+            if (!nameArray.isEmpty()) {
+                HL7XPNType hl7XPNType = nameArray.get(0);
                 nbsObjectConverter.mapPersonNameType(hl7XPNType, personVO);
-                break;
             }
 
             List<HL7XTNType> phoneHomeArray = hl7NK1Type.getPhoneNumber();
-            for (int j = 0; j < phoneHomeArray.size(); j++) {
-                HL7XTNType phoneType = phoneHomeArray.get(j);
+            if (!phoneHomeArray.isEmpty()) {
+                HL7XTNType phoneType = phoneHomeArray.get(0);
                 EntityLocatorParticipationDT elpDT = NBSObjectConverter.personTelePhoneType(phoneType, EdxELRConstant.ELR_NEXT_OF_KIN, personVO);
                 addressCollection.add(elpDT);
-                break;
             }
             labResultProxyVO.getThePersonVOCollection().add(personVO);
         } catch (Exception e) {
