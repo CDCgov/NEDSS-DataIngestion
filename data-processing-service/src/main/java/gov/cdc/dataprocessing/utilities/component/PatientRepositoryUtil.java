@@ -26,6 +26,17 @@ public class PatientRepositoryUtil {
         this.entityRepositoryUtil = entityRepositoryUtil;
     }
 
+    public Person findExistingPersonByUid(PersonVO personVO) {
+        PersonDT personDT = personVO.getThePersonDT();
+        var result = personRepository.findById(personDT.getPersonUid());
+        return result.get();
+    }
+
+    public Person findExistingPersonByUid(Long personUid) {
+        var result = personRepository.findById(personUid);
+        return result.get();
+    }
+
     public Person createPerson(PersonVO personVO) throws DataProcessingException {
         //TODO: Implement unique id generator here
         Long personUid = 212121L;
@@ -89,5 +100,11 @@ public class PatientRepositoryUtil {
 
         }
         return person;
+    }
+
+    public boolean updateWithRevision(PersonVO newRevision) {
+        //TODO: Logic to update revison
+        return true;
+
     }
 }

@@ -209,6 +209,10 @@ public class CheckingValueService implements ICheckingValueService {
 
     }
 
+    public List<CodeValueGeneral> findCodeValuesByCodeSetNmAndCode(String codeSetNm, String code) {
+        var result = codeValueGeneralRepository.findCodeValuesByCodeSetNmAndCode(codeSetNm, code);
+        return result.get();
+    }
 
 //    public String getCountyCdByDesc(String county, String stateCd) throws DataProcessingException {
 //        try {

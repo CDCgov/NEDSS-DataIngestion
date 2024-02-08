@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.service.interfaces;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.LOINCCode;
 
 import java.util.List;
@@ -14,4 +15,5 @@ public interface ICheckingValueService {
     String getCountyCdByDesc(String county, String stateCd) throws DataProcessingException;
     TreeMap<String, String>  getAOELOINCCodes() throws DataProcessingException;
     TreeMap<String, String> getCodedValues(String pType, String key) throws DataProcessingException;
+    List<CodeValueGeneral> findCodeValuesByCodeSetNmAndCode(String codeSetNm, String code);
 }
