@@ -11,7 +11,11 @@ import gov.cdc.dataprocessing.model.classic_model.vo.LabResultProxyVO;
 import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.Person;
 import gov.cdc.dataprocessing.service.interfaces.IPatientService;
-import gov.cdc.dataprocessing.utilities.component.*;
+import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
+import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchingCriteriaUtil;
+import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchingHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,63 +57,46 @@ public class PatientService implements IPatientService {
         this.edxPatientMatchRepositoryUtil = edxPatientMatchRepositoryUtil;
     }
 
-    public Object processingPatient(LabResultProxyVO labResultProxyVO, EdxLabInformationDT edxLabInformationDT) throws DataProcessingException {
+    public Object processingPatient(LabResultProxyVO labResultProxyVO, EdxLabInformationDT edxLabInformationDT, PersonVO personVO) throws DataProcessingException {
         //TODO: Adding Logic Here
         PersonVO person = null;
         try {
-            Collection<PersonVO> personVOCollection = labResultProxyVO.getThePersonVOCollection();
-            if (!personVOCollection.isEmpty()) {
-                Iterator<PersonVO> it = personVOCollection.iterator();
-                boolean orderingProviderIndicator = false;
-                while (it.hasNext()) {
-                    PersonVO personVO = it.next();
-                    if (personVO.getRole() != null && personVO.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
-                        //TODO: Logic for Matching Next of kin
-                    }
-                    else {
-                        long falseUid = personVO.thePersonDT.getPersonUid();
-                        Long personUid;
-                        EdxPatientMatchDT edxPatientMatchFoundDT = null;
+            long falseUid = personVO.thePersonDT.getPersonUid();
+            Long personUid;
+            EdxPatientMatchDT edxPatientMatchFoundDT = null;
 
-                        if (personVO.thePersonDT.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_CD)) {
-                            personVO.setRole(EdxELRConstant.ELR_PATIENT_CD);
+            personVO.setRole(EdxELRConstant.ELR_PATIENT_CD);
 
-                            if(edxLabInformationDT.getPatientUid()>0){
-                                personUid=edxLabInformationDT.getPatientUid();
-                            }
-                            else{
-                                edxPatientMatchFoundDT = getMatchingPatient(personVO);
-                                edxLabInformationDT.setMultipleSubjectMatch(multipleMatchFound);
-                                personUid = personVO.getThePersonDT().getPersonUid();
-                            }
-
-                            if (personUid != null) {
-                                setFalseToNew(labResultProxyVO, falseUid, personUid);
-                                personVO.setItNew(false);
-                                personVO.setItDirty(false);
-                                personVO.getThePersonDT().setItNew(false);
-                                personVO.getThePersonDT().setItDirty(false);
-                                PersonNameDT personName = getPersonNameUseCdL(personVO);
-                                String lastName = personName.getLastNm();
-                                String firstName = personName.getFirstNm();
-                                edxLabInformationDT.setEntityName(firstName
-                                        + " " + lastName);
-                            }
-
-                            if(edxPatientMatchFoundDT!=null && !edxPatientMatchFoundDT.isMultipleMatch() && personVO.getIsExistingPatient())
-                                edxLabInformationDT.setPatientMatch(true);
-                            if(personVO.getThePersonDT().getPersonParentUid()!=null){
-                                edxLabInformationDT.setPersonParentUid(personVO.getThePersonDT().getPersonParentUid().longValue());
-                            }
-                            person = personVO;
-                        }
-                        else if (personVO.thePersonDT.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
-                            //TODO: Logic for Matching Provider
-
-                        }
-                    }
-                }
+            if(edxLabInformationDT.getPatientUid()>0){
+                personUid=edxLabInformationDT.getPatientUid();
             }
+            else{
+                //NOTE: Mathing Patient
+                edxPatientMatchFoundDT = getMatchingPatient(personVO);
+                edxLabInformationDT.setMultipleSubjectMatch(multipleMatchFound);
+                personUid = personVO.getThePersonDT().getPersonUid();
+            }
+
+            if (personUid != null) {
+                setFalseToNew(labResultProxyVO, falseUid, personUid);
+                personVO.setItNew(false);
+                personVO.setItDirty(false);
+                personVO.getThePersonDT().setItNew(false);
+                personVO.getThePersonDT().setItDirty(false);
+                PersonNameDT personName = getPersonNameUseCdL(personVO);
+                String lastName = personName.getLastNm();
+                String firstName = personName.getFirstNm();
+                edxLabInformationDT.setEntityName(firstName + " " + lastName);
+            }
+
+            if(edxPatientMatchFoundDT!=null && !edxPatientMatchFoundDT.isMultipleMatch() && personVO.getIsExistingPatient()) {
+                edxLabInformationDT.setPatientMatch(true);
+            }
+            if(personVO.getThePersonDT().getPersonParentUid()!=null){
+                edxLabInformationDT.setPersonParentUid(personVO.getThePersonDT().getPersonParentUid().longValue());
+            }
+            person = personVO;
+
             return "processing patient";
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());

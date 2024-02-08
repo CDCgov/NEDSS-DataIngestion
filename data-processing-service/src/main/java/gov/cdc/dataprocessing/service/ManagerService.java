@@ -1,10 +1,15 @@
 package gov.cdc.dataprocessing.service;
 
 import gov.cdc.dataprocessing.cache.SrteCache;
+import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.exception.EdxLogException;
 import gov.cdc.dataprocessing.model.classic_model.dt.EdxLabInformationDT;
+import gov.cdc.dataprocessing.model.classic_model.dto.EdxPatientMatchDT;
+import gov.cdc.dataprocessing.model.classic_model.vo.LabResultProxyVO;
+import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.NbsInterfaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.service.interfaces.*;
@@ -16,6 +21,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
+import java.util.Iterator;
 import java.util.TreeMap;
 
 import static gov.cdc.dataprocessing.constant.ManagerEvent.EVENT_ELR;
@@ -177,10 +183,11 @@ public class ManagerService implements IManagerService {
             //TODO: OBSERVATION
             var observation = observationService.processingObservation();
 
-            //TODO: PATIENT
-            var patient = patientService.processingPatient(parsedData, edxLabInformationDT);
-            var nextOfKin = patientService.processingNextOfKin();
-            var provider = patientService.processingProvider();
+            //TODO: PATIENT && NOK && PROVIDER
+//            var patient = patientService.processingPatient(parsedData, edxLabInformationDT);
+//            var nextOfKin = patientService.processingNextOfKin();
+//            var provider = patientService.processingProvider();
+            patientAggregation(parsedData, edxLabInformationDT);
 
             //TODO: ORGANIZATION
             var organization = organizationService.processingOrganization();
@@ -197,6 +204,32 @@ public class ManagerService implements IManagerService {
             return result;
         } catch (Exception e) {
             throw new DataProcessingConsumerException(e.getMessage(), result);
+        }
+    }
+
+    public void patientAggregation(LabResultProxyVO labResult, EdxLabInformationDT edxLabInformationDT) throws DataProcessingConsumerException, DataProcessingException {
+
+        if (labResult.getThePersonVOCollection() != null && !labResult.getThePersonVOCollection().isEmpty() ) {
+            Iterator<PersonVO> it = labResult.getThePersonVOCollection().iterator();
+            while (it.hasNext()) {
+                PersonVO personVO = it.next();
+                if (personVO.getRole() != null && personVO.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
+                    //TODO: Logic for Matching Next of kin
+                    var nextOfKin = patientService.processingNextOfKin();
+
+                }
+                else {
+                    if (personVO.thePersonDT.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_CD)) {
+                        var patient = patientService.processingPatient(labResult, edxLabInformationDT, personVO);
+
+                    }
+                    else if (personVO.thePersonDT.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
+                        //TODO: Logic for Matching Provider
+                        var provider = patientService.processingProvider();
+
+                    }
+                }
+            }
         }
     }
 }

@@ -1,9 +1,10 @@
-package gov.cdc.dataprocessing.utilities.component;
+package gov.cdc.dataprocessing.utilities.component.entity;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model.dto.EntityLocatorParticipationDT;
 import gov.cdc.dataprocessing.model.classic_model.dto.ParticipationDT;
 import gov.cdc.dataprocessing.model.classic_model.dto.RoleDT;
+import gov.cdc.dataprocessing.utilities.component.PrepareAssocModelHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

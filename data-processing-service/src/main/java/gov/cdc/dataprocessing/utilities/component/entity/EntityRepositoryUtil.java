@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.component;
+package gov.cdc.dataprocessing.utilities.component.entity;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.classic_model.dto.PersonDT;
@@ -7,8 +7,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class EntityRepositoryUtil {

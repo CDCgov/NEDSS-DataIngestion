@@ -1,12 +1,12 @@
-package gov.cdc.dataprocessing.utilities.component;
+package gov.cdc.dataprocessing.utilities.component.patient;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model.dto.PersonDT;
 import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 import gov.cdc.dataprocessing.repository.nbs.odse.PersonRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.Entity;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.Person;
+import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
