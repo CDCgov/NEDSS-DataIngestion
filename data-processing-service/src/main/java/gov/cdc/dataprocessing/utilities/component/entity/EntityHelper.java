@@ -105,7 +105,6 @@ public class EntityHelper {
      *
      * @param dtCol
      *            Collection<Object>
-     * @param securityObj
      *            NBSSecurityObj object
      * @return Collection<Object> ParticipationDT collection object populated
      *         with system attributes

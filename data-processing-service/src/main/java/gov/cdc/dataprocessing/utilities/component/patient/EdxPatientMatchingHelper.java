@@ -18,7 +18,7 @@ public class EdxPatientMatchingHelper {
 
     public EdxPatientMatchDT getEdxPatientMatchOnMatchString(String typeCd, String matchString) throws DataProcessingException {
         if (typeCd == null || matchString == null) {
-            return  new EdxPatientMatchDT();
+            return new EdxPatientMatchDT();
         }
         try {
             return edxPatientMatchRepository.getEdxPatientMatch(typeCd, matchString);

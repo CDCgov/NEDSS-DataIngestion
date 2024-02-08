@@ -229,6 +229,7 @@ public class PatientService implements IPatientService {
                 localId = localId.toUpperCase();
                 localIdhshCd = localId.hashCode();
             }
+            //NOTE: Matching Start here
             try {
                 // Try to get the matching with the match string
                 //	(was hash code but hash code had dups on rare occasions)
@@ -236,8 +237,8 @@ public class PatientService implements IPatientService {
                 if (edxPatientMatchFoundDT.isMultipleMatch()){
                     multipleMatchFound = true;
                     matchFound = false;
-                } else if (edxPatientMatchFoundDT != null
-                        && edxPatientMatchFoundDT.getPatientUid() != null) {
+                }
+                else if (edxPatientMatchFoundDT != null && edxPatientMatchFoundDT.getPatientUid() != null) {
                     matchFound = true;
 
                 } else {
@@ -256,7 +257,7 @@ public class PatientService implements IPatientService {
                 localIdHashCode.setMatchStringHashCode((long) localIdhshCd);
             }
 
-            // get Identifier
+            // NOTE: Matching by Identifier
             if (!matchFound) {
                 String IdentifierStr = null;
                 int identifierStrhshCd = 0;
@@ -292,8 +293,8 @@ public class PatientService implements IPatientService {
                     }
                 }
             }
-            // Matching with last name ,first name ,date of birth and current
-            // sex
+
+            // NOTE: Matching with last name ,first name ,date of birth and current sex
             if (!matchFound) {
                 String namesdobcursexStr = null;
                 int namesdobcursexStrhshCd = 0;
@@ -309,12 +310,8 @@ public class PatientService implements IPatientService {
                             edxPatientFoundDT.setMatchString(namesdobcursexStr);
                             edxPatientFoundDT.setMatchStringHashCode((long) namesdobcursexStrhshCd);
                         }
-                        // Try to get the matching with the match string
-                        // (was hash code but hash code had dups)
                         edxPatientMatchFoundDT = edxPatientMatchingHelper.getEdxPatientMatchOnMatchString(cd, namesdobcursexStr);
                         if (edxPatientMatchFoundDT.isMultipleMatch()){
-                            //	&& patientRole !=null && !patientRole.equals("") && patientRole
-                            //			.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_ROLE_CD)) {
                             multipleMatchFound = true;
                             matchFound = false;
                         } else if (edxPatientMatchFoundDT.getPatientUid() == null
@@ -331,16 +328,15 @@ public class PatientService implements IPatientService {
                 }
             }
 
-            // Create the patient in case if the patient is not there in the DB
+            // NOTE: Decision, Match Not Found, Start Person Creation
             if (!matchFound) {
                 if (personVO.getTheEntityIdDTCollection() != null) {
+                    //SORTING out existing EntityId
                     Collection<EntityIdDT> newEntityIdDTColl = new ArrayList<>();
                     Iterator<EntityIdDT> iter = personVO.getTheEntityIdDTCollection().iterator();
                     while (iter.hasNext()) {
-                        EntityIdDT entityIdDT = (EntityIdDT) iter.next();
-                        if (entityIdDT.getTypeCd() != null
-                                && !entityIdDT.getTypeCd().equalsIgnoreCase(
-                                "LR")) {
+                        EntityIdDT entityIdDT = iter.next();
+                        if (entityIdDT.getTypeCd() != null && !entityIdDT.getTypeCd().equalsIgnoreCase("LR")) {
                             newEntityIdDTColl.add(entityIdDT);
                         }
                     }
@@ -372,8 +368,7 @@ public class PatientService implements IPatientService {
                 patientUid = setPatientRevision(personVO,NEDSSConstant.PAT_CR);
                 personVO.getThePersonDT().setPersonUid(patientUid);
             } catch (Exception e) {
-                logger.error("Error in getting the entity Controller or Setting the Patient"
-                        + e.getMessage());
+                logger.error("Error in getting the entity Controller or Setting the Patient" + e.getMessage());
                 throw new DataProcessingException("Error in getting the entity Controller or Setting the Patient" + e.getMessage(), e);
             }
 
@@ -404,7 +399,7 @@ public class PatientService implements IPatientService {
             Collection<RoleDT> colRole = null;
             Collection<ParticipationDT> colParticipation = null;
 
-
+            // NOTE: Sorting out Collection such as: Entity Locator Participation, Role, Participation
             if (elpDTCol != null) {
                 colEntityLocatorParticipation = entityHelper.iterateELPDTForEntityLocatorParticipation(elpDTCol);
                 personVO.setTheEntityLocatorParticipationDTCollection(colEntityLocatorParticipation);
@@ -425,6 +420,7 @@ public class PatientService implements IPatientService {
                 person = patientRepositoryUtil.createPerson(personVO);
                 personUID = person.getPersonUid();
                 logger.debug(" EntityControllerEJB.setPerson() Person Created");
+
             } else {
                 //TODO: Patient Update - NOT SURE IF THIS ONE DO THE UPDATE
                 //person = home.findByPrimaryKey(personVO.getThePersonDT().getPersonUid());

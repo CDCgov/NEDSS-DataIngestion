@@ -21,9 +21,7 @@ public class PrepareAssocModelHelper {
      * ActLocatorParticipation).
      *
      * @param assocDTInterface
-     * @param securityObj
      * @return AssocDTInterface
-     * @throws nedss.NEDSSBusinessServicesLayer.Top Level Exceptions.NEDSSSystemException
      * @roseuid 3CD96F960027
      */
     public EntityLocatorParticipationDT prepareAssocDTForEntityLocatorParticipation(EntityLocatorParticipationDT assocDTInterface) throws DataProcessingException {
