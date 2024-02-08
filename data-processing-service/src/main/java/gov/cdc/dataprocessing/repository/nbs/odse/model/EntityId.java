@@ -17,7 +17,6 @@ public class EntityId {
     @Column(name = "entity_uid", nullable = false)
     private Long entityUid;
 
-    @Id
     @Column(name = "entity_id_seq", nullable = false)
     private Short entityIdSeq;
 

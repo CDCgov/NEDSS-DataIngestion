@@ -14,11 +14,9 @@ public class Role {
     @Column(name = "subject_entity_uid", nullable = false)
     private Long subjectEntityUid;
 
-    @Id
     @Column(name = "cd", length = 40, nullable = false)
     private String code;
 
-    @Id
     @Column(name = "role_seq", nullable = false)
     private Long roleSeq;
 

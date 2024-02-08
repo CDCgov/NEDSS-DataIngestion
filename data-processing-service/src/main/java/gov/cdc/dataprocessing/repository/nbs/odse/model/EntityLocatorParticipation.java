@@ -18,7 +18,6 @@ public class EntityLocatorParticipation {
     @Column(name = "entity_uid", nullable = false)
     private BigInteger entityUid;
 
-    @Id
     @Column(name = "locator_uid", nullable = false)
     private BigInteger locatorUid;
 
