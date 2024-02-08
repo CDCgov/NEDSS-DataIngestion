@@ -19,6 +19,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 
 @Component
 public class NBSObjectConverter {
@@ -59,12 +60,7 @@ public class NBSObjectConverter {
         /** Optional maxOccurs="1 */
         /** length"6 */
         String hl7NameTypeCode = hl7XPNType.getHL7NameTypeCode();
-        if(hl7NameTypeCode==null) {
-            personNameDT.setNmUseCd(EdxELRConstant.ELR_LEGAL_NAME);
-        }
-        else if(hl7NameTypeCode!=null) {
-            personNameDT.setNmUseCd(hl7NameTypeCode);
-        }
+        personNameDT.setNmUseCd(Objects.requireNonNullElse(hl7NameTypeCode, EdxELRConstant.ELR_LEGAL_NAME));
 
         String toCode = checkingValueService.findToCode("ELR_LCA_NM_USE", personNameDT.getNmUseCd(), "P_NM_USE");
         if(toCode!=null){
@@ -96,7 +92,6 @@ public class NBSObjectConverter {
         int seq = 0;
         if (personVO.getThePersonNameDTCollection() == null) {
             personVO.setThePersonNameDTCollection(new ArrayList<>());
-            seq = 0;
         } else {
             seq = personVO.getThePersonNameDTCollection().size();
         }
@@ -168,7 +163,7 @@ public class NBSObjectConverter {
 
     public EntityLocatorParticipationDT addressType(HL7XADType hl7XADType, String role)   {
 
-        EntityLocatorParticipationDT elp = new EntityLocatorParticipationDT();;
+        EntityLocatorParticipationDT elp = new EntityLocatorParticipationDT();
         try {
             elp.setItNew(true);
             elp.setItDirty(false);
@@ -191,12 +186,7 @@ public class NBSObjectConverter {
                 elp.setCd(EdxELRConstant.ELR_HOUSE_CD);
                 elp.setCdDescTxt(EdxELRConstant.ELR_HOUSE_DESC);
             } else {
-                if (addressType == null) {
-                    elp.setCd(EdxELRConstant.ELR_HOUSE_CD);
-                }
-                else {
-                    elp.setCd(addressType);
-                }
+                elp.setCd(Objects.requireNonNullElse(addressType, EdxELRConstant.ELR_HOUSE_CD));
                 elp.setClassCd(NEDSSConstant.POSTAL);
                 elp.setUseCd(NEDSSConstant.HOME);
             }
@@ -293,8 +283,7 @@ public class NBSObjectConverter {
         {
             //TODO: Call out to State Code Repository here
             StateCode stateCode = new StateCode();
-            String stateCd = stateCode.getStateCd();
-            return stateCd;
+            return stateCode.getStateCd();
         }
         else
         {
@@ -329,7 +318,7 @@ public class NBSObjectConverter {
         if (elp.getThePostalLocatorDT() == null) {
             elp.setThePostalLocatorDT(new PostalLocatorDT());
         }
-        elp.getThePostalLocatorDT().setAddUserId(Long.valueOf(personVO.getThePersonDT().getAddUserId()));
+        elp.getThePostalLocatorDT().setAddUserId(personVO.getThePersonDT().getAddUserId());
         personVO.getTheEntityLocatorParticipationDTCollection().add(elp);
         return elp;
     }
@@ -461,7 +450,7 @@ public class NBSObjectConverter {
         String timeStr = "";
         try {
             Timestamp toTimestamp = null;
-            java.util.Date date2 = null;
+            java.util.Date date2;
             int year = -1;
             int month = -1;
             int day = -1;
@@ -552,17 +541,10 @@ public class NBSObjectConverter {
         elp.setAddTime(new Timestamp(new Date().getTime()));
         elp.setCd(NEDSSConstant.PHONE);
 
-        if (role.equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
-            elp.setClassCd(EdxELRConstant.ELR_TELE_CD);
-            elp.setUseCd(NEDSSConstant.HOME);
-            elp.setCd(EdxELRConstant.ELR_PHONE_CD);
-            elp.setCdDescTxt(EdxELRConstant.ELR_PHONE_DESC);
-        } else {
-            elp.setClassCd(EdxELRConstant.ELR_TELE_CD);
-            elp.setUseCd(NEDSSConstant.HOME);
-            elp.setCd(EdxELRConstant.ELR_PHONE_CD);
-            elp.setCdDescTxt(EdxELRConstant.ELR_PHONE_DESC);
-        }
+        elp.setClassCd(EdxELRConstant.ELR_TELE_CD);
+        elp.setUseCd(NEDSSConstant.HOME);
+        elp.setCd(EdxELRConstant.ELR_PHONE_CD);
+        elp.setCdDescTxt(EdxELRConstant.ELR_PHONE_DESC);
 
         elp.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
         elp.setStatusCd(NEDSSConstant.STATUS_ACTIVE);
@@ -585,7 +567,7 @@ public class NBSObjectConverter {
 
         /** Optional maxOccurs="1 */
         /** length"5 */
-        boolean incorrectLength = false;
+        boolean incorrectLength;
 
         ArrayList<String> areaAndNumber = new ArrayList<String>();
         incorrectLength = checkIfAreaCodeMoreThan3Digits(areaAndNumber, hl7AreaCityCode);
@@ -595,7 +577,7 @@ public class NBSObjectConverter {
         if(!incorrectLength){
 
             if (hl7AreaCityCode != null) {
-                areaCode = Math.round(hl7AreaCityCode.getHL7Numeric().intValue()) + "";
+                areaCode = String.valueOf(hl7AreaCityCode.getHL7Numeric().intValue());
             }
             hl7LocalNumber = hl7XTNType.getHL7LocalNumber();
             /** Optional maxOccurs="1 */
@@ -632,7 +614,7 @@ public class NBSObjectConverter {
         teleDT.setPhoneNbrTxt(formattedPhoneNumber);
 
         HL7NMType extension = hl7XTNType.getHL7Extension();
-        teleDT.setExtensionTxt(extension.getHL7Numeric()+"");
+        teleDT.setExtensionTxt(String.valueOf(extension.getHL7Numeric()));
         /** Optional maxOccurs="1 */
         /** length"5 */
 
@@ -648,7 +630,7 @@ public class NBSObjectConverter {
 
 
         boolean incorrectLength = false;
-        String areaCode="", number="";
+        String areaCode, number;
 
         if (HL7Type != null) {
             String areaCodeString = HL7Type.getHL7Numeric().toString();
@@ -705,7 +687,7 @@ public class NBSObjectConverter {
     public static boolean checkIfAreaCodeMoreThan3Digits(ArrayList<String> areaAndNumber, HL7NMType HL7Type){
 
         boolean incorrectLength = false;
-        String areaCode="", number="";
+        String areaCode, number;
         if (HL7Type != null) {
 
             String areaCodeString =HL7Type.getHL7Numeric().toString();
@@ -830,13 +812,13 @@ public class NBSObjectConverter {
                     millis = time.getMillis().intValue();
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-                java.util.Date date2=null;
+                java.util.Date date2;
                 dateStr = year+"-"+month+"-"+day+" "+hourOfDay+":"+minute+":"+second+"."+millis;
                 logger.debug("  in processHL7TSTypeWithMillis: Date string is: " +dateStr);
                 date2 = sdf.parse(dateStr);
                 toTimestamp = new java.sql.Timestamp(date2.getTime());
                 if (EntityIdHandler.isDateNotOkForDatabase(toTimestamp)) {
-                    throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSTypeWithMillis " +itemDescription +date2.toString()
+                    throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSTypeWithMillis " +itemDescription + date2
                             + EdxELRConstant.DATE_INVALID_FOR_DATABASE);
                 }
             }
