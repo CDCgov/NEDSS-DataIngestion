@@ -1,5 +1,7 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model;
 
+import gov.cdc.dataprocessing.model.classic_model.dto.PersonDT;
+import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -33,13 +35,13 @@ public class Person  {
     private String administrativeGenderCd;
 
     @Column(name = "age_calc")
-    private Short ageCalc;
+    private Integer ageCalc;
 
     @Column(name = "age_calc_time")
     private Timestamp ageCalcTime;
 
     @Column(name = "age_calc_unit_cd")
-    private Character ageCalcUnitCd;
+    private String ageCalcUnitCd;
 
     @Column(name = "age_category_cd")
     private String ageCategoryCd;
@@ -54,10 +56,10 @@ public class Person  {
     private String ageReportedUnitCd;
 
     @Column(name = "birth_gender_cd")
-    private Character birthGenderCd;
+    private String birthGenderCd;
 
     @Column(name = "birth_order_nbr")
-    private Short birthOrderNbr;
+    private Integer birthOrderNbr;
 
     @Column(name = "birth_time")
     private Timestamp birthTime;
@@ -72,7 +74,7 @@ public class Person  {
     private String cdDescTxt;
 
     @Column(name = "curr_sex_cd")
-    private Character currSexCd;
+    private String currSexCd;
 
     @Column(name = "deceased_ind_cd")
     private String deceasedIndCd;
@@ -135,13 +137,13 @@ public class Person  {
     private Timestamp recordStatusTime;
 
     @Column(name = "statusCd")
-    private Character statusCd;
+    private String statusCd;
 
     @Column(name = "statusTime")
     private Timestamp statusTime;
 
     @Column(name = "survivedIndCd")
-    private Character survivedIndCd;
+    private String survivedIndCd;
 
     @Column(name = "userAffiliationTxt")
     private String userAffiliationTxt;
@@ -249,7 +251,7 @@ public class Person  {
     private String raceCd;
 
     @Column(name = "raceSeqNbr")
-    private Short raceSeqNbr;
+    private Integer raceSeqNbr;
 
     @Column(name = "raceCategoryCd")
     private String raceCategoryCd;
@@ -258,13 +260,13 @@ public class Person  {
     private String ethnicityGroupCd;
 
     @Column(name = "ethnicGroupSeqNbr")
-    private Short ethnicGroupSeqNbr;
+    private Integer ethnicGroupSeqNbr;
 
     @Column(name = "adultsInHouseNbr")
-    private Short adultsInHouseNbr;
+    private Integer adultsInHouseNbr;
 
     @Column(name = "childrenInHouseNbr")
-    private Short childrenInHouseNbr;
+    private Integer childrenInHouseNbr;
 
     @Column(name = "birthCityCd")
     private String birthCityCd;
@@ -285,7 +287,7 @@ public class Person  {
     private String ethnicGroupDescTxt;
 
     @Column(name = "versionCtrlNbr")
-    private Short versionCtrlNbr;
+    private Integer versionCtrlNbr;
 
     @Column(name = "asOfDateAdmin")
     private Timestamp asOfDateAdmin;
@@ -303,13 +305,13 @@ public class Person  {
     private Timestamp asOfDateSex;
 
     @Column(name = "electronicInd")
-    private Character electronicInd;
+    private String electronicInd;
 
     @Column(name = "personParentUid")
     private Long personParentUid;
 
     @Column(name = "dedupMatchInd")
-    private Character dedupMatchInd;
+    private String dedupMatchInd;
 
     @Column(name = "groupNbr")
     private Integer groupNbr;
@@ -336,4 +338,114 @@ public class Person  {
     private String sexUnkReasonCd;
 
     // Constructors, getters, and setters
+    public Person() {
+
+    }
+    public Person(PersonDT personDT) {
+        this.addReasonCd = personDT.getAddReasonCd();
+        this.addTime = personDT.getAddTime();
+        this.addUserId = personDT.getAddUserId();
+        this.administrativeGenderCd = personDT.getAdministrativeGenderCd();
+        this.ageCalc = personDT.getAgeCalc();
+        this.ageCalcTime = personDT.getAgeCalcTime();
+        this.ageCalcUnitCd = personDT.getAgeCalcUnitCd();
+        this.ageCategoryCd = personDT.getAgeCategoryCd();
+        this.ageReported = personDT.getAgeReported();
+        this.ageReportedTime = personDT.getAgeReportedTime();
+        this.ageReportedUnitCd = personDT.getAgeReportedUnitCd();
+        this.birthGenderCd = personDT.getBirthGenderCd();
+        this.birthOrderNbr = personDT.getBirthOrderNbr();
+        this.birthTime = personDT.getBirthTime();
+        this.birthTimeCalc = personDT.getBirthTimeCalc();
+        this.cd = personDT.getCd();
+        this.cdDescTxt = personDT.getCdDescTxt();
+        this.currSexCd = personDT.getCurrSexCd();
+        this.deceasedIndCd = personDT.getDeceasedIndCd();
+        this.deceasedTime = personDT.getDeceasedTime();
+        this.description = personDT.getDescription();
+        this.educationLevelCd = personDT.getEducationLevelCd();
+        this.educationLevelDescTxt = personDT.getEducationLevelDescTxt();
+        this.ethnicGroupInd = personDT.getEthnicGroupInd();
+        this.lastChgReasonCd = personDT.getLastChgReasonCd();
+        this.lastChgTime = personDT.getLastChgTime();
+        this.lastChgUserId = personDT.getLastChgUserId();
+        this.localId = personDT.getLocalId();
+        this.maritalStatusCd = personDT.getMaritalStatusCd();
+        this.maritalStatusDescTxt = personDT.getMaritalStatusDescTxt();
+        this.mothersMaidenNm = personDT.getMothersMaidenNm();
+        this.multipleBirthInd = personDT.getMultipleBirthInd();
+        this.occupationCd = personDT.getOccupationCd();
+        this.preferredGenderCd = personDT.getPreferredGenderCd();
+        this.primLangCd = personDT.getPrimLangCd();
+        this.primLangDescTxt = personDT.getPrimLangDescTxt();
+        this.recordStatusCd = personDT.getRecordStatusCd();
+        this.recordStatusTime = personDT.getRecordStatusTime();
+        this.statusCd = personDT.getStatusCd();
+        this.statusTime = personDT.getStatusTime();
+        this.survivedIndCd = personDT.getSurvivedIndCd();
+        this.userAffiliationTxt = personDT.getUserAffiliationTxt();
+        this.firstNm = personDT.getFirstNm();
+        this.lastNm = personDT.getLastNm();
+        this.middleNm = personDT.getMiddleNm();
+        this.nmPrefix = personDT.getNmPrefix();
+        this.nmSuffix = personDT.getNmSuffix();
+        this.preferredNm = personDT.getPreferredNm();
+        this.hmStreetAddr1 = personDT.getHmStreetAddr1();
+        this.hmStreetAddr2 = personDT.getHmStreetAddr2();
+        this.hmCityCd = personDT.getHmCityCd();
+        this.hmCityDescTxt = personDT.getHmCityDescTxt();
+        this.hmStateCd = personDT.getHmStateCd();
+        this.hmZipCd = personDT.getHmZipCd();
+        this.hmCntyCd = personDT.getHmCntyCd();
+        this.hmCntryCd = personDT.getHmCntryCd();
+        this.hmPhoneNbr = personDT.getHmPhoneNbr();
+        this.hmPhoneCntryCd = personDT.getHmPhoneCntryCd();
+        this.hmEmailAddr = personDT.getHmEmailAddr();
+        this.cellPhoneNbr = personDT.getCellPhoneNbr();
+        this.wkStreetAddr1 = personDT.getWkStreetAddr1();
+        this.wkStreetAddr2 = personDT.getWkStreetAddr2();
+        this.wkCityCd = personDT.getWkCityCd();
+        this.wkCityDescTxt = personDT.getWkCityDescTxt();
+        this.wkStateCd = personDT.getWkStateCd();
+        this.wkZipCd = personDT.getWkZipCd();
+        this.wkCntyCd = personDT.getWkCntyCd();
+        this.wkCntryCd = personDT.getWkCntryCd();
+        this.wkPhoneNbr = personDT.getWkPhoneNbr();
+        this.wkPhoneCntryCd = personDT.getWkPhoneCntryCd();
+        this.wkEmailAddr = personDT.getWkEmailAddr();
+        this.ssn = personDT.getSSN();
+        this.medicaidNum = personDT.getMedicaidNum();
+        this.dlNum = personDT.getDlNum();
+        this.dlStateCd = personDT.getDlStateCd();
+        this.raceCd = personDT.getRaceCd();
+        this.raceSeqNbr = personDT.getRaceSeqNbr();
+        this.raceCategoryCd = personDT.getRaceCategoryCd();
+        this.ethnicityGroupCd = personDT.getEthnicityGroupCd();
+        this.ethnicGroupSeqNbr = personDT.getEthnicGroupSeqNbr();
+        this.adultsInHouseNbr = personDT.getAdultsInHouseNbr();
+        this.childrenInHouseNbr = personDT.getChildrenInHouseNbr();
+        this.birthCityCd = personDT.getBirthCityCd();
+        this.birthCityDescTxt = personDT.getBirthCityDescTxt();
+        this.birthCntryCd = personDT.getBirthCntryCd();
+        this.birthStateCd = personDT.getBirthStateCd();
+        this.raceDescTxt = personDT.getRaceDescTxt();
+        this.ethnicGroupDescTxt = personDT.getEthnicGroupDescTxt();
+        this.versionCtrlNbr = personDT.getVersionCtrlNbr();
+        this.asOfDateAdmin = personDT.getAsOfDateAdmin();
+        this.asOfDateEthnicity = personDT.getAsOfDateEthnicity();
+        this.asOfDateGeneral = personDT.getAsOfDateGeneral();
+        this.asOfDateMorbidity = personDT.getAsOfDateMorbidity();
+        this.asOfDateSex = personDT.getAsOfDateSex();
+        this.electronicInd = personDT.getElectronicInd();
+        this.personParentUid = personDT.getPersonParentUid();
+        this.dedupMatchInd = personDT.getDedupMatchInd();
+        this.groupNbr = personDT.getGroupNbr();
+        this.groupTime = personDT.getGroupTime();
+        this.edxInd = personDT.getEdxInd();
+        this.speaksEnglishCd = personDT.getSpeaksEnglishCd();
+        this.additionalGenderCd = personDT.getAdditionalGenderCd();
+        this.eharsId = personDT.getEharsId();
+        this.ethnicUnkReasonCd = personDT.getEthnicUnkReasonCd();
+        this.sexUnkReasonCd = personDT.getSexUnkReasonCd();
+    }
 }
