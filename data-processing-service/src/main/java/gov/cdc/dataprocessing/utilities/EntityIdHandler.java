@@ -121,11 +121,10 @@ public class EntityIdHandler {
 
     public static Timestamp stringToStrutsTimestamp(String strTime) {
         java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat("MM/dd/yyyy");
-        String input = strTime;
         Date t;
         try {
-            if (input != null && input.trim().length() > 0) {
-                t = formatter.parse(input);
+            if (strTime != null && strTime.trim().length() > 0) {
+                t = formatter.parse(strTime);
                 logger.debug(String.valueOf(t));
                 Timestamp ts = new Timestamp(t.getTime());
                 return ts;
