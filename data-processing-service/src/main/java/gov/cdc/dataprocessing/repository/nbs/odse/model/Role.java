@@ -1,9 +1,11 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model;
 
+import gov.cdc.dataprocessing.model.classic_model.dto.RoleDT;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.Date;
+import java.sql.Timestamp;
+
 
 @Data
 @Entity
@@ -24,7 +26,7 @@ public class Role {
     private String addReasonCode;
 
     @Column(name = "add_time")
-    private Date addTime;
+    private Timestamp addTime;
 
     @Column(name = "add_user_id")
     private Long addUserId;
@@ -39,16 +41,16 @@ public class Role {
     private String effectiveDurationUnitCode;
 
     @Column(name = "effective_from_time")
-    private Date effectiveFromTime;
+    private Timestamp effectiveFromTime;
 
     @Column(name = "effective_to_time")
-    private Date effectiveToTime;
+    private Timestamp effectiveToTime;
 
     @Column(name = "last_chg_reason_cd", length = 20)
     private String lastChangeReasonCode;
 
     @Column(name = "last_chg_time")
-    private Date lastChangeTime;
+    private Timestamp lastChangeTime;
 
     @Column(name = "last_chg_user_id")
     private Long lastChangeUserId;
@@ -57,7 +59,7 @@ public class Role {
     private String recordStatusCode;
 
     @Column(name = "record_status_time")
-    private Date recordStatusTime;
+    private Timestamp recordStatusTime;
 
     @Column(name = "scoping_class_cd", length = 10)
     private String scopingClassCode;
@@ -69,13 +71,13 @@ public class Role {
     private String scopingRoleCode;
 
     @Column(name = "scoping_role_seq")
-    private Short scopingRoleSeq;
+    private Integer scopingRoleSeq;
 
     @Column(name = "status_cd", length = 1, nullable = false)
-    private Character statusCode;
+    private String statusCode;
 
     @Column(name = "status_time")
-    private Date statusTime;
+    private Timestamp statusTime;
 
     @Column(name = "subject_class_cd", length = 10)
     private String subjectClassCode;
@@ -87,4 +89,33 @@ public class Role {
 //    @JoinColumn(name = "subject_entity_uid", referencedColumnName = "entity_uid", insertable = false, updatable = false)
 //    private Entity entity;
 
+    public Role() {
+
+    }
+    public Role(RoleDT roleDT) {
+        this.subjectEntityUid = roleDT.getSubjectEntityUid();
+        this.code = roleDT.getCd();
+        this.roleSeq = roleDT.getRoleSeq();
+        this.addReasonCode = roleDT.getAddReasonCd();
+        this.addTime = roleDT.getAddTime();
+        this.addUserId = roleDT.getAddUserId();
+        this.codeDescription = roleDT.getCdDescTxt();
+        this.effectiveDurationAmount = roleDT.getEffectiveDurationAmt();
+        this.effectiveDurationUnitCode = roleDT.getEffectiveDurationUnitCd();
+        this.effectiveFromTime = roleDT.getEffectiveFromTime();
+        this.effectiveToTime = roleDT.getEffectiveToTime();
+        this.lastChangeReasonCode = roleDT.getLastChgReasonCd();
+        this.lastChangeTime = roleDT.getLastChgTime();
+        this.lastChangeUserId = roleDT.getLastChgUserId();
+        this.recordStatusCode = roleDT.getRecordStatusCd();
+        this.recordStatusTime = roleDT.getRecordStatusTime();
+        this.scopingClassCode = roleDT.getScopingClassCd();
+        this.scopingEntityUid = roleDT.getScopingEntityUid();
+        this.scopingRoleCode = roleDT.getScopingRoleCd();
+        this.scopingRoleSeq = roleDT.getScopingRoleSeq();
+        this.statusCode = roleDT.getStatusCd();
+        this.statusTime = roleDT.getStatusTime();
+        this.subjectClassCode = roleDT.getSubjectClassCd();
+        this.userAffiliationText = roleDT.getUserAffiliationTxt();
+    }
 }

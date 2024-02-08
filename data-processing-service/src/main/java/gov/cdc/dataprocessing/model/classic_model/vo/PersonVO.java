@@ -13,15 +13,15 @@ public class PersonVO extends LdfBaseVO{
     private static final long serialVersionUID = 1L;
     public PersonDT thePersonDT = new PersonDT();
     public Collection<PersonNameDT> thePersonNameDTCollection=new ArrayList<>();
-    public Collection<Object> thePersonRaceDTCollection;
-    public Collection<Object> thePersonEthnicGroupDTCollection;
+    public Collection<PersonRaceDT> thePersonRaceDTCollection=new ArrayList<>();
+    public Collection<PersonEthnicGroupDT> thePersonEthnicGroupDTCollection=new ArrayList<>();
     public Collection<EntityLocatorParticipationDT> theEntityLocatorParticipationDTCollection = new ArrayList<>();
     public Collection<EntityIdDT> theEntityIdDTCollection = new ArrayList<>();
 
 
     //	private String custom;//custom queues
     //collections for role and participation object association added by John Park
-    public Collection<ParticipationDT> theParticipationDTCollection;
+    public Collection<ParticipationDT> theParticipationDTCollection=new ArrayList<>();
     public Collection<RoleDT> theRoleDTCollection = new ArrayList<>();
 
     private String defaultJurisdictionCd;

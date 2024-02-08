@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model;
 
+import gov.cdc.dataprocessing.model.classic_model.dto.PersonRaceDT;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -7,7 +8,7 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 import java.math.BigInteger;
-import java.util.Date;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "Person_race", schema = "dbo")
@@ -18,7 +19,6 @@ public class PersonRace {
     @Column(name = "person_uid", nullable = false)
     private BigInteger personUid;
 
-    @Id
     @Column(name = "race_cd", nullable = false, length = 20)
     private String raceCd;
 
@@ -26,7 +26,7 @@ public class PersonRace {
     private String addReasonCd;
 
     @Column(name = "add_time")
-    private Date addTime;
+    private Timestamp addTime;
 
     @Column(name = "add_user_id")
     private BigInteger addUserId;
@@ -35,7 +35,7 @@ public class PersonRace {
     private String lastChgReasonCd;
 
     @Column(name = "last_chg_time")
-    private Date lastChgTime;
+    private Timestamp lastChgTime;
 
     @Column(name = "last_chg_user_id")
     private BigInteger lastChgUserId;
@@ -50,13 +50,32 @@ public class PersonRace {
     private String recordStatusCd;
 
     @Column(name = "record_status_time")
-    private Date recordStatusTime;
+    private Timestamp recordStatusTime;
 
     @Column(name = "user_affiliation_txt", length = 20)
     private String userAffiliationTxt;
 
     @Column(name = "as_of_date")
-    private Date asOfDate;
+    private Timestamp asOfDate;
 
     // Add getters and setters as needed
+    public PersonRace() {
+
+    }
+    public PersonRace(PersonRaceDT personRaceDT) {
+        this.personUid = BigInteger.valueOf(personRaceDT.getPersonUid());
+        this.raceCd = personRaceDT.getRaceCd();
+        this.addReasonCd = personRaceDT.getAddReasonCd();
+        this.addTime = personRaceDT.getAddTime();
+        this.addUserId = BigInteger.valueOf(personRaceDT.getAddUserId());
+        this.lastChgReasonCd = personRaceDT.getLastChgReasonCd();
+        this.lastChgTime = personRaceDT.getLastChgTime();
+        this.lastChgUserId = BigInteger.valueOf(personRaceDT.getLastChgUserId());
+        this.raceCategoryCd = personRaceDT.getRaceCategoryCd();
+        this.raceDescTxt = personRaceDT.getRaceDescTxt();
+        this.recordStatusCd = personRaceDT.getRecordStatusCd();
+        this.recordStatusTime = personRaceDT.getRecordStatusTime();
+        this.userAffiliationTxt = personRaceDT.getUserAffiliationTxt();
+        this.asOfDate = personRaceDT.getAsOfDate();
+    }
 }
