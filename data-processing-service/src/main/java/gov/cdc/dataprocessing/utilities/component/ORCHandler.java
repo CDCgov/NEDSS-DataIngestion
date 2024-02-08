@@ -51,7 +51,7 @@ public class ORCHandler {
                                                  LabResultProxyVO labResultProxyVO,
                                                  EdxLabInformationDT edxLabInformationDT) throws DataProcessingException {
         try {
-            HL7XADType address = null;
+            HL7XADType address;
             List<HL7XADType> addressArray = hl7ORCType
                     .getOrderingProviderAddress();
             if(addressArray!=null && !addressArray.isEmpty()){
@@ -109,7 +109,7 @@ public class ORCHandler {
                 participationDT.setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
                 participationDT.setActUid(edxLabInformationDT.getRootObserbationUid());
                 participationDT.setTypeCd(EdxELRConstant.ELR_ORDERER_CD);
-                participationDT = NBSObjectConverter.defaultParticipationDT(participationDT,edxLabInformationDT);
+                NBSObjectConverter.defaultParticipationDT(participationDT, edxLabInformationDT);
                 participationDT.setTypeDescTxt(EdxELRConstant.ELR_ORDERER_DESC);
                 participationDT.setSubjectClassCd(EdxELRConstant.ELR_ORG);
                 participationDT.setSubjectEntityUid(organizationDT.getOrganizationUid());
@@ -174,9 +174,7 @@ public class ORCHandler {
             logger.error("Exception thrown by HL7ORCProcessorget.getOrderingFacility " + e.getMessage(), e);
             throw new DataProcessingException("Exception thrown at HL7ORCProcessorget.getOrderingFacility:"+ e);
         }
-        if(organizationVO!=null) {
-            edxLabInformationDT.setMultipleOrderingFacility(false);
-        }
+        edxLabInformationDT.setMultipleOrderingFacility(false);
 
         return organizationVO;
     }

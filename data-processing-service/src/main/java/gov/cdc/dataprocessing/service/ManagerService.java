@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.service;
 
+import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.EdxLogException;
@@ -10,7 +11,12 @@ import gov.cdc.dataprocessing.service.interfaces.*;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
+
+import java.util.TreeMap;
 
 import static gov.cdc.dataprocessing.constant.ManagerEvent.EVENT_ELR;
 @Service
@@ -34,6 +40,11 @@ public class ManagerService implements IManagerService {
 
     private final NbsInterfaceRepository nbsInterfaceRepository;
 
+    private final CheckingValueService checkingValueService;
+
+    private final CacheManager cacheManager;
+
+    @Autowired
     public ManagerService(IObservationService observationService,
                           IPatientService patientService,
                           IOrganizationService organizationService,
@@ -42,7 +53,9 @@ public class ManagerService implements IManagerService {
                           IPublicHealthCaseService publicHealthCaseService,
                           IEdxLogService edxLogService, IHandleLabService handleLabService,
                           IDataExtractionService dataExtractionService,
-                          NbsInterfaceRepository nbsInterfaceRepository) {
+                          NbsInterfaceRepository nbsInterfaceRepository,
+                          CheckingValueService checkingValueService,
+                          CacheManager cacheManager) {
         this.observationService = observationService;
         this.patientService = patientService;
         this.organizationService = organizationService;
@@ -53,6 +66,8 @@ public class ManagerService implements IManagerService {
         this.handleLabService = handleLabService;
         this.dataExtractionService = dataExtractionService;
         this.nbsInterfaceRepository = nbsInterfaceRepository;
+        this.checkingValueService = checkingValueService;
+        this.cacheManager = cacheManager;
     }
 
     public Object processDistribution(String eventType, String data) throws DataProcessingConsumerException {
@@ -113,8 +128,6 @@ public class ManagerService implements IManagerService {
         edxLogService.processingLog();
     }
 
-
-
     private Object processingELR(String data) throws DataProcessingConsumerException {
         //TODO logic to execute data here
         Object result = new Object();
@@ -128,6 +141,30 @@ public class ManagerService implements IManagerService {
             nbsInterfaceModel = nbsModel.get();
             edxLabInformationDT.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
 
+
+            checkingValueService.getAOELOINCCodes();
+            checkingValueService.getRaceCodes();
+
+
+            var cache = cacheManager.getCache("srte");
+            if (cache != null) {
+                Cache.ValueWrapper valueWrapper;
+                valueWrapper = cache.get("loincCodes");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof TreeMap) {
+                        SrteCache.loincCodesMap = (TreeMap<String, String>) cachedObject;
+                    }
+                }
+
+                valueWrapper = cache.get("raceCodes");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof TreeMap) {
+                        SrteCache.raceCodesMap = (TreeMap<String, String>) cachedObject;
+                    }
+                }
+            }
             //TODO: Parsing Data to Object
             var parsedData = dataExtractionService.parsingDataToObject(nbsInterfaceModel, edxLabInformationDT);
 

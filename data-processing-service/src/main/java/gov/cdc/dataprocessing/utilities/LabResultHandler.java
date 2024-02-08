@@ -9,7 +9,6 @@ import gov.cdc.dataprocessing.model.classic_model.vo.OrganizationVO;
 import gov.cdc.dataprocessing.model.phdc.HL7HDType;
 import gov.cdc.dataprocessing.model.phdc.HL7MSHType;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.ArrayList;
 import java.util.Collection;
 
