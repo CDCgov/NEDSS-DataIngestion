@@ -141,7 +141,7 @@ public class ManagerService implements IManagerService {
             var observation = observationService.processingObservation();
 
             //TODO: PATIENT
-            var patient = patientService.processingPatient();
+            var patient = patientService.processingPatient(parsedData, edxLabInformationDT);
             var nextOfKin = patientService.processingNextOfKin();
             var provider = patientService.processingProvider();
 
