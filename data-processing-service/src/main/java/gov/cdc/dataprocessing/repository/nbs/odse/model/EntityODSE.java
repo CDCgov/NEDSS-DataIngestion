@@ -11,7 +11,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @Table(name = "Entity")
-public class Entity implements Serializable {
+public class EntityODSE implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

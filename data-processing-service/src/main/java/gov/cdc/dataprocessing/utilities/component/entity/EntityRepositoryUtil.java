@@ -3,7 +3,7 @@ package gov.cdc.dataprocessing.utilities.component.entity;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.classic_model.dto.PersonDT;
 import gov.cdc.dataprocessing.repository.nbs.odse.EntityRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.Entity;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.EntityODSE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -18,13 +18,13 @@ public class EntityRepositoryUtil {
         this.entityRepository = entityRepository;
     }
 
-    public Entity preparingEntityReposCallForPerson(PersonDT personDT, Long entityId, Object entityValue, String event) {
-        Entity entity = null;
+    public EntityODSE preparingEntityReposCallForPerson(PersonDT personDT, Long entityId, Object entityValue, String event) {
+        EntityODSE entityODSE = null;
         if (entityValue.getClass().toString().equals("class java.lang.String")) {
-            entity = new Entity();
-            entity.setEntityUid(entityId);
-            entity.setClassCd((String) entityValue);
-            entityRepository.save(entity);
+            entityODSE = new EntityODSE();
+            entityODSE.setEntityUid(entityId);
+            entityODSE.setClassCd((String) entityValue);
+            entityRepository.save(entityODSE);
         } else {
             if (entityValue.getClass().toString().equals("class java.sql.Timestamp")) {
                 //TODO: Will get back to this
@@ -41,9 +41,9 @@ public class EntityRepositoryUtil {
 
         }
         else {
-            return entity;
+            return entityODSE;
         }
 
-        return entity;
+        return entityODSE;
     }
 }
