@@ -428,10 +428,11 @@ public class PatientService implements IPatientService {
 
             if (personVO.isItNew()) {
                 //TODO: Patient Creation
-                person = home.create(personVO);
-                personUID = person.getPersonVO().getThePersonDT().getPersonUid();
+                //person = home.create(personVO);
+                //personUID = person.getPersonVO().getThePersonDT().getPersonUid();
 
-                Person personDomainModel = new Person(personVO.getThePersonDT());
+                person = patientRepositoryUtil.createPerson(personVO);
+                personUID = person.getPersonUid();
                 logger.debug(" EntityControllerEJB.setPerson() Person Created");
             } else {
                 //TODO: Patient Update

@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.utilities.component;
 
+import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.classic_model.dto.PersonDT;
 import gov.cdc.dataprocessing.repository.nbs.odse.EntityRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.Entity;
@@ -19,19 +20,32 @@ public class EntityRepositoryUtil {
         this.entityRepository = entityRepository;
     }
 
-    public Object preparingEntityReposCallForPerson(PersonDT personDT, List<Object> arrayList, String event) {
-        for(int i = 0; i < arrayList.size(); i++) {
-            Entity entity;
-            if (arrayList.get(i).getClass().toString().equals("class java.lang.String")) {
-                entity = new Entity();
-            } else {
-                if (arrayList.get(i).getClass().toString().equals("class java.sql.Timestamp")) {
-                    //TODO: Will get back to this
-                }
-                else {
+    public Entity preparingEntityReposCallForPerson(PersonDT personDT, Long entityId, Object entityValue, String event) {
+        Entity entity = null;
+        if (entityValue.getClass().toString().equals("class java.lang.String")) {
+            entity = new Entity();
+            entity.setEntityUid(entityId);
+            entity.setClassCd((String) entityValue);
+            entityRepository.save(entity);
+        } else {
+            if (entityValue.getClass().toString().equals("class java.sql.Timestamp")) {
+                //TODO: Will get back to this
+            }
+            else {
 
-                }
             }
         }
+
+        if (event.equals(NEDSSConstant.SELECT)) {
+
+        }
+        else if (event.equals(NEDSSConstant.SELECT_COUNT)) {
+
+        }
+        else {
+            return entity;
+        }
+
+        return entity;
     }
 }

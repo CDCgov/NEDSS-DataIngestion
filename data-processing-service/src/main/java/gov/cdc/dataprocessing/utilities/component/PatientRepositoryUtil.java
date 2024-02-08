@@ -1,9 +1,11 @@
 package gov.cdc.dataprocessing.utilities.component;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model.dto.PersonDT;
 import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 import gov.cdc.dataprocessing.repository.nbs.odse.PersonRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.Entity;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +26,7 @@ public class PatientRepositoryUtil {
         this.entityRepositoryUtil = entityRepositoryUtil;
     }
 
-    public Person createPerson(PersonVO personVO) {
+    public Person createPerson(PersonVO personVO) throws DataProcessingException {
         //TODO: Implement unique id generator here
         Long personUid = 212121L;
         String localUid = "Unique Id here";
@@ -48,16 +50,44 @@ public class PatientRepositoryUtil {
 
 
         //TODO: Create Entitty
-
+        try {
+            entityRepositoryUtil.preparingEntityReposCallForPerson(personDT, personUid, NEDSSConstant.PERSON, NEDSSConstant.UPDATE);
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
 
         //TODO: Create Person
         Person person = new Person(personDT);
+        try {
+            personRepository.save(person);
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
 
         //TODO: Create Person Name
+        if  (personVO.getThePersonNameDTCollection() != null && !personVO.getThePersonNameDTCollection().isEmpty()) {
+
+        }
         //TODO: Create Person Race
+        if  (personVO.getThePersonRaceDTCollection() != null && !personVO.getThePersonRaceDTCollection().isEmpty()) {
+
+        }
         //TODO: Create Person Ethnic
+        if  (personVO.getThePersonEthnicGroupDTCollection() != null && !personVO.getThePersonEthnicGroupDTCollection().isEmpty()) {
+
+        }
         //TODO: Create EntityID
+        if  (personVO.getTheEntityIdDTCollection() != null && !personVO.getTheEntityIdDTCollection().isEmpty()) {
+
+        }
         //TODO: Create Entity Locator Participation
+        if  (personVO.getTheEntityLocatorParticipationDTCollection() != null && !personVO.getTheEntityLocatorParticipationDTCollection().isEmpty()) {
+
+        }
         //TODO: Create Role
+        if  (personVO.getTheRoleDTCollection() != null && !personVO.getTheRoleDTCollection().isEmpty()) {
+
+        }
+        return person;
     }
 }
