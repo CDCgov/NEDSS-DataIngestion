@@ -15,7 +15,6 @@ import gov.cdc.dataprocessing.service.interfaces.ICheckingValueService;
 import gov.cdc.dataprocessing.utilities.EntityIdHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -104,7 +103,7 @@ public class HL7PatientHandler {
                     catch (NumberFormatException e) {
                         edxLabInformationDT.setSsnInvalid(true);
                     }
-                    entityIdDT = NBSObjectConverter.validateSSN(entityIdDT);
+                    NBSObjectConverter.validateSSN(entityIdDT);
                     personVO.getThePersonDT().setSSN(entityIdDT.getRootExtensionTxt());
                 }
                 if(personVO.getTheEntityIdDTCollection()==null) {
@@ -168,18 +167,15 @@ public class HL7PatientHandler {
             // Setup Person Ethnic Group
             Collection<Object> ethnicColl = new ArrayList<Object>();
             List<HL7CWEType> ethnicArray = hl7PIDType.getEthnicGroup();
-            for (int j = 0; j < ethnicArray.size(); j++) {
-                HL7CWEType ethnicType = ethnicArray.get(j);
-
+            for (HL7CWEType ethnicType : ethnicArray) {
                 PersonEthnicGroupDT personEthnicGroupDT = NBSObjectConverter.ethnicGroupType(ethnicType, personVO);
                 //TODO: Call out to ElrXrefRepositoty
                 ElrXref elrXrefForEthnic = new ElrXref();
                 String ethnicGroupCd = elrXrefForEthnic.getToCode(); //CachedDropDowns.findToCode("ELR_LCA_ETHN_GRP", personEthnicGroupDT.getEthnicGroupCd(), "P_ETHN_GRP");
-                if(ethnicGroupCd!=null && !ethnicGroupCd.trim().equals("")){
+                if (ethnicGroupCd != null && !ethnicGroupCd.trim().equals("")) {
                     personEthnicGroupDT.setEthnicGroupCd(ethnicGroupCd);
                 }
-                if (personEthnicGroupDT.getEthnicGroupCd() != null && !personEthnicGroupDT.getEthnicGroupCd().trim().equals(""))
-                {
+                if (personEthnicGroupDT.getEthnicGroupCd() != null && !personEthnicGroupDT.getEthnicGroupCd().trim().equals("")) {
                     var map = checkingValueService.getCodedValues("P_ETHN_GRP", personEthnicGroupDT.getEthnicGroupCd());
                     if (map.containsKey(personEthnicGroupDT.getEthnicGroupCd())) {
                         edxLabInformationDT.setEthnicityCodeTranslated(false);
@@ -187,12 +183,10 @@ public class HL7PatientHandler {
                 }
                 if (personEthnicGroupDT.getEthnicGroupCd() != null
                         && !personEthnicGroupDT.getEthnicGroupCd().trim().equals("")
-                    )
-                {
+                ) {
                     ethnicColl.add(personEthnicGroupDT);
                     personVO.getThePersonDT().setEthnicGroupInd(personEthnicGroupDT.getEthnicGroupCd());
-                }
-                else {
+                } else {
                     logger.info("Blank value recived for PID-22, Ethinicity");
                 }
                 personVO.setThePersonEthnicGroupDTCollection(ethnicColl);
@@ -277,9 +271,8 @@ public class HL7PatientHandler {
 
             //Setup Person Names
             List<HL7XPNType> nameArray = hl7PIDType.getPatientName();
-            for (int j = 0; j < nameArray.size(); j++) {
-                HL7XPNType hl7XPNType = nameArray.get(j);
-                nbsObjectConverter.mapPersonNameType(hl7XPNType,personVO);
+            for (HL7XPNType hl7XPNType : nameArray) {
+                nbsObjectConverter.mapPersonNameType(hl7XPNType, personVO);
             }
 
             //Setup Person Business Phone Number
@@ -308,11 +301,10 @@ public class HL7PatientHandler {
             if(hl7PIDType.getRace() != null){
                 Collection<Object> raceColl = new ArrayList<Object>();
                 List<HL7CWEType> raceArray = hl7PIDType.getRace();
-                PersonRaceDT raceDT = null;
-                for (int j = 0; j < raceArray.size(); j++) {
+                PersonRaceDT raceDT;
+                for (HL7CWEType hl7CWEType : raceArray) {
                     try {
-                        HL7CWEType raceType = raceArray.get(j);
-                        raceDT = NBSObjectConverter.raceType(raceType, personVO);
+                        raceDT = NBSObjectConverter.raceType(hl7CWEType, personVO);
                         raceDT.setPersonUid(personVO.getThePersonDT().getPersonUid());
                         //TODO: Call out to ElrXrefRepositoty
                         ElrXref elrXrefForRace = new ElrXref();
@@ -366,7 +358,7 @@ public class HL7PatientHandler {
                 personVO.getThePersonDT().setCd(NEDSSConstant.PAT);
                 personDT.setCd(EdxELRConstant.ELR_PATIENT_CD);
                 personDT.setCdDescTxt(EdxELRConstant.ELR_PATIENT_DESC);
-                personDT.setPersonUid((long)edxLabInformationDT.getPatientUid());
+                personDT.setPersonUid(edxLabInformationDT.getPatientUid());
             } else if (edxLabInformationDT.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)){
                 personVO.setRole(EdxELRConstant.ELR_NEXT_OF_KIN);
                 personDT.setCd(EdxELRConstant.ELR_PATIENT_CD);
