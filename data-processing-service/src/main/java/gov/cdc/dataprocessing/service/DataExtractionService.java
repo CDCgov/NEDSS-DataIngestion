@@ -1,17 +1,16 @@
 package gov.cdc.dataprocessing.service;
 
-import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model.dto.EDXDocumentDT;
 import gov.cdc.dataprocessing.model.classic_model.dt.EdxLabInformationDT;
+import gov.cdc.dataprocessing.model.classic_model.dto.EDXDocumentDT;
 import gov.cdc.dataprocessing.model.classic_model.vo.LabResultProxyVO;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.service.interfaces.IDataExtractionService;
 import gov.cdc.dataprocessing.service.interfaces.IMsgOutEStoredProcService;
-import gov.cdc.dataprocessing.utilities.*;
+import gov.cdc.dataprocessing.utilities.LabResultHandler;
 import gov.cdc.dataprocessing.utilities.component.HL7PatientHandler;
 import gov.cdc.dataprocessing.utilities.component.ORCHandler;
 import gov.cdc.dataprocessing.utilities.component.ObservationRequestHandler;
@@ -55,9 +54,9 @@ public class DataExtractionService implements IDataExtractionService {
 
     public LabResultProxyVO parsingDataToObject(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDT edxLabInformationDT) throws DataProcessingConsumerException, JAXBException, DataProcessingException {
 
-        LabResultProxyVO labResultProxyVO = null;
+        LabResultProxyVO labResultProxyVO;
         int rootObsUid = 0;
-        Long userId = 123L;
+        long userId = 123L;
         Timestamp time = new Timestamp(new Date().getTime());
         try {
 
@@ -198,7 +197,6 @@ public class DataExtractionService implements IDataExtractionService {
         JAXBContext context = JAXBContext.newInstance(Container.class);
         Unmarshaller unmarshaller = context.createUnmarshaller();
         StringReader reader = new StringReader(xmlPayload);
-        Container obj = (Container) unmarshaller.unmarshal(reader);
-        return obj;
+        return (Container) unmarshaller.unmarshal(reader);
     }
 }

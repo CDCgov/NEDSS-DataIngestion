@@ -15,11 +15,13 @@ import gov.cdc.dataprocessing.service.interfaces.ICheckingValueService;
 import gov.cdc.dataprocessing.utilities.CommonLabUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.StringTokenizer;
 
 @Component
 public class ObservationResultRequestHandler {
@@ -41,16 +43,15 @@ public class ObservationResultRequestHandler {
                                                         EdxLabInformationDT edxLabInformationDT) throws DataProcessingException{
         try {
             //TODO: This process taking some time, pershap move the caching from legacy is a good move
-            for(int j=0; j<observationRequestArray.size(); j++){
+            for (HL7OBSERVATIONType hl7OBSERVATIONType : observationRequestArray) {
                 try {
-                    HL7OBSERVATIONType observationRequest= observationRequestArray.get(j);
-                    ObservationVO observationVO = getObservationResult(observationRequest.getObservationResult(), labResultProxyVO, edxLabInformationDT);
-                    getObsReqNotes(observationRequest.getNotesAndComments(), observationVO);
+                    ObservationVO observationVO = getObservationResult(hl7OBSERVATIONType.getObservationResult(), labResultProxyVO, edxLabInformationDT);
+                    getObsReqNotes(hl7OBSERVATIONType.getNotesAndComments(), observationVO);
                     //edxLabInformationDT.setParentObservationUid(observationVO.getTheObservationDT().getObservationUid());
                     labResultProxyVO.getTheObservationVOCollection().add(observationVO);
                 } catch (Exception e) {
-                    logger.error("ObservationResultRequest.getObservationResultRequest Exception thrown while processing observationRequestArray. Please check!!!"+e.getMessage(), e);
-                    throw new DataProcessingException("Exception thrown at ObservationResultRequest.getObservationResultRequest while oricessing observationRequestArray:"+ e.getMessage());
+                    logger.error("ObservationResultRequest.getObservationResultRequest Exception thrown while processing observationRequestArray. Please check!!!" + e.getMessage(), e);
+                    throw new DataProcessingException("Exception thrown at ObservationResultRequest.getObservationResultRequest while oricessing observationRequestArray:" + e.getMessage());
                 }
             }
         } catch (Exception e) {
@@ -137,21 +138,18 @@ public class ObservationResultRequestHandler {
              */
             List<HL7EIType> equipmentIdType = hl7OBXType.getEquipmentInstanceIdentifier();
             int seq = 3;
-            for (int i = 0; i < equipmentIdType.size(); i++) {
-                HL7EIType equipmentId = equipmentIdType.get(i);
-                if (equipmentIdType != null) {
-                    ActIdDT act3IdDT = new ActIdDT();
-                    act3IdDT.setActUid(observationDT.getObservationUid());
-                    act3IdDT.setActIdSeq(seq);
-                    act3IdDT.setRootExtensionTxt(equipmentId.getHL7EntityIdentifier());
-                    act3IdDT.setAssigningAuthorityCd(equipmentId.getHL7UniversalID());
-                    act3IdDT.setAssigningAuthorityDescTxt(equipmentId.getHL7UniversalIDType());
-                    act3IdDT.setTypeCd(EdxELRConstant.ELR_EQUIPMENT_INSTANCE_CD);
-                    act3IdDT.setTypeDescTxt(EdxELRConstant.ELR_EQUIPMENT_INSTANCE_DESC);
-                    act3IdDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
-                    actIdDTColl.add(act3IdDT);
-                    seq = seq + 1;
-                }
+            for (HL7EIType equipmentId : equipmentIdType) {
+                ActIdDT act3IdDT = new ActIdDT();
+                act3IdDT.setActUid(observationDT.getObservationUid());
+                act3IdDT.setActIdSeq(seq);
+                act3IdDT.setRootExtensionTxt(equipmentId.getHL7EntityIdentifier());
+                act3IdDT.setAssigningAuthorityCd(equipmentId.getHL7UniversalID());
+                act3IdDT.setAssigningAuthorityDescTxt(equipmentId.getHL7UniversalIDType());
+                act3IdDT.setTypeCd(EdxELRConstant.ELR_EQUIPMENT_INSTANCE_CD);
+                act3IdDT.setTypeDescTxt(EdxELRConstant.ELR_EQUIPMENT_INSTANCE_DESC);
+                act3IdDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
+                actIdDTColl.add(act3IdDT);
+                seq = seq + 1;
             }
 
             observationVO.setTheActIdDTCollection(actIdDTColl);
@@ -238,9 +236,7 @@ public class ObservationResultRequestHandler {
                 }
 
                 if(edxLabInformationDT.isParentObsInd()){
-                    if(observationVO.getTheObservationDT().getCd()==null  ||
-                            (observationVO.getTheObservationDT().getCd()!=null &&
-                                    observationVO.getTheObservationDT().getCd().trim().equals(""))) {
+                    if(observationVO.getTheObservationDT().getCd() == null || observationVO.getTheObservationDT().getCd().trim().equals("")) {
                         edxLabInformationDT.setDrugNameMissing(true);
                         edxLabInformationDT.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                         throw new DataProcessingException(EdxELRConstant.NO_DRUG_NAME);
@@ -255,9 +251,8 @@ public class ObservationResultRequestHandler {
 
             List<String>  obsValueArray =hl7OBXType.getObservationValue();
             String elementName = "ObservationValue";
-            for(int i=0; i<obsValueArray.size();i++){
-                String text = obsValueArray.get(i);
-                formatValue( text,hl7OBXType, observationVO,edxLabInformationDT, elementName);
+            for (String text : obsValueArray) {
+                formatValue(text, hl7OBXType, observationVO, edxLabInformationDT, elementName);
                 if (!(hl7OBXType.getValueType().equals(EdxELRConstant.ELR_STRING_CD)
                         || hl7OBXType.getValueType().equals(EdxELRConstant.ELR_TEXT_CD)
                         || hl7OBXType.getValueType().equals(EdxELRConstant.ELR_TEXT_DT)
@@ -268,7 +263,7 @@ public class ObservationResultRequestHandler {
 
             if(hl7OBXType.getReferencesRange()!=null){
                 String range =hl7OBXType.getReferencesRange();
-                ObsValueNumericDT obsValueNumericDT = null;
+                ObsValueNumericDT obsValueNumericDT;
                 if(observationVO.getTheObsValueNumericDTCollection()!=null){
                     obsValueNumericDT = observationVO.getTheObsValueNumericDTCollection().get(0);
                 }else{
@@ -343,8 +338,7 @@ public class ObservationResultRequestHandler {
             String methodCd = null;
             String methodDescTxt = null;
             final String delimiter = "**";
-            for (int i = 0; i < methodArray.size(); i++) {
-                HL7CEType method = methodArray.get(i);
+            for (HL7CEType method : methodArray) {
                 if (method.getHL7Identifier() != null) {
                     if (methodCd == null)
                         methodCd = method.getHL7Identifier() + delimiter;
@@ -532,7 +526,7 @@ public class ObservationResultRequestHandler {
                             throw new DataProcessingException(EdxELRConstant.NO_REFLEX_RESULT_NM+" XMLElementName: "+xmlElementName);
                         }
 
-                        if((obsvalueDT.getCode()==null || obsvalueDT.getCode().trim().equals("")) && obsvalueDT.getAltCd()!=null){
+                        if(obsvalueDT.getCode() == null || obsvalueDT.getCode().trim().equals("")){
                             obsvalueDT.setCode(obsvalueDT.getAltCd());
                             obsvalueDT.setDisplayName(obsvalueDT.getAltCdDescTxt());
                             obsvalueDT.setCodeSystemCd(obsvalueDT.getAltCdSystemCd());
@@ -621,7 +615,7 @@ public class ObservationResultRequestHandler {
                         || type.equals(EdxELRConstant.ELR_TEXT_DT) || type.equals(EdxELRConstant.ELR_TEXT_TS)) {
                     ObsValueTxtDT obsValueTxtDT = new ObsValueTxtDT();
                     StringTokenizer st = new StringTokenizer(text, "^");
-                    int i = 0;
+                    int i;
                     if (observationVO.getTheObsValueTxtDTCollection() == null)
                         observationVO.setTheObsValueTxtDTCollection(new ArrayList<Object>());
 
@@ -654,11 +648,10 @@ public class ObservationResultRequestHandler {
 
     private static ObservationVO getObsReqNotes(List<HL7NTEType> noteArray, ObservationVO observationVO) throws DataProcessingException {
         try {
-            for(int i=0; i<noteArray.size(); i++){
-                HL7NTEType notes= noteArray.get(i);
-                if(notes.getHL7Comment()!=null && notes.getHL7Comment().size() >0){
-                    for(int j=0; j<notes.getHL7Comment().size(); j++){
-                        String note =  notes.getHL7Comment().get(j);
+            for (HL7NTEType notes : noteArray) {
+                if (notes.getHL7Comment() != null && notes.getHL7Comment().size() > 0) {
+                    for (int j = 0; j < notes.getHL7Comment().size(); j++) {
+                        String note = notes.getHL7Comment().get(j);
                         ObsValueTxtDT obsValueTxtDT = new ObsValueTxtDT();
                         obsValueTxtDT.setItNew(true);
                         obsValueTxtDT.setItDirty(false);
@@ -666,13 +659,13 @@ public class ObservationResultRequestHandler {
                         obsValueTxtDT.setTxtTypeCd(EdxELRConstant.ELR_OBX_COMMENT_TYPE);
 
                         obsValueTxtDT.setValueTxt(note);
-                        if(observationVO.getTheObsValueTxtDTCollection()==null)
+                        if (observationVO.getTheObsValueTxtDTCollection() == null)
                             observationVO.setTheObsValueTxtDTCollection(new ArrayList<Object>());
                         int seq = observationVO.getTheObsValueTxtDTCollection().size();
                         obsValueTxtDT.setObsValueTxtSeq(++seq);
                         observationVO.getTheObsValueTxtDTCollection().add(obsValueTxtDT);
                     }
-                }else{
+                } else {
                     ObsValueTxtDT obsValueTxtDT = new ObsValueTxtDT();
                     obsValueTxtDT.setItNew(true);
                     obsValueTxtDT.setItDirty(false);
@@ -680,7 +673,7 @@ public class ObservationResultRequestHandler {
                     obsValueTxtDT.setObservationUid(observationVO.getTheObservationDT().getObservationUid());
                     obsValueTxtDT.setTxtTypeCd(EdxELRConstant.ELR_OBX_COMMENT_TYPE);
 
-                    if(observationVO.getTheObsValueTxtDTCollection()==null)
+                    if (observationVO.getTheObsValueTxtDTCollection() == null)
                         observationVO.setTheObsValueTxtDTCollection(new ArrayList<Object>());
                     int seq = observationVO.getTheObsValueTxtDTCollection().size();
                     obsValueTxtDT.setObsValueTxtSeq(++seq);
