@@ -10,9 +10,8 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.Person;
 import gov.cdc.dataprocessing.service.CheckingValueService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
-import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchingCriteriaUtil;
-import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchingHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.patient.PreparingPersonUtil;
 import gov.cdc.dataprocessing.utilities.model.Coded;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,23 +30,24 @@ public class PatientMatchingService {
     public boolean multipleMatchFound = false;
 
     private final EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil;
-    private final EdxPatientMatchingHelper edxPatientMatchingHelper;
     private final EntityHelper entityHelper;
     private final PatientRepositoryUtil patientRepositoryUtil;
 
     private final CheckingValueService checkingValueService;
+    private final PreparingPersonUtil preparingPersonUtil;
+
 
     public PatientMatchingService(
             EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
-            EdxPatientMatchingHelper edxPatientMatchingHelper,
             EntityHelper entityHelper,
             PatientRepositoryUtil patientRepositoryUtil,
-            CheckingValueService checkingValueService) {
+            CheckingValueService checkingValueService,
+            PreparingPersonUtil preparingPersonUtil) {
         this.edxPatientMatchRepositoryUtil = edxPatientMatchRepositoryUtil;
-        this.edxPatientMatchingHelper = edxPatientMatchingHelper;
         this.entityHelper = entityHelper;
         this.patientRepositoryUtil = patientRepositoryUtil;
         this.checkingValueService = checkingValueService;
+        this.preparingPersonUtil = preparingPersonUtil;
     }
 
 
@@ -74,7 +74,7 @@ public class PatientMatchingService {
             try {
                 // Try to get the matching with the match string
                 //	(was hash code but hash code had dups on rare occasions)
-                edxPatientMatchFoundDT = edxPatientMatchingHelper.getEdxPatientMatchOnMatchString(cd, localId);
+                edxPatientMatchFoundDT = edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(cd, localId);
                 if (edxPatientMatchFoundDT.isMultipleMatch()){
                     multipleMatchFound = true;
                     matchFound = false;
@@ -119,7 +119,7 @@ public class PatientMatchingService {
                             edxPatientFoundDT.setMatchString(IdentifierStr);
                             edxPatientFoundDT.setMatchStringHashCode((long) identifierStrhshCd);
                             // Try to get the matching with the hash code
-                            edxPatientMatchFoundDT = edxPatientMatchingHelper.getEdxPatientMatchOnMatchString(cd, IdentifierStr);
+                            edxPatientMatchFoundDT = edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(cd, IdentifierStr);
 
                             if (edxPatientMatchFoundDT.isMultipleMatch()){
                                 matchFound = false;
@@ -151,7 +151,7 @@ public class PatientMatchingService {
                             edxPatientFoundDT.setMatchString(namesdobcursexStr);
                             edxPatientFoundDT.setMatchStringHashCode((long) namesdobcursexStrhshCd);
                         }
-                        edxPatientMatchFoundDT = edxPatientMatchingHelper.getEdxPatientMatchOnMatchString(cd, namesdobcursexStr);
+                        edxPatientMatchFoundDT = edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(cd, namesdobcursexStr);
                         if (edxPatientMatchFoundDT.isMultipleMatch()){
                             multipleMatchFound = true;
                             matchFound = false;
@@ -228,7 +228,7 @@ public class PatientMatchingService {
         return edxPatientMatchFoundDT;
     }
 
-    public Long setPerson(PersonVO personVO) throws DataProcessingException {
+    private Long setPerson(PersonVO personVO) throws DataProcessingException {
         Long personUID = -1L;
 
         try {
@@ -293,7 +293,7 @@ public class PatientMatchingService {
      * @roseuid 3E7B3806004E
      * @J2EE_METHOD -- setPatientRevision
      */
-    public Long setPatientRevision(PersonVO personVO, String businessTriggerCd) throws DataProcessingException {
+    private Long setPatientRevision(PersonVO personVO, String businessTriggerCd) throws DataProcessingException {
         PersonVO mprPersonVO = null;
         Long mprPersonUid = null;
         Long personUid = null;
@@ -314,9 +314,9 @@ public class PatientMatchingService {
                 } catch (Exception e) {
                     logger.debug(e.getMessage());
                 }
-                mprPersonUid = patientRepositoryUtil.setPersonInternal(mprPersonVO, NBSBOLookup.PATIENT, "PAT_CR");
+                mprPersonUid = setPersonInternal(mprPersonVO, NBSBOLookup.PATIENT, "PAT_CR");
 
-                mprPersonVO = patientRepositoryUtil.getPersonInternal(mprPersonUid);
+                mprPersonVO = getPersonInternal(mprPersonUid);
                 personVO.getThePersonDT().setPersonParentUid(mprPersonUid);
                 personVO.getThePersonDT().setLocalId(mprPersonVO.getThePersonDT().getLocalId());
             }
@@ -336,13 +336,13 @@ public class PatientMatchingService {
                 // first place.
                 if (personVO.getThePersonDT().getLocalId() == null || personVO.getThePersonDT().getLocalId().trim().length() == 0) {
                     mprPersonUid = personVO.getThePersonDT().getPersonParentUid();
-                    mprPersonVO = patientRepositoryUtil.getPersonInternal(mprPersonUid);
+                    mprPersonVO = getPersonInternal(mprPersonUid);
                     personVO.getThePersonDT().setLocalId(mprPersonVO.getThePersonDT().getLocalId());
                 }
             }
 
 
-            personUid = patientRepositoryUtil.setPersonInternal(personVO, NBSBOLookup.PATIENT,businessTriggerCd);
+            personUid = setPersonInternal(personVO, NBSBOLookup.PATIENT,businessTriggerCd);
 
             if (personVO.getThePersonDT() != null && (personVO.getThePersonDT().getElectronicInd() != null
                     && !personVO.getThePersonDT().getElectronicInd().equals(EdxELRConstant.ELECTRONIC_IND_ELR))) {// ldf code
@@ -376,28 +376,6 @@ public class PatientMatchingService {
             logger.error("EntityControllerEJB.cloneVO: " + e.getMessage(), e);
             throw new DataProcessingException(e.getMessage(), e);
         }
-    }
-
-
-
-    /*
-     * Call the function to persist the patient hashcode in edx patient match
-     * table
-     */
-
-
-    private void updateWithRevision(PersonVO personVO) throws DataProcessingException {
-        try {
-
-            if(!personVO.getThePersonDT().isReentrant()) {
-                patientRepositoryUtil.updateWithRevision(personVO);
-            }
-
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-
-        }
-
     }
 
     // getting local Id string from person VO
@@ -494,7 +472,173 @@ public class PatientMatchingService {
         return returnList;
     }
 
-    public void setPatientToEntityMatch(PersonVO personVO) throws DataProcessingException {
+    private void setPatientHashCd(PersonVO personVO) throws DataProcessingException {
+
+        try {
+            long personUid = personVO.getThePersonDT().getPersonParentUid();
+            edxPatientMatchRepositoryUtil.deleteEdxPatientMatchDTColl(personUid);
+            try {
+                if(personVO.getThePersonDT().getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE)){
+                    personVO.getThePersonDT().setPersonUid(personUid);
+                    setPatientToEntityMatch(personVO);
+                }
+            } catch (Exception e) {
+                //per defect #1836 change to warning..
+                logger.warn("Unable to setPatientHashCd for personUid: "+personUid);
+                logger.warn("Exception in setPatientToEntityMatch -> unhandled exception: " +e.getMessage());
+            }
+        } catch (Exception e) {
+            logger.error("EntityControllerEJB.setPatientHashCd: " + e.getMessage(), e);
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+
+    }
+
+    /**
+     * @roseuid 3E7B380C036B
+     * @J2EE_METHOD -- setPersonInternal
+     */
+    private Long setPersonInternal(PersonVO personVO,
+                                  String businessObjLookupName, String businessTriggerCd
+    ) throws  DataProcessingException {
+        Long personUID = -1L;
+        String localId = "";
+        boolean isELRCase = false;
+        try {
+            if (personVO.isItNew() || personVO.isItDirty()) {
+
+                // changed as per shannon and chase, keep the temp localid and
+                // set it back to personDT after prepareVOUtils
+                if (personVO.getThePersonDT().isItNew() && !(businessObjLookupName.equalsIgnoreCase(NEDSSConstant.businessObjLookupNamePROVIDER))) {
+                    localId = personVO.getThePersonDT().getLocalId();
+                }
+
+                if(localId==null){
+                    personVO.getThePersonDT().setEdxInd("Y");
+                    isELRCase= true;
+                }
+
+                //TODO: Check this prep function out
+                PersonDT personDT = preparingPersonUtil.prepareVO(personVO.getThePersonDT(), businessObjLookupName,
+                        businessTriggerCd, "PERSON", "BASE");
+//                PersonDT personDT = personVO.getThePersonDT();
+
+                if (personVO.getThePersonDT().isItNew()
+                        && !(businessObjLookupName
+                        .equalsIgnoreCase(NEDSSConstant.businessObjLookupNamePROVIDER)))
+                    personDT.setLocalId(localId);
+
+                personVO.setThePersonDT((PersonDT) personDT);
+                Collection<EntityLocatorParticipationDT> collEntityLocatorPar = null;
+                Collection<RoleDT> colRole= null;
+                Collection<ParticipationDT> colParticipation= null;
+
+
+                collEntityLocatorPar = personVO.getTheEntityLocatorParticipationDTCollection();
+                colRole = personVO.getTheRoleDTCollection();
+                colParticipation = personVO.getTheParticipationDTCollection();
+
+                if (collEntityLocatorPar != null) {
+                    entityHelper.iterateELPDTForEntityLocatorParticipation(collEntityLocatorPar);
+
+                    personVO.setTheEntityLocatorParticipationDTCollection(collEntityLocatorPar);
+                }
+
+                if (colRole != null) {
+                    entityHelper.iterateRDT(colRole);
+
+                    personVO.setTheRoleDTCollection(colRole);
+                }
+
+                if (colParticipation != null) {
+                    entityHelper.iteratePDTForParticipation(colParticipation);
+                    personVO.setTheParticipationDTCollection(colParticipation);
+                }
+
+                patientRepositoryUtil.preparePersonNameBeforePersistence(personVO);
+
+
+                if (personVO.isItNew()) {
+
+                    Person person = patientRepositoryUtil.createPerson(personVO);
+                    personUID = person.getPersonUid();
+                    logger.debug(" EntityControllerEJB.setProvider() Person Created");
+                } else {
+                    // TODO: Check this Update DB
+                    //TODO: Check Legacy - DOES THIS DO ANYTHING?
+                    //                person.setPersonVO(personVO);
+//                    Person person = home.findByPrimaryKey(personVO
+//                            .getThePersonDT().getPersonUid());
+//
+                    Person person = patientRepositoryUtil.findExistingPersonByUid(personVO);
+                    // person.setPersonVO(personVO);
+//                    personUID = person.getPersonVO().getThePersonDT()
+//                            .getPersonUid();
+                    personUID = person.getPersonUid();
+                    logger.debug(" EntityControllerEJB.setProvider() Person Updated");
+                }
+                if(isELRCase){
+                    try {
+                        personVO.getThePersonDT().setPersonUid(personUID);
+                        personVO.getThePersonDT().setPersonParentUid(personUID);
+                        setPatientHashCd(personVO);
+                    } catch (Exception e) {
+                        logger.error("RemoteException thrown while creating hashcode for the ELR patient."+e);
+                        throw new DataProcessingException(e.getMessage(), e);
+
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(),e);
+        }
+        return personUID;
+    }
+
+    private Long setMPR(PersonVO personVO,  String businessTriggerCd) throws DataProcessingException {
+        try {
+            Long personUID = null;
+            personVO.getThePersonDT().setEdxInd(NEDSSConstant.EDX_IND);
+            if(personVO.isExt()){
+                personVO.setItNew(false);
+                personVO.setItDirty(false);
+                if(personVO.isExt()){
+                    if(personVO.getThePersonNameDTCollection()!=null){
+                        Collection<PersonNameDT> coll = personVO.getThePersonNameDTCollection();
+                        Iterator<PersonNameDT> itName = coll.iterator();
+                        while (itName.hasNext()) {
+                            PersonNameDT personNameDT = (PersonNameDT) itName.next();
+                            personNameDT.setItDirty(true);
+                            personNameDT.setItNew(false);
+
+                        }
+                    }
+                }
+            }
+            if(personVO.isMPRUpdateValid()){
+                personUID = setPersonInternal(personVO, NBSBOLookup.PATIENT, businessTriggerCd);
+
+                try {
+
+                    if(personVO.getThePersonDT().getPersonParentUid()==null)
+                    {
+                        personVO.getThePersonDT().setPersonParentUid(personUID);
+                    }
+                    setPatientHashCd(personVO);
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            return personUID;
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            logger.error("EntityControllerEJB.setMPR: " + e.getMessage(), e);
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+    private void setPatientToEntityMatch(PersonVO personVO) throws DataProcessingException {
 
         Long patientUid = personVO.getThePersonDT().getPersonUid();
         EdxPatientMatchDT edxPatientMatchDT = new EdxPatientMatchDT();
@@ -570,7 +714,7 @@ public class PatientMatchingService {
         }// end of method
     }
 
-    public String getNamesStr(PersonVO personVO) {
+    private String getNamesStr(PersonVO personVO) {
         String namesStr = null;
         String carrot = "^";
         if (personVO.getThePersonDT() != null) {
@@ -629,7 +773,7 @@ public class PatientMatchingService {
         return namesStr;
     }
 
-    public String getLNmFnmDobCurSexStr(PersonVO personVO) {
+    private String getLNmFnmDobCurSexStr(PersonVO personVO) {
         String namedobcursexStr = null;
         String carrot = "^";
         if (personVO.getThePersonDT() != null) {
@@ -706,5 +850,131 @@ public class PatientMatchingService {
         return namedobcursexStr;
     }
 
+    private boolean saveMPR(PersonVO mpr) throws DataProcessingException {
+        return storeMPR(mpr, NEDSSConstant.PAT_EDIT);
+    }
+
+    private boolean update(PersonVO mpr, PersonVO newRevision)
+            throws DataProcessingException
+    {
+        try {
+            logger.debug("Starts update mpr, person uid = " + mpr.getThePersonDT().getPersonUid());
+            logger.debug("Starts update mpr, person parent uid = " + mpr.getThePersonDT().getPersonParentUid());
+            Collection<PersonVO> aNewRevisionList = new ArrayList<> ();
+            aNewRevisionList.add(newRevision);
+
+//            MPRUpdateVO mprUpdateVO = new MPRUpdateVO(mpr, aNewRevisionList);
+//            logger.debug("Try to get a " + MPRUpdateEngineConstants.DEFAULT_HANDLER + " handler.");
+//            MPRUpdateHandler handler = getHandler(MPRUpdateEngineConstants.DEFAULT_HANDLER);
+//            logger.debug("The handler is: " + handler);
+
+            if(process(mpr, aNewRevisionList))
+            {
+                return saveMPR(mpr);
+            }else
+            {
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage(), e);
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Process MPR
+     * */
+    private boolean process(PersonVO personVO, Collection<PersonVO> aNewRevisionList ) {
+        return true;
+    }
+
+    private boolean updateWithRevision(PersonVO newRevision) throws DataProcessingException {
+        //TODO: Logic to update revison
+        Object theLookedUpObject;
+//        theLookedUpObject = nedssUtils.lookupBean(JNDINames.MPR_UPDATE_ENGINE_EJB);
+//        MPRUpdateEngineHome mprHome = (MPRUpdateEngineHome) PortableRemoteObject.narrow(theLookedUpObject, MPRUpdateEngineHome.class);
+//        MPRUpdateEngine mprUpdateEngine = mprHome.create();
+//        mprUpdateEngine.updateWithRevision(personVO, nbsSecurityObj);
+
+        Long mprUID = newRevision.getThePersonDT().getPersonParentUid();;
+        PersonVO mpr = getMPR(mprUID);
+        mpr.setMPRUpdateValid(newRevision.isMPRUpdateValid());
+        if(mpr != null) //With the MPR, update...
+        {
+            //localId need to be same for MPR and Revision and it need to be set at backend
+            newRevision.getThePersonDT().setLocalId(mpr.getThePersonDT().getLocalId());
+            return update(mpr, newRevision);
+        }
+        else //No MPR.
+        {
+            throw new DataProcessingException("Cannot get a mpr for this person parent uid: "+ mprUID);
+        }
+
+    }
+
+    private PersonVO getMPR(Long personUid) throws DataProcessingException {
+        try
+        {
+            return getPersonInternal(personUid);
+        }
+        catch(Exception e)
+        {
+            logger.error("CreateException: cannot create an EntityController object."+e.getMessage(),e);
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * @roseuid 3E7B38140232
+     * @J2EE_METHOD -- getPersonInternal
+     */
+    private PersonVO getPersonInternal(Long personUID) throws DataProcessingException {
+        PersonVO personVO = null;
+
+        try {
+            Person person = null;
+            if (personUID != null)
+                person = patientRepositoryUtil.findExistingPersonByUid(personUID);
+            // for LDFs
+            if (person != null && (person.getElectronicInd() != null
+                    && !personVO.getThePersonDT().getElectronicInd().equals(NEDSSConstant.ELECTRONIC_IND_ELR))) {
+                ArrayList<Object> ldfList = new ArrayList<Object>();
+                try {
+                    //TODO: THis seem related to version control
+//                    LDFHelper ldfHelper = LDFHelper.getInstance();
+//                    ldfList = (ArrayList<Object>) ldfHelper.getLDFCollection(personUID, null, nbsSecurityObj);
+                } catch (Exception e) {
+                    logger.error("Exception occured while retrieving LDFCollection<Object>  = "
+                            + e.toString());
+                }
+
+                if (ldfList != null) {
+                    logger.debug("Before setting LDFCollection<Object>  = " + ldfList.size());
+                    personVO.setTheStateDefinedFieldDataDTCollection(ldfList);
+                }
+            }
+
+            logger.debug("Ent Controller past the find - person = " + person.toString());
+            logger.debug("Ent Controllerpast the find - person.getPrimaryKey = " + person.getPersonUid());
+
+        } catch (Exception e) {
+            logger.error("EntityControllerEJB.getPersonInternal: " + e.getMessage(), e);
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+        return personVO;
+
+    }
+
+    private boolean storeMPR(PersonVO mpr, String businessTriggerCd) throws DataProcessingException {
+        if(setMPR(mpr, businessTriggerCd) != null)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
 }
