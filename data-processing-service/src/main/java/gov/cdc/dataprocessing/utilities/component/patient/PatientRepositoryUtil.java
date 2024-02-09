@@ -28,7 +28,6 @@ public class PatientRepositoryUtil {
     private final PersonEthnicRepository personEthnicRepository;
     private final EntityIdRepository entityIdRepository;
     private final EntityLocatorParticipationRepository entityLocatorParticipationRepository;
-    private final EdxPatientMatchingCriteriaUtil edxPatientMatchingCriteriaUtil;
     private final RoleRepository roleRepository;
 
     private final PreparingPersonUtil preparingPersonUtil;
@@ -45,7 +44,6 @@ public class PatientRepositoryUtil {
             PersonEthnicRepository personEthnicRepository,
             EntityIdRepository entityIdRepository,
             EntityLocatorParticipationRepository entityLocatorParticipationRepository,
-            EdxPatientMatchingCriteriaUtil edxPatientMatchingCriteriaUtil,
             RoleRepository roleRepository,
             PreparingPersonUtil preparingPersonUtil,
             EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
@@ -58,7 +56,6 @@ public class PatientRepositoryUtil {
         this.personEthnicRepository = personEthnicRepository;
         this.entityIdRepository = entityIdRepository;
         this.entityLocatorParticipationRepository = entityLocatorParticipationRepository;
-        this.edxPatientMatchingCriteriaUtil = edxPatientMatchingCriteriaUtil;
         this.roleRepository = roleRepository;
         this.preparingPersonUtil = preparingPersonUtil;
         this.edxPatientMatchRepositoryUtil = edxPatientMatchRepositoryUtil;
