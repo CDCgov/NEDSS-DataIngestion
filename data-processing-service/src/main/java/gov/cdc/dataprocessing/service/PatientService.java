@@ -44,6 +44,7 @@ public class PatientService implements IPatientService {
             }
             else{
                 //NOTE: Mathing Patient
+                //NOTE: This matching also persist patient accordingly
                 edxPatientMatchFoundDT = patientMatchingService.getMatchingPatient(personVO);
                 edxLabInformationDT.setMultipleSubjectMatch(patientMatchingService.multipleMatchFound);
                 personUid = personVO.getThePersonDT().getPersonUid();

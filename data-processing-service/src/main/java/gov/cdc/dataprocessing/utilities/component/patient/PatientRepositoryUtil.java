@@ -233,7 +233,7 @@ public class PatientRepositoryUtil {
      * @roseuid 3E7B17250186
      * @J2EE_METHOD -- preparePersonNameBeforePersistence
      */
-    public void preparePersonNameBeforePersistence(PersonVO personVO) throws DataProcessingException {
+    public PersonVO preparePersonNameBeforePersistence(PersonVO personVO) throws DataProcessingException {
         try {
             Collection<PersonNameDT> namesCollection = personVO
                     .getThePersonNameDTCollection();
@@ -269,6 +269,8 @@ public class PatientRepositoryUtil {
             logger.error("EntityControllerEJB.preparePersonNameBeforePersistence: " + e.getMessage(), e);
             throw new DataProcessingException(e.getMessage(), e);
         }
+
+        return personVO;
     }
 
 
