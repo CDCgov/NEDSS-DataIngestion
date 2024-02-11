@@ -16,7 +16,7 @@ public class TeleLocator {
 
     @Id
     @Column(name = "tele_locator_uid", nullable = false)
-    private BigInteger teleLocatorUid;
+    private Long teleLocatorUid;
 
     @Column(name = "add_reason_cd", length = 20)
     private String addReasonCd;
@@ -25,7 +25,7 @@ public class TeleLocator {
     private Date addTime;
 
     @Column(name = "add_user_id")
-    private BigInteger addUserId;
+    private Long addUserId;
 
     @Column(name = "cntry_cd", length = 20)
     private String cntryCd;
@@ -43,7 +43,7 @@ public class TeleLocator {
     private Date lastChgTime;
 
     @Column(name = "last_chg_user_id")
-    private BigInteger lastChgUserId;
+    private Long lastChgUserId;
 
     @Column(name = "phone_nbr_txt", length = 20)
     private String phoneNbrTxt;

@@ -14,9 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
+import java.math.BigInteger;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class PatientRepositoryUtil {
@@ -62,6 +62,23 @@ public class PatientRepositoryUtil {
         return result.get();
     }
 
+    public PersonVO findExistingParentByUidAndAssocData(Long parentUid) {
+//        Person person = personRepository.findById(parentUid).get();
+//        List<Person> persons = personRepository.findByParentUid(parentUid).get();
+//        List<Long> personUids =  persons.stream().map(Person::getPersonUid).toList();
+//        List<BigInteger> personUidsBigInt = personUids.stream().map(BigInteger::valueOf).toList();
+//
+//        List<PersonName> personNameList = personNameRepository.findAllById(personUids);
+//        List<PersonRace> personRaceList = personRaceRepository.findAllById(personUidsBigInt);
+//        List<PersonEthnicGroup> personEthnicList = personEthnicRepository.findAllById(personUidsBigInt);
+//        List<EntityId> personEntityIdList = entityIdRepository.findAllById(personUids);
+//        List<EntityLocatorParticipation> personEntityLocatorList = entityLocatorParticipationRepository.findAllById(personUidsBigInt);
+//        List<Role> personRoleList = roleRepository.findAllById(personUids);
+//
+
+        return new PersonVO();
+    }
+
     public Person createPerson(PersonVO personVO) throws DataProcessingException {
         //TODO: Implement unique id generator here
         Long personUid = 212121L;
@@ -84,6 +101,8 @@ public class PatientRepositoryUtil {
         // set new person uid in entity table
         personDT.setPersonUid(personUid);
 
+
+
         arrayList.add(personUid);
         arrayList.add(NEDSSConstant.PERSON);
 
@@ -91,7 +110,8 @@ public class PatientRepositoryUtil {
 
         //NOTE: Create Entitty
         try {
-            entityRepositoryUtil.preparingEntityReposCallForPerson(personDT, personUid, NEDSSConstant.PERSON, NEDSSConstant.UPDATE);
+            //NOTE: OK
+           /// entityRepositoryUtil.preparingEntityReposCallForPerson(personDT, personUid, NEDSSConstant.PERSON, NEDSSConstant.UPDATE);
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }

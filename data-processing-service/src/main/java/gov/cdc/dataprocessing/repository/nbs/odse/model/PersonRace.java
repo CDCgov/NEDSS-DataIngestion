@@ -17,7 +17,7 @@ public class PersonRace {
 
     @Id
     @Column(name = "person_uid", nullable = false)
-    private BigInteger personUid;
+    private Long personUid;
 
     @Column(name = "race_cd", nullable = false, length = 20)
     private String raceCd;
@@ -29,7 +29,7 @@ public class PersonRace {
     private Timestamp addTime;
 
     @Column(name = "add_user_id")
-    private BigInteger addUserId;
+    private Long addUserId;
 
     @Column(name = "last_chg_reason_cd", length = 20)
     private String lastChgReasonCd;
@@ -38,7 +38,7 @@ public class PersonRace {
     private Timestamp lastChgTime;
 
     @Column(name = "last_chg_user_id")
-    private BigInteger lastChgUserId;
+    private Long lastChgUserId;
 
     @Column(name = "race_category_cd", length = 20)
     private String raceCategoryCd;
@@ -63,14 +63,14 @@ public class PersonRace {
 
     }
     public PersonRace(PersonRaceDT personRaceDT) {
-        this.personUid = BigInteger.valueOf(personRaceDT.getPersonUid());
+        this.personUid = personRaceDT.getPersonUid();
         this.raceCd = personRaceDT.getRaceCd();
         this.addReasonCd = personRaceDT.getAddReasonCd();
         this.addTime = personRaceDT.getAddTime();
-        this.addUserId = BigInteger.valueOf(personRaceDT.getAddUserId());
+        this.addUserId = personRaceDT.getAddUserId();
         this.lastChgReasonCd = personRaceDT.getLastChgReasonCd();
         this.lastChgTime = personRaceDT.getLastChgTime();
-        this.lastChgUserId = BigInteger.valueOf(personRaceDT.getLastChgUserId());
+        this.lastChgUserId = personRaceDT.getLastChgUserId();
         this.raceCategoryCd = personRaceDT.getRaceCategoryCd();
         this.raceDescTxt = personRaceDT.getRaceDescTxt();
         this.recordStatusCd = personRaceDT.getRecordStatusCd();

@@ -62,7 +62,7 @@ public class PatientService implements IPatientService {
                 edxLabInformationDT.setEntityName(firstName + " " + lastName);
             }
 
-            if(edxPatientMatchFoundDT!=null && !edxPatientMatchFoundDT.isMultipleMatch() && personVO.getIsExistingPatient()) {
+            if(edxPatientMatchFoundDT!=null && !edxPatientMatchFoundDT.isMultipleMatch() && personVO.getPatientMatchedFound()) {
                 edxLabInformationDT.setPatientMatch(true);
             }
             if(personVO.getThePersonDT().getPersonParentUid()!=null){

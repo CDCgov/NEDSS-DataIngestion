@@ -16,7 +16,7 @@ public class PostalLocator {
 
     @Id
     @Column(name = "postal_locator_uid", nullable = false)
-    private BigInteger postalLocatorUid;
+    private Long postalLocatorUid;
 
     @Column(name = "add_reason_cd", length = 80)
     private String addReasonCd;
@@ -25,7 +25,7 @@ public class PostalLocator {
     private Date addTime;
 
     @Column(name = "add_user_id")
-    private BigInteger addUserId;
+    private Long addUserId;
 
     @Column(name = "census_block_cd", length = 20)
     private String censusBlockCd;
@@ -61,7 +61,7 @@ public class PostalLocator {
     private Date lastChgTime;
 
     @Column(name = "last_chg_user_id")
-    private BigInteger lastChgUserId;
+    private Long lastChgUserId;
 
     @Column(name = "MSA_congress_district_cd", length = 20)
     private String MSACongressDistrictCd;

@@ -16,7 +16,7 @@ public class PhysicalLocator {
 
     @Id
     @Column(name = "physical_locator_uid", nullable = false)
-    private BigInteger physicalLocatorUid;
+    private Long physicalLocatorUid;
 
     @Column(name = "add_reason_cd", length = 20)
     private String addReasonCd;
@@ -25,7 +25,7 @@ public class PhysicalLocator {
     private Date addTime;
 
     @Column(name = "add_user_id")
-    private BigInteger addUserId;
+    private Long addUserId;
 
     @Column(name = "image_txt", length = 1000)
     private String imageTxt;
@@ -37,7 +37,7 @@ public class PhysicalLocator {
     private Date lastChgTime;
 
     @Column(name = "last_chg_user_id")
-    private BigInteger lastChgUserId;
+    private Long lastChgUserId;
 
     @Column(name = "locator_txt", length = 1000)
     private String locatorTxt;

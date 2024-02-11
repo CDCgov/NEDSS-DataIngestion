@@ -17,7 +17,7 @@ public class PersonEthnicGroup {
 
     @Id
     @Column(name = "person_uid", nullable = false)
-    private BigInteger personUid;
+    private Long personUid;
 
     @Column(name = "ethnic_group_cd", nullable = false, length = 20)
     private String ethnicGroupCd;
@@ -29,7 +29,7 @@ public class PersonEthnicGroup {
     private Timestamp addTime;
 
     @Column(name = "add_user_id")
-    private BigInteger addUserId;
+    private Long addUserId;
 
     @Column(name = "ethnic_group_desc_txt", length = 100)
     private String ethnicGroupDescTxt;
@@ -41,7 +41,7 @@ public class PersonEthnicGroup {
     private Timestamp lastChgTime;
 
     @Column(name = "last_chg_user_id")
-    private BigInteger lastChgUserId;
+    private Long lastChgUserId;
 
     @Column(name = "record_status_cd", length = 20)
     private String recordStatusCd;
@@ -58,15 +58,15 @@ public class PersonEthnicGroup {
 
     }
     public PersonEthnicGroup(PersonEthnicGroupDT personEthnicGroupDT) {
-        this.personUid = BigInteger.valueOf(personEthnicGroupDT.getPersonUid());
+        this.personUid = personEthnicGroupDT.getPersonUid();
         this.ethnicGroupCd = personEthnicGroupDT.getEthnicGroupCd();
         this.addReasonCd = personEthnicGroupDT.getAddReasonCd();
         this.addTime = personEthnicGroupDT.getAddTime();
-        this.addUserId = BigInteger.valueOf(personEthnicGroupDT.getAddUserId());
+        this.addUserId = personEthnicGroupDT.getAddUserId();
         this.ethnicGroupDescTxt = personEthnicGroupDT.getEthnicGroupDescTxt();
         this.lastChgReasonCd = personEthnicGroupDT.getLastChgReasonCd();
         this.lastChgTime = personEthnicGroupDT.getLastChgTime();
-        this.lastChgUserId = BigInteger.valueOf(personEthnicGroupDT.getLastChgUserId());
+        this.lastChgUserId = personEthnicGroupDT.getLastChgUserId();
         this.recordStatusCd = personEthnicGroupDT.getRecordStatusCd();
         this.recordStatusTime = personEthnicGroupDT.getRecordStatusTime();
         this.userAffiliationTxt = personEthnicGroupDT.getUserAffiliationTxt();

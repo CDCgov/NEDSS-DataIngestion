@@ -342,6 +342,7 @@ public class Person  {
 
     }
     public Person(PersonDT personDT) {
+        this.personUid = personDT.getPersonUid();
         this.addReasonCd = personDT.getAddReasonCd();
         this.addTime = personDT.getAddTime();
         this.addUserId = personDT.getAddUserId();

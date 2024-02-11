@@ -17,10 +17,10 @@ public class EntityLocatorParticipation {
 
     @Id
     @Column(name = "entity_uid", nullable = false)
-    private BigInteger entityUid;
+    private Long entityUid;
 
     @Column(name = "locator_uid", nullable = false)
-    private BigInteger locatorUid;
+    private Long locatorUid;
 
     @Column(name = "add_reason_cd", length = 20)
     private String addReasonCd;
@@ -29,7 +29,7 @@ public class EntityLocatorParticipation {
     private Timestamp addTime;
 
     @Column(name = "add_user_id")
-    private BigInteger addUserId;
+    private Long addUserId;
 
     @Column(name = "cd", length = 50)
     private String cd;
@@ -56,7 +56,7 @@ public class EntityLocatorParticipation {
     private Timestamp lastChgTime;
 
     @Column(name = "last_chg_user_id")
-    private BigInteger lastChgUserId;
+    private Long lastChgUserId;
 
     @Column(name = "locator_desc_txt", length = 2000)
     private String locatorDescTxt;
@@ -93,11 +93,11 @@ public class EntityLocatorParticipation {
 
     // Add getters and setters as needed
     public EntityLocatorParticipation(EntityLocatorParticipationDT entityLocatorParticipationDT) {
-        this.entityUid = BigInteger.valueOf(entityLocatorParticipationDT.getEntityUid());
-        this.locatorUid = BigInteger.valueOf(entityLocatorParticipationDT.getLocatorUid());
+        this.entityUid = entityLocatorParticipationDT.getEntityUid();
+        this.locatorUid = entityLocatorParticipationDT.getLocatorUid();
         this.addReasonCd = entityLocatorParticipationDT.getAddReasonCd();
         this.addTime = entityLocatorParticipationDT.getAddTime();
-        this.addUserId = BigInteger.valueOf(entityLocatorParticipationDT.getAddUserId());
+        this.addUserId = entityLocatorParticipationDT.getAddUserId();
         this.cd = entityLocatorParticipationDT.getCd();
         this.cdDescTxt = entityLocatorParticipationDT.getCdDescTxt();
         this.classCd = entityLocatorParticipationDT.getClassCd();
@@ -106,7 +106,7 @@ public class EntityLocatorParticipation {
         this.fromTime = entityLocatorParticipationDT.getFromTime();
         this.lastChgReasonCd = entityLocatorParticipationDT.getLastChgReasonCd();
         this.lastChgTime = entityLocatorParticipationDT.getLastChgTime();
-        this.lastChgUserId = BigInteger.valueOf(entityLocatorParticipationDT.getLastChgUserId());
+        this.lastChgUserId = entityLocatorParticipationDT.getLastChgUserId();
         this.locatorDescTxt = entityLocatorParticipationDT.getLocatorDescTxt();
         this.recordStatusCd = entityLocatorParticipationDT.getRecordStatusCd();
         this.recordStatusTime = entityLocatorParticipationDT.getRecordStatusTime();
@@ -118,5 +118,9 @@ public class EntityLocatorParticipation {
         this.validTimeTxt = entityLocatorParticipationDT.getValidTimeTxt();
         this.versionCtrlNbr = entityLocatorParticipationDT.getVersionCtrlNbr();
         this.asOfDate = entityLocatorParticipationDT.getAsOfDate();
+    }
+
+    public EntityLocatorParticipation() {
+
     }
 }
