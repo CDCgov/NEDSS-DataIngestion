@@ -112,231 +112,232 @@ public class Person  {
     @Column(name = "marital_status_desc_txt")
     private String maritalStatusDescTxt;
 
-    @Column(name = "mothersMaidenNm")
+    @Column(name = "mothers_maiden_nm")
     private String mothersMaidenNm;
 
-    @Column(name = "multipleBirthInd")
+    @Column(name = "multiple_birth_ind")
     private String multipleBirthInd;
 
-    @Column(name = "occupationCd")
+    @Column(name = "occupation_cd")
     private String occupationCd;
 
-    @Column(name = "preferredGenderCd")
+    @Column(name = "preferred_gender_cd")
     private String preferredGenderCd;
 
-    @Column(name = "primLangCd")
+    @Column(name = "prim_lang_cd")
     private String primLangCd;
 
-    @Column(name = "primLangDescTxt")
+    @Column(name = "prim_lang_desc_txt")
     private String primLangDescTxt;
 
-    @Column(name = "recordStatusCd")
+    @Column(name = "record_status_cd")
     private String recordStatusCd;
 
-    @Column(name = "recordStatusTime")
+    @Column(name = "record_status_time")
     private Timestamp recordStatusTime;
 
-    @Column(name = "statusCd")
+    @Column(name = "status_cd")
     private String statusCd;
 
-    @Column(name = "statusTime")
+    @Column(name = "status_time")
     private Timestamp statusTime;
 
-    @Column(name = "survivedIndCd")
+    @Column(name = "survived_ind_cd")
     private String survivedIndCd;
 
-    @Column(name = "userAffiliationTxt")
+    @Column(name = "user_affiliation_txt")
     private String userAffiliationTxt;
 
-    @Column(name = "firstNm")
+    @Column(name = "first_nm")
     private String firstNm;
 
-    @Column(name = "lastNm")
+    @Column(name = "last_nm")
     private String lastNm;
 
-    @Column(name = "middleNm")
+    @Column(name = "middle_nm")
     private String middleNm;
 
-    @Column(name = "nmPrefix")
+    @Column(name = "nm_prefix")
     private String nmPrefix;
 
-    @Column(name = "nmSuffix")
+    @Column(name = "nm_suffix")
     private String nmSuffix;
 
-    @Column(name = "preferredNm")
+    @Column(name = "preferred_nm")
     private String preferredNm;
 
-    @Column(name = "hmStreetAddr1")
+    @Column(name = "hm_street_addr1")
     private String hmStreetAddr1;
 
-    @Column(name = "hmStreetAddr2")
+    @Column(name = "hm_street_addr2")
     private String hmStreetAddr2;
 
-    @Column(name = "hmCityCd")
+    @Column(name = "hm_city_cd")
     private String hmCityCd;
 
-    @Column(name = "hmCityDescTxt")
+    @Column(name = "hm_city_desc_txt")
     private String hmCityDescTxt;
 
-    @Column(name = "hmStateCd")
+    @Column(name = "hm_state_cd")
     private String hmStateCd;
 
-    @Column(name = "hmZipCd")
+    @Column(name = "hm_zip_cd")
     private String hmZipCd;
 
-    @Column(name = "hmCntyCd")
+    @Column(name = "hm_cnty_cd")
     private String hmCntyCd;
 
-    @Column(name = "hmCntryCd")
+    @Column(name = "hm_cntry_cd")
     private String hmCntryCd;
 
-    @Column(name = "hmPhoneNbr")
+    @Column(name = "hm_phone_nbr")
     private String hmPhoneNbr;
 
-    @Column(name = "hmPhoneCntryCd")
+    @Column(name = "hm_phone_cntry_cd")
     private String hmPhoneCntryCd;
 
-    @Column(name = "hmEmailAddr")
+    @Column(name = "hm_email_addr")
     private String hmEmailAddr;
 
-    @Column(name = "cellPhoneNbr")
+    @Column(name = "cell_phone_nbr")
     private String cellPhoneNbr;
 
-    @Column(name = "wkStreetAddr1")
+    @Column(name = "wk_street_addr1")
     private String wkStreetAddr1;
 
-    @Column(name = "wkStreetAddr2")
+    @Column(name = "wk_street_addr2")
     private String wkStreetAddr2;
 
-    @Column(name = "wkCityCd")
+    @Column(name = "wk_city_cd")
     private String wkCityCd;
 
-    @Column(name = "wkCityDescTxt")
+    @Column(name = "wk_city_desc_txt")
     private String wkCityDescTxt;
 
-    @Column(name = "wkStateCd")
+    @Column(name = "wk_state_cd")
     private String wkStateCd;
 
-    @Column(name = "wkZipCd")
+    @Column(name = "wk_zip_cd")
     private String wkZipCd;
 
-    @Column(name = "wkCntyCd")
+    @Column(name = "wk_cnty_cd")
     private String wkCntyCd;
 
-    @Column(name = "wkCntryCd")
+    @Column(name = "wk_cntry_cd")
     private String wkCntryCd;
 
-    @Column(name = "wkPhoneNbr")
+    @Column(name = "wk_phone_nbr")
     private String wkPhoneNbr;
 
-    @Column(name = "wkPhoneCntryCd")
+    @Column(name = "wk_phone_cntry_cd")
     private String wkPhoneCntryCd;
 
-    @Column(name = "wkEmailAddr")
+    @Column(name = "wk_email_addr")
     private String wkEmailAddr;
 
     @Column(name = "SSN")
     private String ssn;
 
-    @Column(name = "medicaidNum")
+    @Column(name = "medicaid_num")
     private String medicaidNum;
 
-    @Column(name = "dlNum")
+    @Column(name = "dl_num")
     private String dlNum;
 
-    @Column(name = "dlStateCd")
+    @Column(name = "dl_state_cd")
     private String dlStateCd;
 
-    @Column(name = "raceCd")
+    @Column(name = "race_cd")
     private String raceCd;
 
-    @Column(name = "raceSeqNbr")
+    @Column(name = "race_seq_nbr")
     private Integer raceSeqNbr;
 
-    @Column(name = "raceCategoryCd")
+    @Column(name = "race_category_cd")
     private String raceCategoryCd;
 
-    @Column(name = "ethnicityGroupCd")
+    @Column(name = "ethnicity_group_cd")
     private String ethnicityGroupCd;
 
-    @Column(name = "ethnicGroupSeqNbr")
+    @Column(name = "ethnic_group_seq_nbr")
     private Integer ethnicGroupSeqNbr;
 
-    @Column(name = "adultsInHouseNbr")
+    @Column(name = "adults_in_house_nbr")
     private Integer adultsInHouseNbr;
 
-    @Column(name = "childrenInHouseNbr")
+    @Column(name = "children_in_house_nbr")
     private Integer childrenInHouseNbr;
 
-    @Column(name = "birthCityCd")
+    @Column(name = "birth_city_cd")
     private String birthCityCd;
 
-    @Column(name = "birthCityDescTxt")
+    @Column(name = "birth_city_desc_txt")
     private String birthCityDescTxt;
 
-    @Column(name = "birthCntryCd")
+    @Column(name = "birth_cntry_cd")
     private String birthCntryCd;
 
-    @Column(name = "birthStateCd")
+    @Column(name = "birth_state_cd")
     private String birthStateCd;
 
-    @Column(name = "raceDescTxt")
+    @Column(name = "race_desc_txt")
     private String raceDescTxt;
 
-    @Column(name = "ethnicGroupDescTxt")
+    @Column(name = "ethnic_group_desc_txt")
     private String ethnicGroupDescTxt;
 
-    @Column(name = "versionCtrlNbr")
+    @Column(name = "version_ctrl_nbr", nullable = false)
     private Integer versionCtrlNbr;
 
-    @Column(name = "asOfDateAdmin")
+    @Column(name = "as_of_date_admin")
     private Timestamp asOfDateAdmin;
 
-    @Column(name = "asOfDateEthnicity")
+    @Column(name = "as_of_date_ethnicity")
     private Timestamp asOfDateEthnicity;
 
-    @Column(name = "asOfDateGeneral")
+    @Column(name = "as_of_date_general")
     private Timestamp asOfDateGeneral;
 
-    @Column(name = "asOfDateMorbidity")
+    @Column(name = "as_of_date_morbidity")
     private Timestamp asOfDateMorbidity;
 
-    @Column(name = "asOfDateSex")
+    @Column(name = "as_of_date_sex")
     private Timestamp asOfDateSex;
 
-    @Column(name = "electronicInd")
+    @Column(name = "electronic_ind")
     private String electronicInd;
 
-    @Column(name = "personParentUid")
+    @Column(name = "person_parent_uid")
     private Long personParentUid;
 
-    @Column(name = "dedupMatchInd")
+    @Column(name = "dedup_match_ind")
     private String dedupMatchInd;
 
-    @Column(name = "groupNbr")
+    @Column(name = "group_nbr")
     private Integer groupNbr;
 
-    @Column(name = "groupTime")
+    @Column(name = "group_time")
     private Timestamp groupTime;
 
-    @Column(name = "edxInd")
+    @Column(name = "edx_ind")
     private String edxInd;
 
-    @Column(name = "speaksEnglishCd")
+    @Column(name = "speaks_english_cd")
     private String speaksEnglishCd;
 
-    @Column(name = "additionalGenderCd")
+    @Column(name = "additional_gender_cd")
     private String additionalGenderCd;
 
-    @Column(name = "eharsId")
+    @Column(name = "ehars_id")
     private String eharsId;
 
-    @Column(name = "ethnicUnkReasonCd")
+    @Column(name = "ethnic_unk_reason_cd")
     private String ethnicUnkReasonCd;
 
-    @Column(name = "sexUnkReasonCd")
+    @Column(name = "sex_unk_reason_cd")
     private String sexUnkReasonCd;
 
+    
     // Constructors, getters, and setters
     public Person() {
 

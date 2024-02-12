@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.utilities.component.patient;
 
-import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model.dto.*;
@@ -8,15 +7,13 @@ import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 import gov.cdc.dataprocessing.repository.nbs.odse.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.*;
 import gov.cdc.dataprocessing.utilities.UniqueIdGenerator;
-import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 public class PatientRepositoryUtil {
@@ -29,6 +26,9 @@ public class PatientRepositoryUtil {
     private final EntityIdRepository entityIdRepository;
     private final EntityLocatorParticipationRepository entityLocatorParticipationRepository;
     private final RoleRepository roleRepository;
+    private final TeleLocatorRepository teleLocatorRepository;
+    private final PostalLocatorRepository postalLocatorRepository;
+    private final PhysicalLocatorRepository physicalLocatorRepository;
 
 
     public PatientRepositoryUtil(
@@ -39,8 +39,10 @@ public class PatientRepositoryUtil {
             PersonEthnicRepository personEthnicRepository,
             EntityIdRepository entityIdRepository,
             EntityLocatorParticipationRepository entityLocatorParticipationRepository,
-            RoleRepository roleRepository
-             ) {
+            RoleRepository roleRepository,
+            TeleLocatorRepository teleLocatorRepository,
+            PostalLocatorRepository postalLocatorRepository,
+            PhysicalLocatorRepository physicalLocatorRepository) {
         this.personRepository = personRepository;
         this.entityRepositoryUtil = entityRepositoryUtil;
         this.personNameRepository = personNameRepository;
@@ -49,6 +51,9 @@ public class PatientRepositoryUtil {
         this.entityIdRepository = entityIdRepository;
         this.entityLocatorParticipationRepository = entityLocatorParticipationRepository;
         this.roleRepository = roleRepository;
+        this.teleLocatorRepository = teleLocatorRepository;
+        this.postalLocatorRepository = postalLocatorRepository;
+        this.physicalLocatorRepository = physicalLocatorRepository;
     }
 
     public Person findExistingPersonByUid(PersonVO personVO) {
@@ -63,18 +68,15 @@ public class PatientRepositoryUtil {
     }
 
     public PersonVO findExistingParentByUidAndAssocData(Long parentUid) {
-//        Person person = personRepository.findById(parentUid).get();
-//        List<Person> persons = personRepository.findByParentUid(parentUid).get();
-//        List<Long> personUids =  persons.stream().map(Person::getPersonUid).toList();
-//        List<BigInteger> personUidsBigInt = personUids.stream().map(BigInteger::valueOf).toList();
-//
-//        List<PersonName> personNameList = personNameRepository.findAllById(personUids);
-//        List<PersonRace> personRaceList = personRaceRepository.findAllById(personUidsBigInt);
-//        List<PersonEthnicGroup> personEthnicList = personEthnicRepository.findAllById(personUidsBigInt);
-//        List<EntityId> personEntityIdList = entityIdRepository.findAllById(personUids);
-//        List<EntityLocatorParticipation> personEntityLocatorList = entityLocatorParticipationRepository.findAllById(personUidsBigInt);
-//        List<Role> personRoleList = roleRepository.findAllById(personUids);
-//
+        Person person = personRepository.findById(parentUid).get();
+
+        List<PersonName> personNameList = personNameRepository.findByParentUid(parentUid).get();
+        List<PersonRace> personRaceList = personRaceRepository.findByParentUid(parentUid).get();
+        List<PersonEthnicGroup> personEthnicList = personEthnicRepository.findByParentUid(parentUid).get();
+        List<EntityId> personEntityIdList = entityIdRepository.findByParentUid(parentUid).get();
+        List<EntityLocatorParticipation> personEntityLocatorList = entityLocatorParticipationRepository.findByParentUid(parentUid).get();
+        List<Role> personRoleList = roleRepository.findByParentUid(parentUid).get();
+
 
         return new PersonVO();
     }
@@ -88,18 +90,17 @@ public class PatientRepositoryUtil {
         localUid = UniqueIdGenerator.generateUniqueStringId();
 
         ArrayList<Object>  arrayList = new ArrayList<>();
-        PersonDT personDT = personVO.getThePersonDT();
 
-        if(personDT.getLocalId() == null || personDT.getLocalId().trim().length() == 0) {
-            personDT.setLocalId(localUid);
+        if(personVO.getThePersonDT().getLocalId() == null || personVO.getThePersonDT().getLocalId().trim().length() == 0) {
+            personVO.getThePersonDT().setLocalId(localUid);
         }
 
-        if(personDT.getPersonParentUid() == null) {
-            personDT.setPersonParentUid(personUid);
+        if(personVO.getThePersonDT().getPersonParentUid() == null) {
+            personVO.getThePersonDT().setPersonParentUid(personUid);
         }
 
         // set new person uid in entity table
-        personDT.setPersonUid(personUid);
+        personVO.getThePersonDT().setPersonUid(personUid);
 
 
 
@@ -111,13 +112,13 @@ public class PatientRepositoryUtil {
         //NOTE: Create Entitty
         try {
             //NOTE: OK
-           /// entityRepositoryUtil.preparingEntityReposCallForPerson(personDT, personUid, NEDSSConstant.PERSON, NEDSSConstant.UPDATE);
+            entityRepositoryUtil.preparingEntityReposCallForPerson(personVO.getThePersonDT(), personUid, NEDSSConstant.PERSON, NEDSSConstant.UPDATE);
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }
 
         //NOTE: Create Person
-        Person person = new Person(personDT);
+        Person person = new Person(personVO.getThePersonDT());
         try {
             personRepository.save(person);
         } catch (Exception e) {
@@ -177,9 +178,16 @@ public class PatientRepositoryUtil {
     private void createPersonName(PersonVO personVO) throws DataProcessingException {
         ArrayList<PersonNameDT>  personList = (ArrayList<PersonNameDT> ) personVO.getThePersonNameDTCollection();
         try {
+            var pUid = personVO.getThePersonDT().getPersonUid();
             for(int i = 0; i < personList.size(); i++) {
-                PersonNameDT personNameDT = personList.get(i);
-                personNameRepository.save(new PersonName(personNameDT));
+                personList.get(i).setPersonUid(pUid);
+                if (personList.get(i).getStatusCd() == null) {
+                    personList.get(i).setStatusCd("A");
+                }
+                if (personList.get(i).getStatusTime() == null) {
+                    personList.get(i).setStatusTime(new Timestamp(new Date().getTime()));
+                }
+                personNameRepository.save(new PersonName( personList.get(i)));
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
@@ -190,8 +198,9 @@ public class PatientRepositoryUtil {
         ArrayList<PersonRaceDT>  personList = (ArrayList<PersonRaceDT> ) personVO.getThePersonRaceDTCollection();
         try {
             for(int i = 0; i < personList.size(); i++) {
-                PersonRaceDT obj = personList.get(i);
-                personRaceRepository.save(new PersonRace(obj));
+                var pUid = personVO.getThePersonDT().getPersonUid();
+                personList.get(i).setPersonUid(pUid);
+                personRaceRepository.save(new PersonRace(personList.get(i)));
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
@@ -202,8 +211,9 @@ public class PatientRepositoryUtil {
         ArrayList<PersonEthnicGroupDT>  personList = (ArrayList<PersonEthnicGroupDT> ) personVO.getThePersonEthnicGroupDTCollection();
         try {
             for(int i = 0; i < personList.size(); i++) {
-                PersonEthnicGroupDT obj = personList.get(i);
-                personEthnicRepository.save(new PersonEthnicGroup(obj));
+                var pUid = personVO.getThePersonDT().getPersonUid();
+                personList.get(i).setPersonUid(pUid);
+                personEthnicRepository.save(new PersonEthnicGroup(personList.get(i)));
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
@@ -214,8 +224,9 @@ public class PatientRepositoryUtil {
         ArrayList<EntityIdDT>  personList = (ArrayList<EntityIdDT> ) personVO.getTheEntityIdDTCollection();
         try {
             for(int i = 0; i < personList.size(); i++) {
-                EntityIdDT obj = personList.get(i);
-                entityIdRepository.save(new EntityId(obj));
+                var pUid = personVO.getThePersonDT().getPersonUid();
+                personList.get(i).setEntityUid(pUid);
+                entityIdRepository.save(new EntityId(personList.get(i)));
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
@@ -226,8 +237,27 @@ public class PatientRepositoryUtil {
         ArrayList<EntityLocatorParticipationDT>  personList = (ArrayList<EntityLocatorParticipationDT> ) personVO.getTheEntityLocatorParticipationDTCollection();
         try {
             for(int i = 0; i < personList.size(); i++) {
-                EntityLocatorParticipationDT obj = personList.get(i);
-                entityLocatorParticipationRepository.save(new EntityLocatorParticipation(obj));
+
+                Long uniqueId = UniqueIdGenerator.generateUniqueId();
+                if (personList.get(i).getClassCd().equals(NEDSSConstant.PHYSICAL) && personList.get(i).getThePhysicalLocatorDT() != null) {
+                    personList.get(i).getThePhysicalLocatorDT().setPhysicalLocatorUid(uniqueId);
+                    physicalLocatorRepository.save(new PhysicalLocator(personList.get(i).getThePhysicalLocatorDT()));
+                }
+                if (personList.get(i).getClassCd().equals(NEDSSConstant.POSTAL) && personList.get(i).getThePostalLocatorDT() != null) {
+                    personList.get(i).getThePostalLocatorDT().setPostalLocatorUid(uniqueId);
+                    postalLocatorRepository.save(new PostalLocator(personList.get(i).getThePostalLocatorDT()));
+                }
+                if (personList.get(i).getClassCd().equals(NEDSSConstant.TELE) && personList.get(i).getTheTeleLocatorDT() != null) {
+                    personList.get(i).getTheTeleLocatorDT().setTeleLocatorUid(uniqueId);
+                    teleLocatorRepository.save(new TeleLocator(personList.get(i).getTheTeleLocatorDT()));
+                }
+                personList.get(i).setEntityUid(personVO.getThePersonDT().getPersonUid());
+                personList.get(i).setLocatorUid(uniqueId);
+
+                if (personList.get(i).getVersionCtrlNbr() == null) {
+                    personList.get(i).setVersionCtrlNbr(1);
+                }
+                entityLocatorParticipationRepository.save(new EntityLocatorParticipation(personList.get(i)));
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);

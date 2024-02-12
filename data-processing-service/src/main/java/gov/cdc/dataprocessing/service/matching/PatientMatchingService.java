@@ -61,7 +61,7 @@ public class PatientMatchingService {
         boolean matchFound = false;
         boolean lrIDExists = true;
 
-        if (patientRole == null || patientRole.equalsIgnoreCase("")|| patientRole.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_ROLE_CD)) {
+        if (patientRole == null || patientRole.isEmpty() || patientRole.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_ROLE_CD)) {
             EdxPatientMatchDT localIdHashCode = null;
             String localId = null;
             int localIdhshCd = 0;
@@ -197,7 +197,6 @@ public class PatientMatchingService {
                 personVO.setPatientMatchedFound(false);
             }
             else {
-                //personVO.setIsExistingPatient(true);
                 personVO.setPatientMatchedFound(true);
             }
 
@@ -237,8 +236,9 @@ public class PatientMatchingService {
         return edxPatientMatchFoundDT;
     }
 
-    private Long setNewPerson(PersonVO personVO) throws DataProcessingException {
+    private Long setNewPerson(PersonVO psn) throws DataProcessingException {
         Long personUID;
+        PersonVO personVO = psn.deepClone();
         Person person = null;
         Collection<EntityLocatorParticipationDT> elpDTCol = personVO.getTheEntityLocatorParticipationDTCollection();
         Collection<RoleDT> rDTCol = personVO.getTheRoleDTCollection();
@@ -328,6 +328,8 @@ public class PatientMatchingService {
         PersonVO mprPersonVO = null;
         Long mprPersonUid = null;
         Long personUid = null;
+
+        boolean newPersonFlow = false;
         try {
             PersonDT personDT = personVO.getThePersonDT();
             //NOTE: Never hit for both New and Existing Patient
@@ -347,23 +349,30 @@ public class PatientMatchingService {
                 }
                 mprPersonUid = setPersonInternal(mprPersonVO, NBSBOLookup.PATIENT, "PAT_CR");
 
-                mprPersonVO = getPersonInternal(mprPersonUid);
+                mprPersonVO = getPersonInternal(mprPersonUid, personVO);
                 personVO.getThePersonDT().setPersonParentUid(mprPersonUid);
                 personVO.getThePersonDT().setLocalId(mprPersonVO.getThePersonDT().getLocalId());
             }
 
             else {
                 if (businessTriggerCd != null && (businessTriggerCd.equals("PAT_CR") || businessTriggerCd.equals("PAT_EDIT"))) {
+                    newPersonFlow = true;
                     this.updateWithRevision(personVO);
                 }
                 if (personVO.getThePersonDT().getLocalId() == null || personVO.getThePersonDT().getLocalId().trim().length() == 0) {
                     mprPersonUid = personVO.getThePersonDT().getPersonParentUid();
-                    mprPersonVO = getPersonInternal(mprPersonUid);
+                    mprPersonVO = getPersonInternal(mprPersonUid, personVO);
                     personVO.getThePersonDT().setLocalId(mprPersonVO.getThePersonDT().getLocalId());
                 }
             }
 
 
+            //TWEAK
+            if (newPersonFlow) {
+                personVO.setItDirty(true);
+                personVO.setItNew(true);
+            }
+            //END TWEAK
             personUid = setPersonInternal(personVO, NBSBOLookup.PATIENT,businessTriggerCd);
 
             if (personVO.getThePersonDT() != null && (personVO.getThePersonDT().getElectronicInd() != null
@@ -528,11 +537,17 @@ public class PatientMatchingService {
         String localId = "";
         boolean isELRCase = false;
         try {
+            //NOTE: ELR New Patient, create matching hash cycle, patient should be Dirty and not NEW
+            //NOTE: ELR New Patient, create revision cycle, patient should be dirty and new (for revision insertion)
             if (personVO.isItNew() || personVO.isItDirty()) {
+
+                // NOTE: NEW patient would not hit his (revision cycle)
+                // NOTE: New Patient last cycle will this his
                 if (personVO.getThePersonDT().isItNew() && !(businessObjLookupName.equalsIgnoreCase(NEDSSConstant.businessObjLookupNamePROVIDER))) {
                     localId = personVO.getThePersonDT().getLocalId();
                 }
 
+                // NOTE: NEW patient would not hit his
                 if(localId==null){
                     personVO.getThePersonDT().setEdxInd("Y");
                     isELRCase= true;
@@ -542,6 +557,8 @@ public class PatientMatchingService {
              //   PersonDT personDT = preparingPersonUtil.prepareVO(personVO.getThePersonDT(), businessObjLookupName, businessTriggerCd, "PERSON", "BASE");
                 PersonDT personDT = personVO.getThePersonDT();
 
+                // NOTE: NEW patient would not hit his (Revision cycle)
+                // NOTE: NEW patient would will hit his (Last cycle)
                 if (personVO.getThePersonDT().isItNew() && !(businessObjLookupName.equalsIgnoreCase(NEDSSConstant.businessObjLookupNamePROVIDER)))
                 {
                     personDT.setLocalId(localId);
@@ -574,6 +591,7 @@ public class PatientMatchingService {
 
                 personVO = patientRepositoryUtil.preparePersonNameBeforePersistence(personVO);
 
+                // NOTE: NEW patient would not hit his
                 if (personVO.isItNew()) {
                     Person person = patientRepositoryUtil.createPerson(personVO);
                     personUID = person.getPersonUid();
@@ -594,6 +612,7 @@ public class PatientMatchingService {
                     personUID = person.getPersonUid();
                     logger.debug(" EntityControllerEJB.setProvider() Person Updated");
                 }
+                // NOTE: NEW patient would not hit his
                 if(isELRCase){
                     try {
                         personVO.getThePersonDT().setPersonUid(personUID);
@@ -616,6 +635,7 @@ public class PatientMatchingService {
         try {
             Long personUID = null;
             personVO.getThePersonDT().setEdxInd(NEDSSConstant.EDX_IND);
+            //NOTE: Elec ELR, new patient, would not hit this block
             if(personVO.isExt()){
                 personVO.setItNew(false);
                 personVO.setItDirty(false);
@@ -632,6 +652,8 @@ public class PatientMatchingService {
                     }
                 }
             }
+
+            //NOTE: Elec ELR, new patient, WILL hit this block
             if(personVO.isMPRUpdateValid()){
                 personUID = setPersonInternal(personVO, NBSBOLookup.PATIENT, businessTriggerCd);
 
@@ -641,6 +663,7 @@ public class PatientMatchingService {
                     {
                         personVO.getThePersonDT().setPersonParentUid(personUID);
                     }
+                    //NOTE: in legacy this one will update patient hashing code
                     setPatientHashCd(personVO);
                 } catch (Exception e) {
                     // TODO Auto-generated catch block
@@ -871,6 +894,10 @@ public class PatientMatchingService {
         return storeMPR(mpr, NEDSSConstant.PAT_EDIT);
     }
 
+    /**
+     * MPR: is a existing object pull from database, it should have all the unique ID
+     * newRevision: is object from memory, should not have ids
+     * */
     private boolean update(PersonVO mpr, PersonVO newRevision)
             throws DataProcessingException
     {
@@ -888,6 +915,14 @@ public class PatientMatchingService {
             //NOTE: even in Legacy this process method always return TRUE
             if(process(mpr))
             {
+                // NOTE: legacy param is MPR, but we need to look in to this
+                // NOTE: set it to new Revision for now
+
+                // NEW TWEAK
+                //revision should not be new in this flow
+                mpr.setItDirty(true);
+                mpr.setItNew(false);
+                // END TWEAK
                 return saveMPR(mpr);
             }else
             {
@@ -932,9 +967,9 @@ public class PatientMatchingService {
     private boolean updateWithRevision(PersonVO newRevision) throws DataProcessingException {
         //TODO: Logic to update revison
 
-        if (newRevision.getThePersonDT().isReentrant()) {
+        if (!newRevision.getThePersonDT().isReentrant()) {
             Long mprUID = newRevision.getThePersonDT().getPersonParentUid();;
-            PersonVO mpr = getMPR(mprUID);
+            PersonVO mpr = getMPR(mprUID, newRevision);
             mpr.setMPRUpdateValid(newRevision.isMPRUpdateValid());
             if(mpr != null) //With the MPR, update...
             {
@@ -951,10 +986,11 @@ public class PatientMatchingService {
 
     }
 
-    private PersonVO getMPR(Long personUid) throws DataProcessingException {
+    private PersonVO getMPR(Long personUid, PersonVO personVOFromPayload) throws DataProcessingException {
         try
         {
-            return getPersonInternal(personUid);
+            var mpr = getPersonInternal(personUid, personVOFromPayload);
+            return mpr;
         }
         catch(Exception e)
         {
@@ -964,12 +1000,10 @@ public class PatientMatchingService {
     }
 
     /**
-     * @roseuid 3E7B38140232
-     * @J2EE_METHOD -- getPersonInternal
+     * Retriving existing person
      */
-    private PersonVO getPersonInternal(Long personUID) throws DataProcessingException {
-        PersonVO personVO = null;
-
+    private PersonVO getPersonInternal(Long personUID, PersonVO personVOFromPayload) throws DataProcessingException {
+        PersonVO personClone = personVOFromPayload.deepClone();
         try {
             Person person = null;
             if (personUID != null)
@@ -981,11 +1015,12 @@ public class PatientMatchingService {
             {
                 //TODO: Update this to return person objects
                 //NOTE: This one magically return the entire personVO object, this is including collection like Person Name etc....
-                personVO = new PersonVO();
-                personVO.setThePersonDT(new PersonDT(person));
+                personClone.getThePersonDT().setPersonParentUid(person.getPersonParentUid());
+                personClone.getThePersonDT().setPersonUid(person.getPersonUid());
+                personClone.getThePersonDT().setLocalId(person.getLocalId());
             }
             // NOTE: Not sure what this for, but this block is NOT for Electronic ELR
-            if (person != null && (person.getElectronicInd() != null && !personVO.getThePersonDT().getElectronicInd().equals(NEDSSConstant.ELECTRONIC_IND_ELR))) {
+            if (person != null && (person.getElectronicInd() != null && !personClone.getThePersonDT().getElectronicInd().equals(NEDSSConstant.ELECTRONIC_IND_ELR))) {
                 ArrayList<Object> ldfList = new ArrayList<Object>();
                 try {
                     //TODO: THis seem related to version control
@@ -998,7 +1033,7 @@ public class PatientMatchingService {
 
                 if (ldfList != null) {
                     logger.debug("Before setting LDFCollection<Object>  = " + ldfList.size());
-                    personVO.setTheStateDefinedFieldDataDTCollection(ldfList);
+                    personClone.setTheStateDefinedFieldDataDTCollection(ldfList);
                 }
             }
 
@@ -1009,7 +1044,7 @@ public class PatientMatchingService {
             logger.error("EntityControllerEJB.getPersonInternal: " + e.getMessage(), e);
             throw new DataProcessingException(e.getMessage(), e);
         }
-        return personVO;
+        return personClone;
 
     }
 

@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model.dto;
 
 import gov.cdc.dataprocessing.model.classic_model.vo.AbstractVO;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.PhysicalLocator;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,4 +30,24 @@ public class PhysicalLocatorDT extends AbstractVO
     private boolean itDirty = false;
     private boolean itNew = true;
     private boolean itDelete = false;
+
+    public PhysicalLocatorDT(PhysicalLocator physicalLocator) {
+        this.physicalLocatorUid = physicalLocator.getPhysicalLocatorUid();
+        this.addReasonCd = physicalLocator.getAddReasonCd();
+        this.addTime = physicalLocator.getAddTime();
+        this.addUserId = physicalLocator.getAddUserId();
+        this.imageTxt = physicalLocator.getImageTxt().getBytes();
+        this.lastChgReasonCd = physicalLocator.getLastChgReasonCd();
+        this.lastChgTime = physicalLocator.getLastChgTime();
+        this.lastChgUserId = physicalLocator.getLastChgUserId();
+        this.locatorTxt = physicalLocator.getLocatorTxt();
+        this.recordStatusCd = physicalLocator.getRecordStatusCd();
+        this.recordStatusTime = physicalLocator.getRecordStatusTime();
+        this.userAffiliationTxt = physicalLocator.getUserAffiliationTxt();
+    }
+
+    public PhysicalLocatorDT() {
+        // Default constructor
+    }
+
 }
