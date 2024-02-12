@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -19,7 +20,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import static org.mockito.Mockito.verify;
 
 @WebMvcTest(ElrReportsController.class)
-//@EnableConfigurationProperties(RsaKeyProperties.class)
+@ActiveProfiles("test")
 class ElrReportsControllerTest {
 
     @Autowired
@@ -42,7 +43,6 @@ class ElrReportsControllerTest {
         String messageType = "HL7";
         mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
                         .header("msgType", messageType)
-                        .header("validationActive", "false")
                         .contentType("text/plain")
                         .content(hl7Payload)
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
@@ -51,6 +51,7 @@ class ElrReportsControllerTest {
         RawERLDto rawERLDto = new RawERLDto();
         rawERLDto.setType(messageType);
         rawERLDto.setPayload(hl7Payload);
+        rawERLDto.setValidationActive(true);
 
         verify(rawELRService).submission(rawERLDto);
 
@@ -62,7 +63,6 @@ class ElrReportsControllerTest {
         String messageType = "HL7";
         mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
                         .header("msgType", messageType)
-                        .header("validationActive", "true")
                         .contentType("text/plain")
                         .content(hl7Payload)
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
@@ -79,10 +79,9 @@ class ElrReportsControllerTest {
     @Test
     void testSaveHL7MessageHeaderIsEmpty() throws Exception {
         String hl7Payload = "testmessage";
-        String messageType = "HL7";
+        String messageType = "";
         mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
                         .header("msgType", messageType)
-                        .header("validationActive", "")
                         .contentType("text/plain")
                         .content(hl7Payload)
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
@@ -94,7 +93,6 @@ class ElrReportsControllerTest {
         String hl7Payload = "testmessage";
         mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
                         .header("msgType", "")
-                        .header("validationActive", "true")
                         .contentType("text/plain")
                         .content(hl7Payload)
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
@@ -106,19 +104,6 @@ class ElrReportsControllerTest {
         String hl7Payload = "testmessage";
         mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
                         .header("msgType", "AAA")
-                        .header("validationActive", "true")
-                        .contentType("text/plain")
-                        .content(hl7Payload)
-                        .with(SecurityMockMvcRequestPostProcessors.jwt()))
-                .andExpect(MockMvcResultMatchers.status().isInternalServerError());
-    }
-
-    @Test
-    void testSaveHL7MessageHeaderValidationInvalid() throws Exception {
-        String hl7Payload = "testmessage";
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
-                        .header("msgType", "HL7")
-                        .header("validationActive", "AAA")
                         .contentType("text/plain")
                         .content(hl7Payload)
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
