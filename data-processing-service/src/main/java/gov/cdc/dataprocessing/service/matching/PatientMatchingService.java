@@ -53,6 +53,7 @@ public class PatientMatchingService {
     }
 
 
+    @Transactional
     public EdxPatientMatchDT getMatchingPatient(PersonVO personVO) throws DataProcessingException {
         Long patientUid = personVO.getThePersonDT().getPersonUid();
         String cd = personVO.getThePersonDT().getCd();
@@ -971,9 +972,6 @@ public class PatientMatchingService {
 
         return true;
     }
-
-
-
 
     private boolean updateWithRevision(PersonVO newRevision, Long personParentUid) throws DataProcessingException {
         if (!newRevision.getThePersonDT().isReentrant()) {

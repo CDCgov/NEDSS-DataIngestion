@@ -5,6 +5,7 @@ import gov.cdc.dataprocessing.model.classic_model.dto.EdxPatientMatchDT;
 import gov.cdc.dataprocessing.repository.nbs.odse.EdxPatientMatchRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.EdxPatientMatchStoredProcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.EdxPatientMatch;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,7 @@ public class EdxPatientMatchRepositoryUtil {
         this.edxPatientMatchStoreProcRepository = edxPatientMatchStoreProcRepository;
     }
 
+    @Transactional
     public EdxPatientMatchDT getEdxPatientMatchOnMatchString(String typeCd, String matchString) throws DataProcessingException {
         if (typeCd == null || matchString == null) {
             return new EdxPatientMatchDT();

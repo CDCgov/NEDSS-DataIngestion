@@ -20,7 +20,6 @@ import java.util.HashMap;
 
 
 @Configuration
-@EnableTransactionManagement
 @EnableJpaRepositories(
         entityManagerFactoryRef = "srteEntityManagerFactory",
         transactionManagerRef = "srteTransactionManager",
@@ -69,9 +68,9 @@ public class SrteDataSourceConfig {
                 .build();
     }
 
-    @Bean(name = "srteTransactionManager")
-    public PlatformTransactionManager srteTransactionManager(
-            @Qualifier("srteEntityManagerFactory") EntityManagerFactory srteEntityManagerFactory ) {
-        return new JpaTransactionManager(srteEntityManagerFactory);
-    }
+//    @Bean(name = "srteTransactionManager")
+//    public PlatformTransactionManager srteTransactionManager(
+//            @Qualifier("srteEntityManagerFactory") EntityManagerFactory srteEntityManagerFactory ) {
+//        return new JpaTransactionManager(srteEntityManagerFactory);
+//    }
 }

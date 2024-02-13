@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.StoredProcedureQuery;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -13,6 +14,7 @@ public class EdxPatientMatchStoredProcRepository {
     @PersistenceContext(unitName = "odseEntityManagerFactory") // Specify the persistence unit name
     private EntityManager entityManager;
 
+    @Transactional
     public EdxPatientMatchDT getEdxPatientMatch(String typeCd, String matchString) throws DataProcessingException {
         EdxPatientMatchDT edxPatientMatchDT = new EdxPatientMatchDT();
 

@@ -8,6 +8,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.*;
 import gov.cdc.dataprocessing.utilities.UniqueIdGenerator;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -60,11 +61,13 @@ public class PatientRepositoryUtil {
     }
 
 
+    @Transactional
     public Person findExistingPersonByUid(Long personUid) {
         var result = personRepository.findById(personUid);
         return result.get();
     }
 
+    @Transactional
     public Person createPerson(PersonVO personVO) throws DataProcessingException {
         //TODO: Implement unique id generator here
         Long personUid = 212121L;
@@ -163,6 +166,7 @@ public class PatientRepositoryUtil {
         return person;
     }
 
+    @Transactional
     public void updateExistingPerson(PersonVO personVO) throws DataProcessingException {
         //TODO: Implement unique id generator here
 
@@ -362,6 +366,7 @@ public class PatientRepositoryUtil {
      * @roseuid 3E7B17250186
      * @J2EE_METHOD -- preparePersonNameBeforePersistence
      */
+    @Transactional
     public PersonVO preparePersonNameBeforePersistence(PersonVO personVO) throws DataProcessingException {
         try {
             Collection<PersonNameDT> namesCollection = personVO

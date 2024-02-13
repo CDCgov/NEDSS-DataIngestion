@@ -30,6 +30,7 @@ public class PatientService implements IPatientService {
         this.patientMatchingService = patientMatchingService;
     }
 
+    @Transactional
     public PersonVO processingPatient(LabResultProxyVO labResultProxyVO, EdxLabInformationDT edxLabInformationDT, PersonVO personVO) throws DataProcessingException {
         //TODO: Adding Logic Here
         try {

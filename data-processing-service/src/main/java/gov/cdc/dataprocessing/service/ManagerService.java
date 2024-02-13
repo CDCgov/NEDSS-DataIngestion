@@ -78,6 +78,7 @@ public class ManagerService implements IManagerService {
         this.cacheManager = cacheManager;
     }
 
+    @Transactional
     public Object processDistribution(String eventType, String data) throws DataProcessingConsumerException {
         //TODO: determine which flow the data will be going through
         Object result = new Object();
