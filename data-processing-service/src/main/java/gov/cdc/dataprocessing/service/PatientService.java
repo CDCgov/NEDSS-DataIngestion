@@ -30,9 +30,8 @@ public class PatientService implements IPatientService {
         this.patientMatchingService = patientMatchingService;
     }
 
-    public Object processingPatient(LabResultProxyVO labResultProxyVO, EdxLabInformationDT edxLabInformationDT, PersonVO personVO) throws DataProcessingException {
+    public PersonVO processingPatient(LabResultProxyVO labResultProxyVO, EdxLabInformationDT edxLabInformationDT, PersonVO personVO) throws DataProcessingException {
         //TODO: Adding Logic Here
-        PersonVO person = null;
         try {
             long falseUid = personVO.thePersonDT.getPersonUid();
             Long personUid;
@@ -69,9 +68,8 @@ public class PatientService implements IPatientService {
             if(personVO.getThePersonDT().getPersonParentUid()!=null){
                 edxLabInformationDT.setPersonParentUid(personVO.getThePersonDT().getPersonParentUid().longValue());
             }
-            person = personVO;
 
-            return "processing patient";
+            return personVO;
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
         }

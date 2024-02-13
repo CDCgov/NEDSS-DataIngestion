@@ -8,7 +8,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.*;
 import gov.cdc.dataprocessing.utilities.UniqueIdGenerator;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -30,7 +29,9 @@ public class PatientRepositoryUtil {
     private final TeleLocatorRepository teleLocatorRepository;
     private final PostalLocatorRepository postalLocatorRepository;
     private final PhysicalLocatorRepository physicalLocatorRepository;
+    private final LocalUidGeneratorRepository localUidGeneratorRepository;
 
+    private final static String PERSON = "PERSON";
 
     public PatientRepositoryUtil(
             PersonRepository personRepository,
@@ -43,7 +44,7 @@ public class PatientRepositoryUtil {
             RoleRepository roleRepository,
             TeleLocatorRepository teleLocatorRepository,
             PostalLocatorRepository postalLocatorRepository,
-            PhysicalLocatorRepository physicalLocatorRepository) {
+            PhysicalLocatorRepository physicalLocatorRepository, LocalUidGeneratorRepository localUidGeneratorRepository) {
         this.personRepository = personRepository;
         this.entityRepositoryUtil = entityRepositoryUtil;
         this.personNameRepository = personNameRepository;
@@ -55,6 +56,7 @@ public class PatientRepositoryUtil {
         this.teleLocatorRepository = teleLocatorRepository;
         this.postalLocatorRepository = postalLocatorRepository;
         this.physicalLocatorRepository = physicalLocatorRepository;
+        this.localUidGeneratorRepository = localUidGeneratorRepository;
     }
 
 
@@ -66,15 +68,23 @@ public class PatientRepositoryUtil {
     public Person createPerson(PersonVO personVO) throws DataProcessingException {
         //TODO: Implement unique id generator here
         Long personUid = 212121L;
-        personUid = UniqueIdGenerator.generateUniqueId();
-
         String localUid = "Unique Id here";
-        localUid = UniqueIdGenerator.generateUniqueStringId();
+        var localIdModel = localUidGeneratorRepository.findById(PERSON);
+        personUid = localIdModel.get().getSeedValueNbr();
+        localUid = localIdModel.get().getUidPrefixCd() + personUid + localIdModel.get().getUidSuffixCd();
+
+        LocalUidGenerator newGen = new LocalUidGenerator();
+        newGen.setClassNameCd(localIdModel.get().getClassNameCd());
+        newGen.setTypeCd(localIdModel.get().getTypeCd());
+        newGen.setSeedValueNbr(localIdModel.get().getSeedValueNbr() + 1);
+        newGen.setUidPrefixCd(localIdModel.get().getUidPrefixCd());
+        newGen.setUidSuffixCd(localIdModel.get().getUidSuffixCd());
+        localUidGeneratorRepository.save(newGen);
 
         ArrayList<Object>  arrayList = new ArrayList<>();
 
         if(personVO.getThePersonDT().getLocalId() == null || personVO.getThePersonDT().getLocalId().trim().length() == 0) {
-            personVO.getThePersonDT().setLocalId("PSN" + localUid + "GA01");
+            personVO.getThePersonDT().setLocalId(localUid);
         }
 
         if(personVO.getThePersonDT().getPersonParentUid() == null) {

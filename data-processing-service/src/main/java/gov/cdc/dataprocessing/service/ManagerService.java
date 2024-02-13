@@ -13,6 +13,7 @@ import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.NbsInterfaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.service.interfaces.*;
+import gov.cdc.dataprocessing.service.model.PatientAggContainer;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -190,7 +191,7 @@ public class ManagerService implements IManagerService {
 //            var provider = patientService.processingProvider();
 
 
-            patientAggregation(parsedData, edxLabInformationDT);
+            PatientAggContainer patientAggContainer = patientAggregation(parsedData, edxLabInformationDT);
 
             //TODO: ORGANIZATION
             var organization = organizationService.processingOrganization();
@@ -210,8 +211,11 @@ public class ManagerService implements IManagerService {
         }
     }
 
-    public void patientAggregation(LabResultProxyVO labResult, EdxLabInformationDT edxLabInformationDT) throws DataProcessingConsumerException, DataProcessingException {
+    private PatientAggContainer patientAggregation(LabResultProxyVO labResult, EdxLabInformationDT edxLabInformationDT) throws DataProcessingConsumerException, DataProcessingException {
 
+        PatientAggContainer container = new PatientAggContainer();
+        PersonVO personVOObj = null;
+        PersonVO providerVOObj = null;
         if (labResult.getThePersonVOCollection() != null && !labResult.getThePersonVOCollection().isEmpty() ) {
             Iterator<PersonVO> it = labResult.getThePersonVOCollection().iterator();
             while (it.hasNext()) {
@@ -223,8 +227,7 @@ public class ManagerService implements IManagerService {
                 }
                 else {
                     if (personVO.thePersonDT.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_CD)) {
-                        var patient = patientService.processingPatient(labResult, edxLabInformationDT, personVO);
-
+                        personVOObj =  patientService.processingPatient(labResult, edxLabInformationDT, personVO);
                     }
                     else if (personVO.thePersonDT.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
                         //TODO: Logic for Matching Provider
@@ -234,5 +237,8 @@ public class ManagerService implements IManagerService {
                 }
             }
         }
+
+        container.setPersonVO(personVOObj);
+        return container;
     }
 }
