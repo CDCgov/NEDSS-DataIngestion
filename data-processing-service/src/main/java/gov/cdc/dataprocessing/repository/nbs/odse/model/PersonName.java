@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model;
 
 import gov.cdc.dataprocessing.model.classic_model.dto.PersonNameDT;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.PersonNameId;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -8,13 +9,14 @@ import java.sql.Timestamp;
 
 @Data
 @Entity
+@IdClass(PersonNameId.class) // Specify the IdClass
 @Table(name = "Person_name")
 public class PersonName {
-
     @Id
     @Column(name = "person_uid")
     private Long personUid;
 
+    @Id
     @Column(name = "person_name_seq")
     private Integer personNameSeq;
 

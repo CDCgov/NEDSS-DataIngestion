@@ -15,4 +15,5 @@ import java.util.Optional;
 public interface PersonRaceRepository extends JpaRepository<PersonRace, Long> {
     @Query("SELECT pn FROM PersonRace pn WHERE pn.personUid = :parentUid")
     Optional<List<PersonRace>> findByParentUid(@Param("parentUid") Long parentUid);
+
 }

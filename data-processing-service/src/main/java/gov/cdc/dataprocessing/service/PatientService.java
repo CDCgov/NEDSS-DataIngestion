@@ -9,6 +9,7 @@ import gov.cdc.dataprocessing.model.classic_model.vo.LabResultProxyVO;
 import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 import gov.cdc.dataprocessing.service.interfaces.IPatientService;
 import gov.cdc.dataprocessing.service.matching.PatientMatchingService;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

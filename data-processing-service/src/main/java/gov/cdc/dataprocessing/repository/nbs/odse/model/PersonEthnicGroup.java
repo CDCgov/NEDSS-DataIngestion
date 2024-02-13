@@ -1,10 +1,9 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model;
 
 import gov.cdc.dataprocessing.model.classic_model.dto.PersonEthnicGroupDT;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.PersonEthnicGroupId;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.PersonNameId;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigInteger;
@@ -12,13 +11,14 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "Person_ethnic_group", schema = "dbo")
+@IdClass(PersonEthnicGroupId.class) // Specify the IdClass
 @Data
 public class PersonEthnicGroup {
 
-    @Id
     @Column(name = "person_uid", nullable = false)
     private Long personUid;
 
+    @Id
     @Column(name = "ethnic_group_cd", nullable = false, length = 20)
     private String ethnicGroupCd;
 

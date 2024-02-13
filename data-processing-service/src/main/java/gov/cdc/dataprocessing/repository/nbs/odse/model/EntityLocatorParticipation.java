@@ -1,10 +1,9 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model;
 
 import gov.cdc.dataprocessing.model.classic_model.dto.EntityLocatorParticipationDT;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.EntityLocatorParticipationId;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.PersonEthnicGroupId;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigInteger;
@@ -12,6 +11,7 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "Entity_locator_participation", schema = "dbo")
+@IdClass(EntityLocatorParticipationId.class) // Specify the IdClass
 @Data
 public class EntityLocatorParticipation {
 
@@ -19,6 +19,7 @@ public class EntityLocatorParticipation {
     @Column(name = "entity_uid", nullable = false)
     private Long entityUid;
 
+    @Id
     @Column(name = "locator_uid", nullable = false)
     private Long locatorUid;
 

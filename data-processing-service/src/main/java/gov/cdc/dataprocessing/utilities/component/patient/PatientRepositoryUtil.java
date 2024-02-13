@@ -8,6 +8,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.*;
 import gov.cdc.dataprocessing.utilities.UniqueIdGenerator;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -56,29 +57,10 @@ public class PatientRepositoryUtil {
         this.physicalLocatorRepository = physicalLocatorRepository;
     }
 
-    public Person findExistingPersonByUid(PersonVO personVO) {
-        PersonDT personDT = personVO.getThePersonDT();
-        var result = personRepository.findById(personDT.getPersonUid());
-        return result.get();
-    }
 
     public Person findExistingPersonByUid(Long personUid) {
         var result = personRepository.findById(personUid);
         return result.get();
-    }
-
-    public PersonVO findExistingParentByUidAndAssocData(Long parentUid) {
-        Person person = personRepository.findById(parentUid).get();
-
-        List<PersonName> personNameList = personNameRepository.findByParentUid(parentUid).get();
-        List<PersonRace> personRaceList = personRaceRepository.findByParentUid(parentUid).get();
-        List<PersonEthnicGroup> personEthnicList = personEthnicRepository.findByParentUid(parentUid).get();
-        List<EntityId> personEntityIdList = entityIdRepository.findByParentUid(parentUid).get();
-        List<EntityLocatorParticipation> personEntityLocatorList = entityLocatorParticipationRepository.findByParentUid(parentUid).get();
-        List<Role> personRoleList = roleRepository.findByParentUid(parentUid).get();
-
-
-        return new PersonVO();
     }
 
     public Person createPerson(PersonVO personVO) throws DataProcessingException {
@@ -92,7 +74,7 @@ public class PatientRepositoryUtil {
         ArrayList<Object>  arrayList = new ArrayList<>();
 
         if(personVO.getThePersonDT().getLocalId() == null || personVO.getThePersonDT().getLocalId().trim().length() == 0) {
-            personVO.getThePersonDT().setLocalId(localUid);
+            personVO.getThePersonDT().setLocalId("PSN" + localUid + "GA01");
         }
 
         if(personVO.getThePersonDT().getPersonParentUid() == null) {
@@ -102,12 +84,8 @@ public class PatientRepositoryUtil {
         // set new person uid in entity table
         personVO.getThePersonDT().setPersonUid(personUid);
 
-
-
         arrayList.add(personUid);
         arrayList.add(NEDSSConstant.PERSON);
-
-
 
         //NOTE: Create Entitty
         try {
@@ -173,6 +151,97 @@ public class PatientRepositoryUtil {
             }
         }
         return person;
+    }
+
+    public void updateExistingPerson(PersonVO personVO) throws DataProcessingException {
+        //TODO: Implement unique id generator here
+
+
+        ArrayList<Object>  arrayList = new ArrayList<>();
+
+        arrayList.add(NEDSSConstant.PERSON);
+
+
+        //NOTE: Create Person Name
+        if  (personVO.getThePersonNameDTCollection() != null && !personVO.getThePersonNameDTCollection().isEmpty()) {
+            try {
+                updatePersonName(personVO);
+            } catch (Exception e) {
+                throw new DataProcessingException(e.getMessage(), e);
+            }
+        }
+        //NOTE: Create Person Race
+        if  (personVO.getThePersonRaceDTCollection() != null && !personVO.getThePersonRaceDTCollection().isEmpty()) {
+            try {
+                createPersonRace(personVO);
+            } catch (Exception e) {
+                throw new DataProcessingException(e.getMessage(), e);
+            }
+        }
+        //NOTE: Create Person Ethnic
+        if  (personVO.getThePersonEthnicGroupDTCollection() != null && !personVO.getThePersonEthnicGroupDTCollection().isEmpty()) {
+            try {
+                createPersonEthnic(personVO);
+            } catch (Exception e) {
+                throw new DataProcessingException(e.getMessage(), e);
+            }
+        }
+
+
+        //NOTE: Upsert EntityID
+        if  (personVO.getTheEntityIdDTCollection() != null && !personVO.getTheEntityIdDTCollection().isEmpty()) {
+            try {
+                createEntityId(personVO);
+            } catch (Exception e) {
+                throw new DataProcessingException(e.getMessage(), e);
+            }
+        }
+
+
+        //NOTE: Create Entity Locator Participation
+        if  (personVO.getTheEntityLocatorParticipationDTCollection() != null && !personVO.getTheEntityLocatorParticipationDTCollection().isEmpty()) {
+            try {
+                createEntityLocatorParticipation(personVO);
+            } catch (Exception e) {
+                throw new DataProcessingException(e.getMessage(), e);
+            }
+        }
+        //NOTE: Upsert Role
+        if  (personVO.getTheRoleDTCollection() != null && !personVO.getTheRoleDTCollection().isEmpty()) {
+            try {
+                createRole(personVO);
+            } catch (Exception e) {
+                throw new DataProcessingException(e.getMessage(), e);
+            }
+        }
+
+    }
+
+    private void updatePersonName(PersonVO personVO) throws DataProcessingException {
+        ArrayList<PersonNameDT>  personList = (ArrayList<PersonNameDT> ) personVO.getThePersonNameDTCollection();
+        try {
+            var pUid = personVO.getThePersonDT().getPersonUid();
+            List<Integer> personNameSeqId = personNameRepository.findBySeqIdByParentUid(pUid);
+            Integer seqId = 0;
+            if (!personNameSeqId.isEmpty()) {
+                seqId = personNameSeqId.get(0);
+            }
+
+            for(int i = 0; i < personList.size(); i++) {
+                seqId++;
+                personList.get(i).setPersonUid(pUid);
+                if (personList.get(i).getStatusCd() == null) {
+                    personList.get(i).setStatusCd("A");
+                }
+                if (personList.get(i).getStatusTime() == null) {
+                    personList.get(i).setStatusTime(new Timestamp(new Date().getTime()));
+                }
+                personList.get(i).setPersonNameSeq(seqId);
+                personNameRepository.save(new PersonName( personList.get(i)));
+            }
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
     }
 
     private void createPersonName(PersonVO personVO) throws DataProcessingException {

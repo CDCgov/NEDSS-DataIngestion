@@ -13,6 +13,7 @@ import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.NbsInterfaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.service.interfaces.*;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,7 +173,7 @@ public class ManagerService implements IManagerService {
                 }
             }
             //TODO: Parsing Data to Object
-            var parsedData = dataExtractionService.parsingDataToObject(nbsInterfaceModel, edxLabInformationDT);
+            LabResultProxyVO parsedData = dataExtractionService.parsingDataToObject(nbsInterfaceModel, edxLabInformationDT);
 
             edxLabInformationDT.setLabResultProxyVO(parsedData);
 
@@ -187,6 +188,8 @@ public class ManagerService implements IManagerService {
 //            var patient = patientService.processingPatient(parsedData, edxLabInformationDT);
 //            var nextOfKin = patientService.processingNextOfKin();
 //            var provider = patientService.processingProvider();
+
+
             patientAggregation(parsedData, edxLabInformationDT);
 
             //TODO: ORGANIZATION
