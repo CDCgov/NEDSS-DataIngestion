@@ -7,6 +7,7 @@ import gov.cdc.dataprocessing.model.classic_model.dt.EdxLabInformationDT;
 import gov.cdc.dataprocessing.model.classic_model.dto.*;
 import gov.cdc.dataprocessing.model.classic_model.vo.LabResultProxyVO;
 import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
+import gov.cdc.dataprocessing.service.interfaces.IPatientMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.IPatientService;
 import gov.cdc.dataprocessing.service.matching.PatientMatchingService;
 import jakarta.transaction.Transactional;
@@ -23,7 +24,7 @@ import java.util.Iterator;
 public class PatientService implements IPatientService {
     private static final Logger logger = LoggerFactory.getLogger(PatientService.class);
 
-    private final PatientMatchingService patientMatchingService;
+    private final IPatientMatchingService patientMatchingService;
 
     public PatientService(PatientMatchingService patientMatchingService) {
 
@@ -46,8 +47,9 @@ public class PatientService implements IPatientService {
             else{
                 //NOTE: Mathing Patient
                 //NOTE: This matching also persist patient accordingly
+                //NOTE: Either new or existing patient, it will be processed within this method
                 edxPatientMatchFoundDT = patientMatchingService.getMatchingPatient(personVO);
-                edxLabInformationDT.setMultipleSubjectMatch(patientMatchingService.multipleMatchFound);
+                edxLabInformationDT.setMultipleSubjectMatch(patientMatchingService.getMultipleMatchFound());
                 personUid = personVO.getThePersonDT().getPersonUid();
             }
 
@@ -57,7 +59,7 @@ public class PatientService implements IPatientService {
                 personVO.setItDirty(false);
                 personVO.getThePersonDT().setItNew(false);
                 personVO.getThePersonDT().setItDirty(false);
-                PersonNameDT personName = getPersonNameUseCdL(personVO);
+                PersonNameDT personName = parsingPersonName(personVO);
                 String lastName = personName.getLastNm();
                 String firstName = personName.getFirstNm();
                 edxLabInformationDT.setEntityName(firstName + " " + lastName);
@@ -67,7 +69,7 @@ public class PatientService implements IPatientService {
                 edxLabInformationDT.setPatientMatch(true);
             }
             if(personVO.getThePersonDT().getPersonParentUid()!=null){
-                edxLabInformationDT.setPersonParentUid(personVO.getThePersonDT().getPersonParentUid().longValue());
+                edxLabInformationDT.setPersonParentUid(personVO.getThePersonDT().getPersonParentUid());
             }
 
             return personVO;
@@ -94,11 +96,11 @@ public class PatientService implements IPatientService {
         }
     }
 
-    private PersonNameDT getPersonNameUseCdL(PersonVO personVO) throws DataProcessingException {
+    private PersonNameDT parsingPersonName(PersonVO personVO) throws DataProcessingException {
         Collection<PersonNameDT> personNames = personVO.getThePersonNameDTCollection();
         Iterator<PersonNameDT> pnIter = personNames.iterator();
         while (pnIter.hasNext()) {
-            PersonNameDT personName = (PersonNameDT) pnIter.next();
+            PersonNameDT personName = pnIter.next();
             if (personName.getNmUseCd().equals("L")) {
                 return personName;
             }
@@ -106,6 +108,9 @@ public class PatientService implements IPatientService {
         throw new DataProcessingException("No name use code \"L\" in PersonVO");
     }
 
+    /**
+     * TODO: Evaluation needed
+     * */
     private void setFalseToNew(LabResultProxyVO labResultProxyVO, Long falseUid, Long actualUid) throws DataProcessingException {
 
         try {

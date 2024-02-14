@@ -18,6 +18,7 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 
 @Configuration
+@EnableTransactionManagement
 @EnableJpaRepositories(
         entityManagerFactoryRef = "nbsEntityManagerFactory",
         transactionManagerRef = "nbsTransactionManager",
@@ -66,9 +67,9 @@ public class NbsDataSourceConfig {
                 .build();
     }
 
-//    @Bean(name = "nbsTransactionManager")
-//    public PlatformTransactionManager nbsTransactionManager(
-//            @Qualifier("nbsEntityManagerFactory") EntityManagerFactory nbsEntityManagerFactory ) {
-//        return new JpaTransactionManager(nbsEntityManagerFactory);
-//    }
+    @Bean(name = "nbsTransactionManager")
+    public PlatformTransactionManager nbsTransactionManager(
+            @Qualifier("nbsEntityManagerFactory") EntityManagerFactory nbsEntityManagerFactory ) {
+        return new JpaTransactionManager(nbsEntityManagerFactory);
+    }
 }

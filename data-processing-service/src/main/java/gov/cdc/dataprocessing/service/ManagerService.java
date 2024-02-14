@@ -139,13 +139,13 @@ public class ManagerService implements IManagerService {
 
     private Object processingELR(String data) throws DataProcessingConsumerException {
         //TODO logic to execute data here
+        NbsInterfaceModel nbsInterfaceModel = null;
         Object result = new Object();
         try {
             EdxLabInformationDT edxLabInformationDT = new EdxLabInformationDT();
             edxLabInformationDT.setStatus(NbsInterfaceStatus.Success);
             edxLabInformationDT.setUserName("Test");
 
-            NbsInterfaceModel nbsInterfaceModel;
             var nbsModel = nbsInterfaceRepository.findByNbsInterfaceUid(Integer.valueOf(data));
             nbsInterfaceModel = nbsModel.get();
             edxLabInformationDT.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
@@ -206,9 +206,21 @@ public class ManagerService implements IManagerService {
 
             //TODO: Producing msg for Next Step
            // kafkaManagerProducer.sendData(healthCaseTopic, data);
+
+
+
+            //NOTE: Test updating NBS_Interface
+            nbsInterfaceModel.setRecordStatusCd("COMPLETED_V2");
+            nbsInterfaceRepository.save(nbsInterfaceModel);
             return result;
         } catch (Exception e) {
+            if (nbsInterfaceModel != null) {
+                nbsInterfaceModel.setRecordStatusCd("FAILED_V2");
+                nbsInterfaceRepository.save(nbsInterfaceModel);
+            }
+
             throw new DataProcessingConsumerException(e.getMessage(), result);
+
         }
     }
 
