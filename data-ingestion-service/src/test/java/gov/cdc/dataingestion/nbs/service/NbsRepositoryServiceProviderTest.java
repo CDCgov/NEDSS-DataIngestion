@@ -46,7 +46,7 @@ class NbsRepositoryServiceProviderTest {
         HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
         when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
 
-        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage);
+        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
 
@@ -67,7 +67,7 @@ class NbsRepositoryServiceProviderTest {
         parsedMessage.setParsedMessage(oru);
         when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
 
-        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage);
+        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
 
@@ -88,7 +88,7 @@ class NbsRepositoryServiceProviderTest {
         parsedMessage.setParsedMessage(oru);
         when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
 
-        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage);
+        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
 
@@ -109,7 +109,7 @@ class NbsRepositoryServiceProviderTest {
         parsedMessage.setParsedMessage(oru);
         when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
 
-        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage);
+        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
 
@@ -129,7 +129,7 @@ class NbsRepositoryServiceProviderTest {
         parsedMessage.setParsedMessage(oru);
         when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
 
-        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage);
+        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
 
@@ -149,7 +149,7 @@ class NbsRepositoryServiceProviderTest {
         parsedMessage.setParsedMessage(oru);
         when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
 
-        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage);
+        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
 
@@ -163,7 +163,7 @@ class NbsRepositoryServiceProviderTest {
                parsedMessage.setParsedMessage(oru);
         when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
 
-        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage);
+        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
 
@@ -178,7 +178,7 @@ class NbsRepositoryServiceProviderTest {
         parsedMessage.setParsedMessage(oru);
         when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
 
-        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage);
+        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
 
@@ -193,7 +193,7 @@ class NbsRepositoryServiceProviderTest {
         parsedMessage.setParsedMessage(oru);
         when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
 
-        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage);
+        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
 
@@ -209,7 +209,7 @@ class NbsRepositoryServiceProviderTest {
         parsedMessage.setParsedMessage(oru);
         when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
 
-        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage);
+        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
 
@@ -226,7 +226,7 @@ class NbsRepositoryServiceProviderTest {
      parsedMessage.setParsedMessage(oru);
         when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
 
-        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage);
+        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
 
@@ -243,7 +243,7 @@ class NbsRepositoryServiceProviderTest {
         parsedMessage.setParsedMessage(oru);
         when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
 
-        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage);
+        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
 
@@ -262,7 +262,7 @@ class NbsRepositoryServiceProviderTest {
         parsedMessage.setParsedMessage(oru);
         when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
 
-        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage);
+        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
 
@@ -283,7 +283,7 @@ class NbsRepositoryServiceProviderTest {
         parsedMessage.setParsedMessage(oru);
         when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
 
-        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage);
+        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
 
@@ -307,7 +307,7 @@ class NbsRepositoryServiceProviderTest {
 
         Assertions.assertThrows(
                 XmlConversionException.class, () -> {
-                    target.saveXmlMessage(id, xmlMsg, parsedMessage);
+                    target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
                 }
         );
     }

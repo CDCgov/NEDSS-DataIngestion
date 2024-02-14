@@ -49,7 +49,7 @@ public class KafkaManagerConsumer {
         //TODO: Logic to handle goes here
         Object result = new Object();
         try {
-            result = managerService.processDistribution(dataType,"data");
+            result = managerService.processDistribution(dataType,message);
 
             //TODO: Send out result to next step
             kafkaManagerProducer.sendData(healthCaseTopic, "result");

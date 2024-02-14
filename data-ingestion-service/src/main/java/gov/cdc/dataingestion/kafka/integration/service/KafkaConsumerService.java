@@ -185,14 +185,15 @@ public class KafkaConsumerService {
     )
     public void handleMessageForRawElr(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                               @Header(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE) String messageValidationActive) throws DuplicateHL7FileFoundException, DiHL7Exception {
+                               @Header(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE) String messageValidationActive,
+                                @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) throws DuplicateHL7FileFoundException, DiHL7Exception {
         log.debug(topicDebugLog, message, topic);
         boolean hl7ValidationActivated = false;
 
         if (messageValidationActive != null && messageValidationActive.equalsIgnoreCase("true")) {
             hl7ValidationActivated = true;
         }
-        validationHandler(message, hl7ValidationActivated);
+        validationHandler(message, hl7ValidationActivated, dataProcessingEnable);
     }
 
     /**
@@ -226,9 +227,10 @@ public class KafkaConsumerService {
     )
     @KafkaListener(topics = "${kafka.validation.topic}")
     public void handleMessageForValidatedElr(String message,
-                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws ConversionPrepareException {
+                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+                                             @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) throws ConversionPrepareException {
         log.debug(topicDebugLog, message, topic);
-        preparationForConversionHandler(message);
+        preparationForConversionHandler(message, dataProcessingEnable);
     }
 
     /**
@@ -237,9 +239,10 @@ public class KafkaConsumerService {
     @KafkaListener(topics = "${kafka.xml-conversion-prep.topic}")
     public void handleMessageForXmlConversionElr(String message,
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                                                 @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation)  {
+                                                 @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation,
+                                                 @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable)  {
         log.debug(topicDebugLog, message, topic);
-        xmlConversionHandler(message, operation);
+        xmlConversionHandler(message, operation, dataProcessingEnable);
     }
 
     /**
@@ -419,16 +422,16 @@ public class KafkaConsumerService {
         return erroredSource;
     }
 
-    private void preparationForConversionHandler(String message) throws ConversionPrepareException {
+    private void preparationForConversionHandler(String message, String dataProcessingEnable) throws ConversionPrepareException {
         Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
         if(validatedElrResponse.isPresent()) {
-            kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepXmlTopic, TopicPreparationType.XML, 0);
-            kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepFhirTopic, TopicPreparationType.FHIR, 0);
+            kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepXmlTopic, TopicPreparationType.XML, 0, dataProcessingEnable);
+            kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepFhirTopic, TopicPreparationType.FHIR, 0, dataProcessingEnable);
         } else {
             throw new ConversionPrepareException("Validation ELR Record Not Found");
         }
     }
-    private void xmlConversionHandler(String message, String operation) {
+    private void xmlConversionHandler(String message, String operation, String dataProcessingEnable) {
 
         // Update: changed method to async process, intensive process in this method cause consumer lagging, delay and strange behavior
         // TODO: considering breaking down this logic (NOTE) //NOSONAR
@@ -462,7 +465,8 @@ public class KafkaConsumerService {
                 // this will be changed to debug
                 log.info("rhapsodyXml: {}", rhapsodyXml);
 
-                NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml, parsedMessage);
+                boolean dataProcessingApplied = Boolean.parseBoolean(dataProcessingEnable);
+                NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml, parsedMessage, dataProcessingApplied);
 
                 customMetricsBuilder.incrementXmlConversionRequested();
                 // Once the XML is saved to the NBS_Interface table, we get the ID to save it
@@ -487,7 +491,11 @@ public class KafkaConsumerService {
                     iReportStatusRepository.save(reportStatusIdData);
                 }
 
-                kafkaProducerService.sendMessageAfterConvertedToXml(rhapsodyXml, convertedToXmlTopic, 0);
+                if (dataProcessingApplied) {
+                    kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), "elr_processing_micro", 0);
+                } else {
+                    kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
+                }
 
             } catch (Exception e) {
                 StringWriter sw = new StringWriter();
@@ -502,7 +510,7 @@ public class KafkaConsumerService {
             }
         });
     }
-    private void validationHandler(String message, boolean hl7ValidationActivated) throws DuplicateHL7FileFoundException, DiHL7Exception {
+    private void validationHandler(String message, boolean hl7ValidationActivated, String dataProcessingEnable) throws DuplicateHL7FileFoundException, DiHL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);
         RawERLModel elrModel;
         if (!rawElrResponse.isEmpty()) {
@@ -525,7 +533,7 @@ public class KafkaConsumerService {
                 // Duplication check
                 iHL7DuplicateValidator.validateHL7Document(hl7ValidatedModel);
                 saveValidatedELRMessage(hl7ValidatedModel);
-                kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic, 0);
+                kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic, 0, dataProcessingEnable);
                 break;
             case KafkaHeaderValue.MESSAGE_TYPE_CSV:
                 // TODO: implement csv validation, this is not in the scope of data ingestion at the moment

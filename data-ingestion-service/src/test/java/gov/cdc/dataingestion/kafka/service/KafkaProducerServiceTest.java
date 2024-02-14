@@ -54,7 +54,7 @@ class KafkaProducerServiceTest {
         String topic = "test-topic";
         String msgType = "test-type";
         Integer dltOccurrence = 1;
-        kafkaProducerService.sendMessageFromController(msg, topic, msgType, dltOccurrence, false);
+        kafkaProducerService.sendMessageFromController(msg, topic, msgType, dltOccurrence, false, "false");
         verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
     }
 
@@ -65,7 +65,7 @@ class KafkaProducerServiceTest {
         model.setMessageType("test");
         model.setId("test");
         model.setMessageVersion("1");
-        kafkaProducerService.sendMessageAfterValidatingMessage(model, topic, 1);
+        kafkaProducerService.sendMessageAfterValidatingMessage(model, topic, 1, "false");
         verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
     }
 
@@ -79,7 +79,7 @@ class KafkaProducerServiceTest {
         model.setMessageVersion("1");
         kafkaProducerService.sendMessagePreparationTopic(model, topic,
                 topicType,
-                1 );
+                1, "false");
         verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
     }
 
@@ -93,7 +93,7 @@ class KafkaProducerServiceTest {
         model.setMessageVersion("1");
         kafkaProducerService.sendMessagePreparationTopic(model, topic,
                 topicType,
-                1 );
+                1, "false");
         verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
     }
 
@@ -142,7 +142,7 @@ class KafkaProducerServiceTest {
         String msg = "test";
         String msgType = "HL7";
         Integer occurrence = 0;
-        kafkaProducerService.sendMessageFromController(msg, topic,msgType, occurrence, false);
+        kafkaProducerService.sendMessageFromController(msg, topic,msgType, occurrence, false, "false");
         verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
     }
 

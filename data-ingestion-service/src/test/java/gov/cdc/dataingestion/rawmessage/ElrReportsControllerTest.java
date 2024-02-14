@@ -50,7 +50,7 @@ class ElrReportsControllerTest {
         rawERLDto.setType(messageType);
         rawERLDto.setPayload(payload);
 
-        when(rawELRService.submission(rawERLDto)).thenReturn("OK");
+        when(rawELRService.submission(rawERLDto, "1")).thenReturn("OK");
         mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
                         .param("id", "1").with(SecurityMockMvcRequestPostProcessors.jwt())
                         .header("msgType", messageType)

@@ -14,4 +14,6 @@ public class KafkaHeaderValue {
     public static final String MESSAGE_VERSION = "MESSAGE_VERSION";
 
     public static final String MESSAGE_OPERATION = "MESSAGE_OPERATION";
+    public static final String DATA_PROCESSING_ENABLE = "DATA_PROCESSING_ENABLE";
+    public static final String DATA_TYPE = "DATA_TYPE";
 }

@@ -54,8 +54,8 @@ class RawELRServiceTest {
         model.setCreatedBy("test");
         model.setUpdatedBy("test");
         when(rawELRRepository.save(any())).thenReturn(model);
-        Mockito.doNothing().when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-        var result = target.submission(modelDto);
+        Mockito.doNothing().when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        var result = target.submission(modelDto, "1");
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("test",result);

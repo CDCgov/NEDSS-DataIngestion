@@ -24,7 +24,9 @@ public class NbsRepositoryServiceProvider {
 	private static Logger log = LoggerFactory.getLogger(NbsRepositoryServiceProvider.class);
 
 	private static final String IMPEXP_CD = "I";
-	private static final String STATUS_UNPROCESSED = "ELR_QUEUED";
+	private static final String STATUS_UNPROCESSED = "QUEUED";
+	private static final String STATUS_UNPROCESSED_V2 = "QUEUED_V2";
+
 	private static final String SYSTEM_NAME_NBS = "NBS";
 	private static final String DOCUMENT_TYPE_CODE = "11648804";
 
@@ -66,14 +68,18 @@ public class NbsRepositoryServiceProvider {
 		}
 	}
     
-    public NbsInterfaceModel saveXmlMessage(String msgId, String xmlMsg, HL7ParsedMessage<OruR1> hl7ParsedMessage) throws XmlConversionException {
+    public NbsInterfaceModel saveXmlMessage(String msgId, String xmlMsg, HL7ParsedMessage<OruR1> hl7ParsedMessage ,  boolean dataProcessingApplied) throws XmlConversionException {
 		NbsInterfaceModel item = new NbsInterfaceModel();
 
 		log.debug("{} : Xml being persisted to NBS Legacy database", msgId);
 
 		item.setPayload(xmlMsg);
 		item.setImpExpIndCd(IMPEXP_CD);
-		item.setRecordStatusCd(STATUS_UNPROCESSED);
+		if (dataProcessingApplied) {
+			item.setRecordStatusCd(STATUS_UNPROCESSED_V2);
+		} else {
+			item.setRecordStatusCd(STATUS_UNPROCESSED);
+		}
 
 		var time = getCurrentTimeStamp();
 		item.setRecordStatusTime(time);
