@@ -34,6 +34,7 @@ import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 
 import jakarta.xml.bind.JAXBException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.kafka.common.errors.SerializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -329,7 +330,7 @@ public class KafkaConsumerService {
     }
 
     //region DLT HANDLER
-    @DltHandler
+    @DltHandler()
     public void handleDlt(
             String message,
             @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
@@ -492,7 +493,13 @@ public class KafkaConsumerService {
                 }
 
                 if (dataProcessingApplied) {
-                    kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), "elr_processing_micro", 0);
+//                    byte[] encodedBytes = Base64.encodeBase64(rhapsodyXml.getBytes());
+//                    String encodedString = new String(encodedBytes);
+
+                    Gson gson = new Gson();
+                    String strGson = gson.toJson(nbsInterfaceModel);
+
+                    kafkaProducerService.sendMessageAfterConvertedToXml(strGson, "elr_processing_micro", 0);
                 } else {
                     kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
                 }

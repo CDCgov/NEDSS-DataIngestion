@@ -120,7 +120,7 @@ class KafkaProducerServiceTest {
     void testSendMessageAfterConvertedToXml()  {
         String topic = "test-topic";
         String msg = "test";
-        kafkaProducerService.sendMessageAfterConvertedToXml(msg, topic,
+        kafkaProducerService.sendMessageAfterConvertedToXml( msg, topic,
                 1 );
         verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
     }

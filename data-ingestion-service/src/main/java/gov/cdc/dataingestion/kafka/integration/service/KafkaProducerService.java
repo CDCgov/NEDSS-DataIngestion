@@ -141,7 +141,6 @@ public class KafkaProducerService {
         prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
         prodRecord.headers().add(KafkaHeaderValue.DATA_TYPE, "ELR".getBytes());
-
         sendMessage(prodRecord);
     }
 

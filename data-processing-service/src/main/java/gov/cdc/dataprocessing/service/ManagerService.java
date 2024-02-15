@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.service;
 
+import com.google.gson.Gson;
 import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
@@ -23,6 +24,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
+import java.util.Base64;
 import java.util.Iterator;
 import java.util.TreeMap;
 
@@ -142,12 +144,16 @@ public class ManagerService implements IManagerService {
         NbsInterfaceModel nbsInterfaceModel = null;
         Object result = new Object();
         try {
+
+            Gson gson = new Gson();
+
+
+
             EdxLabInformationDT edxLabInformationDT = new EdxLabInformationDT();
             edxLabInformationDT.setStatus(NbsInterfaceStatus.Success);
             edxLabInformationDT.setUserName("Test");
 
-            var nbsModel = nbsInterfaceRepository.findByNbsInterfaceUid(Integer.valueOf(data));
-            nbsInterfaceModel = nbsModel.get();
+            nbsInterfaceModel = gson.fromJson(data, NbsInterfaceModel.class);
             edxLabInformationDT.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
 
 
