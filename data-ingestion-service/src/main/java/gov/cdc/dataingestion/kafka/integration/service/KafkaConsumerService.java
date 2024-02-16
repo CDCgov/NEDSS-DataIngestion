@@ -432,6 +432,82 @@ public class KafkaConsumerService {
             throw new ConversionPrepareException("Validation ELR Record Not Found");
         }
     }
+
+    /**
+     * make this public so we can add unit test for now.
+     * we need to implementation interface pattern for NBS convert and transformation classes. it better for unit testing
+     * */
+    public void xmlConversionHandlerProcessing(String message, String operation, String dataProcessingEnable) {
+        String hl7Msg = "";
+        try {
+            if (operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
+                Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
+                hl7Msg = validatedElrResponse.map(ValidatedELRModel::getRawMessage).orElse("");
+            } else {
+                Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(message);
+                if (response.isPresent()) {
+                    var validMessage = iHl7v2Validator.messageStringValidation(response.get().getMessage());
+                    validMessage = iHl7v2Validator.processFhsMessage(validMessage);
+                    hl7Msg = validMessage;
+                } else {
+                    throw new XmlConversionException(errorDltMessage);
+                }
+            }
+            HL7ParsedMessage<OruR1> parsedMessage = Hl7ToRhapsodysXmlConverter.getInstance().parsedStringToHL7(hl7Msg);
+            String rhapsodyXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(message, parsedMessage);
+
+            // Modified from debug ==> info to capture xml for analysis.
+            // Please leave below at "info" level for the time being, before going live,
+            // this will be changed to debug
+            log.info("rhapsodyXml: {}", rhapsodyXml);
+
+            boolean dataProcessingApplied = Boolean.parseBoolean(dataProcessingEnable);
+            NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml, parsedMessage, dataProcessingApplied);
+
+            customMetricsBuilder.incrementXmlConversionRequested();
+            // Once the XML is saved to the NBS_Interface table, we get the ID to save it
+            // in the Data Ingestion elr_record_status_id table, so that we can get the status
+            // of the record straight-forward from the NBS_Interface table.
+
+            if(nbsInterfaceModel == null) {
+                customMetricsBuilder.incrementXmlConversionRequestedFailure();
+            }
+            else {
+                customMetricsBuilder.incrementXmlConversionRequestedSuccess();
+                ReportStatusIdData reportStatusIdData = new ReportStatusIdData();
+                Optional<ValidatedELRModel> validatedELRModel = iValidatedELRRepository.findById(message);
+                reportStatusIdData.setRawMessageId(validatedELRModel.get().getRawId());
+                reportStatusIdData.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
+                reportStatusIdData.setCreatedBy(convertedToXmlTopic);
+                reportStatusIdData.setUpdatedBy(convertedToXmlTopic);
+
+                var timestamp = getCurrentTimeStamp();
+                reportStatusIdData.setCreatedOn(timestamp);
+                reportStatusIdData.setUpdatedOn(timestamp);
+                iReportStatusRepository.save(reportStatusIdData);
+            }
+
+            if (dataProcessingApplied) {
+                Gson gson = new Gson();
+                String strGson = gson.toJson(nbsInterfaceModel);
+
+                kafkaProducerService.sendMessageAfterConvertedToXml(strGson, "elr_processing_micro", 0); //NOSONAR
+            } else {
+                kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
+            }
+
+        } catch (Exception e) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            String stackTrace = sw.toString();
+            // Handle any exceptions here
+            kafkaProducerService.sendMessageDlt(
+                    message, "xml_prep_dlt_manual", 0 ,
+                    stackTrace,prepXmlTopic
+            );
+        }
+    }
     private void xmlConversionHandler(String message, String operation, String dataProcessingEnable) {
 
         // Update: changed method to async process, intensive process in this method cause consumer lagging, delay and strange behavior
@@ -442,76 +518,7 @@ public class KafkaConsumerService {
         //  - Saving record to status table can also be broke to downstream pipeline
         CompletableFuture.runAsync(() -> {
             log.debug("Received message id will be retrieved from db and associated hl7 will be converted to xml");
-
-            String hl7Msg = "";
-            try {
-                if (operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
-                    Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
-                    hl7Msg = validatedElrResponse.map(ValidatedELRModel::getRawMessage).orElse("");
-                } else {
-                    Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(message);
-                    if (response.isPresent()) {
-                        var validMessage = iHl7v2Validator.messageStringValidation(response.get().getMessage());
-                        validMessage = iHl7v2Validator.processFhsMessage(validMessage);
-                        hl7Msg = validMessage;
-                    } else {
-                        throw new XmlConversionException(errorDltMessage);
-                    }
-                }
-                HL7ParsedMessage<OruR1> parsedMessage = Hl7ToRhapsodysXmlConverter.getInstance().parsedStringToHL7(hl7Msg);
-                String rhapsodyXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(message, parsedMessage);
-
-                // Modified from debug ==> info to capture xml for analysis.
-                // Please leave below at "info" level for the time being, before going live,
-                // this will be changed to debug
-                log.info("rhapsodyXml: {}", rhapsodyXml);
-
-                boolean dataProcessingApplied = Boolean.parseBoolean(dataProcessingEnable); //NOSONAR
-                NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml, parsedMessage, dataProcessingApplied); //NOSONAR
-
-                customMetricsBuilder.incrementXmlConversionRequested();
-                // Once the XML is saved to the NBS_Interface table, we get the ID to save it
-                // in the Data Ingestion elr_record_status_id table, so that we can get the status
-                // of the record straight-forward from the NBS_Interface table.
-
-                if(nbsInterfaceModel == null) {
-                    customMetricsBuilder.incrementXmlConversionRequestedFailure();
-                }
-                else {
-                    customMetricsBuilder.incrementXmlConversionRequestedSuccess();
-                    ReportStatusIdData reportStatusIdData = new ReportStatusIdData();
-                    Optional<ValidatedELRModel> validatedELRModel = iValidatedELRRepository.findById(message);
-                    reportStatusIdData.setRawMessageId(validatedELRModel.get().getRawId());
-                    reportStatusIdData.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
-                    reportStatusIdData.setCreatedBy(convertedToXmlTopic);
-                    reportStatusIdData.setUpdatedBy(convertedToXmlTopic);
-
-                    var timestamp = getCurrentTimeStamp();
-                    reportStatusIdData.setCreatedOn(timestamp);
-                    reportStatusIdData.setUpdatedOn(timestamp);
-                    iReportStatusRepository.save(reportStatusIdData);
-                }
-
-                if (dataProcessingApplied) { //NOSONAR
-                    Gson gson = new Gson(); //NOSONAR
-                    String strGson = gson.toJson(nbsInterfaceModel); //NOSONAR
-
-                    kafkaProducerService.sendMessageAfterConvertedToXml(strGson, "elr_processing_micro", 0); //NOSONAR
-                } else {
-                    kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
-                }
-
-            } catch (Exception e) {
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                e.printStackTrace(pw);
-                String stackTrace = sw.toString();
-                // Handle any exceptions here
-                kafkaProducerService.sendMessageDlt(
-                        message, "xml_prep_dlt_manual", 0 ,
-                        stackTrace,prepXmlTopic
-                );
-            }
+            xmlConversionHandlerProcessing(message, operation, dataProcessingEnable);
         });
     }
     private void validationHandler(String message, boolean hl7ValidationActivated, String dataProcessingEnable) throws DuplicateHL7FileFoundException, DiHL7Exception {
