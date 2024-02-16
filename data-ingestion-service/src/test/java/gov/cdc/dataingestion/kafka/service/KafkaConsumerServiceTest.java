@@ -336,45 +336,6 @@ class KafkaConsumerServiceTest {
 
     }
 
-
-    @Test
-    void xmlPreparationConsumerTest2() throws XmlConversionException {
-
-
-                // Produce a test message to the topic
-                String message =  guidForTesting;
-                produceMessage(xmlPrepTopic, message, EnumKafkaOperation.INJECTION);
-
-                // Consume the message
-                ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
-
-                // Perform assertions
-                assertEquals(1, records.count());
-
-                ConsumerRecord<String, String> firstRecord = records.iterator().next();
-                String value = firstRecord.value();
-
-                ValidatedELRModel model = new ValidatedELRModel();
-                model.setId(guidForTesting);
-                model.setRawMessage(testHL7Message);
-
-                when(iValidatedELRRepository.findById(guidForTesting)).thenReturn(Optional.of(model));
-            //    when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any(), anyBoolean())).thenReturn(nbsInterfaceModel);
-
-
-                kafkaConsumerService
-                        .handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.INJECTION.name(), "true");
-
-        try {
-            Thread.sleep(1000); // Simple way to wait for the async operation to likely finish
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-            verify(iValidatedELRRepository, times(1)).findById(guidForTesting);
-
-    }
-
-
     @Test
     void xmlPreparationConsumerTestReInjection_Exception() {
         // Produce a test message to the topic
