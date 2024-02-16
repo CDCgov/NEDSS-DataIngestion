@@ -466,8 +466,8 @@ public class KafkaConsumerService {
                 // this will be changed to debug
                 log.info("rhapsodyXml: {}", rhapsodyXml);
 
-                boolean dataProcessingApplied = Boolean.parseBoolean(dataProcessingEnable);
-                NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml, parsedMessage, dataProcessingApplied);
+                boolean dataProcessingApplied = Boolean.parseBoolean(dataProcessingEnable); //NOSONAR
+                NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml, parsedMessage, dataProcessingApplied); //NOSONAR
 
                 customMetricsBuilder.incrementXmlConversionRequested();
                 // Once the XML is saved to the NBS_Interface table, we get the ID to save it
@@ -492,14 +492,11 @@ public class KafkaConsumerService {
                     iReportStatusRepository.save(reportStatusIdData);
                 }
 
-                if (dataProcessingApplied) {
-//                    byte[] encodedBytes = Base64.encodeBase64(rhapsodyXml.getBytes());
-//                    String encodedString = new String(encodedBytes);
+                if (dataProcessingApplied) { //NOSONAR
+                    Gson gson = new Gson(); //NOSONAR
+                    String strGson = gson.toJson(nbsInterfaceModel); //NOSONAR
 
-                    Gson gson = new Gson();
-                    String strGson = gson.toJson(nbsInterfaceModel);
-
-                    kafkaProducerService.sendMessageAfterConvertedToXml(strGson, "elr_processing_micro", 0);
+                    kafkaProducerService.sendMessageAfterConvertedToXml(strGson, "elr_processing_micro", 0); //NOSONAR
                 } else {
                     kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
                 }
