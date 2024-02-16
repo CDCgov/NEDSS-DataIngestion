@@ -5,6 +5,7 @@ Feature: Read various HL7 messages from JSON file and Post them using a REST API
   Background:
     * callonce read('common.feature')
     * header Authorization = 'Bearer ' + token
+    * configure headers = { clientid: '#(clientid)', clientsecret: '#(clientsecret)' }
     * def responses = {}
     * def Thread = Java.type('java.lang.Thread')
     * def oldfirstname = 'LinkLogic'
@@ -16,7 +17,7 @@ Feature: Read various HL7 messages from JSON file and Post them using a REST API
     * def Thread = Java.type('java.lang.Thread')
 
   Scenario: Read messages from JSON and post each message
-    * def messages = read('data.json')
+    * def messages = read('data1.json')
     * def results = call read('@postMessage') messages
     * def responses = results.map(response => response.response)
     * print 'Initial UUID Responses:', responses
