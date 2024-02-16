@@ -14,8 +14,8 @@ function() {
   if (env == 'test') {
 
     config.apiurl = karate.properties['test.apiurl'];
-    config.apiusername = karate.properties['test.apiusername'];
-    config.apipassword = karate.properties['test.apipassword'];
+    config.clientid = karate.properties['test.clientid'];
+    config.clientsecret = karate.properties['test.clientsecret'];
     config.wrongapiurl = karate.properties['test.wrongapiurl'];
     config.registrationapiurl = karate.properties['test.registrationapiurl'];
     config.tokenurl = karate.properties['test.tokenurl'];
@@ -26,8 +26,8 @@ function() {
   } else if (env == 'dev') {
 
     config.apiurl = karate.properties['dev.apiurl'];
-    config.apiusername = karate.properties['dev.apiusername'];
-    config.apipassword = karate.properties['dev.apipassword'];
+    config.clientid = karate.properties['dev.clientid'];
+    config.clientsecret = karate.properties['dev.clientsecret'];
     config.wrongapiurl = karate.properties['dev.wrongapiurl'];
     config.registrationapiurl = karate.properties['dev.registrationapiurl'];
     config.tokenurl = karate.properties['dev.tokenurl'];
