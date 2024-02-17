@@ -1,13 +1,21 @@
 package gov.cdc.dataprocessing.service;
 
+import com.google.gson.Gson;
 import gov.cdc.dataprocessing.cache.SrteCache;
+import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.exception.EdxLogException;
 import gov.cdc.dataprocessing.model.classic_model.dt.EdxLabInformationDT;
+import gov.cdc.dataprocessing.model.classic_model.dto.EdxPatientMatchDT;
+import gov.cdc.dataprocessing.model.classic_model.vo.LabResultProxyVO;
+import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.NbsInterfaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.service.interfaces.*;
+import gov.cdc.dataprocessing.service.model.PatientAggContainer;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +24,8 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
+import java.util.Base64;
+import java.util.Iterator;
 import java.util.TreeMap;
 
 import static gov.cdc.dataprocessing.constant.ManagerEvent.EVENT_ELR;
@@ -70,6 +80,7 @@ public class ManagerService implements IManagerService {
         this.cacheManager = cacheManager;
     }
 
+    @Transactional
     public Object processDistribution(String eventType, String data) throws DataProcessingConsumerException {
         //TODO: determine which flow the data will be going through
         Object result = new Object();
@@ -130,15 +141,19 @@ public class ManagerService implements IManagerService {
 
     private Object processingELR(String data) throws DataProcessingConsumerException {
         //TODO logic to execute data here
+        NbsInterfaceModel nbsInterfaceModel = null;
         Object result = new Object();
         try {
+
+            Gson gson = new Gson();
+
+
+
             EdxLabInformationDT edxLabInformationDT = new EdxLabInformationDT();
             edxLabInformationDT.setStatus(NbsInterfaceStatus.Success);
             edxLabInformationDT.setUserName("Test");
 
-            NbsInterfaceModel nbsInterfaceModel;
-            var nbsModel = nbsInterfaceRepository.findByNbsInterfaceUid(Integer.valueOf(data));
-            nbsInterfaceModel = nbsModel.get();
+            nbsInterfaceModel = gson.fromJson(data, NbsInterfaceModel.class);
             edxLabInformationDT.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
 
 
@@ -166,7 +181,7 @@ public class ManagerService implements IManagerService {
                 }
             }
             //TODO: Parsing Data to Object
-            var parsedData = dataExtractionService.parsingDataToObject(nbsInterfaceModel, edxLabInformationDT);
+            LabResultProxyVO parsedData = dataExtractionService.parsingDataToObject(nbsInterfaceModel, edxLabInformationDT);
 
             edxLabInformationDT.setLabResultProxyVO(parsedData);
 
@@ -177,10 +192,13 @@ public class ManagerService implements IManagerService {
             //TODO: OBSERVATION
             var observation = observationService.processingObservation();
 
-            //TODO: PATIENT
-            var patient = patientService.processingPatient();
-            var nextOfKin = patientService.processingNextOfKin();
-            var provider = patientService.processingProvider();
+            //TODO: PATIENT && NOK && PROVIDER
+//            var patient = patientService.processingPatient(parsedData, edxLabInformationDT);
+//            var nextOfKin = patientService.processingNextOfKin();
+//            var provider = patientService.processingProvider();
+
+
+            PatientAggContainer patientAggContainer = patientAggregation(parsedData, edxLabInformationDT);
 
             //TODO: ORGANIZATION
             var organization = organizationService.processingOrganization();
@@ -194,9 +212,52 @@ public class ManagerService implements IManagerService {
 
             //TODO: Producing msg for Next Step
            // kafkaManagerProducer.sendData(healthCaseTopic, data);
+
+
+
+            //NOTE: Test updating NBS_Interface
+            nbsInterfaceModel.setRecordStatusCd("COMPLETED_V2");
+            nbsInterfaceRepository.save(nbsInterfaceModel);
             return result;
         } catch (Exception e) {
+            if (nbsInterfaceModel != null) {
+                nbsInterfaceModel.setRecordStatusCd("FAILED_V2");
+                nbsInterfaceRepository.save(nbsInterfaceModel);
+            }
+
             throw new DataProcessingConsumerException(e.getMessage(), result);
+
         }
+    }
+
+    private PatientAggContainer patientAggregation(LabResultProxyVO labResult, EdxLabInformationDT edxLabInformationDT) throws DataProcessingConsumerException, DataProcessingException {
+
+        PatientAggContainer container = new PatientAggContainer();
+        PersonVO personVOObj = null;
+        PersonVO providerVOObj = null;
+        if (labResult.getThePersonVOCollection() != null && !labResult.getThePersonVOCollection().isEmpty() ) {
+            Iterator<PersonVO> it = labResult.getThePersonVOCollection().iterator();
+            while (it.hasNext()) {
+                PersonVO personVO = it.next();
+                if (personVO.getRole() != null && personVO.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
+                    //TODO: Logic for Matching Next of kin
+                    var nextOfKin = patientService.processingNextOfKin();
+
+                }
+                else {
+                    if (personVO.thePersonDT.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_CD)) {
+                        personVOObj =  patientService.processingPatient(labResult, edxLabInformationDT, personVO);
+                    }
+                    else if (personVO.thePersonDT.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
+                        //TODO: Logic for Matching Provider
+                        var provider = patientService.processingProvider();
+
+                    }
+                }
+            }
+        }
+
+        container.setPersonVO(personVOObj);
+        return container;
     }
 }

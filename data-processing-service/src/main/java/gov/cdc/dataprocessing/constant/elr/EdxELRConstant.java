@@ -3,6 +3,9 @@ package gov.cdc.dataprocessing.constant.elr;
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 
 public class EdxELRConstant {
+    public static String PATIENT_LDF = "PAT";
+
+    public static final String ELECTRONIC_IND_ELR = "Y";
     //Entity ID specific mappings
     public static final String ELR_PERSON_CD="PSN";
     public static final String ELR_PATIENT_CD="PAT";

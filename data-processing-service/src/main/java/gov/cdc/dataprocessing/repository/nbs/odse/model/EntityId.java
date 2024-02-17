@@ -1,12 +1,14 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model;
 
+import gov.cdc.dataprocessing.model.classic_model.dto.EntityIdDT;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 
-import java.util.Date;
+import java.sql.Timestamp;
+
 
 @Data
 @Entity
@@ -17,15 +19,14 @@ public class EntityId {
     @Column(name = "entity_uid", nullable = false)
     private Long entityUid;
 
-    @Id
     @Column(name = "entity_id_seq", nullable = false)
-    private Short entityIdSeq;
+    private Integer entityIdSeq;
 
     @Column(name = "add_reason_cd", length = 20)
     private String addReasonCode;
 
     @Column(name = "add_time")
-    private Date addTime;
+    private Timestamp addTime;
 
     @Column(name = "add_user_id")
     private Long addUserId;
@@ -43,16 +44,16 @@ public class EntityId {
     private String durationUnitCode;
 
     @Column(name = "effective_from_time")
-    private Date effectiveFromTime;
+    private Timestamp effectiveFromTime;
 
     @Column(name = "effective_to_time")
-    private Date effectiveToTime;
+    private Timestamp effectiveToTime;
 
     @Column(name = "last_chg_reason_cd", length = 20)
     private String lastChangeReasonCode;
 
     @Column(name = "last_chg_time")
-    private Date lastChangeTime;
+    private Timestamp lastChangeTime;
 
     @Column(name = "last_chg_user_id")
     private Long lastChangeUserId;
@@ -61,16 +62,16 @@ public class EntityId {
     private String recordStatusCode;
 
     @Column(name = "record_status_time")
-    private Date recordStatusTime;
+    private Timestamp recordStatusTime;
 
     @Column(name = "root_extension_txt", length = 100)
     private String rootExtensionText;
 
     @Column(name = "status_cd", length = 1)
-    private Character statusCode;
+    private String statusCode;
 
     @Column(name = "status_time")
-    private Date statusTime;
+    private Timestamp statusTime;
 
     @Column(name = "type_cd", length = 50)
     private String typeCode;
@@ -82,13 +83,13 @@ public class EntityId {
     private String userAffiliationText;
 
     @Column(name = "valid_from_time")
-    private Date validFromTime;
+    private Timestamp validFromTime;
 
     @Column(name = "valid_to_time")
-    private Date validToTime;
+    private Timestamp validToTime;
 
     @Column(name = "as_of_date")
-    private Date asOfDate;
+    private Timestamp asOfDate;
 
     @Column(name = "assigning_authority_id_type", length = 50)
     private String assigningAuthorityIdType;
@@ -98,4 +99,36 @@ public class EntityId {
 //    private Entity entity;
 
     // Constructors and other methods (if needed)
+    public EntityId() {
+
+    }
+    public EntityId(EntityIdDT entityIdDT) {
+        this.entityUid = entityIdDT.getEntityUid();
+        this.entityIdSeq = entityIdDT.getEntityIdSeq();
+        this.addReasonCode = entityIdDT.getAddReasonCd();
+        this.addTime = entityIdDT.getAddTime();
+        this.addUserId = entityIdDT.getAddUserId();
+        this.assigningAuthorityCode = entityIdDT.getAssigningAuthorityCd();
+        this.assigningAuthorityDescription = entityIdDT.getAssigningAuthorityDescTxt();
+        this.durationAmount = entityIdDT.getDurationAmt();
+        this.durationUnitCode = entityIdDT.getDurationUnitCd();
+        this.effectiveFromTime = entityIdDT.getEffectiveFromTime();
+        this.effectiveToTime = entityIdDT.getEffectiveToTime();
+        this.lastChangeReasonCode = entityIdDT.getLastChgReasonCd();
+        this.lastChangeTime = entityIdDT.getLastChgTime();
+        this.lastChangeUserId = entityIdDT.getLastChgUserId();
+        this.recordStatusCode = entityIdDT.getRecordStatusCd();
+        this.recordStatusTime = entityIdDT.getRecordStatusTime();
+        this.rootExtensionText = entityIdDT.getRootExtensionTxt();
+        this.statusCode = entityIdDT.getStatusCd();
+        this.statusTime = entityIdDT.getStatusTime();
+        this.typeCode = entityIdDT.getTypeCd();
+        this.typeDescriptionText = entityIdDT.getTypeDescTxt();
+        this.userAffiliationText = entityIdDT.getUserAffiliationTxt();
+        this.validFromTime = entityIdDT.getValidFromTime();
+        this.validToTime = entityIdDT.getValidToTime();
+        this.asOfDate = entityIdDT.getAsOfDate();
+        this.assigningAuthorityIdType = entityIdDT.getAssigningAuthorityIdType();
+    }
+
 }

@@ -53,7 +53,7 @@ class ElrReportsControllerTest {
         rawERLDto.setPayload(hl7Payload);
         rawERLDto.setValidationActive(true);
 
-        verify(rawELRService).submission(rawERLDto);
+        verify(rawELRService).submission(rawERLDto, "1");
 
     }
 
@@ -73,7 +73,7 @@ class ElrReportsControllerTest {
         rawERLDto.setPayload(hl7Payload);
         rawERLDto.setValidationActive(true);
 
-        verify(rawELRService).submission(rawERLDto);
+        verify(rawELRService).submission(rawERLDto, "1");
     }
 
     @Test

@@ -1,5 +1,7 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model;
 
+import gov.cdc.dataprocessing.model.classic_model.dto.PersonDT;
+import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -33,13 +35,13 @@ public class Person  {
     private String administrativeGenderCd;
 
     @Column(name = "age_calc")
-    private Short ageCalc;
+    private Integer ageCalc;
 
     @Column(name = "age_calc_time")
     private Timestamp ageCalcTime;
 
     @Column(name = "age_calc_unit_cd")
-    private Character ageCalcUnitCd;
+    private String ageCalcUnitCd;
 
     @Column(name = "age_category_cd")
     private String ageCategoryCd;
@@ -54,10 +56,10 @@ public class Person  {
     private String ageReportedUnitCd;
 
     @Column(name = "birth_gender_cd")
-    private Character birthGenderCd;
+    private String birthGenderCd;
 
     @Column(name = "birth_order_nbr")
-    private Short birthOrderNbr;
+    private Integer birthOrderNbr;
 
     @Column(name = "birth_time")
     private Timestamp birthTime;
@@ -72,7 +74,7 @@ public class Person  {
     private String cdDescTxt;
 
     @Column(name = "curr_sex_cd")
-    private Character currSexCd;
+    private String currSexCd;
 
     @Column(name = "deceased_ind_cd")
     private String deceasedIndCd;
@@ -110,230 +112,342 @@ public class Person  {
     @Column(name = "marital_status_desc_txt")
     private String maritalStatusDescTxt;
 
-    @Column(name = "mothersMaidenNm")
+    @Column(name = "mothers_maiden_nm")
     private String mothersMaidenNm;
 
-    @Column(name = "multipleBirthInd")
+    @Column(name = "multiple_birth_ind")
     private String multipleBirthInd;
 
-    @Column(name = "occupationCd")
+    @Column(name = "occupation_cd")
     private String occupationCd;
 
-    @Column(name = "preferredGenderCd")
+    @Column(name = "preferred_gender_cd")
     private String preferredGenderCd;
 
-    @Column(name = "primLangCd")
+    @Column(name = "prim_lang_cd")
     private String primLangCd;
 
-    @Column(name = "primLangDescTxt")
+    @Column(name = "prim_lang_desc_txt")
     private String primLangDescTxt;
 
-    @Column(name = "recordStatusCd")
+    @Column(name = "record_status_cd")
     private String recordStatusCd;
 
-    @Column(name = "recordStatusTime")
+    @Column(name = "record_status_time")
     private Timestamp recordStatusTime;
 
-    @Column(name = "statusCd")
-    private Character statusCd;
+    @Column(name = "status_cd")
+    private String statusCd;
 
-    @Column(name = "statusTime")
+    @Column(name = "status_time")
     private Timestamp statusTime;
 
-    @Column(name = "survivedIndCd")
-    private Character survivedIndCd;
+    @Column(name = "survived_ind_cd")
+    private String survivedIndCd;
 
-    @Column(name = "userAffiliationTxt")
+    @Column(name = "user_affiliation_txt")
     private String userAffiliationTxt;
 
-    @Column(name = "firstNm")
+    @Column(name = "first_nm")
     private String firstNm;
 
-    @Column(name = "lastNm")
+    @Column(name = "last_nm")
     private String lastNm;
 
-    @Column(name = "middleNm")
+    @Column(name = "middle_nm")
     private String middleNm;
 
-    @Column(name = "nmPrefix")
+    @Column(name = "nm_prefix")
     private String nmPrefix;
 
-    @Column(name = "nmSuffix")
+    @Column(name = "nm_suffix")
     private String nmSuffix;
 
-    @Column(name = "preferredNm")
+    @Column(name = "preferred_nm")
     private String preferredNm;
 
-    @Column(name = "hmStreetAddr1")
+    @Column(name = "hm_street_addr1")
     private String hmStreetAddr1;
 
-    @Column(name = "hmStreetAddr2")
+    @Column(name = "hm_street_addr2")
     private String hmStreetAddr2;
 
-    @Column(name = "hmCityCd")
+    @Column(name = "hm_city_cd")
     private String hmCityCd;
 
-    @Column(name = "hmCityDescTxt")
+    @Column(name = "hm_city_desc_txt")
     private String hmCityDescTxt;
 
-    @Column(name = "hmStateCd")
+    @Column(name = "hm_state_cd")
     private String hmStateCd;
 
-    @Column(name = "hmZipCd")
+    @Column(name = "hm_zip_cd")
     private String hmZipCd;
 
-    @Column(name = "hmCntyCd")
+    @Column(name = "hm_cnty_cd")
     private String hmCntyCd;
 
-    @Column(name = "hmCntryCd")
+    @Column(name = "hm_cntry_cd")
     private String hmCntryCd;
 
-    @Column(name = "hmPhoneNbr")
+    @Column(name = "hm_phone_nbr")
     private String hmPhoneNbr;
 
-    @Column(name = "hmPhoneCntryCd")
+    @Column(name = "hm_phone_cntry_cd")
     private String hmPhoneCntryCd;
 
-    @Column(name = "hmEmailAddr")
+    @Column(name = "hm_email_addr")
     private String hmEmailAddr;
 
-    @Column(name = "cellPhoneNbr")
+    @Column(name = "cell_phone_nbr")
     private String cellPhoneNbr;
 
-    @Column(name = "wkStreetAddr1")
+    @Column(name = "wk_street_addr1")
     private String wkStreetAddr1;
 
-    @Column(name = "wkStreetAddr2")
+    @Column(name = "wk_street_addr2")
     private String wkStreetAddr2;
 
-    @Column(name = "wkCityCd")
+    @Column(name = "wk_city_cd")
     private String wkCityCd;
 
-    @Column(name = "wkCityDescTxt")
+    @Column(name = "wk_city_desc_txt")
     private String wkCityDescTxt;
 
-    @Column(name = "wkStateCd")
+    @Column(name = "wk_state_cd")
     private String wkStateCd;
 
-    @Column(name = "wkZipCd")
+    @Column(name = "wk_zip_cd")
     private String wkZipCd;
 
-    @Column(name = "wkCntyCd")
+    @Column(name = "wk_cnty_cd")
     private String wkCntyCd;
 
-    @Column(name = "wkCntryCd")
+    @Column(name = "wk_cntry_cd")
     private String wkCntryCd;
 
-    @Column(name = "wkPhoneNbr")
+    @Column(name = "wk_phone_nbr")
     private String wkPhoneNbr;
 
-    @Column(name = "wkPhoneCntryCd")
+    @Column(name = "wk_phone_cntry_cd")
     private String wkPhoneCntryCd;
 
-    @Column(name = "wkEmailAddr")
+    @Column(name = "wk_email_addr")
     private String wkEmailAddr;
 
     @Column(name = "SSN")
     private String ssn;
 
-    @Column(name = "medicaidNum")
+    @Column(name = "medicaid_num")
     private String medicaidNum;
 
-    @Column(name = "dlNum")
+    @Column(name = "dl_num")
     private String dlNum;
 
-    @Column(name = "dlStateCd")
+    @Column(name = "dl_state_cd")
     private String dlStateCd;
 
-    @Column(name = "raceCd")
+    @Column(name = "race_cd")
     private String raceCd;
 
-    @Column(name = "raceSeqNbr")
-    private Short raceSeqNbr;
+    @Column(name = "race_seq_nbr")
+    private Integer raceSeqNbr;
 
-    @Column(name = "raceCategoryCd")
+    @Column(name = "race_category_cd")
     private String raceCategoryCd;
 
-    @Column(name = "ethnicityGroupCd")
+    @Column(name = "ethnicity_group_cd")
     private String ethnicityGroupCd;
 
-    @Column(name = "ethnicGroupSeqNbr")
-    private Short ethnicGroupSeqNbr;
+    @Column(name = "ethnic_group_seq_nbr")
+    private Integer ethnicGroupSeqNbr;
 
-    @Column(name = "adultsInHouseNbr")
-    private Short adultsInHouseNbr;
+    @Column(name = "adults_in_house_nbr")
+    private Integer adultsInHouseNbr;
 
-    @Column(name = "childrenInHouseNbr")
-    private Short childrenInHouseNbr;
+    @Column(name = "children_in_house_nbr")
+    private Integer childrenInHouseNbr;
 
-    @Column(name = "birthCityCd")
+    @Column(name = "birth_city_cd")
     private String birthCityCd;
 
-    @Column(name = "birthCityDescTxt")
+    @Column(name = "birth_city_desc_txt")
     private String birthCityDescTxt;
 
-    @Column(name = "birthCntryCd")
+    @Column(name = "birth_cntry_cd")
     private String birthCntryCd;
 
-    @Column(name = "birthStateCd")
+    @Column(name = "birth_state_cd")
     private String birthStateCd;
 
-    @Column(name = "raceDescTxt")
+    @Column(name = "race_desc_txt")
     private String raceDescTxt;
 
-    @Column(name = "ethnicGroupDescTxt")
+    @Column(name = "ethnic_group_desc_txt")
     private String ethnicGroupDescTxt;
 
-    @Column(name = "versionCtrlNbr")
-    private Short versionCtrlNbr;
+    @Column(name = "version_ctrl_nbr", nullable = false)
+    private Integer versionCtrlNbr;
 
-    @Column(name = "asOfDateAdmin")
+    @Column(name = "as_of_date_admin")
     private Timestamp asOfDateAdmin;
 
-    @Column(name = "asOfDateEthnicity")
+    @Column(name = "as_of_date_ethnicity")
     private Timestamp asOfDateEthnicity;
 
-    @Column(name = "asOfDateGeneral")
+    @Column(name = "as_of_date_general")
     private Timestamp asOfDateGeneral;
 
-    @Column(name = "asOfDateMorbidity")
+    @Column(name = "as_of_date_morbidity")
     private Timestamp asOfDateMorbidity;
 
-    @Column(name = "asOfDateSex")
+    @Column(name = "as_of_date_sex")
     private Timestamp asOfDateSex;
 
-    @Column(name = "electronicInd")
-    private Character electronicInd;
+    @Column(name = "electronic_ind")
+    private String electronicInd;
 
-    @Column(name = "personParentUid")
+    @Column(name = "person_parent_uid")
     private Long personParentUid;
 
-    @Column(name = "dedupMatchInd")
-    private Character dedupMatchInd;
+    @Column(name = "dedup_match_ind")
+    private String dedupMatchInd;
 
-    @Column(name = "groupNbr")
+    @Column(name = "group_nbr")
     private Integer groupNbr;
 
-    @Column(name = "groupTime")
+    @Column(name = "group_time")
     private Timestamp groupTime;
 
-    @Column(name = "edxInd")
+    @Column(name = "edx_ind")
     private String edxInd;
 
-    @Column(name = "speaksEnglishCd")
+    @Column(name = "speaks_english_cd")
     private String speaksEnglishCd;
 
-    @Column(name = "additionalGenderCd")
+    @Column(name = "additional_gender_cd")
     private String additionalGenderCd;
 
-    @Column(name = "eharsId")
+    @Column(name = "ehars_id")
     private String eharsId;
 
-    @Column(name = "ethnicUnkReasonCd")
+    @Column(name = "ethnic_unk_reason_cd")
     private String ethnicUnkReasonCd;
 
-    @Column(name = "sexUnkReasonCd")
+    @Column(name = "sex_unk_reason_cd")
     private String sexUnkReasonCd;
 
+    
     // Constructors, getters, and setters
+    public Person() {
+
+    }
+    public Person(PersonDT personDT) {
+        this.personUid = personDT.getPersonUid();
+        this.addReasonCd = personDT.getAddReasonCd();
+        this.addTime = personDT.getAddTime();
+        this.addUserId = personDT.getAddUserId();
+        this.administrativeGenderCd = personDT.getAdministrativeGenderCd();
+        this.ageCalc = personDT.getAgeCalc();
+        this.ageCalcTime = personDT.getAgeCalcTime();
+        this.ageCalcUnitCd = personDT.getAgeCalcUnitCd();
+        this.ageCategoryCd = personDT.getAgeCategoryCd();
+        this.ageReported = personDT.getAgeReported();
+        this.ageReportedTime = personDT.getAgeReportedTime();
+        this.ageReportedUnitCd = personDT.getAgeReportedUnitCd();
+        this.birthGenderCd = personDT.getBirthGenderCd();
+        this.birthOrderNbr = personDT.getBirthOrderNbr();
+        this.birthTime = personDT.getBirthTime();
+        this.birthTimeCalc = personDT.getBirthTimeCalc();
+        this.cd = personDT.getCd();
+        this.cdDescTxt = personDT.getCdDescTxt();
+        this.currSexCd = personDT.getCurrSexCd();
+        this.deceasedIndCd = personDT.getDeceasedIndCd();
+        this.deceasedTime = personDT.getDeceasedTime();
+        this.description = personDT.getDescription();
+        this.educationLevelCd = personDT.getEducationLevelCd();
+        this.educationLevelDescTxt = personDT.getEducationLevelDescTxt();
+        this.ethnicGroupInd = personDT.getEthnicGroupInd();
+        this.lastChgReasonCd = personDT.getLastChgReasonCd();
+        this.lastChgTime = personDT.getLastChgTime();
+        this.lastChgUserId = personDT.getLastChgUserId();
+        this.localId = personDT.getLocalId();
+        this.maritalStatusCd = personDT.getMaritalStatusCd();
+        this.maritalStatusDescTxt = personDT.getMaritalStatusDescTxt();
+        this.mothersMaidenNm = personDT.getMothersMaidenNm();
+        this.multipleBirthInd = personDT.getMultipleBirthInd();
+        this.occupationCd = personDT.getOccupationCd();
+        this.preferredGenderCd = personDT.getPreferredGenderCd();
+        this.primLangCd = personDT.getPrimLangCd();
+        this.primLangDescTxt = personDT.getPrimLangDescTxt();
+        this.recordStatusCd = personDT.getRecordStatusCd();
+        this.recordStatusTime = personDT.getRecordStatusTime();
+        this.statusCd = personDT.getStatusCd();
+        this.statusTime = personDT.getStatusTime();
+        this.survivedIndCd = personDT.getSurvivedIndCd();
+        this.userAffiliationTxt = personDT.getUserAffiliationTxt();
+        this.firstNm = personDT.getFirstNm();
+        this.lastNm = personDT.getLastNm();
+        this.middleNm = personDT.getMiddleNm();
+        this.nmPrefix = personDT.getNmPrefix();
+        this.nmSuffix = personDT.getNmSuffix();
+        this.preferredNm = personDT.getPreferredNm();
+        this.hmStreetAddr1 = personDT.getHmStreetAddr1();
+        this.hmStreetAddr2 = personDT.getHmStreetAddr2();
+        this.hmCityCd = personDT.getHmCityCd();
+        this.hmCityDescTxt = personDT.getHmCityDescTxt();
+        this.hmStateCd = personDT.getHmStateCd();
+        this.hmZipCd = personDT.getHmZipCd();
+        this.hmCntyCd = personDT.getHmCntyCd();
+        this.hmCntryCd = personDT.getHmCntryCd();
+        this.hmPhoneNbr = personDT.getHmPhoneNbr();
+        this.hmPhoneCntryCd = personDT.getHmPhoneCntryCd();
+        this.hmEmailAddr = personDT.getHmEmailAddr();
+        this.cellPhoneNbr = personDT.getCellPhoneNbr();
+        this.wkStreetAddr1 = personDT.getWkStreetAddr1();
+        this.wkStreetAddr2 = personDT.getWkStreetAddr2();
+        this.wkCityCd = personDT.getWkCityCd();
+        this.wkCityDescTxt = personDT.getWkCityDescTxt();
+        this.wkStateCd = personDT.getWkStateCd();
+        this.wkZipCd = personDT.getWkZipCd();
+        this.wkCntyCd = personDT.getWkCntyCd();
+        this.wkCntryCd = personDT.getWkCntryCd();
+        this.wkPhoneNbr = personDT.getWkPhoneNbr();
+        this.wkPhoneCntryCd = personDT.getWkPhoneCntryCd();
+        this.wkEmailAddr = personDT.getWkEmailAddr();
+        this.ssn = personDT.getSSN();
+        this.medicaidNum = personDT.getMedicaidNum();
+        this.dlNum = personDT.getDlNum();
+        this.dlStateCd = personDT.getDlStateCd();
+        this.raceCd = personDT.getRaceCd();
+        this.raceSeqNbr = personDT.getRaceSeqNbr();
+        this.raceCategoryCd = personDT.getRaceCategoryCd();
+        this.ethnicityGroupCd = personDT.getEthnicityGroupCd();
+        this.ethnicGroupSeqNbr = personDT.getEthnicGroupSeqNbr();
+        this.adultsInHouseNbr = personDT.getAdultsInHouseNbr();
+        this.childrenInHouseNbr = personDT.getChildrenInHouseNbr();
+        this.birthCityCd = personDT.getBirthCityCd();
+        this.birthCityDescTxt = personDT.getBirthCityDescTxt();
+        this.birthCntryCd = personDT.getBirthCntryCd();
+        this.birthStateCd = personDT.getBirthStateCd();
+        this.raceDescTxt = personDT.getRaceDescTxt();
+        this.ethnicGroupDescTxt = personDT.getEthnicGroupDescTxt();
+        this.versionCtrlNbr = personDT.getVersionCtrlNbr();
+        this.asOfDateAdmin = personDT.getAsOfDateAdmin();
+        this.asOfDateEthnicity = personDT.getAsOfDateEthnicity();
+        this.asOfDateGeneral = personDT.getAsOfDateGeneral();
+        this.asOfDateMorbidity = personDT.getAsOfDateMorbidity();
+        this.asOfDateSex = personDT.getAsOfDateSex();
+        this.electronicInd = personDT.getElectronicInd();
+        this.personParentUid = personDT.getPersonParentUid();
+        this.dedupMatchInd = personDT.getDedupMatchInd();
+        this.groupNbr = personDT.getGroupNbr();
+        this.groupTime = personDT.getGroupTime();
+        this.edxInd = personDT.getEdxInd();
+        this.speaksEnglishCd = personDT.getSpeaksEnglishCd();
+        this.additionalGenderCd = personDT.getAdditionalGenderCd();
+        this.eharsId = personDT.getEharsId();
+        this.ethnicUnkReasonCd = personDT.getEthnicUnkReasonCd();
+        this.sexUnkReasonCd = personDT.getSexUnkReasonCd();
+    }
 }

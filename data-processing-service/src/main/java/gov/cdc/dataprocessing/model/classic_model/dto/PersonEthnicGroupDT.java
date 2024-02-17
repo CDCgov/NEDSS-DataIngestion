@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model.dto;
 
 import gov.cdc.dataprocessing.model.classic_model.vo.AbstractVO;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.PersonEthnicGroup;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,4 +30,24 @@ public class PersonEthnicGroupDT extends AbstractVO {
     private boolean itDirty = false;
     private boolean itNew = true;
     private boolean itDelete = false;
+
+    public PersonEthnicGroupDT() {
+
+    }
+
+    public PersonEthnicGroupDT(PersonEthnicGroup personEthnicGroup) {
+        this.personUid = personEthnicGroup.getPersonUid();
+        this.ethnicGroupCd = personEthnicGroup.getEthnicGroupCd();
+        this.addReasonCd = personEthnicGroup.getAddReasonCd();
+        this.addTime = personEthnicGroup.getAddTime();
+        this.addUserId = personEthnicGroup.getAddUserId();
+        this.ethnicGroupDescTxt = personEthnicGroup.getEthnicGroupDescTxt();
+        this.lastChgReasonCd = personEthnicGroup.getLastChgReasonCd();
+        this.lastChgTime = personEthnicGroup.getLastChgTime();
+        this.lastChgUserId = personEthnicGroup.getLastChgUserId();
+        this.recordStatusCd = personEthnicGroup.getRecordStatusCd();
+        this.recordStatusTime = personEthnicGroup.getRecordStatusTime();
+        this.userAffiliationTxt = personEthnicGroup.getUserAffiliationTxt();
+    }
+
 }

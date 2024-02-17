@@ -63,7 +63,7 @@ public class NBSObjectConverter {
         personNameDT.setNmUseCd(Objects.requireNonNullElse(hl7NameTypeCode, EdxELRConstant.ELR_LEGAL_NAME));
 
         String toCode = checkingValueService.findToCode("ELR_LCA_NM_USE", personNameDT.getNmUseCd(), "P_NM_USE");
-        if(toCode!=null){
+        if(toCode!=null && !toCode.isEmpty()){
             personNameDT.setNmUseCd(toCode);
         }
         /** length"1 */

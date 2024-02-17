@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model;
 
+import gov.cdc.dataprocessing.model.classic_model.dto.PhysicalLocatorDT;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -7,7 +8,8 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 import java.math.BigInteger;
-import java.util.Date;
+import java.sql.Timestamp;
+import java.util.Arrays;
 
 @Entity
 @Table(name = "Physical_locator", schema = "dbo")
@@ -16,40 +18,59 @@ public class PhysicalLocator {
 
     @Id
     @Column(name = "physical_locator_uid", nullable = false)
-    private BigInteger physicalLocatorUid;
+    private Long physicalLocatorUid;
 
-    @Column(name = "add_reason_cd", length = 20)
+    @Column(name = "add_reason_cd")
     private String addReasonCd;
 
     @Column(name = "add_time")
-    private Date addTime;
+    private Timestamp addTime;
 
     @Column(name = "add_user_id")
-    private BigInteger addUserId;
+    private Long addUserId;
 
-    @Column(name = "image_txt", length = 1000)
+    @Column(name = "image_txt")
     private String imageTxt;
 
-    @Column(name = "last_chg_reason_cd", length = 20)
+    @Column(name = "last_chg_reason_cd")
     private String lastChgReasonCd;
 
     @Column(name = "last_chg_time")
-    private Date lastChgTime;
+    private Timestamp lastChgTime;
 
     @Column(name = "last_chg_user_id")
-    private BigInteger lastChgUserId;
+    private Long lastChgUserId;
 
-    @Column(name = "locator_txt", length = 1000)
+    @Column(name = "locator_txt")
     private String locatorTxt;
 
-    @Column(name = "record_status_cd", length = 20)
+    @Column(name = "record_status_cd")
     private String recordStatusCd;
 
     @Column(name = "record_status_time")
-    private Date recordStatusTime;
+    private Timestamp recordStatusTime;
 
-    @Column(name = "user_affiliation_txt", length = 20)
+    @Column(name = "user_affiliation_txt")
     private String userAffiliationTxt;
 
     // Add getters and setters as needed
+    public PhysicalLocator(PhysicalLocatorDT physicalLocatorDT) {
+        this.physicalLocatorUid = physicalLocatorDT.getPhysicalLocatorUid();
+        this.addReasonCd = physicalLocatorDT.getAddReasonCd();
+        this.addTime = physicalLocatorDT.getAddTime();
+        this.addUserId = physicalLocatorDT.getAddUserId();
+        this.imageTxt = Arrays.toString(physicalLocatorDT.getImageTxt());
+        this.lastChgReasonCd = physicalLocatorDT.getLastChgReasonCd();
+        this.lastChgTime = physicalLocatorDT.getLastChgTime();
+        this.lastChgUserId = physicalLocatorDT.getLastChgUserId();
+        this.locatorTxt = physicalLocatorDT.getLocatorTxt();
+        this.recordStatusCd = physicalLocatorDT.getRecordStatusCd();
+        this.recordStatusTime = physicalLocatorDT.getRecordStatusTime();
+        this.userAffiliationTxt = physicalLocatorDT.getUserAffiliationTxt();
+    }
+
+    public PhysicalLocator() {
+        // Default constructor
+    }
+
 }

@@ -1,35 +1,36 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import gov.cdc.dataprocessing.model.classic_model.dto.EntityLocatorParticipationDT;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.EntityLocatorParticipationId;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.PersonEthnicGroupId;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigInteger;
-import java.util.Date;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "Entity_locator_participation", schema = "dbo")
+@IdClass(EntityLocatorParticipationId.class) // Specify the IdClass
 @Data
 public class EntityLocatorParticipation {
 
     @Id
     @Column(name = "entity_uid", nullable = false)
-    private BigInteger entityUid;
+    private Long entityUid;
 
     @Id
     @Column(name = "locator_uid", nullable = false)
-    private BigInteger locatorUid;
+    private Long locatorUid;
 
     @Column(name = "add_reason_cd", length = 20)
     private String addReasonCd;
 
     @Column(name = "add_time")
-    private Date addTime;
+    private Timestamp addTime;
 
     @Column(name = "add_user_id")
-    private BigInteger addUserId;
+    private Long addUserId;
 
     @Column(name = "cd", length = 50)
     private String cd;
@@ -47,16 +48,16 @@ public class EntityLocatorParticipation {
     private String durationUnitCd;
 
     @Column(name = "from_time")
-    private Date fromTime;
+    private Timestamp fromTime;
 
     @Column(name = "last_chg_reason_cd", length = 20)
     private String lastChgReasonCd;
 
     @Column(name = "last_chg_time")
-    private Date lastChgTime;
+    private Timestamp lastChgTime;
 
     @Column(name = "last_chg_user_id")
-    private BigInteger lastChgUserId;
+    private Long lastChgUserId;
 
     @Column(name = "locator_desc_txt", length = 2000)
     private String locatorDescTxt;
@@ -65,16 +66,16 @@ public class EntityLocatorParticipation {
     private String recordStatusCd;
 
     @Column(name = "record_status_time")
-    private Date recordStatusTime;
+    private Timestamp recordStatusTime;
 
     @Column(name = "status_cd", length = 1)
-    private Character statusCd;
+    private String statusCd;
 
     @Column(name = "status_time")
-    private Date statusTime;
+    private Timestamp statusTime;
 
     @Column(name = "to_time")
-    private Date toTime;
+    private Timestamp toTime;
 
     @Column(name = "use_cd", length = 20)
     private String useCd;
@@ -86,10 +87,41 @@ public class EntityLocatorParticipation {
     private String validTimeTxt;
 
     @Column(name = "version_ctrl_nbr", nullable = false)
-    private Short versionCtrlNbr;
+    private Integer versionCtrlNbr;
 
     @Column(name = "as_of_date")
-    private Date asOfDate;
+    private Timestamp asOfDate;
 
     // Add getters and setters as needed
+    public EntityLocatorParticipation(EntityLocatorParticipationDT entityLocatorParticipationDT) {
+        this.entityUid = entityLocatorParticipationDT.getEntityUid();
+        this.locatorUid = entityLocatorParticipationDT.getLocatorUid();
+        this.addReasonCd = entityLocatorParticipationDT.getAddReasonCd();
+        this.addTime = entityLocatorParticipationDT.getAddTime();
+        this.addUserId = entityLocatorParticipationDT.getAddUserId();
+        this.cd = entityLocatorParticipationDT.getCd();
+        this.cdDescTxt = entityLocatorParticipationDT.getCdDescTxt();
+        this.classCd = entityLocatorParticipationDT.getClassCd();
+        this.durationAmt = entityLocatorParticipationDT.getDurationAmt();
+        this.durationUnitCd = entityLocatorParticipationDT.getDurationUnitCd();
+        this.fromTime = entityLocatorParticipationDT.getFromTime();
+        this.lastChgReasonCd = entityLocatorParticipationDT.getLastChgReasonCd();
+        this.lastChgTime = entityLocatorParticipationDT.getLastChgTime();
+        this.lastChgUserId = entityLocatorParticipationDT.getLastChgUserId();
+        this.locatorDescTxt = entityLocatorParticipationDT.getLocatorDescTxt();
+        this.recordStatusCd = entityLocatorParticipationDT.getRecordStatusCd();
+        this.recordStatusTime = entityLocatorParticipationDT.getRecordStatusTime();
+        this.statusCd = entityLocatorParticipationDT.getStatusCd();
+        this.statusTime = entityLocatorParticipationDT.getStatusTime();
+        this.toTime = entityLocatorParticipationDT.getToTime();
+        this.useCd = entityLocatorParticipationDT.getUseCd();
+        this.userAffiliationTxt = entityLocatorParticipationDT.getUserAffiliationTxt();
+        this.validTimeTxt = entityLocatorParticipationDT.getValidTimeTxt();
+        this.versionCtrlNbr = entityLocatorParticipationDT.getVersionCtrlNbr();
+        this.asOfDate = entityLocatorParticipationDT.getAsOfDate();
+    }
+
+    public EntityLocatorParticipation() {
+
+    }
 }

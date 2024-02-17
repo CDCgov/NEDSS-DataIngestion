@@ -201,7 +201,7 @@ class KafkaConsumerServiceTest {
                 validatedModel
         );
 
-        kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false");
+        kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false");
 
         verify(iRawELRRepository, times(1)).findById(guidForTesting);
 
@@ -231,7 +231,7 @@ class KafkaConsumerServiceTest {
 
         DiHL7Exception exception = Assertions.assertThrows(
                 DiHL7Exception.class, () -> {
-                    kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false");
+                    kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false");
                 }
         );
 
@@ -262,7 +262,7 @@ class KafkaConsumerServiceTest {
         when(iValidatedELRRepository.findById(guidForTesting))
                 .thenReturn(Optional.of(model));
 
-        kafkaConsumerService.handleMessageForValidatedElr(value, validateTopic);
+        kafkaConsumerService.handleMessageForValidatedElr(value, validateTopic, "false");
 
         verify(iValidatedELRRepository, times(1)).findById(guidForTesting);
 
@@ -291,7 +291,7 @@ class KafkaConsumerServiceTest {
                 .thenReturn(Optional.empty());
 
 
-        assertThrows(ConversionPrepareException.class, () -> kafkaConsumerService.handleMessageForValidatedElr(value, validateTopic));
+        assertThrows(ConversionPrepareException.class, () -> kafkaConsumerService.handleMessageForValidatedElr(value, validateTopic, "false"));
 
 
         verify(iValidatedELRRepository, times(1)).findById(guidForTesting);
@@ -322,10 +322,11 @@ class KafkaConsumerServiceTest {
 
                 when(iValidatedELRRepository.findById(guidForTesting))
                         .thenReturn(Optional.of(model));
-                when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any())).thenReturn(nbsInterfaceModel);
+                when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any(), false)).thenReturn(nbsInterfaceModel);
 
 
-                kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.INJECTION.name());
+                kafkaConsumerService
+                        .handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.INJECTION.name(), "false");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -334,6 +335,40 @@ class KafkaConsumerServiceTest {
         });
 
     }
+
+
+    @Test
+    void xmlPreparationConsumerTestNewFlow() throws XmlConversionException {
+
+
+        // Produce a test message to the topic
+        String message =  guidForTesting;
+        produceMessage(xmlPrepTopic, message, EnumKafkaOperation.INJECTION);
+
+        // Consume the message
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
+
+        // Perform assertions
+        assertEquals(1, records.count());
+
+        ConsumerRecord<String, String> firstRecord = records.iterator().next();
+        String value = firstRecord.value();
+
+        ValidatedELRModel model = new ValidatedELRModel();
+        model.setId(guidForTesting);
+        model.setRawMessage(testHL7Message);
+
+        when(iValidatedELRRepository.findById(guidForTesting)).thenReturn(Optional.of(model));
+        when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any(), anyBoolean())).thenReturn(nbsInterfaceModel);
+
+
+
+        kafkaConsumerService.xmlConversionHandlerProcessing(value, EnumKafkaOperation.INJECTION.name(), "true");
+
+        verify(iValidatedELRRepository, times(2)).findById(guidForTesting);
+
+    }
+
 
     @Test
     void xmlPreparationConsumerTestReInjection_Exception() {
@@ -361,7 +396,7 @@ class KafkaConsumerServiceTest {
 
          CompletableFuture.runAsync(() -> {
             try {
-                assertThrows(DiAsyncException.class, () -> kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.name())); //NOSONAR
+                assertThrows(DiAsyncException.class, () -> kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.name(), "false")); //NOSONAR
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -404,9 +439,9 @@ class KafkaConsumerServiceTest {
                 validatedELRModel.setRawMessage(testHL7Message);
                 nbsInterfaceModel.setPayload(testHL7Message);
                 when(iValidatedELRRepository.findById(anyString())).thenReturn(Optional.of(validatedELRModel));
-                when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any())).thenReturn(nbsInterfaceModel);
+                when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any(), false)).thenReturn(nbsInterfaceModel);
 
-                kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.name());
+                kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.name(), "false");
 
                 verify(iHl7v2Validator, times(1)).messageStringValidation(testHL7Message);
                 verify(elrDeadLetterRepository, times(1)).findById(guidForTesting);

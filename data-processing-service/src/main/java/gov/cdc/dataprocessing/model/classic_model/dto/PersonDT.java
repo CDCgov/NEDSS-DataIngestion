@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model.dto;
 
 import gov.cdc.dataprocessing.model.classic_model.vo.AbstractVO;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.Person;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -129,4 +130,116 @@ public class PersonDT  extends AbstractVO {
     private String ethnicUnkReasonCd;
     private String sexUnkReasonCd;
     private boolean isReentrant= false;
+
+    public PersonDT() {
+
+    }
+
+    public PersonDT(Person person) {
+        this.dedupMatchInd = person.getDedupMatchInd();
+        this.groupNbr = person.getGroupNbr();
+        this.groupTime = person.getGroupTime();
+        this.personUid = person.getPersonUid();
+        this.personParentUid = person.getPersonParentUid();
+        this.addReasonCd = person.getAddReasonCd();
+        this.addTime = person.getAddTime();
+        this.addUserId = person.getAddUserId();
+        this.administrativeGenderCd = person.getAdministrativeGenderCd();
+        this.ageCalc = person.getAgeCalc();
+        this.ageCalcTime = person.getAgeCalcTime();
+        this.ageCalcUnitCd = person.getAgeCalcUnitCd();
+        this.ageCategoryCd = person.getAgeCategoryCd();
+        this.ageReported = person.getAgeReported();
+        this.ageReportedTime = person.getAgeReportedTime();
+        this.ageReportedUnitCd = person.getAgeReportedUnitCd();
+        this.asOfDateAdmin = person.getAsOfDateAdmin();
+        this.asOfDateEthnicity = person.getAsOfDateEthnicity();
+        this.asOfDateGeneral = person.getAsOfDateGeneral();
+        this.asOfDateMorbidity = person.getAsOfDateMorbidity();
+        this.asOfDateSex = person.getAsOfDateSex();
+        this.birthGenderCd = person.getBirthGenderCd();
+        this.birthOrderNbr = person.getBirthOrderNbr();
+        this.birthTime = person.getBirthTime();
+        this.birthTimeCalc = person.getBirthTimeCalc();
+        this.cd = person.getCd();
+        this.cdDescTxt = person.getCdDescTxt();
+        this.currSexCd = person.getCurrSexCd();
+        this.deceasedIndCd = person.getDeceasedIndCd();
+        this.deceasedTime = person.getDeceasedTime();
+        this.description = person.getDescription();
+        this.educationLevelCd = person.getEducationLevelCd();
+        this.educationLevelDescTxt = person.getEducationLevelDescTxt();
+        this.electronicInd = person.getElectronicInd();
+        this.ethnicGroupInd = person.getEthnicGroupInd();
+        this.lastChgReasonCd = person.getLastChgReasonCd();
+        this.lastChgTime = person.getLastChgTime();
+        this.lastChgUserId = person.getLastChgUserId();
+        this.localId = person.getLocalId();
+        this.maritalStatusCd = person.getMaritalStatusCd();
+        this.maritalStatusDescTxt = person.getMaritalStatusDescTxt();
+        this.mothersMaidenNm = person.getMothersMaidenNm();
+        this.multipleBirthInd = person.getMultipleBirthInd();
+        this.occupationCd = person.getOccupationCd();
+        this.preferredGenderCd = person.getPreferredGenderCd();
+        this.primLangCd = person.getPrimLangCd();
+        this.primLangDescTxt = person.getPrimLangDescTxt();
+        this.recordStatusCd = person.getRecordStatusCd();
+        this.recordStatusTime = person.getRecordStatusTime();
+        this.statusCd = person.getStatusCd();
+        this.statusTime = person.getStatusTime();
+        this.survivedIndCd = person.getSurvivedIndCd();
+        this.userAffiliationTxt = person.getUserAffiliationTxt();
+        this.firstNm = person.getFirstNm();
+        this.lastNm = person.getLastNm();
+        this.middleNm = person.getMiddleNm();
+        this.nmPrefix = person.getNmPrefix();
+        this.nmSuffix = person.getNmSuffix();
+        this.preferredNm = person.getPreferredNm();
+        this.hmStreetAddr1 = person.getHmStreetAddr1();
+        this.hmStreetAddr2 = person.getHmStreetAddr2();
+        this.hmCityCd = person.getHmCityCd();
+        this.hmCityDescTxt = person.getHmCityDescTxt();
+        this.hmStateCd = person.getHmStateCd();
+        this.hmZipCd = person.getHmZipCd();
+        this.hmCntyCd = person.getHmCntyCd();
+        this.hmCntryCd = person.getHmCntryCd();
+        this.hmPhoneNbr = person.getHmPhoneNbr();
+        this.hmPhoneCntryCd = person.getHmPhoneCntryCd();
+        this.hmEmailAddr = person.getHmEmailAddr();
+        this.cellPhoneNbr = person.getCellPhoneNbr();
+        this.wkStreetAddr1 = person.getWkStreetAddr1();
+        this.wkStreetAddr2 = person.getWkStreetAddr2();
+        this.wkCityCd = person.getWkCityCd();
+        this.wkCityDescTxt = person.getWkCityDescTxt();
+        this.wkStateCd = person.getWkStateCd();
+        this.wkZipCd = person.getWkZipCd();
+        this.wkCntyCd = person.getWkCntyCd();
+        this.wkCntryCd = person.getWkCntryCd();
+        this.wkPhoneNbr = person.getWkPhoneNbr();
+        this.wkPhoneCntryCd = person.getWkPhoneCntryCd();
+        this.wkEmailAddr = person.getWkEmailAddr();
+        this.SSN = person.getSsn();
+        this.medicaidNum = person.getMedicaidNum();
+        this.dlNum = person.getDlNum();
+        this.dlStateCd = person.getDlStateCd();
+        this.raceCd = person.getRaceCd();
+        this.raceSeqNbr = person.getRaceSeqNbr();
+        this.raceCategoryCd = person.getRaceCategoryCd();
+        this.ethnicityGroupCd = person.getEthnicityGroupCd();
+        this.ethnicGroupSeqNbr = person.getEthnicGroupSeqNbr();
+        this.adultsInHouseNbr = person.getAdultsInHouseNbr();
+        this.childrenInHouseNbr = person.getChildrenInHouseNbr();
+        this.birthCityCd = person.getBirthCityCd();
+        this.birthCityDescTxt = person.getBirthCityDescTxt();
+        this.birthCntryCd = person.getBirthCntryCd();
+        this.birthStateCd = person.getBirthStateCd();
+        this.raceDescTxt = person.getRaceDescTxt();
+        this.ethnicGroupDescTxt = person.getEthnicGroupDescTxt();
+        this.versionCtrlNbr = person.getVersionCtrlNbr();
+        this.edxInd = person.getEdxInd();
+        this.speaksEnglishCd = person.getSpeaksEnglishCd();
+        this.additionalGenderCd = person.getAdditionalGenderCd();
+        this.eharsId = person.getEharsId();
+    }
+
 }

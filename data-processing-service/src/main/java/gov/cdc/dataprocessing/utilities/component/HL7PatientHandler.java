@@ -165,7 +165,7 @@ public class HL7PatientHandler {
             }
 
             // Setup Person Ethnic Group
-            Collection<Object> ethnicColl = new ArrayList<Object>();
+            Collection<PersonEthnicGroupDT> ethnicColl = new ArrayList<>();
             List<HL7CWEType> ethnicArray = hl7PIDType.getEthnicGroup();
             for (HL7CWEType ethnicType : ethnicArray) {
                 PersonEthnicGroupDT personEthnicGroupDT = NBSObjectConverter.ethnicGroupType(ethnicType, personVO);
@@ -299,7 +299,7 @@ public class HL7PatientHandler {
 
             //Setup Person Race
             if(hl7PIDType.getRace() != null){
-                Collection<Object> raceColl = new ArrayList<Object>();
+                Collection<PersonRaceDT> raceColl = new ArrayList<>();
                 List<HL7CWEType> raceArray = hl7PIDType.getRace();
                 PersonRaceDT raceDT;
                 for (HL7CWEType hl7CWEType : raceArray) {

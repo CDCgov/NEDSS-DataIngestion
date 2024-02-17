@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model.dto;
 
 import gov.cdc.dataprocessing.model.classic_model.vo.AbstractVO;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.EntityLocatorParticipation;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -38,4 +39,37 @@ public class EntityLocatorParticipationDT extends AbstractVO {
     private PhysicalLocatorDT thePhysicalLocatorDT;
     private TeleLocatorDT theTeleLocatorDT;
     private Integer versionCtrlNbr;
+
+    public EntityLocatorParticipationDT() {
+
+    }
+
+    public EntityLocatorParticipationDT(EntityLocatorParticipation entityLocatorParticipation) {
+        this.entityUid = entityLocatorParticipation.getEntityUid();
+        this.locatorUid = entityLocatorParticipation.getLocatorUid();
+        this.addReasonCd = entityLocatorParticipation.getAddReasonCd();
+        this.addTime = entityLocatorParticipation.getAddTime();
+        this.addUserId = entityLocatorParticipation.getAddUserId();
+        this.cd = entityLocatorParticipation.getCd();
+        this.cdDescTxt = entityLocatorParticipation.getCdDescTxt();
+        this.classCd = entityLocatorParticipation.getClassCd();
+        this.durationAmt = entityLocatorParticipation.getDurationAmt();
+        this.durationUnitCd = entityLocatorParticipation.getDurationUnitCd();
+        this.fromTime = entityLocatorParticipation.getFromTime();
+        this.lastChgReasonCd = entityLocatorParticipation.getLastChgReasonCd();
+        this.lastChgTime = entityLocatorParticipation.getLastChgTime();
+        this.lastChgUserId = entityLocatorParticipation.getLastChgUserId();
+        this.locatorDescTxt = entityLocatorParticipation.getLocatorDescTxt();
+        this.recordStatusCd = entityLocatorParticipation.getRecordStatusCd();
+        this.recordStatusTime = entityLocatorParticipation.getRecordStatusTime();
+        this.statusCd = entityLocatorParticipation.getStatusCd();
+        this.statusTime = entityLocatorParticipation.getStatusTime();
+        this.toTime = entityLocatorParticipation.getToTime();
+        this.useCd = entityLocatorParticipation.getUseCd();
+        this.userAffiliationTxt = entityLocatorParticipation.getUserAffiliationTxt();
+        this.validTimeTxt = entityLocatorParticipation.getValidTimeTxt();
+        this.versionCtrlNbr = entityLocatorParticipation.getVersionCtrlNbr();
+        this.asOfDate = entityLocatorParticipation.getAsOfDate();
+    }
+
 }

@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model.dto;
 
 import gov.cdc.dataprocessing.model.classic_model.vo.AbstractVO;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.PersonName;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -50,4 +51,41 @@ public class PersonNameDT
     private boolean itDelete = false;
     private Integer versionCtrlNbr;
     private String localId;
+
+    public PersonNameDT() {
+
+    }
+    public PersonNameDT(PersonName personName) {
+        this.personUid = personName.getPersonUid();
+        this.personNameSeq = personName.getPersonNameSeq();
+        this.addReasonCd = personName.getAddReasonCd();
+        this.addTime = personName.getAddTime();
+        this.addUserId = personName.getAddUserId();
+        this.defaultNmInd = personName.getDefaultNmInd();
+        this.durationAmt = personName.getDurationAmt();
+        this.durationUnitCd = personName.getDurationUnitCd();
+        this.firstNm = personName.getFirstNm();
+        this.firstNmSndx = personName.getFirstNmSndx();
+        this.fromTime = personName.getFromTime();
+        this.lastChgReasonCd = personName.getLastChgReasonCd();
+        this.lastChgTime = personName.getLastChgTime();
+        this.lastChgUserId = personName.getLastChgUserId();
+        this.lastNm = personName.getLastNm();
+        this.lastNmSndx = personName.getLastNmSndx();
+        this.lastNm2 = personName.getLastNm2();
+        this.lastNm2Sndx = personName.getLastNm2Sndx();
+        this.middleNm = personName.getMiddleNm();
+        this.middleNm2 = personName.getMiddleNm2();
+        this.nmDegree = personName.getNmDegree();
+        this.nmPrefix = personName.getNmPrefix();
+        this.nmSuffix = personName.getNmSuffix();
+        this.nmUseCd = personName.getNmUseCd();
+        this.recordStatusCd = personName.getRecordStatusCd();
+        this.recordStatusTime = personName.getRecordStatusTime();
+        this.statusCd = personName.getStatusCd();
+        this.statusTime = personName.getStatusTime();
+        this.toTime = personName.getToTime();
+        this.userAffiliationTxt = personName.getUserAffiliationTxt();
+        this.asOfDate = personName.getAsOfDate();
+    }
 }
