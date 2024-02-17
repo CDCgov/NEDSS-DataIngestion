@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model.dto;
 
 import gov.cdc.dataprocessing.model.classic_model.vo.AbstractVO;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.PersonRace;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -35,5 +36,27 @@ public class PersonRaceDT extends AbstractVO {
     private Timestamp statusTime;
     private String statusCd;
     private String localId;
+
+    public PersonRaceDT() {
+
+    }
+
+    public PersonRaceDT(PersonRace personRace) {
+        this.personUid = personRace.getPersonUid();
+        this.raceCd = personRace.getRaceCd();
+        this.addReasonCd = personRace.getAddReasonCd();
+        this.addTime = personRace.getAddTime();
+        this.addUserId = personRace.getAddUserId();
+        this.lastChgReasonCd = personRace.getLastChgReasonCd();
+        this.lastChgTime = personRace.getLastChgTime();
+        this.lastChgUserId = personRace.getLastChgUserId();
+        this.raceCategoryCd = personRace.getRaceCategoryCd();
+        this.raceDescTxt = personRace.getRaceDescTxt();
+        this.recordStatusCd = personRace.getRecordStatusCd();
+        this.recordStatusTime = personRace.getRecordStatusTime();
+        this.userAffiliationTxt = personRace.getUserAffiliationTxt();
+        this.asOfDate = personRace.getAsOfDate();
+    }
+
 
 }

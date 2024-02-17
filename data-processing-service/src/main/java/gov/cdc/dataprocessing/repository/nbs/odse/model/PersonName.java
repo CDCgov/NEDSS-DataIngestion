@@ -1,34 +1,36 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model;
 
+import gov.cdc.dataprocessing.model.classic_model.dto.PersonNameDT;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.PersonNameId;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.Date;
+import java.sql.Timestamp;
 
 @Data
 @Entity
+@IdClass(PersonNameId.class) // Specify the IdClass
 @Table(name = "Person_name")
 public class PersonName {
-
     @Id
     @Column(name = "person_uid")
     private Long personUid;
 
     @Id
     @Column(name = "person_name_seq")
-    private Short personNameSeq;
+    private Integer personNameSeq;
 
     @Column(name = "add_reason_cd")
     private String addReasonCd;
 
     @Column(name = "add_time")
-    private Date addTime;
+    private Timestamp addTime;
 
     @Column(name = "add_user_id")
     private Long addUserId;
 
     @Column(name = "default_nm_ind")
-    private Character defaultNmInd;
+    private String defaultNmInd;
 
     @Column(name = "duration_amt")
     private String durationAmt;
@@ -43,13 +45,13 @@ public class PersonName {
     private String firstNmSndx;
 
     @Column(name = "from_time")
-    private Date fromTime;
+    private Timestamp fromTime;
 
     @Column(name = "last_chg_reason_cd")
     private String lastChgReasonCd;
 
     @Column(name = "last_chg_time")
-    private Date lastChgTime;
+    private Timestamp lastChgTime;
 
     @Column(name = "last_chg_user_id")
     private Long lastChgUserId;
@@ -88,24 +90,61 @@ public class PersonName {
     private String recordStatusCd;
 
     @Column(name = "record_status_time")
-    private Date recordStatusTime;
+    private Timestamp recordStatusTime;
 
     @Column(name = "status_cd", nullable = false)
-    private Character statusCd;
+    private String statusCd;
 
     @Column(name = "status_time", nullable = false)
-    private Date statusTime;
+    private Timestamp statusTime;
 
     @Column(name = "to_time")
-    private Date toTime;
+    private Timestamp toTime;
 
     @Column(name = "user_affiliation_txt")
     private String userAffiliationTxt;
 
     @Column(name = "as_of_date")
-    private Date asOfDate;
+    private Timestamp asOfDate;
 
     // Constructors, getters, and setters (Lombok-generated)
 
     // Define relationships, if any, with other entities using JPA annotations
+
+    public PersonName() {
+
+    }
+    public PersonName(PersonNameDT personNameDT) {
+        this.personUid = personNameDT.getPersonUid();
+        this.personNameSeq = personNameDT.getPersonNameSeq();
+        this.addReasonCd = personNameDT.getAddReasonCd();
+        this.addTime = personNameDT.getAddTime();
+        this.addUserId = personNameDT.getAddUserId();
+        this.defaultNmInd = personNameDT.getDefaultNmInd();
+        this.durationAmt = personNameDT.getDurationAmt();
+        this.durationUnitCd = personNameDT.getDurationUnitCd();
+        this.firstNm = personNameDT.getFirstNm();
+        this.firstNmSndx = personNameDT.getFirstNmSndx();
+        this.fromTime = personNameDT.getFromTime();
+        this.lastChgReasonCd = personNameDT.getLastChgReasonCd();
+        this.lastChgTime = personNameDT.getLastChgTime();
+        this.lastChgUserId = personNameDT.getLastChgUserId();
+        this.lastNm = personNameDT.getLastNm();
+        this.lastNmSndx = personNameDT.getLastNmSndx();
+        this.lastNm2 = personNameDT.getLastNm2();
+        this.lastNm2Sndx = personNameDT.getLastNm2Sndx();
+        this.middleNm = personNameDT.getMiddleNm();
+        this.middleNm2 = personNameDT.getMiddleNm2();
+        this.nmDegree = personNameDT.getNmDegree();
+        this.nmPrefix = personNameDT.getNmPrefix();
+        this.nmSuffix = personNameDT.getNmSuffix();
+        this.nmUseCd = personNameDT.getNmUseCd();
+        this.recordStatusCd = personNameDT.getRecordStatusCd();
+        this.recordStatusTime = personNameDT.getRecordStatusTime();
+        this.statusCd = personNameDT.getStatusCd();
+        this.statusTime = personNameDT.getStatusTime();
+        this.toTime = personNameDT.getToTime() ;
+        this.userAffiliationTxt = personNameDT.getUserAffiliationTxt();
+        this.asOfDate = personNameDT.getAsOfDate();
+    }
 }
