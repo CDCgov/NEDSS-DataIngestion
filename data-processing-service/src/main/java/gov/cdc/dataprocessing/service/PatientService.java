@@ -10,6 +10,7 @@ import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 import gov.cdc.dataprocessing.service.interfaces.IPatientMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.IPatientService;
 import gov.cdc.dataprocessing.service.matching.PatientMatchingService;
+import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -29,6 +30,28 @@ public class PatientService implements IPatientService {
     public PatientService(PatientMatchingService patientMatchingService) {
 
         this.patientMatchingService = patientMatchingService;
+    }
+
+    @Transactional
+    public PersonVO processingNextOfKin(LabResultProxyVO labResultProxyVO, PersonVO personVO) throws DataProcessingException {
+        try {
+            long falseUid = personVO.thePersonDT.getPersonUid();
+            patientMatchingService.getMatchingPatient(personVO);
+
+            if (personVO.getThePersonDT().getPersonUid() != null) {
+
+                setFalseToNew(labResultProxyVO, falseUid, personVO.getThePersonDT().getPersonUid());
+                personVO.setItNew(false);
+                personVO.setItDirty(false);
+                personVO.getThePersonDT().setItNew(false);
+                personVO.getThePersonDT().setItDirty(false);
+
+            }
+
+            return personVO;
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage());
+        }
     }
 
     @Transactional
@@ -78,22 +101,42 @@ public class PatientService implements IPatientService {
         }
     }
 
-    public Object processingNextOfKin() throws DataProcessingConsumerException {
-        //TODO: Adding Logic Here
-        try {
-            return "processing next of kin";
-        } catch (Exception e) {
-            throw new DataProcessingConsumerException("ERROR", "Data");
-        }
-    }
 
-    public Object processingProvider() throws DataProcessingConsumerException {
+    public PersonVO processingProvider(LabResultProxyVO labResultProxyVO, EdxLabInformationDT edxLabInformationDT, PersonVO personVO,  boolean orderingProviderIndicator) throws DataProcessingException {
         //TODO: Adding Logic Here
         try {
-            return "processing provider";
+            long falseUid = personVO.thePersonDT.getPersonUid();
+            Long personUid;
+            EdxPatientMatchDT edxPatientMatchFoundDT = null;
+
+
+            if (personVO.getRole() != null && personVO.getRole().equalsIgnoreCase(EdxELRConstant.ELR_OP_CD)) {
+                orderingProviderIndicator = true;
+            }
+
+            personVO.setRole(EdxELRConstant.ELR_PROV_CD);
+            EDXActivityDetailLogDT eDXActivityDetailLogDT = new EDXActivityDetailLogDT();
+            eDXActivityDetailLogDT = patientMatchingService.getMatchingProvider(personVO);
+            String personUId;
+            personUId = eDXActivityDetailLogDT.getRecordId();
+            if (personUId != null) {
+                long uid = Long.parseLong(personUId);
+                setFalseToNew(labResultProxyVO, falseUid,uid);
+                personVO.setItNew(false);
+                personVO.setItDirty(false);
+                personVO.getThePersonDT().setItNew(false);
+                personVO.getThePersonDT().setItDirty(false);
+            }
+            if (orderingProviderIndicator)
+            {
+                return personVO;
+            }
+            orderingProviderIndicator= false;
+
         } catch (Exception e) {
-            throw new DataProcessingConsumerException("ERROR", "Data");
+            throw new DataProcessingException(e.getMessage());
         }
+        return null;
     }
 
     private PersonNameDT parsingPersonName(PersonVO personVO) throws DataProcessingException {

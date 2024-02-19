@@ -237,11 +237,13 @@ public class ManagerService implements IManagerService {
         PersonVO providerVOObj = null;
         if (labResult.getThePersonVOCollection() != null && !labResult.getThePersonVOCollection().isEmpty() ) {
             Iterator<PersonVO> it = labResult.getThePersonVOCollection().iterator();
+            boolean orderingProviderIndicator = false;
+
             while (it.hasNext()) {
                 PersonVO personVO = it.next();
                 if (personVO.getRole() != null && personVO.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
                     //TODO: Logic for Matching Next of kin
-                    var nextOfKin = patientService.processingNextOfKin();
+                    patientService.processingNextOfKin(labResult, personVO);
 
                 }
                 else {
@@ -250,8 +252,10 @@ public class ManagerService implements IManagerService {
                     }
                     else if (personVO.thePersonDT.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
                         //TODO: Logic for Matching Provider
-                        var provider = patientService.processingProvider();
-
+                        var prv = patientService.processingProvider(labResult, edxLabInformationDT, personVO, orderingProviderIndicator);
+                        if (prv != null) {
+                            providerVOObj = prv;
+                        }
                     }
                 }
             }

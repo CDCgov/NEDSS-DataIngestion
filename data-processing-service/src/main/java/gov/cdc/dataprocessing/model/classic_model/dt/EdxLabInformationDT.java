@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class EdxLabInformationDT  extends EdxRuleAlgorothmManagerDT  implements Serializable {
+public class EdxLabInformationDT  extends EdxRuleAlgorothmManagerDT implements Serializable {
     /**
      * Pradeep Kumar Sharma
      * Utility class to store the information that is being shared all across the ELR processing

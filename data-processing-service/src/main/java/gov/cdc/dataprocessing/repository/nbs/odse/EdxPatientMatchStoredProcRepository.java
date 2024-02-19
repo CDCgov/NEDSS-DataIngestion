@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.repository.nbs.odse;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.classic_model.dto.EdxEntityMatchDT;
 import gov.cdc.dataprocessing.model.classic_model.dto.EdxPatientMatchDT;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
@@ -51,6 +52,41 @@ public class EdxPatientMatchStoredProcRepository {
             throw new DataProcessingException(e.getMessage());
         }
         return edxPatientMatchDT;
+
+    }
+
+
+    @Transactional
+    public EdxEntityMatchDT getEdxEntityMatch(String typeCd, String matchString) throws DataProcessingException {
+        EdxEntityMatchDT edxEntityMatchDT = new EdxEntityMatchDT();
+
+        try {
+
+            StoredProcedureQuery storedProcedure = entityManager.createStoredProcedureQuery("GETEDXENTITYMATCH_SP");
+
+            // Register the parameters
+            storedProcedure.registerStoredProcedureParameter("in_type_cd", String.class, ParameterMode.IN);
+            storedProcedure.registerStoredProcedureParameter("in_match_string", String.class, ParameterMode.IN);
+            storedProcedure.registerStoredProcedureParameter("out_entity_uid", Long.class, ParameterMode.OUT);
+
+            // Set the parameter values
+            storedProcedure.setParameter("in_type_cd", typeCd);
+            storedProcedure.setParameter("in_match_string", matchString);
+
+            // Execute the stored procedure
+            storedProcedure.execute();
+
+            // Get the output parameters
+            Long uid = (Long) storedProcedure.getOutputParameterValue("out_entity_uid");
+
+
+            edxEntityMatchDT.setEntityUid(uid);
+            edxEntityMatchDT.setTypeCd(typeCd);
+            edxEntityMatchDT.setMatchString(matchString);
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage());
+        }
+        return edxEntityMatchDT;
 
     }
 }
