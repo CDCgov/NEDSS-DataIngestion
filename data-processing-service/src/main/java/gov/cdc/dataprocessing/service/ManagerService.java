@@ -153,7 +153,13 @@ public class ManagerService implements IManagerService {
             edxLabInformationDT.setStatus(NbsInterfaceStatus.Success);
             edxLabInformationDT.setUserName("Test");
 
-            nbsInterfaceModel = gson.fromJson(data, NbsInterfaceModel.class);
+            //TODO: uncomment when deploy
+//            nbsInterfaceModel = gson.fromJson(data, NbsInterfaceModel.class);
+
+
+            //TODO: uncomment when debug
+            nbsInterfaceModel = nbsInterfaceRepository.findById(Integer.valueOf(data)).get();
+
             edxLabInformationDT.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
 
 
@@ -216,13 +222,15 @@ public class ManagerService implements IManagerService {
 
 
             //NOTE: Test updating NBS_Interface
+            //TODO: Uncomment this after debugging
             nbsInterfaceModel.setRecordStatusCd("COMPLETED_V2");
             nbsInterfaceRepository.save(nbsInterfaceModel);
             return result;
         } catch (Exception e) {
             if (nbsInterfaceModel != null) {
-                nbsInterfaceModel.setRecordStatusCd("FAILED_V2");
-                nbsInterfaceRepository.save(nbsInterfaceModel);
+                //TODO: Uncomment this after debuggging
+//                nbsInterfaceModel.setRecordStatusCd("FAILED_V2");
+//                nbsInterfaceRepository.save(nbsInterfaceModel);
             }
 
             throw new DataProcessingConsumerException(e.getMessage(), result);
@@ -248,7 +256,7 @@ public class ManagerService implements IManagerService {
                 }
                 else {
                     if (personVO.thePersonDT.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_CD)) {
-                        personVOObj =  patientService.processingPatient(labResult, edxLabInformationDT, personVO);
+     //                   personVOObj =  patientService.processingPatient(labResult, edxLabInformationDT, personVO);
                     }
                     else if (personVO.thePersonDT.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
                         //TODO: Logic for Matching Provider

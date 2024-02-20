@@ -29,6 +29,7 @@ public class CheckingValueService implements ICheckingValueService {
     private  final RaceCodeRepository raceCodeRepository;
     private final StateCountyCodeValueRepository stateCountyCodeValueRepository;
 
+    private final StateCodeRepository stateCodeRepository;
     private final LOINCCodeRepository loincCodeRepository;
 
     private final CacheManager cacheManager;
@@ -38,13 +39,14 @@ public class CheckingValueService implements ICheckingValueService {
                                 ElrXrefRepository elrXrefRepository,
                                 RaceCodeRepository raceCodeRepository,
                                 StateCountyCodeValueRepository stateCountyCodeValueRepository,
-                                LOINCCodeRepository loincCodeRepository,
+                                StateCodeRepository stateCodeRepository, LOINCCodeRepository loincCodeRepository,
                                 CacheManager cacheManager) {
         this.jurisdictionCodeRepository = jurisdictionCodeRepository;
         this.codeValueGeneralRepository = codeValueGeneralRepository;
         this.elrXrefRepository = elrXrefRepository;
         this.raceCodeRepository = raceCodeRepository;
         this.stateCountyCodeValueRepository = stateCountyCodeValueRepository;
+        this.stateCodeRepository = stateCodeRepository;
         this.loincCodeRepository = loincCodeRepository;
         this.cacheManager = cacheManager;
     }
@@ -159,6 +161,10 @@ public class CheckingValueService implements ICheckingValueService {
 
     //TODO: CACHED
     public String getCountyCdByDesc(String county, String stateCd) throws DataProcessingException {
+
+        if (county == null || stateCd == null) {
+          return null;
+        }
         String cnty = county.toUpperCase();
         if (!cnty.endsWith("COUNTY")) {
             cnty = cnty + " COUNTY";
@@ -212,6 +218,10 @@ public class CheckingValueService implements ICheckingValueService {
     public List<CodeValueGeneral> findCodeValuesByCodeSetNmAndCode(String codeSetNm, String code) {
         var result = codeValueGeneralRepository.findCodeValuesByCodeSetNmAndCode(codeSetNm, code);
         return result.get();
+    }
+
+    public StateCode findStateCodeByStateNm(String stateNm) {
+        return stateCodeRepository.findStateCdByStateName(stateNm).get();
     }
 
 //    public String getCountyCdByDesc(String county, String stateCd) throws DataProcessingException {

@@ -181,7 +181,7 @@ public class PatientMatchingService implements IPatientMatchingService {
 
 
     @Transactional
-    public EDXActivityDetailLogDT getMatchingProvider(PersonVO personVO) throws Exception {
+    public EDXActivityDetailLogDT getMatchingProvider(PersonVO personVO) throws DataProcessingException {
         Long entityUid = personVO.getThePersonDT().getPersonUid();
         Collection<EdxEntityMatchDT> coll = new ArrayList<EdxEntityMatchDT>();
         EDXActivityDetailLogDT edxActivityDetailLogDT = new EDXActivityDetailLogDT();
@@ -341,19 +341,15 @@ public class PatientMatchingService implements IPatientMatchingService {
             logger.error("Error in getting the entity Controller or Setting the Organization" + e.getMessage());
             throw new DataProcessingException("Error in getting the entity Controller or Setting the Organization" + e.getMessage(), e);
         }
-        /*
-         * if(personVO.getRole()!=null &&
-         * personVO.getRole().equalsIgnoreCase("PRV")){ return
-         * edxActivityDetailLogDT; }
-         */
+
+
         // Create the name and address with no street 2(only street1)
         if (nameAddStrSt1 != null) {
             EdxEntityMatchDT edxEntityMatchDT = new EdxEntityMatchDT();
             edxEntityMatchDT.setEntityUid(entityUid);
             edxEntityMatchDT.setTypeCd(NEDSSConstant.PRV);
             edxEntityMatchDT.setMatchString(nameAddStrSt1);
-            edxEntityMatchDT
-                    .setMatchStringHashCode((long)nameAddStrSt1hshCd);
+            edxEntityMatchDT.setMatchStringHashCode((long)nameAddStrSt1hshCd);
             try {
                 if (personVO.getRole() == null) {
                     edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
@@ -743,6 +739,97 @@ public class PatientMatchingService implements IPatientMatchingService {
         }
         return returnList;
     }
+
+    private List<String> getIdentifierForProvider(PersonVO personVO) throws DataProcessingException {
+        String carrot = "^";
+        List<String> identifierList = new ArrayList<String>();
+        String identifier = null;
+        Collection<EntityIdDT> newEntityIdDTColl = new ArrayList<>();
+        try{
+            if (personVO.getTheEntityIdDTCollection() != null
+                    && personVO.getTheEntityIdDTCollection().size() > 0) {
+                Collection<EntityIdDT> entityIdDTColl = personVO.getTheEntityIdDTCollection();
+                Iterator<EntityIdDT> entityIdIterator = entityIdDTColl.iterator();
+                while (entityIdIterator.hasNext()) {
+                    EntityIdDT entityIdDT = (EntityIdDT) entityIdIterator.next();
+                    if ((entityIdDT.getStatusCd().equalsIgnoreCase(NEDSSConstant.STATUS_ACTIVE))) {
+                        if ((entityIdDT.getRootExtensionTxt() != null)
+                                && (entityIdDT.getTypeCd() != null)
+                                && (entityIdDT.getAssigningAuthorityCd() != null)
+                                && (entityIdDT.getAssigningAuthorityDescTxt() !=null)
+                                && (entityIdDT.getAssigningAuthorityIdType() != null)) {
+                            identifier = entityIdDT.getRootExtensionTxt()
+                                    + carrot + entityIdDT.getTypeCd() + carrot
+                                    + entityIdDT.getAssigningAuthorityCd()
+                                    + carrot
+                                    + entityIdDT.getAssigningAuthorityDescTxt()
+                                    + carrot + entityIdDT.getAssigningAuthorityIdType();
+                        }else {
+                            try {
+
+//                                Coded coded = new Coded();
+//                                coded.setCode(entityIdDT.getAssigningAuthorityCd());
+//                                coded.setCodesetName(NEDSSConstant.EI_AUTH_PRV);
+//                                coded.setCodesetTableName(DataTable.CODE_VALUE_GENERAL);
+//                                NotificationSRTCodeLookupTranslationDAOImpl lookupDAO = new NotificationSRTCodeLookupTranslationDAOImpl();
+//                                lookupDAO.retrieveSRTCodeInfo(coded);
+
+                                Coded coded = new Coded();
+                                coded.setCode(entityIdDT.getAssigningAuthorityCd());
+                                coded.setCodesetName(NEDSSConstant.EI_AUTH);
+                                coded.setCodesetTableName("Code_value_general");
+
+                                //TODO: This call out to code value general Repos and Caching the recrod
+//                                NotificationSRTCodeLookupTranslationDAOImpl lookupDAO = new NotificationSRTCodeLookupTranslationDAOImpl();
+//                                lookupDAO.retrieveSRTCodeInfo(coded);
+
+                                var codedValueGenralList = checkingValueService.findCodeValuesByCodeSetNmAndCode(coded.getCodesetName(), coded.getCode());
+
+
+
+                                if (entityIdDT.getRootExtensionTxt() != null
+                                        && entityIdDT.getTypeCd() != null
+                                        && coded.getCode()!=null
+                                        && coded.getCodeDescription()!=null
+                                        && coded.getCodeSystemCd()!=null){
+                                    identifier = entityIdDT.getRootExtensionTxt()
+                                            + carrot + entityIdDT.getTypeCd() + carrot
+                                            + coded.getCode() + carrot
+                                            + coded.getCodeDescription() + carrot
+                                            + coded.getCodeSystemCd();
+                                }
+
+
+                            }catch (Exception ex) {
+                                String errorMessage = "The assigning authority "
+                                        + entityIdDT.getAssigningAuthorityCd()
+                                        + " does not exists in the system. ";
+                                logger.debug(ex.getMessage() + errorMessage);
+                            }
+                        }
+                        if (entityIdDT.getTypeCd()!=null && !entityIdDT.getTypeCd().equalsIgnoreCase("LR")) {
+                            newEntityIdDTColl.add(entityIdDT);
+                        }
+                        if (identifier != null) {
+                            identifierList.add(identifier);
+                        }
+
+                    }
+
+                }
+
+            }
+            personVO.setTheEntityIdDTCollection(newEntityIdDTColl);
+
+        }catch (Exception ex) {
+            String errorMessage = "Exception while creating hashcode for Provider entity IDs . ";
+            logger.debug(ex.getMessage() + errorMessage);
+            throw new DataProcessingException(errorMessage, ex);
+        }
+        return identifierList;
+
+    }
+
 
     private void setPatientHashCd(PersonVO personVO) throws DataProcessingException {
 
@@ -1220,7 +1307,7 @@ public class PatientMatchingService implements IPatientMatchingService {
                     /**
                      * THIS CODE HAS THING TO DO WITH ORGANIZATION
                      * */
-                    //    setProvidertoEntityMatch(personVO);
+                    setProvidertoEntityMatch(personVO);
                 } catch (Exception e) {
                     logger.error("EntityControllerEJB.setProvider method exception thrown for matching criteria:"+e);
                     throw new DataProcessingException("EntityControllerEJB.setProvider method exception thrown for matching criteria:"+e);
@@ -1283,7 +1370,8 @@ public class PatientMatchingService implements IPatientMatchingService {
             patientRepositoryUtil.preparePersonNameBeforePersistence(personVO);
 
             if (personVO.isItNew()) {
-                patientRepositoryUtil.createPerson(personVO);
+                Person p = patientRepositoryUtil.createPerson(personVO);
+                personUID = p.getPersonUid();
             }
             else {
                 patientRepositoryUtil.updateExistingPerson(personVO);
@@ -1291,16 +1379,17 @@ public class PatientMatchingService implements IPatientMatchingService {
 
             }
 
-            if(isELRCase){
-                try {
-                    personVO.getThePersonDT().setPersonUid(personUID);
-                    personVO.getThePersonDT().setPersonParentUid(personUID);
-                    setPatientHashCd(personVO);
-                } catch (Exception e) {
-                    logger.error("NEDSSAppException thrown while creating hashcode for the ELR patient."+e);
-                    throw new DataProcessingException(e.getMessage());
-                }
-            }
+            //NEW FLOW WONT HIT THIS
+//            if(isELRCase){
+//                try {
+//                    personVO.getThePersonDT().setPersonUid(personUID);
+//                    personVO.getThePersonDT().setPersonParentUid(personUID);
+//                    setPatientHashCd(personVO);
+//                } catch (Exception e) {
+//                    logger.error("NEDSSAppException thrown while creating hashcode for the ELR patient."+e);
+//                    throw new DataProcessingException(e.getMessage());
+//                }
+//            }
 
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
@@ -1309,18 +1398,20 @@ public class PatientMatchingService implements IPatientMatchingService {
 
     }
 
-    public void setProvidertoEntityMatch(PersonVO personVO) throws Exception {
+    private void setProvidertoEntityMatch(PersonVO personVO) throws Exception {
 
         Long entityUid = personVO.getThePersonDT().getPersonUid();
         String identifier = null;
         int identifierHshCd = 0;
         List identifierList = null;
-        identifierList = getIdentifier(personVO);
+        identifierList = getIdentifierForProvider(personVO);
         if (identifierList != null && !identifierList.isEmpty()) {
             for (int k = 0; k < identifierList.size(); k++) {
                 identifier = (String) identifierList.get(k);
                 if (identifier != null)
+                {
                     identifier = identifier.toUpperCase();
+                }
                 identifierHshCd = identifier.hashCode();
                 if (identifier != null) {
                     EdxEntityMatchDT edxEntityMatchDT = new EdxEntityMatchDT();
@@ -1331,8 +1422,7 @@ public class PatientMatchingService implements IPatientMatchingService {
                     try {
                         edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
                     } catch (Exception e) {
-                        logger.error("Error in creating the EdxEntityMatchDT with identifier:"
-                                + identifier + " " + e.getMessage());
+                        logger.error("Error in creating the EdxEntityMatchDT with identifier:" + identifier + " " + e.getMessage());
                         throw new DataProcessingException(e.getMessage(), e);
                     }
                 }
@@ -1366,13 +1456,11 @@ public class PatientMatchingService implements IPatientMatchingService {
             edxEntityMatchDT.setEntityUid(entityUid);
             edxEntityMatchDT.setTypeCd(NEDSSConstant.PRV);
             edxEntityMatchDT.setMatchString(nameAddStrSt1);
-            edxEntityMatchDT
-                    .setMatchStringHashCode((long)nameAddStrSt1hshCd);
+            edxEntityMatchDT.setMatchStringHashCode((long)nameAddStrSt1hshCd);
             try {
                 edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
             } catch (Exception e) {
-                logger.error("Error in creating the EdxEntityMatchDT with nameAddStrSt1:"
-                        + nameAddStrSt1 + " " + e.getMessage());
+                logger.error("Error in creating the EdxEntityMatchDT with nameAddStrSt1:" + nameAddStrSt1 + " " + e.getMessage());
                 throw new DataProcessingException(e.getMessage(), e);
             }
 
@@ -1383,23 +1471,20 @@ public class PatientMatchingService implements IPatientMatchingService {
             edxEntityMatchDT.setEntityUid(entityUid);
             edxEntityMatchDT.setTypeCd(NEDSSConstant.PRV);
             edxEntityMatchDT.setMatchString(nameTelePhone);
-            edxEntityMatchDT
-                    .setMatchStringHashCode((long)nameTelePhonehshCd);
+            edxEntityMatchDT.setMatchStringHashCode((long)nameTelePhonehshCd);
             try {
                 edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
             } catch (Exception e) {
-                logger.error("Error in creating the EdxEntityMatchDT with nameTelePhone:"
-                        + nameTelePhone + " " + e.getMessage());
+                logger.error("Error in creating the EdxEntityMatchDT with nameTelePhone:" + nameTelePhone + " " + e.getMessage());
                 throw new DataProcessingException(e.getMessage(), e);
             }
         }
         if (edxEntityMatchDT != null) {
-            /**
-             * TODO: something related to ORG
-             * */
-//            edxDao.updateMPR(edxEntityMatchDT);
+            patientRepositoryUtil.updateExistingPersonEdxIndByUid(edxEntityMatchDT.getEntityUid());
         }
 
     }
+
+
 
 }

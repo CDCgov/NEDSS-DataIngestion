@@ -9,5 +9,5 @@ import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 public interface IPatientService {
     PersonVO processingPatient(LabResultProxyVO labResultProxyVO, EdxLabInformationDT edxLabInformationDT, PersonVO personVO) throws DataProcessingConsumerException, DataProcessingException;
     PersonVO processingNextOfKin(LabResultProxyVO labResultProxyVO, PersonVO personVO) throws DataProcessingException;
-    PersonVO processingProvider(LabResultProxyVO labResultProxyVO, EdxLabInformationDT edxLabInformationDT, PersonVO personVO, boolean orderingProviderIndicator) throws DataProcessingConsumerException;
+    PersonVO processingProvider(LabResultProxyVO labResultProxyVO, EdxLabInformationDT edxLabInformationDT, PersonVO personVO, boolean orderingProviderIndicator) throws DataProcessingConsumerException, DataProcessingException;
 }

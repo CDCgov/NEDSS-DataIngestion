@@ -60,6 +60,10 @@ public class PatientRepositoryUtil {
         this.localUidGeneratorRepository = localUidGeneratorRepository;
     }
 
+    @Transactional
+    public Long updateExistingPersonEdxIndByUid(Long uid) {
+        return (long) personRepository.updateExistingPersonEdxIndByUid(uid);
+    }
 
     @Transactional
     public Person findExistingPersonByUid(Long personUid) {

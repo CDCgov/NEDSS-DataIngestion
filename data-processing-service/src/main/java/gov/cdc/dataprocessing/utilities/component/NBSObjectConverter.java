@@ -160,7 +160,10 @@ public class NBSObjectConverter {
         }
         return entityIdDT;
     }
-
+    
+    /**
+     * Parsing Entity Address into Object
+     * */
     public EntityLocatorParticipationDT addressType(HL7XADType hl7XADType, String role)   {
 
         EntityLocatorParticipationDT elp = new EntityLocatorParticipationDT();
@@ -228,9 +231,13 @@ public class NBSObjectConverter {
             pl.setZipCd(formatZip(zip));
             String country = hl7XADType.getHL7Country();
             if(country!=null && country.equalsIgnoreCase(EdxELRConstant.ELR_USA_DESC))
+            {
                 pl.setCntryCd(EdxELRConstant.ELR_USA_CD);
+            }
             else
+            {
                 pl.setCntryCd(country);
+            }
             String countyParishCode = hl7XADType.getHL7CountyParishCode();
 
             /** Optional maxOccurs="1 */
@@ -254,10 +261,9 @@ public class NBSObjectConverter {
         return elp;
     }
 
-    public PostalLocatorDT nbsStreetAddressType(HL7SADType hl7SADType, PostalLocatorDT pl) {
+    private PostalLocatorDT nbsStreetAddressType(HL7SADType hl7SADType, PostalLocatorDT pl) {
 
-        String streetOrMailingAddress = hl7SADType
-                .getHL7StreetOrMailingAddress();
+        String streetOrMailingAddress = hl7SADType.getHL7StreetOrMailingAddress();
         /** Optional maxOccurs="1 */
         /** length"120 */
         pl.setStreetAddr1(streetOrMailingAddress);
@@ -278,11 +284,11 @@ public class NBSObjectConverter {
         return pl;
     }
 
-    public String translateStateCd(String msgInStateCd) {
+    private String translateStateCd(String msgInStateCd) {
         if(msgInStateCd != null && !msgInStateCd.trim().isEmpty())
         {
             //TODO: Call out to State Code Repository here
-            StateCode stateCode = new StateCode();
+            StateCode stateCode = checkingValueService.findStateCodeByStateNm(msgInStateCd);
             return stateCode.getStateCd();
         }
         else
@@ -291,7 +297,7 @@ public class NBSObjectConverter {
         }
     }
 
-    public String formatZip(String zip) {
+    private String formatZip(String zip) {
         if (zip != null) {
             zip =zip.trim();
             // for zip code like: 12,123,1234,12345
@@ -709,7 +715,6 @@ public class NBSObjectConverter {
         return incorrectLength;
     }
 
-
     public static ParticipationDT defaultParticipationDT(ParticipationDT participationDT, EdxLabInformationDT edxLabInformationDT) {
         participationDT.setAddTime(edxLabInformationDT.getAddTime());
         participationDT.setLastChgTime(edxLabInformationDT.getAddTime());
@@ -782,7 +787,6 @@ public class NBSObjectConverter {
 
         return personVO;
     }
-
     public static Timestamp processHL7TSTypeWithMillis(HL7TSType time, String itemDescription) throws DataProcessingException {
         String dateStr = "";
         try {
@@ -828,8 +832,5 @@ public class NBSObjectConverter {
             throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSTypeWithMillis failed as the date format is not right."+ itemDescription+dateStr);
         }
     }
-
-
-
 
 }

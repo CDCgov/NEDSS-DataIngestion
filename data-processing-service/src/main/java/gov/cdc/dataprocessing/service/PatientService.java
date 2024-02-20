@@ -101,7 +101,7 @@ public class PatientService implements IPatientService {
         }
     }
 
-
+    @Transactional
     public PersonVO processingProvider(LabResultProxyVO labResultProxyVO, EdxLabInformationDT edxLabInformationDT, PersonVO personVO,  boolean orderingProviderIndicator) throws DataProcessingException {
         //TODO: Adding Logic Here
         try {

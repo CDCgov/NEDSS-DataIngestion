@@ -12,6 +12,7 @@ import lombok.*;
 public class EdxEntityMatch {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "edx_entity_match_uid")
     private Long edxEntityMatchUid;
 
