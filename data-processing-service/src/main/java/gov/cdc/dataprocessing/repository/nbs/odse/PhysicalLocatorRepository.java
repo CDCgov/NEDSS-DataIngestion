@@ -12,6 +12,4 @@ import java.util.List;
 
 @Repository
 public interface PhysicalLocatorRepository extends JpaRepository<PhysicalLocator, Long> {
-    @Query(value = "SELECT x FROM PhysicalLocator x WHERE x.physicalLocatorUid IN :uids", nativeQuery = false)
-    List<PhysicalLocator> findByPhysicalLocatorUids(@Param("uids") List<Long> uids);
 }

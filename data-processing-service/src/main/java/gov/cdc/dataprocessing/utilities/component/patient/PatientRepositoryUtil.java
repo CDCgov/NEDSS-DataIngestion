@@ -220,7 +220,7 @@ public class PatientRepositoryUtil {
         //NOTE: Create Entity Locator Participation
         if  (personVO.getTheEntityLocatorParticipationDTCollection() != null && !personVO.getTheEntityLocatorParticipationDTCollection().isEmpty()) {
             try {
-                createEntityLocatorParticipation(personVO);
+                updateEntityLocatorParticipation(personVO);
             } catch (Exception e) {
                 throw new DataProcessingException(e.getMessage(), e);
             }
@@ -348,6 +348,170 @@ public class PatientRepositoryUtil {
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+    private void updateEntityLocatorParticipation(PersonVO personVO) throws DataProcessingException {
+        ArrayList<EntityLocatorParticipationDT>  personList = (ArrayList<EntityLocatorParticipationDT> ) personVO.getTheEntityLocatorParticipationDTCollection();
+        List<EntityLocatorParticipation> entityLocatorParticipations = entityLocatorParticipationRepository.findByParentUid(personVO.getThePersonDT().getPersonUid()).get();
+
+        if (!entityLocatorParticipations.isEmpty()) {
+            List<EntityLocatorParticipation> physicalLocators = new ArrayList<>();
+            List<EntityLocatorParticipation> postalLocators = new ArrayList<>();
+            List<EntityLocatorParticipation> teleLocators = new ArrayList<>();
+
+            physicalLocators = entityLocatorParticipations.stream().filter(x -> x.getClassCd()
+                    .equalsIgnoreCase(NEDSSConstant.PHYSICAL))
+                    .sorted(Comparator.comparing(EntityLocatorParticipation::getRecordStatusTime).reversed())
+                    .collect(Collectors.toList());
+            postalLocators = entityLocatorParticipations.stream().filter(x -> x.getClassCd()
+                    .equalsIgnoreCase(NEDSSConstant.POSTAL))
+                    .sorted(Comparator.comparing(EntityLocatorParticipation::getRecordStatusTime).reversed())
+                    .collect(Collectors.toList());
+            teleLocators = entityLocatorParticipations.stream().filter(x -> x.getClassCd()
+                    .equalsIgnoreCase(NEDSSConstant.TELE))
+                    .sorted(Comparator.comparing(EntityLocatorParticipation::getRecordStatusTime).reversed())
+                    .collect(Collectors.toList());
+
+
+            EntityLocatorParticipation physicalLocator;
+            EntityLocatorParticipation postalLocator;
+            EntityLocatorParticipation teleLocator;
+
+            StringBuilder comparingString = new StringBuilder();
+            for(int i = 0; i < personList.size(); i++) {
+
+                Long uniqueId = UniqueIdGenerator.generateUniqueId();
+                boolean newLocator = true;
+                if (personList.get(i).getClassCd().equals(NEDSSConstant.PHYSICAL) && personList.get(i).getThePhysicalLocatorDT() != null) {
+                    newLocator = true;
+                    if (!physicalLocators.isEmpty()) {
+                        physicalLocator = physicalLocators.get(0);
+                        var existingLocator = physicalLocatorRepository.findById(physicalLocator.getLocatorUid());
+                        if (existingLocator.isPresent()) {
+                            comparingString.append(existingLocator.get().getImageTxt());
+                            if (!comparingString.toString().equals(personList.get(i).getThePhysicalLocatorDT().getImageTxt())) {
+                                personList.get(i).getThePhysicalLocatorDT().setPhysicalLocatorUid(uniqueId);
+                                physicalLocatorRepository.save(new PhysicalLocator(personList.get(i).getThePhysicalLocatorDT()));
+                            }
+                            else {
+                                newLocator = false;
+                            }
+                        }
+                        else {
+                            personList.get(i).getThePhysicalLocatorDT().setPhysicalLocatorUid(uniqueId);
+                            physicalLocatorRepository.save(new PhysicalLocator(personList.get(i).getThePhysicalLocatorDT()));
+                        }
+
+                        comparingString.setLength(0);
+                    }
+                    else {
+                        personList.get(i).getThePhysicalLocatorDT().setPhysicalLocatorUid(uniqueId);
+                        physicalLocatorRepository.save(new PhysicalLocator(personList.get(i).getThePhysicalLocatorDT()));
+                    }
+                }
+                if (personList.get(i).getClassCd().equals(NEDSSConstant.POSTAL) && personList.get(i).getThePostalLocatorDT() != null) {
+                    newLocator = true;
+                    if (!postalLocators.isEmpty()) {
+                        postalLocator = postalLocators.get(0);
+                        var existingLocator = postalLocatorRepository.findById(postalLocator.getLocatorUid());
+                        if (existingLocator.isPresent()) {
+                            comparingString.append(existingLocator.get().getCityCd());
+                            comparingString.append(existingLocator.get().getCityDescTxt());
+                            comparingString.append(existingLocator.get().getCntryCd());
+                            comparingString.append(existingLocator.get().getCntryDescTxt());
+                            comparingString.append(existingLocator.get().getCntyCd());
+                            comparingString.append(existingLocator.get().getCntyDescTxt());
+                            comparingString.append(existingLocator.get().getStateCd());
+                            comparingString.append(existingLocator.get().getStreetAddr1());
+                            comparingString.append(existingLocator.get().getStreetAddr2());
+                            comparingString.append(existingLocator.get().getZipCd());
+
+                            StringBuilder existComparingLocator = new StringBuilder();
+                            existComparingLocator.append(personList.get(i).getThePostalLocatorDT().getCityCd());
+                            existComparingLocator.append(personList.get(i).getThePostalLocatorDT().getCityDescTxt());
+                            existComparingLocator.append(personList.get(i).getThePostalLocatorDT().getCntryCd());
+                            existComparingLocator.append(personList.get(i).getThePostalLocatorDT().getCntryDescTxt());
+                            existComparingLocator.append(personList.get(i).getThePostalLocatorDT().getCntyCd());
+                            existComparingLocator.append(personList.get(i).getThePostalLocatorDT().getCntyDescTxt());
+                            existComparingLocator.append(personList.get(i).getThePostalLocatorDT().getStateCd());
+                            existComparingLocator.append(personList.get(i).getThePostalLocatorDT().getStreetAddr1());
+                            existComparingLocator.append(personList.get(i).getThePostalLocatorDT().getStreetAddr2());
+                            existComparingLocator.append(personList.get(i).getThePostalLocatorDT().getZipCd());
+
+
+                            if (!comparingString.toString().equalsIgnoreCase(existComparingLocator.toString())) {
+                                personList.get(i).getThePostalLocatorDT().setPostalLocatorUid(uniqueId);
+                                postalLocatorRepository.save(new PostalLocator(personList.get(i).getThePostalLocatorDT()));
+                            }
+                            else {
+                                newLocator = false;
+                            }
+                        }
+                        else {
+                            personList.get(i).getThePostalLocatorDT().setPostalLocatorUid(uniqueId);
+                            postalLocatorRepository.save(new PostalLocator(personList.get(i).getThePostalLocatorDT()));
+                        }
+
+                        comparingString.setLength(0);
+                    }
+                    else {
+                        personList.get(i).getThePostalLocatorDT().setPostalLocatorUid(uniqueId);
+                        postalLocatorRepository.save(new PostalLocator(personList.get(i).getThePostalLocatorDT()));
+                    }
+                }
+                if (personList.get(i).getClassCd().equals(NEDSSConstant.TELE) && personList.get(i).getTheTeleLocatorDT() != null) {
+                    newLocator = true;
+                    if (!teleLocators.isEmpty()) {
+                        teleLocator = teleLocators.get(0);
+                        var existingLocator = teleLocatorRepository.findById(teleLocator.getLocatorUid());
+                        if (existingLocator.isPresent()) {
+                            comparingString.append(existingLocator.get().getCntryCd());
+                            comparingString.append(existingLocator.get().getEmailAddress());
+                            comparingString.append(existingLocator.get().getExtensionTxt());
+                            comparingString.append(existingLocator.get().getPhoneNbrTxt());
+                            comparingString.append(existingLocator.get().getUrlAddress());
+
+                            StringBuilder existComparingLocator = new StringBuilder();
+                            existComparingLocator.append(personList.get(i).getTheTeleLocatorDT().getCntryCd());
+                            existComparingLocator.append(personList.get(i).getTheTeleLocatorDT().getEmailAddress());
+                            existComparingLocator.append(personList.get(i).getTheTeleLocatorDT().getExtensionTxt());
+                            existComparingLocator.append(personList.get(i).getTheTeleLocatorDT().getPhoneNbrTxt());
+                            existComparingLocator.append(personList.get(i).getTheTeleLocatorDT().getUrlAddress());
+
+                            if (!comparingString.toString().equalsIgnoreCase(existComparingLocator.toString())) {
+                                personList.get(i).getTheTeleLocatorDT().setTeleLocatorUid(uniqueId);
+                                teleLocatorRepository.save(new TeleLocator(personList.get(i).getTheTeleLocatorDT()));
+                            }
+                            else {
+                                newLocator = false;
+                            }
+                        }
+                        else {
+                            personList.get(i).getTheTeleLocatorDT().setTeleLocatorUid(uniqueId);
+                            teleLocatorRepository.save(new TeleLocator(personList.get(i).getTheTeleLocatorDT()));
+                        }
+
+                        comparingString.setLength(0);
+                    }
+                    else {
+                        personList.get(i).getTheTeleLocatorDT().setTeleLocatorUid(uniqueId);
+                        teleLocatorRepository.save(new TeleLocator(personList.get(i).getTheTeleLocatorDT()));
+                    }
+                }
+
+                // ONLY persist new participation locator if new locator actually exist
+                if (newLocator) {
+                    personList.get(i).setEntityUid(personVO.getThePersonDT().getPersonUid());
+                    personList.get(i).setLocatorUid(uniqueId);
+
+                    if (personList.get(i).getVersionCtrlNbr() == null) {
+                        personList.get(i).setVersionCtrlNbr(1);
+                    }
+                    entityLocatorParticipationRepository.save(new EntityLocatorParticipation(personList.get(i)));
+                }
+
+            }
         }
     }
 
