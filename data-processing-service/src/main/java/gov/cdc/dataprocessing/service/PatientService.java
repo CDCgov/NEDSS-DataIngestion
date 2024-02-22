@@ -36,7 +36,7 @@ public class PatientService implements IPatientService {
     public PersonVO processingNextOfKin(LabResultProxyVO labResultProxyVO, PersonVO personVO) throws DataProcessingException {
         try {
             long falseUid = personVO.thePersonDT.getPersonUid();
-            patientMatchingService.getMatchingPatient(personVO);
+            patientMatchingService.getMatchingNextOfKin(personVO);
 
             if (personVO.getThePersonDT().getPersonUid() != null) {
 

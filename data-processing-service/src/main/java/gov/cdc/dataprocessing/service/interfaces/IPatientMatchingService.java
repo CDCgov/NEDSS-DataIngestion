@@ -8,6 +8,6 @@ import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 public interface IPatientMatchingService {
     EdxPatientMatchDT getMatchingPatient(PersonVO personVO) throws DataProcessingException;
     EDXActivityDetailLogDT getMatchingProvider(PersonVO personVO) throws DataProcessingException;
-    EdxPatientMatchDT getMatchingNokPatient(PersonVO personVO) throws DataProcessingException;
+    EdxPatientMatchDT getMatchingNextOfKin(PersonVO personVO) throws DataProcessingException;
     boolean getMultipleMatchFound();
 }

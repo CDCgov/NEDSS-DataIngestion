@@ -400,6 +400,132 @@ public class PatientMatchingService implements IPatientMatchingService {
         return edxActivityDetailLogDT;
     }
 
+    @Transactional
+    public EdxPatientMatchDT getMatchingNextOfKin(PersonVO personVO) throws DataProcessingException {
+        Long patientUid = personVO.getThePersonDT().getPersonUid();
+        EdxPatientMatchDT edxPatientFoundDT = null;
+        EdxPatientMatchDT edxPatientMatchFoundDT = null;
+        Long patientPersonUid = null;
+        boolean matchFound = false;
+        boolean newPersonCreationApplied = false;
+
+        String nameAddStrSt1 = null;
+        int nameAddStrSt1hshCd = 0;
+        List nameAddressStreetOneStrList = nameAddressStreetOneNOK(personVO);
+
+        if (nameAddressStreetOneStrList != null && !nameAddressStreetOneStrList.isEmpty()) {
+            for (int k = 0; k < nameAddressStreetOneStrList.size(); k++) {
+                nameAddStrSt1 = (String) nameAddressStreetOneStrList.get(k);
+                if (nameAddStrSt1 != null) {
+                    nameAddStrSt1 = nameAddStrSt1.toUpperCase();
+                    nameAddStrSt1hshCd = nameAddStrSt1.hashCode();
+                    try {
+                        if (nameAddStrSt1 != null) {
+                            edxPatientFoundDT = new EdxPatientMatchDT();
+                            edxPatientFoundDT.setPatientUid(patientUid);
+                            edxPatientFoundDT.setTypeCd(NEDSSConstant.NOK);
+                            edxPatientFoundDT.setMatchString(nameAddStrSt1);
+                            edxPatientFoundDT.setMatchStringHashCode((long)(nameAddStrSt1hshCd));
+                        }
+                        // Try to get the Next of Kin matching with the match string
+                        edxPatientMatchFoundDT = edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(edxPatientFoundDT.getTypeCd(), nameAddStrSt1);
+                        if (edxPatientMatchFoundDT.getPatientUid() == null || (edxPatientMatchFoundDT.getPatientUid() != null && edxPatientMatchFoundDT.getPatientUid() <= 0)) {
+                            matchFound = false;
+                        } else {
+                            matchFound = true;
+                        }
+                    } catch (Exception ex) {
+                        logger.error("Error in geting the  matching Next of Kin");
+                        throw new DataProcessingException("Error in geting the  matching Next of Kin" + ex.getMessage(), ex);
+                    }
+                }
+            }
+        }
+
+        if (!matchFound) {
+            String nameTelePhone = null;
+            int nameTelePhonehshCd = 0;
+            List nameTelePhoneStrList = telePhoneTxtNOK(personVO);
+            if (nameTelePhoneStrList != null && !nameTelePhoneStrList.isEmpty()) {
+                for (int k = 0; k < nameTelePhoneStrList.size(); k++) {
+                    nameTelePhone = (String) nameTelePhoneStrList.get(k);
+                    if (nameTelePhone != null) {
+                        nameTelePhone = nameTelePhone.toUpperCase();
+                        nameTelePhonehshCd = nameTelePhone.hashCode();
+                        try {
+                            if (nameTelePhone != null) {
+                                edxPatientFoundDT = new EdxPatientMatchDT();
+                                edxPatientFoundDT.setPatientUid(patientUid);
+                                edxPatientFoundDT.setTypeCd(NEDSSConstant.NOK);
+                                edxPatientFoundDT.setMatchString(nameTelePhone);
+                                edxPatientFoundDT.setMatchStringHashCode((long)(nameTelePhonehshCd));
+                            }
+                            // Try to get the matching with the match string
+                            edxPatientMatchFoundDT = edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(edxPatientFoundDT.getTypeCd(), nameTelePhone);
+                            if (edxPatientMatchFoundDT.getPatientUid() == null || (edxPatientMatchFoundDT.getPatientUid() != null && edxPatientMatchFoundDT.getPatientUid() <= 0)) {
+                                matchFound = false;
+                            } else {
+                                matchFound = true;
+                            }
+                        } catch (Exception ex) {
+                            logger.error("Error in geting the  matching Patient");
+                            throw new DataProcessingException("Error in geting the  matching Patient" + ex.getMessage(), ex);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!matchFound) {
+            if (personVO.getTheEntityIdDTCollection() != null) {
+                Collection<EntityIdDT> newEntityIdDTColl = new ArrayList<>();
+                Iterator<EntityIdDT> iter = personVO.getTheEntityIdDTCollection().iterator();
+                while (iter.hasNext()) {
+                    EntityIdDT entityIdDT = (EntityIdDT) iter.next();
+                    if (entityIdDT.getTypeCd() != null && !entityIdDT.getTypeCd().equalsIgnoreCase("LR")) {
+                        newEntityIdDTColl.add(entityIdDT);
+                    }
+                }
+                personVO.setTheEntityIdDTCollection(newEntityIdDTColl);
+            }
+            try {
+                if (personVO.getThePersonDT().getCd().equals(NEDSSConstant.PAT)) { // Patient
+                    Person personId = patientRepositoryUtil.createPerson(personVO);
+                    patientPersonUid = personId.getPersonParentUid();
+                    personVO.getThePersonDT().setPersonParentUid(patientPersonUid);
+                    newPersonCreationApplied = true;
+
+                }
+            } catch (Exception e) {
+                logger.error("Error in getting the entity Controller or Setting the Patient" + e.getMessage());
+                throw new DataProcessingException("Error in getting the entity Controller or Setting the Patient" + e.getMessage(), e);
+            }
+            personVO.setPatientMatchedFound(false);
+        }
+        else {
+            personVO.setPatientMatchedFound(true);
+        }
+
+        try {
+            if (patientPersonUid == null)
+            {
+                personVO.getThePersonDT().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
+            }
+            else {
+                personVO.getThePersonDT().setPersonParentUid(patientPersonUid);
+            }
+
+            if (newPersonCreationApplied) {
+                patientRepositoryUtil.updateExistingPerson(personVO);
+                personVO.getThePersonDT().setPersonUid(patientPersonUid);
+            }
+        } catch (Exception e) {
+            logger.error("Error in getting the entity Controller or Setting the Patient" + e.getMessage());
+            throw new DataProcessingException("Error in getting the entity Controller or Setting the Patient" + e.getMessage(), e);
+        }
+        return edxPatientMatchFoundDT;
+    }
+
     
     @Transactional
     public EdxPatientMatchDT getMatchingPatient(PersonVO personVO) throws DataProcessingException {
