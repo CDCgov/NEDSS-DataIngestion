@@ -229,8 +229,8 @@ public class ManagerService implements IManagerService {
         } catch (Exception e) {
             if (nbsInterfaceModel != null) {
                 //TODO: Uncomment this after debuggging
-//                nbsInterfaceModel.setRecordStatusCd("FAILED_V2");
-//                nbsInterfaceRepository.save(nbsInterfaceModel);
+                nbsInterfaceModel.setRecordStatusCd("FAILED_V2");
+                nbsInterfaceRepository.save(nbsInterfaceModel);
             }
 
             throw new DataProcessingConsumerException(e.getMessage(), result);
@@ -256,7 +256,7 @@ public class ManagerService implements IManagerService {
                 }
                 else {
                     if (personVO.thePersonDT.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_CD)) {
-     //                   personVOObj =  patientService.processingPatient(labResult, edxLabInformationDT, personVO);
+                        personVOObj =  patientService.processingPatient(labResult, edxLabInformationDT, personVO);
                     }
                     else if (personVO.thePersonDT.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
                         //TODO: Logic for Matching Provider

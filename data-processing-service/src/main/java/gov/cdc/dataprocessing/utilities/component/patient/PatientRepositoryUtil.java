@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class PatientRepositoryUtil {
@@ -239,24 +240,54 @@ public class PatientRepositoryUtil {
         ArrayList<PersonNameDT>  personList = (ArrayList<PersonNameDT> ) personVO.getThePersonNameDTCollection();
         try {
             var pUid = personVO.getThePersonDT().getPersonUid();
-            List<Integer> personNameSeqId = personNameRepository.findBySeqIdByParentUid(pUid);
+            List<PersonName> persons = personNameRepository.findBySeqIdByParentUid(pUid);
+
             Integer seqId = 0;
-            if (!personNameSeqId.isEmpty()) {
-                seqId = personNameSeqId.get(0);
+
+            StringBuilder sbFromInput = new StringBuilder();
+            sbFromInput.append(personVO.getThePersonDT().getFirstNm());
+            sbFromInput.append(personVO.getThePersonDT().getLastNm());
+            sbFromInput.append(personVO.getThePersonDT().getMiddleNm());
+            sbFromInput.append(personVO.getThePersonDT().getNmPrefix());
+            sbFromInput.append(personVO.getThePersonDT().getNmSuffix());
+
+
+            List<String> personNameForComparing = new ArrayList<>();
+            for(PersonName item : persons) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(item.getFirstNm());
+                sb.append(item.getLastNm());
+                sb.append(item.getMiddleNm());
+                sb.append(item.getNmPrefix());
+                sb.append(item.getNmSuffix());
+                if(!personNameForComparing.contains(sb.toString().toUpperCase())) {
+                    personNameForComparing.add(sb.toString().toUpperCase());
+                }
             }
 
-            for(int i = 0; i < personList.size(); i++) {
-                seqId++;
-                personList.get(i).setPersonUid(pUid);
-                if (personList.get(i).getStatusCd() == null) {
-                    personList.get(i).setStatusCd("A");
+
+            //Only save new record if new name is actually new
+            if (!personNameForComparing.contains(sbFromInput.toString().toUpperCase())) {
+                persons = persons.stream().sorted(Comparator.comparing(PersonName::getPersonNameSeq).reversed()).collect(Collectors.toList());
+                if (!persons.isEmpty()) {
+                    seqId = persons.get(0).getPersonNameSeq();
                 }
-                if (personList.get(i).getStatusTime() == null) {
-                    personList.get(i).setStatusTime(new Timestamp(new Date().getTime()));
+
+                for (PersonNameDT personNameDT : personList) {
+                    seqId++;
+                    personNameDT.setPersonUid(pUid);
+                    if (personNameDT.getStatusCd() == null) {
+                        personNameDT.setStatusCd("A");
+                    }
+                    if (personNameDT.getStatusTime() == null) {
+                        personNameDT.setStatusTime(new Timestamp(new Date().getTime()));
+                    }
+                    personNameDT.setPersonNameSeq(seqId);
+                    personNameRepository.save(new PersonName(personNameDT));
                 }
-                personList.get(i).setPersonNameSeq(seqId);
-                personNameRepository.save(new PersonName( personList.get(i)));
             }
+
+
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }

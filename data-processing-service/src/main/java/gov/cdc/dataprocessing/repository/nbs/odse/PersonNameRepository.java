@@ -15,6 +15,6 @@ public interface PersonNameRepository  extends JpaRepository<PersonName, Long> {
     @Query("SELECT pn FROM PersonName pn WHERE pn.personUid = :parentUid")
     Optional<List<PersonName>> findByParentUid(@Param("parentUid") Long parentUid);
 
-    @Query(value = "SELECT TOP(1) person_name_seq FROM Person_name WHERE person_uid = :parentUid ORDER BY person_name_seq desc", nativeQuery = true)
-    List<Integer> findBySeqIdByParentUid(@Param("parentUid") Long parentUid);
+    @Query(value = "SELECT * FROM Person_name WHERE person_uid = :parentUid ORDER BY person_name_seq desc", nativeQuery = true)
+    List<PersonName> findBySeqIdByParentUid(@Param("parentUid") Long parentUid);
 }
