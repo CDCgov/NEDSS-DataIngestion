@@ -27,10 +27,10 @@ public class SFTPRouteBuilder extends RouteBuilder {
     @Value("${sftp.directory}")
     private String sftpDirectory;
 
-    private static final String username = "username";
-    private static final String password = "password";
-    private static final String autoCreate = "autoCreate";
-    private static final String useUserKnownHostsFile = "useUserKnownHostsFile";
+    private static final String USER_NAME = "username";
+    private static final String PASSWORD = "password";
+    private static final String AUTO_CREATE = "autoCreate";
+    private static final String USE_USER_KNOWN_HOSTS_FILE = "useUserKnownHostsFile";
     private static final String TRUE = "true";
     private static final String FALSE = "false";
     private static final String SFTP = "sftp";
@@ -60,9 +60,9 @@ public class SFTPRouteBuilder extends RouteBuilder {
                 .setHost(sftpHost)
                 .setPort(22)
                 .setPath(sftpDirectory)
-                .addParameter(username, sftpUserName)
-                .addParameter(password, sftpPassword)
-                .addParameter(autoCreate, TRUE)
+                .addParameter(USER_NAME, sftpUserName)
+                .addParameter(PASSWORD, sftpPassword)
+                .addParameter(AUTO_CREATE, TRUE)
                 .addParameter(PASSIVE_MODE, TRUE)
                 .addParameter(INITIAL_DELAY, "2000")
                 .addParameter(DELAY, "1000")
@@ -72,27 +72,27 @@ public class SFTPRouteBuilder extends RouteBuilder {
                 .addParameter(RECURSIVE, FALSE)//check
                 .addParameter(MAXIMUM_RECONNECT_ATTEMPTS, "5")
                 .addParameter(RECONNECT_DELAY, "5000")
-                .addParameter(useUserKnownHostsFile, FALSE)
+                .addParameter(USE_USER_KNOWN_HOSTS_FILE, FALSE)
                 .build();
         URI sftpUriProcessed = new URIBuilder()
                 .setScheme(SFTP)
                 .setHost(sftpHost)
                 .setPort(22)
                 .setPath(sftpDirectory + "processed")
-                .addParameter(username, sftpUserName)
-                .addParameter(password, sftpPassword)
-                .addParameter(autoCreate, TRUE)
-                .addParameter(useUserKnownHostsFile, FALSE)
+                .addParameter(USER_NAME, sftpUserName)
+                .addParameter(PASSWORD, sftpPassword)
+                .addParameter(AUTO_CREATE, TRUE)
+                .addParameter(USE_USER_KNOWN_HOSTS_FILE, FALSE)
                 .build();
         URI sftpUriUnProcessed = new URIBuilder()
                 .setScheme(SFTP)
                 .setHost(sftpHost)
                 .setPort(22)
                 .setPath(sftpDirectory + "unprocessed")
-                .addParameter(username, sftpUserName)
-                .addParameter(password, sftpPassword)
-                .addParameter(autoCreate, TRUE)
-                .addParameter(useUserKnownHostsFile, FALSE)
+                .addParameter(USER_NAME, sftpUserName)
+                .addParameter(PASSWORD, sftpPassword)
+                .addParameter(AUTO_CREATE, TRUE)
+                .addParameter(USE_USER_KNOWN_HOSTS_FILE, FALSE)
                 .build();
 
         String sftpServer = sftpUriBuilder.toString();
