@@ -24,7 +24,7 @@ class HL7FileProcessComponentTest {
     }
 
     @Test
-    public void testSaveHL7Message() throws Exception {
+    void testSaveHL7Message() throws Exception {
         String hl7Payload = "testmessage";
         String messageType = "HL7";
 
@@ -35,6 +35,6 @@ class HL7FileProcessComponentTest {
 
         when(rawELRService.submission(rawERLDto,"1")).thenReturn("OK");
         String status = hL7FileProcessComponent.process(hl7Payload);
-        Assertions.assertEquals(status, "OK");
+        Assertions.assertEquals("OK",status);
     }
 }

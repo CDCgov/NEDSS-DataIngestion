@@ -28,7 +28,7 @@ class SFTPRouteBuilderTest extends CamelTestSupport {
     }
 
     @Test
-    public void testMockEndpoints() throws Exception {
+    void testMockEndpoints() throws Exception {
         RouteDefinition sftpRoute = context.getRouteDefinition("sftpRouteId");
         RouteDefinition routeSftpUnzipFile = context.getRouteDefinition("sftpUnzipFileRouteId");
         RouteDefinition routeSftpReadFromUnzipDir = context.getRouteDefinition("SftpReadFromUnzipDirRouteId");
@@ -63,7 +63,6 @@ class SFTPRouteBuilderTest extends CamelTestSupport {
                     @Override
                     public void configure() throws Exception {
                         replaceFromWith("direct:sftpReadFromUnzipDirRoute");
-                       // weaveByToUri("bean:hL7FileProcessComponent*").replace().to("mock:sftpReadFromUnzippedFilesResult");
                         weaveByToUri("seda:processfiles").replace().to("mock:sftpReadFromUnzippedFilesResult");
                     }
                 });
@@ -74,8 +73,7 @@ class SFTPRouteBuilderTest extends CamelTestSupport {
                     @Override
                     public void configure() throws Exception {
                         replaceFromWith("seda:sedaProcessFilesRoute");
-                        // weaveByToUri("bean:hL7FileProcessComponent*").replace().to("mock:sftpReadFromUnzippedFilesResult");
-                        weaveByToUri("bean:hL7FileProcessComponent*").replace().to("mock:processBodyResult1");
+                        weaveByToUri("bean:gov.cdc.dataingestion.camel.routes.HL7FileProcessComponent*").replace().to("mock:processBodyResult1");
                         weaveAddLast().to("mock:processBodyResult");
 
                     }
@@ -85,7 +83,6 @@ class SFTPRouteBuilderTest extends CamelTestSupport {
         //For sftpRouteId
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
-        //template.sendBody("direct:fromSftpRoute", "HL7 Test message from SFTP Route");
         template.sendBody("direct:fromSftpRoute", new File("src/test/resources/sftpfiles/HL7file-test.txt"));
         mock.assertIsSatisfied();
 
@@ -97,17 +94,13 @@ class SFTPRouteBuilderTest extends CamelTestSupport {
         ////
         MockEndpoint mockSftpReadFromUnzippedFiles = getMockEndpoint("mock:sftpReadFromUnzippedFilesResult");
         mockSftpReadFromUnzippedFiles.expectedMessageCount(1);
-       // template.sendBody("direct:sftpReadFromUnzipDirRoute", "HL7 Test message from SFTP Route");
         template.sendBody("direct:sftpReadFromUnzipDirRoute", new File("src/test/resources/sftpfiles/HL7file-test.txt"));
-      //  template.sendBody("direct:sftpReadFromUnzipDirRoute", "HL7 Test message from SFTP Route");
         mockSftpReadFromUnzippedFiles.assertIsSatisfied();
 
         MockEndpoint mockProcessBody = getMockEndpoint("mock:processBodyResult");
         mockProcessBody.expectedMessageCount(2);
-        // template.sendBody("direct:sftpReadFromUnzipDirRoute", "HL7 Test message from SFTP Route");
         template.sendBody("seda:sedaProcessFilesRoute", new File("src/test/resources/sftpfiles/HL7file-test1.txt"));
         template.sendBody("seda:sedaProcessFilesRoute", new File("src/test/resources/sftpfiles/HL7file-test.txt"));
-       // template.sendBody("seda:sedaProcessFilesRoute", "HL7 Test message from SFTP Route");
         mockProcessBody.assertIsSatisfied();
     }
 }

@@ -6,14 +6,20 @@ import org.apache.camel.Handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class HL7FileProcessComponent {
     private static Logger logger = LoggerFactory.getLogger(HL7FileProcessComponent.class);
     String msgType = "HL7";
     String validationActive = "false";
-    @Autowired
+
     private RawELRService rawELRService;
 
+    @Autowired
+    public HL7FileProcessComponent(RawELRService rawELRService){
+        this.rawELRService=rawELRService;
+    }
     @Handler
     public String process(String body) throws Exception {
         String elrId = "";
