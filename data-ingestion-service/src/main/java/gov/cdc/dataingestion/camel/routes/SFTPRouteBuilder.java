@@ -27,25 +27,25 @@ public class SFTPRouteBuilder extends RouteBuilder {
     @Value("${sftp.directory}")
     private String sftpDirectory;
 
-    private final String username = "username";
-    private final String password = "password";
-    private final String autoCreate = "autoCreate";
-    private final String useUserKnownHostsFile = "useUserKnownHostsFile";
-    private final String TRUE = "true";
-    private final String FALSE = "false";
-    private final String SFTP = "sftp";
-    private final String ROUTE_FILES_PROCESS_UNPROCESS="file:files/sftpProcessedUnprocessed";
-    private final String ROUTE_FILE_UNZIP_DOWNLOAD="file:files/sftpUnzipDownload";
-    private final String ROUTE_FILE_DOWNLOAD="file:files/sftpdownload";
-    private final String PASSIVE_MODE="passiveMode";
-    private final String INITIAL_DELAY="initialDelay";
-    private final String DELAY="delay";
-    private final String NOOP="noop";
-    private final String DELETE="delete";
-    private final String LOCAL_WORK_DIRECTORY="localWorkDirectory";
-    private final String RECURSIVE="recursive";
-    private final String MAXIMUM_RECONNECT_ATTEMPTS="maximumReconnectAttempts";
-    private final String RECONNECT_DELAY="reconnectDelay";
+    private static final String username = "username";
+    private static final String password = "password";
+    private static final String autoCreate = "autoCreate";
+    private static final String useUserKnownHostsFile = "useUserKnownHostsFile";
+    private static final String TRUE = "true";
+    private static final String FALSE = "false";
+    private static final String SFTP = "sftp";
+    private static final String ROUTE_FILES_PROCESS_UNPROCESS="file:files/sftpProcessedUnprocessed";
+    private static final String ROUTE_FILE_UNZIP_DOWNLOAD="file:files/sftpUnzipDownload";
+    private static final String ROUTE_FILE_DOWNLOAD="file:files/sftpdownload";
+    private static final String PASSIVE_MODE="passiveMode";
+    private static final String INITIAL_DELAY="initialDelay";
+    private static final String DELAY="delay";
+    private static final String NOOP="noop";
+    private static final String DELETE="delete";
+    private static final String LOCAL_WORK_DIRECTORY="localWorkDirectory";
+    private static final String RECURSIVE="recursive";
+    private static final String MAXIMUM_RECONNECT_ATTEMPTS="maximumReconnectAttempts";
+    private static final String RECONNECT_DELAY="reconnectDelay";
     @Override
     public void configure() throws Exception {
         //shutdown faster in case of in-flight messages stack up
