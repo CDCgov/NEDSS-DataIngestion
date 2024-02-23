@@ -67,9 +67,9 @@ public class SFTPRouteBuilder extends RouteBuilder {
                 .addParameter(INITIAL_DELAY, "2000")
                 .addParameter(DELAY, "1000")
                 .addParameter(NOOP, TRUE)
-                .addParameter(DELETE, TRUE)//check
+                .addParameter(DELETE, TRUE)
                 .addParameter(LOCAL_WORK_DIRECTORY, "files/download") //check
-                .addParameter(RECURSIVE, FALSE)//check
+                .addParameter(RECURSIVE, FALSE)
                 .addParameter(MAXIMUM_RECONNECT_ATTEMPTS, "5")
                 .addParameter(RECONNECT_DELAY, "5000")
                 .addParameter(USE_USER_KNOWN_HOSTS_FILE, FALSE)
@@ -96,25 +96,22 @@ public class SFTPRouteBuilder extends RouteBuilder {
                 .build();
 
         String sftpServer = sftpUriBuilder.toString();
-        logger.info("sftp_server URL: {}", sftpServer);
-        //# for the server we want to delay 5 seconds between polling the server
-        //# and keep the downloaded file as-is
+        logger.debug("sftp_server URL: {}", sftpServer);
 
-        logger.info("Calling sftpRouteId");
         //Download the file from sftp server.If the file is zip, it will be downloaded into files/sftpdownload directory.
-        //If it's a text file, it will be moved to the folder where the all the non-zip files are downloaded.
+        //If it's a text file, it will be moved to the folder files/sftpUnzipDownload, where all the single files are stored temporarily.
         from(sftpServer).routeId("sftpRouteId")
                 .log("The file from sftpRouteId: ${file:name}")
                 .choice()
-                .when(simple("${file:name} endsWith '.zip'"))
-                .log(" *****when .zip condition...The file ${file:name}")
-                .to(ROUTE_FILE_DOWNLOAD)
-                .otherwise()
-                .log(" ****Otherwise condition for other files ...The file ${file:name} content from sftp server is ${body}")
-                .to(ROUTE_FILE_UNZIP_DOWNLOAD)
+                    .when(simple("${file:name} endsWith '.zip'"))
+                        .log(" *****when .zip condition...The file ${file:name}")
+                        .to(ROUTE_FILE_DOWNLOAD)
+                    .otherwise()
+                        .log(" ****Otherwise condition for non .zip files.file ${file:name}")
+                        .to(ROUTE_FILE_UNZIP_DOWNLOAD)
                 .end();
         // Unzip the downloaded file
-        log.info("Calling sftpUnzipFileRouteId");
+        log.debug("Calling sftpUnzipFileRouteId");
         from(ROUTE_FILE_DOWNLOAD)
                 .routeId("sftpUnzipFileRouteId")
                 .split(new ZipSplitter()).streaming()
@@ -122,39 +119,39 @@ public class SFTPRouteBuilder extends RouteBuilder {
                 .end();
 
         //Process the files from unzipped folder
-        logger.info("Calling sftpdownloadUnzip");
+        logger.debug("Calling sftpdownloadUnzip");
         from(ROUTE_FILE_UNZIP_DOWNLOAD)
                 .routeId("SftpReadFromUnzipDirRouteId")
-                .log(" Read from unzipped files folder ...The file ${file:name}")
-                .to("seda:processfiles", "seda:movefiles")
+                    .log(" Read from unzipped files folder ...The file ${file:name}")
+                    .to("seda:processfiles", "seda:movefiles")
                 .end();
         from("seda:processfiles")
                 .routeId("sedaProcessFilesRouteId")
                 .log("from seda processfiles file: ${file:name}")
                 .choice()
-                .when(simple("${file:name} endsWith '.txt'"))
-                .log("File processed:${file:name}")
-                .to("bean:gov.cdc.dataingestion.camel.routes.HL7FileProcessComponent")
-                .otherwise()
-                .log("File not processed:${file:name}")
+                    .when(simple("${file:name} endsWith '.txt'"))
+                        .log("File processed:${file:name}")
+                        .to("bean:gov.cdc.dataingestion.camel.routes.HL7FileProcessComponent")
+                    .otherwise()
+                        .log("File not processed:${file:name}")
                 .endChoice()
                 .end();
 
         from("seda:movefiles")
                 .routeId("sedaMoveFilesRouteId")
-                .log("from seda movefiles file:${file:name} body: ${body}")
-                .to(ROUTE_FILES_PROCESS_UNPROCESS)
+                    .log("from seda movefiles file:${file:name}")
+                    .to(ROUTE_FILES_PROCESS_UNPROCESS)
                 .end();
 
-        from(ROUTE_FILES_PROCESS_UNPROCESS)
+        from(ROUTE_FILES_PROCESS_UNPROCESS+"?delete=true")
                 .log("from files sftpProcessedUnprocessed The file ${file:name}")
                 .delay(5000)
                 .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmssSSS}-${file:name}"))
                 .choice()
-                .when(simple("${file:name} endsWith '.txt'"))
-                .to(sftpUriProcessed.toString())
-                .otherwise()
-                .to(sftpUriUnProcessed.toString())
+                    .when(simple("${file:name} endsWith '.txt'"))
+                        .to(sftpUriProcessed.toString())
+                    .otherwise()
+                        .to(sftpUriUnProcessed.toString())
                 .endChoice()
                 .end();
     }
