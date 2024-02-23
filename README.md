@@ -5,34 +5,42 @@ Data Ingestion for Modernization of NEDSS Project by Enquizit
 - Requirement
   - Java 17
   - Docker
-  - Gradle
+    - Gradle
 
-- Building application with Docker
-  - Create env file on the top directory and name it as dataingestion.env. Update the content beloew with approriate value
-    ```
-         DI_DBSERVER=value
+      - Building application with Docker
+        - Create env file on the top directory and name it as dataingestion.env. Update the content below with appropriate value
+          ```
+            DI_DBSERVER=value
 
-         DI_DBNAME=value
+            DI_DBNAME=value
       
-         DI_USERNAME=value
+            DI_USERNAME=value
          
-         DI_PASSWORD=value
+            DI_PASSWORD=value
          
-         DI_NBS_DBSERVER=value
+            DI_NBS_DBSERVER=value
          
-         DI_NBS_DBNAME=value
+            DI_NBS_DBNAME=value
          
-         DI_NBS_DBUSER=value
+            DI_NBS_DBUSER=value
          
-         DI_NBS_DBPASSWORD=value
+            DI_NBS_DBPASSWORD=value
 
-         DI_LOG_PATH=value
+            DI_LOG_PATH=value
          
-         DI_AUTH_URI=value
-         ```
-  - Run "docker-compose up -d"
-  - If encounter gradle exception such as missing wrapper then run the following command
-    - "gradle wrapper"
+            DI_AUTH_URI=value
+    
+            DI_SFTP_ENABLE=value
+         
+            DI_SFTP_HOST=value
+    
+            DI_SFTP_USER=value
+    
+            DI_SFTP_PWD=value
+        ```
+        - Run "docker-compose up -d"
+        - If encounter gradle exception such as missing wrapper then run the following command
+          - "gradle wrapper"
 
 - Build project with gradle (no docker)
   - ./gradlew :hl7-parser:build
@@ -63,7 +71,7 @@ Data Ingestion for Modernization of NEDSS Project by Enquizit
      
 # Unit Testing and Code Coverage
 - Requirement:
-  - Code coverage must be greater than 80%
+  - Code coverage must be greater than 90%
 - Progress:
   - hl7-parser is greater than 80%.
   - data-ingestion-service is greater than 80%.
