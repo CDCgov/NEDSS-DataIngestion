@@ -18,15 +18,13 @@ public class SFTPRouteBuilder extends RouteBuilder {
     private static Logger logger = LoggerFactory.getLogger(SFTPRouteBuilder.class);
     @Value("${sftp.host}")
     private String sftpHost;
-    @Value("${sftp.port}")
-    private String sftpPort;
     @Value("${sftp.username}")
     private String sftpUserName;
     @Value("${sftp.password}")
     private String sftpPassword;
-    @Value("${sftp.directory}")
-    private String sftpDirectory;
 
+    private String sftpDirectory="/";
+    private int sftpPort=22;
     private static final String USER_NAME = "username";
     private static final String PASSWORD = "password";
     private static final String AUTO_CREATE = "autoCreate";
@@ -51,14 +49,10 @@ public class SFTPRouteBuilder extends RouteBuilder {
         //shutdown faster in case of in-flight messages stack up
         getContext().getShutdownStrategy().setTimeout(10);
 
-        if (sftpDirectory == null || !sftpDirectory.startsWith("/")) {
-            sftpDirectory = "/" + sftpDirectory;
-        }
-
         URI sftpUriBuilder = new URIBuilder()
                 .setScheme(SFTP)
                 .setHost(sftpHost)
-                .setPort(22)
+                .setPort(sftpPort)
                 .setPath(sftpDirectory)
                 .addParameter(USER_NAME, sftpUserName)
                 .addParameter(PASSWORD, sftpPassword)
@@ -77,7 +71,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
         URI sftpUriProcessed = new URIBuilder()
                 .setScheme(SFTP)
                 .setHost(sftpHost)
-                .setPort(22)
+                .setPort(sftpPort)
                 .setPath(sftpDirectory + "processed")
                 .addParameter(USER_NAME, sftpUserName)
                 .addParameter(PASSWORD, sftpPassword)
@@ -87,7 +81,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
         URI sftpUriUnProcessed = new URIBuilder()
                 .setScheme(SFTP)
                 .setHost(sftpHost)
-                .setPort(22)
+                .setPort(sftpPort)
                 .setPath(sftpDirectory + "unprocessed")
                 .addParameter(USER_NAME, sftpUserName)
                 .addParameter(PASSWORD, sftpPassword)
