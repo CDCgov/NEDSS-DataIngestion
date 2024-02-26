@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.net.URI;
 
 @Component
-@ConditionalOnProperty(name = "sftp.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "sftp.enabled", havingValue = "enabled")
 public class SFTPRouteBuilder extends RouteBuilder {
     private static Logger logger = LoggerFactory.getLogger(SFTPRouteBuilder.class);
     @Value("${sftp.host}")
