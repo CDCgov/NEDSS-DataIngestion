@@ -405,7 +405,7 @@ public class PatientMatchingService implements IPatientMatchingService {
         Long patientUid = personVO.getThePersonDT().getPersonUid();
         EdxPatientMatchDT edxPatientFoundDT = null;
         EdxPatientMatchDT edxPatientMatchFoundDT = null;
-        Long patientPersonUid = null;
+        PersonId patientPersonUid = null;
         boolean matchFound = false;
         boolean newPersonCreationApplied = false;
 
@@ -476,6 +476,8 @@ public class PatientMatchingService implements IPatientMatchingService {
             }
         }
 
+
+        // NEW NOK
         if (!matchFound) {
             if (personVO.getTheEntityIdDTCollection() != null) {
                 Collection<EntityIdDT> newEntityIdDTColl = new ArrayList<>();
@@ -490,9 +492,11 @@ public class PatientMatchingService implements IPatientMatchingService {
             }
             try {
                 if (personVO.getThePersonDT().getCd().equals(NEDSSConstant.PAT)) { // Patient
-                    Person personId = patientRepositoryUtil.createPerson(personVO);
-                    patientPersonUid = personId.getPersonParentUid();
-                    personVO.getThePersonDT().setPersonParentUid(patientPersonUid);
+                    patientPersonUid = setAndCreateNewPerson(personVO);
+                    personVO.getThePersonDT().setPersonParentUid(patientPersonUid.getPersonParentId());
+                    personVO.getThePersonDT().setLocalId(patientPersonUid.getLocalId());
+                    personVO.getThePersonDT().setPersonUid(patientPersonUid.getPersonId());
+
                     newPersonCreationApplied = true;
 
                 }
@@ -507,17 +511,16 @@ public class PatientMatchingService implements IPatientMatchingService {
         }
 
         try {
-            if (patientPersonUid == null)
-            {
+            if (!newPersonCreationApplied) {
+                // patientRepositoryUtil.updateExistingPerson(personVO);
                 personVO.getThePersonDT().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
+                patientPersonUid = updateExistingPatient(personVO, NEDSSConstant.PAT_CR, personVO.getThePersonDT().getPersonParentUid());
+                personVO.getThePersonDT().setPersonParentUid(patientPersonUid.getPersonParentId());
+                personVO.getThePersonDT().setLocalId(patientPersonUid.getLocalId());
+                personVO.getThePersonDT().setPersonUid(patientPersonUid.getPersonId());
             }
-            else {
-                personVO.getThePersonDT().setPersonParentUid(patientPersonUid);
-            }
-
-            if (newPersonCreationApplied) {
-                patientRepositoryUtil.updateExistingPerson(personVO);
-                personVO.getThePersonDT().setPersonUid(patientPersonUid);
+            else if (newPersonCreationApplied) {
+                setPatientHashCd(personVO);
             }
         } catch (Exception e) {
             logger.error("Error in getting the entity Controller or Setting the Patient" + e.getMessage());
@@ -1082,11 +1085,60 @@ public class PatientMatchingService implements IPatientMatchingService {
 
             }
         }
-        // else if
-        // (patientRole.equalsIgnoreCase(EdxELRConstants.ELR_NEXT_F_KIN_ROLE_CD))
-        // {
         if (cdDescTxt != null && cdDescTxt.equalsIgnoreCase(EdxELRConstant.ELR_NOK_DESC)) {
-            //TODO: Next of KIN Code
+            String nameAddStrSt1 = null;
+            int nameAddStrSt1hshCd = 0;
+            List nameAddressStreetOneStrList = nameAddressStreetOneNOK(personVO);
+            if (nameAddressStreetOneStrList != null
+                    && !nameAddressStreetOneStrList.isEmpty()) {
+                for (int k = 0; k < nameAddressStreetOneStrList.size(); k++) {
+                    nameAddStrSt1 = (String) nameAddressStreetOneStrList.get(k);
+                    if (nameAddStrSt1 != null) {
+                        nameAddStrSt1 = nameAddStrSt1.toUpperCase();
+                        nameAddStrSt1hshCd = nameAddStrSt1.hashCode();
+                        if (nameAddStrSt1 != null) {
+                            edxPatientMatchDT = new EdxPatientMatchDT();
+                            edxPatientMatchDT.setPatientUid(patientUid);
+                            edxPatientMatchDT.setTypeCd(NEDSSConstant.NOK);
+                            edxPatientMatchDT.setMatchString(nameAddStrSt1);
+                            edxPatientMatchDT.setMatchStringHashCode((long)nameAddStrSt1hshCd);
+                            try {
+                                edxPatientMatchRepositoryUtil.setEdxPatientMatchDT(edxPatientMatchDT);
+                            } catch (Exception e) {
+                                logger.error("Error in creating the setEdxPatientMatchDT with nameAddString:" + nameAddStrSt1 + " " + e.getMessage());
+                                throw new DataProcessingException(e.getMessage(), e);
+                            }
+                        }
+
+                    }
+                }
+            }
+            List nameTelePhoneStrList = telePhoneTxtNOK(personVO);
+            String nameTelePhone = null;
+            int nameTelePhonehshCd = 0;
+            if (nameTelePhoneStrList != null && !nameTelePhoneStrList.isEmpty()) {
+                for (int k = 0; k < nameTelePhoneStrList.size(); k++) {
+                    nameTelePhone = (String) nameTelePhoneStrList.get(k);
+                    if (nameTelePhone != null) {
+                        nameTelePhone = nameTelePhone.toUpperCase();
+                        nameTelePhonehshCd = nameTelePhone.hashCode();
+                        if (nameTelePhone != null) {
+                            edxPatientMatchDT = new EdxPatientMatchDT();
+                            edxPatientMatchDT.setPatientUid(patientUid);
+                            edxPatientMatchDT.setTypeCd(NEDSSConstant.NOK);
+                            edxPatientMatchDT.setMatchString(nameTelePhone);
+                            edxPatientMatchDT.setMatchStringHashCode((long)nameTelePhonehshCd);
+                            try {
+                                edxPatientMatchRepositoryUtil.setEdxPatientMatchDT(edxPatientMatchDT);
+                            } catch (Exception e) {
+                                logger.error("Error in creating the EdxEntityMatchDT with nameTelePhone:" + nameTelePhone + " " + e.getMessage());
+                                throw new DataProcessingException(e.getMessage(), e);
+                            }
+                        }
+
+                    }
+                }// for loop
+            }
 
         }// end of method
     }

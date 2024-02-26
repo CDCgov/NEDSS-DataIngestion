@@ -141,6 +141,20 @@ public class HL7PatientHandler {
             personVO.getThePersonDT().setCurrSexCd(hl7PIDType.getAdministrativeSex());
             personVO.getThePersonDT().setElectronicInd(ELRConstant.ELECTRONIC_IND);
 
+            //Setup Person Lang
+            var langList = hl7PIDType.getPrimaryLanguage();
+            if (!langList.isEmpty()) {
+                var primaryLang = langList.get(0);
+                personVO.getThePersonDT().setPrimLangCd(primaryLang.getHL7Identifier());
+                personVO.getThePersonDT().setPrimLangDescTxt(primaryLang.getHL7Text());
+
+                if (personVO.getThePersonDT().getPrimLangCd().equals("ENG")) {
+                    personVO.getThePersonDT().setSpeaksEnglishCd("Y");
+                } else {
+                    personVO.getThePersonDT().setSpeaksEnglishCd("N");
+                }
+            }
+
             // Setup Person Sex Code
             //TODO: Call out ro ElrXref Repository to grab the data
             ElrXref elrXref = new ElrXref();
@@ -171,7 +185,7 @@ public class HL7PatientHandler {
                 PersonEthnicGroupDT personEthnicGroupDT = NBSObjectConverter.ethnicGroupType(ethnicType, personVO);
                 //TODO: Call out to ElrXrefRepositoty
                 ElrXref elrXrefForEthnic = new ElrXref();
-                String ethnicGroupCd = elrXrefForEthnic.getToCode(); //CachedDropDowns.findToCode("ELR_LCA_ETHN_GRP", personEthnicGroupDT.getEthnicGroupCd(), "P_ETHN_GRP");
+                String ethnicGroupCd = elrXrefForEthnic.getToCode();
                 if (ethnicGroupCd != null && !ethnicGroupCd.trim().equals("")) {
                     personEthnicGroupDT.setEthnicGroupCd(ethnicGroupCd);
                 }

@@ -104,6 +104,7 @@ public class NBSObjectConverter {
             personVO.getThePersonDT().setFirstNm(personNameDT.getFirstNm());
             personVO.getThePersonDT().setNmPrefix(personNameDT.getNmPrefix());
             personVO.getThePersonDT().setNmSuffix(personNameDT.getNmSuffix());
+            personVO.getThePersonDT().setMiddleNm(personNameDT.getMiddleNm());
         }
         return personVO;
     }
@@ -160,7 +161,7 @@ public class NBSObjectConverter {
         }
         return entityIdDT;
     }
-    
+
     /**
      * Parsing Entity Address into Object
      * */
@@ -442,6 +443,7 @@ public class NBSObjectConverter {
         PersonEthnicGroupDT ethnicGroupDT = new PersonEthnicGroupDT();
         ethnicGroupDT.setItNew(true);
         ethnicGroupDT.setItDirty(false);
+        ethnicGroupDT.setAddReasonCd("Add");
         ethnicGroupDT.setRecordStatusCd(NEDSSConstant.ACTIVE);
         ethnicGroupDT.setPersonUid(personVO.getThePersonDT().getPersonUid());
         ethnicGroupDT.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);

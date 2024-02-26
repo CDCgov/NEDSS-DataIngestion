@@ -8,9 +8,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TeleLocatorRepository  extends JpaRepository<TeleLocator, Long> {
     @Query(value = "SELECT x FROM TeleLocator x WHERE x.teleLocatorUid IN :uids", nativeQuery = false)
-    List<TeleLocator> findByTeleLocatorUids(@Param("uids") List<Long> uids);
+    Optional<List<TeleLocator>> findByTeleLocatorUids(@Param("uids") List<Long> uids);
 }

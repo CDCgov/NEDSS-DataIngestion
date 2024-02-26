@@ -9,7 +9,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PhysicalLocatorRepository extends JpaRepository<PhysicalLocator, Long> {
+    @Query(value = "SELECT x FROM PhysicalLocator x WHERE x.physicalLocatorUid IN :uids", nativeQuery = false)
+    Optional<List<PhysicalLocator>> findByPhysicalLocatorUids(@Param("uids") List<Long> uids);
 }

@@ -180,6 +180,13 @@ public class PatientRepositoryUtil {
 
         arrayList.add(NEDSSConstant.PERSON);
 
+        //NOTE: Update Person
+        Person person = new Person(personVO.getThePersonDT());
+        try {
+            personRepository.save(person);
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
 
         //NOTE: Create Person Name
         if  (personVO.getThePersonNameDTCollection() != null && !personVO.getThePersonNameDTCollection().isEmpty()) {
@@ -386,11 +393,25 @@ public class PatientRepositoryUtil {
                 if (personList.get(i).getClassCd().equals(NEDSSConstant.PHYSICAL) && personList.get(i).getThePhysicalLocatorDT() != null) {
                     newLocator = true;
                     if (!physicalLocators.isEmpty()) {
-                        physicalLocator = physicalLocators.get(0);
-                        var existingLocator = physicalLocatorRepository.findById(physicalLocator.getLocatorUid());
+                       // physicalLocator = physicalLocators.get(0);
+                       // var existingLocator = physicalLocatorRepository.findById(physicalLocator.getLocatorUid());
+
+                        var existingLocator = physicalLocatorRepository.findByPhysicalLocatorUids(
+                                physicalLocators.stream()
+                                        .map(x -> x.getLocatorUid())
+                                        .collect(Collectors.toList()));
+
+                        List<String> compareStringList = new ArrayList<>();
+
                         if (existingLocator.isPresent()) {
-                            comparingString.append(existingLocator.get().getImageTxt());
-                            if (!comparingString.toString().equals(personList.get(i).getThePhysicalLocatorDT().getImageTxt())) {
+                            for(int j = 0; j < existingLocator.get().size(); j++) {
+                                comparingString.setLength(0);
+                                comparingString.append(existingLocator.get().get(j).getImageTxt());
+                                compareStringList.add(comparingString.toString().toUpperCase());
+                            }
+
+
+                            if (!compareStringList.contains(personList.get(i).getThePhysicalLocatorDT().getImageTxt().toString().toUpperCase())) {
                                 personList.get(i).getThePhysicalLocatorDT().setPhysicalLocatorUid(uniqueId);
                                 physicalLocatorRepository.save(new PhysicalLocator(personList.get(i).getThePhysicalLocatorDT()));
                             }
@@ -413,19 +434,29 @@ public class PatientRepositoryUtil {
                 if (personList.get(i).getClassCd().equals(NEDSSConstant.POSTAL) && personList.get(i).getThePostalLocatorDT() != null) {
                     newLocator = true;
                     if (!postalLocators.isEmpty()) {
-                        postalLocator = postalLocators.get(0);
-                        var existingLocator = postalLocatorRepository.findById(postalLocator.getLocatorUid());
+                        var existingLocator = postalLocatorRepository.findByPostalLocatorUids(
+                                postalLocators.stream()
+                                        .map(x -> x.getLocatorUid())
+                                        .collect(Collectors.toList()));
+
+                        List<String> compareStringList = new ArrayList<>();
                         if (existingLocator.isPresent()) {
-                            comparingString.append(existingLocator.get().getCityCd());
-                            comparingString.append(existingLocator.get().getCityDescTxt());
-                            comparingString.append(existingLocator.get().getCntryCd());
-                            comparingString.append(existingLocator.get().getCntryDescTxt());
-                            comparingString.append(existingLocator.get().getCntyCd());
-                            comparingString.append(existingLocator.get().getCntyDescTxt());
-                            comparingString.append(existingLocator.get().getStateCd());
-                            comparingString.append(existingLocator.get().getStreetAddr1());
-                            comparingString.append(existingLocator.get().getStreetAddr2());
-                            comparingString.append(existingLocator.get().getZipCd());
+                            for(int j = 0; j < existingLocator.get().size(); j++) {
+                                comparingString.setLength(0);
+                                comparingString.append(existingLocator.get().get(j).getCityCd());
+                                comparingString.append(existingLocator.get().get(j).getCityDescTxt());
+                                comparingString.append(existingLocator.get().get(j).getCntryCd());
+                                comparingString.append(existingLocator.get().get(j).getCntryDescTxt());
+                                comparingString.append(existingLocator.get().get(j).getCntyCd());
+                                comparingString.append(existingLocator.get().get(j).getCntyDescTxt());
+                                comparingString.append(existingLocator.get().get(j).getStateCd());
+                                comparingString.append(existingLocator.get().get(j).getStreetAddr1());
+                                comparingString.append(existingLocator.get().get(j).getStreetAddr2());
+                                comparingString.append(existingLocator.get().get(j).getZipCd());
+
+                                compareStringList.add(comparingString.toString().toUpperCase());
+                            }
+
 
                             StringBuilder existComparingLocator = new StringBuilder();
                             existComparingLocator.append(personList.get(i).getThePostalLocatorDT().getCityCd());
@@ -440,7 +471,7 @@ public class PatientRepositoryUtil {
                             existComparingLocator.append(personList.get(i).getThePostalLocatorDT().getZipCd());
 
 
-                            if (!comparingString.toString().equalsIgnoreCase(existComparingLocator.toString())) {
+                            if (!compareStringList.contains(existComparingLocator.toString().toUpperCase())) {
                                 personList.get(i).getThePostalLocatorDT().setPostalLocatorUid(uniqueId);
                                 postalLocatorRepository.save(new PostalLocator(personList.get(i).getThePostalLocatorDT()));
                             }
@@ -452,7 +483,6 @@ public class PatientRepositoryUtil {
                             personList.get(i).getThePostalLocatorDT().setPostalLocatorUid(uniqueId);
                             postalLocatorRepository.save(new PostalLocator(personList.get(i).getThePostalLocatorDT()));
                         }
-
                         comparingString.setLength(0);
                     }
                     else {
@@ -463,14 +493,24 @@ public class PatientRepositoryUtil {
                 if (personList.get(i).getClassCd().equals(NEDSSConstant.TELE) && personList.get(i).getTheTeleLocatorDT() != null) {
                     newLocator = true;
                     if (!teleLocators.isEmpty()) {
-                        teleLocator = teleLocators.get(0);
-                        var existingLocator = teleLocatorRepository.findById(teleLocator.getLocatorUid());
+//                        teleLocator = teleLocators.get(0);
+//                        var existingLocator = teleLocatorRepository.findById(teleLocator.getLocatorUid());
+                        var existingLocator = teleLocatorRepository.findByTeleLocatorUids(
+                                teleLocators.stream()
+                                        .map(x -> x.getLocatorUid())
+                                        .collect(Collectors.toList()));
+                        List<String> compareStringList = new ArrayList<>();
+
                         if (existingLocator.isPresent()) {
-                            comparingString.append(existingLocator.get().getCntryCd());
-                            comparingString.append(existingLocator.get().getEmailAddress());
-                            comparingString.append(existingLocator.get().getExtensionTxt());
-                            comparingString.append(existingLocator.get().getPhoneNbrTxt());
-                            comparingString.append(existingLocator.get().getUrlAddress());
+                            for(int j = 0; j < existingLocator.get().size(); j++) {
+                                comparingString.setLength(0);
+                                comparingString.append(existingLocator.get().get(j).getCntryCd());
+                                comparingString.append(existingLocator.get().get(j).getEmailAddress());
+                                comparingString.append(existingLocator.get().get(j).getExtensionTxt());
+                                comparingString.append(existingLocator.get().get(j).getPhoneNbrTxt());
+                                comparingString.append(existingLocator.get().get(j).getUrlAddress());
+                                compareStringList.add(comparingString.toString().toUpperCase());
+                            }
 
                             StringBuilder existComparingLocator = new StringBuilder();
                             existComparingLocator.append(personList.get(i).getTheTeleLocatorDT().getCntryCd());
@@ -479,7 +519,7 @@ public class PatientRepositoryUtil {
                             existComparingLocator.append(personList.get(i).getTheTeleLocatorDT().getPhoneNbrTxt());
                             existComparingLocator.append(personList.get(i).getTheTeleLocatorDT().getUrlAddress());
 
-                            if (!comparingString.toString().equalsIgnoreCase(existComparingLocator.toString())) {
+                            if (!compareStringList.contains(existComparingLocator.toString().toUpperCase())) {
                                 personList.get(i).getTheTeleLocatorDT().setTeleLocatorUid(uniqueId);
                                 teleLocatorRepository.save(new TeleLocator(personList.get(i).getTheTeleLocatorDT()));
                             }

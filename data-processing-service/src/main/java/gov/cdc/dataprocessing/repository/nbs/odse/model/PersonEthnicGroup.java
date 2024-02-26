@@ -8,6 +8,7 @@ import lombok.Data;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Person_ethnic_group", schema = "dbo")
@@ -58,17 +59,24 @@ public class PersonEthnicGroup {
 
     }
     public PersonEthnicGroup(PersonEthnicGroupDT personEthnicGroupDT) {
+        LocalDateTime currentTime = LocalDateTime.now();
+        Timestamp currentTimestamp = Timestamp.valueOf(currentTime);
+
+        if (personEthnicGroupDT.getAddUserId() == null) {
+            this.addUserId = 123L;
+        } else {
+            this.addUserId = personEthnicGroupDT.getAddUserId();
+        }
         this.personUid = personEthnicGroupDT.getPersonUid();
         this.ethnicGroupCd = personEthnicGroupDT.getEthnicGroupCd();
         this.addReasonCd = personEthnicGroupDT.getAddReasonCd();
-        this.addTime = personEthnicGroupDT.getAddTime();
-        this.addUserId = personEthnicGroupDT.getAddUserId();
+        this.addTime = currentTimestamp;
         this.ethnicGroupDescTxt = personEthnicGroupDT.getEthnicGroupDescTxt();
         this.lastChgReasonCd = personEthnicGroupDT.getLastChgReasonCd();
-        this.lastChgTime = personEthnicGroupDT.getLastChgTime();
+        this.lastChgTime =  currentTimestamp;
         this.lastChgUserId = personEthnicGroupDT.getLastChgUserId();
         this.recordStatusCd = personEthnicGroupDT.getRecordStatusCd();
-        this.recordStatusTime = personEthnicGroupDT.getRecordStatusTime();
+        this.recordStatusTime =  currentTimestamp;
         this.userAffiliationTxt = personEthnicGroupDT.getUserAffiliationTxt();
     }
 
