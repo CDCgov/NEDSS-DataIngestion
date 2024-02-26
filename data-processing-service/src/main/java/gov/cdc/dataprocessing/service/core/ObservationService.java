@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.service;
+package gov.cdc.dataprocessing.service.core;
 
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.service.interfaces.IObservationService;

@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.service;
+package gov.cdc.dataprocessing.service.core;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model.dt.EdxLabInformationDT;

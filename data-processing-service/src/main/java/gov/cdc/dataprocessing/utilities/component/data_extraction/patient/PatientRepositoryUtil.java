@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.component.patient;
+package gov.cdc.dataprocessing.utilities.component.data_extraction.patient;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
@@ -6,7 +6,7 @@ import gov.cdc.dataprocessing.model.classic_model.dto.*;
 import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 import gov.cdc.dataprocessing.repository.nbs.odse.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.*;
-import gov.cdc.dataprocessing.utilities.UniqueIdGenerator;
+import gov.cdc.dataprocessing.utilities.id_generator.UniqueIdGenerator;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;

@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.component;
+package gov.cdc.dataprocessing.utilities.component.data_extraction;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;

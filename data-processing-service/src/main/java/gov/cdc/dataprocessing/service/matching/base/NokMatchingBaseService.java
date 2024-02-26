@@ -8,10 +8,10 @@ import gov.cdc.dataprocessing.model.classic_model.dto.EntityLocatorParticipation
 import gov.cdc.dataprocessing.model.classic_model.dto.PostalLocatorDT;
 import gov.cdc.dataprocessing.model.classic_model.dto.TeleLocatorDT;
 import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
-import gov.cdc.dataprocessing.service.CheckingValueService;
+import gov.cdc.dataprocessing.service.core.CheckingValueService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
-import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
-import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.data_extraction.patient.EdxPatientMatchRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.data_extraction.patient.PatientRepositoryUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.component;
+package gov.cdc.dataprocessing.utilities.component.data_extraction;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
@@ -11,8 +11,8 @@ import gov.cdc.dataprocessing.model.classic_model.vo.OrganizationVO;
 import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.service.interfaces.ICheckingValueService;
-import gov.cdc.dataprocessing.utilities.CommonLabUtil;
-import gov.cdc.dataprocessing.utilities.HL7SpecimenHandler;
+import gov.cdc.dataprocessing.utilities.data_extraction.CommonLabUtil;
+import gov.cdc.dataprocessing.utilities.data_extraction.HL7SpecimenHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

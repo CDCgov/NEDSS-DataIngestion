@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.service;
+package gov.cdc.dataprocessing.service.core;
 
 import com.google.gson.Gson;
 import gov.cdc.dataprocessing.cache.SrteCache;
@@ -8,7 +8,6 @@ import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.exception.EdxLogException;
 import gov.cdc.dataprocessing.model.classic_model.dt.EdxLabInformationDT;
-import gov.cdc.dataprocessing.model.classic_model.dto.EdxPatientMatchDT;
 import gov.cdc.dataprocessing.model.classic_model.vo.LabResultProxyVO;
 import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.NbsInterfaceRepository;
@@ -24,7 +23,6 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
-import java.util.Base64;
 import java.util.Iterator;
 import java.util.TreeMap;
 

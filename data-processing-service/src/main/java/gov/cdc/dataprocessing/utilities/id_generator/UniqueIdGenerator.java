@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities;
+package gov.cdc.dataprocessing.utilities.id_generator;
 
 import java.util.concurrent.atomic.AtomicLong;
 

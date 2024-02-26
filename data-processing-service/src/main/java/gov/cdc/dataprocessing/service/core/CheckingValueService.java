@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.service;
+package gov.cdc.dataprocessing.service.core;
 
 import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.elr.ELRConstant;

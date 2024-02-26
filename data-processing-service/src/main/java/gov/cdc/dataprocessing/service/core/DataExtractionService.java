@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.service;
+package gov.cdc.dataprocessing.service.core;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
@@ -10,11 +10,11 @@ import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.service.interfaces.IDataExtractionService;
 import gov.cdc.dataprocessing.service.interfaces.IMsgOutEStoredProcService;
-import gov.cdc.dataprocessing.utilities.LabResultHandler;
-import gov.cdc.dataprocessing.utilities.component.HL7PatientHandler;
-import gov.cdc.dataprocessing.utilities.component.ORCHandler;
-import gov.cdc.dataprocessing.utilities.component.ObservationRequestHandler;
-import gov.cdc.dataprocessing.utilities.component.ObservationResultRequestHandler;
+import gov.cdc.dataprocessing.utilities.data_extraction.LabResultHandler;
+import gov.cdc.dataprocessing.utilities.component.data_extraction.HL7PatientHandler;
+import gov.cdc.dataprocessing.utilities.component.data_extraction.ORCHandler;
+import gov.cdc.dataprocessing.utilities.component.data_extraction.ObservationRequestHandler;
+import gov.cdc.dataprocessing.utilities.component.data_extraction.ObservationResultRequestHandler;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;

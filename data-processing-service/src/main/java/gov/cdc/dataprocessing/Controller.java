@@ -1,11 +1,9 @@
 package gov.cdc.dataprocessing;
 
-import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
-import gov.cdc.dataprocessing.service.ManagerService;
+import gov.cdc.dataprocessing.service.core.ManagerService;
 import gov.cdc.dataprocessing.service.interfaces.IManagerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities;
+package gov.cdc.dataprocessing.utilities.data_extraction;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
@@ -10,7 +10,7 @@ import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 import gov.cdc.dataprocessing.model.phdc.HL7PatientResultSPMType;
 import gov.cdc.dataprocessing.model.phdc.HL7SPECIMENType;
 import gov.cdc.dataprocessing.model.phdc.HL7SPMType;
-import gov.cdc.dataprocessing.utilities.component.NBSObjectConverter;
+import gov.cdc.dataprocessing.utilities.component.data_extraction.NBSObjectConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

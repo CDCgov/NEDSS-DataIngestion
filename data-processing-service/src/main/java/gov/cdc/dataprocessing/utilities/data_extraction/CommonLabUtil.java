@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities;
+package gov.cdc.dataprocessing.utilities.data_extraction;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.phdc.HL7OBRType;

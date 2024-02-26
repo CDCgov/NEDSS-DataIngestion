@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities;
+package gov.cdc.dataprocessing.utilities.data_extraction;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.model.classic_model.dt.EdxELRLabMapDT;

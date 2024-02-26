@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.component;
+package gov.cdc.dataprocessing.utilities.component.data_extraction;
 
 import java.util.ArrayList;
 import java.util.Collection;
