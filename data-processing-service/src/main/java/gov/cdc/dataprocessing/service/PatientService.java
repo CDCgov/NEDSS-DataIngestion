@@ -1,16 +1,16 @@
 package gov.cdc.dataprocessing.service;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
-import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model.dt.EdxLabInformationDT;
 import gov.cdc.dataprocessing.model.classic_model.dto.*;
 import gov.cdc.dataprocessing.model.classic_model.vo.LabResultProxyVO;
 import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
+import gov.cdc.dataprocessing.service.interfaces.INokMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.IPatientMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.IPatientService;
+import gov.cdc.dataprocessing.service.interfaces.IProviderMatchingService;
 import gov.cdc.dataprocessing.service.matching.PatientMatchingService;
-import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -26,17 +26,24 @@ public class PatientService implements IPatientService {
     private static final Logger logger = LoggerFactory.getLogger(PatientService.class);
 
     private final IPatientMatchingService patientMatchingService;
+    private final INokMatchingService nokMatchingService;
+    private final IProviderMatchingService providerMatchingService;
 
-    public PatientService(PatientMatchingService patientMatchingService) {
+    public PatientService(
+            PatientMatchingService patientMatchingService,
+            INokMatchingService nokMatchingService,
+            IProviderMatchingService providerMatchingService) {
 
         this.patientMatchingService = patientMatchingService;
+        this.nokMatchingService = nokMatchingService;
+        this.providerMatchingService = providerMatchingService;
     }
 
     @Transactional
     public PersonVO processingNextOfKin(LabResultProxyVO labResultProxyVO, PersonVO personVO) throws DataProcessingException {
         try {
             long falseUid = personVO.thePersonDT.getPersonUid();
-            patientMatchingService.getMatchingNextOfKin(personVO);
+            nokMatchingService.getMatchingNextOfKin(personVO);
 
             if (personVO.getThePersonDT().getPersonUid() != null) {
 
@@ -116,7 +123,7 @@ public class PatientService implements IPatientService {
 
             personVO.setRole(EdxELRConstant.ELR_PROV_CD);
             EDXActivityDetailLogDT eDXActivityDetailLogDT = new EDXActivityDetailLogDT();
-            eDXActivityDetailLogDT = patientMatchingService.getMatchingProvider(personVO);
+            eDXActivityDetailLogDT = providerMatchingService.getMatchingProvider(personVO);
             String personUId;
             personUId = eDXActivityDetailLogDT.getRecordId();
             if (personUId != null) {
