@@ -148,7 +148,7 @@ sasl:
     callback.handler.class: software.amazon.msk.auth.iam.IAMClientCallbackHandler
 ---
 sftp:
-  enabled: ${DI_SFTP_ENABLED}
-  host: ${DI_SFTP_HOST}
-  username: ${DI_SFTP_USER}
-  password: ${DI_SFTP_PWD}
+  enabled: ${DI_SFTP_ENABLED:disabled}
+  host: ${DI_SFTP_HOST:dummyhost}
+  username: ${DI_SFTP_USER:dummyuser}
+  password: ${DI_SFTP_PWD:dummypwd}
