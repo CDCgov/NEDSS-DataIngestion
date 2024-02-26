@@ -212,6 +212,13 @@ dependencies {
 	implementation 'io.prometheus:simpleclient_httpserver:0.16.0'
 	implementation 'io.prometheus:simpleclient_pushgateway:0.16.0'
 
+	implementation 'org.apache.camel.springboot:camel-spring-boot-starter:4.0.0'
+	implementation 'org.apache.camel:camel-ftp:4.0.0'
+	implementation 'org.apache.camel:camel-aws2-s3:4.0.0'
+	implementation 'org.apache.camel:camel-endpointdsl:4.0.0'
+	implementation 'org.apache.camel.springboot:camel-file-starter:4.0.0'
+	implementation 'org.apache.camel.springboot:camel-zipfile-starter:4.0.0'
+	implementation 'org.apache.camel:camel-xml-jaxb:4.0.0'
 	// DI HL7 Wrapper
 	if (findProject(':hl7-parser')) {
 		implementation project(':hl7-parser')
@@ -237,6 +244,7 @@ dependencies {
 	testImplementation "org.testcontainers:junit-jupiter:1.17.3"
 	testImplementation 'org.springframework.boot:spring-boot-starter-test:3.2.0'
 	testImplementation 'org.springframework.security:spring-security-test:6.2.0'
+	testImplementation 'org.apache.camel:camel-test-spring-junit5:4.0.0'
 
 	runtimeOnly 'org.springframework.boot:spring-boot-devtools:3.2.0'
 
