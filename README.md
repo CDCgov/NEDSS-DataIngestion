@@ -30,7 +30,7 @@ Data Ingestion for Modernization of NEDSS Project by Enquizit
          
             DI_AUTH_URI=value
     
-            DI_SFTP_ENABLE=value
+            DI_SFTP_ENABLED=value
          
             DI_SFTP_HOST=value
     
