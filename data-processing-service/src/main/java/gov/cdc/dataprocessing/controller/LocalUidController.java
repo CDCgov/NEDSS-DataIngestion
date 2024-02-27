@@ -2,8 +2,8 @@ package gov.cdc.dataprocessing.controller;
 
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.other_move_as_needed.LocalUidGenerator;
-import gov.cdc.dataprocessing.service.core.OdseIdGeneratorService;
-import gov.cdc.dataprocessing.service.interfaces.IOdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.implementation.core.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.interfaces.core.IOdseIdGeneratorService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

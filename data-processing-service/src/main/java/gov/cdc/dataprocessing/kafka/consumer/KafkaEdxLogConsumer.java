@@ -1,9 +1,8 @@
 package gov.cdc.dataprocessing.kafka.consumer;
 
-import gov.cdc.dataprocessing.constant.KafkaCustomHeader;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.EdxLogException;
-import gov.cdc.dataprocessing.service.interfaces.IManagerService;
+import gov.cdc.dataprocessing.service.interfaces.core.IManagerService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

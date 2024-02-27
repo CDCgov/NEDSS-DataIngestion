@@ -14,7 +14,7 @@ import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.phdc.*;
-import gov.cdc.dataprocessing.service.interfaces.ICheckingValueService;
+import gov.cdc.dataprocessing.service.interfaces.core.ICheckingValueService;
 import gov.cdc.dataprocessing.utilities.data_extraction.CommonLabUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

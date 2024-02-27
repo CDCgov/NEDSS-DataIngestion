@@ -2,7 +2,7 @@ package gov.cdc.dataprocessing.kafka.consumer;
 
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
-import gov.cdc.dataprocessing.service.interfaces.IManagerService;
+import gov.cdc.dataprocessing.service.interfaces.core.IManagerService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -14,9 +14,9 @@ import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.phdc.*;
-import gov.cdc.dataprocessing.service.interfaces.ICheckingValueService;
+import gov.cdc.dataprocessing.service.interfaces.core.ICheckingValueService;
 import gov.cdc.dataprocessing.utilities.data_extraction.CommonLabUtil;
-import gov.cdc.dataprocessing.utilities.data_extraction.HL7SpecimenHandler;
+import gov.cdc.dataprocessing.utilities.data_extraction.HL7SpecimenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -407,7 +407,7 @@ public class ObservationRequestHandler {
             }
             if(hl7PatientResultSPMType!=null){
                 logger.debug("ObservationRequest.getObservationRequest specimen is being processes for 2.5.1 message type");
-                HL7SpecimenHandler.process251Specimen( hl7PatientResultSPMType, labResultProxyContainer,  observationDT,  collectorVO, edxLabInformationDto);
+                HL7SpecimenUtil.process251Specimen( hl7PatientResultSPMType, labResultProxyContainer,  observationDT,  collectorVO, edxLabInformationDto);
             }
             List<HL7XCNType> orderingProviderArray = hl7OBRType.getOrderingProvider();
             if(orderingProviderArray!=null && orderingProviderArray.size()  >1){

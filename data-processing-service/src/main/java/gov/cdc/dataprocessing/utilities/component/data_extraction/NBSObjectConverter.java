@@ -16,8 +16,8 @@ import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
-import gov.cdc.dataprocessing.service.interfaces.ICheckingValueService;
-import gov.cdc.dataprocessing.utilities.data_extraction.EntityIdHandler;
+import gov.cdc.dataprocessing.service.interfaces.core.ICheckingValueService;
+import gov.cdc.dataprocessing.utilities.data_extraction.EntityIdUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -159,9 +159,9 @@ public class NBSObjectConverter {
             entityIdDto.setRecordStatusTime(personContainer.getThePersonDto().getAddTime());
             entityIdDto.setRecordStatusCd(NEDSSConstant.ACTIVE);
             entityIdDto.setAsOfDate(personContainer.getThePersonDto().getAddTime());
-            entityIdDto.setEffectiveFromTime(EntityIdHandler.processHL7DTType(hl7CXType.getHL7EffectiveDate(), EdxELRConstant.DATE_VALIDATION_PID_PATIENT_IDENTIFIER_EFFECTIVE_DATE_TIME_MSG));
+            entityIdDto.setEffectiveFromTime(EntityIdUtil.processHL7DTType(hl7CXType.getHL7EffectiveDate(), EdxELRConstant.DATE_VALIDATION_PID_PATIENT_IDENTIFIER_EFFECTIVE_DATE_TIME_MSG));
             entityIdDto.setValidFromTime(entityIdDto.getEffectiveFromTime());
-            entityIdDto.setEffectiveToTime(EntityIdHandler.processHL7DTType(hl7CXType.getHL7ExpirationDate(), EdxELRConstant.DATE_VALIDATION_PID_PATIENT_IDENTIFIER_EXPIRATION_DATE_TIME_MSG));
+            entityIdDto.setEffectiveToTime(EntityIdUtil.processHL7DTType(hl7CXType.getHL7ExpirationDate(), EdxELRConstant.DATE_VALIDATION_PID_PATIENT_IDENTIFIER_EXPIRATION_DATE_TIME_MSG));
             entityIdDto.setValidToTime(entityIdDto.getEffectiveToTime());
             entityIdDto.setItNew(true);
             entityIdDto.setItDirty(false);
@@ -398,7 +398,7 @@ public class NBSObjectConverter {
                 if (year >= 0 && month >= 0 && date >= 0) {
                     toTime = month + "/" + date + "/" + year;
                     logger.debug("  in processHL7TSTypeForDOBWithoutTime: Date string is: " +toTime);
-                    toTimestamp = EntityIdHandler.stringToStrutsTimestamp(toTime); //if can't process returns null
+                    toTimestamp = EntityIdUtil.stringToStrutsTimestamp(toTime); //if can't process returns null
                 }
             }
         } catch (Exception e) {
@@ -407,7 +407,7 @@ public class NBSObjectConverter {
                     EdxELRConstant.DATE_VALIDATION_PID_PATIENT_BIRTH_DATE_NO_TIME_MSG+toTime+"<--");
         }
 
-        if (EntityIdHandler.isDateNotOkForDatabase(toTimestamp)) {
+        if (EntityIdUtil.isDateNotOkForDatabase(toTimestamp)) {
             throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSTypeForDOBWithoutTime " +EdxELRConstant.DATE_VALIDATION_PID_PATIENT_BIRTH_DATE_NO_TIME_MSG +toTime + EdxELRConstant.DATE_INVALID_FOR_DATABASE);
         }
         return toTimestamp;
@@ -492,7 +492,7 @@ public class NBSObjectConverter {
                 logger.debug("  in processHL7TSType: Date string is: " +timeStr);
                 date2 = sdf.parse(timeStr);
                 toTimestamp = new java.sql.Timestamp(date2.getTime());
-                if (EntityIdHandler.isDateNotOkForDatabase(toTimestamp)) {
+                if (EntityIdUtil.isDateNotOkForDatabase(toTimestamp)) {
                     throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSType " +itemDescription +timeStr + EdxELRConstant.DATE_INVALID_FOR_DATABASE);
                 }
             }
@@ -830,7 +830,7 @@ public class NBSObjectConverter {
                 logger.debug("  in processHL7TSTypeWithMillis: Date string is: " +dateStr);
                 date2 = sdf.parse(dateStr);
                 toTimestamp = new java.sql.Timestamp(date2.getTime());
-                if (EntityIdHandler.isDateNotOkForDatabase(toTimestamp)) {
+                if (EntityIdUtil.isDateNotOkForDatabase(toTimestamp)) {
                     throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSTypeWithMillis " +itemDescription + date2
                             + EdxELRConstant.DATE_INVALID_FOR_DATABASE);
                 }

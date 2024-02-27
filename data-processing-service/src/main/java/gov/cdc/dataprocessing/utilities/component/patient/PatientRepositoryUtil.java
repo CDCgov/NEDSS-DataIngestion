@@ -28,7 +28,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.person.PersonEthnicRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.person.PersonNameRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.person.PersonRaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.person.PersonRepository;
-import gov.cdc.dataprocessing.service.interfaces.IOdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.interfaces.core.IOdseIdGeneratorService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;

@@ -17,8 +17,8 @@ import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
-import gov.cdc.dataprocessing.service.interfaces.ICheckingValueService;
-import gov.cdc.dataprocessing.utilities.data_extraction.EntityIdHandler;
+import gov.cdc.dataprocessing.service.interfaces.core.ICheckingValueService;
+import gov.cdc.dataprocessing.utilities.data_extraction.EntityIdUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -91,7 +91,7 @@ public class HL7PatientHandler {
                 HL7CXType hl7CXType = hl7PIDType.getPatientIdentifierList().get(i);
 
                 // Parsing Entity Id
-                EntityIdDto entityIdDto = EntityIdHandler.processEntityData(hl7CXType, personContainer, null, i);
+                EntityIdDto entityIdDto = EntityIdUtil.processEntityData(hl7CXType, personContainer, null, i);
 
 
                 if( entityIdDto.getAssigningAuthorityIdType() == null) {
