@@ -12,7 +12,7 @@ import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.phdc.HL7PatientResultSPMType;
 import gov.cdc.dataprocessing.model.phdc.HL7SPECIMENType;
 import gov.cdc.dataprocessing.model.phdc.HL7SPMType;
-import gov.cdc.dataprocessing.utilities.component.data_extraction.NBSObjectConverter;
+import gov.cdc.dataprocessing.utilities.component.data_parser.NBSObjectConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,8 +1,6 @@
-package gov.cdc.dataprocessing.utilities.component.data_extraction;
+package gov.cdc.dataprocessing.utilities.component.data_parser;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class LDFHelper {
     public void setLDFCollection(Collection<Object> stateDefinedFieldDataCollection, Collection<Object> ldfUids, String businessObjNm,

@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.component.data_extraction;
+package gov.cdc.dataprocessing.utilities.component.data_parser;
 
 import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.elr.ELRConstant;
