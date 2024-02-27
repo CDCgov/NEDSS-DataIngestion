@@ -2,7 +2,7 @@ package gov.cdc.dataprocessing.utilities.component.entity;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.entity.EntityRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityODSE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

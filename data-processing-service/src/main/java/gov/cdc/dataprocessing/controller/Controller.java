@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing;
+package gov.cdc.dataprocessing.controller;
 
 import gov.cdc.dataprocessing.service.implementation.core.ManagerService;
 import gov.cdc.dataprocessing.service.interfaces.core.IManagerService;

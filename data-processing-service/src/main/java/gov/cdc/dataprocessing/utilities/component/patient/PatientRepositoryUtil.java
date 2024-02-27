@@ -10,12 +10,12 @@ import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.entity.EntityIdRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.entity.EntityLocatorParticipationRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.entity.RoleRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.locator.PhysicalLocatorRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.locator.PostalLocatorRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.locator.TeleLocatorRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityIdRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityLocatorParticipationRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.RoleRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PhysicalLocatorRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PostalLocatorRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.TeleLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
@@ -24,11 +24,12 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.PostalLocator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.TeleLocator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.other_move_as_needed.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.*;
-import gov.cdc.dataprocessing.repository.nbs.odse.person.PersonEthnicRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.person.PersonNameRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.person.PersonRaceRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.person.PersonRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonEthnicRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonNameRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRaceRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.service.interfaces.core.IOdseIdGeneratorService;
+import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -377,10 +378,10 @@ public class PatientRepositoryUtil {
                 personList.get(i).setEntityUid(pUid);
                 personList.get(i).setAddReasonCd("Add");
                 if (personList.get(i).getAddUserId() == null) {
-                    personList.get(i).setAddUserId(123L);
+                    personList.get(i).setAddUserId(AuthUtil.authUser.getAuthUserUid());
                 }
                 if (personList.get(i).getLastChgUserId() == null) {
-                    personList.get(i).setLastChgUserId(123L);
+                    personList.get(i).setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
                 }
                 entityIdRepository.save(new EntityId(personList.get(i)));
             }

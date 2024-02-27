@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.repository.nbs.odse.entity;
+package gov.cdc.dataprocessing.repository.nbs.odse.repos.entity;
 
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
 import org.springframework.data.jpa.repository.JpaRepository;

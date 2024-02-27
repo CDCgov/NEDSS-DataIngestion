@@ -10,6 +10,7 @@ import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.service.interfaces.core.IDataExtractionService;
 import gov.cdc.dataprocessing.service.interfaces.core.IMsgOutEStoredProcService;
+import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.data_extraction.LabResultUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.HL7PatientHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.ORCHandler;
@@ -38,6 +39,8 @@ public class DataExtractionService implements IDataExtractionService {
     private final HL7PatientHandler hl7PatientHandler;
     private final ObservationRequestHandler observationRequestHandler;
     private final ObservationResultRequestHandler observationResultRequestHandler;
+
+    // this one will call out ro msgoute storedProc
     private final IMsgOutEStoredProcService msgOutEStoredProcService;
     private final ORCHandler orcHandler;
     public DataExtractionService (
@@ -56,7 +59,7 @@ public class DataExtractionService implements IDataExtractionService {
 
         LabResultProxyContainer labResultProxyContainer;
         int rootObsUid = 0;
-        long userId = 123L;
+        long userId = AuthUtil.authUser.getAuthUserUid();;
         Timestamp time = new Timestamp(new Date().getTime());
         try {
 

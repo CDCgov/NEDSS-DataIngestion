@@ -12,8 +12,11 @@ import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.NbsInterfaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
+import gov.cdc.dataprocessing.service.interfaces.auth.ISessionProfileService;
 import gov.cdc.dataprocessing.service.interfaces.core.*;
 import gov.cdc.dataprocessing.service.model.PersonAggContainer;
+import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -54,6 +57,8 @@ public class ManagerService implements IManagerService {
 
     private final CacheManager cacheManager;
 
+    private final ISessionProfileService sessionProfileService;
+
     @Autowired
     public ManagerService(IObservationService observationService,
                           IPatientService patientService,
@@ -65,7 +70,7 @@ public class ManagerService implements IManagerService {
                           IDataExtractionService dataExtractionService,
                           NbsInterfaceRepository nbsInterfaceRepository,
                           CheckingValueService checkingValueService,
-                          CacheManager cacheManager) {
+                          CacheManager cacheManager, ISessionProfileService sessionProfileService) {
         this.observationService = observationService;
         this.patientService = patientService;
         this.organizationService = organizationService;
@@ -78,20 +83,29 @@ public class ManagerService implements IManagerService {
         this.nbsInterfaceRepository = nbsInterfaceRepository;
         this.checkingValueService = checkingValueService;
         this.cacheManager = cacheManager;
+        this.sessionProfileService = sessionProfileService;
     }
 
     @Transactional
     public Object processDistribution(String eventType, String data) throws DataProcessingConsumerException {
         //TODO: determine which flow the data will be going through
         Object result = new Object();
-        switch (eventType) {
-            case EVENT_ELR:
-                result = processingELR(data);
-                break;
-            default:
-                break;
+        AuthUser profile = sessionProfileService.getSessionProfile("data-processing");
+        if (profile != null) {
+            AuthUtil.setGlobalAuthUser(profile);
+            switch (eventType) {
+                case EVENT_ELR:
+                    result = processingELR(data);
+                    break;
+                default:
+                    break;
+            }
+            AuthUtil.setGlobalAuthUser(null);
+            return result;
+        } else {
+            throw new DataProcessingConsumerException("Invalid User");
         }
-        return result;
+
     }
 
     public Object processingHealthCase(String data) throws DataProcessingConsumerException {

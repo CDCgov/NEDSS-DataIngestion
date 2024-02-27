@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.repository.nbs.odse.locator;
+package gov.cdc.dataprocessing.repository.nbs.odse.repos.locator;
 
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.TeleLocator;
 import org.springframework.data.jpa.repository.JpaRepository;

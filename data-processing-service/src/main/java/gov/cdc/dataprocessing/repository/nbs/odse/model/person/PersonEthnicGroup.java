@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.person;
 
 import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.PersonEthnicGroupId;
+import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -61,7 +62,7 @@ public class PersonEthnicGroup {
         Timestamp currentTimestamp = Timestamp.valueOf(currentTime);
 
         if (personEthnicGroupDto.getAddUserId() == null) {
-            this.addUserId = 123L;
+            this.addUserId = AuthUtil.authUser.getAuthUserUid();
         } else {
             this.addUserId = personEthnicGroupDto.getAddUserId();
         }

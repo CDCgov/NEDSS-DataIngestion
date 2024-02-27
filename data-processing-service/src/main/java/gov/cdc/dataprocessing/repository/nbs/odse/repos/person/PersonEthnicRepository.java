@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.repository.nbs.odse.person;
+package gov.cdc.dataprocessing.repository.nbs.odse.repos.person;
 
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonEthnicGroup;
 import org.springframework.data.jpa.repository.JpaRepository;
