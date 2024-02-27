@@ -12,6 +12,8 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
+import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
+
 @Entity
 @Getter
 @Setter
@@ -343,6 +345,7 @@ public class Person  {
 
     }
     public Person(PersonDT personDT) {
+        var timeStamp = getCurrentTimeStamp();
         this.personUid = personDT.getPersonUid();
         this.addReasonCd = personDT.getAddReasonCd();
         this.addTime = personDT.getAddTime();
@@ -381,7 +384,7 @@ public class Person  {
         this.primLangCd = personDT.getPrimLangCd();
         this.primLangDescTxt = personDT.getPrimLangDescTxt();
         this.recordStatusCd = personDT.getRecordStatusCd();
-        this.recordStatusTime = personDT.getRecordStatusTime();
+        this.recordStatusTime = timeStamp;
         this.statusCd = personDT.getStatusCd();
         this.statusTime = personDT.getStatusTime();
         this.survivedIndCd = personDT.getSurvivedIndCd();

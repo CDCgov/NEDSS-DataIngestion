@@ -7,6 +7,8 @@ import lombok.Data;
 
 import java.sql.Timestamp;
 
+import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
+
 @Data
 @Entity
 @IdClass(PersonNameId.class) // Specify the IdClass
@@ -115,6 +117,7 @@ public class PersonName {
 
     }
     public PersonName(PersonNameDT personNameDT) {
+        var timeStamp = getCurrentTimeStamp();
         this.personUid = personNameDT.getPersonUid();
         this.personNameSeq = personNameDT.getPersonNameSeq();
         this.addReasonCd = personNameDT.getAddReasonCd();
@@ -140,11 +143,16 @@ public class PersonName {
         this.nmSuffix = personNameDT.getNmSuffix();
         this.nmUseCd = personNameDT.getNmUseCd();
         this.recordStatusCd = personNameDT.getRecordStatusCd();
-        this.recordStatusTime = personNameDT.getRecordStatusTime();
+        this.recordStatusTime = timeStamp;
         this.statusCd = personNameDT.getStatusCd();
         this.statusTime = personNameDT.getStatusTime();
         this.toTime = personNameDT.getToTime() ;
         this.userAffiliationTxt = personNameDT.getUserAffiliationTxt();
-        this.asOfDate = personNameDT.getAsOfDate();
+
+        if (personNameDT.getAsOfDate() == null) {
+            this.asOfDate = timeStamp;
+        } else {
+            this.asOfDate = personNameDT.getAsOfDate();
+        }
     }
 }

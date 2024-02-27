@@ -9,6 +9,8 @@ import lombok.Data;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
+import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
+
 @Entity
 @Table(name = "Entity_locator_participation", schema = "dbo")
 @IdClass(EntityLocatorParticipationId.class) // Specify the IdClass
@@ -94,6 +96,7 @@ public class EntityLocatorParticipation {
 
     // Add getters and setters as needed
     public EntityLocatorParticipation(EntityLocatorParticipationDT entityLocatorParticipationDT) {
+        var timestamp = getCurrentTimeStamp();
         this.entityUid = entityLocatorParticipationDT.getEntityUid();
         this.locatorUid = entityLocatorParticipationDT.getLocatorUid();
         this.addReasonCd = entityLocatorParticipationDT.getAddReasonCd();
@@ -118,7 +121,11 @@ public class EntityLocatorParticipation {
         this.userAffiliationTxt = entityLocatorParticipationDT.getUserAffiliationTxt();
         this.validTimeTxt = entityLocatorParticipationDT.getValidTimeTxt();
         this.versionCtrlNbr = entityLocatorParticipationDT.getVersionCtrlNbr();
-        this.asOfDate = entityLocatorParticipationDT.getAsOfDate();
+        if (entityLocatorParticipationDT.getAsOfDate() == null) {
+            this.asOfDate = timestamp;
+        } else {
+            this.asOfDate = entityLocatorParticipationDT.getAsOfDate();
+        }
     }
 
     public EntityLocatorParticipation() {

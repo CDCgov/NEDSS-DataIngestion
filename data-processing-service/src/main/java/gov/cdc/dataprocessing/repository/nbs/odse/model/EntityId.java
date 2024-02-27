@@ -9,6 +9,8 @@ import lombok.Data;
 
 import java.sql.Timestamp;
 
+import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
+
 
 @Data
 @Entity
@@ -103,6 +105,7 @@ public class EntityId {
 
     }
     public EntityId(EntityIdDT entityIdDT) {
+        var timestamp = getCurrentTimeStamp();
         this.entityUid = entityIdDT.getEntityUid();
         this.entityIdSeq = entityIdDT.getEntityIdSeq();
         this.addReasonCode = entityIdDT.getAddReasonCd();
@@ -118,10 +121,18 @@ public class EntityId {
         this.lastChangeTime = entityIdDT.getLastChgTime();
         this.lastChangeUserId = entityIdDT.getLastChgUserId();
         this.recordStatusCode = entityIdDT.getRecordStatusCd();
-        this.recordStatusTime = entityIdDT.getRecordStatusTime();
+        if (entityIdDT.getRecordStatusTime() == null) {
+            this.recordStatusTime = timestamp;
+        } else {
+            this.recordStatusTime = entityIdDT.getRecordStatusTime();
+        }
         this.rootExtensionText = entityIdDT.getRootExtensionTxt();
         this.statusCode = entityIdDT.getStatusCd();
-        this.statusTime = entityIdDT.getStatusTime();
+        if (entityIdDT.getStatusTime() == null) {
+            this.statusTime = timestamp;
+        } else {
+            this.statusTime = entityIdDT.getStatusTime();
+        }
         this.typeCode = entityIdDT.getTypeCd();
         this.typeDescriptionText = entityIdDT.getTypeDescTxt();
         this.userAffiliationText = entityIdDT.getUserAffiliationTxt();

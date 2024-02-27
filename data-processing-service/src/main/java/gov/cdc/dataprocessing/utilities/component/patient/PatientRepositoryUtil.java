@@ -168,6 +168,9 @@ public class PatientRepositoryUtil {
                 throw new DataProcessingException(e.getMessage(), e);
             }
         }
+        logger.debug("Person Uid\t" + person.getPersonUid());
+        logger.debug("Person Parent Uid\t" + person.getPersonParentUid());
+
         return person;
     }
 
@@ -290,6 +293,8 @@ public class PatientRepositoryUtil {
                         personNameDT.setStatusTime(new Timestamp(new Date().getTime()));
                     }
                     personNameDT.setPersonNameSeq(seqId);
+                    personNameDT.setRecordStatusCd("ACTIVE");
+                    personNameDT.setAddReasonCd("Add");
                     personNameRepository.save(new PersonName(personNameDT));
                 }
             }
@@ -312,6 +317,8 @@ public class PatientRepositoryUtil {
                 if (personList.get(i).getStatusTime() == null) {
                     personList.get(i).setStatusTime(new Timestamp(new Date().getTime()));
                 }
+                personList.get(i).setRecordStatusCd("ACTIVE");
+                personList.get(i).setAddReasonCd("Add");
                 personNameRepository.save(new PersonName( personList.get(i)));
             }
         } catch (Exception e) {
@@ -325,6 +332,7 @@ public class PatientRepositoryUtil {
             for(int i = 0; i < personList.size(); i++) {
                 var pUid = personVO.getThePersonDT().getPersonUid();
                 personList.get(i).setPersonUid(pUid);
+                personList.get(i).setAddReasonCd("Add");
                 personRaceRepository.save(new PersonRace(personList.get(i)));
             }
         } catch (Exception e) {
@@ -351,6 +359,13 @@ public class PatientRepositoryUtil {
             for(int i = 0; i < personList.size(); i++) {
                 var pUid = personVO.getThePersonDT().getPersonUid();
                 personList.get(i).setEntityUid(pUid);
+                personList.get(i).setAddReasonCd("Add");
+                if (personList.get(i).getAddUserId() == null) {
+                    personList.get(i).setAddUserId(123L);
+                }
+                if (personList.get(i).getLastChgUserId() == null) {
+                    personList.get(i).setLastChgUserId(123L);
+                }
                 entityIdRepository.save(new EntityId(personList.get(i)));
             }
         } catch (Exception e) {

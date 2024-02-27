@@ -9,6 +9,8 @@ import lombok.Data;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
+import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
+
 @Entity
 @Table(name = "Person_race", schema = "dbo")
 @IdClass(PersonRaceId.class) // Specify the IdClass
@@ -64,13 +66,18 @@ public class PersonRace {
 
     }
     public PersonRace(PersonRaceDT personRaceDT) {
+        var timestamp = getCurrentTimeStamp();
         this.personUid = personRaceDT.getPersonUid();
         this.raceCd = personRaceDT.getRaceCd();
         this.addReasonCd = personRaceDT.getAddReasonCd();
         this.addTime = personRaceDT.getAddTime();
         this.addUserId = personRaceDT.getAddUserId();
         this.lastChgReasonCd = personRaceDT.getLastChgReasonCd();
-        this.lastChgTime = personRaceDT.getLastChgTime();
+        if (personRaceDT.getLastChgTime() == null) {
+            this.lastChgTime = timestamp;
+        } else {
+            this.lastChgTime = personRaceDT.getLastChgTime();
+        }
         this.lastChgUserId = personRaceDT.getLastChgUserId();
         this.raceCategoryCd = personRaceDT.getRaceCategoryCd();
         this.raceDescTxt = personRaceDT.getRaceDescTxt();
