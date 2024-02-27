@@ -7,9 +7,9 @@ import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.exception.EdxLogException;
-import gov.cdc.dataprocessing.model.classic_model.dt.EdxLabInformationDT;
-import gov.cdc.dataprocessing.model.classic_model.vo.LabResultProxyVO;
-import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
+import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
+import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.NbsInterfaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.service.interfaces.*;
@@ -149,9 +149,9 @@ public class ManagerService implements IManagerService {
 
 
 
-            EdxLabInformationDT edxLabInformationDT = new EdxLabInformationDT();
-            edxLabInformationDT.setStatus(NbsInterfaceStatus.Success);
-            edxLabInformationDT.setUserName("Test");
+            EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+            edxLabInformationDto.setStatus(NbsInterfaceStatus.Success);
+            edxLabInformationDto.setUserName("Test");
 
             //TODO: uncomment when deploy
             nbsInterfaceModel = gson.fromJson(data, NbsInterfaceModel.class);
@@ -160,7 +160,7 @@ public class ManagerService implements IManagerService {
             //TODO: uncomment when debug
             //nbsInterfaceModel = nbsInterfaceRepository.findById(Integer.valueOf(data)).get();
 
-            edxLabInformationDT.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
+            edxLabInformationDto.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
 
 
             checkingValueService.getAOELOINCCodes();
@@ -187,19 +187,19 @@ public class ManagerService implements IManagerService {
                 }
             }
             //TODO: Parsing Data to Object
-            LabResultProxyVO parsedData = dataExtractionService.parsingDataToObject(nbsInterfaceModel, edxLabInformationDT);
+            LabResultProxyContainer parsedData = dataExtractionService.parsingDataToObject(nbsInterfaceModel, edxLabInformationDto);
 
-            edxLabInformationDT.setLabResultProxyVO(parsedData);
+            edxLabInformationDto.setLabResultProxyContainer(parsedData);
 
             if(nbsInterfaceModel.getObservationUid() !=null && nbsInterfaceModel.getObservationUid()>0) {
-                edxLabInformationDT.setRootObserbationUid(nbsInterfaceModel.getObservationUid());
+                edxLabInformationDto.setRootObserbationUid(nbsInterfaceModel.getObservationUid());
             }
 
             //TODO: OBSERVATION
             var observation = observationService.processingObservation();
 
             //TODO: PATIENT && NOK && PROVIDER
-            PersonAggContainer personAggContainer = personAggregationAsync(parsedData, edxLabInformationDT);
+            PersonAggContainer personAggContainer = personAggregationAsync(parsedData, edxLabInformationDto);
 
             //TODO: ORGANIZATION
             var organization = organizationService.processingOrganization();
@@ -234,27 +234,27 @@ public class ManagerService implements IManagerService {
     }
 
     //TODO: remove when patientAgg Async is stable
-    private PersonAggContainer patientAggregation(LabResultProxyVO labResult, EdxLabInformationDT edxLabInformationDT) throws DataProcessingConsumerException, DataProcessingException {
+    private PersonAggContainer patientAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws DataProcessingConsumerException, DataProcessingException {
 
         PersonAggContainer container = new PersonAggContainer();
-        PersonVO personVOObj = null;
-        PersonVO providerVOObj = null;
-        if (labResult.getThePersonVOCollection() != null && !labResult.getThePersonVOCollection().isEmpty() ) {
-            Iterator<PersonVO> it = labResult.getThePersonVOCollection().iterator();
+        PersonContainer personContainerObj = null;
+        PersonContainer providerVOObj = null;
+        if (labResult.getThePersonContainerCollection() != null && !labResult.getThePersonContainerCollection().isEmpty() ) {
+            Iterator<PersonContainer> it = labResult.getThePersonContainerCollection().iterator();
             boolean orderingProviderIndicator = false;
 
             while (it.hasNext()) {
-                PersonVO personVO = it.next();
-                if (personVO.getRole() != null && personVO.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
-                    patientService.processingNextOfKin(labResult, personVO);
+                PersonContainer personContainer = it.next();
+                if (personContainer.getRole() != null && personContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
+                    patientService.processingNextOfKin(labResult, personContainer);
 
                 }
                 else {
-                    if (personVO.thePersonDT.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_CD)) {
-                        personVOObj =  patientService.processingPatient(labResult, edxLabInformationDT, personVO);
+                    if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_CD)) {
+                        personContainerObj =  patientService.processingPatient(labResult, edxLabInformationDto, personContainer);
                     }
-                    else if (personVO.thePersonDT.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
-                        var prv = patientService.processingProvider(labResult, edxLabInformationDT, personVO, orderingProviderIndicator);
+                    else if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
+                        var prv = patientService.processingProvider(labResult, edxLabInformationDto, personContainer, orderingProviderIndicator);
                         if (prv != null) {
                             providerVOObj = prv;
                         }
@@ -263,8 +263,8 @@ public class ManagerService implements IManagerService {
             }
         }
 
-        container.setPersonVO(personVOObj);
-        container.setProviderVO(personVOObj);
+        container.setPersonContainer(personContainerObj);
+        container.setProviderVO(personContainerObj);
         return container;
     }
 
@@ -272,21 +272,21 @@ public class ManagerService implements IManagerService {
     /**
      * This method execute person code simultanuously
      * */
-    private PersonAggContainer personAggregationAsync(LabResultProxyVO labResult, EdxLabInformationDT edxLabInformationDT) throws DataProcessingException {
+    private PersonAggContainer personAggregationAsync(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         PersonAggContainer container = new PersonAggContainer();
-        CompletableFuture<PersonVO> patientFuture = null;
-        CompletableFuture<PersonVO> providerFuture = null;
+        CompletableFuture<PersonContainer> patientFuture = null;
+        CompletableFuture<PersonContainer> providerFuture = null;
         CompletableFuture<Void> nextOfKinFuture = null;
 
-        if (labResult.getThePersonVOCollection() != null && !labResult.getThePersonVOCollection().isEmpty()) {
-            for (PersonVO personVO : labResult.getThePersonVOCollection()) {
+        if (labResult.getThePersonContainerCollection() != null && !labResult.getThePersonContainerCollection().isEmpty()) {
+            for (PersonContainer personContainer : labResult.getThePersonContainerCollection()) {
                 // Expecting multiple NOK
                 // NOK info wont be return
-                if (personVO.getRole() != null && personVO.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
+                if (personContainer.getRole() != null && personContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
                     if (nextOfKinFuture == null) {
                         nextOfKinFuture = CompletableFuture.runAsync(() -> {
                             try {
-                                patientService.processingNextOfKin(labResult, personVO);
+                                patientService.processingNextOfKin(labResult, personContainer);
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
@@ -294,7 +294,7 @@ public class ManagerService implements IManagerService {
                     } else {
                         nextOfKinFuture = nextOfKinFuture.thenRunAsync(() -> {
                             try {
-                                patientService.processingNextOfKin(labResult, personVO);
+                                patientService.processingNextOfKin(labResult, personContainer);
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
@@ -303,12 +303,12 @@ public class ManagerService implements IManagerService {
                 }
                 // Expecting single patient
                 // patient uid is needed in return
-                else if (personVO.thePersonDT.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_CD)) {
+                else if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_CD)) {
                     // Asynchronously process Patient
                     if (patientFuture == null) {
                         patientFuture = CompletableFuture.supplyAsync(() -> {
                             try {
-                                return patientService.processingPatient(labResult, edxLabInformationDT, personVO);
+                                return patientService.processingPatient(labResult, edxLabInformationDto, personContainer);
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
@@ -317,12 +317,12 @@ public class ManagerService implements IManagerService {
                 }
                 // Expecting single provider
                 // provider uid is needed in return
-                else if (personVO.thePersonDT.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
+                else if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
                     // Asynchronously process Provider
                     if (providerFuture == null) {
                         providerFuture = CompletableFuture.supplyAsync(() -> {
                             try {
-                                return patientService.processingProvider(labResult, edxLabInformationDT, personVO, false);
+                                return patientService.processingProvider(labResult, edxLabInformationDto, personContainer, false);
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
@@ -341,7 +341,7 @@ public class ManagerService implements IManagerService {
         try {
             allFutures.get(); // Wait for all futures to complete
             if (patientFuture != null) {
-                container.setPersonVO(patientFuture.get()); // Set patient
+                container.setPersonContainer(patientFuture.get()); // Set patient
             }
             if (providerFuture != null) {
                 container.setProviderVO(providerFuture.get());

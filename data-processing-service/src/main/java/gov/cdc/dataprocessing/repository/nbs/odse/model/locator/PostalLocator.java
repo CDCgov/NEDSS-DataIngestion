@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.locator;
 
-import gov.cdc.dataprocessing.model.classic_model.dto.PostalLocatorDT;
+import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -100,35 +100,35 @@ public class PostalLocator {
     @Column(name = "census_tract")
     private String censusTract;
 
-    public PostalLocator(PostalLocatorDT postalLocatorDT) {
-        this.postalLocatorUid = postalLocatorDT.getPostalLocatorUid();
-        this.addReasonCd = postalLocatorDT.getAddReasonCd();
-        this.addTime = postalLocatorDT.getAddTime();
-        this.addUserId = postalLocatorDT.getAddUserId();
-        this.censusBlockCd = postalLocatorDT.getCensusBlockCd();
-        this.censusMinorCivilDivisionCd = postalLocatorDT.getCensusMinorCivilDivisionCd();
-        this.censusTrackCd = postalLocatorDT.getCensusTrackCd();
-        this.cityCd = postalLocatorDT.getCityCd();
-        this.cityDescTxt = postalLocatorDT.getCityDescTxt();
-        this.cntryCd = postalLocatorDT.getCntryCd();
-        this.cntryDescTxt = postalLocatorDT.getCntryDescTxt();
-        this.cntyCd = postalLocatorDT.getCntyCd();
-        this.cntyDescTxt = postalLocatorDT.getCntyDescTxt();
-        this.lastChgReasonCd = postalLocatorDT.getLastChgReasonCd();
-        this.lastChgTime = postalLocatorDT.getLastChgTime();
-        this.lastChgUserId = postalLocatorDT.getLastChgUserId();
-        this.msaCongressDistrictCd = postalLocatorDT.getMSACongressDistrictCd();
-        this.recordStatusCd = postalLocatorDT.getRecordStatusCd();
-        this.recordStatusTime = postalLocatorDT.getRecordStatusTime();
-        this.regionDistrictCd = postalLocatorDT.getRegionDistrictCd();
-        this.stateCd = postalLocatorDT.getStateCd();
-        this.streetAddr1 = postalLocatorDT.getStreetAddr1();
-        this.streetAddr2 = postalLocatorDT.getStreetAddr2();
-        this.userAffiliationTxt = postalLocatorDT.getUserAffiliationTxt();
-        this.zipCd = postalLocatorDT.getZipCd();
-        this.geocodeMatchInd = postalLocatorDT.getGeocodeMatchInd();
-        this.withinCityLimitsInd = postalLocatorDT.getWithinCityLimitsInd();
-        this.censusTract = postalLocatorDT.getCensusTract();
+    public PostalLocator(PostalLocatorDto postalLocatorDto) {
+        this.postalLocatorUid = postalLocatorDto.getPostalLocatorUid();
+        this.addReasonCd = postalLocatorDto.getAddReasonCd();
+        this.addTime = postalLocatorDto.getAddTime();
+        this.addUserId = postalLocatorDto.getAddUserId();
+        this.censusBlockCd = postalLocatorDto.getCensusBlockCd();
+        this.censusMinorCivilDivisionCd = postalLocatorDto.getCensusMinorCivilDivisionCd();
+        this.censusTrackCd = postalLocatorDto.getCensusTrackCd();
+        this.cityCd = postalLocatorDto.getCityCd();
+        this.cityDescTxt = postalLocatorDto.getCityDescTxt();
+        this.cntryCd = postalLocatorDto.getCntryCd();
+        this.cntryDescTxt = postalLocatorDto.getCntryDescTxt();
+        this.cntyCd = postalLocatorDto.getCntyCd();
+        this.cntyDescTxt = postalLocatorDto.getCntyDescTxt();
+        this.lastChgReasonCd = postalLocatorDto.getLastChgReasonCd();
+        this.lastChgTime = postalLocatorDto.getLastChgTime();
+        this.lastChgUserId = postalLocatorDto.getLastChgUserId();
+        this.msaCongressDistrictCd = postalLocatorDto.getMSACongressDistrictCd();
+        this.recordStatusCd = postalLocatorDto.getRecordStatusCd();
+        this.recordStatusTime = postalLocatorDto.getRecordStatusTime();
+        this.regionDistrictCd = postalLocatorDto.getRegionDistrictCd();
+        this.stateCd = postalLocatorDto.getStateCd();
+        this.streetAddr1 = postalLocatorDto.getStreetAddr1();
+        this.streetAddr2 = postalLocatorDto.getStreetAddr2();
+        this.userAffiliationTxt = postalLocatorDto.getUserAffiliationTxt();
+        this.zipCd = postalLocatorDto.getZipCd();
+        this.geocodeMatchInd = postalLocatorDto.getGeocodeMatchInd();
+        this.withinCityLimitsInd = postalLocatorDto.getWithinCityLimitsInd();
+        this.censusTract = postalLocatorDto.getCensusTract();
     }
 
     public PostalLocator() {

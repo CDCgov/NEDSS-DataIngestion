@@ -2,11 +2,13 @@ package gov.cdc.dataprocessing.utilities.component.data_extraction;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model.dt.EdxLabInformationDT;
-import gov.cdc.dataprocessing.model.classic_model.dto.*;
-import gov.cdc.dataprocessing.model.classic_model.vo.LabResultProxyVO;
-import gov.cdc.dataprocessing.model.classic_model.vo.OrganizationVO;
-import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
+import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.*;
+import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.OrganizationVO;
+import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
+import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.phdc.HL7ORCType;
 import gov.cdc.dataprocessing.model.phdc.HL7XADType;
 import gov.cdc.dataprocessing.model.phdc.HL7XONType;
@@ -31,13 +33,13 @@ public class ORCHandler {
 
 
     public void getORCProcessing(HL7ORCType hl7ORCType,
-                                 LabResultProxyVO labResultProxyVO,
-                                 EdxLabInformationDT edxLabInformationDT) throws DataProcessingException {
+                                 LabResultProxyContainer labResultProxyContainer,
+                                 EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         try {
-            getOrderingProvider(hl7ORCType, labResultProxyVO, edxLabInformationDT);
-            getOrderingFacility(hl7ORCType, labResultProxyVO, edxLabInformationDT);
+            getOrderingProvider(hl7ORCType, labResultProxyContainer, edxLabInformationDto);
+            getOrderingFacility(hl7ORCType, labResultProxyContainer, edxLabInformationDto);
             if (hl7ORCType.getOrderEffectiveDateTime() != null) {
-                edxLabInformationDT.setOrderEffectiveDate(
+                edxLabInformationDto.setOrderEffectiveDate(
                         NBSObjectConverter.processHL7TSType(
                                 hl7ORCType.getOrderEffectiveDateTime(), EdxELRConstant.DATE_VALIDATION_ORC_ORDER_EFFECTIVE_TIME_MSG));
             }
@@ -47,43 +49,43 @@ public class ORCHandler {
         }
     }
 
-    private LabResultProxyVO getOrderingProvider(HL7ORCType hl7ORCType,
-                                                 LabResultProxyVO labResultProxyVO,
-                                                 EdxLabInformationDT edxLabInformationDT) throws DataProcessingException {
+    private LabResultProxyContainer getOrderingProvider(HL7ORCType hl7ORCType,
+                                                        LabResultProxyContainer labResultProxyContainer,
+                                                        EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         try {
             HL7XADType address;
             List<HL7XADType> addressArray = hl7ORCType
                     .getOrderingProviderAddress();
             if(addressArray!=null && !addressArray.isEmpty()){
-                edxLabInformationDT.setRole(EdxELRConstant.ELR_OP_CD);
-                edxLabInformationDT.setOrderingProvider(true);
-                PersonVO personVO = new PersonVO();
-                personVO.getThePersonDT().setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
+                edxLabInformationDto.setRole(EdxELRConstant.ELR_OP_CD);
+                edxLabInformationDto.setOrderingProvider(true);
+                PersonContainer personContainer = new PersonContainer();
+                personContainer.getThePersonDto().setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
                 //Only need first index
                 address = addressArray.get(0);
                 if (address != null) {
-                    nbsObjectConverter.personAddressType(address, EdxELRConstant.ELR_OP_CD, personVO);
+                    nbsObjectConverter.personAddressType(address, EdxELRConstant.ELR_OP_CD, personContainer);
                 }
 
-                personVO.setRole(EdxELRConstant.ELR_OP_CD);
-                edxLabInformationDT.setOrderingProviderVO(personVO);
-                labResultProxyVO.getThePersonVOCollection().add(personVO);
-                edxLabInformationDT.setMissingOrderingProvider(false);
+                personContainer.setRole(EdxELRConstant.ELR_OP_CD);
+                edxLabInformationDto.setOrderingProviderVO(personContainer);
+                labResultProxyContainer.getThePersonContainerCollection().add(personContainer);
+                edxLabInformationDto.setMissingOrderingProvider(false);
             }else{
-                edxLabInformationDT.setMissingOrderingProvider(true);
+                edxLabInformationDto.setMissingOrderingProvider(true);
             }
         } catch (Exception e) {
             logger.error("Exception thrown by HL7ORCProcessor.getOrderingProvider " + e.getMessage(), e);
             throw new DataProcessingException("Exception thrown at HL7ORCProcessor.getOrderingProvider:"+ e);
         }
 
-        return labResultProxyVO;
+        return labResultProxyContainer;
 
     }
 
     private OrganizationVO getOrderingFacility(HL7ORCType hl7ORCType,
-                                                      LabResultProxyVO labResultProxyVO,
-                                                      EdxLabInformationDT edxLabInformationDT) throws DataProcessingException {
+                                                      LabResultProxyContainer labResultProxyContainer,
+                                                      EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         OrganizationVO organizationVO = new OrganizationVO();
         try {
             List<HL7XADType> addressArray = hl7ORCType.getOrderingFacilityAddress();
@@ -92,7 +94,7 @@ public class ORCHandler {
                 organizationVO.setItNew(true);
                 organizationVO.setItDirty(false);
                 organizationVO.setRole(EdxELRConstant.ELR_OP_CD);
-                organizationDT.setOrganizationUid((long)edxLabInformationDT.getNextUid());
+                organizationDT.setOrganizationUid((long) edxLabInformationDto.getNextUid());
                 organizationDT.setCd(EdxELRConstant.ELR_OTHER_CD);
                 organizationDT.setCdDescTxt(EdxELRConstant.ELR_OTHER_DESC);
                 organizationDT.setStandardIndustryClassCd(EdxELRConstant.ELR_RECEIVING_STANDARD_INDUSTRY_CLASS_CD);
@@ -101,44 +103,44 @@ public class ORCHandler {
                 organizationDT.setItNew(true);
                 organizationDT.setItDirty(false);
                 organizationVO.setTheOrganizationDT(organizationDT);
-                organizationDT.setAddUserId(edxLabInformationDT.getUserId());
+                organizationDT.setAddUserId(edxLabInformationDto.getUserId());
 
                 ParticipationDT participationDT = new ParticipationDT();
                 participationDT.setActClassCd(EdxELRConstant.ELR_OBS);
                 participationDT.setCd(EdxELRConstant.ELR_OP_CD);
                 participationDT.setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
-                participationDT.setActUid(edxLabInformationDT.getRootObserbationUid());
+                participationDT.setActUid(edxLabInformationDto.getRootObserbationUid());
                 participationDT.setTypeCd(EdxELRConstant.ELR_ORDERER_CD);
-                NBSObjectConverter.defaultParticipationDT(participationDT, edxLabInformationDT);
+                NBSObjectConverter.defaultParticipationDT(participationDT, edxLabInformationDto);
                 participationDT.setTypeDescTxt(EdxELRConstant.ELR_ORDERER_DESC);
                 participationDT.setSubjectClassCd(EdxELRConstant.ELR_ORG);
                 participationDT.setSubjectEntityUid(organizationDT.getOrganizationUid());
-                labResultProxyVO.getTheParticipationDTCollection().add(participationDT);
-                labResultProxyVO.getTheOrganizationVOCollection().add(organizationVO);
+                labResultProxyContainer.getTheParticipationDTCollection().add(participationDT);
+                labResultProxyContainer.getTheOrganizationVOCollection().add(organizationVO);
 
-                Collection<RoleDT> roleDTColl = new ArrayList<>();
-                RoleDT roleDT = new RoleDT();
-                roleDT.setCd(EdxELRConstant.ELR_OP_CD);
-                roleDT.setCdDescTxt(EdxELRConstant.ELR_OP_DESC);
-                roleDT.setScopingClassCd(EdxELRConstant.ELR_SENDING_HCFAC);
-                roleDT.setRoleSeq(1L);
-                roleDT.setAddReasonCd("");
-                roleDT.setAddTime(organizationVO.getTheOrganizationDT().getAddTime());
-                roleDT.setAddUserId(edxLabInformationDT.getUserId());
-                roleDT.setItNew(true);
-                roleDT.setItDirty(false);
-                roleDT.setAddReasonCd(EdxELRConstant.ELR_ROLE_REASON);
-                roleDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
-                roleDT.setLastChgTime(organizationVO.getTheOrganizationDT().getAddTime());
-                roleDT.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
-                roleDT.setSubjectEntityUid(organizationVO.getTheOrganizationDT().getOrganizationUid());
-                roleDTColl.add(roleDT);
-                labResultProxyVO.getTheRoleDTCollection().add(roleDT);
+                Collection<RoleDto> roleDtoColl = new ArrayList<>();
+                RoleDto roleDto = new RoleDto();
+                roleDto.setCd(EdxELRConstant.ELR_OP_CD);
+                roleDto.setCdDescTxt(EdxELRConstant.ELR_OP_DESC);
+                roleDto.setScopingClassCd(EdxELRConstant.ELR_SENDING_HCFAC);
+                roleDto.setRoleSeq(1L);
+                roleDto.setAddReasonCd("");
+                roleDto.setAddTime(organizationVO.getTheOrganizationDT().getAddTime());
+                roleDto.setAddUserId(edxLabInformationDto.getUserId());
+                roleDto.setItNew(true);
+                roleDto.setItDirty(false);
+                roleDto.setAddReasonCd(EdxELRConstant.ELR_ROLE_REASON);
+                roleDto.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
+                roleDto.setLastChgTime(organizationVO.getTheOrganizationDT().getAddTime());
+                roleDto.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
+                roleDto.setSubjectEntityUid(organizationVO.getTheOrganizationDT().getOrganizationUid());
+                roleDtoColl.add(roleDto);
+                labResultProxyContainer.getTheRoleDtoCollection().add(roleDto);
 
-                Collection<EntityLocatorParticipationDT> addressCollection = new ArrayList<>();
+                Collection<EntityLocatorParticipationDto> addressCollection = new ArrayList<>();
                 if (!addressArray.isEmpty()) {
                     HL7XADType addressType = addressArray.get(0);
-                    EntityLocatorParticipationDT elpDT = nbsObjectConverter.organizationAddressType(addressType, EdxELRConstant.ELR_OP_CD, organizationVO);
+                    EntityLocatorParticipationDto elpDT = nbsObjectConverter.organizationAddressType(addressType, EdxELRConstant.ELR_OP_CD, organizationVO);
                     addressCollection.add(elpDT);
                 }
 
@@ -147,9 +149,9 @@ public class ORCHandler {
                 if (!phoneArray.isEmpty()) {
                     HL7XTNType phone = phoneArray.get(0);
                     if (phone != null) {
-                        EntityLocatorParticipationDT elpdt = NBSObjectConverter.orgTelePhoneType(phone, EdxELRConstant.ELR_OP_CD, organizationVO);
+                        EntityLocatorParticipationDto elpdt = NBSObjectConverter.orgTelePhoneType(phone, EdxELRConstant.ELR_OP_CD, organizationVO);
                         elpdt.setUseCd(EdxELRConstant.ELR_WORKPLACE_CD);
-                        organizationVO.getTheEntityLocatorParticipationDTCollection().add(elpdt);
+                        organizationVO.getTheEntityLocatorParticipationDtoCollection().add(elpdt);
                     }
                 }
 
@@ -165,16 +167,16 @@ public class ORCHandler {
                     orgNameColl.add(organizationNameDT);
                 }
                 organizationVO.setTheOrganizationNameDTCollection(orgNameColl);
-                edxLabInformationDT.setMissingOrderingFacility(false);
+                edxLabInformationDto.setMissingOrderingFacility(false);
             }else{
-                edxLabInformationDT.setMissingOrderingFacility(true);
+                edxLabInformationDto.setMissingOrderingFacility(true);
             }
 
         } catch (Exception e) {
             logger.error("Exception thrown by HL7ORCProcessorget.getOrderingFacility " + e.getMessage(), e);
             throw new DataProcessingException("Exception thrown at HL7ORCProcessorget.getOrderingFacility:"+ e);
         }
-        edxLabInformationDT.setMultipleOrderingFacility(false);
+        edxLabInformationDto.setMultipleOrderingFacility(false);
 
         return organizationVO;
     }

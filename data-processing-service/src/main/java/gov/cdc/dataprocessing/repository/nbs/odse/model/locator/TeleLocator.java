@@ -1,13 +1,12 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.locator;
 
-import gov.cdc.dataprocessing.model.classic_model.dto.TeleLocatorDT;
+import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 
-import java.math.BigInteger;
 import java.sql.Timestamp;
 
 @Entity
@@ -62,22 +61,22 @@ public class TeleLocator {
     private String userAffiliationTxt;
 
     // Add getters and setters as needed
-    public TeleLocator(TeleLocatorDT teleLocatorDT) {
-        this.teleLocatorUid = teleLocatorDT.getTeleLocatorUid();
-        this.addReasonCd = teleLocatorDT.getAddReasonCd();
-        this.addTime = teleLocatorDT.getAddTime();
-        this.addUserId = teleLocatorDT.getAddUserId();
-        this.cntryCd = teleLocatorDT.getCntryCd();
-        this.emailAddress = teleLocatorDT.getEmailAddress();
-        this.extensionTxt = teleLocatorDT.getExtensionTxt();
-        this.lastChgReasonCd = teleLocatorDT.getLastChgReasonCd();
-        this.lastChgTime = teleLocatorDT.getLastChgTime();
-        this.lastChgUserId = teleLocatorDT.getLastChgUserId();
-        this.phoneNbrTxt = teleLocatorDT.getPhoneNbrTxt();
-        this.recordStatusCd = teleLocatorDT.getRecordStatusCd();
-        this.recordStatusTime = teleLocatorDT.getRecordStatusTime();
-        this.urlAddress = teleLocatorDT.getUrlAddress();
-        this.userAffiliationTxt = teleLocatorDT.getUserAffiliationTxt();
+    public TeleLocator(TeleLocatorDto teleLocatorDto) {
+        this.teleLocatorUid = teleLocatorDto.getTeleLocatorUid();
+        this.addReasonCd = teleLocatorDto.getAddReasonCd();
+        this.addTime = teleLocatorDto.getAddTime();
+        this.addUserId = teleLocatorDto.getAddUserId();
+        this.cntryCd = teleLocatorDto.getCntryCd();
+        this.emailAddress = teleLocatorDto.getEmailAddress();
+        this.extensionTxt = teleLocatorDto.getExtensionTxt();
+        this.lastChgReasonCd = teleLocatorDto.getLastChgReasonCd();
+        this.lastChgTime = teleLocatorDto.getLastChgTime();
+        this.lastChgUserId = teleLocatorDto.getLastChgUserId();
+        this.phoneNbrTxt = teleLocatorDto.getPhoneNbrTxt();
+        this.recordStatusCd = teleLocatorDto.getRecordStatusCd();
+        this.recordStatusTime = teleLocatorDto.getRecordStatusTime();
+        this.urlAddress = teleLocatorDto.getUrlAddress();
+        this.userAffiliationTxt = teleLocatorDto.getUserAffiliationTxt();
     }
 
     public TeleLocator() {

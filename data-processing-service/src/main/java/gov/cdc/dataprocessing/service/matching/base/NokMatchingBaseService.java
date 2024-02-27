@@ -3,11 +3,11 @@ package gov.cdc.dataprocessing.service.matching.base;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model.dto.EdxPatientMatchDT;
-import gov.cdc.dataprocessing.model.classic_model.dto.EntityLocatorParticipationDT;
-import gov.cdc.dataprocessing.model.classic_model.dto.PostalLocatorDT;
-import gov.cdc.dataprocessing.model.classic_model.dto.TeleLocatorDT;
-import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
+import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
+import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
+import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
+import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
+import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.service.core.CheckingValueService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
@@ -30,17 +30,17 @@ public class NokMatchingBaseService extends PatientMatchingBaseService {
         super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, checkingValueService);
     }
 
-    protected void setPersonHashCdNok(PersonVO personVO) throws DataProcessingException {
+    protected void setPersonHashCdNok(PersonContainer personContainer) throws DataProcessingException {
         try {
-            long personUid = personVO.getThePersonDT().getPersonParentUid();
+            long personUid = personContainer.getThePersonDto().getPersonParentUid();
 
             // DELETE Patient Matching Hash String
             getEdxPatientMatchRepositoryUtil().deleteEdxPatientMatchDTColl(personUid);
             try {
-                if(personVO.getThePersonDT().getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE)){
-                    personVO.getThePersonDT().setPersonUid(personUid);
+                if(personContainer.getThePersonDto().getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE)){
+                    personContainer.getThePersonDto().setPersonUid(personUid);
                     // INSERTING Patient Matching Hash String
-                    setPersonToMatchEntityNok(personVO);
+                    setPersonToMatchEntityNok(personContainer);
                 }
             } catch (Exception e) {
                 //per defect #1836 change to warning..
@@ -52,20 +52,20 @@ public class NokMatchingBaseService extends PatientMatchingBaseService {
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
-    protected List<String> nameAddressStreetOneNOK(PersonVO personVO) {
+    protected List<String> nameAddressStreetOneNOK(PersonContainer personContainer) {
         String nameAddStr = null;
         String carrot = "^";
         List<String> nameAddressStreetOnelNOKist = new ArrayList();
-        if (personVO.getTheEntityLocatorParticipationDTCollection() != null && personVO.getTheEntityLocatorParticipationDTCollection().size() > 0) {
-            Iterator<EntityLocatorParticipationDT> addIter = personVO.getTheEntityLocatorParticipationDTCollection().iterator();
+        if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && personContainer.getTheEntityLocatorParticipationDtoCollection().size() > 0) {
+            Iterator<EntityLocatorParticipationDto> addIter = personContainer.getTheEntityLocatorParticipationDtoCollection().iterator();
 
             while (addIter.hasNext()) {
-                EntityLocatorParticipationDT entLocPartDT = (EntityLocatorParticipationDT) addIter.next();
+                EntityLocatorParticipationDto entLocPartDT = (EntityLocatorParticipationDto) addIter.next();
                 if (entLocPartDT.getClassCd() != null && entLocPartDT.getRecordStatusCd() !=null
                         && entLocPartDT.getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE) && entLocPartDT.getClassCd().equals(
                         NEDSSConstant.POSTAL)) {
                     if (entLocPartDT.getCd() != null) {
-                        PostalLocatorDT postLocDT = entLocPartDT.getThePostalLocatorDT();
+                        PostalLocatorDto postLocDT = entLocPartDT.getThePostalLocatorDto();
                         if (postLocDT != null) {
                             if ((postLocDT.getStreetAddr1() != null && !postLocDT.getStreetAddr1().equals(""))
                                     && (postLocDT.getCityDescTxt() != null && !postLocDT.getCityDescTxt().equals(""))
@@ -81,7 +81,7 @@ public class NokMatchingBaseService extends PatientMatchingBaseService {
             }
             if (nameAddStr != null)
             {
-                nameAddStr = getNamesStr(personVO) + nameAddStr;
+                nameAddStr = getNamesStr(personContainer) + nameAddStr;
             }
             nameAddressStreetOnelNOKist.add(nameAddStr);
 
@@ -89,18 +89,18 @@ public class NokMatchingBaseService extends PatientMatchingBaseService {
 
         return nameAddressStreetOnelNOKist;
     }
-    protected List<String> telePhoneTxtNOK(PersonVO personVO) {
+    protected List<String> telePhoneTxtNOK(PersonContainer personContainer) {
         String nameTeleStr = null;
         String carrot = "^";
         List<String> telePhoneTxtList = new ArrayList();
-        if (personVO.getTheEntityLocatorParticipationDTCollection() != null && personVO.getTheEntityLocatorParticipationDTCollection().size() > 0) {
-            Iterator<EntityLocatorParticipationDT> addIter = personVO.getTheEntityLocatorParticipationDTCollection().iterator();
+        if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && personContainer.getTheEntityLocatorParticipationDtoCollection().size() > 0) {
+            Iterator<EntityLocatorParticipationDto> addIter = personContainer.getTheEntityLocatorParticipationDtoCollection().iterator();
             while (addIter.hasNext()) {
-                EntityLocatorParticipationDT entLocPartDT = (EntityLocatorParticipationDT) addIter.next();
+                EntityLocatorParticipationDto entLocPartDT = (EntityLocatorParticipationDto) addIter.next();
                 if (entLocPartDT.getClassCd() != null && entLocPartDT.getClassCd().equals(NEDSSConstant.TELE)
                         && entLocPartDT.getRecordStatusCd()!=null && entLocPartDT.getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE)) {
                     if (entLocPartDT.getCd() != null) {
-                        TeleLocatorDT teleLocDT = entLocPartDT.getTheTeleLocatorDT();
+                        TeleLocatorDto teleLocDT = entLocPartDT.getTheTeleLocatorDto();
                         if (teleLocDT != null && teleLocDT.getPhoneNbrTxt() != null && !teleLocDT.getPhoneNbrTxt().equals(""))
                         {
                             nameTeleStr = carrot + teleLocDT.getPhoneNbrTxt();
@@ -109,8 +109,8 @@ public class NokMatchingBaseService extends PatientMatchingBaseService {
                     }
                     if (nameTeleStr != null) {
 
-                        if (getNamesStr(personVO) != null) {
-                            nameTeleStr = getNamesStr(personVO) + nameTeleStr;
+                        if (getNamesStr(personContainer) != null) {
+                            nameTeleStr = getNamesStr(personContainer) + nameTeleStr;
                             telePhoneTxtList.add(nameTeleStr);
                         } else {
                             return null;
@@ -123,14 +123,14 @@ public class NokMatchingBaseService extends PatientMatchingBaseService {
 
         return telePhoneTxtList;
     }
-    private void setPersonToMatchEntityNok(PersonVO personVO) throws DataProcessingException {
-        Long patientUid = personVO.getThePersonDT().getPersonUid();
-        EdxPatientMatchDT edxPatientMatchDT = new EdxPatientMatchDT();
-        String cdDescTxt = personVO.thePersonDT.getCdDescTxt();
+    private void setPersonToMatchEntityNok(PersonContainer personContainer) throws DataProcessingException {
+        Long patientUid = personContainer.getThePersonDto().getPersonUid();
+        EdxPatientMatchDto edxPatientMatchDto = new EdxPatientMatchDto();
+        String cdDescTxt = personContainer.thePersonDto.getCdDescTxt();
         if (cdDescTxt != null && cdDescTxt.equalsIgnoreCase(EdxELRConstant.ELR_NOK_DESC)) {
             String nameAddStrSt1 = null;
             int nameAddStrSt1hshCd = 0;
-            List nameAddressStreetOneStrList = nameAddressStreetOneNOK(personVO);
+            List nameAddressStreetOneStrList = nameAddressStreetOneNOK(personContainer);
             if (nameAddressStreetOneStrList != null
                     && !nameAddressStreetOneStrList.isEmpty()) {
                 for (int k = 0; k < nameAddressStreetOneStrList.size(); k++) {
@@ -139,13 +139,13 @@ public class NokMatchingBaseService extends PatientMatchingBaseService {
                         nameAddStrSt1 = nameAddStrSt1.toUpperCase();
                         nameAddStrSt1hshCd = nameAddStrSt1.hashCode();
                         if (nameAddStrSt1 != null) {
-                            edxPatientMatchDT = new EdxPatientMatchDT();
-                            edxPatientMatchDT.setPatientUid(patientUid);
-                            edxPatientMatchDT.setTypeCd(NEDSSConstant.NOK);
-                            edxPatientMatchDT.setMatchString(nameAddStrSt1);
-                            edxPatientMatchDT.setMatchStringHashCode((long)nameAddStrSt1hshCd);
+                            edxPatientMatchDto = new EdxPatientMatchDto();
+                            edxPatientMatchDto.setPatientUid(patientUid);
+                            edxPatientMatchDto.setTypeCd(NEDSSConstant.NOK);
+                            edxPatientMatchDto.setMatchString(nameAddStrSt1);
+                            edxPatientMatchDto.setMatchStringHashCode((long)nameAddStrSt1hshCd);
                             try {
-                                getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDT);
+                                getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDto);
                             } catch (Exception e) {
                                 logger.error("Error in creating the setEdxPatientMatchDT with nameAddString:" + nameAddStrSt1 + " " + e.getMessage());
                                 throw new DataProcessingException(e.getMessage(), e);
@@ -155,7 +155,7 @@ public class NokMatchingBaseService extends PatientMatchingBaseService {
                     }
                 }
             }
-            List nameTelePhoneStrList = telePhoneTxtNOK(personVO);
+            List nameTelePhoneStrList = telePhoneTxtNOK(personContainer);
             String nameTelePhone = null;
             int nameTelePhonehshCd = 0;
             if (nameTelePhoneStrList != null && !nameTelePhoneStrList.isEmpty()) {
@@ -165,13 +165,13 @@ public class NokMatchingBaseService extends PatientMatchingBaseService {
                         nameTelePhone = nameTelePhone.toUpperCase();
                         nameTelePhonehshCd = nameTelePhone.hashCode();
                         if (nameTelePhone != null) {
-                            edxPatientMatchDT = new EdxPatientMatchDT();
-                            edxPatientMatchDT.setPatientUid(patientUid);
-                            edxPatientMatchDT.setTypeCd(NEDSSConstant.NOK);
-                            edxPatientMatchDT.setMatchString(nameTelePhone);
-                            edxPatientMatchDT.setMatchStringHashCode((long)nameTelePhonehshCd);
+                            edxPatientMatchDto = new EdxPatientMatchDto();
+                            edxPatientMatchDto.setPatientUid(patientUid);
+                            edxPatientMatchDto.setTypeCd(NEDSSConstant.NOK);
+                            edxPatientMatchDto.setMatchString(nameTelePhone);
+                            edxPatientMatchDto.setMatchStringHashCode((long)nameTelePhonehshCd);
                             try {
-                                getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDT);
+                                getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDto);
                             } catch (Exception e) {
                                 logger.error("Error in creating the EdxEntityMatchDT with nameTelePhone:" + nameTelePhone + " " + e.getMessage());
                                 throw new DataProcessingException(e.getMessage(), e);

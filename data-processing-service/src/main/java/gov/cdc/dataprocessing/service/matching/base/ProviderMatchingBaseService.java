@@ -2,8 +2,15 @@ package gov.cdc.dataprocessing.service.matching.base;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model.dto.*;
-import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.*;
+import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
+import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
+import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
+import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
+import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
+import gov.cdc.dataprocessing.model.dto.matching.EdxEntityMatchDto;
+import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.service.core.CheckingValueService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
@@ -31,18 +38,18 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, checkingValueService);
     }
 
-    protected String telePhoneTxtProvider(PersonVO personVO) {
+    protected String telePhoneTxtProvider(PersonContainer personContainer) {
         String nameTeleStr = null;
         String carrot = "^";
 
-        if (personVO.getTheEntityLocatorParticipationDTCollection() != null
-                && personVO.getTheEntityLocatorParticipationDTCollection().size() > 0) {
-            Iterator<EntityLocatorParticipationDT> addIter = personVO.getTheEntityLocatorParticipationDTCollection().iterator();
+        if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null
+                && personContainer.getTheEntityLocatorParticipationDtoCollection().size() > 0) {
+            Iterator<EntityLocatorParticipationDto> addIter = personContainer.getTheEntityLocatorParticipationDtoCollection().iterator();
             while (addIter.hasNext()) {
-                EntityLocatorParticipationDT entLocPartDT = (EntityLocatorParticipationDT) addIter.next();
+                EntityLocatorParticipationDto entLocPartDT = (EntityLocatorParticipationDto) addIter.next();
                 if (entLocPartDT.getClassCd() != null && entLocPartDT.getClassCd().equals(NEDSSConstant.TELE)) {
                     if (entLocPartDT.getCd() != null && entLocPartDT.getCd().equals(NEDSSConstant.PHONE)) {
-                        TeleLocatorDT teleLocDT = entLocPartDT.getTheTeleLocatorDT();
+                        TeleLocatorDto teleLocDT = entLocPartDT.getTheTeleLocatorDto();
                         if (teleLocDT != null && teleLocDT.getPhoneNbrTxt() != null && !teleLocDT.getPhoneNbrTxt().equals(""))
                             nameTeleStr = carrot + teleLocDT.getPhoneNbrTxt();
 
@@ -52,24 +59,24 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         }
         if (nameTeleStr != null)
         {
-            nameTeleStr = getNameStringForProvider(personVO) + nameTeleStr;
+            nameTeleStr = getNameStringForProvider(personContainer) + nameTeleStr;
         }
         return nameTeleStr;
     }
     // Creating string for name and address for providers
-    protected String nameAddressStreetOneProvider(PersonVO personVO) {
+    protected String nameAddressStreetOneProvider(PersonContainer personContainer) {
         String nameAddStr = null;
         String carrot = "^";
-        if (personVO.getTheEntityLocatorParticipationDTCollection() != null && personVO.getTheEntityLocatorParticipationDTCollection().size() > 0) {
-            Iterator<EntityLocatorParticipationDT> addIter = personVO.getTheEntityLocatorParticipationDTCollection().iterator();
+        if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && personContainer.getTheEntityLocatorParticipationDtoCollection().size() > 0) {
+            Iterator<EntityLocatorParticipationDto> addIter = personContainer.getTheEntityLocatorParticipationDtoCollection().iterator();
             while (addIter.hasNext()) {
-                EntityLocatorParticipationDT entLocPartDT = (EntityLocatorParticipationDT) addIter.next();
+                EntityLocatorParticipationDto entLocPartDT = (EntityLocatorParticipationDto) addIter.next();
                 if (entLocPartDT.getClassCd() != null && entLocPartDT.getClassCd().equals(NEDSSConstant.POSTAL)) {
                     if (entLocPartDT.getCd() != null
                             && entLocPartDT.getCd().equals(NEDSSConstant.OFFICE_CD)
                             && entLocPartDT.getUseCd() != null
                             && entLocPartDT.getUseCd().equals(NEDSSConstant.WORK_PLACE)) {
-                        PostalLocatorDT postLocDT = entLocPartDT.getThePostalLocatorDT();
+                        PostalLocatorDto postLocDT = entLocPartDT.getThePostalLocatorDto();
                         if (postLocDT != null) {
                             if ((postLocDT.getStreetAddr1() != null && !postLocDT.getStreetAddr1().equals(""))
                                     && (postLocDT.getCityDescTxt() != null && !postLocDT.getCityDescTxt().equals(""))
@@ -88,26 +95,26 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
 
         }
         if (nameAddStr != null)
-            nameAddStr = getNameStringForProvider(personVO) + nameAddStr;
+            nameAddStr = getNameStringForProvider(personContainer) + nameAddStr;
         return nameAddStr;
     }
-    protected Long processingProvider(PersonVO personVO, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException {
+    protected Long processingProvider(PersonContainer personContainer, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException {
         try {
             boolean callOrgHashCode= false;
-            if(personVO.isItNew() && personVO.getThePersonDT().isItNew() && personVO.getThePersonDT().getElectronicInd().equalsIgnoreCase("Y")
-                    && !personVO.getThePersonDT().isCaseInd()){
+            if(personContainer.isItNew() && personContainer.getThePersonDto().isItNew() && personContainer.getThePersonDto().getElectronicInd().equalsIgnoreCase("Y")
+                    && !personContainer.getThePersonDto().isCaseInd()){
                 callOrgHashCode= true;
-                personVO.getThePersonDT().setEdxInd("Y");
+                personContainer.getThePersonDto().setEdxInd("Y");
             }
-            long personUid= persistingProvider(personVO, "PROVIDER", businessTriggerCd );
+            long personUid= persistingProvider(personContainer, "PROVIDER", businessTriggerCd );
 
             if(callOrgHashCode){
                 try {
-                    personVO.getThePersonDT().setPersonUid(personUid);
+                    personContainer.getThePersonDto().setPersonUid(personUid);
                     /**
                      * THIS CODE HAS THING TO DO WITH ORGANIZATION
                      * */
-                    setProvidertoEntityMatch(personVO);
+                    setProvidertoEntityMatch(personContainer);
                 } catch (Exception e) {
                     logger.error("EntityControllerEJB.setProvider method exception thrown for matching criteria:"+e);
                     throw new DataProcessingException("EntityControllerEJB.setProvider method exception thrown for matching criteria:"+e);
@@ -118,14 +125,14 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             throw new DataProcessingException(e.getMessage());
         }
     }
-    private Long persistingProvider(PersonVO personVO, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException  {
+    private Long persistingProvider(PersonContainer personContainer, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException  {
         Long personUID =  -1L;
         String localId = "";
         boolean isELRCase = false;
         try {
-            localId = personVO.getThePersonDT().getLocalId();
+            localId = personContainer.getThePersonDto().getLocalId();
             if (localId == null) {
-                personVO.getThePersonDT().setEdxInd("Y");
+                personContainer.getThePersonDto().setEdxInd("Y");
                 isELRCase = true;
             }
 
@@ -133,37 +140,37 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
              * TODO: double check this
              * */
 
-            Collection<EntityLocatorParticipationDT> collParLocator = null;
-            Collection<RoleDT> colRole = null;
+            Collection<EntityLocatorParticipationDto> collParLocator = null;
+            Collection<RoleDto> colRole = null;
             Collection<ParticipationDT> colPar = null;
 
 
-            collParLocator = personVO.getTheEntityLocatorParticipationDTCollection();
+            collParLocator = personContainer.getTheEntityLocatorParticipationDtoCollection();
             if (collParLocator != null) {
                 getEntityHelper().iterateELPDTForEntityLocatorParticipation(collParLocator);
-                personVO.setTheEntityLocatorParticipationDTCollection(collParLocator);
+                personContainer.setTheEntityLocatorParticipationDtoCollection(collParLocator);
             }
 
-            colRole = personVO.getTheRoleDTCollection();
+            colRole = personContainer.getTheRoleDtoCollection();
             if (colRole != null) {
                 getEntityHelper().iterateRDT(colRole);
-                personVO.setTheRoleDTCollection(colRole);
+                personContainer.setTheRoleDtoCollection(colRole);
             }
-            colPar = personVO.getTheParticipationDTCollection();
+            colPar = personContainer.getTheParticipationDTCollection();
             if (colPar != null) {
                 getEntityHelper().iteratePDTForParticipation(colPar);
-                personVO.setTheParticipationDTCollection(colPar);
+                personContainer.setTheParticipationDTCollection(colPar);
             }
 
-            getPatientRepositoryUtil().preparePersonNameBeforePersistence(personVO);
+            getPatientRepositoryUtil().preparePersonNameBeforePersistence(personContainer);
 
-            if (personVO.isItNew()) {
-                Person p = getPatientRepositoryUtil().createPerson(personVO);
+            if (personContainer.isItNew()) {
+                Person p = getPatientRepositoryUtil().createPerson(personContainer);
                 personUID = p.getPersonUid();
             }
             else {
-                getPatientRepositoryUtil().updateExistingPerson(personVO);
-                personUID = personVO.getThePersonDT().getPersonUid();
+                getPatientRepositoryUtil().updateExistingPerson(personContainer);
+                personUID = personContainer.getThePersonDto().getPersonUid();
 
             }
 
@@ -174,13 +181,13 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         return personUID;
 
     }
-    private void setProvidertoEntityMatch(PersonVO personVO) throws Exception {
+    private void setProvidertoEntityMatch(PersonContainer personContainer) throws Exception {
 
-        Long entityUid = personVO.getThePersonDT().getPersonUid();
+        Long entityUid = personContainer.getThePersonDto().getPersonUid();
         String identifier = null;
         int identifierHshCd = 0;
         List identifierList = null;
-        identifierList = getIdentifierForProvider(personVO);
+        identifierList = getIdentifierForProvider(personContainer);
         if (identifierList != null && !identifierList.isEmpty()) {
             for (int k = 0; k < identifierList.size(); k++) {
                 identifier = (String) identifierList.get(k);
@@ -190,13 +197,13 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                 }
                 identifierHshCd = identifier.hashCode();
                 if (identifier != null) {
-                    EdxEntityMatchDT edxEntityMatchDT = new EdxEntityMatchDT();
-                    edxEntityMatchDT.setEntityUid(entityUid);
-                    edxEntityMatchDT.setTypeCd(NEDSSConstant.PRV);
-                    edxEntityMatchDT.setMatchString(identifier);
-                    edxEntityMatchDT.setMatchStringHashCode((long)identifierHshCd);
+                    EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
+                    edxEntityMatchDto.setEntityUid(entityUid);
+                    edxEntityMatchDto.setTypeCd(NEDSSConstant.PRV);
+                    edxEntityMatchDto.setMatchString(identifier);
+                    edxEntityMatchDto.setMatchStringHashCode((long)identifierHshCd);
                     try {
-                        getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDT);
+                        getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDto);
                     } catch (Exception e) {
                         logger.error("Error in creating the EdxEntityMatchDT with identifier:" + identifier + " " + e.getMessage());
                         throw new DataProcessingException(e.getMessage(), e);
@@ -210,7 +217,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         // Matching with name and address with street address1 alone
         String nameAddStrSt1 = null;
         int nameAddStrSt1hshCd = 0;
-        nameAddStrSt1 = nameAddressStreetOneProvider(personVO);
+        nameAddStrSt1 = nameAddressStreetOneProvider(personContainer);
         if (nameAddStrSt1 != null) {
             nameAddStrSt1 = nameAddStrSt1.toUpperCase();
             nameAddStrSt1hshCd = nameAddStrSt1.hashCode();
@@ -219,22 +226,22 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         // Continue for name Telephone with no extension
         String nameTelePhone = null;
         int nameTelePhonehshCd = 0;
-        nameTelePhone = telePhoneTxtProvider(personVO);
+        nameTelePhone = telePhoneTxtProvider(personContainer);
         if (nameTelePhone != null) {
             nameTelePhone = nameTelePhone.toUpperCase();
             nameTelePhonehshCd = nameTelePhone.hashCode();
         }
 
-        EdxEntityMatchDT edxEntityMatchDT = null;
+        EdxEntityMatchDto edxEntityMatchDto = null;
         // Create the name and address with no street 2(only street1)
         if (nameAddStrSt1 != null) {
-            edxEntityMatchDT = new EdxEntityMatchDT();
-            edxEntityMatchDT.setEntityUid(entityUid);
-            edxEntityMatchDT.setTypeCd(NEDSSConstant.PRV);
-            edxEntityMatchDT.setMatchString(nameAddStrSt1);
-            edxEntityMatchDT.setMatchStringHashCode((long)nameAddStrSt1hshCd);
+            edxEntityMatchDto = new EdxEntityMatchDto();
+            edxEntityMatchDto.setEntityUid(entityUid);
+            edxEntityMatchDto.setTypeCd(NEDSSConstant.PRV);
+            edxEntityMatchDto.setMatchString(nameAddStrSt1);
+            edxEntityMatchDto.setMatchStringHashCode((long)nameAddStrSt1hshCd);
             try {
-                getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDT);
+                getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDto);
             } catch (Exception e) {
                 logger.error("Error in creating the EdxEntityMatchDT with nameAddStrSt1:" + nameAddStrSt1 + " " + e.getMessage());
                 throw new DataProcessingException(e.getMessage(), e);
@@ -243,47 +250,47 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         }
         // Create the name and address with nameTelePhone
         if (nameTelePhone != null) {
-            edxEntityMatchDT = new EdxEntityMatchDT();
-            edxEntityMatchDT.setEntityUid(entityUid);
-            edxEntityMatchDT.setTypeCd(NEDSSConstant.PRV);
-            edxEntityMatchDT.setMatchString(nameTelePhone);
-            edxEntityMatchDT.setMatchStringHashCode((long)nameTelePhonehshCd);
+            edxEntityMatchDto = new EdxEntityMatchDto();
+            edxEntityMatchDto.setEntityUid(entityUid);
+            edxEntityMatchDto.setTypeCd(NEDSSConstant.PRV);
+            edxEntityMatchDto.setMatchString(nameTelePhone);
+            edxEntityMatchDto.setMatchStringHashCode((long)nameTelePhonehshCd);
             try {
-                getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDT);
+                getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDto);
             } catch (Exception e) {
                 logger.error("Error in creating the EdxEntityMatchDT with nameTelePhone:" + nameTelePhone + " " + e.getMessage());
                 throw new DataProcessingException(e.getMessage(), e);
             }
         }
-        if (edxEntityMatchDT != null) {
-            getPatientRepositoryUtil().updateExistingPersonEdxIndByUid(edxEntityMatchDT.getEntityUid());
+        if (edxEntityMatchDto != null) {
+            getPatientRepositoryUtil().updateExistingPersonEdxIndByUid(edxEntityMatchDto.getEntityUid());
         }
 
     }
-    private List<String> getIdentifierForProvider(PersonVO personVO) throws DataProcessingException {
+    private List<String> getIdentifierForProvider(PersonContainer personContainer) throws DataProcessingException {
         String carrot = "^";
         List<String> identifierList = new ArrayList<String>();
         String identifier = null;
-        Collection<EntityIdDT> newEntityIdDTColl = new ArrayList<>();
+        Collection<EntityIdDto> newEntityIdDtoColl = new ArrayList<>();
         try{
-            if (personVO.getTheEntityIdDTCollection() != null
-                    && personVO.getTheEntityIdDTCollection().size() > 0) {
-                Collection<EntityIdDT> entityIdDTColl = personVO.getTheEntityIdDTCollection();
-                Iterator<EntityIdDT> entityIdIterator = entityIdDTColl.iterator();
+            if (personContainer.getTheEntityIdDtoCollection() != null
+                    && personContainer.getTheEntityIdDtoCollection().size() > 0) {
+                Collection<EntityIdDto> entityIdDtoColl = personContainer.getTheEntityIdDtoCollection();
+                Iterator<EntityIdDto> entityIdIterator = entityIdDtoColl.iterator();
                 while (entityIdIterator.hasNext()) {
-                    EntityIdDT entityIdDT = (EntityIdDT) entityIdIterator.next();
-                    if ((entityIdDT.getStatusCd().equalsIgnoreCase(NEDSSConstant.STATUS_ACTIVE))) {
-                        if ((entityIdDT.getRootExtensionTxt() != null)
-                                && (entityIdDT.getTypeCd() != null)
-                                && (entityIdDT.getAssigningAuthorityCd() != null)
-                                && (entityIdDT.getAssigningAuthorityDescTxt() !=null)
-                                && (entityIdDT.getAssigningAuthorityIdType() != null)) {
-                            identifier = entityIdDT.getRootExtensionTxt()
-                                    + carrot + entityIdDT.getTypeCd() + carrot
-                                    + entityIdDT.getAssigningAuthorityCd()
+                    EntityIdDto entityIdDto = (EntityIdDto) entityIdIterator.next();
+                    if ((entityIdDto.getStatusCd().equalsIgnoreCase(NEDSSConstant.STATUS_ACTIVE))) {
+                        if ((entityIdDto.getRootExtensionTxt() != null)
+                                && (entityIdDto.getTypeCd() != null)
+                                && (entityIdDto.getAssigningAuthorityCd() != null)
+                                && (entityIdDto.getAssigningAuthorityDescTxt() !=null)
+                                && (entityIdDto.getAssigningAuthorityIdType() != null)) {
+                            identifier = entityIdDto.getRootExtensionTxt()
+                                    + carrot + entityIdDto.getTypeCd() + carrot
+                                    + entityIdDto.getAssigningAuthorityCd()
                                     + carrot
-                                    + entityIdDT.getAssigningAuthorityDescTxt()
-                                    + carrot + entityIdDT.getAssigningAuthorityIdType();
+                                    + entityIdDto.getAssigningAuthorityDescTxt()
+                                    + carrot + entityIdDto.getAssigningAuthorityIdType();
                         }else {
                             try {
 
@@ -295,7 +302,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
 //                                lookupDAO.retrieveSRTCodeInfo(coded);
 
                                 Coded coded = new Coded();
-                                coded.setCode(entityIdDT.getAssigningAuthorityCd());
+                                coded.setCode(entityIdDto.getAssigningAuthorityCd());
                                 coded.setCodesetName(NEDSSConstant.EI_AUTH);
                                 coded.setCodesetTableName("Code_value_general");
 
@@ -307,13 +314,13 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
 
 
 
-                                if (entityIdDT.getRootExtensionTxt() != null
-                                        && entityIdDT.getTypeCd() != null
+                                if (entityIdDto.getRootExtensionTxt() != null
+                                        && entityIdDto.getTypeCd() != null
                                         && coded.getCode()!=null
                                         && coded.getCodeDescription()!=null
                                         && coded.getCodeSystemCd()!=null){
-                                    identifier = entityIdDT.getRootExtensionTxt()
-                                            + carrot + entityIdDT.getTypeCd() + carrot
+                                    identifier = entityIdDto.getRootExtensionTxt()
+                                            + carrot + entityIdDto.getTypeCd() + carrot
                                             + coded.getCode() + carrot
                                             + coded.getCodeDescription() + carrot
                                             + coded.getCodeSystemCd();
@@ -322,13 +329,13 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
 
                             }catch (Exception ex) {
                                 String errorMessage = "The assigning authority "
-                                        + entityIdDT.getAssigningAuthorityCd()
+                                        + entityIdDto.getAssigningAuthorityCd()
                                         + " does not exists in the system. ";
                                 logger.debug(ex.getMessage() + errorMessage);
                             }
                         }
-                        if (entityIdDT.getTypeCd()!=null && !entityIdDT.getTypeCd().equalsIgnoreCase("LR")) {
-                            newEntityIdDTColl.add(entityIdDT);
+                        if (entityIdDto.getTypeCd()!=null && !entityIdDto.getTypeCd().equalsIgnoreCase("LR")) {
+                            newEntityIdDtoColl.add(entityIdDto);
                         }
                         if (identifier != null) {
                             identifierList.add(identifier);
@@ -339,7 +346,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                 }
 
             }
-            personVO.setTheEntityIdDTCollection(newEntityIdDTColl);
+            personContainer.setTheEntityIdDtoCollection(newEntityIdDtoColl);
 
         }catch (Exception ex) {
             String errorMessage = "Exception while creating hashcode for Provider entity IDs . ";
@@ -350,21 +357,21 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
 
     }
     // getting Last name,First name for the providers
-    private String getNameStringForProvider(PersonVO personVO) {
+    private String getNameStringForProvider(PersonContainer personContainer) {
         String nameStr = null;
-        if (personVO.getThePersonNameDTCollection() != null && personVO.getThePersonNameDTCollection().size() > 0) {
-            Collection<PersonNameDT> PersonNameDTColl = personVO.getThePersonNameDTCollection();
-            Iterator<PersonNameDT> nameCollIter = PersonNameDTColl.iterator();
+        if (personContainer.getThePersonNameDtoCollection() != null && personContainer.getThePersonNameDtoCollection().size() > 0) {
+            Collection<PersonNameDto> personNameDtoColl = personContainer.getThePersonNameDtoCollection();
+            Iterator<PersonNameDto> nameCollIter = personNameDtoColl.iterator();
             while (nameCollIter.hasNext()) {
-                PersonNameDT personNameDT = (PersonNameDT) nameCollIter.next();
-                if (personNameDT.getNmUseCd() == null)
+                PersonNameDto personNameDto = (PersonNameDto) nameCollIter.next();
+                if (personNameDto.getNmUseCd() == null)
                 {
                     String Message = "personNameDT.getNmUseCd() is null";
                     logger.debug(Message);
                 }
-                if (personNameDT.getNmUseCd() != null && personNameDT.getNmUseCd().equals(NEDSSConstant.LEGAL)) {
-                    if (personNameDT.getLastNm() != null || personNameDT.getFirstNm() != null)
-                        nameStr = personNameDT.getLastNm() + personNameDT.getFirstNm();
+                if (personNameDto.getNmUseCd() != null && personNameDto.getNmUseCd().equals(NEDSSConstant.LEGAL)) {
+                    if (personNameDto.getLastNm() != null || personNameDto.getFirstNm() != null)
+                        nameStr = personNameDto.getLastNm() + personNameDto.getFirstNm();
                 }
             }
         }

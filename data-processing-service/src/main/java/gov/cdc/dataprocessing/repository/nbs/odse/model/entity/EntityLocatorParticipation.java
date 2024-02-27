@@ -1,12 +1,10 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.entity;
 
-import gov.cdc.dataprocessing.model.classic_model.dto.EntityLocatorParticipationDT;
+import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.EntityLocatorParticipationId;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.PersonEthnicGroupId;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.math.BigInteger;
 import java.sql.Timestamp;
 
 import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
@@ -96,36 +94,36 @@ public class EntityLocatorParticipation {
     private Timestamp asOfDate;
 
     // Add getters and setters as needed
-    public EntityLocatorParticipation(EntityLocatorParticipationDT entityLocatorParticipationDT) {
+    public EntityLocatorParticipation(EntityLocatorParticipationDto entityLocatorParticipationDto) {
         var timestamp = getCurrentTimeStamp();
-        this.entityUid = entityLocatorParticipationDT.getEntityUid();
-        this.locatorUid = entityLocatorParticipationDT.getLocatorUid();
-        this.addReasonCd = entityLocatorParticipationDT.getAddReasonCd();
-        this.addTime = entityLocatorParticipationDT.getAddTime();
-        this.addUserId = entityLocatorParticipationDT.getAddUserId();
-        this.cd = entityLocatorParticipationDT.getCd();
-        this.cdDescTxt = entityLocatorParticipationDT.getCdDescTxt();
-        this.classCd = entityLocatorParticipationDT.getClassCd();
-        this.durationAmt = entityLocatorParticipationDT.getDurationAmt();
-        this.durationUnitCd = entityLocatorParticipationDT.getDurationUnitCd();
-        this.fromTime = entityLocatorParticipationDT.getFromTime();
-        this.lastChgReasonCd = entityLocatorParticipationDT.getLastChgReasonCd();
-        this.lastChgTime = entityLocatorParticipationDT.getLastChgTime();
-        this.lastChgUserId = entityLocatorParticipationDT.getLastChgUserId();
-        this.locatorDescTxt = entityLocatorParticipationDT.getLocatorDescTxt();
-        this.recordStatusCd = entityLocatorParticipationDT.getRecordStatusCd();
-        this.recordStatusTime = entityLocatorParticipationDT.getRecordStatusTime();
-        this.statusCd = entityLocatorParticipationDT.getStatusCd();
-        this.statusTime = entityLocatorParticipationDT.getStatusTime();
-        this.toTime = entityLocatorParticipationDT.getToTime();
-        this.useCd = entityLocatorParticipationDT.getUseCd();
-        this.userAffiliationTxt = entityLocatorParticipationDT.getUserAffiliationTxt();
-        this.validTimeTxt = entityLocatorParticipationDT.getValidTimeTxt();
-        this.versionCtrlNbr = entityLocatorParticipationDT.getVersionCtrlNbr();
-        if (entityLocatorParticipationDT.getAsOfDate() == null) {
+        this.entityUid = entityLocatorParticipationDto.getEntityUid();
+        this.locatorUid = entityLocatorParticipationDto.getLocatorUid();
+        this.addReasonCd = entityLocatorParticipationDto.getAddReasonCd();
+        this.addTime = entityLocatorParticipationDto.getAddTime();
+        this.addUserId = entityLocatorParticipationDto.getAddUserId();
+        this.cd = entityLocatorParticipationDto.getCd();
+        this.cdDescTxt = entityLocatorParticipationDto.getCdDescTxt();
+        this.classCd = entityLocatorParticipationDto.getClassCd();
+        this.durationAmt = entityLocatorParticipationDto.getDurationAmt();
+        this.durationUnitCd = entityLocatorParticipationDto.getDurationUnitCd();
+        this.fromTime = entityLocatorParticipationDto.getFromTime();
+        this.lastChgReasonCd = entityLocatorParticipationDto.getLastChgReasonCd();
+        this.lastChgTime = entityLocatorParticipationDto.getLastChgTime();
+        this.lastChgUserId = entityLocatorParticipationDto.getLastChgUserId();
+        this.locatorDescTxt = entityLocatorParticipationDto.getLocatorDescTxt();
+        this.recordStatusCd = entityLocatorParticipationDto.getRecordStatusCd();
+        this.recordStatusTime = entityLocatorParticipationDto.getRecordStatusTime();
+        this.statusCd = entityLocatorParticipationDto.getStatusCd();
+        this.statusTime = entityLocatorParticipationDto.getStatusTime();
+        this.toTime = entityLocatorParticipationDto.getToTime();
+        this.useCd = entityLocatorParticipationDto.getUseCd();
+        this.userAffiliationTxt = entityLocatorParticipationDto.getUserAffiliationTxt();
+        this.validTimeTxt = entityLocatorParticipationDto.getValidTimeTxt();
+        this.versionCtrlNbr = entityLocatorParticipationDto.getVersionCtrlNbr();
+        if (entityLocatorParticipationDto.getAsOfDate() == null) {
             this.asOfDate = timestamp;
         } else {
-            this.asOfDate = entityLocatorParticipationDT.getAsOfDate();
+            this.asOfDate = entityLocatorParticipationDto.getAsOfDate();
         }
     }
 

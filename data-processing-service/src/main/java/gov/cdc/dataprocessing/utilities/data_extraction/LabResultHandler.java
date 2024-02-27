@@ -1,11 +1,13 @@
 package gov.cdc.dataprocessing.utilities.data_extraction;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
-import gov.cdc.dataprocessing.model.classic_model.dt.EdxELRLabMapDT;
-import gov.cdc.dataprocessing.model.classic_model.dt.EdxLabInformationDT;
-import gov.cdc.dataprocessing.model.classic_model.dto.*;
-import gov.cdc.dataprocessing.model.classic_model.vo.LabResultProxyVO;
-import gov.cdc.dataprocessing.model.classic_model.vo.OrganizationVO;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dt.EdxELRLabMapDT;
+import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.*;
+import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.OrganizationVO;
+import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
+import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.phdc.HL7HDType;
 import gov.cdc.dataprocessing.model.phdc.HL7MSHType;
 
@@ -13,13 +15,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class LabResultHandler {
-    public static LabResultProxyVO getLabResultMessage(HL7MSHType hl7MSHType, EdxLabInformationDT edxLabInformationDT) {
-        LabResultProxyVO labResultProxy  = new LabResultProxyVO();
+    public static LabResultProxyContainer getLabResultMessage(HL7MSHType hl7MSHType, EdxLabInformationDto edxLabInformationDto) {
+        LabResultProxyContainer labResultProxy  = new LabResultProxyContainer();
         HL7HDType sendingFacility = hl7MSHType.getSendingFacility();
 
-        EdxELRLabMapDT edxELRLabMapDT = processingHL7SendingFacility(sendingFacility, edxLabInformationDT);
-        creatingOrganization( labResultProxy,  edxELRLabMapDT,  edxLabInformationDT);
-        edxLabInformationDT.setMessageControlID(hl7MSHType.getMessageControlID());
+        EdxELRLabMapDT edxELRLabMapDT = processingHL7SendingFacility(sendingFacility, edxLabInformationDto);
+        creatingOrganization( labResultProxy,  edxELRLabMapDT, edxLabInformationDto);
+        edxLabInformationDto.setMessageControlID(hl7MSHType.getMessageControlID());
 
         return labResultProxy;
     }
@@ -31,7 +33,7 @@ public class LabResultHandler {
      * - Entity Id
      * - Participation
      * */
-    public static EdxELRLabMapDT processingHL7SendingFacility(HL7HDType sendingFacility, EdxLabInformationDT edxLabInformationDT) {
+    public static EdxELRLabMapDT processingHL7SendingFacility(HL7HDType sendingFacility, EdxLabInformationDto edxLabInformationDto) {
         //ROLE, Sending Facility
         EdxELRLabMapDT edxELRLabMapDT = new EdxELRLabMapDT();
         edxELRLabMapDT.setRoleCd(EdxELRConstant.ELR_SENDING_FACILITY_CD);
@@ -43,12 +45,12 @@ public class LabResultHandler {
         edxELRLabMapDT.setEntityStandardIndustryDescTxt(EdxELRConstant.ELR_STANDARD_INDUSTRY_DESC_TXT);
         edxELRLabMapDT.setEntityDisplayNm(sendingFacility.getHL7NamespaceID());
         
-        edxLabInformationDT.setSendingFacilityName(sendingFacility.getHL7NamespaceID());
-        edxLabInformationDT.setSendingFacilityClia(sendingFacility.getHL7UniversalID());
+        edxLabInformationDto.setSendingFacilityName(sendingFacility.getHL7NamespaceID());
+        edxLabInformationDto.setSendingFacilityClia(sendingFacility.getHL7UniversalID());
         
-        edxELRLabMapDT.setEntityUid((long) edxLabInformationDT.getNextUid());
+        edxELRLabMapDT.setEntityUid((long) edxLabInformationDto.getNextUid());
         
-        edxLabInformationDT.setUniversalIdType(sendingFacility.getHL7UniversalIDType());
+        edxLabInformationDto.setUniversalIdType(sendingFacility.getHL7UniversalIDType());
 
         // ENTITY ID
         edxELRLabMapDT.setEntityIdAssigningAuthorityCd(sendingFacility.getHL7UniversalIDType());
@@ -63,7 +65,7 @@ public class LabResultHandler {
         edxELRLabMapDT.setParticipationSubjectClassCd(EdxELRConstant.ELR_ORG);
         edxELRLabMapDT.setParticipationTypeCd(EdxELRConstant.ELR_AUTHOR_CD);
         edxELRLabMapDT.setParticipationTypeDescTxt(EdxELRConstant.ELR_AUTHOR_DESC);
-        edxELRLabMapDT.setParticipationActUid(edxLabInformationDT.getRootObserbationUid());
+        edxELRLabMapDT.setParticipationActUid(edxLabInformationDto.getRootObserbationUid());
         edxELRLabMapDT.setParticipationEntityUid(edxELRLabMapDT.getEntityUid());
         return edxELRLabMapDT;
     }
@@ -76,13 +78,13 @@ public class LabResultHandler {
      * - Participation
      * - Entity ID
      * */
-    public static LabResultProxyVO creatingOrganization(LabResultProxyVO labResultProxy, EdxELRLabMapDT edxELRLabMap, EdxLabInformationDT edxLabInformation) {
+    public static LabResultProxyContainer creatingOrganization(LabResultProxyContainer labResultProxy, EdxELRLabMapDT edxELRLabMap, EdxLabInformationDto edxLabInformation) {
         OrganizationVO organizationVO = new OrganizationVO();
 
 
         // ROLE
         organizationVO.setRole(edxELRLabMap.getRoleCd());
-        RoleDT role = new RoleDT();
+        RoleDto role = new RoleDto();
         role.setSubjectEntityUid(edxELRLabMap.getEntityUid());
         role.setRoleSeq( 1L);
         role.setCd(edxELRLabMap.getRoleCd());
@@ -95,7 +97,7 @@ public class LabResultHandler {
         role.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
         role.setItNew(true);
         role.setItDirty(false);
-        labResultProxy.getTheRoleDTCollection().add(role);
+        labResultProxy.getTheRoleDtoCollection().add(role);
 
         //PARTICIPANT
         Collection<ParticipationDT> participationDTCollection = new ArrayList<>();
@@ -144,31 +146,31 @@ public class LabResultHandler {
         organizationVO.setTheOrganizationNameDTCollection(organizationNameDTColl);
 
         if (edxELRLabMap.getEntityIdTypeCd() != null && edxELRLabMap.getEntityIdTypeDescTxt() != null) {
-            Collection<EntityIdDT> entityIdDTCollection = new ArrayList<>();
-            EntityIdDT entityIdDT = new EntityIdDT();
-            entityIdDT.setEntityIdSeq(1);
+            Collection<EntityIdDto> entityIdDtoCollection = new ArrayList<>();
+            EntityIdDto entityIdDto = new EntityIdDto();
+            entityIdDto.setEntityIdSeq(1);
 
             if(edxELRLabMap.getEntityIdRootExtensionTxt()!=null && edxELRLabMap.getEntityIdRootExtensionTxt().trim().length()>0){
-                entityIdDT.setRootExtensionTxt(edxELRLabMap.getEntityIdRootExtensionTxt());
+                entityIdDto.setRootExtensionTxt(edxELRLabMap.getEntityIdRootExtensionTxt());
                 edxLabInformation.setSendingFacilityClia(edxELRLabMap.getEntityIdRootExtensionTxt());
             }
             else {
-                entityIdDT.setRootExtensionTxt(EdxELRConstant.ELR_DEFAULT_CLIA);
+                entityIdDto.setRootExtensionTxt(EdxELRConstant.ELR_DEFAULT_CLIA);
                 edxLabInformation.setSendingFacilityClia(EdxELRConstant.ELR_DEFAULT_CLIA);
             }
-            entityIdDT.setAssigningAuthorityCd(edxELRLabMap.getEntityIdAssigningAuthorityCd());
+            entityIdDto.setAssigningAuthorityCd(edxELRLabMap.getEntityIdAssigningAuthorityCd());
 
-            if(entityIdDT.getAssigningAuthorityCd().equalsIgnoreCase(EdxELRConstant.ELR_CLIA_CD)) {
-                entityIdDT.setAssigningAuthorityDescTxt(EdxELRConstant.ELR_CLIA_DESC);
+            if(entityIdDto.getAssigningAuthorityCd().equalsIgnoreCase(EdxELRConstant.ELR_CLIA_CD)) {
+                entityIdDto.setAssigningAuthorityDescTxt(EdxELRConstant.ELR_CLIA_DESC);
             }
-            entityIdDT.setTypeCd(edxELRLabMap.getEntityIdTypeCd());
-            entityIdDT.setTypeDescTxt(edxELRLabMap.getEntityIdTypeDescTxt());
-            entityIdDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
-            entityIdDT.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
-            entityIdDT.setAddTime(edxELRLabMap.getAddTime());
-            entityIdDT.setAsOfDate(edxELRLabMap.getAsOfDate());
-            entityIdDTCollection.add(entityIdDT);
-            organizationVO.setTheEntityIdDTCollection(entityIdDTCollection);
+            entityIdDto.setTypeCd(edxELRLabMap.getEntityIdTypeCd());
+            entityIdDto.setTypeDescTxt(edxELRLabMap.getEntityIdTypeDescTxt());
+            entityIdDto.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
+            entityIdDto.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
+            entityIdDto.setAddTime(edxELRLabMap.getAddTime());
+            entityIdDto.setAsOfDate(edxELRLabMap.getAsOfDate());
+            entityIdDtoCollection.add(entityIdDto);
+            organizationVO.setTheEntityIdDtoCollection(entityIdDtoCollection);
         }
 
 

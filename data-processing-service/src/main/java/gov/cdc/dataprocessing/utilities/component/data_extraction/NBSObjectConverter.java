@@ -3,10 +3,17 @@ package gov.cdc.dataprocessing.utilities.component.data_extraction;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model.dt.EdxLabInformationDT;
-import gov.cdc.dataprocessing.model.classic_model.dto.*;
-import gov.cdc.dataprocessing.model.classic_model.vo.OrganizationVO;
-import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
+import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.*;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.OrganizationVO;
+import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
+import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
+import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
+import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
+import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
+import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
+import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
 import gov.cdc.dataprocessing.service.interfaces.ICheckingValueService;
@@ -31,143 +38,143 @@ public class NBSObjectConverter {
         this.checkingValueService = checkingValueService;
     }
 
-    public PersonVO mapPersonNameType(HL7XPNType hl7XPNType, PersonVO personVO) throws DataProcessingException {
-        PersonNameDT personNameDT = new PersonNameDT();
+    public PersonContainer mapPersonNameType(HL7XPNType hl7XPNType, PersonContainer personContainer) throws DataProcessingException {
+        PersonNameDto personNameDto = new PersonNameDto();
         HL7FNType hl7FamilyName = hl7XPNType.getHL7FamilyName();
         /** Optional maxOccurs="1 */
         if(hl7FamilyName!=null){
-            personNameDT.setLastNm(hl7FamilyName.getHL7Surname());
-            personNameDT.setLastNm2(hl7FamilyName.getHL7OwnSurname());
+            personNameDto.setLastNm(hl7FamilyName.getHL7Surname());
+            personNameDto.setLastNm2(hl7FamilyName.getHL7OwnSurname());
         }
         /** length"194 */
-        personNameDT.setFirstNm(hl7XPNType.getHL7GivenName());
+        personNameDto.setFirstNm(hl7XPNType.getHL7GivenName());
         /** Optional maxOccurs="1 */
         /** length"30 */
         String hl7SecondAndFurtherGivenNamesOrInitialsThereof = hl7XPNType.getHL7SecondAndFurtherGivenNamesOrInitialsThereof();
         /** Optional maxOccurs="1 */
         /** length"30 */
-        personNameDT.setMiddleNm(hl7SecondAndFurtherGivenNamesOrInitialsThereof);
+        personNameDto.setMiddleNm(hl7SecondAndFurtherGivenNamesOrInitialsThereof);
         String hl7Suffix = hl7XPNType.getHL7Suffix();
         /** Optional maxOccurs="1 */
         /** length"20 */
-        personNameDT.setNmSuffix(hl7Suffix);
+        personNameDto.setNmSuffix(hl7Suffix);
 
         String hl7Prefix = hl7XPNType.getHL7Prefix();
         /** Optional maxOccurs="1 */
         /** length"20 */
-        personNameDT.setNmPrefix(hl7Prefix);
+        personNameDto.setNmPrefix(hl7Prefix);
 
         /** Optional maxOccurs="1 */
         /** length"6 */
         String hl7NameTypeCode = hl7XPNType.getHL7NameTypeCode();
-        personNameDT.setNmUseCd(Objects.requireNonNullElse(hl7NameTypeCode, EdxELRConstant.ELR_LEGAL_NAME));
+        personNameDto.setNmUseCd(Objects.requireNonNullElse(hl7NameTypeCode, EdxELRConstant.ELR_LEGAL_NAME));
 
-        String toCode = checkingValueService.findToCode("ELR_LCA_NM_USE", personNameDT.getNmUseCd(), "P_NM_USE");
+        String toCode = checkingValueService.findToCode("ELR_LCA_NM_USE", personNameDto.getNmUseCd(), "P_NM_USE");
         if(toCode!=null && !toCode.isEmpty()){
-            personNameDT.setNmUseCd(toCode);
+            personNameDto.setNmUseCd(toCode);
         }
         /** length"1 */
         HL7TSType hl7EffectiveDate = hl7XPNType.getHL7EffectiveDate();
         /** Optional maxOccurs="1 */
         /** length"26 */
         Timestamp timestamp = processHL7TSType(hl7EffectiveDate, EdxELRConstant.DATE_VALIDATION_PERSON_NAME_FROM_TIME_MSG);
-        personNameDT.setFromTime(timestamp);
+        personNameDto.setFromTime(timestamp);
         HL7TSType hl7ExpirationDate = hl7XPNType.getHL7ExpirationDate();
         /** Optional maxOccurs="1 */
         /** length"26 */
         Timestamp toTimestamp = processHL7TSType(hl7ExpirationDate, EdxELRConstant.DATE_VALIDATION_PERSON_NAME_TO_TIME_MSG);
-        personNameDT.setToTime(toTimestamp);
+        personNameDto.setToTime(toTimestamp);
         /** Optional maxOccurs="1 */
         /** length"199 */
-        personNameDT.setAddTime(personVO.getThePersonDT().getAddTime());
-        personNameDT.setAddReasonCd(EdxELRConstant.ADD_REASON_CD);
-        personNameDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
-        personNameDT.setAsOfDate(personVO.getThePersonDT().getLastChgTime());
-        personNameDT.setAddUserId(personVO.getThePersonDT().getAddUserId());
-        personNameDT.setItNew(true);
-        personNameDT.setItDirty(false);
-        personNameDT.setLastChgTime(personVO.getThePersonDT().getLastChgTime());
-        personNameDT.setLastChgUserId(personVO.getThePersonDT()
+        personNameDto.setAddTime(personContainer.getThePersonDto().getAddTime());
+        personNameDto.setAddReasonCd(EdxELRConstant.ADD_REASON_CD);
+        personNameDto.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
+        personNameDto.setAsOfDate(personContainer.getThePersonDto().getLastChgTime());
+        personNameDto.setAddUserId(personContainer.getThePersonDto().getAddUserId());
+        personNameDto.setItNew(true);
+        personNameDto.setItDirty(false);
+        personNameDto.setLastChgTime(personContainer.getThePersonDto().getLastChgTime());
+        personNameDto.setLastChgUserId(personContainer.getThePersonDto()
                 .getLastChgUserId());
         int seq = 0;
-        if (personVO.getThePersonNameDTCollection() == null) {
-            personVO.setThePersonNameDTCollection(new ArrayList<>());
+        if (personContainer.getThePersonNameDtoCollection() == null) {
+            personContainer.setThePersonNameDtoCollection(new ArrayList<>());
         } else {
-            seq = personVO.getThePersonNameDTCollection().size();
+            seq = personContainer.getThePersonNameDtoCollection().size();
         }
-        personNameDT.setPersonNameSeq(seq + 1);
+        personNameDto.setPersonNameSeq(seq + 1);
 
-        personVO.getThePersonNameDTCollection().add(personNameDT);
+        personContainer.getThePersonNameDtoCollection().add(personNameDto);
 
-        if (personNameDT.getNmUseCd()!=null && personNameDT.getNmUseCd().equals(EdxELRConstant.ELR_LEGAL_NAME)) {
-            personVO.getThePersonDT().setLastNm(personNameDT.getLastNm());
-            personVO.getThePersonDT().setFirstNm(personNameDT.getFirstNm());
-            personVO.getThePersonDT().setNmPrefix(personNameDT.getNmPrefix());
-            personVO.getThePersonDT().setNmSuffix(personNameDT.getNmSuffix());
-            personVO.getThePersonDT().setMiddleNm(personNameDT.getMiddleNm());
+        if (personNameDto.getNmUseCd()!=null && personNameDto.getNmUseCd().equals(EdxELRConstant.ELR_LEGAL_NAME)) {
+            personContainer.getThePersonDto().setLastNm(personNameDto.getLastNm());
+            personContainer.getThePersonDto().setFirstNm(personNameDto.getFirstNm());
+            personContainer.getThePersonDto().setNmPrefix(personNameDto.getNmPrefix());
+            personContainer.getThePersonDto().setNmSuffix(personNameDto.getNmSuffix());
+            personContainer.getThePersonDto().setMiddleNm(personNameDto.getMiddleNm());
         }
-        return personVO;
+        return personContainer;
     }
 
-    public EntityIdDT processEntityData(HL7CXType hl7CXType, PersonVO personVO, String indicator, int j) throws DataProcessingException {
-        EntityIdDT entityIdDT = new EntityIdDT();
+    public EntityIdDto processEntityData(HL7CXType hl7CXType, PersonContainer personContainer, String indicator, int j) throws DataProcessingException {
+        EntityIdDto entityIdDto = new EntityIdDto();
         if (hl7CXType != null ) {
-            entityIdDT.setEntityUid(personVO.getThePersonDT().getPersonUid());
-            entityIdDT.setAddTime(personVO.getThePersonDT().getAddTime());
-            entityIdDT.setEntityIdSeq(j + 1);
-            entityIdDT.setRootExtensionTxt(hl7CXType.getHL7IDNumber());
+            entityIdDto.setEntityUid(personContainer.getThePersonDto().getPersonUid());
+            entityIdDto.setAddTime(personContainer.getThePersonDto().getAddTime());
+            entityIdDto.setEntityIdSeq(j + 1);
+            entityIdDto.setRootExtensionTxt(hl7CXType.getHL7IDNumber());
             if(hl7CXType.getHL7AssigningAuthority()!=null){
-                entityIdDT.setAssigningAuthorityCd(hl7CXType.getHL7AssigningAuthority().getHL7UniversalID());
-                entityIdDT.setAssigningAuthorityDescTxt(hl7CXType.getHL7AssigningAuthority().getHL7NamespaceID());
-                entityIdDT.setAssigningAuthorityIdType(hl7CXType.getHL7AssigningAuthority().getHL7UniversalIDType());
+                entityIdDto.setAssigningAuthorityCd(hl7CXType.getHL7AssigningAuthority().getHL7UniversalID());
+                entityIdDto.setAssigningAuthorityDescTxt(hl7CXType.getHL7AssigningAuthority().getHL7NamespaceID());
+                entityIdDto.setAssigningAuthorityIdType(hl7CXType.getHL7AssigningAuthority().getHL7UniversalIDType());
             }
             if (indicator != null && indicator.equals(EdxELRConstant.ELR_PATIENT_ALTERNATE_IND)) {
-                entityIdDT.setTypeCd(EdxELRConstant.ELR_PATIENT_ALTERNATE_TYPE);
-                entityIdDT.setTypeDescTxt(EdxELRConstant.ELR_PATIENT_ALTERNATE_DESC);
+                entityIdDto.setTypeCd(EdxELRConstant.ELR_PATIENT_ALTERNATE_TYPE);
+                entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_PATIENT_ALTERNATE_DESC);
             }
             else if (indicator != null && indicator.equals(EdxELRConstant.ELR_MOTHER_IDENTIFIER)) {
-                entityIdDT.setTypeCd(EdxELRConstant.ELR_MOTHER_IDENTIFIER);
-                entityIdDT.setTypeDescTxt(EdxELRConstant.ELR_MOTHER_IDENTIFIER);
+                entityIdDto.setTypeCd(EdxELRConstant.ELR_MOTHER_IDENTIFIER);
+                entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_MOTHER_IDENTIFIER);
             } else if (indicator != null && indicator.equals(EdxELRConstant.ELR_ACCOUNT_IDENTIFIER)) {
-                entityIdDT.setTypeCd(EdxELRConstant.ELR_ACCOUNT_IDENTIFIER);
-                entityIdDT.setTypeDescTxt(EdxELRConstant.ELR_ACCOUNT_DESC);
+                entityIdDto.setTypeCd(EdxELRConstant.ELR_ACCOUNT_IDENTIFIER);
+                entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_ACCOUNT_DESC);
             }
             else if (hl7CXType.getHL7IdentifierTypeCode() == null || hl7CXType.getHL7IdentifierTypeCode().trim().equals("")) {
-                entityIdDT.setTypeCd(EdxELRConstant.ELR_PERSON_TYPE);
-                entityIdDT.setTypeDescTxt(EdxELRConstant.ELR_PERSON_TYPE_DESC);
-                String typeCode = checkingValueService.getCodeDescTxtForCd(entityIdDT.getTypeCd(), EdxELRConstant.EI_TYPE);
+                entityIdDto.setTypeCd(EdxELRConstant.ELR_PERSON_TYPE);
+                entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_PERSON_TYPE_DESC);
+                String typeCode = checkingValueService.getCodeDescTxtForCd(entityIdDto.getTypeCd(), EdxELRConstant.EI_TYPE);
                 if (typeCode == null || typeCode.trim().equals("")) {
-                    entityIdDT.setTypeDescTxt(EdxELRConstant.ELR_CLIA_DESC);
+                    entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_CLIA_DESC);
                 } else {
-                    entityIdDT.setTypeDescTxt(typeCode);
+                    entityIdDto.setTypeDescTxt(typeCode);
                 }
             } else {
-                entityIdDT.setTypeCd(hl7CXType.getHL7IdentifierTypeCode());
+                entityIdDto.setTypeCd(hl7CXType.getHL7IdentifierTypeCode());
             }
 
-            entityIdDT.setAddUserId(personVO.getThePersonDT().getAddUserId());
-            entityIdDT.setLastChgUserId(personVO.getThePersonDT().getLastChgUserId());
-            entityIdDT.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
-            entityIdDT.setStatusTime(personVO.getThePersonDT().getAddTime());
-            entityIdDT.setRecordStatusTime(personVO.getThePersonDT().getAddTime());
-            entityIdDT.setRecordStatusCd(NEDSSConstant.ACTIVE);
-            entityIdDT.setAsOfDate(personVO.getThePersonDT().getAddTime());
-            entityIdDT.setEffectiveFromTime(EntityIdHandler.processHL7DTType(hl7CXType.getHL7EffectiveDate(), EdxELRConstant.DATE_VALIDATION_PID_PATIENT_IDENTIFIER_EFFECTIVE_DATE_TIME_MSG));
-            entityIdDT.setValidFromTime(entityIdDT.getEffectiveFromTime());
-            entityIdDT.setEffectiveToTime(EntityIdHandler.processHL7DTType(hl7CXType.getHL7ExpirationDate(), EdxELRConstant.DATE_VALIDATION_PID_PATIENT_IDENTIFIER_EXPIRATION_DATE_TIME_MSG));
-            entityIdDT.setValidToTime(entityIdDT.getEffectiveToTime());
-            entityIdDT.setItNew(true);
-            entityIdDT.setItDirty(false);
+            entityIdDto.setAddUserId(personContainer.getThePersonDto().getAddUserId());
+            entityIdDto.setLastChgUserId(personContainer.getThePersonDto().getLastChgUserId());
+            entityIdDto.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
+            entityIdDto.setStatusTime(personContainer.getThePersonDto().getAddTime());
+            entityIdDto.setRecordStatusTime(personContainer.getThePersonDto().getAddTime());
+            entityIdDto.setRecordStatusCd(NEDSSConstant.ACTIVE);
+            entityIdDto.setAsOfDate(personContainer.getThePersonDto().getAddTime());
+            entityIdDto.setEffectiveFromTime(EntityIdHandler.processHL7DTType(hl7CXType.getHL7EffectiveDate(), EdxELRConstant.DATE_VALIDATION_PID_PATIENT_IDENTIFIER_EFFECTIVE_DATE_TIME_MSG));
+            entityIdDto.setValidFromTime(entityIdDto.getEffectiveFromTime());
+            entityIdDto.setEffectiveToTime(EntityIdHandler.processHL7DTType(hl7CXType.getHL7ExpirationDate(), EdxELRConstant.DATE_VALIDATION_PID_PATIENT_IDENTIFIER_EXPIRATION_DATE_TIME_MSG));
+            entityIdDto.setValidToTime(entityIdDto.getEffectiveToTime());
+            entityIdDto.setItNew(true);
+            entityIdDto.setItDirty(false);
         }
-        return entityIdDT;
+        return entityIdDto;
     }
 
     /**
      * Parsing Entity Address into Object
      * */
-    public EntityLocatorParticipationDT addressType(HL7XADType hl7XADType, String role)   {
+    public EntityLocatorParticipationDto addressType(HL7XADType hl7XADType, String role)   {
 
-        EntityLocatorParticipationDT elp = new EntityLocatorParticipationDT();
+        EntityLocatorParticipationDto elp = new EntityLocatorParticipationDto();
         try {
             elp.setItNew(true);
             elp.setItDirty(false);
@@ -195,7 +202,7 @@ public class NBSObjectConverter {
                 elp.setUseCd(NEDSSConstant.HOME);
             }
 
-            PostalLocatorDT pl = new PostalLocatorDT();
+            PostalLocatorDto pl = new PostalLocatorDto();
             pl.setItNew(true);
             pl.setItDirty(false);
             pl.setAddTime(new Timestamp(new Date().getTime()));
@@ -255,14 +262,14 @@ public class NBSObjectConverter {
             /** length"20 */
             pl.setCensusTrackCd(HL7CensusTract);
 
-            elp.setThePostalLocatorDT(pl);
+            elp.setThePostalLocatorDto(pl);
         } catch (Exception e) {
             logger.error("Hl7ToNBSObjectConverter. Error thrown: "+ e);
         }
         return elp;
     }
 
-    private PostalLocatorDT nbsStreetAddressType(HL7SADType hl7SADType, PostalLocatorDT pl) {
+    private PostalLocatorDto nbsStreetAddressType(HL7SADType hl7SADType, PostalLocatorDto pl) {
 
         String streetOrMailingAddress = hl7SADType.getHL7StreetOrMailingAddress();
         /** Optional maxOccurs="1 */
@@ -317,34 +324,34 @@ public class NBSObjectConverter {
         return zip;
     }
 
-    public EntityLocatorParticipationDT personAddressType(HL7XADType hl7XADType, String role, PersonVO personVO) {
-        EntityLocatorParticipationDT elp = addressType(hl7XADType, role);
-        elp.setEntityUid(personVO.getThePersonDT().getPersonUid());
-        elp.setAddUserId(personVO.getThePersonDT().getAddUserId());
-        elp.setAsOfDate(personVO.getThePersonDT().getLastChgTime());
-        if (elp.getThePostalLocatorDT() == null) {
-            elp.setThePostalLocatorDT(new PostalLocatorDT());
+    public EntityLocatorParticipationDto personAddressType(HL7XADType hl7XADType, String role, PersonContainer personContainer) {
+        EntityLocatorParticipationDto elp = addressType(hl7XADType, role);
+        elp.setEntityUid(personContainer.getThePersonDto().getPersonUid());
+        elp.setAddUserId(personContainer.getThePersonDto().getAddUserId());
+        elp.setAsOfDate(personContainer.getThePersonDto().getLastChgTime());
+        if (elp.getThePostalLocatorDto() == null) {
+            elp.setThePostalLocatorDto(new PostalLocatorDto());
         }
-        elp.getThePostalLocatorDT().setAddUserId(personVO.getThePersonDT().getAddUserId());
-        personVO.getTheEntityLocatorParticipationDTCollection().add(elp);
+        elp.getThePostalLocatorDto().setAddUserId(personContainer.getThePersonDto().getAddUserId());
+        personContainer.getTheEntityLocatorParticipationDtoCollection().add(elp);
         return elp;
     }
 
-    public EntityLocatorParticipationDT organizationAddressType(HL7XADType hl7XADType, String role, OrganizationVO organizationVO) {
-        EntityLocatorParticipationDT elp = addressType(hl7XADType, role);
+    public EntityLocatorParticipationDto organizationAddressType(HL7XADType hl7XADType, String role, OrganizationVO organizationVO) {
+        EntityLocatorParticipationDto elp = addressType(hl7XADType, role);
         elp.setEntityUid(organizationVO.getTheOrganizationDT().getOrganizationUid());
         elp.setAddUserId(organizationVO.getTheOrganizationDT().getAddUserId());
         elp.setAsOfDate(organizationVO.getTheOrganizationDT().getLastChgTime());
-        if (elp.getThePostalLocatorDT() == null) {
-            elp.setThePostalLocatorDT(new PostalLocatorDT());
+        if (elp.getThePostalLocatorDto() == null) {
+            elp.setThePostalLocatorDto(new PostalLocatorDto());
         }
-        elp.getThePostalLocatorDT().setAddUserId(organizationVO.getTheOrganizationDT().getAddUserId());
-        organizationVO.getTheEntityLocatorParticipationDTCollection().add(elp);
+        elp.getThePostalLocatorDto().setAddUserId(organizationVO.getTheOrganizationDT().getAddUserId());
+        organizationVO.getTheEntityLocatorParticipationDtoCollection().add(elp);
         return elp;
     }
 
-    public static EntityIdDT validateSSN(EntityIdDT entityIdDt) {
-        String ssn = entityIdDt.getRootExtensionTxt();
+    public static EntityIdDto validateSSN(EntityIdDto entityIdDto) {
+        String ssn = entityIdDto.getRootExtensionTxt();
         if(ssn != null && !ssn.equals("") && !ssn.equals(" ")) {
             ssn =ssn.trim();
             if (ssn.length() > 3) {
@@ -354,20 +361,20 @@ public class NBSObjectConverter {
                     newSSN = newSSN + ssn.replace("-", "").substring(3, 5) + "-";
                     newSSN = newSSN + ssn.replace("-", "").substring(5, (ssn.replace("-", "").length()));
                     ssn = newSSN;
-                    entityIdDt.setRootExtensionTxt(ssn);
+                    entityIdDto.setRootExtensionTxt(ssn);
                 }
                 else {
                     newSSN = newSSN + ssn.replace("-", "").substring(3, ssn.length()) + "- ";
                     ssn = newSSN;
-                    entityIdDt.setRootExtensionTxt(ssn);
+                    entityIdDto.setRootExtensionTxt(ssn);
                 }
             }
             else {
                 ssn = ssn + "- - ";
-                entityIdDt.setRootExtensionTxt(ssn);
+                entityIdDto.setRootExtensionTxt(ssn);
             }
         }//end of if
-        return entityIdDt;
+        return entityIdDto;
     }//end of while
 
     public static Timestamp processHL7TSTypeForDOBWithoutTime(HL7TSType time) throws DataProcessingException {
@@ -406,8 +413,8 @@ public class NBSObjectConverter {
         return toTimestamp;
     }
 
-    public static EntityLocatorParticipationDT setPersonBirthType(String countryOfBirth, PersonVO personVO) {
-        EntityLocatorParticipationDT elp = new EntityLocatorParticipationDT();
+    public static EntityLocatorParticipationDto setPersonBirthType(String countryOfBirth, PersonContainer personContainer) {
+        EntityLocatorParticipationDto elp = new EntityLocatorParticipationDto();
 
         elp.setItNew(true);
         elp.setItDirty(false);
@@ -421,35 +428,35 @@ public class NBSObjectConverter {
         elp.setClassCd("PST") ;
         elp.setUseCd("BIR");
         elp.setCd("F");
-        elp.setAddUserId(personVO.getThePersonDT().getAddUserId());
-        elp.setEntityUid(personVO.getThePersonDT().getPersonUid());
-        elp.setAsOfDate(personVO.getThePersonDT().getLastChgTime());
+        elp.setAddUserId(personContainer.getThePersonDto().getAddUserId());
+        elp.setEntityUid(personContainer.getThePersonDto().getPersonUid());
+        elp.setAsOfDate(personContainer.getThePersonDto().getLastChgTime());
 
-        PostalLocatorDT pl = new PostalLocatorDT();
+        PostalLocatorDto pl = new PostalLocatorDto();
         pl.setItNew(true);
         pl.setItDirty(false);
         pl.setAddTime(new Timestamp(new Date().getTime()));
         pl.setRecordStatusTime(new Timestamp(new Date().getTime()));
         pl.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
         pl.setCntryCd(countryOfBirth);
-        pl.setAddUserId(personVO.getThePersonDT().getAddUserId());
-        elp.setThePostalLocatorDT(pl);
-        personVO.getTheEntityLocatorParticipationDTCollection().add(elp);
+        pl.setAddUserId(personContainer.getThePersonDto().getAddUserId());
+        elp.setThePostalLocatorDto(pl);
+        personContainer.getTheEntityLocatorParticipationDtoCollection().add(elp);
         return elp;
     }
 
-    public static PersonEthnicGroupDT ethnicGroupType(HL7CWEType hl7CWEType,
-                                               PersonVO personVO) {
-        PersonEthnicGroupDT ethnicGroupDT = new PersonEthnicGroupDT();
+    public static PersonEthnicGroupDto ethnicGroupType(HL7CWEType hl7CWEType,
+                                                       PersonContainer personContainer) {
+        PersonEthnicGroupDto ethnicGroupDT = new PersonEthnicGroupDto();
         ethnicGroupDT.setItNew(true);
         ethnicGroupDT.setItDirty(false);
         ethnicGroupDT.setAddReasonCd("Add");
         ethnicGroupDT.setRecordStatusCd(NEDSSConstant.ACTIVE);
-        ethnicGroupDT.setPersonUid(personVO.getThePersonDT().getPersonUid());
+        ethnicGroupDT.setPersonUid(personContainer.getThePersonDto().getPersonUid());
         ethnicGroupDT.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
         ethnicGroupDT.setEthnicGroupCd(hl7CWEType.getHL7Identifier());
         ethnicGroupDT.setEthnicGroupDescTxt(hl7CWEType.getHL7Text());
-        personVO.getThePersonDT().setEthnicGroupInd(ethnicGroupDT.getEthnicGroupCd());
+        personContainer.getThePersonDto().setEthnicGroupInd(ethnicGroupDT.getEthnicGroupCd());
 
         return ethnicGroupDT;
     }
@@ -497,30 +504,30 @@ public class NBSObjectConverter {
     }
 
 
-    public static EntityLocatorParticipationDT personTelePhoneType(
-            HL7XTNType hl7XTNType, String role, PersonVO personVO) {
-        EntityLocatorParticipationDT elp = telePhoneType(hl7XTNType, role);
-        elp.setAddUserId(personVO.getThePersonDT().getAddUserId());
-        elp.setEntityUid(personVO.getThePersonDT().getPersonUid());
-        elp.setAsOfDate(personVO.getThePersonDT().getLastChgTime());
-        if (elp.getTheTeleLocatorDT() == null) {
-            elp.setTheTeleLocatorDT(new TeleLocatorDT());
+    public static EntityLocatorParticipationDto personTelePhoneType(
+            HL7XTNType hl7XTNType, String role, PersonContainer personContainer) {
+        EntityLocatorParticipationDto elp = telePhoneType(hl7XTNType, role);
+        elp.setAddUserId(personContainer.getThePersonDto().getAddUserId());
+        elp.setEntityUid(personContainer.getThePersonDto().getPersonUid());
+        elp.setAsOfDate(personContainer.getThePersonDto().getLastChgTime());
+        if (elp.getTheTeleLocatorDto() == null) {
+            elp.setTheTeleLocatorDto(new TeleLocatorDto());
         }
-        elp.getTheTeleLocatorDT().setAddUserId(personVO.getThePersonDT().getAddUserId());
-        if (personVO.getTheEntityLocatorParticipationDTCollection() == null) {
-            personVO.setTheEntityLocatorParticipationDTCollection(new ArrayList<>());
+        elp.getTheTeleLocatorDto().setAddUserId(personContainer.getThePersonDto().getAddUserId());
+        if (personContainer.getTheEntityLocatorParticipationDtoCollection() == null) {
+            personContainer.setTheEntityLocatorParticipationDtoCollection(new ArrayList<>());
         }
-        personVO.getTheEntityLocatorParticipationDTCollection().add(elp);
+        personContainer.getTheEntityLocatorParticipationDtoCollection().add(elp);
         return elp;
     }
 
-    public static  PersonRaceDT raceType(HL7CWEType hl7CEType, PersonVO personVO) {
-        PersonRaceDT raceDT = new PersonRaceDT();
+    public static PersonRaceDto raceType(HL7CWEType hl7CEType, PersonContainer personContainer) {
+        PersonRaceDto raceDT = new PersonRaceDto();
         raceDT.setItNew(true);
         raceDT.setItDelete(false);
         raceDT.setItDirty(false);
         raceDT.setAddTime(new Timestamp(new Date().getTime()));
-        raceDT.setAddUserId(personVO.getThePersonDT().getAddUserId());
+        raceDT.setAddUserId(personContainer.getThePersonDto().getAddUserId());
 
         if (hl7CEType.getHL7Identifier() != null) {
             raceDT.setRaceCd(hl7CEType.getHL7Identifier());
@@ -535,14 +542,14 @@ public class NBSObjectConverter {
 
 
         raceDT.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
-        raceDT.setAsOfDate(personVO.getThePersonDT().getAddTime());
+        raceDT.setAsOfDate(personContainer.getThePersonDto().getAddTime());
         return raceDT;
     }
 
-    public static EntityLocatorParticipationDT telePhoneType(
+    public static EntityLocatorParticipationDto telePhoneType(
             HL7XTNType hl7XTNType, String role) {
-        EntityLocatorParticipationDT elp = new EntityLocatorParticipationDT();
-        TeleLocatorDT teleDT = new TeleLocatorDT();
+        EntityLocatorParticipationDto elp = new EntityLocatorParticipationDto();
+        TeleLocatorDto teleDT = new TeleLocatorDto();
 
         elp.setItNew(true);
         elp.setItDirty(false);
@@ -560,7 +567,7 @@ public class NBSObjectConverter {
         teleDT.setItDirty(false);
         teleDT.setAddTime(new Timestamp(new Date().getTime()));
         teleDT.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
-        elp.setTheTeleLocatorDT(teleDT);
+        elp.setTheTeleLocatorDto(teleDT);
 
         elp.setClassCd(NEDSSConstant.TELE);
 
@@ -717,12 +724,12 @@ public class NBSObjectConverter {
         return incorrectLength;
     }
 
-    public static ParticipationDT defaultParticipationDT(ParticipationDT participationDT, EdxLabInformationDT edxLabInformationDT) {
-        participationDT.setAddTime(edxLabInformationDT.getAddTime());
-        participationDT.setLastChgTime(edxLabInformationDT.getAddTime());
-        participationDT.setAddUserId(edxLabInformationDT.getUserId());
+    public static ParticipationDT defaultParticipationDT(ParticipationDT participationDT, EdxLabInformationDto edxLabInformationDto) {
+        participationDT.setAddTime(edxLabInformationDto.getAddTime());
+        participationDT.setLastChgTime(edxLabInformationDto.getAddTime());
+        participationDT.setAddUserId(edxLabInformationDto.getUserId());
         participationDT.setAddReasonCd(EdxELRConstant.ELR_ROLE_REASON);
-        participationDT.setAddTime(edxLabInformationDT.getAddTime());
+        participationDT.setAddTime(edxLabInformationDto.getAddTime());
         participationDT.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
         participationDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
         participationDT.setItDirty(false);
@@ -731,63 +738,63 @@ public class NBSObjectConverter {
         return participationDT;
     }
 
-    public static EntityLocatorParticipationDT orgTelePhoneType(HL7XTNType hl7XTNType, String role, OrganizationVO organizationVO) {
-        EntityLocatorParticipationDT elp = telePhoneType(hl7XTNType, role);
+    public static EntityLocatorParticipationDto orgTelePhoneType(HL7XTNType hl7XTNType, String role, OrganizationVO organizationVO) {
+        EntityLocatorParticipationDto elp = telePhoneType(hl7XTNType, role);
         elp.setAddUserId(organizationVO.getTheOrganizationDT().getAddUserId());
         elp.setEntityUid(organizationVO.getTheOrganizationDT().getOrganizationUid());
         elp.setAsOfDate(organizationVO.getTheOrganizationDT().getLastChgTime());
-        if (elp.getTheTeleLocatorDT() == null) {
-            elp.setTheTeleLocatorDT(new TeleLocatorDT());
+        if (elp.getTheTeleLocatorDto() == null) {
+            elp.setTheTeleLocatorDto(new TeleLocatorDto());
         }
-        elp.getTheTeleLocatorDT().setAddUserId(organizationVO.getTheOrganizationDT().getAddUserId());
+        elp.getTheTeleLocatorDto().setAddUserId(organizationVO.getTheOrganizationDT().getAddUserId());
         return elp;
 
     }
 
-    public static PersonVO processCNNPersonName(HL7CNNType hl7CNNType,
-                                         PersonVO personVO) {
-        PersonNameDT personNameDT = new PersonNameDT();
+    public static PersonContainer processCNNPersonName(HL7CNNType hl7CNNType,
+                                                       PersonContainer personContainer) {
+        PersonNameDto personNameDto = new PersonNameDto();
         String lastName = hl7CNNType.getHL7FamilyName();
-        personNameDT.setLastNm(lastName);
+        personNameDto.setLastNm(lastName);
         String firstName = hl7CNNType.getHL7GivenName();
-        personNameDT.setFirstNm(firstName);
+        personNameDto.setFirstNm(firstName);
         String middleName = hl7CNNType.getHL7SecondAndFurtherGivenNamesOrInitialsThereof();
-        personNameDT.setMiddleNm(middleName);
+        personNameDto.setMiddleNm(middleName);
         String suffix = hl7CNNType.getHL7Suffix();
-        personNameDT.setNmSuffix(suffix);
+        personNameDto.setNmSuffix(suffix);
         String prefix = hl7CNNType.getHL7Prefix();
-        personNameDT.setNmPrefix(prefix);
+        personNameDto.setNmPrefix(prefix);
         String degree = hl7CNNType.getHL7Degree();
-        personNameDT.setNmDegree(degree);
-        personNameDT.setNmUseCd(EdxELRConstant.ELR_LEGAL_NAME);
-        personNameDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
-        personNameDT.setPersonNameSeq(1);
-        personNameDT.setAddTime(personVO.getThePersonDT().getAddTime());
-        personNameDT.setAddReasonCd(EdxELRConstant.ADD_REASON_CD);
-        personNameDT.setAsOfDate(personVO.getThePersonDT().getLastChgTime());
-        personNameDT.setAddUserId(personVO.getThePersonDT().getAddUserId());
-        personNameDT.setItNew(true);
-        personNameDT.setItDirty(false);
-        personNameDT.setLastChgTime(personVO.getThePersonDT().getLastChgTime());
-        personNameDT.setLastChgUserId(personVO.getThePersonDT().getLastChgUserId());
+        personNameDto.setNmDegree(degree);
+        personNameDto.setNmUseCd(EdxELRConstant.ELR_LEGAL_NAME);
+        personNameDto.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
+        personNameDto.setPersonNameSeq(1);
+        personNameDto.setAddTime(personContainer.getThePersonDto().getAddTime());
+        personNameDto.setAddReasonCd(EdxELRConstant.ADD_REASON_CD);
+        personNameDto.setAsOfDate(personContainer.getThePersonDto().getLastChgTime());
+        personNameDto.setAddUserId(personContainer.getThePersonDto().getAddUserId());
+        personNameDto.setItNew(true);
+        personNameDto.setItDirty(false);
+        personNameDto.setLastChgTime(personContainer.getThePersonDto().getLastChgTime());
+        personNameDto.setLastChgUserId(personContainer.getThePersonDto().getLastChgUserId());
         int seq = 0;
-        if (personVO.getThePersonNameDTCollection().size() > 0) {
-            seq = personVO.getThePersonNameDTCollection().size();
+        if (personContainer.getThePersonNameDtoCollection().size() > 0) {
+            seq = personContainer.getThePersonNameDtoCollection().size();
         }
-        personNameDT.setPersonNameSeq(seq + 1);
+        personNameDto.setPersonNameSeq(seq + 1);
 
-        personVO.getThePersonNameDTCollection().add(personNameDT);
-        personDtToPersonVO(personNameDT, personVO);
-        return personVO;
+        personContainer.getThePersonNameDtoCollection().add(personNameDto);
+        personDtToPersonVO(personNameDto, personContainer);
+        return personContainer;
     }
-    public static PersonVO personDtToPersonVO(PersonNameDT personNameDT,
-                                       PersonVO personVO) {
-        personVO.getThePersonDT().setLastNm(personNameDT.getLastNm());
-        personVO.getThePersonDT().setFirstNm(personNameDT.getFirstNm());
-        personVO.getThePersonDT().setNmPrefix(personNameDT.getNmPrefix());
-        personVO.getThePersonDT().setNmSuffix(personNameDT.getNmSuffix());
+    public static PersonContainer personDtToPersonVO(PersonNameDto personNameDto,
+                                                     PersonContainer personContainer) {
+        personContainer.getThePersonDto().setLastNm(personNameDto.getLastNm());
+        personContainer.getThePersonDto().setFirstNm(personNameDto.getFirstNm());
+        personContainer.getThePersonDto().setNmPrefix(personNameDto.getNmPrefix());
+        personContainer.getThePersonDto().setNmSuffix(personNameDto.getNmSuffix());
 
-        return personVO;
+        return personContainer;
     }
     public static Timestamp processHL7TSTypeWithMillis(HL7TSType time, String itemDescription) throws DataProcessingException {
         String dateStr = "";

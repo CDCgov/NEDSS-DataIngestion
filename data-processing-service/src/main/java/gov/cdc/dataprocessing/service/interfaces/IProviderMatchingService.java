@@ -1,10 +1,10 @@
 package gov.cdc.dataprocessing.service.interfaces;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model.dto.EDXActivityDetailLogDT;
-import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EDXActivityDetailLogDT;
+import gov.cdc.dataprocessing.model.container.PersonContainer;
 
 public interface IProviderMatchingService {
-    EDXActivityDetailLogDT getMatchingProvider(PersonVO personVO) throws DataProcessingException;
+    EDXActivityDetailLogDT getMatchingProvider(PersonContainer personContainer) throws DataProcessingException;
 
 }

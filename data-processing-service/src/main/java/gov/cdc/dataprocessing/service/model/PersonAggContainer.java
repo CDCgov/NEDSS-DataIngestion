@@ -1,12 +1,12 @@
 package gov.cdc.dataprocessing.service.model;
 
-import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
+import gov.cdc.dataprocessing.model.container.PersonContainer;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class PersonAggContainer {
-    PersonVO personVO;
-    PersonVO providerVO;
+    PersonContainer personContainer;
+    PersonContainer providerVO;
 }

@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.entity;
 
-import gov.cdc.dataprocessing.model.classic_model.dto.RoleDT;
+import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -92,30 +92,30 @@ public class Role {
     public Role() {
 
     }
-    public Role(RoleDT roleDT) {
-        this.subjectEntityUid = roleDT.getSubjectEntityUid();
-        this.code = roleDT.getCd();
-        this.roleSeq = roleDT.getRoleSeq();
-        this.addReasonCode = roleDT.getAddReasonCd();
-        this.addTime = roleDT.getAddTime();
-        this.addUserId = roleDT.getAddUserId();
-        this.codeDescription = roleDT.getCdDescTxt();
-        this.effectiveDurationAmount = roleDT.getEffectiveDurationAmt();
-        this.effectiveDurationUnitCode = roleDT.getEffectiveDurationUnitCd();
-        this.effectiveFromTime = roleDT.getEffectiveFromTime();
-        this.effectiveToTime = roleDT.getEffectiveToTime();
-        this.lastChangeReasonCode = roleDT.getLastChgReasonCd();
-        this.lastChangeTime = roleDT.getLastChgTime();
-        this.lastChangeUserId = roleDT.getLastChgUserId();
-        this.recordStatusCode = roleDT.getRecordStatusCd();
-        this.recordStatusTime = roleDT.getRecordStatusTime();
-        this.scopingClassCode = roleDT.getScopingClassCd();
-        this.scopingEntityUid = roleDT.getScopingEntityUid();
-        this.scopingRoleCode = roleDT.getScopingRoleCd();
-        this.scopingRoleSeq = roleDT.getScopingRoleSeq();
-        this.statusCode = roleDT.getStatusCd();
-        this.statusTime = roleDT.getStatusTime();
-        this.subjectClassCode = roleDT.getSubjectClassCd();
-        this.userAffiliationText = roleDT.getUserAffiliationTxt();
+    public Role(RoleDto roleDto) {
+        this.subjectEntityUid = roleDto.getSubjectEntityUid();
+        this.code = roleDto.getCd();
+        this.roleSeq = roleDto.getRoleSeq();
+        this.addReasonCode = roleDto.getAddReasonCd();
+        this.addTime = roleDto.getAddTime();
+        this.addUserId = roleDto.getAddUserId();
+        this.codeDescription = roleDto.getCdDescTxt();
+        this.effectiveDurationAmount = roleDto.getEffectiveDurationAmt();
+        this.effectiveDurationUnitCode = roleDto.getEffectiveDurationUnitCd();
+        this.effectiveFromTime = roleDto.getEffectiveFromTime();
+        this.effectiveToTime = roleDto.getEffectiveToTime();
+        this.lastChangeReasonCode = roleDto.getLastChgReasonCd();
+        this.lastChangeTime = roleDto.getLastChgTime();
+        this.lastChangeUserId = roleDto.getLastChgUserId();
+        this.recordStatusCode = roleDto.getRecordStatusCd();
+        this.recordStatusTime = roleDto.getRecordStatusTime();
+        this.scopingClassCode = roleDto.getScopingClassCd();
+        this.scopingEntityUid = roleDto.getScopingEntityUid();
+        this.scopingRoleCode = roleDto.getScopingRoleCd();
+        this.scopingRoleSeq = roleDto.getScopingRoleSeq();
+        this.statusCode = roleDto.getStatusCd();
+        this.statusTime = roleDto.getStatusTime();
+        this.subjectClassCode = roleDto.getSubjectClassCd();
+        this.userAffiliationText = roleDto.getUserAffiliationTxt();
     }
 }

@@ -3,8 +3,13 @@ package gov.cdc.dataprocessing.service.matching.base;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model.dto.*;
-import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.*;
+import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
+import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
+import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
+import gov.cdc.dataprocessing.model.dto.person.PersonDto;
+import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.service.core.CheckingValueService;
 import gov.cdc.dataprocessing.service.model.PersonId;
@@ -30,87 +35,87 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, checkingValueService);
     }
 
-    protected PersonId updateExistingPerson(PersonVO personVO, String businessTriggerCd, Long personParentUid) throws DataProcessingException {
+    protected PersonId updateExistingPerson(PersonContainer personContainer, String businessTriggerCd, Long personParentUid) throws DataProcessingException {
         PersonId personId = new PersonId();
-        PersonVO personObj = personVO.deepClone();
+        PersonContainer personObj = personContainer.deepClone();
         if (businessTriggerCd != null && (businessTriggerCd.equals("PAT_CR") || businessTriggerCd.equals("PAT_EDIT"))) {
             personId = getPersonInternalV2(personParentUid);
 
             personObj.setMPRUpdateValid(true);
 
-            personObj.getThePersonDT().setPersonUid(personId.getPersonId());
-            personObj.getThePersonDT().setPersonParentUid(personId.getPersonParentId());
-            personObj.getThePersonDT().setLocalId(personId.getLocalId());
+            personObj.getThePersonDto().setPersonUid(personId.getPersonId());
+            personObj.getThePersonDto().setPersonParentUid(personId.getPersonParentId());
+            personObj.getThePersonDto().setLocalId(personId.getLocalId());
 
 
             prepUpdatingExistingPerson(personObj);
         }
         return personId;
     }
-    protected String getLNmFnmDobCurSexStr(PersonVO personVO) {
+    protected String getLNmFnmDobCurSexStr(PersonContainer personContainer) {
         String namedobcursexStr = null;
         String carrot = "^";
-        if (personVO.getThePersonDT() != null) {
-            PersonDT personDT = personVO.getThePersonDT();
-            if (personDT.getCd() != null
-                    && personDT.getCd().equals(NEDSSConstant.PAT)) {
-                if (personVO.getThePersonNameDTCollection() != null
-                        && personVO.getThePersonNameDTCollection().size() > 0) {
-                    Collection<PersonNameDT> personNameDTColl = personVO
-                            .getThePersonNameDTCollection();
-                    Iterator personNameIterator = personNameDTColl.iterator();
+        if (personContainer.getThePersonDto() != null) {
+            PersonDto personDto = personContainer.getThePersonDto();
+            if (personDto.getCd() != null
+                    && personDto.getCd().equals(NEDSSConstant.PAT)) {
+                if (personContainer.getThePersonNameDtoCollection() != null
+                        && personContainer.getThePersonNameDtoCollection().size() > 0) {
+                    Collection<PersonNameDto> personNameDtoColl = personContainer
+                            .getThePersonNameDtoCollection();
+                    Iterator personNameIterator = personNameDtoColl.iterator();
                     Timestamp asofDate = null;
                     while (personNameIterator.hasNext()) {
-                        PersonNameDT personNameDT = (PersonNameDT) personNameIterator
+                        PersonNameDto personNameDto = (PersonNameDto) personNameIterator
                                 .next();
-                        if (personNameDT.getNmUseCd() == null)
+                        if (personNameDto.getNmUseCd() == null)
                         {
                             String Message = "personNameDT.getNmUseCd() is null";
                             logger.debug(Message);
                         }
-                        if (personNameDT.getNmUseCd() != null
-                                && personNameDT.getNmUseCd().equalsIgnoreCase("L")
-                                && personNameDT.getRecordStatusCd() != null
-                                && personNameDT.getRecordStatusCd().equals(
+                        if (personNameDto.getNmUseCd() != null
+                                && personNameDto.getNmUseCd().equalsIgnoreCase("L")
+                                && personNameDto.getRecordStatusCd() != null
+                                && personNameDto.getRecordStatusCd().equals(
                                 NEDSSConstant.RECORD_STATUS_ACTIVE)) {
                             if (asofDate == null
-                                    || (asofDate.getTime() < personNameDT
+                                    || (asofDate.getTime() < personNameDto
                                     .getAsOfDate().getTime())) {
-                                if ((personNameDT.getLastNm() != null)
-                                        && (!personNameDT.getLastNm().trim()
+                                if ((personNameDto.getLastNm() != null)
+                                        && (!personNameDto.getLastNm().trim()
                                         .equals(""))
-                                        && (personNameDT.getFirstNm() != null)
-                                        && (!personNameDT.getFirstNm().trim()
+                                        && (personNameDto.getFirstNm() != null)
+                                        && (!personNameDto.getFirstNm().trim()
                                         .equals(""))
-                                        && (personDT.getBirthTime() != null)
-                                        && (personDT.getCurrSexCd() != null)
-                                        && (!personDT.getCurrSexCd().trim()
+                                        && (personDto.getBirthTime() != null)
+                                        && (personDto.getCurrSexCd() != null)
+                                        && (!personDto.getCurrSexCd().trim()
                                         .equals(""))) {
-                                    namedobcursexStr = personNameDT.getLastNm()
+                                    namedobcursexStr = personNameDto.getLastNm()
                                             + carrot
-                                            + personNameDT.getFirstNm()
-                                            + carrot + personDT.getBirthTime()
-                                            + carrot + personDT.getCurrSexCd();
-                                    asofDate = personNameDT.getAsOfDate();
+                                            + personNameDto.getFirstNm()
+                                            + carrot + personDto.getBirthTime()
+                                            + carrot + personDto.getCurrSexCd();
+                                    asofDate = personNameDto.getAsOfDate();
                                 }
-                            } else if (asofDate.before(personNameDT
+                            } else if (asofDate.before(personNameDto
                                     .getAsOfDate())) {
-                                if ((personNameDT.getLastNm() != null)
-                                        && (!personNameDT.getLastNm().trim()
+                                if ((personNameDto.getLastNm() != null)
+                                        && (!personNameDto.getLastNm().trim()
                                         .equals(""))
-                                        && (personNameDT.getFirstNm() != null)
-                                        && (!personNameDT.getFirstNm().trim()
+                                        && (personNameDto.getFirstNm() != null)
+                                        && (!personNameDto.getFirstNm().trim()
                                         .equals(""))
-                                        && (personDT.getBirthTime() != null)
-                                        && (personDT.getCurrSexCd() != null)
-                                        && (!personDT.getCurrSexCd().trim()
+                                        && (personDto.getBirthTime() != null)
+                                        && (personDto.getCurrSexCd() != null)
+                                        && (!personDto.getCurrSexCd().trim()
                                         .equals(""))) {
-                                    namedobcursexStr = personNameDT.getLastNm()
+                                    namedobcursexStr = personNameDto.getLastNm()
                                             + carrot
-                                            + personNameDT.getFirstNm()
-                                            + carrot + personDT.getBirthTime()
-                                            + carrot + personDT.getCurrSexCd();
-                                    asofDate = personNameDT.getAsOfDate();
+                                            + personNameDto.getFirstNm()
+                                            + carrot + personDto.getBirthTime()
+                                            + carrot + personDto.getCurrSexCd();
+                                    asofDate = personNameDto.getAsOfDate();
 
                                 }
 
@@ -123,17 +128,17 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         }
         return namedobcursexStr;
     }
-    protected void setPersonHashCdPatient(PersonVO personVO) throws DataProcessingException {
+    protected void setPersonHashCdPatient(PersonContainer personContainer) throws DataProcessingException {
         try {
-            long personUid = personVO.getThePersonDT().getPersonParentUid();
+            long personUid = personContainer.getThePersonDto().getPersonParentUid();
 
             // DELETE Patient Matching Hash String
             getEdxPatientMatchRepositoryUtil().deleteEdxPatientMatchDTColl(personUid);
             try {
-                if(personVO.getThePersonDT().getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE)){
-                    personVO.getThePersonDT().setPersonUid(personUid);
+                if(personContainer.getThePersonDto().getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE)){
+                    personContainer.getThePersonDto().setPersonUid(personUid);
                     // INSERTING Patient Matching Hash String
-                    setPersonToMatchEntityPatient(personVO);
+                    setPersonToMatchEntityPatient(personContainer);
                 }
             } catch (Exception e) {
                 //per defect #1836 change to warning..
@@ -145,31 +150,31 @@ public class PatientMatchingBaseService extends MatchingBaseService{
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
-    protected PersonId setAndCreateNewPerson(PersonVO psn) throws DataProcessingException {
+    protected PersonId setAndCreateNewPerson(PersonContainer psn) throws DataProcessingException {
         PersonId personUID = new PersonId();
-        PersonVO personVO = psn.deepClone();
+        PersonContainer personContainer = psn.deepClone();
         Person person = null;
-        Collection<EntityLocatorParticipationDT> elpDTCol = personVO.getTheEntityLocatorParticipationDTCollection();
-        Collection<RoleDT> rDTCol = personVO.getTheRoleDTCollection();
-        Collection<ParticipationDT> pDTCol = personVO.getTheParticipationDTCollection();
-        Collection<EntityLocatorParticipationDT> colEntityLocatorParticipation = null;
-        Collection<RoleDT> colRole = null;
+        Collection<EntityLocatorParticipationDto> elpDTCol = personContainer.getTheEntityLocatorParticipationDtoCollection();
+        Collection<RoleDto> rDTCol = personContainer.getTheRoleDtoCollection();
+        Collection<ParticipationDT> pDTCol = personContainer.getTheParticipationDTCollection();
+        Collection<EntityLocatorParticipationDto> colEntityLocatorParticipation = null;
+        Collection<RoleDto> colRole = null;
         Collection<ParticipationDT> colParticipation = null;
         // NOTE: Sorting out Collection such as: Entity Locator Participation, Role, Participation
         if (elpDTCol != null) {
             colEntityLocatorParticipation = getEntityHelper().iterateELPDTForEntityLocatorParticipation(elpDTCol);
-            personVO.setTheEntityLocatorParticipationDTCollection(colEntityLocatorParticipation);
+            personContainer.setTheEntityLocatorParticipationDtoCollection(colEntityLocatorParticipation);
         }
         if (rDTCol != null) {
             colRole = getEntityHelper().iterateRDT(rDTCol);
-            personVO.setTheRoleDTCollection(colRole);
+            personContainer.setTheRoleDtoCollection(colRole);
         }
         if (pDTCol != null) {
             colParticipation = getEntityHelper().iteratePDTForParticipation(pDTCol);
-            personVO.setTheParticipationDTCollection(colParticipation);
+            personContainer.setTheParticipationDTCollection(colParticipation);
         }
         //TODO: Patient Creation
-        person = getPatientRepositoryUtil().createPerson(personVO);
+        person = getPatientRepositoryUtil().createPerson(personContainer);
         personUID.setPersonId(person.getPersonUid());
         personUID.setPersonParentId(person.getPersonParentUid());
         personUID.setLocalId(person.getLocalId());
@@ -208,47 +213,47 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         return personId;
 
     }
-    private void prepUpdatingExistingPerson(PersonVO personVO) throws DataProcessingException {
-        PersonDT personDT = personVO.getThePersonDT();
+    private void prepUpdatingExistingPerson(PersonContainer personContainer) throws DataProcessingException {
+        PersonDto personDto = personContainer.getThePersonDto();
 
-        personVO.setThePersonDT(personDT);
-        Collection<EntityLocatorParticipationDT> collEntityLocatorPar;
-        Collection<RoleDT> colRole;
+        personContainer.setThePersonDto(personDto);
+        Collection<EntityLocatorParticipationDto> collEntityLocatorPar;
+        Collection<RoleDto> colRole;
         Collection<ParticipationDT> colParticipation;
 
-        collEntityLocatorPar = personVO.getTheEntityLocatorParticipationDTCollection();
-        colRole = personVO.getTheRoleDTCollection();
-        colParticipation = personVO.getTheParticipationDTCollection();
+        collEntityLocatorPar = personContainer.getTheEntityLocatorParticipationDtoCollection();
+        colRole = personContainer.getTheRoleDtoCollection();
+        colParticipation = personContainer.getTheParticipationDTCollection();
 
         if (collEntityLocatorPar != null) {
             getEntityHelper().iterateELPDTForEntityLocatorParticipation(collEntityLocatorPar);
-            personVO.setTheEntityLocatorParticipationDTCollection(collEntityLocatorPar);
+            personContainer.setTheEntityLocatorParticipationDtoCollection(collEntityLocatorPar);
         }
 
         if (colRole != null) {
             getEntityHelper().iterateRDT(colRole);
-            personVO.setTheRoleDTCollection(colRole);
+            personContainer.setTheRoleDtoCollection(colRole);
         }
 
         if (colParticipation != null) {
             getEntityHelper().iteratePDTForParticipation(colParticipation);
-            personVO.setTheParticipationDTCollection(colParticipation);
+            personContainer.setTheParticipationDTCollection(colParticipation);
         }
 
-        personVO = getPatientRepositoryUtil().preparePersonNameBeforePersistence(personVO);
+        personContainer = getPatientRepositoryUtil().preparePersonNameBeforePersistence(personContainer);
 
         //TODO: Change this to Update Eixsting Patient
-        getPatientRepositoryUtil().updateExistingPerson(personVO);
+        getPatientRepositoryUtil().updateExistingPerson(personContainer);
 
     }
-    private void setPersonToMatchEntityPatient(PersonVO personVO) throws DataProcessingException {
-        Long patientUid = personVO.getThePersonDT().getPersonUid();
-        EdxPatientMatchDT edxPatientMatchDT = new EdxPatientMatchDT();
-        String cdDescTxt = personVO.thePersonDT.getCdDescTxt();
+    private void setPersonToMatchEntityPatient(PersonContainer personContainer) throws DataProcessingException {
+        Long patientUid = personContainer.getThePersonDto().getPersonUid();
+        EdxPatientMatchDto edxPatientMatchDto = new EdxPatientMatchDto();
+        String cdDescTxt = personContainer.thePersonDto.getCdDescTxt();
         if (cdDescTxt == null || cdDescTxt.equalsIgnoreCase("") || !cdDescTxt.equalsIgnoreCase(EdxELRConstant.ELR_NOK_DESC)) {
             String identifierStr = null;
             int identifierStrhshCd = 0;
-            List identifierStrList = getIdentifier(personVO);
+            List identifierStrList = getIdentifier(personContainer);
             if (identifierStrList != null && !identifierStrList.isEmpty()) {
                 for (int k = 0; k < identifierStrList.size(); k++) {
                     identifierStr = (String) identifierStrList.get(k);
@@ -258,13 +263,13 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                     }
 
                     if (identifierStr != null) {
-                        edxPatientMatchDT = new EdxPatientMatchDT();
-                        edxPatientMatchDT.setPatientUid(patientUid);
-                        edxPatientMatchDT.setTypeCd(NEDSSConstant.PAT);
-                        edxPatientMatchDT.setMatchString(identifierStr);
-                        edxPatientMatchDT.setMatchStringHashCode((long) identifierStrhshCd);
+                        edxPatientMatchDto = new EdxPatientMatchDto();
+                        edxPatientMatchDto.setPatientUid(patientUid);
+                        edxPatientMatchDto.setTypeCd(NEDSSConstant.PAT);
+                        edxPatientMatchDto.setMatchString(identifierStr);
+                        edxPatientMatchDto.setMatchStringHashCode((long) identifierStrhshCd);
                         try {
-                            getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDT);
+                            getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDto);
                         } catch (Exception e) {
                             logger.error("Error in creating the setEdxPatientMatchDT with identifierStr:"
                                     + identifierStr + " " + e.getMessage());
@@ -280,20 +285,20 @@ public class PatientMatchingBaseService extends MatchingBaseService{
 
             String namesdobcursexStr = null;
             int namesdobcursexStrhshCd = 0;
-            namesdobcursexStr = getLNmFnmDobCurSexStr(personVO);
+            namesdobcursexStr = getLNmFnmDobCurSexStr(personContainer);
             if (namesdobcursexStr != null) {
                 namesdobcursexStr = namesdobcursexStr.toUpperCase();
                 namesdobcursexStrhshCd = namesdobcursexStr.hashCode();
             }
 
             if (namesdobcursexStr != null) {
-                edxPatientMatchDT = new EdxPatientMatchDT();
-                edxPatientMatchDT.setPatientUid(patientUid);
-                edxPatientMatchDT.setTypeCd(NEDSSConstant.PAT);
-                edxPatientMatchDT.setMatchString(namesdobcursexStr);
-                edxPatientMatchDT.setMatchStringHashCode((long) namesdobcursexStrhshCd);
+                edxPatientMatchDto = new EdxPatientMatchDto();
+                edxPatientMatchDto.setPatientUid(patientUid);
+                edxPatientMatchDto.setTypeCd(NEDSSConstant.PAT);
+                edxPatientMatchDto.setMatchString(namesdobcursexStr);
+                edxPatientMatchDto.setMatchStringHashCode((long) namesdobcursexStrhshCd);
                 try {
-                    getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDT);
+                    getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDto);
                 } catch (Exception e) {
                     logger.error("Error in creating the setEdxPatientMatchDT with namesdobcursexStr:" + namesdobcursexStr + " " + e.getMessage());
                     throw new DataProcessingException(e.getMessage(), e);

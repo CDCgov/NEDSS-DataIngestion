@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.service.core;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model.dt.EdxLabInformationDT;
+import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.StoredProcRepository;
 import gov.cdc.dataprocessing.service.interfaces.IMsgOutEStoredProcService;
 import org.slf4j.Logger;
@@ -18,9 +18,9 @@ public class MsgOutEStoredProcService implements IMsgOutEStoredProcService {
         this.storedProcRepository = storedProcRepository;
     }
 
-    public void callUpdateSpecimenCollDateSP(EdxLabInformationDT edxLabInformationDT) throws DataProcessingException {
+    public void callUpdateSpecimenCollDateSP(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         try {
-            storedProcRepository.updateSpecimenCollDateSP(edxLabInformationDT.getNbsInterfaceUid(), edxLabInformationDT.getRootObservationVO().getTheObservationDT().getEffectiveFromTime());
+            storedProcRepository.updateSpecimenCollDateSP(edxLabInformationDto.getNbsInterfaceUid(), edxLabInformationDto.getRootObservationVO().getTheObservationDT().getEffectiveFromTime());
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
         }

@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.matching;
 
-import gov.cdc.dataprocessing.model.classic_model.dto.EdxPatientMatchDT;
+import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 import lombok.Data;
@@ -30,7 +30,7 @@ public class EdxPatientMatch {
     public EdxPatientMatch() {
 
     }
-    public EdxPatientMatch(EdxPatientMatchDT dto) {
+    public EdxPatientMatch(EdxPatientMatchDto dto) {
         this.patientUid = dto.getPatientUid();
         this.matchString = dto.getMatchString();
         this.typeCd = dto.getTypeCd();

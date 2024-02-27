@@ -2,11 +2,13 @@ package gov.cdc.dataprocessing.utilities.data_extraction;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model.dt.EdxLabInformationDT;
-import gov.cdc.dataprocessing.model.classic_model.dto.*;
-import gov.cdc.dataprocessing.model.classic_model.vo.LabResultProxyVO;
-import gov.cdc.dataprocessing.model.classic_model.vo.MaterialVO;
-import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
+import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.*;
+import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.MaterialVO;
+import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
+import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.phdc.HL7PatientResultSPMType;
 import gov.cdc.dataprocessing.model.phdc.HL7SPECIMENType;
 import gov.cdc.dataprocessing.model.phdc.HL7SPMType;
@@ -19,16 +21,16 @@ import java.util.List;
 public class HL7SpecimenHandler {
     private static final Logger logger = LoggerFactory.getLogger(HL7SpecimenHandler.class);
 
-    public static void process251Specimen(HL7PatientResultSPMType hL7PatientResultSPMType, LabResultProxyVO labResultProxyVO,
-                                          ObservationDT observationDT, PersonVO collectorVO, EdxLabInformationDT edxLabInformationDT) throws DataProcessingException {
+    public static void process251Specimen(HL7PatientResultSPMType hL7PatientResultSPMType, LabResultProxyContainer labResultProxyContainer,
+                                          ObservationDT observationDT, PersonContainer collectorVO, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         try {
             List<HL7SPECIMENType> hl7SPECIMENTypeArray =hL7PatientResultSPMType.getSPECIMEN();
             if(hl7SPECIMENTypeArray!=null && hl7SPECIMENTypeArray.size()>1)
-                edxLabInformationDT.setMultipleSpecimen(true);
+                edxLabInformationDto.setMultipleSpecimen(true);
             if(hl7SPECIMENTypeArray!=null && !hl7SPECIMENTypeArray.isEmpty()){
 
                 if(hl7SPECIMENTypeArray.size()>1) {
-                    edxLabInformationDT.setMultipleSpecimen(true);
+                    edxLabInformationDto.setMultipleSpecimen(true);
                 }
                 HL7SPECIMENType hl7SPECIMENType = hl7SPECIMENTypeArray.get(0);
                 if(hl7SPECIMENType!=null && hl7SPECIMENType.getSPECIMEN()!=null){
@@ -36,8 +38,8 @@ public class HL7SpecimenHandler {
                     MaterialVO materialVO = new MaterialVO();
                     MaterialDT materialDT = new MaterialDT();
                     materialVO.setTheMaterialDT(materialDT);
-                    materialDT.setMaterialUid((long)(edxLabInformationDT.getNextUid()));
-                    materialDT.setRiskCd(edxLabInformationDT.getDangerCode());
+                    materialDT.setMaterialUid((long)(edxLabInformationDto.getNextUid()));
+                    materialDT.setRiskCd(edxLabInformationDto.getDangerCode());
 
                     if(hl7SPMType.getSpecimenCollectionAmount()!=null && hl7SPMType.getSpecimenCollectionAmount().getHL7Quantity()!=null){
                         materialDT.setQty(String.valueOf(hl7SPMType.getSpecimenCollectionAmount().getHL7Quantity().getHL7Numeric()));
@@ -60,24 +62,24 @@ public class HL7SpecimenHandler {
                     if(hl7SPMType.getSpecimenCollectionDateTime()!=null) {
                         observationDT.setEffectiveFromTime(NBSObjectConverter.processHL7TSTypeWithMillis(hl7SPMType.getSpecimenCollectionDateTime().getHL7RangeStartDateTime(), EdxELRConstant.DATE_VALIDATION_SPM_SPECIMEN_COLLECTION_DATE_MSG));
                     }
-                    processMaterialVO(labResultProxyVO,collectorVO, materialVO, edxLabInformationDT);
+                    processMaterialVO(labResultProxyContainer,collectorVO, materialVO, edxLabInformationDto);
                     //use  Filler Specimen ID (SPM.2.2.1) is present for specimen ID - Defect #14343 Jira
                     if (hl7SPMType.getSpecimenID() != null
                             && hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier() != null
                             && hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier().getHL7EntityIdentifier() != null) {
                         String specimenID = hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier().getHL7EntityIdentifier();
-                        materialVO.getTheEntityIdDTCollection().get(0).setRootExtensionTxt(specimenID);
+                        materialVO.getTheEntityIdDtoCollection().get(0).setRootExtensionTxt(specimenID);
                         if (hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier().getHL7UniversalID() != null) {
-                            materialVO.getTheEntityIdDTCollection().get(0).setAssigningAuthorityCd(hl7SPMType.getSpecimenID()
+                            materialVO.getTheEntityIdDtoCollection().get(0).setAssigningAuthorityCd(hl7SPMType.getSpecimenID()
                                     .getHL7FillerAssignedIdentifier().getHL7UniversalID());
                         }
                         if (hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier().getHL7NamespaceID() != null) {
-                            materialVO.getTheEntityIdDTCollection().get(0).setAssigningAuthorityDescTxt(hl7SPMType.getSpecimenID()
+                            materialVO.getTheEntityIdDtoCollection().get(0).setAssigningAuthorityDescTxt(hl7SPMType.getSpecimenID()
                                     .getHL7FillerAssignedIdentifier().getHL7NamespaceID());
                         }
                         if (hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier()
                                 .getHL7UniversalIDType() != null) {
-                            materialVO.getTheEntityIdDTCollection().get(0).setAssigningAuthorityIdType(hl7SPMType.getSpecimenID()
+                            materialVO.getTheEntityIdDtoCollection().get(0).setAssigningAuthorityIdType(hl7SPMType.getSpecimenID()
                                     .getHL7FillerAssignedIdentifier().getHL7UniversalIDType());
                         }
 
@@ -91,46 +93,46 @@ public class HL7SpecimenHandler {
     }
 
 
-    private static void processMaterialVO(LabResultProxyVO labResultProxyVO,PersonVO collectorVO,MaterialVO materialVO,
-                                   EdxLabInformationDT edxLabInformationDT) throws DataProcessingException{
+    private static void processMaterialVO(LabResultProxyContainer labResultProxyContainer, PersonContainer collectorVO, MaterialVO materialVO,
+                                          EdxLabInformationDto edxLabInformationDto) throws DataProcessingException{
         try {
-            EntityIdDT matEntityIdDT = new EntityIdDT();
-            matEntityIdDT.setAssigningAuthorityIdType(edxLabInformationDT.getUniversalIdType());
-            matEntityIdDT.setEntityUid((long)(edxLabInformationDT.getNextUid()));
-            matEntityIdDT.setAddTime(edxLabInformationDT.getAddTime());
-            matEntityIdDT.setRootExtensionTxt(edxLabInformationDT.getFillerNumber());
-            matEntityIdDT.setTypeCd(EdxELRConstant.ELR_SPECIMEN_CD);
-            matEntityIdDT.setTypeDescTxt(EdxELRConstant.ELR_SPECIMEN_DESC);
-            matEntityIdDT.setEntityIdSeq(1);
-            matEntityIdDT.setAssigningAuthorityCd(edxLabInformationDT.getSendingFacilityClia());
-            matEntityIdDT.setAssigningAuthorityDescTxt(edxLabInformationDT.getSendingFacilityName());
-            matEntityIdDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
-            matEntityIdDT.setAsOfDate(edxLabInformationDT.getAddTime());
-            matEntityIdDT.setItNew(true);
-            matEntityIdDT.setItDirty(false);
-            materialVO.getTheEntityIdDTCollection().add(matEntityIdDT);
-            edxLabInformationDT.setRole(EdxELRConstant.ELR_PROVIDER_CD);
+            EntityIdDto matEntityIdDto = new EntityIdDto();
+            matEntityIdDto.setAssigningAuthorityIdType(edxLabInformationDto.getUniversalIdType());
+            matEntityIdDto.setEntityUid((long)(edxLabInformationDto.getNextUid()));
+            matEntityIdDto.setAddTime(edxLabInformationDto.getAddTime());
+            matEntityIdDto.setRootExtensionTxt(edxLabInformationDto.getFillerNumber());
+            matEntityIdDto.setTypeCd(EdxELRConstant.ELR_SPECIMEN_CD);
+            matEntityIdDto.setTypeDescTxt(EdxELRConstant.ELR_SPECIMEN_DESC);
+            matEntityIdDto.setEntityIdSeq(1);
+            matEntityIdDto.setAssigningAuthorityCd(edxLabInformationDto.getSendingFacilityClia());
+            matEntityIdDto.setAssigningAuthorityDescTxt(edxLabInformationDto.getSendingFacilityName());
+            matEntityIdDto.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
+            matEntityIdDto.setAsOfDate(edxLabInformationDto.getAddTime());
+            matEntityIdDto.setItNew(true);
+            matEntityIdDto.setItDirty(false);
+            materialVO.getTheEntityIdDtoCollection().add(matEntityIdDto);
+            edxLabInformationDto.setRole(EdxELRConstant.ELR_PROVIDER_CD);
 
 
 
-            RoleDT roleDT = new RoleDT();
-            roleDT.setSubjectEntityUid(materialVO.getTheMaterialDT().getMaterialUid());
-            roleDT.setCd(EdxELRConstant.ELR_NO_INFO_CD);
-            roleDT.setCdDescTxt(EdxELRConstant.ELR_NO_INFO_DESC);
-            roleDT.setSubjectClassCd(EdxELRConstant.ELR_MAT_CD);
-            roleDT.setRoleSeq((long)(1));
-            roleDT.setScopingEntityUid(edxLabInformationDT.getPatientUid());
-            roleDT.setScopingClassCd(EdxELRConstant.ELR_PATIENT);
-            roleDT.setScopingRoleCd(EdxELRConstant.ELR_PATIENT);
-            roleDT.setScopingRoleSeq(1);
-            roleDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
-            roleDT.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
-            roleDT.setItNew(true);
-            roleDT.setItDirty(false);
-            labResultProxyVO.getTheRoleDTCollection().add(roleDT);
+            RoleDto roleDto = new RoleDto();
+            roleDto.setSubjectEntityUid(materialVO.getTheMaterialDT().getMaterialUid());
+            roleDto.setCd(EdxELRConstant.ELR_NO_INFO_CD);
+            roleDto.setCdDescTxt(EdxELRConstant.ELR_NO_INFO_DESC);
+            roleDto.setSubjectClassCd(EdxELRConstant.ELR_MAT_CD);
+            roleDto.setRoleSeq((long)(1));
+            roleDto.setScopingEntityUid(edxLabInformationDto.getPatientUid());
+            roleDto.setScopingClassCd(EdxELRConstant.ELR_PATIENT);
+            roleDto.setScopingRoleCd(EdxELRConstant.ELR_PATIENT);
+            roleDto.setScopingRoleSeq(1);
+            roleDto.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
+            roleDto.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
+            roleDto.setItNew(true);
+            roleDto.setItDirty(false);
+            labResultProxyContainer.getTheRoleDtoCollection().add(roleDto);
 
             if(collectorVO!=null){
-                RoleDT role2DT = new RoleDT();
+                RoleDto role2DT = new RoleDto();
                 role2DT.setSubjectEntityUid(materialVO.getTheMaterialDT().getMaterialUid());
                 role2DT.setItNew(true);
                 role2DT.setItDirty(false);
@@ -140,11 +142,11 @@ public class HL7SpecimenHandler {
                 role2DT.setRoleSeq((long)(2));
                 role2DT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
                 role2DT.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
-                role2DT.setScopingEntityUid(collectorVO.getThePersonDT().getPersonUid());
+                role2DT.setScopingEntityUid(collectorVO.getThePersonDto().getPersonUid());
                 role2DT.setScopingClassCd(EdxELRConstant.ELR_PROVIDER_CD);
                 role2DT.setScopingRoleCd(EdxELRConstant.ELR_SPECIMEN_PROCURER_CD);
                 role2DT.setScopingRoleSeq(1);
-                labResultProxyVO.getTheRoleDTCollection().add(role2DT);
+                labResultProxyContainer.getTheRoleDtoCollection().add(role2DT);
             }
 
 
@@ -155,11 +157,11 @@ public class HL7SpecimenHandler {
             participationDT.setTypeDescTxt(EdxELRConstant.ELR_SPECIMEN_DESC);
             participationDT.setActClassCd(EdxELRConstant.ELR_OBS);
             participationDT.setSubjectClassCd(EdxELRConstant.ELR_MAT_CD);
-            participationDT.setActUid(edxLabInformationDT.getRootObserbationUid());
-            participationDT = NBSObjectConverter.defaultParticipationDT(participationDT,edxLabInformationDT);
+            participationDT.setActUid(edxLabInformationDto.getRootObserbationUid());
+            participationDT = NBSObjectConverter.defaultParticipationDT(participationDT, edxLabInformationDto);
 
-            labResultProxyVO.getTheParticipationDTCollection().add(participationDT);
-            labResultProxyVO.getTheMaterialVOCollection().add(materialVO);
+            labResultProxyContainer.getTheParticipationDTCollection().add(participationDT);
+            labResultProxyContainer.getTheMaterialVOCollection().add(materialVO);
         } catch (Exception e) {
             logger.error("HL7SpecimenProcessor.processSpecimen error thrown "+ e.getMessage(), e);
             throw new DataProcessingException("HL7SpecimenProcessor.processSpecimen error thrown "+ e);

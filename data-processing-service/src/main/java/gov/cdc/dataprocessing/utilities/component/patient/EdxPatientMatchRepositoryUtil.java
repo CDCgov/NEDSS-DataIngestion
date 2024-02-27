@@ -1,11 +1,11 @@
 package gov.cdc.dataprocessing.utilities.component.patient;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model.dto.EdxEntityMatchDT;
-import gov.cdc.dataprocessing.model.classic_model.dto.EdxPatientMatchDT;
-import gov.cdc.dataprocessing.repository.nbs.odse.EdxEntityMatchRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.EdxPatientMatchRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.EdxPatientMatchStoredProcRepository;
+import gov.cdc.dataprocessing.model.dto.matching.EdxEntityMatchDto;
+import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.matching.EdxEntityMatchRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.matching.EdxPatientMatchRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.matching.EdxPatientMatchStoredProcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.matching.EdxEntityMatch;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.matching.EdxPatientMatch;
 import jakarta.transaction.Transactional;
@@ -30,9 +30,9 @@ public class EdxPatientMatchRepositoryUtil {
     }
 
     @Transactional
-    public EdxPatientMatchDT getEdxPatientMatchOnMatchString(String typeCd, String matchString) throws DataProcessingException {
+    public EdxPatientMatchDto getEdxPatientMatchOnMatchString(String typeCd, String matchString) throws DataProcessingException {
         if (typeCd == null || matchString == null) {
-            return new EdxPatientMatchDT();
+            return new EdxPatientMatchDto();
         }
         try {
             return edxPatientMatchStoreProcRepository.getEdxPatientMatch(typeCd, matchString);
@@ -44,9 +44,9 @@ public class EdxPatientMatchRepositoryUtil {
     }
 
     @Transactional
-    public EdxEntityMatchDT getEdxEntityMatchOnMatchString(String typeCd, String matchString) throws DataProcessingException {
+    public EdxEntityMatchDto getEdxEntityMatchOnMatchString(String typeCd, String matchString) throws DataProcessingException {
         if (typeCd == null || matchString == null) {
-            return new EdxEntityMatchDT();
+            return new EdxEntityMatchDto();
         }
         try {
             return edxPatientMatchStoreProcRepository.getEdxEntityMatch(typeCd, matchString);
@@ -59,14 +59,14 @@ public class EdxPatientMatchRepositoryUtil {
 
 
     @Transactional
-    public void saveEdxEntityMatch(EdxEntityMatchDT edxEntityMatchDT) {
-        EdxEntityMatch model = new EdxEntityMatch(edxEntityMatchDT);
+    public void saveEdxEntityMatch(EdxEntityMatchDto edxEntityMatchDto) {
+        EdxEntityMatch model = new EdxEntityMatch(edxEntityMatchDto);
         edxEntityMatchRepository.save(model);
     }
 
 
-    public EdxPatientMatch setEdxPatientMatchDT(EdxPatientMatchDT edxPatientMatchDT) {
-        EdxPatientMatch edxPatientMatch = new EdxPatientMatch(edxPatientMatchDT);
+    public EdxPatientMatch setEdxPatientMatchDT(EdxPatientMatchDto edxPatientMatchDto) {
+        EdxPatientMatch edxPatientMatch = new EdxPatientMatch(edxPatientMatchDto);
         edxPatientMatchRepository.save(edxPatientMatch);
         return edxPatientMatch;
     }

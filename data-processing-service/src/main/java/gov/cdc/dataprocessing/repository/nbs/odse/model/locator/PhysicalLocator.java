@@ -1,13 +1,12 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.locator;
 
-import gov.cdc.dataprocessing.model.classic_model.dto.PhysicalLocatorDT;
+import gov.cdc.dataprocessing.model.dto.locator.PhysicalLocatorDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 
-import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Arrays;
 
@@ -54,19 +53,19 @@ public class PhysicalLocator {
     private String userAffiliationTxt;
 
     // Add getters and setters as needed
-    public PhysicalLocator(PhysicalLocatorDT physicalLocatorDT) {
-        this.physicalLocatorUid = physicalLocatorDT.getPhysicalLocatorUid();
-        this.addReasonCd = physicalLocatorDT.getAddReasonCd();
-        this.addTime = physicalLocatorDT.getAddTime();
-        this.addUserId = physicalLocatorDT.getAddUserId();
-        this.imageTxt = Arrays.toString(physicalLocatorDT.getImageTxt());
-        this.lastChgReasonCd = physicalLocatorDT.getLastChgReasonCd();
-        this.lastChgTime = physicalLocatorDT.getLastChgTime();
-        this.lastChgUserId = physicalLocatorDT.getLastChgUserId();
-        this.locatorTxt = physicalLocatorDT.getLocatorTxt();
-        this.recordStatusCd = physicalLocatorDT.getRecordStatusCd();
-        this.recordStatusTime = physicalLocatorDT.getRecordStatusTime();
-        this.userAffiliationTxt = physicalLocatorDT.getUserAffiliationTxt();
+    public PhysicalLocator(PhysicalLocatorDto physicalLocatorDto) {
+        this.physicalLocatorUid = physicalLocatorDto.getPhysicalLocatorUid();
+        this.addReasonCd = physicalLocatorDto.getAddReasonCd();
+        this.addTime = physicalLocatorDto.getAddTime();
+        this.addUserId = physicalLocatorDto.getAddUserId();
+        this.imageTxt = Arrays.toString(physicalLocatorDto.getImageTxt());
+        this.lastChgReasonCd = physicalLocatorDto.getLastChgReasonCd();
+        this.lastChgTime = physicalLocatorDto.getLastChgTime();
+        this.lastChgUserId = physicalLocatorDto.getLastChgUserId();
+        this.locatorTxt = physicalLocatorDto.getLocatorTxt();
+        this.recordStatusCd = physicalLocatorDto.getRecordStatusCd();
+        this.recordStatusTime = physicalLocatorDto.getRecordStatusTime();
+        this.userAffiliationTxt = physicalLocatorDto.getUserAffiliationTxt();
     }
 
     public PhysicalLocator() {

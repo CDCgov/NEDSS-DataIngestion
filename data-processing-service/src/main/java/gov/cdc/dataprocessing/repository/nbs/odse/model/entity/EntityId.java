@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.entity;
 
-import gov.cdc.dataprocessing.model.classic_model.dto.EntityIdDT;
+import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -104,42 +104,42 @@ public class EntityId {
     public EntityId() {
 
     }
-    public EntityId(EntityIdDT entityIdDT) {
+    public EntityId(EntityIdDto entityIdDto) {
         var timestamp = getCurrentTimeStamp();
-        this.entityUid = entityIdDT.getEntityUid();
-        this.entityIdSeq = entityIdDT.getEntityIdSeq();
-        this.addReasonCode = entityIdDT.getAddReasonCd();
-        this.addTime = entityIdDT.getAddTime();
-        this.addUserId = entityIdDT.getAddUserId();
-        this.assigningAuthorityCode = entityIdDT.getAssigningAuthorityCd();
-        this.assigningAuthorityDescription = entityIdDT.getAssigningAuthorityDescTxt();
-        this.durationAmount = entityIdDT.getDurationAmt();
-        this.durationUnitCode = entityIdDT.getDurationUnitCd();
-        this.effectiveFromTime = entityIdDT.getEffectiveFromTime();
-        this.effectiveToTime = entityIdDT.getEffectiveToTime();
-        this.lastChangeReasonCode = entityIdDT.getLastChgReasonCd();
-        this.lastChangeTime = entityIdDT.getLastChgTime();
-        this.lastChangeUserId = entityIdDT.getLastChgUserId();
-        this.recordStatusCode = entityIdDT.getRecordStatusCd();
-        if (entityIdDT.getRecordStatusTime() == null) {
+        this.entityUid = entityIdDto.getEntityUid();
+        this.entityIdSeq = entityIdDto.getEntityIdSeq();
+        this.addReasonCode = entityIdDto.getAddReasonCd();
+        this.addTime = entityIdDto.getAddTime();
+        this.addUserId = entityIdDto.getAddUserId();
+        this.assigningAuthorityCode = entityIdDto.getAssigningAuthorityCd();
+        this.assigningAuthorityDescription = entityIdDto.getAssigningAuthorityDescTxt();
+        this.durationAmount = entityIdDto.getDurationAmt();
+        this.durationUnitCode = entityIdDto.getDurationUnitCd();
+        this.effectiveFromTime = entityIdDto.getEffectiveFromTime();
+        this.effectiveToTime = entityIdDto.getEffectiveToTime();
+        this.lastChangeReasonCode = entityIdDto.getLastChgReasonCd();
+        this.lastChangeTime = entityIdDto.getLastChgTime();
+        this.lastChangeUserId = entityIdDto.getLastChgUserId();
+        this.recordStatusCode = entityIdDto.getRecordStatusCd();
+        if (entityIdDto.getRecordStatusTime() == null) {
             this.recordStatusTime = timestamp;
         } else {
-            this.recordStatusTime = entityIdDT.getRecordStatusTime();
+            this.recordStatusTime = entityIdDto.getRecordStatusTime();
         }
-        this.rootExtensionText = entityIdDT.getRootExtensionTxt();
-        this.statusCode = entityIdDT.getStatusCd();
-        if (entityIdDT.getStatusTime() == null) {
+        this.rootExtensionText = entityIdDto.getRootExtensionTxt();
+        this.statusCode = entityIdDto.getStatusCd();
+        if (entityIdDto.getStatusTime() == null) {
             this.statusTime = timestamp;
         } else {
-            this.statusTime = entityIdDT.getStatusTime();
+            this.statusTime = entityIdDto.getStatusTime();
         }
-        this.typeCode = entityIdDT.getTypeCd();
-        this.typeDescriptionText = entityIdDT.getTypeDescTxt();
-        this.userAffiliationText = entityIdDT.getUserAffiliationTxt();
-        this.validFromTime = entityIdDT.getValidFromTime();
-        this.validToTime = entityIdDT.getValidToTime();
-        this.asOfDate = entityIdDT.getAsOfDate();
-        this.assigningAuthorityIdType = entityIdDT.getAssigningAuthorityIdType();
+        this.typeCode = entityIdDto.getTypeCd();
+        this.typeDescriptionText = entityIdDto.getTypeDescTxt();
+        this.userAffiliationText = entityIdDto.getUserAffiliationTxt();
+        this.validFromTime = entityIdDto.getValidFromTime();
+        this.validToTime = entityIdDto.getValidToTime();
+        this.asOfDate = entityIdDto.getAsOfDate();
+        this.assigningAuthorityIdType = entityIdDto.getAssigningAuthorityIdType();
     }
 
 }

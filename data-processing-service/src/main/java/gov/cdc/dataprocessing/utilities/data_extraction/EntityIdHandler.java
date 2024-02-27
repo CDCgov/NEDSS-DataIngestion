@@ -3,8 +3,8 @@ package gov.cdc.dataprocessing.utilities.data_extraction;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model.dto.EntityIdDT;
-import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
+import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
+import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.model.phdc.HL7CXType;
 import gov.cdc.dataprocessing.model.phdc.HL7DTType;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
@@ -21,35 +21,35 @@ public class EntityIdHandler {
     /**
      * This method process then parse data from Person into EntityId Object
      * */
-    public static EntityIdDT processEntityData(HL7CXType hl7CXType, PersonVO personVO, String indicator, int index) throws DataProcessingException {
-        EntityIdDT entityIdDT = new EntityIdDT();
+    public static EntityIdDto processEntityData(HL7CXType hl7CXType, PersonContainer personContainer, String indicator, int index) throws DataProcessingException {
+        EntityIdDto entityIdDto = new EntityIdDto();
         if (hl7CXType != null) {
-            entityIdDT.setEntityUid(personVO.getThePersonDT().getPersonUid());
-            entityIdDT.setAddTime(personVO.getThePersonDT().getAddTime());
-            entityIdDT.setEntityIdSeq(index + 1);
-            entityIdDT.setRootExtensionTxt(hl7CXType.getHL7IDNumber());
+            entityIdDto.setEntityUid(personContainer.getThePersonDto().getPersonUid());
+            entityIdDto.setAddTime(personContainer.getThePersonDto().getAddTime());
+            entityIdDto.setEntityIdSeq(index + 1);
+            entityIdDto.setRootExtensionTxt(hl7CXType.getHL7IDNumber());
             
             if(hl7CXType.getHL7AssigningAuthority() != null){
-                entityIdDT.setAssigningAuthorityCd(hl7CXType.getHL7AssigningAuthority().getHL7UniversalID());
-                entityIdDT.setAssigningAuthorityDescTxt(hl7CXType.getHL7AssigningAuthority().getHL7NamespaceID());
-                entityIdDT.setAssigningAuthorityIdType(hl7CXType.getHL7AssigningAuthority().getHL7UniversalIDType());
+                entityIdDto.setAssigningAuthorityCd(hl7CXType.getHL7AssigningAuthority().getHL7UniversalID());
+                entityIdDto.setAssigningAuthorityDescTxt(hl7CXType.getHL7AssigningAuthority().getHL7NamespaceID());
+                entityIdDto.setAssigningAuthorityIdType(hl7CXType.getHL7AssigningAuthority().getHL7UniversalIDType());
             }
             
             if (indicator != null && indicator.equals(EdxELRConstant.ELR_PATIENT_ALTERNATE_IND)) {
-                entityIdDT.setTypeCd(EdxELRConstant.ELR_PATIENT_ALTERNATE_TYPE);
-                entityIdDT.setTypeDescTxt(EdxELRConstant.ELR_PATIENT_ALTERNATE_DESC);
+                entityIdDto.setTypeCd(EdxELRConstant.ELR_PATIENT_ALTERNATE_TYPE);
+                entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_PATIENT_ALTERNATE_DESC);
             }
             else if (indicator != null && indicator.equals(EdxELRConstant.ELR_MOTHER_IDENTIFIER)) {
-                entityIdDT.setTypeCd(EdxELRConstant.ELR_MOTHER_IDENTIFIER);
-                entityIdDT.setTypeDescTxt(EdxELRConstant.ELR_MOTHER_IDENTIFIER);
+                entityIdDto.setTypeCd(EdxELRConstant.ELR_MOTHER_IDENTIFIER);
+                entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_MOTHER_IDENTIFIER);
             }
             else if (indicator != null && indicator.equals(EdxELRConstant.ELR_ACCOUNT_IDENTIFIER)) {
-                entityIdDT.setTypeCd(EdxELRConstant.ELR_ACCOUNT_IDENTIFIER);
-                entityIdDT.setTypeDescTxt(EdxELRConstant.ELR_ACCOUNT_DESC);
+                entityIdDto.setTypeCd(EdxELRConstant.ELR_ACCOUNT_IDENTIFIER);
+                entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_ACCOUNT_DESC);
             }
             else if (hl7CXType.getHL7IdentifierTypeCode() == null || hl7CXType.getHL7IdentifierTypeCode().trim().isEmpty()) {
-                entityIdDT.setTypeCd(EdxELRConstant.ELR_PERSON_TYPE);
-                entityIdDT.setTypeDescTxt(EdxELRConstant.ELR_PERSON_TYPE_DESC);
+                entityIdDto.setTypeCd(EdxELRConstant.ELR_PERSON_TYPE);
+                entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_PERSON_TYPE_DESC);
 
                 /**
                  * TODO: Need to call out ro CodeValueGeneral Repository to grab the data
@@ -59,30 +59,30 @@ public class EntityIdHandler {
                 String typeCode =  codeValueGeneralModel.getCode();// CachedDropDowns.getCodeDescTxtForCd(entityIdDT.getTypeCd(), EdxELRConstant.EI_TYPE);
 
                 if (typeCode == null || typeCode.trim().equals("")) {
-                    entityIdDT.setTypeDescTxt(EdxELRConstant.ELR_CLIA_DESC);
+                    entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_CLIA_DESC);
                 } else {
-                    entityIdDT.setTypeDescTxt(typeCode);
+                    entityIdDto.setTypeDescTxt(typeCode);
                 }
             } else {
-                entityIdDT.setTypeCd(hl7CXType.getHL7IdentifierTypeCode());
+                entityIdDto.setTypeCd(hl7CXType.getHL7IdentifierTypeCode());
             }
 
-            entityIdDT.setAddUserId(personVO.getThePersonDT().getAddUserId());
-            entityIdDT.setLastChgUserId(personVO.getThePersonDT().getLastChgUserId());
-            entityIdDT.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
-            entityIdDT.setStatusTime(personVO.getThePersonDT().getAddTime());
-            entityIdDT.setRecordStatusTime(personVO.getThePersonDT().getAddTime());
-            entityIdDT.setRecordStatusCd(NEDSSConstant.ACTIVE);
-            entityIdDT.setAsOfDate(personVO.getThePersonDT().getAddTime());
-            entityIdDT.setEffectiveFromTime(processHL7DTType(hl7CXType.getHL7EffectiveDate(), EdxELRConstant.DATE_VALIDATION_PID_PATIENT_IDENTIFIER_EFFECTIVE_DATE_TIME_MSG));
-            entityIdDT.setValidFromTime(entityIdDT.getEffectiveFromTime());
-            entityIdDT.setEffectiveToTime(processHL7DTType(hl7CXType.getHL7ExpirationDate(), EdxELRConstant.DATE_VALIDATION_PID_PATIENT_IDENTIFIER_EXPIRATION_DATE_TIME_MSG));
-            entityIdDT.setValidToTime(entityIdDT.getEffectiveToTime());
-            entityIdDT.setItNew(true);
-            entityIdDT.setItDirty(false);
+            entityIdDto.setAddUserId(personContainer.getThePersonDto().getAddUserId());
+            entityIdDto.setLastChgUserId(personContainer.getThePersonDto().getLastChgUserId());
+            entityIdDto.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
+            entityIdDto.setStatusTime(personContainer.getThePersonDto().getAddTime());
+            entityIdDto.setRecordStatusTime(personContainer.getThePersonDto().getAddTime());
+            entityIdDto.setRecordStatusCd(NEDSSConstant.ACTIVE);
+            entityIdDto.setAsOfDate(personContainer.getThePersonDto().getAddTime());
+            entityIdDto.setEffectiveFromTime(processHL7DTType(hl7CXType.getHL7EffectiveDate(), EdxELRConstant.DATE_VALIDATION_PID_PATIENT_IDENTIFIER_EFFECTIVE_DATE_TIME_MSG));
+            entityIdDto.setValidFromTime(entityIdDto.getEffectiveFromTime());
+            entityIdDto.setEffectiveToTime(processHL7DTType(hl7CXType.getHL7ExpirationDate(), EdxELRConstant.DATE_VALIDATION_PID_PATIENT_IDENTIFIER_EXPIRATION_DATE_TIME_MSG));
+            entityIdDto.setValidToTime(entityIdDto.getEffectiveToTime());
+            entityIdDto.setItNew(true);
+            entityIdDto.setItDirty(false);
 
         }
-        return entityIdDT;
+        return entityIdDto;
     }
 
     public static Timestamp processHL7DTType(HL7DTType time, String itemDescription) throws DataProcessingException {

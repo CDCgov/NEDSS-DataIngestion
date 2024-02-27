@@ -1,9 +1,9 @@
 package gov.cdc.dataprocessing.utilities.component.entity;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model.dto.EntityLocatorParticipationDT;
-import gov.cdc.dataprocessing.model.classic_model.dto.ParticipationDT;
-import gov.cdc.dataprocessing.model.classic_model.dto.RoleDT;
+import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ParticipationDT;
+import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.utilities.component.PrepareAssocModelHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,18 +32,18 @@ public class EntityHelper {
      * @return Collection<Object> EntityLocatoryParticipation collection object
      *         populated with system attributes
      */
-    public Collection<EntityLocatorParticipationDT> iterateELPDTForEntityLocatorParticipation(Collection<EntityLocatorParticipationDT> dtCol) throws DataProcessingException {
-        Collection<EntityLocatorParticipationDT> retCol = new ArrayList<>();
-        Collection<EntityLocatorParticipationDT> collection = new ArrayList<>();
-        Iterator<EntityLocatorParticipationDT> anIterator = null;
+    public Collection<EntityLocatorParticipationDto> iterateELPDTForEntityLocatorParticipation(Collection<EntityLocatorParticipationDto> dtCol) throws DataProcessingException {
+        Collection<EntityLocatorParticipationDto> retCol = new ArrayList<>();
+        Collection<EntityLocatorParticipationDto> collection = new ArrayList<>();
+        Iterator<EntityLocatorParticipationDto> anIterator = null;
         collection = dtCol;
         logger.debug("Collection<Object> size before iteration in iterateELPDT " + collection.size());
         try {
             for (anIterator = collection.iterator(); anIterator.hasNext(); ) {
-                EntityLocatorParticipationDT elpDT = (EntityLocatorParticipationDT) anIterator.next();
-                EntityLocatorParticipationDT assocDTInterface = elpDT;
+                EntityLocatorParticipationDto elpDT = (EntityLocatorParticipationDto) anIterator.next();
+                EntityLocatorParticipationDto assocDTInterface = elpDT;
                 logger.debug("Iterating EntityLocatorParticipationDT");
-                elpDT = (EntityLocatorParticipationDT) prepareAssocModel.prepareAssocDTForEntityLocatorParticipation(assocDTInterface);
+                elpDT = (EntityLocatorParticipationDto) prepareAssocModel.prepareAssocDTForEntityLocatorParticipation(assocDTInterface);
                 logger.debug("Came back from PrepareVOUtils");
                 retCol.add(elpDT);
             }
@@ -67,23 +67,23 @@ public class EntityHelper {
      * @return Collection<Object> RoleDT collection object populated with system
      *         attributes
      */
-    public Collection<RoleDT> iterateRDT(Collection<RoleDT> dtCol) throws DataProcessingException {
-        Collection<RoleDT> retCol = new ArrayList<>();
-        Collection<RoleDT> collection = new ArrayList<>();
-        Iterator<RoleDT> anIterator = null;
+    public Collection<RoleDto> iterateRDT(Collection<RoleDto> dtCol) throws DataProcessingException {
+        Collection<RoleDto> retCol = new ArrayList<>();
+        Collection<RoleDto> collection = new ArrayList<>();
+        Iterator<RoleDto> anIterator = null;
         collection = dtCol;
         logger.debug("Collection<Object> size before iteration in iterateRDT " + collection.size());
         if (collection != null) {
             try {
                 for (anIterator = collection.iterator(); anIterator.hasNext();) {
-                    RoleDT rDT = (RoleDT) anIterator.next();
+                    RoleDto rDT = (RoleDto) anIterator.next();
                     if (rDT.isItDirty() || rDT.isItNew() || rDT.isItDelete()) {
                         logger.debug("EntityController:rdT.IsItDelete"
                                 + rDT.isItDelete() + "rdt.IsItNew:"
                                 + rDT.isItNew() + "rdt.IsItDirty:"
                                 + rDT.isItDirty());
-                        RoleDT assocDTInterface = rDT;
-                        rDT = (RoleDT) prepareAssocModel.prepareAssocDTForRole(assocDTInterface);
+                        RoleDto assocDTInterface = rDT;
+                        rDT = (RoleDto) prepareAssocModel.prepareAssocDTForRole(assocDTInterface);
                         retCol.add(rDT);
                     }
                 }

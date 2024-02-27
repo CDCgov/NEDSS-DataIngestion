@@ -5,10 +5,16 @@ import gov.cdc.dataprocessing.constant.elr.ELRConstant;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model.dt.EdxLabInformationDT;
-import gov.cdc.dataprocessing.model.classic_model.dto.*;
-import gov.cdc.dataprocessing.model.classic_model.vo.LabResultProxyVO;
-import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
+import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.*;
+import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
+import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
+import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
+import gov.cdc.dataprocessing.model.dto.person.PersonDto;
+import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
+import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 import gov.cdc.dataprocessing.service.interfaces.ICheckingValueService;
@@ -41,16 +47,16 @@ public class HL7PatientHandler {
      * - Patient Identification
      * - Patient Next of Kin
      * */
-    public LabResultProxyVO getPatientAndNextOfKin(
+    public LabResultProxyContainer getPatientAndNextOfKin(
             HL7PATIENTRESULTType hl7PatientResult,
-            LabResultProxyVO labResultProxyVO,
-            EdxLabInformationDT edxLabInformationDT) throws DataProcessingException {
+            LabResultProxyContainer labResultProxyContainer,
+            EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         try {
             if (hl7PatientResult != null && hl7PatientResult.getPATIENT() != null) {
                 // Processing Patient Identification
                 if (hl7PatientResult.getPATIENT().getPatientIdentification() != null) {
                     HL7PIDType patientInfo = hl7PatientResult.getPATIENT().getPatientIdentification();
-                    getPatient(patientInfo, labResultProxyVO, edxLabInformationDT);
+                    getPatient(patientInfo, labResultProxyContainer, edxLabInformationDto);
                 }
                 // Processing Next of kin
                 if (hl7PatientResult.getPATIENT().getNextofKinAssociatedParties() != null) {
@@ -58,7 +64,7 @@ public class HL7PatientHandler {
                     // Only need the first index
                     if (!hl7NK1TypeList.isEmpty()) {
                         HL7NK1Type hl7NK1Type = hl7NK1TypeList.get(0);
-                        getNextOfKinVO(hl7NK1Type, labResultProxyVO, edxLabInformationDT);
+                        getNextOfKinVO(hl7NK1Type, labResultProxyContainer, edxLabInformationDto);
                     }
                 }
 
@@ -69,57 +75,57 @@ public class HL7PatientHandler {
             logger.error("Exception thrown by HL7PatientProcessor.getPatientAndNextOfKin "+ e);
             throw new DataProcessingException("Exception thrown at HL7PatientProcessor.getPatientAndNextOfKin:"+ e.getMessage() + e);
         }
-        return labResultProxyVO;
+        return labResultProxyContainer;
     }
 
-    public LabResultProxyVO getPatient(HL7PIDType hl7PIDType,
-                                              LabResultProxyVO labResultProxyVO,
-                                              EdxLabInformationDT edxLabInformationDT) throws DataProcessingException {
+    public LabResultProxyContainer getPatient(HL7PIDType hl7PIDType,
+                                              LabResultProxyContainer labResultProxyContainer,
+                                              EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         try {
 
-            edxLabInformationDT.setRole(EdxELRConstant.ELR_PATIENT_CD);
-            PersonVO personVO = parseToPersonObject(labResultProxyVO, edxLabInformationDT);
+            edxLabInformationDto.setRole(EdxELRConstant.ELR_PATIENT_CD);
+            PersonContainer personContainer = parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
 
             // Setting Entity ID for Patient Identifier
             for (int i = 0; i < hl7PIDType.getPatientIdentifierList().size(); i++) {
                 HL7CXType hl7CXType = hl7PIDType.getPatientIdentifierList().get(i);
 
                 // Parsing Entity Id
-                EntityIdDT entityIdDT = EntityIdHandler.processEntityData(hl7CXType, personVO, null, i);
+                EntityIdDto entityIdDto = EntityIdHandler.processEntityData(hl7CXType, personContainer, null, i);
 
 
-                if( entityIdDT.getAssigningAuthorityIdType() == null) {
-                    entityIdDT.setAssigningAuthorityIdType(edxLabInformationDT.getUniversalIdType());
+                if( entityIdDto.getAssigningAuthorityIdType() == null) {
+                    entityIdDto.setAssigningAuthorityIdType(edxLabInformationDto.getUniversalIdType());
                 }
-                if( entityIdDT.getTypeCd()!=null &&  entityIdDT.getTypeCd().equals(EdxELRConstant.ELR_SS_TYPE)){
-                    String SSNNumberinit = entityIdDT.getRootExtensionTxt().replace("-", "");
+                if( entityIdDto.getTypeCd()!=null &&  entityIdDto.getTypeCd().equals(EdxELRConstant.ELR_SS_TYPE)){
+                    String SSNNumberinit = entityIdDto.getRootExtensionTxt().replace("-", "");
                     String SSNNumber =SSNNumberinit.replace(" ", "");
                     try {
                         if(SSNNumber.length()!=9) {
-                            edxLabInformationDT.setSsnInvalid(true);
+                            edxLabInformationDto.setSsnInvalid(true);
                         }
                         Integer.parseInt(SSNNumber);
                     }
                     catch (NumberFormatException e) {
-                        edxLabInformationDT.setSsnInvalid(true);
+                        edxLabInformationDto.setSsnInvalid(true);
                     }
-                    NBSObjectConverter.validateSSN(entityIdDT);
-                    personVO.getThePersonDT().setSSN(entityIdDT.getRootExtensionTxt());
+                    NBSObjectConverter.validateSSN(entityIdDto);
+                    personContainer.getThePersonDto().setSSN(entityIdDto.getRootExtensionTxt());
                 }
-                if(personVO.getTheEntityIdDTCollection()==null) {
-                    personVO.setTheEntityIdDTCollection(new ArrayList<>());
+                if(personContainer.getTheEntityIdDtoCollection()==null) {
+                    personContainer.setTheEntityIdDtoCollection(new ArrayList<>());
                 }
-                if(entityIdDT.getEntityUid()!=null) {
-                    personVO.getTheEntityIdDTCollection().add(entityIdDT);
+                if(entityIdDto.getEntityUid()!=null) {
+                    personContainer.getTheEntityIdDtoCollection().add(entityIdDto);
                 }
             }
 
             // Setup Participant for LabResult
-            if (labResultProxyVO.getTheParticipationDTCollection() == null) {
-                labResultProxyVO.setTheParticipationDTCollection(new ArrayList<>());
+            if (labResultProxyContainer.getTheParticipationDTCollection() == null) {
+                labResultProxyContainer.setTheParticipationDTCollection(new ArrayList<>());
             }
             ParticipationDT participationDT = new ParticipationDT();
-            participationDT.setSubjectEntityUid(personVO.getThePersonDT().getPersonUid());
+            participationDT.setSubjectEntityUid(personContainer.getThePersonDto().getPersonUid());
             participationDT.setItNew(true);
             participationDT.setItDirty(false);
             participationDT.setCd(EdxELRConstant.ELR_PATIENT_CD);
@@ -131,27 +137,27 @@ public class HL7PatientHandler {
             participationDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
 
             participationDT.setTypeDescTxt(EdxELRConstant.ELR_PATIENT_SUBJECT_DESC);
-            participationDT.setActUid(edxLabInformationDT.getRootObserbationUid());
+            participationDT.setActUid(edxLabInformationDto.getRootObserbationUid());
             participationDT.setActClassCd(EdxELRConstant.ELR_OBS);
-            labResultProxyVO.getTheParticipationDTCollection().add(participationDT);
+            labResultProxyContainer.getTheParticipationDTCollection().add(participationDT);
 
 
             // Setup Person
-            personVO.getThePersonDT().setAddReasonCd(EdxELRConstant.ELR_ADD_REASON_CD);
-            personVO.getThePersonDT().setCurrSexCd(hl7PIDType.getAdministrativeSex());
-            personVO.getThePersonDT().setElectronicInd(ELRConstant.ELECTRONIC_IND);
+            personContainer.getThePersonDto().setAddReasonCd(EdxELRConstant.ELR_ADD_REASON_CD);
+            personContainer.getThePersonDto().setCurrSexCd(hl7PIDType.getAdministrativeSex());
+            personContainer.getThePersonDto().setElectronicInd(ELRConstant.ELECTRONIC_IND);
 
             //Setup Person Lang
             var langList = hl7PIDType.getPrimaryLanguage();
             if (!langList.isEmpty()) {
                 var primaryLang = langList.get(0);
-                personVO.getThePersonDT().setPrimLangCd(primaryLang.getHL7Identifier());
-                personVO.getThePersonDT().setPrimLangDescTxt(primaryLang.getHL7Text());
+                personContainer.getThePersonDto().setPrimLangCd(primaryLang.getHL7Identifier());
+                personContainer.getThePersonDto().setPrimLangDescTxt(primaryLang.getHL7Text());
 
-                if (personVO.getThePersonDT().getPrimLangCd().equals("ENG")) {
-                    personVO.getThePersonDT().setSpeaksEnglishCd("Y");
+                if (personContainer.getThePersonDto().getPrimLangCd().equals("ENG")) {
+                    personContainer.getThePersonDto().setSpeaksEnglishCd("Y");
                 } else {
-                    personVO.getThePersonDT().setSpeaksEnglishCd("N");
+                    personContainer.getThePersonDto().setSpeaksEnglishCd("N");
                 }
             }
 
@@ -160,57 +166,57 @@ public class HL7PatientHandler {
             ElrXref elrXref = new ElrXref();
             String toCode = elrXref.getToCode();//CachedDropDowns.findToCode("ELR_LCA_SEX", personVO.getThePersonDT().getCurrSexCd(), "P_SEX");
             if (toCode != null && !toCode.trim().isEmpty()){
-                personVO.getThePersonDT().setCurrSexCd(toCode.trim());
-                edxLabInformationDT.setSexTranslated(true);
+                personContainer.getThePersonDto().setCurrSexCd(toCode.trim());
+                edxLabInformationDto.setSexTranslated(true);
             }else{
-                edxLabInformationDT.setSexTranslated(false);
+                edxLabInformationDto.setSexTranslated(false);
             }
 
             // Setup Person Birth Time
             if (hl7PIDType.getDateTimeOfBirth() != null) {
                 Timestamp timestamp = NBSObjectConverter.processHL7TSTypeForDOBWithoutTime(hl7PIDType.getDateTimeOfBirth());
-                personVO.getThePersonDT().setBirthTime(timestamp);
-                personVO.getThePersonDT().setBirthTimeCalc(timestamp);
+                personContainer.getThePersonDto().setBirthTime(timestamp);
+                personContainer.getThePersonDto().setBirthTimeCalc(timestamp);
             }
 
             // Setup Person Birth Place
             if(hl7PIDType.getBirthPlace()!=null && !hl7PIDType.getBirthPlace().trim().equals("")){
-                NBSObjectConverter.setPersonBirthType(hl7PIDType.getBirthPlace(), personVO);
+                NBSObjectConverter.setPersonBirthType(hl7PIDType.getBirthPlace(), personContainer);
             }
 
             // Setup Person Ethnic Group
-            Collection<PersonEthnicGroupDT> ethnicColl = new ArrayList<>();
+            Collection<PersonEthnicGroupDto> ethnicColl = new ArrayList<>();
             List<HL7CWEType> ethnicArray = hl7PIDType.getEthnicGroup();
             for (HL7CWEType ethnicType : ethnicArray) {
-                PersonEthnicGroupDT personEthnicGroupDT = NBSObjectConverter.ethnicGroupType(ethnicType, personVO);
+                PersonEthnicGroupDto personEthnicGroupDto = NBSObjectConverter.ethnicGroupType(ethnicType, personContainer);
                 //TODO: Call out to ElrXrefRepositoty
                 ElrXref elrXrefForEthnic = new ElrXref();
                 String ethnicGroupCd = elrXrefForEthnic.getToCode();
                 if (ethnicGroupCd != null && !ethnicGroupCd.trim().equals("")) {
-                    personEthnicGroupDT.setEthnicGroupCd(ethnicGroupCd);
+                    personEthnicGroupDto.setEthnicGroupCd(ethnicGroupCd);
                 }
-                if (personEthnicGroupDT.getEthnicGroupCd() != null && !personEthnicGroupDT.getEthnicGroupCd().trim().equals("")) {
-                    var map = checkingValueService.getCodedValues("P_ETHN_GRP", personEthnicGroupDT.getEthnicGroupCd());
-                    if (map.containsKey(personEthnicGroupDT.getEthnicGroupCd())) {
-                        edxLabInformationDT.setEthnicityCodeTranslated(false);
+                if (personEthnicGroupDto.getEthnicGroupCd() != null && !personEthnicGroupDto.getEthnicGroupCd().trim().equals("")) {
+                    var map = checkingValueService.getCodedValues("P_ETHN_GRP", personEthnicGroupDto.getEthnicGroupCd());
+                    if (map.containsKey(personEthnicGroupDto.getEthnicGroupCd())) {
+                        edxLabInformationDto.setEthnicityCodeTranslated(false);
                     }
                 }
-                if (personEthnicGroupDT.getEthnicGroupCd() != null
-                        && !personEthnicGroupDT.getEthnicGroupCd().trim().equals("")
+                if (personEthnicGroupDto.getEthnicGroupCd() != null
+                        && !personEthnicGroupDto.getEthnicGroupCd().trim().equals("")
                 ) {
-                    ethnicColl.add(personEthnicGroupDT);
-                    personVO.getThePersonDT().setEthnicGroupInd(personEthnicGroupDT.getEthnicGroupCd());
+                    ethnicColl.add(personEthnicGroupDto);
+                    personContainer.getThePersonDto().setEthnicGroupInd(personEthnicGroupDto.getEthnicGroupCd());
                 } else {
                     logger.info("Blank value recived for PID-22, Ethinicity");
                 }
-                personVO.setThePersonEthnicGroupDTCollection(ethnicColl);
+                personContainer.setThePersonEthnicGroupDtoCollection(ethnicColl);
             }
 
             // Setup person Martial Status
             HL7CEType maritalStatusType = hl7PIDType.getMaritalStatus();
             if(maritalStatusType!= null && maritalStatusType.getHL7Identifier()!=null){
-                personVO.getThePersonDT().setMaritalStatusCd(maritalStatusType.getHL7Identifier().toUpperCase());
-                personVO.getThePersonDT().setMaritalStatusDescTxt(maritalStatusType.getHL7Text());
+                personContainer.getThePersonDto().setMaritalStatusCd(maritalStatusType.getHL7Identifier().toUpperCase());
+                personContainer.getThePersonDto().setMaritalStatusDescTxt(maritalStatusType.getHL7Text());
             }
 
             // Setup Person Mothers
@@ -218,12 +224,12 @@ public class HL7PatientHandler {
                 for(int i=0; i < hl7PIDType.getMothersIdentifier().size(); i++){
                     HL7CXType hl7CXType = hl7PIDType.getMothersIdentifier().get(i);
                     int j = i;
-                    if(personVO.getTheEntityIdDTCollection()!=null ) {
-                        j= personVO.getTheEntityIdDTCollection().size();
+                    if(personContainer.getTheEntityIdDtoCollection()!=null ) {
+                        j= personContainer.getTheEntityIdDtoCollection().size();
                     }
-                    EntityIdDT entityIdDT = nbsObjectConverter.processEntityData(hl7CXType, personVO, EdxELRConstant.ELR_MOTHER_IDENTIFIER, j);
-                    if(entityIdDT.getEntityUid() != null) {
-                        personVO.getTheEntityIdDTCollection().add(entityIdDT);
+                    EntityIdDto entityIdDto = nbsObjectConverter.processEntityData(hl7CXType, personContainer, EdxELRConstant.ELR_MOTHER_IDENTIFIER, j);
+                    if(entityIdDto.getEntityUid() != null) {
+                        personContainer.getTheEntityIdDtoCollection().add(entityIdDto);
                     }
                 }
             }
@@ -242,29 +248,29 @@ public class HL7PatientHandler {
                 if(givenName!= null) {
                     motherMaidenNm =  motherMaidenNm + " " + givenName;
                 }
-                personVO.getThePersonDT().setMothersMaidenNm(motherMaidenNm.trim());
+                personContainer.getThePersonDto().setMothersMaidenNm(motherMaidenNm.trim());
             }
 
             //Setup Person Birth Order
             if(hl7PIDType.getBirthOrder()!=null && hl7PIDType.getBirthOrder().getHL7Numeric() != null) {
                 //TODO: double check this
                 // var val = Math.round((long) hl7PIDType.getBirthOrder().getHL7Numeric());
-                personVO.getThePersonDT().setBirthOrderNbr(hl7PIDType.getBirthOrder().getHL7Numeric().intValue());
+                personContainer.getThePersonDto().setBirthOrderNbr(hl7PIDType.getBirthOrder().getHL7Numeric().intValue());
             }
             if(hl7PIDType.getMultipleBirthIndicator()!=null){
-                personVO.getThePersonDT().setMultipleBirthInd(hl7PIDType.getMultipleBirthIndicator());
+                personContainer.getThePersonDto().setMultipleBirthInd(hl7PIDType.getMultipleBirthIndicator());
             }
 
 
             //Setup Person Account Number
             if(hl7PIDType.getPatientAccountNumber()!=null){
                 int j = 1;
-                if(personVO.getTheEntityIdDTCollection()!=null ) {
-                    j= personVO.getTheEntityIdDTCollection().size();
+                if(personContainer.getTheEntityIdDtoCollection()!=null ) {
+                    j= personContainer.getTheEntityIdDtoCollection().size();
                 }
-                EntityIdDT entityIdDT = nbsObjectConverter.processEntityData(hl7PIDType.getPatientAccountNumber(), personVO, EdxELRConstant.ELR_ACCOUNT_IDENTIFIER, j);
-                if(entityIdDT.getEntityUid() != null) {
-                    personVO.getTheEntityIdDTCollection().add(entityIdDT);
+                EntityIdDto entityIdDto = nbsObjectConverter.processEntityData(hl7PIDType.getPatientAccountNumber(), personContainer, EdxELRConstant.ELR_ACCOUNT_IDENTIFIER, j);
+                if(entityIdDto.getEntityUid() != null) {
+                    personContainer.getTheEntityIdDtoCollection().add(entityIdDto);
                 }
             }
 
@@ -274,19 +280,19 @@ public class HL7PatientHandler {
 
             if (!addressArray.isEmpty()) {
                 HL7XADType addressType = addressArray.get(0);
-                nbsObjectConverter.personAddressType(addressType, EdxELRConstant.ELR_PATIENT_CD, personVO);
+                nbsObjectConverter.personAddressType(addressType, EdxELRConstant.ELR_PATIENT_CD, personContainer);
             }
             //Setup Person Deceased Status
-            personVO.getThePersonDT().setDeceasedIndCd(hl7PIDType.getPatientDeathIndicator());
+            personContainer.getThePersonDto().setDeceasedIndCd(hl7PIDType.getPatientDeathIndicator());
             if (hl7PIDType.getPatientDeathDateAndTime() != null) {
-                personVO.getThePersonDT().setDeceasedTime(NBSObjectConverter.processHL7TSType(hl7PIDType
+                personContainer.getThePersonDto().setDeceasedTime(NBSObjectConverter.processHL7TSType(hl7PIDType
                                 .getPatientDeathDateAndTime(), EdxELRConstant.DATE_VALIDATION_PATIENT_DEATH_DATE_AND_TIME_MSG));
             }
 
             //Setup Person Names
             List<HL7XPNType> nameArray = hl7PIDType.getPatientName();
             for (HL7XPNType hl7XPNType : nameArray) {
-                nbsObjectConverter.mapPersonNameType(hl7XPNType, personVO);
+                nbsObjectConverter.mapPersonNameType(hl7XPNType, personContainer);
             }
 
             //Setup Person Business Phone Number
@@ -294,7 +300,7 @@ public class HL7PatientHandler {
                 List<HL7XTNType> phoneBusinessArray = hl7PIDType.getPhoneNumberBusiness();
                 if (phoneBusinessArray != null && !phoneBusinessArray.isEmpty()) {
                     HL7XTNType phoneType = phoneBusinessArray.get(0);
-                    EntityLocatorParticipationDT elpDT = NBSObjectConverter.personTelePhoneType(phoneType, EdxELRConstant.ELR_PATIENT_CD, personVO);
+                    EntityLocatorParticipationDto elpDT = NBSObjectConverter.personTelePhoneType(phoneType, EdxELRConstant.ELR_PATIENT_CD, personContainer);
                     elpDT.setUseCd(NEDSSConstant.WORK_PHONE);
                     addressCollection.add(elpDT);
                 }
@@ -305,7 +311,7 @@ public class HL7PatientHandler {
                 List<HL7XTNType> phoneHomeArray = hl7PIDType.getPhoneNumberHome();
                 if (!phoneHomeArray.isEmpty()) {
                     HL7XTNType phoneType = phoneHomeArray.get(0);
-                    EntityLocatorParticipationDT elpDT = NBSObjectConverter.personTelePhoneType(phoneType, EdxELRConstant.ELR_PATIENT_CD, personVO);
+                    EntityLocatorParticipationDto elpDT = NBSObjectConverter.personTelePhoneType(phoneType, EdxELRConstant.ELR_PATIENT_CD, personContainer);
                     elpDT.setUseCd(NEDSSConstant.HOME);
                     addressCollection.add(elpDT);
                 }
@@ -313,13 +319,13 @@ public class HL7PatientHandler {
 
             //Setup Person Race
             if(hl7PIDType.getRace() != null){
-                Collection<PersonRaceDT> raceColl = new ArrayList<>();
+                Collection<PersonRaceDto> raceColl = new ArrayList<>();
                 List<HL7CWEType> raceArray = hl7PIDType.getRace();
-                PersonRaceDT raceDT;
+                PersonRaceDto raceDT;
                 for (HL7CWEType hl7CWEType : raceArray) {
                     try {
-                        raceDT = NBSObjectConverter.raceType(hl7CWEType, personVO);
-                        raceDT.setPersonUid(personVO.getThePersonDT().getPersonUid());
+                        raceDT = NBSObjectConverter.raceType(hl7CWEType, personContainer);
+                        raceDT.setPersonUid(personContainer.getThePersonDto().getPersonUid());
                         //TODO: Call out to ElrXrefRepositoty
                         ElrXref elrXrefForRace = new ElrXref();
                         String newRaceCat = elrXrefForRace.getToCode();//CachedDropDowns.findToCode("ELR_LCA_RACE", raceDT.getRaceCategoryCd(), "P_RACE_CAT");
@@ -329,7 +335,7 @@ public class HL7PatientHandler {
                         }
                         var codeMap = SrteCache.raceCodesMap;
                         if (!codeMap.containsKey(raceDT.getRaceCd())) {
-                            edxLabInformationDT.setRaceTranslated(false);
+                            edxLabInformationDto.setRaceTranslated(false);
                         }
                         raceColl.add(raceDT);
                     } catch (Exception e) {
@@ -338,13 +344,13 @@ public class HL7PatientHandler {
                                 "Exception thrown at HL7PatientProcessor.getPatientVO getting race information:" + e);
                     }// end of catch
                 }
-                personVO.setThePersonRaceDTCollection(raceColl);
+                personContainer.setThePersonRaceDtoCollection(raceColl);
             }
 
-            if(labResultProxyVO.getThePersonVOCollection()==null){
-                labResultProxyVO.setThePersonVOCollection(new ArrayList<PersonVO>());
+            if(labResultProxyContainer.getThePersonContainerCollection()==null){
+                labResultProxyContainer.setThePersonContainerCollection(new ArrayList<PersonContainer>());
             }
-            labResultProxyVO.getThePersonVOCollection().add(personVO);
+            labResultProxyContainer.getThePersonContainerCollection().add(personContainer);
 
 
         } catch (Exception e) {
@@ -352,7 +358,7 @@ public class HL7PatientHandler {
             throw new DataProcessingException("Exception thrown at HL7PatientProcessor.getPatientVO:"+ e.getMessage() + e);
         }
 
-        return labResultProxyVO;
+        return labResultProxyContainer;
     }
 
     /**
@@ -360,201 +366,201 @@ public class HL7PatientHandler {
      *  - Person Object
      *  - Role Object (part of Lab Result, this is a list)
      * */
-    public static PersonVO parseToPersonObject(LabResultProxyVO labResultProxyVO, EdxLabInformationDT edxLabInformationDT) throws DataProcessingException {
-        PersonVO personVO = new PersonVO();
+    public static PersonContainer parseToPersonObject(LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
+        PersonContainer personContainer = new PersonContainer();
         try {
-            PersonDT personDT = personVO.getThePersonDT();
-            personVO.getThePersonDT().setElectronicInd(ELRConstant.ELECTRONIC_IND);
+            PersonDto personDto = personContainer.getThePersonDto();
+            personContainer.getThePersonDto().setElectronicInd(ELRConstant.ELECTRONIC_IND);
 
             // Check patient object ROLE: PAT, NOK, PROVIDER
             // Then parsing data to PersonVO and DTO
-            if (edxLabInformationDT.getRole().equalsIgnoreCase(NEDSSConstant.PAT) ) {
-                personVO.getThePersonDT().setCd(NEDSSConstant.PAT);
-                personDT.setCd(EdxELRConstant.ELR_PATIENT_CD);
-                personDT.setCdDescTxt(EdxELRConstant.ELR_PATIENT_DESC);
-                personDT.setPersonUid(edxLabInformationDT.getPatientUid());
-            } else if (edxLabInformationDT.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)){
-                personVO.setRole(EdxELRConstant.ELR_NEXT_OF_KIN);
-                personDT.setCd(EdxELRConstant.ELR_PATIENT_CD);
-                personDT.setCdDescTxt(EdxELRConstant.ELR_NOK_DESC);
-                personDT.setPersonUid((long) edxLabInformationDT.getNextUid());
+            if (edxLabInformationDto.getRole().equalsIgnoreCase(NEDSSConstant.PAT) ) {
+                personContainer.getThePersonDto().setCd(NEDSSConstant.PAT);
+                personDto.setCd(EdxELRConstant.ELR_PATIENT_CD);
+                personDto.setCdDescTxt(EdxELRConstant.ELR_PATIENT_DESC);
+                personDto.setPersonUid(edxLabInformationDto.getPatientUid());
+            } else if (edxLabInformationDto.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)){
+                personContainer.setRole(EdxELRConstant.ELR_NEXT_OF_KIN);
+                personDto.setCd(EdxELRConstant.ELR_PATIENT_CD);
+                personDto.setCdDescTxt(EdxELRConstant.ELR_NOK_DESC);
+                personDto.setPersonUid((long) edxLabInformationDto.getNextUid());
             } else {
-                personVO.getThePersonDT().setCd(EdxELRConstant.ELR_PROVIDER_CD);
-                personDT.setCd(EdxELRConstant.ELR_PROVIDER_CD);
-                personDT.setCdDescTxt(EdxELRConstant.ELR_PROVIDER_DESC);
-                personDT.setPersonUid((long)edxLabInformationDT.getNextUid());
+                personContainer.getThePersonDto().setCd(EdxELRConstant.ELR_PROVIDER_CD);
+                personDto.setCd(EdxELRConstant.ELR_PROVIDER_CD);
+                personDto.setCdDescTxt(EdxELRConstant.ELR_PROVIDER_DESC);
+                personDto.setPersonUid((long) edxLabInformationDto.getNextUid());
             }
 
-            personVO.setItDirty(false);
-            personVO.getThePersonDT().setItNew(true);
-            personVO.getThePersonDT().setItDirty(false);
-            personVO.setItNew(true);
+            personContainer.setItDirty(false);
+            personContainer.getThePersonDto().setItNew(true);
+            personContainer.getThePersonDto().setItDirty(false);
+            personContainer.setItNew(true);
 
-            personVO.getThePersonDT().setVersionCtrlNbr(1);
-            personVO.getThePersonDT().setItNew(true);
-            personVO.getThePersonDT().setLastChgTime(edxLabInformationDT.getAddTime());
-            personVO.getThePersonDT().setAddTime(edxLabInformationDT.getAddTime());
-            personVO.getThePersonDT().setLastChgUserId(edxLabInformationDT.getUserId());
-            personVO.getThePersonDT().setAddUserId(edxLabInformationDT.getUserId());
-            personVO.getThePersonDT().setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
-            personVO.getThePersonDT().setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
-            personVO.getThePersonDT().setStatusTime(personVO.getThePersonDT().getLastChgTime());
+            personContainer.getThePersonDto().setVersionCtrlNbr(1);
+            personContainer.getThePersonDto().setItNew(true);
+            personContainer.getThePersonDto().setLastChgTime(edxLabInformationDto.getAddTime());
+            personContainer.getThePersonDto().setAddTime(edxLabInformationDto.getAddTime());
+            personContainer.getThePersonDto().setLastChgUserId(edxLabInformationDto.getUserId());
+            personContainer.getThePersonDto().setAddUserId(edxLabInformationDto.getUserId());
+            personContainer.getThePersonDto().setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
+            personContainer.getThePersonDto().setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
+            personContainer.getThePersonDto().setStatusTime(personContainer.getThePersonDto().getLastChgTime());
 
-            personDT.setLastChgTime(edxLabInformationDT.getAddTime());
-            personDT.setLastChgUserId(edxLabInformationDT.getUserId());
-            personDT.setAsOfDateAdmin(edxLabInformationDT.getAddTime());
-            personDT.setAsOfDateEthnicity(edxLabInformationDT.getAddTime());
-            personDT.setAsOfDateGeneral(edxLabInformationDT.getAddTime());
-            personDT.setAsOfDateMorbidity(edxLabInformationDT.getAddTime());
-            personDT.setAsOfDateSex(edxLabInformationDT.getAddTime());
-            personDT.setAddTime(edxLabInformationDT.getAddTime());
-            personDT.setAddUserId(edxLabInformationDT.getUserId());
+            personDto.setLastChgTime(edxLabInformationDto.getAddTime());
+            personDto.setLastChgUserId(edxLabInformationDto.getUserId());
+            personDto.setAsOfDateAdmin(edxLabInformationDto.getAddTime());
+            personDto.setAsOfDateEthnicity(edxLabInformationDto.getAddTime());
+            personDto.setAsOfDateGeneral(edxLabInformationDto.getAddTime());
+            personDto.setAsOfDateMorbidity(edxLabInformationDto.getAddTime());
+            personDto.setAsOfDateSex(edxLabInformationDto.getAddTime());
+            personDto.setAddTime(edxLabInformationDto.getAddTime());
+            personDto.setAddUserId(edxLabInformationDto.getUserId());
 
 
             // Parsing to ROLE Object
-            RoleDT roleDT = new RoleDT();
-            roleDT.setSubjectEntityUid(personDT.getPersonUid());
-            roleDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
+            RoleDto roleDto = new RoleDto();
+            roleDto.setSubjectEntityUid(personDto.getPersonUid());
+            roleDto.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
             boolean addRole= false;
 
-            if (edxLabInformationDT.getRole().equalsIgnoreCase(NEDSSConstant.PAT)) {
-                roleDT.setCd(NEDSSConstant.PAT);
-                roleDT.setCdDescTxt(EdxELRConstant.ELR_PATIENT);
-                roleDT.setSubjectClassCd(EdxELRConstant.ELR_PATIENT);
+            if (edxLabInformationDto.getRole().equalsIgnoreCase(NEDSSConstant.PAT)) {
+                roleDto.setCd(NEDSSConstant.PAT);
+                roleDto.setCdDescTxt(EdxELRConstant.ELR_PATIENT);
+                roleDto.setSubjectClassCd(EdxELRConstant.ELR_PATIENT);
                 addRole= true;
             }
-            else if (edxLabInformationDT.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
-                roleDT.setSubjectClassCd(EdxELRConstant.ELR_CON);
-                if(edxLabInformationDT.getRelationship()!=null) {
-                    roleDT.setCd(edxLabInformationDT.getRelationship());
+            else if (edxLabInformationDto.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
+                roleDto.setSubjectClassCd(EdxELRConstant.ELR_CON);
+                if(edxLabInformationDto.getRelationship()!=null) {
+                    roleDto.setCd(edxLabInformationDto.getRelationship());
                 }
                 else {
-                    roleDT.setCd(EdxELRConstant.ELR_NEXT_F_KIN_ROLE_CD);
+                    roleDto.setCd(EdxELRConstant.ELR_NEXT_F_KIN_ROLE_CD);
                 }
-                if(edxLabInformationDT.getRelationshipDesc()!=null) {
-                    roleDT.setCdDescTxt(edxLabInformationDT.getRelationshipDesc());
+                if(edxLabInformationDto.getRelationshipDesc()!=null) {
+                    roleDto.setCdDescTxt(edxLabInformationDto.getRelationshipDesc());
                 }
                 else {
-                    roleDT.setCdDescTxt(EdxELRConstant.ELR_NEXT_F_KIN_ROLE_DESC);
+                    roleDto.setCdDescTxt(EdxELRConstant.ELR_NEXT_F_KIN_ROLE_DESC);
                 }
-                roleDT.setScopingRoleSeq(1);
-                roleDT.setScopingEntityUid(edxLabInformationDT.getPatientUid());
-                roleDT.setScopingClassCd(EdxELRConstant.ELR_PATIENT_CD);
-                roleDT.setScopingRoleCd(EdxELRConstant.ELR_PATIENT_CD);
+                roleDto.setScopingRoleSeq(1);
+                roleDto.setScopingEntityUid(edxLabInformationDto.getPatientUid());
+                roleDto.setScopingClassCd(EdxELRConstant.ELR_PATIENT_CD);
+                roleDto.setScopingRoleCd(EdxELRConstant.ELR_PATIENT_CD);
                 addRole= true;
             }
-            else if (edxLabInformationDT.getRole().equalsIgnoreCase(EdxELRConstant.ELR_SPECIMEN_PROCURER_CD)) {
-                roleDT.setCd(EdxELRConstant.ELR_SPECIMEN_PROCURER_CD);
-                roleDT.setSubjectClassCd(EdxELRConstant.ELR_PROVIDER_CD);
-                roleDT.setCdDescTxt(EdxELRConstant.ELR_SPECIMEN_PROCURER_DESC);
-                roleDT.setScopingClassCd(EdxELRConstant.ELR_PATIENT_CD);
-                roleDT.setScopingRoleCd(EdxELRConstant.ELR_PATIENT_CD);
-                roleDT.setScopingEntityUid(edxLabInformationDT.getPatientUid());
-                roleDT.setScopingRoleSeq(1);
+            else if (edxLabInformationDto.getRole().equalsIgnoreCase(EdxELRConstant.ELR_SPECIMEN_PROCURER_CD)) {
+                roleDto.setCd(EdxELRConstant.ELR_SPECIMEN_PROCURER_CD);
+                roleDto.setSubjectClassCd(EdxELRConstant.ELR_PROVIDER_CD);
+                roleDto.setCdDescTxt(EdxELRConstant.ELR_SPECIMEN_PROCURER_DESC);
+                roleDto.setScopingClassCd(EdxELRConstant.ELR_PATIENT_CD);
+                roleDto.setScopingRoleCd(EdxELRConstant.ELR_PATIENT_CD);
+                roleDto.setScopingEntityUid(edxLabInformationDto.getPatientUid());
+                roleDto.setScopingRoleSeq(1);
                 addRole= true;
             }
-            else if (edxLabInformationDT.getRole().equalsIgnoreCase(EdxELRConstant.ELR_LAB_PROVIDER_CD) ||
-                    edxLabInformationDT.getRole().equalsIgnoreCase(EdxELRConstant.ELR_LAB_VERIFIER_CD)||
-                    edxLabInformationDT.getRole().equalsIgnoreCase(EdxELRConstant.ELR_LAB_ASSISTANT_CD) ||
-                    edxLabInformationDT.getRole().equalsIgnoreCase(EdxELRConstant.ELR_LAB_PERFORMER_CD) ||
-                    edxLabInformationDT.getRole().equalsIgnoreCase(EdxELRConstant.ELR_LAB_ENTERER_CD)
+            else if (edxLabInformationDto.getRole().equalsIgnoreCase(EdxELRConstant.ELR_LAB_PROVIDER_CD) ||
+                    edxLabInformationDto.getRole().equalsIgnoreCase(EdxELRConstant.ELR_LAB_VERIFIER_CD)||
+                    edxLabInformationDto.getRole().equalsIgnoreCase(EdxELRConstant.ELR_LAB_ASSISTANT_CD) ||
+                    edxLabInformationDto.getRole().equalsIgnoreCase(EdxELRConstant.ELR_LAB_PERFORMER_CD) ||
+                    edxLabInformationDto.getRole().equalsIgnoreCase(EdxELRConstant.ELR_LAB_ENTERER_CD)
                 )
             {
-                roleDT.setCd(EdxELRConstant.ELR_LAB_PROVIDER_CD);
-                roleDT.setSubjectClassCd(EdxELRConstant.ELR_PROVIDER_CD);
-                roleDT.setCdDescTxt(EdxELRConstant.ELR_LAB_PROVIDER_DESC);
-                roleDT.setScopingClassCd(EdxELRConstant.ELR_PATIENT_CD);
-                roleDT.setScopingRoleCd(EdxELRConstant.ELR_PATIENT_CD);
-                roleDT.setScopingEntityUid(edxLabInformationDT.getPatientUid());
-                roleDT.setScopingRoleSeq(1);
+                roleDto.setCd(EdxELRConstant.ELR_LAB_PROVIDER_CD);
+                roleDto.setSubjectClassCd(EdxELRConstant.ELR_PROVIDER_CD);
+                roleDto.setCdDescTxt(EdxELRConstant.ELR_LAB_PROVIDER_DESC);
+                roleDto.setScopingClassCd(EdxELRConstant.ELR_PATIENT_CD);
+                roleDto.setScopingRoleCd(EdxELRConstant.ELR_PATIENT_CD);
+                roleDto.setScopingEntityUid(edxLabInformationDto.getPatientUid());
+                roleDto.setScopingRoleSeq(1);
                 addRole= true;
             }
-            else if (edxLabInformationDT.getRole().equalsIgnoreCase(EdxELRConstant.ELR_OP_CD)) {
-                roleDT.setCd(EdxELRConstant.ELR_OP_CD);
-                roleDT.setSubjectClassCd(EdxELRConstant.ELR_PROVIDER_CD);
-                roleDT.setCdDescTxt(EdxELRConstant.ELR_OP_DESC);
-                roleDT.setScopingClassCd(EdxELRConstant.ELR_PATIENT_CD);
-                roleDT.setScopingRoleCd(EdxELRConstant.ELR_PATIENT_CD);
-                roleDT.setScopingRoleSeq(1);
-                roleDT.setScopingEntityUid(edxLabInformationDT.getPatientUid());
-                roleDT.setScopingRoleSeq(1);
+            else if (edxLabInformationDto.getRole().equalsIgnoreCase(EdxELRConstant.ELR_OP_CD)) {
+                roleDto.setCd(EdxELRConstant.ELR_OP_CD);
+                roleDto.setSubjectClassCd(EdxELRConstant.ELR_PROVIDER_CD);
+                roleDto.setCdDescTxt(EdxELRConstant.ELR_OP_DESC);
+                roleDto.setScopingClassCd(EdxELRConstant.ELR_PATIENT_CD);
+                roleDto.setScopingRoleCd(EdxELRConstant.ELR_PATIENT_CD);
+                roleDto.setScopingRoleSeq(1);
+                roleDto.setScopingEntityUid(edxLabInformationDto.getPatientUid());
+                roleDto.setScopingRoleSeq(1);
                 addRole= true;
             }
-            else if (edxLabInformationDT.getRole().equalsIgnoreCase(EdxELRConstant.ELR_COPY_TO_CD)) {
-                roleDT.setCd(EdxELRConstant.ELR_COPY_TO_CD);
-                roleDT.setSubjectClassCd(EdxELRConstant.ELR_PROV_CD);
-                roleDT.setCdDescTxt(EdxELRConstant.ELR_COPY_TO_DESC);
-                roleDT.setScopingClassCd(EdxELRConstant.ELR_PATIENT_CD);
-                roleDT.setScopingRoleCd(EdxELRConstant.ELR_PATIENT_CD);
-                roleDT.setScopingRoleSeq(1);
-                roleDT.setScopingEntityUid(edxLabInformationDT.getPatientUid());
-                roleDT.setScopingRoleSeq(1);
+            else if (edxLabInformationDto.getRole().equalsIgnoreCase(EdxELRConstant.ELR_COPY_TO_CD)) {
+                roleDto.setCd(EdxELRConstant.ELR_COPY_TO_CD);
+                roleDto.setSubjectClassCd(EdxELRConstant.ELR_PROV_CD);
+                roleDto.setCdDescTxt(EdxELRConstant.ELR_COPY_TO_DESC);
+                roleDto.setScopingClassCd(EdxELRConstant.ELR_PATIENT_CD);
+                roleDto.setScopingRoleCd(EdxELRConstant.ELR_PATIENT_CD);
+                roleDto.setScopingRoleSeq(1);
+                roleDto.setScopingEntityUid(edxLabInformationDto.getPatientUid());
+                roleDto.setScopingRoleSeq(1);
                 addRole= true;
             }
 
-            roleDT.setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
-            roleDT.setAddReasonCd(EdxELRConstant.ELR_ADD_REASON_CD);
-            roleDT.setRoleSeq(1L);
-            roleDT.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
-            roleDT.setSubjectEntityUid(personDT.getPersonUid());
-            roleDT.setItNew(true);
-            roleDT.setItDirty(false);
+            roleDto.setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
+            roleDto.setAddReasonCd(EdxELRConstant.ELR_ADD_REASON_CD);
+            roleDto.setRoleSeq(1L);
+            roleDto.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
+            roleDto.setSubjectEntityUid(personDto.getPersonUid());
+            roleDto.setItNew(true);
+            roleDto.setItDirty(false);
 
             if(addRole){
-                labResultProxyVO.getTheRoleDTCollection().add(roleDT);
+                labResultProxyContainer.getTheRoleDtoCollection().add(roleDto);
             }
 
         } catch (Exception e) {
             logger.error("Exception thrown by HL7ORCProcessor.personVO " + e);
             throw new DataProcessingException("Exception thrown at HL7PatientProcessor.personVO:"+ e);
         }
-        return personVO;
+        return personContainer;
     }
 
 
-    public LabResultProxyVO getNextOfKinVO(HL7NK1Type hl7NK1Type,
-                                                  LabResultProxyVO labResultProxyVO,
-                                                  EdxLabInformationDT edxLabInformationDT) throws DataProcessingException {
+    public LabResultProxyContainer getNextOfKinVO(HL7NK1Type hl7NK1Type,
+                                                  LabResultProxyContainer labResultProxyContainer,
+                                                  EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         try {
-            edxLabInformationDT.setRole(EdxELRConstant.ELR_NEXT_OF_KIN);
+            edxLabInformationDto.setRole(EdxELRConstant.ELR_NEXT_OF_KIN);
             if(hl7NK1Type.getRelationship()!=null){
-                edxLabInformationDT.setRelationship(hl7NK1Type.getRelationship().getHL7Identifier());
-                String desc= checkingValueService.getCodeDescTxtForCd(edxLabInformationDT.getRelationship(), EdxELRConstant.ELR_NEXT_OF_KIN_RL_CLASS);
+                edxLabInformationDto.setRelationship(hl7NK1Type.getRelationship().getHL7Identifier());
+                String desc= checkingValueService.getCodeDescTxtForCd(edxLabInformationDto.getRelationship(), EdxELRConstant.ELR_NEXT_OF_KIN_RL_CLASS);
                 if(desc!=null && desc.trim().length()>0 && hl7NK1Type.getRelationship().getHL7Text()==null) {
-                    edxLabInformationDT.setRelationshipDesc(desc);
+                    edxLabInformationDto.setRelationshipDesc(desc);
                 }
                 else if(hl7NK1Type.getRelationship().getHL7Text()!=null) {
-                    edxLabInformationDT.setRelationshipDesc(hl7NK1Type.getRelationship().getHL7Text());
+                    edxLabInformationDto.setRelationshipDesc(hl7NK1Type.getRelationship().getHL7Text());
                 }
             }
-            PersonVO personVO = parseToPersonObject(labResultProxyVO,edxLabInformationDT);
+            PersonContainer personContainer = parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
 
             List<HL7XADType> addressArray = hl7NK1Type.getAddress();
             Collection<Object> addressCollection = new ArrayList<Object>();
             if (!addressArray.isEmpty()) {
                 HL7XADType addressType = addressArray.get(0);
-                nbsObjectConverter.personAddressType(addressType, EdxELRConstant.ELR_NEXT_OF_KIN, personVO);
+                nbsObjectConverter.personAddressType(addressType, EdxELRConstant.ELR_NEXT_OF_KIN, personContainer);
             }
 
             List<HL7XPNType> nameArray = hl7NK1Type.getName();
             if (!nameArray.isEmpty()) {
                 HL7XPNType hl7XPNType = nameArray.get(0);
-                nbsObjectConverter.mapPersonNameType(hl7XPNType, personVO);
+                nbsObjectConverter.mapPersonNameType(hl7XPNType, personContainer);
             }
 
             List<HL7XTNType> phoneHomeArray = hl7NK1Type.getPhoneNumber();
             if (!phoneHomeArray.isEmpty()) {
                 HL7XTNType phoneType = phoneHomeArray.get(0);
-                EntityLocatorParticipationDT elpDT = NBSObjectConverter.personTelePhoneType(phoneType, EdxELRConstant.ELR_NEXT_OF_KIN, personVO);
+                EntityLocatorParticipationDto elpDT = NBSObjectConverter.personTelePhoneType(phoneType, EdxELRConstant.ELR_NEXT_OF_KIN, personContainer);
                 addressCollection.add(elpDT);
             }
-            labResultProxyVO.getThePersonVOCollection().add(personVO);
+            labResultProxyContainer.getThePersonContainerCollection().add(personContainer);
         } catch (Exception e) {
             logger.error("Exception thrown by HL7PatientProcessor.getNextOfKinVO "
                     + e);
             throw new DataProcessingException("Exception thrown at HL7PatientProcessor.getNextOfKinVO:"+ e);
         }
-        return labResultProxyVO;
+        return labResultProxyContainer;
     }
 
 }

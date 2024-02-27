@@ -1,12 +1,10 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.person;
 
-import gov.cdc.dataprocessing.model.classic_model.dto.PersonEthnicGroupDT;
+import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.PersonEthnicGroupId;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.PersonNameId;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
@@ -58,26 +56,26 @@ public class PersonEthnicGroup {
     public PersonEthnicGroup() {
 
     }
-    public PersonEthnicGroup(PersonEthnicGroupDT personEthnicGroupDT) {
+    public PersonEthnicGroup(PersonEthnicGroupDto personEthnicGroupDto) {
         LocalDateTime currentTime = LocalDateTime.now();
         Timestamp currentTimestamp = Timestamp.valueOf(currentTime);
 
-        if (personEthnicGroupDT.getAddUserId() == null) {
+        if (personEthnicGroupDto.getAddUserId() == null) {
             this.addUserId = 123L;
         } else {
-            this.addUserId = personEthnicGroupDT.getAddUserId();
+            this.addUserId = personEthnicGroupDto.getAddUserId();
         }
-        this.personUid = personEthnicGroupDT.getPersonUid();
-        this.ethnicGroupCd = personEthnicGroupDT.getEthnicGroupCd();
-        this.addReasonCd = personEthnicGroupDT.getAddReasonCd();
+        this.personUid = personEthnicGroupDto.getPersonUid();
+        this.ethnicGroupCd = personEthnicGroupDto.getEthnicGroupCd();
+        this.addReasonCd = personEthnicGroupDto.getAddReasonCd();
         this.addTime = currentTimestamp;
-        this.ethnicGroupDescTxt = personEthnicGroupDT.getEthnicGroupDescTxt();
-        this.lastChgReasonCd = personEthnicGroupDT.getLastChgReasonCd();
+        this.ethnicGroupDescTxt = personEthnicGroupDto.getEthnicGroupDescTxt();
+        this.lastChgReasonCd = personEthnicGroupDto.getLastChgReasonCd();
         this.lastChgTime =  currentTimestamp;
-        this.lastChgUserId = personEthnicGroupDT.getLastChgUserId();
-        this.recordStatusCd = personEthnicGroupDT.getRecordStatusCd();
+        this.lastChgUserId = personEthnicGroupDto.getLastChgUserId();
+        this.recordStatusCd = personEthnicGroupDto.getRecordStatusCd();
         this.recordStatusTime =  currentTimestamp;
-        this.userAffiliationTxt = personEthnicGroupDT.getUserAffiliationTxt();
+        this.userAffiliationTxt = personEthnicGroupDto.getUserAffiliationTxt();
     }
 
 }

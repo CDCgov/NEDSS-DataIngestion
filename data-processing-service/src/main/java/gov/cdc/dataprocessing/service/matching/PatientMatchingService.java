@@ -3,8 +3,9 @@ package gov.cdc.dataprocessing.service.matching;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model.dto.*;
-import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
+import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
+import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.service.core.CheckingValueService;
 import gov.cdc.dataprocessing.service.interfaces.IPatientMatchingService;
 import gov.cdc.dataprocessing.service.matching.base.PatientMatchingBaseService;
@@ -33,22 +34,22 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
     }
 
     @Transactional
-    public EdxPatientMatchDT getMatchingPatient(PersonVO personVO) throws DataProcessingException {
-        Long patientUid = personVO.getThePersonDT().getPersonUid();
-        String cd = personVO.getThePersonDT().getCd();
-        String patientRole = personVO.getRole();
-        EdxPatientMatchDT edxPatientFoundDT;
-        EdxPatientMatchDT edxPatientMatchFoundDT = null;
+    public EdxPatientMatchDto getMatchingPatient(PersonContainer personContainer) throws DataProcessingException {
+        Long patientUid = personContainer.getThePersonDto().getPersonUid();
+        String cd = personContainer.getThePersonDto().getCd();
+        String patientRole = personContainer.getRole();
+        EdxPatientMatchDto edxPatientFoundDT;
+        EdxPatientMatchDto edxPatientMatchFoundDT = null;
         PersonId patientPersonUid;
         boolean matchFound = false;
 
         boolean newPatientCreationApplied = false;
 
         if (patientRole == null || patientRole.isEmpty() || patientRole.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_ROLE_CD)) {
-            EdxPatientMatchDT localIdHashCode;
+            EdxPatientMatchDto localIdHashCode;
             String localId;
             int localIdhshCd = 0;
-            localId = getLocalId(personVO);
+            localId = getLocalId(personContainer);
             if (localId != null) {
                 localId = localId.toUpperCase();
                 localIdhshCd = localId.hashCode();
@@ -71,7 +72,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
             }
 
             if (localId != null) {
-                localIdHashCode = new EdxPatientMatchDT();
+                localIdHashCode = new EdxPatientMatchDto();
                 localIdHashCode.setTypeCd(NEDSSConstant.PAT);
                 localIdHashCode.setMatchString(localId);
                 localIdHashCode.setMatchStringHashCode((long) localIdhshCd);
@@ -82,7 +83,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
                 String IdentifierStr = null;
                 int identifierStrhshCd = 0;
 
-                List identifierStrList = getIdentifier(personVO);
+                List identifierStrList = getIdentifier(personContainer);
                 if (identifierStrList != null && !identifierStrList.isEmpty()) {
                     for (int k = 0; k < identifierStrList.size(); k++) {
                         IdentifierStr = (String) identifierStrList.get(k);
@@ -92,7 +93,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
                         }
 
                         if (IdentifierStr != null) {
-                            edxPatientFoundDT = new EdxPatientMatchDT();
+                            edxPatientFoundDT = new EdxPatientMatchDto();
                             edxPatientFoundDT.setTypeCd(NEDSSConstant.PAT);
                             edxPatientFoundDT.setMatchString(IdentifierStr);
                             edxPatientFoundDT.setMatchStringHashCode((long) identifierStrhshCd);
@@ -117,13 +118,13 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
             if (!matchFound) {
                 String namesdobcursexStr = null;
                 int namesdobcursexStrhshCd = 0;
-                namesdobcursexStr = getLNmFnmDobCurSexStr(personVO);
+                namesdobcursexStr = getLNmFnmDobCurSexStr(personContainer);
                 if (namesdobcursexStr != null) {
                     namesdobcursexStr = namesdobcursexStr.toUpperCase();
                     namesdobcursexStrhshCd = namesdobcursexStr.hashCode();
                     try {
                         if (namesdobcursexStr != null) {
-                            edxPatientFoundDT = new EdxPatientMatchDT();
+                            edxPatientFoundDT = new EdxPatientMatchDto();
                             edxPatientFoundDT.setPatientUid(patientUid);
                             edxPatientFoundDT.setTypeCd(NEDSSConstant.PAT);
                             edxPatientFoundDT.setMatchString(namesdobcursexStr);
@@ -147,36 +148,36 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
 
             // NOTE: Decision, Match Not Found, Start Person Creation
             if (!matchFound) {
-                if (personVO.getTheEntityIdDTCollection() != null) {
+                if (personContainer.getTheEntityIdDtoCollection() != null) {
                     //SORTING out existing EntityId
-                    Collection<EntityIdDT> newEntityIdDTColl = new ArrayList<>();
-                    Iterator<EntityIdDT> iter = personVO.getTheEntityIdDTCollection().iterator();
+                    Collection<EntityIdDto> newEntityIdDtoColl = new ArrayList<>();
+                    Iterator<EntityIdDto> iter = personContainer.getTheEntityIdDtoCollection().iterator();
                     while (iter.hasNext()) {
-                        EntityIdDT entityIdDT = iter.next();
-                        if (entityIdDT.getTypeCd() != null && !entityIdDT.getTypeCd().equalsIgnoreCase("LR")) {
-                            newEntityIdDTColl.add(entityIdDT);
+                        EntityIdDto entityIdDto = iter.next();
+                        if (entityIdDto.getTypeCd() != null && !entityIdDto.getTypeCd().equalsIgnoreCase("LR")) {
+                            newEntityIdDtoColl.add(entityIdDto);
                         }
                     }
-                    personVO.setTheEntityIdDTCollection(newEntityIdDTColl);
+                    personContainer.setTheEntityIdDtoCollection(newEntityIdDtoColl);
                 }
                 try {
                     // NOTE: IF new patient then create
                     // IF existing patient, then query find it, then Get Parent Patient ID
-                    if (personVO.getThePersonDT().getCd().equals(NEDSSConstant.PAT)) { // Patient
-                        patientPersonUid = setAndCreateNewPerson(personVO);
-                        personVO.getThePersonDT().setPersonParentUid(patientPersonUid.getPersonParentId());
-                        personVO.getThePersonDT().setLocalId(patientPersonUid.getLocalId());
-                        personVO.getThePersonDT().setPersonUid(patientPersonUid.getPersonId());
+                    if (personContainer.getThePersonDto().getCd().equals(NEDSSConstant.PAT)) { // Patient
+                        patientPersonUid = setAndCreateNewPerson(personContainer);
+                        personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
+                        personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
+                        personContainer.getThePersonDto().setPersonUid(patientPersonUid.getPersonId());
                         newPatientCreationApplied = true;
                     }
                 } catch (Exception e) {
                     logger.error("Error in getting the entity Controller or Setting the Patient" + e.getMessage(), e);
                     throw new DataProcessingException("Error in getting the entity Controller or Setting the Patient" + e.getMessage(), e);
                 }
-                personVO.setPatientMatchedFound(false);
+                personContainer.setPatientMatchedFound(false);
             }
             else {
-                personVO.setPatientMatchedFound(true);
+                personContainer.setPatientMatchedFound(true);
             }
 
             //NOTE: In this flow, if new patient, revision record is still get inserted
@@ -195,16 +196,16 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
                  * */
 
 
-                if (!newPatientCreationApplied && personVO.getPatientMatchedFound()) {
-                    personVO.getThePersonDT().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
-                    patientPersonUid = updateExistingPerson(personVO, NEDSSConstant.PAT_CR, personVO.getThePersonDT().getPersonParentUid());
+                if (!newPatientCreationApplied && personContainer.getPatientMatchedFound()) {
+                    personContainer.getThePersonDto().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
+                    patientPersonUid = updateExistingPerson(personContainer, NEDSSConstant.PAT_CR, personContainer.getThePersonDto().getPersonParentUid());
 
-                    personVO.getThePersonDT().setPersonParentUid(patientPersonUid.getPersonParentId());
-                    personVO.getThePersonDT().setLocalId(patientPersonUid.getLocalId());
-                    personVO.getThePersonDT().setPersonUid(patientPersonUid.getPersonId());
+                    personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
+                    personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
+                    personContainer.getThePersonDto().setPersonUid(patientPersonUid.getPersonId());
                 }
                 else if (newPatientCreationApplied) {
-                    setPersonHashCdPatient(personVO);
+                    setPersonHashCdPatient(personContainer);
                 }
             } catch (Exception e) {
                 logger.error("Error in getting the entity Controller or Setting the Patient" + e.getMessage());

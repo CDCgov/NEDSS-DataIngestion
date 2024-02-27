@@ -1,12 +1,10 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.person;
 
-import gov.cdc.dataprocessing.model.classic_model.dto.PersonRaceDT;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.PersonNameId;
+import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.PersonRaceId;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.math.BigInteger;
 import java.sql.Timestamp;
 
 import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
@@ -65,25 +63,25 @@ public class PersonRace {
     public PersonRace() {
 
     }
-    public PersonRace(PersonRaceDT personRaceDT) {
+    public PersonRace(PersonRaceDto personRaceDto) {
         var timestamp = getCurrentTimeStamp();
-        this.personUid = personRaceDT.getPersonUid();
-        this.raceCd = personRaceDT.getRaceCd();
-        this.addReasonCd = personRaceDT.getAddReasonCd();
-        this.addTime = personRaceDT.getAddTime();
-        this.addUserId = personRaceDT.getAddUserId();
-        this.lastChgReasonCd = personRaceDT.getLastChgReasonCd();
-        if (personRaceDT.getLastChgTime() == null) {
+        this.personUid = personRaceDto.getPersonUid();
+        this.raceCd = personRaceDto.getRaceCd();
+        this.addReasonCd = personRaceDto.getAddReasonCd();
+        this.addTime = personRaceDto.getAddTime();
+        this.addUserId = personRaceDto.getAddUserId();
+        this.lastChgReasonCd = personRaceDto.getLastChgReasonCd();
+        if (personRaceDto.getLastChgTime() == null) {
             this.lastChgTime = timestamp;
         } else {
-            this.lastChgTime = personRaceDT.getLastChgTime();
+            this.lastChgTime = personRaceDto.getLastChgTime();
         }
-        this.lastChgUserId = personRaceDT.getLastChgUserId();
-        this.raceCategoryCd = personRaceDT.getRaceCategoryCd();
-        this.raceDescTxt = personRaceDT.getRaceDescTxt();
-        this.recordStatusCd = personRaceDT.getRecordStatusCd();
-        this.recordStatusTime = personRaceDT.getRecordStatusTime();
-        this.userAffiliationTxt = personRaceDT.getUserAffiliationTxt();
-        this.asOfDate = personRaceDT.getAsOfDate();
+        this.lastChgUserId = personRaceDto.getLastChgUserId();
+        this.raceCategoryCd = personRaceDto.getRaceCategoryCd();
+        this.raceDescTxt = personRaceDto.getRaceDescTxt();
+        this.recordStatusCd = personRaceDto.getRecordStatusCd();
+        this.recordStatusTime = personRaceDto.getRecordStatusTime();
+        this.userAffiliationTxt = personRaceDto.getUserAffiliationTxt();
+        this.asOfDate = personRaceDto.getAsOfDate();
     }
 }

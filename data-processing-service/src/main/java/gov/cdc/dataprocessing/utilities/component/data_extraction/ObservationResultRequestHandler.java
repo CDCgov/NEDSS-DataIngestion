@@ -4,12 +4,15 @@ import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model.dt.EdxLabIdentiferDT;
-import gov.cdc.dataprocessing.model.classic_model.dt.EdxLabInformationDT;
-import gov.cdc.dataprocessing.model.classic_model.dto.*;
-import gov.cdc.dataprocessing.model.classic_model.vo.LabResultProxyVO;
-import gov.cdc.dataprocessing.model.classic_model.vo.ObservationVO;
-import gov.cdc.dataprocessing.model.classic_model.vo.OrganizationVO;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dt.EdxLabIdentiferDT;
+import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.*;
+import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.ObservationVO;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.OrganizationVO;
+import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
+import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
+import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.service.interfaces.ICheckingValueService;
 import gov.cdc.dataprocessing.utilities.data_extraction.CommonLabUtil;
@@ -38,17 +41,17 @@ public class ObservationResultRequestHandler {
         this.nbsObjectConverter = nbsObjectConverter;
     }
 
-    public LabResultProxyVO getObservationResultRequest(List<HL7OBSERVATIONType> observationRequestArray,
-                                                        LabResultProxyVO labResultProxyVO,
-                                                        EdxLabInformationDT edxLabInformationDT) throws DataProcessingException{
+    public LabResultProxyContainer getObservationResultRequest(List<HL7OBSERVATIONType> observationRequestArray,
+                                                               LabResultProxyContainer labResultProxyContainer,
+                                                               EdxLabInformationDto edxLabInformationDto) throws DataProcessingException{
         try {
             //TODO: This process taking some time, pershap move the caching from legacy is a good move
             for (HL7OBSERVATIONType hl7OBSERVATIONType : observationRequestArray) {
                 try {
-                    ObservationVO observationVO = getObservationResult(hl7OBSERVATIONType.getObservationResult(), labResultProxyVO, edxLabInformationDT);
+                    ObservationVO observationVO = getObservationResult(hl7OBSERVATIONType.getObservationResult(), labResultProxyContainer, edxLabInformationDto);
                     getObsReqNotes(hl7OBSERVATIONType.getNotesAndComments(), observationVO);
                     //edxLabInformationDT.setParentObservationUid(observationVO.getTheObservationDT().getObservationUid());
-                    labResultProxyVO.getTheObservationVOCollection().add(observationVO);
+                    labResultProxyContainer.getTheObservationVOCollection().add(observationVO);
                 } catch (Exception e) {
                     logger.error("ObservationResultRequest.getObservationResultRequest Exception thrown while processing observationRequestArray. Please check!!!" + e.getMessage(), e);
                     throw new DataProcessingException("Exception thrown at ObservationResultRequest.getObservationResultRequest while oricessing observationRequestArray:" + e.getMessage());
@@ -58,10 +61,10 @@ public class ObservationResultRequestHandler {
             logger.error("ObservationResultRequest.getObservationResultRequest Exception thrown while parsing XML document. Please check!!!"+e.getMessage(), e);
             throw new DataProcessingException("Exception thrown at ObservationResultRequest.getObservationResultRequest:"+ e.getMessage());
         }
-        return labResultProxyVO;
+        return labResultProxyContainer;
     }
 
-    private ObservationVO getObservationResult(HL7OBXType hl7OBXType, LabResultProxyVO labResultProxyVO, EdxLabInformationDT edxLabInformationDT)
+    private ObservationVO getObservationResult(HL7OBXType hl7OBXType, LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto)
             throws DataProcessingException {
         ObservationVO observationVO;
         try {
@@ -70,9 +73,9 @@ public class ObservationResultRequestHandler {
             ObservationDT observationDT= new ObservationDT();
             observationDT.setCtrlCdDisplayForm(EdxELRConstant.CTRL_CD_DISPLAY_FORM);
             observationDT.setElectronicInd(EdxELRConstant.ELR_ELECTRONIC_IND);
-            observationDT.setObservationUid((long)(edxLabInformationDT.getNextUid()));
+            observationDT.setObservationUid((long)(edxLabInformationDto.getNextUid()));
             observationDT.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
-            if(edxLabInformationDT.isParentObsInd()){
+            if(edxLabInformationDto.isParentObsInd()){
                 observationDT.setObsDomainCdSt1(EdxELRConstant.ELR_REF_RESULT_CD);
             }else{
                 observationDT.setObsDomainCdSt1(EdxELRConstant.ELR_RESULT_CD);
@@ -86,10 +89,10 @@ public class ObservationResultRequestHandler {
             observationVO.setTheObservationDT(observationDT);
             EdxLabIdentiferDT edxLabIdentiferDT = new EdxLabIdentiferDT();
 
-            if(!edxLabInformationDT.isParentObsInd() && (hl7OBXType.getObservationIdentifier()== null
+            if(!edxLabInformationDto.isParentObsInd() && (hl7OBXType.getObservationIdentifier()== null
                     || (hl7OBXType.getObservationIdentifier().getHL7Identifier()==null && hl7OBXType.getObservationIdentifier().getHL7AlternateIdentifier()==null))){
-                edxLabInformationDT.setResultedTestNameMissing(true);
-                edxLabInformationDT.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_19);
+                edxLabInformationDto.setResultedTestNameMissing(true);
+                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_19);
                 //TODO: Logic to convert to XML
                 String xmlElementName = CommonLabUtil.getXMLElementNameForOBX(hl7OBXType)+".ObservationIdentifier";
                 throw new DataProcessingException(EdxELRConstant.NO_RESULT_NAME+" XMLElementName: "+xmlElementName);
@@ -104,19 +107,19 @@ public class ObservationResultRequestHandler {
             edxLabIdentiferDT.setSubMapID(hl7OBXType.getObservationSubID());
             edxLabIdentiferDT.setObservationValues(hl7OBXType.getObservationValue()) ;
             edxLabIdentiferDT.setObservationUid(observationDT.getObservationUid());
-            edxLabInformationDT.getEdxSusLabDTMap().put(edxLabIdentiferDT.getObservationUid(),edxLabIdentiferDT);
-            if(edxLabInformationDT.getEdxLabIdentiferDTColl()==null) {
-                edxLabInformationDT.setEdxLabIdentiferDTColl(new ArrayList<>());
+            edxLabInformationDto.getEdxSusLabDTMap().put(edxLabIdentiferDT.getObservationUid(),edxLabIdentiferDT);
+            if(edxLabInformationDto.getEdxLabIdentiferDTColl()==null) {
+                edxLabInformationDto.setEdxLabIdentiferDTColl(new ArrayList<>());
             }
 
-            edxLabInformationDT.getEdxLabIdentiferDTColl().add(edxLabIdentiferDT);
+            edxLabInformationDto.getEdxLabIdentiferDTColl().add(edxLabIdentiferDT);
             Collection<ActIdDT> actIdDTColl =  new ArrayList<>();
             ActIdDT actIdDT= new ActIdDT();
             actIdDT.setActIdSeq(1);
             actIdDT.setActUid(observationDT.getObservationUid());
-            actIdDT.setRootExtensionTxt(edxLabInformationDT.getMessageControlID());
-            actIdDT.setAssigningAuthorityCd(edxLabInformationDT.getSendingFacilityClia());
-            actIdDT.setAssigningAuthorityDescTxt(edxLabInformationDT.getSendingFacilityName());
+            actIdDT.setRootExtensionTxt(edxLabInformationDto.getMessageControlID());
+            actIdDT.setAssigningAuthorityCd(edxLabInformationDto.getSendingFacilityClia());
+            actIdDT.setAssigningAuthorityDescTxt(edxLabInformationDto.getSendingFacilityName());
             actIdDT.setTypeCd(EdxELRConstant.ELR_MESSAGE_CTRL_CD);
             actIdDT.setTypeDescTxt(EdxELRConstant.ELR_MESSAGE_CTRL_DESC);
             actIdDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
@@ -125,9 +128,9 @@ public class ObservationResultRequestHandler {
             ActIdDT act2IdDT = new ActIdDT();
             act2IdDT.setActUid(observationDT.getObservationUid());
             act2IdDT.setActIdSeq(2);
-            act2IdDT.setRootExtensionTxt(edxLabInformationDT.getFillerNumber());
-            act2IdDT.setAssigningAuthorityCd(edxLabInformationDT.getSendingFacilityClia());
-            act2IdDT.setAssigningAuthorityDescTxt(edxLabInformationDT.getSendingFacilityName());
+            act2IdDT.setRootExtensionTxt(edxLabInformationDto.getFillerNumber());
+            act2IdDT.setAssigningAuthorityCd(edxLabInformationDto.getSendingFacilityClia());
+            act2IdDT.setAssigningAuthorityDescTxt(edxLabInformationDto.getSendingFacilityName());
             act2IdDT.setTypeCd(EdxELRConstant.ELR_FILLER_NUMBER_CD);
             act2IdDT.setTypeDescTxt(EdxELRConstant.ELR_FILLER_NUMBER_DESC);
             act2IdDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
@@ -157,17 +160,17 @@ public class ObservationResultRequestHandler {
             ActRelationshipDT actRelationshipDT = new ActRelationshipDT();
             actRelationshipDT.setItNew(true);
             actRelationshipDT.setItDirty(false);
-            actRelationshipDT.setAddTime(edxLabInformationDT.getAddTime());
-            actRelationshipDT.setLastChgTime(edxLabInformationDT.getAddTime());
-            actRelationshipDT.setRecordStatusTime(edxLabInformationDT.getAddTime());
+            actRelationshipDT.setAddTime(edxLabInformationDto.getAddTime());
+            actRelationshipDT.setLastChgTime(edxLabInformationDto.getAddTime());
+            actRelationshipDT.setRecordStatusTime(edxLabInformationDto.getAddTime());
             actRelationshipDT.setTypeCd(EdxELRConstant.ELR_COMP_CD);
             actRelationshipDT.setTypeDescTxt(EdxELRConstant.ELR_COMP_DESC);
             actRelationshipDT.setSourceActUid(observationVO.getTheObservationDT().getObservationUid());
-            if(edxLabInformationDT.isParentObsInd()){
-                actRelationshipDT.setTargetActUid(edxLabInformationDT.getParentObservationUid());
+            if(edxLabInformationDto.isParentObsInd()){
+                actRelationshipDT.setTargetActUid(edxLabInformationDto.getParentObservationUid());
             }
             else {
-                actRelationshipDT.setTargetActUid(edxLabInformationDT.getRootObserbationUid());
+                actRelationshipDT.setTargetActUid(edxLabInformationDto.getRootObserbationUid());
             }
             actRelationshipDT.setTargetClassCd(EdxELRConstant.ELR_OBS);
             actRelationshipDT.setSourceClassCd(EdxELRConstant.ELR_OBS);
@@ -176,10 +179,10 @@ public class ObservationResultRequestHandler {
             actRelationshipDT.setSequenceNbr(1);
             actRelationshipDT.setItNew(true);
             actRelationshipDT.setItDirty(false);
-            if(labResultProxyVO.getTheActRelationshipDTCollection()==null) {
-                labResultProxyVO.setTheActRelationshipDTCollection(new ArrayList<>());
+            if(labResultProxyContainer.getTheActRelationshipDTCollection()==null) {
+                labResultProxyContainer.setTheActRelationshipDTCollection(new ArrayList<>());
             }
-            labResultProxyVO.getTheActRelationshipDTCollection().add(actRelationshipDT);
+            labResultProxyContainer.getTheActRelationshipDTCollection().add(actRelationshipDT);
 
             HL7CWEType obsIdentifier= hl7OBXType.getObservationIdentifier();
             if(obsIdentifier!=null){
@@ -235,10 +238,10 @@ public class ObservationResultRequestHandler {
                     observationDT.setAltCdSystemDescTxt(EdxELRConstant.ELR_LOCAL_DESC);
                 }
 
-                if(edxLabInformationDT.isParentObsInd()){
+                if(edxLabInformationDto.isParentObsInd()){
                     if(observationVO.getTheObservationDT().getCd() == null || observationVO.getTheObservationDT().getCd().trim().equals("")) {
-                        edxLabInformationDT.setDrugNameMissing(true);
-                        edxLabInformationDT.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
+                        edxLabInformationDto.setDrugNameMissing(true);
+                        edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                         throw new DataProcessingException(EdxELRConstant.NO_DRUG_NAME);
                     }
                 }
@@ -252,7 +255,7 @@ public class ObservationResultRequestHandler {
             List<String>  obsValueArray =hl7OBXType.getObservationValue();
             String elementName = "ObservationValue";
             for (String text : obsValueArray) {
-                formatValue(text, hl7OBXType, observationVO, edxLabInformationDT, elementName);
+                formatValue(text, hl7OBXType, observationVO, edxLabInformationDto, elementName);
                 if (!(hl7OBXType.getValueType().equals(EdxELRConstant.ELR_STRING_CD)
                         || hl7OBXType.getValueType().equals(EdxELRConstant.ELR_TEXT_CD)
                         || hl7OBXType.getValueType().equals(EdxELRConstant.ELR_TEXT_DT)
@@ -327,12 +330,12 @@ public class ObservationResultRequestHandler {
                 observationDT.setActivityToTime(NBSObjectConverter.processHL7TSType(hl7OBXType.getDateTimeOftheAnalysis(),EdxELRConstant.DATE_VALIDATION_OBX_LAB_PERFORMED_DATE_MSG));
             }
 
-            observationDT.setRptToStateTime(edxLabInformationDT.getLastChgTime());
+            observationDT.setRptToStateTime(edxLabInformationDto.getLastChgTime());
             //2.3.1 to 2.5.1 translation copies this filed from OBX-15(CWE data type) to OBX-23(XON data type) which is required, so always reading it from OBX-23.
             HL7XONType hl7XONTypeName = hl7OBXType.getPerformingOrganizationName();
             if(hl7XONTypeName!=null){
-                OrganizationVO producerOrg = getPerformingFacility(hl7OBXType,observationVO.getTheObservationDT().getObservationUid(),labResultProxyVO, edxLabInformationDT);
-                labResultProxyVO.getTheOrganizationVOCollection().add(producerOrg);
+                OrganizationVO producerOrg = getPerformingFacility(hl7OBXType,observationVO.getTheObservationDT().getObservationUid(), labResultProxyContainer, edxLabInformationDto);
+                labResultProxyContainer.getTheOrganizationVOCollection().add(producerOrg);
             }
             List<HL7CEType> methodArray = hl7OBXType.getObservationMethod();
             String methodCd = null;
@@ -350,7 +353,7 @@ public class ObservationResultRequestHandler {
 
                         logger.warn(
                                 "ObservationResultRequest.getObservationResult warning: Method code could not be teranslated. Please check!!!");
-                        edxLabInformationDT.setObsMethodTranslated(false);
+                        edxLabInformationDto.setObsMethodTranslated(false);
                     }
                     if (method.getHL7Text() != null) {
                         if (methodDescTxt == null)
@@ -376,7 +379,7 @@ public class ObservationResultRequestHandler {
     }
 
     private OrganizationVO getPerformingFacility(HL7OBXType hl7OBXType, long observationUid,
-                                                 LabResultProxyVO labResultProxyVO,EdxLabInformationDT edxLabInformationDT) throws DataProcessingException {
+                                                 LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
 
         HL7XONType hl7XONTypeName = hl7OBXType.getPerformingOrganizationName();
 
@@ -393,32 +396,32 @@ public class ObservationResultRequestHandler {
             organizationDT.setStandardIndustryClassCd(EdxELRConstant.ELR_STANDARD_INDUSTRY_CLASS_CD);
             organizationDT.setStandardIndustryDescTxt(EdxELRConstant.ELR_STANDARD_INDUSTRY_DESC_TXT);
             organizationDT.setElectronicInd(EdxELRConstant.ELR_ELECTRONIC_IND);
-            organizationDT.setOrganizationUid((long)(edxLabInformationDT.getNextUid()));
-            organizationDT.setAddUserId(edxLabInformationDT.getUserId());
+            organizationDT.setOrganizationUid((long)(edxLabInformationDto.getNextUid()));
+            organizationDT.setAddUserId(edxLabInformationDto.getUserId());
             organizationDT.setItNew(true);
             organizationDT.setItDirty(false);
             organizationVO.setTheOrganizationDT(organizationDT);
             
-            EntityIdDT entityIdDT = new EntityIdDT();
-            entityIdDT.setEntityUid(organizationDT.getOrganizationUid());
-            entityIdDT.setRootExtensionTxt(hl7XONTypeName.getHL7OrganizationIdentifier());
-            entityIdDT.setTypeCd(EdxELRConstant.ELR_FACILITY_CD);
-            entityIdDT.setTypeDescTxt(EdxELRConstant.ELR_FACILITY_DESC);
-            entityIdDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
-            entityIdDT.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
-            entityIdDT.setAsOfDate(edxLabInformationDT.getAddTime());
+            EntityIdDto entityIdDto = new EntityIdDto();
+            entityIdDto.setEntityUid(organizationDT.getOrganizationUid());
+            entityIdDto.setRootExtensionTxt(hl7XONTypeName.getHL7OrganizationIdentifier());
+            entityIdDto.setTypeCd(EdxELRConstant.ELR_FACILITY_CD);
+            entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_FACILITY_DESC);
+            entityIdDto.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
+            entityIdDto.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
+            entityIdDto.setAsOfDate(edxLabInformationDto.getAddTime());
 
-            entityIdDT.setEntityIdSeq(1);
+            entityIdDto.setEntityIdSeq(1);
             if(hl7XONTypeName.getHL7AssigningAuthority()!=null){
-                entityIdDT.setAssigningAuthorityCd(hl7XONTypeName.getHL7AssigningAuthority().getHL7UniversalID());
-                entityIdDT.setAssigningAuthorityIdType(hl7XONTypeName.getHL7AssigningAuthority().getHL7UniversalIDType());
+                entityIdDto.setAssigningAuthorityCd(hl7XONTypeName.getHL7AssigningAuthority().getHL7UniversalID());
+                entityIdDto.setAssigningAuthorityIdType(hl7XONTypeName.getHL7AssigningAuthority().getHL7UniversalIDType());
             }
             if(hl7XONTypeName.getHL7AssigningAuthority()!=null && hl7XONTypeName.getHL7AssigningAuthority().getHL7NamespaceID()!=null 
                     && hl7XONTypeName.getHL7AssigningAuthority().getHL7NamespaceID().equals(EdxELRConstant.ELR_CLIA_CD)) {
-                entityIdDT.setAssigningAuthorityDescTxt(EdxELRConstant.ELR_CLIA_DESC);
+                entityIdDto.setAssigningAuthorityDescTxt(EdxELRConstant.ELR_CLIA_DESC);
             }
             
-            organizationVO.getTheEntityIdDTCollection().add(entityIdDT);
+            organizationVO.getTheEntityIdDtoCollection().add(entityIdDto);
 
             ParticipationDT participationDT = new ParticipationDT();
             participationDT.setActClassCd(EdxELRConstant.ELR_OBS);
@@ -436,29 +439,29 @@ public class ObservationResultRequestHandler {
             participationDT.setAddReasonCd(EdxELRConstant.ELR_ROLE_REASON);
             participationDT.setActUid(observationUid);
 
-            labResultProxyVO.getTheParticipationDTCollection().add(participationDT);
+            labResultProxyContainer.getTheParticipationDTCollection().add(participationDT);
 
-            RoleDT roleDT = new RoleDT();
-            roleDT.setCd(EdxELRConstant.ELR_REPORTING_ENTITY_CD);
-            roleDT.setCdDescTxt(EdxELRConstant.ELR_REPORTING_ENTITY_DESC);
-            roleDT.setScopingClassCd(EdxELRConstant.ELR_PATIENT_CD);
-            roleDT.setScopingRoleCd(EdxELRConstant.ELR_PATIENT_CD);
-            roleDT.setRoleSeq((long)(1));
-            roleDT.setItNew(true);
-            roleDT.setItDirty(false);
-            roleDT.setAddReasonCd("");
-            roleDT.setAddTime(organizationVO.getTheOrganizationDT().getAddTime());
-            roleDT.setAddUserId(organizationVO.getTheOrganizationDT().getAddUserId());
-            roleDT.setItNew(true);
-            roleDT.setItDirty(false);
-            roleDT.setAddReasonCd(EdxELRConstant.ELR_ROLE_REASON);
-            roleDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
-            roleDT.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
-            roleDT.setLastChgTime(organizationVO.getTheOrganizationDT().getAddTime());
-            roleDT.setSubjectClassCd(EdxELRConstant.ELR_SENDING_HCFAC);
-            roleDT.setSubjectEntityUid(organizationVO.getTheOrganizationDT().getOrganizationUid());
-            roleDT.setScopingEntityUid(edxLabInformationDT.getPatientUid());
-            labResultProxyVO.getTheRoleDTCollection().add(roleDT);
+            RoleDto roleDto = new RoleDto();
+            roleDto.setCd(EdxELRConstant.ELR_REPORTING_ENTITY_CD);
+            roleDto.setCdDescTxt(EdxELRConstant.ELR_REPORTING_ENTITY_DESC);
+            roleDto.setScopingClassCd(EdxELRConstant.ELR_PATIENT_CD);
+            roleDto.setScopingRoleCd(EdxELRConstant.ELR_PATIENT_CD);
+            roleDto.setRoleSeq((long)(1));
+            roleDto.setItNew(true);
+            roleDto.setItDirty(false);
+            roleDto.setAddReasonCd("");
+            roleDto.setAddTime(organizationVO.getTheOrganizationDT().getAddTime());
+            roleDto.setAddUserId(organizationVO.getTheOrganizationDT().getAddUserId());
+            roleDto.setItNew(true);
+            roleDto.setItDirty(false);
+            roleDto.setAddReasonCd(EdxELRConstant.ELR_ROLE_REASON);
+            roleDto.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
+            roleDto.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
+            roleDto.setLastChgTime(organizationVO.getTheOrganizationDT().getAddTime());
+            roleDto.setSubjectClassCd(EdxELRConstant.ELR_SENDING_HCFAC);
+            roleDto.setSubjectEntityUid(organizationVO.getTheOrganizationDT().getOrganizationUid());
+            roleDto.setScopingEntityUid(edxLabInformationDto.getPatientUid());
+            labResultProxyContainer.getTheRoleDtoCollection().add(roleDto);
 
             Collection<OrganizationNameDT> orgNameColl = new ArrayList<>();
             OrganizationNameDT organizationNameDT = new OrganizationNameDT();
@@ -470,10 +473,10 @@ public class ObservationResultRequestHandler {
 
             organizationVO.setTheOrganizationNameDTCollection(orgNameColl);
             HL7XADType addressType = hl7OBXType.getPerformingOrganizationAddress();
-            Collection<EntityLocatorParticipationDT> addressCollection = new ArrayList<>();
+            Collection<EntityLocatorParticipationDto> addressCollection = new ArrayList<>();
 
             if (addressType != null) {
-                EntityLocatorParticipationDT elpDT = nbsObjectConverter.organizationAddressType(addressType, EdxELRConstant.ELR_OP_CD, organizationVO);
+                EntityLocatorParticipationDto elpDT = nbsObjectConverter.organizationAddressType(addressType, EdxELRConstant.ELR_OP_CD, organizationVO);
                 addressCollection.add(elpDT);
             }
 
@@ -486,7 +489,7 @@ public class ObservationResultRequestHandler {
     }
 
 
-    private static void formatValue( String text, HL7OBXType hl7OBXType,ObservationVO observationVO,EdxLabInformationDT edxLabInformationDT, String elementName) throws DataProcessingException{
+    private static void formatValue(String text, HL7OBXType hl7OBXType, ObservationVO observationVO, EdxLabInformationDto edxLabInformationDto, String elementName) throws DataProcessingException{
         String type = "";
         try {
             type = hl7OBXType.getValueType();
@@ -519,8 +522,8 @@ public class ObservationResultRequestHandler {
                         }
                         if((obsvalueDT.getCode()==null || obsvalueDT.getCode().trim().equals(""))
                                 && (obsvalueDT.getAltCd()==null || obsvalueDT.getAltCd().trim().equals(""))){
-                            edxLabInformationDT.setReflexResultedTestCdMissing(true);
-                            edxLabInformationDT.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_19);
+                            edxLabInformationDto.setReflexResultedTestCdMissing(true);
+                            edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_19);
                             // TODO: XML
                             String xmlElementName = CommonLabUtil.getXMLElementNameForOBX(hl7OBXType)+"."+elementName;
                             throw new DataProcessingException(EdxELRConstant.NO_REFLEX_RESULT_NM+" XMLElementName: "+xmlElementName);
@@ -633,8 +636,8 @@ public class ObservationResultRequestHandler {
                     observationVO.getTheObsValueTxtDTCollection().add(obsValueTxtDT);
 
                 } else {
-                    edxLabInformationDT.setUnexpectedResultType(true);
-                    edxLabInformationDT.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
+                    edxLabInformationDto.setUnexpectedResultType(true);
+                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                     throw new DataProcessingException(EdxELRConstant.UNEXPECTED_RESULT_TYPE);
                 }
             }
