@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.component.data_extraction.patient;
+package gov.cdc.dataprocessing.utilities.component.patient;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model.dto.PersonDT;
