@@ -160,6 +160,7 @@ public class PatientService implements IPatientService {
 
     /**
      * TODO: Evaluation needed
+     * NOTE: Not sure what this for
      * */
     private void setFalseToNew(LabResultProxyVO labResultProxyVO, Long falseUid, Long actualUid) throws DataProcessingException {
 

@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PatientAggContainer {
+public class PersonAggContainer {
     PersonVO personVO;
     PersonVO providerVO;
 }

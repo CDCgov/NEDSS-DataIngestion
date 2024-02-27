@@ -22,7 +22,7 @@ public class OdseIdGeneratorService implements IOdseIdGeneratorService {
 
     @Transactional
     public LocalUidGenerator getLocalIdAndUpdateSeed(LocalIdClass localIdClass) {
-        Optional<LocalUidGenerator> localUidOpt = this.localUidGeneratorRepository.findById(localIdClass.name());
+        Optional<LocalUidGenerator> localUidOpt = this.localUidGeneratorRepository.findByIdForUpdate(localIdClass.name());
         LocalUidGenerator localId = null;
         if (localUidOpt.isPresent()) {
             localId = localUidOpt.get();
