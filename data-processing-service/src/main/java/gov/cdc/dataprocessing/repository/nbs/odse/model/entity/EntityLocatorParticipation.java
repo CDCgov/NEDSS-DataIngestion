@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.entity;
 
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.EntityLocatorParticipationId;
+import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -98,9 +99,21 @@ public class EntityLocatorParticipation {
         var timestamp = getCurrentTimeStamp();
         this.entityUid = entityLocatorParticipationDto.getEntityUid();
         this.locatorUid = entityLocatorParticipationDto.getLocatorUid();
-        this.addReasonCd = entityLocatorParticipationDto.getAddReasonCd();
-        this.addTime = entityLocatorParticipationDto.getAddTime();
-        this.addUserId = entityLocatorParticipationDto.getAddUserId();
+
+        if (entityLocatorParticipationDto.getAddReasonCd() == null) {
+            this.addReasonCd = "Add";
+        } else {
+            this.addReasonCd = entityLocatorParticipationDto.getAddReasonCd();
+        }
+
+        if (entityLocatorParticipationDto.getAddUserId() == null) {
+            this.addUserId = AuthUtil.authUser.getAddUserId();
+            this.addTime = timestamp;
+        } else {
+            this.addUserId = entityLocatorParticipationDto.getAddUserId();
+            this.addTime = entityLocatorParticipationDto.getAddTime();
+        }
+        
         this.cd = entityLocatorParticipationDto.getCd();
         this.cdDescTxt = entityLocatorParticipationDto.getCdDescTxt();
         this.classCd = entityLocatorParticipationDto.getClassCd();
@@ -120,6 +133,7 @@ public class EntityLocatorParticipation {
         this.userAffiliationTxt = entityLocatorParticipationDto.getUserAffiliationTxt();
         this.validTimeTxt = entityLocatorParticipationDto.getValidTimeTxt();
         this.versionCtrlNbr = entityLocatorParticipationDto.getVersionCtrlNbr();
+
         if (entityLocatorParticipationDto.getAsOfDate() == null) {
             this.asOfDate = timestamp;
         } else {

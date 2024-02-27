@@ -55,7 +55,11 @@ public class PhysicalLocator {
     // Add getters and setters as needed
     public PhysicalLocator(PhysicalLocatorDto physicalLocatorDto) {
         this.physicalLocatorUid = physicalLocatorDto.getPhysicalLocatorUid();
-        this.addReasonCd = physicalLocatorDto.getAddReasonCd();
+        if (physicalLocatorDto.getAddReasonCd() == null) {
+            this.addReasonCd = "Add";
+        } else {
+            this.addReasonCd = physicalLocatorDto.getAddReasonCd();
+        }
         this.addTime = physicalLocatorDto.getAddTime();
         this.addUserId = physicalLocatorDto.getAddUserId();
         this.imageTxt = Arrays.toString(physicalLocatorDto.getImageTxt());

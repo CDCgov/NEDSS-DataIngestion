@@ -15,6 +15,7 @@ import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.service.interfaces.core.ICheckingValueService;
+import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.data_extraction.CommonLabUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -427,7 +428,8 @@ public class ObservationResultRequestHandler {
             participationDT.setActClassCd(EdxELRConstant.ELR_OBS);
             participationDT.setCd(EdxELRConstant.ELR_REPORTING_ENTITY_CD);
             participationDT.setTypeCd(EdxELRConstant.ELR_LAB_PERFORMER_CD);
-            participationDT.setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
+            //participationDT.setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
+            participationDT.setAddUserId(AuthUtil.authUser.getAuthUserUid());
 
             participationDT.setItNew(true);
             participationDT.setItDirty(false);

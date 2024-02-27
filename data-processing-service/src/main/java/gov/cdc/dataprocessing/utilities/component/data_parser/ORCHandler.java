@@ -13,6 +13,7 @@ import gov.cdc.dataprocessing.model.phdc.HL7ORCType;
 import gov.cdc.dataprocessing.model.phdc.HL7XADType;
 import gov.cdc.dataprocessing.model.phdc.HL7XONType;
 import gov.cdc.dataprocessing.model.phdc.HL7XTNType;
+import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -60,7 +61,8 @@ public class ORCHandler {
                 edxLabInformationDto.setRole(EdxELRConstant.ELR_OP_CD);
                 edxLabInformationDto.setOrderingProvider(true);
                 PersonContainer personContainer = new PersonContainer();
-                personContainer.getThePersonDto().setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
+                //personContainer.getThePersonDto().setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
+                personContainer.getThePersonDto().setAddUserId(AuthUtil.authUser.getAuthUserUid());
                 //Only need first index
                 address = addressArray.get(0);
                 if (address != null) {
@@ -108,7 +110,8 @@ public class ORCHandler {
                 ParticipationDT participationDT = new ParticipationDT();
                 participationDT.setActClassCd(EdxELRConstant.ELR_OBS);
                 participationDT.setCd(EdxELRConstant.ELR_OP_CD);
-                participationDT.setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
+                //participationDT.setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
+                participationDT.setAddUserId(AuthUtil.authUser.getAuthUserUid());
                 participationDT.setActUid(edxLabInformationDto.getRootObserbationUid());
                 participationDT.setTypeCd(EdxELRConstant.ELR_ORDERER_CD);
                 NBSObjectConverter.defaultParticipationDT(participationDT, edxLabInformationDto);

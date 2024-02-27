@@ -18,6 +18,7 @@ import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 import gov.cdc.dataprocessing.service.interfaces.core.ICheckingValueService;
+import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.data_extraction.EntityIdUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,8 +130,8 @@ public class HL7PatientHandler {
             participationDT.setItNew(true);
             participationDT.setItDirty(false);
             participationDT.setCd(EdxELRConstant.ELR_PATIENT_CD);
-            participationDT.setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
-
+            //participationDT.setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
+            participationDT.setAddUserId(AuthUtil.authUser.getAuthUserUid());
             participationDT.setSubjectClassCd(EdxELRConstant.ELR_PERSON_CD);
             participationDT.setTypeCd(EdxELRConstant.ELR_PATIENT_SUBJECT_CD);
             participationDT.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
@@ -498,7 +499,8 @@ public class HL7PatientHandler {
                 addRole= true;
             }
 
-            roleDto.setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
+            //roleDto.setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
+            roleDto.setAddUserId(AuthUtil.authUser.getAuthUserUid());
             roleDto.setAddReasonCd(EdxELRConstant.ELR_ADD_REASON_CD);
             roleDto.setRoleSeq(1L);
             roleDto.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
