@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse;
 
-import gov.cdc.dataprocessing.repository.nbs.odse.model.Role;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.TeleLocator;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.TeleLocator;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

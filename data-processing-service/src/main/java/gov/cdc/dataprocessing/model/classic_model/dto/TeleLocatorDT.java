@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model.dto;
 
 import gov.cdc.dataprocessing.model.classic_model.vo.AbstractVO;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.TeleLocator;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.TeleLocator;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model.dto;
 
 import gov.cdc.dataprocessing.model.classic_model.vo.AbstractVO;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.Role;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
 import lombok.Getter;
 import lombok.Setter;
 

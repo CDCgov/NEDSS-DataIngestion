@@ -5,7 +5,7 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model.dto.*;
 import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.Person;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.service.core.CheckingValueService;
 import gov.cdc.dataprocessing.service.model.PersonId;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;

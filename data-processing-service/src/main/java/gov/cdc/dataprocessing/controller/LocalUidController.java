@@ -1,10 +1,8 @@
 package gov.cdc.dataprocessing.controller;
 
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.LocalUidGenerator;
-import gov.cdc.dataprocessing.service.core.ManagerService;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.other_move_as_needed.LocalUidGenerator;
 import gov.cdc.dataprocessing.service.core.OdseIdGeneratorService;
-import gov.cdc.dataprocessing.service.interfaces.IManagerService;
 import gov.cdc.dataprocessing.service.interfaces.IOdseIdGeneratorService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

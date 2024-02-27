@@ -3,7 +3,7 @@ package gov.cdc.dataprocessing.utilities.component.entity;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.classic_model.dto.PersonDT;
 import gov.cdc.dataprocessing.repository.nbs.odse.EntityRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.EntityODSE;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.other_move_as_needed.EntityODSE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
