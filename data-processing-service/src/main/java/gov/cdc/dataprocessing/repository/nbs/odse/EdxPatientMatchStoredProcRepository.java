@@ -41,9 +41,6 @@ public class EdxPatientMatchStoredProcRepository {
             Long matchStringHashcode = (Long) storedProcedure.getOutputParameterValue("match_string_hashcode");
 
             // Do something with the output parameters
-            System.out.println("Patient UID: " + patientUid);
-            System.out.println("Match String Hashcode: " + matchStringHashcode);
-
             edxPatientMatchDT.setPatientUid(patientUid);
             edxPatientMatchDT.setMatchStringHashCode(matchStringHashcode);
             edxPatientMatchDT.setTypeCd(typeCd);

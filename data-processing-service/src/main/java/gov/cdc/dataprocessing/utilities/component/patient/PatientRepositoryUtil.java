@@ -1,12 +1,13 @@
 package gov.cdc.dataprocessing.utilities.component.patient;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model.dto.*;
 import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
 import gov.cdc.dataprocessing.repository.nbs.odse.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.*;
-import gov.cdc.dataprocessing.utilities.id_generator.UniqueIdGenerator;
+import gov.cdc.dataprocessing.service.interfaces.IOdseIdGeneratorService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -31,9 +32,8 @@ public class PatientRepositoryUtil {
     private final TeleLocatorRepository teleLocatorRepository;
     private final PostalLocatorRepository postalLocatorRepository;
     private final PhysicalLocatorRepository physicalLocatorRepository;
-    private final LocalUidGeneratorRepository localUidGeneratorRepository;
+    private final IOdseIdGeneratorService odseIdGeneratorService;
 
-    private final static String PERSON = "PERSON";
 
     public PatientRepositoryUtil(
             PersonRepository personRepository,
@@ -46,7 +46,8 @@ public class PatientRepositoryUtil {
             RoleRepository roleRepository,
             TeleLocatorRepository teleLocatorRepository,
             PostalLocatorRepository postalLocatorRepository,
-            PhysicalLocatorRepository physicalLocatorRepository, LocalUidGeneratorRepository localUidGeneratorRepository) {
+            PhysicalLocatorRepository physicalLocatorRepository,
+            IOdseIdGeneratorService odseIdGeneratorService) {
         this.personRepository = personRepository;
         this.entityRepositoryUtil = entityRepositoryUtil;
         this.personNameRepository = personNameRepository;
@@ -58,7 +59,7 @@ public class PatientRepositoryUtil {
         this.teleLocatorRepository = teleLocatorRepository;
         this.postalLocatorRepository = postalLocatorRepository;
         this.physicalLocatorRepository = physicalLocatorRepository;
-        this.localUidGeneratorRepository = localUidGeneratorRepository;
+        this.odseIdGeneratorService = odseIdGeneratorService;
     }
 
     @Transactional
@@ -77,17 +78,11 @@ public class PatientRepositoryUtil {
         //TODO: Implement unique id generator here
         Long personUid = 212121L;
         String localUid = "Unique Id here";
-        var localIdModel = localUidGeneratorRepository.findById(PERSON);
-        personUid = localIdModel.get().getSeedValueNbr();
-        localUid = localIdModel.get().getUidPrefixCd() + personUid + localIdModel.get().getUidSuffixCd();
+        //var localIdModel = localUidGeneratorRepository.findById(PERSON);
+        var localIdModel = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.PERSON);
+        personUid = localIdModel.getSeedValueNbr();
+        localUid = localIdModel.getUidPrefixCd() + personUid + localIdModel.getUidSuffixCd();
 
-        LocalUidGenerator newGen = new LocalUidGenerator();
-        newGen.setClassNameCd(localIdModel.get().getClassNameCd());
-        newGen.setTypeCd(localIdModel.get().getTypeCd());
-        newGen.setSeedValueNbr(localIdModel.get().getSeedValueNbr() + 1);
-        newGen.setUidPrefixCd(localIdModel.get().getUidPrefixCd());
-        newGen.setUidSuffixCd(localIdModel.get().getUidSuffixCd());
-        localUidGeneratorRepository.save(newGen);
 
         ArrayList<Object>  arrayList = new ArrayList<>();
 
@@ -378,9 +373,9 @@ public class PatientRepositoryUtil {
         List<EntityLocatorParticipation> entityLocatorParticipations = entityLocatorParticipationRepository.findByParentUid(personVO.getThePersonDT().getPersonUid()).get();
 
         if (!entityLocatorParticipations.isEmpty()) {
-            List<EntityLocatorParticipation> physicalLocators = new ArrayList<>();
-            List<EntityLocatorParticipation> postalLocators = new ArrayList<>();
-            List<EntityLocatorParticipation> teleLocators = new ArrayList<>();
+            List<EntityLocatorParticipation> physicalLocators;
+            List<EntityLocatorParticipation> postalLocators;
+            List<EntityLocatorParticipation> teleLocators;
 
             physicalLocators = entityLocatorParticipations.stream().filter(x -> x.getClassCd()
                     .equalsIgnoreCase(NEDSSConstant.PHYSICAL))
@@ -403,14 +398,11 @@ public class PatientRepositoryUtil {
             StringBuilder comparingString = new StringBuilder();
             for(int i = 0; i < personList.size(); i++) {
 
-                Long uniqueId = UniqueIdGenerator.generateUniqueId();
+                LocalUidGenerator localUid = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.PERSON);
                 boolean newLocator = true;
                 if (personList.get(i).getClassCd().equals(NEDSSConstant.PHYSICAL) && personList.get(i).getThePhysicalLocatorDT() != null) {
                     newLocator = true;
                     if (!physicalLocators.isEmpty()) {
-                       // physicalLocator = physicalLocators.get(0);
-                       // var existingLocator = physicalLocatorRepository.findById(physicalLocator.getLocatorUid());
-
                         var existingLocator = physicalLocatorRepository.findByPhysicalLocatorUids(
                                 physicalLocators.stream()
                                         .map(x -> x.getLocatorUid())
@@ -427,7 +419,7 @@ public class PatientRepositoryUtil {
 
 
                             if (!compareStringList.contains(personList.get(i).getThePhysicalLocatorDT().getImageTxt().toString().toUpperCase())) {
-                                personList.get(i).getThePhysicalLocatorDT().setPhysicalLocatorUid(uniqueId);
+                                personList.get(i).getThePhysicalLocatorDT().setPhysicalLocatorUid(localUid.getSeedValueNbr());
                                 physicalLocatorRepository.save(new PhysicalLocator(personList.get(i).getThePhysicalLocatorDT()));
                             }
                             else {
@@ -435,18 +427,18 @@ public class PatientRepositoryUtil {
                             }
                         }
                         else {
-                            personList.get(i).getThePhysicalLocatorDT().setPhysicalLocatorUid(uniqueId);
+                            personList.get(i).getThePhysicalLocatorDT().setPhysicalLocatorUid(localUid.getSeedValueNbr());
                             physicalLocatorRepository.save(new PhysicalLocator(personList.get(i).getThePhysicalLocatorDT()));
                         }
 
                         comparingString.setLength(0);
                     }
                     else {
-                        personList.get(i).getThePhysicalLocatorDT().setPhysicalLocatorUid(uniqueId);
+                        personList.get(i).getThePhysicalLocatorDT().setPhysicalLocatorUid(localUid.getSeedValueNbr());
                         physicalLocatorRepository.save(new PhysicalLocator(personList.get(i).getThePhysicalLocatorDT()));
                     }
                 }
-                if (personList.get(i).getClassCd().equals(NEDSSConstant.POSTAL) && personList.get(i).getThePostalLocatorDT() != null) {
+                else if (personList.get(i).getClassCd().equals(NEDSSConstant.POSTAL) && personList.get(i).getThePostalLocatorDT() != null) {
                     newLocator = true;
                     if (!postalLocators.isEmpty()) {
                         var existingLocator = postalLocatorRepository.findByPostalLocatorUids(
@@ -487,7 +479,7 @@ public class PatientRepositoryUtil {
 
 
                             if (!compareStringList.contains(existComparingLocator.toString().toUpperCase())) {
-                                personList.get(i).getThePostalLocatorDT().setPostalLocatorUid(uniqueId);
+                                personList.get(i).getThePostalLocatorDT().setPostalLocatorUid(localUid.getSeedValueNbr());
                                 postalLocatorRepository.save(new PostalLocator(personList.get(i).getThePostalLocatorDT()));
                             }
                             else {
@@ -495,21 +487,19 @@ public class PatientRepositoryUtil {
                             }
                         }
                         else {
-                            personList.get(i).getThePostalLocatorDT().setPostalLocatorUid(uniqueId);
+                            personList.get(i).getThePostalLocatorDT().setPostalLocatorUid(localUid.getSeedValueNbr());
                             postalLocatorRepository.save(new PostalLocator(personList.get(i).getThePostalLocatorDT()));
                         }
                         comparingString.setLength(0);
                     }
                     else {
-                        personList.get(i).getThePostalLocatorDT().setPostalLocatorUid(uniqueId);
+                        personList.get(i).getThePostalLocatorDT().setPostalLocatorUid(localUid.getSeedValueNbr());
                         postalLocatorRepository.save(new PostalLocator(personList.get(i).getThePostalLocatorDT()));
                     }
                 }
-                if (personList.get(i).getClassCd().equals(NEDSSConstant.TELE) && personList.get(i).getTheTeleLocatorDT() != null) {
+                else if (personList.get(i).getClassCd().equals(NEDSSConstant.TELE) && personList.get(i).getTheTeleLocatorDT() != null) {
                     newLocator = true;
                     if (!teleLocators.isEmpty()) {
-//                        teleLocator = teleLocators.get(0);
-//                        var existingLocator = teleLocatorRepository.findById(teleLocator.getLocatorUid());
                         var existingLocator = teleLocatorRepository.findByTeleLocatorUids(
                                 teleLocators.stream()
                                         .map(x -> x.getLocatorUid())
@@ -535,7 +525,7 @@ public class PatientRepositoryUtil {
                             existComparingLocator.append(personList.get(i).getTheTeleLocatorDT().getUrlAddress());
 
                             if (!compareStringList.contains(existComparingLocator.toString().toUpperCase())) {
-                                personList.get(i).getTheTeleLocatorDT().setTeleLocatorUid(uniqueId);
+                                personList.get(i).getTheTeleLocatorDT().setTeleLocatorUid(localUid.getSeedValueNbr());
                                 teleLocatorRepository.save(new TeleLocator(personList.get(i).getTheTeleLocatorDT()));
                             }
                             else {
@@ -543,14 +533,14 @@ public class PatientRepositoryUtil {
                             }
                         }
                         else {
-                            personList.get(i).getTheTeleLocatorDT().setTeleLocatorUid(uniqueId);
+                            personList.get(i).getTheTeleLocatorDT().setTeleLocatorUid(localUid.getSeedValueNbr());
                             teleLocatorRepository.save(new TeleLocator(personList.get(i).getTheTeleLocatorDT()));
                         }
 
                         comparingString.setLength(0);
                     }
                     else {
-                        personList.get(i).getTheTeleLocatorDT().setTeleLocatorUid(uniqueId);
+                        personList.get(i).getTheTeleLocatorDT().setTeleLocatorUid(localUid.getSeedValueNbr());
                         teleLocatorRepository.save(new TeleLocator(personList.get(i).getTheTeleLocatorDT()));
                     }
                 }
@@ -558,7 +548,7 @@ public class PatientRepositoryUtil {
                 // ONLY persist new participation locator if new locator actually exist
                 if (newLocator) {
                     personList.get(i).setEntityUid(personVO.getThePersonDT().getPersonUid());
-                    personList.get(i).setLocatorUid(uniqueId);
+                    personList.get(i).setLocatorUid(localUid.getSeedValueNbr());
 
                     if (personList.get(i).getVersionCtrlNbr() == null) {
                         personList.get(i).setVersionCtrlNbr(1);
@@ -574,27 +564,34 @@ public class PatientRepositoryUtil {
         ArrayList<EntityLocatorParticipationDT>  personList = (ArrayList<EntityLocatorParticipationDT> ) personVO.getTheEntityLocatorParticipationDTCollection();
         try {
             for(int i = 0; i < personList.size(); i++) {
-
-                Long uniqueId = UniqueIdGenerator.generateUniqueId();
+                boolean inserted = false;
+                LocalUidGenerator localUid = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.PERSON);
                 if (personList.get(i).getClassCd().equals(NEDSSConstant.PHYSICAL) && personList.get(i).getThePhysicalLocatorDT() != null) {
-                    personList.get(i).getThePhysicalLocatorDT().setPhysicalLocatorUid(uniqueId);
+                    personList.get(i).getThePhysicalLocatorDT().setPhysicalLocatorUid(localUid.getSeedValueNbr());
                     physicalLocatorRepository.save(new PhysicalLocator(personList.get(i).getThePhysicalLocatorDT()));
+                    inserted = true;
                 }
-                if (personList.get(i).getClassCd().equals(NEDSSConstant.POSTAL) && personList.get(i).getThePostalLocatorDT() != null) {
-                    personList.get(i).getThePostalLocatorDT().setPostalLocatorUid(uniqueId);
+                else if (personList.get(i).getClassCd().equals(NEDSSConstant.POSTAL) && personList.get(i).getThePostalLocatorDT() != null) {
+                    personList.get(i).getThePostalLocatorDT().setPostalLocatorUid(localUid.getSeedValueNbr());
                     postalLocatorRepository.save(new PostalLocator(personList.get(i).getThePostalLocatorDT()));
+                    inserted = true;
                 }
-                if (personList.get(i).getClassCd().equals(NEDSSConstant.TELE) && personList.get(i).getTheTeleLocatorDT() != null) {
-                    personList.get(i).getTheTeleLocatorDT().setTeleLocatorUid(uniqueId);
+                else if (personList.get(i).getClassCd().equals(NEDSSConstant.TELE) && personList.get(i).getTheTeleLocatorDT() != null) {
+                    personList.get(i).getTheTeleLocatorDT().setTeleLocatorUid(localUid.getSeedValueNbr());
                     teleLocatorRepository.save(new TeleLocator(personList.get(i).getTheTeleLocatorDT()));
+                    inserted = true;
                 }
-                personList.get(i).setEntityUid(personVO.getThePersonDT().getPersonUid());
-                personList.get(i).setLocatorUid(uniqueId);
 
-                if (personList.get(i).getVersionCtrlNbr() == null) {
-                    personList.get(i).setVersionCtrlNbr(1);
+                if (inserted) {
+                    personList.get(i).setEntityUid(personVO.getThePersonDT().getPersonUid());
+                    personList.get(i).setLocatorUid(localUid.getSeedValueNbr());
+
+                    if (personList.get(i).getVersionCtrlNbr() == null) {
+                        personList.get(i).setVersionCtrlNbr(1);
+                    }
+                    entityLocatorParticipationRepository.save(new EntityLocatorParticipation(personList.get(i)));
                 }
-                entityLocatorParticipationRepository.save(new EntityLocatorParticipation(personList.get(i)));
+
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
