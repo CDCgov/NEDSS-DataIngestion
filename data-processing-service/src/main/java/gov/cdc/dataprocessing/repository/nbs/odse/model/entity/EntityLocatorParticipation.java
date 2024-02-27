@@ -25,6 +25,10 @@ public class EntityLocatorParticipation {
     @Column(name = "locator_uid", nullable = false)
     private Long locatorUid;
 
+    @Version
+    @Column(name = "version_ctrl_nbr", nullable = false)
+    private Integer versionCtrlNbr;
+
     @Column(name = "add_reason_cd", length = 20)
     private String addReasonCd;
 
@@ -87,9 +91,6 @@ public class EntityLocatorParticipation {
 
     @Column(name = "valid_time_txt", length = 100)
     private String validTimeTxt;
-
-    @Column(name = "version_ctrl_nbr", nullable = false)
-    private Integer versionCtrlNbr;
 
     @Column(name = "as_of_date")
     private Timestamp asOfDate;

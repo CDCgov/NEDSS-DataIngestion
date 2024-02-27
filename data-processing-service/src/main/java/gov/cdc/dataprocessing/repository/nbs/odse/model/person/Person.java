@@ -2,10 +2,7 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.person;
 
 import gov.cdc.dataprocessing.model.classic_model.dto.PersonDT;
 import gov.cdc.dataprocessing.model.classic_model.vo.PersonVO;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,6 +20,10 @@ public class Person  {
     @Id
     @Column(name = "person_uid")
     private Long personUid;
+
+    @Version
+    @Column(name = "version_ctrl_nbr", nullable = false)
+    private Integer versionCtrlNbr;
 
     @Column(name = "add_reason_cd")
     private String addReasonCd;
@@ -287,9 +288,6 @@ public class Person  {
 
     @Column(name = "ethnic_group_desc_txt")
     private String ethnicGroupDescTxt;
-
-    @Column(name = "version_ctrl_nbr", nullable = false)
-    private Integer versionCtrlNbr;
 
     @Column(name = "as_of_date_admin")
     private Timestamp asOfDateAdmin;
