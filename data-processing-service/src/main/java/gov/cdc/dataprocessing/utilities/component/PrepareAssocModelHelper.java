@@ -2,9 +2,9 @@ package gov.cdc.dataprocessing.utilities.component;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model.dto.EntityLocatorParticipationDT;
-import gov.cdc.dataprocessing.model.classic_model.dto.ParticipationDT;
-import gov.cdc.dataprocessing.model.classic_model.dto.RoleDT;
+import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ParticipationDT;
+import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -24,9 +24,9 @@ public class PrepareAssocModelHelper {
      * @return AssocDTInterface
      * @roseuid 3CD96F960027
      */
-    public EntityLocatorParticipationDT prepareAssocDTForEntityLocatorParticipation(EntityLocatorParticipationDT assocDTInterface) throws DataProcessingException {
+    public EntityLocatorParticipationDto prepareAssocDTForEntityLocatorParticipation(EntityLocatorParticipationDto assocDTInterface) throws DataProcessingException {
         try {
-            EntityLocatorParticipationDT aDTInterface = null;
+            EntityLocatorParticipationDto aDTInterface = null;
             String recStatusCd = assocDTInterface.getRecordStatusCd();
             String statusCd = assocDTInterface.getStatusCd();
             logger.debug("AssocDTInterface.Statuscode = "+statusCd);
@@ -88,9 +88,9 @@ public class PrepareAssocModelHelper {
         }
     }
 
-    public RoleDT prepareAssocDTForRole(RoleDT assocDTInterface) throws DataProcessingException {
+    public RoleDto prepareAssocDTForRole(RoleDto assocDTInterface) throws DataProcessingException {
         try {
-            RoleDT aDTInterface = null;
+            RoleDto aDTInterface = null;
             String recStatusCd = assocDTInterface.getRecordStatusCd();
             String statusCd = assocDTInterface.getStatusCd();
             logger.debug("AssocDTInterface.Statuscode = "+statusCd);

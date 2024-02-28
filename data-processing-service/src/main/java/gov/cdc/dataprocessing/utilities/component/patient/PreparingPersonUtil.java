@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.utilities.component.patient;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model.dto.PersonDT;
+import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 public class PreparingPersonUtil {
     private static final Logger logger = LoggerFactory.getLogger(PreparingPersonUtil.class);
 
-    public PersonDT prepareVO(
-            PersonDT theRootDTInterface,
+    public PersonDto prepareVO(
+            PersonDto theRootDTInterface,
             String businessObjLookupName,
             String businessTriggerCd,
             String tableName, String moduleCd ) throws DataProcessingException {
