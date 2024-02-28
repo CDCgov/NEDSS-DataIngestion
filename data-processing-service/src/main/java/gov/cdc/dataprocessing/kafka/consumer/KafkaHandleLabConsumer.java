@@ -1,9 +1,8 @@
 package gov.cdc.dataprocessing.kafka.consumer;
 
-import gov.cdc.dataprocessing.constant.KafkaCustomHeader;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
-import gov.cdc.dataprocessing.service.interfaces.IManagerService;
+import gov.cdc.dataprocessing.service.interfaces.core.IManagerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;

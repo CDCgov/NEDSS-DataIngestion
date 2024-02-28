@@ -152,7 +152,6 @@ public class EdxELRConstant {
     public static final String ELR_REF_RESULT_CD ="R_Result";
     public static final String ELR_YES_CD ="Y";
     public static final String ELR_PATIENT_DESC="Observation Subject";
-    public static final Long ELR_ADD_USER_ID = 99L;
     public static final String ELR_ADD_REASON_CD="because";
     public static final String ELR_OBS_STATUS_CD="D";
     public static final String ELR_TRACER_CD="TRC";

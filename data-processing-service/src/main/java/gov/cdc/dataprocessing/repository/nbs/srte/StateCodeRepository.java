@@ -4,10 +4,11 @@ import gov.cdc.dataprocessing.repository.nbs.srte.model.JurisdictionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
 public interface StateCodeRepository  extends JpaRepository<StateCode, String> {
-    @Query(value = "SELECT * as key FROM StateCode WHERE state_nm = ?1", nativeQuery = true)
-    Optional<StateCode> findStateCdByStateName(String stateName);
+    @Query("SELECT pn FROM StateCode pn WHERE pn.stateNm = :state_nm")
+    Optional<StateCode> findStateCdByStateName( @Param("state_nm") String stateName);
 }
