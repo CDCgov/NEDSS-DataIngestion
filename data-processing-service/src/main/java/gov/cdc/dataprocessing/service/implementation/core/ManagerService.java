@@ -168,11 +168,11 @@ public class ManagerService implements IManagerService {
             edxLabInformationDto.setUserName("Test");
 
             //TODO: uncomment when deploy
-            nbsInterfaceModel = gson.fromJson(data, NbsInterfaceModel.class);
+//            nbsInterfaceModel = gson.fromJson(data, NbsInterfaceModel.class);
 
 
             //TODO: uncomment when debug
-            //nbsInterfaceModel = nbsInterfaceRepository.findById(Integer.valueOf(data)).get();
+            nbsInterfaceModel = nbsInterfaceRepository.findById(Integer.valueOf(data)).get();
 
             edxLabInformationDto.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
 

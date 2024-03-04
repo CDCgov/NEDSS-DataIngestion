@@ -1,14 +1,11 @@
-package gov.cdc.dataprocessing.repository.nbs.odse.model.other_move_as_needed;
+package gov.cdc.dataprocessing.repository.nbs.odse.model.organization;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.OrganizationNameId;
+import jakarta.persistence.*;
 import lombok.Data;
-
-
 @Data
 @Entity
+@IdClass(OrganizationNameId.class)
 @Table(name = "Organization_name")
 public class OrganizationName {
 
@@ -18,7 +15,7 @@ public class OrganizationName {
 
     @Id
     @Column(name = "organization_name_seq", nullable = false)
-    private Short organizationNameSeq;
+    private int organizationNameSeq;
 
     @Column(name = "nm_txt", length = 100)
     private String nameText;
@@ -30,7 +27,7 @@ public class OrganizationName {
     private String recordStatusCode;
 
     @Column(name = "default_nm_ind", length = 1)
-    private Character defaultNameIndicator;
+    private String defaultNameIndicator;
 //
 //    @ManyToOne
 //    @JoinColumn(name = "organization_uid", referencedColumnName = "organizationUid", insertable = false, updatable = false)
