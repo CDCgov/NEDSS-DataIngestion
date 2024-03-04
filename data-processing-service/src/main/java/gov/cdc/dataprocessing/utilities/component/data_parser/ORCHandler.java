@@ -50,6 +50,9 @@ public class ORCHandler {
         }
     }
 
+    /**
+     * Get Ordering Provider
+     * */
     private LabResultProxyContainer getOrderingProvider(HL7ORCType hl7ORCType,
                                                         LabResultProxyContainer labResultProxyContainer,
                                                         EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {

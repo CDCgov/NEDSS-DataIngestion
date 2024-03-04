@@ -234,12 +234,14 @@ public class ManagerService implements IManagerService {
             //TODO: Uncomment this after debugging
             nbsInterfaceModel.setRecordStatusCd("COMPLETED_V2");
             nbsInterfaceRepository.save(nbsInterfaceModel);
+            System.out.println("DONE");
             return result;
         } catch (Exception e) {
             if (nbsInterfaceModel != null) {
                 //TODO: Uncomment this after debuggging
                 nbsInterfaceModel.setRecordStatusCd("FAILED_V2");
                 nbsInterfaceRepository.save(nbsInterfaceModel);
+                System.out.println("ERROR");
             }
 
             throw new DataProcessingConsumerException(e.getMessage(), result);
@@ -278,7 +280,7 @@ public class ManagerService implements IManagerService {
         }
 
         container.setPersonContainer(personContainerObj);
-        container.setProviderVO(personContainerObj);
+        container.setProviderContainer(personContainerObj);
         return container;
     }
 
@@ -358,7 +360,7 @@ public class ManagerService implements IManagerService {
                 container.setPersonContainer(patientFuture.get()); // Set patient
             }
             if (providerFuture != null) {
-                container.setProviderVO(providerFuture.get());
+                container.setPersonContainer(providerFuture.get());
             }
             // You can similarly set provider or other information if needed here
         } catch (InterruptedException e) {
@@ -372,6 +374,9 @@ public class ManagerService implements IManagerService {
                 throw new DataProcessingException("Error processing lab results", e);
             }
         }
+
+        System.out.println("Patient Id: " + container.getPersonContainer().getThePersonDto().getPersonUid());
+        System.out.println("Provider Id: " + container.getPersonContainer().getThePersonDto().getPersonUid());
 
         return container;
     }

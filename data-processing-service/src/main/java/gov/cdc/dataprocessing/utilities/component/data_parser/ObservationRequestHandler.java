@@ -385,6 +385,11 @@ public class ObservationRequestHandler {
 
     }
 
+    /**
+     * Processing
+     *  PROVIDER info
+     *  other obs info
+     * */
     private static void processRootOBR(HL7OBRType hl7OBRType, ObservationDT observationDT,
                                        LabResultProxyContainer labResultProxyContainer, HL7PatientResultSPMType hl7PatientResultSPMType,
                                        EdxLabInformationDto edxLabInformationDto) throws DataProcessingException{

@@ -25,6 +25,9 @@ hs_err_pid*
 data-ingestion-service/data
 data-ingestion-service/dlt_records
 
+# di sftp
+data-ingestion-service/files
+
 .DS_Store
 .gradle/
 

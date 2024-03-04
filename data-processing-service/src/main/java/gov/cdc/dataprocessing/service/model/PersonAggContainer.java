@@ -8,5 +8,5 @@ import lombok.Setter;
 @Setter
 public class PersonAggContainer {
     PersonContainer personContainer;
-    PersonContainer providerVO;
+    PersonContainer providerContainer;
 }
