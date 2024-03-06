@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto;
 
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationship;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -38,5 +39,34 @@ public class ActRelationshipDT extends AbstractVO
     private boolean isNNDInd;
     private boolean isExportInd;
 
+
+    public ActRelationshipDT() {
+
+    }
+
+    public ActRelationshipDT(ActRelationship actRelationship) {
+        this.addReasonCd = actRelationship.getAddReasonCd();
+        this.addTime = actRelationship.getAddTime();
+        this.addUserId = actRelationship.getAddUserId();
+        this.durationAmt = actRelationship.getDurationAmt();
+        this.durationUnitCd = actRelationship.getDurationUnitCd();
+        this.fromTime = actRelationship.getFromTime();
+        this.lastChgReasonCd = actRelationship.getLastChgReasonCd();
+        this.lastChgTime = actRelationship.getLastChgTime();
+        this.lastChgUserId = actRelationship.getLastChgUserId();
+        this.recordStatusCd = actRelationship.getRecordStatusCd();
+        this.recordStatusTime = actRelationship.getRecordStatusTime();
+        this.sequenceNbr = actRelationship.getSequenceNbr();
+        this.statusCd = actRelationship.getStatusCd();
+        this.statusTime = actRelationship.getStatusTime();
+        this.toTime = actRelationship.getToTime();
+        this.userAffiliationTxt = actRelationship.getUserAffiliationTxt();
+        this.sourceActUid = actRelationship.getSourceActUid();
+        this.typeDescTxt = actRelationship.getTypeDescTxt();
+        this.targetActUid = actRelationship.getTargetActUid();
+        this.sourceClassCd = actRelationship.getSourceClassCd();
+        this.targetClassCd = actRelationship.getTargetClassCd();
+        this.typeCd = actRelationship.getTypeCd();
+    }
 
 }

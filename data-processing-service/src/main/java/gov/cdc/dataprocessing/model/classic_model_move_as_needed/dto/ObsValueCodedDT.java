@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto;
 
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.ObsValueCoded;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -56,4 +57,24 @@ public class ObsValueCodedDT extends AbstractVO
     private String cdSystemCdRT;
 
     private String hiddenCd;
+
+    public ObsValueCodedDT() {
+
+    }
+
+    public ObsValueCodedDT(ObsValueCoded obsValueCoded) {
+        this.observationUid = obsValueCoded.getObservationUid();
+        this.altCd = obsValueCoded.getAltCd();
+        this.altCdDescTxt = obsValueCoded.getAltCdDescTxt();
+        this.altCdSystemCd = obsValueCoded.getAltCdSystemCd();
+        this.altCdSystemDescTxt = obsValueCoded.getAltCdSystemDescTxt();
+        this.code = obsValueCoded.getCode();
+        this.codeDerivedInd = obsValueCoded.getCodeDerivedInd();
+        this.codeSystemCd = obsValueCoded.getCodeSystemCd();
+        this.codeSystemDescTxt = obsValueCoded.getCodeSystemDescTxt();
+        this.codeVersion = obsValueCoded.getCodeVersion();
+        this.displayName = obsValueCoded.getDisplayName();
+        this.originalTxt = obsValueCoded.getOriginalTxt();
+    }
 }
+

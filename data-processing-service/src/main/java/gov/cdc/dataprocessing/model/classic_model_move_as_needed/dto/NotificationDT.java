@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto;
 
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.notification.Notification;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -124,4 +125,62 @@ public class NotificationDT extends AbstractVO {
     private String labReportEnableInd;
 
     private String vaccineEnableInd;
+
+    public NotificationDT() {
+
+    }
+
+    public NotificationDT(Notification domain) {
+        this.notificationUid = domain.getNotificationUid();
+        this.activityDurationAmt = domain.getActivityDurationAmt();
+        this.activityDurationUnitCd = domain.getActivityDurationUnitCd();
+        this.activityFromTime = domain.getActivityFromTime();
+        this.activityToTime = domain.getActivityToTime();
+        this.addReasonCd = domain.getAddReasonCd();
+        this.addTime = domain.getAddTime();
+        this.addUserId = domain.getAddUserId();
+        this.caseClassCd = domain.getCaseClassCd();
+        this.caseConditionCd = domain.getCaseConditionCd();
+        this.cd = domain.getCd();
+        this.cdDescTxt = domain.getCdDescTxt();
+        this.confidentialityCd = domain.getConfidentialityCd();
+        this.confidentialityDescTxt = domain.getConfidentialityDescTxt();
+        this.confirmationMethodCd = domain.getConfirmationMethodCd();
+        this.effectiveDurationAmt = domain.getEffectiveDurationAmt();
+        this.effectiveDurationUnitCd = domain.getEffectiveDurationUnitCd();
+        this.effectiveFromTime = domain.getEffectiveFromTime();
+        this.effectiveToTime = domain.getEffectiveToTime();
+        this.jurisdictionCd = domain.getJurisdictionCd();
+        this.lastChgReasonCd = domain.getLastChgReasonCd();
+        this.lastChgTime = domain.getLastChgTime();
+        this.lastChgUserId = domain.getLastChgUserId();
+        this.localId = domain.getLocalId();
+        this.messageTxt = domain.getMessageTxt();
+        this.methodCd = domain.getMethodCd();
+        this.methodDescTxt = domain.getMethodDescTxt();
+        this.mmwrWeek = domain.getMmwrWeek();
+        this.mmwrYear = domain.getMmwrYear();
+        this.nedssVersionNbr = domain.getNedssVersionNbr();
+        this.progAreaCd = domain.getProgAreaCd();
+        this.reasonCd = domain.getReasonCd();
+        this.reasonDescTxt = domain.getReasonDescTxt();
+        this.recordCount = domain.getRecordCount();
+        this.recordStatusCd = domain.getRecordStatusCd();
+        this.recordStatusTime = domain.getRecordStatusTime();
+        this.repeatNbr = domain.getRepeatNbr();
+        this.rptSentTime = domain.getRptSentTime();
+        this.rptSourceCd = domain.getRptSourceCd();
+        this.rptSourceTypeCd = domain.getRptSourceTypeCd();
+        this.statusCd = domain.getStatusCd();
+        this.statusTime = domain.getStatusTime();
+        this.txt = domain.getTxt();
+        this.userAffiliationTxt = domain.getUserAffiliationTxt();
+        this.programJurisdictionOid = domain.getProgramJurisdictionOid();
+        this.sharedInd = domain.getSharedInd();
+        this.versionCtrlNbr = domain.getVersionCtrlNbr();
+        this.autoResendInd = domain.getAutoResendInd();
+        this.exportReceivingFacilityUid = domain.getExportReceivingFacilityUid();
+        this.nbsInterfaceUid = domain.getNbsInterfaceUid();
+    }
+
 }

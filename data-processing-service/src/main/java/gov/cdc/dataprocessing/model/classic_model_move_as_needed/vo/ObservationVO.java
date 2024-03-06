@@ -14,16 +14,16 @@ public class ObservationVO  extends AbstractVO {
     private ObservationDT theObservationDT = new ObservationDT();
     private Collection<ActIdDT> theActIdDTCollection;
     private Collection<ObservationReasonDT> theObservationReasonDTCollection;
-    private Collection<Object> theObservationInterpDTCollection;
+    private Collection<ObservationInterpDT> theObservationInterpDTCollection;
     private Collection<ObsValueCodedDT> theObsValueCodedDTCollection;
     private Collection<Object> theObsValueCodedModDTCollection;
-    private Collection<Object> theObsValueTxtDTCollection;
-    private Collection<Object> theObsValueDateDTCollection;
-    private List<ObsValueNumericDT> theObsValueNumericDTCollection;
-    private Collection<Object> theActivityLocatorParticipationDTCollection;
+    private Collection<ObsValueTxtDT> theObsValueTxtDTCollection;
+    private Collection<ObsValueDateDT> theObsValueDateDTCollection;
+    private Collection<ObsValueNumericDT> theObsValueNumericDTCollection;
+    private Collection<ActivityLocatorParticipationDT> theActivityLocatorParticipationDTCollection;
     //Collections added for Participation and Activity Relationship object association
-    public Collection<Object> theParticipationDTCollection;
-    public Collection<Object> theActRelationshipDTCollection;
-    public Collection<Object> theMaterialDTCollection;
+    public Collection<ParticipationDT> theParticipationDTCollection;
+    public Collection<ActRelationshipDT> theActRelationshipDTCollection;
+    public Collection<MaterialDT> theMaterialDTCollection;
 
 }

@@ -7,12 +7,13 @@ import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
+import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityIdRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityLocatorParticipationRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.RoleRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PhysicalLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PostalLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.TeleLocatorRepository;
@@ -263,6 +264,101 @@ public class PatientRepositoryUtil {
 
     }
 
+    public PersonContainer loadPerson(Long personUid) {
+        PersonContainer personContainer = new PersonContainer();
+
+        PersonDto personDto = null;
+        var personResult = personRepository.findById(personUid);
+        if (personResult.isPresent()) {
+            personDto = new PersonDto(personResult.get());
+            personDto.setItDirty(false);
+            personDto.setItNew(false);
+        }
+        personContainer.setThePersonDto(personDto);
+
+        Collection<PersonNameDto> personNameDtoCollection = new ArrayList<>();
+        var personNameResult = personNameRepository.findByParentUid(personUid);
+        if (personResult.isPresent()) {
+            for(var item : personNameResult.get()) {
+                var elem = new PersonNameDto(item);
+                elem.setItDirty(false);
+                elem.setItNew(false);
+                personNameDtoCollection.add(elem);
+            }
+        }
+        personContainer.setThePersonNameDtoCollection(personNameDtoCollection);
+
+        Collection<PersonRaceDto> personRaceDtoCollection = new ArrayList<>();
+        var personRaceResult = personRaceRepository.findByParentUid(personUid);
+        if (personRaceResult.isPresent()) {
+            for(var item : personRaceResult.get()) {
+                var elem = new PersonRaceDto(item);
+                elem.setItDirty(false);
+                elem.setItNew(false);
+                personRaceDtoCollection.add(elem);
+            }
+        }
+        personContainer.setThePersonRaceDtoCollection(personRaceDtoCollection);
+
+        Collection<PersonEthnicGroupDto> personEthnicGroupDtoCollection = new ArrayList<>();
+        var personEthnic = personEthnicRepository.findByParentUid(personUid);
+        if (personEthnic.isPresent()) {
+            for(var item : personEthnic.get()) {
+                var elem = new PersonEthnicGroupDto(item);
+                elem.setItDirty(false);
+                elem.setItNew(false);
+                personEthnicGroupDtoCollection.add(elem);
+            }
+        }
+        personContainer.setThePersonEthnicGroupDtoCollection(personEthnicGroupDtoCollection);
+
+        Collection<EntityIdDto> entityIdDtoCollection = new ArrayList<>();
+        var entityIdResult = entityIdRepository.findByParentUid(personUid);
+        if (entityIdResult.isPresent()) {
+            for(var item : entityIdResult.get()) {
+                var elem = new EntityIdDto(item);
+                elem.setItDirty(false);
+                elem.setItNew(false);
+                entityIdDtoCollection.add(elem);
+            }
+        }
+        personContainer.setTheEntityIdDtoCollection(entityIdDtoCollection);
+
+        Collection<EntityLocatorParticipationDto> entityLocatorParticipationDtoCollection = new ArrayList<>();
+        var entityLocatorResult = entityLocatorParticipationRepository.findByParentUid(personUid);
+        if (entityLocatorResult.isPresent()) {
+            for(var item : entityLocatorResult.get()) {
+                var elem = new EntityLocatorParticipationDto(item);
+                elem.setItDirty(false);
+                elem.setItNew(false);
+                entityLocatorParticipationDtoCollection.add(elem);
+            }
+        }
+        personContainer.setTheEntityLocatorParticipationDtoCollection(entityLocatorParticipationDtoCollection);
+
+
+        Collection<RoleDto> roleDtoCollection = new ArrayList<>();
+        var roleResult = roleRepository.findByParentUid(personUid);
+        if (roleResult.isPresent()) {
+            for(var item : roleResult.get()) {
+                var elem = new RoleDto(item);
+                elem.setItDirty(false);
+                elem.setItNew(false);
+                roleDtoCollection.add(elem);
+            }
+        }
+        personContainer.setTheRoleDtoCollection(roleDtoCollection);
+
+
+        personContainer.setItDirty(false);
+        personContainer.setItNew(false);
+        return personContainer;
+    }
+
+    public Long findPatientParentUidByUid(Long personUid) {
+        var result = personRepository.findPatientParentUidByUid(personUid);
+        return result.map(longs -> longs.get(0)).orElse(null);
+    }
     private void updatePersonName(PersonContainer personContainer) throws DataProcessingException {
         ArrayList<PersonNameDto>  personList = (ArrayList<PersonNameDto> ) personContainer.getThePersonNameDtoCollection();
         try {

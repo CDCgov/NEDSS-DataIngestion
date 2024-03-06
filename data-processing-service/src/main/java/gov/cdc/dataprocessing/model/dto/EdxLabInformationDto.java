@@ -1,8 +1,8 @@
 package gov.cdc.dataprocessing.model.dto;
 
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dt.EdxLabIdentiferDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dt.EdxRuleAlgorothmManagerDT;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EdxLabIdentiferDT;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EdxRuleAlgorothmManagerDT;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.ObservationVO;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
@@ -141,4 +141,5 @@ public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDT implements S
     private Collection<Object> matchingPublicHealthCaseDTColl;
     private String investigationType;
     private NbsInterfaceStatus status;
+
 }

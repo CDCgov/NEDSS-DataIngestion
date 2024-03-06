@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.sql.Timestamp;
 
 @Data
 @Entity
@@ -41,16 +41,16 @@ public class LOINCCode implements Serializable {
     private Long nbsUid;
 
     @Column(name = "effective_from_time")
-    private Date effectiveFromTime;
+    private Timestamp effectiveFromTime;
 
     @Column(name = "effective_to_time")
-    private Date effectiveToTime;
+    private Timestamp effectiveToTime;
 
     @Column(name = "related_class_cd")
     private String relatedClassCode;
 
     @Column(name = "pa_derivation_exclude_cd")
-    private Character paDerivationExcludeCode;
+    private String paDerivationExcludeCode;
 
     // Constructors, getters, and setters
 }

@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dt.EDXEventProcessDT;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EDXEventProcessDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.InterviewDT;
 import lombok.Getter;
 import lombok.Setter;

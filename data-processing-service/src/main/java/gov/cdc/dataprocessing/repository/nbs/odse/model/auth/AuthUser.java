@@ -46,10 +46,10 @@ public class AuthUser {
     private String userMobilePhone;
 
     @Column(name = "master_sec_admin_ind", length = 1)
-    private Character masterSecAdminInd;
+    private String masterSecAdminInd;
 
     @Column(name = "prog_area_admin_ind", length = 1)
-    private Character progAreaAdminInd;
+    private String progAreaAdminInd;
 
     @Column(name = "nedss_entry_id", nullable = false)
     private Long nedssEntryId;
@@ -82,7 +82,7 @@ public class AuthUser {
     private Timestamp recordStatusTime;
 
     @Column(name = "jurisdiction_derivation_ind", length = 1)
-    private Character jurisdictionDerivationInd;
+    private String jurisdictionDerivationInd;
 
     @Column(name = "provider_uid")
     private Long providerUid;

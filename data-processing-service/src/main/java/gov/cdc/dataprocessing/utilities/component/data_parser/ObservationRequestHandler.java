@@ -2,7 +2,7 @@ package gov.cdc.dataprocessing.utilities.component.data_parser;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dt.EdxLabIdentiferDT;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EdxLabIdentiferDT;
 import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.*;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;

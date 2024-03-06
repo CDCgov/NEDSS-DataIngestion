@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto;
 
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -41,4 +42,33 @@ public class ActIdDT extends AbstractVO
     private boolean itDirty = false;
     private boolean itNew = true;
     private boolean itDelete = false;
+
+    public ActIdDT() {
+
+    }
+
+    public ActIdDT(ActId actId) {
+        this.actUid = actId.getActUid();
+        this.actIdSeq = actId.getActIdSeq();
+        this.addReasonCd = actId.getAddReasonCd();
+        this.addTime = actId.getAddTime();
+        this.addUserId = actId.getAddUserId();
+        this.assigningAuthorityCd = actId.getAssigningAuthorityCd();
+        this.assigningAuthorityDescTxt = actId.getAssigningAuthorityDescTxt();
+        this.durationAmt = actId.getDurationAmt();
+        this.durationUnitCd = actId.getDurationUnitCd();
+        this.lastChgReasonCd = actId.getLastChgReasonCd();
+        this.lastChgTime = actId.getLastChgTime();
+        this.lastChgUserId = actId.getLastChgUserId();
+        this.recordStatusCd = actId.getRecordStatusCd();
+        this.recordStatusTime = actId.getRecordStatusTime();
+        this.rootExtensionTxt = actId.getRootExtensionTxt();
+        this.statusCd = actId.getStatusCd();
+        this.statusTime = actId.getStatusTime();
+        this.typeCd = actId.getTypeCd();
+        this.typeDescTxt = actId.getTypeDescTxt();
+        this.userAffiliationTxt = actId.getUserAffiliationTxt();
+        this.validFromTime = actId.getValidFromTime();
+        this.validToTime = actId.getValidToTime();
+    }
 }

@@ -7,6 +7,8 @@ import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.exception.EdxLogException;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ObservationDT;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.ObservationVO;
 import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
@@ -15,6 +17,7 @@ import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.service.interfaces.auth.ISessionProfileService;
 import gov.cdc.dataprocessing.service.interfaces.core.*;
+import gov.cdc.dataprocessing.service.interfaces.matching.IObservationMatchingService;
 import gov.cdc.dataprocessing.service.model.PersonAggContainer;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import jakarta.transaction.Transactional;
@@ -26,6 +29,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
@@ -59,6 +63,8 @@ public class ManagerService implements IManagerService {
 
     private final ISessionProfileService sessionProfileService;
 
+    private final IObservationMatchingService observationMatchingService;
+
     @Autowired
     public ManagerService(IObservationService observationService,
                           IPatientService patientService,
@@ -70,7 +76,8 @@ public class ManagerService implements IManagerService {
                           IDataExtractionService dataExtractionService,
                           NbsInterfaceRepository nbsInterfaceRepository,
                           CheckingValueService checkingValueService,
-                          CacheManager cacheManager, ISessionProfileService sessionProfileService) {
+                          CacheManager cacheManager, ISessionProfileService sessionProfileService,
+                          IObservationMatchingService observationMatchingService) {
         this.observationService = observationService;
         this.patientService = patientService;
         this.organizationService = organizationService;
@@ -84,6 +91,7 @@ public class ManagerService implements IManagerService {
         this.checkingValueService = checkingValueService;
         this.cacheManager = cacheManager;
         this.sessionProfileService = sessionProfileService;
+        this.observationMatchingService = observationMatchingService;
     }
 
     @Transactional
@@ -208,9 +216,33 @@ public class ManagerService implements IManagerService {
             if(nbsInterfaceModel.getObservationUid() !=null && nbsInterfaceModel.getObservationUid()>0) {
                 edxLabInformationDto.setRootObserbationUid(nbsInterfaceModel.getObservationUid());
             }
+            Long aPersonUid = null;
 
             //TODO: OBSERVATION
-            var observation = observationService.processingObservation();
+            ObservationDT observationDT = observationService.processingObservation(edxLabInformationDto);
+            if(observationDT!=null){
+                LabResultProxyContainer matchedlabResultProxyVO = observationService.getLabResultToProxy(observationDT.getObservationUid());
+                observationMatchingService.processMatchedProxyVO(parsedData, matchedlabResultProxyVO, edxLabInformationDto );
+
+                //TODO: CHECK THIS OUT
+                aPersonUid = hL7CommonLabUtil.getMatchedPersonUID(matchedlabResultProxyVO);
+                hL7CommonLabUtil.updatePersonELRUpdate(parsedData, matchedlabResultProxyVO);
+
+                edxLabInformationDto.setRootObserbationUid(observationDT.getObservationUid());
+                if(observationDT.getProgAreaCd()!=null && observationDT.getJurisdictionCd()!=null)
+                {
+                    edxLabInformationDto.setLabIsUpdateDRRQ(true);
+                }
+                else
+                {
+                    edxLabInformationDto.setLabIsUpdateDRSA(true);
+                }
+                edxLabInformationDto.setPatientMatch(true);
+            }else{
+                edxLabInformationDto.setLabIsCreate(true);
+            }
+
+
 
             //TODO: PATIENT && NOK && PROVIDER
             PersonAggContainer personAggContainer = personAggregationAsync(parsedData, edxLabInformationDto);
@@ -218,12 +250,51 @@ public class ManagerService implements IManagerService {
             //TODO: ORGANIZATION
             var organization = organizationService.processingOrganization();
 
+
+            //TODO: VERIFY THIS BLOCK
+            if(edxLabInformationDto.isLabIsUpdateDRRQ() || edxLabInformationDto.isLabIsUpdateDRSA())
+            {
+                setPersonUIDOnUpdate(aPersonUid, parsedData);
+            }
+            edxLabInformationDto.setLabResultProxyContainer(parsedData);
+
+            String nbsOperation = edxLabInformationDto.isLabIsCreate() ? "ADD" : "EDIT";
+
+            ObservationVO orderTest = getOrderedTest(parsedData);
+
+            String programAreaCd = orderTest.getTheObservationDT().getProgAreaCd();
+            String jurisdictionCd = orderTest.getTheObservationDT().getJurisdictionCd();
+
             //TODO: PROGRAM AREA
             var programArea = programAreaJurisdictionService.processingProgramArea();
             var jurisdiction = programAreaJurisdictionService.processingJurisdiction();
 
             //TODO: LAB PROCESSING
             var labProcessing = labProcessingService.processingLabResult();
+
+            observationDT = observationService.sendLabResultToProxy(parsedData);
+            if(edxLabInformationDto.isLabIsCreate()){
+                edxLabInformationDto.setLabIsCreateSuccess(true);
+                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_2);
+            }
+
+            logger.debug("localId is " + observationDT.getLocalId());
+            edxLabInformationDto.setLocalId(observationDT.getLocalId());
+            edxLabInformationDto.getEdxActivityLogDT().setBusinessObjLocalId(observationDT.getLocalId());
+            edxLabInformationDto.setRootObserbationUid(observationDT.getObservationUid());
+
+            //TODO: CACHING
+            edxLabInformationDto.setProgramAreaName(CachedDropDowns.getProgAreadDesc(observationDT.getProgAreaCd()));
+            String jurisdictionName = CachedDropDowns.getJurisdictionDesc(observationDT.getJurisdictionCd());
+
+            edxLabInformationDto.setJurisdictionName(jurisdictionName);
+            if(edxLabInformationDto.isLabIsCreateSuccess()&&(edxLabInformationDto.getProgramAreaName()==null
+                    || edxLabInformationDto.getJurisdictionName()==null))
+            {
+                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_1);
+            }
+
+
 
             //TODO: Producing msg for Next Step
            // kafkaManagerProducer.sendData(healthCaseTopic, data);
@@ -247,6 +318,19 @@ public class ManagerService implements IManagerService {
             throw new DataProcessingConsumerException(e.getMessage(), result);
 
         }
+    }
+
+    private ObservationVO getOrderedTest(LabResultProxyContainer labResultProxyVO) {
+        for (Iterator<ObservationVO> it = labResultProxyVO.getTheObservationVOCollection().iterator(); it.hasNext();) {
+            ObservationVO obsVO = (ObservationVO) it.next();
+
+            String obsDomainCdSt1 = obsVO.getTheObservationDT().getObsDomainCdSt1();
+            if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)) {
+                return obsVO;
+
+            }
+        }
+        return null;
     }
 
     //TODO: remove when patientAgg Async is stable
@@ -380,4 +464,31 @@ public class ManagerService implements IManagerService {
 
         return container;
     }
+
+
+    private void setPersonUIDOnUpdate(Long aPersonUid, LabResultProxyContainer labResultProxyVO) {
+        // TODO Auto-generated method stub
+        Collection<PersonContainer> personCollection = labResultProxyVO.getThePersonContainerCollection();
+        if(personCollection!=null){
+            Iterator<PersonContainer> iterator = personCollection.iterator();
+
+            while(iterator.hasNext()){
+                PersonContainer personVO =(PersonContainer)iterator.next();
+                String perDomainCdStr = personVO.getThePersonDto().getCdDescTxt();
+                if(perDomainCdStr!= null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)){
+                    personVO.setItDirty(true);
+                    personVO.setItNew(false);
+                    personVO.getThePersonDto().setPersonUid(aPersonUid);
+                    personVO.getThePersonDto().setItDirty(true);
+                    personVO.getThePersonDto().setItNew(false);
+                    personVO.setRole(null);
+                }
+            }
+        }
+    }
+
+
+
+
+
 }

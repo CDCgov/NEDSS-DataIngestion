@@ -1,7 +1,11 @@
 package gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo;
 
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ManufacturedMaterialDT;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ParticipationDT;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.MaterialDT;
+import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
+import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,17 +35,17 @@ public class MaterialVO extends AbstractVO
     /**
      * Related Locators
      */
-    private Collection<Object> theEntityLocatorParticipationDTCollection;
+    private Collection<EntityLocatorParticipationDto> theEntityLocatorParticipationDTCollection;
 
     /**
      * Other Related Entities
      */
-    private List<EntityIdDto> theEntityIdDtoCollection = new ArrayList<>();
+    private Collection<EntityIdDto> theEntityIdDtoCollection = new ArrayList<>();
 
     /**
      * collections for role and participation object association added by John Park
      */
-    public Collection<Object> theParticipationDTCollection;
-    public Collection<Object> theRoleDTCollection;
-    private Collection<Object> theManufacturedMaterialDTCollection;
+    public Collection<ParticipationDT> theParticipationDTCollection;
+    public Collection<RoleDto> theRoleDTCollection;
+    private Collection<ManufacturedMaterialDT> theManufacturedMaterialDTCollection;
 }

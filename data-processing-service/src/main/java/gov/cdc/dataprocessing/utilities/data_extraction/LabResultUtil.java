@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.utilities.data_extraction;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dt.EdxELRLabMapDT;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EdxELRLabMapDT;
 import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.*;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;

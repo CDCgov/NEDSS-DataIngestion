@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto;
 
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.ObsValueTxt;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -36,4 +37,18 @@ public class ObsValueTxtDT extends AbstractVO
     private boolean itNew = true;
 
     private boolean itDelete = false;
+
+    public ObsValueTxtDT() {
+
+    }
+
+    public ObsValueTxtDT(ObsValueTxt obsValueTxt) {
+        this.observationUid = obsValueTxt.getObservationUid();
+        this.obsValueTxtSeq = obsValueTxt.getObsValueTxtSeq();
+        this.dataSubtypeCd = obsValueTxt.getDataSubtypeCd();
+        this.encodingTypeCd = obsValueTxt.getEncodingTypeCd();
+        this.txtTypeCd = obsValueTxt.getTxtTypeCd();
+        this.valueImageTxt = obsValueTxt.getValueImageTxt();
+        this.valueTxt = obsValueTxt.getValueTxt();
+    }
 }

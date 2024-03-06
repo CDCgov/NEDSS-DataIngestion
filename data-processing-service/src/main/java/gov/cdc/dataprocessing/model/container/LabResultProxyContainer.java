@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.model.container;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EDXDocumentDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.MessageLogDT;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EDXDocumentDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ParticipationDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.MaterialVO;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.ObservationVO;
@@ -33,6 +33,7 @@ public class LabResultProxyContainer extends PageActProxyVO {
     public Collection<EDXDocumentDT> eDXDocumentCollection;
     private ArrayList<String> theConditionsList;
     private Collection<MessageLogDT> messageLogDCollection =null;
-
+    private String labClia = null;
+    private boolean manualLab = false;
 
 }

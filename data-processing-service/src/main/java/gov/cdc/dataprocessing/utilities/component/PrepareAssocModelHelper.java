@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.utilities.component;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ParticipationDT;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
@@ -14,6 +15,72 @@ import java.sql.Timestamp;
 @Component
 public class PrepareAssocModelHelper {
     private static final Logger logger = LoggerFactory.getLogger(PrepareAssocModelHelper.class);
+
+
+    //TODO: EVALUATE
+    /**
+     * This method is used to prepare Dirty Acts,Dirty Entities,New Acts And New Entities depending
+     * you want to edit,delete or create records
+     * @param theRootDTInterface -- The DT to be prepared
+     * @param businessObjLookupName
+     * @param businessTriggerCd
+     * @param tableName
+     * @param moduleCd
+     * @param securityObj
+     * @return RootDTInterface -- the prepared DT(System attribute Set)
+     * @throws NEDSSSystemException
+     * @throws NEDSSConcurrentDataException
+     * @roseuid 3C7422C50093
+     */
+    public AbstractVO prepareVO(
+            AbstractVO theRootDTInterface, String businessObjLookupName,
+            String businessTriggerCd, String tableName,
+            String moduleCd) throws DataProcessingException {
+        try
+        {
+            if(!theRootDTInterface.isItNew() && !theRootDTInterface.isItDirty() && !theRootDTInterface.isItDelete()) {
+                throw new DataProcessingException("Error while calling prepareVO method in PrepareVOUtils");
+            }
+            //Boolean testNewForRootDTInterface = theRootDTInterface.isItNew();
+//            if(theRootDTInterface.isItDirty() && (Boolean.FALSE).equals(theRootDTInterface.isItNew()))
+//            {
+//                boolean result = dataConcurrenceCheck(theRootDTInterface, tableName, nbsSecurityObj);
+//                if(result)
+//                {
+//                    //no concurrent dataAccess has occured, hence can continue!
+//                }
+//                else
+//                {
+//                    throw new DataProcessingException("NEDSSConcurrentDataException occurred in PrepareVOUtils.Person");
+//                }
+//            }
+
+//            if(theRootDTInterface.isItNew() && (theRootDTInterface.getSuperclass().toUpperCase().equals("ACT")))
+//            {
+//                theRootDTInterface = this.prepareNewActVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+//            }
+//            else if(theRootDTInterface.isItNew() && (theRootDTInterface.getSuperclass().toUpperCase().equals("ENTITY")))
+//            {
+//                theRootDTInterface = this.prepareNewEntityVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+//            }
+//            else if(theRootDTInterface.isItDirty() && (theRootDTInterface.getSuperclass().toUpperCase().equals("ACT")))
+//            {
+//                theRootDTInterface = this.prepareDirtyActVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+//            }
+//            else if(theRootDTInterface.isItDirty() && (theRootDTInterface.getSuperclass().toUpperCase().equals("ENTITY")))
+//            {
+//                theRootDTInterface = this.prepareDirtyEntityVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+//            }
+            return theRootDTInterface;
+        }
+        catch(Exception ex)
+        {
+            throw new DataProcessingException(ex.getMessage(), ex);
+        }
+    }
+
+
+
 
     /**
      * This method is used to populate the system attributes on the 5 association
