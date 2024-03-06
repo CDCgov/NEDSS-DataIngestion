@@ -117,7 +117,7 @@ public class Organization {
     private String phoneCntryCd;
 
     @Column(name = "version_ctrl_nbr", nullable = false)
-    private int versionCtrlNbr;
+    private Integer versionCtrlNbr;
 
     @Column(name = "electronic_ind", length = 1)
     private String electronicInd;

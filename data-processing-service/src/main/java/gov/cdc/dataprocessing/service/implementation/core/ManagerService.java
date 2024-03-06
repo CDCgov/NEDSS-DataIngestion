@@ -7,6 +7,7 @@ import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.exception.EdxLogException;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.OrganizationVO;
 import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
@@ -213,10 +214,10 @@ public class ManagerService implements IManagerService {
             var observation = observationService.processingObservation();
 
             //TODO: PATIENT && NOK && PROVIDER
-            PersonAggContainer personAggContainer = personAggregationAsync(parsedData, edxLabInformationDto);
+            //PersonAggContainer personAggContainer = personAggregationAsync(parsedData, edxLabInformationDto);
 
             //TODO: ORGANIZATION
-            var organization = organizationService.processingOrganization();
+            OrganizationVO orderingFacilityVO = organizationService.processingOrganization(parsedData);
 
             //TODO: PROGRAM AREA
             var programArea = programAreaJurisdictionService.processingProgramArea();

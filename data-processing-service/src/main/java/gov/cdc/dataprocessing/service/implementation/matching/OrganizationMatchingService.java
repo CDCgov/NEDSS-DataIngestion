@@ -20,12 +20,14 @@ import gov.cdc.dataprocessing.utilities.model.Coded;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+@Service
 public class OrganizationMatchingService implements IOrganizationMatchingService {
     private static final Logger logger = LoggerFactory.getLogger(OrganizationMatchingService.class);
     private final EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil;
@@ -40,6 +42,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
         this.organizationRepositoryUtil=organizationRepositoryUtil;
     }
 
+    @Transactional
     public EDXActivityDetailLogDT getMatchingOrganization(
             OrganizationVO organizationVO)
             throws DataProcessingException {

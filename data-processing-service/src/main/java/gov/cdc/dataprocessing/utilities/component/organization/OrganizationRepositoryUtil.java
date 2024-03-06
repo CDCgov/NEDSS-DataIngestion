@@ -122,6 +122,7 @@ public class OrganizationRepositoryUtil {
                 try {
                     organizationVO.getTheOrganizationDT().setOrganizationUid(Long.valueOf(organizationUid));
                     organizationVO.getTheOrganizationDT().setLocalId(localUid);
+                    organizationVO.getTheOrganizationDT().setVersionCtrlNbr(Integer.valueOf(1));
                     insertOrganization(organizationVO);
                 } catch (Exception e) {
                     throw new DataProcessingException(e.getMessage(), e);
@@ -408,6 +409,7 @@ public class OrganizationRepositoryUtil {
      * @roseuid 3E6E4E05003E
      * @J2EE_METHOD -- setOrganization
      */
+    @Transactional
     public Long setOrganization(OrganizationVO organizationVO,
                                 String businessTriggerCd)
             throws DataProcessingException{
