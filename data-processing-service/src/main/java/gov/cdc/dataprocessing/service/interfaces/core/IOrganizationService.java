@@ -1,7 +1,11 @@
 package gov.cdc.dataprocessing.service.interfaces.core;
 
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.OrganizationVO;
+import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 
 public interface IOrganizationService {
-    Object processingOrganization() throws DataProcessingConsumerException;
+    OrganizationVO processingOrganization(LabResultProxyContainer labResultProxyContainer) throws DataProcessingConsumerException;
+    OrganizationVO testloadObject(long orguid, long actid) throws DataProcessingException;
 }
