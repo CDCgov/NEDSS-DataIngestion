@@ -1,8 +1,10 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.organization;
 
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.OrganizationNameDT;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.OrganizationNameId;
 import jakarta.persistence.*;
 import lombok.Data;
+
 @Data
 @Entity
 @IdClass(OrganizationNameId.class)
@@ -28,10 +30,16 @@ public class OrganizationName {
 
     @Column(name = "default_nm_ind", length = 1)
     private String defaultNameIndicator;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "organization_uid", referencedColumnName = "organizationUid", insertable = false, updatable = false)
-//    private Organization organization;
 
-    // Constructors and other methods (if needed)
+    public OrganizationName() {
+    }
+
+    public OrganizationName(OrganizationNameDT organizationNameDT) {
+        this.organizationUid = organizationNameDT.getOrganizationUid();
+        this.organizationNameSeq = organizationNameDT.getOrganizationNameSeq();
+        this.nameText = organizationNameDT.getNmTxt();
+        this.nameUseCode = organizationNameDT.getNmUseCd();
+        this.recordStatusCode = organizationNameDT.getRecordStatusCd();
+        this.defaultNameIndicator = organizationNameDT.getDefaultNmInd();
+    }
 }

@@ -10,6 +10,9 @@ import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.Organization
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
+import gov.cdc.dataprocessing.model.dto.locator.PhysicalLocatorDto;
+import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
+import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityODSE;
@@ -20,6 +23,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.TeleLocator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.organization.Organization;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.organization.OrganizationName;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.other_move_as_needed.LocalUidGenerator;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.other_move_as_needed.Participation;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityIdRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityLocatorParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityRepository;
@@ -30,6 +34,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PostalLocatorRep
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.TeleLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.OrganizationNameRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.OrganizationRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.service.interfaces.core.IOdseIdGeneratorService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import jakarta.transaction.Transactional;
@@ -37,9 +42,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class OrganizationRepositoryUtil {
@@ -61,6 +65,7 @@ public class OrganizationRepositoryUtil {
     private final LocalUidGeneratorRepository localUidGeneratorRepository;
     private final IOdseIdGeneratorService odseIdGeneratorService;
     private final EntityHelper entityHelper;
+    private final ParticipationRepository participationRepository;
 
     public OrganizationRepositoryUtil(OrganizationRepository organizationRepository,
                                       OrganizationNameRepository organizationNameRepository,
@@ -73,7 +78,8 @@ public class OrganizationRepositoryUtil {
                                       PhysicalLocatorRepository physicalLocatorRepository,
                                       LocalUidGeneratorRepository localUidGeneratorRepository,
                                       IOdseIdGeneratorService odseIdGeneratorService,
-                                      EntityHelper entityHelper) {
+                                      EntityHelper entityHelper,
+                                      ParticipationRepository participationRepository) {
         this.organizationRepository = organizationRepository;
         this.organizationNameRepository = organizationNameRepository;
         this.entityRepository = entityRepository;
@@ -84,13 +90,14 @@ public class OrganizationRepositoryUtil {
         this.postalLocatorRepository = postalLocatorRepository;
         this.physicalLocatorRepository = physicalLocatorRepository;
         this.localUidGeneratorRepository = localUidGeneratorRepository;
-        this.odseIdGeneratorService=odseIdGeneratorService;
-        this.entityHelper=entityHelper;
+        this.odseIdGeneratorService = odseIdGeneratorService;
+        this.entityHelper = entityHelper;
+        this.participationRepository = participationRepository;
     }
 
     @Transactional
-    public Organization findOrganizationByUid(Long personUid) {
-        var result = organizationRepository.findById(personUid);
+    public Organization findOrganizationByUid(Long orgUid) {
+        var result = organizationRepository.findById(orgUid);
         return result.get();
     }
 
@@ -238,7 +245,7 @@ public class OrganizationRepositoryUtil {
 
             logger.info("OrganizationDAOImpl - after save Entity");
             if (organizationDT != null) {
-                Organization organization = convertOrganizationDtToOrganizationModel(organizationDT);
+                Organization organization = new Organization(organizationDT);
                 organizationRepository.save(organization);
                 organizationDT.setItNew(false);
                 organizationDT.setItDirty(false);
@@ -268,7 +275,8 @@ public class OrganizationRepositoryUtil {
 
                 if (orgNameDT != null) {
                     //insertOrganizationName(organizationUID, organizationName);
-                    OrganizationName orgName = convertOrgNameDtToOrgNameModel(organizationUID, orgNameDT);
+                    orgNameDT.setOrganizationUid(organizationUID);
+                    OrganizationName orgName = new OrganizationName(orgNameDT);
                     // Save Organization Name records
                     organizationNameRepository.save(orgName);
 
@@ -344,62 +352,6 @@ public class OrganizationRepositoryUtil {
         }
     }
 
-    private Organization convertOrganizationDtToOrganizationModel(OrganizationDT organizationDT) {
-        Organization orgModel = new Organization();
-        if (organizationDT != null) {
-
-            orgModel.setAddReasonCode(organizationDT.getAddReasonCd()); // 1
-            orgModel.setAddTime(organizationDT.getAddTime());  // 2
-            orgModel.setAddUserId(organizationDT.getAddUserId()); // 3
-            orgModel.setCode(organizationDT.getCd()); // 4
-            orgModel.setCodeDescTxt(organizationDT.getCdDescTxt()); // 5
-            orgModel.setDescription(organizationDT.getDescription()); // 6
-            orgModel.setDurationAmt(organizationDT.getDurationAmt()); // 7
-            orgModel.setDurationUnitCd(organizationDT.getDurationUnitCd()); // 8
-            orgModel.setFromTime(organizationDT.getFromTime()); //9
-            orgModel.setLastChgReasonCd(organizationDT.getLastChgReasonCd()); // 10
-            orgModel.setLastChgTime(organizationDT.getLastChgTime()); // 11
-            orgModel.setLastChgUserId(organizationDT.getLastChgUserId()); // 12
-            orgModel.setRecordStatusCd(organizationDT.getRecordStatusCd()); // 13
-            orgModel.setRecordStatusTime(organizationDT.getRecordStatusTime()); // 14
-            orgModel.setStandardIndustryClassCd(organizationDT.getStandardIndustryClassCd()); // 15
-            orgModel.setStandardIndustryDescTxt(organizationDT.getStandardIndustryDescTxt()); // 16
-            orgModel.setStatusCd(organizationDT.getStatusCd()); // 17
-            orgModel.setStatusTime(organizationDT.getStatusTime()); // 18
-            orgModel.setToTime(organizationDT.getToTime()); // 19
-            orgModel.setUserAffiliationTxt(organizationDT.getUserAffiliationTxt()); // 20
-            orgModel.setDisplayNm(organizationDT.getDisplayNm()); // 21
-            orgModel.setStreetAddr1(organizationDT.getStreetAddr1()); // 22
-            orgModel.setStreetAddr2(organizationDT.getStreetAddr2()); // 23
-            orgModel.setCityCd(organizationDT.getCityCd()); // 24
-            orgModel.setCityDescTxt(organizationDT.getCityDescTxt()); // 25
-            orgModel.setStateCd(organizationDT.getStateCd()); // 26
-            orgModel.setCntyCd(organizationDT.getCntyCd()); // 27
-            orgModel.setCntryCd(organizationDT.getCntryCd()); // 28
-            orgModel.setZipCd(organizationDT.getZipCd()); // 29
-            orgModel.setPhoneNbr(organizationDT.getPhoneNbr()); // 30
-            orgModel.setPhoneCntryCd(organizationDT.getPhoneCntryCd()); // 31
-            orgModel.setOrganizationUid(organizationDT.getOrganizationUid()); // 32
-            orgModel.setLocalId(organizationDT.getLocalId()); // 33
-            orgModel.setEdxInd(organizationDT.getEdxInd());// 34 - Added new on Jan 18th 2011 Release 411_INV_AutoCreate
-            orgModel.setVersionCtrlNbr(organizationDT.getVersionCtrlNbr()); // 35
-            orgModel.setElectronicInd(organizationDT.getElectronicInd()); // 36
-        }
-        return orgModel;
-    }
-
-    private OrganizationName convertOrgNameDtToOrgNameModel(long organizationUID, OrganizationNameDT organizationNameDt) {
-        OrganizationName organizationName = new OrganizationName();
-        if (organizationNameDt != null) {
-            organizationName.setOrganizationUid(organizationUID);
-            organizationName.setOrganizationNameSeq(organizationNameDt.getOrganizationNameSeq());
-            organizationName.setNameText(organizationNameDt.getNmTxt());
-            organizationName.setNameUseCode(organizationNameDt.getNmUseCd());
-            organizationName.setRecordStatusCode(organizationNameDt.getRecordStatusCd());
-            organizationName.setDefaultNameIndicator(organizationNameDt.getDefaultNmInd());
-        }
-        return organizationName;
-    }
     /**
      * Sets the organization values in the databse based on the businessTrigger
      *
@@ -412,20 +364,21 @@ public class OrganizationRepositoryUtil {
     @Transactional
     public Long setOrganization(OrganizationVO organizationVO,
                                 String businessTriggerCd)
-            throws DataProcessingException{
+            throws DataProcessingException {
         Long organizationUID;
         try {
             organizationUID = setOrganizationInternal(organizationVO, businessTriggerCd);
         } catch (DataProcessingException ex) {
-            logger.error("EntityControllerEJB.setOrganization: NEDSSConcurrentDataException: concurrent access is not allowed" + ex.getMessage(),ex);
-            throw new DataProcessingException(ex.getMessage(),ex);
+            logger.error("EntityControllerEJB.setOrganization: NEDSSConcurrentDataException: concurrent access is not allowed" + ex.getMessage(), ex);
+            throw new DataProcessingException(ex.getMessage(), ex);
         } catch (Exception e) {
-                logger.error("EntityControllerEJB.setOrganization: Exception: " + e.getMessage(),e);
-                throw new DataProcessingException(e.getMessage(),e);
+            logger.error("EntityControllerEJB.setOrganization: Exception: " + e.getMessage(), e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
 
         return organizationUID;
     }
+
     private Long setOrganizationInternal(OrganizationVO organizationVO, String businessTriggerCd) throws DataProcessingException {
         Long organizationUID = Long.valueOf(-1);
         try {
@@ -479,13 +432,13 @@ public class OrganizationRepositoryUtil {
 
                 if (organizationVO.isItNew()) {
 //                    organization = home.create(organizationVO);
-                    organizationUID=createOrganization(organizationVO);
+                    organizationUID = createOrganization(organizationVO);
                     logger.debug(" EntityControllerEJB.setOrganization -  Organization Created");
 //                    logger.debug("EntityControllerEJB.setOrganization - organization.getOrganizationVO().getTheOrganizationDT().getOrganizationUid() =  "
 //                            + organization.getOrganizationVO()
 //                            .getTheOrganizationDT()
 //                            .getOrganizationUid());
-                    logger.debug("EntityControllerEJB.setOrganization {}",organizationUID);
+                    logger.debug("EntityControllerEJB.setOrganization {}", organizationUID);
 //                    organizationUID = organization.getOrganizationVO()
 //                            .getTheOrganizationDT().getOrganizationUid();
                 } else {
@@ -497,7 +450,7 @@ public class OrganizationRepositoryUtil {
 //                            .getTheOrganizationDT().getOrganizationUid();
 
                     updateOrganization(organizationVO);
-                    organizationUID=organizationVO
+                    organizationUID = organizationVO
                             .getTheOrganizationDT().getOrganizationUid();
                     logger.debug(" EntityControllerEJB.setOrganization -  Organization Updated");
                 }
@@ -543,6 +496,278 @@ public class OrganizationRepositoryUtil {
         } catch (Exception e) {
             logger.error("EntityControllerEJB.prepareOrganizationNameBeforePersistence: " + e.getMessage(), e);
             throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Specifically for loading the Reporting Lab or when logic requires the loading of a specific participation record.  See logic in method regarding
+     * loading the ParticipationDTCollection  for this organization.  The elr can result in
+     * the participation to have a substantial amount of Reporting labs with the same
+     * subjectEntityUid, therefore need to select based on teh actUid for the observation also.
+     *
+     * @param organizationUID
+     * @param actUid
+     * @return
+     */
+    public OrganizationVO loadObject(long organizationUID, long actUid) throws DataProcessingException {
+        OrganizationVO ovo = new OrganizationVO();
+
+
+        /**
+         *  Selects OrganizationDT object
+         */
+
+        OrganizationDT pDT = selectOrganization(organizationUID);
+        ovo.setTheOrganizationDT(pDT);
+
+        /**
+         * Selects OrganizationNameDT Collection
+         */
+
+        Collection<OrganizationNameDT> pnColl = selectOrganizationNames(organizationUID);
+        ovo.setTheOrganizationNameDTCollection(pnColl);
+
+        /**
+         * Selects EntityIdDT collection
+         */
+
+        Collection<EntityIdDto> idColl = selectEntityIDs(organizationUID);
+        ovo.setTheEntityIdDtoCollection(idColl);
+
+        /**
+         * Selects EntityLocatorParticipationDT collection
+         */
+
+        Collection<EntityLocatorParticipationDto> elpColl = selectEntityLocatorParticipations(organizationUID);
+        ovo.setTheEntityLocatorParticipationDtoCollection(elpColl);
+        //Selects RoleDTcollection
+        Collection<RoleDto> roleColl = selectRoleDTCollection(organizationUID);
+        ovo.setTheRoleDTCollection(roleColl);
+
+        //SelectsParticipationDTCollection
+        Collection<ParticipationDT> parColl = selectParticipationDTCollection(organizationUID, actUid);
+        ovo.setTheParticipationDTCollection(parColl);
+
+
+        ovo.setItNew(false);
+        ovo.setItDirty(false);
+        return ovo;
+    }
+
+    private OrganizationDT selectOrganization(long organizationUID) throws DataProcessingException {
+        OrganizationDT organizationDT = null;
+        /**
+         * Selects organization from organization table
+         */
+        try {
+            Organization organizatioModel = findOrganizationByUid(Long.valueOf(organizationUID));
+            organizationDT = new OrganizationDT(organizatioModel);
+            organizationDT.setItNew(false);
+            organizationDT.setItDirty(false);
+        } catch (Exception ex) {
+            logger.error("Exception while selecting " +
+                    "organization vo; id = " + organizationUID, ex);
+            throw new DataProcessingException(ex.toString());
+        }
+        logger.debug("return organization object");
+        return organizationDT;
+    }//end of selecting organization ethnic groups
+
+    /**
+     * Selects the  Names of the Organization
+     *
+     * @param organizationUID long   the OrganizationUID
+     * @return Collection
+     * @throws DataProcessingException
+     * @throws DataProcessingException
+     */
+    private Collection<OrganizationNameDT> selectOrganizationNames(long organizationUID) throws DataProcessingException {
+        Collection<OrganizationNameDT> returnArrayList = new ArrayList<>();
+        try {
+            Optional<List<OrganizationName>> listOptional = organizationNameRepository.findByOrganizationUid(organizationUID);
+            List<OrganizationName> organizationNameList = listOptional.get();
+            for (Iterator<OrganizationName> anIterator = organizationNameList.iterator(); anIterator.hasNext(); ) {
+                OrganizationName organizationNameModel = anIterator.next();
+                OrganizationNameDT organizationNameDT = new OrganizationNameDT(organizationNameModel);
+                organizationNameDT.setItNew(false);
+                organizationNameDT.setItDirty(false);
+                returnArrayList.add(organizationNameDT);
+            }
+            return returnArrayList;
+        } catch (Exception ex) {
+            logger.error("Exception while selection " +
+                    "Organization names; uid = " + organizationUID, ex);
+            throw new DataProcessingException(ex.toString());
+        }
+    }
+
+    /**
+     * This method is used to retrieve entityID objects for a specific organization.
+     *
+     * @param organizationUID the long
+     * @throws DataProcessingException
+     * @J2EE_METHOD --  selectEntityIDs
+     **/
+    private Collection<EntityIdDto> selectEntityIDs(long organizationUID) throws DataProcessingException {
+        try {
+            Optional<List<EntityId>> idListOptional = this.entityIdRepository.findByEntityUid(organizationUID);
+            List<EntityId> idList = idListOptional.get();
+
+            Collection<EntityIdDto> entityIdList = new ArrayList<>();
+            for (Iterator<EntityId> anIterator = idList.iterator(); anIterator.hasNext(); ) {
+                EntityId entityId = anIterator.next();
+                EntityIdDto entityIdDto = new EntityIdDto(entityId);
+                entityIdDto.setItNew(false);
+                entityIdDto.setItDirty(false);
+                entityIdList.add(entityIdDto);
+            }
+            logger.debug("Return entity id collection");
+            return entityIdList;
+        } catch (Exception ex) {
+            logger.error("Exception while selection " +
+                    "entity ids; uid = " + organizationUID, ex);
+            throw new DataProcessingException(ex.toString());
+        }
+    }
+
+    private Collection<EntityLocatorParticipationDto> selectEntityLocatorParticipations(long organizationUID)
+            throws DataProcessingException {
+        Collection<EntityLocatorParticipationDto> entityLocatorParticipationList = new ArrayList<>();
+        try {
+            List<EntityLocatorParticipation> entityLocatorParticipations = entityLocatorParticipationRepository.findByParentUid(organizationUID).get();
+
+            if (!entityLocatorParticipations.isEmpty()) {
+                List<EntityLocatorParticipation> physicalLocators;
+                List<EntityLocatorParticipation> postalLocators;
+                List<EntityLocatorParticipation> teleLocators;
+
+                physicalLocators = entityLocatorParticipations.stream().filter(x -> x.getClassCd()
+                                .equalsIgnoreCase(NEDSSConstant.PHYSICAL))
+                        .collect(Collectors.toList());
+                postalLocators = entityLocatorParticipations.stream().filter(x -> x.getClassCd()
+                                .equalsIgnoreCase(NEDSSConstant.POSTAL))
+                        .collect(Collectors.toList());
+                teleLocators = entityLocatorParticipations.stream().filter(x -> x.getClassCd()
+                                .equalsIgnoreCase(NEDSSConstant.TELE))
+                        .collect(Collectors.toList());
+
+                if (!physicalLocators.isEmpty()) {
+                    Optional<List<PhysicalLocator>> existingLocator = physicalLocatorRepository.findByPhysicalLocatorUids(
+                            physicalLocators.stream()
+                                    .map(x -> x.getLocatorUid())
+                                    .collect(Collectors.toList()));
+
+                    if (existingLocator.isPresent()) {
+                        List<PhysicalLocator> physicalLocatorList = existingLocator.get();
+                        for (int j = 0; j < physicalLocatorList.size(); j++) {
+                            EntityLocatorParticipationDto entityLocatorVO = new EntityLocatorParticipationDto();
+                            entityLocatorVO.setItNew(false);
+                            entityLocatorVO.setItDirty(false);
+                            entityLocatorVO.setItDelete(false);
+                            PhysicalLocatorDto physicalLocatorDT = new PhysicalLocatorDto(physicalLocatorList.get(j));
+                            physicalLocatorDT.setImageTxt(null);
+                            entityLocatorVO.setThePhysicalLocatorDto(physicalLocatorDT);
+                            entityLocatorParticipationList.add(entityLocatorVO);
+                        }
+                    }
+                }
+                if (!postalLocators.isEmpty()) {
+                    var existingLocator = postalLocatorRepository.findByPostalLocatorUids(
+                            postalLocators.stream()
+                                    .map(x -> x.getLocatorUid())
+                                    .collect(Collectors.toList()));
+                    if (existingLocator.isPresent()) {
+                        List<PostalLocator> postalLocatorList = existingLocator.get();
+                        for (int j = 0; j < postalLocatorList.size(); j++) {
+                            EntityLocatorParticipationDto entityLocatorVO = new EntityLocatorParticipationDto();
+                            entityLocatorVO.setItNew(false);
+                            entityLocatorVO.setItDirty(false);
+                            entityLocatorVO.setItDelete(false);
+                            PostalLocatorDto postalLocatorDT = new PostalLocatorDto(postalLocatorList.get(j));
+                            entityLocatorVO.setThePostalLocatorDto(postalLocatorDT);
+                            entityLocatorParticipationList.add(entityLocatorVO);
+                        }
+                    }
+                }
+                if (!teleLocators.isEmpty()) {
+                    var existingLocator = teleLocatorRepository.findByTeleLocatorUids(
+                            teleLocators.stream()
+                                    .map(x -> x.getLocatorUid())
+                                    .collect(Collectors.toList()));
+                    if (existingLocator.isPresent()) {
+                        List<TeleLocator> teleLocatorList = existingLocator.get();
+                        for (int j = 0; j < teleLocatorList.size(); j++) {
+                            EntityLocatorParticipationDto entityLocatorVO = new EntityLocatorParticipationDto();
+                            entityLocatorVO.setItNew(false);
+                            entityLocatorVO.setItDirty(false);
+                            entityLocatorVO.setItDelete(false);
+                            TeleLocatorDto teleLocatorDto = new TeleLocatorDto(teleLocatorList.get(j));
+                            entityLocatorVO.setTheTeleLocatorDto(teleLocatorDto);
+                            entityLocatorParticipationList.add(entityLocatorVO);
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            logger.error("Exception selectEntityLocatorParticipations " +
+                    "entity id; uid = " + organizationUID, ex);
+            throw new DataProcessingException(ex.toString());
+        }
+        return entityLocatorParticipationList;
+    }
+
+    /**
+     * @param uid, sqlStatement
+     * @return java.util.Collection<Object>
+     * @throws DataProcessingException
+     * @roseuid 3C434E6C0115
+     */
+    private Collection<RoleDto> selectRoleDTCollection(long uid) throws DataProcessingException {
+        Collection<RoleDto> retval = new ArrayList<>();
+        try {
+            List<Role> roleList = roleRepository.findBySubjectEntityUid(Long.valueOf(uid)).get();
+            for (Iterator<Role> anIterator = roleList.iterator(); anIterator.hasNext(); ) {
+                Role roleModel = anIterator.next();
+                RoleDto newdt = new RoleDto(roleModel);
+                newdt.setItNew(false);
+                newdt.setItDirty(false);
+                retval.add(newdt);
+            }
+        } catch (Exception se) {
+            logger.error("Error: selectRoleDTCollection while selecting role \n" + se.getMessage(), se);
+            throw new DataProcessingException(se.getMessage());
+        }
+        return retval;
+    }
+
+    /**
+     * Loads a partcipation record based on the actUid and subjectEntityUid.
+     *
+     * @param uid
+     * @param act_uid
+     * @return
+     * @throws DataProcessingException
+     */
+    private Collection<ParticipationDT> selectParticipationDTCollection(long uid, long act_uid)
+            throws DataProcessingException {
+        try {
+            List<Participation> participationList = participationRepository.
+                    findBySubjectEntityUidAndActUid(uid, act_uid).get();
+
+            ArrayList<ParticipationDT> retList = new ArrayList<>();
+
+            for (Iterator<Participation> anIterator = participationList.iterator();
+                 anIterator.hasNext(); ) {
+                ParticipationDT participationDT = new ParticipationDT(anIterator.next());
+                participationDT.setItNew(false);
+                participationDT.setItDirty(false);
+                retList.add(participationDT);
+            }
+            return retList;
+        } catch (Exception se) {
+            logger.error("Exception selectParticipation = " + se.getMessage(), se);
+            throw new DataProcessingException("Error: Exception while selecting \n" +
+                    se.getMessage());
         }
     }
 }

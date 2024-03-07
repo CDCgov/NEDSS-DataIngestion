@@ -11,6 +11,7 @@ import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.service.interfaces.core.IOrganizationService;
 import gov.cdc.dataprocessing.service.interfaces.matching.IOrganizationMatchingService;
+import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +26,15 @@ public class OrganizationService implements IOrganizationService {
     private static final Logger logger = LoggerFactory.getLogger(OrganizationService.class);
 
     private static IOrganizationMatchingService iOrganizationMatchingService;
-
-    public OrganizationService(IOrganizationMatchingService iOrganizationMatchingService) {
+    private final OrganizationRepositoryUtil organizationRepositoryUtil;
+    public OrganizationService(IOrganizationMatchingService iOrganizationMatchingService,OrganizationRepositoryUtil organizationRepositoryUtil) {
         this.iOrganizationMatchingService = iOrganizationMatchingService;
+        this.organizationRepositoryUtil=organizationRepositoryUtil;
     }
-
+    public OrganizationVO testloadObject(long orguid, long actid) throws DataProcessingException {
+        OrganizationVO organizationVO=organizationRepositoryUtil.loadObject(orguid,actid);
+       return organizationVO;
+    }
     public OrganizationVO processingOrganization(LabResultProxyContainer labResultProxyContainer) throws DataProcessingConsumerException {
         //TODO: Adding logic here
         OrganizationVO orderingFacilityVO=null;

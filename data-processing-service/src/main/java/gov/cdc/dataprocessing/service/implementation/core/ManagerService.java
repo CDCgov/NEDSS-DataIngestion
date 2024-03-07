@@ -214,10 +214,11 @@ public class ManagerService implements IManagerService {
             var observation = observationService.processingObservation();
 
             //TODO: PATIENT && NOK && PROVIDER
-            //PersonAggContainer personAggContainer = personAggregationAsync(parsedData, edxLabInformationDto);
+            PersonAggContainer personAggContainer = personAggregationAsync(parsedData, edxLabInformationDto);
 
             //TODO: ORGANIZATION
             OrganizationVO orderingFacilityVO = organizationService.processingOrganization(parsedData);
+
 
             //TODO: PROGRAM AREA
             var programArea = programAreaJurisdictionService.processingProgramArea();
