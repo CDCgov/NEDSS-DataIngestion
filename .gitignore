@@ -53,3 +53,4 @@ hl7-parser/.gradle/*
 
 ### env ###
 *.env
+/data-ingestion-service/files/sftpProcessedUnprocessed

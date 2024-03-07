@@ -13,4 +13,9 @@ import java.util.Optional;
 public interface EntityLocatorParticipationRepository extends JpaRepository<EntityLocatorParticipation, Long> {
     @Query("SELECT pn FROM EntityLocatorParticipation pn WHERE pn.entityUid = :parentUid")
     Optional<List<EntityLocatorParticipation>> findByParentUid(@Param("parentUid") Long parentUid);
+
+    @Query("SELECT pn.locatorUid FROM EntityLocatorParticipation pn WHERE pn.entityUid = :entityUid")
+    Optional<List<Long>> findLocatorUidsByEntityUid(@Param("entityUid") Long entityUid);
+
+
 }
