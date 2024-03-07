@@ -22,4 +22,13 @@ public interface NbsAnswerRepository  extends JpaRepository<NbsAnswer, Long> {
      * */
     @Query("SELECT data FROM NbsAnswer data WHERE data.actUid = :uid")
     Optional<Collection<NbsAnswer>> getPageAnswerByActUid(@Param("uid") Long uid);
+
+
+    /**
+     * String DELETE_NBS_ANSWER = "DELETE FROM nbs_answer WHERE nbs_answer_uid= ?"
+     */
+    @Query("DELETE FROM NbsAnswer data WHERE data.nbsAnswerUid = :nbsAnswerUid")
+    void deleteNbsAnswer(Long nbsAnswerUid);
+
+
 }

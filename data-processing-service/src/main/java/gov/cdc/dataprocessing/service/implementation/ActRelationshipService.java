@@ -1,6 +1,8 @@
 package gov.cdc.dataprocessing.service.implementation;
 
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ActRelationshipDT;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationship;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipRepository;
 import gov.cdc.dataprocessing.service.interfaces.IActRelationshipService;
 import org.slf4j.Logger;
@@ -31,5 +33,21 @@ public class ActRelationshipService implements IActRelationshipService {
         }
 
         return actRelationshipDTCollection;
+    }
+
+    public void saveActRelationship(ActRelationshipDT actRelationshipDT) throws DataProcessingException {
+        if (actRelationshipDT == null) {
+            throw new DataProcessingException("Act Relationship is null");
+        }
+
+        if (actRelationshipDT.isItNew() || actRelationshipDT.isItDirty()) {
+            var data = new ActRelationship(actRelationshipDT);
+            if (actRelationshipDT.isItNew() || (actRelationshipDT.isItDirty() && actRelationshipDT.getTargetActUid() != null && actRelationshipDT.getSourceActUid() != null && actRelationshipDT.getTypeCd() != null)) {
+                actRelationshipRepository.save(data);
+            }
+        }
+        else if (actRelationshipDT.isItDelete()) {
+            actRelationshipRepository.deleteActRelationshipByPk(actRelationshipDT.getTargetActUid(), actRelationshipDT.getSourceActUid(), actRelationshipDT.getTypeCd());
+        }
     }
 }

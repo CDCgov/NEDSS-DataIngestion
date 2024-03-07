@@ -6,4 +6,5 @@ import java.util.Collection;
 
 public interface IRoleService {
     Collection<RoleDto> findRoleScopedToPatient(Long uid);
+    void saveRole(RoleDto roleDto);
 }

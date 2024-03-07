@@ -255,4 +255,8 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
     }
 
 
+    public Long setProvider(PersonContainer personContainer, String businessTriggerCd) throws DataProcessingException {
+       return processingProvider(personContainer,  "",  businessTriggerCd) ;
+    }
+
 }

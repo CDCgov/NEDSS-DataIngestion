@@ -20,4 +20,8 @@ public interface NbsActEntityRepository  extends JpaRepository<NbsActEntity, Lon
     @Query("SELECT data FROM NbsActEntity data WHERE data.actUid = :uid")
     Optional<Collection<NbsActEntity>> getNbsActEntitiesByActUid(@Param("uid") Long uid);
 
+    @Query("DELETE FROM NbsActEntity data WHERE data.nbsActEntityUid = :nbsActEntityUid")
+    void deleteNbsEntityAct(Long nbsActEntityUid);
+
+
 }

@@ -13,4 +13,7 @@ import java.util.Optional;
 public interface EntityIdRepository extends JpaRepository<EntityId, Long> {
     @Query("SELECT pn FROM EntityId pn WHERE pn.entityUid = :parentUid")
     Optional<List<EntityId>> findByParentUid(@Param("parentUid") Long parentUid);
+
+    @Query("SELECT MAX(pn.entityIdSeq) FROM EntityId pn WHERE pn.entityUid = :parentUid")
+    Optional<Integer> findMaxEntityId(@Param("parentUid") Long parentUid);
 }

@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.service.implementation.core;
 
 import gov.cdc.dataprocessing.constant.elr.*;
+import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.NNDActivityLogDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.*;
@@ -10,11 +11,23 @@ import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.act.Act;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActLocatorParticipation;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.*;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActIdRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActLocatorParticipationRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.*;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.service.interfaces.*;
 import gov.cdc.dataprocessing.service.interfaces.core.IObservationService;
 import gov.cdc.dataprocessing.service.interfaces.matching.IObservationMatchingService;
+import gov.cdc.dataprocessing.service.interfaces.matching.IPatientMatchingService;
+import gov.cdc.dataprocessing.service.interfaces.matching.IProviderMatchingService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.ObservationUtil;
+import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -62,6 +75,28 @@ public class ObservationService implements IObservationService {
 
     private final IParticipationService participationService;
 
+    private final IProviderMatchingService providerMatchingService;
+    private final IPatientMatchingService patientMatchingService;
+
+    private final ObservationRepository observationRepository;
+    private final PersonRepository personRepository;
+    private final IJurisdictionService jurisdictionService;
+
+    private final EntityHelper entityHelper;
+
+    private final OdseIdGeneratorService odseIdGeneratorService;
+
+    private final ActRepository  actRepository;
+    private final ObservationReasonRepository observationReasonRepository;
+    private final ActIdRepository actIdRepository;
+    private final ObservationInterpRepository observationInterpRepository;
+    private final ObsValueCodedRepository obsValueCodedRepository;
+    private final ObsValueTxtRepository obsValueTxtRepository;
+    private final ObsValueDateRepository obsValueDateRepository;
+    private final ObsValueNumericRepository obsValueNumericRepository;
+    private final ActLocatorParticipationRepository actLocatorParticipationRepository;
+
+
 
     public ObservationService(IObservationMatchingService observationMatchingService,
                               INNDActivityLogService nndActivityLogService,
@@ -75,7 +110,23 @@ public class ObservationService implements IObservationService {
                               IEdxDocumentService edxDocumentService,
                               IAnswerService answerService,
                               ISrteCodeObsService srteCodeObsService,
-                              IParticipationService participationService) {
+                              IParticipationService participationService,
+                              IProviderMatchingService providerMatchingService,
+                              IPatientMatchingService patientMatchingService,
+                              ObservationRepository observationRepository,
+                              PersonRepository personRepository,
+                              IJurisdictionService jurisdictionService,
+                              EntityHelper entityHelper,
+                              OdseIdGeneratorService odseIdGeneratorService,
+                              ActRepository actRepository,
+                              ObservationReasonRepository observationReasonRepository,
+                              ActIdRepository actIdRepository,
+                              ObservationInterpRepository observationInterpRepository,
+                              ObsValueCodedRepository obsValueCodedRepository,
+                              ObsValueTxtRepository obsValueTxtRepository,
+                              ObsValueDateRepository obsValueDateRepository,
+                              ObsValueNumericRepository obsValueNumericRepository,
+                              ActLocatorParticipationRepository actLocatorParticipationRepository) {
 
         this.observationMatchingService = observationMatchingService;
         this.nndActivityLogService = nndActivityLogService;
@@ -90,6 +141,22 @@ public class ObservationService implements IObservationService {
         this.answerService = answerService;
         this.srteCodeObsService = srteCodeObsService;
         this.participationService = participationService;
+        this.providerMatchingService = providerMatchingService;
+        this.patientMatchingService = patientMatchingService;
+        this.observationRepository = observationRepository;
+        this.personRepository = personRepository;
+        this.jurisdictionService = jurisdictionService;
+        this.entityHelper = entityHelper;
+        this.odseIdGeneratorService = odseIdGeneratorService;
+        this.actRepository = actRepository;
+        this.observationReasonRepository = observationReasonRepository;
+        this.actIdRepository = actIdRepository;
+        this.observationInterpRepository = observationInterpRepository;
+        this.obsValueCodedRepository = obsValueCodedRepository;
+        this.obsValueTxtRepository = obsValueTxtRepository;
+        this.obsValueDateRepository = obsValueDateRepository;
+        this.obsValueNumericRepository = obsValueNumericRepository;
+        this.actLocatorParticipationRepository = actLocatorParticipationRepository;
     }
 
     private void checkMethodArgs(Long uid) throws DataProcessingException {
@@ -1528,7 +1595,7 @@ public class ObservationService implements IObservationService {
                         falseUid = materialVO.getTheMaterialDT().getMaterialUid();
                         logger.debug("false materialUID: " + falseUid);
                         //TODO: INSERTION
-                        realUid = setMaterial(materialVO);
+                        realUid = materialService.saveMaterial(materialVO);
                         if (falseUid.intValue() < 0)
                         {
                             setFalseToNew(labResultProxyVO, falseUid, realUid);
@@ -1544,7 +1611,7 @@ public class ObservationService implements IObservationService {
 //                        materialVO.setTheMaterialDT(newMaterialDT);
 
                         //TODO: INSERTION
-                        realUid = setMaterial(materialVO);
+                        realUid = materialService.saveMaterial(materialVO);
                         logger.debug("exisiting but updated material's UID: " + realUid);
                     }
                 }
@@ -1568,10 +1635,10 @@ public class ObservationService implements IObservationService {
                             if (participationDT.isItDelete())
                             {
                                 //TODO: INSERTION
-                                insertParticipationHistory(participationDT);
+                                participationService.saveParticipationHist(participationDT);
                             }
                             //TODO: INSERTION
-                            participationDAOImpl.store(participationDT);
+                            participationService.saveParticipation(participationDT);
 
                             logger.debug("got the participationDT, the ACTUID is " +
                                     participationDT.getActUid());
@@ -1601,7 +1668,7 @@ public class ObservationService implements IObservationService {
                         if (actRelationshipDT != null)
                         {
                             //TODO: INSERTION
-                            actRelationshipDAOImpl.store(actRelationshipDT);
+                            actRelationshipService.saveActRelationship(actRelationshipDT);
                         }
                     }
                     catch (Exception e)
@@ -1648,7 +1715,7 @@ public class ObservationService implements IObservationService {
                             eDXDocumentDt.setActUid(observationUid);
                         }
                         //TODO: INSERTION
-                        insertEDXDocument(eDXDocumentDt);
+                        edxDocumentService.saveEdxDocument(eDXDocumentDt);
                     }
                 }
             }
@@ -1657,11 +1724,11 @@ public class ObservationService implements IObservationService {
             if(labResultProxyVO.isItDirty()) {
                 PageVO pageVO=(PageVO)labResultProxyVO.getPageVO();
                 //TODO: INSERTION
-                answerRootDAOImpl.store(pageVO, rootDT);
+                answerService.storePageAnswer(pageVO, rootDT);
             }else {
                 PageVO pageVO=(PageVO)labResultProxyVO.getPageVO();
                 //TODO: INSERTION
-                answerRootDAOImpl.insertPageVO(pageVO, rootDT);
+                answerService.insertPageVO(pageVO, rootDT);
             }
         }
         catch (Exception e)
@@ -2309,12 +2376,20 @@ public class ObservationService implements IObservationService {
             //Find observation local id
             if(localIds == null) localIds = new HashMap<Object, Object> ();
             //TODO: SELECTION
-            ObservationDT obsDT = actControllerRef.getObservationInfo(observationUid);
+            var resObs = observationRepository.findById(observationUid);
+            ObservationDT obsDT = new ObservationDT();
+            if (resObs.isPresent()) {
+                obsDT = new ObservationDT(resObs.get());
+            }
             localIds.put(NEDSSConstant.SETLAB_RETURN_OBS_LOCAL, obsDT.getLocalId());
             localIds.put(NEDSSConstant.SETLAB_RETURN_OBSDT, obsDT);
             //Find mpr local id
             //TODO: SELECTION
-            localIds.put(NEDSSConstant.SETLAB_RETURN_MPR_LOCAL, entityControllerRef.getPersonInfo(personMprUid).getLocalId());
+
+            var resPat = personRepository.findById(personMprUid);
+            if (resPat.isPresent()) {
+                localIds.put(NEDSSConstant.SETLAB_RETURN_MPR_LOCAL, resPat.get().getLocalId());
+            }
         }
         catch (Exception ex)
         {
@@ -2501,17 +2576,17 @@ public class ObservationService implements IObservationService {
                 if (providerUid != null)
                 {
                     //TODO: SELECTION
-                    providerVO = getProvider(providerUid);
+                    providerVO = patientRepositoryUtil.loadPerson(providerUid);
                 }
                 if (orderingFacilityUid != null)
                 {
                     //TODO: ORGANIZATION
-                    orderingFacilityVO = getOrganization(orderingFacilityUid);
+                    // orderingFacilityVO = getOrganization(orderingFacilityUid);
                 }
                 if(reportingFacilityUid!=null)
                 {
                     //TODO: ORGANIZATION
-                    reportingFacilityVO = getOrganization(reportingFacilityUid);
+                    // reportingFacilityVO = getOrganization(reportingFacilityUid);
                 }
             }
             catch (Exception rex)
@@ -2555,8 +2630,8 @@ public class ObservationService implements IObservationService {
 
                 try
                 {
-                    //TODO: CHECK THIS OUT
-                    jMap = jurisdiction.resolveLabReportJurisdiction(patientVO, providerVO, orderingFacilityVO, reportingFacilityVO);
+                    //TODO: JURISDICTION
+                    jMap = jurisdictionService.resolveLabReportJurisdiction(patientVO, providerVO, orderingFacilityVO, reportingFacilityVO);
                 }
                 catch (Exception cex)
                 {
@@ -2625,6 +2700,449 @@ public class ObservationService implements IObservationService {
         } catch (Exception e) {
             // TODO Auto-generated catch block
             throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+
+    private void storeRoleDTCollection(Collection<RoleDto> roleDTColl) throws DataProcessingException {
+        try {
+            if(roleDTColl == null || roleDTColl.isEmpty()) return;
+
+            for (Iterator<RoleDto> anIterator = roleDTColl.iterator(); anIterator.hasNext(); )
+            {
+                RoleDto roleDT = anIterator.next();
+                if(roleDT == null){
+                    continue;
+                }
+
+                //TODO: EVALUATE
+                //roleDT = (RoleDto)new PrepareVOUtils().prepareAssocDT(roleDT);
+                roleService.saveRole(roleDT);
+            }
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+    private Long setPerson(String personType, PersonContainer personVO, boolean isNew, boolean isExternal) throws DataProcessingException
+    {
+        try
+        {
+            if (personType.equalsIgnoreCase(NEDSSConstant.PAT))
+            {
+                return patientMatchingService.updateExistingPerson(personVO, isNew ? NEDSSConstant.PAT_CR : NEDSSConstant.PAT_EDIT);
+            }
+            else if (personType.equalsIgnoreCase(NEDSSConstant.PRV) && (!isNew || (isNew && isExternal)))
+            {
+                return providerMatchingService.setProvider(personVO, isNew ? NEDSSConstant.PRV_CR : NEDSSConstant.PRV_EDIT);
+            }
+            else
+            {
+                throw new IllegalArgumentException("Expected a valid person type: " + personType);
+            }
+        }
+        catch (Exception rex)
+        {
+            throw new DataProcessingException(rex.getMessage(), rex);
+        }
+    }
+
+    private Long storeObservationVOCollection(AbstractVO proxyVO) throws DataProcessingException {
+        try {
+            //Iterates the observation collection and process each observation vo
+            Collection<ObservationVO>  obsVOColl = null;
+            boolean isLabResultProxyVO = false;
+            if (proxyVO instanceof LabResultProxyContainer)
+            {
+                obsVOColl = ( (LabResultProxyContainer) proxyVO).getTheObservationVOCollection();
+                isLabResultProxyVO = true;
+            }
+
+            //TODO: MORBIDITY
+//            if (proxyVO instanceof MorbidityProxyVO)
+//            {
+//                obsVOColl = ( (MorbidityProxyVO) proxyVO).getTheObservationVOCollection();
+//            }
+
+            ObservationVO observationVO = null;
+            Long returnObsVal = null;
+
+            if (obsVOColl != null && obsVOColl.size() > 0)
+            {
+                for (Iterator<ObservationVO> anIterator = obsVOColl.iterator(); anIterator.hasNext(); )
+                {
+                    observationVO = (ObservationVO) anIterator.next();
+
+                    if (observationVO == null)
+                    {
+                        continue;
+                    }
+
+                    //If lab report's order test, set a flag
+                    boolean isRootObs = false;
+
+                    String obsDomainCdSt1 = observationVO.getTheObservationDT().
+                            getObsDomainCdSt1();
+                    if (isLabResultProxyVO && obsDomainCdSt1 != null &&
+                            obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD))
+                    {
+                        isRootObs = true;
+                    }
+
+                    //If a root morbidity, set a flag so to return the observation uid
+                    String ctrlCdDisplayForm = observationVO.getTheObservationDT().
+                            getCtrlCdDisplayForm();
+                    if (ctrlCdDisplayForm != null &&
+                            ctrlCdDisplayForm.equalsIgnoreCase(NEDSSConstant.MOB_CTRLCD_DISPLAY))
+                    {
+                        isRootObs = true;
+                    }
+
+                    //TODO INSERTION
+                    //Persist the observation vo
+                    Long observationUid = saveObservation(observationVO);
+
+                    //Update associations with real uid if new
+                    if (observationVO.isItNew())
+                    {
+                        Long falseUid = observationVO.getTheObservationDT().getObservationUid();
+                        logger.debug("false observationUID: " + falseUid);
+                        if (falseUid.intValue() < 0) {
+                            this.setFalseToNew(proxyVO, falseUid, observationUid);
+                        }
+                    }
+
+
+                    //Return the order test uid
+                    if (observationUid != null && isRootObs)
+                    {
+                        returnObsVal = observationUid;
+                    }
+                } //end of for loop
+            } //end of main if
+            return returnObsVal;
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+
+    @Transactional
+    public Long saveObservation(ObservationVO observationVO) throws DataProcessingException {
+        Long observationUid = -1L;
+
+
+        try {
+            Observation observation = null;
+
+            Collection<ActivityLocatorParticipationDT> alpDTCol = observationVO.getTheActivityLocatorParticipationDTCollection();
+            Collection<ActRelationshipDT> arDTCol = observationVO.getTheActRelationshipDTCollection();
+            Collection<ParticipationDT> pDTCol = observationVO.getTheParticipationDTCollection();
+            Collection<ActRelationshipDT> colAct = null;
+            Collection<ParticipationDT> colParticipation = null;
+            Collection<ActivityLocatorParticipationDT> colActLocatorParticipation = null;
+
+
+            if (alpDTCol != null)
+            {
+                colActLocatorParticipation = entityHelper.iterateActivityParticipation(alpDTCol);
+                observationVO.setTheActivityLocatorParticipationDTCollection(colActLocatorParticipation);
+            }
+
+            if (arDTCol != null)
+            {
+                colAct = entityHelper.iterateActRelationship(arDTCol);
+                observationVO.setTheActRelationshipDTCollection(colAct);
+            }
+
+            if (pDTCol != null)
+            {
+                colParticipation = entityHelper.iteratePDTForParticipation(pDTCol);
+                observationVO.setTheParticipationDTCollection(colParticipation);
+            }
+
+            if (observationVO.isItNew())
+            {
+                //observation = home.create(observationVO);
+                var obsUid =  createNewObservation(observationVO);
+                observationUid = obsUid;
+            }
+            else
+            {
+                if (observationVO.getTheObservationDT() != null) // make sure it is not null
+                {
+                    updateObservation(observationVO);
+                    observationUid = observationVO.getTheObservationDT().getObservationUid();
+                }
+            }
+
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+
+        return observationUid;
+
+    }
+
+    @Transactional
+    public Long createNewObservation(ObservationVO observationVO) {
+        Long obsId = saveNewObservation(observationVO.getTheObservationDT());
+        observationVO.getTheObservationDT().setItNew(false);
+        observationVO.getTheObservationDT().setItDirty(false);
+
+        addObservationReasons(obsId, observationVO.getTheObservationReasonDTCollection());
+        addActivityId(obsId, observationVO.getTheActIdDTCollection());
+        addObservationInterps(obsId, observationVO.getTheObservationInterpDTCollection());
+        addObsValueCoded(obsId, observationVO.getTheObsValueCodedDTCollection());
+        addObsValueTxts(obsId, observationVO.getTheObsValueTxtDTCollection());
+        addObsValueDates(obsId, observationVO.getTheObsValueDateDTCollection());
+        addObsValueNumeric(obsId, observationVO.getTheObsValueNumericDTCollection());
+        addActivityLocatorParticipations(obsId, observationVO.getTheActivityLocatorParticipationDTCollection());
+        return obsId;
+    }
+
+    @Transactional
+    public Long updateObservation(ObservationVO observationVO) {
+        Long uid = -1L;
+        if (observationVO.getTheObservationDT().getObservationUid() == null) {
+            uid = saveNewObservation(observationVO.getTheObservationDT());
+            observationVO.getTheObservationDT().setItNew(false);
+            observationVO.getTheObservationDT().setItDirty(false);
+        } else {
+            uid = saveObservation(observationVO.getTheObservationDT());
+            observationVO.getTheObservationDT().setItNew(false);
+            observationVO.getTheObservationDT().setItDirty(false);
+        }
+
+        updateObservationReason(uid, observationVO.getTheObservationReasonDTCollection());
+        addActivityId(uid, observationVO.getTheActIdDTCollection());
+        updateObservationInterps(uid, observationVO.getTheObservationInterpDTCollection());
+        updateObsValueCoded(uid, observationVO.getTheObsValueCodedDTCollection());
+        updateObsValueTxts(uid, observationVO.getTheObsValueTxtDTCollection());
+        updateObsValueDates(uid, observationVO.getTheObsValueDateDTCollection());
+        updateObsValueNumerics(uid, observationVO.getTheObsValueNumericDTCollection());
+        addActivityLocatorParticipations(uid, observationVO.getTheActivityLocatorParticipationDTCollection());
+        return uid;
+    }
+
+    private Long saveNewObservation(ObservationDT observationDT) {
+        var uid = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.OBSERVATION);
+
+        Act act = new Act();
+        act.setActUid(uid.getSeedValueNbr());
+        act.setClassCode(NEDSSConstant.OBSERVATION_CLASS_CODE);
+        act.setMoodCode(NEDSSConstant.EVENT_MOOD_CODE);
+
+        actRepository.save(act);
+
+        observationDT.setObservationUid(uid.getSeedValueNbr());
+        //TODO EVALUATE
+        // Local uid
+        observationDT.setLocalId("TEST123");
+        Observation observation = new Observation(observationDT);
+        observationRepository.save(observation);
+        return uid.getSeedValueNbr();
+    }
+    private Long saveObservation(ObservationDT observationDT) {
+        Observation observation = new Observation(observationDT);
+        observationRepository.save(observation);
+        return observation.getObservationUid();
+    }
+
+    // private void insertObservationReasons(ObservationVO obVO) throws  NEDSSSystemException
+    private void  addObservationReasons(Long obsUid, Collection<ObservationReasonDT> observationReasonDTCollection) {
+        ArrayList<ObservationReasonDT> arr = new ArrayList<>(observationReasonDTCollection);
+        for(var item: arr) {
+            item.setObservationUid(obsUid);
+            item.setItNew(false);
+            item.setItDirty(false);
+            item.setItDelete(false);
+            saveObservationReason(item);
+        }
+    }
+
+    private void saveObservationReason(ObservationReasonDT item) {
+        var data = new ObservationReason(item);
+        observationReasonRepository.save(data);
+    }
+
+    private void updateObservationReason(Long obsUid, Collection<ObservationReasonDT> observationReasonDTCollection) {
+        ArrayList<ObservationReasonDT> arr = new ArrayList<>(observationReasonDTCollection);
+        for(var item: arr) {
+            if (!item.isItDelete()) {
+                item.setObservationUid(obsUid);
+                saveObservationReason(item);
+            } else {
+                observationReasonRepository.delete(new ObservationReason(item));
+            }
+        }
+    }
+    private void addActivityId(Long obsUid, Collection<ActIdDT> actIdDTCollection) {
+        ArrayList<ActIdDT> arr = new ArrayList<>(actIdDTCollection);
+        for(var item: arr) {
+            item.setItNew(false);
+            item.setItDirty(false);
+            item.setItDelete(false);
+            item.setActUid(obsUid);
+            var reason = new ActId(item);
+            actIdRepository.save(reason);
+        }
+    }
+
+    private void addObservationInterps(Long obsUid, Collection<ObservationInterpDT> observationInterpDTCollection) {
+        ArrayList<ObservationInterpDT> arr = new ArrayList<>(observationInterpDTCollection);
+        for(var item: arr) {
+            item.setItNew(false);
+            item.setItDirty(false);
+            item.setItDelete(false);
+            item.setObservationUid(obsUid);
+            saveObservationInterp(item);
+        }
+    }
+
+    private void saveObservationInterp(ObservationInterpDT item) {
+        var reason = new ObservationInterp(item);
+        observationInterpRepository.save(reason);
+    }
+
+    private void updateObservationInterps(Long obsUid, Collection<ObservationInterpDT> collection) {
+        ArrayList<ObservationInterpDT> arr = new ArrayList<>(collection);
+        for(var item: arr) {
+            if (!item.isItDelete()) {
+                item.setObservationUid(obsUid);
+                saveObservationInterp(item);
+            } else {
+                observationInterpRepository.delete(new ObservationInterp(item));
+            }
+        }
+    }
+
+    private void addObsValueCoded(Long obsUid, Collection<ObsValueCodedDT> obsValueCodedDTCollection) {
+        ArrayList<ObsValueCodedDT> arr = new ArrayList<>(obsValueCodedDTCollection);
+        for(var item: arr) {
+            item.setItNew(false);
+            item.setItDirty(false);
+            item.setItDelete(false);
+            item.setObservationUid(obsUid);
+            saveObsValueCoded(item);
+        }
+    }
+
+    private void saveObsValueCoded(ObsValueCodedDT item) {
+        var reason = new ObsValueCoded(item);
+        obsValueCodedRepository.save(reason);
+    }
+
+    private void updateObsValueCoded(Long obsUid, Collection<ObsValueCodedDT> collection) {
+        ArrayList<ObsValueCodedDT> arr = new ArrayList<>(collection);
+        for(var item: arr) {
+            if (!item.isItDelete()) {
+                item.setObservationUid(obsUid);
+                saveObsValueCoded(item);
+
+            } else {
+                obsValueCodedRepository.delete(new ObsValueCoded(item));
+            }
+        }
+    }
+
+
+    private void addObsValueTxts(Long obsUid, Collection<ObsValueTxtDT> obsValueTxtDTCollection) {
+        ArrayList<ObsValueTxtDT> arr = new ArrayList<>(obsValueTxtDTCollection);
+        for(var item: arr) {
+            item.setItNew(false);
+            item.setItDirty(false);
+            item.setItDelete(false);
+            item.setObservationUid(obsUid);
+            saveObsValueTxt(item);
+        }
+    }
+
+    private void saveObsValueTxt(ObsValueTxtDT item) {
+        var reason = new ObsValueTxt(item);
+        obsValueTxtRepository.save(reason);
+    }
+
+    private void updateObsValueTxts(Long obsUid, Collection<ObsValueTxtDT> collection) {
+        ArrayList<ObsValueTxtDT> arr = new ArrayList<>(collection);
+        for(var item: arr) {
+            if (!item.isItDelete()) {
+                item.setObservationUid(obsUid);
+                saveObsValueTxt(item);
+
+            } else {
+                obsValueTxtRepository.delete(new ObsValueTxt(item));
+            }
+        }
+    }
+
+    private void addObsValueDates(Long obsUid, Collection<ObsValueDateDT> obsValueDateDTCollection) {
+        ArrayList<ObsValueDateDT> arr = new ArrayList<>(obsValueDateDTCollection);
+        for(var item: arr) {
+            item.setItNew(false);
+            item.setItDirty(false);
+            item.setItDelete(false);
+            item.setObservationUid(obsUid);
+            saveObsValueDate(item);
+        }
+    }
+
+    private void saveObsValueDate(ObsValueDateDT item) {
+        var reason = new ObsValueDate(item);
+        obsValueDateRepository.save(reason);
+    }
+
+    private void updateObsValueDates(Long obsUid, Collection<ObsValueDateDT> collection) {
+        ArrayList<ObsValueDateDT> arr = new ArrayList<>(collection);
+        for(var item: arr) {
+            if (!item.isItDelete()) {
+                item.setObservationUid(obsUid);
+                saveObsValueDate(item);
+
+            } else {
+                obsValueDateRepository.delete(new ObsValueDate(item));
+            }
+        }
+    }
+
+    private void addObsValueNumeric(Long obsUid, Collection<ObsValueNumericDT> obsValueNumericDTCollection) {
+        ArrayList<ObsValueNumericDT> arr = new ArrayList<>(obsValueNumericDTCollection);
+        for(var item: arr) {
+            item.setItNew(false);
+            item.setItDirty(false);
+            item.setItDelete(false);
+            item.setObservationUid(obsUid);
+            saveObsValueNumeric(item);
+        }
+    }
+
+    private void saveObsValueNumeric(ObsValueNumericDT item) {
+        var reason = new ObsValueNumeric(item);
+        obsValueNumericRepository.save(reason);
+    }
+
+    private void updateObsValueNumerics(Long obsUid, Collection<ObsValueNumericDT> collection) {
+        ArrayList<ObsValueNumericDT> arr = new ArrayList<>(collection);
+        for(var item: arr) {
+            if (!item.isItDelete()) {
+                item.setObservationUid(obsUid);
+                saveObsValueNumeric(item);
+
+            } else {
+                obsValueNumericRepository.delete(new ObsValueNumeric(item));
+            }
+        }
+    }
+
+    private void addActivityLocatorParticipations(Long obsUid, Collection<ActivityLocatorParticipationDT> activityLocatorParticipationDTCollection) {
+        ArrayList<ActivityLocatorParticipationDT> arr = new ArrayList<>(activityLocatorParticipationDTCollection);
+        for(var item: arr) {
+            item.setItNew(false);
+            item.setItDirty(false);
+            item.setItDelete(false);
+            item.setActUid(obsUid);
+            var reason = new ActLocatorParticipation(item);
+            actLocatorParticipationRepository.save(reason);
         }
     }
 

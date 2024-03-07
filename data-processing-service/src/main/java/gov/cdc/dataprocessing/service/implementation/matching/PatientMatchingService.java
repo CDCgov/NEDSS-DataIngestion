@@ -220,6 +220,11 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
         return multipleMatchFound;
     }
 
+    @Transactional
+    public Long updateExistingPerson(PersonContainer personContainer, String businessTriggerCd) throws DataProcessingException {
+        return updateExistingPerson(personContainer,businessTriggerCd, personContainer.getThePersonDto().getPersonParentUid()).getPersonId();
+    }
+
 
 
 

@@ -34,4 +34,10 @@ public class EdxDocumentService implements IEdxDocumentService {
 
         return edxDocumentDTCollection;
     }
+
+    public EDXDocumentDT saveEdxDocument(EDXDocumentDT edxDocumentDT) {
+        var data = new EdxDocument(edxDocumentDT);
+        var res = edxDocumentRepository.save(data);
+        return new EDXDocumentDT(res);
+    }
 }

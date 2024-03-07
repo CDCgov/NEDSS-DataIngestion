@@ -225,8 +225,8 @@ public class ManagerService implements IManagerService {
                 observationMatchingService.processMatchedProxyVO(parsedData, matchedlabResultProxyVO, edxLabInformationDto );
 
                 //TODO: CHECK THIS OUT
-                aPersonUid = hL7CommonLabUtil.getMatchedPersonUID(matchedlabResultProxyVO);
-                hL7CommonLabUtil.updatePersonELRUpdate(parsedData, matchedlabResultProxyVO);
+                aPersonUid = patientService.getMatchedPersonUID(matchedlabResultProxyVO);
+                patientService.updatePersonELRUpdate(parsedData, matchedlabResultProxyVO);
 
                 edxLabInformationDto.setRootObserbationUid(observationDT.getObservationUid());
                 if(observationDT.getProgAreaCd()!=null && observationDT.getJurisdictionCd()!=null)
@@ -284,10 +284,10 @@ public class ManagerService implements IManagerService {
             edxLabInformationDto.setRootObserbationUid(observationDT.getObservationUid());
 
             //TODO: CACHING
-            edxLabInformationDto.setProgramAreaName(CachedDropDowns.getProgAreadDesc(observationDT.getProgAreaCd()));
-            String jurisdictionName = CachedDropDowns.getJurisdictionDesc(observationDT.getJurisdictionCd());
+            // edxLabInformationDto.setProgramAreaName(CachedDropDowns.getProgAreadDesc(observationDT.getProgAreaCd()));
+            // String jurisdictionName = CachedDropDowns.getJurisdictionDesc(observationDT.getJurisdictionCd());
+            // edxLabInformationDto.setJurisdictionName(jurisdictionName);
 
-            edxLabInformationDto.setJurisdictionName(jurisdictionName);
             if(edxLabInformationDto.isLabIsCreateSuccess()&&(edxLabInformationDto.getProgramAreaName()==null
                     || edxLabInformationDto.getJurisdictionName()==null))
             {
@@ -297,12 +297,13 @@ public class ManagerService implements IManagerService {
 
 
             //TODO: Producing msg for Next Step
-           // kafkaManagerProducer.sendData(healthCaseTopic, data);
+            // kafkaManagerProducer.sendData(healthCaseTopic, data);
 
 
 
-            //NOTE: Test updating NBS_Interface
             //TODO: Uncomment this after debugging
+            // NOTE: Test updating NBS_Interface
+
             nbsInterfaceModel.setRecordStatusCd("COMPLETED_V2");
             nbsInterfaceRepository.save(nbsInterfaceModel);
             System.out.println("DONE");

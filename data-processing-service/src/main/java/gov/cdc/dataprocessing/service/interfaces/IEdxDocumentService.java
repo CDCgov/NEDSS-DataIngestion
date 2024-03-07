@@ -6,4 +6,5 @@ import java.util.Collection;
 
 public interface IEdxDocumentService {
     Collection<EDXDocumentDT> selectEdxDocumentCollectionByActUid(Long uid);
+    EDXDocumentDT saveEdxDocument(EDXDocumentDT edxDocumentDT);
 }

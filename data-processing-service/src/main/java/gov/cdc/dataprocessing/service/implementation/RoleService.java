@@ -35,4 +35,24 @@ public class RoleService implements IRoleService {
 
         return roleDtoCollection;
     }
+
+    public void saveRole(RoleDto roleDto) {
+        if (roleDto.isItNew() || roleDto.isItDirty()) {
+            var data = new Role(roleDto);
+            roleRepository.save(data);
+        }
+        else if (roleDto.isItDelete()) {
+            removeRole(roleDto);
+        }
+    }
+
+    private void removeRole(RoleDto roleDto) {
+        roleRepository.deleteRoleByPk(roleDto.getSubjectEntityUid(), roleDto.getCd(), roleDto.getRoleSeq());
+    }
+
+    private Long loadingRoleKeyIfExist(RoleDto roleDto) {
+        Long count = 0L;
+        var result = roleRepository.countByPk(roleDto.getSubjectEntityUid(), roleDto.getCd(), roleDto.getRoleSeq());
+        return result.orElse(count);
+    }
 }

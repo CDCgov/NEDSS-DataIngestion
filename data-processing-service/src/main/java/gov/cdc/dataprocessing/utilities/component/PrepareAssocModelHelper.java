@@ -2,10 +2,13 @@ package gov.cdc.dataprocessing.utilities.component;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ActRelationshipDT;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ActivityLocatorParticipationDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ParticipationDT;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
+import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -26,10 +29,7 @@ public class PrepareAssocModelHelper {
      * @param businessTriggerCd
      * @param tableName
      * @param moduleCd
-     * @param securityObj
      * @return RootDTInterface -- the prepared DT(System attribute Set)
-     * @throws NEDSSSystemException
-     * @throws NEDSSConcurrentDataException
      * @roseuid 3C7422C50093
      */
     public AbstractVO prepareVO(
@@ -282,5 +282,114 @@ public class PrepareAssocModelHelper {
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
+
+
+    /**
+     * This method is used to populate the system attributes on the 5 association
+     * tables (ActRelationship, Participation, Role, EntityLocatoryParticipation, and
+     * ActLocatorParticipation).
+     *
+     * @param assocDTInterface
+     * @return AssocDTInterface
+     * @roseuid 3CD96F960027
+     */
+    public ActivityLocatorParticipationDT prepareActivityLocatorParticipationDT(ActivityLocatorParticipationDT assocDTInterface) throws DataProcessingException
+    {
+        try {
+            ActivityLocatorParticipationDT aDTInterface = null;
+            String recStatusCd = assocDTInterface.getRecordStatusCd();
+            String statusCd = assocDTInterface.getStatusCd();
+            logger.debug("AssocDTInterface.Statuscode = "+statusCd);
+            logger.debug("AssocDTInterface.recStatusCd = "+recStatusCd);
+            boolean isRealDirty = assocDTInterface.isItDirty();
+
+            if(recStatusCd == null)
+            {
+                logger.debug("RecordStatusCd is null");
+                throw new DataProcessingException("RecordStatusCd -----2----"+recStatusCd+"   statusCode--------"+statusCd);
+            }
+
+            else if(!(recStatusCd.equals(NEDSSConstant.RECORD_STATUS_ACTIVE) || recStatusCd.equals(NEDSSConstant.RECORD_STATUS_INACTIVE)))
+            {
+                logger.debug("RecordStatusCd is not active or inactive");
+                throw new DataProcessingException("RecordStatusCd is not active or inactive");
+            }
+            else
+            {
+                try
+                {
+
+                    logger.debug("RecordStatusCd or statusCode is not null");
+                    assocDTInterface.setAddUserId(null);
+                    assocDTInterface.setAddTime(null);
+                    java.util.Date dateTime = new java.util.Date();
+                    Timestamp systemTime = new Timestamp(dateTime.getTime());
+                    assocDTInterface.setRecordStatusTime(systemTime);
+                    assocDTInterface.setStatusTime(systemTime);
+                    assocDTInterface.setLastChgTime(systemTime);
+                }
+                catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                assocDTInterface.setLastChgReasonCd(null);
+                aDTInterface = assocDTInterface;
+            }
+            if(!isRealDirty) aDTInterface.setItDirty(false);//Re-set the flag to original value if necessary
+            return aDTInterface;
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+    public ActRelationshipDT prepareActRelationshipDT(ActRelationshipDT assocDTInterface) throws DataProcessingException {
+        try {
+            ActRelationshipDT aDTInterface = null;
+            String recStatusCd = assocDTInterface.getRecordStatusCd();
+            String statusCd = assocDTInterface.getStatusCd();
+            logger.debug("AssocDTInterface.Statuscode = "+statusCd);
+            logger.debug("AssocDTInterface.recStatusCd = "+recStatusCd);
+            boolean isRealDirty = assocDTInterface.isItDirty();
+
+            if(recStatusCd == null)
+            {
+                throw new DataProcessingException("RecordStatusCd -----2----"+recStatusCd+"   statusCode--------"+statusCd);
+            }
+
+            else if(!(recStatusCd.equals(NEDSSConstant.RECORD_STATUS_ACTIVE) || recStatusCd.equals(NEDSSConstant.RECORD_STATUS_INACTIVE)))
+            {
+                throw new DataProcessingException("RecordStatusCd is not active or inactive");
+            }
+
+            else
+            {
+                try
+                {
+                    assocDTInterface.setAddUserId(null);
+                    assocDTInterface.setAddTime(null);
+                    java.util.Date dateTime = new java.util.Date();
+                    Timestamp systemTime = new Timestamp(dateTime.getTime());
+                    assocDTInterface.setRecordStatusTime(systemTime);
+                    assocDTInterface.setStatusTime(systemTime);
+                    assocDTInterface.setLastChgTime(systemTime);
+                }
+                catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                assocDTInterface.setLastChgReasonCd(null);
+                aDTInterface = assocDTInterface;
+            }
+            if(!isRealDirty) aDTInterface.setItDirty(false);//Re-set the flag to original value if necessary
+            return aDTInterface;
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+
+
 
 }

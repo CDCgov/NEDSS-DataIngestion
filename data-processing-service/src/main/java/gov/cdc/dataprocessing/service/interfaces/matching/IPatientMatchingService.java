@@ -7,4 +7,5 @@ import gov.cdc.dataprocessing.model.container.PersonContainer;
 public interface IPatientMatchingService {
     EdxPatientMatchDto getMatchingPatient(PersonContainer personContainer) throws DataProcessingException;
     boolean getMultipleMatchFound();
+    Long updateExistingPerson(PersonContainer personContainer, String businessTriggerCd) throws DataProcessingException;
 }
