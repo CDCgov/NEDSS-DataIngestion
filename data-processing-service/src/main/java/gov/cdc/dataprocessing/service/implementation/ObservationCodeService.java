@@ -23,11 +23,14 @@ public class ObservationCodeService implements IObservationCodeService {
 
     private final ISrteCodeObsService srteCodeObsService;
     private final OrganizationRepositoryUtil organizationRepositoryUtil;
+    private final ObservationUtil observationUtil;
 
     public ObservationCodeService(ISrteCodeObsService srteCodeObsService,
-                                  OrganizationRepositoryUtil organizationRepositoryUtil) {
+                                  OrganizationRepositoryUtil organizationRepositoryUtil,
+                                  ObservationUtil observationUtil) {
         this.srteCodeObsService = srteCodeObsService;
         this.organizationRepositoryUtil = organizationRepositoryUtil;
+        this.observationUtil = observationUtil;
     }
 
 
@@ -171,7 +174,7 @@ public class ObservationCodeService implements IObservationCodeService {
 
     private String getReportingLabCLIAId(Collection<ParticipationDT> partColl) throws DataProcessingException {
         // Get the reporting lab
-        Long reportingLabUid = ObservationUtil.getUid(
+        Long reportingLabUid = observationUtil.getUid(
                 partColl,
                 null,
                 NEDSSConstant.ENTITY_UID_LIST_TYPE,

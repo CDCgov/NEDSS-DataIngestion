@@ -32,6 +32,7 @@ import gov.cdc.dataprocessing.utilities.component.ObservationUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.patient.PersonUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -95,6 +96,9 @@ public class ObservationService implements IObservationService {
 
     private final IObservationCodeService observationCodeService;
 
+    private final ObservationUtil observationUtil;
+    private final PersonUtil personUtil;
+
 
     public ObservationService(IObservationMatchingService observationMatchingService,
                               INNDActivityLogService nndActivityLogService,
@@ -126,7 +130,9 @@ public class ObservationService implements IObservationService {
                               ObsValueNumericRepository obsValueNumericRepository,
                               ActLocatorParticipationRepository actLocatorParticipationRepository,
                               OrganizationRepositoryUtil organizationRepositoryUtil,
-                              IObservationCodeService observationCodeService) {
+                              IObservationCodeService observationCodeService,
+                              ObservationUtil observationUtil,
+                              PersonUtil personUtil) {
 
         this.observationMatchingService = observationMatchingService;
         this.nndActivityLogService = nndActivityLogService;
@@ -159,6 +165,8 @@ public class ObservationService implements IObservationService {
         this.actLocatorParticipationRepository = actLocatorParticipationRepository;
         this.organizationRepositoryUtil = organizationRepositoryUtil;
         this.observationCodeService = observationCodeService;
+        this.observationUtil = observationUtil;
+        this.personUtil = personUtil;
     }
 
     /**
@@ -959,7 +967,7 @@ public class ObservationService implements IObservationService {
         {
 
             //Process PersonVOCollection  and adds the patient mpr uid to the return
-            Long patientMprUid = processLabPersonVOCollection(labResultProxyVO);
+            Long patientMprUid = personUtil.processLabPersonVOCollection(labResultProxyVO);
             if (patientMprUid != null)
             {
                 if (returnVal == null)
@@ -1032,7 +1040,7 @@ public class ObservationService implements IObservationService {
                         realUid = organizationRepositoryUtil.setOrganization(organizationVO, null);
                         if (falseUid.intValue() < 0)
                         {
-                            setFalseToNew(labResultProxyVO, falseUid, realUid);
+                            observationUtil.setFalseToNew(labResultProxyVO, falseUid, realUid);
                         }
                     }
                     else if (organizationVO.isItDirty())
@@ -1075,7 +1083,7 @@ public class ObservationService implements IObservationService {
                         realUid = materialService.saveMaterial(materialVO);
                         if (falseUid.intValue() < 0)
                         {
-                            setFalseToNew(labResultProxyVO, falseUid, realUid);
+                            observationUtil.setFalseToNew(labResultProxyVO, falseUid, realUid);
                         }
                     }
                     else if (materialVO.isItDirty())
@@ -1171,7 +1179,7 @@ public class ObservationService implements IObservationService {
             //EDX Document
 
             Collection<EDXDocumentDT> edxDocumentCollection = labResultProxyVO.getEDXDocumentCollection();
-            ObservationDT rootDT = this.getRootDT(labResultProxyVO);
+            ObservationDT rootDT = observationUtil.getRootDT(labResultProxyVO);
             if (edxDocumentCollection != null && edxDocumentCollection.size() > 0) {
                 if (rootDT.getElectronicInd() != null && rootDT.getElectronicInd().equals(NEDSSConstant.YES)) {
                     Iterator<EDXDocumentDT> ite = edxDocumentCollection.iterator();
@@ -1389,106 +1397,6 @@ public class ObservationService implements IObservationService {
 
 
 
-    private Long processLabPersonVOCollection(AbstractVO proxyVO) throws DataProcessingException {
-        try {
-            Collection<PersonContainer>  personVOColl = null;
-            boolean isMorbReport = false;
-
-            //TODO: MORBIDITY
-//            if (proxyVO instanceof MorbidityProxyVO)
-//            {
-//                personVOColl = ( (MorbidityProxyVO) proxyVO).getThePersonVOCollection();
-//                isMorbReport = true;
-//            }
-            if (proxyVO instanceof LabResultProxyContainer)
-            {
-                personVOColl = ( (LabResultProxyContainer) proxyVO).getThePersonContainerCollection();
-            }
-
-            if (personVOColl == null)
-            {
-                throw new IllegalArgumentException("PersonVO collection is null");
-            }
-
-            PersonContainer personVO = null;
-            Long patientMprUid = null;
-
-            if (personVOColl != null && personVOColl.size() > 0)
-            {
-                for (Iterator<PersonContainer> anIterator = personVOColl.iterator(); anIterator.hasNext(); )
-                {
-                    personVO = (PersonContainer) anIterator.next();
-
-                    if (personVO == null)
-                    {
-                        continue;
-                    }
-
-                    logger.debug("personUID: " + personVO.getThePersonDto().getPersonUid());
-
-                    //Finds out the type of person being processed and if it is a new person object,
-                    //and abort the processing if the parameters not provided or provided incorrectly
-                    String personType = personVO.getThePersonDto().getCd();
-                    boolean isNewVO = personVO.isItNew();
-
-                    if (personType == null)
-                    {
-                        throw new DataProcessingException("Expected a non-null person type cd for this person uid: " + personVO.getThePersonDto().getPersonUid());
-                    }
-
-                    ObservationDT rootDT = getRootDT(proxyVO);
-
-                    //Persists the person object
-                    boolean isExternal = false;
-                    String electronicInd = rootDT.getElectronicInd();
-                    if(electronicInd != null
-                            && ((isMorbReport && electronicInd.equals(NEDSSConstant.EXTERNAL_USER_IND))
-                            || electronicInd.equals(NEDSSConstant.YES)))
-                    {
-                        isExternal = true;
-                    }
-                    Long realUid = null;
-                    if(personVO.getRole()==null){
-                        //TODO: INSERTION
-                        realUid = setPerson(personType, personVO, isNewVO, isExternal);
-                    }else{
-                        realUid =personVO.getThePersonDto().getPersonUid();
-                    }
-
-
-                    //If it is a new person object, updates the associations with the newly created uid
-                    if (isNewVO && realUid != null)
-                    {
-                        Long falseUid = personVO.getThePersonDto().getPersonUid();
-                        logger.debug("false personUID: " + falseUid);
-                        logger.debug("real personUID: " + realUid);
-
-                        if (falseUid.intValue() < 0)
-                        {
-                            //TODO: FALSE TO NEW METHOD
-                            this.setFalseToNew(proxyVO, falseUid, realUid);
-                            //set the realUid to person after it has been set to participation
-                            //this will help for jurisdiction derivation, this is only local to this call
-                            personVO.getThePersonDto().setPersonUid(realUid);
-                        }
-                    }
-                    else if (!isNewVO)
-                    {
-                        logger.debug("exisiting but updated person's UID: " + realUid);
-                    }
-
-                    //If it is patient, return the mpr uid, assuming only one patient in this processing
-                    if (personType.equalsIgnoreCase(NEDSSConstant.PAT))
-                    {
-                        patientMprUid = patientRepositoryUtil.findPatientParentUidByUid(realUid);
-                    }
-                }
-            }
-            return patientMprUid;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
-    }
 
 
     private Map<Object, Object> processObservationVOCollection(AbstractVO proxyVO, boolean ELR_PROCESSING) throws DataProcessingException {
@@ -1527,7 +1435,7 @@ public class ObservationService implements IObservationService {
             boolean isMannualLab = false;
 
             //Find out if it is mannual lab
-            String electronicInd = getRootDT(labResultProxyVO).getElectronicInd();
+            String electronicInd = observationUtil.getRootDT(labResultProxyVO).getElectronicInd();
             if(electronicInd != null && !electronicInd.equals(NEDSSConstant.YES))
                 isMannualLab = true;
 
@@ -1593,7 +1501,7 @@ public class ObservationService implements IObservationService {
 
     private Map<Object, Object> processLabReportOrderTest(LabResultProxyContainer labResultProxyVO, boolean isELR) throws DataProcessingException {
             //Retrieve the ordered test
-            ObservationVO orderTest = this.getRootObservationVO(labResultProxyVO);
+            ObservationVO orderTest = observationUtil.getRootObservationVO(labResultProxyVO);
 
             //Overrides rptToStateTime to current date/time for external user
             if (AuthUtil.authUser.getUserType() != null && AuthUtil.authUser.getUserType().equalsIgnoreCase(NEDSSConstant.SEC_USERTYPE_EXTERNAL))
@@ -1713,7 +1621,7 @@ public class ObservationService implements IObservationService {
 //            }
 
             //Get the reporting lab
-            Long reportingLabUid = ObservationUtil.getUid(partColl,
+            Long reportingLabUid = observationUtil.getUid(partColl,
                     null,
                     NEDSSConstant.ENTITY_UID_LIST_TYPE,
                     NEDSSConstant.ORGANIZATION,
@@ -1756,86 +1664,8 @@ public class ObservationService implements IObservationService {
     }
 
 
-    private ObservationDT getRootDT(AbstractVO proxyVO) throws DataProcessingException {
-        try {
-            ObservationVO rootVO = getRootObservationVO(proxyVO);
-            if (rootVO != null)
-            {
-                return rootVO.getTheObservationDT();
-            }
-            return null;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
 
-        }
-    }
 
-    private ObservationVO getRootObservationVO(AbstractVO proxy) throws DataProcessingException
-    {
-        try {
-            Collection<ObservationVO>  obsColl = null;
-            boolean isLabReport = false;
-
-            if (proxy instanceof LabResultProxyContainer)
-            {
-                obsColl = ( (LabResultProxyContainer) proxy).getTheObservationVOCollection();
-                isLabReport = true;
-            }
-//            if (proxy instanceof MorbidityProxyVO)
-//            {
-//                obsColl = ( (MorbidityProxyVO) proxy).getTheObservationVOCollection();
-//            }
-
-            ObservationVO rootVO = getRootObservationVO(obsColl, isLabReport);
-
-            if( rootVO != null)
-            {
-                return rootVO;
-            }
-            throw new IllegalArgumentException("Expected the proxyVO containing a root observation(e.g., ordered test)");
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
-    }
-
-    private ObservationVO getRootObservationVO(Collection<ObservationVO> obsColl, boolean isLabReport) throws DataProcessingException {
-        try {
-            if(obsColl == null){
-                return null;
-            }
-
-            logger.debug("ObservationVOCollection  is not null");
-            Iterator<ObservationVO>  iterator = null;
-            for (iterator = obsColl.iterator(); iterator.hasNext(); )
-            {
-                ObservationVO observationVO = (ObservationVO) iterator.next();
-                if (observationVO.getTheObservationDT() != null &&
-                        ( (observationVO.getTheObservationDT().getCtrlCdDisplayForm() != null &&
-                                observationVO.getTheObservationDT().getCtrlCdDisplayForm().
-                                        equalsIgnoreCase(NEDSSConstant.LAB_CTRLCD_DISPLAY))
-                                ||
-                                (observationVO.getTheObservationDT().getObsDomainCdSt1() != null &&
-                                        observationVO.getTheObservationDT().getObsDomainCdSt1().
-                                                equalsIgnoreCase(NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD) && isLabReport)
-                                ||
-                                (observationVO.getTheObservationDT().getCtrlCdDisplayForm() != null &&
-                                        observationVO.getTheObservationDT().getCtrlCdDisplayForm().
-                                                equalsIgnoreCase(NEDSSConstant.MOB_CTRLCD_DISPLAY))))
-                {
-                    logger.debug("found root vo !!");
-                    return observationVO;
-                }
-                else
-                {
-                    continue;
-                }
-            }
-            return null;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-
-        }
-    }
 
     private Map<Object, Object> findLocalUidsFor(Long personMprUid, Long observationUid) throws DataProcessingException {
         Map<Object, Object> localIds = null;
@@ -1867,103 +1697,6 @@ public class ObservationService implements IObservationService {
         return localIds;
     }
 
-    /**
-     * This method checks for the negative uid value for any ACT & ENTITY DT then compare them
-     * with respective negative values in ActRelationshipDT and ParticipationDT as received from
-     * the investigationProxyVO(determined in the addInvestigation method).
-     * As it has also got the actualUID (determined in the addInvestigation method) it replaces them accordingly.
-     */
-    private void setFalseToNew(AbstractVO proxyVO, Long falseUid, Long actualUid)
-    {
-        Iterator<ParticipationDT>  participationDTIterator = null;
-        Iterator<ActRelationshipDT>  actRelationshipDTIterator = null;
-        Iterator<RoleDto>  roleDtoIterator = null;
-
-
-        ParticipationDT participationDT = null;
-        ActRelationshipDT actRelationshipDT = null;
-        RoleDto roleDT = null;
-
-        Collection<ParticipationDT>  participationColl = null;
-        Collection<ActRelationshipDT>  actRelationShipColl = null;
-        Collection<RoleDto>  roleColl = null;
-
-        if (proxyVO instanceof LabResultProxyContainer)
-        {
-            participationColl = (ArrayList<ParticipationDT> ) ( (LabResultProxyContainer) proxyVO).getTheParticipationDTCollection();
-            actRelationShipColl = (ArrayList<ActRelationshipDT> ) ( (LabResultProxyContainer) proxyVO).getTheActRelationshipDTCollection();
-            roleColl = (ArrayList<RoleDto> ) ( (LabResultProxyContainer) proxyVO).getTheRoleDtoCollection();
-        }
-
-        //TODO: MORBIDITY
-//            if (proxyVO instanceof MorbidityProxyVO)
-//            {
-//                participationColl = (ArrayList<Object> ) ( (MorbidityProxyVO) proxyVO).
-//                        getTheParticipationDTCollection();
-//                actRelationShipColl = (ArrayList<Object> ) ( (MorbidityProxyVO) proxyVO).
-//                        getTheActRelationshipDTCollection();
-//                roleColl = (ArrayList<Object> ) ( (MorbidityProxyVO) proxyVO).
-//                        getTheRoleDTCollection();
-//            }
-
-        if (participationColl != null)
-        {
-            for (participationDTIterator = participationColl.iterator(); participationDTIterator.hasNext(); )
-            {
-                participationDT = (ParticipationDT) participationDTIterator.next();
-                if (participationDT != null && falseUid != null)
-                {
-                    if (participationDT.getActUid().compareTo(falseUid) == 0)
-                    {
-                        participationDT.setActUid(actualUid);
-                    }
-                    if (participationDT.getSubjectEntityUid().compareTo(falseUid) == 0)
-                    {
-                        participationDT.setSubjectEntityUid(actualUid);
-                    }
-                }
-            }
-        }
-
-        if (actRelationShipColl != null)
-        {
-            for (actRelationshipDTIterator = actRelationShipColl.iterator(); actRelationshipDTIterator.hasNext(); )
-            {
-                actRelationshipDT = (ActRelationshipDT) actRelationshipDTIterator.next();
-                if (actRelationshipDT.getTargetActUid().compareTo(falseUid) == 0)
-                {
-                    actRelationshipDT.setTargetActUid(actualUid);
-                }
-                if (actRelationshipDT.getSourceActUid().compareTo(falseUid) == 0)
-                {
-                    actRelationshipDT.setSourceActUid(actualUid);
-                }
-            }
-
-        }
-
-        if (roleColl != null && roleColl.size() != 0)
-        {
-            for (roleDtoIterator = roleColl.iterator(); roleDtoIterator.hasNext(); )
-            {
-                roleDT =  roleDtoIterator.next();
-
-                if (roleDT.getSubjectEntityUid().compareTo(falseUid) == 0)
-                {
-                    roleDT.setSubjectEntityUid(actualUid);
-
-                }
-                if (roleDT.getScopingEntityUid() != null)
-                {
-                    if (roleDT.getScopingEntityUid().compareTo(falseUid) == 0)
-                    {
-                        roleDT.setScopingEntityUid(actualUid);
-                    }
-                }
-
-            }
-        }
-    }
 
 
 
@@ -2192,28 +1925,6 @@ public class ObservationService implements IObservationService {
         }
     }
 
-    private Long setPerson(String personType, PersonContainer personVO, boolean isNew, boolean isExternal) throws DataProcessingException
-    {
-        try
-        {
-            if (personType.equalsIgnoreCase(NEDSSConstant.PAT))
-            {
-                return patientMatchingService.updateExistingPerson(personVO, isNew ? NEDSSConstant.PAT_CR : NEDSSConstant.PAT_EDIT);
-            }
-            else if (personType.equalsIgnoreCase(NEDSSConstant.PRV) && (!isNew || (isNew && isExternal)))
-            {
-                return providerMatchingService.setProvider(personVO, isNew ? NEDSSConstant.PRV_CR : NEDSSConstant.PRV_EDIT);
-            }
-            else
-            {
-                throw new IllegalArgumentException("Expected a valid person type: " + personType);
-            }
-        }
-        catch (Exception rex)
-        {
-            throw new DataProcessingException(rex.getMessage(), rex);
-        }
-    }
 
     private Long storeObservationVOCollection(AbstractVO proxyVO) throws DataProcessingException {
         try {
@@ -2276,7 +1987,7 @@ public class ObservationService implements IObservationService {
                         Long falseUid = observationVO.getTheObservationDT().getObservationUid();
                         logger.debug("false observationUID: " + falseUid);
                         if (falseUid.intValue() < 0) {
-                            this.setFalseToNew(proxyVO, falseUid, observationUid);
+                            observationUtil.setFalseToNew(proxyVO, falseUid, observationUid);
                         }
                     }
 
