@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.service.implementation;
 
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 @Service
 public class RoleService implements IRoleService {
@@ -35,6 +37,28 @@ public class RoleService implements IRoleService {
 
         return roleDtoCollection;
     }
+
+    public void storeRoleDTCollection(Collection<RoleDto> roleDTColl) throws DataProcessingException {
+        try {
+            if(roleDTColl == null || roleDTColl.isEmpty()) return;
+
+            for (Iterator<RoleDto> anIterator = roleDTColl.iterator(); anIterator.hasNext(); )
+            {
+                RoleDto roleDT = anIterator.next();
+                if(roleDT == null){
+                    continue;
+                }
+
+                //TODO: EVALUATE
+                //roleDT = (RoleDto)new PrepareVOUtils().prepareAssocDT(roleDT);
+                saveRole(roleDT);
+            }
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+
 
     public void saveRole(RoleDto roleDto) {
         if (roleDto.isItNew() || roleDto.isItDirty()) {

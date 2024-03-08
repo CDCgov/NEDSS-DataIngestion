@@ -1,22 +1,35 @@
 package gov.cdc.dataprocessing.service.implementation;
 
 import gov.cdc.dataprocessing.constant.elr.ELRConstant;
+import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ObservationDT;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ParticipationDT;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.OrganizationVO;
+import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.service.interfaces.IJurisdictionService;
+import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
+import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.*;
 
 @Service
 public class JurisdictionService implements IJurisdictionService {
     private StringBuffer detailError= null;
+    private final PatientRepositoryUtil patientRepositoryUtil;
+    private final OrganizationRepositoryUtil organizationRepositoryUtil;
 
-    public HashMap<Object, Object> resolveLabReportJurisdiction(PersonContainer subject,
+    public JurisdictionService(PatientRepositoryUtil patientRepositoryUtil,
+                               OrganizationRepositoryUtil organizationRepositoryUtil) {
+        this.patientRepositoryUtil = patientRepositoryUtil;
+        this.organizationRepositoryUtil = organizationRepositoryUtil;
+    }
+
+    private HashMap<Object, Object> resolveLabReportJurisdiction(PersonContainer subject,
                                                                 PersonContainer provider,
                                                                 OrganizationVO organizationVO,
                                                                 OrganizationVO organizationVO2) throws DataProcessingException {
@@ -122,5 +135,160 @@ public class JurisdictionService implements IJurisdictionService {
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
+
+
+
+    public String deriveJurisdictionCd(AbstractVO proxyVO, ObservationDT rootObsDT) throws DataProcessingException {
+        try {
+            //Retieve provider uid and patient uid
+            Collection<ParticipationDT>  partColl = null;
+            boolean isLabReport = false, isMorbReport = false;
+            String jurisdictionDerivationInd = AuthUtil.authUser.getJurisdictionDerivationInd();
+//            if (proxyVO instanceof MorbidityProxyVO)
+//            {
+//                isMorbReport = true;
+//                partColl = ( (MorbidityProxyVO) proxyVO).getTheParticipationDTCollection();
+//            }
+
+
+            if (proxyVO instanceof LabResultProxyContainer)
+            {
+                isLabReport = true;
+                partColl = ( (LabResultProxyContainer) proxyVO).getTheParticipationDTCollection();
+            }
+            if (partColl == null || partColl.size() <= 0)
+            {
+                throw new DataProcessingException("Participation collection is null or empty, it is: " + partColl);
+            }
+
+            Long providerUid = null;
+            Long patientUid = null;
+            Long orderingFacilityUid = null;
+            Long reportingFacilityUid = null;
+
+            for (ParticipationDT partDT : partColl) {
+                if (partDT == null) {
+                    continue;
+                }
+
+                String typeCd = partDT.getTypeCd();
+                String subjectClassCd = partDT.getSubjectClassCd();
+                if (typeCd != null && (typeCd.equalsIgnoreCase(NEDSSConstant.PAR101_TYP_CD)
+                        || typeCd.equalsIgnoreCase(NEDSSConstant.MOB_PHYSICIAN_OF_MORB_REPORT))
+                        && subjectClassCd != null && subjectClassCd.equalsIgnoreCase(NEDSSConstant.PERSON_CLASS_CODE)) {
+                    providerUid = partDT.getSubjectEntityUid();
+                } else if (typeCd != null
+                        && (typeCd.equalsIgnoreCase(NEDSSConstant.PAR110_TYP_CD)
+                        || typeCd.equalsIgnoreCase(NEDSSConstant.MOB_SUBJECT_OF_MORB_REPORT))) {
+                    patientUid = partDT.getSubjectEntityUid();
+                } else if (typeCd != null
+                        && (typeCd.equalsIgnoreCase(NEDSSConstant.PAR102_TYP_CD))) {
+                    orderingFacilityUid = partDT.getSubjectEntityUid();
+                } else if (jurisdictionDerivationInd != null
+                        && jurisdictionDerivationInd.equals(NEDSSConstant.YES)
+                        && typeCd != null
+                        && typeCd.equalsIgnoreCase(NEDSSConstant.PAR111_TYP_CD)
+                        && subjectClassCd != null
+                        && subjectClassCd.equalsIgnoreCase(NEDSSConstant.PAR111_SUB_CD)
+                        && rootObsDT != null
+                        && rootObsDT.getCtrlCdDisplayForm() != null
+                        && rootObsDT.getCtrlCdDisplayForm().equalsIgnoreCase(NEDSSConstant.LAB_REPORT)
+                        && rootObsDT.getElectronicInd() != null
+                        && rootObsDT.getElectronicInd().equals(NEDSSConstant.EXTERNAL_USER_IND))
+                    reportingFacilityUid = partDT.getSubjectEntityUid();
+            }
+
+            //Get the provider vo from db
+            PersonContainer providerVO = null;
+            OrganizationVO orderingFacilityVO = null;
+            OrganizationVO reportingFacilityVO = null;
+            try
+            {
+                if (providerUid != null)
+                {
+                    providerVO = patientRepositoryUtil.loadPerson(providerUid);
+                }
+                if (orderingFacilityUid != null)
+                {
+                    // orderingFacilityVO = getOrganization(orderingFacilityUid);
+                    orderingFacilityVO = organizationRepositoryUtil.loadObject(orderingFacilityUid, null);
+                }
+                if(reportingFacilityUid!=null)
+                {
+                    // reportingFacilityVO = getOrganization(reportingFacilityUid);
+                    orderingFacilityVO = organizationRepositoryUtil.loadObject(orderingFacilityUid, null);
+                }
+            }
+            catch (Exception rex)
+            {
+                throw new DataProcessingException("Error retieving provider with UID:"+ providerUid +" OR Ordering Facility, its uid is: " + orderingFacilityUid);
+            }
+
+            //Get the patient subject
+            PersonContainer patientVO = null;
+            Collection<PersonContainer>  personVOColl = null;
+            if (isLabReport)
+            {
+                personVOColl = ( (LabResultProxyContainer) proxyVO).getThePersonContainerCollection();
+            }
+//            if (isMorbReport)
+//            {
+//                personVOColl = ( (MorbidityProxyVO) proxyVO).getThePersonVOCollection();
+//
+//            }
+            if (patientUid != null && personVOColl != null && personVOColl.size() > 0)
+            {
+                for (PersonContainer pVO : personVOColl) {
+                    if (pVO == null || pVO.getThePersonDto() == null) {
+                        continue;
+                    }
+                    if (pVO.getThePersonDto().getPersonUid().compareTo(patientUid) == 0) {
+                        patientVO = pVO;
+                        break;
+                    }
+                }
+            }
+
+            //Derive the jurisdictionCd
+            Map<Object, Object> jMap = null;
+            if (patientVO != null)
+            {
+
+                try
+                {
+                    //TODO: JURISDICTION
+                    jMap = resolveLabReportJurisdiction(patientVO, providerVO, orderingFacilityVO, reportingFacilityVO);
+                }
+                catch (Exception cex)
+                {
+                    throw new DataProcessingException("Error creating jurisdiction services.");
+                }
+            }
+
+            //set jurisdiction for order test
+            if (jMap != null && jMap.containsKey(ELRConstant.JURISDICTION_HASHMAP_KEY))
+            {
+                rootObsDT.setJurisdictionCd( (String) jMap.get(ELRConstant.JURISDICTION_HASHMAP_KEY));
+            }
+            else
+            {
+                rootObsDT.setJurisdictionCd(null);
+            }
+
+            //Return errors if any
+            if (jMap != null && jMap.containsKey("ERROR"))
+            {
+                return (String) jMap.get("ERROR");
+            }
+            else
+            {
+                return null;
+            }
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+
+    }
+
 
 }
