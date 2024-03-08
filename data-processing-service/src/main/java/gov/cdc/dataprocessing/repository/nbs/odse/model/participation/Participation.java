@@ -5,12 +5,15 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ParticipationId;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Timestamp;
 
 @Data
 @Entity
+@IdClass(ParticipationId.class)
 @Table(name = "Participation")
 public class Participation {
 
@@ -92,24 +95,7 @@ public class Participation {
     @Column(name = "user_affiliation_txt", length = 20)
     private String userAffiliationText;
 
-//    @ManyToOne
-//    @JoinColumn(name = "act_uid", referencedColumnName = "actUid", insertable = false, updatable = false)
-//    private Act act;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "subject_entity_uid", referencedColumnName = "entityUid", insertable = false, updatable = false)
-//    private Entity entity;
-//
-//    @ManyToOne
-//    @JoinColumns({
-//            @JoinColumn(name = "subject_entity_uid", referencedColumnName = "subjectEntityUid", insertable = false, updatable = false),
-//            @JoinColumn(name = "role_seq", referencedColumnName = "roleSeq", insertable = false, updatable = false),
-//            @JoinColumn(name = "cd", referencedColumnName = "code", insertable = false, updatable = false)
-//    })
-//    private Role role;
-
     public Participation() {
-
     }
 
     public Participation(ParticipationDT participationDT) {
@@ -139,6 +125,4 @@ public class Participation {
         this.typeDescription = participationDT.getTypeDescTxt();
         this.userAffiliationText = participationDT.getUserAffiliationTxt();
     }
-
-
 }

@@ -29,4 +29,8 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
      * */
     @Query("DELETE FROM Role data WHERE data.subjectEntityUid = :subjectEntityUid AND data.code = :code AND data.roleSeq = :roleSeq")
     void deleteRoleByPk(Long subjectEntityUid, String code, Long roleSeq);
+
+
+    @Query("SELECT rl FROM Role rl WHERE rl.subjectEntityUid = :subjectEntityUid AND rl.statusCode='A'")
+    Optional<List<Role>> findBySubjectEntityUid(@Param("subjectEntityUid") Long subjectEntityUid);
 }

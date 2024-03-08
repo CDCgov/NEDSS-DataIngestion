@@ -16,6 +16,7 @@ import gov.cdc.dataprocessing.utilities.component.data_parser.NBSObjectConverter
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HL7SpecimenUtil {
@@ -68,20 +69,23 @@ public class HL7SpecimenUtil {
                             && hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier() != null
                             && hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier().getHL7EntityIdentifier() != null) {
                         String specimenID = hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier().getHL7EntityIdentifier();
-                        materialVO.getTheEntityIdDtoCollection().get(0).setRootExtensionTxt(specimenID);
+                        ArrayList<EntityIdDto> entityIdArrList = new ArrayList<>(materialVO.getTheEntityIdDtoCollection());
+                        entityIdArrList.get(0).setRootExtensionTxt(specimenID);
                         if (hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier().getHL7UniversalID() != null) {
-                            materialVO.getTheEntityIdDtoCollection().get(0).setAssigningAuthorityCd(hl7SPMType.getSpecimenID()
+                            entityIdArrList.get(0).setAssigningAuthorityCd(hl7SPMType.getSpecimenID()
                                     .getHL7FillerAssignedIdentifier().getHL7UniversalID());
                         }
                         if (hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier().getHL7NamespaceID() != null) {
-                            materialVO.getTheEntityIdDtoCollection().get(0).setAssigningAuthorityDescTxt(hl7SPMType.getSpecimenID()
+                            entityIdArrList.get(0).setAssigningAuthorityDescTxt(hl7SPMType.getSpecimenID()
                                     .getHL7FillerAssignedIdentifier().getHL7NamespaceID());
                         }
                         if (hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier()
                                 .getHL7UniversalIDType() != null) {
-                            materialVO.getTheEntityIdDtoCollection().get(0).setAssigningAuthorityIdType(hl7SPMType.getSpecimenID()
+                            entityIdArrList.get(0).setAssigningAuthorityIdType(hl7SPMType.getSpecimenID()
                                     .getHL7FillerAssignedIdentifier().getHL7UniversalIDType());
                         }
+
+                        materialVO.setTheEntityIdDtoCollection(entityIdArrList);
 
                     }
                 }

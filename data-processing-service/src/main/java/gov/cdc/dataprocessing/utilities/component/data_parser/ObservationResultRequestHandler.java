@@ -269,7 +269,8 @@ public class ObservationResultRequestHandler {
                 String range =hl7OBXType.getReferencesRange();
                 ObsValueNumericDT obsValueNumericDT;
                 if(observationVO.getTheObsValueNumericDTCollection()!=null){
-                    obsValueNumericDT = observationVO.getTheObsValueNumericDTCollection().get(0);
+                    var arrlist = new ArrayList<>(observationVO.getTheObsValueNumericDTCollection());
+                    obsValueNumericDT = arrlist.get(0);
                 }else{
                     obsValueNumericDT = new ObsValueNumericDT();
                     obsValueNumericDT.setItNew(true);
@@ -313,7 +314,7 @@ public class ObservationResultRequestHandler {
                     observationIntrepDT.setInterpretationDescTxt(str);
                 }
                 observationIntrepDT.setObservationUid(observationVO.getTheObservationDT().getObservationUid());
-                observationVO.setTheObservationInterpDTCollection(new ArrayList<Object>());
+                observationVO.setTheObservationInterpDTCollection(new ArrayList<>());
                 observationVO.getTheObservationInterpDTCollection().add(observationIntrepDT);
 
             }
@@ -622,7 +623,7 @@ public class ObservationResultRequestHandler {
                     StringTokenizer st = new StringTokenizer(text, "^");
                     int i;
                     if (observationVO.getTheObsValueTxtDTCollection() == null)
-                        observationVO.setTheObsValueTxtDTCollection(new ArrayList<Object>());
+                        observationVO.setTheObsValueTxtDTCollection(new ArrayList<>());
 
                     while (st.hasMoreTokens()) {
                         String token = st.nextToken();
@@ -665,7 +666,7 @@ public class ObservationResultRequestHandler {
 
                         obsValueTxtDT.setValueTxt(note);
                         if (observationVO.getTheObsValueTxtDTCollection() == null)
-                            observationVO.setTheObsValueTxtDTCollection(new ArrayList<Object>());
+                            observationVO.setTheObsValueTxtDTCollection(new ArrayList<>());
                         int seq = observationVO.getTheObsValueTxtDTCollection().size();
                         obsValueTxtDT.setObsValueTxtSeq(++seq);
                         observationVO.getTheObsValueTxtDTCollection().add(obsValueTxtDT);
@@ -679,7 +680,7 @@ public class ObservationResultRequestHandler {
                     obsValueTxtDT.setTxtTypeCd(EdxELRConstant.ELR_OBX_COMMENT_TYPE);
 
                     if (observationVO.getTheObsValueTxtDTCollection() == null)
-                        observationVO.setTheObsValueTxtDTCollection(new ArrayList<Object>());
+                        observationVO.setTheObsValueTxtDTCollection(new ArrayList<>());
                     int seq = observationVO.getTheObsValueTxtDTCollection().size();
                     obsValueTxtDT.setObsValueTxtSeq(++seq);
                     observationVO.getTheObsValueTxtDTCollection().add(obsValueTxtDT);

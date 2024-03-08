@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.repos.participation;
 
-import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationship;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ParticipationId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.Participation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +13,7 @@ import java.util.Optional;
 
 
 @Repository
-public interface ParticipationRepository extends JpaRepository<Participation, Long> {
+public interface ParticipationRepository extends JpaRepository<Participation, ParticipationId> {
     @Query("SELECT data FROM Participation data WHERE data.actUid = :uid")
     Collection<Participation> findRecordsById(@Param("uid") Long uid);
 
@@ -28,4 +27,7 @@ public interface ParticipationRepository extends JpaRepository<Participation, Lo
 
     @Query("DELETE FROM Participation data WHERE data.subjectEntityUid = :subjectUid AND data.actUid = :actUid AND data.typeCode = :typeCode")
     void deleteParticipationByPk(Long subjectUid, Long actUid, String typeCode);
+
+    Optional<List<Participation>> findBySubjectEntityUidAndActUid(Long subjectEntityUid,Long actUid);
 }
+

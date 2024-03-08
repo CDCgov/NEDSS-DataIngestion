@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto;
 
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.organization.Organization;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -52,4 +53,44 @@ public class OrganizationDT extends AbstractVO {
     private boolean itNew = true;
     private boolean itDelete = false;
     private String edxInd = null;
+
+    public OrganizationDT(){
+    }
+    public OrganizationDT(Organization organization){
+        this.organizationUid=organization.getOrganizationUid();
+        this.addReasonCd=organization.getAddReasonCode();
+        this.addTime=organization.getAddTime();
+        this.addUserId=organization.getAddUserId();
+        this.cd=organization.getCode();
+        this.cdDescTxt=organization.getCodeDescTxt();
+        this.description=organization.getDescription();
+        this.durationAmt=organization.getDurationAmt();
+        this.durationUnitCd=organization.getDurationUnitCd();
+        this.fromTime=organization.getFromTime();
+        this.lastChgReasonCd=organization.getLastChgReasonCd();
+        this.lastChgTime=organization.getLastChgTime();
+        this.lastChgUserId=organization.getLastChgUserId();
+        this.localId=organization.getLocalId();
+        this.recordStatusCd=organization.getRecordStatusCd();
+        this.recordStatusTime=organization.getRecordStatusTime();
+        this.standardIndustryClassCd=organization.getStandardIndustryClassCd();
+        this.standardIndustryDescTxt=organization.getStandardIndustryDescTxt();
+        this.statusCd=organization.getStatusCd();
+        this.statusTime=organization.getStatusTime();
+        this.toTime=organization.getToTime();
+        this.userAffiliationTxt=organization.getUserAffiliationTxt();
+        this.displayNm=organization.getDisplayNm();
+        this.streetAddr1=organization.getStreetAddr1();
+        this.streetAddr2=organization.getStreetAddr2();
+        this.cityCd=organization.getCityCd();
+        this.cityDescTxt=organization.getCityDescTxt();
+        this.stateCd=organization.getStateCd();
+        this.cntyCd=organization.getCntyCd();
+        this.cntryCd=organization.getCntryCd();
+        this.zipCd=organization.getZipCd();
+        this.phoneNbr=organization.getPhoneNbr();
+        this.phoneCntryCd=organization.getPhoneCntryCd();
+        this.electronicInd=organization.getElectronicInd();
+        this.versionCtrlNbr=organization.getVersionCtrlNbr();
+    }
 }

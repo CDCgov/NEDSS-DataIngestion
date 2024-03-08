@@ -30,16 +30,12 @@ public class ParticipationDT extends AbstractVO {
     private String typeDescTxt;
     private String userAffiliationTxt;
     private String subjectEntityClassCd;
-
-
     private Long subjectEntityUid;
-
     private Long roleSeq;
     private String cd;
     private String actClassCd;
     private String subjectClassCd;
     private Long actUid;
-
 
     public ParticipationDT() {
 
@@ -63,13 +59,14 @@ public class ParticipationDT extends AbstractVO {
         this.lastChgUserId = participation.getLastChangeUserId();
         this.recordStatusCd = participation.getRecordStatusCode();
         this.recordStatusTime = participation.getRecordStatusTime();
+        this.subjectEntityClassCd = participation.getSubjectClassCode();
+        this.cd = participation.getCode();
+        this.roleSeq = participation.getRoleSeq();
         this.statusCd = participation.getStatusCode();
         this.statusTime = participation.getStatusTime();
+        this.subjectClassCd = participation.getSubjectClassCode();
         this.toTime = participation.getToTime();
         this.typeDescTxt = participation.getTypeDescription();
         this.userAffiliationTxt = participation.getUserAffiliationText();
-        this.subjectEntityClassCd = participation.getSubjectClassCode();
-        this.roleSeq = participation.getRoleSeq();
-        this.cd = participation.getCode();
     }
 }
