@@ -213,12 +213,14 @@ public class ObservationMatchingService implements IObservationMatchingService {
         if (observationUid == null) {
             return null;
         }
-        else {
+        else
+        {
             var result = observationRepository.findById(observationUid);
             if (result.isEmpty()) {
                 return null;
             }
-            else {
+            else
+            {
                 ObservationDT observationDT = new ObservationDT(result.get());
                 observationDT.setItNew(false);
                 observationDT.setItDirty(false);

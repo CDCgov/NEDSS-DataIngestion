@@ -219,10 +219,11 @@ public class ManagerService implements IManagerService {
             }
             Long aPersonUid = null;
 
-            //TODO: OBSERVATION
-            ObservationDT observationDT = observationService.processingObservation(edxLabInformationDto);
+            //Checking for matching observation
+            ObservationDT observationDT = observationService.checkingMatchingObservation(edxLabInformationDto);
+
             if(observationDT!=null){
-                LabResultProxyContainer matchedlabResultProxyVO = observationService.getLabResultToProxy(observationDT.getObservationUid());
+                LabResultProxyContainer matchedlabResultProxyVO = observationService.getObservationToLabResultContainer(observationDT.getObservationUid());
                 observationMatchingService.processMatchedProxyVO(parsedData, matchedlabResultProxyVO, edxLabInformationDto );
 
                 //TODO: CHECK THIS OUT
@@ -239,7 +240,8 @@ public class ManagerService implements IManagerService {
                     edxLabInformationDto.setLabIsUpdateDRSA(true);
                 }
                 edxLabInformationDto.setPatientMatch(true);
-            }else{
+            }
+            else {
                 edxLabInformationDto.setLabIsCreate(true);
             }
 

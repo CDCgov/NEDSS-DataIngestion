@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.service.implementation.core;
 
 import gov.cdc.dataprocessing.constant.elr.*;
+import gov.cdc.dataprocessing.constant.enums.DataProcessingMapKey;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.NNDActivityLogDT;
@@ -170,139 +171,128 @@ public class ObservationService implements IObservationService {
     }
 
 
-    public LabResultProxyContainer getLabResultToProxy(Long observationUid) throws DataProcessingException {
-        LabResultProxyContainer labResultProxyVO = null;
+    /**
+     * Getting Observation Dto into LabResult Container
+     * */
+    public LabResultProxyContainer getObservationToLabResultContainer(Long observationUid) throws DataProcessingException {
+        LabResultProxyContainer labResultProxyVO;
         if (observationUid == null) {
-            logger.error("HL7CommonLabUtil.getLabResultToProxy observationUid is null ");
-            throw new DataProcessingException("LabResultProxyVO is null");
+            String errorMessage = "HL7CommonLabUtil.getLabResultToProxy observationUid is null";
+            logger.error(errorMessage);
+            throw new DataProcessingException(errorMessage);
         }
-        try {
-            labResultProxyVO = getLabResultProxyVO(observationUid, true);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DataProcessingException("HL7CommonLabUtil.getLabResultToProxy The labResultProxyVO could not be retrieved. Please check.:" + e);
-        }
-        logger.info("HL7CommonLabUtil.getLabResultToProxy result returned.");
+        labResultProxyVO = loadingObservationToLabResultContainer(observationUid, true);
         return labResultProxyVO;
     }
 
 
     /**
      * Loading Existing Either Observation or Intervention
+     * was: getActVO
      * */
-    private AbstractVO getActVO(String actType, Long anUid) throws DataProcessingException
+    private AbstractVO getAbstractObjectForObservationOrIntervention(String actType, Long anUid) throws DataProcessingException
     {
         AbstractVO obj = null;
-        try
+        if (anUid != null)
         {
-            if (anUid != null)
+            if (actType.equalsIgnoreCase(NEDSSConstant.INTERVENTION_CLASS_CODE))
             {
-                if (actType.equalsIgnoreCase(NEDSSConstant.INTERVENTION_CLASS_CODE))
-                {
-                    //TODO: LOAD INTERVENTION
-                   // obj = interventionRootDAOImpl.loadObject(anUid.longValue());
-                }
-                else if (actType.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE))
-                {
-                    obj = observationUtil.loadObject(anUid);
-                }
+                //TODO: LOAD INTERVENTION
+               // obj = interventionRootDAOImpl.loadObject(anUid.longValue());
+            }
+            else if (actType.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE))
+            {
+                obj = observationUtil.loadObject(anUid);
             }
         }
-        catch (Exception ex)
-        {
-            throw new DataProcessingException("Error while retrieving a " + actType + " value object. " + ex.toString());
-        }
-
         return obj;
     }
 
 
-    private List<Object> retrieveEntityForProxyVO(Collection<ParticipationDT> partColl) 
-    {
-        List<Object> allEntityHolder = new ArrayList<Object> ();
+    /**
+     * Retrieving assoc data from Participation: PERSON, ORG, MATERIAL, ROLE
+     * */
+    private Map<DataProcessingMapKey, Object>  retrieveEntityFromParticipationForContainer(Collection<ParticipationDT> partColl) throws DataProcessingException {
+        Map<DataProcessingMapKey, Object> entityHolder = new HashMap<>();
 
         //Retrieve associated persons
-        Object[] obj = retrievePersonVOsForProxyVO(partColl);
-        allEntityHolder.add(this.RETRIEVED_PERSONS_FOR_PROXY, (Collection<?>)obj[0]);
+        Map<DataProcessingMapKey, Object> assocMapper = retrievePersonAndRoleFromParticipation(partColl);
+
+        if (assocMapper.containsKey(DataProcessingMapKey.PERSON)) {
+            //allEntityHolder.add(this.RETRIEVED_PERSONS_FOR_PROXY, assocMapper.get(DataProcessingMapKey.ROLE));
+            entityHolder.put(DataProcessingMapKey.PERSON,  assocMapper.get(DataProcessingMapKey.PERSON));
+        }
 
         //Retrieve associated organizations
-        allEntityHolder.add(this.RETRIEVED_ORGANIZATIONS_FOR_PROXY, retrieveOrganizationVOsForProxyVO(partColl));
+        //allEntityHolder.add(this.RETRIEVED_ORGANIZATIONS_FOR_PROXY, retrieveOrganizationVOsForProxyVO(partColl));
+        entityHolder.put(DataProcessingMapKey.ORGANIZATION,  retrieveOrganizationFromParticipation(partColl));
+
 
         //Retrieve associated materials
-        allEntityHolder.add(this.RETRIEVED_MATERIALS_FOR_PROXY, retrieveMaterialVOsForProxyVO(partColl));
-        Collection<?>  coll = (Collection<?>)obj[1];
-        allEntityHolder.add(this.RETRIEVED_PATIENT_ROLES, coll);
+        //allEntityHolder.add(this.RETRIEVED_MATERIALS_FOR_PROXY, retrieveMaterialVOsForProxyVO(partColl));
+        entityHolder.put(DataProcessingMapKey.MATERIAL,  retrieveMaterialFromParticipation(partColl));
 
-        return allEntityHolder;
+
+        if (assocMapper.containsKey(DataProcessingMapKey.ROLE)) {
+            //allEntityHolder.add(this.RETRIEVED_PATIENT_ROLES, assocMapper.get(DataProcessingMapKey.PERSON));
+            entityHolder.put(DataProcessingMapKey.ROLE, assocMapper.get(DataProcessingMapKey.ROLE));
+        }
+
+        return entityHolder;
     }
 
-    private Collection<Object>  retrieveOrganizationVOsForProxyVO(Collection<ParticipationDT> partColl)
-    {
+    /**
+     * Was: retrieveOrganizationVOsForProxyVO
+     * */
+    private Collection<Object>  retrieveOrganizationFromParticipation(Collection<ParticipationDT> partColl) throws DataProcessingException {
         Collection<Object>  theOrganizationVOCollection  = null;
-
-        for (Iterator<ParticipationDT> it = partColl.iterator(); it.hasNext(); )
-        {
-            ParticipationDT partDT = (ParticipationDT) it.next();
-
-            if (partDT == null)
-            {
+        for (ParticipationDT partDT : partColl) {
+            if (partDT == null) {
                 continue;
             }
 
             String subjectClassCd = partDT.getSubjectClassCd();
             String recordStatusCd = partDT.getRecordStatusCd();
-            String typeCd = partDT.getTypeCd();
-            //If organization...
-            if (subjectClassCd != null &&
-                    subjectClassCd.equalsIgnoreCase(NEDSSConstant.PAR102_SUB_CD)
-                    && recordStatusCd != null &&
-                    recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE))
-            {
-                Long organizationUid = partDT.getSubjectEntityUid();
-                if (theOrganizationVOCollection  == null)
-                {
-                    theOrganizationVOCollection  = new ArrayList<Object> ();
-                }
-                //TODO: ORGANIZATION
-//                theOrganizationVOCollection.add(getEntityVO(NEDSSConstant.ORGANIZATION,
-//                        organizationUid, partDT.getActUid(),
-//                        securityObj));
 
-                theOrganizationVOCollection.add(new OrganizationDT());
+            if (subjectClassCd != null
+                && subjectClassCd.equalsIgnoreCase(NEDSSConstant.PAR102_SUB_CD)
+                && recordStatusCd != null
+                && recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE)
+            ) {
+                Long organizationUid = partDT.getSubjectEntityUid();
+                if (theOrganizationVOCollection == null) {
+                    theOrganizationVOCollection = new ArrayList<>();
+                }
+                var orgContainer = organizationRepositoryUtil.loadObject(organizationUid, partDT.getActUid());
+                theOrganizationVOCollection.add(orgContainer);
             }
         }
         return theOrganizationVOCollection;
     }
 
-    private Collection<Object>  retrieveMaterialVOsForProxyVO(Collection<ParticipationDT> partColl)
+    /**
+     * was: retrieveMaterialVOsForProxyVO
+     * */
+    private Collection<Object>  retrieveMaterialFromParticipation(Collection<ParticipationDT> partColl)
     {
         Collection<Object>  theMaterialVOCollection  = null;
-
-        for (Iterator<ParticipationDT> it = partColl.iterator(); it.hasNext(); )
-        {
-            ParticipationDT partDT = (ParticipationDT) it.next();
-
-            if (partDT == null)
-            {
+        for (ParticipationDT partDT : partColl) {
+            if (partDT == null) {
                 continue;
             }
 
             String subjectClassCd = partDT.getSubjectClassCd();
             String recordStatusCd = partDT.getRecordStatusCd();
 
-            //If material...
-            if (subjectClassCd != null &&
-                    subjectClassCd.equalsIgnoreCase(NEDSSConstant.PAR104_SUB_CD)
-                    && recordStatusCd != null &&
-                    recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE))
-            {
+            if (subjectClassCd != null
+                && subjectClassCd.equalsIgnoreCase(NEDSSConstant.PAR104_SUB_CD)
+                && recordStatusCd != null
+                && recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE)
+            ) {
                 Long materialUid = partDT.getSubjectEntityUid();
-                if (theMaterialVOCollection  == null)
-                {
-                    theMaterialVOCollection  = new ArrayList<Object> ();
+                if (theMaterialVOCollection == null) {
+                    theMaterialVOCollection = new ArrayList<>();
                 }
-
                 MaterialVO materialVO = materialService.loadMaterialObject(materialUid);
                 theMaterialVOCollection.add(materialVO);
             }
@@ -313,12 +303,13 @@ public class ObservationService implements IObservationService {
     /**
      * Mapping Person and Role into Object Array
      * Values from Participation
+     * Was: retrievePersonVOsForProxyVO
      * */
-    private Object[] retrievePersonVOsForProxyVO(Collection<ParticipationDT> partColl)
+    private Map<DataProcessingMapKey, Object> retrievePersonAndRoleFromParticipation(Collection<ParticipationDT> partColl)
     {
-        Object[] obj = new Object[2];
-        Collection<Object>  thePersonVOCollection  = new ArrayList<> ();
-        Collection<Object>  patientRollCollection  = new ArrayList<> ();
+        Map<DataProcessingMapKey, Object> mapper = new HashMap<>();
+        Collection<PersonContainer>  thePersonVOCollection  = new ArrayList<> ();
+        Collection<RoleDto>  patientRollCollection  = new ArrayList<> ();
         for (ParticipationDT partDT : partColl) {
             if (partDT == null) {
                 continue;
@@ -330,43 +321,44 @@ public class ObservationService implements IObservationService {
 
             //If person...
             if (subjectClassCd != null
-                    && subjectClassCd.equalsIgnoreCase(NEDSSConstant.PAR110_SUB_CD)
-                    && recordStatusCd != null
-                    && recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE)) {
+                && subjectClassCd.equalsIgnoreCase(NEDSSConstant.PAR110_SUB_CD)
+                && recordStatusCd != null
+                && recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE)
+            ) {
                 PersonContainer vo = patientRepositoryUtil.loadPerson(partDT.getSubjectEntityUid());
                 thePersonVOCollection.add(vo);
 
-                //If the person is a patient, do more...
+                //If hit, we will get list of person who is associated with the scoped id
                 if (typeCd != null && typeCd.equalsIgnoreCase(NEDSSConstant.PAR110_TYP_CD)) {
                     if (vo.getTheRoleDtoCollection().size() > 0) {
                         patientRollCollection.addAll(vo.getTheRoleDtoCollection());
                     }
-                    Collection<Object> scopedPersons = retrieveScopedPersons(vo.getThePersonDto().getPersonUid());
+                    Collection<PersonContainer> scopedPersons = retrieveScopedPersons(vo.getThePersonDto().getPersonUid());
                     if (scopedPersons != null && scopedPersons.size() > 0) {
-                        for (Object person : scopedPersons) {
-                            PersonContainer scopedPerson = (PersonContainer) person;
-                            if (scopedPerson.getTheRoleDtoCollection() != null && scopedPerson.getTheRoleDtoCollection().size() > 0) {
-                                patientRollCollection.addAll(scopedPerson.getTheRoleDtoCollection());
+                        for (var person : scopedPersons) {
+                            if (person.getTheRoleDtoCollection() != null && person.getTheRoleDtoCollection().size() > 0) {
+                                patientRollCollection.addAll(person.getTheRoleDtoCollection());
                             }
-                            thePersonVOCollection.add(scopedPerson);
+                            thePersonVOCollection.add(person);
                         }
                     }
                 }
             }
         }
-        obj[1] = patientRollCollection;
-        obj[0] = thePersonVOCollection;
-        return obj;
+        mapper.put(DataProcessingMapKey.ROLE, patientRollCollection);
+        mapper.put(DataProcessingMapKey.PERSON, thePersonVOCollection);
+
+        return mapper;
     }
 
 
     /**
-     * Getting Person Role Giving the UID
+     * Getting List of person given Entity Uid for Role
      * */
-    private Collection<Object>  retrieveScopedPersons(Long scopingUid)
+    private Collection<PersonContainer>  retrieveScopedPersons(Long scopingUid)
     {
         Collection<RoleDto>  roleDTColl = roleService.findRoleScopedToPatient(scopingUid);
-        Collection<Object>  scopedPersons = null;
+        Collection<PersonContainer>  scopedPersons = null;
 
         for (RoleDto roleDT : roleDTColl) {
             if (roleDT == null) {
@@ -385,32 +377,42 @@ public class ObservationService implements IObservationService {
         return scopedPersons;
     }
 
-    private List<Object> retrieveActForProxyVO(Collection<ActRelationshipDT> actRelColl) throws DataProcessingException {
+    /**
+     * was: retrieveActForProxyVO
+     * */
+    private Map<DataProcessingMapKey, Object> retrieveActForLabResultContainer(Collection<ActRelationshipDT> actRelColl) throws DataProcessingException {
         List<Object> allActHolder = new ArrayList<Object> ();
+        Map<DataProcessingMapKey, Object> mapper = new HashMap<>();
 
         //Retrieve associated interventions
-        allActHolder.add(this.RETRIEVED_INTERVENTIONS_FOR_PROXY, retrieveInterventionVOsForProxyVO(actRelColl));
+        // allActHolder.add(this.RETRIEVED_INTERVENTIONS_FOR_PROXY, retrieveInterventionFromActRelationship(actRelColl));
+        mapper.put(DataProcessingMapKey.INTERVENTION, retrieveInterventionFromActRelationship(actRelColl));
+
 
         //Retrieve associated observations and performing labs of any resulted tests
-        List<Object> obs_org = (List<Object>) retrieveObservationVOsForProxyVO(actRelColl);
-        allActHolder.add(this.RETRIEVED_OBSERVATIONS_FOR_PROXY, obs_org.get(0));
-        allActHolder.add(this.RETRIEVED_LABS_FOR_RT, obs_org.get(1));
+        Map<DataProcessingMapKey, Object> obs_org = retrieveObservationFromActRelationship(actRelColl);
+        //allActHolder.add(this.RETRIEVED_OBSERVATIONS_FOR_PROXY, obs_org.get(DataProcessingMapKey.OBSERVATION));
+        //allActHolder.add(this.RETRIEVED_LABS_FOR_RT, obs_org.get(DataProcessingMapKey.ORGANIZATION));
+        mapper.put(DataProcessingMapKey.OBSERVATION, obs_org.get(DataProcessingMapKey.OBSERVATION));
+        mapper.put(DataProcessingMapKey.ORGANIZATION, obs_org.get(DataProcessingMapKey.ORGANIZATION));
 
-        return allActHolder;
+
+        return mapper;
     }
 
-    private Collection<Object>  retrieveObservationVOsForProxyVO(Collection<ActRelationshipDT> actRelColl) throws DataProcessingException
+    /**
+     * Retrieving Observation and the assoc Organization
+     * was: retrieveObservationVOsForProxyVO
+     * */
+    private Map<DataProcessingMapKey, Object>  retrieveObservationFromActRelationship(Collection<ActRelationshipDT> actRelColl) throws DataProcessingException
     {
         List<Object> obs_org = new ArrayList<Object> ();
-        Collection<Object>  theObservationVOCollection  = new ArrayList<Object> ();
-        Collection<Object>  performingLabColl = new ArrayList<Object> ();
+        Map<DataProcessingMapKey, Object> mapper = new HashMap<>();
+        Collection<ObservationVO>  theObservationVOCollection  = new ArrayList<> ();
+        Collection<OrganizationVO>  performingLabColl = new ArrayList<> ();
 
-        for (Iterator<ActRelationshipDT> it = actRelColl.iterator(); it.hasNext(); )
-        {
-            ActRelationshipDT actRelDT = (ActRelationshipDT) it.next();
-
-            if (actRelDT == null)
-            {
+        for (ActRelationshipDT actRelDT : actRelColl) {
+            if (actRelDT == null) {
                 continue;
             }
 
@@ -420,38 +422,33 @@ public class ObservationService implements IObservationService {
             String recordStatusCd = actRelDT.getRecordStatusCd();
 
             //If observation...
-            if (sourceClassCd != null &&
-                    sourceClassCd.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE)
-                    && targetClassCd != null &&
-                    targetClassCd.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE)
-                    && recordStatusCd != null &&
-                    recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE))
-            {
+            if (sourceClassCd != null
+                    && sourceClassCd.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE)
+                    && targetClassCd != null
+                    && targetClassCd.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE)
+                    && recordStatusCd != null
+                    && recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE)
+            ) {
                 Long observationUid = actRelDT.getSourceActUid();
 
                 //If a processing decision observation
-                if(typeCd!=null && typeCd.equals(NEDSSConstant.ACT_TYPE_PROCESSING_DECISION)){
-                    ObservationVO processingDecObservationVO = (ObservationVO) getActVO(NEDSSConstant.OBSERVATION_CLASS_CODE, observationUid);
+                if (typeCd != null && typeCd.equals(NEDSSConstant.ACT_TYPE_PROCESSING_DECISION)) {
+                    ObservationVO processingDecObservationVO = (ObservationVO) getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, observationUid);
                     theObservationVOCollection.add(processingDecObservationVO);
                 }
                 //If a Comments observation
-                if (typeCd != null && typeCd.equalsIgnoreCase("APND"))
-                {
-                    ObservationVO ordTestCommentVO = (ObservationVO)getActVO(NEDSSConstant.OBSERVATION_CLASS_CODE, observationUid);
-
+                if (typeCd != null && typeCd.equalsIgnoreCase("APND")) {
+                    ObservationVO ordTestCommentVO = (ObservationVO) getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, observationUid);
                     theObservationVOCollection.add(ordTestCommentVO);
-                    Collection<ActRelationshipDT>  arColl = ordTestCommentVO.getTheActRelationshipDTCollection();
-                    if(arColl != null){
-                        Iterator<ActRelationshipDT>  arCollIter = arColl.iterator();
-                        while(arCollIter.hasNext()){
-                            ActRelationshipDT ordTestDT = (ActRelationshipDT)arCollIter.next();
-                            if(ordTestDT.getTypeCd().equals("COMP")){
+                    Collection<ActRelationshipDT> arColl = ordTestCommentVO.getTheActRelationshipDTCollection();
+                    if (arColl != null) {
+                        for (ActRelationshipDT ordTestDT : arColl) {
+                            if (ordTestDT.getTypeCd().equals("COMP")) {
                                 //add the resulted test to the collection
-                                ObservationVO resTestVO = (ObservationVO) getActVO(NEDSSConstant.OBSERVATION_CLASS_CODE, ordTestDT.getSourceActUid());
+                                ObservationVO resTestVO = (ObservationVO) getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, ordTestDT.getSourceActUid());
 
                                 //BB - civil0012298 - Retrieve User Name to be displayed instead of ID
-                                resTestVO.getTheObservationDT().setAddUserName("TEST123");
-
+                                resTestVO.getTheObservationDT().setAddUserName(AuthUtil.authUser.getUserId());
                                 theObservationVOCollection.add(resTestVO);
 
                             }
@@ -460,27 +457,23 @@ public class ObservationService implements IObservationService {
                     }
                 }
                 //If a Resulted Test observation
-                else if (typeCd != null &&
-                        typeCd.equalsIgnoreCase(NEDSSConstant.ACT108_TYP_CD))
-                {
-                    ObservationVO rtObservationVO = (ObservationVO) getActVO(NEDSSConstant.OBSERVATION_CLASS_CODE, observationUid);
-                    if (rtObservationVO == null)
-                    {
+                else if (typeCd != null
+                        && typeCd.equalsIgnoreCase(NEDSSConstant.ACT108_TYP_CD)
+                ) {
+                    ObservationVO rtObservationVO = (ObservationVO) getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, observationUid);
+                    if (rtObservationVO == null) {
                         continue;
                     }
                     theObservationVOCollection.add(rtObservationVO); //The Resulted Test itself
                     //Retrieve the RT's lab
-                    OrganizationVO rtPerformingLab = retrievePerformingLab(rtObservationVO.getTheParticipationDTCollection());
-                    if (rtPerformingLab != null)
-                    {
+                    OrganizationVO rtPerformingLab = retrievePerformingLabAkaOrganizationFromParticipation(rtObservationVO.getTheParticipationDTCollection());
+                    if (rtPerformingLab != null) {
                         performingLabColl.add(rtPerformingLab);
                     }
 
-
                     //Retrieves all reflex observations, including each ordered and its resulted
-                    Collection<Object>  reflexObsColl = retrieveReflexObservations(rtObservationVO.getTheActRelationshipDTCollection());
-                    if (reflexObsColl == null || reflexObsColl.size() <= 0)
-                    {
+                    Collection<ObservationVO> reflexObsColl = retrieveReflexObservationsFromActRelationship(rtObservationVO.getTheActRelationshipDTCollection());
+                    if (reflexObsColl == null || reflexObsColl.size() <= 0) {
                         continue;
                     }
                     theObservationVOCollection.addAll(reflexObsColl);
@@ -488,24 +481,20 @@ public class ObservationService implements IObservationService {
             }
         }
 
-        obs_org.add(0, theObservationVOCollection);
-        obs_org.add(1, performingLabColl);
-        return obs_org;
+        mapper.put(DataProcessingMapKey.OBSERVATION, theObservationVOCollection);
+        mapper.put(DataProcessingMapKey.ORGANIZATION, performingLabColl);
+        return mapper;
     }
 
     /**
-     * Retrieves the Reflex Observations
+     * was: retrieveReflexObservations
      */
-    private Collection<Object>  retrieveReflexObservations(Collection<ActRelationshipDT> actRelColl) throws DataProcessingException
+    private Collection<ObservationVO>  retrieveReflexObservationsFromActRelationship(Collection<ActRelationshipDT> actRelColl) throws DataProcessingException
     {
-        Collection<Object>  reflexObsVOCollection  = null;
+        Collection<ObservationVO>  reflexObsVOCollection  = null;
 
-        for (Iterator<ActRelationshipDT> it = actRelColl.iterator(); it.hasNext(); )
-        {
-            ActRelationshipDT actRelDT = (ActRelationshipDT) it.next();
-
-            if (actRelDT == null)
-            {
+        for (ActRelationshipDT actRelDT : actRelColl) {
+            if (actRelDT == null) {
                 continue;
             }
 
@@ -515,33 +504,32 @@ public class ObservationService implements IObservationService {
             String recordStatusCd = actRelDT.getRecordStatusCd();
 
             //If reflex ordered test observation...
-            if (typeCd != null &&
-                    typeCd.equalsIgnoreCase(NEDSSConstant.ACT109_TYP_CD)
-                    && sourceClassCd != null &&
-                    sourceClassCd.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE)
-                    && targetClassCd != null &&
-                    targetClassCd.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE)
-                    && recordStatusCd != null &&
-                    recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE))
-            {
+            if (typeCd != null
+                && typeCd.equalsIgnoreCase(NEDSSConstant.ACT109_TYP_CD)
+                && sourceClassCd != null
+                && sourceClassCd.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE)
+                && targetClassCd != null
+                && targetClassCd.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE)
+                && recordStatusCd != null
+                && recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE)
+            ) {
                 Long observationUid = actRelDT.getSourceActUid();
+                ObservationVO reflexObs = (ObservationVO) getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, observationUid);
 
-                ObservationVO reflexObs = (ObservationVO) getActVO(NEDSSConstant.OBSERVATION_CLASS_CODE, observationUid);
-
-                if (reflexObs == null)
-                {
+                if (reflexObs == null) {
                     continue;
-                }
-                else
-                {
-                    if(reflexObsVOCollection  == null) reflexObsVOCollection  = new ArrayList<Object> ();
+                } else {
+                    if (reflexObsVOCollection == null) {
+                        reflexObsVOCollection = new ArrayList<>();
+                    }
                     reflexObsVOCollection.add(reflexObs);
                 }
 
                 //Retrieves its associated reflex resulted tests
-                Collection<Object>  reflexRTs = retrieveReflexRTs(reflexObs.getTheActRelationshipDTCollection());
-                if (reflexRTs == null || reflexRTs.size() < 0)
-                {
+                Collection<ObservationVO> reflexRTs = retrieveReflexRTsAkaObservationFromActRelationship(reflexObs.getTheActRelationshipDTCollection());
+                if (reflexRTs == null
+                    || reflexRTs.size() < 0
+                ) {
                     continue;
                 }
                 reflexObsVOCollection.addAll(reflexRTs);
@@ -553,17 +541,14 @@ public class ObservationService implements IObservationService {
 
     /**
      * Retrieves the Reflex Result Test
+     * was: retrieveReflexRTs
      */
-    private Collection<Object>  retrieveReflexRTs(Collection<ActRelationshipDT> actRelColl) throws DataProcessingException
+    private Collection<ObservationVO>  retrieveReflexRTsAkaObservationFromActRelationship(Collection<ActRelationshipDT> actRelColl) throws DataProcessingException
     {
-        Collection<Object>  reflexRTCollection  = null;
+        Collection<ObservationVO>  reflexRTCollection  = null;
 
-        for (Iterator<ActRelationshipDT> it = actRelColl.iterator(); it.hasNext(); )
-        {
-            ActRelationshipDT actRelDT = (ActRelationshipDT) it.next();
-
-            if (actRelDT == null)
-            {
+        for (ActRelationshipDT actRelDT : actRelColl) {
+            if (actRelDT == null) {
                 continue;
             }
 
@@ -573,24 +558,24 @@ public class ObservationService implements IObservationService {
             String recordStatusCd = actRelDT.getRecordStatusCd();
 
             //If reflex resulted test observation...
-            if (typeCd != null &&
-                    typeCd.equalsIgnoreCase(NEDSSConstant.ACT110_TYP_CD)
-                    && sourceClassCd != null &&
-                    sourceClassCd.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE)
-                    && targetClassCd != null &&
-                    targetClassCd.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE)
-                    && recordStatusCd != null &&
-                    recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE))
-            {
+            if (typeCd != null
+                && typeCd.equalsIgnoreCase(NEDSSConstant.ACT110_TYP_CD)
+                && sourceClassCd != null
+                && sourceClassCd.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE)
+                && targetClassCd != null
+                && targetClassCd.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE)
+                && recordStatusCd != null
+                && recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE)
+            ) {
                 Long observationUid = actRelDT.getSourceActUid();
+                ObservationVO reflexObs = (ObservationVO) getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, observationUid);
 
-                ObservationVO reflexObs = (ObservationVO) getActVO(NEDSSConstant.OBSERVATION_CLASS_CODE, observationUid);
-
-                if (reflexObs == null)
-                {
+                if (reflexObs == null) {
                     continue;
                 }
-                if(reflexRTCollection  == null) reflexRTCollection  = new ArrayList<Object> ();
+                if (reflexRTCollection == null) {
+                    reflexRTCollection = new ArrayList<>();
+                }
                 reflexRTCollection.add(reflexObs);
             }
         }
@@ -600,16 +585,15 @@ public class ObservationService implements IObservationService {
 
 
     // LOAD the performing  lab
-    private OrganizationVO retrievePerformingLab(Collection<ParticipationDT> partColl) throws DataProcessingException
+    /**
+     * was: retrievePerformingLab
+     * */
+    private OrganizationVO retrievePerformingLabAkaOrganizationFromParticipation(Collection<ParticipationDT> partColl) throws DataProcessingException
     {
         OrganizationVO lab = null;
 
-        for (Iterator<ParticipationDT> it = partColl.iterator(); it.hasNext(); )
-        {
-            ParticipationDT partDT = (ParticipationDT) it.next();
-
-            if (partDT == null)
-            {
+        for (ParticipationDT partDT : partColl) {
+            if (partDT == null) {
                 continue;
             }
 
@@ -619,25 +603,17 @@ public class ObservationService implements IObservationService {
             String recordStatusCd = partDT.getRecordStatusCd();
 
             //If performing lab...
-            if (typeCd != null && typeCd.equals(NEDSSConstant.PAR122_TYP_CD)
-                    && subjectClassCd != null &&
-                    subjectClassCd.equalsIgnoreCase(NEDSSConstant.PAR122_SUB_CD)
-                    && actClassCd != null &&
-                    actClassCd.equals(NEDSSConstant.OBSERVATION_CLASS_CODE)
-                    && recordStatusCd != null &&
-                    recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE))
-            {
+            if (typeCd != null
+                && typeCd.equals(NEDSSConstant.PAR122_TYP_CD)
+                && subjectClassCd != null
+                && subjectClassCd.equalsIgnoreCase(NEDSSConstant.PAR122_SUB_CD)
+                && actClassCd != null
+                && actClassCd.equals(NEDSSConstant.OBSERVATION_CLASS_CODE)
+                && recordStatusCd != null
+                && recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE)
+            ) {
                 Long organizationUid = partDT.getSubjectEntityUid();
-
-                // TODO LOAD ORG and it assoc
-
-                /*
-                lab = (OrganizationVO) getEntityVO(NEDSSConstant.ORGANIZATION,
-                        organizationUid, partDT.getActUid(),
-                        securityObj);
-                */
-
-                lab = new OrganizationVO();
+                lab = organizationRepositoryUtil.loadObject(organizationUid, partDT.getActUid());
                 break; //only one lab for each RT
             }
         }
@@ -647,16 +623,15 @@ public class ObservationService implements IObservationService {
 
 
 
-    private Collection<Object>  retrieveInterventionVOsForProxyVO(Collection<ActRelationshipDT> actRelColl) throws DataProcessingException
+    /**
+     * was: retrieveInterventionVOsForProxyVO
+     * */
+    private Collection<Object>  retrieveInterventionFromActRelationship(Collection<ActRelationshipDT> actRelColl) throws DataProcessingException
     {
         Collection<Object>  theInterventionVOCollection  = null;
 
-        for (Iterator<ActRelationshipDT> it = actRelColl.iterator(); it.hasNext(); )
-        {
-            ActRelationshipDT actRelDT = (ActRelationshipDT) it.next();
-
-            if (actRelDT == null)
-            {
+        for (ActRelationshipDT actRelDT : actRelColl) {
+            if (actRelDT == null) {
                 continue;
             }
 
@@ -664,58 +639,49 @@ public class ObservationService implements IObservationService {
             String targetClassCd = actRelDT.getTargetClassCd();
             String recordStatusCd = actRelDT.getRecordStatusCd();
 
-            //If intervention...
-            if (sourceClassCd != null &&
-                    sourceClassCd.equalsIgnoreCase(NEDSSConstant.INTERVENTION_CLASS_CODE)
-                    && targetClassCd != null &&
-                    targetClassCd.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE)
-                    && recordStatusCd != null &&
-                    recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE))
-            {
+            if (sourceClassCd != null
+                && sourceClassCd.equalsIgnoreCase(NEDSSConstant.INTERVENTION_CLASS_CODE)
+                && targetClassCd != null
+                && targetClassCd.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE)
+                && recordStatusCd != null
+                && recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE)
+            ) {
                 Long interventionUid = actRelDT.getSourceActUid();
-                if (theInterventionVOCollection  == null)
-                {
-                    theInterventionVOCollection  = new ArrayList<Object> ();
+                if (theInterventionVOCollection == null) {
+                    theInterventionVOCollection = new ArrayList<>();
                 }
-                theInterventionVOCollection.add(getActVO(NEDSSConstant.INTERVENTION_CLASS_CODE, interventionUid));
+                var intervention = getAbstractObjectForObservationOrIntervention(NEDSSConstant.INTERVENTION_CLASS_CODE, interventionUid);
+                theInterventionVOCollection.add(intervention);
             }
         }
         return theInterventionVOCollection;
     }
 
-
-
-
-    // public LabResultProxyVO getLabResultProxyVO(Long observationId,  boolean isELR, NBSSecurityObj nbsSecurityObj)throws Exceptio
-    public LabResultProxyContainer getLabResultProxyVO(Long observationId,  boolean isELR) throws DataProcessingException {
+    /**
+     *  public LabResultProxyVO getLabResultProxyVO(Long observationId,  boolean isELR, NBSSecurityObj nbsSecurityObj)
+     * */
+    private LabResultProxyContainer loadingObservationToLabResultContainer(Long observationId,  boolean isELR) throws DataProcessingException {
         LabResultProxyContainer lrProxyVO =  new LabResultProxyContainer();
 
-        checkMethodArgs(observationId);
-
         // LOADING EXISTING Observation
-        ObservationVO orderedTest = (ObservationVO) getActVO(NEDSSConstant.OBSERVATION_CLASS_CODE, observationId);
-
-        /**Check permission*/
-        // checkPermissionToGetProxy(orderedTest);
+        ObservationVO orderedTest = (ObservationVO) getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, observationId);
 
         Collection<ParticipationDT>  partColl = orderedTest.getTheParticipationDTCollection();
+
         if (partColl != null && partColl.size() > 0)
         {
-            List<Object> allEntity = retrieveEntityForProxyVO(partColl);
-            if (allEntity != null && allEntity.size() > 0)
+            Map<DataProcessingMapKey, Object> allEntity = retrieveEntityFromParticipationForContainer(partColl);
+            if (allEntity.size() > 0)
             {
-                lrProxyVO.setThePersonContainerCollection( (Collection<PersonContainer>) allEntity.get(this.RETRIEVED_PERSONS_FOR_PROXY));
-                lrProxyVO.setTheOrganizationVOCollection( (Collection<OrganizationVO>) allEntity.get(this.RETRIEVED_ORGANIZATIONS_FOR_PROXY));
-                lrProxyVO.setTheMaterialVOCollection( (Collection<MaterialVO>) allEntity.get(this.RETRIEVED_MATERIALS_FOR_PROXY));
+                lrProxyVO.setThePersonContainerCollection((Collection<PersonContainer>) allEntity.get(DataProcessingMapKey.PERSON));
+                lrProxyVO.setTheOrganizationVOCollection((Collection<OrganizationVO>) allEntity.get(DataProcessingMapKey.ORGANIZATION));
+                lrProxyVO.setTheMaterialVOCollection((Collection<MaterialVO>) allEntity.get(DataProcessingMapKey.MATERIAL));
 
-                Object obj = allEntity.get(this.RETRIEVED_PATIENT_ROLES);
-                Collection<RoleDto>  coll = null;
-                if(obj == null)
-                    coll = new ArrayList<> ();//do not want to place a null object in  for role collection
-                else
-                    coll = (Collection<RoleDto>)obj;
+                Collection<RoleDto> roleObjs = (Collection<RoleDto>)  allEntity.get(DataProcessingMapKey.ROLE);
+                Collection<RoleDto> roleDtoCollection;
+                roleDtoCollection = Objects.requireNonNullElseGet(roleObjs, ArrayList::new);
 
-                lrProxyVO.setTheRoleDtoCollection(coll);
+                lrProxyVO.setTheRoleDtoCollection(roleDtoCollection);
             }
         }
 
@@ -723,30 +689,30 @@ public class ObservationService implements IObservationService {
 
         if (actRelColl != null && actRelColl.size() > 0)
         {
-            List<Object> allAct = retrieveActForProxyVO(actRelColl);
-            if (allAct != null && allAct.size() > 0)
+            Map<DataProcessingMapKey, Object> allAct = retrieveActForLabResultContainer(actRelColl);
+            if (allAct.size() > 0)
             {
                 //Set intervention collection
-                lrProxyVO.setTheInterventionVOCollection( (Collection<Object>) allAct.get(this.RETRIEVED_INTERVENTIONS_FOR_PROXY));
+                lrProxyVO.setTheInterventionVOCollection( (Collection<Object>) allAct.get(DataProcessingMapKey.INTERVENTION));
 
                 //Set observation collection
-                Collection<ObservationVO>  obsColl = (Collection<ObservationVO>) allAct.get(this.RETRIEVED_OBSERVATIONS_FOR_PROXY);
+                Collection<ObservationVO> obsColl = (Collection<ObservationVO>) allAct.get(DataProcessingMapKey.OBSERVATION);
                 if (obsColl == null)
                 {
-                    obsColl = new ArrayList<ObservationVO> ();
+                    obsColl = new ArrayList<>();
                 }
 
                 //BB - civil0012298 - Retrieve User Name to b displayed instead of ID!
                 if(!isELR) {
-                    orderedTest.getTheObservationDT().setAddUserName("TEST123");
-                    orderedTest.getTheObservationDT().setLastChgUserName("TEST123");
+                    orderedTest.getTheObservationDT().setAddUserName(AuthUtil.authUser.getUserId());
+                    orderedTest.getTheObservationDT().setLastChgUserName(AuthUtil.authUser.getUserId());
                 }
 
                 obsColl.add(orderedTest);
                 lrProxyVO.setTheObservationVOCollection(obsColl);
 
                 //Adds the performing lab(if any) to the organization cellection
-                Collection<OrganizationVO>  labColl = (Collection<OrganizationVO>) allAct.get(this.RETRIEVED_LABS_FOR_RT);
+                Collection<OrganizationVO>  labColl = (Collection<OrganizationVO>) allAct.get(DataProcessingMapKey.ORGANIZATION);
                 if (labColl != null && labColl.size() > 0)
                 {
                     lrProxyVO.getTheOrganizationVOCollection().addAll(labColl);
@@ -755,45 +721,29 @@ public class ObservationService implements IObservationService {
         }
 
         if (!isELR) {
-            try {
+            boolean exists = notificationService.checkForExistingNotification(lrProxyVO);
+            lrProxyVO.setAssociatedNotificationInd(exists);
 
-                boolean exists = notificationService.checkForExistingNotification(lrProxyVO);
-                lrProxyVO.setAssociatedNotificationInd(exists);
-            } catch (Exception e) {
-                e.printStackTrace();
+
+            Collection<ActRelationshipDT> col = actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(observationId, NEDSSConstant.LAB_REPORT);
+            if (col != null && col.size() > 0)
+            {
+                lrProxyVO.setAssociatedInvInd(true);
             }
 
-            try {
-                Collection<ActRelationshipDT> col = actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(observationId, NEDSSConstant.LAB_REPORT);
-                if (col != null && col.size() > 0)
-                {
-                    lrProxyVO.setAssociatedInvInd(true);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
 
             // get EDX Document data
-            try {
-                Collection<EDXDocumentDT> documentList = edxDocumentService.selectEdxDocumentCollectionByActUid(observationId);
-                if (documentList != null) {
-                    lrProxyVO.setEDXDocumentCollection(documentList);
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
+            Collection<EDXDocumentDT> documentList = edxDocumentService.selectEdxDocumentCollectionByActUid(observationId);
+            if (documentList != null) {
+                lrProxyVO.setEDXDocumentCollection(documentList);
             }
 
             // get the list of conditions associated with this Lab
-            try {
-                ArrayList<String> conditionList = deriveTheConditionCodeList(lrProxyVO, orderedTest);
-                if (conditionList != null && !conditionList.isEmpty()) {
-                    lrProxyVO.setTheConditionsList(conditionList);
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
+            ArrayList<String> conditionList = deriveTheConditionCodeList(lrProxyVO, orderedTest);
+            if (conditionList != null && !conditionList.isEmpty()) {
+                lrProxyVO.setTheConditionsList(conditionList);
             }
+
         }
 
         try {
@@ -812,9 +762,8 @@ public class ObservationService implements IObservationService {
      *    when associating an STD lab to a closed investigation.
      *    Condition list determines the Processing Decision to show.
      */
-    private ArrayList<String> deriveTheConditionCodeList(
-            LabResultProxyContainer labResultProxyVO, ObservationVO orderTest) throws DataProcessingException {
-        ArrayList<String> derivedConditionList = new ArrayList<String>();
+    private ArrayList<String> deriveTheConditionCodeList(LabResultProxyContainer labResultProxyVO, ObservationVO orderTest) throws DataProcessingException {
+        ArrayList<String> derivedConditionList = new ArrayList<>();
 
         //if this is not an STD Program Area - we can skip this overhead
         //TODO: CACHING
@@ -824,7 +773,7 @@ public class ObservationService implements IObservationService {
 //        }
 
         // Get the result tests
-        Collection<ObservationVO> resultTests = new ArrayList<ObservationVO>();
+        Collection<ObservationVO> resultTests = new ArrayList<>();
         for (ObservationVO obsVO : labResultProxyVO.getTheObservationVOCollection()) {
             String obsDomainCdSt1 = obsVO.getTheObservationDT().getObsDomainCdSt1();
             if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.RESULTED_TEST_OBS_DOMAIN_CD)) {
@@ -843,7 +792,9 @@ public class ObservationService implements IObservationService {
             }
         }
         if (reportingLabCLIA == null || reportingLabCLIA.trim().equals(""))
+        {
             reportingLabCLIA = NEDSSConstant.DEFAULT;
+        }
 
         // If there are resulted tests, call obs processor for the list of
         // associated conditions
@@ -859,40 +810,38 @@ public class ObservationService implements IObservationService {
                                                      Collection<ObservationVO> observationVOCollection,
                                                       String electronicInd) throws DataProcessingException {
         int noConditionFoundForResultedTestCount = 0;
-        ArrayList<String> returnList =  new ArrayList<String> ();
+        ArrayList<String> returnList =  new ArrayList<> ();
 
-        Iterator<ObservationVO> obsIt = observationVOCollection.iterator();
         // iterator through each resultTest
-        while (obsIt.hasNext()) {
-            ArrayList<String> resultedTestConditionList =  new ArrayList<String> ();
-            ObservationVO obsVO = (ObservationVO) obsIt.next();
+        for (ObservationVO observationVO : observationVOCollection) {
+            ArrayList<String> resultedTestConditionList;
+            ObservationVO obsVO = observationVO;
             ObservationDT obsDt = obsVO.getTheObservationDT();
 
             String obsDomainCdSt1 = obsDt.getObsDomainCdSt1();
             String obsDTCode = obsDt.getCd();
 
             // make sure you are dealing with a resulted test here.
-            if ((obsDomainCdSt1 != null)
-                    && obsDomainCdSt1.equals(ELRConstant.ELR_OBSERVATION_RESULT)
-                    && (obsDTCode != null)
-                    && (!obsDTCode.equals(NEDSSConstant.ACT114_TYP_CD))) {
+            if (obsDomainCdSt1 != null
+                && obsDomainCdSt1.equals(ELRConstant.ELR_OBSERVATION_RESULT)
+                && obsDTCode != null
+                && !obsDTCode.equals(NEDSSConstant.ACT114_TYP_CD)
+            ) {
 
                 // Retrieve Condition List using SNM Lab Result --> SNOMED code mapping
                 // If ELR, use actual CLIA - if manual use "DEFAULT" as CLIA
-                if (electronicInd.equals(NEDSSConstant.ELECTRONIC_IND_ELR))
-                {
+                if (electronicInd.equals(NEDSSConstant.ELECTRONIC_IND_ELR)) {
                     resultedTestConditionList = getConditionsFromSNOMEDCodes(reportingLabCLIA, obsVO.getTheObsValueCodedDTCollection());
-                }
-                else
-                {
+                } else {
                     resultedTestConditionList = getConditionsFromSNOMEDCodes(NEDSSConstant.DEFAULT, obsVO.getTheObsValueCodedDTCollection());
                 }
 
                 // if no conditions found - try LN to retrieve Condition using Resulted Test --> LOINC mapping
                 if (resultedTestConditionList.isEmpty()) {
                     String loincCondition = getConditionForLOINCCode(reportingLabCLIA, obsVO);
-                    if (loincCondition!= null && !loincCondition.isEmpty())
-                    {
+                    if (loincCondition != null
+                        && !loincCondition.isEmpty()
+                    ) {
                         resultedTestConditionList.add(loincCondition);
                     }
                 }
@@ -900,24 +849,27 @@ public class ObservationService implements IObservationService {
                 // none - try LR to retrieve default Condition using Local Result Code to condition mapping
                 if (resultedTestConditionList.isEmpty()) {
                     String localResultDefaultConditionCd = getConditionCodeForLocalResultCode(reportingLabCLIA, obsVO.getTheObsValueCodedDTCollection());
-                    if (localResultDefaultConditionCd != null && !localResultDefaultConditionCd.isEmpty())
-                    {
+                    if (localResultDefaultConditionCd != null
+                        && !localResultDefaultConditionCd.isEmpty()
+                    ) {
                         resultedTestConditionList.add(localResultDefaultConditionCd);
                     }
                 }
                 // none - try LT to retrieve default Condition using Local Test Code to condition mapping
                 if (resultedTestConditionList.isEmpty()) {
                     String localTestDefaultConditionCd = getConditionCodeForLocalTestCode(reportingLabCLIA, obsVO);
-                    if (localTestDefaultConditionCd != null && !localTestDefaultConditionCd.isEmpty())
-                    {
+                    if (localTestDefaultConditionCd != null
+                        && !localTestDefaultConditionCd.isEmpty()
+                    ) {
                         resultedTestConditionList.add(localTestDefaultConditionCd);
                     }
                 }
                 // none - see if default condition code exists for the resulted lab test
                 if (resultedTestConditionList.isEmpty()) {
                     String defaultLabTestConditionCd = getDefaultConditionForLabTestCode(obsDTCode, reportingLabCLIA);
-                    if (defaultLabTestConditionCd != null && !defaultLabTestConditionCd.isEmpty())
-                    {
+                    if (defaultLabTestConditionCd != null
+                        && !defaultLabTestConditionCd.isEmpty()
+                    ) {
                         resultedTestConditionList.add(defaultLabTestConditionCd);
                     }
                 }
@@ -926,14 +878,14 @@ public class ObservationService implements IObservationService {
                 }
                 //if we found conditions add them to the return list
                 if (!resultedTestConditionList.isEmpty()) {
-                    Set<String> hashset = new HashSet<String>();
+                    Set<String> hashset = new HashSet<>();
                     hashset.addAll(returnList);
                     hashset.addAll(resultedTestConditionList);
                     //get rid of dups..
-                    returnList = new ArrayList<String>(hashset);
-                } //resulted test condition list not empty
-            } //end of if valid resulted test
-        } // end of while more resulted tests
+                    returnList = new ArrayList<>(hashset);
+                }
+            }
+        }
         //if we couldn't derive a condition for a test, return no conditions
         if (noConditionFoundForResultedTestCount > 0)
         {
@@ -1143,10 +1095,8 @@ public class ObservationService implements IObservationService {
 
 
     private String getReportingLabCLIAId(Collection<ParticipationDT> partColl) throws DataProcessingException {
-
-
         // Get the reporting lab
-        Long reportingLabUid = this.getUid(
+        Long reportingLabUid = getUid(
                 partColl,
                 null,
                 NEDSSConstant.ENTITY_UID_LIST_TYPE,
@@ -1160,7 +1110,7 @@ public class ObservationService implements IObservationService {
                 reportingLabVO = organizationRepositoryUtil.loadObject(reportingLabUid, null);
             }
         } catch (Exception rex) {
-            throw new DataProcessingException("Error while retriving reporting organization vo, its uid is: " + reportingLabUid);
+            throw new DataProcessingException("Error while retriving reporting organization vo, its uid is: " + reportingLabUid, rex);
         }
 
         // Get the CLIA
@@ -1171,8 +1121,7 @@ public class ObservationService implements IObservationService {
             Collection<EntityIdDto> entityIdColl = reportingLabVO.getTheEntityIdDtoCollection();
 
             if (entityIdColl != null && entityIdColl.size() > 0) {
-                for (Iterator<EntityIdDto> it = entityIdColl.iterator(); it.hasNext();) {
-                    EntityIdDto idDT = (EntityIdDto) it.next();
+                for (EntityIdDto idDT : entityIdColl) {
                     if (idDT == null) {
                         continue;
                     }
@@ -1182,8 +1131,9 @@ public class ObservationService implements IObservationService {
                     if (authoCd == null || idTypeCd == null) {
                         continue;
                     }
-                    if (authoCd.trim().contains(NEDSSConstant.REPORTING_LAB_CLIA) &&
-                            idTypeCd.trim().equalsIgnoreCase(NEDSSConstant.REPORTING_LAB_FI_TYPE)) {
+                    if (authoCd.trim().contains(NEDSSConstant.REPORTING_LAB_CLIA)
+                            && idTypeCd.trim().equalsIgnoreCase(NEDSSConstant.REPORTING_LAB_FI_TYPE)
+                    ) {
                         reportingLabCLIA = idDT.getRootExtensionTxt();
                         break;
                     }
@@ -1193,43 +1143,54 @@ public class ObservationService implements IObservationService {
         return reportingLabCLIA;
     }
 
-    private Long getUid(Collection<ParticipationDT> participationDTCollection, Collection<ActRelationshipDT> actRelationshipDTCollection,
+    private Long getUid(Collection<ParticipationDT> participationDTCollection,
+                        Collection<ActRelationshipDT> actRelationshipDTCollection,
                         String uidListType, String uidClassCd, String uidTypeCd,
-                        String uidActClassCd, String uidRecordStatusCd)
-            throws DataProcessingException {
+                        String uidActClassCd, String uidRecordStatusCd) throws DataProcessingException {
         Long anUid = null;
         try {
             if (participationDTCollection != null) {
-                Iterator<ParticipationDT> assocIter = participationDTCollection.iterator();
-                while (assocIter.hasNext()) {
-                    ParticipationDT partDT = (ParticipationDT) assocIter.next();
+                for (ParticipationDT partDT : participationDTCollection) {
                     if (
-                            ((partDT.getSubjectClassCd() != null
-                                    && partDT.getSubjectClassCd().equalsIgnoreCase(uidClassCd))
+                            (
+                                (
+                                    partDT.getSubjectClassCd() != null
+                                    && partDT.getSubjectClassCd().equalsIgnoreCase(uidClassCd)
+                                )
                                     && (partDT.getTypeCd() != null
                                     && partDT.getTypeCd().equalsIgnoreCase(uidTypeCd))
                                     && (partDT.getActClassCd() != null
                                     && partDT.getActClassCd().equalsIgnoreCase(uidActClassCd))
                                     && (partDT.getRecordStatusCd() != null
-                                    && partDT.getRecordStatusCd().equalsIgnoreCase(uidRecordStatusCd)))
-                    ) {
+                                    && partDT.getRecordStatusCd().equalsIgnoreCase(uidRecordStatusCd))
+                            )
+                    )
+                    {
                         anUid = partDT.getSubjectEntityUid();
                     }
                 }
             }
             else if (actRelationshipDTCollection != null) {
-                Iterator<ActRelationshipDT> assocIter = actRelationshipDTCollection.iterator();
-                while (assocIter.hasNext()) {
-                    ActRelationshipDT actRelDT = (ActRelationshipDT) assocIter.next();
-                    if (((actRelDT.getSourceClassCd() != null
-                            && actRelDT.getSourceClassCd().equalsIgnoreCase(uidClassCd))
-                            && (actRelDT.getTypeCd() != null
-                            && actRelDT.getTypeCd().equalsIgnoreCase(uidTypeCd))
-                            && (actRelDT.getTargetClassCd() != null
-                            && actRelDT.getTargetClassCd().equalsIgnoreCase(uidActClassCd))
-                            && (actRelDT.getRecordStatusCd() != null
-                            && actRelDT.getRecordStatusCd().equalsIgnoreCase(uidRecordStatusCd))))
-                    {
+                for (ActRelationshipDT actRelDT : actRelationshipDTCollection) {
+                    if (
+                            (
+                                actRelDT.getSourceClassCd() != null
+                                && actRelDT.getSourceClassCd().equalsIgnoreCase(uidClassCd)
+                            )
+                            && (
+                                actRelDT.getTypeCd() != null
+                                && actRelDT.getTypeCd().equalsIgnoreCase(uidTypeCd)
+                            )
+                            && (
+                                actRelDT.getTargetClassCd() != null
+                                && actRelDT.getTargetClassCd().equalsIgnoreCase(uidActClassCd)
+                            )
+                            && (
+                                actRelDT.getRecordStatusCd() != null
+                                && actRelDT.getRecordStatusCd().equalsIgnoreCase(uidRecordStatusCd)
+                            )
+
+                    ) {
                         if (uidListType.equalsIgnoreCase(NEDSSConstant.ACT_UID_LIST_TYPE)) {
                             anUid = actRelDT.getTargetActUid();
                         } else if (uidListType.equalsIgnoreCase(NEDSSConstant.SOURCE_ACT_UID_LIST_TYPE)) {
@@ -1240,84 +1201,98 @@ public class ObservationService implements IObservationService {
             }
 
         } catch (Exception ex) {
-            throw new DataProcessingException("Error while retrieving a " + uidListType + " uid. " + ex.toString());
+            throw new DataProcessingException("Error while retrieving a " + uidListType + " uid. " + ex.toString(), ex);
         }
 
         return anUid;
     }
 
     @Transactional
-    public ObservationDT processingObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
-        String fillerNumber = "";
-        try {
-            ObservationVO observationVO = edxLabInformationDto.getRootObservationVO();
-            fillerNumber = edxLabInformationDto.getFillerNumber();
+    public ObservationDT checkingMatchingObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
+        String fillerNumber;
 
-            ObservationDT obsDT = null;
+        ObservationVO observationVO = edxLabInformationDto.getRootObservationVO();
+        fillerNumber = edxLabInformationDto.getFillerNumber();
 
-            if (edxLabInformationDto.getRootObservationVO() != null) {
-                obsDT = observationMatchingService.matchingObservation(edxLabInformationDto);
-            } else {
-                logger.error("Error!! masterObsVO not available for fillerNbr:" + edxLabInformationDto.getFillerNumber());
+        ObservationDT obsDT;
+
+        if (edxLabInformationDto.getRootObservationVO() != null) {
+            obsDT = observationMatchingService.matchingObservation(edxLabInformationDto);
+        } else {
+            logger.error("Error!! masterObsVO not available for fillerNbr:" + edxLabInformationDto.getFillerNumber());
+            return null;
+        }
+
+        if (obsDT != null) // find a match is it a correction?
+        {
+            String msgStatus = observationVO.getTheObservationDT().getStatusCd();
+            String odsStatus = obsDT.getStatusCd();
+            if (msgStatus == null
+                    || odsStatus == null
+            ) {
+                logger.error("Error!! null status cd: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);
                 return null;
             }
-
-            if (obsDT != null) // find a match is it a correction?
-            {
-                String msgStatus = observationVO.getTheObservationDT().getStatusCd();
-                String odsStatus = obsDT.getStatusCd();
-                if (msgStatus == null || odsStatus == null) {
-                    logger.error("Error!! null status cd: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);
-                    return null;
-                }
-                if ((odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
+            if (
+                    (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
                         && (msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
                         || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
-                        || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)))
-                        || (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+                        || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED))
+                    )
+                    || (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
                         && (msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
-                        || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)))
-                        || (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
-                        && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED))
-                ) {
-                    if (obsDT.getActivityToTime() != null && obsDT.getActivityToTime().after(edxLabInformationDto.getRootObservationVO().getTheObservationDT().getActivityToTime())) {
-                        edxLabInformationDto.setActivityTimeOutOfSequence(true);
-                        edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                        edxLabInformationDto.setLocalId(obsDT.getLocalId());
-                        throw new DataProcessingException("An Observation Lab test match was found for Accession # " + fillerNumber + ", but the activity time is out of sequence.");
-                    }
-                    return obsDT;
-                } else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
-                        && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)) {
-                    edxLabInformationDto.setFinalPostCorrected(true);
-                    edxLabInformationDto.setLocalId(obsDT.getLocalId());
+                            || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+                            )
+                        )
+                    || (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+                        && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+                        )
+            ) {
+                if (obsDT.getActivityToTime() != null && obsDT.getActivityToTime().after(edxLabInformationDto.getRootObservationVO().getTheObservationDT().getActivityToTime())) {
+                    edxLabInformationDto.setActivityTimeOutOfSequence(true);
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                    throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
-                } else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
-                        && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)) {
-                    edxLabInformationDto.setPreliminaryPostFinal(true);
                     edxLabInformationDto.setLocalId(obsDT.getLocalId());
-                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                    throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a final report was received.");
-                } else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
-                        && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)) {
-                    edxLabInformationDto.setPreliminaryPostCorrected(true);
-                    edxLabInformationDto.setLocalId(obsDT.getLocalId());
-                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                    throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
-                } else {
-                    edxLabInformationDto.setFinalPostCorrected(true);
-                    edxLabInformationDto.setLocalId(obsDT.getLocalId());
-                    logger.error(" Error!! Invalid status combination: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);
-                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                    throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
+                    throw new DataProcessingException("An Observation Lab test match was found for Accession # " + fillerNumber + ", but the activity time is out of sequence.");
                 }
+                // MATCHED
+                return obsDT;
             }
-        } catch(Exception e){
-            throw new DataProcessingException("ERROR");
+            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+                        && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+            ) {
+                edxLabInformationDto.setFinalPostCorrected(true);
+                edxLabInformationDto.setLocalId(obsDT.getLocalId());
+                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
+            }
+            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+                    && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
+            ) {
+                edxLabInformationDto.setPreliminaryPostFinal(true);
+                edxLabInformationDto.setLocalId(obsDT.getLocalId());
+                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a final report was received.");
+            }
+            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+                    && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
+            ) {
+                edxLabInformationDto.setPreliminaryPostCorrected(true);
+                edxLabInformationDto.setLocalId(obsDT.getLocalId());
+                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
+            }
+            else {
+                edxLabInformationDto.setFinalPostCorrected(true);
+                edxLabInformationDto.setLocalId(obsDT.getLocalId());
+                logger.error(" Error!! Invalid status combination: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);
+                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
+            }
         }
+
         return null;
     }
+
 
     @Transactional
     public ObservationDT sendLabResultToProxy(LabResultProxyContainer labResultProxyContainer) throws DataProcessingException {

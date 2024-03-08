@@ -63,7 +63,7 @@ public class ObservationUtil {
 
     public ObservationVO loadObject(long obUID) throws DataProcessingException
     {
-        ObservationVO obVO = null;
+        ObservationVO obVO;
         try{
             obVO = new ObservationVO();
 
