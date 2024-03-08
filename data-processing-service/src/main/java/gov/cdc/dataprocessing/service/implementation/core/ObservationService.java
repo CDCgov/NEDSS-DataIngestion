@@ -41,6 +41,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
+
 
 @Service
 @Slf4j
@@ -957,7 +959,7 @@ public class ObservationService implements IObservationService {
         //checkPermissionToSetProxy(labResultProxyVO, securityObj, ELR_PROCESSING);
 
         //All well to proceed
-        Map<Object, Object> returnVal = null;
+        Map<Object, Object> returnVal = new HashMap<>();
         Long falseUid;
         Long realUid ;
         boolean valid = false;
@@ -970,10 +972,6 @@ public class ObservationService implements IObservationService {
             Long patientMprUid = personUtil.processLabPersonVOCollection(labResultProxyVO);
             if (patientMprUid != null)
             {
-                if (returnVal == null)
-                {
-                    returnVal = new HashMap<Object, Object>();
-                }
                 returnVal.put(NEDSSConstant.SETLAB_RETURN_MPR_UID, patientMprUid);
             }
 
@@ -981,10 +979,6 @@ public class ObservationService implements IObservationService {
             Map<Object, Object> obsResults = processObservationVOCollection(labResultProxyVO, ELR_PROCESSING);
             if (obsResults != null)
             {
-                if (returnVal == null)
-                {
-                    returnVal = new HashMap<Object, Object>();
-                }
                 returnVal.putAll(obsResults);
             }
 
@@ -1418,9 +1412,7 @@ public class ObservationService implements IObservationService {
             //If not above, abort the operation
             else
             {
-                throw new IllegalArgumentException(
-                        "Expected a valid observation proxy vo, it is: " +
-                                proxyVO.getClass().getName());
+                throw new DataProcessingException("Expected a valid observation proxy vo, it is: " + proxyVO.getClass().getName());
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
@@ -1429,39 +1421,38 @@ public class ObservationService implements IObservationService {
 
     private Map<Object, Object> processLabReportObsVOCollection(LabResultProxyContainer labResultProxyVO, boolean ELR_PROCESSING) throws DataProcessingException {
         try {
-            Collection<ObservationVO>  obsVOColl = labResultProxyVO.getTheObservationVOCollection();
-            ObservationVO observationVO = null;
-            Map<Object, Object> returnObsVal = null;
+            Collection<ObservationVO>obsVOColl = labResultProxyVO.getTheObservationVOCollection();
+            ObservationVO observationVO;
+            Map<Object, Object> returnObsVal = new HashMap<>();
             boolean isMannualLab = false;
 
             //Find out if it is mannual lab
             String electronicInd = observationUtil.getRootDT(labResultProxyVO).getElectronicInd();
             if(electronicInd != null && !electronicInd.equals(NEDSSConstant.YES))
+            {
                 isMannualLab = true;
+            }
 
             if (obsVOColl != null && obsVOColl.size() > 0)
             {
-                for (Iterator<ObservationVO> anIterator = obsVOColl.iterator(); anIterator.hasNext(); )
-                {
-                    observationVO = (ObservationVO) anIterator.next();
-
-                    if (observationVO == null)
-                    {
+                for (ObservationVO vo : obsVOColl) {
+                    observationVO = vo;
+                    if (observationVO == null) {
                         continue;
                     }
 
                     //For ordered test and resulted tests
                     ObservationDT currentDT = observationVO.getTheObservationDT();
                     String obsDomainCdSt1 = currentDT.getObsDomainCdSt1();
-                    boolean isOrderedTest = (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD))
+                    boolean isOrderedTest = (obsDomainCdSt1 != null
+                            && obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD))
                             && currentDT.getCd().equalsIgnoreCase("LAB112");
-                    boolean isResultedTest = obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.RESULTED_TEST_OBS_DOMAIN_CD);
+                    boolean isResultedTest = obsDomainCdSt1 != null
+                            && obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.RESULTED_TEST_OBS_DOMAIN_CD);
 
-
-                    if(isMannualLab)
-                    {
+                    if (isMannualLab) {
                         // Removed for Rel 1.1.3 - as we are not doing a reverse translation for ORdered test and Resulted Test
-                        if ( isOrderedTest || isResultedTest) {
+                        if (isOrderedTest || isResultedTest) {
                             //Retrieve lab test code
 
                             //Do loinc and snomed lookups for oredered and resulted tests
@@ -1474,11 +1465,8 @@ public class ObservationService implements IObservationService {
             }
 
             //Process the ordered test further
-            if (returnObsVal == null)
-            {
-                returnObsVal = new HashMap<Object, Object>();
-            }
-            returnObsVal.putAll(processLabReportOrderTest(labResultProxyVO, ELR_PROCESSING));
+            var data = processLabReportOrderTest(labResultProxyVO, ELR_PROCESSING);
+            returnObsVal.putAll(data);
 
             //Then, persist the observations
             //TODO: INSERTION
@@ -1487,10 +1475,6 @@ public class ObservationService implements IObservationService {
             //Return the order test uid
             if (observationUid != null)
             {
-                if (returnObsVal == null)
-                {
-                    returnObsVal = new HashMap<Object, Object>();
-                }
                 returnObsVal.put(NEDSSConstant.SETLAB_RETURN_OBS_UID, observationUid);
             }
             return returnObsVal;
@@ -1506,11 +1490,11 @@ public class ObservationService implements IObservationService {
             //Overrides rptToStateTime to current date/time for external user
             if (AuthUtil.authUser.getUserType() != null && AuthUtil.authUser.getUserType().equalsIgnoreCase(NEDSSConstant.SEC_USERTYPE_EXTERNAL))
             {
-                orderTest.getTheObservationDT().setRptToStateTime(new java.sql.Timestamp( (new java.util.Date()).getTime()));
+                orderTest.getTheObservationDT().setRptToStateTime(getCurrentTimeStamp());
             }
 
             //Assign program area cd if necessary, and return any errors to the client
-            Map<Object, Object> returnErrors = new HashMap<Object, Object>();
+            Map<Object, Object> returnErrors = new HashMap<>();
             String paCd = orderTest.getTheObservationDT().getProgAreaCd();
             if (paCd != null && paCd.equalsIgnoreCase(ProgramAreaJurisdiction.ANY_PROGRAM_AREA))
             {
@@ -1525,7 +1509,9 @@ public class ObservationService implements IObservationService {
             String jurisdictionCd = orderTest.getTheObservationDT().getJurisdictionCd();
             if (jurisdictionCd != null &&
                     (jurisdictionCd.equalsIgnoreCase(ProgramAreaJurisdiction.ANY_JURISDICTION)
-                            || jurisdictionCd.equalsIgnoreCase(ProgramAreaJurisdiction.JURISDICTION_NONE)))
+                    || jurisdictionCd.equalsIgnoreCase(ProgramAreaJurisdiction.JURISDICTION_NONE)
+                    )
+            )
             {
                 String jurisdictionError = deriveJurisdictionCd(labResultProxyVO, orderTest.getTheObservationDT());
                 if (jurisdictionCd != null)
@@ -1536,7 +1522,12 @@ public class ObservationService implements IObservationService {
 
             //Manipulate jurisdiction for preparing vo
             jurisdictionCd = orderTest.getTheObservationDT().getJurisdictionCd();
-            if(jurisdictionCd != null && (jurisdictionCd.trim().equals("") || jurisdictionCd.equals("ANY") || jurisdictionCd.equals("NONE")))
+            if(jurisdictionCd != null
+                && (jurisdictionCd.trim().equals("")
+                    || jurisdictionCd.equals("ANY")
+                    || jurisdictionCd.equals("NONE")
+                )
+            )
             {
                 orderTest.getTheObservationDT().setJurisdictionCd(null);
             }
@@ -1549,64 +1540,61 @@ public class ObservationService implements IObservationService {
     }
 
     private String deriveProgramAreaCd(LabResultProxyContainer labResultProxyVO, ObservationVO orderTest) throws DataProcessingException {
-            //Gathering the result tests
-            Collection<ObservationVO>  resultTests = new ArrayList<> ();
-            for (Iterator<ObservationVO> it = labResultProxyVO.getTheObservationVOCollection().iterator(); it.hasNext(); )
+        //Gathering the result tests
+        Collection<ObservationVO>  resultTests = new ArrayList<> ();
+        for (ObservationVO obsVO : labResultProxyVO.getTheObservationVOCollection()) {
+            String obsDomainCdSt1 = obsVO.getTheObservationDT().getObsDomainCdSt1();
+            if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.RESULTED_TEST_OBS_DOMAIN_CD)) {
+                resultTests.add(obsVO);
+            }
+        }
+
+        //Get the reporting lab clia
+        String reportingLabCLIA = "";
+        if(labResultProxyVO.getLabClia()!=null && labResultProxyVO.isManualLab())
+        {
+            reportingLabCLIA =labResultProxyVO.getLabClia();
+        }
+        else
+        {
+            reportingLabCLIA = getReportingLabCLIA(labResultProxyVO);
+        }
+
+        if(reportingLabCLIA == null || reportingLabCLIA.trim().equals(""))
+        {
+            reportingLabCLIA = NEDSSConstant.DEFAULT;
+        }
+
+        //Get program area
+        if(!orderTest.getTheObservationDT().getElectronicInd().equals(NEDSSConstant.ELECTRONIC_IND_ELR)){
+            Map<Object, Object> paResults = null;
+            if (resultTests.size() > 0)
             {
-                ObservationVO obsVO = (ObservationVO) it.next();
-                String obsDomainCdSt1 = obsVO.getTheObservationDT().getObsDomainCdSt1();
-                if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.RESULTED_TEST_OBS_DOMAIN_CD))
-                {
-                    resultTests.add(obsVO);
-                }
+                paResults = srteCodeObsService.getProgramArea(reportingLabCLIA, resultTests, orderTest.getTheObservationDT().getElectronicInd());
             }
 
-            //Get the reporting lab clia
-            String reportingLabCLIA = "";
-            if(labResultProxyVO.getLabClia()!=null && labResultProxyVO.isManualLab())
+            //set program area for order test
+            if (paResults != null && paResults.containsKey(ELRConstant.PROGRAM_AREA_HASHMAP_KEY))
             {
-                reportingLabCLIA =labResultProxyVO.getLabClia();
+                orderTest.getTheObservationDT().setProgAreaCd( (String) paResults.get(ELRConstant.PROGRAM_AREA_HASHMAP_KEY));
             }
             else
             {
-                reportingLabCLIA = getReportingLabCLIA(labResultProxyVO);
+                orderTest.getTheObservationDT().setProgAreaCd(null);
             }
 
-            if(reportingLabCLIA == null || reportingLabCLIA.trim().equals(""))
+            //Return errors if any
+            if (paResults != null &&
+                    paResults.containsKey("ERROR"))
             {
-                reportingLabCLIA = NEDSSConstant.DEFAULT;
+                return (String) paResults.get("ERROR");
             }
-
-            //Get program area
-            if(!orderTest.getTheObservationDT().getElectronicInd().equals(NEDSSConstant.ELECTRONIC_IND_ELR)){
-                Map<Object, Object> paResults = null;
-                if (resultTests.size() > 0)
-                {
-                    paResults = srteCodeObsService.getProgramArea(reportingLabCLIA, resultTests, orderTest.getTheObservationDT().getElectronicInd());
-                }
-
-                //set program area for order test
-                if (paResults != null && paResults.containsKey(ELRConstant.PROGRAM_AREA_HASHMAP_KEY))
-                {
-                    orderTest.getTheObservationDT().setProgAreaCd( (String) paResults.get(ELRConstant.PROGRAM_AREA_HASHMAP_KEY));
-                }
-                else
-                {
-                    orderTest.getTheObservationDT().setProgAreaCd(null);
-                }
-
-                //Return errors if any
-                if (paResults != null &&
-                        paResults.containsKey("ERROR"))
-                {
-                    return (String) paResults.get("ERROR");
-                }
-                else
-                {
-                    return null;
-                }
+            else
+            {
+                return null;
             }
-            return null;
+        }
+        return null;
     }
 
     private String getReportingLabCLIA(AbstractVO proxy) throws DataProcessingException {
