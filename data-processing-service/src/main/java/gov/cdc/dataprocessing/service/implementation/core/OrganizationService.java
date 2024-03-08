@@ -36,7 +36,6 @@ public class OrganizationService implements IOrganizationService {
        return organizationVO;
     }
     public OrganizationVO processingOrganization(LabResultProxyContainer labResultProxyContainer) throws DataProcessingConsumerException {
-        //TODO: Adding logic here
         OrganizationVO orderingFacilityVO=null;
         try {
             Collection<OrganizationVO> orgColl = labResultProxyContainer
@@ -83,7 +82,6 @@ public class OrganizationService implements IOrganizationService {
     }
 
     /**
-     * TODO: Evaluation needed
      * NOTE: Not sure what this for -- copied from PatientService..to be moved to common file.
      */
     private void setFalseToNew(LabResultProxyContainer labResultProxyContainer, Long falseUid, Long actualUid) throws DataProcessingException {

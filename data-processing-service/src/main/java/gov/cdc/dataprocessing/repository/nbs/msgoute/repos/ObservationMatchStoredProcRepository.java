@@ -82,10 +82,4 @@ public class ObservationMatchStoredProcRepository {
 
     }
 
-    //TODO: Select matched obs given matched ID from NBS_Interface, this query record from ODSE Observation
-    //TODO: Move this up to service level -- perhap OBS MAtching service
-    public void selectObservation() {
-        //TODO: private ObservationDT selectObservation (long observationUID) throws NEDSSSystemException
-    }
-
 }

@@ -186,9 +186,6 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
         try {
             if (personContainer.getThePersonDto().getCd().equals(NEDSSConstant.PRV)) { // Provider
                 String businessTriggerCd = NEDSSConstant.PRV_CR;
-                /**
-                 * TODO: PERSISTING PROVIDER HERE
-                 * */
                 entityUid = processingProvider(personContainer, "PROVIDER", businessTriggerCd);
             }
         } catch (Exception e) {

@@ -264,7 +264,7 @@ public class ObservationService implements IObservationService {
                 {
                     theOrganizationVOCollection  = new ArrayList<Object> ();
                 }
-                //TODO: LOAD ORGANIZATION
+                //TODO: ORGANIZATION
 //                theOrganizationVOCollection.add(getEntityVO(NEDSSConstant.ORGANIZATION,
 //                        organizationUid, partDT.getActUid(),
 //                        securityObj));
@@ -1427,8 +1427,8 @@ public class ObservationService implements IObservationService {
         //Set flag for type of processing
         boolean ELR_PROCESSING = false;
 
-        //TODO: Assigned whatever user DI will be using here
-        if (AuthUtil.authUser != null && AuthUtil.authUser.getUserId().equals(NEDSSConstant.ELR_LOAD_USER_ACCOUNT))
+        // We need specific auth User for elr processing, but probably wont applicable for data processing
+        if (AuthUtil.authUser != null || (AuthUtil.authUser != null && AuthUtil.authUser.getUserId().equals(NEDSSConstant.ELR_LOAD_USER_ACCOUNT)))
         {
             ELR_PROCESSING = true;
         }
@@ -1469,7 +1469,7 @@ public class ObservationService implements IObservationService {
                 returnVal.putAll(obsResults);
             }
 
-            //TODO: REVALUATING THIS, this one try to find Patient UID, the code above is also doing this
+            //TODO: EVALUATE THIS, this one try to find Patient UID, the code above is also doing this
             //For ELR update, mpr uid may be not available
             if(patientMprUid == null || patientMprUid.longValue() < 0)
             {
@@ -1505,7 +1505,7 @@ public class ObservationService implements IObservationService {
 
                     if (organizationVO.isItNew())
                     {
-                        //TODO: EVALUDATE THIS prepare method
+                        //TODO: EVALUATE THIS prepare method
                         /*
                         newOrganizationDT = (OrganizationDT) prepareVOUtils.prepareVO(
                                 organizationVO.getTheOrganizationDT(), NBSBOLookup.ORGANIZATION,
@@ -1561,7 +1561,6 @@ public class ObservationService implements IObservationService {
 //                        materialVO.setTheMaterialDT(newMaterialDT);
                         falseUid = materialVO.getTheMaterialDT().getMaterialUid();
                         logger.debug("false materialUID: " + falseUid);
-                        //TODO: INSERTION
                         realUid = materialService.saveMaterial(materialVO);
                         if (falseUid.intValue() < 0)
                         {
@@ -1577,7 +1576,6 @@ public class ObservationService implements IObservationService {
 //                                NEDSSConstant.BASE);
 //                        materialVO.setTheMaterialDT(newMaterialDT);
 
-                        //TODO: INSERTION
                         realUid = materialService.saveMaterial(materialVO);
                         logger.debug("exisiting but updated material's UID: " + realUid);
                     }
@@ -1601,10 +1599,8 @@ public class ObservationService implements IObservationService {
                         {
                             if (participationDT.isItDelete())
                             {
-                                //TODO: INSERTION
                                 participationService.saveParticipationHist(participationDT);
                             }
-                            //TODO: INSERTION
                             participationService.saveParticipation(participationDT);
 
                             logger.debug("got the participationDT, the ACTUID is " +
@@ -1634,7 +1630,6 @@ public class ObservationService implements IObservationService {
                     {
                         if (actRelationshipDT != null)
                         {
-                            //TODO: INSERTION
                             actRelationshipService.saveActRelationship(actRelationshipDT);
                         }
                     }
@@ -1650,7 +1645,6 @@ public class ObservationService implements IObservationService {
             Collection<RoleDto>  roleDTColl = labResultProxyVO.getTheRoleDtoCollection();
             if (roleDTColl != null && !roleDTColl.isEmpty())
             {
-                //TODO: INSERTION
                 storeRoleDTCollection(roleDTColl);
             }
 
@@ -1681,7 +1675,6 @@ public class ObservationService implements IObservationService {
                         {
                             eDXDocumentDt.setActUid(observationUid);
                         }
-                        //TODO: INSERTION
                         edxDocumentService.saveEdxDocument(eDXDocumentDt);
                     }
                 }

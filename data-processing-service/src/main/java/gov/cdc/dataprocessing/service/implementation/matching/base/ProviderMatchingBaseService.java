@@ -136,10 +136,6 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                 isELRCase = true;
             }
 
-            /**
-             * TODO: double check this
-             * */
-
             Collection<EntityLocatorParticipationDto> collParLocator = null;
             Collection<RoleDto> colRole = null;
             Collection<ParticipationDT> colPar = null;

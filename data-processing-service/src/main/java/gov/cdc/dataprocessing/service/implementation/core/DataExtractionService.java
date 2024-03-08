@@ -176,14 +176,10 @@ public class DataExtractionService implements IDataExtractionService {
                     && edxLabInformationDto.getRootObservationVO().getTheObservationDT().getEffectiveFromTime()!=null
                 )
                 {
-                    //TODO: LOGIC TO UPDATE   nbsInterfaceDAOImpl.updateNBSInterfaceRecord(edxLabInformationDT);
-                    System.out.println("UPDATE");
-                    //msgOutEStoredProcService.callUpdateSpecimenCollDateSP(edxLabInformationDT);
+                    msgOutEStoredProcService.callUpdateSpecimenCollDateSP(edxLabInformationDto);
                 }
 
-                //TODO: Check this one
-                observationResultRequestHandler.getObservationResultRequest(hl7OrderObservationType.getPatientResultOrderObservation().getOBSERVATION(),
-                        labResultProxyContainer, edxLabInformationDto);
+                observationResultRequestHandler.getObservationResultRequest(hl7OrderObservationType.getPatientResultOrderObservation().getOBSERVATION(), labResultProxyContainer, edxLabInformationDto);
 
             }
             labResultProxyContainer.setEDXDocumentCollection(collectionXmlDoc);

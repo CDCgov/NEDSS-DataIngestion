@@ -173,7 +173,6 @@ public class PatientMatchingBaseService extends MatchingBaseService{
             colParticipation = getEntityHelper().iteratePDTForParticipation(pDTCol);
             personContainer.setTheParticipationDTCollection(colParticipation);
         }
-        //TODO: Patient Creation
         person = getPatientRepositoryUtil().createPerson(personContainer);
         personUID.setPersonId(person.getPersonUid());
         personUID.setPersonParentId(person.getPersonParentUid());
@@ -241,8 +240,6 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         }
 
         personContainer = getPatientRepositoryUtil().preparePersonNameBeforePersistence(personContainer);
-
-        //TODO: Change this to Update Eixsting Patient
         getPatientRepositoryUtil().updateExistingPerson(personContainer);
 
     }

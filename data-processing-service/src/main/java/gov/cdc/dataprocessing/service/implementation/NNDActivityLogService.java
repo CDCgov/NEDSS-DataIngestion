@@ -37,14 +37,15 @@ public class NNDActivityLogService implements INNDActivityLogService {
         long uid = 0;
 
         if(nndActivityLogDT.getNndActivityLogUid() == null) {
-            //TODO: Verify NND_METADATA
             var id = odseIdGeneratorService.getLocalIdAndUpdateSeed(NND_METADATA);
             uid = id.getSeedValueNbr();
         } else {
-            uid = nndActivityLogDT.getNndActivityLogUid().longValue();
+            uid = nndActivityLogDT.getNndActivityLogUid();
         }
 
-        nndActivityLogRepository.save(new NNDActivityLog(nndActivityLogDT));
+        nndActivityLogDT.setNndActivityLogUid(uid);
+        var data = new NNDActivityLog(nndActivityLogDT);
+        nndActivityLogRepository.save(data);
 
     }
 }

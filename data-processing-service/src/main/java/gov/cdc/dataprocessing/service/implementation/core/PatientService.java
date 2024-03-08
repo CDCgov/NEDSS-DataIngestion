@@ -73,7 +73,6 @@ public class PatientService implements IPatientService {
 
     @Transactional
     public PersonContainer processingPatient(LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto, PersonContainer personContainer) throws DataProcessingException {
-        //TODO: Adding Logic Here
         try {
             long falseUid = personContainer.thePersonDto.getPersonUid();
             Long personUid;
@@ -120,7 +119,6 @@ public class PatientService implements IPatientService {
 
     @Transactional
     public PersonContainer processingProvider(LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto, PersonContainer personContainer, boolean orderingProviderIndicator) throws DataProcessingException {
-        //TODO: Adding Logic Here
         try {
             long falseUid = personContainer.thePersonDto.getPersonUid();
             Long personUid;
@@ -169,7 +167,6 @@ public class PatientService implements IPatientService {
     }
 
     /**
-     * TODO: Evaluation needed
      * NOTE: Not sure what this for
      * */
     private void setFalseToNew(LabResultProxyContainer labResultProxyContainer, Long falseUid, Long actualUid) throws DataProcessingException {
