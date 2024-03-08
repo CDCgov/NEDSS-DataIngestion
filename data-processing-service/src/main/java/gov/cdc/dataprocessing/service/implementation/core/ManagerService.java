@@ -244,11 +244,8 @@ public class ManagerService implements IManagerService {
             }
 
 
-
-            //TODO: PATIENT && NOK && PROVIDER
             PersonAggContainer personAggContainer = personAggregationAsync(parsedData, edxLabInformationDto);
 
-            //TODO: ORGANIZATION
             OrganizationVO orderingFacilityVO = organizationService.processingOrganization(parsedData);
 
 

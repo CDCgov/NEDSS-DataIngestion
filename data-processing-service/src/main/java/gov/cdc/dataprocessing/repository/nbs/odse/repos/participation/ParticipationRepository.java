@@ -29,5 +29,8 @@ public interface ParticipationRepository extends JpaRepository<Participation, Pa
     void deleteParticipationByPk(Long subjectUid, Long actUid, String typeCode);
 
     Optional<List<Participation>> findBySubjectEntityUidAndActUid(Long subjectEntityUid,Long actUid);
+
+    @Query("SELECT data.subjectEntityUid FROM Participation data WHERE data.subjectEntityUid = :subjectEntityUid")
+    Optional<List<Participation>> findBySubjectEntityUid(@Param("subjectEntityUid")  Long subjectEntityUid);
 }
 

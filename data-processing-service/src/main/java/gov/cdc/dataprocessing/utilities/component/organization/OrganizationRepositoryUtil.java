@@ -509,7 +509,7 @@ public class OrganizationRepositoryUtil {
      * @param actUid
      * @return
      */
-    public OrganizationVO loadObject(long organizationUID, long actUid) throws DataProcessingException {
+    public OrganizationVO loadObject(Long organizationUID, Long actUid) throws DataProcessingException {
         OrganizationVO ovo = new OrganizationVO();
 
 
@@ -546,6 +546,7 @@ public class OrganizationRepositoryUtil {
 
         //SelectsParticipationDTCollection
         Collection<ParticipationDT> parColl = selectParticipationDTCollection(organizationUID, actUid);
+
         ovo.setTheParticipationDTCollection(parColl);
 
 
@@ -748,11 +749,17 @@ public class OrganizationRepositoryUtil {
      * @return
      * @throws DataProcessingException
      */
-    private Collection<ParticipationDT> selectParticipationDTCollection(long uid, long act_uid)
+    private Collection<ParticipationDT> selectParticipationDTCollection(Long uid, Long act_uid)
             throws DataProcessingException {
         try {
-            List<Participation> participationList = participationRepository.
-                    findBySubjectEntityUidAndActUid(uid, act_uid).get();
+            List<Participation> participationList = null;
+
+            if (act_uid == null) {
+                participationList = participationRepository.findBySubjectEntityUidAndActUid(uid, act_uid).get();
+            }
+            else {
+                participationList = participationRepository.findBySubjectEntityUid(uid).get();
+            }
 
             ArrayList<ParticipationDT> retList = new ArrayList<>();
 

@@ -28,6 +28,7 @@ import gov.cdc.dataprocessing.service.interfaces.matching.IProviderMatchingServi
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.ObservationUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
+import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -95,6 +96,7 @@ public class ObservationService implements IObservationService {
     private final ObsValueDateRepository obsValueDateRepository;
     private final ObsValueNumericRepository obsValueNumericRepository;
     private final ActLocatorParticipationRepository actLocatorParticipationRepository;
+    private final OrganizationRepositoryUtil organizationRepositoryUtil;
 
 
 
@@ -126,7 +128,7 @@ public class ObservationService implements IObservationService {
                               ObsValueTxtRepository obsValueTxtRepository,
                               ObsValueDateRepository obsValueDateRepository,
                               ObsValueNumericRepository obsValueNumericRepository,
-                              ActLocatorParticipationRepository actLocatorParticipationRepository) {
+                              ActLocatorParticipationRepository actLocatorParticipationRepository, OrganizationRepositoryUtil organizationRepositoryUtil) {
 
         this.observationMatchingService = observationMatchingService;
         this.nndActivityLogService = nndActivityLogService;
@@ -157,14 +159,13 @@ public class ObservationService implements IObservationService {
         this.obsValueDateRepository = obsValueDateRepository;
         this.obsValueNumericRepository = obsValueNumericRepository;
         this.actLocatorParticipationRepository = actLocatorParticipationRepository;
+        this.organizationRepositoryUtil = organizationRepositoryUtil;
     }
 
     private void checkMethodArgs(Long uid) throws DataProcessingException {
         if (uid == null)
         {
-            throw new DataProcessingException(
-                    "Method arguements of getXXXProxy() cannot be null, however," +
-                            "\n Act/Entity uid is: " + uid);
+            throw new DataProcessingException("Method arguements of getXXXProxy() cannot be null, however," + "\n Act/Entity uid is: " + uid);
         }
     }
 
@@ -187,6 +188,9 @@ public class ObservationService implements IObservationService {
     }
 
 
+    /**
+     * Loading Existing Either Observation or Intervention
+     * */
     private AbstractVO getActVO(String actType, Long anUid) throws DataProcessingException
     {
         AbstractVO obj = null;
@@ -201,7 +205,7 @@ public class ObservationService implements IObservationService {
                 }
                 else if (actType.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE))
                 {
-                    obj = observationUtil.loadObject(anUid.longValue());
+                    obj = observationUtil.loadObject(anUid);
                 }
             }
         }
@@ -228,7 +232,6 @@ public class ObservationService implements IObservationService {
         //Retrieve associated materials
         allEntityHolder.add(this.RETRIEVED_MATERIALS_FOR_PROXY, retrieveMaterialVOsForProxyVO(partColl));
         Collection<?>  coll = (Collection<?>)obj[1];
-        //if(coll.size() > 0)
         allEntityHolder.add(this.RETRIEVED_PATIENT_ROLES, coll);
 
         return allEntityHolder;
@@ -307,17 +310,17 @@ public class ObservationService implements IObservationService {
         return theMaterialVOCollection;
     }
 
+    /**
+     * Mapping Person and Role into Object Array
+     * Values from Participation
+     * */
     private Object[] retrievePersonVOsForProxyVO(Collection<ParticipationDT> partColl)
     {
         Object[] obj = new Object[2];
-        Collection<Object>  thePersonVOCollection  = new ArrayList<Object> ();
-        Collection<Object>  patientRollCollection  = new ArrayList<Object> ();
-        for (Iterator<ParticipationDT> it = partColl.iterator(); it.hasNext(); )
-        {
-            ParticipationDT partDT = (ParticipationDT) it.next();
-
-            if (partDT == null)
-            {
+        Collection<Object>  thePersonVOCollection  = new ArrayList<> ();
+        Collection<Object>  patientRollCollection  = new ArrayList<> ();
+        for (ParticipationDT partDT : partColl) {
+            if (partDT == null) {
                 continue;
             }
 
@@ -326,31 +329,23 @@ public class ObservationService implements IObservationService {
             String typeCd = partDT.getTypeCd();
 
             //If person...
-            if (subjectClassCd != null &&
-                    subjectClassCd.equalsIgnoreCase(NEDSSConstant.PAR110_SUB_CD)
-                    && recordStatusCd != null &&
-                    recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE))
-            {
+            if (subjectClassCd != null
+                    && subjectClassCd.equalsIgnoreCase(NEDSSConstant.PAR110_SUB_CD)
+                    && recordStatusCd != null
+                    && recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE)) {
                 PersonContainer vo = patientRepositoryUtil.loadPerson(partDT.getSubjectEntityUid());
-
                 thePersonVOCollection.add(vo);
 
                 //If the person is a patient, do more...
-                if (typeCd != null && typeCd.equalsIgnoreCase(NEDSSConstant.PAR110_TYP_CD))
-                {
-                    if(vo.getTheRoleDtoCollection().size() > 0)
-                    {
+                if (typeCd != null && typeCd.equalsIgnoreCase(NEDSSConstant.PAR110_TYP_CD)) {
+                    if (vo.getTheRoleDtoCollection().size() > 0) {
                         patientRollCollection.addAll(vo.getTheRoleDtoCollection());
                     }
                     Collection<Object> scopedPersons = retrieveScopedPersons(vo.getThePersonDto().getPersonUid());
-                    if (scopedPersons != null && scopedPersons.size() > 0)
-                    {
-                        Iterator<Object> ite = scopedPersons.iterator();
-                        while(ite.hasNext())
-                        {
-                            PersonContainer scopedPerson = (PersonContainer)ite.next();
-                            if(scopedPerson.getTheRoleDtoCollection()!=null && scopedPerson.getTheRoleDtoCollection().size()>0)
-                            {
+                    if (scopedPersons != null && scopedPersons.size() > 0) {
+                        for (Object person : scopedPersons) {
+                            PersonContainer scopedPerson = (PersonContainer) person;
+                            if (scopedPerson.getTheRoleDtoCollection() != null && scopedPerson.getTheRoleDtoCollection().size() > 0) {
                                 patientRollCollection.addAll(scopedPerson.getTheRoleDtoCollection());
                             }
                             thePersonVOCollection.add(scopedPerson);
@@ -365,36 +360,27 @@ public class ObservationService implements IObservationService {
     }
 
 
+    /**
+     * Getting Person Role Giving the UID
+     * */
     private Collection<Object>  retrieveScopedPersons(Long scopingUid)
     {
-        Collection<RoleDto>  roleDTColl = roleService.findRoleScopedToPatient(scopingUid.longValue());
+        Collection<RoleDto>  roleDTColl = roleService.findRoleScopedToPatient(scopingUid);
         Collection<Object>  scopedPersons = null;
 
-        for (Iterator<RoleDto> it = roleDTColl.iterator(); it.hasNext(); )
-        {
-            RoleDto roleDT = (RoleDto) it.next();
-            if (roleDT == null)
-            {
+        for (RoleDto roleDT : roleDTColl) {
+            if (roleDT == null) {
                 continue;
             }
-
-            String subjectClassCd = roleDT.getSubjectClassCd();
-            String recordStatusCd = roleDT.getRecordStatusCd();
             //In this case the subjectEntityUid is not the patient
             Long scopingEntityUid = roleDT.getSubjectEntityUid();
-            /**
-             * @todo  Should the recordStatusCd be "Active" in order to load the person
-             */
 
-            if (scopedPersons == null)
-            {
-                scopedPersons = new ArrayList<Object> ();
+            if (scopedPersons == null) {
+                scopedPersons = new ArrayList<>();
             }
-            if (scopingEntityUid != null)
-            {
+            if (scopingEntityUid != null) {
                 scopedPersons.add(patientRepositoryUtil.loadPerson(scopingEntityUid));
             }
-            //}
         }
         return scopedPersons;
     }
@@ -706,7 +692,7 @@ public class ObservationService implements IObservationService {
 
         checkMethodArgs(observationId);
 
-        /**Load ordered test*/
+        // LOADING EXISTING Observation
         ObservationVO orderedTest = (ObservationVO) getActVO(NEDSSConstant.OBSERVATION_CLASS_CODE, observationId);
 
         /**Check permission*/
@@ -778,7 +764,6 @@ public class ObservationService implements IObservationService {
             }
 
             try {
-                // TODO: LOAD FROM ACT RELATIONSHIP
                 Collection<ActRelationshipDT> col = actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(observationId, NEDSSConstant.LAB_REPORT);
                 if (col != null && col.size() > 0)
                 {
@@ -840,17 +825,12 @@ public class ObservationService implements IObservationService {
 
         // Get the result tests
         Collection<ObservationVO> resultTests = new ArrayList<ObservationVO>();
-        for (Iterator<ObservationVO> it = labResultProxyVO
-                .getTheObservationVOCollection().iterator(); it.hasNext();) {
-            ObservationVO obsVO = (ObservationVO) it.next();
-            String obsDomainCdSt1 = obsVO.getTheObservationDT()
-                    .getObsDomainCdSt1();
-            if (obsDomainCdSt1 != null
-                    && obsDomainCdSt1
-                    .equalsIgnoreCase(NEDSSConstant.RESULTED_TEST_OBS_DOMAIN_CD)) {
+        for (ObservationVO obsVO : labResultProxyVO.getTheObservationVOCollection()) {
+            String obsDomainCdSt1 = obsVO.getTheObservationDT().getObsDomainCdSt1();
+            if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.RESULTED_TEST_OBS_DOMAIN_CD)) {
                 resultTests.add(obsVO);
             }
-        }// result tests
+        }
 
         // Get the reporting lab clia
         String reportingLabCLIA = "";
@@ -1177,8 +1157,7 @@ public class ObservationService implements IObservationService {
         OrganizationVO reportingLabVO = null;
         try {
             if (reportingLabUid != null) {
-                //TODO: ORGANIZATION
-                //reportingLabVO = eController.getOrganization(reportingLabUid);
+                reportingLabVO = organizationRepositoryUtil.loadObject(reportingLabUid, null);
             }
         } catch (Exception rex) {
             throw new DataProcessingException("Error while retriving reporting organization vo, its uid is: " + reportingLabUid);
@@ -1188,13 +1167,11 @@ public class ObservationService implements IObservationService {
         String reportingLabCLIA = null;
 
         if (reportingLabVO != null) {
-            Collection<Object> entityIdColl = null;
 
-            //TODO ORGANIZATION
-            //Collection<Object> entityIdColl = reportingLabVO.getTheEntityIdDTCollection();
+            Collection<EntityIdDto> entityIdColl = reportingLabVO.getTheEntityIdDtoCollection();
 
             if (entityIdColl != null && entityIdColl.size() > 0) {
-                for (Iterator<Object> it = entityIdColl.iterator(); it.hasNext();) {
+                for (Iterator<EntityIdDto> it = entityIdColl.iterator(); it.hasNext();) {
                     EntityIdDto idDT = (EntityIdDto) it.next();
                     if (idDT == null) {
                         continue;
@@ -1541,8 +1518,7 @@ public class ObservationService implements IObservationService {
                         falseUid = organizationVO.getTheOrganizationDT().getOrganizationUid();
                         logger.debug("false organizationUID: " + falseUid);
 
-                        //TODO: ORGANIZATION
-                        //realUid = setOrganization(organizationVO);
+                        realUid = organizationRepositoryUtil.setOrganization(organizationVO, null);
                         if (falseUid.intValue() < 0)
                         {
                             setFalseToNew(labResultProxyVO, falseUid, realUid);
@@ -1558,8 +1534,7 @@ public class ObservationService implements IObservationService {
 
                         organizationVO.setTheOrganizationDT(newOrganizationDT);
 
-                        //TODO: ORGANIZATION
-//                        realUid = setOrganization(organizationVO);
+                        realUid = organizationRepositoryUtil.setOrganization(organizationVO, null);
                         logger.debug("exisiting but updated organization's UID: " + realUid);
                     }
                 }
@@ -2246,8 +2221,7 @@ public class ObservationService implements IObservationService {
             OrganizationVO reportingLabVO = null;
             if (reportingLabUid != null)
             {
-                //TODO: ORGANIZATION
-                // reportingLabVO = eController.getOrganization(reportingLabUid);
+                reportingLabVO = organizationRepositoryUtil.loadObject(reportingLabUid, null);
             }
 
             //Get the CLIA
@@ -2567,18 +2541,17 @@ public class ObservationService implements IObservationService {
             {
                 if (providerUid != null)
                 {
-                    //TODO: SELECTION
                     providerVO = patientRepositoryUtil.loadPerson(providerUid);
                 }
                 if (orderingFacilityUid != null)
                 {
-                    //TODO: ORGANIZATION
                     // orderingFacilityVO = getOrganization(orderingFacilityUid);
+                    orderingFacilityVO = organizationRepositoryUtil.loadObject(orderingFacilityUid, null);
                 }
                 if(reportingFacilityUid!=null)
                 {
-                    //TODO: ORGANIZATION
                     // reportingFacilityVO = getOrganization(reportingFacilityUid);
+                    orderingFacilityVO = organizationRepositoryUtil.loadObject(orderingFacilityUid, null);
                 }
             }
             catch (Exception rex)

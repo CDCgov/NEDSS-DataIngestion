@@ -33,11 +33,7 @@ public class NotificationService implements INotificationService {
         }
         long count = notificationRepository.getCountOfExistingNotifications(getRootUid(vo), getActClassCd(vo));
 
-        if (count > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return count > 0;
     }
 
     private String getActClassCd(AbstractVO vo)
