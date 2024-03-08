@@ -39,9 +39,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
     }
 
 
-    public void processMatchedProxyVO(LabResultProxyContainer labResultProxyVO,
-                                      LabResultProxyContainer matchedlabResultProxyVO,
-                                      EdxLabInformationDto edxLabInformationDT) {
+    public void processMatchedProxyVO(LabResultProxyContainer labResultProxyVO, LabResultProxyContainer matchedlabResultProxyVO, EdxLabInformationDto edxLabInformationDT) {
         Long matchedObservationUid =null;
         ObservationDT matchedObservationDT = null;
         Collection<ObservationVO> observationCollection = matchedlabResultProxyVO.getTheObservationVOCollection();
@@ -54,12 +52,12 @@ public class ObservationMatchingService implements IObservationMatchingService {
             ObservationVO observationVO = it.next();
             String obsDomainCdSt1 = observationVO.getTheObservationDT().getObsDomainCdSt1();
 
-            if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)) {
+            if (obsDomainCdSt1 != null
+                && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)
+            ) {
 
                 matchedObservationDT =observationVO.getTheObservationDT();
 
-                observationVO.getTheObservationDT().getRecordStatusCd();
-                observationVO.getTheObservationDT().getRecordStatusTime();
                 //update the order status
                 if(edxLabInformationDT.getRootObservationVO()!=null && edxLabInformationDT.getRootObservationVO().getTheObservationDT()!=null)
                 {
@@ -72,9 +70,10 @@ public class ObservationMatchingService implements IObservationMatchingService {
             }
             else{
                 if(observationVO.getTheObservationDT().getCtrlCdDisplayForm()!=null
-                        && (observationVO.getTheObservationDT().getCd().equalsIgnoreCase(EdxELRConstant.ELR_LAB_CD)
-                            || observationVO.getTheObservationDT().getCtrlCdDisplayForm().equalsIgnoreCase(EdxELRConstant.ELR_LAB_COMMENT)
-                            )
+                    && (
+                        observationVO.getTheObservationDT().getCd().equalsIgnoreCase(EdxELRConstant.ELR_LAB_CD)
+                        || observationVO.getTheObservationDT().getCtrlCdDisplayForm().equalsIgnoreCase(EdxELRConstant.ELR_LAB_COMMENT)
+                        )
                 ){
                     observationVO.setItDirty(true);
                     continue;
@@ -124,14 +123,14 @@ public class ObservationMatchingService implements IObservationMatchingService {
         updatedPartCollection.addAll(labResultProxyVO.getTheParticipationDTCollection());
         labResultProxyVO.setTheParticipationDTCollection(updatedPartCollection);
 
-
         Collection<RoleDto> rolecoll = new ArrayList<>();
         Long patientUid = null;
         Collection<PersonContainer> coll = matchedlabResultProxyVO.getThePersonContainerCollection();
 
         if(coll!=null){
             for (PersonContainer personVO : coll) {
-                if (personVO.getThePersonDto() != null && personVO.getThePersonDto().getCdDescTxt() != null
+                if (personVO.getThePersonDto() != null
+                        && personVO.getThePersonDto().getCdDescTxt() != null
                         && personVO.getThePersonDto().getCdDescTxt().equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)
                 )
                 {
@@ -169,7 +168,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
             for (ObservationVO obsVO : labResultProxyVO.getTheObservationVOCollection()) {
                 String obsDomainCdSt1 = obsVO.getTheObservationDT().getObsDomainCdSt1();
                 if (obsDomainCdSt1 != null
-                        && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)
+                    && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)
                 )
                 {
                     obsVO.getTheObservationDT().setObservationUid(matchedObservationUid);
@@ -196,8 +195,8 @@ public class ObservationMatchingService implements IObservationMatchingService {
             for (ActRelationshipDT actRelationshipDT : labResultProxyVO.getTheActRelationshipDTCollection()) {
                 if (actRelationshipDT.getTargetActUid().compareTo(edxLabInformationDT.getRootObserbationUid()) == 0
                         && (!actRelationshipDT.getTypeCd().equals(EdxELRConstant.ELR_SUPPORT_CD)
-                                || !actRelationshipDT.getTypeCd().equals(EdxELRConstant.ELR_REFER_CD)
-                                || !actRelationshipDT.getTypeCd().equals(EdxELRConstant.ELR_COMP_CD)
+                            || !actRelationshipDT.getTypeCd().equals(EdxELRConstant.ELR_REFER_CD)
+                            || !actRelationshipDT.getTypeCd().equals(EdxELRConstant.ELR_COMP_CD)
                             )
                 ) {
                     actRelationshipDT.setTargetActUid(matchedObservationUid);
