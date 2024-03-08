@@ -836,27 +836,23 @@ public class ObservationService implements IObservationService {
 
     @Transactional
     public ObservationDT sendLabResultToProxy(LabResultProxyContainer labResultProxyContainer) throws DataProcessingException {
-        ObservationDT obsDT = null;
+        ObservationDT obsDT;
         if (labResultProxyContainer == null) {
-            logger.error("HL7CommonLabUtil.sendLabResultToProxy labResultProxyVO is null ");
-            throw new DataProcessingException("LabResultProxyVO is null");
+            String errorMessage = "HL7CommonLabUtil.sendLabResultToProxy labResultProxyVO is null";
+            logger.error(errorMessage);
+            throw new DataProcessingException(errorMessage);
         } else {
             labResultProxyContainer.setItNew(true);
             labResultProxyContainer.setItDirty(false);
         }
 
         try {
-
-
             Map<Object, Object> returnMap = setLabResultProxy(labResultProxyContainer);
-
             obsDT = (ObservationDT)returnMap.get(NEDSSConstant.SETLAB_RETURN_OBSDT);
             logger.info("odsObsLocalId: " + obsDT.getLocalId());
-
         } catch (Exception e) {
-            throw new DataProcessingException("HL7CommonLabUtil.sendLabResultToProxy The labResultProxyVO could not be saved"+ e.getMessage());
+            throw new DataProcessingException("HL7CommonLabUtil.sendLabResultToProxy The labResultProxyVO could not be saved"+ e.getMessage(), e);
         }
-        logger.info("Sent LabResultProxyVO to Observation Proxy - ODS Observation uid=" + obsDT.getObservationUid());
         return obsDT;
 
     }
@@ -866,7 +862,7 @@ public class ObservationService implements IObservationService {
             NNDActivityLogDT nndActivityLogDT = null;
 
             //saving LabResultProxyVO before updating auto resend notifications
-            Map<Object, Object> returnVal = this.setLabResultProxyWithoutNotificationAutoResend(labResultProxyVO);
+            Map<Object, Object> returnVal = setLabResultProxyWithoutNotificationAutoResend(labResultProxyVO);
 
 
 
@@ -937,7 +933,7 @@ public class ObservationService implements IObservationService {
     private Map<Object, Object> setLabResultProxyWithoutNotificationAutoResend(LabResultProxyContainer labResultProxyVO) throws DataProcessingException {
         //Before doing anything
         //TODO: Verify this check
-       // checkMethodArgs(labResultProxyVO);
+        //checkMethodArgs(labResultProxyVO);
 
         //Set flag for type of processing
         boolean ELR_PROCESSING = false;
@@ -954,8 +950,8 @@ public class ObservationService implements IObservationService {
 
         //All well to proceed
         Map<Object, Object> returnVal = null;
-        Long falseUid = null;
-        Long realUid = null;
+        Long falseUid;
+        Long realUid ;
         boolean valid = false;
 
 
@@ -1411,8 +1407,7 @@ public class ObservationService implements IObservationService {
 
             if (personVOColl == null)
             {
-                throw new IllegalArgumentException(
-                        "PersonVO collection is null");
+                throw new IllegalArgumentException("PersonVO collection is null");
             }
 
             PersonContainer personVO = null;

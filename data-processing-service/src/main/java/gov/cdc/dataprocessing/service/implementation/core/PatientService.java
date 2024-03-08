@@ -247,8 +247,6 @@ public class PatientService implements IPatientService {
     }
     
     public Long getMatchedPersonUID(LabResultProxyContainer matchedlabResultProxyVO) {
-
-        // TODO Auto-generated method stub
         Long matchedPersonUid = null;
         Collection<PersonContainer> personCollection = matchedlabResultProxyVO.getThePersonContainerCollection();
         if(personCollection!=null){
@@ -266,7 +264,7 @@ public class PatientService implements IPatientService {
     }
 
     public void updatePersonELRUpdate(LabResultProxyContainer labResultProxyVO, LabResultProxyContainer matchedLabResultProxyVO){
-        PersonDto matchedPersonDT = null;
+        PersonDto matchedPersonDT;
         Long matchedPersonUid = null;
         Long matchedPersonParentUid = null;
         String matchedLocalId = null;
@@ -284,40 +282,29 @@ public class PatientService implements IPatientService {
 
         Collection<PersonContainer> personCollection = matchedLabResultProxyVO.getThePersonContainerCollection();
         if(personCollection!=null){
-            Iterator<PersonContainer> iterator = personCollection.iterator();
-
-            while(iterator.hasNext()){
-                PersonContainer personVO = iterator.next();
+            for (PersonContainer personVO : personCollection) {
                 String perDomainCdStr = personVO.getThePersonDto().getCdDescTxt();
-                if(perDomainCdStr!= null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)){
+                if (perDomainCdStr != null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)) {
                     matchedPersonDT = personVO.getThePersonDto();
-
-                    matchedPersonUid=matchedPersonDT.getPersonUid();
+                    matchedPersonUid = matchedPersonDT.getPersonUid();
                     matchedPersonParentUid = matchedPersonDT.getPersonParentUid();
                     matchedLocalId = matchedPersonDT.getLocalId();
                     matchedVersionCtNo = matchedPersonDT.getVersionCtrlNbr();
-
-
                 }
-                if(perDomainCdStr!= null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)){
-                    if(personVO.getThePersonNameDtoCollection()!=null && personVO.getThePersonNameDtoCollection().size()>0){
-                        for (Iterator<PersonNameDto> it = personVO.getThePersonNameDtoCollection().iterator(); it.hasNext();)
-                        {
-                            PersonNameDto personNameDT = it.next();
+                if (perDomainCdStr != null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)) {
+                    if (personVO.getThePersonNameDtoCollection() != null && personVO.getThePersonNameDtoCollection().size() > 0) {
+                        for (PersonNameDto personNameDT : personVO.getThePersonNameDtoCollection()) {
                             personNameDT.setItDelete(true);
                             personNameDT.setItDirty(false);
                             personNameDT.setItNew(false);
-                            if(personNameDT.getPersonNameSeq()>nameSeq)
-                            {
+                            if (personNameDT.getPersonNameSeq() > nameSeq) {
                                 nameSeq = personNameDT.getPersonNameSeq();
                             }
                             updatedPersonNameCollection.add(personNameDT);
                         }
                     }
-                    if(personVO.getThePersonRaceDtoCollection()!=null && personVO.getThePersonRaceDtoCollection().size()>0){
-                        for (Iterator<PersonRaceDto> it = personVO.getThePersonRaceDtoCollection().iterator(); it.hasNext();)
-                        {
-                            PersonRaceDto personRaceDT = it.next();
+                    if (personVO.getThePersonRaceDtoCollection() != null && personVO.getThePersonRaceDtoCollection().size() > 0) {
+                        for (PersonRaceDto personRaceDT : personVO.getThePersonRaceDtoCollection()) {
                             personRaceDT.setItDelete(true);
                             personRaceDT.setItDirty(false);
                             personRaceDT.setItNew(false);
@@ -325,56 +312,43 @@ public class PatientService implements IPatientService {
                             updatedPersonRaceCollection.add(personRaceDT);
                         }
                     }
-                    if(personVO.getThePersonEthnicGroupDtoCollection()!=null && personVO.getThePersonEthnicGroupDtoCollection().size()>0){
-                        for (Iterator<PersonEthnicGroupDto> it = personVO.getThePersonEthnicGroupDtoCollection().iterator(); it.hasNext();) {
-                            PersonEthnicGroupDto personEthnicGroupDT =  it.next();
+                    if (personVO.getThePersonEthnicGroupDtoCollection() != null && personVO.getThePersonEthnicGroupDtoCollection().size() > 0) {
+                        for (PersonEthnicGroupDto personEthnicGroupDT : personVO.getThePersonEthnicGroupDtoCollection()) {
                             personEthnicGroupDT.setItDelete(true);
                             personEthnicGroupDT.setItDirty(false);
                             personEthnicGroupDT.setItNew(false);
                             ethnicGroupHm.put(personEthnicGroupDT.getEthnicGroupCd(), personEthnicGroupDT);
                             updatedPersonEthnicGroupCollection.add(personEthnicGroupDT);
-
                         }
                     }
-                    if(personVO.getTheEntityIdDtoCollection()!=null && personVO.getTheEntityIdDtoCollection().size()>0){
-                        for (Iterator<EntityIdDto> it = personVO.getTheEntityIdDtoCollection().iterator(); it.hasNext();)
-                        {
-                            EntityIdDto entityIDDT = it.next();
-
+                    if (personVO.getTheEntityIdDtoCollection() != null && personVO.getTheEntityIdDtoCollection().size() > 0) {
+                        for (EntityIdDto entityIDDT : personVO.getTheEntityIdDtoCollection()) {
                             entityIDDT.setItDelete(true);
                             entityIDDT.setItDirty(false);
                             entityIDDT.setItNew(false);
-                            if(entityIDDT.getEntityIdSeq()>entityIdSeq)
-                            {
+                            if (entityIDDT.getEntityIdSeq() > entityIdSeq) {
                                 entityIdSeq = entityIDDT.getEntityIdSeq();
                             }
                             updatedtheEntityIdDTCollection.add(entityIDDT);
-
                         }
                     }
-                    if(personVO.getTheEntityLocatorParticipationDtoCollection()!=null && personVO.getTheEntityLocatorParticipationDtoCollection().size()>0){
-                        for (Iterator<EntityLocatorParticipationDto> it = personVO.getTheEntityLocatorParticipationDtoCollection().iterator(); it.hasNext();)
-                        {
-                            EntityLocatorParticipationDto entityLocPartDT = it.next();
-
+                    if (personVO.getTheEntityLocatorParticipationDtoCollection() != null && personVO.getTheEntityLocatorParticipationDtoCollection().size() > 0) {
+                        for (EntityLocatorParticipationDto entityLocPartDT : personVO.getTheEntityLocatorParticipationDtoCollection()) {
                             entityLocPartDT.setItDelete(true);
                             entityLocPartDT.setItDirty(false);
                             entityLocPartDT.setItNew(false);
 
-                            if(entityLocPartDT.getThePostalLocatorDto()!= null)
-                            {
+                            if (entityLocPartDT.getThePostalLocatorDto() != null) {
                                 entityLocPartDT.getThePostalLocatorDto().setItDelete(true);
                                 entityLocPartDT.getThePostalLocatorDto().setItDirty(false);
                                 entityLocPartDT.getThePostalLocatorDto().setItNew(false);
                             }
-                            if(entityLocPartDT.getTheTeleLocatorDto()!= null)
-                            {
-                            entityLocPartDT.getTheTeleLocatorDto().setItDelete(true);
-                            entityLocPartDT.getTheTeleLocatorDto().setItDirty(false);
-                            entityLocPartDT.getTheTeleLocatorDto().setItNew(false);
+                            if (entityLocPartDT.getTheTeleLocatorDto() != null) {
+                                entityLocPartDT.getTheTeleLocatorDto().setItDelete(true);
+                                entityLocPartDT.getTheTeleLocatorDto().setItDirty(false);
+                                entityLocPartDT.getTheTeleLocatorDto().setItNew(false);
                             }
-                            if(entityLocPartDT.getThePhysicalLocatorDto()!= null)
-                            {
+                            if (entityLocPartDT.getThePhysicalLocatorDto() != null) {
                                 entityLocPartDT.getThePhysicalLocatorDto().setItDelete(true);
                                 entityLocPartDT.getThePhysicalLocatorDto().setItDirty(false);
                                 entityLocPartDT.getThePhysicalLocatorDto().setItNew(false);
@@ -388,31 +362,21 @@ public class PatientService implements IPatientService {
 
 
         if(labResultProxyVO.getThePersonContainerCollection()!=null){
-            Iterator<PersonContainer> iter = labResultProxyVO.getThePersonContainerCollection().iterator();
-            while(iter.hasNext()){
-                PersonContainer personVO =iter.next();
+            for (PersonContainer personVO : labResultProxyVO.getThePersonContainerCollection()) {
                 String perDomainCdStr = personVO.getThePersonDto().getCdDescTxt();
-                if(perDomainCdStr!= null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)){
+                if (perDomainCdStr != null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)) {
 
-                    //	personVO.getThePersonDT().setPersonUid(matchedPersonUid);
                     personVO.getThePersonDto().setPersonParentUid(matchedPersonParentUid);
                     personVO.getThePersonDto().setLocalId(matchedLocalId);
                     personVO.getThePersonDto().setVersionCtrlNbr(matchedVersionCtNo);
                     personVO.getThePersonDto().setItDirty(true);
                     personVO.getThePersonDto().setItNew(false);
-                    //personVO.getThePersonDT().setFirstNm(updatedFirstNm);
-                    //personVO.getThePersonDT().setLastNm(updatedLastNm);
-                    //	personVO.setIsExistingPatient(true);
                     personVO.setItNew(false);
                     personVO.setItDirty(true);
-                    //labResultProxyVO.setItDirty(true);
-                    //	labResultProxyVO.setItNew(false);
 
-                    if(perDomainCdStr!= null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)){
-                        if(personVO.getThePersonNameDtoCollection()!=null && personVO.getThePersonNameDtoCollection().size()>0){
-                            for (Iterator<PersonNameDto> it = personVO.getThePersonNameDtoCollection().iterator(); it.hasNext();)
-                            {
-                                PersonNameDto personNameDT = it.next();
+                    if (perDomainCdStr != null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)) {
+                        if (personVO.getThePersonNameDtoCollection() != null && personVO.getThePersonNameDtoCollection().size() > 0) {
+                            for (PersonNameDto personNameDT : personVO.getThePersonNameDtoCollection()) {
                                 personNameDT.setItNew(true);
                                 personNameDT.setItDirty(false);
                                 personNameDT.setItDelete(false);
@@ -420,15 +384,13 @@ public class PatientService implements IPatientService {
                                 personNameDT.setPersonNameSeq(++nameSeq);
                             }
                         }
-                        if(	personVO.getThePersonNameDtoCollection() == null)
-                        {
-                            personVO.setThePersonNameDtoCollection(new ArrayList<PersonNameDto>());
+                        if (personVO.getThePersonNameDtoCollection() == null) {
+                            personVO.setThePersonNameDtoCollection(new ArrayList<>());
                         }
                         personVO.getThePersonNameDtoCollection().addAll(updatedPersonNameCollection);
 
-                        if(personVO.getThePersonRaceDtoCollection()!=null && personVO.getThePersonRaceDtoCollection().size()>0){
-                            for (Iterator<PersonRaceDto> it = personVO.getThePersonRaceDtoCollection().iterator(); it.hasNext();) {
-                                PersonRaceDto personRaceDT =  it.next();
+                        if (personVO.getThePersonRaceDtoCollection() != null && personVO.getThePersonRaceDtoCollection().size() > 0) {
+                            for (PersonRaceDto personRaceDT : personVO.getThePersonRaceDtoCollection()) {
                                 if (hm.get(personRaceDT.getRaceCd()) != null) {
                                     personRaceDT.setItDirty(true);
                                     personRaceDT.setItNew(false);
@@ -447,18 +409,17 @@ public class PatientService implements IPatientService {
                         Iterator it2 = hm.entrySet().iterator();
                         boolean found = false;
                         while (it2.hasNext()) {
-                            Map.Entry pair = (Map.Entry)it2.next();
-                            PersonRaceDto personRaceDT2 =  (PersonRaceDto) pair.getValue();
-                            if(personRaceCollection!=null && personRaceCollection.size()>0){
-                                for (Iterator<PersonRaceDto> it = personRaceCollection.iterator(); it.hasNext();) {
-                                    PersonRaceDto personRaceDT =  it.next();
-                                    if(personRaceDT2.getRaceCd().equals(personRaceDT.getRaceCd())){
+                            Map.Entry pair = (Map.Entry) it2.next();
+                            PersonRaceDto personRaceDT2 = (PersonRaceDto) pair.getValue();
+                            if (personRaceCollection != null && personRaceCollection.size() > 0) {
+                                for (PersonRaceDto personRaceDT : personRaceCollection) {
+                                    if (personRaceDT2.getRaceCd().equals(personRaceDT.getRaceCd())) {
                                         found = true;
                                         break;
                                     }
                                 }
                             }
-                            if(!found){
+                            if (!found) {
                                 personRaceDT2.setItDelete(true);
                                 personRaceDT2.setItDirty(false);
                                 personRaceDT2.setItNew(false);
@@ -467,15 +428,15 @@ public class PatientService implements IPatientService {
                         }
 
 
-                        if(	personVO.getThePersonRaceDtoCollection() == null || (	personVO.getThePersonRaceDtoCollection() != null
-                                && personVO.getThePersonRaceDtoCollection().size() == 0)){
+                        if (personVO.getThePersonRaceDtoCollection() == null
+                            || (personVO.getThePersonRaceDtoCollection() != null
+                            && personVO.getThePersonRaceDtoCollection().size() == 0)
+                        ) {
                             personVO.setThePersonRaceDtoCollection(new ArrayList<>());
                             personVO.getThePersonRaceDtoCollection().addAll(updatedPersonRaceCollection);
                         }
-                        if(personVO.getThePersonEthnicGroupDtoCollection()!=null && personVO.getThePersonEthnicGroupDtoCollection().size()>0){
-                            for (Iterator<PersonEthnicGroupDto> it = personVO.getThePersonEthnicGroupDtoCollection().iterator(); it.hasNext();) {
-                                PersonEthnicGroupDto personEthnicGroupDT = it.next();
-
+                        if (personVO.getThePersonEthnicGroupDtoCollection() != null && personVO.getThePersonEthnicGroupDtoCollection().size() > 0) {
+                            for (PersonEthnicGroupDto personEthnicGroupDT : personVO.getThePersonEthnicGroupDtoCollection()) {
                                 if (ethnicGroupHm.get(personEthnicGroupDT.getEthnicGroupCd()) != null) {
                                     personEthnicGroupDT.setItDirty(true);
                                     personEthnicGroupDT.setItNew(false);
@@ -490,52 +451,48 @@ public class PatientService implements IPatientService {
                                 }
                             }
                         }
-                        if(	personVO.getThePersonEthnicGroupDtoCollection() == null
-                                || (	personVO.getThePersonEthnicGroupDtoCollection() != null
-                                && 	personVO.getThePersonEthnicGroupDtoCollection().size() == 0)){
+                        if (personVO.getThePersonEthnicGroupDtoCollection() == null
+                            || (personVO.getThePersonEthnicGroupDtoCollection() != null
+                            && personVO.getThePersonEthnicGroupDtoCollection().size() == 0)
+                        ) {
                             personVO.setThePersonEthnicGroupDtoCollection(new ArrayList<>());
                             personVO.getThePersonEthnicGroupDtoCollection().addAll(updatedPersonEthnicGroupCollection);
                         }
-                        if(personVO.getTheEntityIdDtoCollection()!=null && personVO.getTheEntityIdDtoCollection().size()>0){
-                            for (Iterator<EntityIdDto> it = personVO.getTheEntityIdDtoCollection().iterator(); it.hasNext();)
-                            {
-                                EntityIdDto entityIDDT = it.next();
-
+                        if (personVO.getTheEntityIdDtoCollection() != null && personVO.getTheEntityIdDtoCollection().size() > 0) {
+                            for (EntityIdDto entityIDDT : personVO.getTheEntityIdDtoCollection()) {
                                 entityIDDT.setItNew(true);
                                 entityIDDT.setItDirty(false);
                                 entityIDDT.setItDelete(false);
                                 entityIDDT.setEntityUid(matchedPersonUid);
                                 entityIDDT.setEntityIdSeq(++entityIdSeq);
-
                             }
                         }
-                        if(	personVO.getTheEntityIdDtoCollection() == null)
-                        {
+                        if (personVO.getTheEntityIdDtoCollection() == null) {
                             personVO.setTheEntityIdDtoCollection(new ArrayList<>());
                         }
                         personVO.getTheEntityIdDtoCollection().addAll(updatedtheEntityIdDTCollection);
 
 
-                        if(personVO.getTheEntityLocatorParticipationDtoCollection()!=null
-                                && personVO.getTheEntityLocatorParticipationDtoCollection().size()>0){
-                            for (Iterator<EntityLocatorParticipationDto> it = personVO.getTheEntityLocatorParticipationDtoCollection().iterator(); it.hasNext();)
-                            {
-                                EntityLocatorParticipationDto entityLocPartDT = it.next();
-
+                        if (personVO.getTheEntityLocatorParticipationDtoCollection() != null
+                            && personVO.getTheEntityLocatorParticipationDtoCollection().size() > 0
+                        ) {
+                            for (EntityLocatorParticipationDto entityLocPartDT : personVO.getTheEntityLocatorParticipationDtoCollection()) {
                                 entityLocPartDT.setItNew(true);
                                 entityLocPartDT.setItDirty(false);
                                 entityLocPartDT.setItDelete(false);
                                 entityLocPartDT.setEntityUid(matchedPersonUid);
 
-                                if(entityLocPartDT.getThePostalLocatorDto()!= null){
+                                if (entityLocPartDT.getThePostalLocatorDto() != null) {
                                     entityLocPartDT.getThePostalLocatorDto().setItNew(true);
                                     entityLocPartDT.getThePostalLocatorDto().setItDirty(false);
                                     entityLocPartDT.getThePostalLocatorDto().setItDelete(false);
-                                }if(entityLocPartDT.getTheTeleLocatorDto()!= null){
+                                }
+                                if (entityLocPartDT.getTheTeleLocatorDto() != null) {
                                     entityLocPartDT.getTheTeleLocatorDto().setItNew(true);
                                     entityLocPartDT.getTheTeleLocatorDto().setItDirty(false);
                                     entityLocPartDT.getTheTeleLocatorDto().setItDelete(false);
-                                }if(entityLocPartDT.getThePhysicalLocatorDto()!= null){
+                                }
+                                if (entityLocPartDT.getThePhysicalLocatorDto() != null) {
                                     entityLocPartDT.getThePhysicalLocatorDto().setItNew(true);
                                     entityLocPartDT.getThePhysicalLocatorDto().setItDirty(false);
                                     entityLocPartDT.getThePhysicalLocatorDto().setItDelete(false);
@@ -543,27 +500,14 @@ public class PatientService implements IPatientService {
 
                             }
                         }
-                        if(	personVO.getTheEntityLocatorParticipationDtoCollection() == null)
-                        {
+                        if (personVO.getTheEntityLocatorParticipationDtoCollection() == null) {
                             personVO.setTheEntityLocatorParticipationDtoCollection(new ArrayList<>());
                         }
                         personVO.getTheEntityLocatorParticipationDtoCollection().addAll(updatedtheEntityLocatorParticipationDTCollection);
-
-
                     }
                     personVO.setRole(null);
                 }
-
-
             }
-
-
         }
-
     }
-
-
-
-
-
 }

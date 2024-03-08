@@ -271,8 +271,8 @@ public class ManagerService implements IManagerService {
             var jurisdiction = programAreaJurisdictionService.processingJurisdiction();
 
             //TODO: EVALUATE LAB PROCESSING
-        //    var labProcessing = labProcessingService.processingLabResult();
-        //    observationDT = observationService.sendLabResultToProxy(parsedData);
+            var labProcessing = labProcessingService.processingLabResult();
+            observationDT = observationService.sendLabResultToProxy(parsedData);
 
             if(edxLabInformationDto.isLabIsCreate()){
                 edxLabInformationDto.setLabIsCreateSuccess(true);
