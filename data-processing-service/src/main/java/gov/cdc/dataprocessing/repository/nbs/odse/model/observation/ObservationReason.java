@@ -1,6 +1,8 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.observation;
 
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ObservationReasonDT;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.NNDActivityLogId;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ObservationReasonId;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -8,6 +10,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "Observation_reason")
+@IdClass(ObservationReasonId.class)
 public class ObservationReason {
 
     @Id
@@ -21,13 +24,6 @@ public class ObservationReason {
     @Column(name = "reason_desc_txt")
     private String reasonDescTxt;
 
-    // Constructors, getters, and setters (Lombok-generated)
-//
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "observation_uid", referencedColumnName = "observation_uid", insertable = false, updatable = false)
-//    private Observation observation;
-
-    // Other relationships or methods if needed
 
     public ObservationReason() {
 

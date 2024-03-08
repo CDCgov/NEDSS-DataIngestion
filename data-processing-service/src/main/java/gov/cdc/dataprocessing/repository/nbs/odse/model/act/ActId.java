@@ -1,6 +1,8 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.act;
 
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ActIdDT;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ActIdId;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.NNDActivityLogId;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -11,13 +13,13 @@ import java.util.Date;
 @Entity
 @Table(name = "Act_id")
 @Data
+@IdClass(ActIdId.class)
 public class ActId implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
     @Column(name = "act_uid")
     private Long actUid;
-
     @Id
     @Column(name = "act_id_seq")
     private Integer actIdSeq;

@@ -1,6 +1,8 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.act;
 
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ActRelationshipDT;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ActRelationshipId;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ObsValueCodedId;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -11,6 +13,7 @@ import java.util.Date;
 @Entity
 @Table(name = "Act_relationship")
 @Data
+@IdClass(ActRelationshipId.class)
 public class ActRelationship implements Serializable {
     private static final long serialVersionUID = 1L;
 

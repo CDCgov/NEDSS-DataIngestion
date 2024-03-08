@@ -22,7 +22,7 @@ public interface ParticipationRepository extends JpaRepository<Participation, Pa
 
     @Query("SELECT data.subjectEntityUid FROM Participation data WHERE data.subjectClassCode = :classCode AND data.typeCode = :type AND data.actUid = :actUid")
     Optional<List<Long>> findPatientMprUidByObservationUid(@Param("classCode") String classCode,
-                                                           @Param("typeCode") String typeCode,
+                                                           @Param("type") String typeCode,
                                                            @Param("actUid") Long actUid);
 
     @Query("DELETE FROM Participation data WHERE data.subjectEntityUid = :subjectUid AND data.actUid = :actUid AND data.typeCode = :typeCode")

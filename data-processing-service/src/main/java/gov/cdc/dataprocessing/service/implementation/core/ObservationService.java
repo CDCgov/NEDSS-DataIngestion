@@ -171,14 +171,6 @@ public class ObservationService implements IObservationService {
 
     public LabResultProxyContainer getLabResultToProxy(Long observationUid) throws DataProcessingException {
         LabResultProxyContainer labResultProxyVO = null;
-//        if (!(securityObj.getTheUserProfile().getTheUser().getUserID()
-//                .equals("superuser"))) {
-//            logger.error("HL7CommonLabUtil.getLabResultToProxy \"nedss_elr_load\" user not found.");
-//
-//            throw new NEDSSSystemException(
-//                    "do not have the permission to retrieve reporting lab.");
-//        }
-
         if (observationUid == null) {
             logger.error("HL7CommonLabUtil.getLabResultToProxy observationUid is null ");
             throw new DataProcessingException("LabResultProxyVO is null");

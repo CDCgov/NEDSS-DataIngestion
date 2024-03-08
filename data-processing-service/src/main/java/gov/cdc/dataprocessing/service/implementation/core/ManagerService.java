@@ -271,10 +271,10 @@ public class ManagerService implements IManagerService {
             var programArea = programAreaJurisdictionService.processingProgramArea();
             var jurisdiction = programAreaJurisdictionService.processingJurisdiction();
 
-            //TODO: LAB PROCESSING
-            var labProcessing = labProcessingService.processingLabResult();
+            //TODO: EVALUATE LAB PROCESSING
+        //    var labProcessing = labProcessingService.processingLabResult();
+        //    observationDT = observationService.sendLabResultToProxy(parsedData);
 
-            observationDT = observationService.sendLabResultToProxy(parsedData);
             if(edxLabInformationDto.isLabIsCreate()){
                 edxLabInformationDto.setLabIsCreateSuccess(true);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_2);

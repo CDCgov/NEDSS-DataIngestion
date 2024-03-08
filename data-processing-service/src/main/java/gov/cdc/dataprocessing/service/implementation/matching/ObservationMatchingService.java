@@ -199,7 +199,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
         if(labResultProxyVO.getTheActRelationshipDTCollection()!=null){
             Iterator<ActRelationshipDT> iter = labResultProxyVO.getTheActRelationshipDTCollection().iterator();
             while(iter.hasNext()){
-                ActRelationshipDT actRelationshipDT = (ActRelationshipDT)iter.next();
+                ActRelationshipDT actRelationshipDT = iter.next();
                 if(actRelationshipDT.getTargetActUid().compareTo(edxLabInformationDT.getRootObserbationUid())==0 &&
                         (!actRelationshipDT.getTypeCd().equals(EdxELRConstant.ELR_SUPPORT_CD)
                                 || !actRelationshipDT.getTypeCd().equals(EdxELRConstant.ELR_REFER_CD)

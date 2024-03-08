@@ -1,14 +1,20 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.observation;
 
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ObsValueCodedDT;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.NNDActivityLogId;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ObsValueCodedId;
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.io.Serializable;
 
 
 @Data
 @Entity
 @Table(name = "Obs_value_coded")
-public class ObsValueCoded {
+@IdClass(ObsValueCodedId.class)
+public class ObsValueCoded implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @Column(name = "observation_uid")

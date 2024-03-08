@@ -1,6 +1,8 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.material;
 
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ManufacturedMaterialDT;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ManufacturedMaterialId;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ObsValueCodedId;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -9,7 +11,9 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "Manufactured_material")
 @Data
+@IdClass(ManufacturedMaterialId.class)
 public class ManufacturedMaterial {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @Column(name = "material_uid")

@@ -1,21 +1,17 @@
-package gov.cdc.dataprocessing.repository.nbs.odse.model.act;
+package gov.cdc.dataprocessing.repository.nbs.odse.model.id_class;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 
-@Data
-@Embeddable
+@Getter
+@Setter
 public class ActRelationshipId implements Serializable {
-
-    @Column(name = "source_act_uid")
     private Long sourceActUid;
-
-    @Column(name = "target_act_uid")
     private Long targetActUid;
-
-    @Column(name = "type_cd")
     private String typeCd;
 
     // Constructors, equals, and hashCode methods
