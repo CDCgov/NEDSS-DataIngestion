@@ -42,13 +42,13 @@ jobs:
           READ_TIMEOUT: ${{ vars.KARATE_READTIMEOUT }}
           RETRY_COUNT: ${{ vars.KARATE_RETRYCOUNT }}
           RETRY_INTERVAL: ${{vars.RETRYINTERVAL }}
-          TEST_API_USERNAME: ${{ secrets.API_USERNAME }}
-          TEST_API_PASSWORD: ${{ secrets.API_PASSWORD }}
           TEST_WRONGAPIURL: ${{ secrets.WRONGAPIURL }}
           TEST_TOKENURL: ${{ secrets.TOKENURL }}
           TEST_CHECKERRORURL: ${{ secrets.CHECKERRORURL }}
-          TEST_REGISTRATIONAPIURL: ${{ secrets.REGISTRATIONAPIURL }}
           TEST_CHECKSTATUSURL: ${{ secrets.CHECKSTATUSURL }}
+          TEST_CLIENTID: ${{ secrets.CLIENTID }}
+          TEST_CLIENTSECRET: ${{ secrets.CLIENTSECRET }}
+
         run: |
           ./gradlew test \
             -Dkarate.options="$KARATE_OPTIONS" \
@@ -58,13 +58,12 @@ jobs:
             -DreadTimeout="$READ_TIMEOUT" \
             -DretryCount="$RETRY_COUNT" \
             -DretryInterval="$RETRY_INTERVAL" \
-            -Dtest.apiusername="$TEST_API_USERNAME" \
-            -Dtest.apipassword="$TEST_API_PASSWORD" \
             -Dtest.wrongapiurl="$TEST_WRONGAPIURL" \
             -Dtest.checkstatusurl="$TEST_CHECKSTATUSURL" \
             -Dtest.checkerrorurl="$TEST_CHECKERRORURL" \
-            -Dtest.registrationapiurl="$TEST_REGISTRATIONAPIURL" \
             -Dtest.tokenurl="$TEST_TOKENURL" \
+            -Dtest.tokenurl="$TEST_CLIENTID" \
+            -Dtest.tokenurl="$TEST_CLIENTSECRET" \
  
       - name: Upload Karate Test Report
         uses: actions/upload-artifact@v2
