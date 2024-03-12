@@ -1,10 +1,9 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.entity;
 
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ActIdId;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.EntityIdId;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Timestamp;
@@ -15,12 +14,14 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
 @Data
 @Entity
 @Table(name = "Entity_id")
+@IdClass(EntityIdId.class)
 public class EntityId {
 
     @Id
     @Column(name = "entity_uid", nullable = false)
     private Long entityUid;
 
+    @Id
     @Column(name = "entity_id_seq", nullable = false)
     private Integer entityIdSeq;
 

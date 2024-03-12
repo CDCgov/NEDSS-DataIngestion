@@ -5,6 +5,8 @@ import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.service.interfaces.IRoleService;
+import gov.cdc.dataprocessing.utilities.component.PrepareAssocModelHelper;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -17,9 +19,12 @@ import java.util.Iterator;
 public class RoleService implements IRoleService {
     private static final Logger logger = LoggerFactory.getLogger(RoleService.class);
     private final RoleRepository roleRepository;
+    private final PrepareAssocModelHelper prepareAssocModelHelper;
 
-    public RoleService(RoleRepository roleRepository) {
+    public RoleService(RoleRepository roleRepository,
+                       PrepareAssocModelHelper prepareAssocModelHelper) {
         this.roleRepository = roleRepository;
+        this.prepareAssocModelHelper = prepareAssocModelHelper;
     }
 
     public Collection<RoleDto> findRoleScopedToPatient(Long uid) {
@@ -38,6 +43,7 @@ public class RoleService implements IRoleService {
         return roleDtoCollection;
     }
 
+    @Transactional
     public void storeRoleDTCollection(Collection<RoleDto> roleDTColl) throws DataProcessingException {
         try {
             if(roleDTColl == null || roleDTColl.isEmpty()) return;
@@ -50,7 +56,7 @@ public class RoleService implements IRoleService {
                 }
 
                 //TODO: EVALUATE
-                //roleDT = (RoleDto)new PrepareVOUtils().prepareAssocDT(roleDT);
+                // roleDT = (RoleDto) prepareAssocModelHelper.prepareAssocDT(roleDT);
                 saveRole(roleDT);
             }
         } catch (Exception e) {
@@ -60,6 +66,7 @@ public class RoleService implements IRoleService {
 
 
 
+    @Transactional
     public void saveRole(RoleDto roleDto) {
         if (roleDto.isItNew() || roleDto.isItDirty()) {
             var data = new Role(roleDto);

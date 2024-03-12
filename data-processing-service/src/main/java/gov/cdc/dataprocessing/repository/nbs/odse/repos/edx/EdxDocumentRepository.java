@@ -1,8 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.repos.edx;
 
-import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationship;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.edx.EdxDocument;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.notification.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,4 +18,5 @@ public interface EdxDocumentRepository extends JpaRepository<EdxDocument, Long> 
      * */
     @Query("SELECT data FROM EdxDocument data WHERE data.actUid = :uid")
     Optional<Collection<EdxDocument>> selectEdxDocumentCollectionByActUid(@Param("uid") Long uid);
+
 }

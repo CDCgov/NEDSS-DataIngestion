@@ -1,5 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto;
 
+import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.RootDtoInterface;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.material.Material;
 import lombok.Getter;
@@ -9,7 +11,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class MaterialDT extends AbstractVO {
+public class MaterialDT extends AbstractVO implements RootDtoInterface {
 
     private Long materialUid;
     private String addReasonCd;
@@ -48,6 +50,16 @@ public class MaterialDT extends AbstractVO {
     private boolean itDirty = false;
     private boolean itNew = true;
     private boolean itDelete = false;
+
+    public String getSuperclass() {
+        this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
+        return superClassType;
+    }
+
+    @Override
+    public Long getUid() {
+        return materialUid;
+    }
 
     public MaterialDT() {
 

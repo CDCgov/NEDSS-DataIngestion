@@ -1,5 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto;
 
+import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.RootDtoInterface;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.organization.Organization;
 import lombok.Getter;
@@ -9,7 +11,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class OrganizationDT extends AbstractVO {
+public class OrganizationDT extends AbstractVO implements RootDtoInterface {
     private Long organizationUid;
     private String addReasonCd;
     private Timestamp addTime;
@@ -53,6 +55,17 @@ public class OrganizationDT extends AbstractVO {
     private boolean itNew = true;
     private boolean itDelete = false;
     private String edxInd = null;
+
+    //NOTE: Org Hist also same type
+    public String getSuperclass() {
+        this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
+        return superClassType;
+    }
+
+    @Override
+    public Long getUid() {
+        return organizationUid;
+    }
 
     public OrganizationDT(){
     }

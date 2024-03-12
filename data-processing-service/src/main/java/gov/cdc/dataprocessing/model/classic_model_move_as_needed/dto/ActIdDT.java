@@ -1,5 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto;
 
+import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.RootDtoInterface;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
 import lombok.Getter;
@@ -9,7 +11,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class ActIdDT extends AbstractVO
+public class ActIdDT extends AbstractVO implements RootDtoInterface
 {
     private Long actUid;
     private Integer actIdSeq;
@@ -42,6 +44,17 @@ public class ActIdDT extends AbstractVO
     private boolean itDirty = false;
     private boolean itNew = true;
     private boolean itDelete = false;
+
+    // NOTE: Act Hist is also a Entity Type
+    public String getSuperclass() {
+        this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
+        return superClassType;
+    }
+
+    @Override
+    public Long getUid() {
+        return actUid;
+    }
 
     public ActIdDT() {
 

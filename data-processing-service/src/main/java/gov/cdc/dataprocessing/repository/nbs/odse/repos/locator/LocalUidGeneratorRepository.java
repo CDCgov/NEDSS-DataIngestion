@@ -11,7 +11,6 @@ import java.util.Optional;
 
 @Repository
 public interface LocalUidGeneratorRepository extends JpaRepository<LocalUidGenerator, String> {
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select lug from LocalUidGenerator lug where lug.classNameCd = :id")
     Optional<LocalUidGenerator> findByIdForUpdate(String id);
 }

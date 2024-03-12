@@ -142,4 +142,9 @@ public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDT implements S
     private String investigationType;
     private NbsInterfaceStatus status;
 
+    public int getNextUid() {
+        nextUid--;
+        return nextUid;
+    }
+
 }

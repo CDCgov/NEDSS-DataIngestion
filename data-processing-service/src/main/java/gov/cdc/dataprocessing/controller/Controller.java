@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.controller;
 
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.service.implementation.core.ManagerService;
 import gov.cdc.dataprocessing.service.interfaces.core.IManagerService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,12 @@ public class Controller {
 
     @GetMapping(path = "/{id}")
     public ResponseEntity<String> test(@PathVariable String id) throws Exception {
-        managerService.processDistribution("ELR",id);
+        try {
+            managerService.processDistribution("ELR",id);
+
+        } catch (Exception e) {
+            throw  new DataProcessingException(e.getMessage());
+        }
         return ResponseEntity.ok("OK");
     }
 }

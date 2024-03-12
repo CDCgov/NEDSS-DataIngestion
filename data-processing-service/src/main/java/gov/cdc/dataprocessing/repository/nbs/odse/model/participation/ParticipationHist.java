@@ -23,7 +23,7 @@ public class ParticipationHist {
     private String typeCd;
 
     @Column(name = "version_ctrl_nbr")
-    @Version
+ //   @Version
     private Integer versionCtrlNbr;
 
     @Column(name = "act_class_cd")

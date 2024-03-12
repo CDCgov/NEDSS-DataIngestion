@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.repository.nbs.odse;
+package gov.cdc.dataprocessing.repository.nbs.odse.repos;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.matching.EdxEntityMatchDto;

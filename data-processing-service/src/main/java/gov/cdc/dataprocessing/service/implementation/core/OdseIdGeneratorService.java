@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.service.implementation.core;
 
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.LocalUidGeneratorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.other_move_as_needed.LocalUidGenerator;
 import gov.cdc.dataprocessing.service.interfaces.core.IOdseIdGeneratorService;
@@ -21,24 +22,29 @@ public class OdseIdGeneratorService implements IOdseIdGeneratorService {
     }
 
     @Transactional
-    public LocalUidGenerator getLocalIdAndUpdateSeed(LocalIdClass localIdClass) {
-        Optional<LocalUidGenerator> localUidOpt = this.localUidGeneratorRepository.findByIdForUpdate(localIdClass.name());
-        LocalUidGenerator localId = null;
-        if (localUidOpt.isPresent()) {
-            localId = localUidOpt.get();
+    public LocalUidGenerator getLocalIdAndUpdateSeed(LocalIdClass localIdClass) throws DataProcessingException {
+        try {
+            Optional<LocalUidGenerator> localUidOpt = this.localUidGeneratorRepository.findById(localIdClass.name());
+            LocalUidGenerator localId = null;
+            if (localUidOpt.isPresent()) {
+                localId = localUidOpt.get();
+            }
+
+            if (localId != null) {
+                long seed = localId.getSeedValueNbr();
+                seed++;
+                LocalUidGenerator newLocalId = new LocalUidGenerator();
+                newLocalId.setUidSuffixCd(localId.getUidSuffixCd());
+                newLocalId.setUidPrefixCd(localId.getUidPrefixCd());
+                newLocalId.setTypeCd(localId.getTypeCd());
+                newLocalId.setClassNameCd(localId.getClassNameCd());
+                newLocalId.setSeedValueNbr(seed);
+                this.localUidGeneratorRepository.save(newLocalId);
+            }
+            return localId;
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
         }
 
-        if (localId != null) {
-            long seed = localId.getSeedValueNbr();
-            seed++;
-            LocalUidGenerator newLocalId = new LocalUidGenerator();
-            newLocalId.setUidSuffixCd(localId.getUidSuffixCd());
-            newLocalId.setUidPrefixCd(localId.getUidPrefixCd());
-            newLocalId.setTypeCd(localId.getTypeCd());
-            newLocalId.setClassNameCd(localId.getClassNameCd());
-            newLocalId.setSeedValueNbr(seed);
-            this.localUidGeneratorRepository.save(newLocalId);
-        }
-        return localId;
     }
 }

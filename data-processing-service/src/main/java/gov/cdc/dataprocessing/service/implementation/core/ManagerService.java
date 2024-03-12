@@ -220,7 +220,8 @@ public class ManagerService implements IManagerService {
             Long aPersonUid = null;
 
             //Checking for matching observation
-            ObservationDT observationDT = observationService.checkingMatchingObservation(edxLabInformationDto);
+            ObservationDT observationDT = null;
+                    //observationService.checkingMatchingObservation(edxLabInformationDto);
 
             if(observationDT!=null){
                 LabResultProxyContainer matchedlabResultProxyVO = observationService.getObservationToLabResultContainer(observationDT.getObservationUid());
@@ -271,7 +272,6 @@ public class ManagerService implements IManagerService {
             var jurisdiction = programAreaJurisdictionService.processingJurisdiction();
 
             //TODO: EVALUATE LAB PROCESSING
-            var labProcessing = labProcessingService.processingLabResult();
             observationDT = observationService.sendLabResultToProxy(parsedData);
 
             if(edxLabInformationDto.isLabIsCreate()){
@@ -305,6 +305,7 @@ public class ManagerService implements IManagerService {
             //TODO: Uncomment this after debugging
             // NOTE: Test updating NBS_Interface
 
+            nbsInterfaceModel.setObservationUid(observationDT.getObservationUid().intValue());
             nbsInterfaceModel.setRecordStatusCd("COMPLETED_V2");
             nbsInterfaceRepository.save(nbsInterfaceModel);
             System.out.println("DONE");

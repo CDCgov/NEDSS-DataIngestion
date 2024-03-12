@@ -164,6 +164,7 @@ public class AnswerService implements IAnswerService {
     @Transactional
     public void insertPageVO(PageVO pageVO,ObservationDT rootDTInterface) throws DataProcessingException{
         try {
+
             if(pageVO!=null && pageVO.getAnswerDTMap() !=null ) {
                 Collection<NbsAnswerDT> answerDTColl =pageVO.getAnswerDTMap().values();
                 if(answerDTColl!=null && answerDTColl.size()>0) {

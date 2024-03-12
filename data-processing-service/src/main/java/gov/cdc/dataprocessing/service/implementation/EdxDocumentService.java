@@ -1,9 +1,11 @@
 package gov.cdc.dataprocessing.service.implementation;
 
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EDXDocumentDT;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.edx.EdxDocument;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.edx.EdxDocumentRepository;
 import gov.cdc.dataprocessing.service.interfaces.IEdxDocumentService;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -35,9 +37,15 @@ public class EdxDocumentService implements IEdxDocumentService {
         return edxDocumentDTCollection;
     }
 
-    public EDXDocumentDT saveEdxDocument(EDXDocumentDT edxDocumentDT) {
-        var data = new EdxDocument(edxDocumentDT);
-        var res = edxDocumentRepository.save(data);
-        return new EDXDocumentDT(res);
+    @Transactional
+    public EDXDocumentDT saveEdxDocument(EDXDocumentDT edxDocumentDT) throws DataProcessingException {
+        try {
+            EdxDocument data = new EdxDocument(edxDocumentDT);
+            var res = edxDocumentRepository.save(data);
+            return new EDXDocumentDT(res);
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+
     }
 }

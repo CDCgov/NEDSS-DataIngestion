@@ -41,7 +41,7 @@ public class EDXDocumentDT extends AbstractVO {
     }
 
     public EDXDocumentDT(EdxDocument domain) {
-        this.eDXDocumentUid = domain.getEDXDocumentUid();
+        this.eDXDocumentUid = domain.getId();
         this.actUid = domain.getActUid();
         this.payload = domain.getPayload();
         this.recordStatusCd = domain.getRecordStatusCd();

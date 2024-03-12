@@ -7,6 +7,7 @@ import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EDXDocumentDT;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.phdc.*;
+import gov.cdc.dataprocessing.repository.nbs.msgoute.NbsInterfaceStoredProcRepository;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.service.interfaces.core.IDataExtractionService;
 import gov.cdc.dataprocessing.service.interfaces.core.IMsgOutEStoredProcService;
@@ -16,6 +17,7 @@ import gov.cdc.dataprocessing.utilities.component.data_parser.HL7PatientHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.ORCHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.ObservationRequestHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.ObservationResultRequestHandler;
+import jakarta.transaction.Transactional;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
@@ -43,18 +45,23 @@ public class DataExtractionService implements IDataExtractionService {
     // this one will call out ro msgoute storedProc
     private final IMsgOutEStoredProcService msgOutEStoredProcService;
     private final ORCHandler orcHandler;
+    private final NbsInterfaceStoredProcRepository nbsInterfaceStoredProcRepository;
     public DataExtractionService (
             HL7PatientHandler hl7PatientHandler,
             ObservationRequestHandler observationRequestHandler,
             ObservationResultRequestHandler observationResultRequestHandler,
-            IMsgOutEStoredProcService msgOutEStoredProcService, ORCHandler orcHandler) {
+            IMsgOutEStoredProcService msgOutEStoredProcService,
+            ORCHandler orcHandler,
+            NbsInterfaceStoredProcRepository nbsInterfaceStoredProcRepository) {
         this.hl7PatientHandler = hl7PatientHandler;
         this.observationRequestHandler = observationRequestHandler;
         this.observationResultRequestHandler = observationResultRequestHandler;
         this.msgOutEStoredProcService = msgOutEStoredProcService;
         this.orcHandler = orcHandler;
+        this.nbsInterfaceStoredProcRepository = nbsInterfaceStoredProcRepository;
     }
 
+    @Transactional
     public LabResultProxyContainer parsingDataToObject(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto) throws DataProcessingConsumerException, JAXBException, DataProcessingException {
 
         LabResultProxyContainer labResultProxyContainer;
@@ -176,7 +183,7 @@ public class DataExtractionService implements IDataExtractionService {
                     && edxLabInformationDto.getRootObservationVO().getTheObservationDT().getEffectiveFromTime()!=null
                 )
                 {
-                    msgOutEStoredProcService.callUpdateSpecimenCollDateSP(edxLabInformationDto);
+                    nbsInterfaceStoredProcRepository.updateSpecimenCollDateSP(edxLabInformationDto.getNbsInterfaceUid(), edxLabInformationDto.getRootObservationVO().getTheObservationDT().getEffectiveFromTime());
                 }
 
                 observationResultRequestHandler.getObservationResultRequest(hl7OrderObservationType.getPatientResultOrderObservation().getOBSERVATION(), labResultProxyContainer, edxLabInformationDto);

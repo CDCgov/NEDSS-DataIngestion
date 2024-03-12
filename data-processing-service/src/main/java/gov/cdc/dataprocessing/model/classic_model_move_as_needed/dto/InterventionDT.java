@@ -1,5 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto;
 
+import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.RootDtoInterface;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.intervention.Intervention;
 import lombok.Getter;
@@ -9,7 +11,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class InterventionDT extends AbstractVO {
+public class InterventionDT extends AbstractVO implements RootDtoInterface {
     private static final long serialVersionUID = 1L;
 
 
@@ -127,6 +129,15 @@ public class InterventionDT extends AbstractVO {
 
     private boolean itDelete = false;
 
+    public String getSuperclass() {
+        this.superClassType = NEDSSConstant.CLASSTYPE_ACT;
+        return superClassType;
+    }
+
+    @Override
+    public Long getUid() {
+        return interventionUid;
+    }
 
     public InterventionDT() {
 

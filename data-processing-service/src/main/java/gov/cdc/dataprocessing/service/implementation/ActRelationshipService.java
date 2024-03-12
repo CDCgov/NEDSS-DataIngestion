@@ -5,6 +5,7 @@ import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ActRelation
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationship;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipRepository;
 import gov.cdc.dataprocessing.service.interfaces.IActRelationshipService;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class ActRelationshipService implements IActRelationshipService {
         return actRelationshipDTCollection;
     }
 
+    @Transactional
     public void saveActRelationship(ActRelationshipDT actRelationshipDT) throws DataProcessingException {
         if (actRelationshipDT == null) {
             throw new DataProcessingException("Act Relationship is null");

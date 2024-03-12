@@ -9,6 +9,7 @@ import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.service.implementation.matching.PatientMatchingService;
 import gov.cdc.dataprocessing.service.implementation.matching.ProviderMatchingService;
 import gov.cdc.dataprocessing.utilities.component.ObservationUtil;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -31,6 +32,7 @@ public class PersonUtil {
         this.providerMatchingService = providerMatchingService;
     }
 
+    @Transactional
     public Long processLabPersonVOCollection(AbstractVO proxyVO) throws DataProcessingException {
         try {
             Collection<PersonContainer> personVOColl = null;

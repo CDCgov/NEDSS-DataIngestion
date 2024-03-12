@@ -11,50 +11,50 @@ import java.sql.Timestamp;
 @Entity
 @Getter
 @Setter
-@Table(name = "edx_document")
+@Table(name = "EDX_Document")
 public class EdxDocument  {
 
     @Id
-    @Column(name = "edx_document_uid")
-    private Long eDXDocumentUid;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "EDX_Document_uid")
+    private Long id;
 
     @Column(name = "act_uid")
     private Long actUid;
 
-    @Column(name = "payload")
+    @Column(name = "payload", columnDefinition = "xml", nullable = false)
     private String payload;
 
-    @Column(name = "record_status_cd")
+    @Column(name = "record_status_cd", nullable = false, length = 20)
     private String recordStatusCd;
 
-    @Column(name = "record_status_time")
+    @Column(name = "record_status_time", nullable = false)
     private Timestamp recordStatusTime;
 
-    @Column(name = "add_time")
+    @Column(name = "add_time", nullable = false)
     private Timestamp addTime;
 
-    @Column(name = "doc_type_cd")
+    @Column(name = "doc_type_cd", nullable = false, length = 20)
     private String docTypeCd;
 
-    @Column(name = "nbs_document_metadata_uid")
+    @Column(name = "nbs_document_metadata_uid", nullable = false)
     private Long nbsDocumentMetadataUid;
 
-    @Column(name = "original_payload")
+    @Column(name = "original_payload", columnDefinition = "varchar(max)")
     private String originalPayload;
 
-    @Column(name = "original_doc_type_cd")
+    @Column(name = "original_doc_type_cd", length = 20)
     private String originalDocTypeCd;
 
     @Column(name = "edx_document_parent_uid")
     private Long edxDocumentParentUid;
-
 
     public EdxDocument() {
 
     }
 
     public EdxDocument(EDXDocumentDT dto) {
-        this.eDXDocumentUid = dto.getEDXDocumentUid();
+        this.id = dto.getEDXDocumentUid();
         this.actUid = dto.getActUid();
         this.payload = dto.getPayload();
         this.recordStatusCd = dto.getRecordStatusCd();

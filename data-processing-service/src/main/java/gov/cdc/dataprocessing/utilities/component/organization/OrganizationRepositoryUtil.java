@@ -36,6 +36,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.Organizatio
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.service.interfaces.core.IOdseIdGeneratorService;
+import gov.cdc.dataprocessing.utilities.component.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -66,6 +67,7 @@ public class OrganizationRepositoryUtil {
     private final IOdseIdGeneratorService odseIdGeneratorService;
     private final EntityHelper entityHelper;
     private final ParticipationRepository participationRepository;
+    private final PrepareAssocModelHelper prepareAssocModelHelper;
 
     public OrganizationRepositoryUtil(OrganizationRepository organizationRepository,
                                       OrganizationNameRepository organizationNameRepository,
@@ -79,7 +81,8 @@ public class OrganizationRepositoryUtil {
                                       LocalUidGeneratorRepository localUidGeneratorRepository,
                                       IOdseIdGeneratorService odseIdGeneratorService,
                                       EntityHelper entityHelper,
-                                      ParticipationRepository participationRepository) {
+                                      ParticipationRepository participationRepository,
+                                      PrepareAssocModelHelper prepareAssocModelHelper) {
         this.organizationRepository = organizationRepository;
         this.organizationNameRepository = organizationNameRepository;
         this.entityRepository = entityRepository;
@@ -93,6 +96,7 @@ public class OrganizationRepositoryUtil {
         this.odseIdGeneratorService = odseIdGeneratorService;
         this.entityHelper = entityHelper;
         this.participationRepository = participationRepository;
+        this.prepareAssocModelHelper = prepareAssocModelHelper;
     }
 
     @Transactional
@@ -388,13 +392,12 @@ public class OrganizationRepositoryUtil {
                         .getOrganizationUid();
             } else {
                 //TODO Check the following commented to code again whether it to be implemented.
-//                PrepareVOUtils prepareVOUtils = new PrepareVOUtils();
-//                OrganizationDT newOrganizationDT = (OrganizationDT) prepareVOUtils
-//                        .prepareVO(organizationVO.getTheOrganizationDT(),
-//                                businessObjLookupName, businessTriggerCd,
-//                                DataTables.ORGANIZATION_TABLE,
-//                                NEDSSConstants.BASE, nbsSecurityObj);
-//                organizationVO.setTheOrganizationDT(newOrganizationDT);
+                OrganizationDT newOrganizationDT = (OrganizationDT) prepareAssocModelHelper
+                        .prepareVO(organizationVO.getTheOrganizationDT(),
+                                "ORGANIZATION", businessTriggerCd,
+                                "ORGANIZATION",
+                                NEDSSConstant.BASE);
+                organizationVO.setTheOrganizationDT(newOrganizationDT);
 
                 Collection<EntityLocatorParticipationDto> elpDTCol = organizationVO
                         .getTheEntityLocatorParticipationDtoCollection();

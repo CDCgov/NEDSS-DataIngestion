@@ -38,24 +38,20 @@ public class OrganizationService implements IOrganizationService {
     public OrganizationVO processingOrganization(LabResultProxyContainer labResultProxyContainer) throws DataProcessingConsumerException {
         OrganizationVO orderingFacilityVO=null;
         try {
-            Collection<OrganizationVO> orgColl = labResultProxyContainer
-                    .getTheOrganizationVOCollection();
+            Collection<OrganizationVO> orgColl = labResultProxyContainer.getTheOrganizationVOCollection();
             if (orgColl != null) {
-                Iterator<OrganizationVO> it = orgColl.iterator();
-                while (it.hasNext()) {
-                    OrganizationVO organizationVO = (OrganizationVO) it.next();
+                for (OrganizationVO organizationVO : orgColl) {
                     Long orgUid;
-                    if (organizationVO.getRole() != null && organizationVO.getRole().equalsIgnoreCase(EdxELRConstant.ELR_SENDING_FACILITY_CD) && labResultProxyContainer.getSendingFacilityUid() != null)
+                    if (organizationVO.getRole() != null && organizationVO.getRole().equalsIgnoreCase(EdxELRConstant.ELR_SENDING_FACILITY_CD) && labResultProxyContainer.getSendingFacilityUid() != null) {
                         orgUid = labResultProxyContainer.getSendingFacilityUid();
-                    else {
+                    } else {
 //                        EdxMatchingCriteriaUtil util = new EdxMatchingCriteriaUtil();
 //                        EDXActivityDetailLogDT eDXActivityDetailLogDT = new EDXActivityDetailLogDT();
 //                        eDXActivityDetailLogDT = util.getMatchingOrganization(
 //                                organizationVO, nbsSecurityObj);
 
-                        EDXActivityDetailLogDT eDXActivityDetailLogDT=iOrganizationMatchingService.getMatchingOrganization(organizationVO);
-                        orgUid = Long.parseLong(eDXActivityDetailLogDT
-                                .getRecordId());
+                        EDXActivityDetailLogDT eDXActivityDetailLogDT = iOrganizationMatchingService.getMatchingOrganization(organizationVO);
+                        orgUid = Long.parseLong(eDXActivityDetailLogDT.getRecordId());
                     }
                     Long falseUid = organizationVO.getTheOrganizationDT()
                             .getOrganizationUid();
@@ -69,10 +65,11 @@ public class OrganizationService implements IOrganizationService {
                         organizationVO.getTheOrganizationDT().setItNew(false);
                         organizationVO.getTheOrganizationDT().setItDirty(false);
                     }
-                    if (organizationVO.getRole() != null
-                            && organizationVO.getRole().equalsIgnoreCase(
-                            EdxELRConstant.ELR_OP_CD))
+                    if (organizationVO.getRole() != null && organizationVO.getRole().equalsIgnoreCase(EdxELRConstant.ELR_OP_CD)) {
                         orderingFacilityVO = organizationVO;
+                    }
+
+                    organizationVO.getTheOrganizationDT().setOrganizationUid(orgUid);
                 }
             }
             return orderingFacilityVO;

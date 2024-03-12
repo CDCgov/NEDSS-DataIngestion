@@ -19,6 +19,7 @@ public class AbstractVO implements Serializable, Cloneable
     protected boolean itOld;
     protected boolean itDirty;
     protected boolean itDelete;
+    protected String superClassType;
     protected Collection<Object> ldfs;
     /**
      @param objectname1

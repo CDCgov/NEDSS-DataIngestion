@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.service.implementation;
 
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.NNDActivityLogDT;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.log.NNDActivityLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.NNDActivityLogRepository;
@@ -27,7 +28,7 @@ public class NNDActivityLogService implements INNDActivityLogService {
     }
 
     @Transactional
-    public void saveNddActivityLog(NNDActivityLogDT nndActivityLogDT) {
+    public void saveNddActivityLog(NNDActivityLogDT nndActivityLogDT) throws DataProcessingException {
         var timeStamp = getCurrentTimeStamp();
         nndActivityLogDT.setNndActivityLogSeq(1);// default to 1
         nndActivityLogDT.setRecordStatusCd("AUTO_RESEND_ERROR");

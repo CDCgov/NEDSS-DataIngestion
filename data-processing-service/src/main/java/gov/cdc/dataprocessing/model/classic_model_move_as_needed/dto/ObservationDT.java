@@ -1,5 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto;
 
+import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.RootDtoInterface;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.Observation;
 import lombok.Getter;
@@ -9,7 +11,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class ObservationDT extends AbstractVO {
+public class ObservationDT extends AbstractVO implements RootDtoInterface {
     private static final long serialVersionUID = 1L;
     private Long observationUid;
 
@@ -170,6 +172,16 @@ public class ObservationDT extends AbstractVO {
     // Task: #2567, #2566
     private String pregnantIndCd;
     private Integer pregnantWeek;
+
+    public String getSuperclass() {
+        this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
+        return superClassType;
+    }
+
+    @Override
+    public Long getUid() {
+        return observationUid;
+    }
 
     public ObservationDT() {
 
