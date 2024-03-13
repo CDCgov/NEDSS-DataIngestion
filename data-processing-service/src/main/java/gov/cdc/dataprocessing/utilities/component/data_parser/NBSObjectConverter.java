@@ -591,7 +591,7 @@ public class NBSObjectConverter {
 
         if(!incorrectLength){
 
-            if (hl7AreaCityCode != null) {
+            if (hl7AreaCityCode != null && hl7AreaCityCode.getHL7Numeric() != null) {
                 areaCode = String.valueOf(hl7AreaCityCode.getHL7Numeric().intValue());
             }
             hl7LocalNumber = hl7XTNType.getHL7LocalNumber();
@@ -599,7 +599,7 @@ public class NBSObjectConverter {
             /** length"9 */
             /*If the float is too long, like 10 digits, the float format would be somethign line 11.1F, and trying to convert it to String, in some cases, the precision
              * is not great, and the number changes. That is the reason I am treating the local number as String. NBSCentral defect related is #2758*/
-            if (hl7LocalNumber != null) {
+            if (hl7LocalNumber != null && hl7LocalNumber.getHL7Numeric() != null) {
 
 //                String localNumberString = hl7LocalNumber.toString();
 //                int begin = localNumberString.indexOf(">");
@@ -647,7 +647,7 @@ public class NBSObjectConverter {
         boolean incorrectLength = false;
         String areaCode, number;
 
-        if (HL7Type != null) {
+        if (HL7Type != null && HL7Type.getHL7Numeric() != null) {
             String areaCodeString = HL7Type.getHL7Numeric().toString();
 
             if(areaCodeString.length()>10){//Phone number more than 10 digits
@@ -703,7 +703,7 @@ public class NBSObjectConverter {
 
         boolean incorrectLength = false;
         String areaCode, number;
-        if (HL7Type != null) {
+        if (HL7Type != null && HL7Type.getHL7Numeric() != null) {
 
             String areaCodeString =HL7Type.getHL7Numeric().toString();
 

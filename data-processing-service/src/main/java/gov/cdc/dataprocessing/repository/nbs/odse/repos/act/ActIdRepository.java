@@ -9,9 +9,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @Repository
 public interface ActIdRepository extends JpaRepository<ActId, Long> {
     @Query("SELECT data FROM ActId data WHERE data.actUid = :uid")
-    Collection<ActId> findRecordsById(@Param("uid") Long uid);
+    Optional<Collection<ActId>> findRecordsById(@Param("uid") Long uid);
 }

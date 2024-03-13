@@ -174,6 +174,7 @@ public class LabResultUtil {
         }
 
 
+        organizationVO.setItNew(true);
         labResultProxy.getTheOrganizationVOCollection().add(organizationVO);
 
         return labResultProxy;

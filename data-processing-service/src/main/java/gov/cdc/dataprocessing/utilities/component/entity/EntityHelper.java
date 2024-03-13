@@ -114,31 +114,19 @@ public class EntityHelper {
 
     public Collection<ParticipationDT> iteratePDTForParticipation(Collection<ParticipationDT> dtCol) throws DataProcessingException {
         Collection<ParticipationDT> retCol = new ArrayList<>();
-        Collection<ParticipationDT> collection = new ArrayList<>();
-        Iterator<ParticipationDT> anIterator = null;
+        Collection<ParticipationDT> collection;
+        Iterator<ParticipationDT> anIterator;
         collection = dtCol;
-        logger.debug("Collection<Object> size before iteration in iteratePDT " + collection.size());
-        if (collection != null) {
-            try {
-                for (anIterator = collection.iterator(); anIterator.hasNext();) {
-                    ParticipationDT pDT = (ParticipationDT) anIterator.next();
-                    if (pDT.isItDirty() || pDT.isItNew() || pDT.isItDelete()) {
-                        logger.debug("EntityController:pdT.IsItDelete"
-                                + pDT.isItDelete() + "pdt.IsItNew:"
-                                + pDT.isItNew() + "pdt.IsItDirty:"
-                                + pDT.isItDirty());
-                        ParticipationDT assocDTInterface = pDT;
-                        pDT = prepareAssocModel.prepareAssocDTForParticipation(assocDTInterface);
-                        retCol.add(pDT);
-                    }
+        if (!collection.isEmpty()) {
+            for (anIterator = collection.iterator(); anIterator.hasNext();) {
+                ParticipationDT pDT = anIterator.next();
+                if (pDT.isItDirty() || pDT.isItNew() || pDT.isItDelete()) {
+                    ParticipationDT assocDTInterface = pDT;
+                    pDT = prepareAssocModel.prepareAssocDTForParticipation(assocDTInterface);
+                    retCol.add(pDT);
                 }
-            } catch (Exception e) {
-                logger.error("EntityControllerEJB.iteratePDT: " + e.getMessage(), e);
-                throw new DataProcessingException(e.getMessage(), e);
             }
         }
-        logger.debug("Collection<Object> size after iteration in iteratePDT "
-                + retCol.size());
         return retCol;
     }
 
@@ -146,29 +134,20 @@ public class EntityHelper {
     public Collection<ActivityLocatorParticipationDT> iterateActivityParticipation(Collection<ActivityLocatorParticipationDT> dtCol) throws DataProcessingException {
 
         Collection<ActivityLocatorParticipationDT> retCol = new ArrayList<> ();
-        Collection<ActivityLocatorParticipationDT> collection = new ArrayList<> ();
+        Collection<ActivityLocatorParticipationDT> collection;
         collection = dtCol;
 
-        Iterator<ActivityLocatorParticipationDT> anIterator = null;
+        Iterator<ActivityLocatorParticipationDT> anIterator;
 
         if (collection != null)
         {
-
-            try
+            for (anIterator = collection.iterator(); anIterator.hasNext();)
             {
 
-                for (anIterator = collection.iterator(); anIterator.hasNext();)
-                {
-
-                    ActivityLocatorParticipationDT alpDT = (ActivityLocatorParticipationDT)anIterator.next();
-                    ActivityLocatorParticipationDT assocDTInterface = alpDT;
-                    alpDT = (ActivityLocatorParticipationDT)prepareAssocModel.prepareActivityLocatorParticipationDT(assocDTInterface);
-                    retCol.add(alpDT);
-                }
-            }
-            catch (Exception e)
-            {
-                throw new DataProcessingException(e.getMessage(),e);
+                ActivityLocatorParticipationDT alpDT = anIterator.next();
+                ActivityLocatorParticipationDT assocDTInterface = alpDT;
+                alpDT = prepareAssocModel.prepareActivityLocatorParticipationDT(assocDTInterface);
+                retCol.add(alpDT);
             }
         }
 
@@ -178,28 +157,20 @@ public class EntityHelper {
     public Collection<ActRelationshipDT> iterateActRelationship(Collection<ActRelationshipDT> dtCol) throws DataProcessingException {
 
         Collection<ActRelationshipDT> retCol = new ArrayList<> ();
-        Collection<ActRelationshipDT> collection = new ArrayList<> ();
-        Iterator<ActRelationshipDT> anIterator = null;
+        Collection<ActRelationshipDT> collection;
+        Iterator<ActRelationshipDT> anIterator;
         collection = dtCol;
         if (collection != null)
         {
-            try
+            for (anIterator = collection.iterator(); anIterator.hasNext();)
             {
-                for (anIterator = collection.iterator(); anIterator.hasNext();)
+                ActRelationshipDT arDT = anIterator.next();
+                ActRelationshipDT assocDTInterface = arDT;
+                if(arDT.isItDirty() || arDT.isItNew() || arDT.isItDelete())
                 {
-                    ActRelationshipDT arDT = (ActRelationshipDT)anIterator.next();
-                    ActRelationshipDT assocDTInterface = arDT;
-                    if(arDT.isItDirty() || arDT.isItNew() || arDT.isItDelete())
-                    {
-                        logger.debug("ardT.IsItDelete:"+ arDT.isItDelete() +":ardt.IsItNew:" + arDT.isItNew()+":ardt.IsItDirty:" + arDT.isItDirty() );
-                        arDT = (ActRelationshipDT)prepareAssocModel.prepareActRelationshipDT(assocDTInterface);
-                        retCol.add(arDT);
-                    }
+                    arDT = prepareAssocModel.prepareActRelationshipDT(assocDTInterface);
+                    retCol.add(arDT);
                 }
-            }
-            catch (Exception e)
-            {
-                throw new DataProcessingException(e.getMessage(),e);
             }
         }
 

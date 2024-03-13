@@ -35,6 +35,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.Organizatio
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.OrganizationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
+import gov.cdc.dataprocessing.service.implementation.core.OdseIdGeneratorService;
 import gov.cdc.dataprocessing.service.interfaces.core.IOdseIdGeneratorService;
 import gov.cdc.dataprocessing.utilities.component.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
@@ -63,7 +64,6 @@ public class OrganizationRepositoryUtil {
     private final TeleLocatorRepository teleLocatorRepository;
     private final PostalLocatorRepository postalLocatorRepository;
     private final PhysicalLocatorRepository physicalLocatorRepository;
-    private final LocalUidGeneratorRepository localUidGeneratorRepository;
     private final IOdseIdGeneratorService odseIdGeneratorService;
     private final EntityHelper entityHelper;
     private final ParticipationRepository participationRepository;
@@ -78,7 +78,6 @@ public class OrganizationRepositoryUtil {
                                       TeleLocatorRepository teleLocatorRepository,
                                       PostalLocatorRepository postalLocatorRepository,
                                       PhysicalLocatorRepository physicalLocatorRepository,
-                                      LocalUidGeneratorRepository localUidGeneratorRepository,
                                       IOdseIdGeneratorService odseIdGeneratorService,
                                       EntityHelper entityHelper,
                                       ParticipationRepository participationRepository,
@@ -92,7 +91,6 @@ public class OrganizationRepositoryUtil {
         this.teleLocatorRepository = teleLocatorRepository;
         this.postalLocatorRepository = postalLocatorRepository;
         this.physicalLocatorRepository = physicalLocatorRepository;
-        this.localUidGeneratorRepository = localUidGeneratorRepository;
         this.odseIdGeneratorService = odseIdGeneratorService;
         this.entityHelper = entityHelper;
         this.participationRepository = participationRepository;
@@ -109,20 +107,15 @@ public class OrganizationRepositoryUtil {
     public long createOrganization(OrganizationVO organizationVO)
             throws DataProcessingException {
         Long organizationUid = 121212L;
+        long oldOrgUid = organizationVO.getTheOrganizationDT().getOrganizationUid();
         try {
             //TODO: Implement unique id generator here
             String localUid = "Unique Id here";
-            LocalUidGenerator localIdModel = localUidGeneratorRepository.findById(ORGANIZATION).get();
+            LocalUidGenerator localIdModel = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION);
             organizationUid = localIdModel.getSeedValueNbr();
             localUid = localIdModel.getUidPrefixCd() + organizationUid + localIdModel.getUidSuffixCd();
 
-            LocalUidGenerator newGen = new LocalUidGenerator();
-            newGen.setClassNameCd(localIdModel.getClassNameCd());
-            newGen.setTypeCd(localIdModel.getTypeCd());
-            newGen.setSeedValueNbr(localIdModel.getSeedValueNbr() + 1);
-            newGen.setUidPrefixCd(localIdModel.getUidPrefixCd());
-            newGen.setUidSuffixCd(localIdModel.getUidSuffixCd());
-            localUidGeneratorRepository.save(newGen);
+
             if (organizationVO.getTheOrganizationDT().getLocalId() == null || organizationVO.getTheOrganizationDT().getLocalId().trim().length() == 0) {
                 organizationVO.getTheOrganizationDT().setLocalId(localUid);
             }
@@ -131,6 +124,7 @@ public class OrganizationRepositoryUtil {
              */
             if (organizationVO != null) {
                 try {
+                    // Upper stream require this id to not mutated (must be negative), so falseToNew Method can parse the id correctly
                     organizationVO.getTheOrganizationDT().setOrganizationUid(Long.valueOf(organizationUid));
                     organizationVO.getTheOrganizationDT().setLocalId(localUid);
                     organizationVO.getTheOrganizationDT().setVersionCtrlNbr(Integer.valueOf(1));
@@ -170,6 +164,9 @@ public class OrganizationRepositoryUtil {
                     throw new DataProcessingException(e.getMessage(), e);
                 }
             }
+
+            organizationVO.getTheOrganizationDT().setOrganizationUid(oldOrgUid);
+
         } catch (Exception ex) {
             logger.error("Error while creating Organization", ex);
             throw new DataProcessingException(ex.getMessage(), ex);

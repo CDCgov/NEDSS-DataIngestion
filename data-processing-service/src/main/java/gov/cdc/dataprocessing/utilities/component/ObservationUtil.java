@@ -88,9 +88,18 @@ public class ObservationUtil {
     }
 
 
-    public ObservationDT getRootDT(AbstractVO proxyVO) throws DataProcessingException {
+    /**
+     * Description:
+     * Root OBS are one of these following
+     *  - Ctrl Code Display Form = LabReport;
+     *  - Obs Domain Code St 1 = Order;
+     *  - Ctrl Code Display Form = MorbReport;
+
+     *  Original Name: getRootDT
+     **/
+    public ObservationDT getRootObservationDto(AbstractVO proxyVO) throws DataProcessingException {
         try {
-            ObservationVO rootVO = getRootObservationVO(proxyVO);
+            ObservationVO rootVO = getRootObservationContainer(proxyVO);
             if (rootVO != null)
             {
                 return rootVO.getTheObservationDT();
@@ -102,32 +111,37 @@ public class ObservationUtil {
         }
     }
 
-    public ObservationVO getRootObservationVO(AbstractVO proxy) throws DataProcessingException
+    /**
+     * Description:
+     * Root OBS are one of these following
+     *  - Ctrl Code Display Form = LabReport;
+     *  - Obs Domain Code St 1 = Order;
+     *  - Ctrl Code Display Form = MorbReport;
+     * Original Name: getRootObservationVO
+     **/
+    public ObservationVO getRootObservationContainer(AbstractVO proxy) throws DataProcessingException
     {
-        try {
-            Collection<ObservationVO>  obsColl = null;
-            boolean isLabReport = false;
+        Collection<ObservationVO>  obsColl = null;
+        boolean isLabReport = false;
 
-            if (proxy instanceof LabResultProxyContainer)
-            {
-                obsColl = ( (LabResultProxyContainer) proxy).getTheObservationVOCollection();
-                isLabReport = true;
-            }
+        if (proxy instanceof LabResultProxyContainer)
+        {
+            obsColl = ( (LabResultProxyContainer) proxy).getTheObservationVOCollection();
+            isLabReport = true;
+        }
 //            if (proxy instanceof MorbidityProxyVO)
 //            {
 //                obsColl = ( (MorbidityProxyVO) proxy).getTheObservationVOCollection();
 //            }
 
-            ObservationVO rootVO = getRootObservationVO(obsColl, isLabReport);
+        ObservationVO rootVO = getRootObservationContainerFromObsCollection(obsColl, isLabReport);
 
-            if( rootVO != null)
-            {
-                return rootVO;
-            }
+        if( rootVO == null)
+        {
             throw new DataProcessingException("Expected the proxyVO containing a root observation(e.g., ordered test)");
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
         }
+        return rootVO;
+
     }
 
     /**
@@ -229,37 +243,45 @@ public class ObservationUtil {
     }
 
 
-    private ObservationVO getRootObservationVO(Collection<ObservationVO> obsColl, boolean isLabReport) throws DataProcessingException {
-        try {
-            if(obsColl == null){
-                return null;
-            }
-
-            Iterator<ObservationVO> iterator;
-            for (iterator = obsColl.iterator(); iterator.hasNext(); )
-            {
-                ObservationVO observationVO = iterator.next();
-                if (observationVO.getTheObservationDT() != null &&
-                        ( (observationVO.getTheObservationDT().getCtrlCdDisplayForm() != null &&
-                                observationVO.getTheObservationDT().getCtrlCdDisplayForm().
-                                        equalsIgnoreCase(NEDSSConstant.LAB_CTRLCD_DISPLAY))
-                                ||
-                                (observationVO.getTheObservationDT().getObsDomainCdSt1() != null &&
-                                        observationVO.getTheObservationDT().getObsDomainCdSt1().
-                                                equalsIgnoreCase(NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD) && isLabReport)
-                                ||
-                                (observationVO.getTheObservationDT().getCtrlCdDisplayForm() != null &&
-                                        observationVO.getTheObservationDT().getCtrlCdDisplayForm().
-                                                equalsIgnoreCase(NEDSSConstant.MOB_CTRLCD_DISPLAY))))
-                {
-                    return observationVO;
-                }
-            }
+    /**
+     * Description:
+     * Root OBS are one of these following
+     *  - Ctrl Code Display Form = LabReport;
+     *  - Obs Domain Code St 1 = Order;
+     *  - Ctrl Code Display Form = MorbReport;
+     **/
+    private ObservationVO getRootObservationContainerFromObsCollection(Collection<ObservationVO> obsColl, boolean isLabReport) {
+        if(obsColl == null){
             return null;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-
         }
+
+        Iterator<ObservationVO> iterator;
+        for (iterator = obsColl.iterator(); iterator.hasNext(); )
+        {
+            ObservationVO observationVO = iterator.next();
+            if (
+                observationVO.getTheObservationDT() != null
+                && (
+                        (
+                            observationVO.getTheObservationDT().getCtrlCdDisplayForm() != null
+                            && observationVO.getTheObservationDT().getCtrlCdDisplayForm().equalsIgnoreCase(NEDSSConstant.LAB_CTRLCD_DISPLAY)
+                        )
+                        || (
+                            observationVO.getTheObservationDT().getObsDomainCdSt1() != null
+                            && observationVO.getTheObservationDT().getObsDomainCdSt1().equalsIgnoreCase(NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD)
+                            && isLabReport
+                        ) || (
+                            observationVO.getTheObservationDT().getCtrlCdDisplayForm() != null &&
+                            observationVO.getTheObservationDT().getCtrlCdDisplayForm().equalsIgnoreCase(NEDSSConstant.MOB_CTRLCD_DISPLAY)
+                        )
+                )
+            )
+            {
+                return observationVO;
+            }
+        }
+        return null;
+
     }
 
 

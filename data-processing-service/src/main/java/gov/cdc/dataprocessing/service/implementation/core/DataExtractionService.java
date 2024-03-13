@@ -68,7 +68,6 @@ public class DataExtractionService implements IDataExtractionService {
         int rootObsUid = 0;
         long userId = AuthUtil.authUser.getAuthUserUid();;
         Timestamp time = new Timestamp(new Date().getTime());
-        try {
 
             edxLabInformationDto.setRootObserbationUid(--rootObsUid);
             edxLabInformationDto.setPatientUid(--rootObsUid);
@@ -192,10 +191,7 @@ public class DataExtractionService implements IDataExtractionService {
             labResultProxyContainer.setEDXDocumentCollection(collectionXmlDoc);
 
             return labResultProxyContainer;
-        }catch (Exception e) {
-            logger.error("HL7CommonLabUtil.processELR Exception thrown while parsing XML document. Please checkPlease check message with NBS_INTERFACE_UID:-"+ nbsInterfaceModel.getNbsInterfaceUid(), e);
-            throw new DataProcessingException("Exception thrown at HL7CommonLabUtil.processELR:" + e.getMessage());
-        }
+
     }
 
     public Container parsingElrXmlPayload(String xmlPayload) throws JAXBException {

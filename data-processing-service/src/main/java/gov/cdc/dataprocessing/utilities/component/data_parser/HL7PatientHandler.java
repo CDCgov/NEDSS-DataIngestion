@@ -52,7 +52,6 @@ public class HL7PatientHandler {
             HL7PATIENTRESULTType hl7PatientResult,
             LabResultProxyContainer labResultProxyContainer,
             EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
-        try {
             if (hl7PatientResult != null && hl7PatientResult.getPATIENT() != null) {
                 // Processing Patient Identification
                 if (hl7PatientResult.getPATIENT().getPatientIdentification() != null) {
@@ -68,21 +67,13 @@ public class HL7PatientHandler {
                         getNextOfKinVO(hl7NK1Type, labResultProxyContainer, edxLabInformationDto);
                     }
                 }
-
             }
-
-
-        } catch (Exception e) {
-            logger.error("Exception thrown by HL7PatientProcessor.getPatientAndNextOfKin "+ e);
-            throw new DataProcessingException("Exception thrown at HL7PatientProcessor.getPatientAndNextOfKin:"+ e.getMessage() + e);
-        }
         return labResultProxyContainer;
     }
 
     public LabResultProxyContainer getPatient(HL7PIDType hl7PIDType,
                                               LabResultProxyContainer labResultProxyContainer,
                                               EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
-        try {
 
             edxLabInformationDto.setRole(EdxELRConstant.ELR_PATIENT_CD);
             PersonContainer personContainer = parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
@@ -352,12 +343,6 @@ public class HL7PatientHandler {
                 labResultProxyContainer.setThePersonContainerCollection(new ArrayList<PersonContainer>());
             }
             labResultProxyContainer.getThePersonContainerCollection().add(personContainer);
-
-
-        } catch (Exception e) {
-            logger.error("Exception thrown by HL7ORCProcessor.getPatientVO "+ e);
-            throw new DataProcessingException("Exception thrown at HL7PatientProcessor.getPatientVO:"+ e.getMessage() + e);
-        }
 
         return labResultProxyContainer;
     }

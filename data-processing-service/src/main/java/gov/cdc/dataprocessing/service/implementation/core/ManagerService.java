@@ -279,7 +279,6 @@ public class ManagerService implements IManagerService {
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_2);
             }
 
-            logger.debug("localId is " + observationDT.getLocalId());
             edxLabInformationDto.setLocalId(observationDT.getLocalId());
             edxLabInformationDto.getEdxActivityLogDT().setBusinessObjLocalId(observationDT.getLocalId());
             edxLabInformationDto.setRootObserbationUid(observationDT.getObservationUid());
@@ -398,7 +397,7 @@ public class ManagerService implements IManagerService {
                         nextOfKinFuture = nextOfKinFuture.thenRunAsync(() -> {
                             try {
                                 patientService.processingNextOfKin(labResult, personContainer);
-                            } catch (Exception e) {
+                            } catch (DataProcessingException e) {
                                 throw new RuntimeException(e);
                             }
                         });
@@ -412,7 +411,7 @@ public class ManagerService implements IManagerService {
                         patientFuture = CompletableFuture.supplyAsync(() -> {
                             try {
                                 return patientService.processingPatient(labResult, edxLabInformationDto, personContainer);
-                            } catch (Exception e) {
+                            } catch (DataProcessingConsumerException | DataProcessingException e) {
                                 throw new RuntimeException(e);
                             }
                         });
@@ -426,7 +425,7 @@ public class ManagerService implements IManagerService {
                         providerFuture = CompletableFuture.supplyAsync(() -> {
                             try {
                                 return patientService.processingProvider(labResult, edxLabInformationDto, personContainer, false);
-                            } catch (Exception e) {
+                            } catch (DataProcessingConsumerException | DataProcessingException e) {
                                 throw new RuntimeException(e);
                             }
                         });
@@ -467,7 +466,6 @@ public class ManagerService implements IManagerService {
 
         return container;
     }
-
 
     private void setPersonUIDOnUpdate(Long aPersonUid, LabResultProxyContainer labResultProxyVO) {
         // TODO Auto-generated method stub

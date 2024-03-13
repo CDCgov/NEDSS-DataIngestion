@@ -188,14 +188,18 @@ public class ObservationRepositoryUtil {
     {
         try
         {
-            Collection<ActId> col = actIdRepository.findRecordsById(aUID);
+            var result  = actIdRepository.findRecordsById(aUID);
             Collection<ActIdDT> dtCollection = new ArrayList<>();
-            for (var item : col) {
-                ActIdDT dt = new ActIdDT(item);
-                dt.setItNew(false);
-                dt.setItDirty(false);
-                dtCollection.add(dt);
+            if (result.isPresent()) {
+                Collection<ActId> col = result.get();
+                for (var item : col) {
+                    ActIdDT dt = new ActIdDT(item);
+                    dt.setItNew(false);
+                    dt.setItDirty(false);
+                    dtCollection.add(dt);
+                }
             }
+
             return dtCollection;
         }
         catch(Exception ndapex)

@@ -6,6 +6,7 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ActRelationshipDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EDXActivityDetailLogDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ParticipationDT;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.OrganizationVO;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -79,8 +81,12 @@ public class OrganizationService implements IOrganizationService {
     }
 
     /**
-     * NOTE: Not sure what this for -- copied from PatientService..to be moved to common file.
-     */
+     * This method update uid for items in the following collection
+     * Participation collection
+     * Act Relationship collection
+     * Role collection
+     * - This is crucial in Observation Flow
+     * */
     private void setFalseToNew(LabResultProxyContainer labResultProxyContainer, Long falseUid, Long actualUid) throws DataProcessingException {
 
         try {

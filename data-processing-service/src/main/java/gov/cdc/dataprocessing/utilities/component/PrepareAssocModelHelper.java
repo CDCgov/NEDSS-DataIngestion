@@ -163,22 +163,20 @@ public class PrepareAssocModelHelper {
 
     public ParticipationDT prepareAssocDTForParticipation(ParticipationDT assocDTInterface) throws DataProcessingException {
         try {
-            ParticipationDT aDTInterface = null;
+            ParticipationDT aDTInterface;
             String recStatusCd = assocDTInterface.getRecordStatusCd();
             String statusCd = assocDTInterface.getStatusCd();
-            logger.debug("AssocDTInterface.Statuscode = "+statusCd);
-            logger.debug("AssocDTInterface.recStatusCd = "+recStatusCd);
             boolean isRealDirty = assocDTInterface.isItDirty();
 
             if(recStatusCd == null)
             {
-                logger.debug("RecordStatusCd is null");
                 throw new DataProcessingException("RecordStatusCd -----2----"+recStatusCd+"   statusCode--------"+statusCd);
             }
-
-            else if(!(recStatusCd.equals(NEDSSConstant.RECORD_STATUS_ACTIVE) || recStatusCd.equals(NEDSSConstant.RECORD_STATUS_INACTIVE)))
+            else if(
+                    !(recStatusCd.equals(NEDSSConstant.RECORD_STATUS_ACTIVE)
+                    || recStatusCd.equals(NEDSSConstant.RECORD_STATUS_INACTIVE))
+            )
             {
-                logger.debug("RecordStatusCd is not active or inactive");
                 throw new DataProcessingException("RecordStatusCd is not active or inactive");
             }
             else
@@ -199,20 +197,9 @@ public class PrepareAssocModelHelper {
                 {
                     e.printStackTrace();
                 }
-                //TODO: Looking into this, this basically getting Permission ID
-//                if(!nbsSecurityObj.getEntryID().equals(""))
-//                {
-//                    logger.debug("nbsSecurityObj.getEntryID() = " + nbsSecurityObj.getEntryID());
-//                    assocDTInterface.setLastChgUserId(new Long(nbsSecurityObj.getEntryID()));
-//                }
-//                else
-//                {
-//                    logger.debug("nbsSecurityObj.getEntryID() is NULL ");
-//                    throw new NEDSSSystemException("nbsSecurityObj.getEntryID() is NULL ");
-//                }
+                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;
-                logger.debug("DT Prepared");
             }
             if(!isRealDirty) {
                 aDTInterface.setItDirty(false);//Re-set the flag to original value if necessary
@@ -236,47 +223,35 @@ public class PrepareAssocModelHelper {
     public ActivityLocatorParticipationDT prepareActivityLocatorParticipationDT(ActivityLocatorParticipationDT assocDTInterface) throws DataProcessingException
     {
         try {
-            ActivityLocatorParticipationDT aDTInterface = null;
+            ActivityLocatorParticipationDT aDTInterface;
             String recStatusCd = assocDTInterface.getRecordStatusCd();
             String statusCd = assocDTInterface.getStatusCd();
-            logger.debug("AssocDTInterface.Statuscode = "+statusCd);
-            logger.debug("AssocDTInterface.recStatusCd = "+recStatusCd);
             boolean isRealDirty = assocDTInterface.isItDirty();
 
             if(recStatusCd == null)
             {
-                logger.debug("RecordStatusCd is null");
                 throw new DataProcessingException("RecordStatusCd -----2----"+recStatusCd+"   statusCode--------"+statusCd);
             }
-
             else if(!(recStatusCd.equals(NEDSSConstant.RECORD_STATUS_ACTIVE) || recStatusCd.equals(NEDSSConstant.RECORD_STATUS_INACTIVE)))
             {
-                logger.debug("RecordStatusCd is not active or inactive");
                 throw new DataProcessingException("RecordStatusCd is not active or inactive");
             }
             else
             {
-                try
-                {
-
-                    logger.debug("RecordStatusCd or statusCode is not null");
-                    assocDTInterface.setAddUserId(null);
-                    assocDTInterface.setAddTime(null);
-                    java.util.Date dateTime = new java.util.Date();
-                    Timestamp systemTime = new Timestamp(dateTime.getTime());
-                    assocDTInterface.setRecordStatusTime(systemTime);
-                    assocDTInterface.setStatusTime(systemTime);
-                    assocDTInterface.setLastChgTime(systemTime);
-                }
-                catch(Exception e)
-                {
-                    e.printStackTrace();
-                }
+                assocDTInterface.setAddUserId(null);
+                assocDTInterface.setAddTime(null);
+                java.util.Date dateTime = new java.util.Date();
+                Timestamp systemTime = new Timestamp(dateTime.getTime());
+                assocDTInterface.setRecordStatusTime(systemTime);
+                assocDTInterface.setStatusTime(systemTime);
+                assocDTInterface.setLastChgTime(systemTime);
                 assocDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;
             }
-            if(!isRealDirty) aDTInterface.setItDirty(false);//Re-set the flag to original value if necessary
+            if(!isRealDirty) {
+                aDTInterface.setItDirty(false);
+            }
             return aDTInterface;
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
@@ -285,11 +260,9 @@ public class PrepareAssocModelHelper {
 
     public ActRelationshipDT prepareActRelationshipDT(ActRelationshipDT assocDTInterface) throws DataProcessingException {
         try {
-            ActRelationshipDT aDTInterface = null;
+            ActRelationshipDT aDTInterface;
             String recStatusCd = assocDTInterface.getRecordStatusCd();
             String statusCd = assocDTInterface.getStatusCd();
-            logger.debug("AssocDTInterface.Statuscode = "+statusCd);
-            logger.debug("AssocDTInterface.recStatusCd = "+recStatusCd);
             boolean isRealDirty = assocDTInterface.isItDirty();
 
             if(recStatusCd == null)
@@ -304,25 +277,20 @@ public class PrepareAssocModelHelper {
 
             else
             {
-                try
-                {
-                    assocDTInterface.setAddUserId(null);
-                    assocDTInterface.setAddTime(null);
-                    java.util.Date dateTime = new java.util.Date();
-                    Timestamp systemTime = new Timestamp(dateTime.getTime());
-                    assocDTInterface.setRecordStatusTime(systemTime);
-                    assocDTInterface.setStatusTime(systemTime);
-                    assocDTInterface.setLastChgTime(systemTime);
-                }
-                catch(Exception e)
-                {
-                    e.printStackTrace();
-                }
+                assocDTInterface.setAddUserId(null);
+                assocDTInterface.setAddTime(null);
+                java.util.Date dateTime = new java.util.Date();
+                Timestamp systemTime = new Timestamp(dateTime.getTime());
+                assocDTInterface.setRecordStatusTime(systemTime);
+                assocDTInterface.setStatusTime(systemTime);
+                assocDTInterface.setLastChgTime(systemTime);
                 assocDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;
             }
-            if(!isRealDirty) aDTInterface.setItDirty(false);//Re-set the flag to original value if necessary
+            if(!isRealDirty) {
+                aDTInterface.setItDirty(false);//Re-set the flag to original value if necessary
+            }
             return aDTInterface;
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
