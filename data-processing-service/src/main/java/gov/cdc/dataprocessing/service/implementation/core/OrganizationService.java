@@ -27,24 +27,27 @@ public class OrganizationService implements IOrganizationService {
 
     private static IOrganizationMatchingService iOrganizationMatchingService;
     private final OrganizationRepositoryUtil organizationRepositoryUtil;
-    public OrganizationService(IOrganizationMatchingService iOrganizationMatchingService,OrganizationRepositoryUtil organizationRepositoryUtil) {
+
+    public OrganizationService(IOrganizationMatchingService iOrganizationMatchingService, OrganizationRepositoryUtil organizationRepositoryUtil) {
         this.iOrganizationMatchingService = iOrganizationMatchingService;
-        this.organizationRepositoryUtil=organizationRepositoryUtil;
+        this.organizationRepositoryUtil = organizationRepositoryUtil;
     }
+
     public OrganizationVO testloadObject(long orguid, long actid) throws DataProcessingException {
-        OrganizationVO organizationVO=organizationRepositoryUtil.loadObject(orguid,actid);
-       return organizationVO;
+        OrganizationVO organizationVO = organizationRepositoryUtil.loadObject(orguid, actid);
+        return organizationVO;
     }
+
     public OrganizationVO processingOrganization(LabResultProxyContainer labResultProxyContainer) throws DataProcessingConsumerException {
         //TODO: Adding logic here
-        OrganizationVO orderingFacilityVO=null;
+        OrganizationVO orderingFacilityVO = null;
         try {
             Collection<OrganizationVO> orgColl = labResultProxyContainer
                     .getTheOrganizationVOCollection();
             if (orgColl != null) {
                 Iterator<OrganizationVO> it = orgColl.iterator();
                 while (it.hasNext()) {
-                    OrganizationVO organizationVO = (OrganizationVO) it.next();
+                    OrganizationVO organizationVO = it.next();
                     Long orgUid;
                     if (organizationVO.getRole() != null && organizationVO.getRole().equalsIgnoreCase(EdxELRConstant.ELR_SENDING_FACILITY_CD) && labResultProxyContainer.getSendingFacilityUid() != null)
                         orgUid = labResultProxyContainer.getSendingFacilityUid();
@@ -54,7 +57,7 @@ public class OrganizationService implements IOrganizationService {
 //                        eDXActivityDetailLogDT = util.getMatchingOrganization(
 //                                organizationVO, nbsSecurityObj);
 
-                        EDXActivityDetailLogDT eDXActivityDetailLogDT=iOrganizationMatchingService.getMatchingOrganization(organizationVO);
+                        EDXActivityDetailLogDT eDXActivityDetailLogDT = iOrganizationMatchingService.getMatchingOrganization(organizationVO);
                         orgUid = Long.parseLong(eDXActivityDetailLogDT
                                 .getRecordId());
                     }
