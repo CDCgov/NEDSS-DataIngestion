@@ -188,6 +188,210 @@ public class ObservationService implements IObservationService {
         return labResultProxyVO;
     }
 
+    @Transactional
+    public ObservationDT checkingMatchingObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
+        String fillerNumber;
+
+        ObservationVO observationVO = edxLabInformationDto.getRootObservationVO();
+        fillerNumber = edxLabInformationDto.getFillerNumber();
+
+        ObservationDT obsDT;
+
+        if (edxLabInformationDto.getRootObservationVO() != null) {
+            obsDT = observationMatchingService.matchingObservation(edxLabInformationDto);
+        } else {
+            logger.error("Error!! masterObsVO not available for fillerNbr:" + edxLabInformationDto.getFillerNumber());
+            return null;
+        }
+
+        if (obsDT != null) // find a match is it a correction?
+        {
+            String msgStatus = observationVO.getTheObservationDT().getStatusCd();
+            String odsStatus = obsDT.getStatusCd();
+            //TODO: REMOVE AFTER TESTED
+            odsStatus = "N";
+            if (msgStatus == null
+                    || odsStatus == null
+            ) {
+                logger.error("Error!! null status cd: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);
+                return null;
+            }
+            if (
+                    (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
+                            && (msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
+                            || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+                            || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED))
+                    )
+                            || (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+                            && (msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+                            || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+                    )
+                    )
+                            || (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+                            && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+                    )
+            ) {
+                if (obsDT.getActivityToTime() != null && obsDT.getActivityToTime().after(edxLabInformationDto.getRootObservationVO().getTheObservationDT().getActivityToTime())) {
+                    edxLabInformationDto.setActivityTimeOutOfSequence(true);
+                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+                    edxLabInformationDto.setLocalId(obsDT.getLocalId());
+                    throw new DataProcessingException("An Observation Lab test match was found for Accession # " + fillerNumber + ", but the activity time is out of sequence.");
+                }
+                // MATCHED
+                return obsDT;
+            }
+            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+                    && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+            ) {
+                edxLabInformationDto.setFinalPostCorrected(true);
+                edxLabInformationDto.setLocalId(obsDT.getLocalId());
+                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
+            }
+            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+                    && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
+            ) {
+                edxLabInformationDto.setPreliminaryPostFinal(true);
+                edxLabInformationDto.setLocalId(obsDT.getLocalId());
+                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a final report was received.");
+            }
+            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+                    && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
+            ) {
+                edxLabInformationDto.setPreliminaryPostCorrected(true);
+                edxLabInformationDto.setLocalId(obsDT.getLocalId());
+                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
+            }
+            else {
+                edxLabInformationDto.setFinalPostCorrected(true);
+                edxLabInformationDto.setLocalId(obsDT.getLocalId());
+                logger.error(" Error!! Invalid status combination: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);
+                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
+            }
+        }
+
+        return null;
+    }
+
+    @Transactional
+    public ObservationDT sendLabResultToProxy(LabResultProxyContainer labResultProxyContainer) throws DataProcessingException {
+        if (labResultProxyContainer == null) {
+            throw new DataProcessingException("Lab Result Container Is Null");
+        }
+        ObservationDT obsDT;
+        labResultProxyContainer.setItNew(true);
+        labResultProxyContainer.setItDirty(false);
+        Map<Object, Object> returnMap = setLabResultProxy(labResultProxyContainer);
+        obsDT = (ObservationDT)returnMap.get(NEDSSConstant.SETLAB_RETURN_OBSDT);
+        return obsDT;
+
+    }
+
+    @Transactional
+    public Long saveObservation(ObservationVO observationVO) throws DataProcessingException {
+        Long observationUid = -1L;
+
+
+        try {
+            Observation observation = null;
+
+            Collection<ActivityLocatorParticipationDT> alpDTCol = observationVO.getTheActivityLocatorParticipationDTCollection();
+            Collection<ActRelationshipDT> arDTCol = observationVO.getTheActRelationshipDTCollection();
+            Collection<ParticipationDT> pDTCol = observationVO.getTheParticipationDTCollection();
+            Collection<ActRelationshipDT> colAct = null;
+            Collection<ParticipationDT> colParticipation = null;
+            Collection<ActivityLocatorParticipationDT> colActLocatorParticipation = null;
+
+
+            if (alpDTCol != null)
+            {
+                colActLocatorParticipation = entityHelper.iterateActivityParticipation(alpDTCol);
+                observationVO.setTheActivityLocatorParticipationDTCollection(colActLocatorParticipation);
+            }
+
+            if (arDTCol != null)
+            {
+                colAct = entityHelper.iterateActRelationship(arDTCol);
+                observationVO.setTheActRelationshipDTCollection(colAct);
+            }
+
+            if (pDTCol != null)
+            {
+                colParticipation = entityHelper.iteratePDTForParticipation(pDTCol);
+                observationVO.setTheParticipationDTCollection(colParticipation);
+            }
+
+            if (observationVO.isItNew())
+            {
+                //observation = home.create(observationVO);
+                var obsUid =  createNewObservation(observationVO);
+                observationUid = obsUid;
+            }
+            else
+            {
+                if (observationVO.getTheObservationDT() != null) // make sure it is not null
+                {
+                    updateObservation(observationVO);
+                    observationUid = observationVO.getTheObservationDT().getObservationUid();
+                }
+            }
+
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+
+        return observationUid;
+
+    }
+
+    @Transactional
+    public Long createNewObservation(ObservationVO observationVO) throws DataProcessingException {
+        try {
+            Long obsId = saveNewObservation(observationVO.getTheObservationDT());
+            observationVO.getTheObservationDT().setItNew(false);
+            observationVO.getTheObservationDT().setItDirty(false);
+
+            addObservationReasons(obsId, observationVO.getTheObservationReasonDTCollection());
+            addActivityId(obsId, observationVO.getTheActIdDTCollection(), false);
+            addObservationInterps(obsId, observationVO.getTheObservationInterpDTCollection());
+            addObsValueCoded(obsId, observationVO.getTheObsValueCodedDTCollection());
+            addObsValueTxts(obsId, observationVO.getTheObsValueTxtDTCollection());
+            addObsValueDates(obsId, observationVO.getTheObsValueDateDTCollection());
+            addObsValueNumeric(obsId, observationVO.getTheObsValueNumericDTCollection());
+            addActivityLocatorParticipations(obsId, observationVO.getTheActivityLocatorParticipationDTCollection());
+            return obsId;
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+
+    }
+
+    @Transactional
+    public Long updateObservation(ObservationVO observationVO) throws DataProcessingException {
+        Long uid = -1L;
+        if (observationVO.getTheObservationDT().getObservationUid() == null) {
+            uid = saveNewObservation(observationVO.getTheObservationDT());
+            observationVO.getTheObservationDT().setItNew(false);
+            observationVO.getTheObservationDT().setItDirty(false);
+        } else {
+            uid = saveObservation(observationVO.getTheObservationDT());
+            observationVO.getTheObservationDT().setItNew(false);
+            observationVO.getTheObservationDT().setItDirty(false);
+        }
+
+        updateObservationReason(uid, observationVO.getTheObservationReasonDTCollection());
+        addActivityId(uid, observationVO.getTheActIdDTCollection(), true);
+        updateObservationInterps(uid, observationVO.getTheObservationInterpDTCollection());
+        updateObsValueCoded(uid, observationVO.getTheObsValueCodedDTCollection());
+        updateObsValueTxts(uid, observationVO.getTheObsValueTxtDTCollection());
+        updateObsValueDates(uid, observationVO.getTheObsValueDateDTCollection());
+        updateObsValueNumerics(uid, observationVO.getTheObsValueNumericDTCollection());
+        addActivityLocatorParticipations(uid, observationVO.getTheActivityLocatorParticipationDTCollection());
+        return uid;
+    }
 
     /**
      * Loading Existing Either Observation or Intervention
@@ -353,7 +557,6 @@ public class ObservationService implements IObservationService {
 
         return mapper;
     }
-
 
     /**
      * Getting List of person given Entity Uid for Role
@@ -536,7 +739,6 @@ public class ObservationService implements IObservationService {
         return reflexObsVOCollection;
     }
 
-
     /**
      * Retrieves the Reflex Result Test
      * was: retrieveReflexRTs
@@ -580,8 +782,6 @@ public class ObservationService implements IObservationService {
         return reflexRTCollection;
     }
 
-
-
     // LOAD the performing  lab
     /**
      * was: retrievePerformingLab
@@ -617,9 +817,6 @@ public class ObservationService implements IObservationService {
         }
         return lab;
     }
-
-
-
 
     /**
      * was: retrieveInterventionVOsForProxyVO
@@ -673,21 +870,19 @@ public class ObservationService implements IObservationService {
                 lrProxyVO.setThePersonContainerCollection((Collection<PersonContainer>) allEntity.get(DataProcessingMapKey.PERSON));
                 lrProxyVO.setTheOrganizationVOCollection((Collection<OrganizationVO>) allEntity.get(DataProcessingMapKey.ORGANIZATION));
                 lrProxyVO.setTheMaterialVOCollection((Collection<MaterialVO>) allEntity.get(DataProcessingMapKey.MATERIAL));
-
                 Collection<RoleDto> roleObjs = (Collection<RoleDto>)  allEntity.get(DataProcessingMapKey.ROLE);
                 Collection<RoleDto> roleDtoCollection;
                 roleDtoCollection = Objects.requireNonNullElseGet(roleObjs, ArrayList::new);
-
                 lrProxyVO.setTheRoleDtoCollection(roleDtoCollection);
             }
         }
 
         Collection<ActRelationshipDT>  actRelColl = orderedTest.getTheActRelationshipDTCollection();
 
-        if (actRelColl != null && actRelColl.size() > 0)
+        if (actRelColl != null && !actRelColl.isEmpty())
         {
             Map<DataProcessingMapKey, Object> allAct = retrieveActForLabResultContainer(actRelColl);
-            if (allAct.size() > 0)
+            if (!allAct.isEmpty())
             {
                 //Set intervention collection
                 lrProxyVO.setTheInterventionVOCollection( (Collection<Object>) allAct.get(DataProcessingMapKey.INTERVENTION));
@@ -751,110 +946,6 @@ public class ObservationService implements IObservationService {
         }
 
         return lrProxyVO;
-    }
-
-
-    @Transactional
-    public ObservationDT checkingMatchingObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
-        String fillerNumber;
-
-        ObservationVO observationVO = edxLabInformationDto.getRootObservationVO();
-        fillerNumber = edxLabInformationDto.getFillerNumber();
-
-        ObservationDT obsDT;
-
-        if (edxLabInformationDto.getRootObservationVO() != null) {
-            obsDT = observationMatchingService.matchingObservation(edxLabInformationDto);
-        } else {
-            logger.error("Error!! masterObsVO not available for fillerNbr:" + edxLabInformationDto.getFillerNumber());
-            return null;
-        }
-
-        if (obsDT != null) // find a match is it a correction?
-        {
-            String msgStatus = observationVO.getTheObservationDT().getStatusCd();
-            String odsStatus = obsDT.getStatusCd();
-            //TODO: REMOVE AFTER TESTED
-            odsStatus = "N";
-            if (msgStatus == null
-                    || odsStatus == null
-            ) {
-                logger.error("Error!! null status cd: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);
-                return null;
-            }
-            if (
-                    (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
-                        && (msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
-                        || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
-                        || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED))
-                    )
-                    || (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
-                        && (msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
-                            || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
-                            )
-                        )
-                    || (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
-                        && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
-                        )
-            ) {
-                if (obsDT.getActivityToTime() != null && obsDT.getActivityToTime().after(edxLabInformationDto.getRootObservationVO().getTheObservationDT().getActivityToTime())) {
-                    edxLabInformationDto.setActivityTimeOutOfSequence(true);
-                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                    edxLabInformationDto.setLocalId(obsDT.getLocalId());
-                    throw new DataProcessingException("An Observation Lab test match was found for Accession # " + fillerNumber + ", but the activity time is out of sequence.");
-                }
-                // MATCHED
-                return obsDT;
-            }
-            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
-                        && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
-            ) {
-                edxLabInformationDto.setFinalPostCorrected(true);
-                edxLabInformationDto.setLocalId(obsDT.getLocalId());
-                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
-            }
-            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
-                    && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
-            ) {
-                edxLabInformationDto.setPreliminaryPostFinal(true);
-                edxLabInformationDto.setLocalId(obsDT.getLocalId());
-                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a final report was received.");
-            }
-            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
-                    && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
-            ) {
-                edxLabInformationDto.setPreliminaryPostCorrected(true);
-                edxLabInformationDto.setLocalId(obsDT.getLocalId());
-                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
-            }
-            else {
-                edxLabInformationDto.setFinalPostCorrected(true);
-                edxLabInformationDto.setLocalId(obsDT.getLocalId());
-                logger.error(" Error!! Invalid status combination: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);
-                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
-            }
-        }
-
-        return null;
-    }
-
-
-    @Transactional
-    public ObservationDT sendLabResultToProxy(LabResultProxyContainer labResultProxyContainer) throws DataProcessingException {
-        if (labResultProxyContainer == null) {
-            throw new DataProcessingException("Lab Result Container Is Null");
-        }
-        ObservationDT obsDT;
-        labResultProxyContainer.setItNew(true);
-        labResultProxyContainer.setItDirty(false);
-        Map<Object, Object> returnMap = setLabResultProxy(labResultProxyContainer);
-        obsDT = (ObservationDT)returnMap.get(NEDSSConstant.SETLAB_RETURN_OBSDT);
-        return obsDT;
-
     }
 
     private Map<Object, Object> setLabResultProxy(LabResultProxyContainer labResultProxyVO) throws DataProcessingException {
@@ -1321,7 +1412,6 @@ public class ObservationService implements IObservationService {
         */
     }
 
-
     private ObservationVO findObservationByCode(Collection<ObservationVO> coll, String strCode)
     {
         if (coll == null)
@@ -1347,8 +1437,6 @@ public class ObservationService implements IObservationService {
         // didn't find one
         return null;
     }
-
-
 
 
     /**
@@ -1498,8 +1586,6 @@ public class ObservationService implements IObservationService {
 
     }
 
-
-
     private Map<Object, Object> findLocalUidsFor(Long personMprUid, Long observationUid) throws DataProcessingException {
         Map<Object, Object> localIds = null;
 
@@ -1526,8 +1612,6 @@ public class ObservationService implements IObservationService {
         }
         return localIds;
     }
-
-
 
     private void performOrderTestStateTransition(LabResultProxyContainer labResultProxyVO, ObservationVO orderTest, boolean isELR) throws DataProcessingException
     {
@@ -1560,9 +1644,6 @@ public class ObservationService implements IObservationService {
 
 
     }
-
-
-
 
     private Long storeObservationVOCollection(AbstractVO proxyVO) throws DataProcessingException {
         try {
@@ -1636,110 +1717,6 @@ public class ObservationService implements IObservationService {
         }
     }
 
-
-    @Transactional
-    public Long saveObservation(ObservationVO observationVO) throws DataProcessingException {
-        Long observationUid = -1L;
-
-
-        try {
-            Observation observation = null;
-
-            Collection<ActivityLocatorParticipationDT> alpDTCol = observationVO.getTheActivityLocatorParticipationDTCollection();
-            Collection<ActRelationshipDT> arDTCol = observationVO.getTheActRelationshipDTCollection();
-            Collection<ParticipationDT> pDTCol = observationVO.getTheParticipationDTCollection();
-            Collection<ActRelationshipDT> colAct = null;
-            Collection<ParticipationDT> colParticipation = null;
-            Collection<ActivityLocatorParticipationDT> colActLocatorParticipation = null;
-
-
-            if (alpDTCol != null)
-            {
-                colActLocatorParticipation = entityHelper.iterateActivityParticipation(alpDTCol);
-                observationVO.setTheActivityLocatorParticipationDTCollection(colActLocatorParticipation);
-            }
-
-            if (arDTCol != null)
-            {
-                colAct = entityHelper.iterateActRelationship(arDTCol);
-                observationVO.setTheActRelationshipDTCollection(colAct);
-            }
-
-            if (pDTCol != null)
-            {
-                colParticipation = entityHelper.iteratePDTForParticipation(pDTCol);
-                observationVO.setTheParticipationDTCollection(colParticipation);
-            }
-
-            if (observationVO.isItNew())
-            {
-                //observation = home.create(observationVO);
-                var obsUid =  createNewObservation(observationVO);
-                observationUid = obsUid;
-            }
-            else
-            {
-                if (observationVO.getTheObservationDT() != null) // make sure it is not null
-                {
-                    updateObservation(observationVO);
-                    observationUid = observationVO.getTheObservationDT().getObservationUid();
-                }
-            }
-
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
-
-        return observationUid;
-
-    }
-
-    @Transactional
-    public Long createNewObservation(ObservationVO observationVO) throws DataProcessingException {
-        try {
-            Long obsId = saveNewObservation(observationVO.getTheObservationDT());
-            observationVO.getTheObservationDT().setItNew(false);
-            observationVO.getTheObservationDT().setItDirty(false);
-
-            addObservationReasons(obsId, observationVO.getTheObservationReasonDTCollection());
-            addActivityId(obsId, observationVO.getTheActIdDTCollection(), false);
-            addObservationInterps(obsId, observationVO.getTheObservationInterpDTCollection());
-            addObsValueCoded(obsId, observationVO.getTheObsValueCodedDTCollection());
-            addObsValueTxts(obsId, observationVO.getTheObsValueTxtDTCollection());
-            addObsValueDates(obsId, observationVO.getTheObsValueDateDTCollection());
-            addObsValueNumeric(obsId, observationVO.getTheObsValueNumericDTCollection());
-            addActivityLocatorParticipations(obsId, observationVO.getTheActivityLocatorParticipationDTCollection());
-            return obsId;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
-
-    }
-
-    @Transactional
-    public Long updateObservation(ObservationVO observationVO) throws DataProcessingException {
-        Long uid = -1L;
-        if (observationVO.getTheObservationDT().getObservationUid() == null) {
-            uid = saveNewObservation(observationVO.getTheObservationDT());
-            observationVO.getTheObservationDT().setItNew(false);
-            observationVO.getTheObservationDT().setItDirty(false);
-        } else {
-            uid = saveObservation(observationVO.getTheObservationDT());
-            observationVO.getTheObservationDT().setItNew(false);
-            observationVO.getTheObservationDT().setItDirty(false);
-        }
-
-        updateObservationReason(uid, observationVO.getTheObservationReasonDTCollection());
-        addActivityId(uid, observationVO.getTheActIdDTCollection(), true);
-        updateObservationInterps(uid, observationVO.getTheObservationInterpDTCollection());
-        updateObsValueCoded(uid, observationVO.getTheObsValueCodedDTCollection());
-        updateObsValueTxts(uid, observationVO.getTheObsValueTxtDTCollection());
-        updateObsValueDates(uid, observationVO.getTheObsValueDateDTCollection());
-        updateObsValueNumerics(uid, observationVO.getTheObsValueNumericDTCollection());
-        addActivityLocatorParticipations(uid, observationVO.getTheActivityLocatorParticipationDTCollection());
-        return uid;
-    }
-
     private Long saveNewObservation(ObservationDT observationDT) throws DataProcessingException {
         try {
             var uid = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.OBSERVATION);
@@ -1766,6 +1743,7 @@ public class ObservationService implements IObservationService {
         }
 
     }
+
     private Long saveObservation(ObservationDT observationDT) {
         Observation observation = new Observation(observationDT);
         observationRepository.save(observation);
@@ -1811,6 +1789,7 @@ public class ObservationService implements IObservationService {
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
+
     private void addActivityId(Long obsUid, Collection<ActIdDT> actIdDTCollection, boolean updateApplied) throws DataProcessingException {
         if (actIdDTCollection != null) {
             int maxSegId = 0;
@@ -1919,7 +1898,6 @@ public class ObservationService implements IObservationService {
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
-
 
     private void addObsValueTxts(Long obsUid, Collection<ObsValueTxtDT> obsValueTxtDTCollection) throws DataProcessingException {
         try {
