@@ -12,10 +12,8 @@ import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
-import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonName;
+import gov.cdc.dataprocessing.service.interfaces.core.IUidService;
 import gov.cdc.dataprocessing.service.interfaces.matching.INokMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.matching.IPatientMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.core.IPatientService;
@@ -27,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.*;
 
 @Service
@@ -38,15 +35,17 @@ public class PatientService implements IPatientService {
     private final IPatientMatchingService patientMatchingService;
     private final INokMatchingService nokMatchingService;
     private final IProviderMatchingService providerMatchingService;
-
+    private final IUidService uidService;
     public PatientService(
             PatientMatchingService patientMatchingService,
             INokMatchingService nokMatchingService,
-            IProviderMatchingService providerMatchingService) {
+            IProviderMatchingService providerMatchingService,
+            IUidService uidService) {
 
         this.patientMatchingService = patientMatchingService;
         this.nokMatchingService = nokMatchingService;
         this.providerMatchingService = providerMatchingService;
+        this.uidService = uidService;
     }
 
     @Transactional
@@ -57,7 +56,7 @@ public class PatientService implements IPatientService {
 
             if (personContainer.getThePersonDto().getPersonUid() != null) {
 
-                setFalseToNew(labResultProxyContainer, falseUid, personContainer.getThePersonDto().getPersonUid());
+                uidService.setFalseToNewPersonAndOrganization(labResultProxyContainer, falseUid, personContainer.getThePersonDto().getPersonUid());
                 personContainer.setItNew(false);
                 personContainer.setItDirty(false);
                 personContainer.getThePersonDto().setItNew(false);
@@ -93,7 +92,7 @@ public class PatientService implements IPatientService {
             }
 
             if (personUid != null) {
-                setFalseToNew(labResultProxyContainer, falseUid, personUid);
+                uidService.setFalseToNewPersonAndOrganization(labResultProxyContainer, falseUid, personUid);
                 personContainer.setItNew(false);
                 personContainer.setItDirty(false);
                 personContainer.getThePersonDto().setItNew(false);
@@ -136,7 +135,7 @@ public class PatientService implements IPatientService {
             personUId = eDXActivityDetailLogDT.getRecordId();
             if (personUId != null) {
                 long uid = Long.parseLong(personUId);
-                setFalseToNew(labResultProxyContainer, falseUid,uid);
+                uidService.setFalseToNewPersonAndOrganization(labResultProxyContainer, falseUid,uid);
                 personContainer.setItNew(false);
                 personContainer.setItDirty(false);
                 personContainer.getThePersonDto().setItNew(false);
@@ -166,86 +165,6 @@ public class PatientService implements IPatientService {
         throw new DataProcessingException("No name use code \"L\" in PersonVO");
     }
 
-    /**
-     * NOTE: Not sure what this for
-     * */
-    private void setFalseToNew(LabResultProxyContainer labResultProxyContainer, Long falseUid, Long actualUid) throws DataProcessingException {
-
-        try {
-            Iterator<ParticipationDT> participationIterator = null;
-            Iterator<ActRelationshipDT> actRelationshipIterator = null;
-            Iterator<RoleDto> roleIterator = null;
-
-
-            ParticipationDT participationDT = null;
-            ActRelationshipDT actRelationshipDT = null;
-            RoleDto roleDto = null;
-
-            Collection<ParticipationDT> participationColl = labResultProxyContainer.getTheParticipationDTCollection();
-            Collection<ActRelationshipDT> actRelationShipColl = labResultProxyContainer.getTheActRelationshipDTCollection();
-            Collection<RoleDto> roleColl = labResultProxyContainer.getTheRoleDtoCollection();
-
-            if (participationColl != null) {
-                for (participationIterator = participationColl.iterator(); participationIterator.hasNext();) {
-                    participationDT = (ParticipationDT) participationIterator.next();
-                    logger.debug("(participationDT.getAct() comparedTo falseUid)"
-                            + (participationDT.getActUid().compareTo(falseUid)));
-                    if (participationDT.getActUid().compareTo(falseUid) == 0) {
-                        participationDT.setActUid(actualUid);
-                    }
-
-                    if (participationDT.getSubjectEntityUid().compareTo(falseUid) == 0) {
-                        participationDT.setSubjectEntityUid(actualUid);
-                    }
-                }
-                logger.debug("participationDT.getSubjectEntityUid()"
-                        + participationDT.getSubjectEntityUid());
-            }
-
-            if (actRelationShipColl != null) {
-                for (actRelationshipIterator = actRelationShipColl.iterator(); actRelationshipIterator
-                        .hasNext();) {
-                    actRelationshipDT = (ActRelationshipDT) actRelationshipIterator.next();
-
-                    if (actRelationshipDT.getTargetActUid().compareTo(falseUid) == 0) {
-                        actRelationshipDT.setTargetActUid(actualUid);
-                    }
-                    if (actRelationshipDT.getSourceActUid().compareTo(falseUid) == 0) {
-                        actRelationshipDT.setSourceActUid(actualUid);
-                    }
-                    logger.debug("ActRelationShipDT: falseUid "
-                            + falseUid.toString() + " actualUid: " + actualUid);
-                }
-            }
-
-            if (roleColl != null) {
-                for (roleIterator = roleColl.iterator(); roleIterator.hasNext();) {
-                    roleDto = (RoleDto) roleIterator.next();
-                    if (roleDto.getSubjectEntityUid().compareTo(falseUid) == 0) {
-                        roleDto.setSubjectEntityUid(actualUid);
-                    }
-                    if (roleDto.getScopingEntityUid() != null) {
-                        if (roleDto.getScopingEntityUid().compareTo(falseUid) == 0) {
-                            roleDto.setScopingEntityUid(actualUid);
-                        }
-                        logger.debug("\n\n\n(roleDT.getSubjectEntityUid() compared to falseUid)  "
-                                + roleDto.getSubjectEntityUid().compareTo(
-                                falseUid));
-                        logger.debug("\n\n\n(roleDT.getScopingEntityUid() compared to falseUid)  "
-                                + roleDto.getScopingEntityUid().compareTo(
-                                falseUid));
-                    }
-
-                }
-            }
-
-        } catch (Exception e) {
-            logger.error("HL7CommonLabUtil.setFalseToNew thrown for falseUid:"
-                    + falseUid + "For actualUid :" + actualUid);
-            throw new DataProcessingException("HL7CommonLabUtil.setFalseToNew thrown for falseUid:" + falseUid + "For actualUid :" + actualUid);
-        }
-    }
-    
     public Long getMatchedPersonUID(LabResultProxyContainer matchedlabResultProxyVO) {
         Long matchedPersonUid = null;
         Collection<PersonContainer> personCollection = matchedlabResultProxyVO.getThePersonContainerCollection();

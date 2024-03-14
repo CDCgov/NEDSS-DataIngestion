@@ -5,14 +5,12 @@ import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.exception.EdxLogException;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ObservationDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.ObservationVO;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.OrganizationVO;
 import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.NbsInterfaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
@@ -31,10 +29,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
-import java.util.Iterator;
 import java.util.TreeMap;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import static gov.cdc.dataprocessing.constant.ManagerEvent.EVENT_ELR;
 @Service
@@ -68,6 +63,7 @@ public class ManagerService implements IManagerService {
 
     private final ManagerUtil managerUtil;
 
+    private final IManagerAggregationService managerAggregationService;
     @Autowired
     public ManagerService(IObservationService observationService,
                           IPatientService patientService,
@@ -82,7 +78,8 @@ public class ManagerService implements IManagerService {
                           CacheManager cacheManager,
                           ISessionProfileService sessionProfileService,
                           IObservationMatchingService observationMatchingService,
-                          ManagerUtil managerUtil) {
+                          ManagerUtil managerUtil,
+                          IManagerAggregationService managerAggregationService) {
         this.observationService = observationService;
         this.patientService = patientService;
         this.organizationService = organizationService;
@@ -98,6 +95,7 @@ public class ManagerService implements IManagerService {
         this.sessionProfileService = sessionProfileService;
         this.observationMatchingService = observationMatchingService;
         this.managerUtil = managerUtil;
+        this.managerAggregationService = managerAggregationService;
     }
 
     @Transactional
@@ -224,38 +222,14 @@ public class ManagerService implements IManagerService {
             }
             Long aPersonUid = null;
 
-            //Checking for matching observation
-            ObservationDT observationDT = null;
-            observationDT = observationService.checkingMatchingObservation(edxLabInformationDto);
+            ObservationDT observationDT;
 
-            if(observationDT!=null){
-                LabResultProxyContainer matchedlabResultProxyVO = observationService.getObservationToLabResultContainer(observationDT.getObservationUid());
-                observationMatchingService.processMatchedProxyVO(parsedData, matchedlabResultProxyVO, edxLabInformationDto );
-
-                //TODO: CHECK THIS OUT
-                aPersonUid = patientService.getMatchedPersonUID(matchedlabResultProxyVO);
-                patientService.updatePersonELRUpdate(parsedData, matchedlabResultProxyVO);
-
-                edxLabInformationDto.setRootObserbationUid(observationDT.getObservationUid());
-                if(observationDT.getProgAreaCd()!=null && observationDT.getJurisdictionCd()!=null)
-                {
-                    edxLabInformationDto.setLabIsUpdateDRRQ(true);
-                }
-                else
-                {
-                    edxLabInformationDto.setLabIsUpdateDRSA(true);
-                }
-                edxLabInformationDto.setPatientMatch(true);
-            }
-            else {
-                edxLabInformationDto.setLabIsCreate(true);
-            }
+            // Checking for matching observation
+            managerAggregationService.processingObservationMatching(edxLabInformationDto, parsedData, aPersonUid);
 
 
-            PersonAggContainer personAggContainer = managerUtil.patientAggregation(parsedData, edxLabInformationDto);
-
-            OrganizationVO orderingFacilityVO = organizationService.processingOrganization(parsedData);
-
+            // This process patient, provider, nok, and organization. Then it will update both parsedData and edxLabInformationDto accordingly
+            managerAggregationService.serviceAggregationAsync(parsedData, edxLabInformationDto);
 
 
             //TODO: VERIFY THIS BLOCK

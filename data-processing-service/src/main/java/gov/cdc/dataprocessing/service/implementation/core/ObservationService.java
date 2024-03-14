@@ -22,6 +22,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.service.interfaces.*;
 import gov.cdc.dataprocessing.service.interfaces.core.IObservationService;
+import gov.cdc.dataprocessing.service.interfaces.core.IUidService;
 import gov.cdc.dataprocessing.service.interfaces.matching.IObservationMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.matching.IPatientMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.matching.IProviderMatchingService;
@@ -70,12 +71,8 @@ public class ObservationService implements IObservationService {
 
     private final IEdxDocumentService edxDocumentService;
     private final IAnswerService answerService;
-    private final ISrteCodeObsService srteCodeObsService;
 
     private final IParticipationService participationService;
-
-    private final IProviderMatchingService providerMatchingService;
-    private final IPatientMatchingService patientMatchingService;
 
     private final ObservationRepository observationRepository;
     private final PersonRepository personRepository;
@@ -105,6 +102,8 @@ public class ObservationService implements IObservationService {
 
     private final PrepareAssocModelHelper prepareAssocModelHelper;
 
+    private final IUidService uidService;
+
 
     public ObservationService(IObservationMatchingService observationMatchingService,
                               INNDActivityLogService nndActivityLogService,
@@ -117,10 +116,7 @@ public class ObservationService implements IObservationService {
                               IActRelationshipService actRelationshipService,
                               IEdxDocumentService edxDocumentService,
                               IAnswerService answerService,
-                              ISrteCodeObsService srteCodeObsService,
                               IParticipationService participationService,
-                              IProviderMatchingService providerMatchingService,
-                              IPatientMatchingService patientMatchingService,
                               ObservationRepository observationRepository,
                               PersonRepository personRepository,
                               IJurisdictionService jurisdictionService,
@@ -139,7 +135,9 @@ public class ObservationService implements IObservationService {
                               IObservationCodeService observationCodeService,
                               ObservationUtil observationUtil,
                               PersonUtil personUtil,
-                              IProgramAreaService programAreaService, PrepareAssocModelHelper prepareAssocModelHelper) {
+                              IProgramAreaService programAreaService,
+                              PrepareAssocModelHelper prepareAssocModelHelper,
+                              IUidService uidService) {
 
         this.observationMatchingService = observationMatchingService;
         this.nndActivityLogService = nndActivityLogService;
@@ -152,10 +150,7 @@ public class ObservationService implements IObservationService {
         this.actRelationshipService = actRelationshipService;
         this.edxDocumentService = edxDocumentService;
         this.answerService = answerService;
-        this.srteCodeObsService = srteCodeObsService;
         this.participationService = participationService;
-        this.providerMatchingService = providerMatchingService;
-        this.patientMatchingService = patientMatchingService;
         this.observationRepository = observationRepository;
         this.personRepository = personRepository;
         this.jurisdictionService = jurisdictionService;
@@ -176,6 +171,7 @@ public class ObservationService implements IObservationService {
         this.personUtil = personUtil;
         this.programAreaService = programAreaService;
         this.prepareAssocModelHelper = prepareAssocModelHelper;
+        this.uidService = uidService;
     }
 
     /**
@@ -1036,7 +1032,7 @@ public class ObservationService implements IObservationService {
 
                         realUid = organizationRepositoryUtil.setOrganization(organizationVO, null);
                         if (falseUid.intValue() < 0) {
-                            observationUtil.setFalseToNew(labResultProxyVO, falseUid, realUid);
+                            uidService.setFalseToNewForObservation(labResultProxyVO, falseUid, realUid);
                         }
                     } else if (organizationVO.isItDirty()) {
                         //TODO: EVALUATE
@@ -1071,7 +1067,7 @@ public class ObservationService implements IObservationService {
                         falseUid = materialVO.getTheMaterialDT().getMaterialUid();
                         realUid = materialService.saveMaterial(materialVO);
                         if (falseUid.intValue() < 0) {
-                            observationUtil.setFalseToNew(labResultProxyVO, falseUid, realUid);
+                            uidService.setFalseToNewForObservation(labResultProxyVO, falseUid, realUid);
                         }
                     } else if (materialVO.isItDirty()) {
                         //TODO: EVALUATE
@@ -1629,7 +1625,7 @@ public class ObservationService implements IObservationService {
                     if (observationVO.isItNew()) {
                         Long falseUid = observationVO.getTheObservationDT().getObservationUid();
                         if (falseUid.intValue() < 0) {
-                            observationUtil.setFalseToNew(proxyVO, falseUid, observationUid);
+                            uidService.setFalseToNewForObservation(proxyVO, falseUid, observationUid);
                         }
                     }
 

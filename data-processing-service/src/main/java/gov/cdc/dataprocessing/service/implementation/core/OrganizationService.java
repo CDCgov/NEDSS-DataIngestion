@@ -3,14 +3,11 @@ package gov.cdc.dataprocessing.service.implementation.core;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ActRelationshipDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EDXActivityDetailLogDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ParticipationDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.OrganizationVO;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
-import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.service.interfaces.core.IOrganizationService;
+import gov.cdc.dataprocessing.service.interfaces.core.IUidService;
 import gov.cdc.dataprocessing.service.interfaces.matching.IOrganizationMatchingService;
 import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 @Service
 @Slf4j
@@ -30,9 +25,14 @@ public class OrganizationService implements IOrganizationService {
     private static IOrganizationMatchingService iOrganizationMatchingService;
     private final OrganizationRepositoryUtil organizationRepositoryUtil;
 
-    public OrganizationService(IOrganizationMatchingService iOrganizationMatchingService, OrganizationRepositoryUtil organizationRepositoryUtil) {
+    private final IUidService uidService;
+
+    public OrganizationService(IOrganizationMatchingService iOrganizationMatchingService,
+                               OrganizationRepositoryUtil organizationRepositoryUtil,
+                               IUidService uidService) {
         this.iOrganizationMatchingService = iOrganizationMatchingService;
         this.organizationRepositoryUtil = organizationRepositoryUtil;
+        this.uidService = uidService;
     }
 
     public OrganizationVO testloadObject(long orguid, long actid) throws DataProcessingException {
@@ -45,7 +45,7 @@ public class OrganizationService implements IOrganizationService {
         OrganizationVO orderingFacilityVO = null;
         try {
             Collection<OrganizationVO> orgColl = labResultProxyContainer.getTheOrganizationVOCollection();
-            if (orgColl != null) {
+            if (orgColl != null && !orgColl.isEmpty()) {
                 for (OrganizationVO organizationVO : orgColl) {
 
                     Long orgUid;
@@ -65,7 +65,7 @@ public class OrganizationService implements IOrganizationService {
                             .getOrganizationUid();
                     //match found!!!!
                     if (orgUid > 0) {
-                        setFalseToNew(labResultProxyContainer, falseUid, orgUid);
+                        uidService.setFalseToNewPersonAndOrganization(labResultProxyContainer, falseUid, orgUid);
                         // /organizationVO
                         // =getOrganization(orgUid,nbsSecurityObj);
                         organizationVO.setItNew(false);
@@ -86,87 +86,4 @@ public class OrganizationService implements IOrganizationService {
         }
     }
 
-    /**
-     * This method update uid for items in the following collection
-     * Participation collection
-     * Act Relationship collection
-     * Role collection
-     * - This is crucial in Observation Flow
-     * */
-    private void setFalseToNew(LabResultProxyContainer labResultProxyContainer, Long falseUid, Long actualUid) throws DataProcessingException {
-
-        try {
-            Iterator<ParticipationDT> participationIterator = null;
-            Iterator<ActRelationshipDT> actRelationshipIterator = null;
-            Iterator<RoleDto> roleIterator = null;
-
-
-            ParticipationDT participationDT = null;
-            ActRelationshipDT actRelationshipDT = null;
-            RoleDto roleDto = null;
-
-            Collection<ParticipationDT> participationColl = labResultProxyContainer.getTheParticipationDTCollection();
-            Collection<ActRelationshipDT> actRelationShipColl = labResultProxyContainer.getTheActRelationshipDTCollection();
-            Collection<RoleDto> roleColl = labResultProxyContainer.getTheRoleDtoCollection();
-
-            if (participationColl != null) {
-                for (participationIterator = participationColl.iterator(); participationIterator.hasNext(); ) {
-                    participationDT = (ParticipationDT) participationIterator.next();
-                    logger.debug("(participationDT.getAct() comparedTo falseUid)"
-                            + (participationDT.getActUid().compareTo(falseUid)));
-                    if (participationDT.getActUid().compareTo(falseUid) == 0) {
-                        participationDT.setActUid(actualUid);
-                    }
-
-                    if (participationDT.getSubjectEntityUid().compareTo(falseUid) == 0) {
-                        participationDT.setSubjectEntityUid(actualUid);
-                    }
-                }
-                logger.debug("participationDT.getSubjectEntityUid()"
-                        + participationDT.getSubjectEntityUid());
-            }
-
-            if (actRelationShipColl != null) {
-                for (actRelationshipIterator = actRelationShipColl.iterator(); actRelationshipIterator
-                        .hasNext(); ) {
-                    actRelationshipDT = (ActRelationshipDT) actRelationshipIterator.next();
-
-                    if (actRelationshipDT.getTargetActUid().compareTo(falseUid) == 0) {
-                        actRelationshipDT.setTargetActUid(actualUid);
-                    }
-                    if (actRelationshipDT.getSourceActUid().compareTo(falseUid) == 0) {
-                        actRelationshipDT.setSourceActUid(actualUid);
-                    }
-                    logger.debug("ActRelationShipDT: falseUid "
-                            + falseUid.toString() + " actualUid: " + actualUid);
-                }
-            }
-
-            if (roleColl != null) {
-                for (roleIterator = roleColl.iterator(); roleIterator.hasNext(); ) {
-                    roleDto = (RoleDto) roleIterator.next();
-                    if (roleDto.getSubjectEntityUid().compareTo(falseUid) == 0) {
-                        roleDto.setSubjectEntityUid(actualUid);
-                    }
-                    if (roleDto.getScopingEntityUid() != null) {
-                        if (roleDto.getScopingEntityUid().compareTo(falseUid) == 0) {
-                            roleDto.setScopingEntityUid(actualUid);
-                        }
-                        logger.debug("\n\n\n(roleDT.getSubjectEntityUid() compared to falseUid)  "
-                                + roleDto.getSubjectEntityUid().compareTo(
-                                falseUid));
-                        logger.debug("\n\n\n(roleDT.getScopingEntityUid() compared to falseUid)  "
-                                + roleDto.getScopingEntityUid().compareTo(
-                                falseUid));
-                    }
-
-                }
-            }
-
-        } catch (Exception e) {
-            logger.error("HL7CommonLabUtil.setFalseToNew thrown for falseUid:"
-                    + falseUid + "For actualUid :" + actualUid);
-            throw new DataProcessingException("HL7CommonLabUtil.setFalseToNew thrown for falseUid:" + falseUid + "For actualUid :" + actualUid);
-        }
-    }
 }
