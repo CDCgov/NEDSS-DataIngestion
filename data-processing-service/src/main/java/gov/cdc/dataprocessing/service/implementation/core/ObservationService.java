@@ -384,18 +384,13 @@ public class ObservationService implements IObservationService {
      * was: retrieveActForProxyVO
      * */
     private Map<DataProcessingMapKey, Object> retrieveActForLabResultContainer(Collection<ActRelationshipDT> actRelColl) throws DataProcessingException {
-        List<Object> allActHolder = new ArrayList<Object> ();
         Map<DataProcessingMapKey, Object> mapper = new HashMap<>();
 
         //Retrieve associated interventions
-        // allActHolder.add(this.RETRIEVED_INTERVENTIONS_FOR_PROXY, retrieveInterventionFromActRelationship(actRelColl));
         mapper.put(DataProcessingMapKey.INTERVENTION, retrieveInterventionFromActRelationship(actRelColl));
-
 
         //Retrieve associated observations and performing labs of any resulted tests
         Map<DataProcessingMapKey, Object> obs_org = retrieveObservationFromActRelationship(actRelColl);
-        //allActHolder.add(this.RETRIEVED_OBSERVATIONS_FOR_PROXY, obs_org.get(DataProcessingMapKey.OBSERVATION));
-        //allActHolder.add(this.RETRIEVED_LABS_FOR_RT, obs_org.get(DataProcessingMapKey.ORGANIZATION));
         mapper.put(DataProcessingMapKey.OBSERVATION, obs_org.get(DataProcessingMapKey.OBSERVATION));
         mapper.put(DataProcessingMapKey.ORGANIZATION, obs_org.get(DataProcessingMapKey.ORGANIZATION));
 
@@ -668,13 +663,12 @@ public class ObservationService implements IObservationService {
 
         // LOADING EXISTING Observation
         ObservationVO orderedTest = (ObservationVO) getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, observationId);
-
         Collection<ParticipationDT>  partColl = orderedTest.getTheParticipationDTCollection();
 
-        if (partColl != null && partColl.size() > 0)
+        if (partColl != null && !partColl.isEmpty())
         {
             Map<DataProcessingMapKey, Object> allEntity = retrieveEntityFromParticipationForContainer(partColl);
-            if (allEntity.size() > 0)
+            if (!allEntity.isEmpty())
             {
                 lrProxyVO.setThePersonContainerCollection((Collection<PersonContainer>) allEntity.get(DataProcessingMapKey.PERSON));
                 lrProxyVO.setTheOrganizationVOCollection((Collection<OrganizationVO>) allEntity.get(DataProcessingMapKey.ORGANIZATION));
