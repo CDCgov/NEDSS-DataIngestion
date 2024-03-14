@@ -774,8 +774,7 @@ public class ObservationService implements IObservationService {
         ObservationDT obsDT;
 
         if (edxLabInformationDto.getRootObservationVO() != null) {
-//            obsDT = observationMatchingService.matchingObservation(edxLabInformationDto);
-            obsDT = null;
+            obsDT = observationMatchingService.matchingObservation(edxLabInformationDto);
         } else {
             logger.error("Error!! masterObsVO not available for fillerNbr:" + edxLabInformationDto.getFillerNumber());
             return null;
@@ -785,6 +784,8 @@ public class ObservationService implements IObservationService {
         {
             String msgStatus = observationVO.getTheObservationDT().getStatusCd();
             String odsStatus = obsDT.getStatusCd();
+            //TODO: REMOVE AFTER TESTED
+            odsStatus = "N";
             if (msgStatus == null
                     || odsStatus == null
             ) {
@@ -867,7 +868,6 @@ public class ObservationService implements IObservationService {
     }
 
     private Map<Object, Object> setLabResultProxy(LabResultProxyContainer labResultProxyVO) throws DataProcessingException {
-        try {
             NNDActivityLogDT nndActivityLogDT = null;
 
             //saving LabResultProxyVO before updating auto resend notifications
@@ -907,9 +907,7 @@ public class ObservationService implements IObservationService {
                 }
             }
             return returnVal;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
+
 
     }
 
@@ -970,8 +968,6 @@ public class ObservationService implements IObservationService {
         boolean valid = false;
 
 
-        try
-        {
 
             //Process PersonVOCollection  and adds the patient mpr uid to the return
             Long patientMprUid = personUtil.processLabPersonContainerCollection(
@@ -980,6 +976,7 @@ public class ObservationService implements IObservationService {
                     labResultProxyVO
             );
             if (patientMprUid != null)
+            {
             {
                 returnVal.put(NEDSSConstant.SETLAB_RETURN_MPR_UID, patientMprUid);
             }
@@ -1201,11 +1198,6 @@ public class ObservationService implements IObservationService {
             }
 
         }
-        catch (Exception e)
-        {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
-
         return returnVal;
     }
 
@@ -1374,28 +1366,25 @@ public class ObservationService implements IObservationService {
      * Original Name: processObservationVOCollection
      * */
     private Map<Object, Object> processObservationContainerCollection(AbstractVO proxyVO, boolean ELR_PROCESSING) throws DataProcessingException {
-        try {
-            if (proxyVO instanceof LabResultProxyContainer)
-            {
-                return processLabReportObsContainerCollection( (LabResultProxyContainer) proxyVO, ELR_PROCESSING);
-            }
+        if (proxyVO instanceof LabResultProxyContainer)
+        {
+            return processLabReportObsContainerCollection( (LabResultProxyContainer) proxyVO, ELR_PROCESSING);
+        }
 
-            //TODO: Morbidity is from a different flow
-            //If coming from morbidity, processing this way
+        //TODO: Morbidity is from a different flow
+        //If coming from morbidity, processing this way
 //            if (proxyVO instanceof MorbidityProxyVO)
 //            {
 //                return processMorbObsVOCollection( (MorbidityProxyVO) proxyVO,
 //                        securityObj);
 //            }
 
-            //If not above, abort the operation
-            else
-            {
-                throw new DataProcessingException("Expected a valid observation proxy vo, it is: " + proxyVO.getClass().getName());
-            }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+        //If not above, abort the operation
+        else
+        {
+            throw new DataProcessingException("Expected a valid observation proxy vo, it is: " + proxyVO.getClass().getName());
         }
+
     }
 
     /**

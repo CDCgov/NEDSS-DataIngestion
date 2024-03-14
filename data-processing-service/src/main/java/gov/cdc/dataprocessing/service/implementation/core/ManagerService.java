@@ -174,14 +174,14 @@ public class ManagerService implements IManagerService {
 
             EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
             edxLabInformationDto.setStatus(NbsInterfaceStatus.Success);
-            edxLabInformationDto.setUserName("Test");
+            edxLabInformationDto.setUserName(AuthUtil.authUser.getUserId());
 
             //TODO: uncomment when deploy
-//            nbsInterfaceModel = gson.fromJson(data, NbsInterfaceModel.class);
+            nbsInterfaceModel = gson.fromJson(data, NbsInterfaceModel.class);
 
 
             //TODO: uncomment when debug
-            nbsInterfaceModel = nbsInterfaceRepository.findById(Integer.valueOf(data)).get();
+//            nbsInterfaceModel = nbsInterfaceRepository.findById(Integer.valueOf(data)).get();
 
             edxLabInformationDto.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
 
@@ -221,7 +221,7 @@ public class ManagerService implements IManagerService {
 
             //Checking for matching observation
             ObservationDT observationDT = null;
-                    //observationService.checkingMatchingObservation(edxLabInformationDto);
+            observationDT = observationService.checkingMatchingObservation(edxLabInformationDto);
 
             if(observationDT!=null){
                 LabResultProxyContainer matchedlabResultProxyVO = observationService.getObservationToLabResultContainer(observationDT.getObservationUid());
@@ -247,7 +247,7 @@ public class ManagerService implements IManagerService {
             }
 
 
-            PersonAggContainer personAggContainer = personAggregationAsync(parsedData, edxLabInformationDto);
+            PersonAggContainer personAggContainer = patientAggregation(parsedData, edxLabInformationDto);
 
             OrganizationVO orderingFacilityVO = organizationService.processingOrganization(parsedData);
 
@@ -335,7 +335,6 @@ public class ManagerService implements IManagerService {
         return null;
     }
 
-    //TODO: remove when patientAgg Async is stable
     private PersonAggContainer patientAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws DataProcessingConsumerException, DataProcessingException {
 
         PersonAggContainer container = new PersonAggContainer();
@@ -366,7 +365,7 @@ public class ManagerService implements IManagerService {
         }
 
         container.setPersonContainer(personContainerObj);
-        container.setProviderContainer(personContainerObj);
+        container.setProviderContainer(providerVOObj);
         return container;
     }
 

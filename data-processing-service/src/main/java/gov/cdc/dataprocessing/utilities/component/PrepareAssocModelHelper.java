@@ -311,8 +311,6 @@ public class PrepareAssocModelHelper {
     public RootDtoInterface prepareVO(RootDtoInterface theRootDTInterface, String businessObjLookupName,
                                 String businessTriggerCd, String tableName, String moduleCd) throws DataProcessingException
     {
-        try
-        {
             if(!theRootDTInterface.isItNew() && !theRootDTInterface.isItDirty() && !theRootDTInterface.isItDelete()) {
                 throw new DataProcessingException("Error while calling prepareVO method in PrepareVOUtils");
             }
@@ -354,11 +352,6 @@ public class PrepareAssocModelHelper {
                 theRootDTInterface = prepareDirtyEntityVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
             }
             return theRootDTInterface;
-        }
-        catch(Exception e)
-        {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
     }
 
     /**

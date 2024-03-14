@@ -752,13 +752,19 @@ public class OrganizationRepositoryUtil {
     private Collection<ParticipationDT> selectParticipationDTCollection(Long uid, Long act_uid)
             throws DataProcessingException {
         try {
-            List<Participation> participationList = null;
+            List<Participation> participationList = new ArrayList<>();
 
             if (act_uid == null) {
-                participationList = participationRepository.findBySubjectEntityUidAndActUid(uid, act_uid).get();
+                var result = participationRepository.findBySubjectEntityUidAndActUid(uid, act_uid);
+                if (result.isPresent() && !result.get().isEmpty()) {
+                    participationList = result.get();
+                }
             }
             else {
-                participationList = participationRepository.findBySubjectEntityUid(uid).get();
+                var result = participationRepository.findBySubjectEntityUid(uid);
+                if (result.isPresent() && !result.get().isEmpty()) {
+                    participationList = result.get();
+                }
             }
 
             ArrayList<ParticipationDT> retList = new ArrayList<>();
