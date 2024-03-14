@@ -12,7 +12,7 @@ import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.service.interfaces.IObservationCodeService;
 import gov.cdc.dataprocessing.service.interfaces.ISrteCodeObsService;
-import gov.cdc.dataprocessing.utilities.component.ObservationUtil;
+import gov.cdc.dataprocessing.utilities.component.observation.ObservationUtil;
 import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
 import org.springframework.stereotype.Service;
 

@@ -8,7 +8,7 @@ import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.service.implementation.matching.PatientMatchingService;
 import gov.cdc.dataprocessing.service.implementation.matching.ProviderMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.core.IUidService;
-import gov.cdc.dataprocessing.utilities.component.ObservationUtil;
+import gov.cdc.dataprocessing.utilities.component.observation.ObservationUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
 

@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.component;
+package gov.cdc.dataprocessing.utilities.component.observation;
 
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
@@ -86,7 +86,6 @@ public class ObservationUtil {
 
         return anUid;
     }
-
 
     /**
      * Description:

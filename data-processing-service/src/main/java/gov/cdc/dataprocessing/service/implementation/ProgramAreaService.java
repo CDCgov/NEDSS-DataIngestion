@@ -10,7 +10,7 @@ import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.Organization
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.service.interfaces.IProgramAreaService;
-import gov.cdc.dataprocessing.utilities.component.ObservationUtil;
+import gov.cdc.dataprocessing.utilities.component.observation.ObservationUtil;
 import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.component;
+package gov.cdc.dataprocessing.utilities.component.observation;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.*;
@@ -227,7 +227,7 @@ public class ObservationRepositoryUtil {
         {
             throw new DataProcessingException(ndapex.toString());
         }
-    }//end of selectObservationInterps()
+    }
 
     private Collection<ObsValueCodedDT> selectObsValueCodeds(long aUID) throws DataProcessingException
     {
@@ -247,7 +247,7 @@ public class ObservationRepositoryUtil {
         {
             throw new DataProcessingException(ndapex.toString());
         }
-    }//end of selectObsValueCodeds()
+    }
 
     private Collection<ObsValueTxtDT> selectObsValueTxts(long aUID) throws DataProcessingException
     {
@@ -267,7 +267,7 @@ public class ObservationRepositoryUtil {
         {
             throw new DataProcessingException(ndapex.toString());
         }
-    }//end of selectObsValueTxts()
+    }
 
     private Collection<ObsValueDateDT> selectObsValueDates(long aUID) throws DataProcessingException
     {
@@ -287,7 +287,7 @@ public class ObservationRepositoryUtil {
         {
             throw new DataProcessingException(ndapex.toString());
         }
-    }//end of selectObsValueDates()
+    }
 
     private Collection<ObsValueNumericDT> selectObsValueNumerics(long aUID) throws DataProcessingException
     {
@@ -307,7 +307,7 @@ public class ObservationRepositoryUtil {
         {
             throw new DataProcessingException(ndapex.toString());
         }
-    }//end of selectObsValueNumerics()
+    }
 
     private Collection<ActivityLocatorParticipationDT> selectActivityLocatorParticipations(long aUID) throws DataProcessingException
     {
@@ -327,10 +327,8 @@ public class ObservationRepositoryUtil {
         {
             throw new DataProcessingException(ndapex.toString());
         }
-    }//end of selectActivityLocatorParticipations()
+    }
 
-
-    //get collection of ActRelationship from ActRelationshipDAOImpl entered by John Park
     private Collection<ActRelationshipDT> selectActRelationshipDTCollection(long aUID) throws DataProcessingException
     {
         try
@@ -351,8 +349,6 @@ public class ObservationRepositoryUtil {
         }
     }
 
-
-    //get collection of Participation  from ParticipationDAOImpl entered by John Park
     private Collection<ParticipationDT> selectParticipationDTCollection(long aUID) throws DataProcessingException
     {
         try
@@ -372,8 +368,5 @@ public class ObservationRepositoryUtil {
             throw new DataProcessingException(ndapex.toString());
         }
     }
-
-
-    
     
 }
