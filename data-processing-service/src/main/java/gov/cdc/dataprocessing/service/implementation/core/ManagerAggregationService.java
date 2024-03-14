@@ -52,7 +52,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     public void processingObservationMatching(EdxLabInformationDto edxLabInformationDto,
                                                        LabResultProxyContainer labResultProxyContainer,
                                                        Long aPersonUid) throws DataProcessingException {
-        ObservationDT observationDT = observationService.checkingMatchingObservation(edxLabInformationDto);
+        ObservationDT observationDT = observationMatchingService.checkingMatchingObservation(edxLabInformationDto);
 
         if(observationDT!=null){
             LabResultProxyContainer matchedlabResultProxyVO = observationService.getObservationToLabResultContainer(observationDT.getObservationUid());

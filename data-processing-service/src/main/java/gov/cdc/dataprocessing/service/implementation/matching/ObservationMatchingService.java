@@ -16,6 +16,7 @@ import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.ObservationMatchStoredProcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.ObservationRepository;
 import gov.cdc.dataprocessing.service.interfaces.matching.IObservationMatchingService;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,93 @@ public class ObservationMatchingService implements IObservationMatchingService {
         this.observationRepository = observationRepository;
     }
 
+    @Transactional
+    public ObservationDT checkingMatchingObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
+        String fillerNumber;
+
+        ObservationVO observationVO = edxLabInformationDto.getRootObservationVO();
+        fillerNumber = edxLabInformationDto.getFillerNumber();
+
+        ObservationDT obsDT;
+
+        if (edxLabInformationDto.getRootObservationVO() != null) {
+            obsDT = matchingObservation(edxLabInformationDto);
+        } else {
+            logger.error("Error!! masterObsVO not available for fillerNbr:" + edxLabInformationDto.getFillerNumber());
+            return null;
+        }
+
+        if (obsDT != null) // find a match is it a correction?
+        {
+            String msgStatus = observationVO.getTheObservationDT().getStatusCd();
+            String odsStatus = obsDT.getStatusCd();
+            //TODO: REMOVE AFTER TESTED
+            odsStatus = "N";
+            if (msgStatus == null
+                    || odsStatus == null
+            ) {
+                logger.error("Error!! null status cd: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);
+                return null;
+            }
+            if (
+                    (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
+                            && (msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
+                            || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+                            || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED))
+                    )
+                            || (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+                            && (msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+                            || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+                    )
+                    )
+                            || (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+                            && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+                    )
+            ) {
+                if (obsDT.getActivityToTime() != null && obsDT.getActivityToTime().after(edxLabInformationDto.getRootObservationVO().getTheObservationDT().getActivityToTime())) {
+                    edxLabInformationDto.setActivityTimeOutOfSequence(true);
+                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+                    edxLabInformationDto.setLocalId(obsDT.getLocalId());
+                    throw new DataProcessingException("An Observation Lab test match was found for Accession # " + fillerNumber + ", but the activity time is out of sequence.");
+                }
+                // MATCHED
+                return obsDT;
+            }
+            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+                    && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+            ) {
+                edxLabInformationDto.setFinalPostCorrected(true);
+                edxLabInformationDto.setLocalId(obsDT.getLocalId());
+                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
+            }
+            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+                    && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
+            ) {
+                edxLabInformationDto.setPreliminaryPostFinal(true);
+                edxLabInformationDto.setLocalId(obsDT.getLocalId());
+                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a final report was received.");
+            }
+            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+                    && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
+            ) {
+                edxLabInformationDto.setPreliminaryPostCorrected(true);
+                edxLabInformationDto.setLocalId(obsDT.getLocalId());
+                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
+            }
+            else {
+                edxLabInformationDto.setFinalPostCorrected(true);
+                edxLabInformationDto.setLocalId(obsDT.getLocalId());
+                logger.error(" Error!! Invalid status combination: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);
+                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
+            }
+        }
+
+        return null;
+    }
 
     public void processMatchedProxyVO(LabResultProxyContainer labResultProxyVO, LabResultProxyContainer matchedlabResultProxyVO, EdxLabInformationDto edxLabInformationDT) {
         Long matchedObservationUid =null;
@@ -206,8 +294,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
         }
     }
 
-
-    public ObservationDT matchingObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
+    private ObservationDT matchingObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         Long observationUid = observationMatchStoredProcRepository.getMatchedObservation(edxLabInformationDto);
         if (observationUid == null) {
             return null;

@@ -6,9 +6,9 @@ import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
 
 public interface IObservationMatchingService {
-    ObservationDT matchingObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException;
     void processMatchedProxyVO(LabResultProxyContainer labResultProxyVO,
                                       LabResultProxyContainer matchedlabResultProxyVO,
                                       EdxLabInformationDto edxLabInformationDT);
+    ObservationDT checkingMatchingObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException;
 
 }
