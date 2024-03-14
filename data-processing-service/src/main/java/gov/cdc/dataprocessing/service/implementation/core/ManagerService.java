@@ -21,6 +21,7 @@ import gov.cdc.dataprocessing.service.interfaces.core.*;
 import gov.cdc.dataprocessing.service.interfaces.matching.IObservationMatchingService;
 import gov.cdc.dataprocessing.service.model.PersonAggContainer;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
+import gov.cdc.dataprocessing.utilities.component.ManagerUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -30,7 +31,6 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
@@ -66,6 +66,8 @@ public class ManagerService implements IManagerService {
 
     private final IObservationMatchingService observationMatchingService;
 
+    private final ManagerUtil managerUtil;
+
     @Autowired
     public ManagerService(IObservationService observationService,
                           IPatientService patientService,
@@ -77,8 +79,10 @@ public class ManagerService implements IManagerService {
                           IDataExtractionService dataExtractionService,
                           NbsInterfaceRepository nbsInterfaceRepository,
                           CheckingValueService checkingValueService,
-                          CacheManager cacheManager, ISessionProfileService sessionProfileService,
-                          IObservationMatchingService observationMatchingService) {
+                          CacheManager cacheManager,
+                          ISessionProfileService sessionProfileService,
+                          IObservationMatchingService observationMatchingService,
+                          ManagerUtil managerUtil) {
         this.observationService = observationService;
         this.patientService = patientService;
         this.organizationService = organizationService;
@@ -93,6 +97,7 @@ public class ManagerService implements IManagerService {
         this.cacheManager = cacheManager;
         this.sessionProfileService = sessionProfileService;
         this.observationMatchingService = observationMatchingService;
+        this.managerUtil = managerUtil;
     }
 
     @Transactional
@@ -247,22 +252,23 @@ public class ManagerService implements IManagerService {
             }
 
 
-            PersonAggContainer personAggContainer = patientAggregation(parsedData, edxLabInformationDto);
+            PersonAggContainer personAggContainer = managerUtil.patientAggregation(parsedData, edxLabInformationDto);
 
             OrganizationVO orderingFacilityVO = organizationService.processingOrganization(parsedData);
 
 
 
             //TODO: VERIFY THIS BLOCK
+            // Hit when Obs is matched
             if(edxLabInformationDto.isLabIsUpdateDRRQ() || edxLabInformationDto.isLabIsUpdateDRSA())
             {
-                setPersonUIDOnUpdate(aPersonUid, parsedData);
+                managerUtil.setPersonUIDOnUpdate(aPersonUid, parsedData);
             }
             edxLabInformationDto.setLabResultProxyContainer(parsedData);
 
             String nbsOperation = edxLabInformationDto.isLabIsCreate() ? "ADD" : "EDIT";
 
-            ObservationVO orderTest = getOrderedTest(parsedData);
+            ObservationVO orderTest = managerUtil.getObservationWithOrderDomainCode(parsedData);
 
             String programAreaCd = orderTest.getTheObservationDT().getProgAreaCd();
             String jurisdictionCd = orderTest.getTheObservationDT().getJurisdictionCd();
@@ -319,171 +325,6 @@ public class ManagerService implements IManagerService {
 
             throw new DataProcessingConsumerException(e.getMessage(), result);
 
-        }
-    }
-
-    private ObservationVO getOrderedTest(LabResultProxyContainer labResultProxyVO) {
-        for (Iterator<ObservationVO> it = labResultProxyVO.getTheObservationVOCollection().iterator(); it.hasNext();) {
-            ObservationVO obsVO = (ObservationVO) it.next();
-
-            String obsDomainCdSt1 = obsVO.getTheObservationDT().getObsDomainCdSt1();
-            if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)) {
-                return obsVO;
-
-            }
-        }
-        return null;
-    }
-
-    private PersonAggContainer patientAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws DataProcessingConsumerException, DataProcessingException {
-
-        PersonAggContainer container = new PersonAggContainer();
-        PersonContainer personContainerObj = null;
-        PersonContainer providerVOObj = null;
-        if (labResult.getThePersonContainerCollection() != null && !labResult.getThePersonContainerCollection().isEmpty() ) {
-            Iterator<PersonContainer> it = labResult.getThePersonContainerCollection().iterator();
-            boolean orderingProviderIndicator = false;
-
-            while (it.hasNext()) {
-                PersonContainer personContainer = it.next();
-                if (personContainer.getRole() != null && personContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
-                    patientService.processingNextOfKin(labResult, personContainer);
-
-                }
-                else {
-                    if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_CD)) {
-                        personContainerObj =  patientService.processingPatient(labResult, edxLabInformationDto, personContainer);
-                    }
-                    else if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
-                        var prv = patientService.processingProvider(labResult, edxLabInformationDto, personContainer, orderingProviderIndicator);
-                        if (prv != null) {
-                            providerVOObj = prv;
-                        }
-                    }
-                }
-            }
-        }
-
-        container.setPersonContainer(personContainerObj);
-        container.setProviderContainer(providerVOObj);
-        return container;
-    }
-
-
-    /**
-     * This method execute person code simultanuously
-     * */
-    private PersonAggContainer personAggregationAsync(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
-        PersonAggContainer container = new PersonAggContainer();
-        CompletableFuture<PersonContainer> patientFuture = null;
-        CompletableFuture<PersonContainer> providerFuture = null;
-        CompletableFuture<Void> nextOfKinFuture = null;
-
-        if (labResult.getThePersonContainerCollection() != null && !labResult.getThePersonContainerCollection().isEmpty()) {
-            for (PersonContainer personContainer : labResult.getThePersonContainerCollection()) {
-                // Expecting multiple NOK
-                // NOK info wont be return
-                if (personContainer.getRole() != null && personContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
-                    if (nextOfKinFuture == null) {
-                        nextOfKinFuture = CompletableFuture.runAsync(() -> {
-                            try {
-                                patientService.processingNextOfKin(labResult, personContainer);
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
-                    } else {
-                        nextOfKinFuture = nextOfKinFuture.thenRunAsync(() -> {
-                            try {
-                                patientService.processingNextOfKin(labResult, personContainer);
-                            } catch (DataProcessingException e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
-                    }
-                }
-                // Expecting single patient
-                // patient uid is needed in return
-                else if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_CD)) {
-                    // Asynchronously process Patient
-                    if (patientFuture == null) {
-                        patientFuture = CompletableFuture.supplyAsync(() -> {
-                            try {
-                                return patientService.processingPatient(labResult, edxLabInformationDto, personContainer);
-                            } catch (DataProcessingConsumerException | DataProcessingException e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
-                    }
-                }
-                // Expecting single provider
-                // provider uid is needed in return
-                else if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
-                    // Asynchronously process Provider
-                    if (providerFuture == null) {
-                        providerFuture = CompletableFuture.supplyAsync(() -> {
-                            try {
-                                return patientService.processingProvider(labResult, edxLabInformationDto, personContainer, false);
-                            } catch (DataProcessingConsumerException | DataProcessingException e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
-                    }
-                }
-            }
-        }
-
-        CompletableFuture<Void> allFutures = CompletableFuture.allOf(
-                nextOfKinFuture != null ? nextOfKinFuture : CompletableFuture.completedFuture(null),
-                patientFuture != null ? patientFuture : CompletableFuture.completedFuture(null),
-                providerFuture != null ? providerFuture : CompletableFuture.completedFuture(null)
-        );
-
-        try {
-            allFutures.get(); // Wait for all futures to complete
-            if (patientFuture != null) {
-                container.setPersonContainer(patientFuture.get()); // Set patient
-            }
-            if (providerFuture != null) {
-                container.setPersonContainer(providerFuture.get());
-            }
-            // You can similarly set provider or other information if needed here
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new DataProcessingException("Thread was interrupted", e);
-        } catch (ExecutionException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof RuntimeException && cause.getCause() instanceof DataProcessingException) {
-                throw (DataProcessingException) cause.getCause();
-            } else {
-                throw new DataProcessingException("Error processing lab results", e);
-            }
-        }
-
-        System.out.println("Patient Id: " + container.getPersonContainer().getThePersonDto().getPersonUid());
-        System.out.println("Provider Id: " + container.getPersonContainer().getThePersonDto().getPersonUid());
-
-        return container;
-    }
-
-    private void setPersonUIDOnUpdate(Long aPersonUid, LabResultProxyContainer labResultProxyVO) {
-        // TODO Auto-generated method stub
-        Collection<PersonContainer> personCollection = labResultProxyVO.getThePersonContainerCollection();
-        if(personCollection!=null){
-            Iterator<PersonContainer> iterator = personCollection.iterator();
-
-            while(iterator.hasNext()){
-                PersonContainer personVO =(PersonContainer)iterator.next();
-                String perDomainCdStr = personVO.getThePersonDto().getCdDescTxt();
-                if(perDomainCdStr!= null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)){
-                    personVO.setItDirty(true);
-                    personVO.setItNew(false);
-                    personVO.getThePersonDto().setPersonUid(aPersonUid);
-                    personVO.getThePersonDto().setItDirty(true);
-                    personVO.getThePersonDto().setItNew(false);
-                    personVO.setRole(null);
-                }
-            }
         }
     }
 
