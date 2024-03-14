@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.repository.nbs.msgoute.repos.stored_proc;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.ObservationVO;
+import gov.cdc.dataprocessing.model.container.ObservationContainer;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
@@ -23,11 +23,11 @@ public class ObservationMatchStoredProcRepository {
 
     @Transactional
     public Long getMatchedObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
-        ObservationVO observationVO = edxLabInformationDto.getRootObservationVO();
+        ObservationContainer observationContainer = edxLabInformationDto.getRootObservationContainer();
         String clia = edxLabInformationDto.getSendingFacilityClia();
         String fillerNumber = edxLabInformationDto.getFillerNumber();
-        Timestamp specimenCollectionDate = observationVO.getTheObservationDT().getEffectiveFromTime();
-        String orderedTestCode=observationVO.getTheObservationDT().getCd();
+        Timestamp specimenCollectionDate = observationContainer.getTheObservationDto().getEffectiveFromTime();
+        String orderedTestCode= observationContainer.getTheObservationDto().getCd();
         if (fillerNumber == null || specimenCollectionDate==null || orderedTestCode==null || clia==null )
         {
             return null; // no match

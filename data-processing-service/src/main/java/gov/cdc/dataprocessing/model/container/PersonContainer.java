@@ -1,10 +1,10 @@
 package gov.cdc.dataprocessing.model.container;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.*;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.LdfBaseVO;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
+import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
@@ -27,7 +27,7 @@ public class PersonContainer extends LdfBaseVO implements Serializable {
     public Collection<EntityIdDto> theEntityIdDtoCollection = new ArrayList<>();
 
 
-    public Collection<ParticipationDT> theParticipationDTCollection=new ArrayList<>();
+    public Collection<ParticipationDto> theParticipationDtoCollection =new ArrayList<>();
     public Collection<RoleDto> theRoleDtoCollection = new ArrayList<>();
 
     private String defaultJurisdictionCd;

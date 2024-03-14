@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ParticipationDT;
+import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
@@ -15,7 +15,7 @@ public class ParticipationStoredProcRepository {
     @PersistenceContext(unitName = "odseEntityManagerFactory") // Specify the persistence unit name
     private EntityManager entityManager;
 
-    public void insertParticipation(ParticipationDT participationDT) throws DataProcessingException {
+    public void insertParticipation(ParticipationDto participationDto) throws DataProcessingException {
         try {
 
             StoredProcedureQuery storedProcedure = entityManager.createStoredProcedureQuery("addParticipation_sp");
@@ -49,31 +49,31 @@ public class ParticipationStoredProcRepository {
 
 
             // Set the parameter values
-            storedProcedure.setParameter("subject_entity_uid", participationDT.getSubjectEntityUid());
-            storedProcedure.setParameter("act_uid", participationDT.getActUid());
-            storedProcedure.setParameter("type_cd", participationDT.getTypeCd());
-            storedProcedure.setParameter("add_reason_cd", participationDT.getAddReasonCd());
-            storedProcedure.setParameter("addtime", participationDT.getAddTime());
-            storedProcedure.setParameter("add_user_id", participationDT.getAddUserId());
-            storedProcedure.setParameter("awareness_cd", participationDT.getAwarenessCd());
-            storedProcedure.setParameter("awareness_desc_txt", participationDT.getAwarenessDescTxt());
-            storedProcedure.setParameter("cd", participationDT.getCd());
-            storedProcedure.setParameter("duration_amt", participationDT.getDurationAmt());
-            storedProcedure.setParameter("duration_unit_cd", participationDT.getDurationUnitCd());
-            storedProcedure.setParameter("from_time", participationDT.getFromTime());
-            storedProcedure.setParameter("last_chg_reason_cd", participationDT.getLastChgReasonCd());
-            storedProcedure.setParameter("last_chg_time", participationDT.getLastChgTime());
-            storedProcedure.setParameter("last_chg_user_id", participationDT.getLastChgUserId());
-            storedProcedure.setParameter("record_status_cd", participationDT.getRecordStatusCd());
-            storedProcedure.setParameter("record_status_time", participationDT.getRecordStatusTime());
-            storedProcedure.setParameter("role_seq", participationDT.getRoleSeq());
-            storedProcedure.setParameter("status_cd", participationDT.getStatusCd());
-            storedProcedure.setParameter("status_time", participationDT.getStatusTime());
-            storedProcedure.setParameter("to_time", participationDT.getToTime());
-            storedProcedure.setParameter("type_desc_txt", participationDT.getTypeDescTxt());
-            storedProcedure.setParameter("user_affiliation_txt", participationDT.getUserAffiliationTxt());
-            storedProcedure.setParameter("subject_class_cd", participationDT.getSubjectClassCd());
-            storedProcedure.setParameter("act_class_cd", participationDT.getActClassCd());
+            storedProcedure.setParameter("subject_entity_uid", participationDto.getSubjectEntityUid());
+            storedProcedure.setParameter("act_uid", participationDto.getActUid());
+            storedProcedure.setParameter("type_cd", participationDto.getTypeCd());
+            storedProcedure.setParameter("add_reason_cd", participationDto.getAddReasonCd());
+            storedProcedure.setParameter("addtime", participationDto.getAddTime());
+            storedProcedure.setParameter("add_user_id", participationDto.getAddUserId());
+            storedProcedure.setParameter("awareness_cd", participationDto.getAwarenessCd());
+            storedProcedure.setParameter("awareness_desc_txt", participationDto.getAwarenessDescTxt());
+            storedProcedure.setParameter("cd", participationDto.getCd());
+            storedProcedure.setParameter("duration_amt", participationDto.getDurationAmt());
+            storedProcedure.setParameter("duration_unit_cd", participationDto.getDurationUnitCd());
+            storedProcedure.setParameter("from_time", participationDto.getFromTime());
+            storedProcedure.setParameter("last_chg_reason_cd", participationDto.getLastChgReasonCd());
+            storedProcedure.setParameter("last_chg_time", participationDto.getLastChgTime());
+            storedProcedure.setParameter("last_chg_user_id", participationDto.getLastChgUserId());
+            storedProcedure.setParameter("record_status_cd", participationDto.getRecordStatusCd());
+            storedProcedure.setParameter("record_status_time", participationDto.getRecordStatusTime());
+            storedProcedure.setParameter("role_seq", participationDto.getRoleSeq());
+            storedProcedure.setParameter("status_cd", participationDto.getStatusCd());
+            storedProcedure.setParameter("status_time", participationDto.getStatusTime());
+            storedProcedure.setParameter("to_time", participationDto.getToTime());
+            storedProcedure.setParameter("type_desc_txt", participationDto.getTypeDescTxt());
+            storedProcedure.setParameter("user_affiliation_txt", participationDto.getUserAffiliationTxt());
+            storedProcedure.setParameter("subject_class_cd", participationDto.getSubjectClassCd());
+            storedProcedure.setParameter("act_class_cd", participationDto.getActClassCd());
 
 
 

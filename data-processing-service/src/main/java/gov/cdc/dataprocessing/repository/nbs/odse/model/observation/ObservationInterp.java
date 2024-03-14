@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.observation;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ObservationInterpDT;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.NNDActivityLogId;
+import gov.cdc.dataprocessing.model.dto.observation.ObservationInterpDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ObservationInterpId;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -32,9 +31,9 @@ public class ObservationInterp implements Serializable {
 
     }
 
-    public ObservationInterp(ObservationInterpDT observationInterpDT) {
-        this.observationUid = observationInterpDT.getObservationUid();
-        this.interpretationCd = observationInterpDT.getInterpretationCd();
-        this.interpretationDescTxt = observationInterpDT.getInterpretationDescTxt();
+    public ObservationInterp(ObservationInterpDto observationInterpDto) {
+        this.observationUid = observationInterpDto.getObservationUid();
+        this.interpretationCd = observationInterpDto.getInterpretationCd();
+        this.interpretationDescTxt = observationInterpDto.getInterpretationDescTxt();
     }
 }

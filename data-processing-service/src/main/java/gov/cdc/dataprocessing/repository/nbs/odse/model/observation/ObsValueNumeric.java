@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.observation;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ObsValueNumericDT;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.NNDActivityLogId;
+import gov.cdc.dataprocessing.model.dto.observation.ObsValueNumericDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ObsValueNumericId;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -55,18 +54,18 @@ public class ObsValueNumeric implements Serializable {
     public ObsValueNumeric() {
         
     }
-    public ObsValueNumeric(ObsValueNumericDT obsValueNumericDT) {
-        this.observationUid = obsValueNumericDT.getObservationUid();
-        this.obsValueNumericSeq = obsValueNumericDT.getObsValueNumericSeq();
-        this.highRange = obsValueNumericDT.getHighRange();
-        this.lowRange = obsValueNumericDT.getLowRange();
-        this.comparatorCd1 = obsValueNumericDT.getComparatorCd1();
-        this.numericValue1 = obsValueNumericDT.getNumericValue1();
-        this.numericValue2 = obsValueNumericDT.getNumericValue2();
-        this.numericUnitCd = obsValueNumericDT.getNumericUnitCd();
-        this.separatorCd = obsValueNumericDT.getSeparatorCd();
-        this.numericScale1 = obsValueNumericDT.getNumericScale1();
-        this.numericScale2 = obsValueNumericDT.getNumericScale2();
+    public ObsValueNumeric(ObsValueNumericDto obsValueNumericDto) {
+        this.observationUid = obsValueNumericDto.getObservationUid();
+        this.obsValueNumericSeq = obsValueNumericDto.getObsValueNumericSeq();
+        this.highRange = obsValueNumericDto.getHighRange();
+        this.lowRange = obsValueNumericDto.getLowRange();
+        this.comparatorCd1 = obsValueNumericDto.getComparatorCd1();
+        this.numericValue1 = obsValueNumericDto.getNumericValue1();
+        this.numericValue2 = obsValueNumericDto.getNumericValue2();
+        this.numericUnitCd = obsValueNumericDto.getNumericUnitCd();
+        this.separatorCd = obsValueNumericDto.getSeparatorCd();
+        this.numericScale1 = obsValueNumericDto.getNumericScale1();
+        this.numericScale2 = obsValueNumericDto.getNumericScale2();
     }
 
 }

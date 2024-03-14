@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.material;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.MaterialDT;
+import gov.cdc.dataprocessing.model.dto.material.MaterialDto;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -108,37 +108,37 @@ public class Material {
 
     }
 
-    public Material(MaterialDT materialDT) {
-        this.materialUid = materialDT.getMaterialUid();
-        this.addReasonCd = materialDT.getAddReasonCd();
-        this.addTime = materialDT.getAddTime();
-        this.addUserId = materialDT.getAddUserId();
-        this.cd = materialDT.getCd();
-        this.cdDescTxt = materialDT.getCdDescTxt();
-        this.description = materialDT.getDescription();
-        this.effectiveDurationAmt = materialDT.getEffectiveDurationAmt();
-        this.effectiveDurationUnitCd = materialDT.getEffectiveDurationUnitCd();
-        this.effectiveFromTime = materialDT.getEffectiveFromTime();
-        this.effectiveToTime = materialDT.getEffectiveToTime();
-        this.formCd = materialDT.getFormCd();
-        this.formDescTxt = materialDT.getFormDescTxt();
-        this.handlingCd = materialDT.getHandlingCd();
-        this.handlingDescTxt = materialDT.getHandlingDescTxt();
-        this.lastChgReasonCd = materialDT.getLastChgReasonCd();
-        this.lastChgTime = materialDT.getLastChgTime();
-        this.lastChgUserId = materialDT.getLastChgUserId();
-        this.localId = materialDT.getLocalId();
-        this.nm = materialDT.getNm();
-        this.qty = materialDT.getQty();
-        this.qtyUnitCd = materialDT.getQtyUnitCd();
-        this.recordStatusCd = materialDT.getRecordStatusCd();
-        this.recordStatusTime = materialDT.getRecordStatusTime();
-        this.riskCd = materialDT.getRiskCd();
-        this.riskDescTxt = materialDT.getRiskDescTxt();
-        this.statusCd = materialDT.getStatusCd();
-        this.statusTime = materialDT.getStatusTime();
-        this.userAffiliationTxt = materialDT.getUserAffiliationTxt();
-        this.versionCtrlNbr = materialDT.getVersionCtrlNbr();
+    public Material(MaterialDto materialDto) {
+        this.materialUid = materialDto.getMaterialUid();
+        this.addReasonCd = materialDto.getAddReasonCd();
+        this.addTime = materialDto.getAddTime();
+        this.addUserId = materialDto.getAddUserId();
+        this.cd = materialDto.getCd();
+        this.cdDescTxt = materialDto.getCdDescTxt();
+        this.description = materialDto.getDescription();
+        this.effectiveDurationAmt = materialDto.getEffectiveDurationAmt();
+        this.effectiveDurationUnitCd = materialDto.getEffectiveDurationUnitCd();
+        this.effectiveFromTime = materialDto.getEffectiveFromTime();
+        this.effectiveToTime = materialDto.getEffectiveToTime();
+        this.formCd = materialDto.getFormCd();
+        this.formDescTxt = materialDto.getFormDescTxt();
+        this.handlingCd = materialDto.getHandlingCd();
+        this.handlingDescTxt = materialDto.getHandlingDescTxt();
+        this.lastChgReasonCd = materialDto.getLastChgReasonCd();
+        this.lastChgTime = materialDto.getLastChgTime();
+        this.lastChgUserId = materialDto.getLastChgUserId();
+        this.localId = materialDto.getLocalId();
+        this.nm = materialDto.getNm();
+        this.qty = materialDto.getQty();
+        this.qtyUnitCd = materialDto.getQtyUnitCd();
+        this.recordStatusCd = materialDto.getRecordStatusCd();
+        this.recordStatusTime = materialDto.getRecordStatusTime();
+        this.riskCd = materialDto.getRiskCd();
+        this.riskDescTxt = materialDto.getRiskDescTxt();
+        this.statusCd = materialDto.getStatusCd();
+        this.statusTime = materialDto.getStatusTime();
+        this.userAffiliationTxt = materialDto.getUserAffiliationTxt();
+        this.versionCtrlNbr = materialDto.getVersionCtrlNbr();
     }
 
 }

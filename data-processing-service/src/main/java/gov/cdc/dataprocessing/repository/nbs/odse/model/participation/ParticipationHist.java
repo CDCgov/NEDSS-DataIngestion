@@ -1,9 +1,8 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.participation;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ParticipationDT;
+import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import jakarta.persistence.*;
 import jakarta.persistence.Id;
-import jakarta.persistence.Version;
 import lombok.Data;
 
 import java.sql.Timestamp;
@@ -97,32 +96,32 @@ public class ParticipationHist {
     }
 
 
-    public ParticipationHist(ParticipationDT participationDT) {
-        this.subjectEntityUid = participationDT.getSubjectEntityUid();
-        this.actUid = participationDT.getActUid();
-        this.typeCd = participationDT.getTypeCd();
-        this.actClassCd = participationDT.getActClassCd();
-        this.addReasonCd = participationDT.getAddReasonCd();
-        this.addTime = participationDT.getAddTime();
-        this.addUserId = participationDT.getAddUserId();
-        this.awarenessCd = participationDT.getAwarenessCd();
-        this.awarenessDescTxt = participationDT.getAwarenessDescTxt();
-        this.cd = participationDT.getCd();
-        this.durationAmt = participationDT.getDurationAmt();
-        this.durationUnitCd = participationDT.getDurationUnitCd();
-        this.fromTime = participationDT.getFromTime();
-        this.lastChgReasonCd = participationDT.getLastChgReasonCd();
-        this.lastChgTime = participationDT.getLastChgTime();
-        this.lastChgUserId = participationDT.getLastChgUserId();
-        this.recordStatusCd = participationDT.getRecordStatusCd();
-        this.recordStatusTime = participationDT.getRecordStatusTime();
-        this.roleSeq = participationDT.getRoleSeq();
-        this.statusCd = participationDT.getStatusCd();
-        this.statusTime = participationDT.getStatusTime();
-        this.subjectClassCd = participationDT.getSubjectClassCd();
-        this.toTime = participationDT.getToTime();
-        this.typeDescTxt = participationDT.getTypeDescTxt();
-        this.userAffiliationTxt = participationDT.getUserAffiliationTxt();
+    public ParticipationHist(ParticipationDto participationDto) {
+        this.subjectEntityUid = participationDto.getSubjectEntityUid();
+        this.actUid = participationDto.getActUid();
+        this.typeCd = participationDto.getTypeCd();
+        this.actClassCd = participationDto.getActClassCd();
+        this.addReasonCd = participationDto.getAddReasonCd();
+        this.addTime = participationDto.getAddTime();
+        this.addUserId = participationDto.getAddUserId();
+        this.awarenessCd = participationDto.getAwarenessCd();
+        this.awarenessDescTxt = participationDto.getAwarenessDescTxt();
+        this.cd = participationDto.getCd();
+        this.durationAmt = participationDto.getDurationAmt();
+        this.durationUnitCd = participationDto.getDurationUnitCd();
+        this.fromTime = participationDto.getFromTime();
+        this.lastChgReasonCd = participationDto.getLastChgReasonCd();
+        this.lastChgTime = participationDto.getLastChgTime();
+        this.lastChgUserId = participationDto.getLastChgUserId();
+        this.recordStatusCd = participationDto.getRecordStatusCd();
+        this.recordStatusTime = participationDto.getRecordStatusTime();
+        this.roleSeq = participationDto.getRoleSeq();
+        this.statusCd = participationDto.getStatusCd();
+        this.statusTime = participationDto.getStatusTime();
+        this.subjectClassCd = participationDto.getSubjectClassCd();
+        this.toTime = participationDto.getToTime();
+        this.typeDescTxt = participationDto.getTypeDescTxt();
+        this.userAffiliationTxt = participationDto.getUserAffiliationTxt();
     }
 
 

@@ -1,10 +1,10 @@
 package gov.cdc.dataprocessing.model.dto.lab_result;
 
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EdxLabIdentiferDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EdxRuleAlgorothmManagerDT;
+import gov.cdc.dataprocessing.model.dto.edx.EdxLabIdentiferDto;
+import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.ObservationVO;
+import gov.cdc.dataprocessing.model.container.ObservationContainer;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +17,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDT implements Serializable {
+public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDto implements Serializable {
     /**
      * Pradeep Kumar Sharma
      * Utility class to store the information that is being shared all across the ELR processing
@@ -40,7 +40,7 @@ public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDT implements S
     private LabResultProxyContainer labResultProxyContainer;
     private String localId;
     private boolean isParentObsInd;
-    private Collection<EdxLabIdentiferDT> edxLabIdentiferDTColl;
+    private Collection<EdxLabIdentiferDto> edxLabIdentiferDTColl;
     private String entityName;
     private String reportingSourceName;
     private String userName;
@@ -78,7 +78,7 @@ public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDT implements S
     private Object proxyVO;
     private Map<Object, Object> edxSusLabDTMap = new HashMap<Object, Object>();
     private String addReasonCd;
-    private ObservationVO rootObservationVO;
+    private ObservationContainer rootObservationContainer;
     //Informational Variables
     private boolean multipleSubjectMatch;
     private boolean multipleOrderingProvider;

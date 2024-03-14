@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.observation;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ObsValueDateDT;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.NNDActivityLogId;
+import gov.cdc.dataprocessing.model.dto.observation.ObsValueDateDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ObsValueDateId;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -46,12 +45,12 @@ public class ObsValueDate implements Serializable {
 
     }
 
-    public ObsValueDate(ObsValueDateDT obsValueDateDT) {
-        this.observationUid = obsValueDateDT.getObservationUid();
-        this.obsValueDateSeq = obsValueDateDT.getObsValueDateSeq();
-        this.durationAmt = obsValueDateDT.getDurationAmt();
-        this.durationUnitCd = obsValueDateDT.getDurationUnitCd();
-        this.fromTime = obsValueDateDT.getFromTime();
-        this.toTime = obsValueDateDT.getToTime();
+    public ObsValueDate(ObsValueDateDto obsValueDateDto) {
+        this.observationUid = obsValueDateDto.getObservationUid();
+        this.obsValueDateSeq = obsValueDateDto.getObsValueDateSeq();
+        this.durationAmt = obsValueDateDto.getDurationAmt();
+        this.durationUnitCd = obsValueDateDto.getDurationUnitCd();
+        this.fromTime = obsValueDateDto.getFromTime();
+        this.toTime = obsValueDateDto.getToTime();
     }
 }

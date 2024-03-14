@@ -6,18 +6,18 @@ import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.*;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
+import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
-import gov.cdc.dataprocessing.service.interfaces.core.ICheckingValueService;
+import gov.cdc.dataprocessing.service.interfaces.other.ICheckingValueService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.data_extraction.EntityIdUtil;
 import org.slf4j.Logger;
@@ -113,25 +113,25 @@ public class HL7PatientHandler {
             }
 
             // Setup Participant for LabResult
-            if (labResultProxyContainer.getTheParticipationDTCollection() == null) {
-                labResultProxyContainer.setTheParticipationDTCollection(new ArrayList<>());
+            if (labResultProxyContainer.getTheParticipationDtoCollection() == null) {
+                labResultProxyContainer.setTheParticipationDtoCollection(new ArrayList<>());
             }
-            ParticipationDT participationDT = new ParticipationDT();
-            participationDT.setSubjectEntityUid(personContainer.getThePersonDto().getPersonUid());
-            participationDT.setItNew(true);
-            participationDT.setItDirty(false);
-            participationDT.setCd(EdxELRConstant.ELR_PATIENT_CD);
-            //participationDT.setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
-            participationDT.setAddUserId(AuthUtil.authUser.getAuthUserUid());
-            participationDT.setSubjectClassCd(EdxELRConstant.ELR_PERSON_CD);
-            participationDT.setTypeCd(EdxELRConstant.ELR_PATIENT_SUBJECT_CD);
-            participationDT.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
-            participationDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
+            ParticipationDto participationDto = new ParticipationDto();
+            participationDto.setSubjectEntityUid(personContainer.getThePersonDto().getPersonUid());
+            participationDto.setItNew(true);
+            participationDto.setItDirty(false);
+            participationDto.setCd(EdxELRConstant.ELR_PATIENT_CD);
+            //participationDto.setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
+            participationDto.setAddUserId(AuthUtil.authUser.getAuthUserUid());
+            participationDto.setSubjectClassCd(EdxELRConstant.ELR_PERSON_CD);
+            participationDto.setTypeCd(EdxELRConstant.ELR_PATIENT_SUBJECT_CD);
+            participationDto.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
+            participationDto.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
 
-            participationDT.setTypeDescTxt(EdxELRConstant.ELR_PATIENT_SUBJECT_DESC);
-            participationDT.setActUid(edxLabInformationDto.getRootObserbationUid());
-            participationDT.setActClassCd(EdxELRConstant.ELR_OBS);
-            labResultProxyContainer.getTheParticipationDTCollection().add(participationDT);
+            participationDto.setTypeDescTxt(EdxELRConstant.ELR_PATIENT_SUBJECT_DESC);
+            participationDto.setActUid(edxLabInformationDto.getRootObserbationUid());
+            participationDto.setActClassCd(EdxELRConstant.ELR_OBS);
+            labResultProxyContainer.getTheParticipationDtoCollection().add(participationDto);
 
 
             // Setup Person

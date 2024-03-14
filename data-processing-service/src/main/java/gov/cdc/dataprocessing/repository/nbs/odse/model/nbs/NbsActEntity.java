@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.nbs;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.NbsActEntityDT;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -50,18 +50,18 @@ public class NbsActEntity {
     public NbsActEntity() {
 
     }
-    public NbsActEntity(NbsActEntityDT nbsActEntityDT) {
-        this.nbsActEntityUid = nbsActEntityDT.getNbsActEntityUid();
-        this.addTime = nbsActEntityDT.getAddTime();
-        this.addUserId = nbsActEntityDT.getAddUserId();
-        this.entityUid = nbsActEntityDT.getEntityUid();
-        this.entityVersionCtrlNbr = nbsActEntityDT.getEntityVersionCtrlNbr();
-        this.lastChgTime = nbsActEntityDT.getLastChgTime();
-        this.lastChgUserId = nbsActEntityDT.getLastChgUserId();
-        this.recordStatusCd = nbsActEntityDT.getRecordStatusCd();
-        this.recordStatusTime = nbsActEntityDT.getRecordStatusTime();
-        this.typeCd = nbsActEntityDT.getTypeCd();
-        this.actUid = nbsActEntityDT.getActUid();
+    public NbsActEntity(NbsActEntityDto nbsActEntityDto) {
+        this.nbsActEntityUid = nbsActEntityDto.getNbsActEntityUid();
+        this.addTime = nbsActEntityDto.getAddTime();
+        this.addUserId = nbsActEntityDto.getAddUserId();
+        this.entityUid = nbsActEntityDto.getEntityUid();
+        this.entityVersionCtrlNbr = nbsActEntityDto.getEntityVersionCtrlNbr();
+        this.lastChgTime = nbsActEntityDto.getLastChgTime();
+        this.lastChgUserId = nbsActEntityDto.getLastChgUserId();
+        this.recordStatusCd = nbsActEntityDto.getRecordStatusCd();
+        this.recordStatusTime = nbsActEntityDto.getRecordStatusTime();
+        this.typeCd = nbsActEntityDto.getTypeCd();
+        this.actUid = nbsActEntityDto.getActUid();
     }
 
 }

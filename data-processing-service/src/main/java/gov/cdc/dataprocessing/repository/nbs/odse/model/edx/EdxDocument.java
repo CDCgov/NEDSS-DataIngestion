@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.edx;
 
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EDXDocumentDT;
+import gov.cdc.dataprocessing.model.dto.edx.EDXDocumentDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -53,7 +53,7 @@ public class EdxDocument  {
 
     }
 
-    public EdxDocument(EDXDocumentDT dto) {
+    public EdxDocument(EDXDocumentDto dto) {
         this.id = dto.getEDXDocumentUid();
         this.actUid = dto.getActUid();
         this.payload = dto.getPayload();

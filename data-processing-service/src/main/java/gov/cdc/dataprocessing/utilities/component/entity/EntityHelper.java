@@ -1,12 +1,12 @@
 package gov.cdc.dataprocessing.utilities.component.entity;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ActRelationshipDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ActivityLocatorParticipationDT;
+import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
+import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
+import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ParticipationDT;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
-import gov.cdc.dataprocessing.utilities.component.PrepareAssocModelHelper;
+import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -103,25 +103,25 @@ public class EntityHelper {
 
     /**
      * This private method is used to populate the system attributes on the
-     * ParticipationDT Collection<Object>
+     * ParticipationDto Collection<Object>
      *
      * @param dtCol
      *            Collection<Object>
      *            NBSSecurityObj object
-     * @return Collection<Object> ParticipationDT collection object populated
+     * @return Collection<Object> ParticipationDto collection object populated
      *         with system attributes
      */
 
-    public Collection<ParticipationDT> iteratePDTForParticipation(Collection<ParticipationDT> dtCol) throws DataProcessingException {
-        Collection<ParticipationDT> retCol = new ArrayList<>();
-        Collection<ParticipationDT> collection;
-        Iterator<ParticipationDT> anIterator;
+    public Collection<ParticipationDto> iteratePDTForParticipation(Collection<ParticipationDto> dtCol) throws DataProcessingException {
+        Collection<ParticipationDto> retCol = new ArrayList<>();
+        Collection<ParticipationDto> collection;
+        Iterator<ParticipationDto> anIterator;
         collection = dtCol;
         if (!collection.isEmpty()) {
             for (anIterator = collection.iterator(); anIterator.hasNext();) {
-                ParticipationDT pDT = anIterator.next();
+                ParticipationDto pDT = anIterator.next();
                 if (pDT.isItDirty() || pDT.isItNew() || pDT.isItDelete()) {
-                    ParticipationDT assocDTInterface = pDT;
+                    ParticipationDto assocDTInterface = pDT;
                     pDT = prepareAssocModel.prepareAssocDTForParticipation(assocDTInterface);
                     retCol.add(pDT);
                 }
@@ -131,21 +131,21 @@ public class EntityHelper {
     }
 
 
-    public Collection<ActivityLocatorParticipationDT> iterateActivityParticipation(Collection<ActivityLocatorParticipationDT> dtCol) throws DataProcessingException {
+    public Collection<ActivityLocatorParticipationDto> iterateActivityParticipation(Collection<ActivityLocatorParticipationDto> dtCol) throws DataProcessingException {
 
-        Collection<ActivityLocatorParticipationDT> retCol = new ArrayList<> ();
-        Collection<ActivityLocatorParticipationDT> collection;
+        Collection<ActivityLocatorParticipationDto> retCol = new ArrayList<> ();
+        Collection<ActivityLocatorParticipationDto> collection;
         collection = dtCol;
 
-        Iterator<ActivityLocatorParticipationDT> anIterator;
+        Iterator<ActivityLocatorParticipationDto> anIterator;
 
         if (collection != null)
         {
             for (anIterator = collection.iterator(); anIterator.hasNext();)
             {
 
-                ActivityLocatorParticipationDT alpDT = anIterator.next();
-                ActivityLocatorParticipationDT assocDTInterface = alpDT;
+                ActivityLocatorParticipationDto alpDT = anIterator.next();
+                ActivityLocatorParticipationDto assocDTInterface = alpDT;
                 alpDT = prepareAssocModel.prepareActivityLocatorParticipationDT(assocDTInterface);
                 retCol.add(alpDT);
             }
@@ -154,18 +154,18 @@ public class EntityHelper {
         return retCol;
     }
 
-    public Collection<ActRelationshipDT> iterateActRelationship(Collection<ActRelationshipDT> dtCol) throws DataProcessingException {
+    public Collection<ActRelationshipDto> iterateActRelationship(Collection<ActRelationshipDto> dtCol) throws DataProcessingException {
 
-        Collection<ActRelationshipDT> retCol = new ArrayList<> ();
-        Collection<ActRelationshipDT> collection;
-        Iterator<ActRelationshipDT> anIterator;
+        Collection<ActRelationshipDto> retCol = new ArrayList<> ();
+        Collection<ActRelationshipDto> collection;
+        Iterator<ActRelationshipDto> anIterator;
         collection = dtCol;
         if (collection != null)
         {
             for (anIterator = collection.iterator(); anIterator.hasNext();)
             {
-                ActRelationshipDT arDT = anIterator.next();
-                ActRelationshipDT assocDTInterface = arDT;
+                ActRelationshipDto arDT = anIterator.next();
+                ActRelationshipDto assocDTInterface = arDT;
                 if(arDT.isItDirty() || arDT.isItNew() || arDT.isItDelete())
                 {
                     arDT = prepareAssocModel.prepareActRelationshipDT(assocDTInterface);

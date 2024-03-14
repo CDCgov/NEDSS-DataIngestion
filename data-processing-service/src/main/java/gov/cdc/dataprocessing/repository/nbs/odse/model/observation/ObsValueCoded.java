@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.observation;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ObsValueCodedDT;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.NNDActivityLogId;
+import gov.cdc.dataprocessing.model.dto.observation.ObsValueCodedDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ObsValueCodedId;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -63,20 +62,20 @@ public class ObsValueCoded implements Serializable {
     // Other relationships or methods if needed
 
 
-    // Constructor in ObsValueCodedDT class (DTO to Domain)
-    public ObsValueCoded(ObsValueCodedDT obsValueCodedDT) {
-        this.observationUid = obsValueCodedDT.getObservationUid();
-        this.altCd = obsValueCodedDT.getAltCd();
-        this.altCdDescTxt = obsValueCodedDT.getAltCdDescTxt();
-        this.altCdSystemCd = obsValueCodedDT.getAltCdSystemCd();
-        this.altCdSystemDescTxt = obsValueCodedDT.getAltCdSystemDescTxt();
-        this.code = obsValueCodedDT.getCode();
-        this.codeDerivedInd = obsValueCodedDT.getCodeDerivedInd();
-        this.codeSystemCd = obsValueCodedDT.getCodeSystemCd();
-        this.codeSystemDescTxt = obsValueCodedDT.getCodeSystemDescTxt();
-        this.codeVersion = obsValueCodedDT.getCodeVersion();
-        this.displayName = obsValueCodedDT.getDisplayName();
-        this.originalTxt = obsValueCodedDT.getOriginalTxt();
+    // Constructor in ObsValueCodedDto class (DTO to Domain)
+    public ObsValueCoded(ObsValueCodedDto obsValueCodedDto) {
+        this.observationUid = obsValueCodedDto.getObservationUid();
+        this.altCd = obsValueCodedDto.getAltCd();
+        this.altCdDescTxt = obsValueCodedDto.getAltCdDescTxt();
+        this.altCdSystemCd = obsValueCodedDto.getAltCdSystemCd();
+        this.altCdSystemDescTxt = obsValueCodedDto.getAltCdSystemDescTxt();
+        this.code = obsValueCodedDto.getCode();
+        this.codeDerivedInd = obsValueCodedDto.getCodeDerivedInd();
+        this.codeSystemCd = obsValueCodedDto.getCodeSystemCd();
+        this.codeSystemDescTxt = obsValueCodedDto.getCodeSystemDescTxt();
+        this.codeVersion = obsValueCodedDto.getCodeVersion();
+        this.displayName = obsValueCodedDto.getDisplayName();
+        this.originalTxt = obsValueCodedDto.getOriginalTxt();
     }
 
     public ObsValueCoded() {

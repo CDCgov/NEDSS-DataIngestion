@@ -1,8 +1,8 @@
 package gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.RootDtoInterface;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
+import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
+import gov.cdc.dataprocessing.model.container.BaseContainer;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class PublicHealthCaseDT extends AbstractVO implements RootDtoInterface {
+public class PublicHealthCaseDT extends BaseContainer implements RootDtoInterface {
     private static final long serialVersionUID = 1L;
 
     private boolean caseStatusDirty = false;

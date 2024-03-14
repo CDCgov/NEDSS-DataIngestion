@@ -1,14 +1,12 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.act;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ActRelationshipDT;
+import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ActRelationshipId;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ObsValueCodedId;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.Date;
 
 @Entity
 @Table(name = "Act_relationship")
@@ -92,28 +90,28 @@ public class ActRelationship implements Serializable {
 
     }
 
-    public ActRelationship(ActRelationshipDT actRelationshipDT) {
-        this.addReasonCd = actRelationshipDT.getAddReasonCd();
-        this.addTime = actRelationshipDT.getAddTime();
-        this.addUserId = actRelationshipDT.getAddUserId();
-        this.durationAmt = actRelationshipDT.getDurationAmt();
-        this.durationUnitCd = actRelationshipDT.getDurationUnitCd();
-        this.fromTime = actRelationshipDT.getFromTime();
-        this.lastChgReasonCd = actRelationshipDT.getLastChgReasonCd();
-        this.lastChgTime = actRelationshipDT.getLastChgTime();
-        this.lastChgUserId = actRelationshipDT.getLastChgUserId();
-        this.recordStatusCd = actRelationshipDT.getRecordStatusCd();
-        this.recordStatusTime = actRelationshipDT.getRecordStatusTime();
-        this.sequenceNbr = actRelationshipDT.getSequenceNbr();
-        this.statusCd = actRelationshipDT.getStatusCd();
-        this.statusTime = actRelationshipDT.getStatusTime();
-        this.toTime = actRelationshipDT.getToTime();
-        this.userAffiliationTxt = actRelationshipDT.getUserAffiliationTxt();
-        this.sourceActUid = actRelationshipDT.getSourceActUid();
-        this.typeDescTxt = actRelationshipDT.getTypeDescTxt();
-        this.targetActUid = actRelationshipDT.getTargetActUid();
-        this.sourceClassCd = actRelationshipDT.getSourceClassCd();
-        this.targetClassCd = actRelationshipDT.getTargetClassCd();
-        this.typeCd = actRelationshipDT.getTypeCd();
+    public ActRelationship(ActRelationshipDto actRelationshipDto) {
+        this.addReasonCd = actRelationshipDto.getAddReasonCd();
+        this.addTime = actRelationshipDto.getAddTime();
+        this.addUserId = actRelationshipDto.getAddUserId();
+        this.durationAmt = actRelationshipDto.getDurationAmt();
+        this.durationUnitCd = actRelationshipDto.getDurationUnitCd();
+        this.fromTime = actRelationshipDto.getFromTime();
+        this.lastChgReasonCd = actRelationshipDto.getLastChgReasonCd();
+        this.lastChgTime = actRelationshipDto.getLastChgTime();
+        this.lastChgUserId = actRelationshipDto.getLastChgUserId();
+        this.recordStatusCd = actRelationshipDto.getRecordStatusCd();
+        this.recordStatusTime = actRelationshipDto.getRecordStatusTime();
+        this.sequenceNbr = actRelationshipDto.getSequenceNbr();
+        this.statusCd = actRelationshipDto.getStatusCd();
+        this.statusTime = actRelationshipDto.getStatusTime();
+        this.toTime = actRelationshipDto.getToTime();
+        this.userAffiliationTxt = actRelationshipDto.getUserAffiliationTxt();
+        this.sourceActUid = actRelationshipDto.getSourceActUid();
+        this.typeDescTxt = actRelationshipDto.getTypeDescTxt();
+        this.targetActUid = actRelationshipDto.getTargetActUid();
+        this.sourceClassCd = actRelationshipDto.getSourceClassCd();
+        this.targetClassCd = actRelationshipDto.getTargetClassCd();
+        this.typeCd = actRelationshipDto.getTypeCd();
     }
 }

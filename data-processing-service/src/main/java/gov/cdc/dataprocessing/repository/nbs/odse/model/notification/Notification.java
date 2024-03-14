@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.notification;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.NotificationDT;
+import gov.cdc.dataprocessing.model.dto.notification.NotificationDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -171,7 +171,7 @@ public class Notification   {
 
     }
 
-    public Notification(NotificationDT dto) {
+    public Notification(NotificationDto dto) {
         this.notificationUid = dto.getNotificationUid();
         this.activityDurationAmt = dto.getActivityDurationAmt();
         this.activityDurationUnitCd = dto.getActivityDurationUnitCd();

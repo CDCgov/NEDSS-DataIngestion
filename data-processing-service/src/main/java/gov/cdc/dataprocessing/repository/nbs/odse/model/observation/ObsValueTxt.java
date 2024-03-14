@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.observation;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ObsValueTxtDT;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.NNDActivityLogId;
+import gov.cdc.dataprocessing.model.dto.observation.ObsValueTxtDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ObsValueTxtId;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -41,14 +40,14 @@ public class ObsValueTxt implements Serializable {
     private String valueTxt;
 
     // Relationships if needed
-    public ObsValueTxt(ObsValueTxtDT obsValueTxtDT) {
-        this.observationUid = obsValueTxtDT.getObservationUid();
-        this.obsValueTxtSeq = obsValueTxtDT.getObsValueTxtSeq();
-        this.dataSubtypeCd = obsValueTxtDT.getDataSubtypeCd();
-        this.encodingTypeCd = obsValueTxtDT.getEncodingTypeCd();
-        this.txtTypeCd = obsValueTxtDT.getTxtTypeCd();
-        this.valueImageTxt = obsValueTxtDT.getValueImageTxt();
-        this.valueTxt = obsValueTxtDT.getValueTxt();
+    public ObsValueTxt(ObsValueTxtDto obsValueTxtDto) {
+        this.observationUid = obsValueTxtDto.getObservationUid();
+        this.obsValueTxtSeq = obsValueTxtDto.getObsValueTxtSeq();
+        this.dataSubtypeCd = obsValueTxtDto.getDataSubtypeCd();
+        this.encodingTypeCd = obsValueTxtDto.getEncodingTypeCd();
+        this.txtTypeCd = obsValueTxtDto.getTxtTypeCd();
+        this.valueImageTxt = obsValueTxtDto.getValueImageTxt();
+        this.valueTxt = obsValueTxtDto.getValueTxt();
     }
 
     public ObsValueTxt() {

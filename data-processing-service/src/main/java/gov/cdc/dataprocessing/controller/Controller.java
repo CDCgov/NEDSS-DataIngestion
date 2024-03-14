@@ -1,8 +1,8 @@
 package gov.cdc.dataprocessing.controller;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.service.implementation.core.ManagerService;
-import gov.cdc.dataprocessing.service.interfaces.core.IManagerService;
+import gov.cdc.dataprocessing.service.implementation.manager.ManagerService;
+import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -3,16 +3,14 @@ package gov.cdc.dataprocessing.utilities.component.observation;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ActRelationshipDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ObservationDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ParticipationDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.ObservationVO;
+import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
+import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
+import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.model.container.BaseContainer;
+import gov.cdc.dataprocessing.model.container.ObservationContainer;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
-import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -23,14 +21,14 @@ public class ObservationUtil {
     public ObservationUtil() {
     }
 
-    public Long getUid(Collection<ParticipationDT> participationDTCollection,
-                        Collection<ActRelationshipDT> actRelationshipDTCollection,
+    public Long getUid(Collection<ParticipationDto> participationDtoCollection,
+                        Collection<ActRelationshipDto> actRelationshipDtoCollection,
                         String uidListType, String uidClassCd, String uidTypeCd,
                         String uidActClassCd, String uidRecordStatusCd) throws DataProcessingException {
         Long anUid = null;
         try {
-            if (participationDTCollection != null) {
-                for (ParticipationDT partDT : participationDTCollection) {
+            if (participationDtoCollection != null) {
+                for (ParticipationDto partDT : participationDtoCollection) {
                     if (
                             (
                                     (
@@ -50,8 +48,8 @@ public class ObservationUtil {
                     }
                 }
             }
-            else if (actRelationshipDTCollection != null) {
-                for (ActRelationshipDT actRelDT : actRelationshipDTCollection) {
+            else if (actRelationshipDtoCollection != null) {
+                for (ActRelationshipDto actRelDT : actRelationshipDtoCollection) {
                     if (
                             (
                                     actRelDT.getSourceClassCd() != null
@@ -96,12 +94,12 @@ public class ObservationUtil {
 
      *  Original Name: getRootDT
      **/
-    public ObservationDT getRootObservationDto(AbstractVO proxyVO) throws DataProcessingException {
+    public ObservationDto getRootObservationDto(BaseContainer proxyVO) throws DataProcessingException {
         try {
-            ObservationVO rootVO = getRootObservationContainer(proxyVO);
+            ObservationContainer rootVO = getRootObservationContainer(proxyVO);
             if (rootVO != null)
             {
-                return rootVO.getTheObservationDT();
+                return rootVO.getTheObservationDto();
             }
             return null;
         } catch (Exception e) {
@@ -116,24 +114,24 @@ public class ObservationUtil {
      *  - Ctrl Code Display Form = LabReport;
      *  - Obs Domain Code St 1 = Order;
      *  - Ctrl Code Display Form = MorbReport;
-     * Original Name: getRootObservationVO
+     * Original Name: getRootObservationContainer
      **/
-    public ObservationVO getRootObservationContainer(AbstractVO proxy) throws DataProcessingException
+    public ObservationContainer getRootObservationContainer(BaseContainer proxy) throws DataProcessingException
     {
-        Collection<ObservationVO>  obsColl = null;
+        Collection<ObservationContainer>  obsColl = null;
         boolean isLabReport = false;
 
         if (proxy instanceof LabResultProxyContainer)
         {
-            obsColl = ( (LabResultProxyContainer) proxy).getTheObservationVOCollection();
+            obsColl = ( (LabResultProxyContainer) proxy).getTheObservationContainerCollection();
             isLabReport = true;
         }
 //            if (proxy instanceof MorbidityProxyVO)
 //            {
-//                obsColl = ( (MorbidityProxyVO) proxy).getTheObservationVOCollection();
+//                obsColl = ( (MorbidityProxyVO) proxy).getTheObservationContainerCollection();
 //            }
 
-        ObservationVO rootVO = getRootObservationContainerFromObsCollection(obsColl, isLabReport);
+        ObservationContainer rootVO = getRootObservationContainerFromObsCollection(obsColl, isLabReport);
 
         if( rootVO == null)
         {
@@ -151,34 +149,34 @@ public class ObservationUtil {
      *  - Obs Domain Code St 1 = Order;
      *  - Ctrl Code Display Form = MorbReport;
      **/
-    private ObservationVO getRootObservationContainerFromObsCollection(Collection<ObservationVO> obsColl, boolean isLabReport) {
+    private ObservationContainer getRootObservationContainerFromObsCollection(Collection<ObservationContainer> obsColl, boolean isLabReport) {
         if(obsColl == null){
             return null;
         }
 
-        Iterator<ObservationVO> iterator;
+        Iterator<ObservationContainer> iterator;
         for (iterator = obsColl.iterator(); iterator.hasNext(); )
         {
-            ObservationVO observationVO = iterator.next();
+            ObservationContainer observationContainer = iterator.next();
             if (
-                observationVO.getTheObservationDT() != null
+                observationContainer.getTheObservationDto() != null
                 && (
                         (
-                            observationVO.getTheObservationDT().getCtrlCdDisplayForm() != null
-                            && observationVO.getTheObservationDT().getCtrlCdDisplayForm().equalsIgnoreCase(NEDSSConstant.LAB_CTRLCD_DISPLAY)
+                            observationContainer.getTheObservationDto().getCtrlCdDisplayForm() != null
+                            && observationContainer.getTheObservationDto().getCtrlCdDisplayForm().equalsIgnoreCase(NEDSSConstant.LAB_CTRLCD_DISPLAY)
                         )
                         || (
-                            observationVO.getTheObservationDT().getObsDomainCdSt1() != null
-                            && observationVO.getTheObservationDT().getObsDomainCdSt1().equalsIgnoreCase(NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD)
+                            observationContainer.getTheObservationDto().getObsDomainCdSt1() != null
+                            && observationContainer.getTheObservationDto().getObsDomainCdSt1().equalsIgnoreCase(NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD)
                             && isLabReport
                         ) || (
-                            observationVO.getTheObservationDT().getCtrlCdDisplayForm() != null &&
-                            observationVO.getTheObservationDT().getCtrlCdDisplayForm().equalsIgnoreCase(NEDSSConstant.MOB_CTRLCD_DISPLAY)
+                            observationContainer.getTheObservationDto().getCtrlCdDisplayForm() != null &&
+                            observationContainer.getTheObservationDto().getCtrlCdDisplayForm().equalsIgnoreCase(NEDSSConstant.MOB_CTRLCD_DISPLAY)
                         )
                 )
             )
             {
-                return observationVO;
+                return observationContainer;
             }
         }
         return null;

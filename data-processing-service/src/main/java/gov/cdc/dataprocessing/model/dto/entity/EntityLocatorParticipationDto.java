@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.model.dto.entity;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
+import gov.cdc.dataprocessing.model.container.BaseContainer;
 import gov.cdc.dataprocessing.model.dto.locator.PhysicalLocatorDto;
 import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
 import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class EntityLocatorParticipationDto extends AbstractVO {
+public class EntityLocatorParticipationDto extends BaseContainer {
 
     private Long locatorUid;
     private String addReasonCd;

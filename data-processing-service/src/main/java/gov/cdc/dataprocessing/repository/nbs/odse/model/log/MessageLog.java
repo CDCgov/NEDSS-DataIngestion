@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.log;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.MessageLogDT;
+import gov.cdc.dataprocessing.model.dto.log.MessageLogDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -63,20 +63,20 @@ public class MessageLog   {
 
     }
 
-    public MessageLog(MessageLogDT messageLogDT) {
-        this.messageLogUid = messageLogDT.getMessageLogUid();
-        this.messageTxt = messageLogDT.getMessageTxt();
-        this.conditionCd = messageLogDT.getConditionCd();
-        this.personUid = messageLogDT.getPersonUid();
-        this.assignedToUid = messageLogDT.getAssignedToUid();
-        this.eventUid = messageLogDT.getEventUid();
-        this.eventTypeCd = messageLogDT.getEventTypeCd();
-        this.messageStatusCd = messageLogDT.getMessageStatusCd();
-        this.recordStatusCd = messageLogDT.getRecordStatusCd();
-        this.recordStatusTime = messageLogDT.getRecordStatusTime();
-        this.addTime = messageLogDT.getAddTime();
-        this.addUserId = messageLogDT.getUserId();
-        this.lastChgTime = messageLogDT.getLastChgTime();
-        this.lastChgUserId = messageLogDT.getLastChgUserId();
+    public MessageLog(MessageLogDto messageLogDto) {
+        this.messageLogUid = messageLogDto.getMessageLogUid();
+        this.messageTxt = messageLogDto.getMessageTxt();
+        this.conditionCd = messageLogDto.getConditionCd();
+        this.personUid = messageLogDto.getPersonUid();
+        this.assignedToUid = messageLogDto.getAssignedToUid();
+        this.eventUid = messageLogDto.getEventUid();
+        this.eventTypeCd = messageLogDto.getEventTypeCd();
+        this.messageStatusCd = messageLogDto.getMessageStatusCd();
+        this.recordStatusCd = messageLogDto.getRecordStatusCd();
+        this.recordStatusTime = messageLogDto.getRecordStatusTime();
+        this.addTime = messageLogDto.getAddTime();
+        this.addUserId = messageLogDto.getUserId();
+        this.lastChgTime = messageLogDto.getLastChgTime();
+        this.lastChgUserId = messageLogDto.getLastChgUserId();
     }
 }

@@ -20,8 +20,8 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonEthnicRepos
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonNameRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
-import gov.cdc.dataprocessing.service.interfaces.IEntityLocatorParticipationService;
-import gov.cdc.dataprocessing.service.interfaces.core.IOdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
+import gov.cdc.dataprocessing.service.interfaces.other.IOdseIdGeneratorService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
 import jakarta.transaction.Transactional;

@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.nbs;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.NbsAnswerDT;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsAnswerDto;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -52,19 +52,19 @@ public class NbsAnswer {
 
     }
 
-    public NbsAnswer(NbsAnswerDT nbsAnswerDT) {
-        this.nbsAnswerUid = nbsAnswerDT.getNbsAnswerUid();
-        this.actUid = nbsAnswerDT.getActUid();
-        this.answerTxt = nbsAnswerDT.getAnswerTxt();
-        this.nbsQuestionUid = nbsAnswerDT.getNbsQuestionUid();
-        this.nbsQuestionVersionCtrlNbr = nbsAnswerDT.getNbsQuestionVersionCtrlNbr();
-        this.seqNbr = nbsAnswerDT.getSeqNbr();
-//        this.answerLargeTxt = nbsAnswerDT.getAnswerLargeTxt();
-        this.answerGroupSeqNbr = nbsAnswerDT.getAnswerGroupSeqNbr();
-        this.recordStatusCd = nbsAnswerDT.getRecordStatusCd();
-        this.recordStatusTime = nbsAnswerDT.getRecordStatusTime();
-        this.lastChgTime = nbsAnswerDT.getLastChgTime();
-        this.lastChgUserId = nbsAnswerDT.getLastChgUserId();
+    public NbsAnswer(NbsAnswerDto nbsAnswerDto) {
+        this.nbsAnswerUid = nbsAnswerDto.getNbsAnswerUid();
+        this.actUid = nbsAnswerDto.getActUid();
+        this.answerTxt = nbsAnswerDto.getAnswerTxt();
+        this.nbsQuestionUid = nbsAnswerDto.getNbsQuestionUid();
+        this.nbsQuestionVersionCtrlNbr = nbsAnswerDto.getNbsQuestionVersionCtrlNbr();
+        this.seqNbr = nbsAnswerDto.getSeqNbr();
+//        this.answerLargeTxt = nbsAnswerDto.getAnswerLargeTxt();
+        this.answerGroupSeqNbr = nbsAnswerDto.getAnswerGroupSeqNbr();
+        this.recordStatusCd = nbsAnswerDto.getRecordStatusCd();
+        this.recordStatusTime = nbsAnswerDto.getRecordStatusTime();
+        this.lastChgTime = nbsAnswerDto.getLastChgTime();
+        this.lastChgUserId = nbsAnswerDto.getLastChgUserId();
     }
 
 }

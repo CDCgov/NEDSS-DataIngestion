@@ -1,8 +1,7 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.log;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.NNDActivityLogDT;
+import gov.cdc.dataprocessing.model.dto.log.NNDActivityLogDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.NNDActivityLogId;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.OrganizationHistId;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -50,7 +49,7 @@ public class NNDActivityLog implements Serializable {
     public NNDActivityLog() {
 
     }
-    public NNDActivityLog(NNDActivityLogDT activityLogDT) {
+    public NNDActivityLog(NNDActivityLogDto activityLogDT) {
         this.nndActivityLogUid = activityLogDT.getNndActivityLogUid();
         this.nndActivityLogSeq = activityLogDT.getNndActivityLogSeq();
         this.errorMessageTxt = activityLogDT.getErrorMessageTxt();

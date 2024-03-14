@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.model.dto.entity;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
+import gov.cdc.dataprocessing.model.container.BaseContainer;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class RoleDto extends AbstractVO {
+public class RoleDto extends BaseContainer {
     private Long roleSeq;
     private String addReasonCd;
     private Timestamp addTime;

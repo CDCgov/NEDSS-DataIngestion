@@ -1,8 +1,7 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.material;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ManufacturedMaterialDT;
+import gov.cdc.dataprocessing.model.dto.material.ManufacturedMaterialDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ManufacturedMaterialId;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ObsValueCodedId;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -79,7 +78,7 @@ public class ManufacturedMaterial {
 
     }
 
-    public ManufacturedMaterial(ManufacturedMaterialDT materialDT) {
+    public ManufacturedMaterial(ManufacturedMaterialDto materialDT) {
         this.materialUid = materialDT.getMaterialUid();
         this.manufacturedMaterialSeq = materialDT.getManufacturedMaterialSeq();
         this.addReasonCd = materialDT.getAddReasonCd();

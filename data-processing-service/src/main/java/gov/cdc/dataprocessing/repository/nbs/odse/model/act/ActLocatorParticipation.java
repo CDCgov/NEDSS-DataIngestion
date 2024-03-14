@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.act;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ActivityLocatorParticipationDT;
+import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -78,7 +78,7 @@ public class ActLocatorParticipation {
 
     }
 
-    public ActLocatorParticipation(ActivityLocatorParticipationDT dto) {
+    public ActLocatorParticipation(ActivityLocatorParticipationDto dto) {
         this.actUid = dto.getActUid();
         this.locatorUid = dto.getLocatorUid();
         this.entityUid = dto.getEntityUid();

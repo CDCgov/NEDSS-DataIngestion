@@ -2,12 +2,12 @@ package gov.cdc.dataprocessing.utilities.component.patient;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ObservationDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
+import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
+import gov.cdc.dataprocessing.model.container.BaseContainer;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
-import gov.cdc.dataprocessing.service.implementation.matching.PatientMatchingService;
-import gov.cdc.dataprocessing.service.implementation.matching.ProviderMatchingService;
-import gov.cdc.dataprocessing.service.interfaces.core.IUidService;
+import gov.cdc.dataprocessing.service.implementation.person.PatientMatchingService;
+import gov.cdc.dataprocessing.service.implementation.person.ProviderMatchingService;
+import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
 import gov.cdc.dataprocessing.utilities.component.observation.ObservationUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
@@ -37,7 +37,7 @@ public class PersonUtil {
 
     @Transactional
     public Long processLabPersonContainerCollection(Collection<PersonContainer> personContainerCollection, boolean morbidityApplied,
-                                             AbstractVO dataContainer) throws DataProcessingException {
+                                             BaseContainer dataContainer) throws DataProcessingException {
         if (personContainerCollection == null || personContainerCollection.isEmpty()) {
             throw new DataProcessingException("Person container collection is null");
         }
@@ -47,7 +47,7 @@ public class PersonUtil {
 
         PersonContainer personContainer;
         Long patientMprUid = null;
-        ObservationDT rootDT = observationUtil.getRootObservationDto(dataContainer);
+        ObservationDto rootDT = observationUtil.getRootObservationDto(dataContainer);
 
         for (PersonContainer item : personContainerCollection) {
             personContainer = item;

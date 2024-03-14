@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.observation;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ObservationReasonDT;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.NNDActivityLogId;
+import gov.cdc.dataprocessing.model.dto.observation.ObservationReasonDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ObservationReasonId;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -29,9 +28,9 @@ public class ObservationReason {
 
     }
 
-    public ObservationReason(ObservationReasonDT observationReasonDT) {
-        this.observationUid = observationReasonDT.getObservationUid();
-        this.reasonCd = observationReasonDT.getReasonCd();
-        this.reasonDescTxt = observationReasonDT.getReasonDescTxt();
+    public ObservationReason(ObservationReasonDto observationReasonDto) {
+        this.observationUid = observationReasonDto.getObservationUid();
+        this.reasonCd = observationReasonDto.getReasonCd();
+        this.reasonDescTxt = observationReasonDto.getReasonDescTxt();
     }
 }
