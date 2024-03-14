@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.repository.nbs.msgoute;
+package gov.cdc.dataprocessing.repository.nbs.msgoute.repos;
 
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import org.springframework.data.jpa.repository.query.Procedure;

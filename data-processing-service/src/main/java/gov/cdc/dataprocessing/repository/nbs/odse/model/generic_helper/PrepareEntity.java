@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.repository.nbs.odse.model;
+package gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper;
 
 import lombok.Getter;
 import lombok.Setter;

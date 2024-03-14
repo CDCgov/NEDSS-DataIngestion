@@ -6,7 +6,7 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.ObservationVO;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
-import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
+import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.service.interfaces.core.IPatientService;
 import gov.cdc.dataprocessing.service.model.PersonAggContainer;
 import org.springframework.stereotype.Component;

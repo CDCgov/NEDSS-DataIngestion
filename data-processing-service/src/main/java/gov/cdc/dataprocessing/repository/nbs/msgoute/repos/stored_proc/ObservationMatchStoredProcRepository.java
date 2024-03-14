@@ -1,12 +1,8 @@
-package gov.cdc.dataprocessing.repository.nbs.msgoute.repos;
+package gov.cdc.dataprocessing.repository.nbs.msgoute.repos.stored_proc;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ObservationDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.ObservationVO;
-import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
-import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
-import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
-import gov.cdc.dataprocessing.service.implementation.matching.ObservationMatchingService;
+import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
@@ -17,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 @Repository
 public class ObservationMatchStoredProcRepository {

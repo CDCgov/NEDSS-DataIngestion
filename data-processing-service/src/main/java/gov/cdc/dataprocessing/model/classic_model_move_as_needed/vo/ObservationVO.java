@@ -5,14 +5,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Collection;
-import java.util.List;
 
 @Getter
 @Setter
 public class ObservationVO  extends AbstractVO {
     private static final long serialVersionUID = 1L;
     private ObservationDT theObservationDT = new ObservationDT();
-    private Collection<ActIdDT> theActIdDTCollection;
+    private Collection<ActIdDto> theActIdDtoCollection;
     private Collection<ObservationReasonDT> theObservationReasonDTCollection;
     private Collection<ObservationInterpDT> theObservationInterpDTCollection;
     private Collection<ObsValueCodedDT> theObsValueCodedDTCollection;

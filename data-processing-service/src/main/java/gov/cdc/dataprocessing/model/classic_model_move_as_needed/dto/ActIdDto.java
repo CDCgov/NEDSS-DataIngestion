@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class ActIdDT extends AbstractVO implements RootDtoInterface
+public class ActIdDto extends AbstractVO implements RootDtoInterface
 {
     private Long actUid;
     private Integer actIdSeq;
@@ -56,11 +56,11 @@ public class ActIdDT extends AbstractVO implements RootDtoInterface
         return actUid;
     }
 
-    public ActIdDT() {
+    public ActIdDto() {
 
     }
 
-    public ActIdDT(ActId actId) {
+    public ActIdDto(ActId actId) {
         this.actUid = actId.getActUid();
         this.actIdSeq = actId.getActIdSeq();
         this.addReasonCd = actId.getAddReasonCd();

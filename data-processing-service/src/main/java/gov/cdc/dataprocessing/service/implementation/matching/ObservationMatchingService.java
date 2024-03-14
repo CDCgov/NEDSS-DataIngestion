@@ -11,9 +11,9 @@ import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.ObservationV
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.OrganizationVO;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
-import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
+import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
-import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.ObservationMatchStoredProcRepository;
+import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.stored_proc.ObservationMatchStoredProcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.ObservationRepository;
 import gov.cdc.dataprocessing.service.interfaces.matching.IObservationMatchingService;
 import jakarta.transaction.Transactional;
@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 @Service
 public class ObservationMatchingService implements IObservationMatchingService {

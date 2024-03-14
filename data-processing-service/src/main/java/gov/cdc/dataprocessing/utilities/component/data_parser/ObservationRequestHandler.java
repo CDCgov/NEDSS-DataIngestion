@@ -3,7 +3,7 @@ package gov.cdc.dataprocessing.utilities.component.data_parser;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EdxLabIdentiferDT;
-import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
+import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.*;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.ObservationVO;
@@ -94,17 +94,17 @@ public class ObservationRequestHandler {
             }
 
 
-            Collection<ActIdDT> actIdDTColl =  new ArrayList<>();
-            ActIdDT actIdDT= new ActIdDT();
-            actIdDT.setActIdSeq(1);
-            actIdDT.setActUid(edxLabInformationDto.getRootObserbationUid());
-            actIdDT.setRootExtensionTxt(edxLabInformationDto.getMessageControlID());
-            actIdDT.setAssigningAuthorityCd(sendingFacilityId.getAssigningAuthorityCd());
-            actIdDT.setAssigningAuthorityDescTxt(sendingFacilityId.getAssigningAuthorityDescTxt());
-            actIdDT.setTypeCd(EdxELRConstant.ELR_MESSAGE_CTRL_CD);
-            actIdDT.setTypeDescTxt(EdxELRConstant.ELR_MESSAGE_CTRL_DESC);
-            actIdDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
-            actIdDTColl.add(actIdDT);
+            Collection<ActIdDto> actIdDtoColl =  new ArrayList<>();
+            ActIdDto actIdDto = new ActIdDto();
+            actIdDto.setActIdSeq(1);
+            actIdDto.setActUid(edxLabInformationDto.getRootObserbationUid());
+            actIdDto.setRootExtensionTxt(edxLabInformationDto.getMessageControlID());
+            actIdDto.setAssigningAuthorityCd(sendingFacilityId.getAssigningAuthorityCd());
+            actIdDto.setAssigningAuthorityDescTxt(sendingFacilityId.getAssigningAuthorityDescTxt());
+            actIdDto.setTypeCd(EdxELRConstant.ELR_MESSAGE_CTRL_CD);
+            actIdDto.setTypeDescTxt(EdxELRConstant.ELR_MESSAGE_CTRL_DESC);
+            actIdDto.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
+            actIdDtoColl.add(actIdDto);
 
             HL7EIType fillerType =hl7OBRType.getFillerOrderNumber();
             if(hl7OBRType.getParent()==null ){
@@ -117,7 +117,7 @@ public class ObservationRequestHandler {
                     edxLabInformationDto.setFillerNumber(fillerType.getHL7EntityIdentifier());
                 }
             }
-            ActIdDT act2IdDT = new ActIdDT();
+            ActIdDto act2IdDT = new ActIdDto();
             act2IdDT.setActUid(edxLabInformationDto.getRootObserbationUid());
             act2IdDT.setActIdSeq(2);
             act2IdDT.setAssigningAuthorityCd(sendingFacilityId.getAssigningAuthorityCd());
@@ -126,9 +126,9 @@ public class ObservationRequestHandler {
             act2IdDT.setTypeCd(EdxELRConstant.ELR_FILLER_NUMBER_CD);
             act2IdDT.setTypeDescTxt(EdxELRConstant.ELR_FILLER_NUMBER_DESC);
             act2IdDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
-            actIdDTColl.add(act2IdDT);
+            actIdDtoColl.add(act2IdDT);
 
-            observationVO.setTheActIdDTCollection(actIdDTColl);
+            observationVO.setTheActIdDtoCollection(actIdDtoColl);
             if(hl7OBRType.getUniversalServiceIdentifier()==null){
                 edxLabInformationDto.setUniversalServiceIdMissing(true);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);

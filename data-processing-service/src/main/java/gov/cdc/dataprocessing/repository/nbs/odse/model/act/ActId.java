@@ -1,14 +1,12 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.act;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ActIdDT;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ActIdDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ActIdId;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.NNDActivityLogId;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.Date;
 
 @Entity
 @Table(name = "Act_id")
@@ -92,28 +90,28 @@ public class ActId implements Serializable {
 
     }
 
-    public ActId(ActIdDT actIdDT) {
-        this.actUid = actIdDT.getActUid();
-        this.actIdSeq = actIdDT.getActIdSeq();
-        this.addReasonCd = actIdDT.getAddReasonCd();
-        this.addTime = actIdDT.getAddTime();
-        this.addUserId = actIdDT.getAddUserId();
-        this.assigningAuthorityCd = actIdDT.getAssigningAuthorityCd();
-        this.assigningAuthorityDescTxt = actIdDT.getAssigningAuthorityDescTxt();
-        this.durationAmt = actIdDT.getDurationAmt();
-        this.durationUnitCd = actIdDT.getDurationUnitCd();
-        this.lastChgReasonCd = actIdDT.getLastChgReasonCd();
-        this.lastChgTime = actIdDT.getLastChgTime();
-        this.lastChgUserId = actIdDT.getLastChgUserId();
-        this.recordStatusCd = actIdDT.getRecordStatusCd();
-        this.recordStatusTime = actIdDT.getRecordStatusTime();
-        this.rootExtensionTxt = actIdDT.getRootExtensionTxt();
-        this.statusCd = actIdDT.getStatusCd();
-        this.statusTime = actIdDT.getStatusTime();
-        this.typeCd = actIdDT.getTypeCd();
-        this.typeDescTxt = actIdDT.getTypeDescTxt();
-        this.userAffiliationTxt = actIdDT.getUserAffiliationTxt();
-        this.validFromTime = actIdDT.getValidFromTime();
-        this.validToTime = actIdDT.getValidToTime();
+    public ActId(ActIdDto actIdDto) {
+        this.actUid = actIdDto.getActUid();
+        this.actIdSeq = actIdDto.getActIdSeq();
+        this.addReasonCd = actIdDto.getAddReasonCd();
+        this.addTime = actIdDto.getAddTime();
+        this.addUserId = actIdDto.getAddUserId();
+        this.assigningAuthorityCd = actIdDto.getAssigningAuthorityCd();
+        this.assigningAuthorityDescTxt = actIdDto.getAssigningAuthorityDescTxt();
+        this.durationAmt = actIdDto.getDurationAmt();
+        this.durationUnitCd = actIdDto.getDurationUnitCd();
+        this.lastChgReasonCd = actIdDto.getLastChgReasonCd();
+        this.lastChgTime = actIdDto.getLastChgTime();
+        this.lastChgUserId = actIdDto.getLastChgUserId();
+        this.recordStatusCd = actIdDto.getRecordStatusCd();
+        this.recordStatusTime = actIdDto.getRecordStatusTime();
+        this.rootExtensionTxt = actIdDto.getRootExtensionTxt();
+        this.statusCd = actIdDto.getStatusCd();
+        this.statusTime = actIdDto.getStatusTime();
+        this.typeCd = actIdDto.getTypeCd();
+        this.typeDescTxt = actIdDto.getTypeDescTxt();
+        this.userAffiliationTxt = actIdDto.getUserAffiliationTxt();
+        this.validFromTime = actIdDto.getValidFromTime();
+        this.validToTime = actIdDto.getValidToTime();
     }
 }

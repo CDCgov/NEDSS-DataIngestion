@@ -1,8 +1,8 @@
 package gov.cdc.dataprocessing.service.implementation.core;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
-import gov.cdc.dataprocessing.repository.nbs.msgoute.StoredProcRepository;
+import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
+import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.StoredProcRepository;
 import gov.cdc.dataprocessing.service.interfaces.core.IMsgOutEStoredProcService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;

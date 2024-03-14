@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.model.dto;
+package gov.cdc.dataprocessing.model.dto.lab_result;
 
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EdxLabIdentiferDT;

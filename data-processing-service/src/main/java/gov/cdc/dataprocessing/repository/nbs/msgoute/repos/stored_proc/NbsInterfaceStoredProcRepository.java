@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.repository.nbs.msgoute;
+package gov.cdc.dataprocessing.repository.nbs.msgoute.repos.stored_proc;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.matching.EdxEntityMatchDto;

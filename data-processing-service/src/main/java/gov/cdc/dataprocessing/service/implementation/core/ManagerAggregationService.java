@@ -3,12 +3,12 @@ package gov.cdc.dataprocessing.service.implementation.core;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ActIdDT;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ActIdDto;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ObservationDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.ObservationVO;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
-import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
+import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.service.implementation.matching.ObservationMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.core.*;
 import gov.cdc.dataprocessing.service.interfaces.matching.IObservationMatchingService;
@@ -17,10 +17,8 @@ import gov.cdc.dataprocessing.utilities.component.ManagerUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -135,11 +133,11 @@ public class ManagerAggregationService implements IManagerAggregationService {
                 ) {
                     long falseUid = -1;
                     uidService.setFalseToNewForObservation(labResult, falseUid, obsVO.getTheObservationDT().getObservationUid());
-                    if (obsVO.getTheActIdDTCollection() != null) {
-                        for (ActIdDT actIdDT : obsVO.getTheActIdDTCollection()) {
-                            actIdDT.setItNew(false);
-                            actIdDT.setItDirty(true);
-                            actIdDT.setActUid(obsVO.getTheObservationDT().getObservationUid());
+                    if (obsVO.getTheActIdDtoCollection() != null) {
+                        for (ActIdDto actIdDto : obsVO.getTheActIdDtoCollection()) {
+                            actIdDto.setItNew(false);
+                            actIdDto.setItDirty(true);
+                            actIdDto.setActUid(obsVO.getTheObservationDT().getObservationUid());
                         }
                     }
                     break;

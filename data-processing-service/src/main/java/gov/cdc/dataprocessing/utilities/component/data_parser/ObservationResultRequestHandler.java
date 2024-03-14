@@ -5,7 +5,7 @@ import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EdxLabIdentiferDT;
-import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
+import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.*;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.ObservationVO;
@@ -114,19 +114,19 @@ public class ObservationResultRequestHandler {
             }
 
             edxLabInformationDto.getEdxLabIdentiferDTColl().add(edxLabIdentiferDT);
-            Collection<ActIdDT> actIdDTColl =  new ArrayList<>();
-            ActIdDT actIdDT= new ActIdDT();
-            actIdDT.setActIdSeq(1);
-            actIdDT.setActUid(observationDT.getObservationUid());
-            actIdDT.setRootExtensionTxt(edxLabInformationDto.getMessageControlID());
-            actIdDT.setAssigningAuthorityCd(edxLabInformationDto.getSendingFacilityClia());
-            actIdDT.setAssigningAuthorityDescTxt(edxLabInformationDto.getSendingFacilityName());
-            actIdDT.setTypeCd(EdxELRConstant.ELR_MESSAGE_CTRL_CD);
-            actIdDT.setTypeDescTxt(EdxELRConstant.ELR_MESSAGE_CTRL_DESC);
-            actIdDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
-            actIdDTColl.add(actIdDT);
+            Collection<ActIdDto> actIdDtoColl =  new ArrayList<>();
+            ActIdDto actIdDto = new ActIdDto();
+            actIdDto.setActIdSeq(1);
+            actIdDto.setActUid(observationDT.getObservationUid());
+            actIdDto.setRootExtensionTxt(edxLabInformationDto.getMessageControlID());
+            actIdDto.setAssigningAuthorityCd(edxLabInformationDto.getSendingFacilityClia());
+            actIdDto.setAssigningAuthorityDescTxt(edxLabInformationDto.getSendingFacilityName());
+            actIdDto.setTypeCd(EdxELRConstant.ELR_MESSAGE_CTRL_CD);
+            actIdDto.setTypeDescTxt(EdxELRConstant.ELR_MESSAGE_CTRL_DESC);
+            actIdDto.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
+            actIdDtoColl.add(actIdDto);
 
-            ActIdDT act2IdDT = new ActIdDT();
+            ActIdDto act2IdDT = new ActIdDto();
             act2IdDT.setActUid(observationDT.getObservationUid());
             act2IdDT.setActIdSeq(2);
             act2IdDT.setRootExtensionTxt(edxLabInformationDto.getFillerNumber());
@@ -135,7 +135,7 @@ public class ObservationResultRequestHandler {
             act2IdDT.setTypeCd(EdxELRConstant.ELR_FILLER_NUMBER_CD);
             act2IdDT.setTypeDescTxt(EdxELRConstant.ELR_FILLER_NUMBER_DESC);
             act2IdDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
-            actIdDTColl.add(act2IdDT);
+            actIdDtoColl.add(act2IdDT);
 
             /*
              * ND-18349 HHS ELR Updates for COVID: Updates Required to Process OBX 18
@@ -143,7 +143,7 @@ public class ObservationResultRequestHandler {
             List<HL7EIType> equipmentIdType = hl7OBXType.getEquipmentInstanceIdentifier();
             int seq = 3;
             for (HL7EIType equipmentId : equipmentIdType) {
-                ActIdDT act3IdDT = new ActIdDT();
+                ActIdDto act3IdDT = new ActIdDto();
                 act3IdDT.setActUid(observationDT.getObservationUid());
                 act3IdDT.setActIdSeq(seq);
                 act3IdDT.setRootExtensionTxt(equipmentId.getHL7EntityIdentifier());
@@ -152,11 +152,11 @@ public class ObservationResultRequestHandler {
                 act3IdDT.setTypeCd(EdxELRConstant.ELR_EQUIPMENT_INSTANCE_CD);
                 act3IdDT.setTypeDescTxt(EdxELRConstant.ELR_EQUIPMENT_INSTANCE_DESC);
                 act3IdDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
-                actIdDTColl.add(act3IdDT);
+                actIdDtoColl.add(act3IdDT);
                 seq = seq + 1;
             }
 
-            observationVO.setTheActIdDTCollection(actIdDTColl);
+            observationVO.setTheActIdDtoCollection(actIdDtoColl);
 
             ActRelationshipDT actRelationshipDT = new ActRelationshipDT();
             actRelationshipDT.setItNew(true);

@@ -100,8 +100,8 @@ public class ObservationRepositoryUtil {
              * Selects ActityIdDT collection
              */
 
-            Collection<ActIdDT> idColl = selectActivityIDs(obUID);
-            obVO.setTheActIdDTCollection(idColl);
+            Collection<ActIdDto> idColl = selectActivityIDs(obUID);
+            obVO.setTheActIdDtoCollection(idColl);
 
             /**
              * Selects ObservationInterpDT collection
@@ -226,7 +226,7 @@ public class ObservationRepositoryUtil {
             observationVO.getTheObservationDT().setItDirty(false);
 
             addObservationReasons(obsId, observationVO.getTheObservationReasonDTCollection());
-            addActivityId(obsId, observationVO.getTheActIdDTCollection(), false);
+            addActivityId(obsId, observationVO.getTheActIdDtoCollection(), false);
             addObservationInterps(obsId, observationVO.getTheObservationInterpDTCollection());
             addObsValueCoded(obsId, observationVO.getTheObsValueCodedDTCollection());
             addObsValueTxts(obsId, observationVO.getTheObsValueTxtDTCollection());
@@ -254,7 +254,7 @@ public class ObservationRepositoryUtil {
         }
 
         updateObservationReason(uid, observationVO.getTheObservationReasonDTCollection());
-        addActivityId(uid, observationVO.getTheActIdDTCollection(), true);
+        addActivityId(uid, observationVO.getTheActIdDtoCollection(), true);
         updateObservationInterps(uid, observationVO.getTheObservationInterpDTCollection());
         updateObsValueCoded(uid, observationVO.getTheObsValueCodedDTCollection());
         updateObsValueTxts(uid, observationVO.getTheObsValueTxtDTCollection());
@@ -303,16 +303,16 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private Collection<ActIdDT> selectActivityIDs(long aUID) throws  DataProcessingException
+    private Collection<ActIdDto> selectActivityIDs(long aUID) throws  DataProcessingException
     {
         try
         {
             var result  = actIdRepository.findRecordsById(aUID);
-            Collection<ActIdDT> dtCollection = new ArrayList<>();
+            Collection<ActIdDto> dtCollection = new ArrayList<>();
             if (result.isPresent()) {
                 Collection<ActId> col = result.get();
                 for (var item : col) {
-                    ActIdDT dt = new ActIdDT(item);
+                    ActIdDto dt = new ActIdDto(item);
                     dt.setItNew(false);
                     dt.setItDirty(false);
                     dtCollection.add(dt);
@@ -561,8 +561,8 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private void addActivityId(Long obsUid, Collection<ActIdDT> actIdDTCollection, boolean updateApplied) throws DataProcessingException {
-        if (actIdDTCollection != null) {
+    private void addActivityId(Long obsUid, Collection<ActIdDto> actIdDtoCollection, boolean updateApplied) throws DataProcessingException {
+        if (actIdDtoCollection != null) {
             int maxSegId = 0;
             if (!updateApplied) {
                 var res = actIdRepository.findRecordsById(obsUid);
@@ -574,7 +574,7 @@ public class ObservationRepositoryUtil {
                 }
             }
 
-            ArrayList<ActIdDT> arr = new ArrayList<>(actIdDTCollection);
+            ArrayList<ActIdDto> arr = new ArrayList<>(actIdDtoCollection);
             for(var item: arr) {
                 item.setItNew(false);
                 item.setItDirty(false);

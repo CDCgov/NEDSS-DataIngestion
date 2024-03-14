@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.repository.nbs.odse.model.other_move_as_needed;
+package gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

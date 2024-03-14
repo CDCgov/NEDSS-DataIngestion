@@ -4,7 +4,7 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ParticipationDT;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.Participation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.ParticipationHist;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.ParticipationStoredProcRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.ParticipationStoredProcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationHistRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;

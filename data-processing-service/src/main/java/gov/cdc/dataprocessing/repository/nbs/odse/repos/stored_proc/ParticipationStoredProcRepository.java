@@ -1,8 +1,7 @@
-package gov.cdc.dataprocessing.repository.nbs.odse.repos;
+package gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ParticipationDT;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.PrepareEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;

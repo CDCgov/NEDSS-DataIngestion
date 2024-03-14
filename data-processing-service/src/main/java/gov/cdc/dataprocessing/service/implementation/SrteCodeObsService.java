@@ -6,7 +6,7 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ObsValueCodedDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ObservationDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.ObservationVO;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.ProgAreaSnomeCodeStoredProcRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.ProgAreaSnomeCodeStoredProcRepository;
 import gov.cdc.dataprocessing.repository.nbs.srte.*;
 import gov.cdc.dataprocessing.service.interfaces.ISrteCodeObsService;
 import org.slf4j.Logger;

@@ -2,7 +2,7 @@ package gov.cdc.dataprocessing.controller;
 
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.other_move_as_needed.LocalUidGenerator;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.service.implementation.core.OdseIdGeneratorService;
 import gov.cdc.dataprocessing.service.interfaces.core.IOdseIdGeneratorService;
 import jakarta.transaction.Transactional;

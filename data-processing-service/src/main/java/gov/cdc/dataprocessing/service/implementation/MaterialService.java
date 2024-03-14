@@ -14,7 +14,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityODSE;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.material.ManufacturedMaterial;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.material.Material;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.other_move_as_needed.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityIdRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityLocatorParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityRepository;
