@@ -71,6 +71,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                     // Try to get the matching with the match string and type (was hash code)
 //                    EdxEntityMatchDto edxEntityMatchingDT = edxDao
 //                            .getEdxEntityMatch(NEDSSConstant.ORGANIZATION_CLASS_CODE, localId);
+                    System.out.println("11111 for getEdxEntityMatchOnMatchString localId:"+localId);
                     EdxEntityMatchDto edxEntityMatchingDT =
                             edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(NEDSSConstant.ORGANIZATION_CLASS_CODE, localId);//TODO --new code
                     if (edxEntityMatchingDT != null
@@ -87,9 +88,9 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                         return edxActivityDetailLogDT;
                     }
                 } catch (Exception ex) {
-                    logger.error("Error in geting the  matching Organization");
+                    logger.error("Error in getEdxEntityMatchOnMatchString in the  matching Organization");
                     throw new DataProcessingException(
-                            "Error in geting the  matching Provider" + ex.getMessage(),
+                            "Error in getEdxEntityMatchOnMatchString " + ex.getMessage(),
                             ex);
                 }
             }  //localId != null
@@ -105,7 +106,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
             int identifierHshCd = 0;
             List identifierList = null;
             identifierList = getIdentifier(organizationVO);
-
+            System.out.println("22222222 after getIdentifier identifierList:"+identifierList);
             if (identifierList != null && !identifierList.isEmpty()) {
                 for (int k = 0; k < identifierList.size(); k++) {
                     identifier = (String) identifierList.get(k);
@@ -140,12 +141,13 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                             return edxActivityDetailLogDT;
                         }
                     } catch (Exception ex) {
-                        logger.error("Error in geting the  matching Organization");
+                        logger.error("Error in saveEdxEntityMatch in the matching Organization");
                         throw new DataProcessingException(
-                                "Error in geting the  matching Organization"
+                                "Error in saveEdxEntityMatch matching Organization"
                                         + ex.getMessage(), ex);
                     }
                     if (identifier != null) {
+                        System.out.println("-----identifier:"+identifier);
                         EdxEntityMatchDto edxEntityMatchDT = new EdxEntityMatchDto();
                         edxEntityMatchDT.setTypeCd(NEDSSConstant.ORGANIZATION);
                         edxEntityMatchDT.setMatchString(identifier);
@@ -163,6 +165,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
             if (nameAddStrSt1 != null) {
                 nameAddStrSt1 = nameAddStrSt1.toUpperCase();
                 nameAddStrSt1hshCd = nameAddStrSt1.hashCode();
+                System.out.println("-----nameAddStrSt1hshCd:"+nameAddStrSt1hshCd);
             }
             if (nameAddStrSt1 != null) {
 
@@ -177,6 +180,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                         if (localEdxEntityMatchDT != null) {
                             localEdxEntityMatchDT.setEntityUid(edxEntityMatchingDT
                                     .getEntityUid());
+                            System.out.println("-----edxEntityMatchingDT.getEntityUid():"+edxEntityMatchingDT.getEntityUid());
 //                            edxDao.setEdxEntityMatchDT(localEdxEntityMatchDT);
                             edxPatientMatchRepositoryUtil.saveEdxEntityMatch(localEdxEntityMatchDT);//TODO --new code
                         }
@@ -207,6 +211,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
             if (nameTelePhone != null) {
                 nameTelePhone = nameTelePhone.toUpperCase();
                 nameTelePhonehshCd = nameTelePhone.hashCode();
+                System.out.println("------ nameTelePhonehshCd:"+nameTelePhonehshCd);
             }
             if (nameTelePhone != null) {
                 try {
@@ -220,6 +225,8 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                             localEdxEntityMatchDT.setEntityUid(edxEntityMatchingDT
                                     .getEntityUid());
 //                            edxDao.setEdxEntityMatchDT(localEdxEntityMatchDT);
+                            System.out.println("----- before nameTelePhone save edxEntityMatchingDT.getEntityUid():"+edxEntityMatchingDT
+                                    .getEntityUid());
                             edxPatientMatchRepositoryUtil.saveEdxEntityMatch(localEdxEntityMatchDT);//TODO --new code
                         }
                         edxActivityDetailLogDT.setRecordId(""
@@ -299,15 +306,14 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
             if (coll != null) {
                 Iterator<EdxEntityMatchDto> it = coll.iterator();
                 while (it.hasNext()) {
-                    EdxEntityMatchDto edxEntityMatchDT = (EdxEntityMatchDto) it
-                            .next();
+                    EdxEntityMatchDto edxEntityMatchDT =  it.next();
                     edxEntityMatchDT.setEntityUid(entityUid);
+                    System.out.println("-----before save coll != null:"+entityUid);
 //                    edxDao.setEdxEntityMatchDT(edxEntityMatchDT);
                     edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);//TODO --new code
                 }
-
             }
-
+            System.out.println("----before getMatchingOrganization END entityUid:"+entityUid);
             edxActivityDetailLogDT.setRecordId("" + entityUid);
             edxActivityDetailLogDT.setComment("" + DET_MSG_ENTITY_EXISTS_FAIL_NEW
                     + edxActivityDetailLogDT.getRecordId());
@@ -412,8 +418,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
             Iterator<EntityLocatorParticipationDto> addIter = organizationVO
                     .getTheEntityLocatorParticipationDtoCollection().iterator();
             while (addIter.hasNext()) {
-                EntityLocatorParticipationDto entLocPartDT = (EntityLocatorParticipationDto) addIter
-                        .next();
+                EntityLocatorParticipationDto entLocPartDT = addIter.next();
                 if (entLocPartDT.getClassCd() != null
                         && entLocPartDT.getClassCd().equals(
                         NEDSSConstant.POSTAL)) {
@@ -445,8 +450,10 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 }
             }
         }
+        System.out.println("nameAddressStreetOne nameAddStr:"+nameAddStr);
         if (nameAddStr != null)
             nameAddStr = getNameString(organizationVO) + nameAddStr;
+        System.out.println("nameAddressStreetOne after getNameString nameAddStr:"+nameAddStr);
         return nameAddStr;
     }
 
@@ -471,7 +478,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
         }
         return nameStr;
     }
-    public String telePhoneTxt(OrganizationVO organizationVO) {
+    private String telePhoneTxt(OrganizationVO organizationVO) {
         String nameTeleStr = null;
         String carrot = "^";
 
@@ -505,6 +512,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
         if (nameTeleStr != null) {
             nameTeleStr = getNameString(organizationVO) + nameTeleStr;
         }
+        System.out.println("------nameTeleStr:"+nameTeleStr);
         return nameTeleStr;
     }
 }

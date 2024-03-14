@@ -2,7 +2,6 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model;
 
 import lombok.Getter;
 import lombok.Setter;
-
 import java.sql.Timestamp;
 
 @Getter

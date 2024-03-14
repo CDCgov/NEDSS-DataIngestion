@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.utilities.component.organization;
 
+import gov.cdc.dataprocessing.constant.elr.DataTables;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
@@ -13,6 +14,7 @@ import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.locator.PhysicalLocatorDto;
 import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
 import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.PrepareEntity;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityODSE;
@@ -24,10 +26,10 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.organization.Organizatio
 import gov.cdc.dataprocessing.repository.nbs.odse.model.organization.OrganizationName;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.other_move_as_needed.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.Participation;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.PrepareEntityStoredProcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityIdRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityLocatorParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.LocalUidGeneratorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PhysicalLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PostalLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.TeleLocatorRepository;
@@ -35,15 +37,16 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.Organizatio
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.OrganizationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
-import gov.cdc.dataprocessing.service.implementation.core.OdseIdGeneratorService;
 import gov.cdc.dataprocessing.service.interfaces.core.IOdseIdGeneratorService;
 import gov.cdc.dataprocessing.utilities.component.PrepareAssocModelHelper;
+import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -68,6 +71,7 @@ public class OrganizationRepositoryUtil {
     private final EntityHelper entityHelper;
     private final ParticipationRepository participationRepository;
     private final PrepareAssocModelHelper prepareAssocModelHelper;
+    private final PrepareEntityStoredProcRepository prepareEntityStoredProcRepository;
 
     public OrganizationRepositoryUtil(OrganizationRepository organizationRepository,
                                       OrganizationNameRepository organizationNameRepository,
@@ -81,7 +85,8 @@ public class OrganizationRepositoryUtil {
                                       IOdseIdGeneratorService odseIdGeneratorService,
                                       EntityHelper entityHelper,
                                       ParticipationRepository participationRepository,
-                                      PrepareAssocModelHelper prepareAssocModelHelper) {
+                                      PrepareAssocModelHelper prepareAssocModelHelper,
+                                      PrepareEntityStoredProcRepository prepareEntityStoredProcRepository) {
         this.organizationRepository = organizationRepository;
         this.organizationNameRepository = organizationNameRepository;
         this.entityRepository = entityRepository;
@@ -95,6 +100,7 @@ public class OrganizationRepositoryUtil {
         this.entityHelper = entityHelper;
         this.participationRepository = participationRepository;
         this.prepareAssocModelHelper = prepareAssocModelHelper;
+        this.prepareEntityStoredProcRepository = prepareEntityStoredProcRepository;
     }
 
     @Transactional
@@ -113,8 +119,8 @@ public class OrganizationRepositoryUtil {
             String localUid = "Unique Id here";
             LocalUidGenerator localIdModel = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION);
             organizationUid = localIdModel.getSeedValueNbr();
+            System.out.println("createOrganization organizationUid SeedValueNbr:" + organizationUid);
             localUid = localIdModel.getUidPrefixCd() + organizationUid + localIdModel.getUidSuffixCd();
-
 
             if (organizationVO.getTheOrganizationDT().getLocalId() == null || organizationVO.getTheOrganizationDT().getLocalId().trim().length() == 0) {
                 organizationVO.getTheOrganizationDT().setLocalId(localUid);
@@ -227,7 +233,7 @@ public class OrganizationRepositoryUtil {
 
     private Long insertOrganization(OrganizationVO organizationVO) throws DataProcessingException {
         OrganizationDT organizationDT = organizationVO.getTheOrganizationDT();
-        Long organizationUid = Long.valueOf(0);//new Long(0);
+        Long organizationUid = 0L;//new Long(0);
         try {
             /**
              * Inserts into entity table for organization
@@ -236,7 +242,7 @@ public class OrganizationRepositoryUtil {
             // new Organization Uid
             //uidGen.getNbsIDLong(UidClassCodes.NBS_CLASS_CODE);//TODO
             organizationUid = organizationDT.getOrganizationUid();
-
+            System.out.println("-----insertOrganization organizationUid:" + organizationUid);
             EntityODSE entityModel = new EntityODSE();
             entityModel.setEntityUid(organizationUid);
             entityModel.setClassCd(ORG);
@@ -272,8 +278,9 @@ public class OrganizationRepositoryUtil {
                 OrganizationNameDT orgNameDT = anIterator.next();
 
                 if (orgNameDT.getOrganizationNameSeq() == null)
-                    orgNameDT.setOrganizationNameSeq(Integer.valueOf(3));//TODO
+                    orgNameDT.setOrganizationNameSeq(Integer.valueOf(3));
 
+                System.out.println("-----insertOrganizationNames OrganizationNameSeq:" + orgNameDT.getOrganizationNameSeq());
                 if (orgNameDT != null) {
                     //insertOrganizationName(organizationUID, organizationName);
                     orgNameDT.setOrganizationUid(organizationUID);
@@ -302,6 +309,7 @@ public class OrganizationRepositoryUtil {
             Long pUid = organizationVO.getTheOrganizationDT().getOrganizationUid();
             for (int i = 0; i < entityList.size(); i++) {
                 entityList.get(i).setEntityUid(pUid);
+                System.out.println("----createEntityId OrganizationUid:" + pUid);
                 entityIdRepository.save(new EntityId(entityList.get(i)));
             }
         } catch (Exception e) {
@@ -315,6 +323,7 @@ public class OrganizationRepositoryUtil {
             for (int i = 0; i < entityLocatorList.size(); i++) {
                 EntityLocatorParticipationDto entityLocatorDT = entityLocatorList.get(i);
                 LocalUidGenerator localUid = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION);
+                System.out.println("createEntityLocatorParticipation localUid:" + localUid.getSeedValueNbr());
 //                Long uniqueId = UniqueIdGenerator.generateUniqueId();
                 if (entityLocatorDT.getClassCd().equals(NEDSSConstant.PHYSICAL) && entityLocatorDT.getThePhysicalLocatorDto() != null) {
                     entityLocatorDT.getThePhysicalLocatorDto().setPhysicalLocatorUid(localUid.getSeedValueNbr());
@@ -370,13 +379,12 @@ public class OrganizationRepositoryUtil {
         try {
             organizationUID = setOrganizationInternal(organizationVO, businessTriggerCd);
         } catch (DataProcessingException ex) {
-            logger.error("EntityControllerEJB.setOrganization: NEDSSConcurrentDataException: concurrent access is not allowed" + ex.getMessage(), ex);
+            logger.error("OrganizationRepositoryUtil.setOrganization: DataProcessingException:" + ex.getMessage(), ex);
             throw new DataProcessingException(ex.getMessage(), ex);
         } catch (Exception e) {
-            logger.error("EntityControllerEJB.setOrganization: Exception: " + e.getMessage(), e);
+            logger.error("OrganizationRepositoryUtil.setOrganization: Exception: " + e.getMessage(), e);
             throw new DataProcessingException(e.getMessage(), e);
         }
-
         return organizationUID;
     }
 
@@ -384,7 +392,9 @@ public class OrganizationRepositoryUtil {
         Long organizationUID = Long.valueOf(-1);
         try {
             logger.debug("\n\n Inside set");
-            if (!(organizationVO.isItNew()) && !(organizationVO.isItDirty())) {
+            if (!organizationVO.isItNew() && !organizationVO.isItDirty()) {
+                System.out.println("setOrganizationInternal not New and not Dirty.. OrganizationUid:" + organizationVO.getTheOrganizationDT()
+                        .getOrganizationUid());
                 return organizationVO.getTheOrganizationDT()
                         .getOrganizationUid();
             } else {
@@ -395,6 +405,9 @@ public class OrganizationRepositoryUtil {
                                 "ORGANIZATION",
                                 NEDSSConstant.BASE);
                 organizationVO.setTheOrganizationDT(newOrganizationDT);
+
+                prepareVO(organizationVO.getTheOrganizationDT(), businessTriggerCd,
+                        DataTables.ORGANIZATION_TABLE, NEDSSConstant.BASE);
 
                 Collection<EntityLocatorParticipationDto> elpDTCol = organizationVO
                         .getTheEntityLocatorParticipationDtoCollection();
@@ -420,7 +433,7 @@ public class OrganizationRepositoryUtil {
 
                 this.prepareOrganizationNameBeforePersistence(organizationVO);
 
-                Organization organization = null;
+//                Organization organization = null;
 //                NedssUtils nedssUtils = new NedssUtils();
 //                Object obj = nedssUtils.lookupBean(JNDINames.ORGANIZATIONEJB);
 //                logger.debug("EntityControllerEJB.setOrganization - lookup = "
@@ -431,14 +444,15 @@ public class OrganizationRepositoryUtil {
 //                        + home);
 
                 if (organizationVO.isItNew()) {
+                    System.out.println("11111111 for createOrganization");
 //                    organization = home.create(organizationVO);
                     organizationUID = createOrganization(organizationVO);
-                    logger.debug(" EntityControllerEJB.setOrganization -  Organization Created");
+                    logger.debug(" OrganizationRepositoryUtil.setOrganization -  Organization Created");
 //                    logger.debug("EntityControllerEJB.setOrganization - organization.getOrganizationVO().getTheOrganizationDT().getOrganizationUid() =  "
 //                            + organization.getOrganizationVO()
 //                            .getTheOrganizationDT()
 //                            .getOrganizationUid());
-                    logger.debug("EntityControllerEJB.setOrganization {}", organizationUID);
+                    logger.debug("OrganizationRepositoryUtil.setOrganization {}", organizationUID);
 //                    organizationUID = organization.getOrganizationVO()
 //                            .getTheOrganizationDT().getOrganizationUid();
                 } else {
@@ -448,11 +462,11 @@ public class OrganizationRepositoryUtil {
 //                    logger.debug(" EntityControllerEJB.setOrganization -  Organization Updated");
 //                    organizationUID = organization.getOrganizationVO()
 //                            .getTheOrganizationDT().getOrganizationUid();
-
+                    System.out.println("11111111 for updateOrganization");
                     updateOrganization(organizationVO);
                     organizationUID = organizationVO
                             .getTheOrganizationDT().getOrganizationUid();
-                    logger.debug(" EntityControllerEJB.setOrganization -  Organization Updated");
+                    logger.debug(" OrganizationRepositoryUtil.setOrganizationInternal -  Organization Updated");
                 }
             }
         } catch (Exception e) {
@@ -781,6 +795,76 @@ public class OrganizationRepositoryUtil {
             logger.error("Exception selectParticipation = " + se.getMessage(), se);
             throw new DataProcessingException("Error: Exception while selecting \n" +
                     se.getMessage());
+        }
+    }
+
+    private OrganizationDT prepareOrganizationDT() {
+
+        return null;
+    }
+
+    /**
+     * This method is used to prepare Dirty Acts,Dirty Entities,New Acts And New Entities depending
+     * you want to edit,delete or create records
+     *
+     * @param organizationDT    -- The DT to be prepared
+     * @param businessTriggerCd
+     * @param tableName
+     * @param moduleCd
+     * @return RootDTInterface -- the prepared DT(System attribute Set)
+     * @throws DataProcessingException
+     */
+    public OrganizationDT prepareVO(OrganizationDT organizationDT, String businessTriggerCd, String tableName, String moduleCd) throws DataProcessingException {
+        try {
+            if (organizationDT.isItNew() == false && organizationDT.isItDirty() == false && organizationDT.isItDelete() == false) {
+                throw new DataProcessingException("Error while calling prepareVO method in PrepareVOUtils");
+            }
+            logger.debug("(Boolean.FALSE).equals(new Boolean(theRootDTInterface.tableName)?:" + tableName + ":theRootDTInterface.moduleCd:" + moduleCd + ":businessTriggerCd:" + businessTriggerCd);
+            //Boolean testNewForRootDTInterface = theRootDTInterface.isItNew();
+//            if(theRootDTInterface.isItDirty() && (Boolean.FALSE).equals(new Boolean(theRootDTInterface.isItNew())))
+//            {
+//                logger.debug("!test1. theRootDTInterface isItNEW?:" + !theRootDTInterface.isItNew() +":theRootDTInterface.IsItDirty:" +!theRootDTInterface.isItDirty() );
+//                boolean result = dataConcurrenceCheck(theRootDTInterface, tableName, nbsSecurityObj);
+//                if(result)
+//                {
+//                    logger.debug("result in prepareVOUtil is :" + result);
+//                    //no concurrent dataAccess has occured, hence can continue!
+//                }
+//                else
+//                    throw new NEDSSConcurrentDataException("NEDSSConcurrentDataException occurred in PrepareVOUtils.Person");
+//            }
+
+            if (organizationDT.isItNew() || organizationDT.isItDirty()) {
+                long userId = AuthUtil.authUser.getAuthUserUid();
+                ;
+                Timestamp time = new Timestamp(new Date().getTime());
+                logger.debug("new entity");
+                PrepareEntity prepareEntity = this.getPrepareEntityForOrganization(businessTriggerCd, moduleCd, organizationDT.getOrganizationUid(), tableName);
+                organizationDT.setLocalId(prepareEntity.getLocalId());
+                organizationDT.setAddUserId(userId);
+                organizationDT.setAddTime(time);
+                organizationDT.setRecordStatusCd(prepareEntity.getRecordStatusState());
+                organizationDT.setStatusCd(prepareEntity.getObjectStatusState());
+                organizationDT.setRecordStatusTime(time);
+                organizationDT.setStatusTime(time);
+                organizationDT.setLastChgTime(time);
+                organizationDT.setLastChgUserId(userId);
+                organizationDT.setLastChgReasonCd(null);
+            }
+            return organizationDT;
+        } catch (Exception e) {
+            logger.error("Exception in PrepareVOUtils.prepareVO: LocalID: " + organizationDT.getLocalId() + ", businessTriggerCd: " + businessTriggerCd + ", tableName: " + tableName + ", " + e.getMessage(), e);
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+    @Transactional
+    public PrepareEntity getPrepareEntityForOrganization(String businessTriggerCd, String moduleCd, Long uid, String tableName) throws DataProcessingException {
+        try {
+            return prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, uid, tableName);
+        } catch (Exception ex) {
+            logger.error("Exception in getPrepareEntityForOrganization for businessTriggerCd=" + businessTriggerCd + " moduleCd=" + moduleCd + " uid:" + uid + " tableName=" + tableName + ": ERROR = " + ex);
+            throw new DataProcessingException(ex.toString(), ex);
         }
     }
 }

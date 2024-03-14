@@ -29,20 +29,25 @@ public class OrganizationService implements IOrganizationService {
 
     private static IOrganizationMatchingService iOrganizationMatchingService;
     private final OrganizationRepositoryUtil organizationRepositoryUtil;
-    public OrganizationService(IOrganizationMatchingService iOrganizationMatchingService,OrganizationRepositoryUtil organizationRepositoryUtil) {
+
+    public OrganizationService(IOrganizationMatchingService iOrganizationMatchingService, OrganizationRepositoryUtil organizationRepositoryUtil) {
         this.iOrganizationMatchingService = iOrganizationMatchingService;
-        this.organizationRepositoryUtil=organizationRepositoryUtil;
+        this.organizationRepositoryUtil = organizationRepositoryUtil;
     }
+
     public OrganizationVO testloadObject(long orguid, long actid) throws DataProcessingException {
-        OrganizationVO organizationVO=organizationRepositoryUtil.loadObject(orguid,actid);
-       return organizationVO;
+        OrganizationVO organizationVO = organizationRepositoryUtil.loadObject(orguid, actid);
+        return organizationVO;
     }
+
     public OrganizationVO processingOrganization(LabResultProxyContainer labResultProxyContainer) throws DataProcessingConsumerException {
-        OrganizationVO orderingFacilityVO=null;
+
+        OrganizationVO orderingFacilityVO = null;
         try {
             Collection<OrganizationVO> orgColl = labResultProxyContainer.getTheOrganizationVOCollection();
             if (orgColl != null) {
                 for (OrganizationVO organizationVO : orgColl) {
+
                     Long orgUid;
                     if (organizationVO.getRole() != null && organizationVO.getRole().equalsIgnoreCase(EdxELRConstant.ELR_SENDING_FACILITY_CD) && labResultProxyContainer.getSendingFacilityUid() != null) {
                         orgUid = labResultProxyContainer.getSendingFacilityUid();
@@ -54,6 +59,7 @@ public class OrganizationService implements IOrganizationService {
 
                         EDXActivityDetailLogDT eDXActivityDetailLogDT = iOrganizationMatchingService.getMatchingOrganization(organizationVO);
                         orgUid = Long.parseLong(eDXActivityDetailLogDT.getRecordId());
+
                     }
                     Long falseUid = organizationVO.getTheOrganizationDT()
                             .getOrganizationUid();

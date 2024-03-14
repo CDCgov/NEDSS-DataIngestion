@@ -92,7 +92,7 @@ public class LabResultUtil {
         role.setLastChgTime(edxELRLabMap.getAddTime());
         role.setCdDescTxt(edxELRLabMap.getRoleCdDescTxt());
         role.setSubjectClassCd(edxELRLabMap.getRoleSubjectClassCd());
-        role.setSubjectEntityUid(edxELRLabMap.getEntityUid());
+        //role.setSubjectEntityUid(edxELRLabMap.getEntityUid());
         role.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
         role.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
         role.setItNew(true);
@@ -121,7 +121,6 @@ public class LabResultUtil {
         edxLabInformation.setAddReasonCd(participationDT.getAddReasonCd());
         participationDTCollection.add(participationDT);
         labResultProxy.getTheParticipationDTCollection().add(participationDT);
-
 
         //Organization
         OrganizationDT organizationDT = new OrganizationDT();
@@ -172,13 +171,9 @@ public class LabResultUtil {
             entityIdDtoCollection.add(entityIdDto);
             organizationVO.setTheEntityIdDtoCollection(entityIdDtoCollection);
         }
-
-
         organizationVO.setItNew(true);
-        labResultProxy.getTheOrganizationVOCollection().add(organizationVO);
 
+        labResultProxy.getTheOrganizationVOCollection().add(organizationVO);
         return labResultProxy;
     }
-
-
 }

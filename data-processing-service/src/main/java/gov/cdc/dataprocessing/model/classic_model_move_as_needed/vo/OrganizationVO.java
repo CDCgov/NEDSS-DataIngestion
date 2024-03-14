@@ -41,4 +41,3 @@ public class OrganizationVO extends LdfBaseVO {
     private String localIdentifier;
     private String role;
 }
-
