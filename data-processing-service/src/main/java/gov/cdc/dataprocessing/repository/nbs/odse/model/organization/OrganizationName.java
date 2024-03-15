@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.organization;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.OrganizationNameDT;
+import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.OrganizationNameId;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -34,12 +34,12 @@ public class OrganizationName {
     public OrganizationName() {
     }
 
-    public OrganizationName(OrganizationNameDT organizationNameDT) {
-        this.organizationUid = organizationNameDT.getOrganizationUid();
-        this.organizationNameSeq = organizationNameDT.getOrganizationNameSeq();
-        this.nameText = organizationNameDT.getNmTxt();
-        this.nameUseCode = organizationNameDT.getNmUseCd();
-        this.recordStatusCode = organizationNameDT.getRecordStatusCd();
-        this.defaultNameIndicator = organizationNameDT.getDefaultNmInd();
+    public OrganizationName(OrganizationNameDto organizationNameDto) {
+        this.organizationUid = organizationNameDto.getOrganizationUid();
+        this.organizationNameSeq = organizationNameDto.getOrganizationNameSeq();
+        this.nameText = organizationNameDto.getNmTxt();
+        this.nameUseCode = organizationNameDto.getNmUseCd();
+        this.recordStatusCode = organizationNameDto.getRecordStatusCd();
+        this.defaultNameIndicator = organizationNameDto.getDefaultNmInd();
     }
 }

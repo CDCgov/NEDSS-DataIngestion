@@ -5,7 +5,7 @@ import gov.cdc.dataprocessing.model.dto.matching.EdxEntityMatchDto;
 import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.matching.EdxEntityMatchRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.matching.EdxPatientMatchRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.matching.EdxPatientMatchStoredProcRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.EdxPatientMatchStoredProcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.matching.EdxEntityMatch;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.matching.EdxPatientMatch;
 import jakarta.transaction.Transactional;

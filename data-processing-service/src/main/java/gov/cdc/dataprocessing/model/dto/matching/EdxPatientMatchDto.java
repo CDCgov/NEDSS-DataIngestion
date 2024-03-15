@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.model.dto.matching;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
+import gov.cdc.dataprocessing.model.container.BaseContainer;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class EdxPatientMatchDto extends AbstractVO {
+public class EdxPatientMatchDto extends BaseContainer {
 
     private Long edxPatientMatchUid;
     private Long patientUid;

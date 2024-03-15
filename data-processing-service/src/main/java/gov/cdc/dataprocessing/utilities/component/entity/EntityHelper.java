@@ -1,10 +1,12 @@
 package gov.cdc.dataprocessing.utilities.component.entity;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
+import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
+import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ParticipationDT;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
-import gov.cdc.dataprocessing.utilities.component.PrepareAssocModelHelper;
+import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -101,42 +103,77 @@ public class EntityHelper {
 
     /**
      * This private method is used to populate the system attributes on the
-     * ParticipationDT Collection<Object>
+     * ParticipationDto Collection<Object>
      *
      * @param dtCol
      *            Collection<Object>
      *            NBSSecurityObj object
-     * @return Collection<Object> ParticipationDT collection object populated
+     * @return Collection<Object> ParticipationDto collection object populated
      *         with system attributes
      */
 
-    public Collection<ParticipationDT> iteratePDTForParticipation(Collection<ParticipationDT> dtCol) throws DataProcessingException {
-        Collection<ParticipationDT> retCol = new ArrayList<>();
-        Collection<ParticipationDT> collection = new ArrayList<>();
-        Iterator<ParticipationDT> anIterator = null;
+    public Collection<ParticipationDto> iteratePDTForParticipation(Collection<ParticipationDto> dtCol) throws DataProcessingException {
+        Collection<ParticipationDto> retCol = new ArrayList<>();
+        Collection<ParticipationDto> collection;
+        Iterator<ParticipationDto> anIterator;
         collection = dtCol;
-        logger.debug("Collection<Object> size before iteration in iteratePDT " + collection.size());
-        if (collection != null) {
-            try {
-                for (anIterator = collection.iterator(); anIterator.hasNext();) {
-                    ParticipationDT pDT = (ParticipationDT) anIterator.next();
-                    if (pDT.isItDirty() || pDT.isItNew() || pDT.isItDelete()) {
-                        logger.debug("EntityController:pdT.IsItDelete"
-                                + pDT.isItDelete() + "pdt.IsItNew:"
-                                + pDT.isItNew() + "pdt.IsItDirty:"
-                                + pDT.isItDirty());
-                        ParticipationDT assocDTInterface = pDT;
-                        pDT = prepareAssocModel.prepareAssocDTForParticipation(assocDTInterface);
-                        retCol.add(pDT);
-                    }
+        if (!collection.isEmpty()) {
+            for (anIterator = collection.iterator(); anIterator.hasNext();) {
+                ParticipationDto pDT = anIterator.next();
+                if (pDT.isItDirty() || pDT.isItNew() || pDT.isItDelete()) {
+                    ParticipationDto assocDTInterface = pDT;
+                    pDT = prepareAssocModel.prepareAssocDTForParticipation(assocDTInterface);
+                    retCol.add(pDT);
                 }
-            } catch (Exception e) {
-                logger.error("EntityControllerEJB.iteratePDT: " + e.getMessage(), e);
-                throw new DataProcessingException(e.getMessage(), e);
             }
         }
-        logger.debug("Collection<Object> size after iteration in iteratePDT "
-                + retCol.size());
+        return retCol;
+    }
+
+
+    public Collection<ActivityLocatorParticipationDto> iterateActivityParticipation(Collection<ActivityLocatorParticipationDto> dtCol) throws DataProcessingException {
+
+        Collection<ActivityLocatorParticipationDto> retCol = new ArrayList<> ();
+        Collection<ActivityLocatorParticipationDto> collection;
+        collection = dtCol;
+
+        Iterator<ActivityLocatorParticipationDto> anIterator;
+
+        if (collection != null)
+        {
+            for (anIterator = collection.iterator(); anIterator.hasNext();)
+            {
+
+                ActivityLocatorParticipationDto alpDT = anIterator.next();
+                ActivityLocatorParticipationDto assocDTInterface = alpDT;
+                alpDT = prepareAssocModel.prepareActivityLocatorParticipationDT(assocDTInterface);
+                retCol.add(alpDT);
+            }
+        }
+
+        return retCol;
+    }
+
+    public Collection<ActRelationshipDto> iterateActRelationship(Collection<ActRelationshipDto> dtCol) throws DataProcessingException {
+
+        Collection<ActRelationshipDto> retCol = new ArrayList<> ();
+        Collection<ActRelationshipDto> collection;
+        Iterator<ActRelationshipDto> anIterator;
+        collection = dtCol;
+        if (collection != null)
+        {
+            for (anIterator = collection.iterator(); anIterator.hasNext();)
+            {
+                ActRelationshipDto arDT = anIterator.next();
+                ActRelationshipDto assocDTInterface = arDT;
+                if(arDT.isItDirty() || arDT.isItNew() || arDT.isItDelete())
+                {
+                    arDT = prepareAssocModel.prepareActRelationshipDT(assocDTInterface);
+                    retCol.add(arDT);
+                }
+            }
+        }
+
         return retCol;
     }
 

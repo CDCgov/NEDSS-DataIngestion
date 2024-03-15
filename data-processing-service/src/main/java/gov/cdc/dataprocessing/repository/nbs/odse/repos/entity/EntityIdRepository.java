@@ -14,6 +14,8 @@ public interface EntityIdRepository extends JpaRepository<EntityId, Long> {
     @Query("SELECT pn FROM EntityId pn WHERE pn.entityUid = :parentUid")
     Optional<List<EntityId>> findByParentUid(@Param("parentUid") Long parentUid);
 
+    @Query("SELECT MAX(pn.entityIdSeq) FROM EntityId pn WHERE pn.entityUid = :parentUid")
+    Optional<Integer> findMaxEntityId(@Param("parentUid") Long parentUid);
     @Query("SELECT eid FROM EntityId eid WHERE eid.entityUid = :entityUid AND eid.recordStatusCode ='ACTIVE'")
     Optional<List<EntityId>> findByEntityUid(@Param("entityUid") Long entityUid);
 }

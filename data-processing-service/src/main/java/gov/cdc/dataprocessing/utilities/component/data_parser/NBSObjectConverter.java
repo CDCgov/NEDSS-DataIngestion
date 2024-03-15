@@ -3,20 +3,20 @@ package gov.cdc.dataprocessing.utilities.component.data_parser;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.dto.EdxLabInformationDto;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.*;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.OrganizationVO;
+import gov.cdc.dataprocessing.model.container.OrganizationContainer;
+import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
 import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
+import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
-import gov.cdc.dataprocessing.service.interfaces.core.ICheckingValueService;
+import gov.cdc.dataprocessing.service.interfaces.other.ICheckingValueService;
 import gov.cdc.dataprocessing.utilities.data_extraction.EntityIdUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -337,16 +337,16 @@ public class NBSObjectConverter {
         return elp;
     }
 
-    public EntityLocatorParticipationDto organizationAddressType(HL7XADType hl7XADType, String role, OrganizationVO organizationVO) {
+    public EntityLocatorParticipationDto organizationAddressType(HL7XADType hl7XADType, String role, OrganizationContainer organizationContainer) {
         EntityLocatorParticipationDto elp = addressType(hl7XADType, role);
-        elp.setEntityUid(organizationVO.getTheOrganizationDT().getOrganizationUid());
-        elp.setAddUserId(organizationVO.getTheOrganizationDT().getAddUserId());
-        elp.setAsOfDate(organizationVO.getTheOrganizationDT().getLastChgTime());
+        elp.setEntityUid(organizationContainer.getTheOrganizationDto().getOrganizationUid());
+        elp.setAddUserId(organizationContainer.getTheOrganizationDto().getAddUserId());
+        elp.setAsOfDate(organizationContainer.getTheOrganizationDto().getLastChgTime());
         if (elp.getThePostalLocatorDto() == null) {
             elp.setThePostalLocatorDto(new PostalLocatorDto());
         }
-        elp.getThePostalLocatorDto().setAddUserId(organizationVO.getTheOrganizationDT().getAddUserId());
-        organizationVO.getTheEntityLocatorParticipationDtoCollection().add(elp);
+        elp.getThePostalLocatorDto().setAddUserId(organizationContainer.getTheOrganizationDto().getAddUserId());
+        organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(elp);
         return elp;
     }
 
@@ -591,7 +591,7 @@ public class NBSObjectConverter {
 
         if(!incorrectLength){
 
-            if (hl7AreaCityCode != null) {
+            if (hl7AreaCityCode != null && hl7AreaCityCode.getHL7Numeric() != null) {
                 areaCode = String.valueOf(hl7AreaCityCode.getHL7Numeric().intValue());
             }
             hl7LocalNumber = hl7XTNType.getHL7LocalNumber();
@@ -599,7 +599,7 @@ public class NBSObjectConverter {
             /** length"9 */
             /*If the float is too long, like 10 digits, the float format would be somethign line 11.1F, and trying to convert it to String, in some cases, the precision
              * is not great, and the number changes. That is the reason I am treating the local number as String. NBSCentral defect related is #2758*/
-            if (hl7LocalNumber != null) {
+            if (hl7LocalNumber != null && hl7LocalNumber.getHL7Numeric() != null) {
 
 //                String localNumberString = hl7LocalNumber.toString();
 //                int begin = localNumberString.indexOf(">");
@@ -647,7 +647,7 @@ public class NBSObjectConverter {
         boolean incorrectLength = false;
         String areaCode, number;
 
-        if (HL7Type != null) {
+        if (HL7Type != null && HL7Type.getHL7Numeric() != null) {
             String areaCodeString = HL7Type.getHL7Numeric().toString();
 
             if(areaCodeString.length()>10){//Phone number more than 10 digits
@@ -703,7 +703,7 @@ public class NBSObjectConverter {
 
         boolean incorrectLength = false;
         String areaCode, number;
-        if (HL7Type != null) {
+        if (HL7Type != null && HL7Type.getHL7Numeric() != null) {
 
             String areaCodeString =HL7Type.getHL7Numeric().toString();
 
@@ -724,29 +724,29 @@ public class NBSObjectConverter {
         return incorrectLength;
     }
 
-    public static ParticipationDT defaultParticipationDT(ParticipationDT participationDT, EdxLabInformationDto edxLabInformationDto) {
-        participationDT.setAddTime(edxLabInformationDto.getAddTime());
-        participationDT.setLastChgTime(edxLabInformationDto.getAddTime());
-        participationDT.setAddUserId(edxLabInformationDto.getUserId());
-        participationDT.setAddReasonCd(EdxELRConstant.ELR_ROLE_REASON);
-        participationDT.setAddTime(edxLabInformationDto.getAddTime());
-        participationDT.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
-        participationDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
-        participationDT.setItDirty(false);
-        participationDT.setItNew(true);
+    public static ParticipationDto defaultParticipationDT(ParticipationDto participationDto, EdxLabInformationDto edxLabInformationDto) {
+        participationDto.setAddTime(edxLabInformationDto.getAddTime());
+        participationDto.setLastChgTime(edxLabInformationDto.getAddTime());
+        participationDto.setAddUserId(edxLabInformationDto.getUserId());
+        participationDto.setAddReasonCd(EdxELRConstant.ELR_ROLE_REASON);
+        participationDto.setAddTime(edxLabInformationDto.getAddTime());
+        participationDto.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
+        participationDto.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
+        participationDto.setItDirty(false);
+        participationDto.setItNew(true);
 
-        return participationDT;
+        return participationDto;
     }
 
-    public static EntityLocatorParticipationDto orgTelePhoneType(HL7XTNType hl7XTNType, String role, OrganizationVO organizationVO) {
+    public static EntityLocatorParticipationDto orgTelePhoneType(HL7XTNType hl7XTNType, String role, OrganizationContainer organizationContainer) {
         EntityLocatorParticipationDto elp = telePhoneType(hl7XTNType, role);
-        elp.setAddUserId(organizationVO.getTheOrganizationDT().getAddUserId());
-        elp.setEntityUid(organizationVO.getTheOrganizationDT().getOrganizationUid());
-        elp.setAsOfDate(organizationVO.getTheOrganizationDT().getLastChgTime());
+        elp.setAddUserId(organizationContainer.getTheOrganizationDto().getAddUserId());
+        elp.setEntityUid(organizationContainer.getTheOrganizationDto().getOrganizationUid());
+        elp.setAsOfDate(organizationContainer.getTheOrganizationDto().getLastChgTime());
         if (elp.getTheTeleLocatorDto() == null) {
             elp.setTheTeleLocatorDto(new TeleLocatorDto());
         }
-        elp.getTheTeleLocatorDto().setAddUserId(organizationVO.getTheOrganizationDT().getAddUserId());
+        elp.getTheTeleLocatorDto().setAddUserId(organizationContainer.getTheOrganizationDto().getAddUserId());
         return elp;
 
     }

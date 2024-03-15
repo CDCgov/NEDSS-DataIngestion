@@ -1,8 +1,11 @@
 package gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ActRelationshipDT;
+import gov.cdc.dataprocessing.model.container.BaseContainer;
+import gov.cdc.dataprocessing.model.container.BasePamContainer;
+import gov.cdc.dataprocessing.model.container.OrganizationContainer;
+import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ExportReceivingFacilityDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ParticipationDT;
+import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +14,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
-public class PageActProxyVO  extends AbstractVO {
+public class PageActProxyVO  extends BaseContainer {
     private static final long         serialVersionUID = 1L;
 
     public String                     pageProxyTypeCd  = "";
@@ -28,7 +31,7 @@ public class PageActProxyVO  extends AbstractVO {
     private boolean                   isSTDProgramArea = false;
     private Collection<PersonContainer> thePersonContainerCollection;
 
-    private PamVO                     pageVO;
+    private BasePamContainer pageVO;
     // contains answer maps
 
     private Collection<Object>        theVaccinationSummaryVOCollection;
@@ -36,11 +39,11 @@ public class PageActProxyVO  extends AbstractVO {
     private Collection<Object>        theTreatmentSummaryVOCollection;
     private Collection<Object>        theLabReportSummaryVOCollection;
     private Collection<Object>        theMorbReportSummaryVOCollection;
-    private Collection<ParticipationDT>        theParticipationDTCollection;
+    private Collection<ParticipationDto> theParticipationDtoCollection;
 
-    private Collection<ActRelationshipDT>        theActRelationshipDTCollection;
+    private Collection<ActRelationshipDto> theActRelationshipDtoCollection;
     private Collection<Object>        theInvestigationAuditLogSummaryVOCollection;
-    private Collection<OrganizationVO>        theOrganizationVOCollection;
+    private Collection<OrganizationContainer> theOrganizationContainerCollection;
     private Collection<Object>        theCTContactSummaryDTCollection;
     private Collection<Object>        theInterviewSummaryDTCollection;
     private Collection<Object>        theNotificationVOCollection;

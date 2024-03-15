@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.model.dto.msgoute;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
+import gov.cdc.dataprocessing.model.container.BaseContainer;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class NbsInterfaceDto extends AbstractVO {
+public class NbsInterfaceDto extends BaseContainer {
     private Long nbsInterfaceUid;
     private Blob payload;
     private String impExpIndCd;

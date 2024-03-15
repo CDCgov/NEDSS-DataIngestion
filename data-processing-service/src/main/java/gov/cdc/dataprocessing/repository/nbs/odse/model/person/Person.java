@@ -19,7 +19,7 @@ public class Person  {
     @Column(name = "person_uid")
     private Long personUid;
 
-    @Version
+//    @Version
     @Column(name = "version_ctrl_nbr", nullable = false)
     private Integer versionCtrlNbr;
 

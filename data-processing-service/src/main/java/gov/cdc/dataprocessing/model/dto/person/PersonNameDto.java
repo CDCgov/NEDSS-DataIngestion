@@ -1,6 +1,8 @@
 package gov.cdc.dataprocessing.model.dto.person;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
+import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
+import gov.cdc.dataprocessing.model.container.BaseContainer;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonName;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +11,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 public class PersonNameDto
-        extends AbstractVO {
+        extends BaseContainer implements RootDtoInterface {
     private Long personUid;
     private Integer personNameSeq;
     private String addReasonCd;
@@ -51,6 +53,16 @@ public class PersonNameDto
     private boolean itDelete = false;
     private Integer versionCtrlNbr;
     private String localId;
+
+    public String getSuperclass() {
+        this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
+        return superClassType;
+    }
+
+    @Override
+    public Long getUid() {
+        return personUid;
+    }
 
     public PersonNameDto() {
 

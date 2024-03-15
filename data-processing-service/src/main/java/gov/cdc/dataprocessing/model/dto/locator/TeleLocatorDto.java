@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.model.dto.locator;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
+import gov.cdc.dataprocessing.model.container.BaseContainer;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.TeleLocator;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class TeleLocatorDto extends AbstractVO {
+public class TeleLocatorDto extends BaseContainer {
     private Long teleLocatorUid;
     private String addReasonCd;
     private Timestamp addTime;
