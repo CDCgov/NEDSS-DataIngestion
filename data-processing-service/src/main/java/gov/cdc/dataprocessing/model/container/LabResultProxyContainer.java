@@ -1,11 +1,8 @@
 package gov.cdc.dataprocessing.model.container;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EDXDocumentDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.MessageLogDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ParticipationDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.MaterialVO;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.ObservationVO;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.OrganizationVO;
+import gov.cdc.dataprocessing.model.dto.edx.EDXDocumentDto;
+import gov.cdc.dataprocessing.model.dto.log.MessageLogDto;
+import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxyVO;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import lombok.Getter;
@@ -22,17 +19,18 @@ public class LabResultProxyContainer extends PageActProxyVO {
     private Long sendingFacilityUid;
     public boolean associatedInvInd=false;
     //private Collection<Object> thePersonVOCollection;
-    private Collection<ObservationVO> theObservationVOCollection = new ArrayList<>();
-    private Collection<OrganizationVO> theOrganizationVOCollection = new ArrayList<>();
-    private Collection<MaterialVO> theMaterialVOCollection = new ArrayList<>();
-    private Collection<ParticipationDT> theParticipationDTCollection = new ArrayList<>();
-    //  private Collection<Object> theActRelationshipDTCollection;
+    private Collection<ObservationContainer> theObservationContainerCollection = new ArrayList<>();
+    private Collection<OrganizationContainer> theOrganizationContainerCollection = new ArrayList<>();
+    private Collection<MaterialContainer> theMaterialContainerCollection = new ArrayList<>();
+    private Collection<ParticipationDto> theParticipationDtoCollection = new ArrayList<>();
+    //  private Collection<Object> theActRelationshipDtoCollection;
     private Collection<RoleDto> theRoleDtoCollection = new ArrayList<>();
     private Collection<Object> theActIdDTCollection;
     public Collection<Object> theInterventionVOCollection;
-    public Collection<EDXDocumentDT> eDXDocumentCollection;
+    public Collection<EDXDocumentDto> eDXDocumentCollection;
     private ArrayList<String> theConditionsList;
-    private Collection<MessageLogDT> messageLogDCollection =null;
-
+    private Collection<MessageLogDto> messageLogDCollection =null;
+    private String labClia = null;
+    private boolean manualLab = false;
 
 }

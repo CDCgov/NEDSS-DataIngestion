@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
+import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.model.container.BaseContainer;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,7 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class InterviewDT extends AbstractVO {
+public class InterviewDT extends BaseContainer {
     private static final long serialVersionUID = 1L;
 
 
@@ -51,4 +52,9 @@ public class InterviewDT extends AbstractVO {
     private String lastChgUserName;
 
     private boolean associated;
+
+    public String getSuperclass() {
+        this.superClassType = NEDSSConstant.CLASSTYPE_ACT;
+        return superClassType;
+    }
 }

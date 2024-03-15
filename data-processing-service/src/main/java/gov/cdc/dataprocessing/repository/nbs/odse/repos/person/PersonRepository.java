@@ -18,4 +18,13 @@ public interface PersonRepository  extends JpaRepository<Person, Long> {
     @Modifying
     @Query("UPDATE Person p SET p.edxInd = 'Y' WHERE p.personUid = :uid")
     Integer updateExistingPersonEdxIndByUid(@Param("uid") Long uid);
+
+    /**
+     *
+     * String PATIENTPARENTUID_BY_UID = " SELECT p.person_parent_uid \"personParentUid\"
+     * FROM person p with (nolock)  where p.person_uid = ? AND p.record_status_cd = 'ACTIVE' "
+     * */
+    @Query("SELECT pn.personParentUid FROM Person pn WHERE pn.personUid = :parentUid AND pn.recordStatusCd='ACTIVE' ")
+    Optional<List<Long>> findPatientParentUidByUid(@Param("parentUid") Long parentUid);
+
 }

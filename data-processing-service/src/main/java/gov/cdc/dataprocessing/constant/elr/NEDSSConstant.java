@@ -1622,7 +1622,7 @@ public class NEDSSConstant {
     public final static String SETLAB_RETURN_MPR_UID = "MPRUid";
 
     public final static String SETLAB_RETURN_OBS_LOCAL = "ObservationLocalId";
-    public final static String SETLAB_RETURN_OBSDT = "ObservationDT";
+    public final static String SETLAB_RETURN_OBSDT = "ObservationDto";
 
     public final static String SETLAB_RETURN_MPR_LOCAL = "MPRLocalId";
 

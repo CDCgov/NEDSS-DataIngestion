@@ -1,0 +1,51 @@
+package gov.cdc.dataprocessing.repository.nbs.srte.model;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.sql.Timestamp;
+
+@Entity
+@Table(name = "Lab_test")
+@Data
+public class LabTest {
+    @Id
+    @Column(name = "lab_test_cd")
+    private String labTestCd;
+
+    @Column(name = "laboratory_id")
+    private String laboratoryId;
+
+    @Column(name = "lab_result_desc_txt")
+    private String labResultDescTxt;
+
+    @Column(name = "test_type_cd")
+    private String testTypeCd;
+
+    @Column(name = "nbs_uid")
+    private Long nbsUid;
+
+    @Column(name = "effective_from_time")
+    private Timestamp effectiveFromTime;
+
+    @Column(name = "effective_to_time")
+    private Timestamp effectiveToTime;
+
+    @Column(name = "default_prog_area_cd")
+    private String defaultProgAreaCd;
+
+    @Column(name = "default_condition_cd")
+    private String defaultConditionCd;
+
+    @Column(name = "drug_test_ind")
+    private String drugTestInd;
+
+    @Column(name = "organism_result_test_ind")
+    private String organismResultTestInd;
+
+    @Column(name = "indent_level_nbr")
+    private Integer indentLevelNbr;
+
+    @Column(name = "pa_derivation_exclude_cd")
+    private String paDerivationExcludeCd;
+}

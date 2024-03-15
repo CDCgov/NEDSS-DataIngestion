@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.organization;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.OrganizationDT;
+import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -127,42 +127,42 @@ public class Organization {
 
     public Organization() {
     }
-    public Organization(OrganizationDT organizationDT) {
-        this.organizationUid = organizationDT.getOrganizationUid();
-        this.addReasonCode = organizationDT.getAddReasonCd();
-        this.addTime = organizationDT.getAddTime();
-        this.addUserId = organizationDT.getAddUserId();
-        this.code = organizationDT.getCd();
-        this.codeDescTxt = organizationDT.getCdDescTxt();
-        this.description = organizationDT.getDescription();
-        this.durationAmt = organizationDT.getDurationAmt();
-        this.durationUnitCd = organizationDT.getDurationUnitCd();
-        this.fromTime = organizationDT.getFromTime();
-        this.lastChgReasonCd = organizationDT.getLastChgReasonCd();
-        this.lastChgTime = organizationDT.getLastChgTime();
-        this.lastChgUserId = organizationDT.getLastChgUserId();
-        this.localId = organizationDT.getLocalId();
-        this.recordStatusCd = organizationDT.getRecordStatusCd();
-        this.recordStatusTime = organizationDT.getRecordStatusTime();
-        this.standardIndustryClassCd = organizationDT.getStandardIndustryClassCd();
-        this.standardIndustryDescTxt = organizationDT.getStandardIndustryDescTxt();
-        this.statusCd = organizationDT.getStatusCd();
-        this.statusTime = organizationDT.getStatusTime();
-        this.toTime = organizationDT.getToTime();
-        this.userAffiliationTxt = organizationDT.getUserAffiliationTxt();
-        this.displayNm = organizationDT.getDisplayNm();
-        this.streetAddr1 = organizationDT.getStreetAddr1();
-        this.streetAddr2 = organizationDT.getStreetAddr2();
-        this.cityCd = organizationDT.getCityCd();
-        this.cityDescTxt = organizationDT.getCityDescTxt();
-        this.stateCd = organizationDT.getStateCd();
-        this.cntyCd = organizationDT.getCntyCd();
-        this.cntryCd = organizationDT.getCntryCd();
-        this.zipCd = organizationDT.getZipCd();
-        this.phoneNbr = organizationDT.getPhoneNbr();
-        this.phoneCntryCd = organizationDT.getPhoneCntryCd();
-        this.versionCtrlNbr = organizationDT.getVersionCtrlNbr();
-        this.electronicInd = organizationDT.getElectronicInd();
-        this.edxInd = organizationDT.getEdxInd();
+    public Organization(OrganizationDto organizationDto) {
+        this.organizationUid = organizationDto.getOrganizationUid();
+        this.addReasonCode = organizationDto.getAddReasonCd();
+        this.addTime = organizationDto.getAddTime();
+        this.addUserId = organizationDto.getAddUserId();
+        this.code = organizationDto.getCd();
+        this.codeDescTxt = organizationDto.getCdDescTxt();
+        this.description = organizationDto.getDescription();
+        this.durationAmt = organizationDto.getDurationAmt();
+        this.durationUnitCd = organizationDto.getDurationUnitCd();
+        this.fromTime = organizationDto.getFromTime();
+        this.lastChgReasonCd = organizationDto.getLastChgReasonCd();
+        this.lastChgTime = organizationDto.getLastChgTime();
+        this.lastChgUserId = organizationDto.getLastChgUserId();
+        this.localId = organizationDto.getLocalId();
+        this.recordStatusCd = organizationDto.getRecordStatusCd();
+        this.recordStatusTime = organizationDto.getRecordStatusTime();
+        this.standardIndustryClassCd = organizationDto.getStandardIndustryClassCd();
+        this.standardIndustryDescTxt = organizationDto.getStandardIndustryDescTxt();
+        this.statusCd = organizationDto.getStatusCd();
+        this.statusTime = organizationDto.getStatusTime();
+        this.toTime = organizationDto.getToTime();
+        this.userAffiliationTxt = organizationDto.getUserAffiliationTxt();
+        this.displayNm = organizationDto.getDisplayNm();
+        this.streetAddr1 = organizationDto.getStreetAddr1();
+        this.streetAddr2 = organizationDto.getStreetAddr2();
+        this.cityCd = organizationDto.getCityCd();
+        this.cityDescTxt = organizationDto.getCityDescTxt();
+        this.stateCd = organizationDto.getStateCd();
+        this.cntyCd = organizationDto.getCntyCd();
+        this.cntryCd = organizationDto.getCntryCd();
+        this.zipCd = organizationDto.getZipCd();
+        this.phoneNbr = organizationDto.getPhoneNbr();
+        this.phoneCntryCd = organizationDto.getPhoneCntryCd();
+        this.versionCtrlNbr = organizationDto.getVersionCtrlNbr();
+        this.electronicInd = organizationDto.getElectronicInd();
+        this.edxInd = organizationDto.getEdxInd();
     }
 }

@@ -1,6 +1,8 @@
 package gov.cdc.dataprocessing.model.dto.person;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.AbstractVO;
+import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
+import gov.cdc.dataprocessing.model.container.BaseContainer;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +11,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class PersonDto extends AbstractVO {
+public class PersonDto extends BaseContainer implements RootDtoInterface {
     private static final long serialVersionUID = 1L;
     private String dedupMatchInd;
     private Integer groupNbr;
@@ -130,6 +132,17 @@ public class PersonDto extends AbstractVO {
     private String ethnicUnkReasonCd;
     private String sexUnkReasonCd;
     private boolean isReentrant= false;
+
+    // Same on PersonHIST
+    public String getSuperclass() {
+        this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
+        return superClassType;
+    }
+
+    @Override
+    public Long getUid() {
+        return personUid;
+    }
 
     public PersonDto() {
 
