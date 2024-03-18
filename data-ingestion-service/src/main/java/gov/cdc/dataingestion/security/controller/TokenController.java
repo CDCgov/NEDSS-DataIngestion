@@ -33,6 +33,14 @@ public class TokenController {
     @PostMapping("/token")
     public ResponseEntity<String> token(@RequestHeader("clientid") String clientId, @RequestHeader("clientsecret") String clientSecret) {
         log.info("Token URL : " + authTokenUri);
+        log.info("---totalMemory:"+(Runtime.getRuntime().totalMemory()));
+        log.info("-----maxMemory:"+(Runtime.getRuntime().maxMemory()));
+        log.info("----freeMemory:"+(Runtime.getRuntime().freeMemory()));
+
+        log.info("-MB-totalMemory:"+(Runtime.getRuntime().totalMemory()*Math.pow(10, -6)));
+        log.info("-----maxMemory:"+(Runtime.getRuntime().maxMemory()*Math.pow(10, -6)));
+        log.info("----freeMemory:"+(Runtime.getRuntime().freeMemory()*Math.pow(10, -6)));
+
         String accessToken = null;
         String postBody = "grant_type=client_credentials" +
                 "&client_id=" + clientId
