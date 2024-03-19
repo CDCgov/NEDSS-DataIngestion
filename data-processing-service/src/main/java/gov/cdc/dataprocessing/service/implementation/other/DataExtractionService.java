@@ -92,11 +92,7 @@ public class DataExtractionService implements IDataExtractionService {
             HL7LabReportType hl7LabReportType = container.getHL7LabReport();
             HL7MSHType hl7MSHType = hl7LabReportType.getHL7MSH();
 
-            /**
-             * Paring MSH Value into Object
-             *  Sending Facility
-             *  Organization
-             * */
+
             labResultProxyContainer = LabResultUtil.getLabResultMessage(hl7MSHType, edxLabInformationDto);
             List<HL7PATIENTRESULTType> HL7PatientResultArray = hl7LabReportType.getHL7PATIENTRESULT();
             HL7PatientResultSPMType hl7PatientResultSPMType = null;

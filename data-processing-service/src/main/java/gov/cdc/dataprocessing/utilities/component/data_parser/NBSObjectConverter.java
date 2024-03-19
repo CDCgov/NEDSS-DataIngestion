@@ -186,17 +186,20 @@ public class NBSObjectConverter {
             /** Optional maxOccurs="1 */
             /** length"3 */
 
-            if (role.equalsIgnoreCase(EdxELRConstant.ELR_OP_CD)) {
+            if (role.equalsIgnoreCase(EdxELRConstant.ELR_OP_CD))
+            {
                 elp.setClassCd(EdxELRConstant.ELR_POSTAL_CD);
                 elp.setUseCd(EdxELRConstant.ELR_WORKPLACE_CD);
                 elp.setCd(EdxELRConstant.ELR_OFFICE_CD);
                 elp.setCdDescTxt(EdxELRConstant.ELR_OFFICE_DESC);
-            } else if (role.equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
+            }
+            else if (role.equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
                 elp.setClassCd(EdxELRConstant.ELR_POSTAL_CD);
                 elp.setUseCd(EdxELRConstant.ELR_USE_EMERGENCY_CONTACT_CD);
                 elp.setCd(EdxELRConstant.ELR_HOUSE_CD);
                 elp.setCdDescTxt(EdxELRConstant.ELR_HOUSE_DESC);
-            } else {
+            }
+            else {
                 elp.setCd(Objects.requireNonNullElse(addressType, EdxELRConstant.ELR_HOUSE_CD));
                 elp.setClassCd(NEDSSConstant.POSTAL);
                 elp.setUseCd(NEDSSConstant.HOME);

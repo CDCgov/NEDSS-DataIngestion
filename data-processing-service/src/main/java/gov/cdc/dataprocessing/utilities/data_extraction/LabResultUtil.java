@@ -17,6 +17,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class LabResultUtil {
+
+
+    /**
+     * Description: Update Lab Result Container.
+     * This method create these object in order. given value from edxELRLabMap.
+     * These objects tightly associated with order
+     * 1 - Role Dto
+     * 2 - Participation Dto
+     * 3 - Organization Dto
+     * 4 - Organization Name Dto
+     * 5 - Entity Id Dto
+     * */
     public static LabResultProxyContainer getLabResultMessage(HL7MSHType hl7MSHType, EdxLabInformationDto edxLabInformationDto) {
         LabResultProxyContainer labResultProxy  = new LabResultProxyContainer();
         HL7HDType sendingFacility = hl7MSHType.getSendingFacility();
@@ -29,11 +41,14 @@ public class LabResultUtil {
     }
 
     /**
-     * This method processing and parse data into Object
-     * - Sending Facility Name and CLIA
-     * - Role
-     * - Entity Id
-     * - Participation
+     * Description: Update Lab Result Container.
+     * This method create these object in order. given value from edxELRLabMap.
+     * These objects tightly associated with order
+     * 1 - Role Dto
+     * 2 - Participation Dto
+     * 3 - Organization Dto
+     * 4 - Organization Name Dto
+     * 5 - Entity Id Dto
      * */
     public static EdxELRLabMapDto processingHL7SendingFacility(HL7HDType sendingFacility, EdxLabInformationDto edxLabInformationDto) {
         //ROLE, Sending Facility
@@ -73,12 +88,14 @@ public class LabResultUtil {
     }
 
     /**
-     * This method processing and parse data into Object
-     * - Organization
-     * - Organization Name
-     * - Role
-     * - Participation
-     * - Entity ID
+     * Description: Update Lab Result Container.
+     * This method create these object in order. given value from edxELRLabMap.
+     * These objects tightly associated with order
+     * 1 - Role Dto
+     * 2 - Participation Dto
+     * 3 - Organization Dto
+     * 4 - Organization Name Dto
+     * 5 - Entity Id Dto
      * */
     public static LabResultProxyContainer creatingOrganization(LabResultProxyContainer labResultProxy, EdxELRLabMapDto edxELRLabMap, EdxLabInformationDto edxLabInformation) {
         OrganizationContainer organizationContainer = new OrganizationContainer();

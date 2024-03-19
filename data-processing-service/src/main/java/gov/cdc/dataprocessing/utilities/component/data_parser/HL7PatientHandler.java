@@ -352,7 +352,8 @@ public class HL7PatientHandler {
      *  - Person Object
      *  - Role Object (part of Lab Result, this is a list)
      * */
-    public static PersonContainer parseToPersonObject(LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
+    public static PersonContainer parseToPersonObject(LabResultProxyContainer labResultProxyContainer,
+                                                      EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         PersonContainer personContainer = new PersonContainer();
         try {
             PersonDto personDto = personContainer.getThePersonDto();
@@ -365,12 +366,14 @@ public class HL7PatientHandler {
                 personDto.setCd(EdxELRConstant.ELR_PATIENT_CD);
                 personDto.setCdDescTxt(EdxELRConstant.ELR_PATIENT_DESC);
                 personDto.setPersonUid(edxLabInformationDto.getPatientUid());
-            } else if (edxLabInformationDto.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)){
+            }
+            else if (edxLabInformationDto.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)){
                 personContainer.setRole(EdxELRConstant.ELR_NEXT_OF_KIN);
                 personDto.setCd(EdxELRConstant.ELR_PATIENT_CD);
                 personDto.setCdDescTxt(EdxELRConstant.ELR_NOK_DESC);
                 personDto.setPersonUid((long) edxLabInformationDto.getNextUid());
-            } else {
+            }
+            else {
                 personContainer.getThePersonDto().setCd(EdxELRConstant.ELR_PROVIDER_CD);
                 personDto.setCd(EdxELRConstant.ELR_PROVIDER_CD);
                 personDto.setCdDescTxt(EdxELRConstant.ELR_PROVIDER_DESC);

@@ -505,7 +505,6 @@ public class ObservationRepositoryUtil {
 
             //TODO EVALUATE
             // Local uid
-            observationDto.setSharedInd("T");
             Observation observation = new Observation(observationDto);
             observation.setVersionCtrlNbr(1);
             observation.setLocalId(uid.getUidPrefixCd() + uid.getSeedValueNbr() + uid.getUidSuffixCd());

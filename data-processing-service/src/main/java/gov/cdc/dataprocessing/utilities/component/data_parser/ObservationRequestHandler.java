@@ -51,12 +51,14 @@ public class ObservationRequestHandler {
                 if (toCode != null && !toCode.equals("") && !toCode.equals(" ")){
                     observationDto.setStatusCd(toCode.trim());
 
-                }else{
+                }
+                else{
                     edxLabInformationDto.setObsStatusTranslated(false);
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                     throw new DataProcessingException(EdxELRConstant.TRANSLATE_OBS_STATUS);
                 }
-            }else{
+            }
+            else{
                 edxLabInformationDto.setObsStatusTranslated(false);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                 throw new DataProcessingException(EdxELRConstant.TRANSLATE_OBS_STATUS);
@@ -282,7 +284,8 @@ public class ObservationRequestHandler {
             if(hl7OBRType.getParentResult()== null ||
                     hl7OBRType.getParentResult().getParentObservationIdentifier()==null||
                     (hl7OBRType.getParentResult().getParentObservationIdentifier().getHL7Identifier()==null &&
-                            hl7OBRType.getParentResult().getParentObservationIdentifier().getHL7AlternateIdentifier()==null)){
+                            hl7OBRType.getParentResult().getParentObservationIdentifier().getHL7AlternateIdentifier()==null))
+            {
                 edxLabInformationDto.setReflexOrderedTestCdMissing(true);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                 throw new DataProcessingException(EdxELRConstant.ELR_MASTER_LOG_ID_13);
