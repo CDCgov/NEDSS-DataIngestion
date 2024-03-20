@@ -7,7 +7,7 @@ import gov.cdc.dataprocessing.model.container.ObservationContainer;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueCodedDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.ProgAreaSnomeCodeStoredProcRepository;
-import gov.cdc.dataprocessing.repository.nbs.srte.*;
+import gov.cdc.dataprocessing.repository.nbs.srte.repository.*;
 import gov.cdc.dataprocessing.service.interfaces.other.ISrteCodeObsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -308,7 +308,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
      * @return Vector
      */
     // AK - 7/25/04
-    private String getPAFromSNOMEDCodes(String reportingLabCLIA, Collection<ObsValueCodedDto> obsValueCodedDtoColl) throws DataProcessingException {
+    public String getPAFromSNOMEDCodes(String reportingLabCLIA, Collection<ObsValueCodedDto> obsValueCodedDtoColl) throws DataProcessingException {
         Vector<Object> snomedVector = new Vector<Object>();
         if (reportingLabCLIA == null)
         {
@@ -316,20 +316,15 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         }
 
         if (obsValueCodedDtoColl != null) {
-            Iterator<ObsValueCodedDto> codedDtIt = obsValueCodedDtoColl.iterator();
-            while (codedDtIt.hasNext()) {
-
-                ObsValueCodedDto codedDt = (ObsValueCodedDto) codedDtIt.next();
+            for (ObsValueCodedDto codedDt : obsValueCodedDtoColl) {
                 String codeSystemCd = codedDt.getCodeSystemCd();
 
-                if (codeSystemCd == null || codeSystemCd.trim().equals(""))
-                {
+                if (codeSystemCd == null || codeSystemCd.trim().equals("")) {
                     continue;
                 }
 
                 String obsCode = codedDt.getCode();
-                if (obsCode == null || obsCode.trim().equals(""))
-                {
+                if (obsCode == null || obsCode.trim().equals("")) {
                     continue;
                 }
 
@@ -337,11 +332,11 @@ public class SrteCodeObsService implements ISrteCodeObsService {
                  * 	Check if ObsValueCodedDto.codeSystemCd='L' and CLIA for Reporting Lab is available,
                  *  find Snomed For ObsValueCodedDto.code(Local Result to Snomed lookup)
                  */
-                if (!codeSystemCd.equals(ELRConstant.ELR_SNOMED_CD)){
+                if (!codeSystemCd.equals(ELRConstant.ELR_SNOMED_CD)) {
                     // If local code and it is not excluded from PA Derivation, attempt to retrieve corresponding SNOMED code
                     if (!removePADerivationExcludedLabResultCodes(obsCode, reportingLabCLIA)) {
-                        Map<String, Object> snomedList =  getSnomed(codedDt.getCode(), ELRConstant.TYPE, reportingLabCLIA);
-                        if(snomedList.containsKey("COUNT") && (Integer) snomedList.get("COUNT") == 1) {
+                        Map<String, Object> snomedList = getSnomed(codedDt.getCode(), ELRConstant.TYPE, reportingLabCLIA);
+                        if (snomedList.containsKey("COUNT") && (Integer) snomedList.get("COUNT") == 1) {
                             snomedVector.addElement(snomedList.get("LOINC"));
                         }
                     } else {
@@ -354,14 +349,12 @@ public class SrteCodeObsService implements ISrteCodeObsService {
                  *  check if ObsValueCodedDto.codeSystemCd="SNM", use ObsValueCodedDto.code for Snomed
                  *  Need to check SNOMED codes for Program Area Derivation Exclusion flag - don't include codes with this set
                  */
-                else if (codeSystemCd.equals("SNM")) {
+                else if (codeSystemCd.equals("SNM"))
+                {
                     // If snomed code and it is not excluded from PA Derivation, add it to the SNOMED Vector
-                    if (!removePADerivationExcludedSnomedCodes(obsCode))
-                    {
+                    if (!removePADerivationExcludedSnomedCodes(obsCode)) {
                         snomedVector.addElement(obsCode);
-                    }
-                    else
-                    {
+                    } else {
                         //Otherwise don't add it and set the exclude flag so we won't fail this resulted test if no PA is derived for it
                         programAreaDerivationExcludeFlag = true;
                     }
@@ -473,7 +466,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
      * @return loincVector : Vector
      */
     // AK - 7/25/04
-    private String getPAFromLOINCCode(String reportingLabCLIA, ObservationContainer resultTestVO) throws DataProcessingException {
+    public String getPAFromLOINCCode(String reportingLabCLIA, ObservationContainer resultTestVO) throws DataProcessingException {
 
         ObservationDto obsDt = resultTestVO.getTheObservationDto();
         if (obsDt == null || reportingLabCLIA == null)
@@ -566,7 +559,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
      * @return progrAreaCd : String
      */
     // AK - 7/25/04
-    private String getPAFromLocalResultCode(String reportingLabCLIA, Collection<ObsValueCodedDto> obsValueCodedDtoColl) {
+    public String getPAFromLocalResultCode(String reportingLabCLIA, Collection<ObsValueCodedDto> obsValueCodedDtoColl) {
         String lastProgAreaCd = null;
         String progAreaCd = null;
 
@@ -742,8 +735,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
      * @return progAreaCd : String
      */
     // AK - 7/25/04
-    private String getPAFromLocalTestCode(String reportingLabCLIA,
-                                         ObservationContainer resultTestVO) {
+    public String getPAFromLocalTestCode(String reportingLabCLIA, ObservationContainer resultTestVO) {
 
         ObservationDto obsDt = resultTestVO.getTheObservationDto();
 

@@ -4,16 +4,21 @@ import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
+import gov.cdc.dataprocessing.service.implementation.jurisdiction.JurisdictionService;
+import gov.cdc.dataprocessing.service.implementation.jurisdiction.ProgramAreaService;
 import gov.cdc.dataprocessing.service.implementation.observation.ObservationService;
 import gov.cdc.dataprocessing.service.implementation.organization.OrganizationService;
 import gov.cdc.dataprocessing.service.implementation.person.PersonService;
 import gov.cdc.dataprocessing.service.implementation.observation.ObservationMatchingService;
 import gov.cdc.dataprocessing.service.implementation.other.UidService;
+import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
+import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
 import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationMatchingService;
@@ -25,6 +30,7 @@ import gov.cdc.dataprocessing.utilities.component.generic_helper.ManagerUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
@@ -40,19 +46,26 @@ public class ManagerAggregationService implements IManagerAggregationService {
     IUidService uidService;
     IObservationService observationService;
     IObservationMatchingService observationMatchingService;
+    IProgramAreaService programAreaService;
+    IJurisdictionService jurisdictionService;
+
 
     public ManagerAggregationService(ManagerUtil managerUtil,
                                      OrganizationService organizationService,
                                      PersonService patientService,
                                      UidService uidService,
                                      ObservationService observationService,
-                                     ObservationMatchingService observationMatchingService) {
+                                     ObservationMatchingService observationMatchingService,
+                                     ProgramAreaService programAreaService,
+                                     JurisdictionService jurisdictionService) {
         this.managerUtil = managerUtil;
         this.organizationService = organizationService;
         this.patientService = patientService;
         this.uidService = uidService;
         this.observationService = observationService;
         this.observationMatchingService = observationMatchingService;
+        this.programAreaService = programAreaService;
+        this.jurisdictionService = jurisdictionService;
     }
 
     public void processingObservationMatching(EdxLabInformationDto edxLabInformationDto,
@@ -98,25 +111,26 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
     public void serviceAggregationAsync(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws DataProcessingConsumerException,
             DataProcessingException {
+        PersonAggContainer personAggContainer;
+        OrganizationContainer organizationContainer;
         Collection<ObservationContainer> observationContainerCollection = labResult.getTheObservationContainerCollection();
         Collection<PersonContainer> personContainerCollection = labResult.getThePersonContainerCollection();
 
-        CompletableFuture<Void> observationFuture = CompletableFuture.runAsync(() ->
-                observationAggregation(labResult, edxLabInformationDto, observationContainerCollection));
+        CompletableFuture<Void> observationFuture = CompletableFuture.runAsync(() -> observationAggregation(labResult, edxLabInformationDto, observationContainerCollection));
 
-        CompletableFuture<Void> patientFuture = CompletableFuture.runAsync(() ->
+        CompletableFuture<PersonAggContainer> patientFuture = CompletableFuture.supplyAsync(() ->
         {
             try {
-                patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
+                return patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
             } catch (DataProcessingConsumerException | DataProcessingException e) {
                 throw new RuntimeException(e);
             }
         });
 
-        CompletableFuture<Void> organizationFuture = CompletableFuture.runAsync(() ->
+        CompletableFuture<OrganizationContainer> organizationFuture = CompletableFuture.supplyAsync(() ->
         {
             try {
-                organizationService.processingOrganization(labResult);
+               return organizationService.processingOrganization(labResult);
             } catch (DataProcessingConsumerException e) {
                 throw new RuntimeException(e);
             }
@@ -129,6 +143,39 @@ public class ManagerAggregationService implements IManagerAggregationService {
             allFutures.get(); // Wait for all tasks to complete
         } catch (InterruptedException | ExecutionException e) {
             throw new DataProcessingException("Failed to execute tasks", e);
+        }
+
+        // Get the results from CompletableFuture
+        try {
+            personAggContainer = patientFuture.get();
+            organizationContainer = organizationFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new DataProcessingException("Failed to get results", e);
+        }
+
+        // Pulling Jurisdiction and Program from OBS
+        ObservationContainer orderTestVO = null;
+        Collection<ObservationContainer> resultTests = new ArrayList<>();
+        for (ObservationContainer obsVO : labResult
+                .getTheObservationContainerCollection()) {
+            String obsDomainCdSt1 = obsVO.getTheObservationDto()
+                    .getObsDomainCdSt1();
+            if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_RESULT_CD)) {
+                resultTests.add(obsVO);
+            } else if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)) {
+                orderTestVO = obsVO;
+            }
+        }
+
+        if(orderTestVO.getTheObservationDto().getProgAreaCd()==null)
+        {
+            programAreaService.getProgramArea(resultTests, orderTestVO, edxLabInformationDto.getSendingFacilityClia());
+        }
+
+        if(orderTestVO.getTheObservationDto().getJurisdictionCd()==null)
+        {
+            jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
+                    organizationContainer, orderTestVO);
         }
     }
 

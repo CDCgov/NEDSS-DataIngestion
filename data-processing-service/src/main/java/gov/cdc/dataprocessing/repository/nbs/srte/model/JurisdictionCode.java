@@ -4,10 +4,11 @@ import lombok.Data;
 
 import jakarta.persistence.*;
 
-import java.util.Date;
+import java.sql.Timestamp;
+
 
 @Entity
-@Table(name = "Jurisdiction_code", schema = "dbo")
+@Table(name = "Jurisdiction_code")
 @Data
 public class JurisdictionCode {
 
@@ -31,16 +32,16 @@ public class JurisdictionCode {
     private String codeShortDescTxt;
 
     @Column(name = "effective_from_time")
-    private Date effectiveFromTime;
+    private Timestamp effectiveFromTime;
 
     @Column(name = "effective_to_time")
-    private Date effectiveToTime;
+    private Timestamp effectiveToTime;
 
     @Column(name = "indent_level_nbr")
-    private Short indentLevelNbr;
+    private Integer indentLevelNbr;
 
     @Column(name = "is_modifiable_ind", length = 1)
-    private Character isModifiableInd;
+    private String isModifiableInd;
 
     @Column(name = "parent_is_cd", length = 20)
     private String parentIsCd;
@@ -52,13 +53,13 @@ public class JurisdictionCode {
     private String statusCd;
 
     @Column(name = "status_time")
-    private Date statusTime;
+    private Timestamp statusTime;
 
     @Column(name = "code_set_nm", length = 256)
     private String codeSetNm;
 
     @Column(name = "code_seq_num")
-    private Short codeSeqNum;
+    private Integer codeSeqNum;
 
     @Column(name = "nbs_uid")
     private Integer nbsUid;
@@ -73,7 +74,7 @@ public class JurisdictionCode {
     private String codeSystemDescTxt;
 
     @Column(name = "export_ind", length = 1)
-    private Character exportInd;
+    private String exportInd;
 
     // Add getters and setters as needed
 }

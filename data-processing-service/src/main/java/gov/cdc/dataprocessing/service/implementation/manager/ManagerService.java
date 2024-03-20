@@ -18,7 +18,7 @@ import gov.cdc.dataprocessing.service.interfaces.auth.ISessionProfileService;
 import gov.cdc.dataprocessing.service.interfaces.other.IDataExtractionService;
 import gov.cdc.dataprocessing.service.interfaces.other.IHandleLabService;
 import gov.cdc.dataprocessing.service.interfaces.other.ILabProcessingService;
-import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaJurisdictionService;
+import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
@@ -50,7 +50,7 @@ public class ManagerService implements IManagerService {
     private final IObservationService observationService;
     private final IPersonService patientService;
     private final IOrganizationService organizationService;
-    private final IProgramAreaJurisdictionService programAreaJurisdictionService;
+    private final IProgramAreaService programAreaJurisdictionService;
     private final ILabProcessingService labProcessingService;
 
     private final IPublicHealthCaseService publicHealthCaseService;
@@ -77,7 +77,7 @@ public class ManagerService implements IManagerService {
     public ManagerService(IObservationService observationService,
                           IPersonService patientService,
                           IOrganizationService organizationService,
-                          IProgramAreaJurisdictionService programAreaJurisdictionService,
+                          IProgramAreaService programAreaJurisdictionService,
                           ILabProcessingService labProcessingService,
                           IPublicHealthCaseService publicHealthCaseService,
                           IEdxLogService edxLogService, IHandleLabService handleLabService,
@@ -256,9 +256,6 @@ public class ManagerService implements IManagerService {
             String programAreaCd = orderTest.getTheObservationDto().getProgAreaCd();
             String jurisdictionCd = orderTest.getTheObservationDto().getJurisdictionCd();
 
-            //TODO: PROGRAM AREA
-            var programArea = programAreaJurisdictionService.processingProgramArea();
-            var jurisdiction = programAreaJurisdictionService.processingJurisdiction();
 
             //TODO: EVALUATE LAB PROCESSING
             observationDto = observationService.sendLabResultToProxy(parsedData);
