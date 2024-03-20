@@ -63,7 +63,8 @@ Feature: Read various HL7 messages from JSON file and Post them using a Data Ing
     * method get
     * status 200
     * def NBSresponse = response.status
-    * def NBSerrorresponse = response.error_message
+    * def NBSresponse = response.status ? response.status : 'N/A'
+    * def NBSerrorresponse = response.error_message ? response.error_message : 'N/A'
     * def handleFailureOrQueued = NBSresponse == 'Failure' || NBSresponse == 'QUEUED'
     * def Success = NBSresponse == 'Success'
     * def isNotSuccess = NBSerrorresponse == 'Provided UUID is not present in the database. Either provided an invalid UUID or the injected message failed validation.'
@@ -71,7 +72,7 @@ Feature: Read various HL7 messages from JSON file and Post them using a Data Ing
     * def finalMessage =  NBSresponse
     * def errorFeatureResult = isNotSuccess ? karate.call('error.feature', { id: id }) : null
     * if (isNotSuccess) finalMessage += ', Test Case failed at DI validation'
-    * if (errorFeatureResult != null) finalMessage += ', ' + errorFeatureResult.errorresponse
+    * if (errorFeatureResult != null) finalMessage += ', ' + errorFeatureResult.errorresponse.replace("null", "N/A")
     * if (handleFailureOrQueued) finalMessage += ', Test Case failed at NBS validation'
     * if (Success) finalMessage += ', Test Case Passed'
     * karate.set('finalMessage', finalMessage)
