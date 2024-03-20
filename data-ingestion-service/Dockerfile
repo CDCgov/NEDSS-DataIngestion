@@ -24,5 +24,5 @@ FROM amazoncorretto:17
 COPY --from=builder /usr/src/dataingestion/data-ingestion-service/build/libs/data-ingestion-service*.jar data-ingestion-service.jar
 
 # Run jar
-ENTRYPOINT ["java", "-jar", "-Xms1024m","-Xmx2056m","data-ingestion-service.jar"]
-CMD ["java", "-jar", "-Xms1024m","-Xmx2056m", "data-ingestion-service.jar"]
+ENTRYPOINT ["java", "-jar", "data-ingestion-service.jar"]
+CMD ["java", "-jar", "data-ingestion-service.jar"]

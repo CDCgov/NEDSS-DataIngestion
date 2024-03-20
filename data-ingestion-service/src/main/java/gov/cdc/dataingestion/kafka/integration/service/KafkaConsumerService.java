@@ -110,8 +110,9 @@ public class KafkaConsumerService {
     private String topicDebugLog = "Received message ID: {} from topic: {}";
     private String processDltErrorMessage = "Raw data not found; id: ";
     //endregion
-
-
+    int count1=0;
+    int count2=0;
+    int count3=0;
     //region CONSTRUCTOR
     public KafkaConsumerService(
             IValidatedELRRepository iValidatedELRRepository,
@@ -243,6 +244,7 @@ public class KafkaConsumerService {
                                                  @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation,
                                                  @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable)  {
         log.debug(topicDebugLog, message, topic);
+        System.out.println("-----handleMessageForXmlConversionElr -----");
         xmlConversionHandler(message, operation, dataProcessingEnable);
     }
 
@@ -275,7 +277,7 @@ public class KafkaConsumerService {
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                                   @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation) throws FhirConversionException, DiHL7Exception {
         log.debug(topicDebugLog, message, topic);
-        conversionHandlerForFhir(message, operation);
+//        conversionHandlerForFhir(message, operation);
 
     }
     //endregion
@@ -427,7 +429,7 @@ public class KafkaConsumerService {
         Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
         if(validatedElrResponse.isPresent()) {
             kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepXmlTopic, TopicPreparationType.XML, 0, dataProcessingEnable);
-            kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepFhirTopic, TopicPreparationType.FHIR, 0, dataProcessingEnable);
+//            kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepFhirTopic, TopicPreparationType.FHIR, 0, dataProcessingEnable);
         } else {
             throw new ConversionPrepareException("Validation ELR Record Not Found");
         }
@@ -439,6 +441,7 @@ public class KafkaConsumerService {
      * */
     public void xmlConversionHandlerProcessing(String message, String operation, String dataProcessingEnable) {
         String hl7Msg = "";
+        System.out.println("33333333333333 count3:"+(++count3));
         try {
             if (operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
                 Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
@@ -509,7 +512,7 @@ public class KafkaConsumerService {
         }
     }
     private void xmlConversionHandler(String message, String operation, String dataProcessingEnable) {
-
+        System.out.println("1111111111111111 count1:"+(++count1));
         // Update: changed method to async process, intensive process in this method cause consumer lagging, delay and strange behavior
         // TODO: considering breaking down this logic (NOTE) //NOSONAR
         // PROCESS as follow:
@@ -517,6 +520,7 @@ public class KafkaConsumerService {
                 // xml conversion can be broke down into multiple smaller pipeline
         //  - Saving record to status table can also be broke to downstream pipeline
         CompletableFuture.runAsync(() -> {
+            System.out.println("2222222222222 count2:"+(++count2));
             log.debug("Received message id will be retrieved from db and associated hl7 will be converted to xml");
             xmlConversionHandlerProcessing(message, operation, dataProcessingEnable);
         });

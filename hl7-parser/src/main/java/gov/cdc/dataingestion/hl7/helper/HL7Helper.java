@@ -18,7 +18,7 @@ import io.github.linuxforhealth.hl7.HL7ToFHIRConverter;
 public class HL7Helper {
 
     private IHL7Parser parser = new HL7Parser(new DefaultHapiContext());
-    private IFhirConverter fhirConverter = new FhirConverter(new HL7ToFHIRConverter());
+//    private IFhirConverter fhirConverter = new FhirConverter(new HL7ToFHIRConverter());
 
     /**
      * HL7 string validator, replacing "\n" by "\r"
@@ -47,7 +47,7 @@ public class HL7Helper {
      * Convert HL7 message into fhir
      * */
     public FhirConvertedMessage convertHl7ToFhir(String message) throws DiFhirException {
-        return fhirConverter.hL7ToFHIRConversion(message);
+        return null;//fhirConverter.hL7ToFHIRConversion(message);
     }
 
     public String hl7Validation(String message) throws DiHL7Exception{
