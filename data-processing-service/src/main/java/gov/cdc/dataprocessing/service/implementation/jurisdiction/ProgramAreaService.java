@@ -6,6 +6,8 @@ import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.ObservationContainer;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.ProgramAreaCode;
+import gov.cdc.dataprocessing.repository.nbs.srte.repository.ProgramAreaCodeRepository;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
 import gov.cdc.dataprocessing.service.interfaces.other.ISrteCodeObsService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,9 +24,13 @@ public class ProgramAreaService implements IProgramAreaService {
     boolean programAreaDerivationExcludeFlag;
 
     private final ISrteCodeObsService srteCodeObsService;
-    public ProgramAreaService(ISrteCodeObsService srteCodeObsService) {
+    private final ProgramAreaCodeRepository programAreaCodeRepository;
+    public ProgramAreaService(
+            ISrteCodeObsService srteCodeObsService,
+            ProgramAreaCodeRepository programAreaCodeRepository) {
 
         this.srteCodeObsService = srteCodeObsService;
+        this.programAreaCodeRepository = programAreaCodeRepository;
     }
 
     public Object processingProgramArea() throws DataProcessingConsumerException {
@@ -45,6 +51,15 @@ public class ProgramAreaService implements IProgramAreaService {
             throw new DataProcessingConsumerException("ERROR", "Data");
         }
 
+    }
+
+    public List<ProgramAreaCode> getAllProgramAreaCode() {
+        var progCodeRes = programAreaCodeRepository.findAll();
+        if (!progCodeRes.isEmpty()) {
+            return progCodeRes;
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     public void getProgramArea(Collection<ObservationContainer> resultTests, ObservationContainer orderTest, String clia) throws DataProcessingException {

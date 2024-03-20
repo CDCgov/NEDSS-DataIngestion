@@ -8,6 +8,8 @@ import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.JurisdictionCode;
+import gov.cdc.dataprocessing.repository.nbs.srte.repository.JurisdictionCodeRepository;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.JurisdictionParticipationRepository;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -23,13 +25,27 @@ public class JurisdictionService implements IJurisdictionService {
     private final PatientRepositoryUtil patientRepositoryUtil;
     private final OrganizationRepositoryUtil organizationRepositoryUtil;
     private final JurisdictionParticipationRepository jurisdictionParticipationRepository;
+    private final JurisdictionCodeRepository jurisdictionCodeRepository;
 
     public JurisdictionService(PatientRepositoryUtil patientRepositoryUtil,
                                OrganizationRepositoryUtil organizationRepositoryUtil,
-                               JurisdictionParticipationRepository jurisdictionParticipationRepository) {
+                               JurisdictionParticipationRepository jurisdictionParticipationRepository,
+                               JurisdictionCodeRepository jurisdictionCodeRepository) {
         this.patientRepositoryUtil = patientRepositoryUtil;
         this.organizationRepositoryUtil = organizationRepositoryUtil;
         this.jurisdictionParticipationRepository = jurisdictionParticipationRepository;
+        this.jurisdictionCodeRepository = jurisdictionCodeRepository;
+    }
+
+    public List<JurisdictionCode> getJurisdictionCode() {
+       var jusCode = jurisdictionCodeRepository.findAll();
+       if (!jusCode.isEmpty()) {
+           return jusCode;
+       }
+       else
+       {
+           return new ArrayList<>();
+       }
     }
 
     public void assignJurisdiction(PersonContainer subjectVO, PersonContainer providerVO,

@@ -8,7 +8,7 @@ import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
 import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
-import gov.cdc.dataprocessing.service.implementation.other.CheckingValueService;
+import gov.cdc.dataprocessing.service.implementation.other.CachingValueService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
@@ -26,8 +26,8 @@ public class NokMatchingBaseService extends PatientMatchingBaseService {
 
     public NokMatchingBaseService(EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
                                   EntityHelper entityHelper, PatientRepositoryUtil patientRepositoryUtil,
-                                  CheckingValueService checkingValueService) {
-        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, checkingValueService);
+                                  CachingValueService cachingValueService) {
+        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService);
     }
 
     protected void setPersonHashCdNok(PersonContainer personContainer) throws DataProcessingException {

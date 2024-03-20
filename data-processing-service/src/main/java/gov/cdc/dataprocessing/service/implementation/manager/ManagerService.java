@@ -13,8 +13,9 @@ import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.NbsInterfaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.service.implementation.other.CheckingValueService;
+import gov.cdc.dataprocessing.service.implementation.other.CachingValueService;
 import gov.cdc.dataprocessing.service.interfaces.auth.ISessionProfileService;
+import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
 import gov.cdc.dataprocessing.service.interfaces.other.IDataExtractionService;
 import gov.cdc.dataprocessing.service.interfaces.other.IHandleLabService;
 import gov.cdc.dataprocessing.service.interfaces.other.ILabProcessingService;
@@ -62,7 +63,7 @@ public class ManagerService implements IManagerService {
 
     private final NbsInterfaceRepository nbsInterfaceRepository;
 
-    private final CheckingValueService checkingValueService;
+    private final ICatchingValueService cachingValueService;
 
     private final CacheManager cacheManager;
 
@@ -83,7 +84,7 @@ public class ManagerService implements IManagerService {
                           IEdxLogService edxLogService, IHandleLabService handleLabService,
                           IDataExtractionService dataExtractionService,
                           NbsInterfaceRepository nbsInterfaceRepository,
-                          CheckingValueService checkingValueService,
+                          CachingValueService cachingValueService,
                           CacheManager cacheManager,
                           ISessionProfileService sessionProfileService,
                           IObservationMatchingService observationMatchingService,
@@ -99,7 +100,7 @@ public class ManagerService implements IManagerService {
         this.handleLabService = handleLabService;
         this.dataExtractionService = dataExtractionService;
         this.nbsInterfaceRepository = nbsInterfaceRepository;
-        this.checkingValueService = checkingValueService;
+        this.cachingValueService = cachingValueService;
         this.cacheManager = cacheManager;
         this.sessionProfileService = sessionProfileService;
         this.observationMatchingService = observationMatchingService;
@@ -198,8 +199,18 @@ public class ManagerService implements IManagerService {
             edxLabInformationDto.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
 
 
-            checkingValueService.getAOELOINCCodes();
-            checkingValueService.getRaceCodes();
+            if (SrteCache.loincCodesMap.isEmpty()) {
+                cachingValueService.getAOELOINCCodes();
+            }
+            if (SrteCache.raceCodesMap.isEmpty()) {
+                cachingValueService.getRaceCodes();
+            }
+            if (SrteCache.programAreaCodesMap.isEmpty()) {
+                cachingValueService.getAllProgramAreaCodes();
+            }
+            if (SrteCache.jurisdictionCodeMap.isEmpty()) {
+                cachingValueService.getAllJurisdictionCode();
+            }
 
 
             var cache = cacheManager.getCache("srte");
@@ -218,6 +229,22 @@ public class ManagerService implements IManagerService {
                     Object cachedObject = valueWrapper.get();
                     if (cachedObject instanceof TreeMap) {
                         SrteCache.raceCodesMap = (TreeMap<String, String>) cachedObject;
+                    }
+                }
+
+                valueWrapper = cache.get("programAreaCodes");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof TreeMap) {
+                        SrteCache.programAreaCodesMap = (TreeMap<String, String>) cachedObject;
+                    }
+                }
+
+                valueWrapper = cache.get("jurisdictionCode");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof TreeMap) {
+                        SrteCache.jurisdictionCodeMap = (TreeMap<String, String>) cachedObject;
                     }
                 }
             }
@@ -269,10 +296,15 @@ public class ManagerService implements IManagerService {
             edxLabInformationDto.getEdxActivityLogDto().setBusinessObjLocalId(observationDto.getLocalId());
             edxLabInformationDto.setRootObserbationUid(observationDto.getObservationUid());
 
-            //TODO: CACHING
-            // edxLabInformationDto.setProgramAreaName(CachedDropDowns.getProgAreadDesc(observationDto.getProgAreaCd()));
-            // String jurisdictionName = CachedDropDowns.getJurisdictionDesc(observationDto.getJurisdictionCd());
-            // edxLabInformationDto.setJurisdictionName(jurisdictionName);
+            if (SrteCache.programAreaCodesMap.containsKey(observationDto.getProgAreaCd())) {
+                edxLabInformationDto.setProgramAreaName(SrteCache.programAreaCodesMap.get(observationDto.getProgAreaCd()));
+            }
+
+            if(SrteCache.jurisdictionCodeMap.containsKey(observationDto.getJurisdictionCd())) {
+                String jurisdictionName = SrteCache.jurisdictionCodeMap.get(observationDto.getJurisdictionCd());
+                edxLabInformationDto.setJurisdictionName(jurisdictionName);
+            }
+
 
             if(edxLabInformationDto.isLabIsCreateSuccess()&&(edxLabInformationDto.getProgramAreaName()==null
                     || edxLabInformationDto.getJurisdictionName()==null))

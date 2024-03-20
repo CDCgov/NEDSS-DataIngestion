@@ -19,7 +19,7 @@ import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.phdc.*;
-import gov.cdc.dataprocessing.service.interfaces.other.ICheckingValueService;
+import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.data_extraction.CommonLabUtil;
 import org.slf4j.Logger;
@@ -36,12 +36,12 @@ import java.util.StringTokenizer;
 public class ObservationResultRequestHandler {
     private static final Logger logger = LoggerFactory.getLogger(ObservationResultRequestHandler.class);
 
-    private final ICheckingValueService checkingValueService;
+    private final ICatchingValueService checkingValueService;
     private final NBSObjectConverter nbsObjectConverter;
 
 
     public ObservationResultRequestHandler(
-            ICheckingValueService checkingValueService,
+            ICatchingValueService checkingValueService,
             NBSObjectConverter nbsObjectConverter) {
         this.checkingValueService = checkingValueService;
         this.nbsObjectConverter = nbsObjectConverter;

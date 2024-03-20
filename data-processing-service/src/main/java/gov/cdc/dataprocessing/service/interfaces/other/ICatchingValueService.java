@@ -7,7 +7,7 @@ import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
 import java.util.List;
 import java.util.TreeMap;
 
-public interface ICheckingValueService {
+public interface ICatchingValueService {
    // TreeMap<String, String> getCodedValues(String pType) throws DataProcessingException;
     TreeMap<String, String> getRaceCodes() throws DataProcessingException;
     String getCodeDescTxtForCd(String code, String codeSetNm) throws DataProcessingException;
@@ -17,4 +17,7 @@ public interface ICheckingValueService {
     TreeMap<String, String> getCodedValues(String pType, String key) throws DataProcessingException;
     List<CodeValueGeneral> findCodeValuesByCodeSetNmAndCode(String codeSetNm, String code);
     StateCode findStateCodeByStateNm(String stateNm);
+    TreeMap<String, String> getAllJurisdictionCode() throws DataProcessingException;
+    TreeMap<String, String> getAllProgramAreaCodes() throws DataProcessingException;
+
 }

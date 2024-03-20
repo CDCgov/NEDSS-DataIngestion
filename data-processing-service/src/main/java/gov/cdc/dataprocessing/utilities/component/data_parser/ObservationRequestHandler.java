@@ -19,7 +19,7 @@ import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.phdc.*;
-import gov.cdc.dataprocessing.service.interfaces.other.ICheckingValueService;
+import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
 import gov.cdc.dataprocessing.utilities.data_extraction.CommonLabUtil;
 import gov.cdc.dataprocessing.utilities.data_extraction.HL7SpecimenUtil;
 import org.slf4j.Logger;
@@ -32,9 +32,9 @@ import java.util.*;
 public class ObservationRequestHandler {
     private static final Logger logger = LoggerFactory.getLogger(ObservationRequestHandler.class);
 
-    private final ICheckingValueService checkingValueService;
+    private final ICatchingValueService checkingValueService;
 
-    public ObservationRequestHandler(ICheckingValueService checkingValueService) {
+    public ObservationRequestHandler(ICatchingValueService checkingValueService) {
         this.checkingValueService = checkingValueService;
     }
 

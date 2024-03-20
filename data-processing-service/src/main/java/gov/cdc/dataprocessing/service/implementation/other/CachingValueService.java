@@ -5,7 +5,9 @@ import gov.cdc.dataprocessing.constant.elr.ELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.*;
-import gov.cdc.dataprocessing.service.interfaces.other.ICheckingValueService;
+import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
+import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
+import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +22,8 @@ import java.util.TreeMap;
 
 @Service
 @Slf4j
-public class CheckingValueService implements ICheckingValueService {
-    private static final Logger logger = LoggerFactory.getLogger(CheckingValueService.class);
+public class CachingValueService implements ICatchingValueService {
+    private static final Logger logger = LoggerFactory.getLogger(CachingValueService.class);
 
     private final JurisdictionCodeRepository jurisdictionCodeRepository;
     private final CodeValueGeneralRepository codeValueGeneralRepository;
@@ -34,13 +36,19 @@ public class CheckingValueService implements ICheckingValueService {
 
     private final CacheManager cacheManager;
 
-    public CheckingValueService(JurisdictionCodeRepository jurisdictionCodeRepository,
-                                CodeValueGeneralRepository codeValueGeneralRepository,
-                                ElrXrefRepository elrXrefRepository,
-                                RaceCodeRepository raceCodeRepository,
-                                StateCountyCodeValueRepository stateCountyCodeValueRepository,
-                                StateCodeRepository stateCodeRepository, LOINCCodeRepository loincCodeRepository,
-                                CacheManager cacheManager) {
+    private final IProgramAreaService programAreaService;
+    private final IJurisdictionService jurisdictionService;
+
+    public CachingValueService(JurisdictionCodeRepository jurisdictionCodeRepository,
+                               CodeValueGeneralRepository codeValueGeneralRepository,
+                               ElrXrefRepository elrXrefRepository,
+                               RaceCodeRepository raceCodeRepository,
+                               StateCountyCodeValueRepository stateCountyCodeValueRepository,
+                               StateCodeRepository stateCodeRepository,
+                               LOINCCodeRepository loincCodeRepository,
+                               CacheManager cacheManager,
+                               IProgramAreaService programAreaService,
+                               IJurisdictionService jurisdictionService) {
         this.jurisdictionCodeRepository = jurisdictionCodeRepository;
         this.codeValueGeneralRepository = codeValueGeneralRepository;
         this.elrXrefRepository = elrXrefRepository;
@@ -49,6 +57,8 @@ public class CheckingValueService implements ICheckingValueService {
         this.stateCodeRepository = stateCodeRepository;
         this.loincCodeRepository = loincCodeRepository;
         this.cacheManager = cacheManager;
+        this.programAreaService = programAreaService;
+        this.jurisdictionService = jurisdictionService;
     }
 
     //TODO: CACHED
@@ -85,6 +95,37 @@ public class CheckingValueService implements ICheckingValueService {
         }
         return  map;
     }
+
+    @Cacheable(cacheNames = "srte", key = "'programAreaCodes'")
+    public TreeMap<String, String> getAllProgramAreaCodes() throws DataProcessingException {
+        TreeMap<String, String> map = new TreeMap<>();
+        try {
+            var result = programAreaService.getAllProgramAreaCode();
+            for (ProgramAreaCode obj :result) {
+                map.put(obj.getProgAreaCd(), obj.getProgAreaDescTxt());
+            }
+
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage());
+        }
+        return  map;
+    }
+
+    @Cacheable(cacheNames = "srte", key = "'jurisdictionCode'")
+    public TreeMap<String, String> getAllJurisdictionCode() throws DataProcessingException {
+        TreeMap<String, String> map = new TreeMap<>();
+        try {
+            var result = jurisdictionService.getJurisdictionCode();
+            for (JurisdictionCode obj :result) {
+                map.put(obj.getCode(), obj.getCodeDescTxt());
+            }
+
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage());
+        }
+        return  map;
+    }
+
 
 
     //TODO: CACHED

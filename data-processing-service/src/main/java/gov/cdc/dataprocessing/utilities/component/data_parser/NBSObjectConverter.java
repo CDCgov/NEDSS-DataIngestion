@@ -16,7 +16,7 @@ import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
-import gov.cdc.dataprocessing.service.interfaces.other.ICheckingValueService;
+import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
 import gov.cdc.dataprocessing.utilities.data_extraction.EntityIdUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +32,9 @@ import java.util.Objects;
 public class NBSObjectConverter {
     private static final Logger logger = LoggerFactory.getLogger(NBSObjectConverter.class);
 
-    private final ICheckingValueService checkingValueService;
+    private final ICatchingValueService checkingValueService;
 
-    public NBSObjectConverter(ICheckingValueService checkingValueService) {
+    public NBSObjectConverter(ICatchingValueService checkingValueService) {
         this.checkingValueService = checkingValueService;
     }
 

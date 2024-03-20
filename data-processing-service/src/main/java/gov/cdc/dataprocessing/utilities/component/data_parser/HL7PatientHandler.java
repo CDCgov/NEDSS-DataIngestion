@@ -17,7 +17,7 @@ import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
-import gov.cdc.dataprocessing.service.interfaces.other.ICheckingValueService;
+import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.data_extraction.EntityIdUtil;
 import org.slf4j.Logger;
@@ -33,11 +33,11 @@ import java.util.List;
 public class HL7PatientHandler {
     private static final Logger logger = LoggerFactory.getLogger(HL7PatientHandler.class);
 
-    private final ICheckingValueService checkingValueService;
+    private final ICatchingValueService checkingValueService;
     private final NBSObjectConverter nbsObjectConverter;
 
 
-    public HL7PatientHandler(ICheckingValueService checkingValueService,
+    public HL7PatientHandler(ICatchingValueService checkingValueService,
                              NBSObjectConverter nbsObjectConverter) {
         this.checkingValueService = checkingValueService;
         this.nbsObjectConverter = nbsObjectConverter;
