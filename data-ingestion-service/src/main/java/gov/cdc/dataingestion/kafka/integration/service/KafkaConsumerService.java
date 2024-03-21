@@ -3,38 +3,36 @@ package gov.cdc.dataingestion.kafka.integration.service;
 
 import ca.uhn.hl7v2.HL7Exception;
 import com.google.gson.Gson;
+import gov.cdc.dataingestion.constant.KafkaHeaderValue;
+import gov.cdc.dataingestion.constant.TopicPreparationType;
+import gov.cdc.dataingestion.constant.enums.EnumElrDltStatus;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
-import gov.cdc.dataingestion.constant.enums.EnumElrDltStatus;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.exception.*;
-import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
+import gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
-import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
+import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
+import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
-import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
-import gov.cdc.dataingestion.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
-import gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter;
-import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
-
+import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import jakarta.xml.bind.JAXBException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.kafka.common.errors.SerializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,9 +108,8 @@ public class KafkaConsumerService {
     private String topicDebugLog = "Received message ID: {} from topic: {}";
     private String processDltErrorMessage = "Raw data not found; id: ";
     //endregion
-    int count1=0;
-    int count2=0;
-    int count3=0;
+
+
     //region CONSTRUCTOR
     public KafkaConsumerService(
             IValidatedELRRepository iValidatedELRRepository,
@@ -159,7 +156,7 @@ public class KafkaConsumerService {
 
     /**
      * Raw Data Validation Process
-     * */
+     */
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
             autoCreateTopics = "false",
@@ -186,9 +183,9 @@ public class KafkaConsumerService {
             topics = "${kafka.raw.topic}"
     )
     public void handleMessageForRawElr(String message,
-                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                               @Header(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE) String messageValidationActive,
-                                @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) throws DuplicateHL7FileFoundException, DiHL7Exception {
+                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+                                       @Header(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE) String messageValidationActive,
+                                       @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) throws DuplicateHL7FileFoundException, DiHL7Exception {
         log.debug(topicDebugLog, message, topic);
         boolean hl7ValidationActivated = false;
 
@@ -205,7 +202,7 @@ public class KafkaConsumerService {
      * this logic will direct validated data into 2 path (producers + topic)
      * 1 - to XML conversion consumer
      * 2 - to FHIR conversion consumer
-     * */
+     */
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
             autoCreateTopics = "false",
@@ -229,7 +226,7 @@ public class KafkaConsumerService {
     )
     @KafkaListener(topics = "${kafka.validation.topic}")
     public void handleMessageForValidatedElr(String message,
-                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+                                             @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                              @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) throws ConversionPrepareException {
         log.debug(topicDebugLog, message, topic);
         preparationForConversionHandler(message, dataProcessingEnable);
@@ -237,20 +234,19 @@ public class KafkaConsumerService {
 
     /**
      * XML Conversion
-     * */
+     */
     @KafkaListener(topics = "${kafka.xml-conversion-prep.topic}")
     public void handleMessageForXmlConversionElr(String message,
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                                  @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation,
-                                                 @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable)  {
+                                                 @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) {
         log.debug(topicDebugLog, message, topic);
-        System.out.println("-----handleMessageForXmlConversionElr -----");
         xmlConversionHandler(message, operation, dataProcessingEnable);
     }
 
     /**
      * FHIR Conversion
-     * */
+     */
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
             autoCreateTopics = "false",
@@ -274,17 +270,17 @@ public class KafkaConsumerService {
     )
     @KafkaListener(topics = "${kafka.fhir-conversion-prep.topic}")
     public void handleMessageForFhirConversionElr(String message,
-                                                 @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                                   @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation) throws FhirConversionException, DiHL7Exception {
         log.debug(topicDebugLog, message, topic);
-//        conversionHandlerForFhir(message, operation);
+        //conversionHandlerForFhir(message, operation);
 
     }
     //endregion
 
     /**
      * Raw Data Validation Process
-     * */
+     */
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
             autoCreateTopics = "false",
@@ -311,7 +307,7 @@ public class KafkaConsumerService {
             topics = "ecr_cda"
     )
     public void handleMessageForPhdcEcrTransformToCda(String message,
-                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EcrCdaXmlException {
+                                                      @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EcrCdaXmlException {
         log.debug(topicDebugLog, message, topic);
         var result = ecrMsgQueryService.getSelectedEcrRecord();
         var xmlResult = this.cdaMapper.tranformSelectedEcrToCDAXml(result);
@@ -371,18 +367,15 @@ public class KafkaConsumerService {
                 var message = this.iRawELRRepository.findById(elrDeadLetterDto.getErrorMessageId())
                         .orElseThrow(() -> new DeadLetterTopicException(processDltErrorMessage + elrDeadLetterDto.getErrorMessageId()));
                 elrDeadLetterDto.setMessage(message.getPayload());
-            }
-            else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(validatedTopic) ||
+            } else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(validatedTopic) ||
                     elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(prepXmlTopic) ||
                     elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(prepFhirTopic)) {
                 var message = this.iValidatedELRRepository.findById(elrDeadLetterDto.getErrorMessageId())
                         .orElseThrow(() -> new DeadLetterTopicException(processDltErrorMessage + elrDeadLetterDto.getErrorMessageId()));
                 elrDeadLetterDto.setMessage(message.getRawMessage());
-            }
-            else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(convertedToXmlTopic)) {
+            } else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(convertedToXmlTopic)) {
                 throw new DeadLetterTopicException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());
-            }
-            else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(convertedToFhirTopic)) {
+            } else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(convertedToFhirTopic)) {
                 var message = this.iHL7ToFHIRRepository.findById(elrDeadLetterDto.getErrorMessageId())
                         .orElseThrow(() -> new DeadLetterTopicException(processDltErrorMessage + elrDeadLetterDto.getErrorMessageId()));
                 elrDeadLetterDto.setMessage(message.getFhirMessage());
@@ -407,6 +400,7 @@ public class KafkaConsumerService {
 
         }
     }
+
     private String getDltErrorSource(String incomingTopic) {
         String erroredSource = "";
         if (incomingTopic.equalsIgnoreCase(rawTopic)) {
@@ -427,9 +421,9 @@ public class KafkaConsumerService {
 
     private void preparationForConversionHandler(String message, String dataProcessingEnable) throws ConversionPrepareException {
         Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
-        if(validatedElrResponse.isPresent()) {
+        if (validatedElrResponse.isPresent()) {
             kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepXmlTopic, TopicPreparationType.XML, 0, dataProcessingEnable);
-//            kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepFhirTopic, TopicPreparationType.FHIR, 0, dataProcessingEnable);
+            //kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepFhirTopic, TopicPreparationType.FHIR, 0, dataProcessingEnable);
         } else {
             throw new ConversionPrepareException("Validation ELR Record Not Found");
         }
@@ -438,10 +432,9 @@ public class KafkaConsumerService {
     /**
      * make this public so we can add unit test for now.
      * we need to implementation interface pattern for NBS convert and transformation classes. it better for unit testing
-     * */
+     */
     public void xmlConversionHandlerProcessing(String message, String operation, String dataProcessingEnable) {
         String hl7Msg = "";
-        System.out.println("33333333333333 count3:"+(++count3));
         try {
             if (operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
                 Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
@@ -472,10 +465,9 @@ public class KafkaConsumerService {
             // in the Data Ingestion elr_record_status_id table, so that we can get the status
             // of the record straight-forward from the NBS_Interface table.
 
-            if(nbsInterfaceModel == null) {
+            if (nbsInterfaceModel == null) {
                 customMetricsBuilder.incrementXmlConversionRequestedFailure();
-            }
-            else {
+            } else {
                 customMetricsBuilder.incrementXmlConversionRequestedSuccess();
                 ReportStatusIdData reportStatusIdData = new ReportStatusIdData();
                 Optional<ValidatedELRModel> validatedELRModel = iValidatedELRRepository.findById(message);
@@ -506,32 +498,33 @@ public class KafkaConsumerService {
             String stackTrace = sw.toString();
             // Handle any exceptions here
             kafkaProducerService.sendMessageDlt(
-                    message, "xml_prep_dlt_manual", 0 ,
-                    stackTrace,prepXmlTopic
+                    message, "xml_prep_dlt_manual", 0,
+                    stackTrace, prepXmlTopic
             );
         }
     }
+
     private void xmlConversionHandler(String message, String operation, String dataProcessingEnable) {
-        System.out.println("1111111111111111 count1:"+(++count1));
+
         // Update: changed method to async process, intensive process in this method cause consumer lagging, delay and strange behavior
         // TODO: considering breaking down this logic (NOTE) //NOSONAR
         // PROCESS as follow:
         //  - HL7 -> XML
-                // xml conversion can be broke down into multiple smaller pipeline
+        // xml conversion can be broke down into multiple smaller pipeline
         //  - Saving record to status table can also be broke to downstream pipeline
         CompletableFuture.runAsync(() -> {
-            System.out.println("2222222222222 count2:"+(++count2));
             log.debug("Received message id will be retrieved from db and associated hl7 will be converted to xml");
             xmlConversionHandlerProcessing(message, operation, dataProcessingEnable);
         });
     }
+
     private void validationHandler(String message, boolean hl7ValidationActivated, String dataProcessingEnable) throws DuplicateHL7FileFoundException, DiHL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);
         RawERLModel elrModel;
         if (!rawElrResponse.isEmpty()) {
             elrModel = rawElrResponse.get();
         } else {
-            throw new  DiHL7Exception("Raw ELR record is empty for Id: " + message);
+            throw new DiHL7Exception("Raw ELR record is empty for Id: " + message);
         }
         String messageType = elrModel.getType();
         switch (messageType) {
@@ -557,10 +550,11 @@ public class KafkaConsumerService {
                 break;
         }
     }
+
     private void conversionHandlerForFhir(String message, String operation) throws FhirConversionException, DiHL7Exception {
-        String payloadMessage ="";
+        String payloadMessage = "";
         ValidatedELRModel model = new ValidatedELRModel();
-        if(operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
+        if (operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
             Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
             if (validatedElrResponse.isPresent()) {
                 payloadMessage = validatedElrResponse.get().getRawMessage();
@@ -570,11 +564,10 @@ public class KafkaConsumerService {
                 throw new FhirConversionException(errorDltMessage);
             }
 
-        }
-        else {
+        } else {
             Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(message);
             if (response.isPresent()) {
-                payloadMessage =  response.get().getMessage();
+                payloadMessage = response.get().getMessage();
                 var validMessage = iHl7v2Validator.messageStringValidation(payloadMessage);
                 model.setRawId(message);
                 model.setRawMessage(validMessage);
@@ -591,6 +584,7 @@ public class KafkaConsumerService {
             throw new FhirConversionException(e.getMessage());
         }
     }
+
     private void saveValidatedELRMessage(ValidatedELRModel model) {
         model.setCreatedOn(getCurrentTimeStamp());
         model.setUpdatedOn(getCurrentTimeStamp());
