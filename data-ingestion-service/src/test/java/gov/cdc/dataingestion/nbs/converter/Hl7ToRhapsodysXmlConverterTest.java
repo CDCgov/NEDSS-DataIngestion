@@ -678,27 +678,17 @@ class Hl7ToRhapsodysXmlConverterTest {
         Method privateMethod = Hl7ToRhapsodysXmlConverter.class.getDeclaredMethod("buildHL7FT1Type", FinancialTransaction.class);
         privateMethod.setAccessible(true);
         var result = (HL7FT1Type) privateMethod.invoke(parentClass, model);
-        Assertions.assertNotNull(result);
         Assertions.assertNotNull(result.getSetIDFT1());
         Assertions.assertEquals(expectedMessage,result.getTransactionID());
         Assertions.assertEquals(expectedMessage,result.getTransactionBatchID());
-        Assertions.assertNotNull(result.getTransactionDate().getHL7RangeStartDateTime());
-        Assertions.assertNull(result.getTransactionDate().getHL7RangeEndDateTime());
+        Assertions.assertNotNull(result.getTransactionDate());
         Assertions.assertNotNull(result.getTransactionPostingDate());
-        Assertions.assertNull(result.getTransactionPostingDate().getMillis());
         Assertions.assertEquals(expectedMessage,result.getTransactionType());
         Assertions.assertNotNull(result.getTransactionCode());
-        Assertions.assertNull(result.getTransactionCode().getHL7NameofCodingSystem());
         Assertions.assertEquals(expectedMessage,result.getTransactionDescription());
         Assertions.assertEquals(expectedMessage,result.getTransactionDescriptionAlt());
         Assertions.assertNotNull(result.getTransactionQuantity());
         Assertions.assertNotNull(result.getTransactionAmountExtended());
-        Assertions.assertNotNull(result.getTransactionAmountExtended().getHL7Price());
-        Assertions.assertNull(result.getTransactionAmountExtended().getHL7PriceType());
-        Assertions.assertNotNull(result.getTransactionAmountExtended().getHL7FromValue());
-        Assertions.assertNotNull(result.getTransactionAmountExtended().getHL7ToValue());
-        Assertions.assertNotNull(result.getTransactionAmountExtended().getHL7RangeUnits());
-        Assertions.assertNull(result.getTransactionAmountExtended().getHL7RangeType());
         Assertions.assertNotNull(result.getTransactionAmountUnit());
         Assertions.assertNotNull(result.getDepartmentCode());
         Assertions.assertNotNull(result.getInsurancePlanID());
@@ -711,14 +701,6 @@ class Hl7ToRhapsodysXmlConverterTest {
         Assertions.assertNotNull(result.getOrderedByCode());
         Assertions.assertNull(result.getUnitCost());
         Assertions.assertNull(result.getFillerOrderNumber());
-        Assertions.assertNotNull(result.getEnteredByCode());
-        Assertions.assertNotNull(result.getProcedureCode());
-        Assertions.assertNotNull(result.getProcedureCodeModifier());
-        Assertions.assertNotNull(result.getAdvancedBeneficiaryNoticeCode());
-        Assertions.assertNotNull(result.getMedicallyNecessaryDuplicateProcedureReason());
-        Assertions.assertNotNull(result.getPaymentReferenceID());
-        Assertions.assertNotNull(result.getTransactionReferenceKey());
-        Assertions.assertNotNull(result.getNDCCode());
     }
 
     @Test

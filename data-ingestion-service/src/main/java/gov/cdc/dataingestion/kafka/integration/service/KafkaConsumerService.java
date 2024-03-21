@@ -273,7 +273,7 @@ public class KafkaConsumerService {
                                                   @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                                   @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation) throws FhirConversionException, DiHL7Exception {
         log.debug(topicDebugLog, message, topic);
-        //conversionHandlerForFhir(message, operation);
+        //conversionHandlerForFhir(message, operation); //NOSONAR
 
     }
     //endregion
@@ -423,7 +423,7 @@ public class KafkaConsumerService {
         Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
         if (validatedElrResponse.isPresent()) {
             kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepXmlTopic, TopicPreparationType.XML, 0, dataProcessingEnable);
-            //kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepFhirTopic, TopicPreparationType.FHIR, 0, dataProcessingEnable);
+            //kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepFhirTopic, TopicPreparationType.FHIR, 0, dataProcessingEnable); //NOSONAR
         } else {
             throw new ConversionPrepareException("Validation ELR Record Not Found");
         }
@@ -544,7 +544,7 @@ public class KafkaConsumerService {
                 kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic, 0, dataProcessingEnable);
                 break;
             case KafkaHeaderValue.MESSAGE_TYPE_CSV:
-                // TODO: implement csv validation, this is not in the scope of data ingestion at the moment
+                // TODO: implement csv validation, this is not in the scope of data ingestion at the moment //NOSONAR
                 break;
             default:
                 break;

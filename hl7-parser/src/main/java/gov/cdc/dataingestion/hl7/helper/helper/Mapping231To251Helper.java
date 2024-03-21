@@ -831,6 +831,7 @@ public class Mapping231To251Helper {
         return out;
     }
 
+    @SuppressWarnings("java:S3776")
     public static Prl mapPrl231(PRL in, Prl out) throws DiHL7Exception {
         if(in.getOBX3ObservationIdentifierOfParentResult() != null) {
             out.setParentObservationIdentifier(mapCe231(in.getOBX3ObservationIdentifierOfParentResult(), out.getParentObservationIdentifier()));

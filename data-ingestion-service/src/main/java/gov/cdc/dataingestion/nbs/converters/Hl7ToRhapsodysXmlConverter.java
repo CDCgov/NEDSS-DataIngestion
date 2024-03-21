@@ -2312,7 +2312,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return ts;
     }
 
-
+    @SuppressWarnings("java:S3776")
     private HL7TSType buildHL7TSType(String ts, int outFmt) {
         HL7TSType hl7TSType = new HL7TSType();
 

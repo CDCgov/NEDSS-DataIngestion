@@ -61,7 +61,7 @@ public class KafkaProducerService {
     }
 
 
-    @Deprecated
+    @Deprecated(forRemoval=true)
     @SuppressWarnings("java:S1133")
     public void sendMessageFromCSVController(List<List<String>> msg, String topic, String msgType) {
         String uniqueID = msgType + "_" + UUID.randomUUID();

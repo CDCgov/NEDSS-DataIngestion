@@ -1419,11 +1419,9 @@ public class RhapsodysXmlToHl7Converter {
         return streamHL7HDType(hl7HDType, INNTER_ATTRIBUTES_SEPARATOR);
     }
 
-    //TODO Dead Code
+    //TODO Dead Code //NOSONAR
     @SuppressWarnings("java:S3776")
     private MessageHeader buildMessageHeader() {
-        MessageHeader mh = new MessageHeader();
-
-        return mh;
+        return new MessageHeader();
     }
 }

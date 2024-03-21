@@ -1,7 +1,5 @@
 package gov.cdc.dataingestion.reportstatus.service;
 
-import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
-import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;

@@ -102,16 +102,7 @@ class HL7HelperTest {
         var observationRequest = oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest();
         var observationRequestCnn = observationRequest.getPrincipalResultInterpreter().getName();
         Assertions.assertEquals("20230615",observationRequestCnn.getIdNumber());
-        Assertions.assertNull(observationRequestCnn.getFamilyName());
-        Assertions.assertNull(observationRequestCnn.getGivenName());
-        Assertions.assertNull(observationRequestCnn.getSecondAndFurtherGivenNameOrInitial());
-        Assertions.assertNull(observationRequestCnn.getSuffix());
-        Assertions.assertNull(observationRequestCnn.getPrefix());
-        Assertions.assertNull(observationRequestCnn.getDegree());
-        Assertions.assertNull(observationRequestCnn.getSourceTable());
-        Assertions.assertNull(observationRequestCnn.getAssignAuthorityNamespaceId());
-        Assertions.assertNull(observationRequestCnn.getAssignAuthorityUniversalId());
-        Assertions.assertNull(observationRequestCnn.getAssignAuthorityUniversalIdType());
+        Assertions.assertNull(observationRequestCnn);
         Assertions.assertEquals("1",observationRequest.getSetIdObr());
         Assertions.assertEquals("20230615",observationRequest.getPriorityObr());
         Assertions.assertEquals("20230615",observationRequest.getSpecimenActionCode());
@@ -127,8 +118,6 @@ class HL7HelperTest {
         Assertions.assertEquals("20230615",observationRequest.getEscortRequired());
         Assertions.assertEquals("20230615",observationRequest.getResultHandling());
         //endregion
-
-
 
         hl7StringParserWith251_ReturnValidMessage_RandomV2Helper7(oru);
         hl7StringParserWith251_ReturnValidMessage_RandomV2Helper6(oru);

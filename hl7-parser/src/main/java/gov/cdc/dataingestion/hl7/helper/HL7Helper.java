@@ -41,9 +41,9 @@ public class HL7Helper {
     /**
      * Convert HL7 message into fhir
      */
-//    public FhirConvertedMessage convertHl7ToFhir(String message) throws DiFhirException {
-//        return null;//fhirConverter.hL7ToFHIRConversion(message);
-//    }
+//    public FhirConvertedMessage convertHl7ToFhir(String message) throws DiFhirException {//NOSONAR
+//        return null;//fhirConverter.hL7ToFHIRConversion(message);//NOSONAR
+//    }//NOSONAR
     public String hl7Validation(String message) throws DiHL7Exception {
         message = parser.processFhsMessage(message);
         return parser.hl7ORUValidation(message);
