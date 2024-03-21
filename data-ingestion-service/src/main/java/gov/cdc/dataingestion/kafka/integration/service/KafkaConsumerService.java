@@ -305,10 +305,10 @@ public class KafkaConsumerService {
 
     )
 
-    @SuppressWarnings("java:S3776")
     @KafkaListener(
             topics = "ecr_cda"
     )
+    @SuppressWarnings("java:S3776")
     public void handleMessageForPhdcEcrTransformToCda(String message,
                                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EcrCdaXmlException {
         log.debug(topicDebugLog, message, topic);
