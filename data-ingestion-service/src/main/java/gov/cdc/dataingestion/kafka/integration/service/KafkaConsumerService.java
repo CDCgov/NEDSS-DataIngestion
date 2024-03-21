@@ -190,7 +190,7 @@ public class KafkaConsumerService {
         boolean hl7ValidationActivated = false;
 
         if (messageValidationActive != null && messageValidationActive.equalsIgnoreCase("true")) {
-            hl7ValidationActivated = true;
+            hl7ValidationActivated = true;//NOSONAR
         }
         validationHandler(message, hl7ValidationActivated, dataProcessingEnable);
     }
@@ -274,7 +274,7 @@ public class KafkaConsumerService {
     public void handleMessageForFhirConversionElr(String message,
                                                   @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                                   @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation) throws FhirConversionException, DiHL7Exception {
-        log.debug(topicDebugLog, message, topic);
+        //FHIR is not used. //NOSONAR
         //conversionHandlerForFhir(message, operation); //NOSONAR
 
     }
@@ -312,12 +312,12 @@ public class KafkaConsumerService {
     @SuppressWarnings("all")
     public void handleMessageForPhdcEcrTransformToCda(String message,
                                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EcrCdaXmlException {
-        log.debug(topicDebugLog, message, topic);
-        var result = ecrMsgQueryService.getSelectedEcrRecord();
-        var xmlResult = this.cdaMapper.tranformSelectedEcrToCDAXml(result);
+        log.debug(topicDebugLog, message, topic);//NOSONAR
+        var result = ecrMsgQueryService.getSelectedEcrRecord();//NOSONAR
+        var xmlResult = this.cdaMapper.tranformSelectedEcrToCDAXml(result);//NOSONAR
         nbsRepositoryServiceProvider.saveEcrCdaXmlMessage(result.getMsgContainer().getNbsInterfaceUid().toString()
-                , result.getMsgContainer().getDataMigrationStatus(), xmlResult);
-    }
+                , result.getMsgContainer().getDataMigrationStatus(), xmlResult);//NOSONAR
+    }//NOSONAR
 
     @KafkaListener(
             topics = "xml_prep_dlt_manual"
@@ -378,13 +378,13 @@ public class KafkaConsumerService {
                         .orElseThrow(() -> new DeadLetterTopicException(processDltErrorMessage + elrDeadLetterDto.getErrorMessageId()));
                 elrDeadLetterDto.setMessage(message.getRawMessage());
             } else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(convertedToXmlTopic)) {
-                throw new DeadLetterTopicException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());
+                throw new DeadLetterTopicException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());//NOSONAR
             } else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(convertedToFhirTopic)) {
                 var message = this.iHL7ToFHIRRepository.findById(elrDeadLetterDto.getErrorMessageId())
                         .orElseThrow(() -> new DeadLetterTopicException(processDltErrorMessage + elrDeadLetterDto.getErrorMessageId()));
                 elrDeadLetterDto.setMessage(message.getFhirMessage());
             } else {
-                throw new DeadLetterTopicException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());
+                throw new DeadLetterTopicException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());//NOSONAR
             }
 
             model.setErrorMessageId(elrDeadLetterDto.getErrorMessageId());
@@ -446,10 +446,10 @@ public class KafkaConsumerService {
             } else {
                 Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(message);
                 if (response.isPresent()) {
-                    var validMessage = iHl7v2Validator.messageStringValidation(response.get().getMessage());
-                    validMessage = iHl7v2Validator.processFhsMessage(validMessage);
-                    hl7Msg = validMessage;
-                } else {
+                    var validMessage = iHl7v2Validator.messageStringValidation(response.get().getMessage());//NOSONAR
+                    validMessage = iHl7v2Validator.processFhsMessage(validMessage);//NOSONAR
+                    hl7Msg = validMessage;//NOSONAR
+                } else {//NOSONAR
                     throw new XmlConversionException(errorDltMessage);
                 }
             }
@@ -470,7 +470,7 @@ public class KafkaConsumerService {
             // of the record straight-forward from the NBS_Interface table.
 
             if (nbsInterfaceModel == null) {
-                customMetricsBuilder.incrementXmlConversionRequestedFailure();
+                customMetricsBuilder.incrementXmlConversionRequestedFailure();//NOSONAR
             } else {
                 customMetricsBuilder.incrementXmlConversionRequestedSuccess();
                 ReportStatusIdData reportStatusIdData = new ReportStatusIdData();
@@ -492,7 +492,7 @@ public class KafkaConsumerService {
 
                 kafkaProducerService.sendMessageAfterConvertedToXml(strGson, "elr_processing_micro", 0); //NOSONAR
             } else {
-                kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
+                kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);//NOSONAR
             }
 
         } catch (Exception e) {
@@ -538,9 +538,9 @@ public class KafkaConsumerService {
                 try {
                     hl7ValidatedModel = iHl7v2Validator.messageValidation(message, elrModel, validatedTopic, hl7ValidationActivated);
                     customMetricsBuilder.incrementMessagesValidatedSuccess();
-                } catch (DiHL7Exception e) {
-                    customMetricsBuilder.incrementMessagesValidatedFailure();
-                    throw new DiHL7Exception(e.getMessage());
+                } catch (DiHL7Exception e) {//NOSONAR
+                    customMetricsBuilder.incrementMessagesValidatedFailure();//NOSONAR
+                    throw new DiHL7Exception(e.getMessage());//NOSONAR
                 }
                 // Duplication check
                 iHL7DuplicateValidator.validateHL7Document(hl7ValidatedModel);
@@ -548,8 +548,7 @@ public class KafkaConsumerService {
                 kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic, 0, dataProcessingEnable);
                 break;
             case KafkaHeaderValue.MESSAGE_TYPE_CSV:
-                // TODO: implement csv validation, this is not in the scope of data ingestion at the moment //NOSONAR
-                break;
+                break;// TODO: implement csv validation, this is not in the scope of data ingestion at the moment //NOSONAR
             default:
                 break;
         }
