@@ -274,7 +274,7 @@ public class KafkaConsumerService {
     public void handleMessageForFhirConversionElr(String message,
                                                   @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                                   @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation) throws FhirConversionException, DiHL7Exception {
-        log.debug(topicDebugLog, message, topic);//NOSONAR
+        log.debug(topicDebugLog, message, topic);
         //conversionHandlerForFhir(message, operation); //NOSONAR
 
     }
@@ -312,11 +312,11 @@ public class KafkaConsumerService {
     @SuppressWarnings("java:S106")
     public void handleMessageForPhdcEcrTransformToCda(String message,
                                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EcrCdaXmlException {
-        log.debug(topicDebugLog, message, topic);//NOSONAR
-        var result = ecrMsgQueryService.getSelectedEcrRecord();//NOSONAR
-        var xmlResult = this.cdaMapper.tranformSelectedEcrToCDAXml(result);//NOSONAR
+        log.debug(topicDebugLog, message, topic);
+        var result = ecrMsgQueryService.getSelectedEcrRecord();
+        var xmlResult = this.cdaMapper.tranformSelectedEcrToCDAXml(result);
         nbsRepositoryServiceProvider.saveEcrCdaXmlMessage(result.getMsgContainer().getNbsInterfaceUid().toString()
-                , result.getMsgContainer().getDataMigrationStatus(), xmlResult);//NOSONAR
+                , result.getMsgContainer().getDataMigrationStatus(), xmlResult);
     }
 
     @KafkaListener(
@@ -547,11 +547,46 @@ public class KafkaConsumerService {
                 saveValidatedELRMessage(hl7ValidatedModel);
                 kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic, 0, dataProcessingEnable);
                 break;
-            case KafkaHeaderValue.MESSAGE_TYPE_CSV://NOSONAR
+            case KafkaHeaderValue.MESSAGE_TYPE_CSV:
                 // TODO: implement csv validation, this is not in the scope of data ingestion at the moment //NOSONAR
-                break;//NOSONAR
+                break;
             default:
                 break;
+        }
+    }
+
+    @SuppressWarnings("java:S106")
+    private void conversionHandlerForFhir(String message, String operation) throws FhirConversionException, DiHL7Exception {
+        String payloadMessage = "";
+        ValidatedELRModel model = new ValidatedELRModel();
+        if (operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
+            Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
+            if (validatedElrResponse.isPresent()) {
+                payloadMessage = validatedElrResponse.get().getRawMessage();
+                model.setRawId(validatedElrResponse.get().getRawId());
+                model.setRawMessage(payloadMessage);
+            } else {
+                throw new FhirConversionException(errorDltMessage);
+            }
+
+        } else {
+            Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(message);
+            if (response.isPresent()) {
+                payloadMessage = response.get().getMessage();
+                var validMessage = iHl7v2Validator.messageStringValidation(payloadMessage);
+                model.setRawId(message);
+                model.setRawMessage(validMessage);
+            } else {
+                throw new FhirConversionException(errorDltMessage);
+            }
+        }
+
+        try {
+            HL7ToFHIRModel convertedModel = iHl7ToFHIRConversion.convertHL7v2ToFhir(model, convertedToFhirTopic);
+            iHL7ToFHIRRepository.save(convertedModel);
+            kafkaProducerService.sendMessageAfterConvertedToFhirMessage(convertedModel, convertedToFhirTopic, 0);
+        } catch (Exception e) {
+            throw new FhirConversionException(e.getMessage());
         }
     }
 
