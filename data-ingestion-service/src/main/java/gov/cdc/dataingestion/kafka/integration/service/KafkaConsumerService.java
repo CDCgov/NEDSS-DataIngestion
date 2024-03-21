@@ -270,7 +270,7 @@ public class KafkaConsumerService {
     )
 
     @KafkaListener(topics = "${kafka.fhir-conversion-prep.topic}")
-    @SuppressWarnings("java:S106")
+    @SuppressWarnings("java:S2077")
     public void handleMessageForFhirConversionElr(String message,
                                                   @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                                   @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation) throws FhirConversionException, DiHL7Exception {
@@ -309,7 +309,7 @@ public class KafkaConsumerService {
     @KafkaListener(
             topics = "ecr_cda"
     )
-    @SuppressWarnings("java:S106")
+    @SuppressWarnings("java:S2077")
     public void handleMessageForPhdcEcrTransformToCda(String message,
                                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EcrCdaXmlException {
         log.debug(topicDebugLog, message, topic);
@@ -555,7 +555,7 @@ public class KafkaConsumerService {
         }
     }
 
-    @SuppressWarnings("java:S106")
+    @SuppressWarnings("java:S2077")
     private void conversionHandlerForFhir(String message, String operation) throws FhirConversionException, DiHL7Exception {
         String payloadMessage = "";
         ValidatedELRModel model = new ValidatedELRModel();
