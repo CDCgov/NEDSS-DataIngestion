@@ -13,7 +13,7 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 public class HL7Helper {
 
     private IHL7Parser parser = new HL7Parser(new DefaultHapiContext());
-    //private IFhirConverter fhirConverter = new FhirConverter(new HL7ToFHIRConverter());
+    //private IFhirConverter fhirConverter = new FhirConverter(new HL7ToFHIRConverter());//NOSONAR
 
     /**
      * HL7 string validator, replacing "\n" by "\r"

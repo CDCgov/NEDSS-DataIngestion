@@ -1,7 +1,6 @@
 package gov.cdc.dataingestion.nbs.converters;
 
 import gov.cdc.dataingestion.exception.XmlConversionException;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_segment.MessageHeader;
 
 import  gov.cdc.dataingestion.nbs.jaxb.*;
 
