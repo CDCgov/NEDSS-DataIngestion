@@ -76,7 +76,7 @@ class RawELRServiceTest {
         model.setCreatedBy("test");
         model.setUpdatedBy("test");
 
-        when(rawELRRepository.getById(any())).thenReturn(model);
+        when(rawELRRepository.getReferenceById(any())).thenReturn(model);
 
         var result = target.getById(modelDto.getId());
 
