@@ -34,7 +34,6 @@ import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 
 import jakarta.xml.bind.JAXBException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.kafka.common.errors.SerializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -248,6 +247,9 @@ public class KafkaConsumerService {
 
     /**
      * FHIR Conversion
+     * @deprecated This method is no longer needed as FHIR format is not being used.
+     * Also, FhirConverter caused the out of memory problem.
+     * Deprecated code should eventually be removed.
      * */
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
@@ -270,12 +272,14 @@ public class KafkaConsumerService {
                     JAXBException.class
             }
     )
+    @Deprecated(since = "7.3",forRemoval = true)
+    @SuppressWarnings("java:S1133")
     @KafkaListener(topics = "${kafka.fhir-conversion-prep.topic}")
     public void handleMessageForFhirConversionElr(String message,
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                                   @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation) throws FhirConversionException, DiHL7Exception {
-        log.debug(topicDebugLog, message, topic);
-        conversionHandlerForFhir(message, operation);
+        //log.debug(topicDebugLog, message, topic);//NOSONAR
+        //conversionHandlerForFhir(message, operation);//NOSONAR
 
     }
     //endregion
@@ -427,7 +431,7 @@ public class KafkaConsumerService {
         Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
         if(validatedElrResponse.isPresent()) {
             kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepXmlTopic, TopicPreparationType.XML, 0, dataProcessingEnable);
-            kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepFhirTopic, TopicPreparationType.FHIR, 0, dataProcessingEnable);
+            //kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepFhirTopic, TopicPreparationType.FHIR, 0, dataProcessingEnable);//NOSONAR
         } else {
             throw new ConversionPrepareException("Validation ELR Record Not Found");
         }
@@ -553,6 +557,14 @@ public class KafkaConsumerService {
                 break;
         }
     }
+    /**
+     * FHIR Conversion
+     * @deprecated This method is no longer needed as FHIR format is not being used.
+     * Also, FhirConverter caused the out of memory problem.
+     * Deprecated code should eventually be removed.
+     * */
+    @Deprecated(since = "7.3",forRemoval = true)
+    @SuppressWarnings("java:S1133")
     private void conversionHandlerForFhir(String message, String operation) throws FhirConversionException, DiHL7Exception {
         String payloadMessage ="";
         ValidatedELRModel model = new ValidatedELRModel();
