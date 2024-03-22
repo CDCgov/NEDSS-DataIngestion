@@ -46,7 +46,7 @@ public class HL7Helper {
      * Also, FhirConverter caused the out of memory problem.
      * Convert HL7 message into fhir
      * */
-    @Deprecated(forRemoval = true)
+    @Deprecated(since = "7.3",forRemoval = true)
     public FhirConvertedMessage convertHl7ToFhir(String message) throws DiFhirException {
         return null;//fhirConverter.hL7ToFHIRConversion(message);//NOSONAR
     }
