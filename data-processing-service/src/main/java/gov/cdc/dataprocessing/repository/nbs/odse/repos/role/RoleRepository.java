@@ -25,6 +25,21 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     Optional<Long> countByPk(Long entityUid, String code, Long seq);
 
     /**
+     *   private static final String SELECT_BY_PK = "SELECT max(role_seq) from ROLE with (NOLOCK) where subject_entity_uid = ? and cd = ?";
+     * */
+    @Query(value = "SELECT max(p.roleSeq) FROM Role p WHERE p.subjectEntityUid = :subjectEntityUid AND p.code = :code")
+    Optional<Integer> loadCountBySubjectCdComb(@Param("subjectEntityUid") Long subjectEntityUid, @Param("code") String code);
+
+
+    /**
+     * String SELECT_BY_SUBJECT_SCOPING_CD = "SELECT max(role_seq) from ROLE with (NOLOCK)  where subject_entity_uid = ? and cd = ? and scoping_entity_uid=?"
+     * */
+    @Query(value = "SELECT max(p.roleSeq) FROM Role p WHERE p.subjectEntityUid = :subjectEntityUid AND p.code = :code AND p.scopingEntityUid = :scopingEntityUid")
+    Optional<Integer> loadCountBySubjectScpingCdComb(@Param("subjectEntityUid") Long subjectEntityUid, @Param("code") String code, @Param("scopingEntityUid") Long scopingEntityUid);
+
+
+
+    /**
      * String DELETE_BY_PK = "DELETE from Role where subject_entity_uid = ? and cd = ? and role_seq = ?"
      * */
     @Query("DELETE FROM Role data WHERE data.subjectEntityUid = :subjectEntityUid AND data.code = :code AND data.roleSeq = :roleSeq")

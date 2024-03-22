@@ -64,7 +64,9 @@ public class HL7PatientHandler {
                     // Only need the first index
                     if (!hl7NK1TypeList.isEmpty()) {
                         HL7NK1Type hl7NK1Type = hl7NK1TypeList.get(0);
-                        getNextOfKinVO(hl7NK1Type, labResultProxyContainer, edxLabInformationDto);
+                        if (hl7NK1Type.getName() != null && !hl7NK1Type.getName().isEmpty()) {
+                            getNextOfKinVO(hl7NK1Type, labResultProxyContainer, edxLabInformationDto);
+                        }
                     }
                 }
             }

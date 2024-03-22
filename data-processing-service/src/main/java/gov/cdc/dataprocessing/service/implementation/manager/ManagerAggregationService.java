@@ -6,6 +6,7 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.ObservationContainer;
 import gov.cdc.dataprocessing.model.container.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
+import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
@@ -17,6 +18,7 @@ import gov.cdc.dataprocessing.service.implementation.organization.OrganizationSe
 import gov.cdc.dataprocessing.service.implementation.person.PersonService;
 import gov.cdc.dataprocessing.service.implementation.observation.ObservationMatchingService;
 import gov.cdc.dataprocessing.service.implementation.other.UidService;
+import gov.cdc.dataprocessing.service.implementation.role.RoleService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
 import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
@@ -25,14 +27,13 @@ import gov.cdc.dataprocessing.service.interfaces.observation.IObservationMatchin
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService;
 import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationService;
 import gov.cdc.dataprocessing.service.interfaces.person.IPersonService;
+import gov.cdc.dataprocessing.service.interfaces.role.IRoleService;
 import gov.cdc.dataprocessing.service.model.PersonAggContainer;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.ManagerUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -48,7 +49,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     IObservationMatchingService observationMatchingService;
     IProgramAreaService programAreaService;
     IJurisdictionService jurisdictionService;
-
+    IRoleService roleService;
 
     public ManagerAggregationService(ManagerUtil managerUtil,
                                      OrganizationService organizationService,
@@ -57,7 +58,8 @@ public class ManagerAggregationService implements IManagerAggregationService {
                                      ObservationService observationService,
                                      ObservationMatchingService observationMatchingService,
                                      ProgramAreaService programAreaService,
-                                     JurisdictionService jurisdictionService) {
+                                     JurisdictionService jurisdictionService,
+                                     RoleService roleService) {
         this.managerUtil = managerUtil;
         this.organizationService = organizationService;
         this.patientService = patientService;
@@ -66,6 +68,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
         this.observationMatchingService = observationMatchingService;
         this.programAreaService = programAreaService;
         this.jurisdictionService = jurisdictionService;
+        this.roleService = roleService;
     }
 
     public void processingObservationMatching(EdxLabInformationDto edxLabInformationDto,
@@ -109,7 +112,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     }
 
 
-    public void serviceAggregationAsync(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws DataProcessingConsumerException,
+    public void serviceAggregationAsync(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws
             DataProcessingException {
         PersonAggContainer personAggContainer;
         OrganizationContainer organizationContainer;
@@ -153,11 +156,18 @@ public class ManagerAggregationService implements IManagerAggregationService {
             throw new DataProcessingException("Failed to get results", e);
         }
 
+        roleAggregation(labResult);
+
+        progAndJurisdictionAggregation( labResult,  edxLabInformationDto,  personAggContainer, organizationContainer);
+
+    }
+
+    private void progAndJurisdictionAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto, PersonAggContainer personAggContainer,
+                                                OrganizationContainer organizationContainer) throws DataProcessingException {
         // Pulling Jurisdiction and Program from OBS
         ObservationContainer orderTestVO = null;
         Collection<ObservationContainer> resultTests = new ArrayList<>();
-        for (ObservationContainer obsVO : labResult
-                .getTheObservationContainerCollection()) {
+        for (ObservationContainer obsVO : labResult.getTheObservationContainerCollection()) {
             String obsDomainCdSt1 = obsVO.getTheObservationDto()
                     .getObsDomainCdSt1();
             if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_RESULT_CD)) {
@@ -177,6 +187,136 @@ public class ManagerAggregationService implements IManagerAggregationService {
             jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
                     organizationContainer, orderTestVO);
         }
+    }
+
+    private void roleAggregation(LabResultProxyContainer labResult) {
+        //TODO ROLE
+        /**
+         *Roles must be checked for NEW, UPDATED, MARK FOR DELETE buckets.
+         */
+
+        Map<Object, RoleDto> mappedExistingRoleCollection  = new HashMap<>();
+        Map<Object, RoleDto> mappedNewRoleCollection  = new HashMap<>();
+        if(labResult.getTheRoleDtoCollection()!=null){
+
+            Collection<RoleDto> coll=labResult.getTheRoleDtoCollection();
+            if(coll!=null){
+                Iterator<RoleDto> it = coll.iterator();
+                while(it.hasNext()){
+
+                    RoleDto roleDT = (RoleDto)it.next();
+                    if(roleDT.isItDelete()){
+                        mappedExistingRoleCollection.put(roleDT.getSubjectEntityUid()+roleDT.getCd()+roleDT.getScopingEntityUid(), roleDT);
+                    }else{
+                        mappedNewRoleCollection.put(roleDT.getSubjectEntityUid()+roleDT.getCd()+roleDT.getScopingEntityUid(), roleDT);
+
+                    }
+
+                }
+            }
+        }
+        ArrayList<Object> list = new ArrayList<Object>();
+
+        //update scenario
+        if(mappedNewRoleCollection!=null){
+            Set<Object> set = mappedNewRoleCollection.keySet();
+            Iterator<Object> iterator = set.iterator();
+            while(iterator.hasNext()){
+                String key = (String) iterator.next();
+                if(mappedExistingRoleCollection.containsKey(key)){
+                    //Do not delete/modify the role as it exists in both updated and old ELR
+                    // UPDATE Role bucket
+                    mappedExistingRoleCollection.remove(key);
+
+
+                }else{
+                    //insert Role as it is new in new/updated ELR
+                    //NEW role Bucket
+                    RoleDto roleDT = (RoleDto)mappedNewRoleCollection.get(key);
+                    list.add(roleDT);
+                }
+
+            }
+
+            //will add all roles that are part of the old collection but are not contained in the new collection
+            // MARK FOR DELETE Role bucket
+            list.addAll(mappedExistingRoleCollection.values());
+        }
+
+
+        Map<Object, RoleDto> modifiedRoleMap = new HashMap<>();
+        ArrayList<RoleDto> listFinal = new ArrayList<>();
+        if(list!=null){
+            Iterator<Object> it = list.iterator();
+            while(it.hasNext()){
+                RoleDto roleDT = (RoleDto)it.next();
+                if(roleDT.isItDelete()){
+                    listFinal.add(roleDT);
+                    //We have already taken care of the deduplication of role in the above code
+                    continue;
+                }
+                //We will write the role if there are no existing role relationships.
+                if(roleDT.getScopingEntityUid()==null){
+                    Long count = 0L;
+                    count = roleService.loadCountBySubjectCdComb(roleDT).longValue();
+                    if(count==0){
+                        roleDT.setRoleSeq(count+1);
+                        modifiedRoleMap.put(roleDT.getSubjectEntityUid()+roleDT.getRoleSeq()+roleDT.getCd(), roleDT);
+                    }
+
+                }else{
+
+                    int checkIfExisits =0;
+                    checkIfExisits = roleService.loadCountBySubjectScpingCdComb(roleDT);
+
+                    if(checkIfExisits>0){
+                        //do nothing as this role relationship exists in database
+                    }
+                    else
+                    {
+                        long countForPKValues =0;
+                        countForPKValues = roleService.loadCountBySubjectCdComb(roleDT);
+                        //We will write the role relationship for follwoing provider in scope of ELR patient
+                        if(countForPKValues==0
+                                || (
+                                roleDT.getCd()!=null
+                                        && (
+                                        roleDT.getCd().equals(EdxELRConstant.ELR_SPECIMEN_PROCURER_CD)
+                                                || roleDT.getCd().equals(EdxELRConstant.ELR_COPY_TO_CD)
+                                                || roleDT.getSubjectClassCd().equals(EdxELRConstant.ELR_CON)
+                                )
+                        )
+                        )
+                        {
+
+                            if(roleDT.getRoleSeq()!=null &&  roleDT.getRoleSeq().intValue()==2
+                                    && roleDT.getSubjectClassCd().equals(EdxELRConstant.ELR_MAT_CD)
+                                    && roleDT.getScopingRoleCd().equals(EdxELRConstant.ELR_SPECIMEN_PROCURER_CD)
+                            ) {
+                                //Material is a special as provider to material is created with role sequence 2
+                            }
+                            else
+                            {
+                                roleDT.setRoleSeq(countForPKValues+1);
+                            }
+                            modifiedRoleMap.put(roleDT.getSubjectEntityUid() + roleDT.getRoleSeq() + roleDT.getCd() + roleDT.getScopingEntityUid(), roleDT);
+
+                        }
+                    }
+
+                }
+            }
+
+            if(modifiedRoleMap!=null){
+                Collection<RoleDto> roleCollection = modifiedRoleMap.values();
+                listFinal.addAll(roleCollection);
+            }
+
+            labResult.setTheRoleDtoCollection(listFinal);
+
+        }
+
+
     }
 
 

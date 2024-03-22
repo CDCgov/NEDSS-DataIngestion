@@ -77,6 +77,16 @@ public class RoleService implements IRoleService {
         }
     }
 
+    public Integer loadCountBySubjectCdComb(RoleDto roleDto) {
+        var result = roleRepository.loadCountBySubjectCdComb(roleDto.getSubjectEntityUid(), roleDto.getCd());
+        return result.orElse(0);
+    }
+
+    public Integer loadCountBySubjectScpingCdComb(RoleDto roleDto) {
+        var result = roleRepository.loadCountBySubjectScpingCdComb(roleDto.getSubjectEntityUid(), roleDto.getCd(), roleDto.getScopingEntityUid());
+        return result.orElse(0);
+    }
+
     private void removeRole(RoleDto roleDto) {
         roleRepository.deleteRoleByPk(roleDto.getSubjectEntityUid(), roleDto.getCd(), roleDto.getRoleSeq());
     }

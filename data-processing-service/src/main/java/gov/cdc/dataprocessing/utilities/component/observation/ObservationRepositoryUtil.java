@@ -504,9 +504,10 @@ public class ObservationRepositoryUtil {
             actRepository.save(act);
 
             //TODO EVALUATE
-            // Local uid
             Observation observation = new Observation(observationDto);
             observation.setVersionCtrlNbr(1);
+            //Shared Ind is not Null, existing data are set to T hence set it as T here
+            observation.setSharedInd("T");
             observation.setLocalId(uid.getUidPrefixCd() + uid.getSeedValueNbr() + uid.getUidSuffixCd());
             observation.setObservationUid(uid.getSeedValueNbr());
 

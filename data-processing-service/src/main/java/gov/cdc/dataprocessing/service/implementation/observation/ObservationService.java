@@ -18,6 +18,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.service.interfaces.act.IActRelationshipService;
 import gov.cdc.dataprocessing.service.interfaces.answer.IAnswerService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
+import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
 import gov.cdc.dataprocessing.service.interfaces.other.IEdxDocumentService;
 import gov.cdc.dataprocessing.service.interfaces.log.IMessageLogService;
 import gov.cdc.dataprocessing.service.interfaces.log.INNDActivityLogService;
@@ -27,7 +28,6 @@ import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService
 import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationCodeService;
 import gov.cdc.dataprocessing.service.interfaces.paticipation.IParticipationService;
-import gov.cdc.dataprocessing.service.interfaces.public_health_case.IProgramAreaService;
 import gov.cdc.dataprocessing.service.interfaces.role.IRoleService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.observation.ObservationRepositoryUtil;
@@ -955,8 +955,6 @@ public class ObservationService implements IObservationService {
                             if (participationDto.isItDelete()) {
                                 participationService.saveParticipationHist(participationDto);
                             }
-                            //TODO EVALUATE - use root obs uid for now
-                            // participationDto.setActUid(observationUid);
 
                             participationService.saveParticipation(participationDto);
 
@@ -982,8 +980,6 @@ public class ObservationService implements IObservationService {
                 for (ActRelationshipDto actRelationshipDto : labResultProxyVO.getTheActRelationshipDtoCollection()) {
                     try {
                         if (actRelationshipDto != null) {
-                            //TODO: EVALUATE use Obs Root Uid for now
-                            //actRelationshipDto.setTargetActUid(observationUid);
                             actRelationshipService.saveActRelationship(actRelationshipDto);
                         }
                     } catch (Exception e) {
@@ -1041,12 +1037,10 @@ public class ObservationService implements IObservationService {
             if (labResultProxyVO.getPageVO() != null) {
                 if(labResultProxyVO.isItDirty()) {
                     PageContainer pageContainer =(PageContainer)labResultProxyVO.getPageVO();
-                    //TODO: INSERTION
                     answerService.storePageAnswer(pageContainer, rootDT);
                 }
             else {
                     PageContainer pageContainer =(PageContainer)labResultProxyVO.getPageVO();
-                    //TODO: INSERTION
                     answerService.insertPageVO(pageContainer, rootDT);
                 }
             }
@@ -1291,7 +1285,6 @@ public class ObservationService implements IObservationService {
         returnObsVal = processLabReportOrderTest(labResultProxyVO, ELR_PROCESSING);
 
         //Then, persist the observations
-        //TODO: INSERTION
         Long observationUid = storeObservationVOCollection(labResultProxyVO);
 
         //Return the order test uid
@@ -1409,7 +1402,6 @@ public class ObservationService implements IObservationService {
                 businessTriggerCd = NEDSSConstant.OBS_LAB_EDIT;
             }
         }
-//            TODO: EVALUATE
          newObservationDto = (ObservationDto) prepareAssocModelHelper.prepareVO(
                 orderTest.getTheObservationDto(), NBSBOLookup.OBSERVATIONLABREPORT,
                 businessTriggerCd, "OBSERVATION", NEDSSConstant.BASE);
@@ -1465,7 +1457,6 @@ public class ObservationService implements IObservationService {
                         isRootObs = true;
                     }
 
-                    //TODO INSERTION
                     //Persist the observation vo
                     Long observationUid = observationRepositoryUtil.saveObservation(observationContainer);
 

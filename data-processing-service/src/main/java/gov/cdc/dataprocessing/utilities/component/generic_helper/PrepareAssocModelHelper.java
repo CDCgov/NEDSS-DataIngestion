@@ -12,6 +12,7 @@ import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PrepareEntityStoredProcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.PrepareEntity;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
+import gov.cdc.dataprocessing.utilities.component.jurisdiction.ProgAreaJurisdictionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -23,9 +24,12 @@ public class PrepareAssocModelHelper {
     private static final Logger logger = LoggerFactory.getLogger(PrepareAssocModelHelper.class);
 
     private final PrepareEntityStoredProcRepository prepareEntityStoredProcRepository;
+    private final ProgAreaJurisdictionUtil progAreaJurisdictionUtil;
 
-    public PrepareAssocModelHelper(PrepareEntityStoredProcRepository prepareEntityStoredProcRepository) {
+    public PrepareAssocModelHelper(PrepareEntityStoredProcRepository prepareEntityStoredProcRepository,
+                                   ProgAreaJurisdictionUtil progAreaJurisdictionUtil) {
         this.prepareEntityStoredProcRepository = prepareEntityStoredProcRepository;
+        this.progAreaJurisdictionUtil = progAreaJurisdictionUtil;
     }
 
     /**
@@ -389,8 +393,8 @@ public class PrepareAssocModelHelper {
                 String jurisdictionCd = theRootDTInterface.getJurisdictionCd();
                 //TODO EVALUATE
                 // PROGRAM AREA
-                // long pajHash = ProgramAreaJurisdictionUtil.getPAJHash(progAreaCd, jurisdictionCd);
-                Long aProgramJurisdictionOid = -1L;
+                long pajHash = progAreaJurisdictionUtil.getPAJHash(progAreaCd, jurisdictionCd);
+                Long aProgramJurisdictionOid = pajHash;
                 logger.debug("aProgramJurisdictionOid is : " + aProgramJurisdictionOid);
                 theRootDTInterface.setProgramJurisdictionOid(aProgramJurisdictionOid);
                 logger.debug("aProgramJurisdictionOid from obj  is : " + theRootDTInterface.getProgramJurisdictionOid());
@@ -517,13 +521,6 @@ public class PrepareAssocModelHelper {
         try
         {
             Long uid = theRootDTInterface.getUid();
-            logger.debug("prepareDirtyActVO uid = " + uid);
-
-
-            logger.debug("businessTriggerCd in prepareDirtyActVO in prepateVOUtil is :"+businessTriggerCd);
-            logger.debug("moduleCd in prepareDirtyActVO in prepateVOUtil is :"+moduleCd);
-            logger.debug("uid in prepareDirtyActVO in prepateVOUtil is :"+uid);
-            logger.debug("tableName in prepareDirtyActVO in prepateVOUtil is :"+tableName);
 
             PrepareEntity prepareVOUtilsHelper = prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, uid, tableName);
             String localId = prepareVOUtilsHelper.getLocalId();//7
@@ -546,8 +543,8 @@ public class PrepareAssocModelHelper {
 
                 //TODO EVALUATE
                 // PROGRAM AREA
-                //long pajHash = ProgramAreaJurisdictionUtil.getPAJHash(progAreaCd, jurisdictionCd);
-                Long aProgramJurisdictionOid = -1L;
+                long pajHash = progAreaJurisdictionUtil.getPAJHash(progAreaCd, jurisdictionCd);
+                Long aProgramJurisdictionOid = pajHash;
                 theRootDTInterface.setProgramJurisdictionOid(aProgramJurisdictionOid);
             }
 

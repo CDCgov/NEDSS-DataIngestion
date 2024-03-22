@@ -194,7 +194,8 @@ public class ManagerService implements IManagerService {
 
 
             //TODO: uncomment when debug
-//            nbsInterfaceModel = nbsInterfaceRepository.findById(Integer.valueOf(data)).get();
+           // nbsInterfaceModel = nbsInterfaceRepository.findById(Integer.valueOf(data)).get();
+            nbsInterfaceModel.setObservationUid(null);
 
             edxLabInformationDto.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
 
@@ -210,6 +211,12 @@ public class ManagerService implements IManagerService {
             }
             if (SrteCache.jurisdictionCodeMap.isEmpty()) {
                 cachingValueService.getAllJurisdictionCode();
+            }
+            if (SrteCache.jurisdictionCodeMapWithNbsUid.isEmpty()) {
+                cachingValueService.getAllJurisdictionCodeWithNbsUid();
+            }
+            if (SrteCache.programAreaCodesMapWithNbsUid.isEmpty()) {
+                cachingValueService.getAllProgramAreaCodesWithNbsUid();
             }
 
 
@@ -245,6 +252,22 @@ public class ManagerService implements IManagerService {
                     Object cachedObject = valueWrapper.get();
                     if (cachedObject instanceof TreeMap) {
                         SrteCache.jurisdictionCodeMap = (TreeMap<String, String>) cachedObject;
+                    }
+                }
+
+                valueWrapper = cache.get("programAreaCodesWithNbsUid");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof TreeMap) {
+                        SrteCache.programAreaCodesMapWithNbsUid = (TreeMap<String, Integer>) cachedObject;
+                    }
+                }
+
+                valueWrapper = cache.get("jurisdictionCodeWithNbsUid");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof TreeMap) {
+                        SrteCache.jurisdictionCodeMapWithNbsUid = (TreeMap<String, Integer>) cachedObject;
                     }
                 }
             }

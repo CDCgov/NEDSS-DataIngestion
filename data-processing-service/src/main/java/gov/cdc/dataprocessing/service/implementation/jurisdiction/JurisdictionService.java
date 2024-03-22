@@ -187,7 +187,6 @@ public class JurisdictionService implements IJurisdictionService {
 
                 try
                 {
-                    //TODO: JURISDICTION
                     jMap = resolveLabReportJurisdiction(patientVO, providerVO, orderingFacilityVO, reportingFacilityVO);
                 }
                 catch (Exception cex)
@@ -232,7 +231,6 @@ public class JurisdictionService implements IJurisdictionService {
             HashMap<String, String> map = new HashMap<>();
             detailError = new StringBuffer();
             String jurisdiction =null;
-            //TODO: JURISDICTION
             subjectColl = findJurisdiction(subject.getTheEntityLocatorParticipationDtoCollection(), "H", "PST");
 
             // Check to see the subject size.  Only proceed if the subject size is not greater than 1.
@@ -248,7 +246,6 @@ public class JurisdictionService implements IJurisdictionService {
                 }
                 if (jurisdiction==null && provider!=null)
                 {
-                    //TODO: JURISDICTION
                     providerColl = findJurisdiction(provider.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
                     if(!(providerColl.size()==0))
                         // Check to see the provider size.  Only proceed if the provider size is not greater than 1.
@@ -268,7 +265,6 @@ public class JurisdictionService implements IJurisdictionService {
                 if(jurisdiction==null){
                     if (organizationContainer != null)
                     {
-                        //TODO: JURISDICTION
                         organizationColl = findJurisdiction(organizationContainer.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
                     }
                     if (organizationColl != null)
@@ -356,7 +352,6 @@ public class JurisdictionService implements IJurisdictionService {
                                 // data then attempt to retriece by county.  If no data then retrieve
                                 // by city.
 
-                                // TODO: REPOS
                                 var res = jurisdictionParticipationRepository.findJurisdiction(searchZip, "Z");
                                 if (res.isPresent()) {
                                     coll = res.get();
@@ -370,7 +365,6 @@ public class JurisdictionService implements IJurisdictionService {
                                     detailError.append(cityDesc);
                                     detailError.append(", ");
                                     if (postalDt.getCityDescTxt() != null) {
-                                        // TODO: REPOS
                                         var resCity = jurisdictionParticipationRepository.findJurisdictionForCity(postalDt.getCityDescTxt(), postalDt.getStateCd(), "C");
                                         if (resCity.isPresent()) {
                                             coll = resCity.get();
@@ -385,7 +379,6 @@ public class JurisdictionService implements IJurisdictionService {
                                     detailError.append(", ");
 
                                     if (coll.size() < 1) {
-                                        // TODO: REPOS
                                         var resJus = jurisdictionParticipationRepository.findJurisdiction(postalDt.getCntyCd(), "N");
                                         if (resJus.isPresent()) {
                                             coll = resJus.get();

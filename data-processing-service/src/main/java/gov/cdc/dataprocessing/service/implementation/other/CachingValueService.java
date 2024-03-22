@@ -61,7 +61,6 @@ public class CachingValueService implements ICatchingValueService {
         this.jurisdictionService = jurisdictionService;
     }
 
-    //TODO: CACHED
     @Cacheable(cacheNames = "srte", key = "'loincCodes'")
     public TreeMap<String, String>  getAOELOINCCodes() throws DataProcessingException {
         TreeMap<String, String> map = new TreeMap<>();
@@ -78,7 +77,6 @@ public class CachingValueService implements ICatchingValueService {
         return map;
     }
 
-    //TODO: CACHED
     @Cacheable(cacheNames = "srte", key = "'raceCodes'")
     public TreeMap<String, String> getRaceCodes() throws DataProcessingException {
         TreeMap<String, String> map = new TreeMap<>();
@@ -111,6 +109,21 @@ public class CachingValueService implements ICatchingValueService {
         return  map;
     }
 
+    @Cacheable(cacheNames = "srte", key = "'programAreaCodesWithNbsUid'")
+    public TreeMap<String, Integer> getAllProgramAreaCodesWithNbsUid() throws DataProcessingException {
+        TreeMap<String, Integer> map = new TreeMap<>();
+        try {
+            var result = programAreaService.getAllProgramAreaCode();
+            for (ProgramAreaCode obj :result) {
+                map.put(obj.getProgAreaCd(), obj.getNbsUid());
+            }
+
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage());
+        }
+        return  map;
+    }
+
     @Cacheable(cacheNames = "srte", key = "'jurisdictionCode'")
     public TreeMap<String, String> getAllJurisdictionCode() throws DataProcessingException {
         TreeMap<String, String> map = new TreeMap<>();
@@ -118,6 +131,21 @@ public class CachingValueService implements ICatchingValueService {
             var result = jurisdictionService.getJurisdictionCode();
             for (JurisdictionCode obj :result) {
                 map.put(obj.getCode(), obj.getCodeDescTxt());
+            }
+
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage());
+        }
+        return  map;
+    }
+
+    @Cacheable(cacheNames = "srte", key = "'jurisdictionCodeWithNbsUid'")
+    public TreeMap<String, Integer> getAllJurisdictionCodeWithNbsUid() throws DataProcessingException {
+        TreeMap<String, Integer> map = new TreeMap<>();
+        try {
+            var result = jurisdictionService.getJurisdictionCode();
+            for (JurisdictionCode obj :result) {
+                map.put(obj.getCode(), obj.getNbsUid());
             }
 
         } catch (Exception e) {

@@ -4,11 +4,13 @@ import gov.cdc.dataprocessing.constant.elr.ELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.ObservationContainer;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ProgramAreaCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.ProgramAreaCodeRepository;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
+import gov.cdc.dataprocessing.service.interfaces.observation.IObservationCodeService;
 import gov.cdc.dataprocessing.service.interfaces.other.ISrteCodeObsService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -25,12 +27,16 @@ public class ProgramAreaService implements IProgramAreaService {
 
     private final ISrteCodeObsService srteCodeObsService;
     private final ProgramAreaCodeRepository programAreaCodeRepository;
+    private final IObservationCodeService observationCodeService;
+
     public ProgramAreaService(
             ISrteCodeObsService srteCodeObsService,
-            ProgramAreaCodeRepository programAreaCodeRepository) {
+            ProgramAreaCodeRepository programAreaCodeRepository,
+            IObservationCodeService observationCodeService) {
 
         this.srteCodeObsService = srteCodeObsService;
         this.programAreaCodeRepository = programAreaCodeRepository;
+        this.observationCodeService = observationCodeService;
     }
 
     public Object processingProgramArea() throws DataProcessingConsumerException {
@@ -62,7 +68,8 @@ public class ProgramAreaService implements IProgramAreaService {
         }
     }
 
-    public void getProgramArea(Collection<ObservationContainer> resultTests, ObservationContainer orderTest, String clia) throws DataProcessingException {
+    public void getProgramArea(Collection<ObservationContainer> resultTests, ObservationContainer orderTest, String clia) throws DataProcessingException
+    {
         String programAreaCode = null;
         if (clia == null || clia.trim().equals(""))
         {
@@ -96,6 +103,7 @@ public class ProgramAreaService implements IProgramAreaService {
             orderTest.getTheObservationDto().setProgAreaCd(programAreaCode);
         }
     }
+
 
     private HashMap<String, String> getProgramAreaHelper(String reportingLabCLIA,
                                                   Collection<ObservationContainer> observationVOCollection,
@@ -229,6 +237,69 @@ public class ProgramAreaService implements IProgramAreaService {
         }
         return returnMap;
     } //end of getProgramArea
+
+    public String deriveProgramAreaCd(LabResultProxyContainer labResultProxyVO, ObservationContainer orderTest) throws DataProcessingException {
+            //Gathering the result tests
+            Collection<ObservationContainer>  resultTests = new ArrayList<> ();
+            for (Iterator<ObservationContainer> it = labResultProxyVO.getTheObservationContainerCollection().
+                    iterator(); it.hasNext(); )
+            {
+                ObservationContainer obsVO = (ObservationContainer) it.next();
+
+                String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
+                if (obsDomainCdSt1 != null &&
+                        obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.RESULTED_TEST_OBS_DOMAIN_CD))
+                {
+                    resultTests.add(obsVO);
+                }
+            }
+
+            //Get the reporting lab clia
+            String reportingLabCLIA = "";
+            if(labResultProxyVO.getLabClia()!=null && labResultProxyVO.isManualLab())
+                reportingLabCLIA =labResultProxyVO.getLabClia();
+            else
+                reportingLabCLIA = observationCodeService.getReportingLabCLIA(labResultProxyVO);
+
+            if(reportingLabCLIA == null || reportingLabCLIA.trim().equals(""))
+                reportingLabCLIA = NEDSSConstant.DEFAULT;
+
+            //Get program area
+            if(!orderTest.getTheObservationDto().getElectronicInd().equals(NEDSSConstant.ELECTRONIC_IND_ELR)){
+                Map<Object, Object> paResults = null;
+                if (resultTests.size() > 0)
+                {
+                    paResults = srteCodeObsService.getProgramArea(reportingLabCLIA, resultTests, orderTest.getTheObservationDto().getElectronicInd());
+                }
+
+                //set program area for order test
+                if (paResults != null &&
+                        paResults.containsKey(ELRConstant.PROGRAM_AREA_HASHMAP_KEY))
+                {
+                    orderTest.getTheObservationDto().setProgAreaCd( (String) paResults.get(
+                            ELRConstant.PROGRAM_AREA_HASHMAP_KEY));
+                }
+                else
+                {
+                    orderTest.getTheObservationDto().setProgAreaCd(null);
+                }
+
+
+                //Return errors if any
+                if (paResults != null &&
+                        paResults.containsKey("ERROR"))
+                {
+                    return (String) paResults.get("ERROR");
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            return null;
+    }
+
+
 
 
 

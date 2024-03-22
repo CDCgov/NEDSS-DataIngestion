@@ -115,8 +115,7 @@ public class OrganizationRepositoryUtil {
         Long organizationUid = 121212L;
         long oldOrgUid = organizationContainer.getTheOrganizationDto().getOrganizationUid();
         try {
-            //TODO: Implement unique id generator here
-            String localUid = "Unique Id here";
+            String localUid = "";
             LocalUidGenerator localIdModel = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION);
             organizationUid = localIdModel.getSeedValueNbr();
             System.out.println("createOrganization organizationUid SeedValueNbr:" + organizationUid);
@@ -558,10 +557,12 @@ public class OrganizationRepositoryUtil {
         Collection<RoleDto> roleColl = selectRoleDTCollection(organizationUID);
         ovo.setTheRoleDTCollection(roleColl);
 
-        //SelectsParticipationDTCollection
-        Collection<ParticipationDto> parColl = selectParticipationDTCollection(organizationUID, actUid);
 
-        ovo.setTheParticipationDtoCollection(parColl);
+        if (actUid != null) {
+            //SelectsParticipationDTCollection
+            Collection<ParticipationDto> parColl = selectParticipationDTCollection(organizationUID, actUid);
+            ovo.setTheParticipationDtoCollection(parColl);
+        }
 
 
         ovo.setItNew(false);

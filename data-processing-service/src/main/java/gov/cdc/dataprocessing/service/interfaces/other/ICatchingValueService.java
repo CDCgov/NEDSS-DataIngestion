@@ -19,5 +19,7 @@ public interface ICatchingValueService {
     StateCode findStateCodeByStateNm(String stateNm);
     TreeMap<String, String> getAllJurisdictionCode() throws DataProcessingException;
     TreeMap<String, String> getAllProgramAreaCodes() throws DataProcessingException;
+    TreeMap<String, Integer> getAllProgramAreaCodesWithNbsUid() throws DataProcessingException;
+    TreeMap<String, Integer> getAllJurisdictionCodeWithNbsUid() throws DataProcessingException;
 
 }

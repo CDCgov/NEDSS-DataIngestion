@@ -26,12 +26,12 @@ public interface JurisdictionParticipationRepository extends JpaRepository<Juris
      * 			"and (b.fips_cd = ?) " +
      * 			"and (b.type_cd = ?) ";
      * */
-    @Query("SELECT b.jurisdictionCd as key  " +
-            "FROM JurisdictionParticipation b " +
-            "JOIN JurisdictionCode a " +
-            "WHERE b.jurisdictionCd = a.code " +
-            "AND b.fipsCd = :fipsCd " +
-            "AND b.typeCd = :typeCd")
+    @Query(value = "SELECT b.jurisdiction_cd " +
+            "FROM Jurisdiction_Participation b " +
+            "JOIN Jurisdiction_Code a  " +
+            "ON b.jurisdiction_cd = a.code " +
+            "WHERE b.fips_cd = :fipsCd " +
+            "AND b.type_cd = :typeCd ",  nativeQuery = true)
     Optional<Collection<String>> findJurisdiction(@Param("fipsCd") String flipsCode, @Param("typeCd") String typeCode);
 
 
@@ -46,13 +46,13 @@ public interface JurisdictionParticipationRepository extends JpaRepository<Juris
      *                         "and substring(b.code_desc_txt, 0, { fn LENGTH(b.code_desc_txt) }- 3) =  ? " +
      *                         "and b.parent_is_cd = ? ";
      * */
-    @Query("SELECT a.jurisdictionCd as key " +
-            "FROM JurisdictionParticipation a " +
-            "JOIN CityCodeValue b " +
-            "WHERE a.fipsCd = b.code " +
-            "AND a.typeCd = :typeCd " +
-            "AND SUBSTRING(b.codeDescTxt, 1, LENGTH(b.codeDescTxt) - 3) = :substring " +
-            "AND b.parentIsCd = :parentIsCd")
+    @Query(value = "SELECT a.jurisdiction_cd " +
+            "FROM Jurisdiction_Participation a  " +
+            "JOIN City_Code_Value b " +
+            "ON a.fips_cd = b.code " +
+            "WHERE a.type_cd = :typeCd " +
+            "AND SUBSTRING(b.code_desc_txt, 1, LEN(b.code_desc_txt) - 3) = :substring " +
+            "AND b.parent_is_cd = :parentIsCd ", nativeQuery = true)
     Optional<Collection<String>> findJurisdictionForCity(@Param("typeCd") String typeCd,
                                                    @Param("substring") String substring,
                                                    @Param("parentIsCd") String parentIsCd);
