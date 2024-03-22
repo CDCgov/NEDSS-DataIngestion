@@ -273,7 +273,6 @@ public class KafkaConsumerService {
             }
     )
     @Deprecated(since = "7.3",forRemoval = true)
-    @SuppressWarnings("java:S106")
     @KafkaListener(topics = "${kafka.fhir-conversion-prep.topic}")
     public void handleMessageForFhirConversionElr(String message,
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
@@ -564,7 +563,6 @@ public class KafkaConsumerService {
      * Also, FhirConverter caused the out of memory problem.
      * */
     @Deprecated(since = "7.3",forRemoval = true)
-    @SuppressWarnings("java:S106")
     private void conversionHandlerForFhir(String message, String operation) throws FhirConversionException, DiHL7Exception {
         String payloadMessage ="";
         ValidatedELRModel model = new ValidatedELRModel();
