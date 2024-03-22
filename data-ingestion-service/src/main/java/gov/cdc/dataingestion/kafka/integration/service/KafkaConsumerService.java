@@ -273,6 +273,7 @@ public class KafkaConsumerService {
             }
     )
     @Deprecated(since = "7.3",forRemoval = true)
+    @SuppressWarnings("java:S1133")
     @KafkaListener(topics = "${kafka.fhir-conversion-prep.topic}")
     public void handleMessageForFhirConversionElr(String message,
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
@@ -563,6 +564,7 @@ public class KafkaConsumerService {
      * Deprecated code should eventually be removed.
      * */
     @Deprecated(since = "7.3",forRemoval = true)
+    @SuppressWarnings("java:S1133")
     private void conversionHandlerForFhir(String message, String operation) throws FhirConversionException, DiHL7Exception {
         String payloadMessage ="";
         ValidatedELRModel model = new ValidatedELRModel();

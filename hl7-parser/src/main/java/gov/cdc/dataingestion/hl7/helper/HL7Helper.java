@@ -47,6 +47,7 @@ public class HL7Helper {
      * Convert HL7 message into fhir
      * */
     @Deprecated(since = "7.3",forRemoval = true)
+    @SuppressWarnings("java:S1133")
     public FhirConvertedMessage convertHl7ToFhir(String message) throws DiFhirException {
         return null;//fhirConverter.hL7ToFHIRConversion(message);//NOSONAR
     }
