@@ -247,9 +247,9 @@ public class KafkaConsumerService {
 
     /**
      * FHIR Conversion
-     * @deprecated
-     * This method is no longer needed as FHIR format is not being used.
+     * @deprecated This method is no longer needed as FHIR format is not being used.
      * Also, FhirConverter caused the out of memory problem.
+     * Deprecated code should eventually be removed.
      * */
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
@@ -558,9 +558,9 @@ public class KafkaConsumerService {
     }
     /**
      * FHIR Conversion
-     * @deprecated
-     * This method is no longer needed as FHIR format is not being used.
+     * @deprecated This method is no longer needed as FHIR format is not being used.
      * Also, FhirConverter caused the out of memory problem.
+     * Deprecated code should eventually be removed.
      * */
     @Deprecated(since = "7.3",forRemoval = true)
     private void conversionHandlerForFhir(String message, String operation) throws FhirConversionException, DiHL7Exception {

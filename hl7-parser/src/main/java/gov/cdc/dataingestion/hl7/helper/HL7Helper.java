@@ -15,6 +15,7 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 public class HL7Helper {
 
     private IHL7Parser parser = new HL7Parser(new DefaultHapiContext());
+    //private IFhirConverter fhirConverter = new FhirConverter(new HL7ToFHIRConverter());//NOSONAR
 
     /**
      * HL7 string validator, replacing "\n" by "\r"
@@ -40,8 +41,12 @@ public class HL7Helper {
     }
 
     /**
+     * @deprecated This method is no longer needed as FHIR format is not being used.
+     * Also, FhirConverter caused the out of memory problem.
+     * Deprecated code should eventually be removed.
      * Convert HL7 message into fhir
      * */
+    @Deprecated(since = "7.3",forRemoval = true)
     public FhirConvertedMessage convertHl7ToFhir(String message) throws DiFhirException {
         return null;//fhirConverter.hL7ToFHIRConversion(message);//NOSONAR
     }
