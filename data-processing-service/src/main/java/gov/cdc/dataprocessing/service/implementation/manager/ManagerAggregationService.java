@@ -80,8 +80,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
             LabResultProxyContainer matchedlabResultProxyVO = observationService.getObservationToLabResultContainer(observationDto.getObservationUid());
             observationMatchingService.processMatchedProxyVO(labResultProxyContainer, matchedlabResultProxyVO, edxLabInformationDto );
 
-            //TODO: CHECK THIS OUT
-            aPersonUid = patientService.getMatchedPersonUID(matchedlabResultProxyVO);
+            patientService.getMatchedPersonUID(matchedlabResultProxyVO);
             patientService.updatePersonELRUpdate(labResultProxyContainer, matchedlabResultProxyVO);
 
             edxLabInformationDto.setRootObserbationUid(observationDto.getObservationUid());
@@ -162,35 +161,45 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
     }
 
-    private void progAndJurisdictionAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto, PersonAggContainer personAggContainer,
+
+    /**
+     * Description: propagating program area and jurisdiction.
+     * */
+    private void progAndJurisdictionAggregation(LabResultProxyContainer labResult,
+                                                EdxLabInformationDto edxLabInformationDto,
+                                                PersonAggContainer personAggContainer,
                                                 OrganizationContainer organizationContainer) throws DataProcessingException {
         // Pulling Jurisdiction and Program from OBS
-        ObservationContainer orderTestVO = null;
-        Collection<ObservationContainer> resultTests = new ArrayList<>();
+        ObservationContainer observationRequest = null;
+        Collection<ObservationContainer> observationResults = new ArrayList<>();
         for (ObservationContainer obsVO : labResult.getTheObservationContainerCollection()) {
-            String obsDomainCdSt1 = obsVO.getTheObservationDto()
-                    .getObsDomainCdSt1();
+            String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
+
+            // Observation  hit this is originated from Observation Result
             if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_RESULT_CD)) {
-                resultTests.add(obsVO);
-            } else if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)) {
-                orderTestVO = obsVO;
+                observationResults.add(obsVO);
+            }
+
+            // Observation hit is originated from Observation Request (ROOT)
+            else if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD))
+            {
+                observationRequest = obsVO;
             }
         }
 
-        if(orderTestVO.getTheObservationDto().getProgAreaCd()==null)
+        if(observationRequest.getTheObservationDto().getProgAreaCd()==null)
         {
-            programAreaService.getProgramArea(resultTests, orderTestVO, edxLabInformationDto.getSendingFacilityClia());
+            programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
         }
 
-        if(orderTestVO.getTheObservationDto().getJurisdictionCd()==null)
+        if(observationRequest.getTheObservationDto().getJurisdictionCd()==null)
         {
             jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
-                    organizationContainer, orderTestVO);
+                    organizationContainer, observationRequest);
         }
     }
 
     private void roleAggregation(LabResultProxyContainer labResult) {
-        //TODO ROLE
         /**
          *Roles must be checked for NEW, UPDATED, MARK FOR DELETE buckets.
          */
@@ -200,39 +209,35 @@ public class ManagerAggregationService implements IManagerAggregationService {
         if(labResult.getTheRoleDtoCollection()!=null){
 
             Collection<RoleDto> coll=labResult.getTheRoleDtoCollection();
-            if(coll!=null){
-                Iterator<RoleDto> it = coll.iterator();
-                while(it.hasNext()){
-
-                    RoleDto roleDT = (RoleDto)it.next();
-                    if(roleDT.isItDelete()){
-                        mappedExistingRoleCollection.put(roleDT.getSubjectEntityUid()+roleDT.getCd()+roleDT.getScopingEntityUid(), roleDT);
-                    }else{
-                        mappedNewRoleCollection.put(roleDT.getSubjectEntityUid()+roleDT.getCd()+roleDT.getScopingEntityUid(), roleDT);
-
+            if(!coll.isEmpty())
+            {
+                for (RoleDto roleDT : coll) {
+                    if (roleDT.isItDelete()) {
+                        mappedExistingRoleCollection.put(roleDT.getSubjectEntityUid() + roleDT.getCd() + roleDT.getScopingEntityUid(), roleDT);
+                    } else {
+                        mappedNewRoleCollection.put(roleDT.getSubjectEntityUid() + roleDT.getCd() + roleDT.getScopingEntityUid(), roleDT);
                     }
 
                 }
             }
         }
-        ArrayList<Object> list = new ArrayList<Object>();
+        ArrayList<Object> list = new ArrayList<>();
 
         //update scenario
-        if(mappedNewRoleCollection!=null){
+        if(!mappedNewRoleCollection.isEmpty()){
             Set<Object> set = mappedNewRoleCollection.keySet();
-            Iterator<Object> iterator = set.iterator();
-            while(iterator.hasNext()){
-                String key = (String) iterator.next();
-                if(mappedExistingRoleCollection.containsKey(key)){
+            for (Object o : set) {
+                String key = (String) o;
+                if (mappedExistingRoleCollection.containsKey(key)) {
                     //Do not delete/modify the role as it exists in both updated and old ELR
                     // UPDATE Role bucket
                     mappedExistingRoleCollection.remove(key);
 
 
-                }else{
+                } else {
                     //insert Role as it is new in new/updated ELR
                     //NEW role Bucket
-                    RoleDto roleDT = (RoleDto)mappedNewRoleCollection.get(key);
+                    RoleDto roleDT = mappedNewRoleCollection.get(key);
                     list.add(roleDT);
                 }
 
@@ -246,58 +251,52 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
         Map<Object, RoleDto> modifiedRoleMap = new HashMap<>();
         ArrayList<RoleDto> listFinal = new ArrayList<>();
-        if(list!=null){
-            Iterator<Object> it = list.iterator();
-            while(it.hasNext()){
-                RoleDto roleDT = (RoleDto)it.next();
-                if(roleDT.isItDelete()){
+        if(!list.isEmpty()){
+            for (Object o : list) {
+                RoleDto roleDT = (RoleDto) o;
+                if (roleDT.isItDelete()) {
                     listFinal.add(roleDT);
                     //We have already taken care of the deduplication of role in the above code
                     continue;
                 }
                 //We will write the role if there are no existing role relationships.
-                if(roleDT.getScopingEntityUid()==null){
+                if (roleDT.getScopingEntityUid() == null)
+                {
                     Long count = 0L;
                     count = roleService.loadCountBySubjectCdComb(roleDT).longValue();
-                    if(count==0){
-                        roleDT.setRoleSeq(count+1);
-                        modifiedRoleMap.put(roleDT.getSubjectEntityUid()+roleDT.getRoleSeq()+roleDT.getCd(), roleDT);
+                    if (count == 0) {
+                        roleDT.setRoleSeq(count + 1);
+                        modifiedRoleMap.put(roleDT.getSubjectEntityUid() + roleDT.getRoleSeq() + roleDT.getCd(), roleDT);
                     }
 
-                }else{
-
-                    int checkIfExisits =0;
+                }
+                else
+                {
+                    int checkIfExisits = 0;
                     checkIfExisits = roleService.loadCountBySubjectScpingCdComb(roleDT);
 
-                    if(checkIfExisits>0){
-                        //do nothing as this role relationship exists in database
-                    }
-                    else
-                    {
-                        long countForPKValues =0;
+                    if (checkIfExisits == 0) {
+                        long countForPKValues = 0;
                         countForPKValues = roleService.loadCountBySubjectCdComb(roleDT);
                         //We will write the role relationship for follwoing provider in scope of ELR patient
-                        if(countForPKValues==0
+                        if (countForPKValues == 0
                                 || (
-                                roleDT.getCd()!=null
+                                roleDT.getCd() != null
                                         && (
                                         roleDT.getCd().equals(EdxELRConstant.ELR_SPECIMEN_PROCURER_CD)
                                                 || roleDT.getCd().equals(EdxELRConstant.ELR_COPY_TO_CD)
                                                 || roleDT.getSubjectClassCd().equals(EdxELRConstant.ELR_CON)
                                 )
                         )
-                        )
-                        {
+                        ) {
 
-                            if(roleDT.getRoleSeq()!=null &&  roleDT.getRoleSeq().intValue()==2
+                            if (roleDT.getRoleSeq() != null && roleDT.getRoleSeq().intValue() == 2
                                     && roleDT.getSubjectClassCd().equals(EdxELRConstant.ELR_MAT_CD)
                                     && roleDT.getScopingRoleCd().equals(EdxELRConstant.ELR_SPECIMEN_PROCURER_CD)
                             ) {
                                 //Material is a special as provider to material is created with role sequence 2
-                            }
-                            else
-                            {
-                                roleDT.setRoleSeq(countForPKValues+1);
+                            } else {
+                                roleDT.setRoleSeq(countForPKValues + 1);
                             }
                             modifiedRoleMap.put(roleDT.getSubjectEntityUid() + roleDT.getRoleSeq() + roleDT.getCd() + roleDT.getScopingEntityUid(), roleDT);
 
@@ -307,7 +306,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
                 }
             }
 
-            if(modifiedRoleMap!=null){
+            if(!modifiedRoleMap.isEmpty()){
                 Collection<RoleDto> roleCollection = modifiedRoleMap.values();
                 listFinal.addAll(roleCollection);
             }

@@ -48,21 +48,21 @@ public class JurisdictionService implements IJurisdictionService {
        }
     }
 
-    public void assignJurisdiction(PersonContainer subjectVO, PersonContainer providerVO,
-                                   OrganizationContainer orderingFacilityVO, ObservationContainer orderTestVO) throws DataProcessingException {
+    public void assignJurisdiction(PersonContainer patientContainer, PersonContainer providerContainer,
+                                   OrganizationContainer organizationContainer, ObservationContainer observationRequest) throws DataProcessingException {
 
         HashMap<String, String> jurisdictionMap = null;
-        if (subjectVO != null) {
-            jurisdictionMap = resolveLabReportJurisdiction(subjectVO, providerVO, orderingFacilityVO, null);
+        if (patientContainer != null) {
+            jurisdictionMap = resolveLabReportJurisdiction(patientContainer, providerContainer, organizationContainer, null);
         }
 
         if (jurisdictionMap!=null && jurisdictionMap.get(ELRConstant.JURISDICTION_HASHMAP_KEY) != null) {
             String jurisdiction = jurisdictionMap.get(ELRConstant.JURISDICTION_HASHMAP_KEY);
-            orderTestVO.getTheObservationDto().setJurisdictionCd(jurisdiction);
+            observationRequest.getTheObservationDto().setJurisdictionCd(jurisdiction);
         }
         else
         {
-            orderTestVO.getTheObservationDto().setJurisdictionCd(null);
+            observationRequest.getTheObservationDto().setJurisdictionCd(null);
         }
 
     } // end of assignJursidiction()
@@ -220,63 +220,69 @@ public class JurisdictionService implements IJurisdictionService {
 
     }
 
-    private HashMap<String, String> resolveLabReportJurisdiction(PersonContainer subject,
-                                                                 PersonContainer provider,
+    /**
+     * Description: this method find jurisdiction associated with patient, provider, organization.
+     * Jurisdiction is identified based on Postal locator
+     * */
+    private HashMap<String, String> resolveLabReportJurisdiction(PersonContainer patientContainer,
+                                                                 PersonContainer providerContainer,
                                                                  OrganizationContainer organizationContainer,
                                                                  OrganizationContainer organizationContainer2) throws DataProcessingException {
         try {
-            Collection<String> subjectColl = null;
-            Collection<String> providerColl = null;
-            Collection<String> organizationColl = null;
+            Collection<String> patientJurisdictionCollection = null;
+            Collection<String> providerJurisdictionCollection = null;
+            Collection<String> organizationJurisdictionCollection = null;
             HashMap<String, String> map = new HashMap<>();
             detailError = new StringBuffer();
             String jurisdiction =null;
-            subjectColl = findJurisdiction(subject.getTheEntityLocatorParticipationDtoCollection(), "H", "PST");
+            patientJurisdictionCollection = findJurisdiction(patientContainer.getTheEntityLocatorParticipationDtoCollection(), "H", "PST");
 
             // Check to see the subject size.  Only proceed if the subject size is not greater than 1.
-            if (subjectColl.size() <= 1)
+            if (patientJurisdictionCollection.size() <= 1)
             {
                 // Check the result to make sure that there is a value for the subject's jurisdiction.
                 // If not then go and find the jurisdiction based on the provider
-                if (subjectColl.size() == 1)
+                if (patientJurisdictionCollection.size() == 1)
                 {
-                    Iterator<String> iter = subjectColl.iterator();
+                    Iterator<String> iter = patientJurisdictionCollection.iterator();
                     jurisdiction = iter.next();
                     map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
                 }
-                if (jurisdiction==null && provider!=null)
+
+                if (jurisdiction==null && providerContainer !=null)
                 {
-                    providerColl = findJurisdiction(provider.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
-                    if(!(providerColl.size()==0))
+                    providerJurisdictionCollection = findJurisdiction(providerContainer.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
+                    if(!(providerJurisdictionCollection.size()==0))
                         // Check to see the provider size.  Only proceed if the provider size is not greater than 1.
-                        if (providerColl.size() <= 1)
+                        if (providerJurisdictionCollection.size() <= 1)
                         {
                             // Check the result to make sure that there is a value for the provider's jurisdiction.
                             // If not then go and find the jurisdiction based on the provider
-                            if (providerColl.size() == 1)
+                            if (providerJurisdictionCollection.size() == 1)
                             {
-                                Iterator<String> iter = providerColl.iterator();
+                                Iterator<String> iter = providerJurisdictionCollection.iterator();
                                 jurisdiction = iter.next();
                                 map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
                             }
 
                         }
                 }
+
                 if(jurisdiction==null){
                     if (organizationContainer != null)
                     {
-                        organizationColl = findJurisdiction(organizationContainer.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
+                        organizationJurisdictionCollection = findJurisdiction(organizationContainer.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
                     }
-                    if (organizationColl != null)
+                    if (organizationJurisdictionCollection != null)
                     {
                         // Check to see the organization size.  Only proceed if the organization size is not greater than 1.
-                        if (organizationColl.size() <= 1)
+                        if (organizationJurisdictionCollection.size() <= 1)
                         {
                             // Check the result to make sure that there is a value for the organization's jurisdiction.
                             // If not then go and find the jurisdiction based on the organization
-                            if (organizationColl.size() == 1)
+                            if (organizationJurisdictionCollection.size() == 1)
                             {
-                                Iterator<String> iter = organizationColl.iterator();
+                                Iterator<String> iter = organizationJurisdictionCollection.iterator();
                                 jurisdiction = iter.next();
                                 map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
                             }
@@ -285,20 +291,20 @@ public class JurisdictionService implements IJurisdictionService {
                 }
 
                 if (jurisdiction == null) {
-                    organizationColl = null;
+                    organizationJurisdictionCollection = null;
                     if (organizationContainer2 != null) {
-                        organizationColl = findJurisdiction(organizationContainer2.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
+                        organizationJurisdictionCollection = findJurisdiction(organizationContainer2.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
                     }
-                    if (organizationColl != null) {
+                    if (organizationJurisdictionCollection != null) {
                         // Check to see the organization size. Only proceed if the
                         // organization size is not greater than 1.
-                        if (organizationColl.size() <= 1) {
+                        if (organizationJurisdictionCollection.size() <= 1) {
                             // Check the result to make sure that there is a value
                             // for the organization's jurisdiction.
                             // If not then go and find the jurisdiction based on the
                             // organization
-                            if (organizationColl.size() == 1) {
-                                Iterator<String> iter = organizationColl.iterator();
+                            if (organizationJurisdictionCollection.size() == 1) {
+                                Iterator<String> iter = organizationJurisdictionCollection.iterator();
                                 jurisdiction = iter.next();
                                 map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
                             }

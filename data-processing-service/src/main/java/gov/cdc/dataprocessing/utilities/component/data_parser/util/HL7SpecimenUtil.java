@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.data_extraction;
+package gov.cdc.dataprocessing.utilities.component.data_parser.util;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
@@ -17,14 +17,21 @@ import gov.cdc.dataprocessing.model.phdc.HL7SPMType;
 import gov.cdc.dataprocessing.utilities.component.data_parser.NBSObjectConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class HL7SpecimenUtil {
     private static final Logger logger = LoggerFactory.getLogger(HL7SpecimenUtil.class);
+    private final NBSObjectConverter nbsObjectConverter;
 
-    public static void process251Specimen(HL7PatientResultSPMType hL7PatientResultSPMType, LabResultProxyContainer labResultProxyContainer,
+    public HL7SpecimenUtil(NBSObjectConverter nbsObjectConverter) {
+        this.nbsObjectConverter = nbsObjectConverter;
+    }
+
+    public void process251Specimen(HL7PatientResultSPMType hL7PatientResultSPMType, LabResultProxyContainer labResultProxyContainer,
                                           ObservationDto observationDto, PersonContainer collectorVO, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         try {
             List<HL7SPECIMENType> hl7SPECIMENTypeArray =hL7PatientResultSPMType.getSPECIMEN();
@@ -63,7 +70,7 @@ public class HL7SpecimenUtil {
                         observationDto.setTargetSiteDescTxt(hl7SPMType.getSpecimenSourceSite().getHL7Text());
                     }
                     if(hl7SPMType.getSpecimenCollectionDateTime()!=null) {
-                        observationDto.setEffectiveFromTime(NBSObjectConverter.processHL7TSTypeWithMillis(hl7SPMType.getSpecimenCollectionDateTime().getHL7RangeStartDateTime(), EdxELRConstant.DATE_VALIDATION_SPM_SPECIMEN_COLLECTION_DATE_MSG));
+                        observationDto.setEffectiveFromTime(nbsObjectConverter.processHL7TSTypeWithMillis(hl7SPMType.getSpecimenCollectionDateTime().getHL7RangeStartDateTime(), EdxELRConstant.DATE_VALIDATION_SPM_SPECIMEN_COLLECTION_DATE_MSG));
                     }
                     processMaterialVO(labResultProxyContainer,collectorVO, materialContainer, edxLabInformationDto);
                     //use  Filler Specimen ID (SPM.2.2.1) is present for specimen ID - Defect #14343 Jira
@@ -99,7 +106,7 @@ public class HL7SpecimenUtil {
     }
 
 
-    private static void processMaterialVO(LabResultProxyContainer labResultProxyContainer, PersonContainer collectorVO, MaterialContainer materialContainer,
+    private void processMaterialVO(LabResultProxyContainer labResultProxyContainer, PersonContainer collectorVO, MaterialContainer materialContainer,
                                           EdxLabInformationDto edxLabInformationDto) throws DataProcessingException{
         try {
             EntityIdDto matEntityIdDto = new EntityIdDto();
@@ -164,7 +171,7 @@ public class HL7SpecimenUtil {
             participationDto.setActClassCd(EdxELRConstant.ELR_OBS);
             participationDto.setSubjectClassCd(EdxELRConstant.ELR_MAT_CD);
             participationDto.setActUid(edxLabInformationDto.getRootObserbationUid());
-            participationDto = NBSObjectConverter.defaultParticipationDT(participationDto, edxLabInformationDto);
+            participationDto = nbsObjectConverter.defaultParticipationDT(participationDto, edxLabInformationDto);
 
             labResultProxyContainer.getTheParticipationDtoCollection().add(participationDto);
             labResultProxyContainer.getTheMaterialContainerCollection().add(materialContainer);

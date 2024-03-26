@@ -154,6 +154,16 @@ public class CachingValueService implements ICatchingValueService {
         return  map;
     }
 
+    @Cacheable(cacheNames = "srte", key = "'elrXref'")
+    public List<ElrXref> getAllElrXref() throws DataProcessingException {
+        try {
+            return elrXrefRepository.findAll();
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage());
+        }
+
+    }
+
 
 
     //TODO: CACHED
@@ -290,7 +300,8 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     public StateCode findStateCodeByStateNm(String stateNm) {
-        return stateCodeRepository.findStateCdByStateName(stateNm).get();
+        var res = stateCodeRepository.findStateCdByStateName(stateNm);
+        return res.orElseGet(StateCode::new);
     }
 
 //    public String getCountyCdByDesc(String county, String stateCd) throws DataProcessingException {

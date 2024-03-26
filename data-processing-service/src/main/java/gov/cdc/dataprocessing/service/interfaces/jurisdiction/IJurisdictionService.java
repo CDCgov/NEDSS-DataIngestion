@@ -13,7 +13,8 @@ import java.util.List;
 public interface IJurisdictionService {
 
     String deriveJurisdictionCd(BaseContainer proxyVO, ObservationDto rootObsDT) throws DataProcessingException;
-    void assignJurisdiction(PersonContainer subjectVO, PersonContainer providerVO, OrganizationContainer orderingFacilityVO, ObservationContainer orderTestVO) throws DataProcessingException;
+    void assignJurisdiction(PersonContainer patientContainer, PersonContainer providerContainer, OrganizationContainer organizationContainer,
+                            ObservationContainer observationRequest) throws DataProcessingException;
 
     List<JurisdictionCode> getJurisdictionCode();
 }

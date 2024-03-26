@@ -21,7 +21,7 @@ import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
-import gov.cdc.dataprocessing.utilities.data_extraction.CommonLabUtil;
+import gov.cdc.dataprocessing.utilities.component.data_parser.util.CommonLabUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -38,20 +38,21 @@ public class ObservationResultRequestHandler {
 
     private final ICatchingValueService checkingValueService;
     private final NBSObjectConverter nbsObjectConverter;
+    private final CommonLabUtil commonLabUtil;
 
 
     public ObservationResultRequestHandler(
             ICatchingValueService checkingValueService,
-            NBSObjectConverter nbsObjectConverter) {
+            NBSObjectConverter nbsObjectConverter, CommonLabUtil commonLabUtil) {
         this.checkingValueService = checkingValueService;
         this.nbsObjectConverter = nbsObjectConverter;
+        this.commonLabUtil = commonLabUtil;
     }
 
     public LabResultProxyContainer getObservationResultRequest(List<HL7OBSERVATIONType> observationRequestArray,
                                                                LabResultProxyContainer labResultProxyContainer,
                                                                EdxLabInformationDto edxLabInformationDto) throws DataProcessingException{
         try {
-            //TODO: This process taking some time, pershap move the caching from legacy is a good move
             for (HL7OBSERVATIONType hl7OBSERVATIONType : observationRequestArray) {
                 try {
                     ObservationContainer observationContainer = getObservationResult(hl7OBSERVATIONType.getObservationResult(), labResultProxyContainer, edxLabInformationDto);
@@ -101,8 +102,7 @@ public class ObservationResultRequestHandler {
                     || (hl7OBXType.getObservationIdentifier().getHL7Identifier()==null && hl7OBXType.getObservationIdentifier().getHL7AlternateIdentifier()==null))){
                 edxLabInformationDto.setResultedTestNameMissing(true);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_19);
-                //TODO: Logic to convert to XML
-                String xmlElementName = CommonLabUtil.getXMLElementNameForOBX(hl7OBXType)+".ObservationIdentifier";
+                String xmlElementName = commonLabUtil.getXMLElementNameForOBX(hl7OBXType)+".ObservationIdentifier";
                 throw new DataProcessingException(EdxELRConstant.NO_RESULT_NAME+" XMLElementName: "+xmlElementName);
             }
 
@@ -355,7 +355,7 @@ public class ObservationResultRequestHandler {
             }
             // It was decided to use only OBX19 for this field instead of OBX14(as in 2.3.1) - ER 1085 in Rel4.4
             if(hl7OBXType.getDateTimeOftheAnalysis()!=null){
-                observationDto.setActivityToTime(NBSObjectConverter.processHL7TSType(hl7OBXType.getDateTimeOftheAnalysis(),EdxELRConstant.DATE_VALIDATION_OBX_LAB_PERFORMED_DATE_MSG));
+                observationDto.setActivityToTime(nbsObjectConverter.processHL7TSType(hl7OBXType.getDateTimeOftheAnalysis(),EdxELRConstant.DATE_VALIDATION_OBX_LAB_PERFORMED_DATE_MSG));
             }
 
             observationDto.setRptToStateTime(edxLabInformationDto.getLastChgTime());
@@ -530,7 +530,7 @@ public class ObservationResultRequestHandler {
     }
 
 
-    private static void formatValue(String text, HL7OBXType hl7OBXType, ObservationContainer observationContainer, EdxLabInformationDto edxLabInformationDto, String elementName) throws DataProcessingException{
+    private void formatValue(String text, HL7OBXType hl7OBXType, ObservationContainer observationContainer, EdxLabInformationDto edxLabInformationDto, String elementName) throws DataProcessingException{
         String type = "";
         try {
             type = hl7OBXType.getValueType();
@@ -567,8 +567,7 @@ public class ObservationResultRequestHandler {
                         {
                             edxLabInformationDto.setReflexResultedTestCdMissing(true);
                             edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_19);
-                            // TODO: XML
-                            String xmlElementName = CommonLabUtil.getXMLElementNameForOBX(hl7OBXType)+"."+elementName;
+                            String xmlElementName = commonLabUtil.getXMLElementNameForOBX(hl7OBXType)+"."+elementName;
                             throw new DataProcessingException(EdxELRConstant.NO_REFLEX_RESULT_NM+" XMLElementName: "+xmlElementName);
                         }
 
@@ -705,7 +704,7 @@ public class ObservationResultRequestHandler {
     }
 
 
-    private static ObservationContainer getObsReqNotes(List<HL7NTEType> noteArray, ObservationContainer observationContainer) throws DataProcessingException {
+    private ObservationContainer getObsReqNotes(List<HL7NTEType> noteArray, ObservationContainer observationContainer) throws DataProcessingException {
         try {
             for (HL7NTEType notes : noteArray) {
                 if (notes.getHL7Comment() != null && notes.getHL7Comment().size() > 0) {

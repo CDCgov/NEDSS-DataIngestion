@@ -39,25 +39,6 @@ public class ProgramAreaService implements IProgramAreaService {
         this.observationCodeService = observationCodeService;
     }
 
-    public Object processingProgramArea() throws DataProcessingConsumerException {
-        //TODO: Adding logic here
-        try {
-            return "processing program area";
-        } catch (Exception e) {
-            throw new DataProcessingConsumerException("ERROR", "Data");
-        }
-
-    }
-
-    public Object processingJurisdiction() throws DataProcessingConsumerException {
-        //TODO: Adding logic here
-        try {
-            return "processing jurisdiction";
-        } catch (Exception e) {
-            throw new DataProcessingConsumerException("ERROR", "Data");
-        }
-
-    }
 
     public List<ProgramAreaCode> getAllProgramAreaCode() {
         var progCodeRes = programAreaCodeRepository.findAll();
@@ -68,7 +49,13 @@ public class ProgramAreaService implements IProgramAreaService {
         }
     }
 
-    public void getProgramArea(Collection<ObservationContainer> resultTests, ObservationContainer orderTest, String clia) throws DataProcessingException
+    /***
+     * Description: given observation request  (root observation) and an List of observation result.
+     * This method conditionally the valid program area associated with CLIA code.
+     * CLIA code assoc with MSH-4.2.1 and PID-3.4.2.
+     * This method set program area to Observation request (root observation) after it found valid code in observation results
+     * */
+    public void getProgramArea(Collection<ObservationContainer> observationResults, ObservationContainer observationRequest, String clia) throws DataProcessingException
     {
         String programAreaCode = null;
         if (clia == null || clia.trim().equals(""))
@@ -77,36 +64,44 @@ public class ProgramAreaService implements IProgramAreaService {
         }
 
         Map<String, String> paResults = null;
-        if (orderTest.getTheObservationDto().getElectronicInd()
-                .equals(NEDSSConstant.ELECTRONIC_IND_ELR)) {
-            if (resultTests.size() > 0)
+        if (observationRequest.getTheObservationDto().getElectronicInd().equals(NEDSSConstant.ELECTRONIC_IND_ELR)) {
+            if (!observationResults.isEmpty())
             {
-                paResults = getProgramAreaHelper(clia, resultTests, orderTest.getTheObservationDto().getElectronicInd());
+                // Program Area happening here
+                paResults = getProgramAreaHelper(
+                        clia,
+                        observationResults,
+                        observationRequest.getTheObservationDto().getElectronicInd()
+                );
             }
 
             if (paResults != null && paResults.containsKey(ELRConstant.PROGRAM_AREA_HASHMAP_KEY))
             {
                 programAreaCode = paResults.get(ELRConstant.PROGRAM_AREA_HASHMAP_KEY);
-                orderTest.getTheObservationDto().setProgAreaCd(programAreaCode);
+                observationRequest.getTheObservationDto().setProgAreaCd(programAreaCode);
             }
-            else 
+            else
             {
-                orderTest.getTheObservationDto().setProgAreaCd(null);
+                observationRequest.getTheObservationDto().setProgAreaCd(null);
             }
         }
-        if (paResults != null && paResults.containsKey("ERROR")) 
+
+        if (paResults != null && paResults.containsKey("ERROR"))
         {
-            orderTest.getTheObservationDto().setProgAreaCd(null);
+            observationRequest.getTheObservationDto().setProgAreaCd(null);
         } 
         else 
         {
-            orderTest.getTheObservationDto().setProgAreaCd(programAreaCode);
+            observationRequest.getTheObservationDto().setProgAreaCd(programAreaCode);
         }
     }
 
 
+    /**
+     * Description: method getting program area given CLIA and Observation Requests
+     * */
     private HashMap<String, String> getProgramAreaHelper(String reportingLabCLIA,
-                                                  Collection<ObservationContainer> observationVOCollection,
+                                                  Collection<ObservationContainer> observationResults,
                                                   String electronicInd) throws DataProcessingException {
 
         HashMap<String, String> returnMap = new HashMap<>();
@@ -116,14 +111,14 @@ public class ProgramAreaService implements IProgramAreaService {
             return returnMap;
         }
 
-        Iterator<ObservationContainer> obsIt = observationVOCollection.iterator();
+        Iterator<ObservationContainer> obsResults = observationResults.iterator();
         Hashtable<String, String> paHTBL = new Hashtable<>();
 
         //iterator through each resultTest
-        while (obsIt.hasNext())
+        while (obsResults.hasNext())
         {
-            ObservationContainer obsVO = obsIt.next();
-            ObservationDto obsDt = obsVO.getTheObservationDto();
+            ObservationContainer obsResult = obsResults.next();
+            ObservationDto obsDt = obsResult.getTheObservationDto();
 
             String obsDomainCdSt1 = obsDt.getObsDomainCdSt1();
             String obsDTCode = obsDt.getCd();
@@ -134,21 +129,24 @@ public class ProgramAreaService implements IProgramAreaService {
             programAreaDerivationExcludeFlag = false;
 
             // make sure you are dealing with a resulted test here.
-            if ( (obsDomainCdSt1 != null) &&
-                    obsDomainCdSt1.equals(ELRConstant.ELR_OBSERVATION_RESULT) &&
-                    (obsDTCode != null) &&
-                    (!obsDTCode.equals(NEDSSConstant.ACT114_TYP_CD)))
+            if (
+                obsDomainCdSt1 != null &&
+                obsDomainCdSt1.equals(ELRConstant.ELR_OBSERVATION_RESULT) &&
+                obsDTCode != null &&
+                !obsDTCode.equals(NEDSSConstant.ACT114_TYP_CD)
+            )
             {
                 // Retrieve PAs using Lab Result --> SNOMED code mapping
                 // If ELR, use actual CLIA - if manual use "DEFAULT" as CLIA
                 String progAreaCd;
                 if ( electronicInd.equals(NEDSSConstant.ELECTRONIC_IND_ELR) )
                 {
-                    progAreaCd = srteCodeObsService.getPAFromSNOMEDCodes(reportingLabCLIA, obsVO.getTheObsValueCodedDtoCollection());
+                    progAreaCd = srteCodeObsService.getPAFromSNOMEDCodes(reportingLabCLIA, obsResult.getTheObsValueCodedDtoCollection());
                 }
+                //NOTE: this wont happen in ELR flow
                 else
                 {
-                    progAreaCd = srteCodeObsService.getPAFromSNOMEDCodes(NEDSSConstant.DEFAULT, obsVO.getTheObsValueCodedDtoCollection());
+                    progAreaCd = srteCodeObsService.getPAFromSNOMEDCodes(NEDSSConstant.DEFAULT, obsResult.getTheObsValueCodedDtoCollection());
                 }
 
 
@@ -167,7 +165,7 @@ public class ProgramAreaService implements IProgramAreaService {
                 // Retrieve PAs using Resulted Test --> LOINC mapping
                 if (!found)
                 {
-                    progAreaCd = srteCodeObsService.getPAFromLOINCCode(reportingLabCLIA, obsVO);
+                    progAreaCd = srteCodeObsService.getPAFromLOINCCode(reportingLabCLIA, obsResult);
                     // If PA returned, check to see if it is the same one as before.
                     if (progAreaCd != null)
                     {
@@ -183,7 +181,7 @@ public class ProgramAreaService implements IProgramAreaService {
                 // Retrieve PAs using Local Result Code to PA mapping
                 if (!found)
                 {
-                    progAreaCd = srteCodeObsService.getPAFromLocalResultCode(reportingLabCLIA, obsVO.getTheObsValueCodedDtoCollection());
+                    progAreaCd = srteCodeObsService.getPAFromLocalResultCode(reportingLabCLIA, obsResult.getTheObsValueCodedDtoCollection());
                     // If PA returned, check to see if it is the same one as before.
                     if (progAreaCd != null)
                     {
@@ -200,7 +198,7 @@ public class ProgramAreaService implements IProgramAreaService {
                 // Retrieve PAs using Local Result Code to PA mapping
                 if (!found)
                 {
-                    progAreaCd = srteCodeObsService.getPAFromLocalTestCode(reportingLabCLIA, obsVO);
+                    progAreaCd = srteCodeObsService.getPAFromLocalTestCode(reportingLabCLIA, obsResult);
                     // If PA returned, check to see if it is the same one as before.
                     if (progAreaCd != null)
                     {

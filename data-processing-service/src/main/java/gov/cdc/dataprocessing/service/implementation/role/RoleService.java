@@ -48,15 +48,12 @@ public class RoleService implements IRoleService {
         try {
             if(roleDTColl == null || roleDTColl.isEmpty()) return;
 
-            for (Iterator<RoleDto> anIterator = roleDTColl.iterator(); anIterator.hasNext(); )
-            {
-                RoleDto roleDT = anIterator.next();
-                if(roleDT == null){
+            for (RoleDto roleDT : roleDTColl) {
+                if (roleDT == null) {
                     continue;
                 }
 
-                //TODO: EVALUATE
-                // roleDT = (RoleDto) prepareAssocModelHelper.prepareAssocDT(roleDT);
+                roleDT = prepareAssocModelHelper.prepareAssocDTForRole(roleDT);
                 saveRole(roleDT);
             }
         } catch (Exception e) {

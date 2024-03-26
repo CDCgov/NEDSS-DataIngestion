@@ -227,7 +227,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
 //                            edxDao.setEdxEntityMatchDT(localEdxEntityMatchDT);
                             System.out.println("----- before nameTelePhone save edxEntityMatchingDT.getEntityUid():"+edxEntityMatchingDT
                                     .getEntityUid());
-                            edxPatientMatchRepositoryUtil.saveEdxEntityMatch(localEdxEntityMatchDT);//TODO --new code
+                            edxPatientMatchRepositoryUtil.saveEdxEntityMatch(localEdxEntityMatchDT);
                         }
                         edxActivityDetailLogDto.setRecordId(""
                                 + edxEntityMatchingDT.getEntityUid());
@@ -275,7 +275,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                         .setMatchStringHashCode(Long.valueOf(nameAddStrSt1hshCd));
                 try {
 //                    edxDao.setEdxEntityMatchDT(edxEntityMatchDT);
-                    edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);//TODO --new code
+                    edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
                 } catch (Exception e) {
                     logger.error("Error in creating the EdxEntityMatchDT with nameAddStrSt1:"
                             + nameAddStrSt1 + " " + e.getMessage());
@@ -294,7 +294,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                         .setMatchStringHashCode(Long.valueOf(nameTelePhonehshCd));
                 try {
 //                    edxDao.setEdxEntityMatchDT(edxEntityMatchDT);
-                    edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);//TODO --new code
+                    edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
                 } catch (Exception e) {
                     logger.error("Error in creating the EdxEntityMatchDT with nameTelePhone:"
                             + nameTelePhone + " " + e.getMessage());
@@ -310,7 +310,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                     edxEntityMatchDT.setEntityUid(entityUid);
                     System.out.println("-----before save coll != null:"+entityUid);
 //                    edxDao.setEdxEntityMatchDT(edxEntityMatchDT);
-                    edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);//TODO --new code
+                    edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
                 }
             }
             System.out.println("----before getMatchingOrganization END entityUid:"+entityUid);

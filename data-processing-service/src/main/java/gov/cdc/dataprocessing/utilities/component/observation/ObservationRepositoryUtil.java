@@ -503,7 +503,6 @@ public class ObservationRepositoryUtil {
 
             actRepository.save(act);
 
-            //TODO EVALUATE
             Observation observation = new Observation(observationDto);
             observation.setVersionCtrlNbr(1);
             //Shared Ind is not Null, existing data are set to T hence set it as T here

@@ -319,12 +319,12 @@ public class SrteCodeObsService implements ISrteCodeObsService {
             for (ObsValueCodedDto codedDt : obsValueCodedDtoColl) {
                 String codeSystemCd = codedDt.getCodeSystemCd();
 
-                if (codeSystemCd == null || codeSystemCd.trim().equals("")) {
+                if (codeSystemCd == null || codeSystemCd.trim().isEmpty()) {
                     continue;
                 }
 
                 String obsCode = codedDt.getCode();
-                if (obsCode == null || obsCode.trim().equals("")) {
+                if (obsCode == null || obsCode.trim().isEmpty()) {
                     continue;
                 }
 
@@ -363,7 +363,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
 
             // Now that we have resolved all the SNOMED codes, try to derive the PA
-            if (snomedVector != null && snomedVector.size() == obsValueCodedDtoColl.size())
+            if (snomedVector.size() == obsValueCodedDtoColl.size())
             {
                 return getProgAreaCd(snomedVector, reportingLabCLIA, "NEXT", ELRConstant.ELR_SNOMED_CD);
             }
@@ -391,6 +391,11 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
     }
 
+    /**
+     * Description: Find whether if record with Observation value and CLIA exist in LabResult table or not.
+     * If exist then check for ExcludeCode. Return True if value is Yes. Otherwise return False.
+     * Program Area use this as indicator to check for SNOMED code when method return false
+     * */
     private boolean removePADerivationExcludedLabResultCodes(String labResultCd, String reportingLabCLIA) {
         var result = labResultRepository.findLabResultProgramAreaExclusion(labResultCd, reportingLabCLIA);
         if (result.isPresent()) {
@@ -569,15 +574,13 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         }
 
         Vector<Object> codeVector = new Vector<Object>();
-        Iterator<ObsValueCodedDto> codedDtIt = obsValueCodedDtoColl.iterator();
 
-        while (codedDtIt.hasNext()) {
-            ObsValueCodedDto obsValueCodedDto = (ObsValueCodedDto) codedDtIt.next();
+        for (ObsValueCodedDto obsValueCodedDto : obsValueCodedDtoColl) {
             String code = obsValueCodedDto.getCode();
             String codeSystemCd = obsValueCodedDto.getCodeSystemCd();
-            if (code != null && codeSystemCd!=null && !codeSystemCd.equals(ELRConstant.ELR_SNOMED_CD)) {
+            if (code != null && codeSystemCd != null && !codeSystemCd.equals(ELRConstant.ELR_SNOMED_CD)) {
                 //Check if this local result code should be excluded from Program Area derivation
-                if (!removePADerivationExcludedLabResultCodes(code, reportingLabCLIA)){
+                if (!removePADerivationExcludedLabResultCodes(code, reportingLabCLIA)) {
                     codeVector.addElement(code);
                 } else {
                     //If so, set exclude flag so we won't fail this resulted test if no PA is derived for it
@@ -591,13 +594,12 @@ public class SrteCodeObsService implements ISrteCodeObsService {
                 progAreaCd = findLocalResultDefaultConditionProgramAreaCdFromLabResult(codeVector, reportingLabCLIA, "NEXT");
             }
 
-            if (lastProgAreaCd == null)
-            {
+            if (lastProgAreaCd == null) {
                 lastProgAreaCd = progAreaCd;
             }
-            else {
-                if (!lastProgAreaCd.equals(progAreaCd))
-                {
+            else
+            {
+                if (!lastProgAreaCd.equals(progAreaCd)) {
                     return null;
                 }
             }

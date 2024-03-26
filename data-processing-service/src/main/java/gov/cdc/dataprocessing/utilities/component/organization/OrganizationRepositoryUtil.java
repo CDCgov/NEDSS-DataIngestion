@@ -237,9 +237,7 @@ public class OrganizationRepositoryUtil {
             /**
              * Inserts into entity table for organization
              */
-            //uidGen = new UidGeneratorHelper();//TODO
-            // new Organization Uid
-            //uidGen.getNbsIDLong(UidClassCodes.NBS_CLASS_CODE);//TODO
+
             organizationUid = organizationDto.getOrganizationUid();
             System.out.println("-----insertOrganization organizationUid:" + organizationUid);
             EntityODSE entityModel = new EntityODSE();
@@ -397,7 +395,6 @@ public class OrganizationRepositoryUtil {
                 return organizationContainer.getTheOrganizationDto()
                         .getOrganizationUid();
             } else {
-                //TODO Check the following commented to code again whether it to be implemented.
                 OrganizationDto newOrganizationDto = (OrganizationDto) prepareAssocModelHelper
                         .prepareVO(organizationContainer.getTheOrganizationDto(),
                                 "ORGANIZATION", businessTriggerCd,

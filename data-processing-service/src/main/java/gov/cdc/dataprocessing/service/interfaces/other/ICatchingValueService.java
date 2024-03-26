@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.service.interfaces.other;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
 
 import java.util.List;
@@ -21,5 +22,6 @@ public interface ICatchingValueService {
     TreeMap<String, String> getAllProgramAreaCodes() throws DataProcessingException;
     TreeMap<String, Integer> getAllProgramAreaCodesWithNbsUid() throws DataProcessingException;
     TreeMap<String, Integer> getAllJurisdictionCodeWithNbsUid() throws DataProcessingException;
+    List<ElrXref> getAllElrXref() throws DataProcessingException;
 
 }

@@ -150,8 +150,11 @@ public class ObservationService implements IObservationService {
         return labResultProxyVO;
     }
 
+    /**
+     * Origin: sendLabResultToProxy
+     * */
     @Transactional
-    public ObservationDto sendLabResultToProxy(LabResultProxyContainer labResultProxyContainer) throws DataProcessingException {
+    public ObservationDto processingLabResultContainer(LabResultProxyContainer labResultProxyContainer) throws DataProcessingException {
         if (labResultProxyContainer == null) {
             throw new DataProcessingException("Lab Result Container Is Null");
         }
@@ -811,7 +814,6 @@ public class ObservationService implements IObservationService {
             ELR_PROCESSING = true;
         }
 
-        //TODO: Verify this check lab result perm
         //Check permission to proceed
         //checkPermissionToSetProxy(labResultProxyVO, securityObj, ELR_PROCESSING);
 
@@ -844,15 +846,9 @@ public class ObservationService implements IObservationService {
                 returnVal.putAll(obsResults);
             }
 
-            //TODO: EVALUATE THIS, this one try to find Patient UID, the code above is also doing this
             //For ELR update, mpr uid may be not available
             if(patientMprUid == null || patientMprUid.longValue() < 0)
             {
-                /**
-                 *       String aQuery = "SELECT subject_entity_uid FROM " +
-                 *              DataTables.PARTICIPATION_TABLE + " WHERE subject_class_cd = ? AND type_cd = ? AND act_uid = ?";
-                 *
-                 * */
                 patientMprUid = participationService.findPatientMprUidByObservationUid(
                         NEDSSConstant.PERSON,
                         NEDSSConstant.PAR110_TYP_CD,
@@ -878,8 +874,6 @@ public class ObservationService implements IObservationService {
                     OrganizationDto newOrganizationDto = null;
 
                     if (organizationContainer.isItNew()) {
-                        //TODO: EVALUATE THIS prepare method
-
                         newOrganizationDto = (OrganizationDto) prepareAssocModelHelper.prepareVO(
                                 organizationContainer.getTheOrganizationDto(), NBSBOLookup.ORGANIZATION,
                                 NEDSSConstant.ORG_CR, "ORGANIZATION",
@@ -893,7 +887,6 @@ public class ObservationService implements IObservationService {
                             uidService.setFalseToNewForObservation(labResultProxyVO, falseUid, realUid);
                         }
                     } else if (organizationContainer.isItDirty()) {
-                        //TODO: EVALUATE
                         newOrganizationDto = (OrganizationDto) prepareAssocModelHelper.prepareVO(
                                 organizationContainer.getTheOrganizationDto(), NBSBOLookup.ORGANIZATION,
                                 NEDSSConstant.ORG_EDIT, "ORGANIZATION",
@@ -916,7 +909,6 @@ public class ObservationService implements IObservationService {
                     logger.debug("materialUID: " + materialContainer.getTheMaterialDto().getMaterialUid());
 
                     if (materialContainer.isItNew()) {
-                        //TODO: EVALUATE
                         newMaterialDto = (MaterialDto) prepareAssocModelHelper.prepareVO(materialContainer.
                                         getTheMaterialDto(), NBSBOLookup.MATERIAL,
                                 NEDSSConstant.MAT_MFG_CR, "MATERIAL",
@@ -928,7 +920,6 @@ public class ObservationService implements IObservationService {
                             uidService.setFalseToNewForObservation(labResultProxyVO, falseUid, realUid);
                         }
                     } else if (materialContainer.isItDirty()) {
-                        //TODO: EVALUATE
                         newMaterialDto = (MaterialDto) prepareAssocModelHelper.prepareVO(materialContainer.
                                         getTheMaterialDto(), NBSBOLookup.MATERIAL,
                                 NEDSSConstant.MAT_MFG_EDIT, "MATERIAL",
@@ -990,14 +981,11 @@ public class ObservationService implements IObservationService {
             }
 
 
-            //TODO: EVALUATE - ROLE SERVICE
-            //Processes roleDT collection
-
-//            Collection<RoleDto>  roleDTColl = labResultProxyVO.getTheRoleDtoCollection();
-//            if (roleDTColl != null && !roleDTColl.isEmpty())
-//            {
-//                roleService.storeRoleDTCollection(roleDTColl);
-//            }
+            Collection<RoleDto>  roleDTColl = labResultProxyVO.getTheRoleDtoCollection();
+            if (roleDTColl != null && !roleDTColl.isEmpty())
+            {
+                roleService.storeRoleDTCollection(roleDTColl);
+            }
 
 
 

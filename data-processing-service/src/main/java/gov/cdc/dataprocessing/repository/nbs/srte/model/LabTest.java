@@ -16,7 +16,7 @@ public class LabTest {
     @Column(name = "laboratory_id")
     private String laboratoryId;
 
-    @Column(name = "lab_result_desc_txt")
+    @Column(name = "lab_test_desc_txt")
     private String labResultDescTxt;
 
     @Column(name = "test_type_cd")

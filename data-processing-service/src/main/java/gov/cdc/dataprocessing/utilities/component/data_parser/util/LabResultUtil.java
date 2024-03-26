@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.data_extraction;
+package gov.cdc.dataprocessing.utilities.component.data_parser.util;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.model.container.OrganizationContainer;
@@ -12,10 +12,12 @@ import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.phdc.HL7HDType;
 import gov.cdc.dataprocessing.model.phdc.HL7MSHType;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+@Component
 public class LabResultUtil {
 
 
@@ -29,7 +31,7 @@ public class LabResultUtil {
      * 4 - Organization Name Dto
      * 5 - Entity Id Dto
      * */
-    public static LabResultProxyContainer getLabResultMessage(HL7MSHType hl7MSHType, EdxLabInformationDto edxLabInformationDto) {
+    public LabResultProxyContainer getLabResultMessage(HL7MSHType hl7MSHType, EdxLabInformationDto edxLabInformationDto) {
         LabResultProxyContainer labResultProxy  = new LabResultProxyContainer();
         HL7HDType sendingFacility = hl7MSHType.getSendingFacility();
 
@@ -50,7 +52,7 @@ public class LabResultUtil {
      * 4 - Organization Name Dto
      * 5 - Entity Id Dto
      * */
-    public static EdxELRLabMapDto processingHL7SendingFacility(HL7HDType sendingFacility, EdxLabInformationDto edxLabInformationDto) {
+    public EdxELRLabMapDto processingHL7SendingFacility(HL7HDType sendingFacility, EdxLabInformationDto edxLabInformationDto) {
         //ROLE, Sending Facility
         EdxELRLabMapDto edxELRLabMapDto = new EdxELRLabMapDto();
         edxELRLabMapDto.setRoleCd(EdxELRConstant.ELR_SENDING_FACILITY_CD);
@@ -97,7 +99,7 @@ public class LabResultUtil {
      * 4 - Organization Name Dto
      * 5 - Entity Id Dto
      * */
-    public static LabResultProxyContainer creatingOrganization(LabResultProxyContainer labResultProxy, EdxELRLabMapDto edxELRLabMap, EdxLabInformationDto edxLabInformation) {
+    public LabResultProxyContainer creatingOrganization(LabResultProxyContainer labResultProxy, EdxELRLabMapDto edxELRLabMap, EdxLabInformationDto edxLabInformation) {
         OrganizationContainer organizationContainer = new OrganizationContainer();
 
 

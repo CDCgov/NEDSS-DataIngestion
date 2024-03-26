@@ -79,7 +79,6 @@ public class PrepareAssocModelHelper {
                 {
                     e.printStackTrace();
                 }
-                //TODO: Looking into this, this basically getting Permission ID
 //                if(!nbsSecurityObj.getEntryID().equals(""))
 //                {
 //                    logger.debug("nbsSecurityObj.getEntryID() = " + nbsSecurityObj.getEntryID());
@@ -141,7 +140,6 @@ public class PrepareAssocModelHelper {
                 {
                     e.printStackTrace();
                 }
-                //TODO: Looking into this, this basically getting Permission ID
 //                if(!nbsSecurityObj.getEntryID().equals(""))
 //                {
 //                    logger.debug("nbsSecurityObj.getEntryID() = " + nbsSecurityObj.getEntryID());
@@ -320,7 +318,6 @@ public class PrepareAssocModelHelper {
             }
             if(theRootDTInterface.isItDirty() && !theRootDTInterface.isItNew())
             {
-                //TODO: EVALUATE
                 // CONCURRENCE CHECK
 //                boolean result = dataConcurrenceCheck(theRootDTInterface, tableName);
 //                if(result)
@@ -391,8 +388,6 @@ public class PrepareAssocModelHelper {
             {
                 String progAreaCd = theRootDTInterface.getProgAreaCd();
                 String jurisdictionCd = theRootDTInterface.getJurisdictionCd();
-                //TODO EVALUATE
-                // PROGRAM AREA
                 long pajHash = progAreaJurisdictionUtil.getPAJHash(progAreaCd, jurisdictionCd);
                 Long aProgramJurisdictionOid = pajHash;
                 logger.debug("aProgramJurisdictionOid is : " + aProgramJurisdictionOid);
@@ -541,8 +536,6 @@ public class PrepareAssocModelHelper {
                 String progAreaCd = theRootDTInterface.getProgAreaCd();
                 String jurisdictionCd = theRootDTInterface.getJurisdictionCd();
 
-                //TODO EVALUATE
-                // PROGRAM AREA
                 long pajHash = progAreaJurisdictionUtil.getPAJHash(progAreaCd, jurisdictionCd);
                 Long aProgramJurisdictionOid = pajHash;
                 theRootDTInterface.setProgramJurisdictionOid(aProgramJurisdictionOid);
