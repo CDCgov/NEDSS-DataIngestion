@@ -4,6 +4,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActLocatorParticipat
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationship;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -36,6 +37,9 @@ public interface ActRelationshipRepository extends JpaRepository<ActRelationship
     /**
      String DELETE_BY_PK = "DELETE from Act_relationship where target_act_uid = ? and source_act_uid = ? and type_cd = ?"
      * */
-    @Query("DELETE FROM ActRelationship data WHERE data.targetActUid = :subjectUid AND data.sourceActUid = :actUid AND data.typeCd = :typeCode")
+    @Modifying
+    @Query("DELETE FROM ActRelationship data WHERE data.targetActUid = ?1 AND data.sourceActUid = ?2 AND data.typeCd = ?3")
     void deleteActRelationshipByPk(Long subjectUid, Long actUid, String typeCode);
+
+
 }

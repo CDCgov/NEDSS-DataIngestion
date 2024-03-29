@@ -43,6 +43,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
 
 import static gov.cdc.dataprocessing.constant.ManagerEvent.EVENT_ELR;
 @Service
@@ -191,15 +192,19 @@ public class ManagerService implements IManagerService {
             edxLabInformationDto.setUserName(AuthUtil.authUser.getUserId());
 
             //TODO: uncomment when deploy
-            //nbsInterfaceModel = gson.fromJson(data, NbsInterfaceModel.class);
+            nbsInterfaceModel = gson.fromJson(data, NbsInterfaceModel.class);
 
 
             //TODO: uncomment when debug
-             nbsInterfaceModel = nbsInterfaceRepository.findById(Integer.valueOf(data)).get();
-            // nbsInterfaceModel.setObservationUid(null);
+//             nbsInterfaceModel = nbsInterfaceRepository.findById(Integer.valueOf(data)).get();
+//             nbsInterfaceModel.setObservationUid(null);
 
             edxLabInformationDto.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
-            loadAndInitCachedValue();
+            //loadAndInitCachedValue();
+
+            CompletableFuture<Void> cacheLoadingFuture = loadAndInitCachedValueAsync();
+            cacheLoadingFuture.join();
+
 
             LabResultProxyContainer labResultProxyContainer = dataExtractionService.parsingDataToObject(nbsInterfaceModel, edxLabInformationDto);
 
@@ -373,6 +378,129 @@ public class ManagerService implements IManagerService {
     }
 
 
+
+    private CompletableFuture<Void> loadAndInitCachedValueAsync() {
+        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+            if (SrteCache.loincCodesMap.isEmpty()) {
+                try {
+                    cachingValueService.getAOELOINCCodes();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
+            if (SrteCache.raceCodesMap.isEmpty()) {
+                try {
+                    cachingValueService.getRaceCodes();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
+            if (SrteCache.programAreaCodesMap.isEmpty()) {
+                try {
+                    cachingValueService.getAllProgramAreaCodes();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
+            if (SrteCache.jurisdictionCodeMap.isEmpty()) {
+                try {
+                    cachingValueService.getAllJurisdictionCode();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
+            if (SrteCache.jurisdictionCodeMapWithNbsUid.isEmpty()) {
+                try {
+                    cachingValueService.getAllJurisdictionCodeWithNbsUid();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
+            if (SrteCache.programAreaCodesMapWithNbsUid.isEmpty()) {
+                try {
+                    cachingValueService.getAllProgramAreaCodesWithNbsUid();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
+            if (SrteCache.elrXrefsList.isEmpty()) {
+                try {
+                    cachingValueService.getAllElrXref();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
+            // Retrieve cached values using Cache.ValueWrapper
+            var cache = cacheManager.getCache("srte");
+            if (cache != null) {
+                Cache.ValueWrapper valueWrapper;
+                valueWrapper = cache.get("loincCodes");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof TreeMap) {
+                        SrteCache.loincCodesMap = (TreeMap<String, String>) cachedObject;
+                    }
+                }
+
+                valueWrapper = cache.get("raceCodes");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof TreeMap) {
+                        SrteCache.raceCodesMap = (TreeMap<String, String>) cachedObject;
+                    }
+                }
+
+                valueWrapper = cache.get("programAreaCodes");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof TreeMap) {
+                        SrteCache.programAreaCodesMap = (TreeMap<String, String>) cachedObject;
+                    }
+                }
+
+                valueWrapper = cache.get("jurisdictionCode");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof TreeMap) {
+                        SrteCache.jurisdictionCodeMap = (TreeMap<String, String>) cachedObject;
+                    }
+                }
+
+                valueWrapper = cache.get("programAreaCodesWithNbsUid");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof TreeMap) {
+                        SrteCache.programAreaCodesMapWithNbsUid = (TreeMap<String, Integer>) cachedObject;
+                    }
+                }
+
+                valueWrapper = cache.get("jurisdictionCodeWithNbsUid");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof TreeMap) {
+                        SrteCache.jurisdictionCodeMapWithNbsUid = (TreeMap<String, Integer>) cachedObject;
+                    }
+                }
+
+                valueWrapper = cache.get("elrXref");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof List) {
+                        SrteCache.elrXrefsList = (List<ElrXref>) cachedObject;
+                    }
+                }
+            }
+        });
+
+        return future;
+    }
 
 
 }

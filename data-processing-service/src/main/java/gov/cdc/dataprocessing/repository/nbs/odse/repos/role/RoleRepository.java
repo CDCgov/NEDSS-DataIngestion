@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.repository.nbs.odse.repos.role;
 
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -42,7 +43,8 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     /**
      * String DELETE_BY_PK = "DELETE from Role where subject_entity_uid = ? and cd = ? and role_seq = ?"
      * */
-    @Query("DELETE FROM Role data WHERE data.subjectEntityUid = :subjectEntityUid AND data.code = :code AND data.roleSeq = :roleSeq")
+    @Modifying
+    @Query("DELETE FROM Role data WHERE data.subjectEntityUid = ?1 AND data.code = ?2 AND data.roleSeq = ?3")
     void deleteRoleByPk(Long subjectEntityUid, String code, Long roleSeq);
 
 

@@ -118,7 +118,9 @@ public class ManagerAggregationService implements IManagerAggregationService {
         Collection<ObservationContainer> observationContainerCollection = labResult.getTheObservationContainerCollection();
         Collection<PersonContainer> personContainerCollection = labResult.getThePersonContainerCollection();
 
-        CompletableFuture<Void> observationFuture = CompletableFuture.runAsync(() -> observationAggregation(labResult, edxLabInformationDto, observationContainerCollection));
+        CompletableFuture<Void> observationFuture = CompletableFuture.runAsync(() ->
+                observationAggregation(labResult, edxLabInformationDto, observationContainerCollection)
+        );
 
         CompletableFuture<PersonAggContainer> patientFuture = CompletableFuture.supplyAsync(() ->
         {
@@ -157,8 +159,13 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
         roleAggregation(labResult);
 
-        progAndJurisdictionAggregation( labResult,  edxLabInformationDto,  personAggContainer, organizationContainer);
-
+        //progAndJurisdictionAggregationAsync( labResult,  edxLabInformationDto,  personAggContainer, organizationContainer);
+        CompletableFuture<Void> progAndJurisdictionFuture = progAndJurisdictionAggregationAsync(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
+        try {
+            progAndJurisdictionFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new DataProcessingException("Failed to execute progAndJurisdictionAggregationAsync", e);
+        }
     }
 
 
@@ -198,6 +205,49 @@ public class ManagerAggregationService implements IManagerAggregationService {
                     organizationContainer, observationRequest);
         }
     }
+
+
+    private CompletableFuture<Void> progAndJurisdictionAggregationAsync(LabResultProxyContainer labResult,
+                                                                        EdxLabInformationDto edxLabInformationDto,
+                                                                        PersonAggContainer personAggContainer,
+                                                                        OrganizationContainer organizationContainer) {
+        return CompletableFuture.runAsync(() -> {
+            // Pulling Jurisdiction and Program from OBS
+            ObservationContainer observationRequest = null;
+            Collection<ObservationContainer> observationResults = new ArrayList<>();
+            for (ObservationContainer obsVO : labResult.getTheObservationContainerCollection()) {
+                String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
+
+                // Observation hit this is originated from Observation Result
+                if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_RESULT_CD)) {
+                    observationResults.add(obsVO);
+                }
+
+                // Observation hit is originated from Observation Request (ROOT)
+                else if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)) {
+                    observationRequest = obsVO;
+                }
+            }
+
+            if (observationRequest.getTheObservationDto().getProgAreaCd() == null) {
+                try {
+                    programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            if (observationRequest.getTheObservationDto().getJurisdictionCd() == null) {
+                try {
+                    jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
+                            organizationContainer, observationRequest);
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
 
     private void roleAggregation(LabResultProxyContainer labResult) {
         /**

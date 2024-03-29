@@ -873,11 +873,19 @@ public class ObservationService implements IObservationService {
                     organizationContainer = vo;
                     OrganizationDto newOrganizationDto = null;
 
-                    if (organizationContainer.isItNew()) {
+                    var orgCheck = organizationRepositoryUtil.loadObject(organizationContainer.getTheOrganizationDto().getOrganizationUid(), null);
+                    Integer existingVer = null;
+                    if (orgCheck != null && orgCheck.getTheOrganizationDto() != null) {
+                        existingVer = orgCheck.getTheOrganizationDto().getVersionCtrlNbr();
+                    }
+                    if (organizationContainer.isItNew())
+                    {
                         newOrganizationDto = (OrganizationDto) prepareAssocModelHelper.prepareVO(
                                 organizationContainer.getTheOrganizationDto(), NBSBOLookup.ORGANIZATION,
                                 NEDSSConstant.ORG_CR, "ORGANIZATION",
-                                NEDSSConstant.BASE);
+                                NEDSSConstant.BASE,
+                                existingVer
+                        );
                         organizationContainer.setTheOrganizationDto(newOrganizationDto);
                         falseUid = organizationContainer.getTheOrganizationDto().getOrganizationUid();
                         logger.debug("false organizationUID: " + falseUid);
@@ -886,11 +894,15 @@ public class ObservationService implements IObservationService {
                         if (falseUid.intValue() < 0) {
                             uidService.setFalseToNewForObservation(labResultProxyVO, falseUid, realUid);
                         }
-                    } else if (organizationContainer.isItDirty()) {
+                    }
+                    else if (organizationContainer.isItDirty())
+                    {
                         newOrganizationDto = (OrganizationDto) prepareAssocModelHelper.prepareVO(
                                 organizationContainer.getTheOrganizationDto(), NBSBOLookup.ORGANIZATION,
                                 NEDSSConstant.ORG_EDIT, "ORGANIZATION",
-                                NEDSSConstant.BASE);
+                                NEDSSConstant.BASE,
+                                existingVer
+                        );
 
                         organizationContainer.setTheOrganizationDto(newOrganizationDto);
                         realUid = organizationRepositoryUtil.setOrganization(organizationContainer, null);
@@ -908,11 +920,22 @@ public class ObservationService implements IObservationService {
                     MaterialDto newMaterialDto = null;
                     logger.debug("materialUID: " + materialContainer.getTheMaterialDto().getMaterialUid());
 
+                    Integer eixstVerNum = null;
+                    if(materialContainer.getTheMaterialDto().getMaterialUid() > 0) {
+                        var existMat = materialService.loadMaterialObject(materialContainer.getTheMaterialDto().getMaterialUid());
+                        if (existMat != null && existMat.getTheMaterialDto() != null) {
+                            eixstVerNum = existMat.getTheMaterialDto().getVersionCtrlNbr();
+                        }
+                    }
+
+
                     if (materialContainer.isItNew()) {
                         newMaterialDto = (MaterialDto) prepareAssocModelHelper.prepareVO(materialContainer.
                                         getTheMaterialDto(), NBSBOLookup.MATERIAL,
                                 NEDSSConstant.MAT_MFG_CR, "MATERIAL",
-                                NEDSSConstant.BASE);
+                                NEDSSConstant.BASE,
+                                eixstVerNum
+                        );
                         materialContainer.setTheMaterialDto(newMaterialDto);
                         falseUid = materialContainer.getTheMaterialDto().getMaterialUid();
                         realUid = materialService.saveMaterial(materialContainer);
@@ -923,7 +946,9 @@ public class ObservationService implements IObservationService {
                         newMaterialDto = (MaterialDto) prepareAssocModelHelper.prepareVO(materialContainer.
                                         getTheMaterialDto(), NBSBOLookup.MATERIAL,
                                 NEDSSConstant.MAT_MFG_EDIT, "MATERIAL",
-                                NEDSSConstant.BASE);
+                                NEDSSConstant.BASE,
+                                eixstVerNum
+                        );
                         materialContainer.setTheMaterialDto(newMaterialDto);
 
                         realUid = materialService.saveMaterial(materialContainer);
@@ -1390,10 +1415,20 @@ public class ObservationService implements IObservationService {
                 businessTriggerCd = NEDSSConstant.OBS_LAB_EDIT;
             }
         }
+        Integer existObsVer = null;
+        if (orderTest.getTheObservationDto().getUid() > 0) {
+            var existObs = observationRepositoryUtil.loadObject(orderTest.getTheObservationDto().getUid());
+            if (existObs != null && existObs.getTheObservationDto() != null) {
+                existObsVer = existObs.getTheObservationDto().getVersionCtrlNbr();
+            }
+        }
+
          newObservationDto = (ObservationDto) prepareAssocModelHelper.prepareVO(
                 orderTest.getTheObservationDto(), NBSBOLookup.OBSERVATIONLABREPORT,
-                businessTriggerCd, "OBSERVATION", NEDSSConstant.BASE);
-          orderTest.setTheObservationDto(newObservationDto);
+                businessTriggerCd, "OBSERVATION", NEDSSConstant.BASE,
+                 existObsVer
+         );
+         orderTest.setTheObservationDto(newObservationDto);
 
 
     }

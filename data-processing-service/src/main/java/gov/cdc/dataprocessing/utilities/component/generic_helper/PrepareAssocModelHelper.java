@@ -25,11 +25,14 @@ public class PrepareAssocModelHelper {
 
     private final PrepareEntityStoredProcRepository prepareEntityStoredProcRepository;
     private final ProgAreaJurisdictionUtil progAreaJurisdictionUtil;
+    private final ConcurrentCheck concurrentCheck;
 
     public PrepareAssocModelHelper(PrepareEntityStoredProcRepository prepareEntityStoredProcRepository,
-                                   ProgAreaJurisdictionUtil progAreaJurisdictionUtil) {
+                                   ProgAreaJurisdictionUtil progAreaJurisdictionUtil,
+                                   ConcurrentCheck concurrentCheck) {
         this.prepareEntityStoredProcRepository = prepareEntityStoredProcRepository;
         this.progAreaJurisdictionUtil = progAreaJurisdictionUtil;
+        this.concurrentCheck = concurrentCheck;
     }
 
     /**
@@ -311,7 +314,8 @@ public class PrepareAssocModelHelper {
      * @roseuid 3C7422C50093
      */
     public RootDtoInterface prepareVO(RootDtoInterface theRootDTInterface, String businessObjLookupName,
-                                String businessTriggerCd, String tableName, String moduleCd) throws DataProcessingException
+                                String businessTriggerCd, String tableName, String moduleCd,
+                                      Integer existingVersion) throws DataProcessingException
     {
             if(!theRootDTInterface.isItNew() && !theRootDTInterface.isItDirty() && !theRootDTInterface.isItDelete()) {
                 throw new DataProcessingException("Error while calling prepareVO method in PrepareVOUtils");
@@ -319,16 +323,16 @@ public class PrepareAssocModelHelper {
             if(theRootDTInterface.isItDirty() && !theRootDTInterface.isItNew())
             {
                 // CONCURRENCE CHECK
-//                boolean result = dataConcurrenceCheck(theRootDTInterface, tableName);
-//                if(result)
-//                {
-//                    logger.debug("result in prepareVOUtil is :" + result);
-//                    //no concurrent dataAccess has occured, hence can continue!
-//                }
-//                else
-//                {
-//                }
-                throw new DataProcessingException("NEDSSConcurrentDataException occurred in PrepareVOUtils.Person");
+                boolean result = concurrentCheck.dataConcurrenceCheck(theRootDTInterface, tableName, existingVersion);
+                if(result)
+                {
+                    logger.debug("result in prepareVOUtil is :" + result);
+                    //no concurrent dataAccess has occured, hence can continue!
+                }
+                else
+                {
+                    throw new DataProcessingException("NEDSSConcurrentDataException occurred in PrepareVOUtils.Person");
+                }
 
             }
 
@@ -634,7 +638,4 @@ public class PrepareAssocModelHelper {
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
-
-
-
 }
