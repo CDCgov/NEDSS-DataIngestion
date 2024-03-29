@@ -5,6 +5,8 @@ import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
+import gov.cdc.dataingestion.odse.repository.IEdxActivityLogRepository;
+import gov.cdc.dataingestion.odse.repository.model.EdxActivityLogModelProjection;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.reportstatus.model.DltMessageStatus;
@@ -15,6 +17,7 @@ import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,6 +28,7 @@ public class ReportStatusService {
     private final IRawELRRepository iRawELRRepository;
     private final IValidatedELRRepository iValidatedELRRepository;
     private final IElrDeadLetterRepository iElrDeadLetterRepository;
+    private final IEdxActivityLogRepository iEdxActivityLogRepository;
     private static final String MSG_STATUS_SUCCESS = "COMPLETED";
     private static final String MSG_STATUS_FAILED = "FAILED";
     private static final String MSG_STATUS_PROGRESS = "IN PROGRESS";
@@ -35,12 +39,14 @@ public class ReportStatusService {
                                NbsInterfaceRepository nbsInterfaceRepository,
                                IRawELRRepository iRawELRRepository,
                                IValidatedELRRepository iValidatedELRRepository,
-                               IElrDeadLetterRepository iElrDeadLetterRepository) {
+                               IElrDeadLetterRepository iElrDeadLetterRepository,
+                               IEdxActivityLogRepository iEdxActivityLogRepository) {
         this.iReportStatusRepository = iReportStatusRepository;
         this.nbsInterfaceRepository = nbsInterfaceRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iElrDeadLetterRepository = iElrDeadLetterRepository;
+        this.iEdxActivityLogRepository=iEdxActivityLogRepository;
     }
 
     public MessageStatus getMessageStatus(String rawMessageID) {
@@ -65,6 +71,17 @@ public class ReportStatusService {
             }
             else {
                 setDltInfo(rawMessageID, msgStatus, DLT_ORIGIN_RAW);
+            }
+            if(msgStatus.getNbsInfo().getNbsInterfaceStatus() !=null) {
+                List<EdxActivityLogModelProjection> edxActivityStatusList = iEdxActivityLogRepository.
+                        getEdxActivityLogDetailsBySourceId(Long.valueOf(msgStatus.getNbsInfo().getNbsInterfaceId()));
+                if(!edxActivityStatusList.isEmpty()) {
+                    EdxActivityLogModelProjection edxActivityLogModel=edxActivityStatusList.get(0);
+                    msgStatus.getOdseActivityLogStatus().setRecordId(edxActivityLogModel.getRecordId());
+                    msgStatus.getOdseActivityLogStatus().setRecordType(edxActivityLogModel.getRecordType());
+                    msgStatus.getOdseActivityLogStatus().setLogType(edxActivityLogModel.getLogType());
+                    msgStatus.getOdseActivityLogStatus().setLogComment(edxActivityLogModel.getLogComment());
+                }
             }
         }
         return msgStatus;
