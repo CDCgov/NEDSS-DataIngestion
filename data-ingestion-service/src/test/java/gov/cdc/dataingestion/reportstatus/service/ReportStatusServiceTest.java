@@ -4,6 +4,8 @@ import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
+import gov.cdc.dataingestion.odse.repository.IEdxActivityLogRepository;
+import gov.cdc.dataingestion.odse.repository.model.EdxActivityLogModelView;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
@@ -18,11 +20,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class ReportStatusServiceTest {
     @Mock
@@ -35,6 +39,8 @@ class ReportStatusServiceTest {
     private IValidatedELRRepository iValidatedELRRepository;
     @Mock
     private IElrDeadLetterRepository iElrDeadLetterRepository;
+    @Mock
+    private IEdxActivityLogRepository iEdxActivityLogRepository;
     @InjectMocks
     private ReportStatusService reportStatusServiceMock;
     private ReportStatusIdData reportStatusIdData;
@@ -55,6 +61,7 @@ class ReportStatusServiceTest {
         Mockito.reset(iRawELRRepository);
         Mockito.reset(iValidatedELRRepository);
         Mockito.reset(iElrDeadLetterRepository);
+        Mockito.reset(iEdxActivityLogRepository);
     }
 
     @Test
@@ -328,4 +335,52 @@ class ReportStatusServiceTest {
         assertEquals("junit_test", reportStatusIdData.getCreatedBy());
         assertEquals("junit_test", reportStatusIdData.getUpdatedBy());
     }
+    @Test
+    void testGetMessageDetailStatus_RawExist_ValidateExist_ReportExist_NbsExist_OdseExist() {
+        String id = "123";
+        Integer nbsId = 123456;
+        RawERLModel rawERLModel = new RawERLModel();
+        rawERLModel.setId(id);
+        rawERLModel.setPayload("payload");
+        rawERLModel.setCreatedOn(getCurrentTimeStamp());
+        rawERLModel.setCreatedBy("admin");
+
+        ValidatedELRModel validatedELRModel = new ValidatedELRModel();
+        validatedELRModel.setId("validate-id");
+        validatedELRModel.setRawMessage("payload");
+        validatedELRModel.setCreatedOn(getCurrentTimeStamp());
+
+        ReportStatusIdData reportStatusIdModel = new ReportStatusIdData();
+        reportStatusIdModel.setRawMessageId(id);
+        reportStatusIdModel.setCreatedOn(getCurrentTimeStamp());
+        reportStatusIdModel.setNbsInterfaceUid(nbsId);
+
+        List<EdxActivityLogModelView> edxActivityLogList=new ArrayList();
+        EdxActivityLogModelView edxActivityLogModelProjection=mock(EdxActivityLogModelView.class);
+        when(edxActivityLogModelProjection.getLogComment()).thenReturn("Test activity log");
+        when(edxActivityLogModelProjection.getLogType()).thenReturn("Test log type");
+        when(edxActivityLogModelProjection.getRecordId()).thenReturn("Test Record Id");
+        when(edxActivityLogModelProjection.getRecordType()).thenReturn("Test Record Type");
+
+        edxActivityLogList.add(edxActivityLogModelProjection);
+
+        NbsInterfaceModel nbsModel = new NbsInterfaceModel();
+        nbsModel.setRecordStatusCd("Failure");
+        nbsModel.setPayload("payload");
+
+        when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawERLModel));
+        when(iValidatedELRRepository.findByRawId(id)).thenReturn(Optional.of(validatedELRModel));
+        when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.of(reportStatusIdModel));
+        when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.of(nbsModel));
+        when (iEdxActivityLogRepository.getEdxActivityLogDetailsBySourceId(Long.valueOf(nbsId))).thenReturn(edxActivityLogList);
+
+        var msgStatus = reportStatusServiceMock.getMessageStatus(id);
+        assertEquals(id, msgStatus.getRawInfo().getRawMessageId());
+        assertEquals("validate-id", msgStatus.getValidatedInfo().getValidatedMessageId());
+        assertEquals(nbsId, msgStatus.getNbsInfo().getNbsInterfaceId());
+        assertNotNull( msgStatus.getNbsInfo().getNbsCreatedOn());
+        assertNull( msgStatus.getNbsInfo().getDltInfo());
+        assertEquals("Test log type",msgStatus.getOdseActivityLogStatus().getLogType());
+    }
+
 }

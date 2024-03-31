@@ -35,6 +35,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
     private static final String ROUTE_FILES_PROCESS_UNPROCESS="file:files/sftpProcessedUnprocessed";
     private static final String ROUTE_FILE_UNZIP_DOWNLOAD="file:files/sftpUnzipDownload";
     private static final String ROUTE_FILE_DOWNLOAD="file:files/sftpdownload";
+    private static final String ROUTE_SEDA_UPDATE_STATUS="seda:updateStatus";
     private static final String PASSIVE_MODE="passiveMode";
     private static final String INITIAL_DELAY="initialDelay";
     private static final String DELAY="delay";
@@ -44,6 +45,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
     private static final String RECURSIVE="recursive";
     private static final String MAXIMUM_RECONNECT_ATTEMPTS="maximumReconnectAttempts";
     private static final String RECONNECT_DELAY="reconnectDelay";
+
     @Override
     public void configure() throws Exception {
         //shutdown faster in case of in-flight messages stack up
@@ -125,14 +127,11 @@ public class SFTPRouteBuilder extends RouteBuilder {
                 .choice()
                     .when(simple("${file:name} endsWith '.txt' && ${bodyAs(String).trim.length} != '0'"))
                         .log("File processed:${file:name}")
-                        //.to("bean:gov.cdc.dataingestion.camel.routes.HL7FileProcessComponent")
                         .log("Before bean process:${bodyAs(String).trim.length}:")
                         .bean(HL7FileProcessComponent.class)
                         .log("ELR raw id: ${body}")
                         .setBody(simple("${file:name}:${body}"))
-                        .to("seda:updateStatus")
-                        //.setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmssSSS}-${file:name}"))
-                        //.to(sftpUriProcessed.toString())
+                        .to(ROUTE_SEDA_UPDATE_STATUS)
                     .otherwise()
                         .log("File not processed:${file:name}")
                 .endChoice()
@@ -155,8 +154,8 @@ public class SFTPRouteBuilder extends RouteBuilder {
                         .to(sftpUriUnProcessed.toString())
                 .endChoice()
                 .end();
-        //////Update status
-        from("seda:updateStatus")
+        //////Provide the ELR processing status in the output folder.
+        from(ROUTE_SEDA_UPDATE_STATUS)
                 .routeId("sedaStatusRouteId").delay(2000)
                 .log("from seda updateStatus message:${body}")
                 .bean(ElrProcessStatusComponent.class)
@@ -167,16 +166,14 @@ public class SFTPRouteBuilder extends RouteBuilder {
                         .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmss}-Success-${file:name}"))
                         .to(sftpUriProcessed.toString())
                     .when(simple("${bodyAs(String).startsWith('Status:')} == 'true'"))
-                        .log("When failure.. status message: ${body}")
+                        .log("When failure status: ${body}")
                         .setBody(simple("${body}"))
                         .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmss}-Failure-${file:name}"))
                         .to(sftpUriProcessed.toString())
                     .otherwise()
                         .log("--calling the same seda:updateStatus----${body}")
-                        .to("seda:updateStatus")
-                    //.to(sftpUriUnProcessed.toString())
+                        .to(ROUTE_SEDA_UPDATE_STATUS)
                 .endChoice()
-                //.to("seda:updateStatus")
                 .end();
     }
 }

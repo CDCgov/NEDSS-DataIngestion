@@ -33,7 +33,6 @@ class SFTPRouteBuilderTest extends CamelTestSupport {
         RouteDefinition routeSftpUnzipFile = context.getRouteDefinition("sftpUnzipFileRouteId");
         RouteDefinition routeSftpReadFromUnzipDir = context.getRouteDefinition("SftpReadFromUnzipDirRouteId");
         RouteDefinition routeSedaProcessFiles = context.getRouteDefinition("sedaProcessFilesRouteId");
-
         adviceWith(
                 sftpRoute,
                 context,
@@ -41,7 +40,6 @@ class SFTPRouteBuilderTest extends CamelTestSupport {
                     @Override
                     public void configure() throws Exception {
                         replaceFromWith("direct:fromSftpRoute");
-                        //weaveByToUri("bean:hL7FileProcessComponent*").replace().to("mock:result");
                         weaveByToUri("file:files/sftpUnzipDownload").replace().to("mock:result");
 
                     }
@@ -73,7 +71,6 @@ class SFTPRouteBuilderTest extends CamelTestSupport {
                     @Override
                     public void configure() throws Exception {
                         replaceFromWith("seda:sedaProcessFilesRoute");
-                        weaveByToUri("bean:gov.cdc.dataingestion.camel.routes.HL7FileProcessComponent*").replace().to("mock:processBodyResult1");
                         weaveAddLast().to("mock:processBodyResult");
 
                     }
@@ -91,7 +88,7 @@ class SFTPRouteBuilderTest extends CamelTestSupport {
         mockSftpUnzipFile.expectedMinimumMessageCount(4);
         template.sendBody("direct:sftpUnzipFileRoute", new File("src/test/resources/sftpfiles/hl7testdata.zip"));
         mockSftpUnzipFile.assertIsSatisfied();
-        ////
+
         MockEndpoint mockSftpReadFromUnzippedFiles = getMockEndpoint("mock:sftpReadFromUnzippedFilesResult");
         mockSftpReadFromUnzippedFiles.expectedMessageCount(1);
         template.sendBody("direct:sftpReadFromUnzipDirRoute", new File("src/test/resources/sftpfiles/HL7file-test.txt"));
@@ -102,5 +99,6 @@ class SFTPRouteBuilderTest extends CamelTestSupport {
         template.sendBody("seda:sedaProcessFilesRoute", new File("src/test/resources/sftpfiles/HL7file-test1.txt"));
         template.sendBody("seda:sedaProcessFilesRoute", new File("src/test/resources/sftpfiles/HL7file-test.txt"));
         mockProcessBody.assertIsSatisfied();
+
     }
 }

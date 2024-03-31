@@ -1,12 +1,10 @@
 package gov.cdc.dataingestion.reportstatus.service;
 
-import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
-import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import gov.cdc.dataingestion.odse.repository.IEdxActivityLogRepository;
-import gov.cdc.dataingestion.odse.repository.model.EdxActivityLogModelProjection;
+import gov.cdc.dataingestion.odse.repository.model.EdxActivityLogModelView;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.reportstatus.model.DltMessageStatus;
@@ -73,10 +71,10 @@ public class ReportStatusService {
                 setDltInfo(rawMessageID, msgStatus, DLT_ORIGIN_RAW);
             }
             if(msgStatus.getNbsInfo().getNbsInterfaceStatus() !=null) {
-                List<EdxActivityLogModelProjection> edxActivityStatusList = iEdxActivityLogRepository.
+                List<EdxActivityLogModelView> edxActivityStatusList = iEdxActivityLogRepository.
                         getEdxActivityLogDetailsBySourceId(Long.valueOf(msgStatus.getNbsInfo().getNbsInterfaceId()));
                 if(!edxActivityStatusList.isEmpty()) {
-                    EdxActivityLogModelProjection edxActivityLogModel=edxActivityStatusList.get(0);
+                    EdxActivityLogModelView edxActivityLogModel=edxActivityStatusList.get(0);
                     msgStatus.getOdseActivityLogStatus().setRecordId(edxActivityLogModel.getRecordId());
                     msgStatus.getOdseActivityLogStatus().setRecordType(edxActivityLogModel.getRecordType());
                     msgStatus.getOdseActivityLogStatus().setLogType(edxActivityLogModel.getLogType());
