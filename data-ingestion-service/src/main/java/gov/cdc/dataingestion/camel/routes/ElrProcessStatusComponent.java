@@ -28,14 +28,12 @@ public class ElrProcessStatusComponent {
     }
 
     @Handler
-    public String process(String body) throws Exception {
+    public String process(String body){
         String status = "";
-        try {
             logger.debug("File name and Elr Id:{}", body);
             if (body != null && !body.trim().isEmpty()) {
                 //body = "HL7file-sftpstatus1.txt:7DAC34BD-B011-469A-BF27-25904370E9E3";//NOSONAR
                 String[] fileNameElr = body.split(":");
-                System.out.println("file name:" + fileNameElr[0] + " " + "Elr id:" + fileNameElr[1]);
                 String elrId = fileNameElr[1].trim();
                 MessageStatus messageStatus = reportStatusService.getMessageStatus(elrId);
                 if (messageStatus.getNbsInfo().getNbsInterfaceStatus() != null && messageStatus.getNbsInfo().getNbsInterfaceStatus().equals(SUCCESS)) {
@@ -60,9 +58,6 @@ public class ElrProcessStatusComponent {
                     status = body;
                 }
             }
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
         logger.info("ElrProcessStatusComponent status:{}", status);
         return status;
     }
