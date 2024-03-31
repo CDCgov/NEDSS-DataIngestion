@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.camel.routes;
 
 import gov.cdc.dataingestion.reportstatus.model.DltMessageStatus;
+import gov.cdc.dataingestion.reportstatus.model.EdxActivityLogStatus;
 import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
 import gov.cdc.dataingestion.reportstatus.service.ReportStatusService;
 import org.junit.jupiter.api.Assertions;
@@ -26,7 +27,7 @@ class ElrProcessStatusComponentTest {
     }
 
     @Test
-    void testProcessForInProgress() throws Exception {
+    void testProcessForInProgress() {
         String body = "HL7file-sftpstatus1.txt:7DAC34BD-B011-469A-BF27-25904370E9E3";
         String rawId = "7DAC34BD-B011-469A-BF27-25904370E9E3";
 
@@ -39,7 +40,7 @@ class ElrProcessStatusComponentTest {
         Assertions.assertEquals(body, processStatus);
     }
     @Test
-    void testProcessForNbsSucsess() throws Exception {
+    void testProcessForNbsSucsess() {
         String body = "HL7file-sftpstatus1.txt:7DAC34BD-B011-469A-BF27-25904370E9E3";
         String rawId = "7DAC34BD-B011-469A-BF27-25904370E9E3";
 
@@ -52,12 +53,19 @@ class ElrProcessStatusComponentTest {
         Assertions.assertEquals("Success", processStatus);
     }
     @Test
-    void testProcessForNbsFailure() throws Exception {
+    void testProcessForNbsFailure(){
         String body = "HL7file-sftpstatus1.txt:7DAC34BD-B011-469A-BF27-25904370E9E3";
         String rawId = "7DAC34BD-B011-469A-BF27-25904370E9E3";
 
         MessageStatus status = new MessageStatus();
         status.getNbsInfo().setNbsInterfaceStatus("Failure");
+
+        EdxActivityLogStatus edxActivityLogStatus=new EdxActivityLogStatus();
+        edxActivityLogStatus.setRecordId("Test Record Id");
+        edxActivityLogStatus.setRecordType("Test Record Type");
+        edxActivityLogStatus.setLogType("Test Log Type");
+        edxActivityLogStatus.setLogComment("Test Log Comment");
+        status.getNbsIngestionInfo().add(edxActivityLogStatus);
         when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(
                 status
         );
@@ -79,7 +87,7 @@ class ElrProcessStatusComponentTest {
         Assertions.assertTrue(processStatus.contains("Status:"));
     }
     @Test
-    void testProcessForDIValidationFailed() throws Exception {
+    void testProcessForDIValidationFailed() {
         String body = "HL7file-sftpstatus1.txt:7DAC34BD-B011-469A-BF27-25904370E9E3";
         String rawId = "7DAC34BD-B011-469A-BF27-25904370E9E3";
 

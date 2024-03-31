@@ -8,6 +8,7 @@ import gov.cdc.dataingestion.odse.repository.model.EdxActivityLogModelView;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.reportstatus.model.DltMessageStatus;
+import gov.cdc.dataingestion.reportstatus.model.EdxActivityLogStatus;
 import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
@@ -74,11 +75,14 @@ public class ReportStatusService {
                 List<EdxActivityLogModelView> edxActivityStatusList = iEdxActivityLogRepository.
                         getEdxActivityLogDetailsBySourceId(Long.valueOf(msgStatus.getNbsInfo().getNbsInterfaceId()));
                 if(!edxActivityStatusList.isEmpty()) {
-                    EdxActivityLogModelView edxActivityLogModel=edxActivityStatusList.get(0);
-                    msgStatus.getOdseActivityLogStatus().setRecordId(edxActivityLogModel.getRecordId());
-                    msgStatus.getOdseActivityLogStatus().setRecordType(edxActivityLogModel.getRecordType());
-                    msgStatus.getOdseActivityLogStatus().setLogType(edxActivityLogModel.getLogType());
-                    msgStatus.getOdseActivityLogStatus().setLogComment(edxActivityLogModel.getLogComment());
+                    for(EdxActivityLogModelView edxActivityLogModel:edxActivityStatusList){
+                        EdxActivityLogStatus edxActivityLogStatus=new EdxActivityLogStatus();
+                        edxActivityLogStatus.setRecordId(edxActivityLogModel.getRecordId());
+                        edxActivityLogStatus.setRecordType(edxActivityLogModel.getRecordType());
+                        edxActivityLogStatus.setLogType(edxActivityLogModel.getLogType());
+                        edxActivityLogStatus.setLogComment(edxActivityLogModel.getLogComment());
+                        msgStatus.getNbsIngestionInfo().add(edxActivityLogStatus);
+                    }
                 }
             }
         }

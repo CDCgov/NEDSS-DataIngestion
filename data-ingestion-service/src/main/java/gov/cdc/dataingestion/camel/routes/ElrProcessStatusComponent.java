@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class ElrProcessStatusComponent {
     private static Logger logger = LoggerFactory.getLogger(ElrProcessStatusComponent.class);
@@ -39,21 +41,25 @@ public class ElrProcessStatusComponent {
                 if (messageStatus.getNbsInfo().getNbsInterfaceStatus() != null && messageStatus.getNbsInfo().getNbsInterfaceStatus().equals(SUCCESS)) {
                     status = SUCCESS;
                 } else if (messageStatus.getNbsInfo().getNbsInterfaceStatus() != null && messageStatus.getNbsInfo().getNbsInterfaceStatus().equals(FAILURE)) {
-                    EdxActivityLogStatus edxActivityLogStatus = messageStatus.getOdseActivityLogStatus();
-                    status = "Status: Failure " + "\nRecord Id: " + edxActivityLogStatus.getRecordId()
-                            + " \nRecordType: " + edxActivityLogStatus.getRecordType() + " \nLog Type: "
-                            + edxActivityLogStatus.getLogType() + " \nLog Comment: " + edxActivityLogStatus.getLogComment()
-                            + " \n"+ELR_ID+":" + elrId;
+                    status = "Status: Failure ";
+                    String activityLog="";
+                    List<EdxActivityLogStatus> edxActivityLogList= messageStatus.getNbsIngestionInfo();
+                    for(EdxActivityLogStatus edxActivityLogStatus:edxActivityLogList){
+                        activityLog =activityLog+ "\n\nRecord Id: " + edxActivityLogStatus.getRecordId()
+                                + " \nRecordType: " + edxActivityLogStatus.getRecordType() + " \nLog Type: "
+                                + edxActivityLogStatus.getLogType() + " \nLog Comment: " + edxActivityLogStatus.getLogComment();
+                    }
+                    status=status+activityLog+ " \n\n"+ELR_ID+": " + elrId+" \n";;
                 } else if (messageStatus.getNbsInfo().getNbsInterfacePipeLineStatus() != null
                         && messageStatus.getNbsInfo().getNbsInterfacePipeLineStatus().equals(MSG_STATUS_FAILED)) {
                     status = STATUS_VALIDATION_ERROR+" \n"+ERROR_MESSAGE+": " + messageStatus.getValidatedInfo().getDltInfo().getDltShortTrace()
                             + " \n"+CREATED_ON+": " + messageStatus.getValidatedInfo().getDltInfo().getDltCreatedOn()
-                            + " \n"+ELR_ID+":" + elrId;
+                            + " \n"+ELR_ID+": " + elrId;
                 } else if (messageStatus.getValidatedInfo().getValidatedPipeLineStatus() != null
                         && messageStatus.getValidatedInfo().getValidatedPipeLineStatus().equals(MSG_STATUS_FAILED)) {
                     status = STATUS_VALIDATION_ERROR+" \n"+ERROR_MESSAGE+": " + messageStatus.getRawInfo().getDltInfo().getDltShortTrace()
                             + " \n"+CREATED_ON+": " + messageStatus.getRawInfo().getDltInfo().getDltCreatedOn()
-                            + " \n"+ELR_ID+":" + elrId;
+                            + " \n"+ELR_ID+": " + elrId;
                 } else {
                     status = body;
                 }

@@ -380,7 +380,7 @@ class ReportStatusServiceTest {
         assertEquals(nbsId, msgStatus.getNbsInfo().getNbsInterfaceId());
         assertNotNull( msgStatus.getNbsInfo().getNbsCreatedOn());
         assertNull( msgStatus.getNbsInfo().getDltInfo());
-        assertEquals("Test log type",msgStatus.getOdseActivityLogStatus().getLogType());
+        assertEquals("Test log type",msgStatus.getNbsIngestionInfo().get(0).getLogType());
     }
 
 }
