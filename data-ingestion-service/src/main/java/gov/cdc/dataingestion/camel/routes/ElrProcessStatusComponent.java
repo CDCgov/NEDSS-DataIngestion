@@ -41,15 +41,17 @@ public class ElrProcessStatusComponent {
                 if (messageStatus.getNbsInfo().getNbsInterfaceStatus() != null && messageStatus.getNbsInfo().getNbsInterfaceStatus().equals(SUCCESS)) {
                     status = SUCCESS;
                 } else if (messageStatus.getNbsInfo().getNbsInterfaceStatus() != null && messageStatus.getNbsInfo().getNbsInterfaceStatus().equals(FAILURE)) {
-                    status = "Status: Failure ";
-                    String activityLog="";
+                    StringBuilder activityLogSb = new StringBuilder();
+                    activityLogSb.append("Status: Failure ");
                     List<EdxActivityLogStatus> edxActivityLogList= messageStatus.getNbsIngestionInfo();
                     for(EdxActivityLogStatus edxActivityLogStatus:edxActivityLogList){
-                        activityLog =activityLog+ "\n\nRecord Id: " + edxActivityLogStatus.getRecordId()
+                        String activityLog ="\n\nRecord Id: " + edxActivityLogStatus.getRecordId()
                                 + " \nRecordType: " + edxActivityLogStatus.getRecordType() + " \nLog Type: "
                                 + edxActivityLogStatus.getLogType() + " \nLog Comment: " + edxActivityLogStatus.getLogComment();
+                        activityLogSb.append(activityLog);
                     }
-                    status=status+activityLog+ " \n\n"+ELR_ID+": " + elrId+" \n";;
+                    activityLogSb.append(" \n\n"+ELR_ID+": " + elrId+" \n");
+                    status=activityLogSb.toString();
                 } else if (messageStatus.getNbsInfo().getNbsInterfacePipeLineStatus() != null
                         && messageStatus.getNbsInfo().getNbsInterfacePipeLineStatus().equals(MSG_STATUS_FAILED)) {
                     status = STATUS_VALIDATION_ERROR+" \n"+ERROR_MESSAGE+": " + messageStatus.getValidatedInfo().getDltInfo().getDltShortTrace()
