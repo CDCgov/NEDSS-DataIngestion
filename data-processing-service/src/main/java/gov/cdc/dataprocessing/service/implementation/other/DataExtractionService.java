@@ -12,7 +12,7 @@ import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.service.interfaces.other.IDataExtractionService;
 import gov.cdc.dataprocessing.service.interfaces.stored_proc.IMsgOutEStoredProcService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
-import gov.cdc.dataprocessing.utilities.data_extraction.LabResultUtil;
+import gov.cdc.dataprocessing.utilities.component.data_parser.util.LabResultUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.HL7PatientHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.ORCHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.ObservationRequestHandler;
@@ -45,6 +45,7 @@ public class DataExtractionService implements IDataExtractionService {
     // this one will call out ro msgoute storedProc
     private final IMsgOutEStoredProcService msgOutEStoredProcService;
     private final ORCHandler orcHandler;
+    private final LabResultUtil labResultUtil;
     private final NbsInterfaceStoredProcRepository nbsInterfaceStoredProcRepository;
     public DataExtractionService (
             HL7PatientHandler hl7PatientHandler,
@@ -52,12 +53,13 @@ public class DataExtractionService implements IDataExtractionService {
             ObservationResultRequestHandler observationResultRequestHandler,
             IMsgOutEStoredProcService msgOutEStoredProcService,
             ORCHandler orcHandler,
-            NbsInterfaceStoredProcRepository nbsInterfaceStoredProcRepository) {
+            LabResultUtil labResultUtil, NbsInterfaceStoredProcRepository nbsInterfaceStoredProcRepository) {
         this.hl7PatientHandler = hl7PatientHandler;
         this.observationRequestHandler = observationRequestHandler;
         this.observationResultRequestHandler = observationResultRequestHandler;
         this.msgOutEStoredProcService = msgOutEStoredProcService;
         this.orcHandler = orcHandler;
+        this.labResultUtil = labResultUtil;
         this.nbsInterfaceStoredProcRepository = nbsInterfaceStoredProcRepository;
     }
 
@@ -92,12 +94,8 @@ public class DataExtractionService implements IDataExtractionService {
             HL7LabReportType hl7LabReportType = container.getHL7LabReport();
             HL7MSHType hl7MSHType = hl7LabReportType.getHL7MSH();
 
-            /**
-             * Paring MSH Value into Object
-             *  Sending Facility
-             *  Organization
-             * */
-            labResultProxyContainer = LabResultUtil.getLabResultMessage(hl7MSHType, edxLabInformationDto);
+
+            labResultProxyContainer = labResultUtil.getLabResultMessage(hl7MSHType, edxLabInformationDto);
             List<HL7PATIENTRESULTType> HL7PatientResultArray = hl7LabReportType.getHL7PATIENTRESULT();
             HL7PatientResultSPMType hl7PatientResultSPMType = null;
 

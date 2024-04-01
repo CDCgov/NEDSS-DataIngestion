@@ -5,7 +5,7 @@ import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 
 public interface IObservationService {
-    ObservationDto sendLabResultToProxy(LabResultProxyContainer labResultProxyContainer) throws DataProcessingException;
+    ObservationDto processingLabResultContainer(LabResultProxyContainer labResultProxyContainer) throws DataProcessingException;
     LabResultProxyContainer getObservationToLabResultContainer(Long observationUid) throws DataProcessingException;
 
 }

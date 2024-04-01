@@ -5,6 +5,7 @@ import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.exception.EdxLogException;
 import gov.cdc.dataprocessing.model.container.ObservationContainer;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
@@ -13,12 +14,14 @@ import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.NbsInterfaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.service.implementation.other.CheckingValueService;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
+import gov.cdc.dataprocessing.service.implementation.other.CachingValueService;
 import gov.cdc.dataprocessing.service.interfaces.auth.ISessionProfileService;
+import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
 import gov.cdc.dataprocessing.service.interfaces.other.IDataExtractionService;
 import gov.cdc.dataprocessing.service.interfaces.other.IHandleLabService;
 import gov.cdc.dataprocessing.service.interfaces.other.ILabProcessingService;
-import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaJurisdictionService;
+import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
@@ -38,7 +41,9 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
 
 import static gov.cdc.dataprocessing.constant.ManagerEvent.EVENT_ELR;
 @Service
@@ -50,7 +55,7 @@ public class ManagerService implements IManagerService {
     private final IObservationService observationService;
     private final IPersonService patientService;
     private final IOrganizationService organizationService;
-    private final IProgramAreaJurisdictionService programAreaJurisdictionService;
+    private final IProgramAreaService programAreaJurisdictionService;
     private final ILabProcessingService labProcessingService;
 
     private final IPublicHealthCaseService publicHealthCaseService;
@@ -62,7 +67,7 @@ public class ManagerService implements IManagerService {
 
     private final NbsInterfaceRepository nbsInterfaceRepository;
 
-    private final CheckingValueService checkingValueService;
+    private final ICatchingValueService cachingValueService;
 
     private final CacheManager cacheManager;
 
@@ -77,13 +82,13 @@ public class ManagerService implements IManagerService {
     public ManagerService(IObservationService observationService,
                           IPersonService patientService,
                           IOrganizationService organizationService,
-                          IProgramAreaJurisdictionService programAreaJurisdictionService,
+                          IProgramAreaService programAreaJurisdictionService,
                           ILabProcessingService labProcessingService,
                           IPublicHealthCaseService publicHealthCaseService,
                           IEdxLogService edxLogService, IHandleLabService handleLabService,
                           IDataExtractionService dataExtractionService,
                           NbsInterfaceRepository nbsInterfaceRepository,
-                          CheckingValueService checkingValueService,
+                          CachingValueService cachingValueService,
                           CacheManager cacheManager,
                           ISessionProfileService sessionProfileService,
                           IObservationMatchingService observationMatchingService,
@@ -99,7 +104,7 @@ public class ManagerService implements IManagerService {
         this.handleLabService = handleLabService;
         this.dataExtractionService = dataExtractionService;
         this.nbsInterfaceRepository = nbsInterfaceRepository;
-        this.checkingValueService = checkingValueService;
+        this.cachingValueService = cachingValueService;
         this.cacheManager = cacheManager;
         this.sessionProfileService = sessionProfileService;
         this.observationMatchingService = observationMatchingService;
@@ -109,7 +114,6 @@ public class ManagerService implements IManagerService {
 
     @Transactional
     public Object processDistribution(String eventType, String data) throws DataProcessingConsumerException {
-        //TODO: determine which flow the data will be going through
         Object result = new Object();
         AuthUser profile = sessionProfileService.getSessionProfile("data-processing");
         if (profile != null) {
@@ -175,7 +179,6 @@ public class ManagerService implements IManagerService {
     }
 
     private Object processingELR(String data) throws DataProcessingConsumerException {
-        //TODO logic to execute data here
         NbsInterfaceModel nbsInterfaceModel = null;
         Object result = new Object();
         try {
@@ -193,15 +196,248 @@ public class ManagerService implements IManagerService {
 
 
             //TODO: uncomment when debug
-//            nbsInterfaceModel = nbsInterfaceRepository.findById(Integer.valueOf(data)).get();
+//             nbsInterfaceModel = nbsInterfaceRepository.findById(Integer.valueOf(data)).get();
+//             nbsInterfaceModel.setObservationUid(null);
 
             edxLabInformationDto.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
+            //loadAndInitCachedValue();
+
+            CompletableFuture<Void> cacheLoadingFuture = loadAndInitCachedValueAsync();
+            cacheLoadingFuture.join();
 
 
-            checkingValueService.getAOELOINCCodes();
-            checkingValueService.getRaceCodes();
+            LabResultProxyContainer labResultProxyContainer = dataExtractionService.parsingDataToObject(nbsInterfaceModel, edxLabInformationDto);
+
+            edxLabInformationDto.setLabResultProxyContainer(labResultProxyContainer);
+
+            if(nbsInterfaceModel.getObservationUid() !=null && nbsInterfaceModel.getObservationUid()>0) {
+                edxLabInformationDto.setRootObserbationUid(nbsInterfaceModel.getObservationUid());
+            }
+            Long aPersonUid = null;
+
+            ObservationDto observationDto;
+
+            // Checking for matching observation
+            managerAggregationService.processingObservationMatching(edxLabInformationDto, labResultProxyContainer, aPersonUid);
 
 
+            // This process patient, provider, nok, and organization. Then it will update both parsedData and edxLabInformationDto accordingly
+            managerAggregationService.serviceAggregationAsync(labResultProxyContainer, edxLabInformationDto);
+
+
+            // Hit when Obs is matched
+            if(edxLabInformationDto.isLabIsUpdateDRRQ() || edxLabInformationDto.isLabIsUpdateDRSA())
+            {
+                managerUtil.setPersonUIDOnUpdate(aPersonUid, labResultProxyContainer);
+            }
+            edxLabInformationDto.setLabResultProxyContainer(labResultProxyContainer);
+
+            String nbsOperation = edxLabInformationDto.isLabIsCreate() ? "ADD" : "EDIT";
+
+            ObservationContainer orderTest = managerUtil.getObservationWithOrderDomainCode(labResultProxyContainer);
+
+            String programAreaCd = orderTest.getTheObservationDto().getProgAreaCd();
+            String jurisdictionCd = orderTest.getTheObservationDto().getJurisdictionCd();
+
+
+            observationDto = observationService.processingLabResultContainer(labResultProxyContainer);
+
+            if(edxLabInformationDto.isLabIsCreate()){
+                edxLabInformationDto.setLabIsCreateSuccess(true);
+                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_2);
+            }
+
+            edxLabInformationDto.setLocalId(observationDto.getLocalId());
+            edxLabInformationDto.getEdxActivityLogDto().setBusinessObjLocalId(observationDto.getLocalId());
+            edxLabInformationDto.setRootObserbationUid(observationDto.getObservationUid());
+
+            if (observationDto.getProgAreaCd() != null && SrteCache.programAreaCodesMap.containsKey(observationDto.getProgAreaCd())) {
+                edxLabInformationDto.setProgramAreaName(SrteCache.programAreaCodesMap.get(observationDto.getProgAreaCd()));
+            }
+
+            if(observationDto.getJurisdictionCd() != null && SrteCache.jurisdictionCodeMap.containsKey(observationDto.getJurisdictionCd())) {
+                String jurisdictionName = SrteCache.jurisdictionCodeMap.get(observationDto.getJurisdictionCd());
+                edxLabInformationDto.setJurisdictionName(jurisdictionName);
+            }
+
+
+            if(edxLabInformationDto.isLabIsCreateSuccess()&&(edxLabInformationDto.getProgramAreaName()==null
+                    || edxLabInformationDto.getJurisdictionName()==null))
+            {
+                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_1);
+            }
+
+
+
+            //TODO: Producing msg for Next Step
+            // kafkaManagerProducer.sendData(healthCaseTopic, data);
+
+
+
+            nbsInterfaceModel.setObservationUid(observationDto.getObservationUid().intValue());
+            nbsInterfaceModel.setRecordStatusCd("COMPLETED_V2");
+            nbsInterfaceRepository.save(nbsInterfaceModel);
+            System.out.println("DONE");
+            return result;
+        } catch (Exception e) {
+            if (nbsInterfaceModel != null) {
+                nbsInterfaceModel.setRecordStatusCd("FAILED_V2");
+                nbsInterfaceRepository.save(nbsInterfaceModel);
+                System.out.println("ERROR");
+            }
+
+            throw new DataProcessingConsumerException(e.getMessage(), result);
+
+        }
+    }
+
+    private void loadAndInitCachedValue() throws DataProcessingException {
+
+        if (SrteCache.loincCodesMap.isEmpty()) {
+            cachingValueService.getAOELOINCCodes();
+        }
+        if (SrteCache.raceCodesMap.isEmpty()) {
+            cachingValueService.getRaceCodes();
+        }
+        if (SrteCache.programAreaCodesMap.isEmpty()) {
+            cachingValueService.getAllProgramAreaCodes();
+        }
+        if (SrteCache.jurisdictionCodeMap.isEmpty()) {
+            cachingValueService.getAllJurisdictionCode();
+        }
+        if (SrteCache.jurisdictionCodeMapWithNbsUid.isEmpty()) {
+            cachingValueService.getAllJurisdictionCodeWithNbsUid();
+        }
+        if (SrteCache.programAreaCodesMapWithNbsUid.isEmpty()) {
+            cachingValueService.getAllProgramAreaCodesWithNbsUid();
+        }
+        if (SrteCache.elrXrefsList.isEmpty()) {
+            cachingValueService.getAllElrXref();
+        }
+
+
+        var cache = cacheManager.getCache("srte");
+        if (cache != null) {
+            Cache.ValueWrapper valueWrapper;
+            valueWrapper = cache.get("loincCodes");
+            if (valueWrapper != null) {
+                Object cachedObject = valueWrapper.get();
+                if (cachedObject instanceof TreeMap) {
+                    SrteCache.loincCodesMap = (TreeMap<String, String>) cachedObject;
+                }
+            }
+
+            valueWrapper = cache.get("raceCodes");
+            if (valueWrapper != null) {
+                Object cachedObject = valueWrapper.get();
+                if (cachedObject instanceof TreeMap) {
+                    SrteCache.raceCodesMap = (TreeMap<String, String>) cachedObject;
+                }
+            }
+
+            valueWrapper = cache.get("programAreaCodes");
+            if (valueWrapper != null) {
+                Object cachedObject = valueWrapper.get();
+                if (cachedObject instanceof TreeMap) {
+                    SrteCache.programAreaCodesMap = (TreeMap<String, String>) cachedObject;
+                }
+            }
+
+            valueWrapper = cache.get("jurisdictionCode");
+            if (valueWrapper != null) {
+                Object cachedObject = valueWrapper.get();
+                if (cachedObject instanceof TreeMap) {
+                    SrteCache.jurisdictionCodeMap = (TreeMap<String, String>) cachedObject;
+                }
+            }
+
+            valueWrapper = cache.get("programAreaCodesWithNbsUid");
+            if (valueWrapper != null) {
+                Object cachedObject = valueWrapper.get();
+                if (cachedObject instanceof TreeMap) {
+                    SrteCache.programAreaCodesMapWithNbsUid = (TreeMap<String, Integer>) cachedObject;
+                }
+            }
+
+            valueWrapper = cache.get("jurisdictionCodeWithNbsUid");
+            if (valueWrapper != null) {
+                Object cachedObject = valueWrapper.get();
+                if (cachedObject instanceof TreeMap) {
+                    SrteCache.jurisdictionCodeMapWithNbsUid = (TreeMap<String, Integer>) cachedObject;
+                }
+            }
+
+            valueWrapper = cache.get("elrXref");
+            if (valueWrapper != null) {
+                Object cachedObject = valueWrapper.get();
+                if (cachedObject instanceof TreeMap) {
+                    SrteCache.elrXrefsList = (List<ElrXref>) cachedObject;
+                }
+            }
+        }
+    }
+
+
+
+    private CompletableFuture<Void> loadAndInitCachedValueAsync() {
+        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+            if (SrteCache.loincCodesMap.isEmpty()) {
+                try {
+                    cachingValueService.getAOELOINCCodes();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
+            if (SrteCache.raceCodesMap.isEmpty()) {
+                try {
+                    cachingValueService.getRaceCodes();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
+            if (SrteCache.programAreaCodesMap.isEmpty()) {
+                try {
+                    cachingValueService.getAllProgramAreaCodes();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
+            if (SrteCache.jurisdictionCodeMap.isEmpty()) {
+                try {
+                    cachingValueService.getAllJurisdictionCode();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
+            if (SrteCache.jurisdictionCodeMapWithNbsUid.isEmpty()) {
+                try {
+                    cachingValueService.getAllJurisdictionCodeWithNbsUid();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
+            if (SrteCache.programAreaCodesMapWithNbsUid.isEmpty()) {
+                try {
+                    cachingValueService.getAllProgramAreaCodesWithNbsUid();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
+            if (SrteCache.elrXrefsList.isEmpty()) {
+                try {
+                    cachingValueService.getAllElrXref();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
+            // Retrieve cached values using Cache.ValueWrapper
             var cache = cacheManager.getCache("srte");
             if (cache != null) {
                 Cache.ValueWrapper valueWrapper;
@@ -220,99 +456,51 @@ public class ManagerService implements IManagerService {
                         SrteCache.raceCodesMap = (TreeMap<String, String>) cachedObject;
                     }
                 }
+
+                valueWrapper = cache.get("programAreaCodes");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof TreeMap) {
+                        SrteCache.programAreaCodesMap = (TreeMap<String, String>) cachedObject;
+                    }
+                }
+
+                valueWrapper = cache.get("jurisdictionCode");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof TreeMap) {
+                        SrteCache.jurisdictionCodeMap = (TreeMap<String, String>) cachedObject;
+                    }
+                }
+
+                valueWrapper = cache.get("programAreaCodesWithNbsUid");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof TreeMap) {
+                        SrteCache.programAreaCodesMapWithNbsUid = (TreeMap<String, Integer>) cachedObject;
+                    }
+                }
+
+                valueWrapper = cache.get("jurisdictionCodeWithNbsUid");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof TreeMap) {
+                        SrteCache.jurisdictionCodeMapWithNbsUid = (TreeMap<String, Integer>) cachedObject;
+                    }
+                }
+
+                valueWrapper = cache.get("elrXref");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof List) {
+                        SrteCache.elrXrefsList = (List<ElrXref>) cachedObject;
+                    }
+                }
             }
-            //TODO: Parsing Data to Object
-            LabResultProxyContainer parsedData = dataExtractionService.parsingDataToObject(nbsInterfaceModel, edxLabInformationDto);
+        });
 
-            edxLabInformationDto.setLabResultProxyContainer(parsedData);
-
-            if(nbsInterfaceModel.getObservationUid() !=null && nbsInterfaceModel.getObservationUid()>0) {
-                edxLabInformationDto.setRootObserbationUid(nbsInterfaceModel.getObservationUid());
-            }
-            Long aPersonUid = null;
-
-            ObservationDto observationDto;
-
-            // Checking for matching observation
-            managerAggregationService.processingObservationMatching(edxLabInformationDto, parsedData, aPersonUid);
-
-
-            // This process patient, provider, nok, and organization. Then it will update both parsedData and edxLabInformationDto accordingly
-            managerAggregationService.serviceAggregationAsync(parsedData, edxLabInformationDto);
-
-
-            //TODO: VERIFY THIS BLOCK
-            // Hit when Obs is matched
-            if(edxLabInformationDto.isLabIsUpdateDRRQ() || edxLabInformationDto.isLabIsUpdateDRSA())
-            {
-                managerUtil.setPersonUIDOnUpdate(aPersonUid, parsedData);
-            }
-            edxLabInformationDto.setLabResultProxyContainer(parsedData);
-
-            String nbsOperation = edxLabInformationDto.isLabIsCreate() ? "ADD" : "EDIT";
-
-            ObservationContainer orderTest = managerUtil.getObservationWithOrderDomainCode(parsedData);
-
-            String programAreaCd = orderTest.getTheObservationDto().getProgAreaCd();
-            String jurisdictionCd = orderTest.getTheObservationDto().getJurisdictionCd();
-
-            //TODO: PROGRAM AREA
-            var programArea = programAreaJurisdictionService.processingProgramArea();
-            var jurisdiction = programAreaJurisdictionService.processingJurisdiction();
-
-            //TODO: EVALUATE LAB PROCESSING
-            observationDto = observationService.sendLabResultToProxy(parsedData);
-
-            if(edxLabInformationDto.isLabIsCreate()){
-                edxLabInformationDto.setLabIsCreateSuccess(true);
-                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_2);
-            }
-
-            edxLabInformationDto.setLocalId(observationDto.getLocalId());
-            edxLabInformationDto.getEdxActivityLogDto().setBusinessObjLocalId(observationDto.getLocalId());
-            edxLabInformationDto.setRootObserbationUid(observationDto.getObservationUid());
-
-            //TODO: CACHING
-            // edxLabInformationDto.setProgramAreaName(CachedDropDowns.getProgAreadDesc(observationDto.getProgAreaCd()));
-            // String jurisdictionName = CachedDropDowns.getJurisdictionDesc(observationDto.getJurisdictionCd());
-            // edxLabInformationDto.setJurisdictionName(jurisdictionName);
-
-            if(edxLabInformationDto.isLabIsCreateSuccess()&&(edxLabInformationDto.getProgramAreaName()==null
-                    || edxLabInformationDto.getJurisdictionName()==null))
-            {
-                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_1);
-            }
-
-
-
-            //TODO: Producing msg for Next Step
-            // kafkaManagerProducer.sendData(healthCaseTopic, data);
-
-
-
-            //TODO: Uncomment this after debugging
-            // NOTE: Test updating NBS_Interface
-
-            nbsInterfaceModel.setObservationUid(observationDto.getObservationUid().intValue());
-            nbsInterfaceModel.setRecordStatusCd("COMPLETED_V2");
-            nbsInterfaceRepository.save(nbsInterfaceModel);
-            System.out.println("DONE");
-            return result;
-        } catch (Exception e) {
-            if (nbsInterfaceModel != null) {
-                //TODO: Uncomment this after debuggging
-                nbsInterfaceModel.setRecordStatusCd("FAILED_V2");
-                nbsInterfaceRepository.save(nbsInterfaceModel);
-                System.out.println("ERROR");
-            }
-
-            throw new DataProcessingConsumerException(e.getMessage(), result);
-
-        }
+        return future;
     }
-
-
-
 
 
 }

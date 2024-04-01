@@ -4,29 +4,36 @@ import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
+import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
+import gov.cdc.dataprocessing.service.implementation.jurisdiction.JurisdictionService;
+import gov.cdc.dataprocessing.service.implementation.jurisdiction.ProgramAreaService;
 import gov.cdc.dataprocessing.service.implementation.observation.ObservationService;
 import gov.cdc.dataprocessing.service.implementation.organization.OrganizationService;
 import gov.cdc.dataprocessing.service.implementation.person.PersonService;
 import gov.cdc.dataprocessing.service.implementation.observation.ObservationMatchingService;
 import gov.cdc.dataprocessing.service.implementation.other.UidService;
+import gov.cdc.dataprocessing.service.implementation.role.RoleService;
+import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
+import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
 import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService;
 import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationService;
 import gov.cdc.dataprocessing.service.interfaces.person.IPersonService;
+import gov.cdc.dataprocessing.service.interfaces.role.IRoleService;
 import gov.cdc.dataprocessing.service.model.PersonAggContainer;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.ManagerUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -40,19 +47,28 @@ public class ManagerAggregationService implements IManagerAggregationService {
     IUidService uidService;
     IObservationService observationService;
     IObservationMatchingService observationMatchingService;
+    IProgramAreaService programAreaService;
+    IJurisdictionService jurisdictionService;
+    IRoleService roleService;
 
     public ManagerAggregationService(ManagerUtil managerUtil,
                                      OrganizationService organizationService,
                                      PersonService patientService,
                                      UidService uidService,
                                      ObservationService observationService,
-                                     ObservationMatchingService observationMatchingService) {
+                                     ObservationMatchingService observationMatchingService,
+                                     ProgramAreaService programAreaService,
+                                     JurisdictionService jurisdictionService,
+                                     RoleService roleService) {
         this.managerUtil = managerUtil;
         this.organizationService = organizationService;
         this.patientService = patientService;
         this.uidService = uidService;
         this.observationService = observationService;
         this.observationMatchingService = observationMatchingService;
+        this.programAreaService = programAreaService;
+        this.jurisdictionService = jurisdictionService;
+        this.roleService = roleService;
     }
 
     public void processingObservationMatching(EdxLabInformationDto edxLabInformationDto,
@@ -64,8 +80,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
             LabResultProxyContainer matchedlabResultProxyVO = observationService.getObservationToLabResultContainer(observationDto.getObservationUid());
             observationMatchingService.processMatchedProxyVO(labResultProxyContainer, matchedlabResultProxyVO, edxLabInformationDto );
 
-            //TODO: CHECK THIS OUT
-            aPersonUid = patientService.getMatchedPersonUID(matchedlabResultProxyVO);
+            patientService.getMatchedPersonUID(matchedlabResultProxyVO);
             patientService.updatePersonELRUpdate(labResultProxyContainer, matchedlabResultProxyVO);
 
             edxLabInformationDto.setRootObserbationUid(observationDto.getObservationUid());
@@ -96,27 +111,30 @@ public class ManagerAggregationService implements IManagerAggregationService {
     }
 
 
-    public void serviceAggregationAsync(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws DataProcessingConsumerException,
+    public void serviceAggregationAsync(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws
             DataProcessingException {
+        PersonAggContainer personAggContainer;
+        OrganizationContainer organizationContainer;
         Collection<ObservationContainer> observationContainerCollection = labResult.getTheObservationContainerCollection();
         Collection<PersonContainer> personContainerCollection = labResult.getThePersonContainerCollection();
 
         CompletableFuture<Void> observationFuture = CompletableFuture.runAsync(() ->
-                observationAggregation(labResult, edxLabInformationDto, observationContainerCollection));
+                observationAggregation(labResult, edxLabInformationDto, observationContainerCollection)
+        );
 
-        CompletableFuture<Void> patientFuture = CompletableFuture.runAsync(() ->
+        CompletableFuture<PersonAggContainer> patientFuture = CompletableFuture.supplyAsync(() ->
         {
             try {
-                patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
+                return patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
             } catch (DataProcessingConsumerException | DataProcessingException e) {
                 throw new RuntimeException(e);
             }
         });
 
-        CompletableFuture<Void> organizationFuture = CompletableFuture.runAsync(() ->
+        CompletableFuture<OrganizationContainer> organizationFuture = CompletableFuture.supplyAsync(() ->
         {
             try {
-                organizationService.processingOrganization(labResult);
+               return organizationService.processingOrganization(labResult);
             } catch (DataProcessingConsumerException e) {
                 throw new RuntimeException(e);
             }
@@ -130,6 +148,224 @@ public class ManagerAggregationService implements IManagerAggregationService {
         } catch (InterruptedException | ExecutionException e) {
             throw new DataProcessingException("Failed to execute tasks", e);
         }
+
+        // Get the results from CompletableFuture
+        try {
+            personAggContainer = patientFuture.get();
+            organizationContainer = organizationFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new DataProcessingException("Failed to get results", e);
+        }
+
+        roleAggregation(labResult);
+
+        //progAndJurisdictionAggregationAsync( labResult,  edxLabInformationDto,  personAggContainer, organizationContainer);
+        CompletableFuture<Void> progAndJurisdictionFuture = progAndJurisdictionAggregationAsync(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
+        try {
+            progAndJurisdictionFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new DataProcessingException("Failed to execute progAndJurisdictionAggregationAsync", e);
+        }
+    }
+
+
+    /**
+     * Description: propagating program area and jurisdiction.
+     * */
+    private void progAndJurisdictionAggregation(LabResultProxyContainer labResult,
+                                                EdxLabInformationDto edxLabInformationDto,
+                                                PersonAggContainer personAggContainer,
+                                                OrganizationContainer organizationContainer) throws DataProcessingException {
+        // Pulling Jurisdiction and Program from OBS
+        ObservationContainer observationRequest = null;
+        Collection<ObservationContainer> observationResults = new ArrayList<>();
+        for (ObservationContainer obsVO : labResult.getTheObservationContainerCollection()) {
+            String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
+
+            // Observation  hit this is originated from Observation Result
+            if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_RESULT_CD)) {
+                observationResults.add(obsVO);
+            }
+
+            // Observation hit is originated from Observation Request (ROOT)
+            else if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD))
+            {
+                observationRequest = obsVO;
+            }
+        }
+
+        if(observationRequest.getTheObservationDto().getProgAreaCd()==null)
+        {
+            programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
+        }
+
+        if(observationRequest.getTheObservationDto().getJurisdictionCd()==null)
+        {
+            jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
+                    organizationContainer, observationRequest);
+        }
+    }
+
+
+    private CompletableFuture<Void> progAndJurisdictionAggregationAsync(LabResultProxyContainer labResult,
+                                                                        EdxLabInformationDto edxLabInformationDto,
+                                                                        PersonAggContainer personAggContainer,
+                                                                        OrganizationContainer organizationContainer) {
+        return CompletableFuture.runAsync(() -> {
+            // Pulling Jurisdiction and Program from OBS
+            ObservationContainer observationRequest = null;
+            Collection<ObservationContainer> observationResults = new ArrayList<>();
+            for (ObservationContainer obsVO : labResult.getTheObservationContainerCollection()) {
+                String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
+
+                // Observation hit this is originated from Observation Result
+                if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_RESULT_CD)) {
+                    observationResults.add(obsVO);
+                }
+
+                // Observation hit is originated from Observation Request (ROOT)
+                else if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)) {
+                    observationRequest = obsVO;
+                }
+            }
+
+            if (observationRequest.getTheObservationDto().getProgAreaCd() == null) {
+                try {
+                    programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            if (observationRequest.getTheObservationDto().getJurisdictionCd() == null) {
+                try {
+                    jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
+                            organizationContainer, observationRequest);
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
+
+    private void roleAggregation(LabResultProxyContainer labResult) {
+        /**
+         *Roles must be checked for NEW, UPDATED, MARK FOR DELETE buckets.
+         */
+
+        Map<Object, RoleDto> mappedExistingRoleCollection  = new HashMap<>();
+        Map<Object, RoleDto> mappedNewRoleCollection  = new HashMap<>();
+        if(labResult.getTheRoleDtoCollection()!=null){
+
+            Collection<RoleDto> coll=labResult.getTheRoleDtoCollection();
+            if(!coll.isEmpty())
+            {
+                for (RoleDto roleDT : coll) {
+                    if (roleDT.isItDelete()) {
+                        mappedExistingRoleCollection.put(roleDT.getSubjectEntityUid() + roleDT.getCd() + roleDT.getScopingEntityUid(), roleDT);
+                    } else {
+                        mappedNewRoleCollection.put(roleDT.getSubjectEntityUid() + roleDT.getCd() + roleDT.getScopingEntityUid(), roleDT);
+                    }
+
+                }
+            }
+        }
+        ArrayList<Object> list = new ArrayList<>();
+
+        //update scenario
+        if(!mappedNewRoleCollection.isEmpty()){
+            Set<Object> set = mappedNewRoleCollection.keySet();
+            for (Object o : set) {
+                String key = (String) o;
+                if (mappedExistingRoleCollection.containsKey(key)) {
+                    //Do not delete/modify the role as it exists in both updated and old ELR
+                    // UPDATE Role bucket
+                    mappedExistingRoleCollection.remove(key);
+
+
+                } else {
+                    //insert Role as it is new in new/updated ELR
+                    //NEW role Bucket
+                    RoleDto roleDT = mappedNewRoleCollection.get(key);
+                    list.add(roleDT);
+                }
+
+            }
+
+            //will add all roles that are part of the old collection but are not contained in the new collection
+            // MARK FOR DELETE Role bucket
+            list.addAll(mappedExistingRoleCollection.values());
+        }
+
+
+        Map<Object, RoleDto> modifiedRoleMap = new HashMap<>();
+        ArrayList<RoleDto> listFinal = new ArrayList<>();
+        if(!list.isEmpty()){
+            for (Object o : list) {
+                RoleDto roleDT = (RoleDto) o;
+                if (roleDT.isItDelete()) {
+                    listFinal.add(roleDT);
+                    //We have already taken care of the deduplication of role in the above code
+                    continue;
+                }
+                //We will write the role if there are no existing role relationships.
+                if (roleDT.getScopingEntityUid() == null)
+                {
+                    Long count = 0L;
+                    count = roleService.loadCountBySubjectCdComb(roleDT).longValue();
+                    if (count == 0) {
+                        roleDT.setRoleSeq(count + 1);
+                        modifiedRoleMap.put(roleDT.getSubjectEntityUid() + roleDT.getRoleSeq() + roleDT.getCd(), roleDT);
+                    }
+
+                }
+                else
+                {
+                    int checkIfExisits = 0;
+                    checkIfExisits = roleService.loadCountBySubjectScpingCdComb(roleDT);
+
+                    if (checkIfExisits == 0) {
+                        long countForPKValues = 0;
+                        countForPKValues = roleService.loadCountBySubjectCdComb(roleDT);
+                        //We will write the role relationship for follwoing provider in scope of ELR patient
+                        if (countForPKValues == 0
+                                || (
+                                roleDT.getCd() != null
+                                        && (
+                                        roleDT.getCd().equals(EdxELRConstant.ELR_SPECIMEN_PROCURER_CD)
+                                                || roleDT.getCd().equals(EdxELRConstant.ELR_COPY_TO_CD)
+                                                || roleDT.getSubjectClassCd().equals(EdxELRConstant.ELR_CON)
+                                )
+                        )
+                        ) {
+
+                            if (roleDT.getRoleSeq() != null && roleDT.getRoleSeq().intValue() == 2
+                                    && roleDT.getSubjectClassCd().equals(EdxELRConstant.ELR_MAT_CD)
+                                    && roleDT.getScopingRoleCd().equals(EdxELRConstant.ELR_SPECIMEN_PROCURER_CD)
+                            ) {
+                                //Material is a special as provider to material is created with role sequence 2
+                            } else {
+                                roleDT.setRoleSeq(countForPKValues + 1);
+                            }
+                            modifiedRoleMap.put(roleDT.getSubjectEntityUid() + roleDT.getRoleSeq() + roleDT.getCd() + roleDT.getScopingEntityUid(), roleDT);
+
+                        }
+                    }
+
+                }
+            }
+
+            if(!modifiedRoleMap.isEmpty()){
+                Collection<RoleDto> roleCollection = modifiedRoleMap.values();
+                listFinal.addAll(roleCollection);
+            }
+
+            labResult.setTheRoleDtoCollection(listFinal);
+
+        }
+
+
     }
 
 

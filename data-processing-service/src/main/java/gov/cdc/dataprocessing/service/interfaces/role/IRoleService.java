@@ -9,4 +9,6 @@ public interface IRoleService {
     Collection<RoleDto> findRoleScopedToPatient(Long uid);
     void saveRole(RoleDto roleDto);
     void storeRoleDTCollection(Collection<RoleDto> roleDTColl) throws DataProcessingException;
+    Integer loadCountBySubjectCdComb(RoleDto roleDto);
+    Integer loadCountBySubjectScpingCdComb(RoleDto roleDto);
 }

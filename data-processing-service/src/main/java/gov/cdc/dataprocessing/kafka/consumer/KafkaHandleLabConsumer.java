@@ -31,7 +31,6 @@ public class KafkaHandleLabConsumer {
     public void handleMessage(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)
             throws DataProcessingConsumerException {
-        //TODO: Logic to handle goes here
         Object result = new Object();
         try {
             result = managerService.processingHandleLab("data");

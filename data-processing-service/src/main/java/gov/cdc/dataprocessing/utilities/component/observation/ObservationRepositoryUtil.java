@@ -257,14 +257,38 @@ public class ObservationRepositoryUtil {
             observationContainer.getTheObservationDto().setItDirty(false);
         }
 
-        updateObservationReason(uid, observationContainer.getTheObservationReasonDtoCollection());
-        addActivityId(uid, observationContainer.getTheActIdDtoCollection(), true);
-        updateObservationInterps(uid, observationContainer.getTheObservationInterpDtoCollection());
-        updateObsValueCoded(uid, observationContainer.getTheObsValueCodedDtoCollection());
-        updateObsValueTxts(uid, observationContainer.getTheObsValueTxtDtoCollection());
-        updateObsValueDates(uid, observationContainer.getTheObsValueDateDtoCollection());
-        updateObsValueNumerics(uid, observationContainer.getTheObsValueNumericDtoCollection());
-        addActivityLocatorParticipations(uid, observationContainer.getTheActivityLocatorParticipationDtoCollection());
+        if (observationContainer.getTheObservationReasonDtoCollection() != null) {
+            updateObservationReason(uid, observationContainer.getTheObservationReasonDtoCollection());
+        }
+
+        if (observationContainer.getTheActIdDtoCollection() != null) {
+            addActivityId(uid, observationContainer.getTheActIdDtoCollection(), true);
+        }
+
+        if (observationContainer.getTheObservationInterpDtoCollection() != null) {
+            updateObservationInterps(uid, observationContainer.getTheObservationInterpDtoCollection());
+        }
+
+        if (observationContainer.getTheObsValueCodedDtoCollection() != null) {
+            updateObsValueCoded(uid, observationContainer.getTheObsValueCodedDtoCollection());
+        }
+
+        if (observationContainer.getTheObsValueTxtDtoCollection() != null) {
+            updateObsValueTxts(uid, observationContainer.getTheObsValueTxtDtoCollection());
+        }
+
+        if (observationContainer.getTheObsValueDateDtoCollection() != null) {
+            updateObsValueDates(uid, observationContainer.getTheObsValueDateDtoCollection());
+        }
+
+        if (observationContainer.getTheObsValueNumericDtoCollection() != null) {
+            updateObsValueNumerics(uid, observationContainer.getTheObsValueNumericDtoCollection());
+        }
+
+        if (observationContainer.getTheActivityLocatorParticipationDtoCollection() != null) {
+            addActivityLocatorParticipations(uid, observationContainer.getTheActivityLocatorParticipationDtoCollection());
+        }
+
         return uid;
     }
 
@@ -503,11 +527,10 @@ public class ObservationRepositoryUtil {
 
             actRepository.save(act);
 
-            //TODO EVALUATE
-            // Local uid
-            observationDto.setSharedInd("T");
             Observation observation = new Observation(observationDto);
             observation.setVersionCtrlNbr(1);
+            //Shared Ind is not Null, existing data are set to T hence set it as T here
+            observation.setSharedInd("T");
             observation.setLocalId(uid.getUidPrefixCd() + uid.getSeedValueNbr() + uid.getUidSuffixCd());
             observation.setObservationUid(uid.getSeedValueNbr());
 

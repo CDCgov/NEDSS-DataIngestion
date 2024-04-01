@@ -43,7 +43,7 @@ public class ORCHandler {
             getOrderingFacility(hl7ORCType, labResultProxyContainer, edxLabInformationDto);
             if (hl7ORCType.getOrderEffectiveDateTime() != null) {
                 edxLabInformationDto.setOrderEffectiveDate(
-                        NBSObjectConverter.processHL7TSType(
+                        nbsObjectConverter.processHL7TSType(
                                 hl7ORCType.getOrderEffectiveDateTime(), EdxELRConstant.DATE_VALIDATION_ORC_ORDER_EFFECTIVE_TIME_MSG));
             }
         } catch (Exception e) {
@@ -119,7 +119,7 @@ public class ORCHandler {
                 participationDto.setAddUserId(AuthUtil.authUser.getAuthUserUid());
                 participationDto.setActUid(edxLabInformationDto.getRootObserbationUid());
                 participationDto.setTypeCd(EdxELRConstant.ELR_ORDERER_CD);
-                NBSObjectConverter.defaultParticipationDT(participationDto, edxLabInformationDto);
+                nbsObjectConverter.defaultParticipationDT(participationDto, edxLabInformationDto);
                 participationDto.setTypeDescTxt(EdxELRConstant.ELR_ORDERER_DESC);
                 participationDto.setSubjectClassCd(EdxELRConstant.ELR_ORG);
                 participationDto.setSubjectEntityUid(organizationDto.getOrganizationUid());
@@ -157,7 +157,7 @@ public class ORCHandler {
                 if (!phoneArray.isEmpty()) {
                     HL7XTNType phone = phoneArray.get(0);
                     if (phone != null) {
-                        EntityLocatorParticipationDto elpdt = NBSObjectConverter.orgTelePhoneType(phone, EdxELRConstant.ELR_OP_CD, organizationContainer);
+                        EntityLocatorParticipationDto elpdt = nbsObjectConverter.orgTelePhoneType(phone, EdxELRConstant.ELR_OP_CD, organizationContainer);
                         elpdt.setUseCd(EdxELRConstant.ELR_WORKPLACE_CD);
                         organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(elpdt);
                     }

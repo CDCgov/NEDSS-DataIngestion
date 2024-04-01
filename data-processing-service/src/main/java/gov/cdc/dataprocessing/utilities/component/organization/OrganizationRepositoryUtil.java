@@ -115,8 +115,7 @@ public class OrganizationRepositoryUtil {
         Long organizationUid = 121212L;
         long oldOrgUid = organizationContainer.getTheOrganizationDto().getOrganizationUid();
         try {
-            //TODO: Implement unique id generator here
-            String localUid = "Unique Id here";
+            String localUid = "";
             LocalUidGenerator localIdModel = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION);
             organizationUid = localIdModel.getSeedValueNbr();
             System.out.println("createOrganization organizationUid SeedValueNbr:" + organizationUid);
@@ -238,9 +237,7 @@ public class OrganizationRepositoryUtil {
             /**
              * Inserts into entity table for organization
              */
-            //uidGen = new UidGeneratorHelper();//TODO
-            // new Organization Uid
-            //uidGen.getNbsIDLong(UidClassCodes.NBS_CLASS_CODE);//TODO
+
             organizationUid = organizationDto.getOrganizationUid();
             System.out.println("-----insertOrganization organizationUid:" + organizationUid);
             EntityODSE entityModel = new EntityODSE();
@@ -398,12 +395,20 @@ public class OrganizationRepositoryUtil {
                 return organizationContainer.getTheOrganizationDto()
                         .getOrganizationUid();
             } else {
-                //TODO Check the following commented to code again whether it to be implemented.
+                Integer existVer = null;
+                if (organizationContainer.getTheOrganizationDto().getOrganizationUid() > 0) {
+                    var existObs = loadObject(organizationContainer.getTheOrganizationDto().getOrganizationUid(), null);
+                    if (existObs != null && existObs.getTheOrganizationDto() != null) {
+                        existVer = existObs.getTheOrganizationDto().getVersionCtrlNbr();
+                    }
+                }
                 OrganizationDto newOrganizationDto = (OrganizationDto) prepareAssocModelHelper
                         .prepareVO(organizationContainer.getTheOrganizationDto(),
                                 "ORGANIZATION", businessTriggerCd,
                                 "ORGANIZATION",
-                                NEDSSConstant.BASE);
+                                NEDSSConstant.BASE,
+                                existVer
+                        );
                 organizationContainer.setTheOrganizationDto(newOrganizationDto);
 
                 prepareVO(organizationContainer.getTheOrganizationDto(), businessTriggerCd,
@@ -470,13 +475,8 @@ public class OrganizationRepositoryUtil {
                 }
             }
         } catch (Exception e) {
-            if (e.toString().indexOf("NEDSSConcurrentDataException") != -1) {
-                logger.error("EntityControllerEJB.setOrganizationInternal: NEDSSConcurrentDataException: " + e.getMessage(), e);
-                throw new DataProcessingException(e.getMessage(), e);
-            } else {
-                logger.error("EntityControllerEJB.setOrganizationInternal: Exception: " + e.getMessage(), e);
-                throw new DataProcessingException(e.getMessage(), e);
-            }
+            throw new DataProcessingException(e.getMessage(), e);
+
         }
 
         logger.debug("EntityControllerEJB.setOrganization - ouid  =  "
@@ -558,10 +558,12 @@ public class OrganizationRepositoryUtil {
         Collection<RoleDto> roleColl = selectRoleDTCollection(organizationUID);
         ovo.setTheRoleDTCollection(roleColl);
 
-        //SelectsParticipationDTCollection
-        Collection<ParticipationDto> parColl = selectParticipationDTCollection(organizationUID, actUid);
 
-        ovo.setTheParticipationDtoCollection(parColl);
+        if (actUid != null) {
+            //SelectsParticipationDTCollection
+            Collection<ParticipationDto> parColl = selectParticipationDTCollection(organizationUID, actUid);
+            ovo.setTheParticipationDtoCollection(parColl);
+        }
 
 
         ovo.setItNew(false);
@@ -580,8 +582,6 @@ public class OrganizationRepositoryUtil {
             organizationDto.setItNew(false);
             organizationDto.setItDirty(false);
         } catch (Exception ex) {
-            logger.error("Exception while selecting " +
-                    "organization vo; id = " + organizationUID, ex);
             throw new DataProcessingException(ex.toString());
         }
         logger.debug("return organization object");

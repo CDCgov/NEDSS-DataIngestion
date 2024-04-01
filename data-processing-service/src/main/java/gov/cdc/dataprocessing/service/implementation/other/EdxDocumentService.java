@@ -39,13 +39,8 @@ public class EdxDocumentService implements IEdxDocumentService {
 
     @Transactional
     public EDXDocumentDto saveEdxDocument(EDXDocumentDto edxDocumentDto) throws DataProcessingException {
-        try {
-            EdxDocument data = new EdxDocument(edxDocumentDto);
-            var res = edxDocumentRepository.save(data);
-            return new EDXDocumentDto(res);
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
-
+        EdxDocument data = new EdxDocument(edxDocumentDto);
+        var res = edxDocumentRepository.save(data);
+        return new EDXDocumentDto(res);
     }
 }
