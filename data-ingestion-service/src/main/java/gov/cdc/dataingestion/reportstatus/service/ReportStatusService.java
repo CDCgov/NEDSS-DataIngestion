@@ -1,13 +1,14 @@
 package gov.cdc.dataingestion.reportstatus.service;
 
-import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
-import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
+import gov.cdc.dataingestion.odse.repository.IEdxActivityLogRepository;
+import gov.cdc.dataingestion.odse.repository.model.EdxActivityLogModelView;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.reportstatus.model.DltMessageStatus;
+import gov.cdc.dataingestion.reportstatus.model.EdxActivityLogStatus;
 import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
@@ -15,6 +16,7 @@ import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,6 +27,7 @@ public class ReportStatusService {
     private final IRawELRRepository iRawELRRepository;
     private final IValidatedELRRepository iValidatedELRRepository;
     private final IElrDeadLetterRepository iElrDeadLetterRepository;
+    private final IEdxActivityLogRepository iEdxActivityLogRepository;
     private static final String MSG_STATUS_SUCCESS = "COMPLETED";
     private static final String MSG_STATUS_FAILED = "FAILED";
     private static final String MSG_STATUS_PROGRESS = "IN PROGRESS";
@@ -35,12 +38,14 @@ public class ReportStatusService {
                                NbsInterfaceRepository nbsInterfaceRepository,
                                IRawELRRepository iRawELRRepository,
                                IValidatedELRRepository iValidatedELRRepository,
-                               IElrDeadLetterRepository iElrDeadLetterRepository) {
+                               IElrDeadLetterRepository iElrDeadLetterRepository,
+                               IEdxActivityLogRepository iEdxActivityLogRepository) {
         this.iReportStatusRepository = iReportStatusRepository;
         this.nbsInterfaceRepository = nbsInterfaceRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iElrDeadLetterRepository = iElrDeadLetterRepository;
+        this.iEdxActivityLogRepository=iEdxActivityLogRepository;
     }
 
     public MessageStatus getMessageStatus(String rawMessageID) {
@@ -66,8 +71,28 @@ public class ReportStatusService {
             else {
                 setDltInfo(rawMessageID, msgStatus, DLT_ORIGIN_RAW);
             }
+            if(msgStatus.getNbsInfo().getNbsInterfaceStatus() !=null) {
+                List<EdxActivityLogModelView> edxActivityStatusList = iEdxActivityLogRepository.
+                        getEdxActivityLogDetailsBySourceId(Long.valueOf(msgStatus.getNbsInfo().getNbsInterfaceId()));
+                if(!edxActivityStatusList.isEmpty()) {
+                    for(EdxActivityLogModelView edxActivityLogModel:edxActivityStatusList){
+                        EdxActivityLogStatus edxActivityLogStatus = getEdxActivityLogStatus(edxActivityLogModel);
+                        msgStatus.getNbsIngestionInfo().add(edxActivityLogStatus);
+                    }
+                }
+            }
         }
         return msgStatus;
+    }
+
+    private static EdxActivityLogStatus getEdxActivityLogStatus(EdxActivityLogModelView edxActivityLogModel) {
+        EdxActivityLogStatus edxActivityLogStatus=new EdxActivityLogStatus();
+        edxActivityLogStatus.setRecordId(edxActivityLogModel.getRecordId());
+        edxActivityLogStatus.setRecordType(edxActivityLogModel.getRecordType());
+        edxActivityLogStatus.setLogType(edxActivityLogModel.getLogType());
+        edxActivityLogStatus.setLogComment(edxActivityLogModel.getLogComment());
+        edxActivityLogStatus.setRecordStatusTime(edxActivityLogModel.getRecordStatusTime());
+        return edxActivityLogStatus;
     }
 
     private MessageStatus setDiXmlTransformationInfo(MessageStatus msgStatus) {

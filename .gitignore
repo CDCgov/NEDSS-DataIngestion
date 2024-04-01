@@ -26,7 +26,8 @@ data-ingestion-service/data
 data-ingestion-service/dlt_records
 
 # di sftp
-data-ingestion-service/files
+data-ingestion-service/files/
+files/
 
 .DS_Store
 .gradle/
@@ -56,4 +57,3 @@ hl7-parser/.gradle/*
 
 ### env ###
 *.env
-/data-ingestion-service/files/sftpProcessedUnprocessed
