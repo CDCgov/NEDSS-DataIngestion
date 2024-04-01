@@ -76,18 +76,23 @@ public class ReportStatusService {
                         getEdxActivityLogDetailsBySourceId(Long.valueOf(msgStatus.getNbsInfo().getNbsInterfaceId()));
                 if(!edxActivityStatusList.isEmpty()) {
                     for(EdxActivityLogModelView edxActivityLogModel:edxActivityStatusList){
-                        EdxActivityLogStatus edxActivityLogStatus=new EdxActivityLogStatus();
-                        edxActivityLogStatus.setRecordId(edxActivityLogModel.getRecordId());
-                        edxActivityLogStatus.setRecordType(edxActivityLogModel.getRecordType());
-                        edxActivityLogStatus.setLogType(edxActivityLogModel.getLogType());
-                        edxActivityLogStatus.setLogComment(edxActivityLogModel.getLogComment());
-                        edxActivityLogStatus.setRecordStatusTime(edxActivityLogModel.getRecordStatusTime());
+                        EdxActivityLogStatus edxActivityLogStatus = getEdxActivityLogStatus(edxActivityLogModel);
                         msgStatus.getNbsIngestionInfo().add(edxActivityLogStatus);
                     }
                 }
             }
         }
         return msgStatus;
+    }
+
+    private static EdxActivityLogStatus getEdxActivityLogStatus(EdxActivityLogModelView edxActivityLogModel) {
+        EdxActivityLogStatus edxActivityLogStatus=new EdxActivityLogStatus();
+        edxActivityLogStatus.setRecordId(edxActivityLogModel.getRecordId());
+        edxActivityLogStatus.setRecordType(edxActivityLogModel.getRecordType());
+        edxActivityLogStatus.setLogType(edxActivityLogModel.getLogType());
+        edxActivityLogStatus.setLogComment(edxActivityLogModel.getLogComment());
+        edxActivityLogStatus.setRecordStatusTime(edxActivityLogModel.getRecordStatusTime());
+        return edxActivityLogStatus;
     }
 
     private MessageStatus setDiXmlTransformationInfo(MessageStatus msgStatus) {
