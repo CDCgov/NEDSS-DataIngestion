@@ -11,6 +11,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.sql.Timestamp;
+
 import static org.mockito.Mockito.when;
 
 class ElrProcessStatusComponentTest {
@@ -65,6 +67,7 @@ class ElrProcessStatusComponentTest {
         edxActivityLogStatus.setRecordType("Test Record Type");
         edxActivityLogStatus.setLogType("Test Log Type");
         edxActivityLogStatus.setLogComment("Test Log Comment");
+        edxActivityLogStatus.setRecordStatusTime(new Timestamp(System.currentTimeMillis()));
         status.getNbsIngestionInfo().add(edxActivityLogStatus);
         when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(
                 status

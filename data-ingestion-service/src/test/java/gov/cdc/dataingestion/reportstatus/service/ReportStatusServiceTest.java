@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -361,6 +362,7 @@ class ReportStatusServiceTest {
         when(edxActivityLogModelProjection.getLogType()).thenReturn("Test log type");
         when(edxActivityLogModelProjection.getRecordId()).thenReturn("Test Record Id");
         when(edxActivityLogModelProjection.getRecordType()).thenReturn("Test Record Type");
+        when(edxActivityLogModelProjection.getRecordStatusTime()).thenReturn(new Timestamp(System.currentTimeMillis()));
 
         edxActivityLogList.add(edxActivityLogModelProjection);
 

@@ -47,7 +47,8 @@ public class ElrProcessStatusComponent {
                     for(EdxActivityLogStatus edxActivityLogStatus:edxActivityLogList){
                         String activityLog ="\n\nRecord Id: " + edxActivityLogStatus.getRecordId()
                                 + " \nRecordType: " + edxActivityLogStatus.getRecordType() + " \nLog Type: "
-                                + edxActivityLogStatus.getLogType() + " \nLog Comment: " + edxActivityLogStatus.getLogComment();
+                                + edxActivityLogStatus.getLogType() + " \nLog Comment: " + edxActivityLogStatus.getLogComment()
+                                + " \nRecord Status Time: " + edxActivityLogStatus.getRecordStatusTime();
                         activityLogSb.append(activityLog);
                     }
                     activityLogSb.append(" \n\n"+ELR_ID+": " + elrId+" \n");

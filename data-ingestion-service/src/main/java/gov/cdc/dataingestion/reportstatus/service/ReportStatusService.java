@@ -81,6 +81,7 @@ public class ReportStatusService {
                         edxActivityLogStatus.setRecordType(edxActivityLogModel.getRecordType());
                         edxActivityLogStatus.setLogType(edxActivityLogModel.getLogType());
                         edxActivityLogStatus.setLogComment(edxActivityLogModel.getLogComment());
+                        edxActivityLogStatus.setRecordStatusTime(edxActivityLogModel.getRecordStatusTime());
                         msgStatus.getNbsIngestionInfo().add(edxActivityLogStatus);
                     }
                 }
