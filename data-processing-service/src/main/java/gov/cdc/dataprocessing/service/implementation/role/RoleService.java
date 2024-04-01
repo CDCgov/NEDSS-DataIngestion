@@ -48,15 +48,12 @@ public class RoleService implements IRoleService {
         try {
             if(roleDTColl == null || roleDTColl.isEmpty()) return;
 
-            for (Iterator<RoleDto> anIterator = roleDTColl.iterator(); anIterator.hasNext(); )
-            {
-                RoleDto roleDT = anIterator.next();
-                if(roleDT == null){
+            for (RoleDto roleDT : roleDTColl) {
+                if (roleDT == null) {
                     continue;
                 }
 
-                //TODO: EVALUATE
-                // roleDT = (RoleDto) prepareAssocModelHelper.prepareAssocDT(roleDT);
+                roleDT = prepareAssocModelHelper.prepareAssocDTForRole(roleDT);
                 saveRole(roleDT);
             }
         } catch (Exception e) {
@@ -75,6 +72,16 @@ public class RoleService implements IRoleService {
         else if (roleDto.isItDelete()) {
             removeRole(roleDto);
         }
+    }
+
+    public Integer loadCountBySubjectCdComb(RoleDto roleDto) {
+        var result = roleRepository.loadCountBySubjectCdComb(roleDto.getSubjectEntityUid(), roleDto.getCd());
+        return result.orElse(0);
+    }
+
+    public Integer loadCountBySubjectScpingCdComb(RoleDto roleDto) {
+        var result = roleRepository.loadCountBySubjectScpingCdComb(roleDto.getSubjectEntityUid(), roleDto.getCd(), roleDto.getScopingEntityUid());
+        return result.orElse(0);
     }
 
     private void removeRole(RoleDto roleDto) {

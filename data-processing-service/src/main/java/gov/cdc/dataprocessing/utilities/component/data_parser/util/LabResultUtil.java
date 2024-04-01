@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.data_extraction;
+package gov.cdc.dataprocessing.utilities.component.data_parser.util;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.model.container.OrganizationContainer;
@@ -12,12 +12,26 @@ import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.phdc.HL7HDType;
 import gov.cdc.dataprocessing.model.phdc.HL7MSHType;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+@Component
 public class LabResultUtil {
-    public static LabResultProxyContainer getLabResultMessage(HL7MSHType hl7MSHType, EdxLabInformationDto edxLabInformationDto) {
+
+
+    /**
+     * Description: Update Lab Result Container.
+     * This method create these object in order. given value from edxELRLabMap.
+     * These objects tightly associated with order
+     * 1 - Role Dto
+     * 2 - Participation Dto
+     * 3 - Organization Dto
+     * 4 - Organization Name Dto
+     * 5 - Entity Id Dto
+     * */
+    public LabResultProxyContainer getLabResultMessage(HL7MSHType hl7MSHType, EdxLabInformationDto edxLabInformationDto) {
         LabResultProxyContainer labResultProxy  = new LabResultProxyContainer();
         HL7HDType sendingFacility = hl7MSHType.getSendingFacility();
 
@@ -29,13 +43,16 @@ public class LabResultUtil {
     }
 
     /**
-     * This method processing and parse data into Object
-     * - Sending Facility Name and CLIA
-     * - Role
-     * - Entity Id
-     * - Participation
+     * Description: Update Lab Result Container.
+     * This method create these object in order. given value from edxELRLabMap.
+     * These objects tightly associated with order
+     * 1 - Role Dto
+     * 2 - Participation Dto
+     * 3 - Organization Dto
+     * 4 - Organization Name Dto
+     * 5 - Entity Id Dto
      * */
-    public static EdxELRLabMapDto processingHL7SendingFacility(HL7HDType sendingFacility, EdxLabInformationDto edxLabInformationDto) {
+    public EdxELRLabMapDto processingHL7SendingFacility(HL7HDType sendingFacility, EdxLabInformationDto edxLabInformationDto) {
         //ROLE, Sending Facility
         EdxELRLabMapDto edxELRLabMapDto = new EdxELRLabMapDto();
         edxELRLabMapDto.setRoleCd(EdxELRConstant.ELR_SENDING_FACILITY_CD);
@@ -73,14 +90,16 @@ public class LabResultUtil {
     }
 
     /**
-     * This method processing and parse data into Object
-     * - Organization
-     * - Organization Name
-     * - Role
-     * - Participation
-     * - Entity ID
+     * Description: Update Lab Result Container.
+     * This method create these object in order. given value from edxELRLabMap.
+     * These objects tightly associated with order
+     * 1 - Role Dto
+     * 2 - Participation Dto
+     * 3 - Organization Dto
+     * 4 - Organization Name Dto
+     * 5 - Entity Id Dto
      * */
-    public static LabResultProxyContainer creatingOrganization(LabResultProxyContainer labResultProxy, EdxELRLabMapDto edxELRLabMap, EdxLabInformationDto edxLabInformation) {
+    public LabResultProxyContainer creatingOrganization(LabResultProxyContainer labResultProxy, EdxELRLabMapDto edxELRLabMap, EdxLabInformationDto edxLabInformation) {
         OrganizationContainer organizationContainer = new OrganizationContainer();
 
 

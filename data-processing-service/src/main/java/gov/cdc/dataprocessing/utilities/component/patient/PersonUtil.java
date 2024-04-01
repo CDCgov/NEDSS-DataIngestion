@@ -81,7 +81,6 @@ public class PersonUtil {
             }
             Long realUid;
             if (personContainer.getRole() == null) {
-                //TODO: INSERTION
                 realUid = setPersonForObservationFlow(personType, personContainer, isNewVO, isExternal);
             } else {
                 realUid = personContainer.getThePersonDto().getPersonUid();
@@ -93,7 +92,6 @@ public class PersonUtil {
                 Long falseUid = personContainer.getThePersonDto().getPersonUid();
 
                 if (falseUid.intValue() < 0) {
-                    //TODO: FALSE TO NEW METHOD
                     uidService.setFalseToNewForObservation(dataContainer, falseUid, realUid);
                     //set the realUid to person after it has been set to participation
                     //this will help for jurisdiction derivation, this is only local to this call

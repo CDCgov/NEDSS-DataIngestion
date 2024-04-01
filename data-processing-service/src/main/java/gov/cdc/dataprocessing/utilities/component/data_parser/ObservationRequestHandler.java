@@ -19,9 +19,9 @@ import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.phdc.*;
-import gov.cdc.dataprocessing.service.interfaces.other.ICheckingValueService;
-import gov.cdc.dataprocessing.utilities.data_extraction.CommonLabUtil;
-import gov.cdc.dataprocessing.utilities.data_extraction.HL7SpecimenUtil;
+import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
+import gov.cdc.dataprocessing.utilities.component.data_parser.util.CommonLabUtil;
+import gov.cdc.dataprocessing.utilities.component.data_parser.util.HL7SpecimenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -32,12 +32,28 @@ import java.util.*;
 public class ObservationRequestHandler {
     private static final Logger logger = LoggerFactory.getLogger(ObservationRequestHandler.class);
 
-    private final ICheckingValueService checkingValueService;
+    private final ICatchingValueService checkingValueService;
+    private final CommonLabUtil commonLabUtil;
+    private final NBSObjectConverter nbsObjectConverter;
+    private final HL7SpecimenUtil hl7SpecimenUtil;
+    private final HL7PatientHandler hl7PatientHandler;
 
-    public ObservationRequestHandler(ICheckingValueService checkingValueService) {
+    public ObservationRequestHandler(ICatchingValueService checkingValueService,
+                                     CommonLabUtil commonLabUtil,
+                                     NBSObjectConverter nbsObjectConverter,
+                                     HL7SpecimenUtil hl7SpecimenUtil,
+                                     HL7PatientHandler hl7PatientHandler) {
         this.checkingValueService = checkingValueService;
+        this.commonLabUtil = commonLabUtil;
+        this.nbsObjectConverter = nbsObjectConverter;
+        this.hl7SpecimenUtil = hl7SpecimenUtil;
+        this.hl7PatientHandler = hl7PatientHandler;
     }
 
+    /**
+     * Description: This method parsing OBR and SPM into Lab result Object.
+     * OBR & SPM.
+     * */
     public LabResultProxyContainer getObservationRequest(HL7OBRType hl7OBRType, HL7PatientResultSPMType hl7PatientResultSPMType,
                                                          LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         try {
@@ -51,12 +67,14 @@ public class ObservationRequestHandler {
                 if (toCode != null && !toCode.equals("") && !toCode.equals(" ")){
                     observationDto.setStatusCd(toCode.trim());
 
-                }else{
+                }
+                else{
                     edxLabInformationDto.setObsStatusTranslated(false);
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                     throw new DataProcessingException(EdxELRConstant.TRANSLATE_OBS_STATUS);
                 }
-            }else{
+            }
+            else{
                 edxLabInformationDto.setObsStatusTranslated(false);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                 throw new DataProcessingException(EdxELRConstant.TRANSLATE_OBS_STATUS);
@@ -192,17 +210,16 @@ public class ObservationRequestHandler {
                 {
                     edxLabInformationDto.setOrderTestNameMissing(true);
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_19);
-                    //TODO: This convert to XML and store as string
-                    String xmlElementName = CommonLabUtil.getXMLElementNameForOBR(hl7OBRType)+".UniversalServiceIdentifier";
+                    String xmlElementName = commonLabUtil.getXMLElementNameForOBR(hl7OBRType)+".UniversalServiceIdentifier";
                     throw new DataProcessingException(EdxELRConstant.NO_ORDTEST_NAME+" XMLElementName: "+xmlElementName);
                 }
 
             }
             observationDto.setPriorityCd(hl7OBRType.getPriorityOBR());
             observationDto.setActivityFromTime(edxLabInformationDto.getOrderEffectiveDate());
-            observationDto.setActivityToTime(NBSObjectConverter.processHL7TSType(hl7OBRType.getResultsRptStatusChngDateTime(), EdxELRConstant.DATE_VALIDATION_OBR_RESULTS_RPT_STATUS_CHNG_TO_TIME_MSG));
-            observationDto.setEffectiveFromTime(NBSObjectConverter.processHL7TSType(hl7OBRType.getObservationDateTime(),EdxELRConstant.DATE_VALIDATION_OBR_OBSERVATION_DATE_MSG));
-            observationDto.setEffectiveToTime(NBSObjectConverter.processHL7TSType(hl7OBRType.getObservationEndDateTime(),EdxELRConstant.DATE_VALIDATION_OBR_OBSERVATION_END_DATE_MSG));
+            observationDto.setActivityToTime(nbsObjectConverter.processHL7TSType(hl7OBRType.getResultsRptStatusChngDateTime(), EdxELRConstant.DATE_VALIDATION_OBR_RESULTS_RPT_STATUS_CHNG_TO_TIME_MSG));
+            observationDto.setEffectiveFromTime(nbsObjectConverter.processHL7TSType(hl7OBRType.getObservationDateTime(),EdxELRConstant.DATE_VALIDATION_OBR_OBSERVATION_DATE_MSG));
+            observationDto.setEffectiveToTime(nbsObjectConverter.processHL7TSType(hl7OBRType.getObservationEndDateTime(),EdxELRConstant.DATE_VALIDATION_OBR_OBSERVATION_END_DATE_MSG));
 
             List<HL7CWEType> reasonArray =hl7OBRType.getReasonforStudy();
             Collection<ObservationReasonDto> obsReasonDTColl = new ArrayList<>();
@@ -220,8 +237,7 @@ public class ObservationRequestHandler {
                         (hl7CWEType.getHL7AlternateIdentifier() == null || hl7CWEType.getHL7AlternateIdentifier().trim().equalsIgnoreCase(""))) {
                     edxLabInformationDto.setReasonforStudyCdMissing(true);
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_19);
-                    //TODO: This convert to XML and store as string
-                    String xmlElementName = CommonLabUtil.getXMLElementNameForOBR(hl7OBRType) + ".ReasonforStudy";
+                    String xmlElementName = commonLabUtil.getXMLElementNameForOBR(hl7OBRType) + ".ReasonforStudy";
                     throw new DataProcessingException(EdxELRConstant.NO_REASON_FOR_STUDY + " XMLElementName: " + xmlElementName);
                 }
 
@@ -275,14 +291,15 @@ public class ObservationRequestHandler {
 
     }
 
-    private static void processSusOBR(HL7OBRType hl7OBRType, ObservationDto observationDto,
+    private void processSusOBR(HL7OBRType hl7OBRType, ObservationDto observationDto,
                                       LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         try {
             EdxLabIdentiferDto edxLabIdentiferDT;
             if(hl7OBRType.getParentResult()== null ||
                     hl7OBRType.getParentResult().getParentObservationIdentifier()==null||
                     (hl7OBRType.getParentResult().getParentObservationIdentifier().getHL7Identifier()==null &&
-                            hl7OBRType.getParentResult().getParentObservationIdentifier().getHL7AlternateIdentifier()==null)){
+                            hl7OBRType.getParentResult().getParentObservationIdentifier().getHL7AlternateIdentifier()==null))
+            {
                 edxLabInformationDto.setReflexOrderedTestCdMissing(true);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                 throw new DataProcessingException(EdxELRConstant.ELR_MASTER_LOG_ID_13);
@@ -395,7 +412,7 @@ public class ObservationRequestHandler {
      *  PROVIDER info
      *  other obs info
      * */
-    private static void processRootOBR(HL7OBRType hl7OBRType, ObservationDto observationDto,
+    private void processRootOBR(HL7OBRType hl7OBRType, ObservationDto observationDto,
                                        LabResultProxyContainer labResultProxyContainer, HL7PatientResultSPMType hl7PatientResultSPMType,
                                        EdxLabInformationDto edxLabInformationDto) throws DataProcessingException{
 
@@ -417,7 +434,7 @@ public class ObservationRequestHandler {
             }
             if(hl7PatientResultSPMType!=null){
                 logger.debug("ObservationRequest.getObservationRequest specimen is being processes for 2.5.1 message type");
-                HL7SpecimenUtil.process251Specimen( hl7PatientResultSPMType, labResultProxyContainer, observationDto,  collectorVO, edxLabInformationDto);
+                hl7SpecimenUtil.process251Specimen( hl7PatientResultSPMType, labResultProxyContainer, observationDto,  collectorVO, edxLabInformationDto);
             }
             List<HL7XCNType> orderingProviderArray = hl7OBRType.getOrderingProvider();
             if(orderingProviderArray!=null && orderingProviderArray.size()  >1){
@@ -442,7 +459,7 @@ public class ObservationRequestHandler {
 
                 if(hl7OBRType.getOrderCallbackPhoneNumber()!=null && orderingProviderVO!=null && !hl7OBRType.getOrderCallbackPhoneNumber().isEmpty()){
                     HL7XTNType orderingProvPhone  =hl7OBRType.getOrderCallbackPhoneNumber().get(0);
-                    EntityLocatorParticipationDto elpt = NBSObjectConverter.personTelePhoneType(orderingProvPhone, EdxELRConstant.ELR_PROVIDER_CD, orderingProviderVO);
+                    EntityLocatorParticipationDto elpt = nbsObjectConverter.personTelePhoneType(orderingProvPhone, EdxELRConstant.ELR_PROVIDER_CD, orderingProviderVO);
                     elpt.setUseCd(EdxELRConstant.ELR_WORKPLACE_CD);
                 }
                 if(labResultProxyContainer.getThePersonContainerCollection()==null) {
@@ -504,7 +521,7 @@ public class ObservationRequestHandler {
 
     }
 
-    private static PersonContainer getCollectorVO(HL7XCNType collector, LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
+    private PersonContainer getCollectorVO(HL7XCNType collector, LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         PersonContainer personContainer;
         try {
             edxLabInformationDto.setRole(EdxELRConstant.ELR_PROVIDER_CD);
@@ -526,7 +543,7 @@ public class ObservationRequestHandler {
             entityIdDto.setItDirty(false);
             edxLabInformationDto.setRole(EdxELRConstant.ELR_PROVIDER_CD);
 
-            personContainer = HL7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
+            personContainer = hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
             
             personContainer.getTheEntityIdDtoCollection().add(entityIdDto);
 
@@ -575,14 +592,14 @@ public class ObservationRequestHandler {
         return personContainer;
     }
 
-    private static PersonContainer getOtherProviderVO(HL7NDLType providerType, LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
+    private PersonContainer getOtherProviderVO(HL7NDLType providerType, LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
 
         PersonContainer personContainer;
         try {
             if(providerType==null) {
                 return null;
             }
-            personContainer = HL7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
+            personContainer = hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
 
             if(providerType.getHL7Name()!=null && providerType.getHL7Name().getHL7IDNumber()!=null){
                 Collection<EntityIdDto> entityColl = new ArrayList<>();
@@ -635,7 +652,7 @@ public class ObservationRequestHandler {
                 participationDto.setTypeCd(EdxELRConstant.ELR_LAB_ASSISTANT_CD);
                 participationDto.setTypeDescTxt(EdxELRConstant.ELR_LAB_ASSISTANT_DESC);
             }
-            NBSObjectConverter.defaultParticipationDT(participationDto, edxLabInformationDto);
+            nbsObjectConverter.defaultParticipationDT(participationDto, edxLabInformationDto);
 
 
             participationDto.setSubjectClassCd(EdxELRConstant.ELR_PERSON_CD);
@@ -643,7 +660,7 @@ public class ObservationRequestHandler {
             participationDto.setActUid(edxLabInformationDto.getRootObserbationUid());
             labResultProxyContainer.getTheParticipationDtoCollection().add(participationDto);
             edxLabInformationDto.setRole(EdxELRConstant.ELR_PROVIDER_CD);
-            NBSObjectConverter.processCNNPersonName(providerType.getHL7Name(), personContainer);
+            nbsObjectConverter.processCNNPersonName(providerType.getHL7Name(), personContainer);
             if(labResultProxyContainer.getThePersonContainerCollection()==null) {
                 labResultProxyContainer.setThePersonContainerCollection(new ArrayList<>());
             }
@@ -655,7 +672,7 @@ public class ObservationRequestHandler {
         return personContainer;
     }
 
-    private static PersonContainer getProviderVO(HL7XCNType orderingProvider, Collection<EntityLocatorParticipationDto> entitylocatorColl, LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
+    private PersonContainer getProviderVO(HL7XCNType orderingProvider, Collection<EntityLocatorParticipationDto> entitylocatorColl, LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         PersonContainer personContainer;
 
         try {
@@ -674,7 +691,7 @@ public class ObservationRequestHandler {
             entityIdDto.setAsOfDate(edxLabInformationDto.getAddTime());
             entityIdDto.setItNew(true);
             entityIdDto.setItDirty(false);
-            personContainer =HL7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
+            personContainer =hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
             if(entitylocatorColl!=null) {
                 personContainer.setTheEntityLocatorParticipationDtoCollection(entitylocatorColl);
             }
@@ -689,7 +706,7 @@ public class ObservationRequestHandler {
                 participationDto.setActUid(edxLabInformationDto.getRootObserbationUid());
                 participationDto.setTypeCd(EdxELRConstant.ELR_ORDERER_CD);
                 participationDto.setTypeDescTxt(EdxELRConstant.ELR_ORDERER_DESC);
-                NBSObjectConverter.defaultParticipationDT(participationDto, edxLabInformationDto);
+                nbsObjectConverter.defaultParticipationDT(participationDto, edxLabInformationDto);
                 participationDto.setSubjectClassCd(EdxELRConstant.ELR_PERSON_CD);
                 participationDto.setSubjectEntityUid(personContainer.getThePersonDto().getPersonUid());
                 labResultProxyContainer.getTheParticipationDtoCollection().add(participationDto);

@@ -51,23 +51,17 @@ public class OrganizationService implements IOrganizationService {
                     Long orgUid;
                     if (organizationContainer.getRole() != null && organizationContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_SENDING_FACILITY_CD) && labResultProxyContainer.getSendingFacilityUid() != null) {
                         orgUid = labResultProxyContainer.getSendingFacilityUid();
-                    } else {
-//                        EdxMatchingCriteriaUtil util = new EdxMatchingCriteriaUtil();
-//                        EDXActivityDetailLogDto eDXActivityDetailLogDto = new EDXActivityDetailLogDto();
-//                        eDXActivityDetailLogDto = util.getMatchingOrganization(
-//                                organizationContainer, nbsSecurityObj);
-
+                    }
+                    else
+                    {
                         EDXActivityDetailLogDto eDXActivityDetailLogDto = iOrganizationMatchingService.getMatchingOrganization(organizationContainer);
                         orgUid = Long.parseLong(eDXActivityDetailLogDto.getRecordId());
 
                     }
-                    Long falseUid = organizationContainer.getTheOrganizationDto()
-                            .getOrganizationUid();
+                    Long falseUid = organizationContainer.getTheOrganizationDto().getOrganizationUid();
                     //match found!!!!
                     if (orgUid > 0) {
                         uidService.setFalseToNewPersonAndOrganization(labResultProxyContainer, falseUid, orgUid);
-                        // /organizationContainer
-                        // =getOrganization(orgUid,nbsSecurityObj);
                         organizationContainer.setItNew(false);
                         organizationContainer.setItDirty(false);
                         organizationContainer.getTheOrganizationDto().setItNew(false);
@@ -82,7 +76,7 @@ public class OrganizationService implements IOrganizationService {
             }
             return orderingFacilityVO;
         } catch (Exception e) {
-            throw new DataProcessingConsumerException("ERROR", "Data");
+            throw new DataProcessingConsumerException(e.getMessage(), e);
         }
     }
 

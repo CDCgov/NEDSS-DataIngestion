@@ -44,7 +44,6 @@ public class KafkaManagerConsumer {
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                               @Header(KafkaCustomHeader.DATA_TYPE) String dataType)
             throws DataProcessingConsumerException {
-        //TODO: Logic to handle goes here
         Object result = new Object();
         try {
             result = managerService.processDistribution(dataType,message);

@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.repository.nbs.odse.repos.role;
 
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -25,9 +26,25 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     Optional<Long> countByPk(Long entityUid, String code, Long seq);
 
     /**
+     *   private static final String SELECT_BY_PK = "SELECT max(role_seq) from ROLE with (NOLOCK) where subject_entity_uid = ? and cd = ?";
+     * */
+    @Query(value = "SELECT max(p.roleSeq) FROM Role p WHERE p.subjectEntityUid = :subjectEntityUid AND p.code = :code")
+    Optional<Integer> loadCountBySubjectCdComb(@Param("subjectEntityUid") Long subjectEntityUid, @Param("code") String code);
+
+
+    /**
+     * String SELECT_BY_SUBJECT_SCOPING_CD = "SELECT max(role_seq) from ROLE with (NOLOCK)  where subject_entity_uid = ? and cd = ? and scoping_entity_uid=?"
+     * */
+    @Query(value = "SELECT max(p.roleSeq) FROM Role p WHERE p.subjectEntityUid = :subjectEntityUid AND p.code = :code AND p.scopingEntityUid = :scopingEntityUid")
+    Optional<Integer> loadCountBySubjectScpingCdComb(@Param("subjectEntityUid") Long subjectEntityUid, @Param("code") String code, @Param("scopingEntityUid") Long scopingEntityUid);
+
+
+
+    /**
      * String DELETE_BY_PK = "DELETE from Role where subject_entity_uid = ? and cd = ? and role_seq = ?"
      * */
-    @Query("DELETE FROM Role data WHERE data.subjectEntityUid = :subjectEntityUid AND data.code = :code AND data.roleSeq = :roleSeq")
+    @Modifying
+    @Query("DELETE FROM Role data WHERE data.subjectEntityUid = ?1 AND data.code = ?2 AND data.roleSeq = ?3")
     void deleteRoleByPk(Long subjectEntityUid, String code, Long roleSeq);
 
 

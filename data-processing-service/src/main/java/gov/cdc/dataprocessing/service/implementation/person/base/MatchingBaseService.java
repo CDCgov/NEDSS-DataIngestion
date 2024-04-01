@@ -7,7 +7,7 @@ import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
-import gov.cdc.dataprocessing.service.implementation.other.CheckingValueService;
+import gov.cdc.dataprocessing.service.implementation.other.CachingValueService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
@@ -28,17 +28,17 @@ public class MatchingBaseService  {
     private final EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil;
     private final EntityHelper entityHelper;
     private final PatientRepositoryUtil patientRepositoryUtil;
-    private final CheckingValueService checkingValueService;
+    private final CachingValueService cachingValueService;
 
     public MatchingBaseService(
                                 EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
                                EntityHelper entityHelper,
                                PatientRepositoryUtil patientRepositoryUtil,
-                               CheckingValueService checkingValueService) {
+                               CachingValueService cachingValueService) {
         this.edxPatientMatchRepositoryUtil = edxPatientMatchRepositoryUtil;
         this.entityHelper = entityHelper;
         this.patientRepositoryUtil = patientRepositoryUtil;
-        this.checkingValueService = checkingValueService;
+        this.cachingValueService = cachingValueService;
     }
 
     protected String getLocalId(PersonContainer personContainer) {
@@ -93,7 +93,7 @@ public class MatchingBaseService  {
                                 coded.setCode(entityIdDto.getAssigningAuthorityCd());
                                 coded.setCodesetName(NEDSSConstant.EI_AUTH);
                                 //TODO: This call out to code value general Repos and Caching the recrod
-                                //var codedValueGenralList = getCheckingValueService().findCodeValuesByCodeSetNmAndCode(coded.getCodesetName(), coded.getCode());
+                                //var codedValueGenralList = getCachingValueService().findCodeValuesByCodeSetNmAndCode(coded.getCodesetName(), coded.getCode());
                                 if (entityIdDto.getRootExtensionTxt() != null
                                         && entityIdDto.getTypeCd() != null
                                         && coded.getCode()!=null

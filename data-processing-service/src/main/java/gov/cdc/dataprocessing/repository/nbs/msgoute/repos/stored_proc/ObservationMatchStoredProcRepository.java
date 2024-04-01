@@ -38,8 +38,8 @@ public class ObservationMatchStoredProcRepository {
 
         try {
 
-            //TODO: Number of years, indicate the years to go back to search for existing observation
-            String numberOfYears = "5";
+            //Number of years, indicate the years to go back to search for existing observation
+            String numberOfYears = "2";
             int numberOfNumberInt = Integer.parseInt(numberOfYears);
 
             StoredProcedureQuery storedProcedure = entityManager.createStoredProcedureQuery("GetObservationMatch_SP");

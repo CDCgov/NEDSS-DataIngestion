@@ -16,8 +16,8 @@ import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
-import gov.cdc.dataprocessing.service.interfaces.other.ICheckingValueService;
-import gov.cdc.dataprocessing.utilities.data_extraction.EntityIdUtil;
+import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
+import gov.cdc.dataprocessing.utilities.component.data_parser.util.EntityIdUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -32,10 +32,13 @@ import java.util.Objects;
 public class NBSObjectConverter {
     private static final Logger logger = LoggerFactory.getLogger(NBSObjectConverter.class);
 
-    private final ICheckingValueService checkingValueService;
+    private final ICatchingValueService checkingValueService;
+    private final EntityIdUtil entityIdUtil;
 
-    public NBSObjectConverter(ICheckingValueService checkingValueService) {
+    public NBSObjectConverter(ICatchingValueService checkingValueService,
+                              EntityIdUtil entityIdUtil) {
         this.checkingValueService = checkingValueService;
+        this.entityIdUtil = entityIdUtil;
     }
 
     public PersonContainer mapPersonNameType(HL7XPNType hl7XPNType, PersonContainer personContainer) throws DataProcessingException {
@@ -159,9 +162,9 @@ public class NBSObjectConverter {
             entityIdDto.setRecordStatusTime(personContainer.getThePersonDto().getAddTime());
             entityIdDto.setRecordStatusCd(NEDSSConstant.ACTIVE);
             entityIdDto.setAsOfDate(personContainer.getThePersonDto().getAddTime());
-            entityIdDto.setEffectiveFromTime(EntityIdUtil.processHL7DTType(hl7CXType.getHL7EffectiveDate(), EdxELRConstant.DATE_VALIDATION_PID_PATIENT_IDENTIFIER_EFFECTIVE_DATE_TIME_MSG));
+            entityIdDto.setEffectiveFromTime(entityIdUtil.processHL7DTType(hl7CXType.getHL7EffectiveDate(), EdxELRConstant.DATE_VALIDATION_PID_PATIENT_IDENTIFIER_EFFECTIVE_DATE_TIME_MSG));
             entityIdDto.setValidFromTime(entityIdDto.getEffectiveFromTime());
-            entityIdDto.setEffectiveToTime(EntityIdUtil.processHL7DTType(hl7CXType.getHL7ExpirationDate(), EdxELRConstant.DATE_VALIDATION_PID_PATIENT_IDENTIFIER_EXPIRATION_DATE_TIME_MSG));
+            entityIdDto.setEffectiveToTime(entityIdUtil.processHL7DTType(hl7CXType.getHL7ExpirationDate(), EdxELRConstant.DATE_VALIDATION_PID_PATIENT_IDENTIFIER_EXPIRATION_DATE_TIME_MSG));
             entityIdDto.setValidToTime(entityIdDto.getEffectiveToTime());
             entityIdDto.setItNew(true);
             entityIdDto.setItDirty(false);
@@ -186,17 +189,20 @@ public class NBSObjectConverter {
             /** Optional maxOccurs="1 */
             /** length"3 */
 
-            if (role.equalsIgnoreCase(EdxELRConstant.ELR_OP_CD)) {
+            if (role.equalsIgnoreCase(EdxELRConstant.ELR_OP_CD))
+            {
                 elp.setClassCd(EdxELRConstant.ELR_POSTAL_CD);
                 elp.setUseCd(EdxELRConstant.ELR_WORKPLACE_CD);
                 elp.setCd(EdxELRConstant.ELR_OFFICE_CD);
                 elp.setCdDescTxt(EdxELRConstant.ELR_OFFICE_DESC);
-            } else if (role.equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
+            }
+            else if (role.equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
                 elp.setClassCd(EdxELRConstant.ELR_POSTAL_CD);
                 elp.setUseCd(EdxELRConstant.ELR_USE_EMERGENCY_CONTACT_CD);
                 elp.setCd(EdxELRConstant.ELR_HOUSE_CD);
                 elp.setCdDescTxt(EdxELRConstant.ELR_HOUSE_DESC);
-            } else {
+            }
+            else {
                 elp.setCd(Objects.requireNonNullElse(addressType, EdxELRConstant.ELR_HOUSE_CD));
                 elp.setClassCd(NEDSSConstant.POSTAL);
                 elp.setUseCd(NEDSSConstant.HOME);
@@ -295,7 +301,6 @@ public class NBSObjectConverter {
     private String translateStateCd(String msgInStateCd) {
         if(msgInStateCd != null && !msgInStateCd.trim().isEmpty())
         {
-            //TODO: Call out to State Code Repository here
             StateCode stateCode = checkingValueService.findStateCodeByStateNm(msgInStateCd);
             return stateCode.getStateCd();
         }
@@ -350,7 +355,7 @@ public class NBSObjectConverter {
         return elp;
     }
 
-    public static EntityIdDto validateSSN(EntityIdDto entityIdDto) {
+    public EntityIdDto validateSSN(EntityIdDto entityIdDto) {
         String ssn = entityIdDto.getRootExtensionTxt();
         if(ssn != null && !ssn.equals("") && !ssn.equals(" ")) {
             ssn =ssn.trim();
@@ -377,7 +382,7 @@ public class NBSObjectConverter {
         return entityIdDto;
     }//end of while
 
-    public static Timestamp processHL7TSTypeForDOBWithoutTime(HL7TSType time) throws DataProcessingException {
+    public Timestamp processHL7TSTypeForDOBWithoutTime(HL7TSType time) throws DataProcessingException {
         Timestamp toTimestamp = null;
         String toTime = "";
 
@@ -398,7 +403,7 @@ public class NBSObjectConverter {
                 if (year >= 0 && month >= 0 && date >= 0) {
                     toTime = month + "/" + date + "/" + year;
                     logger.debug("  in processHL7TSTypeForDOBWithoutTime: Date string is: " +toTime);
-                    toTimestamp = EntityIdUtil.stringToStrutsTimestamp(toTime); //if can't process returns null
+                    toTimestamp = entityIdUtil.stringToStrutsTimestamp(toTime); //if can't process returns null
                 }
             }
         } catch (Exception e) {
@@ -407,13 +412,13 @@ public class NBSObjectConverter {
                     EdxELRConstant.DATE_VALIDATION_PID_PATIENT_BIRTH_DATE_NO_TIME_MSG+toTime+"<--");
         }
 
-        if (EntityIdUtil.isDateNotOkForDatabase(toTimestamp)) {
+        if (entityIdUtil.isDateNotOkForDatabase(toTimestamp)) {
             throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSTypeForDOBWithoutTime " +EdxELRConstant.DATE_VALIDATION_PID_PATIENT_BIRTH_DATE_NO_TIME_MSG +toTime + EdxELRConstant.DATE_INVALID_FOR_DATABASE);
         }
         return toTimestamp;
     }
 
-    public static EntityLocatorParticipationDto setPersonBirthType(String countryOfBirth, PersonContainer personContainer) {
+    public EntityLocatorParticipationDto setPersonBirthType(String countryOfBirth, PersonContainer personContainer) {
         EntityLocatorParticipationDto elp = new EntityLocatorParticipationDto();
 
         elp.setItNew(true);
@@ -445,7 +450,7 @@ public class NBSObjectConverter {
         return elp;
     }
 
-    public static PersonEthnicGroupDto ethnicGroupType(HL7CWEType hl7CWEType,
+    public PersonEthnicGroupDto ethnicGroupType(HL7CWEType hl7CWEType,
                                                        PersonContainer personContainer) {
         PersonEthnicGroupDto ethnicGroupDT = new PersonEthnicGroupDto();
         ethnicGroupDT.setItNew(true);
@@ -461,7 +466,7 @@ public class NBSObjectConverter {
         return ethnicGroupDT;
     }
 
-    public static Timestamp processHL7TSType(HL7TSType time, String itemDescription) throws DataProcessingException {
+    public Timestamp processHL7TSType(HL7TSType time, String itemDescription) throws DataProcessingException {
         String timeStr = "";
         try {
             Timestamp toTimestamp = null;
@@ -492,7 +497,7 @@ public class NBSObjectConverter {
                 logger.debug("  in processHL7TSType: Date string is: " +timeStr);
                 date2 = sdf.parse(timeStr);
                 toTimestamp = new java.sql.Timestamp(date2.getTime());
-                if (EntityIdUtil.isDateNotOkForDatabase(toTimestamp)) {
+                if (entityIdUtil.isDateNotOkForDatabase(toTimestamp)) {
                     throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSType " +itemDescription +timeStr + EdxELRConstant.DATE_INVALID_FOR_DATABASE);
                 }
             }
@@ -504,7 +509,7 @@ public class NBSObjectConverter {
     }
 
 
-    public static EntityLocatorParticipationDto personTelePhoneType(
+    public EntityLocatorParticipationDto personTelePhoneType(
             HL7XTNType hl7XTNType, String role, PersonContainer personContainer) {
         EntityLocatorParticipationDto elp = telePhoneType(hl7XTNType, role);
         elp.setAddUserId(personContainer.getThePersonDto().getAddUserId());
@@ -521,7 +526,7 @@ public class NBSObjectConverter {
         return elp;
     }
 
-    public static PersonRaceDto raceType(HL7CWEType hl7CEType, PersonContainer personContainer) {
+    public PersonRaceDto raceType(HL7CWEType hl7CEType, PersonContainer personContainer) {
         PersonRaceDto raceDT = new PersonRaceDto();
         raceDT.setItNew(true);
         raceDT.setItDelete(false);
@@ -546,7 +551,7 @@ public class NBSObjectConverter {
         return raceDT;
     }
 
-    public static EntityLocatorParticipationDto telePhoneType(
+    public EntityLocatorParticipationDto telePhoneType(
             HL7XTNType hl7XTNType, String role) {
         EntityLocatorParticipationDto elp = new EntityLocatorParticipationDto();
         TeleLocatorDto teleDT = new TeleLocatorDto();
@@ -641,7 +646,7 @@ public class NBSObjectConverter {
         return elp;
     }
 
-    public static boolean  checkIfNumberMoreThan10Digits(ArrayList<String> areaAndNumber,  HL7NMType HL7Type){
+    public boolean  checkIfNumberMoreThan10Digits(ArrayList<String> areaAndNumber,  HL7NMType HL7Type){
 
 
         boolean incorrectLength = false;
@@ -670,7 +675,7 @@ public class NBSObjectConverter {
         return incorrectLength;
 
     }
-    public static String formatPhoneNbr(String phoneNbrTxt) {
+    public String formatPhoneNbr(String phoneNbrTxt) {
         // Format numeric number into telephone format
         // eg, 1234567 -> 123-4567, 1234567890 -> 123-456-7890
         String newFormatedNbr = "";
@@ -699,7 +704,7 @@ public class NBSObjectConverter {
         return newFormatedNbr;
     }// End of formatPhoneNbr
 
-    public static boolean checkIfAreaCodeMoreThan3Digits(ArrayList<String> areaAndNumber, HL7NMType HL7Type){
+    public boolean checkIfAreaCodeMoreThan3Digits(ArrayList<String> areaAndNumber, HL7NMType HL7Type){
 
         boolean incorrectLength = false;
         String areaCode, number;
@@ -724,7 +729,7 @@ public class NBSObjectConverter {
         return incorrectLength;
     }
 
-    public static ParticipationDto defaultParticipationDT(ParticipationDto participationDto, EdxLabInformationDto edxLabInformationDto) {
+    public ParticipationDto defaultParticipationDT(ParticipationDto participationDto, EdxLabInformationDto edxLabInformationDto) {
         participationDto.setAddTime(edxLabInformationDto.getAddTime());
         participationDto.setLastChgTime(edxLabInformationDto.getAddTime());
         participationDto.setAddUserId(edxLabInformationDto.getUserId());
@@ -738,7 +743,7 @@ public class NBSObjectConverter {
         return participationDto;
     }
 
-    public static EntityLocatorParticipationDto orgTelePhoneType(HL7XTNType hl7XTNType, String role, OrganizationContainer organizationContainer) {
+    public EntityLocatorParticipationDto orgTelePhoneType(HL7XTNType hl7XTNType, String role, OrganizationContainer organizationContainer) {
         EntityLocatorParticipationDto elp = telePhoneType(hl7XTNType, role);
         elp.setAddUserId(organizationContainer.getTheOrganizationDto().getAddUserId());
         elp.setEntityUid(organizationContainer.getTheOrganizationDto().getOrganizationUid());
@@ -751,7 +756,7 @@ public class NBSObjectConverter {
 
     }
 
-    public static PersonContainer processCNNPersonName(HL7CNNType hl7CNNType,
+    public PersonContainer processCNNPersonName(HL7CNNType hl7CNNType,
                                                        PersonContainer personContainer) {
         PersonNameDto personNameDto = new PersonNameDto();
         String lastName = hl7CNNType.getHL7FamilyName();
@@ -787,7 +792,7 @@ public class NBSObjectConverter {
         personDtToPersonVO(personNameDto, personContainer);
         return personContainer;
     }
-    public static PersonContainer personDtToPersonVO(PersonNameDto personNameDto,
+    public PersonContainer personDtToPersonVO(PersonNameDto personNameDto,
                                                      PersonContainer personContainer) {
         personContainer.getThePersonDto().setLastNm(personNameDto.getLastNm());
         personContainer.getThePersonDto().setFirstNm(personNameDto.getFirstNm());
@@ -796,7 +801,7 @@ public class NBSObjectConverter {
 
         return personContainer;
     }
-    public static Timestamp processHL7TSTypeWithMillis(HL7TSType time, String itemDescription) throws DataProcessingException {
+    public Timestamp processHL7TSTypeWithMillis(HL7TSType time, String itemDescription) throws DataProcessingException {
         String dateStr = "";
         try {
             Timestamp toTimestamp = null;
@@ -830,7 +835,7 @@ public class NBSObjectConverter {
                 logger.debug("  in processHL7TSTypeWithMillis: Date string is: " +dateStr);
                 date2 = sdf.parse(dateStr);
                 toTimestamp = new java.sql.Timestamp(date2.getTime());
-                if (EntityIdUtil.isDateNotOkForDatabase(toTimestamp)) {
+                if (entityIdUtil.isDateNotOkForDatabase(toTimestamp)) {
                     throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSTypeWithMillis " +itemDescription + date2
                             + EdxELRConstant.DATE_INVALID_FOR_DATABASE);
                 }

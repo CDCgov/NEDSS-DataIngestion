@@ -3,12 +3,14 @@ package gov.cdc.dataprocessing.service.implementation.jurisdiction;
 import gov.cdc.dataprocessing.constant.elr.ELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.OrganizationContainer;
+import gov.cdc.dataprocessing.model.container.*;
+import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
+import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
-import gov.cdc.dataprocessing.model.container.BaseContainer;
-import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.JurisdictionCode;
+import gov.cdc.dataprocessing.repository.nbs.srte.repository.JurisdictionCodeRepository;
+import gov.cdc.dataprocessing.repository.nbs.srte.repository.JurisdictionParticipationRepository;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
@@ -22,119 +24,48 @@ public class JurisdictionService implements IJurisdictionService {
     private StringBuffer detailError= null;
     private final PatientRepositoryUtil patientRepositoryUtil;
     private final OrganizationRepositoryUtil organizationRepositoryUtil;
+    private final JurisdictionParticipationRepository jurisdictionParticipationRepository;
+    private final JurisdictionCodeRepository jurisdictionCodeRepository;
 
     public JurisdictionService(PatientRepositoryUtil patientRepositoryUtil,
-                               OrganizationRepositoryUtil organizationRepositoryUtil) {
+                               OrganizationRepositoryUtil organizationRepositoryUtil,
+                               JurisdictionParticipationRepository jurisdictionParticipationRepository,
+                               JurisdictionCodeRepository jurisdictionCodeRepository) {
         this.patientRepositoryUtil = patientRepositoryUtil;
         this.organizationRepositoryUtil = organizationRepositoryUtil;
+        this.jurisdictionParticipationRepository = jurisdictionParticipationRepository;
+        this.jurisdictionCodeRepository = jurisdictionCodeRepository;
     }
 
-    private HashMap<Object, Object> resolveLabReportJurisdiction(PersonContainer subject,
-                                                                PersonContainer provider,
-                                                                OrganizationContainer organizationContainer,
-                                                                OrganizationContainer organizationContainer2) throws DataProcessingException {
+    public List<JurisdictionCode> getJurisdictionCode() {
+       var jusCode = jurisdictionCodeRepository.findAll();
+       if (!jusCode.isEmpty()) {
+           return jusCode;
+       }
+       else
+       {
+           return new ArrayList<>();
+       }
+    }
 
-        try {
-            Collection<Object> subjectColl = null;
-            Collection<Object> providerColl = null;
-            Collection<Object> organizationColl = null;
-            HashMap<Object, Object> map = new HashMap<Object, Object>();
-            detailError = new StringBuffer();
-            String jurisdiction =null;
-            //TODO: JURISDICTION
-            //subjectColl = findJurisdictionForPatient(subject);
+    public void assignJurisdiction(PersonContainer patientContainer, PersonContainer providerContainer,
+                                   OrganizationContainer organizationContainer, ObservationContainer observationRequest) throws DataProcessingException {
 
-            // Check to see the subject size.  Only proceed if the subject size is not greater than 1.
-            if (subjectColl.size() <= 1)
-            {
-                // Check the result to make sure that there is a value for the subject's jurisdiction.
-                // If not then go and find the jurisdiction based on the provider
-                if (subjectColl.size() == 1)
-                {
-                    Iterator<Object> iter = subjectColl.iterator();
-                    jurisdiction = (String) iter.next();
-                    map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
-                }
-                if (jurisdiction==null && provider!=null)
-                {
-                    //TODO: JURISDICTION
-                    //providerColl = findJurisdictionForProvider(provider);
-                    if(!(providerColl.size()==0))
-
-                        // Check to see the provider size.  Only proceed if the provider size is not greater than 1.
-                        if (providerColl.size() <= 1)
-                        {
-                            // Check the result to make sure that there is a value for the provider's jurisdiction.
-                            // If not then go and find the jurisdiction based on the provider
-                            if (providerColl.size() == 1)
-                            {
-
-                                Iterator<Object> iter = providerColl.iterator();
-                                jurisdiction = (String) iter.next();
-                                map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
-                            }
-
-                        }
-                }
-                if(jurisdiction==null){
-                    if (organizationContainer != null)
-                    {
-                        //TODO: JURISDICTION
-                        //organizationColl = findJurisdictionForOrganization(organizationContainer);
-                    }
-                    if (organizationColl != null)
-                    {
-
-                        // Check to see the organization size.  Only proceed if the organization size is not greater than 1.
-                        if (organizationColl.size() <= 1)
-                        {
-                            // Check the result to make sure that there is a value for the organization's jurisdiction.
-                            // If not then go and find the jurisdiction based on the organization
-                            if (organizationColl.size() == 1)
-                            {
-
-                                Iterator<Object> iter = organizationColl.iterator();
-                                jurisdiction = (String) iter.next();
-                                map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
-                            }
-                        }
-                    }
-                }
-
-                if (jurisdiction == null) {
-                    organizationColl = null;
-                    if (organizationContainer2 != null) {
-                        //TODO: JURISDICTION
-                        //organizationColl = findJurisdictionForOrganization(organizationContainer2);
-                    }
-                    if (organizationColl != null) {
-
-                        // Check to see the organization size. Only proceed if the
-                        // organization size is not greater than 1.
-                        if (organizationColl.size() <= 1) {
-                            // Check the result to make sure that there is a value
-                            // for the organization's jurisdiction.
-                            // If not then go and find the jurisdiction based on the
-                            // organization
-                            if (organizationColl.size() == 1) {
-
-                                Iterator<Object> iter = organizationColl.iterator();
-                                jurisdiction = (String) iter.next();
-                                map.put(ELRConstant.JURISDICTION_HASHMAP_KEY,
-                                        jurisdiction);
-                            }
-                        }
-                    }
-                }
-            }
-
-            detailError= null;
-            return map;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DataProcessingException(e.getMessage(), e);
+        HashMap<String, String> jurisdictionMap = null;
+        if (patientContainer != null) {
+            jurisdictionMap = resolveLabReportJurisdiction(patientContainer, providerContainer, organizationContainer, null);
         }
-    }
+
+        if (jurisdictionMap!=null && jurisdictionMap.get(ELRConstant.JURISDICTION_HASHMAP_KEY) != null) {
+            String jurisdiction = jurisdictionMap.get(ELRConstant.JURISDICTION_HASHMAP_KEY);
+            observationRequest.getTheObservationDto().setJurisdictionCd(jurisdiction);
+        }
+        else
+        {
+            observationRequest.getTheObservationDto().setJurisdictionCd(null);
+        }
+
+    } // end of assignJursidiction()
 
 
 
@@ -250,13 +181,12 @@ public class JurisdictionService implements IJurisdictionService {
             }
 
             //Derive the jurisdictionCd
-            Map<Object, Object> jMap = null;
+            Map<String, String> jMap = null;
             if (patientVO != null)
             {
 
                 try
                 {
-                    //TODO: JURISDICTION
                     jMap = resolveLabReportJurisdiction(patientVO, providerVO, orderingFacilityVO, reportingFacilityVO);
                 }
                 catch (Exception cex)
@@ -289,6 +219,212 @@ public class JurisdictionService implements IJurisdictionService {
         }
 
     }
+
+    /**
+     * Description: this method find jurisdiction associated with patient, provider, organization.
+     * Jurisdiction is identified based on Postal locator
+     * */
+    private HashMap<String, String> resolveLabReportJurisdiction(PersonContainer patientContainer,
+                                                                 PersonContainer providerContainer,
+                                                                 OrganizationContainer organizationContainer,
+                                                                 OrganizationContainer organizationContainer2) throws DataProcessingException {
+        try {
+            Collection<String> patientJurisdictionCollection = null;
+            Collection<String> providerJurisdictionCollection = null;
+            Collection<String> organizationJurisdictionCollection = null;
+            HashMap<String, String> map = new HashMap<>();
+            detailError = new StringBuffer();
+            String jurisdiction =null;
+            patientJurisdictionCollection = findJurisdiction(patientContainer.getTheEntityLocatorParticipationDtoCollection(), "H", "PST");
+
+            // Check to see the subject size.  Only proceed if the subject size is not greater than 1.
+            if (patientJurisdictionCollection.size() <= 1)
+            {
+                // Check the result to make sure that there is a value for the subject's jurisdiction.
+                // If not then go and find the jurisdiction based on the provider
+                if (patientJurisdictionCollection.size() == 1)
+                {
+                    Iterator<String> iter = patientJurisdictionCollection.iterator();
+                    jurisdiction = iter.next();
+                    map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
+                }
+
+                if (jurisdiction==null && providerContainer !=null)
+                {
+                    providerJurisdictionCollection = findJurisdiction(providerContainer.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
+                    if(!(providerJurisdictionCollection.size()==0))
+                        // Check to see the provider size.  Only proceed if the provider size is not greater than 1.
+                        if (providerJurisdictionCollection.size() <= 1)
+                        {
+                            // Check the result to make sure that there is a value for the provider's jurisdiction.
+                            // If not then go and find the jurisdiction based on the provider
+                            if (providerJurisdictionCollection.size() == 1)
+                            {
+                                Iterator<String> iter = providerJurisdictionCollection.iterator();
+                                jurisdiction = iter.next();
+                                map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
+                            }
+
+                        }
+                }
+
+                if(jurisdiction==null){
+                    if (organizationContainer != null)
+                    {
+                        organizationJurisdictionCollection = findJurisdiction(organizationContainer.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
+                    }
+                    if (organizationJurisdictionCollection != null)
+                    {
+                        // Check to see the organization size.  Only proceed if the organization size is not greater than 1.
+                        if (organizationJurisdictionCollection.size() <= 1)
+                        {
+                            // Check the result to make sure that there is a value for the organization's jurisdiction.
+                            // If not then go and find the jurisdiction based on the organization
+                            if (organizationJurisdictionCollection.size() == 1)
+                            {
+                                Iterator<String> iter = organizationJurisdictionCollection.iterator();
+                                jurisdiction = iter.next();
+                                map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
+                            }
+                        }
+                    }
+                }
+
+                if (jurisdiction == null) {
+                    organizationJurisdictionCollection = null;
+                    if (organizationContainer2 != null) {
+                        organizationJurisdictionCollection = findJurisdiction(organizationContainer2.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
+                    }
+                    if (organizationJurisdictionCollection != null) {
+                        // Check to see the organization size. Only proceed if the
+                        // organization size is not greater than 1.
+                        if (organizationJurisdictionCollection.size() <= 1) {
+                            // Check the result to make sure that there is a value
+                            // for the organization's jurisdiction.
+                            // If not then go and find the jurisdiction based on the
+                            // organization
+                            if (organizationJurisdictionCollection.size() == 1) {
+                                Iterator<String> iter = organizationJurisdictionCollection.iterator();
+                                jurisdiction = iter.next();
+                                map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
+                            }
+                        }
+                    }
+                }
+            }
+
+            detailError= null;
+            return map;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+    private Collection<String> findJurisdiction(Collection<EntityLocatorParticipationDto> entityLocatorPartColl, String useCd, String classCd)
+    {
+            PostalLocatorDto postalDt = null;
+            Collection<String> coll = new ArrayList<>();
+
+            // Check to make sure that you are able to get a locator participation
+            if (entityLocatorPartColl != null)
+            {
+
+                // If there is a locator participation then proceed.
+                if (!entityLocatorPartColl.isEmpty())
+                {
+
+                    for (EntityLocatorParticipationDto dt : entityLocatorPartColl) {
+                        // for subject the use code	= "H" class cd = "PST"
+                        // for provider the use code = "W" class cd = "PST"
+                        if (dt.getUseCd().equals(useCd) && dt.getClassCd().equals(classCd)) {
+                            postalDt = dt.getThePostalLocatorDto();
+
+                            // Parse the zip if is valid.
+                            if (postalDt != null) {
+
+                                String searchZip = postalDt.getZipCd();
+                                if (searchZip != null && searchZip.length() > 5) {
+                                    searchZip = parseZip(postalDt.getZipCd());
+                                }
+                                if (searchZip == null) {
+                                    searchZip = "NO ZIP";
+                                }
+                                detailError.append(searchZip);
+                                detailError.append(", ");
+
+
+                                // Attempt to find the jurisicition by zip code.  if you do not retrieve any
+                                // data then attempt to retriece by county.  If no data then retrieve
+                                // by city.
+
+                                var res = jurisdictionParticipationRepository.findJurisdiction(searchZip, "Z");
+                                if (res.isPresent()) {
+                                    coll = res.get();
+                                }
+                                if (coll.size() < 1) {
+                                    String cityDesc = postalDt.getCityDescTxt();
+                                    if (cityDesc == null)
+                                    {
+                                        cityDesc = "NO CITY";
+                                    }
+                                    detailError.append(cityDesc);
+                                    detailError.append(", ");
+                                    if (postalDt.getCityDescTxt() != null) {
+                                        var resCity = jurisdictionParticipationRepository.findJurisdictionForCity(postalDt.getCityDescTxt(), postalDt.getStateCd(), "C");
+                                        if (resCity.isPresent()) {
+                                            coll = resCity.get();
+                                        }
+
+                                    }
+                                    String countyDesc = postalDt.getCntyDescTxt();
+                                    if (countyDesc == null) {
+                                        countyDesc = "NO COUNTY";
+                                    }
+                                    detailError.append(countyDesc);
+                                    detailError.append(", ");
+
+                                    if (coll.size() < 1) {
+                                        var resJus = jurisdictionParticipationRepository.findJurisdiction(postalDt.getCntyCd(), "N");
+                                        if (resJus.isPresent()) {
+                                            coll = resJus.get();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if(!detailError.toString().equals("Provider: ")) {
+                //this will remove the trailing ","
+                String detail = detailError.substring(0,(detailError.toString().length() - 2));
+                detail = detail + " ";
+                detailError = new StringBuffer(detail);
+            }
+            return coll;
+    }
+
+
+    /**
+     * Uses a StringTokenizer to parse a zip code using "-" as a delimeter.
+     * Returns the first token of the zip.
+     * @param searchZip  String
+     * @return String
+     */
+    private String parseZip(String searchZip)
+    {
+        if(searchZip != null && searchZip.trim().length()>5)
+        {
+            String toReturn = searchZip.substring(0, 5);
+            return toReturn;
+        }
+        else
+        {
+            return searchZip;
+        }
+    }
+
 
 
 }

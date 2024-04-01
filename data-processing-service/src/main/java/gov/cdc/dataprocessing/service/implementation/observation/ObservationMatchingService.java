@@ -58,11 +58,9 @@ public class ObservationMatchingService implements IObservationMatchingService {
         {
             String msgStatus = observationContainer.getTheObservationDto().getStatusCd();
             String odsStatus = obsDT.getStatusCd();
-            //TODO: REMOVE AFTER TESTED
             odsStatus = "N";
-            if (msgStatus == null
-                    || odsStatus == null
-            ) {
+            if (msgStatus == null || odsStatus == null)
+            {
                 logger.error("Error!! null status cd: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);
                 return null;
             }

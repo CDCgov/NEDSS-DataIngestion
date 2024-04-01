@@ -174,7 +174,7 @@ public class ObservationDto extends BaseContainer implements RootDtoInterface {
     private Integer pregnantWeek;
 
     public String getSuperclass() {
-        this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
+        this.superClassType = NEDSSConstant.CLASSTYPE_ACT;
         return superClassType;
     }
 

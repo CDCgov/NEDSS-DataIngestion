@@ -1,28 +1,35 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.participation;
 
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ActIdId;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ParticipationHistId;
 import jakarta.persistence.*;
 import jakarta.persistence.Id;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "Participation_hist")
 @Data
-public class ParticipationHist {
+@IdClass(ParticipationHistId.class)
+public class ParticipationHist  implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Column(name = "subject_entity_uid")
     @Id
     private Long subjectEntityUid;
 
+    @Id
     @Column(name = "act_uid")
     private Long actUid;
 
+    @Id
     @Column(name = "type_cd")
     private String typeCd;
 
+    @Id
     @Column(name = "version_ctrl_nbr")
- //   @Version
     private Integer versionCtrlNbr;
 
     @Column(name = "act_class_cd")

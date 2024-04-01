@@ -24,6 +24,7 @@ import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipat
 import gov.cdc.dataprocessing.service.interfaces.other.IOdseIdGeneratorService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,8 @@ public class PatientRepositoryUtil {
     private final PersonRaceRepository personRaceRepository;
     private final PersonEthnicRepository personEthnicRepository;
     private final EntityIdRepository entityIdRepository;
+
+    private final PrepareAssocModelHelper prepareAssocModelHelper;
 //    private final EntityLocatorParticipationRepository entityLocatorParticipationRepository;
     private final RoleRepository roleRepository;
 //    private final TeleLocatorRepository teleLocatorRepository;
@@ -59,6 +62,7 @@ public class PatientRepositoryUtil {
             PersonRaceRepository personRaceRepository,
             PersonEthnicRepository personEthnicRepository,
             EntityIdRepository entityIdRepository,
+            PrepareAssocModelHelper prepareAssocModelHelper,
             RoleRepository roleRepository,
             IOdseIdGeneratorService odseIdGeneratorService,
             IEntityLocatorParticipationService entityLocatorParticipationService) {
@@ -68,6 +72,7 @@ public class PatientRepositoryUtil {
         this.personRaceRepository = personRaceRepository;
         this.personEthnicRepository = personEthnicRepository;
         this.entityIdRepository = entityIdRepository;
+        this.prepareAssocModelHelper = prepareAssocModelHelper;
         this.roleRepository = roleRepository;
         this.odseIdGeneratorService = odseIdGeneratorService;
         this.entityLocatorParticipationService = entityLocatorParticipationService;
@@ -86,9 +91,8 @@ public class PatientRepositoryUtil {
 
     @Transactional
     public Person createPerson(PersonContainer personContainer) throws DataProcessingException {
-        //TODO: Implement unique id generator here
-        Long personUid = 212121L;
-        String localUid = "Unique Id here";
+        Long personUid;
+        String localUid;
         //var localIdModel = localUidGeneratorRepository.findById(PERSON);
         var localIdModel = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.PERSON);
         personUid = localIdModel.getSeedValueNbr();
@@ -110,6 +114,13 @@ public class PatientRepositoryUtil {
 
         arrayList.add(personUid);
         arrayList.add(NEDSSConstant.PERSON);
+
+//        prepareAssocModelHelper.prepareVO(
+//                personContainer.getThePersonDto(),
+//                NEDSSConstant.PATIENT,
+//                NEDSSConstant.PER_CR,
+//                "Person",
+//                NEDSSConstant.BASE);
 
         //NOTE: Create Entitty
         try {
@@ -182,12 +193,16 @@ public class PatientRepositoryUtil {
 
     @Transactional
     public void updateExistingPerson(PersonContainer personContainer) throws DataProcessingException {
-        //TODO: Implement unique id generator here
-
-
         ArrayList<Object>  arrayList = new ArrayList<>();
 
         arrayList.add(NEDSSConstant.PERSON);
+
+//        prepareAssocModelHelper.prepareVO(
+//                personContainer.getThePersonDto(),
+//                NEDSSConstant.PATIENT,
+//                NEDSSConstant.PER_CR,
+//                "Person",
+//                NEDSSConstant.BASE);
 
         //NOTE: Update Person
         Person person = new Person(personContainer.getThePersonDto());
@@ -526,8 +541,6 @@ public class PatientRepositoryUtil {
                 }
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            logger.error("EntityControllerEJB.preparePersonNameBeforePersistence: " + e.getMessage(), e);
             throw new DataProcessingException(e.getMessage(), e);
         }
 

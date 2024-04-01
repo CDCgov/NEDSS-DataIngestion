@@ -12,6 +12,7 @@ import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PrepareEntityStoredProcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.PrepareEntity;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
+import gov.cdc.dataprocessing.utilities.component.jurisdiction.ProgAreaJurisdictionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -23,9 +24,15 @@ public class PrepareAssocModelHelper {
     private static final Logger logger = LoggerFactory.getLogger(PrepareAssocModelHelper.class);
 
     private final PrepareEntityStoredProcRepository prepareEntityStoredProcRepository;
+    private final ProgAreaJurisdictionUtil progAreaJurisdictionUtil;
+    private final ConcurrentCheck concurrentCheck;
 
-    public PrepareAssocModelHelper(PrepareEntityStoredProcRepository prepareEntityStoredProcRepository) {
+    public PrepareAssocModelHelper(PrepareEntityStoredProcRepository prepareEntityStoredProcRepository,
+                                   ProgAreaJurisdictionUtil progAreaJurisdictionUtil,
+                                   ConcurrentCheck concurrentCheck) {
         this.prepareEntityStoredProcRepository = prepareEntityStoredProcRepository;
+        this.progAreaJurisdictionUtil = progAreaJurisdictionUtil;
+        this.concurrentCheck = concurrentCheck;
     }
 
     /**
@@ -75,7 +82,6 @@ public class PrepareAssocModelHelper {
                 {
                     e.printStackTrace();
                 }
-                //TODO: Looking into this, this basically getting Permission ID
 //                if(!nbsSecurityObj.getEntryID().equals(""))
 //                {
 //                    logger.debug("nbsSecurityObj.getEntryID() = " + nbsSecurityObj.getEntryID());
@@ -137,7 +143,6 @@ public class PrepareAssocModelHelper {
                 {
                     e.printStackTrace();
                 }
-                //TODO: Looking into this, this basically getting Permission ID
 //                if(!nbsSecurityObj.getEntryID().equals(""))
 //                {
 //                    logger.debug("nbsSecurityObj.getEntryID() = " + nbsSecurityObj.getEntryID());
@@ -309,25 +314,25 @@ public class PrepareAssocModelHelper {
      * @roseuid 3C7422C50093
      */
     public RootDtoInterface prepareVO(RootDtoInterface theRootDTInterface, String businessObjLookupName,
-                                String businessTriggerCd, String tableName, String moduleCd) throws DataProcessingException
+                                String businessTriggerCd, String tableName, String moduleCd,
+                                      Integer existingVersion) throws DataProcessingException
     {
             if(!theRootDTInterface.isItNew() && !theRootDTInterface.isItDirty() && !theRootDTInterface.isItDelete()) {
                 throw new DataProcessingException("Error while calling prepareVO method in PrepareVOUtils");
             }
             if(theRootDTInterface.isItDirty() && !theRootDTInterface.isItNew())
             {
-                //TODO: EVALUATE
                 // CONCURRENCE CHECK
-//                boolean result = dataConcurrenceCheck(theRootDTInterface, tableName);
-//                if(result)
-//                {
-//                    logger.debug("result in prepareVOUtil is :" + result);
-//                    //no concurrent dataAccess has occured, hence can continue!
-//                }
-//                else
-//                {
-//                }
-                throw new DataProcessingException("NEDSSConcurrentDataException occurred in PrepareVOUtils.Person");
+                boolean result = concurrentCheck.dataConcurrenceCheck(theRootDTInterface, tableName, existingVersion);
+                if(result)
+                {
+                    logger.debug("result in prepareVOUtil is :" + result);
+                    //no concurrent dataAccess has occured, hence can continue!
+                }
+                else
+                {
+                    throw new DataProcessingException("NEDSSConcurrentDataException occurred in PrepareVOUtils.Person");
+                }
 
             }
 
@@ -387,10 +392,8 @@ public class PrepareAssocModelHelper {
             {
                 String progAreaCd = theRootDTInterface.getProgAreaCd();
                 String jurisdictionCd = theRootDTInterface.getJurisdictionCd();
-                //TODO EVALUATE
-                // PROGRAM AREA
-                // long pajHash = ProgramAreaJurisdictionUtil.getPAJHash(progAreaCd, jurisdictionCd);
-                Long aProgramJurisdictionOid = -1L;
+                long pajHash = progAreaJurisdictionUtil.getPAJHash(progAreaCd, jurisdictionCd);
+                Long aProgramJurisdictionOid = pajHash;
                 logger.debug("aProgramJurisdictionOid is : " + aProgramJurisdictionOid);
                 theRootDTInterface.setProgramJurisdictionOid(aProgramJurisdictionOid);
                 logger.debug("aProgramJurisdictionOid from obj  is : " + theRootDTInterface.getProgramJurisdictionOid());
@@ -517,13 +520,6 @@ public class PrepareAssocModelHelper {
         try
         {
             Long uid = theRootDTInterface.getUid();
-            logger.debug("prepareDirtyActVO uid = " + uid);
-
-
-            logger.debug("businessTriggerCd in prepareDirtyActVO in prepateVOUtil is :"+businessTriggerCd);
-            logger.debug("moduleCd in prepareDirtyActVO in prepateVOUtil is :"+moduleCd);
-            logger.debug("uid in prepareDirtyActVO in prepateVOUtil is :"+uid);
-            logger.debug("tableName in prepareDirtyActVO in prepateVOUtil is :"+tableName);
 
             PrepareEntity prepareVOUtilsHelper = prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, uid, tableName);
             String localId = prepareVOUtilsHelper.getLocalId();//7
@@ -544,10 +540,8 @@ public class PrepareAssocModelHelper {
                 String progAreaCd = theRootDTInterface.getProgAreaCd();
                 String jurisdictionCd = theRootDTInterface.getJurisdictionCd();
 
-                //TODO EVALUATE
-                // PROGRAM AREA
-                //long pajHash = ProgramAreaJurisdictionUtil.getPAJHash(progAreaCd, jurisdictionCd);
-                Long aProgramJurisdictionOid = -1L;
+                long pajHash = progAreaJurisdictionUtil.getPAJHash(progAreaCd, jurisdictionCd);
+                Long aProgramJurisdictionOid = pajHash;
                 theRootDTInterface.setProgramJurisdictionOid(aProgramJurisdictionOid);
             }
 
@@ -644,7 +638,4 @@ public class PrepareAssocModelHelper {
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
-
-
-
 }

@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.data_extraction;
+package gov.cdc.dataprocessing.utilities.component.data_parser.util;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
@@ -7,21 +7,28 @@ import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.model.phdc.HL7CXType;
 import gov.cdc.dataprocessing.model.phdc.HL7DTType;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
+import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@Component
 public class EntityIdUtil {
     private static final Logger logger = LoggerFactory.getLogger(EntityIdUtil.class);
+    private final ICatchingValueService catchingValueService;
+
+    public EntityIdUtil(ICatchingValueService catchingValueService) {
+        this.catchingValueService = catchingValueService;
+    }
 
     /**
      * This method process then parse data from Person into EntityId Object
      * */
-    public static EntityIdDto processEntityData(HL7CXType hl7CXType, PersonContainer personContainer, String indicator, int index) throws DataProcessingException {
+    public EntityIdDto processEntityData(HL7CXType hl7CXType, PersonContainer personContainer, String indicator, int index) throws DataProcessingException {
         EntityIdDto entityIdDto = new EntityIdDto();
         if (hl7CXType != null) {
             entityIdDto.setEntityUid(personContainer.getThePersonDto().getPersonUid());
@@ -51,12 +58,7 @@ public class EntityIdUtil {
                 entityIdDto.setTypeCd(EdxELRConstant.ELR_PERSON_TYPE);
                 entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_PERSON_TYPE_DESC);
 
-                /**
-                 * TODO: Need to call out ro CodeValueGeneral Repository to grab the data
-                 * */
-                CodeValueGeneral codeValueGeneralModel = new CodeValueGeneral();
-                codeValueGeneralModel.setCode("DUMMY");
-                String typeCode =  codeValueGeneralModel.getCode();// CachedDropDowns.getCodeDescTxtForCd(entityIdDT.getTypeCd(), EdxELRConstant.EI_TYPE);
+                String typeCode = catchingValueService.getCodeDescTxtForCd(entityIdDto.getTypeCd(), EdxELRConstant.EI_TYPE);
 
                 if (typeCode == null || typeCode.trim().equals("")) {
                     entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_CLIA_DESC);
@@ -85,7 +87,7 @@ public class EntityIdUtil {
         return entityIdDto;
     }
 
-    public static Timestamp processHL7DTType(HL7DTType time, String itemDescription) throws DataProcessingException {
+    public Timestamp processHL7DTType(HL7DTType time, String itemDescription) throws DataProcessingException {
         Timestamp toTimestamp = null;
 
         int year = -1;
@@ -119,7 +121,7 @@ public class EntityIdUtil {
         return toTimestamp;
     }
 
-    public static Timestamp stringToStrutsTimestamp(String strTime) {
+    public Timestamp stringToStrutsTimestamp(String strTime) {
         java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat("MM/dd/yyyy");
         Date t;
         try {
@@ -145,7 +147,7 @@ public class EntityIdUtil {
      * @param dateVal
      * @return true if invalid date
      */
-    public static boolean isDateNotOkForDatabase (Timestamp dateVal) {
+    public boolean isDateNotOkForDatabase (Timestamp dateVal) {
         if (dateVal == null)
             return false;
         String earliestDate = "1753-01-01";

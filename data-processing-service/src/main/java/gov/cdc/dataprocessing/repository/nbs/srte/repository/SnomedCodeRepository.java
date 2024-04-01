@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.repository.nbs.srte;
+package gov.cdc.dataprocessing.repository.nbs.srte.repository;
 
 import gov.cdc.dataprocessing.repository.nbs.srte.model.LabResult;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.SnomedCode;
