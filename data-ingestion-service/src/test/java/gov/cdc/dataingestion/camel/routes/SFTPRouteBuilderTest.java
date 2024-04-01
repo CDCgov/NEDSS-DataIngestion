@@ -6,16 +6,12 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.junit5.CamelTestSupport;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.io.File;
 
 import static org.apache.camel.builder.AdviceWith.adviceWith;
 
 class SFTPRouteBuilderTest extends CamelTestSupport {
-
-    @MockBean
-    private HL7FileProcessComponent hL7FileProcessComponent;
 
     @Override
     public boolean isUseAdviceWith() {
