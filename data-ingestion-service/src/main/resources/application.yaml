@@ -50,6 +50,8 @@ spring:
       username: ${DI_NBS_DBUSER}
       password: ${DI_NBS_DBPASSWORD}
       driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    odse:
+      url: jdbc:sqlserver://${DI_NBS_DBSERVER};databaseName=${DI_ODSE_DBNAME};encrypt=true;trustServerCertificate=true;
   jpa:
     show-sql: true
     hibernate:
@@ -103,6 +105,8 @@ spring:
       username: ${DI_NBS_DBUSER}
       password: ${DI_NBS_DBPASSWORD}
       driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    odse:
+      url: jdbc:sqlserver://${DI_NBS_DBSERVER};databaseName=${DI_ODSE_DBNAME};encrypt=true;trustServerCertificate=true;
   jpa:
     show-sql: true
     hibernate:

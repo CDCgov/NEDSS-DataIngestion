@@ -35,6 +35,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
     private static final String ROUTE_FILES_PROCESS_UNPROCESS="file:files/sftpProcessedUnprocessed";
     private static final String ROUTE_FILE_UNZIP_DOWNLOAD="file:files/sftpUnzipDownload";
     private static final String ROUTE_FILE_DOWNLOAD="file:files/sftpdownload";
+    private static final String ROUTE_SEDA_UPDATE_STATUS="seda:updateStatus";
     private static final String PASSIVE_MODE="passiveMode";
     private static final String INITIAL_DELAY="initialDelay";
     private static final String DELAY="delay";
@@ -44,6 +45,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
     private static final String RECURSIVE="recursive";
     private static final String MAXIMUM_RECONNECT_ATTEMPTS="maximumReconnectAttempts";
     private static final String RECONNECT_DELAY="reconnectDelay";
+
     @Override
     public void configure() throws Exception {
         //shutdown faster in case of in-flight messages stack up
@@ -123,9 +125,13 @@ public class SFTPRouteBuilder extends RouteBuilder {
                 .routeId("sedaProcessFilesRouteId")
                 .log("from seda processfiles file: ${file:name}")
                 .choice()
-                    .when(simple("${file:name} endsWith '.txt'"))
+                    .when(simple("${file:name} endsWith '.txt' && ${bodyAs(String).trim.length} != '0'"))
                         .log("File processed:${file:name}")
-                        .to("bean:gov.cdc.dataingestion.camel.routes.HL7FileProcessComponent")
+                        .log("Before bean process:${bodyAs(String).trim.length}:")
+                        .bean(HL7FileProcessComponent.class)
+                        .log("ELR raw id: ${body}")
+                        .setBody(simple("${file:name}:${body}"))
+                        .to(ROUTE_SEDA_UPDATE_STATUS)
                     .otherwise()
                         .log("File not processed:${file:name}")
                 .endChoice()
@@ -138,14 +144,35 @@ public class SFTPRouteBuilder extends RouteBuilder {
                 .end();
 
         from(ROUTE_FILES_PROCESS_UNPROCESS+"?delete=true")
-                .log("from files sftpProcessedUnprocessed The file ${file:name}")
+                .log("From sftpProcessedUnprocessed folder. The file ${file:name}")
                 .delay(5000)
                 .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmssSSS}-${file:name}"))
                 .choice()
-                    .when(simple("${file:name} endsWith '.txt'"))
-                        .to(sftpUriProcessed.toString())
+                    .when(simple("${file:name} endsWith '.txt' && ${bodyAs(String).trim.length} != '0'"))
+                        .log("processed file:${file:name}")
                     .otherwise()
                         .to(sftpUriUnProcessed.toString())
+                .endChoice()
+                .end();
+        //////Provide the ELR processing status in the output folder.
+        from(ROUTE_SEDA_UPDATE_STATUS)
+                .routeId("sedaStatusRouteId").delay(2000)
+                .log("from seda updateStatus message:${body}")
+                .bean(ElrProcessStatusComponent.class)
+                .choice()
+                    .when(simple("${bodyAs(String)} == 'Success'"))
+                        .log("When success status: ${body}")
+                        .setBody(simple("${body}"))
+                        .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmss}-Success-${file:name}"))
+                        .to(sftpUriProcessed.toString())
+                    .when(simple("${bodyAs(String).startsWith('Status:')} == 'true'"))
+                        .log("When failure status: ${body}")
+                        .setBody(simple("${body}"))
+                        .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmss}-Failure-${file:name}"))
+                        .to(sftpUriProcessed.toString())
+                    .otherwise()
+                        .log("--calling the same seda:updateStatus----${body}")
+                        .to(ROUTE_SEDA_UPDATE_STATUS)
                 .endChoice()
                 .end();
     }
