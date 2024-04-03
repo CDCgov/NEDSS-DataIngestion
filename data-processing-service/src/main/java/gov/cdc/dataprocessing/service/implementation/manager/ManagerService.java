@@ -2,19 +2,29 @@ package gov.cdc.dataprocessing.service.implementation.manager;
 
 import com.google.gson.Gson;
 import gov.cdc.dataprocessing.cache.SrteCache;
+import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
+import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.exception.EdxLogException;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxyVO;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PublicHealthCaseVO;
 import gov.cdc.dataprocessing.model.container.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.PageProxyContainer;
+import gov.cdc.dataprocessing.model.container.PamProxyContainer;
+import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
+import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.NbsInterfaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
+import gov.cdc.dataprocessing.service.implementation.investigation.DecisionSupportService;
 import gov.cdc.dataprocessing.service.implementation.other.CachingValueService;
 import gov.cdc.dataprocessing.service.interfaces.auth.ISessionProfileService;
 import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
@@ -41,6 +51,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
@@ -74,6 +85,7 @@ public class ManagerService implements IManagerService {
     private final ISessionProfileService sessionProfileService;
 
     private final IObservationMatchingService observationMatchingService;
+    private final DecisionSupportService decisionSupportService;
 
     private final ManagerUtil managerUtil;
 
@@ -92,7 +104,7 @@ public class ManagerService implements IManagerService {
                           CacheManager cacheManager,
                           ISessionProfileService sessionProfileService,
                           IObservationMatchingService observationMatchingService,
-                          ManagerUtil managerUtil,
+                          DecisionSupportService decisionSupportService, ManagerUtil managerUtil,
                           IManagerAggregationService managerAggregationService) {
         this.observationService = observationService;
         this.patientService = patientService;
@@ -108,6 +120,7 @@ public class ManagerService implements IManagerService {
         this.cacheManager = cacheManager;
         this.sessionProfileService = sessionProfileService;
         this.observationMatchingService = observationMatchingService;
+        this.decisionSupportService = decisionSupportService;
         this.managerUtil = managerUtil;
         this.managerAggregationService = managerAggregationService;
     }
@@ -291,6 +304,134 @@ public class ManagerService implements IManagerService {
         }
     }
 
+    private Object initiatingInvestigationAndPublicHealthCase(
+            LabResultProxyContainer labResultProxyContainer, 
+            EdxLabInformationDto edxLabInformationDto,
+            ObservationDto observationDto) throws DataProcessingException {
+
+
+        if (edxLabInformationDto.isLabIsUpdateDRRQ()) {
+            edxLabInformationDto.setLabIsUpdateSuccess(true);
+            edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_15);
+        } else if (edxLabInformationDto.isLabIsUpdateDRSA()) {
+            edxLabInformationDto.setLabIsUpdateSuccess(true);
+            edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_22);
+        }
+
+        if (edxLabInformationDto.isLabIsCreate()) {
+            if (observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null) {
+
+                // This logic here determine whether logic is mark as review or not
+                decisionSupportService.validateProxyVO(labResultProxyContainer, edxLabInformationDto);
+
+                PageActProxyVO pageActProxyVO = null;
+                PamProxyContainer pamProxyVO = null;
+                PublicHealthCaseVO publicHealthCaseVO = null;
+                Long phcUid = null;
+                if (edxLabInformationDto.getAction() != null && edxLabInformationDto.getAction().equalsIgnoreCase(DecisionSupportConstants.MARK_AS_REVIEWED)) {
+                    //Check for user security to mark as review lab
+//                    checkSecurity(nbsSecurityObj, edxLabInformationDto, NBSBOLookup.OBSERVATIONLABREPORT, NBSOperationLookup.MARKREVIEWED, programAreaCd, jurisdictionCd);
+
+
+                    //TODO: 3rd Flow
+                    //hL7CommonLabUtil.markAsReviewedHandler(observationDto.getObservationUid(), edxLabInformationDto);
+                    if (edxLabInformationDto.getAssociatedPublicHealthCaseUid() != null && edxLabInformationDto.getAssociatedPublicHealthCaseUid().longValue() > 0) {
+                        edxLabInformationDto.setPublicHealthCaseUid(edxLabInformationDto.getAssociatedPublicHealthCaseUid());
+                        edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_21);
+                        edxLabInformationDto.setLabAssociatedToInv(true);
+                    } else {
+                        edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_11);
+                    }
+
+                }
+                else if (edxLabInformationDto.getObject() != null)
+                {
+                    //Check for user security to create investigation
+//                    checkSecurity(nbsSecurityObj, edxLabInformationDto, NBSBOLookup.INVESTIGATION, NBSOperationLookup.ADD, programAreaCd, jurisdictionCd);
+                    if (edxLabInformationDto.getObject() instanceof PageProxyContainer) {
+                        pageActProxyVO = (PageActProxyVO) edxLabInformationDto.getObject();
+                        publicHealthCaseVO = pageActProxyVO.getPublicHealthCaseVO();
+                    }
+                    else
+                    {
+                        pamProxyVO = (PamProxyContainer) edxLabInformationDto.getObject();
+                        publicHealthCaseVO = pamProxyVO.getPublicHealthCaseVO();
+                    }
+
+                    if (publicHealthCaseVO.getErrorText() != null)
+                    {
+                        //TODO: 3rd Flow
+                        // requiredFieldError(publicHealthCaseVO.getErrorText(), edxLabInformationDto);
+                    }
+
+                    if (pageActProxyVO != null && observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null)
+                    {
+                        //TODO: 3rd Flow
+                        /*
+                        Object object = nedssUtils.lookupBean(JNDINames.PAGE_PROXY_EJB);
+                        PageProxyHome pageProxyHome = (PageProxyHome) javax.rmi.PortableRemoteObject.narrow(object, PageProxyHome.class);
+                        PageProxyContainer pageProxy = pageProxyHome.create();
+                        phcUid = pageProxy.setPageProxyWithAutoAssoc(NEDSSConstant.CASE, pageActProxyVO,
+                                edxLabInformationDto.getRootObserbationUid(), NEDSSConstant.LABRESULT_CODE, null);
+                        pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().setPublicHealthCaseUid(phcUid);
+                        */
+                        edxLabInformationDto.setInvestigationSuccessfullyCreated(true);
+                        edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_3);
+                        edxLabInformationDto.setPublicHealthCaseUid(phcUid);
+                        edxLabInformationDto.setLabAssociatedToInv(true);
+                    }
+                    else if (observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null)
+                    {
+                        //TODO: 3rd Flow
+                        /*
+                        Object object = nedssUtils.lookupBean(JNDINames.PAM_PROXY_EJB);
+                        PamProxyHome pamProxyHome = (PamProxyHome) javax.rmi.PortableRemoteObject.narrow(object, PamProxyHome.class);
+                        PamProxyContainer pamProxy = pamProxyHome.create();
+                        phcUid = pamProxy.setPamProxyWithAutoAssoc(pamProxyVO, edxLabInformationDto.getRootObserbationUid(),
+                                NEDSSConstant.LABRESULT_CODE);
+                        */
+                        pamProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().setPublicHealthCaseUid(phcUid);
+                        edxLabInformationDto.setInvestigationSuccessfullyCreated(true);
+                        edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_3);
+                        edxLabInformationDto.setPublicHealthCaseUid(phcUid);
+                        edxLabInformationDto.setLabAssociatedToInv(true);
+                    }
+
+                    if(edxLabInformationDto.getAction().equalsIgnoreCase(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE)){
+                        //TODO: 3rd Flow
+                        //Check for user security to create notification
+                        //checkSecurity(nbsSecurityObj, edxLabInformationDto, NBSBOLookup.NOTIFICATION, NBSOperationLookup.CREATE, programAreaCd, jurisdictionCd);
+                        /*
+                        EDXActivityDetailLogDto edxActivityDetailLogDT = EdxCommonHelper.sendNotification(publicHealthCaseVO, edxLabInformationDto.getNndComment());
+                        edxActivityDetailLogDT.setRecordType(EdxELRConstant.ELR_RECORD_TP);
+                        edxActivityDetailLogDT.setRecordName(EdxELRConstant.ELR_RECORD_NM);
+                        ArrayList<Object> details = (ArrayList<Object>)edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails();
+                        if(details==null){
+                            details = new ArrayList<Object>();
+                        }
+                        details.add(edxActivityDetailLogDT);
+                        edxLabInformationDto.getEdxActivityLogDto().setEDXActivityLogDTWithVocabDetails(details);
+                        if(edxActivityDetailLogDT.getLogType()!=null && edxActivityDetailLogDT.getLogType().equals(EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure.name())){
+                            if(edxActivityDetailLogDT.getComment()!=null && edxActivityDetailLogDT.getComment().indexOf(EdxELRConstant.MISSING_NOTF_REQ_FIELDS)!=-1){
+                                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_8);
+                                edxLabInformationDto.setNotificationMissingFields(true);
+                            }
+                            else{
+                                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_10);
+                            }
+                            throw new DataProcessingException("MISSING NOTI REQUIRED: "+edxActivityDetailLogDT.getComment());
+                        }else{
+                            //edxLabInformationDto.setNotificationSuccessfullyCreated(true);
+                            edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_6);
+                        }
+                        */
+                    }
+
+                }
+            }
+        }
+        return null;
+    }
     private void loadAndInitCachedValue() throws DataProcessingException {
 
         if (SrteCache.loincCodesMap.isEmpty()) {
@@ -437,6 +578,22 @@ public class ManagerService implements IManagerService {
                 }
             }
         }).thenRun(() -> {
+            if (SrteCache.coInfectionConditionCode.isEmpty()) {
+                try {
+                    cachingValueService.getAllOnInfectionConditionCode();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
+            if (SrteCache.conditionCodes.isEmpty() || SrteCache.investigationFormConditionCode.isEmpty()) {
+                try {
+                    cachingValueService.getAllConditionCode();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
             // Retrieve cached values using Cache.ValueWrapper
             var cache = cacheManager.getCache("srte");
             if (cache != null) {
@@ -496,6 +653,30 @@ public class ManagerService implements IManagerService {
                         SrteCache.elrXrefsList = (List<ElrXref>) cachedObject;
                     }
                 }
+
+
+                valueWrapper = cache.get("coInfectionConditionCode");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof List) {
+                        SrteCache.coInfectionConditionCode = (TreeMap<String, String>) cachedObject;
+                    }
+                }
+
+                valueWrapper = cache.get("conditionCode");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof List) {
+                        SrteCache.conditionCodes = (List<ConditionCode>) cachedObject;
+
+                        // Populate Code for Investigation Form
+                        for (ConditionCode obj : SrteCache.conditionCodes) {
+                            SrteCache.investigationFormConditionCode.put(obj.getConditionCd(), obj.getInvestigationFormCd());
+                        }
+
+                    }
+                }
+
             }
         });
 

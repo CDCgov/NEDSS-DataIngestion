@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.dto.lab_result;
 
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.PublicHealthCaseDT;
 import gov.cdc.dataprocessing.model.dto.edx.EdxLabIdentiferDto;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
@@ -138,7 +139,7 @@ public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDto implements 
     private boolean labAssociatedToInv;
 
     private boolean reasonforStudyCdMissing;
-    private Collection<Object> matchingPublicHealthCaseDTColl;
+    private Collection<PublicHealthCaseDT> matchingPublicHealthCaseDTColl;
     private String investigationType;
     private NbsInterfaceStatus status;
 

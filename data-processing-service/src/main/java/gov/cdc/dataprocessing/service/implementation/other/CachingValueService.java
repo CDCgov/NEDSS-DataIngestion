@@ -16,6 +16,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -38,6 +39,7 @@ public class CachingValueService implements ICatchingValueService {
 
     private final IProgramAreaService programAreaService;
     private final IJurisdictionService jurisdictionService;
+    private final ConditionCodeRepository conditionCodeRepository;
 
     public CachingValueService(JurisdictionCodeRepository jurisdictionCodeRepository,
                                CodeValueGeneralRepository codeValueGeneralRepository,
@@ -48,7 +50,8 @@ public class CachingValueService implements ICatchingValueService {
                                LOINCCodeRepository loincCodeRepository,
                                CacheManager cacheManager,
                                IProgramAreaService programAreaService,
-                               IJurisdictionService jurisdictionService) {
+                               IJurisdictionService jurisdictionService,
+                               ConditionCodeRepository conditionCodeRepository) {
         this.jurisdictionCodeRepository = jurisdictionCodeRepository;
         this.codeValueGeneralRepository = codeValueGeneralRepository;
         this.elrXrefRepository = elrXrefRepository;
@@ -59,6 +62,7 @@ public class CachingValueService implements ICatchingValueService {
         this.cacheManager = cacheManager;
         this.programAreaService = programAreaService;
         this.jurisdictionService = jurisdictionService;
+        this.conditionCodeRepository = conditionCodeRepository;
     }
 
     @Cacheable(cacheNames = "srte", key = "'loincCodes'")
@@ -162,6 +166,38 @@ public class CachingValueService implements ICatchingValueService {
             throw new DataProcessingException(e.getMessage());
         }
 
+    }
+
+    @Cacheable(cacheNames = "srte", key = "'coInfectionConditionCode'")
+    public TreeMap<String, String> getAllOnInfectionConditionCode() throws DataProcessingException {
+        TreeMap<String, String> map = new TreeMap<>();
+        try {
+            var result = conditionCodeRepository.findCoInfectionConditionCode();
+            if (result.isPresent()) {
+                for (ConditionCode obj :result.get()) {
+                    map.put(obj.getConditionCd(), obj.getCoinfectionGrpCd());
+                }
+
+            }
+
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage());
+        }
+        return  map;
+    }
+
+    @Cacheable(cacheNames = "srte", key = "'conditionCode'")
+    public List<ConditionCode> getAllConditionCode() throws DataProcessingException {
+        try {
+            var result = conditionCodeRepository.findAllConditionCode();
+            if (result.isPresent()) {
+                return result.get();
+            }
+
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage());
+        }
+        return  new ArrayList<>();
     }
 
 
@@ -355,7 +391,7 @@ public class CachingValueService implements ICatchingValueService {
         return map;
     }
 
-    private TreeMap<String, String> getCodedValue(String code) throws DataProcessingException {
+    public TreeMap<String, String> getCodedValue(String code) throws DataProcessingException {
         TreeMap<String, String> map = new TreeMap<>();
         try {
             List<CodeValueGeneral> codeValueGeneralList;

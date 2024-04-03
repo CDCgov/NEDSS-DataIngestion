@@ -1,11 +1,9 @@
 package gov.cdc.dataprocessing.cache;
 
+import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SrteCache {
@@ -24,6 +22,10 @@ public class SrteCache {
 
     public static List<ElrXref> elrXrefsList = new ArrayList<>();
 
+    public static List<ConditionCode> conditionCodes = new ArrayList<>();
+    public static TreeMap<String, String> coInfectionConditionCode = new TreeMap<>();
+    public static TreeMap<String, String> investigationFormConditionCode = new TreeMap<>();
+
     public static Optional<ElrXref> findRecordForElrXrefsList(String fromCodeSetNm, String fromCode, String toCodeSetNm) {
         return elrXrefsList.stream()
                 .filter(x -> x.getFromCodeSetNm().equals(fromCodeSetNm))
@@ -31,4 +33,16 @@ public class SrteCache {
                 .filter(x -> x.getToCodeSetNm().equals(toCodeSetNm))
                 .findFirst();
     }
+
+    public static boolean checkWhetherPAIsStdOrHiv(String paCode) {
+        return jurisdictionCodeMapWithNbsUid.containsKey(paCode);
+    }
+
+    public static Optional<ConditionCode> findConditionCodeByDescription(String description) {
+        return conditionCodes.stream()
+                .filter(Objects::nonNull) // Filter out null elements
+                .filter(cc -> Objects.equals(cc.getConditionShortNm(), description))
+                .findFirst();
+    }
+
 }

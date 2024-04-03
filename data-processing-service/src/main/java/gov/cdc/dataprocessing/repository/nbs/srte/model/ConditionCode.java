@@ -2,10 +2,12 @@ package gov.cdc.dataprocessing.repository.nbs.srte.model;
 
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.sql.Timestamp;
 
 @Entity
+@Data
 @Table(name = "Condition_code")
 public class ConditionCode {
 
