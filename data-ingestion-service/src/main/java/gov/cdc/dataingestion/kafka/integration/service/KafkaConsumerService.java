@@ -401,6 +401,8 @@ public class KafkaConsumerService {
             model.setMessage(elrDeadLetterDto.getMessage());
             model.setCreatedBy(elrDeadLetterDto.getCreatedBy());
             model.setUpdatedBy(elrDeadLetterDto.getUpdatedBy());
+            model.setCreatedOn(getCurrentTimeStamp());
+            model.setUpdatedOn(getCurrentTimeStamp());
             this.elrDeadLetterRepository.save(model);
         } catch (Exception e) {
             Gson gson = new Gson();
