@@ -5,6 +5,7 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.lookup.LookupMappingDto;
 import gov.cdc.dataprocessing.model.dto.lookup.PrePopMappingDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.LookupMappingRepository;
+import gov.cdc.dataprocessing.service.interfaces.ILookupService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.Iterator;
 import java.util.TreeMap;
 
 @Service
-public class LookupService {
+public class LookupService implements ILookupService {
 
     private final LookupMappingRepository lookupMappingRepository;
 
@@ -109,7 +110,7 @@ public class LookupService {
     }
 
 
-    public Collection<LookupMappingDto> retrievePrePopMapping () {
+    private Collection<LookupMappingDto> retrievePrePopMapping () {
         var res = lookupMappingRepository.getLookupMappings();
         return res.orElseGet(ArrayList::new);
     }

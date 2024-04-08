@@ -24,6 +24,8 @@ import gov.cdc.dataprocessing.model.dto.observation.ObsValueNumericDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueTxtDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.ConditionCodeRepository;
+import gov.cdc.dataprocessing.service.interfaces.IAutoInvestigationService;
+import gov.cdc.dataprocessing.service.interfaces.ILookupService;
 import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
 import gov.cdc.dataprocessing.utilities.DynamicBeanBinding;
 import gov.cdc.dataprocessing.utilities.RulesEngineUtil;
@@ -36,11 +38,11 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
-public class AutoInvestigationService {
+public class AutoInvestigationService implements IAutoInvestigationService {
 
     private final ConditionCodeRepository conditionCodeRepository;
     private final ICatchingValueService catchingValueService;
-    private final LookupService lookupService;
+    private final ILookupService lookupService;
 
     public AutoInvestigationService(ConditionCodeRepository conditionCodeRepository,
                                     ICatchingValueService catchingValueService,
@@ -99,264 +101,10 @@ public class AutoInvestigationService {
 
     }
 
-
-    private PublicHealthCaseVO createPublicHealthCaseVO(ObservationContainer observationVO, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
-        PublicHealthCaseVO phcVO = new PublicHealthCaseVO();
-
-        phcVO.getThePublicHealthCaseDT().setLastChgTime(new java.sql.Timestamp(new Date().getTime()));
-
-        phcVO.getThePublicHealthCaseDT().setPublicHealthCaseUid(Long.valueOf(edxLabInformationDT.getNextUid()-1));
-        //edxLabInformationDT.setNextUid(edxLabInformationDT.getNextUid());
-        phcVO.getThePublicHealthCaseDT().setJurisdictionCd((observationVO.getTheObservationDto().getJurisdictionCd()));
-        phcVO.getThePublicHealthCaseDT().setRptFormCmpltTime(observationVO.getTheObservationDto().getRptToStateTime());
-        //phcVO.getThePublicHealthCaseDT().setCaseClassCd(EdxELRConstant.ELR_CONFIRMED_CD);
-
-        phcVO.getThePublicHealthCaseDT().setAddTime(new Timestamp(new Date().getTime()));
-        //TODO: SECURITY
-        phcVO.getThePublicHealthCaseDT().setAddUserId(Long.valueOf("securityObj.getEntryID()"));
-        phcVO.getThePublicHealthCaseDT().setCaseTypeCd(EdxELRConstant.ELR_INDIVIDUAL);
-
-        //TODO: CACHE
-        //ProgramAreaContainer programAreaVO= CachedDropDowns.getProgramAreaForCondition(edxLabInformationDT.getConditionCode());
-        ProgramAreaContainer programAreaVO = new ProgramAreaContainer();
-        phcVO.getThePublicHealthCaseDT().setCd(programAreaVO.getConditionCd());
-        phcVO.getThePublicHealthCaseDT().setProgAreaCd(programAreaVO.getStateProgAreaCode());
-
-        if(SrteCache.checkWhetherPAIsStdOrHiv(programAreaVO.getStateProgAreaCode()))
-            phcVO.getThePublicHealthCaseDT().setReferralBasisCd(NEDSSConstant.REFERRAL_BASIS_LAB);
-
-        phcVO.getThePublicHealthCaseDT().setSharedInd(NEDSSConstant.TRUE);
-        phcVO.getThePublicHealthCaseDT().setCdDescTxt(programAreaVO.getConditionShortNm());
-        phcVO.getThePublicHealthCaseDT().setGroupCaseCnt(1);
-        phcVO.getThePublicHealthCaseDT().setInvestigationStatusCd(EdxELRConstant.ELR_OPEN_CD);
-        phcVO.getThePublicHealthCaseDT().setActivityFromTime(
-                StringUtils.stringToStrutsTimestamp(StringUtils
-                        .formatDate(new Timestamp((new Date()).getTime()))));
-        Calendar now = Calendar.getInstance();
-        String dateValue = (now.get(Calendar.MONTH)+1) +"/" + now.get(Calendar.DATE) +"/" + now.get(Calendar.YEAR);
-        int[] weekAndYear = RulesEngineUtil.CalcMMWR(dateValue);
-        phcVO.getThePublicHealthCaseDT().setMmwrWeek(weekAndYear[0]+"");
-        phcVO.getThePublicHealthCaseDT().setMmwrYear(weekAndYear[1]+"");
-        phcVO.getThePublicHealthCaseDT().setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
-        if (edxLabInformationDT.getConditionCode() != null) {
-            phcVO.setCoinfectionCondition(SrteCache.coInfectionConditionCode.containsKey(edxLabInformationDT.getConditionCode())? true:false);
-            if (phcVO.isCoinfectionCondition()) {
-                phcVO.getThePublicHealthCaseDT().setCoinfectionId(NEDSSConstant.COINFCTION_GROUP_ID_NEW_CODE);
-            }
-        }
-        phcVO.getThePublicHealthCaseDT().setItNew(true);
-        phcVO.getThePublicHealthCaseDT().setItDirty(false);
-        phcVO.setItNew(true);
-        phcVO.setItDirty(false);
-
-        try{
-            boolean isSTDProgramArea = SrteCache.checkWhetherPAIsStdOrHiv(phcVO.getThePublicHealthCaseDT().getProgAreaCd());
-            if (isSTDProgramArea) {
-                //gt-ND-4592 - STD_HIV_DATAMART Fails To Populate Investigations Created From An ELR
-                // per Pradeep need an empty case mgt
-                CaseManagementDT caseMgtDT = new CaseManagementDT();
-                caseMgtDT.setPublicHealthCaseUid(phcVO.getThePublicHealthCaseDT().getPublicHealthCaseUid());
-                //caseMgtDT.setItNew(true); //not currently used
-                //caseMgtDT.setItDirty(false); //not currently used
-                caseMgtDT.setCaseManagementDTPopulated(true);
-                phcVO.setTheCaseManagementDT(caseMgtDT);
-            }
-        } catch(Exception ex){
-            throw new DataProcessingException("Unexpected exception setting CaseManagementDT to PHC -->" +ex.toString());
-        }
-
-        return phcVO;
-    }
-
-    public void populateProxyFromPrePopMapping(PageActProxyVO pageActProxyVO, EdxLabInformationDto edxLabInformationDT)
-            throws DataProcessingException {
-        try {
-            lookupService.fillPrePopMap();
-            TreeMap<Object, Object> fromPrePopMap = (TreeMap<Object, Object>) OdseCache.fromPrePopFormMapping
-                    .get(NEDSSConstant.LAB_FORM_CD);
-            Collection<ObservationContainer> obsCollection = edxLabInformationDT.getLabResultProxyContainer()
-                    .getTheObservationContainerCollection();
-            TreeMap<Object, Object> prePopMap = new TreeMap<Object, Object>();
-            ObservationContainer obsVO = null;
-
-            // Begin Dynamic Pre-pop mapping
-
-            Iterator<ObservationContainer> ite = obsCollection.iterator();
-            while (ite.hasNext()) {
-                ObservationContainer obs = ite.next();
-                if (obs.getTheObsValueNumericDtoCollection() != null
-                        && obs.getTheObsValueNumericDtoCollection().size() > 0
-                        && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd())) {
-
-                    List<ObsValueNumericDto> obsValueNumList = new ArrayList<>(obs.getTheObsValueNumericDtoCollection());
-                    String value = obsValueNumList.get(0).getNumericUnitCd() == null
-                            ?  obsValueNumList.get(0).getNumericValue1() + ""
-                            :  obsValueNumList.get(0).getNumericValue1() + "^"
-                            +  obsValueNumList.get(0).getNumericUnitCd();
-                    prePopMap.put(obs.getTheObservationDto().getCd(), value);
-                } else if (obs.getTheObsValueDateDtoCollection() != null
-                        && obs.getTheObsValueDateDtoCollection().size() > 0
-                        && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd())) {
-                    List<ObsValueDateDto> obsValueDateList = new ArrayList<>(obs.getTheObsValueDateDtoCollection());
-
-                    String value = StringUtils.formatDate(obsValueDateList.get(0).getFromTime());
-                    prePopMap.put(obs.getTheObservationDto().getCd(), value);
-                } else if (obs.getTheObsValueCodedDtoCollection() != null
-                        && obs.getTheObsValueCodedDtoCollection().size() > 0) {
-
-                    List<ObsValueCodedDto> obsValueCodeList = new ArrayList<>(obs.getTheObsValueCodedDtoCollection());
-
-                    String key = obs.getTheObservationDto().getCd() + "$" + obsValueCodeList.get(0).getCode();
-                    if (fromPrePopMap.containsKey(key))
-                    {
-                        prePopMap.put(key, obsValueCodeList.get(0).getCode());
-                    }
-                    else if (fromPrePopMap.containsKey(obs.getTheObservationDto().getCd()))
-                    {
-                        prePopMap.put(obs.getTheObservationDto().getCd(), obsValueCodeList.get(0).getCode());
-                    }
-                } else if (obs.getTheObsValueTxtDtoCollection() != null && obs.getTheObsValueTxtDtoCollection().size() > 0
-                        && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd())) {
-                    Iterator<ObsValueTxtDto> txtIte = obs.getTheObsValueTxtDtoCollection().iterator();
-                    while (txtIte.hasNext()) {
-                        ObsValueTxtDto obsValueTxtDT = (ObsValueTxtDto) txtIte.next();
-                        if (obsValueTxtDT.getTxtTypeCd() == null || obsValueTxtDT.getTxtTypeCd().trim().equals("")
-                                || obsValueTxtDT.getTxtTypeCd().equalsIgnoreCase("O")) {
-                            prePopMap.put(obs.getTheObservationDto().getCd(), obsValueTxtDT.getValueTxt());
-                            break;
-                        }
-                    }
-                }
-            }
-            populateFromPrePopMapping(prePopMap, pageActProxyVO);
-
-        } catch (Exception e) {
-            throw new DataProcessingException("AutoInvestigationHandler-populateProxyFromPrePopMapping Exception raised" + e);
-        }
-    }
-
-    public void populateFromPrePopMapping(TreeMap<Object, Object> prePopMap, PageActProxyVO pageActProxyVO)
-            throws Exception {
-        try {
-            PublicHealthCaseDT phcDT = pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT();
-            var res = conditionCodeRepository.findProgramAreaConditionCode(
-                    1,
-                    new ArrayList<>(Collections.singletonList(phcDT.getProgAreaCd()))
-            );
-            ProgramAreaContainer programAreaVO = null;
-            if (res.isPresent()) {
-                var items = res.get();
-
-                var itemRes = items.stream()
-                        .filter(cc -> Objects.equals(cc.getConditionCd(), phcDT.getCd()))
-                        .findFirst();
-                if (itemRes.isPresent()) {
-                    programAreaVO = new ProgramAreaContainer();
-                    programAreaVO.setConditionCd(itemRes.get().getConditionCd());
-                    programAreaVO.setConditionShortNm(itemRes.get().getConditionShortNm());
-                    programAreaVO.setStateProgAreaCode(itemRes.get().getStateProgAreaCode());
-                    programAreaVO.setStateProgAreaCdDesc(itemRes.get().getStateProgAreaCdDesc());
-                    programAreaVO.setInvestigationFormCd(itemRes.get().getInvestigationFormCd());
-                }
-
-            }
-            if (programAreaVO == null) // level 2 condition for Hepatitis Diagnosis
-            {
-                var res2 = conditionCodeRepository.findProgramAreaConditionCode(
-                        2,
-                        new ArrayList<>(Collections.singletonList(phcDT.getProgAreaCd())));
-                if (res2.isPresent()) {
-                    var items = res2.get();
-
-                    var itemRes = items.stream()
-                            .filter(cc -> Objects.equals(cc.getConditionCd(), phcDT.getCd()))
-                            .findFirst();
-
-                    if (itemRes.isPresent()) {
-                        programAreaVO = itemRes.get();
-                    }
-                }
-            }
-            String investigationFormCd = programAreaVO.getInvestigationFormCd();
-
-            Map<Object, Object> questionMap = (Map<Object, Object>) OdseCache.dmbMap.get(investigationFormCd);
-
-            if (prePopMap == null || prePopMap.size() == 0)
-                return;
-            TreeMap<Object, Object> toPrePopMap = (TreeMap<Object, Object>) lookupService
-                    .getToPrePopFormMapping(investigationFormCd);
-            if (toPrePopMap != null && toPrePopMap.size() > 0) {
-                Collection<Object> toPrePopColl = toPrePopMap.values();
-                Map<Object, Object> answerMap = new HashMap<Object, Object>();
-                if (toPrePopColl != null && toPrePopColl.size() > 0) {
-                    for (Object obj : toPrePopColl) {
-                        PrePopMappingDto toPrePopMappingDT = (PrePopMappingDto) obj;
-                        String mappingKey = toPrePopMappingDT.getFromAnswerCode() == null
-                                ? toPrePopMappingDT.getFromQuestionIdentifier()
-                                : toPrePopMappingDT.getFromQuestionIdentifier() + "$"
-                                + toPrePopMappingDT.getFromAnswerCode();
-                        if (prePopMap.containsKey(mappingKey)) {
-                            String value = null;
-                            String dataLocation = null;
-                            NbsQuestionMetadata quesMetadata = (NbsQuestionMetadata) questionMap
-                                    .get(toPrePopMappingDT.getToQuestionIdentifier());
-                            if (quesMetadata != null)
-                                dataLocation = quesMetadata.getDataLocation();
-                            if (toPrePopMappingDT.getToDataType() != null
-                                    && toPrePopMappingDT.getToDataType().equals(NEDSSConstant.DATE_DATATYPE)) {
-                                try {
-                                    SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-                                    SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-                                    String stringDate = (String) prePopMap.get(mappingKey);
-                                    if (stringDate != null && stringDate.length() > 8)
-                                        stringDate = stringDate.substring(0, 8);
-                                    Date date = formatter.parse(stringDate);
-                                    value = sdf.format(date);
-                                } catch (Exception ex) {
-//                                    logger.error("Could not convert to date from value :" + prePopMap.get(mappingKey));
-                                }
-                            }
-
-                            else if (toPrePopMappingDT.getToAnswerCode() != null)
-                                value = toPrePopMappingDT.getToAnswerCode();
-                            else
-                                value = (String) prePopMap.get(mappingKey);
-
-                            if (value != null && dataLocation != null
-                                    && dataLocation.startsWith(RenderConstant.PUBLIC_HEALTH_CASE)) {
-                                String columnName = dataLocation.substring(dataLocation.indexOf(".") + 1,
-                                        dataLocation.length());
-                                //TODO: Not sure what this one do
-                                DynamicBeanBinding.populateBean(phcDT, columnName, value);
-                            } else if (value != null && dataLocation != null
-                                    && dataLocation.endsWith(RenderConstant.ANSWER_TXT)) {
-                                NbsCaseAnswerDto caseAnswerDT = new NbsCaseAnswerDto();
-                                caseAnswerDT.setAnswerTxt(value);
-                                CdaPhcProcessor.setStandardNBSCaseAnswerVals(phcDT, caseAnswerDT);
-                                caseAnswerDT.setNbsQuestionUid(quesMetadata.getNbsQuestionUid());
-                                caseAnswerDT.setNbsQuestionVersionCtrlNbr(quesMetadata.getQuestionVersionNbr());
-                                caseAnswerDT.setSeqNbr(0);
-                                answerMap.put(quesMetadata.getNbsQuestionUid(), caseAnswerDT);
-                            }
-                        }
-                    }
-                }
-                pageActProxyVO.getPageVO().setPamAnswerDTMap(answerMap);
-            }
-            else
-            {
-//                logger.debug("No pre-pop mapping for Code: "+investigationFormCd);
-            }
-        } catch (Exception e) {
-            throw new Exception(e.getMessage(), e);
-        }
-    }
-
-
     public Object transferValuesTOActProxyVO(PageActProxyVO pageActProxyVO,PamProxyContainer pamActProxyVO,
-                                             Collection<PersonContainer> personVOCollection, 
-                                             ObservationContainer rootObservationVO, 
-                                             Collection<Object> entities, 
+                                             Collection<PersonContainer> personVOCollection,
+                                             ObservationContainer rootObservationVO,
+                                             Collection<Object> entities,
                                              Map<Object, Object> questionIdentifierMap) throws DataProcessingException{
         try {
             PersonContainer patientVO =null;
@@ -482,7 +230,257 @@ public class AutoInvestigationService {
         }
     }
 
+    private PublicHealthCaseVO createPublicHealthCaseVO(ObservationContainer observationVO, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
+        PublicHealthCaseVO phcVO = new PublicHealthCaseVO();
 
+        phcVO.getThePublicHealthCaseDT().setLastChgTime(new java.sql.Timestamp(new Date().getTime()));
+
+        phcVO.getThePublicHealthCaseDT().setPublicHealthCaseUid(Long.valueOf(edxLabInformationDT.getNextUid()-1));
+        //edxLabInformationDT.setNextUid(edxLabInformationDT.getNextUid());
+        phcVO.getThePublicHealthCaseDT().setJurisdictionCd((observationVO.getTheObservationDto().getJurisdictionCd()));
+        phcVO.getThePublicHealthCaseDT().setRptFormCmpltTime(observationVO.getTheObservationDto().getRptToStateTime());
+        //phcVO.getThePublicHealthCaseDT().setCaseClassCd(EdxELRConstant.ELR_CONFIRMED_CD);
+
+        phcVO.getThePublicHealthCaseDT().setAddTime(new Timestamp(new Date().getTime()));
+        //TODO: SECURITY
+        phcVO.getThePublicHealthCaseDT().setAddUserId(Long.valueOf("securityObj.getEntryID()"));
+        phcVO.getThePublicHealthCaseDT().setCaseTypeCd(EdxELRConstant.ELR_INDIVIDUAL);
+
+        //TODO: CACHE
+        //ProgramAreaContainer programAreaVO= CachedDropDowns.getProgramAreaForCondition(edxLabInformationDT.getConditionCode());
+        ProgramAreaContainer programAreaVO = new ProgramAreaContainer();
+        phcVO.getThePublicHealthCaseDT().setCd(programAreaVO.getConditionCd());
+        phcVO.getThePublicHealthCaseDT().setProgAreaCd(programAreaVO.getStateProgAreaCode());
+
+        if(SrteCache.checkWhetherPAIsStdOrHiv(programAreaVO.getStateProgAreaCode()))
+            phcVO.getThePublicHealthCaseDT().setReferralBasisCd(NEDSSConstant.REFERRAL_BASIS_LAB);
+
+        phcVO.getThePublicHealthCaseDT().setSharedInd(NEDSSConstant.TRUE);
+        phcVO.getThePublicHealthCaseDT().setCdDescTxt(programAreaVO.getConditionShortNm());
+        phcVO.getThePublicHealthCaseDT().setGroupCaseCnt(1);
+        phcVO.getThePublicHealthCaseDT().setInvestigationStatusCd(EdxELRConstant.ELR_OPEN_CD);
+        phcVO.getThePublicHealthCaseDT().setActivityFromTime(
+                StringUtils.stringToStrutsTimestamp(StringUtils
+                        .formatDate(new Timestamp((new Date()).getTime()))));
+        Calendar now = Calendar.getInstance();
+        String dateValue = (now.get(Calendar.MONTH)+1) +"/" + now.get(Calendar.DATE) +"/" + now.get(Calendar.YEAR);
+        int[] weekAndYear = RulesEngineUtil.CalcMMWR(dateValue);
+        phcVO.getThePublicHealthCaseDT().setMmwrWeek(weekAndYear[0]+"");
+        phcVO.getThePublicHealthCaseDT().setMmwrYear(weekAndYear[1]+"");
+        phcVO.getThePublicHealthCaseDT().setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
+        if (edxLabInformationDT.getConditionCode() != null) {
+            phcVO.setCoinfectionCondition(SrteCache.coInfectionConditionCode.containsKey(edxLabInformationDT.getConditionCode())? true:false);
+            if (phcVO.isCoinfectionCondition()) {
+                phcVO.getThePublicHealthCaseDT().setCoinfectionId(NEDSSConstant.COINFCTION_GROUP_ID_NEW_CODE);
+            }
+        }
+        phcVO.getThePublicHealthCaseDT().setItNew(true);
+        phcVO.getThePublicHealthCaseDT().setItDirty(false);
+        phcVO.setItNew(true);
+        phcVO.setItDirty(false);
+
+        try{
+            boolean isSTDProgramArea = SrteCache.checkWhetherPAIsStdOrHiv(phcVO.getThePublicHealthCaseDT().getProgAreaCd());
+            if (isSTDProgramArea) {
+                //gt-ND-4592 - STD_HIV_DATAMART Fails To Populate Investigations Created From An ELR
+                // per Pradeep need an empty case mgt
+                CaseManagementDT caseMgtDT = new CaseManagementDT();
+                caseMgtDT.setPublicHealthCaseUid(phcVO.getThePublicHealthCaseDT().getPublicHealthCaseUid());
+                //caseMgtDT.setItNew(true); //not currently used
+                //caseMgtDT.setItDirty(false); //not currently used
+                caseMgtDT.setCaseManagementDTPopulated(true);
+                phcVO.setTheCaseManagementDT(caseMgtDT);
+            }
+        } catch(Exception ex){
+            throw new DataProcessingException("Unexpected exception setting CaseManagementDT to PHC -->" +ex.toString());
+        }
+
+        return phcVO;
+    }
+
+    private void populateProxyFromPrePopMapping(PageActProxyVO pageActProxyVO, EdxLabInformationDto edxLabInformationDT)
+            throws DataProcessingException {
+        try {
+            lookupService.fillPrePopMap();
+            TreeMap<Object, Object> fromPrePopMap = (TreeMap<Object, Object>) OdseCache.fromPrePopFormMapping
+                    .get(NEDSSConstant.LAB_FORM_CD);
+            Collection<ObservationContainer> obsCollection = edxLabInformationDT.getLabResultProxyContainer()
+                    .getTheObservationContainerCollection();
+            TreeMap<Object, Object> prePopMap = new TreeMap<Object, Object>();
+            ObservationContainer obsVO = null;
+
+            // Begin Dynamic Pre-pop mapping
+
+            Iterator<ObservationContainer> ite = obsCollection.iterator();
+            while (ite.hasNext()) {
+                ObservationContainer obs = ite.next();
+                if (obs.getTheObsValueNumericDtoCollection() != null
+                        && obs.getTheObsValueNumericDtoCollection().size() > 0
+                        && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd())) {
+
+                    List<ObsValueNumericDto> obsValueNumList = new ArrayList<>(obs.getTheObsValueNumericDtoCollection());
+                    String value = obsValueNumList.get(0).getNumericUnitCd() == null
+                            ?  obsValueNumList.get(0).getNumericValue1() + ""
+                            :  obsValueNumList.get(0).getNumericValue1() + "^"
+                            +  obsValueNumList.get(0).getNumericUnitCd();
+                    prePopMap.put(obs.getTheObservationDto().getCd(), value);
+                } else if (obs.getTheObsValueDateDtoCollection() != null
+                        && obs.getTheObsValueDateDtoCollection().size() > 0
+                        && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd())) {
+                    List<ObsValueDateDto> obsValueDateList = new ArrayList<>(obs.getTheObsValueDateDtoCollection());
+
+                    String value = StringUtils.formatDate(obsValueDateList.get(0).getFromTime());
+                    prePopMap.put(obs.getTheObservationDto().getCd(), value);
+                } else if (obs.getTheObsValueCodedDtoCollection() != null
+                        && obs.getTheObsValueCodedDtoCollection().size() > 0) {
+
+                    List<ObsValueCodedDto> obsValueCodeList = new ArrayList<>(obs.getTheObsValueCodedDtoCollection());
+
+                    String key = obs.getTheObservationDto().getCd() + "$" + obsValueCodeList.get(0).getCode();
+                    if (fromPrePopMap.containsKey(key))
+                    {
+                        prePopMap.put(key, obsValueCodeList.get(0).getCode());
+                    }
+                    else if (fromPrePopMap.containsKey(obs.getTheObservationDto().getCd()))
+                    {
+                        prePopMap.put(obs.getTheObservationDto().getCd(), obsValueCodeList.get(0).getCode());
+                    }
+                } else if (obs.getTheObsValueTxtDtoCollection() != null && obs.getTheObsValueTxtDtoCollection().size() > 0
+                        && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd())) {
+                    Iterator<ObsValueTxtDto> txtIte = obs.getTheObsValueTxtDtoCollection().iterator();
+                    while (txtIte.hasNext()) {
+                        ObsValueTxtDto obsValueTxtDT = (ObsValueTxtDto) txtIte.next();
+                        if (obsValueTxtDT.getTxtTypeCd() == null || obsValueTxtDT.getTxtTypeCd().trim().equals("")
+                                || obsValueTxtDT.getTxtTypeCd().equalsIgnoreCase("O")) {
+                            prePopMap.put(obs.getTheObservationDto().getCd(), obsValueTxtDT.getValueTxt());
+                            break;
+                        }
+                    }
+                }
+            }
+            populateFromPrePopMapping(prePopMap, pageActProxyVO);
+
+        } catch (Exception e) {
+            throw new DataProcessingException("AutoInvestigationHandler-populateProxyFromPrePopMapping Exception raised" + e);
+        }
+    }
+
+    private void populateFromPrePopMapping(TreeMap<Object, Object> prePopMap, PageActProxyVO pageActProxyVO)
+            throws Exception {
+        try {
+            PublicHealthCaseDT phcDT = pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT();
+            var res = conditionCodeRepository.findProgramAreaConditionCode(
+                    1,
+                    new ArrayList<>(Collections.singletonList(phcDT.getProgAreaCd()))
+            );
+            ProgramAreaContainer programAreaVO = null;
+            if (res.isPresent()) {
+                var items = res.get();
+
+                var itemRes = items.stream()
+                        .filter(cc -> Objects.equals(cc.getConditionCd(), phcDT.getCd()))
+                        .findFirst();
+                if (itemRes.isPresent()) {
+                    programAreaVO = new ProgramAreaContainer();
+                    programAreaVO.setConditionCd(itemRes.get().getConditionCd());
+                    programAreaVO.setConditionShortNm(itemRes.get().getConditionShortNm());
+                    programAreaVO.setStateProgAreaCode(itemRes.get().getStateProgAreaCode());
+                    programAreaVO.setStateProgAreaCdDesc(itemRes.get().getStateProgAreaCdDesc());
+                    programAreaVO.setInvestigationFormCd(itemRes.get().getInvestigationFormCd());
+                }
+
+            }
+            if (programAreaVO == null) // level 2 condition for Hepatitis Diagnosis
+            {
+                var res2 = conditionCodeRepository.findProgramAreaConditionCode(
+                        2,
+                        new ArrayList<>(Collections.singletonList(phcDT.getProgAreaCd())));
+                if (res2.isPresent()) {
+                    var items = res2.get();
+
+                    var itemRes = items.stream()
+                            .filter(cc -> Objects.equals(cc.getConditionCd(), phcDT.getCd()))
+                            .findFirst();
+
+                    if (itemRes.isPresent()) {
+                        programAreaVO = itemRes.get();
+                    }
+                }
+            }
+            String investigationFormCd = programAreaVO.getInvestigationFormCd();
+
+            Map<Object, Object> questionMap = (Map<Object, Object>) OdseCache.dmbMap.get(investigationFormCd);
+
+            if (prePopMap == null || prePopMap.size() == 0)
+                return;
+            TreeMap<Object, Object> toPrePopMap = (TreeMap<Object, Object>) lookupService
+                    .getToPrePopFormMapping(investigationFormCd);
+            if (toPrePopMap != null && toPrePopMap.size() > 0) {
+                Collection<Object> toPrePopColl = toPrePopMap.values();
+                Map<Object, Object> answerMap = new HashMap<Object, Object>();
+                if (toPrePopColl != null && toPrePopColl.size() > 0) {
+                    for (Object obj : toPrePopColl) {
+                        PrePopMappingDto toPrePopMappingDT = (PrePopMappingDto) obj;
+                        String mappingKey = toPrePopMappingDT.getFromAnswerCode() == null
+                                ? toPrePopMappingDT.getFromQuestionIdentifier()
+                                : toPrePopMappingDT.getFromQuestionIdentifier() + "$"
+                                + toPrePopMappingDT.getFromAnswerCode();
+                        if (prePopMap.containsKey(mappingKey)) {
+                            String value = null;
+                            String dataLocation = null;
+                            NbsQuestionMetadata quesMetadata = (NbsQuestionMetadata) questionMap
+                                    .get(toPrePopMappingDT.getToQuestionIdentifier());
+                            if (quesMetadata != null)
+                                dataLocation = quesMetadata.getDataLocation();
+                            if (toPrePopMappingDT.getToDataType() != null
+                                    && toPrePopMappingDT.getToDataType().equals(NEDSSConstant.DATE_DATATYPE)) {
+                                try {
+                                    SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+                                    SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+                                    String stringDate = (String) prePopMap.get(mappingKey);
+                                    if (stringDate != null && stringDate.length() > 8)
+                                        stringDate = stringDate.substring(0, 8);
+                                    Date date = formatter.parse(stringDate);
+                                    value = sdf.format(date);
+                                } catch (Exception ex) {
+//                                    logger.error("Could not convert to date from value :" + prePopMap.get(mappingKey));
+                                }
+                            }
+
+                            else if (toPrePopMappingDT.getToAnswerCode() != null)
+                                value = toPrePopMappingDT.getToAnswerCode();
+                            else
+                                value = (String) prePopMap.get(mappingKey);
+
+                            if (value != null && dataLocation != null
+                                    && dataLocation.startsWith(RenderConstant.PUBLIC_HEALTH_CASE)) {
+                                String columnName = dataLocation.substring(dataLocation.indexOf(".") + 1,
+                                        dataLocation.length());
+                                //TODO: Not sure what this one do
+                                DynamicBeanBinding.populateBean(phcDT, columnName, value);
+                            } else if (value != null && dataLocation != null
+                                    && dataLocation.endsWith(RenderConstant.ANSWER_TXT)) {
+                                NbsCaseAnswerDto caseAnswerDT = new NbsCaseAnswerDto();
+                                caseAnswerDT.setAnswerTxt(value);
+                                CdaPhcProcessor.setStandardNBSCaseAnswerVals(phcDT, caseAnswerDT);
+                                caseAnswerDT.setNbsQuestionUid(quesMetadata.getNbsQuestionUid());
+                                caseAnswerDT.setNbsQuestionVersionCtrlNbr(quesMetadata.getQuestionVersionNbr());
+                                caseAnswerDT.setSeqNbr(0);
+                                answerMap.put(quesMetadata.getNbsQuestionUid(), caseAnswerDT);
+                            }
+                        }
+                    }
+                }
+                pageActProxyVO.getPageVO().setPamAnswerDTMap(answerMap);
+            }
+            else
+            {
+//                logger.debug("No pre-pop mapping for Code: "+investigationFormCd);
+            }
+        } catch (Exception e) {
+            throw new Exception(e.getMessage(), e);
+        }
+    }
 
     private void createActEntityObject(ParticipationDto partDT, PageActProxyVO pageActProxyVO,
                                        PamProxyContainer pamActProxyVO, Collection<NbsActEntityDto> nbsActEntityDTColl, Collection<ParticipationDto> partColl ) throws DataProcessingException {

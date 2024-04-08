@@ -8,6 +8,7 @@ import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PublicHealth
 import gov.cdc.dataprocessing.model.dto.NbsCaseAnswerDto;
 import gov.cdc.dataprocessing.model.dto.NbsQuestionMetadata;
 import gov.cdc.dataprocessing.service.implementation.investigation.LookupService;
+import gov.cdc.dataprocessing.service.interfaces.ILookupService;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -16,7 +17,7 @@ import java.util.*;
 public class EdxPhcrDocumentUtil {
     public static final String _REQUIRED = "_REQUIRED";
 
-    private final LookupService lookupService;
+    private final ILookupService lookupService;
 
     public EdxPhcrDocumentUtil(LookupService lookupService) {
         this.lookupService = lookupService;

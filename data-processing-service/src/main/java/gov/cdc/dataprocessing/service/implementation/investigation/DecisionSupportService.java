@@ -16,6 +16,8 @@ import gov.cdc.dataprocessing.model.dto.NbsQuestionMetadata;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.DsmAlgorithm;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PublicHealthCaseStoredProcRepository;
+import gov.cdc.dataprocessing.service.interfaces.IAutoInvestigationService;
+import gov.cdc.dataprocessing.service.interfaces.IDecisionSupportService;
 import gov.cdc.dataprocessing.service.model.decision_support.DsmLabMatchHelper;
 import gov.cdc.dataprocessing.utilities.component.EdxPhcrDocumentUtil;
 import gov.cdc.dataprocessing.utilities.component.ValidateDecisionSupport;
@@ -30,17 +32,28 @@ import java.sql.Timestamp;
 import java.util.*;
 
 @Service
-public class DecisionSupportService {
+public class DecisionSupportService implements IDecisionSupportService {
     static final String ApplyToAllSystems = "ALL";
     private static List<DsmLabMatchHelper> activeElrAlgorithmList = new ArrayList<DsmLabMatchHelper>();
     private static Boolean elrAlgorithmsPresent = true;  //any active algorithms?
-
-
     private final EdxPhcrDocumentUtil edxPhcrDocumentUtil;
-    private final AutoInvestigationService autoInvestigationService;
+    private final IAutoInvestigationService autoInvestigationService;
     private final ValidateDecisionSupport validateDecisionSupport;
     private final PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository;
     private final DsmAlgorithmService dsmAlgorithmService;
+
+    /*sort PublicHealthCaseDTs by add_time descending*/
+    final Comparator<PublicHealthCaseDT> ADDTIME_ORDER = new Comparator<PublicHealthCaseDT>() {
+        public int compare(PublicHealthCaseDT e1, PublicHealthCaseDT e2) {
+            return e2.getAddTime().compareTo(e1.getAddTime());
+        }
+    };
+    final Comparator<DsmLabMatchHelper> AlGORITHM_NM_ORDER = new Comparator<DsmLabMatchHelper>() {
+        public int compare(DsmLabMatchHelper e1, DsmLabMatchHelper e2) {
+            return e1.getAlgorithmNm().compareToIgnoreCase(e2.getAlgorithmNm());
+        }
+    };
+
 
     public DecisionSupportService(EdxPhcrDocumentUtil edxPhcrDocumentUtil,
                                   AutoInvestigationService autoInvestigationService,
@@ -54,7 +67,8 @@ public class DecisionSupportService {
         this.dsmAlgorithmService = dsmAlgorithmService;
     }
 
-    public EdxLabInformationDto validateProxyVO(LabResultProxyContainer labResultProxyVO,
+    // Was: validateProxyVO
+    public EdxLabInformationDto validateProxyContainer(LabResultProxyContainer labResultProxyVO,
                                                 EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
         try {
 
@@ -164,9 +178,10 @@ public class DecisionSupportService {
                         conditionCode=codeType.getCode();
                     }
                 }
-                if (algorithmDocument!=null && criteriaMatch && algorithmDocument.getAction()!= null && (algorithmDocument.getAction().isSetCreateInvestigation()
-                        ||algorithmDocument.getAction().isSetCreateInvestigationWithNND())
-                        || (algorithmDocument!=null && algorithmDocument.getAction().isSetMarkAsReviewed())) {
+                if (algorithmDocument!=null && criteriaMatch && algorithmDocument.getAction()!= null
+                        && (algorithmDocument.getAction().getCreateInvestigation().getOnFailureToCreateInvestigation().getCode().equals("2")
+                        || algorithmDocument.getAction().getCreateInvestigationWithNND().getOnFailureToCreateNND().getCode().equals("2"))
+                        || (algorithmDocument!=null && algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2"))) {
 
                     if(conditionCode!=null)
                         questionIdentifierMap = edxPhcrDocumentUtil.loadQuestions(conditionCode);
@@ -196,13 +211,13 @@ public class DecisionSupportService {
 
                     boolean isAdvancedInvCriteriaValid = false;
 
-                    if(algorithmDocument.getAction().isSetMarkAsReviewed() && applyAdvInvLogic)
+                    if(algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2") && applyAdvInvLogic)
                         isAdvancedInvCriteriaValid = checkAdvancedInvCriteria(algorithmDocument, edxLabInformationDT, questionIdentifierMap);
 
-                    else if(!algorithmDocument.getAction().isSetMarkAsReviewed() && applyAdvInvLogic)
+                    else if(!algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2") && applyAdvInvLogic)
                         isAdvancedInvCriteriaValid = checkAdvancedInvCriteriaForCreateInvNoti(algorithmDocument, edxLabInformationDT, questionIdentifierMap);
 
-                    if(algorithmDocument.getAction().isSetMarkAsReviewed() && (!applyAdvInvLogic || (applyAdvInvLogic &&  !isdateLogicValidForNewInv && isAdvancedInvCriteriaValid))){
+                    if(algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2") && (!applyAdvInvLogic || (applyAdvInvLogic &&  !isdateLogicValidForNewInv && isAdvancedInvCriteriaValid))){
                         edxLabInformationDT.setDsmAlgorithmName(algorithmDocument.getAlgorithmName());
                         if(conditionCode!=null)
                         {
@@ -215,7 +230,7 @@ public class DecisionSupportService {
                         if(algorithmDocument.getAction()!=null && algorithmDocument.getAction().getMarkAsReviewed()!=null)
                             edxLabInformationDT.setAction(DecisionSupportConstants.MARK_AS_REVIEWED);
                         //for create Investigation and/or notification action
-                    }else if(!algorithmDocument.getAction().isSetMarkAsReviewed() && (!applyAdvInvLogic || (applyAdvInvLogic &&  isdateLogicValidForNewInv) || (applyAdvInvLogic &&  !isdateLogicValidForNewInv && isAdvancedInvCriteriaValid))){
+                    }else if(!algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2") && (!applyAdvInvLogic || (applyAdvInvLogic &&  isdateLogicValidForNewInv) || (applyAdvInvLogic &&  !isdateLogicValidForNewInv && isAdvancedInvCriteriaValid))){
                         //algorithmDocument.getAction().getCreateInvestigation().getInvestigationDefaultValues()
                         edxLabInformationDT.setMatchingAlgorithm(true);
                         if(algorithmDocument!=null && algorithmDocument.getAction()!=null && algorithmDocument.getAction().getCreateInvestigation()!=null)
@@ -312,7 +327,7 @@ public class DecisionSupportService {
     }
 
 
-    public Collection<DsmAlgorithm> selectDSMAlgorithmDTCollection() throws DataProcessingException {
+    private Collection<DsmAlgorithm> selectDSMAlgorithmDTCollection() throws DataProcessingException {
         Collection<DsmAlgorithm> algorithmList = new ArrayList<> ();
 
         try
@@ -342,13 +357,6 @@ public class DecisionSupportService {
 
         return algorithmDocument;
     }
-
-    final Comparator<DsmLabMatchHelper> AlGORITHM_NM_ORDER = new Comparator<DsmLabMatchHelper>() {
-        public int compare(DsmLabMatchHelper e1, DsmLabMatchHelper e2) {
-            return e1.getAlgorithmNm().compareToIgnoreCase(e2.getAlgorithmNm());
-        }
-    };
-
 
     private boolean specimenCollectionDateCriteria(EventDateLogicType eventDateLogicType,EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
         boolean isdateLogicValidForNewInv = false;
@@ -711,12 +719,6 @@ public class DecisionSupportService {
         return advanceInvCriteriaMap;
     }
 
-    /*sort PublicHealthCaseDTs by add_time descending*/
-    final Comparator<PublicHealthCaseDT> ADDTIME_ORDER = new Comparator<PublicHealthCaseDT>() {
-        public int compare(PublicHealthCaseDT e1, PublicHealthCaseDT e2) {
-            return e2.getAddTime().compareTo(e1.getAddTime());
-        }
-    };
 
 
 }

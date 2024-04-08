@@ -82,6 +82,8 @@ import  java.time.LocalDateTime;
 import  java.util.List;
 import  java.util.ArrayList;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import  org.apache.commons.lang3.StringUtils;
 
@@ -919,8 +921,14 @@ public class Hl7ToRhapsodysXmlConverter {
 
         for (String s : or.getObservationValue()) {
             if (OBX_VALUE_TYPE_SN.equals(hl7OBXType.getValueType())) {
-                String refinedValue = s.replaceAll(CARET_SEPARATOR, ""); // NOSONAR
-                hl7OBXType.getObservationValue().add(refinedValue);
+                Pattern pattern = Pattern.compile("\\[(.*?)\\]"); // Pattern to match text between square brackets
+                Matcher matcher = pattern.matcher(s);
+                String extractedText = "";
+                while (matcher.find()) {
+                    extractedText = matcher.group(1); // Extract text between square brackets
+                }
+                // String refinedValue = s.replaceAll(CARET_SEPARATOR, ""); // NOSONAR
+                hl7OBXType.getObservationValue().add(extractedText);
             } else {
                 hl7OBXType.getObservationValue().add(s);
             }
