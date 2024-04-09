@@ -155,6 +155,7 @@ public class NbsRepositoryServiceProvider {
 		return nbsInterface;
 	}
 
+	@SuppressWarnings({"java:S3776"})
 	private void savingNbsInterfaceModelTimeStampHelper(String specimenColDateStr,
 														NbsInterfaceModel nbsInterface) throws XmlConversionException {
 
