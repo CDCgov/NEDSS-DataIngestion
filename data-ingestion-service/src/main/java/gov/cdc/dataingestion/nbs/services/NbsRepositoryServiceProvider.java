@@ -155,6 +155,7 @@ public class NbsRepositoryServiceProvider {
 		return nbsInterface;
 	}
 
+	@SuppressWarnings({"java:S3776"})
 	private void savingNbsInterfaceModelTimeStampHelper(String specimenColDateStr,
 														NbsInterfaceModel nbsInterface) throws XmlConversionException {
 
@@ -162,13 +163,30 @@ public class NbsRepositoryServiceProvider {
 			if (specimenColDateStr != null) {
 				boolean noTimeStamp = false;
 				String pattern = "yyyyMMddHHmm";
-				if (specimenColDateStr.contains("-") || specimenColDateStr.contains("+") ) {
+				//20240305155850.821+0217
+				//20240305155850.8212+0217
+				if (specimenColDateStr.contains(".") && (specimenColDateStr.contains("-") || specimenColDateStr.contains("+")) ) {
+					int plusIndex=specimenColDateStr.indexOf("+");
+					int minusIndex=specimenColDateStr.indexOf("-");
+
+					if((plusIndex !=-1 && specimenColDateStr.substring(specimenColDateStr.indexOf(".")+1,plusIndex).trim().length()==3)
+							|| (minusIndex!=-1 && specimenColDateStr.substring(specimenColDateStr.indexOf(".")+1,minusIndex).trim().length()==3)){
+						pattern = "yyyyMMddHHmmss.SSSX";
+					}else if((plusIndex !=-1 && specimenColDateStr.substring(specimenColDateStr.indexOf(".")+1,plusIndex).trim().length()==4)
+							|| (minusIndex!=-1 && specimenColDateStr.substring(specimenColDateStr.indexOf(".")+1,minusIndex).trim().length()==4)){
+						pattern = "yyyyMMddHHmmss.SSSSX";
+					}
+				} else if (specimenColDateStr.contains("-") || specimenColDateStr.contains("+") ) {
 					pattern = "yyyyMMddHHmmssX";
-				}
-				// date without time
-				if (specimenColDateStr.length() == 8) {
+				}else if (specimenColDateStr.length() == 8) {// date without time
 					pattern = "yyyyMMdd";
 					noTimeStamp = true;
+				}else if (specimenColDateStr.length() == 10) {
+					pattern = "yyyyMMddHH";
+				}else if (specimenColDateStr.length() == 12) {
+					pattern = "yyyyMMddHHmm";
+				}else if (specimenColDateStr.length() == 14) {
+					pattern = "yyyyMMddHHmmss";
 				}
 				DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
 				LocalDateTime localDateTime;
