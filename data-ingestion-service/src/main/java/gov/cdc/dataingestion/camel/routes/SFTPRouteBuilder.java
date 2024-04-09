@@ -62,7 +62,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
                 .addParameter(PASSIVE_MODE, TRUE)
                 .addParameter(INITIAL_DELAY, "2000")
                 .addParameter(DELAY, "1000")
-                .addParameter(NOOP, TRUE)
+                .addParameter(NOOP, FALSE)
                 .addParameter(DELETE, TRUE)
                 .addParameter(LOCAL_WORK_DIRECTORY, "files/download") //check
                 .addParameter(RECURSIVE, FALSE)
@@ -156,7 +156,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
                 .end();
         //////Provide the ELR processing status in the output folder.
         from(ROUTE_SEDA_UPDATE_STATUS)
-                .routeId("sedaStatusRouteId").delay(2000)
+                .routeId("sedaStatusRouteId").delay(3000)
                 .log("from seda updateStatus message:${body}")
                 .bean(ElrProcessStatusComponent.class)
                 .choice()
