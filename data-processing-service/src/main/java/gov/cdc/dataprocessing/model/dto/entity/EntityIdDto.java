@@ -68,17 +68,15 @@ public class EntityIdDto extends BaseContainer {
 
     private String sharedInd = null;
 
-    private boolean itDirty = false;
 
-    private boolean itNew = true;
-
-    private boolean itDelete = false;
     //   private String universalIdType;
 
     private String assigningAuthorityIdType;
 
     public EntityIdDto() {
-
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
     }
 
     public EntityIdDto(EntityId entityId) {

@@ -41,9 +41,7 @@ public class PostalLocatorDto extends BaseContainer {
     private String jurisdictionCd = null;
     private Long programJurisdictionOid = null;
     private String sharedInd = null;
-    private boolean itDirty = false;
-    private boolean itNew = false;
-    private boolean itDelete = false;
+
     private String censusTract;
 
     public PostalLocatorDto(PostalLocator postalLocator) {
@@ -79,6 +77,9 @@ public class PostalLocatorDto extends BaseContainer {
 
     public PostalLocatorDto() {
         // Default constructor
+        itDirty = false;
+        itNew = false;
+        itDelete = false;
     }
 
 }

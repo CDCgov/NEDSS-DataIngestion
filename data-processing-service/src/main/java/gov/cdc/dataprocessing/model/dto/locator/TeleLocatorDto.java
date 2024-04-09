@@ -29,9 +29,6 @@ public class TeleLocatorDto extends BaseContainer {
     private String jurisdictionCd = null;
     private Long programJurisdictionOid = null;
     private String sharedInd = null;
-    private boolean itDirty = false;
-    private boolean itNew = true;
-    private boolean itDelete = false;
 
     public TeleLocatorDto(TeleLocator teleLocator) {
         this.teleLocatorUid = teleLocator.getTeleLocatorUid();
@@ -53,6 +50,9 @@ public class TeleLocatorDto extends BaseContainer {
 
     public TeleLocatorDto() {
         // Default constructor
+        itDirty = false;
+        itNew = false;
+        itDelete = false;
     }
 
 }

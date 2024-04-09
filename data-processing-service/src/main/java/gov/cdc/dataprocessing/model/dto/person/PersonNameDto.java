@@ -48,9 +48,7 @@ public class PersonNameDto
     private String jurisdictionCd = null;
     private Long programJurisdictionOid = null;
     private String sharedInd = null;
-    private boolean itDirty = false;
-    private boolean itNew = true;
-    private boolean itDelete = false;
+
     private Integer versionCtrlNbr;
     private String localId;
 
@@ -65,7 +63,9 @@ public class PersonNameDto
     }
 
     public PersonNameDto() {
-
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
     }
     public PersonNameDto(PersonName personName) {
         this.personUid = personName.getPersonUid();

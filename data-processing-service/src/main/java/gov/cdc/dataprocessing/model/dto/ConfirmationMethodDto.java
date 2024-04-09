@@ -28,10 +28,10 @@ public class ConfirmationMethodDto extends BaseContainer
 
     private String sharedInd = null;
 
-    private boolean itDirty = false;
-
-    private boolean itNew = true;
-
-    private boolean itDelete = false;
+    public ConfirmationMethodDto() {
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
+    }
 
 }

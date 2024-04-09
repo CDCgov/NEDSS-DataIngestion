@@ -1,10 +1,13 @@
 package gov.cdc.dataprocessing.model.dto;
 
 import gov.cdc.dataprocessing.model.container.BaseContainer;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -61,4 +64,5 @@ public class NbsQuestionMetadata extends BaseContainer {
     private String mask;
     private String subGroupNm;
     private String coinfectionIndCd;
+    List<CodeValueGeneral> aList = new ArrayList<>();
 }

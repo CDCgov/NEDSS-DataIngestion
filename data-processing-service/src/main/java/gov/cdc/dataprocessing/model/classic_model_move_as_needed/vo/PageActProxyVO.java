@@ -39,11 +39,11 @@ public class PageActProxyVO  extends BaseContainer {
     private Collection<Object>        theTreatmentSummaryVOCollection;
     private Collection<Object>        theLabReportSummaryVOCollection;
     private Collection<Object>        theMorbReportSummaryVOCollection;
-    private Collection<ParticipationDto> theParticipationDtoCollection;
+    protected Collection<ParticipationDto> theParticipationDtoCollection;
 
     private Collection<ActRelationshipDto> theActRelationshipDtoCollection;
     private Collection<Object>        theInvestigationAuditLogSummaryVOCollection;
-    private Collection<OrganizationContainer> theOrganizationContainerCollection;
+    protected Collection<OrganizationContainer> theOrganizationContainerCollection;
     private Collection<Object>        theCTContactSummaryDTCollection;
     private Collection<Object>        theInterviewSummaryDTCollection;
     private Collection<Object>        theNotificationVOCollection;

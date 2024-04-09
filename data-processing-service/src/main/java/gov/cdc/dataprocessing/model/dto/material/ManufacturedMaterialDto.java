@@ -56,14 +56,12 @@ public class ManufacturedMaterialDto extends BaseContainer
 
     private String sharedInd = null;
 
-    private boolean itDirty = false;
-
-    private boolean itNew = true;
-
-    private boolean itDelete = false;
 
     public ManufacturedMaterialDto() {
 
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
     }
 
     public ManufacturedMaterialDto(ManufacturedMaterial material) {

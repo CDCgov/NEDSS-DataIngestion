@@ -422,4 +422,11 @@ public class CachingValueService implements ICatchingValueService {
 
 
 
+    public List<CodeValueGeneral> getGeneralCodedValue(String code) {
+        var res = codeValueGeneralRepository.findCodeValuesByCodeSetNm(code);
+        return res.orElseGet(ArrayList::new);
+    }
+
+
+
 }

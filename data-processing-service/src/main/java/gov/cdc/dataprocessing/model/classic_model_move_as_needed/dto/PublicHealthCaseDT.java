@@ -82,9 +82,7 @@ public class PublicHealthCaseDT extends BaseContainer implements RootDtoInterfac
     private Long programJurisdictionOid;
     private String sharedInd;
     private Integer versionCtrlNbr;
-    private boolean itDirty = false;
-    private boolean itNew = true;
-    private boolean itDelete = false;
+
     private String addUserName;
     private String lastChgUserName;
     private Long currentInvestigatorUid;
@@ -123,6 +121,12 @@ public class PublicHealthCaseDT extends BaseContainer implements RootDtoInterfac
     private String confirmationMethodCd;
 
     private Timestamp confirmationMethodTime;
+
+    public PublicHealthCaseDT() {
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
+    }
 
     public String getSuperclass() {
         this.superClassType = NEDSSConstant.CLASSTYPE_ACT;

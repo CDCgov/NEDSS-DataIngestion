@@ -47,9 +47,7 @@ public class MaterialDto extends BaseContainer implements RootDtoInterface {
     private String jurisdictionCd = null;
     private Long programJurisdictionOid = null;
     private String sharedInd = null;
-    private boolean itDirty = false;
-    private boolean itNew = true;
-    private boolean itDelete = false;
+
 
     public String getSuperclass() {
         this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
@@ -62,7 +60,9 @@ public class MaterialDto extends BaseContainer implements RootDtoInterface {
     }
 
     public MaterialDto() {
-
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
     }
 
     public MaterialDto(Material material) {

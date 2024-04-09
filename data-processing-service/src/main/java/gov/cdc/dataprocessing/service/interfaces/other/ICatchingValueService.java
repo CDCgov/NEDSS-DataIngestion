@@ -27,4 +27,5 @@ public interface ICatchingValueService {
     TreeMap<String, String> getAllOnInfectionConditionCode() throws DataProcessingException;
     List<ConditionCode> getAllConditionCode() throws DataProcessingException;
     TreeMap<String, String> getCodedValue(String code) throws DataProcessingException;
+    List<CodeValueGeneral> getGeneralCodedValue(String code);
 }

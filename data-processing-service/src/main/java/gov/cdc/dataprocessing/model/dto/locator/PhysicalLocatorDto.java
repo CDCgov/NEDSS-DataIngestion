@@ -27,9 +27,7 @@ public class PhysicalLocatorDto extends BaseContainer
     private String jurisdictionCd = null;
     private Long programJurisdictionOid = null;
     private String sharedInd = null;
-    private boolean itDirty = false;
-    private boolean itNew = true;
-    private boolean itDelete = false;
+
 
     public PhysicalLocatorDto(PhysicalLocator physicalLocator) {
         this.physicalLocatorUid = physicalLocator.getPhysicalLocatorUid();
@@ -48,6 +46,9 @@ public class PhysicalLocatorDto extends BaseContainer
 
     public PhysicalLocatorDto() {
         // Default constructor
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
     }
 
 }

@@ -27,12 +27,12 @@ public class PersonEthnicGroupDto extends BaseContainer {
     private String jurisdictionCd = null;
     private Long programJurisdictionOid = null;
     private String sharedInd = null;
-    private boolean itDirty = false;
-    private boolean itNew = true;
-    private boolean itDelete = false;
+
 
     public PersonEthnicGroupDto() {
-
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
     }
 
     public PersonEthnicGroupDto(PersonEthnicGroup personEthnicGroup) {

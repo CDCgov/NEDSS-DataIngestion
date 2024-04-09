@@ -41,17 +41,19 @@ public class InterviewDT extends BaseContainer {
 
     private Integer versionCtrlNbr;
 
-    private boolean itDirty = false;
 
-    private boolean itNew = true;
-
-    private boolean itDelete = false;
 
     private String addUserName;
 
     private String lastChgUserName;
 
     private boolean associated;
+
+    public InterviewDT() {
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
+    }
 
     public String getSuperclass() {
         this.superClassType = NEDSSConstant.CLASSTYPE_ACT;
