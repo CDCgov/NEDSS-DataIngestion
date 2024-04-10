@@ -80,6 +80,7 @@ public class LookupService implements ILookupService {
         TreeMap<Object,Object> dmbQuestionMap = null;
 
         try {
+            //TODO: MUST CACHING THESE TWO. these are queries that pull the entire table into memory
             var res =  nbsUiMetaDataRepository.findDmbQuestionMetaData();
             var res2 = waQuestionRepository.findGenericQuestionMetaData();
             Collection<MetaAndWaCommonAttribute>  metaQuestion = new ArrayList<>();

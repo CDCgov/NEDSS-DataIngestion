@@ -1,10 +1,7 @@
 package gov.cdc.dataprocessing.service.interfaces.other;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.*;
 
 import java.util.List;
 import java.util.TreeMap;

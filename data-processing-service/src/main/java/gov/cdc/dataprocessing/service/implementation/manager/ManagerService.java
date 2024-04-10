@@ -12,7 +12,6 @@ import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxyVO;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PublicHealthCaseVO;
 import gov.cdc.dataprocessing.model.container.ObservationContainer;
-import gov.cdc.dataprocessing.model.container.PageProxyContainer;
 import gov.cdc.dataprocessing.model.container.PamProxyContainer;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
@@ -20,9 +19,9 @@ import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.NbsInterfaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.BaseConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
-import gov.cdc.dataprocessing.service.implementation.investigation.DecisionSupportService;
 import gov.cdc.dataprocessing.service.implementation.other.CachingValueService;
 import gov.cdc.dataprocessing.service.interfaces.IDecisionSupportService;
 import gov.cdc.dataprocessing.service.interfaces.auth.ISessionProfileService;
@@ -401,16 +400,9 @@ public class ManagerService implements IManagerService {
             }
 
 
-
-            //TODO: Producing msg for Next Step
-            // kafkaManagerProducer.sendData(healthCaseTopic, data);
-
-
-
             nbsInterfaceModel.setObservationUid(observationDto.getObservationUid().intValue());
             nbsInterfaceModel.setRecordStatusCd("COMPLETED_V2");
             nbsInterfaceRepository.save(nbsInterfaceModel);
-            System.out.println("DONE");
 
 
             PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();

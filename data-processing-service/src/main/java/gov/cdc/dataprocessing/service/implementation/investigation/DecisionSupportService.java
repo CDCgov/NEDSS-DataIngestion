@@ -180,9 +180,19 @@ public class DecisionSupportService implements IDecisionSupportService {
                     }
                 }
                 if (algorithmDocument!=null && criteriaMatch && algorithmDocument.getAction()!= null
-                        && (algorithmDocument.getAction().getCreateInvestigation().getOnFailureToCreateInvestigation().getCode().equals("2")
-                        || algorithmDocument.getAction().getCreateInvestigationWithNND().getOnFailureToCreateNND().getCode().equals("2"))
-                        || (algorithmDocument!=null && algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2"))) {
+                    &&
+                    (
+                        (algorithmDocument.getAction().getCreateInvestigation() != null
+                                && algorithmDocument.getAction().getCreateInvestigation().getOnFailureToCreateInvestigation().getCode().equals("2"))
+
+                    ||
+                        (algorithmDocument.getAction().getCreateInvestigationWithNND() != null
+                            && algorithmDocument.getAction().getCreateInvestigationWithNND().getOnFailureToCreateNND().getCode().equals("2"))
+                    ||
+                        (algorithmDocument.getAction().getMarkAsReviewed() != null
+                                && algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2"))
+                    )
+                ) {
 
                     if(conditionCode!=null)
                         questionIdentifierMap = edxPhcrDocumentUtil.loadQuestions(conditionCode);

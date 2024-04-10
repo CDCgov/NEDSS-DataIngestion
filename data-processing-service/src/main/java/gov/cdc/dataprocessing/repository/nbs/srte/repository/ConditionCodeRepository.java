@@ -1,10 +1,8 @@
 package gov.cdc.dataprocessing.repository.nbs.srte.repository;
 
-import gov.cdc.dataprocessing.model.container.ProgramAreaContainer;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.BaseConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCodeWithPA;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.LabResult;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.ProgramAreaCode;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ConditionCodeRepository extends JpaRepository<ConditionCode, String> {
+public interface ConditionCodeRepository extends JpaRepository<BaseConditionCode, String> {
     @Query("SELECT cc.progAreaCd AS key FROM ConditionCode cc WHERE cc.conditionCd = (SELECT lr.defaultConditionCd FROM LabResult lr WHERE lr.laboratoryId = :laboratoryId AND lr.labResultCd = :labResultCd)")
     Optional<List<String>> findConditionCodeByLabResultLabIdAndCd(
             @Param("laboratoryId") String laboratoryId,
@@ -24,11 +22,11 @@ public interface ConditionCodeRepository extends JpaRepository<ConditionCode, St
 //    	public static final String COINFECTION_CONDITION_SQL =
 //    	"SELECT condition_cd , coinfection_grp_cd from nbs_srte..condition_code where coinfection_grp_cd is not null" ;
 
-    @Query("SELECT cc AS key FROM ConditionCode cc WHERE cc.coinfectionGrpCd != null")
+    @Query(value = "SELECT c.* FROM Condition_code c where c.coinfection_grp_cd is not null", nativeQuery = true)
     Optional<List<ConditionCode>> findCoInfectionConditionCode();
 
 
-    @Query("SELECT cc AS key FROM ConditionCode cc")
+    @Query(value = "SELECT cc.* FROM Condition_code cc", nativeQuery = true)
     Optional<List<ConditionCode>> findAllConditionCode();
 
 

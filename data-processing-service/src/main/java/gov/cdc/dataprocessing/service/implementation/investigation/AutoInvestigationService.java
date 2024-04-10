@@ -247,7 +247,6 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         phcVO.getThePublicHealthCaseDT().setAddUserId(Long.valueOf(2121L));
         phcVO.getThePublicHealthCaseDT().setCaseTypeCd(EdxELRConstant.ELR_INDIVIDUAL);
 
-        //TODO: CACHE
         var res = conditionCodeRepository.findProgramAreaConditionCodeByConditionCode(edxLabInformationDT.getConditionCode());
         ConditionCodeWithPA programAreaVO = new ConditionCodeWithPA();
         if (res.isPresent()) {
@@ -468,7 +467,6 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                                     && dataLocation.startsWith(RenderConstant.PUBLIC_HEALTH_CASE)) {
                                 String columnName = dataLocation.substring(dataLocation.indexOf(".") + 1,
                                         dataLocation.length());
-                                //TODO: Not sure what this one do
                                 DynamicBeanBinding.populateBean(phcDT, columnName, value);
                             } else if (value != null && dataLocation != null
                                     && dataLocation.endsWith(RenderConstant.ANSWER_TXT)) {

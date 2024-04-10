@@ -1,10 +1,10 @@
 package gov.cdc.dataprocessing.cache;
 
+import gov.cdc.dataprocessing.repository.nbs.srte.model.BaseConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class SrteCache {
     public static TreeMap<String, String> loincCodesMap = new TreeMap<>();

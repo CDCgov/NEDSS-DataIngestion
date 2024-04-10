@@ -201,7 +201,7 @@ public class DsmLabMatchHelper {
                 }
                 nameMatched = false;
             }
-            if (oidMatched || nameMatched) //GST ToDo: Check if both should match.
+            if (oidMatched || nameMatched) //GST
             {
 //                logger.debug("Algorithm matches either the Sending Facility Name or the Sending Facility Oid");
             }

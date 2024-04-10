@@ -2,19 +2,15 @@ package gov.cdc.dataprocessing.repository.nbs.srte.model;
 
 
 import gov.cdc.dataprocessing.model.container.ProgramAreaContainer;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 
 @Entity
 @Data
 @Table(name = "Condition_code")
-public class ConditionCodeWithPA extends ConditionCode implements Serializable, Comparable {
+public class ConditionCodeWithPA extends BaseConditionCode implements Serializable, Comparable {
 
     // Constructors, getters, and setters
     private String stateProgAreaCode;
