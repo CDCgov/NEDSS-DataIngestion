@@ -7,11 +7,15 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.NbsQuestionMetadata;
 import gov.cdc.dataprocessing.model.dto.lookup.LookupMappingDto;
 import gov.cdc.dataprocessing.model.dto.lookup.PrePopMappingDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.NbsUiMetaData;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.WAQuestion;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.LookupMappingRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.NbsUiMetaDataRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.WAQuestionRepository;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
 import gov.cdc.dataprocessing.service.interfaces.ILookupService;
 import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
+import gov.cdc.dataprocessing.service.model.MetaAndWaCommonAttribute;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -21,13 +25,16 @@ public class LookupService implements ILookupService {
 
     private final LookupMappingRepository lookupMappingRepository;
     private final NbsUiMetaDataRepository nbsUiMetaDataRepository;
+    private final WAQuestionRepository waQuestionRepository;
     private final ICatchingValueService catchingValueService;
 
     public LookupService(LookupMappingRepository lookupMappingRepository,
                          NbsUiMetaDataRepository nbsUiMetaDataRepository,
+                         WAQuestionRepository waQuestionRepository,
                          ICatchingValueService catchingValueService) {
         this.lookupMappingRepository = lookupMappingRepository;
         this.nbsUiMetaDataRepository = nbsUiMetaDataRepository;
+        this.waQuestionRepository = waQuestionRepository;
         this.catchingValueService = catchingValueService;
     }
 
@@ -74,17 +81,23 @@ public class LookupService implements ILookupService {
 
         try {
             var res =  nbsUiMetaDataRepository.findDmbQuestionMetaData();
-            var res2 = nbsUiMetaDataRepository.findGenericQuestionMetaData();
-            Collection<Object>  qColl = null;
+            var res2 = waQuestionRepository.findGenericQuestionMetaData();
+            Collection<MetaAndWaCommonAttribute>  metaQuestion = new ArrayList<>();
             if (res.isPresent()) {
-                qColl = res.get();
+                for(var item : res.get()) {
+                    var commonAttribute = new MetaAndWaCommonAttribute(item);
+                    metaQuestion.add(commonAttribute);
+                }
                 if (res2.isPresent()) {
-                    qColl.addAll(res2.get());
+                    for(var item : res2.get()) {
+                        var commonAttribute = new MetaAndWaCommonAttribute(item);
+                        metaQuestion.add(commonAttribute);
+                    }
                 }
             }
 
 
-            dmbQuestionMap = createDMBQuestionMap(qColl);
+            dmbQuestionMap = createDMBQuestionMap(metaQuestion);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -330,7 +343,7 @@ public class LookupService implements ILookupService {
 //    }
 
 
-    private TreeMap<Object,Object> createDMBQuestionMap(Collection<Object>  coll) throws Exception{
+    private TreeMap<Object,Object> createDMBQuestionMap(Collection<MetaAndWaCommonAttribute>  coll) throws Exception{
         TreeMap<Object, Object> qCodeMap = new TreeMap<Object, Object>();
         int count =0;
         int loopcount=0;
@@ -348,7 +361,9 @@ public class LookupService implements ILookupService {
                 Iterator ite = coll.iterator();
                 while (ite.hasNext()) {
                     sizecount++;
-                    qMetadata = (NbsQuestionMetadata) ite.next();
+
+
+                    qMetadata = new NbsQuestionMetadata((MetaAndWaCommonAttribute) ite.next());
                     String dataType = qMetadata.getDataType();
                     List<CodeValueGeneral> aList = new ArrayList<>();
                     if(dataType != null && dataType.equals(NEDSSConstant.NBS_QUESTION_DATATYPE_CODED_VALUE)){

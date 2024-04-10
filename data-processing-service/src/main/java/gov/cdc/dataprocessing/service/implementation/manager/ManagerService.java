@@ -29,16 +29,10 @@ import gov.cdc.dataprocessing.service.interfaces.auth.ISessionProfileService;
 import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
 import gov.cdc.dataprocessing.service.interfaces.other.IDataExtractionService;
 import gov.cdc.dataprocessing.service.interfaces.other.IHandleLabService;
-import gov.cdc.dataprocessing.service.interfaces.other.ILabProcessingService;
-import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
-import gov.cdc.dataprocessing.service.interfaces.observation.IObservationMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService;
-import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationService;
-import gov.cdc.dataprocessing.service.interfaces.person.IPersonService;
-import gov.cdc.dataprocessing.service.interfaces.public_health_case.IPublicHealthCaseService;
 import gov.cdc.dataprocessing.service.model.PublicHealthCaseFlowContainer;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.ManagerUtil;
@@ -94,7 +88,7 @@ public class ManagerService implements IManagerService {
                           CachingValueService cachingValueService,
                           CacheManager cacheManager,
                           ISessionProfileService sessionProfileService,
-                          DecisionSupportService decisionSupportService,
+                          IDecisionSupportService decisionSupportService,
                           ManagerUtil managerUtil,
                           KafkaManagerProducer kafkaManagerProducer,
                           IManagerAggregationService managerAggregationService) {
@@ -230,7 +224,7 @@ public class ManagerService implements IManagerService {
             {
                 //Check for user security to create investigation
                 //checkSecurity(nbsSecurityObj, edxLabInformationDto, NBSBOLookup.INVESTIGATION, NBSOperationLookup.ADD, programAreaCd, jurisdictionCd);
-                if (edxLabInformationDto.getObject() instanceof PageProxyContainer) {
+                if (edxLabInformationDto.getObject() instanceof PageActProxyVO) {
                     pageActProxyVO = (PageActProxyVO) edxLabInformationDto.getObject();
                     publicHealthCaseVO = pageActProxyVO.getPublicHealthCaseVO();
                 }

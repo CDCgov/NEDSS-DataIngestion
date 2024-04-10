@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.repository.nbs.srte.repository;
 
 import gov.cdc.dataprocessing.model.container.ProgramAreaContainer;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCodeWithPA;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.LabResult;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ProgramAreaCode;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -44,16 +45,32 @@ public interface ConditionCodeRepository extends JpaRepository<ConditionCode, St
      *        " and c.indent_level_nbr = ? and c.prog_area_cd IN ";
      *
      * */
-    @Query(value = "SELECT c.condition_cd AS conditionCd, " +
-            "c.condition_short_nm AS conditionShortNm, " +
+    @Query(value = "SELECT c.*, " +
             "c.prog_area_cd AS stateProgAreaCode, " +
-            "p.prog_area_desc_txt AS stateProgAreaCdDesc, " +
-            "c.investigation_form_cd AS investigationFormCd " +
+            "p.prog_area_desc_txt AS stateProgAreaCdDesc " +
             "FROM Condition_code c " +
             "INNER JOIN Program_area_code p " +
             "ON c.prog_area_cd = p.prog_area_cd " +
             "AND c.indent_level_nbr = :indentLevel " +
             "AND c.prog_area_cd IN :progAreaCodes", nativeQuery = true)
-    Optional<List<ProgramAreaContainer>> findProgramAreaConditionCode(@Param("indentLevel") Integer indentLevel, @Param("progAreaCodes") List<String> progAreaCodes);
+    Optional<List<ConditionCodeWithPA>> findProgramAreaConditionCode(@Param("indentLevel") Integer indentLevel, @Param("progAreaCodes") List<String> progAreaCodes);
+
+
+
+    /**
+     *    public static final String PROGRAMAREACONDITIONSSQLWOINDENT =
+     *        "SELECT c.condition_cd \"conditionCd\", " + " c.condition_short_nm \"conditionShortNm\", c.prog_area_cd \"stateProgAreaCode\", " + "p.prog_area_desc_txt \"stateProgAreaCdDesc\", c. investigation_form_cd \"investigationFormCd\" FROM " +
+     *        NEDSSConstants.SYSTEM_REFERENCE_TABLE + "..Condition_code c INNER JOIN " +
+     *        NEDSSConstants.SYSTEM_REFERENCE_TABLE + "..Program_area_code p ON c.prog_area_cd = p.prog_area_cd " +
+     *        " and c.condition_cd = ?";
+     * */
+    @Query(value = "SELECT c.*, " +
+            "c.prog_area_cd AS stateProgAreaCode, " +
+            "p.prog_area_desc_txt AS stateProgAreaCdDesc " +
+            "FROM Condition_code c " +
+            "INNER JOIN Program_area_code p " +
+            "ON c.prog_area_cd = p.prog_area_cd " +
+            "AND c.condition_cd = :condition_cd ", nativeQuery = true)
+    Optional<List<ConditionCodeWithPA>> findProgramAreaConditionCodeByConditionCode(@Param("condition_cd") String condition_cd);
 
 }

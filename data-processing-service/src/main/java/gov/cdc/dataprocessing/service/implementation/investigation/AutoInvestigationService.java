@@ -23,6 +23,7 @@ import gov.cdc.dataprocessing.model.dto.observation.ObsValueDateDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueNumericDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueTxtDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCodeWithPA;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.ConditionCodeRepository;
 import gov.cdc.dataprocessing.service.interfaces.IAutoInvestigationService;
 import gov.cdc.dataprocessing.service.interfaces.ILookupService;
@@ -43,7 +44,6 @@ public class AutoInvestigationService implements IAutoInvestigationService {
     private final ConditionCodeRepository conditionCodeRepository;
     private final ICatchingValueService catchingValueService;
     private final ILookupService lookupService;
-
     public AutoInvestigationService(ConditionCodeRepository conditionCodeRepository,
                                     ICatchingValueService catchingValueService,
                                     LookupService lookupService) {
@@ -243,12 +243,16 @@ public class AutoInvestigationService implements IAutoInvestigationService {
 
         phcVO.getThePublicHealthCaseDT().setAddTime(new Timestamp(new Date().getTime()));
         //TODO: SECURITY
-        phcVO.getThePublicHealthCaseDT().setAddUserId(Long.valueOf("securityObj.getEntryID()"));
+        //phcVO.getThePublicHealthCaseDT().setAddUserId(Long.valueOf("securityObj.getEntryID()"));
+        phcVO.getThePublicHealthCaseDT().setAddUserId(Long.valueOf(2121L));
         phcVO.getThePublicHealthCaseDT().setCaseTypeCd(EdxELRConstant.ELR_INDIVIDUAL);
 
         //TODO: CACHE
-        //ProgramAreaContainer programAreaVO= CachedDropDowns.getProgramAreaForCondition(edxLabInformationDT.getConditionCode());
-        ProgramAreaContainer programAreaVO = new ProgramAreaContainer();
+        var res = conditionCodeRepository.findProgramAreaConditionCodeByConditionCode(edxLabInformationDT.getConditionCode());
+        ConditionCodeWithPA programAreaVO = new ConditionCodeWithPA();
+        if (res.isPresent()) {
+            programAreaVO = res.get().get(0);
+        }
         phcVO.getThePublicHealthCaseDT().setCd(programAreaVO.getConditionCd());
         phcVO.getThePublicHealthCaseDT().setProgAreaCd(programAreaVO.getStateProgAreaCode());
 
@@ -304,6 +308,9 @@ public class AutoInvestigationService implements IAutoInvestigationService {
             lookupService.fillPrePopMap();
             TreeMap<Object, Object> fromPrePopMap = (TreeMap<Object, Object>) OdseCache.fromPrePopFormMapping
                     .get(NEDSSConstant.LAB_FORM_CD);
+            if (fromPrePopMap == null) {
+                fromPrePopMap = new TreeMap<>();
+            }
             Collection<ObservationContainer> obsCollection = edxLabInformationDT.getLabResultProxyContainer()
                     .getTheObservationContainerCollection();
             TreeMap<Object, Object> prePopMap = new TreeMap<Object, Object>();
@@ -403,7 +410,12 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                             .findFirst();
 
                     if (itemRes.isPresent()) {
-                        programAreaVO = itemRes.get();
+                        programAreaVO = new ProgramAreaContainer();
+                        programAreaVO.setConditionCd(itemRes.get().getConditionCd());
+                        programAreaVO.setConditionShortNm(itemRes.get().getConditionShortNm());
+                        programAreaVO.setStateProgAreaCode(itemRes.get().getStateProgAreaCode());
+                        programAreaVO.setStateProgAreaCdDesc(itemRes.get().getStateProgAreaCdDesc());
+                        programAreaVO.setInvestigationFormCd(itemRes.get().getInvestigationFormCd());
                     }
                 }
             }

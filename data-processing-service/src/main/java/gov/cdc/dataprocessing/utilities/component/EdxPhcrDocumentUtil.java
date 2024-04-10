@@ -19,7 +19,8 @@ public class EdxPhcrDocumentUtil {
 
     private final ILookupService lookupService;
 
-    public EdxPhcrDocumentUtil(LookupService lookupService) {
+    public EdxPhcrDocumentUtil(ILookupService lookupService)
+    {
         this.lookupService = lookupService;
     }
 

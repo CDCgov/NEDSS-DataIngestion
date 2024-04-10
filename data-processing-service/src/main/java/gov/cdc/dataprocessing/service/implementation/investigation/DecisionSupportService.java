@@ -42,6 +42,17 @@ public class DecisionSupportService implements IDecisionSupportService {
     private final PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository;
     private final DsmAlgorithmService dsmAlgorithmService;
 
+    public DecisionSupportService(EdxPhcrDocumentUtil edxPhcrDocumentUtil,
+                                  IAutoInvestigationService autoInvestigationService,
+                                  ValidateDecisionSupport validateDecisionSupport,
+                                  PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository,
+                                  DsmAlgorithmService dsmAlgorithmService) {
+        this.edxPhcrDocumentUtil = edxPhcrDocumentUtil;
+        this.autoInvestigationService = autoInvestigationService;
+        this.validateDecisionSupport = validateDecisionSupport;
+        this.publicHealthCaseStoredProcRepository = publicHealthCaseStoredProcRepository;
+        this.dsmAlgorithmService = dsmAlgorithmService;
+    }
     /*sort PublicHealthCaseDTs by add_time descending*/
     final Comparator<PublicHealthCaseDT> ADDTIME_ORDER = new Comparator<PublicHealthCaseDT>() {
         public int compare(PublicHealthCaseDT e1, PublicHealthCaseDT e2) {
@@ -55,17 +66,7 @@ public class DecisionSupportService implements IDecisionSupportService {
     };
 
 
-    public DecisionSupportService(EdxPhcrDocumentUtil edxPhcrDocumentUtil,
-                                  AutoInvestigationService autoInvestigationService,
-                                  ValidateDecisionSupport validateDecisionSupport,
-                                  PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository,
-                                  DsmAlgorithmService dsmAlgorithmService) {
-        this.edxPhcrDocumentUtil = edxPhcrDocumentUtil;
-        this.autoInvestigationService = autoInvestigationService;
-        this.validateDecisionSupport = validateDecisionSupport;
-        this.publicHealthCaseStoredProcRepository = publicHealthCaseStoredProcRepository;
-        this.dsmAlgorithmService = dsmAlgorithmService;
-    }
+
 
     // Was: validateProxyVO
     public EdxLabInformationDto validateProxyContainer(LabResultProxyContainer labResultProxyVO,
@@ -211,13 +212,25 @@ public class DecisionSupportService implements IDecisionSupportService {
 
                     boolean isAdvancedInvCriteriaValid = false;
 
-                    if(algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2") && applyAdvInvLogic)
+
+                    if(algorithmDocument.getAction() != null && algorithmDocument.getAction().getMarkAsReviewed() != null
+                            && algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2") && applyAdvInvLogic)
+                    {
                         isAdvancedInvCriteriaValid = checkAdvancedInvCriteria(algorithmDocument, edxLabInformationDT, questionIdentifierMap);
+                    }
 
-                    else if(!algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2") && applyAdvInvLogic)
+                    else if(((algorithmDocument.getAction() != null && algorithmDocument.getAction().getMarkAsReviewed() == null ) ||
+                            ((algorithmDocument.getAction() != null && algorithmDocument.getAction().getMarkAsReviewed() != null
+                                    && !algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2") )))
+                            && applyAdvInvLogic)
+                    {
                         isAdvancedInvCriteriaValid = checkAdvancedInvCriteriaForCreateInvNoti(algorithmDocument, edxLabInformationDT, questionIdentifierMap);
+                    }
 
-                    if(algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2") && (!applyAdvInvLogic || (applyAdvInvLogic &&  !isdateLogicValidForNewInv && isAdvancedInvCriteriaValid))){
+                    if(algorithmDocument.getAction() != null && algorithmDocument.getAction().getMarkAsReviewed() != null
+                            && algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2")
+                            && (!applyAdvInvLogic || (applyAdvInvLogic &&  !isdateLogicValidForNewInv && isAdvancedInvCriteriaValid)))
+                    {
                         edxLabInformationDT.setDsmAlgorithmName(algorithmDocument.getAlgorithmName());
                         if(conditionCode!=null)
                         {
@@ -230,7 +243,13 @@ public class DecisionSupportService implements IDecisionSupportService {
                         if(algorithmDocument.getAction()!=null && algorithmDocument.getAction().getMarkAsReviewed()!=null)
                             edxLabInformationDT.setAction(DecisionSupportConstants.MARK_AS_REVIEWED);
                         //for create Investigation and/or notification action
-                    }else if(!algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2") && (!applyAdvInvLogic || (applyAdvInvLogic &&  isdateLogicValidForNewInv) || (applyAdvInvLogic &&  !isdateLogicValidForNewInv && isAdvancedInvCriteriaValid))){
+                    }
+                    else if (
+                            ((algorithmDocument.getAction() != null && algorithmDocument.getAction().getMarkAsReviewed() == null ) ||
+                            (algorithmDocument.getAction() != null && algorithmDocument.getAction().getMarkAsReviewed() != null
+                                    && !algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2")))
+                            && (!applyAdvInvLogic || (applyAdvInvLogic &&  isdateLogicValidForNewInv) || (applyAdvInvLogic &&  !isdateLogicValidForNewInv && isAdvancedInvCriteriaValid)))
+                    {
                         //algorithmDocument.getAction().getCreateInvestigation().getInvestigationDefaultValues()
                         edxLabInformationDT.setMatchingAlgorithm(true);
                         if(algorithmDocument!=null && algorithmDocument.getAction()!=null && algorithmDocument.getAction().getCreateInvestigation()!=null)
@@ -240,7 +259,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                         edxLabInformationDT.setInvestigationType(algorithmDocument.getInvestigationType());
                         Object obj = autoInvestigationService.autoCreateInvestigation(orderedTestObservationVO,  edxLabInformationDT);
                         BasePamContainer pamVO= null;
-                        if (obj instanceof PageProxyContainer) {
+                        if (obj instanceof PageActProxyVO) {
                             pageActProxyVO = (PageActProxyVO) obj;
                             publicHealthCaseVO= pageActProxyVO.getPublicHealthCaseVO();
                             pamVO= pageActProxyVO.getPageVO();
@@ -271,7 +290,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                                         validateDecisionSupport.processConfirmationMethodTimeDT(edxRuleManageDT, publicHealthCaseVO, metaData);
                                     } else if(metaData.getDataLocation() != null && metaData.getDataLocation().trim().toUpperCase().startsWith("ACT_ID.ROOT_EXTENSION_TXT")){
                                         validateDecisionSupport.processActIds(edxRuleManageDT, publicHealthCaseVO, metaData);
-                                    }else if(metaData.getDataLocation() != null && metaData.getDataLocation().trim().toUpperCase().startsWith("CASE_MANAGEMENT")  && obj instanceof PageProxyContainer){
+                                    }else if(metaData.getDataLocation() != null && metaData.getDataLocation().trim().toUpperCase().startsWith("CASE_MANAGEMENT")  && obj instanceof PageActProxyVO){
                                         validateDecisionSupport.processNBSCaseManagementDT(edxRuleManageDT, publicHealthCaseVO, metaData);
                                     }else if(metaData.getDataLocation() != null && metaData.getDataType().toUpperCase().startsWith("PART")){
                                         entityMapCollection.add(edxRuleManageDT);
@@ -306,10 +325,11 @@ public class DecisionSupportService implements IDecisionSupportService {
                         }
 
                     }
-                    else{
+                    else {
                         edxLabInformationDT.setMatchingAlgorithm(false);
                         //return edxLabInformationDT;
                     }
+
                 }else{
                     edxLabInformationDT.setMatchingAlgorithm(false);
                 }

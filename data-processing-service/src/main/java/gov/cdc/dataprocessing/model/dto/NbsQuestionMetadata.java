@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.model.dto;
 
 import gov.cdc.dataprocessing.model.container.BaseContainer;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
+import gov.cdc.dataprocessing.service.model.MetaAndWaCommonAttribute;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -65,4 +66,50 @@ public class NbsQuestionMetadata extends BaseContainer {
     private String subGroupNm;
     private String coinfectionIndCd;
     List<CodeValueGeneral> aList = new ArrayList<>();
+
+    public NbsQuestionMetadata() {
+
+    }
+
+    public NbsQuestionMetadata(MetaAndWaCommonAttribute commonAttributes) {
+        this.nbsQuestionUid = commonAttributes.getQuestionUid();
+        this.addTime = commonAttributes.getAddTime();
+        this.addUserId = commonAttributes.getAddUserId();
+        this.codeSetGroupId = commonAttributes.getCodeSetGroupId();
+        this.dataType = commonAttributes.getDataType();
+        this.investigationFormCd = commonAttributes.getInvestigationFormCd();
+        this.lastChgTime = commonAttributes.getLastChgTime();
+        this.lastChgUserId = commonAttributes.getLastChgUserId();
+        this.orderNbr = commonAttributes.getOrderNbr();
+        this.questionLabel = commonAttributes.getQuestionLabel();
+        this.questionToolTip = commonAttributes.getQuestionToolTip();
+        this.questionIdentifier = commonAttributes.getQuestionIdentifier();
+        this.questionIdentifierNnd = commonAttributes.getQuestionIdentifierNnd();
+        this.questionRequiredNnd = commonAttributes.getQuestionRequiredNnd();
+        this.questionOid = commonAttributes.getQuestionOid();
+        this.questionOidSystemTxt = commonAttributes.getQuestionOidSystemTxt();
+        this.codeSetNm = commonAttributes.getCodeSetNm();
+        this.codeSetClassCd = commonAttributes.getCodeSetClassCd();
+        this.dataCd = commonAttributes.getDataCd();
+        this.dataUseCd = commonAttributes.getDataUseCd();
+        this.enableInd = commonAttributes.getEnableInd();
+        this.defaultValue = commonAttributes.getDefaultValue();
+        this.requiredInd = commonAttributes.getRequiredInd();
+        this.parentUid = commonAttributes.getParentUid();
+        this.ldfPageId = commonAttributes.getLdfPageId();
+        this.nbsUiComponentUid = commonAttributes.getNbsUiComponentUid();
+        this.fieldSize = commonAttributes.getFieldSize();
+        this.displayInd = commonAttributes.getDisplayInd();
+        this.unitTypeCd = commonAttributes.getUnitTypeCd();
+        this.unitValue = commonAttributes.getUnitValue();
+        this.standardNndIndCd = commonAttributes.getStandardNndIndCd();
+        this.hl7SegmentField = commonAttributes.getHl7SegmentField();
+        this.questionGroupSeqNbr = commonAttributes.getQuestionGroupSeqNbr();
+        this.partTypeCd = commonAttributes.getPartTypeCd();
+        this.questionUnitIdentifier = commonAttributes.getQuestionUnitIdentifier();
+        this.mask = commonAttributes.getMask();
+        this.subGroupNm = commonAttributes.getSubGroupNm();
+        this.coinfectionIndCd = commonAttributes.getCoinfectionIndCd();
+    }
+
 }

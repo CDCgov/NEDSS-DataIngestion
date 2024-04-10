@@ -35,6 +35,9 @@ public class SrteCache {
     }
 
     public static boolean checkWhetherPAIsStdOrHiv(String paCode) {
+        if (paCode == null) {
+            return false;
+        }
         return jurisdictionCodeMapWithNbsUid.containsKey(paCode);
     }
 
