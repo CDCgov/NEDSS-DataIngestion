@@ -71,24 +71,30 @@ public class DecisionSupportService implements IDecisionSupportService {
     // Was: validateProxyVO
     public EdxLabInformationDto validateProxyContainer(LabResultProxyContainer labResultProxyVO,
                                                 EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
+
+        // Validating existing WDS Algorithm
         try {
 
             if (elrAlgorithmsPresent && activeElrAlgorithmList.isEmpty()) {
                 Collection<DsmAlgorithm> algorithmCollection = selectDSMAlgorithmDTCollection();
+
                 if (algorithmCollection == null || algorithmCollection.isEmpty())  {
                     //no algorithms defined
                     elrAlgorithmsPresent = false;
                     return edxLabInformationDT;
                 }
+
                 elrAlgorithmsPresent = false; //could be only inactive algorithms or only Case reports
-                Iterator<DsmAlgorithm> iterator = algorithmCollection.iterator();
-                while(iterator.hasNext()){
-                    DSMAlgorithmDto algorithmDT = new DSMAlgorithmDto(iterator.next());
-                    String algorithmString =algorithmDT.getAlgorithmPayload();
+                for (DsmAlgorithm dsmAlgorithm : algorithmCollection)
+                {
+                    DSMAlgorithmDto algorithmDT = new DSMAlgorithmDto(dsmAlgorithm);
+                    String algorithmString = algorithmDT.getAlgorithmPayload();
                     //skip inactive and case reports
                     if (algorithmDT.getStatusCd() != null && algorithmDT.getStatusCd().contentEquals(NEDSSConstant.INACTIVE) ||
                             algorithmDT.getEventType() != null && algorithmDT.getEventType().equals(NEDSSConstant.PHC_236))
+                    {
                         continue; //skip inactive
+                    }
 
                     // Suppose to be Algorithm
                     Algorithm algorithmDocument = parseAlgorithmXml(algorithmString);
@@ -96,11 +102,15 @@ public class DecisionSupportService implements IDecisionSupportService {
                     DsmLabMatchHelper dsmLabMatchHelper = null;
                     try {
                         if (algorithmDocument != null)
+                        {
                             dsmLabMatchHelper = new DsmLabMatchHelper(algorithmDocument);
+                        }
                     } catch (Exception e) {
                         //if one fails to parse - continue processing with error
                         e.printStackTrace();
                     }
+
+
                     if (dsmLabMatchHelper != null) {
                         activeElrAlgorithmList.add(dsmLabMatchHelper);
                         elrAlgorithmsPresent = true;
@@ -108,6 +118,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                     //parseXmDocument(algorithmDocument);
                 } //hasNext
                 //didn't find any?
+
                 if (!elrAlgorithmsPresent) {
                     return edxLabInformationDT;
                 }
@@ -117,32 +128,38 @@ public class DecisionSupportService implements IDecisionSupportService {
             throw new DataProcessingException("ERROR:-ValidateDecisionSupport.validateProxyVO unable to process algorithm as NEDSSAppException . Please check."+e1);
         }
 
-        Collection<Object>  resultedTestColl=new ArrayList<Object>();
+        Collection<Object>  resultedTestColl=new ArrayList<>();
         ObservationContainer orderedTestObservationVO=null;
-        Collection<Object> resultedTestCodeColl =  new ArrayList<Object>();
+        Collection<Object> resultedTestCodeColl =  new ArrayList<>();
 
         Map<Object, Object> questionIdentifierMap = null;
         try
         {
             Collection<PersonContainer> personVOCollection=new ArrayList<>();
             if (labResultProxyVO.getThePersonContainerCollection() != null)
-                personVOCollection=labResultProxyVO.getThePersonContainerCollection();
-
-            for (Iterator<ObservationContainer> it = labResultProxyVO.getTheObservationContainerCollection().iterator(); it.hasNext(); )
             {
-                ObservationContainer obsVO = (ObservationContainer) it.next();
+                personVOCollection=labResultProxyVO.getThePersonContainerCollection();
+            }
+
+            for (ObservationContainer obsVO : labResultProxyVO.getTheObservationContainerCollection()) {
+
                 String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
                 if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_RESULT_CD))
                 {
                     resultedTestColl.add(obsVO);
                     String labResultedTestCd = obsVO.getTheObservationDto().getCd();
                     if (obsVO.getTheObservationDto().getCd() == null)
+                    {
                         labResultedTestCd = obsVO.getTheObservationDto().getAltCd();
-                    if(labResultedTestCd != null && !resultedTestCodeColl.contains(labResultedTestCd))
+                    }
+                    if (labResultedTestCd != null && !resultedTestCodeColl.contains(labResultedTestCd))
+                    {
                         resultedTestCodeColl.add(labResultedTestCd);
-                }else if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD))
+                    }
+                }
+                else if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD))
                 {
-                    orderedTestObservationVO=obsVO;
+                    orderedTestObservationVO = obsVO;
                     orderedTestObservationVO.getTheObservationDto().setObservationUid(edxLabInformationDT.getRootObserbationUid());
                     orderedTestObservationVO.setTheParticipationDtoCollection(labResultProxyVO.getTheParticipationDtoCollection());
                 }
@@ -150,163 +167,240 @@ public class DecisionSupportService implements IDecisionSupportService {
 
             //See if we have a matching algorithm for this lab in the order of Algorithm Names
             Collections.sort(activeElrAlgorithmList, AlGORITHM_NM_ORDER);
-            Iterator<DsmLabMatchHelper> algorithmIter = activeElrAlgorithmList.iterator();
-            while (algorithmIter.hasNext()) {
-                DsmLabMatchHelper dsmLabMatchHelper = (DsmLabMatchHelper) algorithmIter.next();
+
+            for (DsmLabMatchHelper dsmLabMatchHelper : activeElrAlgorithmList) {
                 boolean criteriaMatch = false;
-                PageActProxyVO pageActProxyVO =null;
+                PageActProxyVO pageActProxyVO = null;
                 PamProxyContainer pamProxyVO = null;
-                PublicHealthCaseVO publicHealthCaseVO =null;
-                
+                PublicHealthCaseVO publicHealthCaseVO = null;
+
                 //Was AlgorithmDocument
-                Algorithm algorithmDocument =null;
+                Algorithm algorithmDocument = null;
                 //reset for every algorithm processing
                 edxLabInformationDT.setAssociatedPublicHealthCaseUid(-1L);
                 edxLabInformationDT.setMatchingPublicHealthCaseDTColl(null);
                 //if returns true, lab matched algorithm, continue with the investigation criteria match is one exists.
-                if (dsmLabMatchHelper.isThisLabAMatch(resultedTestCodeColl, resultedTestColl, edxLabInformationDT.getSendingFacilityClia(),edxLabInformationDT.getSendingFacilityName() )) {
+                boolean isLabMatched = dsmLabMatchHelper.isThisLabAMatch(resultedTestCodeColl, resultedTestColl, edxLabInformationDT.getSendingFacilityClia(), edxLabInformationDT.getSendingFacilityName());
+                if (isLabMatched)
+                {
                     algorithmDocument = dsmLabMatchHelper.getAlgorithmDocument();
-                    criteriaMatch=true;
-                } else {
+                    criteriaMatch = true;
+                }
+                else
+                {
                     continue;
                 }
 
                 String conditionCode = null;
-                if(algorithmDocument!=null && algorithmDocument.getApplyToConditions()!=null){
-                    List<CodedType> conditionArray=algorithmDocument.getApplyToConditions().getCondition();
-                    for(int i=0; i<conditionArray.size(); i++){
-                        CodedType codeType =conditionArray.get(i);
-                        conditionCode=codeType.getCode();
+                if (algorithmDocument != null && algorithmDocument.getApplyToConditions() != null)
+                {
+                    List<CodedType> conditionArray = algorithmDocument.getApplyToConditions().getCondition();
+                    for (int i = 0; i < conditionArray.size(); i++) {
+                        CodedType codeType = conditionArray.get(i);
+                        conditionCode = codeType.getCode();
                     }
                 }
-                if (algorithmDocument!=null && criteriaMatch && algorithmDocument.getAction()!= null
-                    &&
-                    (
-                        (algorithmDocument.getAction().getCreateInvestigation() != null
-                                && algorithmDocument.getAction().getCreateInvestigation().getOnFailureToCreateInvestigation().getCode().equals("2"))
+                if (algorithmDocument != null && criteriaMatch && algorithmDocument.getAction() != null
+                        &&
+                        (
+                                (algorithmDocument.getAction().getCreateInvestigation() != null
+                                        && algorithmDocument.getAction().getCreateInvestigation().getOnFailureToCreateInvestigation().getCode().equals("2"))
 
-                    ||
-                        (algorithmDocument.getAction().getCreateInvestigationWithNND() != null
-                            && algorithmDocument.getAction().getCreateInvestigationWithNND().getOnFailureToCreateNND().getCode().equals("2"))
-                    ||
-                        (algorithmDocument.getAction().getMarkAsReviewed() != null
-                                && algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2"))
-                    )
-                ) {
+                                        ||
+                                        (algorithmDocument.getAction().getCreateInvestigationWithNND() != null
+                                                && algorithmDocument.getAction().getCreateInvestigationWithNND().getOnFailureToCreateNND().getCode().equals("2"))
+                                        ||
+                                        (algorithmDocument.getAction().getMarkAsReviewed() != null
+                                                && algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2"))
+                        )
+                )
+                {
 
-                    if(conditionCode!=null)
+                    if (conditionCode != null)
+                    {
                         questionIdentifierMap = edxPhcrDocumentUtil.loadQuestions(conditionCode);
+                    }
                     edxLabInformationDT.setConditionCode(conditionCode);
-                    boolean isdateLogicValidForNewInv= false;
+                    boolean isdateLogicValidForNewInv = false;
                     boolean applyAdvInvLogic = false;
 
-                    if (algorithmDocument.getElrAdvancedCriteria()
-                            .getInvLogic() != null
-                            && algorithmDocument
-                            .getElrAdvancedCriteria().getInvLogic()
-                            .getInvLogicInd().getCode()
-                            .equals(NEDSSConstant.YES))
+                    if (
+                            algorithmDocument.getElrAdvancedCriteria().getInvLogic() != null
+                            && algorithmDocument.getElrAdvancedCriteria().getInvLogic().getInvLogicInd().getCode().equals(NEDSSConstant.YES)
+                    ) {
                         applyAdvInvLogic = true;
+                    }
 
-                    EventDateLogicType eventDateLogicType = algorithmDocument
-                            .getElrAdvancedCriteria()
-                            .getEventDateLogic();
+                    EventDateLogicType eventDateLogicType = algorithmDocument.getElrAdvancedCriteria().getEventDateLogic();
 
                     if (applyAdvInvLogic && eventDateLogicType != null)
-                        //isdateLogicValidForNewInv = true means no existing investigation was found matching the time logic, so return with no matching algorithms*/
-                        isdateLogicValidForNewInv = specimenCollectionDateCriteria(
-                                eventDateLogicType, edxLabInformationDT);
+                    {
+                        isdateLogicValidForNewInv = specimenCollectionDateCriteria(eventDateLogicType, edxLabInformationDT);
+                    }
                     else
+                    {
                         isdateLogicValidForNewInv = true;
-
+                    }
 
                     boolean isAdvancedInvCriteriaValid = false;
 
-
-                    if(algorithmDocument.getAction() != null && algorithmDocument.getAction().getMarkAsReviewed() != null
-                            && algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2") && applyAdvInvLogic)
+                    if (
+                            algorithmDocument.getAction() != null && algorithmDocument.getAction().getMarkAsReviewed() != null
+                            && algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2")
+                            && applyAdvInvLogic
+                    )
                     {
                         isAdvancedInvCriteriaValid = checkAdvancedInvCriteria(algorithmDocument, edxLabInformationDT, questionIdentifierMap);
                     }
-
-                    else if(((algorithmDocument.getAction() != null && algorithmDocument.getAction().getMarkAsReviewed() == null ) ||
-                            ((algorithmDocument.getAction() != null && algorithmDocument.getAction().getMarkAsReviewed() != null
-                                    && !algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2") )))
-                            && applyAdvInvLogic)
+                    else if (
+                                (
+                                    (
+                                        algorithmDocument.getAction() != null
+                                        && algorithmDocument.getAction().getMarkAsReviewed() == null
+                                    )
+                                    || (
+                                        (
+                                            algorithmDocument.getAction() != null
+                                            && algorithmDocument.getAction().getMarkAsReviewed() != null
+                                            && !algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2")
+                                        )
+                                    )
+                                )
+                                && applyAdvInvLogic
+                    )
                     {
                         isAdvancedInvCriteriaValid = checkAdvancedInvCriteriaForCreateInvNoti(algorithmDocument, edxLabInformationDT, questionIdentifierMap);
                     }
 
-                    if(algorithmDocument.getAction() != null && algorithmDocument.getAction().getMarkAsReviewed() != null
+                    if (
+                            algorithmDocument.getAction() != null
+                            && algorithmDocument.getAction().getMarkAsReviewed() != null
                             && algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2")
-                            && (!applyAdvInvLogic || (applyAdvInvLogic &&  !isdateLogicValidForNewInv && isAdvancedInvCriteriaValid)))
+                            && (
+                                !applyAdvInvLogic
+                                || (
+                                    applyAdvInvLogic
+                                    && !isdateLogicValidForNewInv
+                                    && isAdvancedInvCriteriaValid
+                                )
+                            )
+                    )
                     {
                         edxLabInformationDT.setDsmAlgorithmName(algorithmDocument.getAlgorithmName());
-                        if(conditionCode!=null)
+                        if (conditionCode != null)
                         {
                             var condCode = SrteCache.findConditionCodeByDescription(conditionCode);
-                            if (condCode.isPresent()) {
+                            if (condCode.isPresent())
+                            {
                                 edxLabInformationDT.setConditionName(condCode.get().getConditionShortNm());
                             }
                         }
                         edxLabInformationDT.setMatchingAlgorithm(true);
-                        if(algorithmDocument.getAction()!=null && algorithmDocument.getAction().getMarkAsReviewed()!=null)
+                        if (algorithmDocument.getAction() != null && algorithmDocument.getAction().getMarkAsReviewed() != null)
+                        {
                             edxLabInformationDT.setAction(DecisionSupportConstants.MARK_AS_REVIEWED);
+                        }
                         //for create Investigation and/or notification action
                     }
                     else if (
-                            ((algorithmDocument.getAction() != null && algorithmDocument.getAction().getMarkAsReviewed() == null ) ||
-                            (algorithmDocument.getAction() != null && algorithmDocument.getAction().getMarkAsReviewed() != null
-                                    && !algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2")))
-                            && (!applyAdvInvLogic || (applyAdvInvLogic &&  isdateLogicValidForNewInv) || (applyAdvInvLogic &&  !isdateLogicValidForNewInv && isAdvancedInvCriteriaValid)))
+                                (
+                                    (
+                                        algorithmDocument.getAction() != null
+                                        && algorithmDocument.getAction().getMarkAsReviewed() == null
+                                    )
+                                    || (
+                                            algorithmDocument.getAction() != null && algorithmDocument.getAction().getMarkAsReviewed() != null
+                                            && !algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2")
+                                    )
+                                )
+                                && (
+                                        !applyAdvInvLogic
+                                        || (applyAdvInvLogic && isdateLogicValidForNewInv)
+                                        || (applyAdvInvLogic && !isdateLogicValidForNewInv && isAdvancedInvCriteriaValid)
+                                )
+                    )
                     {
                         //algorithmDocument.getAction().getCreateInvestigation().getInvestigationDefaultValues()
                         edxLabInformationDT.setMatchingAlgorithm(true);
-                        if(algorithmDocument!=null && algorithmDocument.getAction()!=null && algorithmDocument.getAction().getCreateInvestigation()!=null)
+                        if (algorithmDocument != null
+                                && (algorithmDocument.getAction() != null && algorithmDocument.getAction().getCreateInvestigation() != null)
+                        )
+                        {
                             edxLabInformationDT.setAction(DecisionSupportConstants.CREATE_INVESTIGATION_VALUE);
-                        else if(algorithmDocument!=null &&  algorithmDocument.getAction()!=null && algorithmDocument.getAction().getCreateInvestigationWithNND()!=null)
-                            edxLabInformationDT.setAction(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE);
-                        edxLabInformationDT.setInvestigationType(algorithmDocument.getInvestigationType());
-                        Object obj = autoInvestigationService.autoCreateInvestigation(orderedTestObservationVO,  edxLabInformationDT);
-                        BasePamContainer pamVO= null;
-                        if (obj instanceof PageActProxyVO) {
-                            pageActProxyVO = (PageActProxyVO) obj;
-                            publicHealthCaseVO= pageActProxyVO.getPublicHealthCaseVO();
-                            pamVO= pageActProxyVO.getPageVO();
-                        }else{
-                            pamProxyVO = (PamProxyContainer) obj;
-                            publicHealthCaseVO=pamProxyVO.getPublicHealthCaseVO();
-                            pamVO=pamProxyVO.getPamVO();
                         }
-                        processAction(edxLabInformationDT,algorithmDocument);
+                        else if (algorithmDocument != null
+                                && (algorithmDocument.getAction() != null && algorithmDocument.getAction().getCreateInvestigationWithNND() != null)
+                        )
+                        {
+                            edxLabInformationDT.setAction(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE);
+                        }
+
+                        edxLabInformationDT.setInvestigationType(algorithmDocument.getInvestigationType());
+                        //AUTO INVESTIGATION
+                        Object obj = autoInvestigationService.autoCreateInvestigation(orderedTestObservationVO, edxLabInformationDT);
+                        BasePamContainer pamVO = null;
+                        if (obj instanceof PageActProxyVO)
+                        {
+                            pageActProxyVO = (PageActProxyVO) obj;
+                            publicHealthCaseVO = pageActProxyVO.getPublicHealthCaseVO();
+                            pamVO = pageActProxyVO.getPageVO();
+                        }
+                        else
+                        {
+                            pamProxyVO = (PamProxyContainer) obj;
+                            publicHealthCaseVO = pamProxyVO.getPublicHealthCaseVO();
+                            pamVO = pamProxyVO.getPamVO();
+                        }
+
+                        processAction(edxLabInformationDT, algorithmDocument);
 
                         Map<Object, Object> applyMap = edxLabInformationDT.getEdxRuleApplyDTMap();
-                        Collection<Object> entityMapCollection =new ArrayList<Object>();
-                        if (applyMap != null && applyMap.size() > 0 && questionIdentifierMap!=null) {
+                        Collection<Object> entityMapCollection = new ArrayList<>();
+                        if (applyMap != null && applyMap.size() > 0 && questionIdentifierMap != null) {
                             Set<Object> set = applyMap.keySet();
-                            Iterator<?> applyIterator = set.iterator();
-                            while (applyIterator.hasNext()) {
-                                String questionId = (String) applyIterator.next();
+                            for (Object o : set)
+                            {
+                                String questionId = (String) o;
                                 EdxRuleManageDto edxRuleManageDT = (EdxRuleManageDto) applyMap.get(questionId);
                                 NbsQuestionMetadata metaData = (NbsQuestionMetadata) questionIdentifierMap.get(questionId);
                                 try {
-                                    if (metaData.getDataLocation() != null && metaData.getDataLocation().trim().toUpperCase().startsWith("PUBLIC_HEALTH_CASE")) {
+                                    if (metaData.getDataLocation() != null
+                                            && metaData.getDataLocation().trim().toUpperCase().startsWith("PUBLIC_HEALTH_CASE"))
+                                    {
                                         validateDecisionSupport.processNbsObject(edxRuleManageDT, publicHealthCaseVO, metaData);
-                                    } else if (metaData.getDataLocation() != null && metaData.getDataLocation().trim().toUpperCase().startsWith("NBS_CASE_ANSWER")) {
+                                    }
+                                    else if (metaData.getDataLocation() != null
+                                            && metaData.getDataLocation().trim().toUpperCase().startsWith("NBS_CASE_ANSWER"))
+                                    {
                                         validateDecisionSupport.processNBSCaseAnswerDT(edxRuleManageDT, publicHealthCaseVO, pamVO, metaData);
-                                    } else if (metaData.getDataLocation() != null && metaData.getDataLocation().trim().toUpperCase().startsWith("CONFIRMATION_METHOD.CONFIRMATION_METHOD_CD")) {
+                                    }
+                                    else if (metaData.getDataLocation() != null
+                                            && metaData.getDataLocation().trim().toUpperCase().startsWith("CONFIRMATION_METHOD.CONFIRMATION_METHOD_CD"))
+                                    {
                                         validateDecisionSupport.processConfirmationMethodCodeDT(edxRuleManageDT, publicHealthCaseVO, metaData);
-                                    } else if (metaData.getDataLocation() != null && metaData.getDataLocation().trim().toUpperCase().startsWith("CONFIRMATION_METHOD.CONFIRMATION_METHOD_TIME")) {
+                                    }
+                                    else if (metaData.getDataLocation() != null
+                                            && metaData.getDataLocation().trim().toUpperCase().startsWith("CONFIRMATION_METHOD.CONFIRMATION_METHOD_TIME"))
+                                    {
                                         validateDecisionSupport.processConfirmationMethodTimeDT(edxRuleManageDT, publicHealthCaseVO, metaData);
-                                    } else if(metaData.getDataLocation() != null && metaData.getDataLocation().trim().toUpperCase().startsWith("ACT_ID.ROOT_EXTENSION_TXT")){
+                                    }
+                                    else if (metaData.getDataLocation() != null
+                                            && metaData.getDataLocation().trim().toUpperCase().startsWith("ACT_ID.ROOT_EXTENSION_TXT"))
+                                    {
                                         validateDecisionSupport.processActIds(edxRuleManageDT, publicHealthCaseVO, metaData);
-                                    }else if(metaData.getDataLocation() != null && metaData.getDataLocation().trim().toUpperCase().startsWith("CASE_MANAGEMENT")  && obj instanceof PageActProxyVO){
+                                    }
+                                    else if (metaData.getDataLocation() != null
+                                            && metaData.getDataLocation().trim().toUpperCase().startsWith("CASE_MANAGEMENT")
+                                            && obj instanceof PageActProxyVO)
+                                    {
                                         validateDecisionSupport.processNBSCaseManagementDT(edxRuleManageDT, publicHealthCaseVO, metaData);
-                                    }else if(metaData.getDataLocation() != null && metaData.getDataType().toUpperCase().startsWith("PART")){
+                                    }
+                                    else if (metaData.getDataLocation() != null
+                                            && metaData.getDataType().toUpperCase().startsWith("PART"))
+                                    {
                                         entityMapCollection.add(edxRuleManageDT);
-                                        if(edxRuleManageDT.getParticipationTypeCode()== null || edxRuleManageDT.getParticipationUid()==null  || edxRuleManageDT.getParticipationClassCode()==null){
+                                        if (edxRuleManageDT.getParticipationTypeCode() == null || edxRuleManageDT.getParticipationUid() == null || edxRuleManageDT.getParticipationClassCode() == null) {
                                             throw new Exception("ValidateDecisionSupport.validateProxyVO Exception thrown for edxRuleManageDT:-" + edxRuleManageDT);
-
                                         }
                                     }
                                 } catch (Exception e) {
@@ -314,36 +408,39 @@ public class DecisionSupportService implements IDecisionSupportService {
                                 }
 
                             }
-
                             validateDecisionSupport.processConfirmationMethodCodeDTRequired(publicHealthCaseVO);
-
                         }
 
+                        autoInvestigationService.transferValuesTOActProxyVO(pageActProxyVO, pamProxyVO, personVOCollection, orderedTestObservationVO, entityMapCollection, questionIdentifierMap);
 
-                        autoInvestigationService.transferValuesTOActProxyVO(pageActProxyVO,pamProxyVO, personVOCollection, orderedTestObservationVO,entityMapCollection,questionIdentifierMap);
-                        if(questionIdentifierMap!=null && questionIdentifierMap.get(edxPhcrDocumentUtil._REQUIRED)!=null){
-                            Map<Object, Object> nbsAnswerMap=pamVO.getPamAnswerDTMap();
-                            Map<Object, Object> requireMap =(Map<Object, Object>)questionIdentifierMap.get(edxPhcrDocumentUtil._REQUIRED);
+                        if (questionIdentifierMap != null
+                                && questionIdentifierMap.get(edxPhcrDocumentUtil._REQUIRED) != null)
+                        {
+                            Map<Object, Object> nbsAnswerMap = pamVO.getPamAnswerDTMap();
+                            Map<Object, Object> requireMap = (Map<Object, Object>) questionIdentifierMap.get(edxPhcrDocumentUtil._REQUIRED);
                             String errorText = edxPhcrDocumentUtil.requiredFieldCheck(requireMap, nbsAnswerMap);
                             publicHealthCaseVO.setErrorText(errorText);
                         }
                         edxLabInformationDT.setObject(obj);
 
                         var condCode = SrteCache.findConditionCodeByDescription(conditionCode);
-                        if (condCode.isPresent()) {
+                        if (condCode.isPresent())
+                        {
                             edxLabInformationDT.setConditionName(condCode.get().getConditionShortNm());
                         }
 
-                    }
-                    else {
+                    } else {
                         edxLabInformationDT.setMatchingAlgorithm(false);
-                        //return edxLabInformationDT;
                     }
 
-                }else{
+                }
+                else
+                {
                     edxLabInformationDT.setMatchingAlgorithm(false);
                 }
-                if(edxLabInformationDT.isMatchingAlgorithm()){
+
+                if (edxLabInformationDT.isMatchingAlgorithm())
+                {
                     edxLabInformationDT.setDsmAlgorithmName(algorithmDocument.getAlgorithmName());
                     break;
                 }
