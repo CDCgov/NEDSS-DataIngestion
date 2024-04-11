@@ -33,8 +33,8 @@ public class SFTPRouteBuilder extends RouteBuilder {
     private static final String FALSE = "false";
     private static final String SFTP = "sftp";
     private static final String ROUTE_FILES_PROCESS_UNPROCESS="file:files/sftpProcessedUnprocessed";
-    private static final String ROUTE_FILE_UNZIP_DOWNLOAD="file:files/sftpUnzipDownload";
-    private static final String ROUTE_FILE_DOWNLOAD="file:files/sftpdownload";
+    private static final String ROUTE_TEXT_FILE_DIR="file:files/sftpTextFileDir";
+    private static final String ROUTE_ZIPFILE_DIR="file:files/sftpZipFileDir";
     private static final String ROUTE_SEDA_UPDATE_STATUS="seda:updateStatus";
     private static final String PASSIVE_MODE="passiveMode";
     private static final String INITIAL_DELAY="initialDelay";
@@ -94,38 +94,42 @@ public class SFTPRouteBuilder extends RouteBuilder {
         String sftpServer = sftpUriBuilder.toString();
         logger.debug("sftp_server URL: {}", sftpServer);
 
-        //Download the file from sftp server.If the file is zip, it will be downloaded into files/sftpdownload directory.
-        //If it's a text file, it will be moved to the folder files/sftpUnzipDownload, where all the single files are stored temporarily.
+        //Download the file from sftp server.If the file is zip, it will be downloaded into files/sftpZipFileDir directory.
+        //If it's a text file, it will be moved to the folder files/sftpTextFileDir, where all the text files are stored temporarily.
         from(sftpServer).routeId("sftpRouteId")
                 .log("The file from sftpRouteId: ${file:name}")
                 .choice()
                     .when(simple("${file:name} endsWith '.zip'"))
-                        .log(" *****when .zip condition...The file ${file:name}")
-                        .to(ROUTE_FILE_DOWNLOAD)
+                        .log("Sftp first route when .zip condition...The file ${file:name}")
+                        .to(ROUTE_ZIPFILE_DIR)
+                    .when(simple("${file:name} endsWith '.txt' && ${bodyAs(String).trim.length} != '0'")) //NOSONAR
+                        .log("Sftp first route. File:${file:name}.Moving to the folder has text files.")
+                        .to(ROUTE_TEXT_FILE_DIR)
                     .otherwise()
-                        .log(" ****Otherwise condition for non .zip files.file ${file:name}")
-                        .to(ROUTE_FILE_UNZIP_DOWNLOAD)
+                        .log("Sftp First route, Otherwise condition for non .txt and.zip files.File name: ${file:name}")
+                        .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmss}-${file:name}"))
+                        .to(sftpUriUnProcessed.toString())
                 .end();
         // Unzip the downloaded file
         log.debug("Calling sftpUnzipFileRouteId");
-        from(ROUTE_FILE_DOWNLOAD)
+        from(ROUTE_ZIPFILE_DIR)
                 .routeId("sftpUnzipFileRouteId")
                 .split(new ZipSplitter()).streaming()
-                .to(ROUTE_FILE_UNZIP_DOWNLOAD)
+                .to(ROUTE_TEXT_FILE_DIR)
                 .end();
 
         //Process the files from unzipped folder
-        logger.debug("Calling sftpdownloadUnzip");
-        from(ROUTE_FILE_UNZIP_DOWNLOAD)
-                .routeId("SftpReadFromUnzipDirRouteId")
-                    .log(" Read from unzipped files folder ...The file ${file:name}")
+        logger.debug("Calling sftpReadFromTextFileDirRouteId");
+        from(ROUTE_TEXT_FILE_DIR)
+                .routeId("sftpReadFromTextFileDirRouteId")
+                    .log(" Read from text files folder ...The file ${file:name}")
                     .to("seda:processfiles", "seda:movefiles")
                 .end();
         from("seda:processfiles")
                 .routeId("sedaProcessFilesRouteId")
                 .log("from seda processfiles file: ${file:name}")
                 .choice()
-                    .when(simple("${file:name} endsWith '.txt' && ${bodyAs(String).trim.length} != '0'"))
+                    .when(simple("${file:name} endsWith '.txt' && ${bodyAs(String).trim.length} != '0'")) //NOSONAR
                         .log("File processed:${file:name}")
                         .log("Before bean process:${bodyAs(String).trim.length}:")
                         .bean(HL7FileProcessComponent.class)
@@ -148,7 +152,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
                 .delay(5000)
                 .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmssSSS}-${file:name}"))
                 .choice()
-                    .when(simple("${file:name} endsWith '.txt' && ${bodyAs(String).trim.length} != '0'"))
+                    .when(simple("${file:name} endsWith '.txt' && ${bodyAs(String).trim.length} != '0'")) //NOSONAR
                         .log("processed file:${file:name}")
                     .otherwise()
                         .to(sftpUriUnProcessed.toString())
