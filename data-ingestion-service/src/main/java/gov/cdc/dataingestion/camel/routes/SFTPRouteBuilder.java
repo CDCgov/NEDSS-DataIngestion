@@ -102,7 +102,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
                     .when(simple("${file:name} endsWith '.zip'"))
                         .log("Sftp first route when .zip condition...The file ${file:name}")
                         .to(ROUTE_ZIPFILE_DIR)
-                    .when(simple("${file:name} endsWith '.txt' && ${bodyAs(String).trim.length} != '0'"))
+                    .when(simple("${file:name} endsWith '.txt' && ${bodyAs(String).trim.length} != '0'")) //NOSONAR
                         .log("Sftp first route. File:${file:name}.Moving to the folder has text files.")
                         .to(ROUTE_TEXT_FILE_DIR)
                     .otherwise()
@@ -129,7 +129,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
                 .routeId("sedaProcessFilesRouteId")
                 .log("from seda processfiles file: ${file:name}")
                 .choice()
-                    .when(simple("${file:name} endsWith '.txt' && ${bodyAs(String).trim.length} != '0'"))
+                    .when(simple("${file:name} endsWith '.txt' && ${bodyAs(String).trim.length} != '0'")) //NOSONAR
                         .log("File processed:${file:name}")
                         .log("Before bean process:${bodyAs(String).trim.length}:")
                         .bean(HL7FileProcessComponent.class)
@@ -152,7 +152,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
                 .delay(5000)
                 .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmssSSS}-${file:name}"))
                 .choice()
-                    .when(simple("${file:name} endsWith '.txt' && ${bodyAs(String).trim.length} != '0'"))
+                    .when(simple("${file:name} endsWith '.txt' && ${bodyAs(String).trim.length} != '0'")) //NOSONAR
                         .log("processed file:${file:name}")
                     .otherwise()
                         .to(sftpUriUnProcessed.toString())
