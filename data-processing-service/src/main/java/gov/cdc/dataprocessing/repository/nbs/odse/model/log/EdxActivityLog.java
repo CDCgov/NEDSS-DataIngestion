@@ -1,21 +1,19 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.log;
 
+import gov.cdc.dataprocessing.model.dto.log.EDXActivityLogDto;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.Instant;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.sql.Timestamp;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "EDX_activity_log", schema = "dbo")
+@Table(name = "EDX_activity_log")
 public class EdxActivityLog {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue( strategy = GenerationType.IDENTITY )
     @Column(name = "edx_activity_log_uid", nullable = false)
     private Long id;
 
@@ -32,14 +30,14 @@ public class EdxActivityLog {
     private String recordStatusCd;
 
     @Column(name = "record_status_time")
-    private Instant recordStatusTime;
+    private Timestamp recordStatusTime;
 
     @Lob
     @Column(name = "exception_txt")
     private String exceptionTxt;
 
     @Column(name = "imp_exp_ind_cd")
-    private Character impExpIndCd;
+    private String impExpIndCd;
 
     @Column(name = "source_type_cd", length = 50)
     private String sourceTypeCd;
@@ -71,7 +69,29 @@ public class EdxActivityLog {
     @Column(name = "Accession_nbr", length = 100)
     private String accessionNbr;
 
-//    @OneToMany(mappedBy = "edxActivityLogUid")
+    //    @OneToMany(mappedBy = "edxActivityLogUid")
 //    private Set<gov.cdc.dataingestion.odse.repository.model.EdxActivityDetailLog> edxActivityDetailLogs = new LinkedHashSet<>();
+    public EdxActivityLog() {
+    }
 
+    public EdxActivityLog(EDXActivityLogDto eDXActivityLogDto) {
+        this.id = eDXActivityLogDto.getEdxActivityLogUid();
+        this.sourceUid = eDXActivityLogDto.getSourceUid();
+        this.targetUid = eDXActivityLogDto.getTargetUid();
+        this.docType = eDXActivityLogDto.getDocType();
+        this.recordStatusCd = eDXActivityLogDto.getRecordStatusCd();
+        this.recordStatusTime = eDXActivityLogDto.getRecordStatusTime();
+        this.exceptionTxt = eDXActivityLogDto.getException();
+        this.impExpIndCd = eDXActivityLogDto.getImpExpIndCd();
+        this.sourceTypeCd = eDXActivityLogDto.getSourceTypeCd();
+        this.targetTypeCd = eDXActivityLogDto.getTargetTypeCd();
+        this.businessObjLocalid = eDXActivityLogDto.getBusinessObjLocalId();
+        this.docNm = eDXActivityLogDto.getDocName();
+        this.sourceNm = eDXActivityLogDto.getDocName();
+        this.algorithmAction = eDXActivityLogDto.getAlgorithmAction();
+        this.algorithmName = eDXActivityLogDto.getAlgorithmName();
+        this.messageId = eDXActivityLogDto.getMessageId();
+        this.entityNm = eDXActivityLogDto.getEntityNm();
+        this.accessionNbr = eDXActivityLogDto.getAccessionNbr();
+    }
 }

@@ -1,18 +1,17 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.log;
 
+import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "EDX_activity_detail_log", schema = "dbo")
+@Table(name = "EDX_activity_detail_log")
 public class EdxActivityDetailLog {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue( strategy = GenerationType.IDENTITY )
     @Column(name = "edx_activity_detail_log_uid", nullable = false)
     private Long id;
 
@@ -35,4 +34,15 @@ public class EdxActivityDetailLog {
 
     @Column(name = "log_comment", length = 2000)
     private String logComment;
+
+    public EdxActivityDetailLog() {
+    }
+    public EdxActivityDetailLog(EDXActivityDetailLogDto eDXActivityDtlLogDto) {
+        this.id = eDXActivityDtlLogDto.getEdxActivityLogUid();
+        this.recordId = eDXActivityDtlLogDto.getRecordId();
+        this.recordType = eDXActivityDtlLogDto.getRecordType();
+        this.recordNm = eDXActivityDtlLogDto.getRecordName();
+        this.logType = eDXActivityDtlLogDto.getLogType();
+        this.logComment = eDXActivityDtlLogDto.getComment();
+    }
 }
