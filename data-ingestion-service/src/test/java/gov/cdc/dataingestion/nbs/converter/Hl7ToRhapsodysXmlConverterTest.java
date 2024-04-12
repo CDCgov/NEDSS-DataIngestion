@@ -1,5 +1,7 @@
 package gov.cdc.dataingestion.nbs.converter;
 
+import gov.cdc.dataingestion.exception.DeadLetterTopicException;
+import gov.cdc.dataingestion.exception.XmlConversionException;
 import gov.cdc.dataingestion.hl7.helper.HL7Helper;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
@@ -37,7 +39,7 @@ class Hl7ToRhapsodysXmlConverterTest {
     HL7Helper hl7Helper = new HL7Helper();
 
     @Test
-    void convertHL7ToXMLTest() throws DiHL7Exception, JAXBException, IOException {
+    void convertHL7ToXMLTest() throws DiHL7Exception, JAXBException, IOException, XmlConversionException {
         String rawId = "whatever";
         String hl7Message = TestData.randomGenerated251WithDataInAllFieldV1;
 
@@ -50,11 +52,34 @@ class Hl7ToRhapsodysXmlConverterTest {
     void buildHL7LabReportTypeAllMissingConditional() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         var parentClass = new Hl7ToRhapsodysXmlConverter();
         HL7ParsedMessage<OruR1> model = new HL7ParsedMessage();
-        model.setParsedMessage(new OruR1());
+        var oru = new OruR1();
+        var header = new MessageHeader();
+        var ts = new Ts();
+        ts.setTime("202105091533");
+        header.setDateTimeOfMessage(ts);
+        oru.setMessageHeader(header);
+        model.setParsedMessage(oru);
+
         Method privateMethod = Hl7ToRhapsodysXmlConverter.class.getDeclaredMethod("buildHL7LabReportType", HL7ParsedMessage.class);
         privateMethod.setAccessible(true);
         var result = (HL7LabReportType) privateMethod.invoke(parentClass, model);
         Assertions.assertNull(result.getHL7ContinuationPointer());
+    }
+
+    @Test
+    void buildHL7LabReportTypeAllMissingConditionalWithTimeOfMessageException() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        var parentClass = new Hl7ToRhapsodysXmlConverter();
+        HL7ParsedMessage<OruR1> model = new HL7ParsedMessage();
+        model.setParsedMessage(new OruR1());
+
+        var exception = Assertions.assertThrows(InvocationTargetException.class, () -> {
+            Method privateMethod = Hl7ToRhapsodysXmlConverter.class.getDeclaredMethod("buildHL7LabReportType", HL7ParsedMessage.class);
+            privateMethod.setAccessible(true);
+            privateMethod.invoke(parentClass, model);
+        });
+        var msg =  exception.getTargetException().getMessage();
+        Assertions.assertEquals("MSH Date Time Of Message Can Not Be Empty, Please verify 2.5.1 or 2.3.1 MSH.7",msg);
+
     }
 
     @Test
