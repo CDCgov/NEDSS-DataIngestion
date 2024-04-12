@@ -27,7 +27,7 @@ class SFTPRouteBuilderTest extends CamelTestSupport {
     void testMockEndpoints() throws Exception {
         RouteDefinition sftpRoute = context.getRouteDefinition("sftpRouteId");
         RouteDefinition routeSftpUnzipFile = context.getRouteDefinition("sftpUnzipFileRouteId");
-        RouteDefinition routeSftpReadFromUnzipDir = context.getRouteDefinition("SftpReadFromUnzipDirRouteId");
+        RouteDefinition routeSftpReadFromUnzipDir = context.getRouteDefinition("sftpReadFromTextFileDirRouteId");
         RouteDefinition routeSedaProcessFiles = context.getRouteDefinition("sedaProcessFilesRouteId");
         adviceWith(
                 sftpRoute,
@@ -36,7 +36,7 @@ class SFTPRouteBuilderTest extends CamelTestSupport {
                     @Override
                     public void configure() throws Exception {
                         replaceFromWith("direct:fromSftpRoute");
-                        weaveByToUri("file:files/sftpUnzipDownload").replace().to("mock:result");
+                        weaveByToUri("sftp:/*").replace().to("mock:result");
 
                     }
                 });
@@ -47,7 +47,7 @@ class SFTPRouteBuilderTest extends CamelTestSupport {
                     @Override
                     public void configure() throws Exception {
                         replaceFromWith("direct:sftpUnzipFileRoute");
-                        weaveByToUri("file:files/sftpUnzipDownload").replace().to("mock:sftpUnzipFileResult");
+                        weaveByToUri("file:files/sftpTextFileDir").replace().to("mock:sftpUnzipFileResult");
                     }
                 });
         adviceWith(
