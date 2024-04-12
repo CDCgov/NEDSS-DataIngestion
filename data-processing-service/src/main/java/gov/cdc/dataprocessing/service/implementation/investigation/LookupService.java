@@ -138,7 +138,14 @@ public class LookupService implements ILookupService {
 
     private Collection<LookupMappingDto> retrievePrePopMapping () {
         var res = lookupMappingRepository.getLookupMappings();
-        return res.orElseGet(ArrayList::new);
+        List<LookupMappingDto> lst = new ArrayList<>();
+        if (res.isPresent()) {
+            for(var item : res.get()) {
+                LookupMappingDto mappingDto = new LookupMappingDto(item);
+                lst.add(mappingDto);
+            }
+        }
+        return lst;
     }
 
     private static void createPrePopFromMap(Collection<LookupMappingDto> coll) throws Exception {
@@ -316,7 +323,9 @@ public class LookupService implements ILookupService {
 
                     }
                     if (sizecount == coll.size()) {
-                        OdseCache.toPrePopFormMapping.put(qMetadata.getToFormCd(), map[count]);
+                        if (qMetadata.getToFormCd() != null) {
+                            OdseCache.toPrePopFormMapping.put(qMetadata.getToFormCd(), map[count]);
+                        }
                     }
 
                 }

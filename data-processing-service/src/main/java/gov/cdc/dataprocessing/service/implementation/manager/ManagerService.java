@@ -33,6 +33,8 @@ import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationServ
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService;
 import gov.cdc.dataprocessing.service.model.PublicHealthCaseFlowContainer;
+import gov.cdc.dataprocessing.service.model.WdsReport;
+import gov.cdc.dataprocessing.service.model.WdsTrackerView;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.ManagerUtil;
 import jakarta.transaction.Transactional;
@@ -161,6 +163,18 @@ public class ManagerService implements IManagerService {
                     // This logic here determine whether logic is mark as review or not
                     decisionSupportService.validateProxyContainer(labResultProxyContainer, edxLabInformationDto);
 
+                    WdsTrackerView trackerView = new WdsTrackerView();
+                    trackerView.setWdsReport(edxLabInformationDto.getWdsReports());
+                    gson = new Gson();
+                    String trackerString = gson.toJson(trackerView);
+                    kafkaManagerProducer.sendDataActionTracker(trackerString);
+
+
+
+
+
+                    nbsInterfaceModel.setRecordStatusCd("COMPLETED_V2_STEP_2");
+                    nbsInterfaceRepository.save(nbsInterfaceModel);
 
                     PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
                     phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
@@ -169,7 +183,7 @@ public class ManagerService implements IManagerService {
                     phcContainer.setObservationDto(observationDto);
                     gson = new Gson();
                     String jsonString = gson.toJson(phcContainer);
-                    kafkaManagerProducer.sendDataLabHandling(jsonString);
+                   // kafkaManagerProducer.sendDataLabHandling(jsonString);
 
                 }
             }

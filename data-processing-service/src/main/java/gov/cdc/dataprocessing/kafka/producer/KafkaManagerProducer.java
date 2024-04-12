@@ -24,6 +24,8 @@ public class KafkaManagerProducer  extends KafkaBaseProducer {
     @Value("${kafka.topic.elr_handle_lab}")
     private String labHandleTopic = "elr_processing_handle_lab" ;
 
+    @Value("${kafka.topic.elr_action_tracker}")
+    private String actionTrackerTopic = "elr_action_tracker" ;
     public void sendDataPhc(String msg) {
         sendData(phcTopic, msg);
     }
@@ -32,8 +34,12 @@ public class KafkaManagerProducer  extends KafkaBaseProducer {
         sendData(labHandleTopic, msg);
     }
 
+    public void sendDataActionTracker(String msg) {
+        sendData(actionTrackerTopic, msg);
+    }
+
     public void sendData(String topic, String msgContent) {
-        String uniqueID =  UUID.randomUUID().toString();
+        String uniqueID = "DP_ELR_" + UUID.randomUUID();
         var record = createProducerRecord(topic, uniqueID, msgContent);
         // ADD HEADER if needed
         sendMessage(record);

@@ -7,14 +7,13 @@ import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.ObservationContainer;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.service.model.WdsReport;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 @Setter
@@ -142,6 +141,8 @@ public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDto implements 
     private Collection<PublicHealthCaseDT> matchingPublicHealthCaseDTColl;
     private String investigationType;
     private NbsInterfaceStatus status;
+
+    private List<WdsReport> wdsReports = new ArrayList<>();
 
     public int getNextUid() {
         nextUid--;
