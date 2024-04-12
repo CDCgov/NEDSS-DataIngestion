@@ -553,7 +553,12 @@ public class KafkaConsumerService {
                     customMetricsBuilder.incrementMessagesValidatedSuccess();
                 } catch (DiHL7Exception e) {
                     customMetricsBuilder.incrementMessagesValidatedFailure();
-                    throw new DiHL7Exception(e.getMessage());
+                    String errorMsg=e.getMessage();
+                    if(errorMsg!=null && errorMsg.contains("ValidationException") && errorMsg.contains("HL7 datetime string at MSH-6"))
+                    {
+                        errorMsg=errorMsg.replace("HL7 datetime string at MSH-6","HL7 datetime string at MSH-7");
+                    }
+                    throw new DiHL7Exception(errorMsg);
                 }
                 // Duplication check
                 iHL7DuplicateValidator.validateHL7Document(hl7ValidatedModel);
