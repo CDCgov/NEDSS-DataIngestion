@@ -94,7 +94,6 @@ public class Hl7ToRhapsodysXmlConverter {
     private static final DateTimeFormatter formatterWithZone = DateTimeFormatter.ofPattern("yyyyMMddHHmmssX");
     private static final String OBX_VALUE_TYPE_SN = "SN";
     private static final String EMPTY_STRING = "";
-    private static final String CARET_SEPARATOR = "\\^";
     private static final int TS_FMT_ALL = 0;
     private static final int TS_FMT_DATE_ONLY = 1;
     private static final int TS_FMT_DATE_HOUR_ONLY = 2;
@@ -911,6 +910,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7RPTType;
     }
 
+    @SuppressWarnings("java:S3776")
     private HL7OBXType buildHL7OBXType(ObservationResult or) {
         HL7OBXType hl7OBXType = new HL7OBXType();
 
