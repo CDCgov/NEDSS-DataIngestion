@@ -17,7 +17,6 @@ public class EdxLogService implements IEdxLogService {
     }
 
     public Object processingLog() throws EdxLogException {
-        //TODO: Adding logic here
         try {
             return "processing log";
         } catch (Exception e) {

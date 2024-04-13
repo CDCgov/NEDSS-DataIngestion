@@ -76,15 +76,8 @@ public class ParticipationService implements IParticipationService {
             try {
                 var data = new Participation(participationDto);
 
-                //TODO: EVALUATE entity check is patch - need to figure out
-//                var result = entityRepository.findById(data.getSubjectEntityUid());
-//                if (result.isPresent()) {
-//
-//                }
                 participationRepository.save(data);
 
-
-//                                participationStoredProcRepository.insertParticipation(participationDto);
             } catch (Exception e) {
                 throw new DataProcessingException(e.getMessage(), e);
             }

@@ -32,14 +32,12 @@ public class ObsValueTxtDto extends BaseContainer
 
     private String sharedInd = null;
 
-    private boolean itDirty = false;
 
-    private boolean itNew = true;
-
-    private boolean itDelete = false;
 
     public ObsValueTxtDto() {
-
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
     }
 
     public ObsValueTxtDto(ObsValueTxt obsValueTxt) {

@@ -83,6 +83,8 @@ import  java.time.LocalDateTime;
 import  java.util.List;
 import  java.util.ArrayList;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import  org.apache.commons.lang3.StringUtils;
 
@@ -93,7 +95,6 @@ public class Hl7ToRhapsodysXmlConverter {
     private static final DateTimeFormatter formatterWithZone = DateTimeFormatter.ofPattern("yyyyMMddHHmmssX");
     private static final String OBX_VALUE_TYPE_SN = "SN";
     private static final String EMPTY_STRING = "";
-    private static final String CARET_SEPARATOR = "\\^";
     private static final int TS_FMT_ALL = 0;
     private static final int TS_FMT_DATE_ONLY = 1;
     private static final int TS_FMT_DATE_HOUR_ONLY = 2;
@@ -910,6 +911,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7RPTType;
     }
 
+    @SuppressWarnings("java:S3776")
     private HL7OBXType buildHL7OBXType(ObservationResult or) {
         HL7OBXType hl7OBXType = new HL7OBXType();
 
@@ -920,8 +922,14 @@ public class Hl7ToRhapsodysXmlConverter {
 
         for (String s : or.getObservationValue()) {
             if (OBX_VALUE_TYPE_SN.equals(hl7OBXType.getValueType())) {
-                String refinedValue = s.replaceAll(CARET_SEPARATOR, ""); // NOSONAR
-                hl7OBXType.getObservationValue().add(refinedValue);
+                Pattern pattern = Pattern.compile("\\[(.*?)\\]"); // Pattern to match text between square brackets
+                Matcher matcher = pattern.matcher(s);
+                String extractedText = "";
+                while (matcher.find()) {
+                    extractedText = matcher.group(1); // Extract text between square brackets
+                }
+                // String refinedValue = s.replaceAll(CARET_SEPARATOR, ""); // NOSONAR
+                hl7OBXType.getObservationValue().add(extractedText);
             } else {
                 hl7OBXType.getObservationValue().add(s);
             }

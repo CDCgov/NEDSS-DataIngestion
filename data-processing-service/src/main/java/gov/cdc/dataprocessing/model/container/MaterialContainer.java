@@ -17,15 +17,7 @@ import java.util.Collection;
 @Setter
 public class MaterialContainer extends BaseContainer
 {
-    /**
-     * Variable to keep track of changes in the Value Object.
-     */
-    private boolean itDirty = false;
 
-    /**
-     * Variable to keep track whether Value Object is new or not.
-     */
-    private boolean itNew = true;
 
     /**
      * Data Table of Value Object
@@ -48,4 +40,9 @@ public class MaterialContainer extends BaseContainer
     public Collection<ParticipationDto> theParticipationDtoCollection;
     public Collection<RoleDto> theRoleDTCollection;
     private Collection<ManufacturedMaterialDto> theManufacturedMaterialDtoCollection;
+
+    public MaterialContainer() {
+         itDirty = false;
+            itNew = true;
+    }
 }

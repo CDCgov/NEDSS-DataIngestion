@@ -110,11 +110,7 @@ public class NotificationDto extends BaseContainer implements RootDtoInterface {
 
     private String autoResendInd;
 
-    private boolean itDirty = false;
 
-    private boolean itNew = true;
-
-    private boolean itDelete = false;
 
     private Long  exportReceivingFacilityUid;
 
@@ -139,7 +135,9 @@ public class NotificationDto extends BaseContainer implements RootDtoInterface {
     }
 
     public NotificationDto() {
-
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
     }
 
     public NotificationDto(Notification domain) {

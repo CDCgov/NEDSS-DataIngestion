@@ -50,9 +50,7 @@ public class NBSDocumentDto extends BaseContainer {
     private Long nbsInterfaceUid;
     private String sendingAppPatientId;
     private String sendingAppEventId;
-    private boolean itDirty = false;
-    private boolean itNew = true;
-    private boolean itDelete = false;
+
     private String superclass;
     private String xmldocPayload;
     private Integer externalVersionCtrlNbr;
@@ -62,4 +60,10 @@ public class NBSDocumentDto extends BaseContainer {
     private String processingDecisionCd;
     private String processingDecisiontxt;
     private Timestamp effectiveTime;
+
+    public NBSDocumentDto() {
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
+    }
 }

@@ -16,7 +16,6 @@ public class HandleLabService implements IHandleLabService {
     }
 
     public Object processingReviewedLab() throws DataProcessingConsumerException {
-        //TODO: Adding logic here
         try {
             return "processing reviewed lab";
         } catch (Exception e) {

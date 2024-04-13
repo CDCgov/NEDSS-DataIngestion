@@ -16,7 +16,6 @@ public class PublicHealthCaseService implements IPublicHealthCaseService {
     }
 
     public Object processingPublicHealthCase() throws DataProcessingConsumerException {
-        //TODO: Adding logic here
         try {
             return "processing public health case";
         } catch (Exception e) {
@@ -26,7 +25,6 @@ public class PublicHealthCaseService implements IPublicHealthCaseService {
     }
 
     public Object processingAutoInvestigation() throws DataProcessingConsumerException {
-        //TODO: Adding logic here
         try {
             return "processing auto investigation";
         } catch (Exception e) {

@@ -509,7 +509,7 @@ public class ObservationRequestHandler {
             }
             if( hl7OBRType.getTranscriptionist()!=null){
                 for(int i = 0; i<hl7OBRType.getTranscriptionist().size(); i++){
-                    HL7NDLType  technician =hl7OBRType.getTranscriptionist().get(1);
+                    HL7NDLType  technician =hl7OBRType.getTranscriptionist().get(i);
                     edxLabInformationDto.setRole(EdxELRConstant.ELR_LAB_ENTERER_CD);
                     getOtherProviderVO( technician, labResultProxyContainer, edxLabInformationDto);
                 }
