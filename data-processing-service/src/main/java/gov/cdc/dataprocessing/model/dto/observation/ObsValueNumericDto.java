@@ -43,15 +43,13 @@ public class ObsValueNumericDto extends BaseContainer
 
     private Integer numericScale2;
 
-    private boolean itDirty = false;
 
-    private boolean itNew = true;
-
-    private boolean itDelete = false;
 
 
     public ObsValueNumericDto() {
-
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
     }
     public ObsValueNumericDto(ObsValueNumeric obsValueNumeric) {
         this.observationUid = obsValueNumeric.getObservationUid();

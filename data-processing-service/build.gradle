@@ -94,6 +94,26 @@ task jaxb {
 }
 compileJava.dependsOn jaxb
 
+task jaxbDsma {
+    System.setProperty('javax.xml.accessExternalSchema', 'all')
+    def jaxbTargetDir = file("src/main/java")
+    doLast {
+        jaxbTargetDir.mkdirs()
+        ant.taskdef(
+                name: 'xjc',
+                classname: 'com.sun.tools.xjc.XJCTask',
+                classpath: configurations.jaxb.asPath
+        )
+        ant.jaxbTargetDir = jaxbTargetDir
+        ant.xjc(
+                destdir: '${jaxbTargetDir}',
+                package: 'gov.cdc.dataprocessing.model.dsma_algorithm',
+                schema: 'src/main/resources/xsd/DSMAlgorithm.xsd'
+        )
+    }
+}
+compileJava.dependsOn jaxbDsma
+
 
 jar {
     manifest {
@@ -168,6 +188,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test:3.2.0'
     testImplementation 'org.springframework.security:spring-security-test:6.2.0'
     runtimeOnly 'org.springframework.boot:spring-boot-devtools:3.2.0'
+
 }
 
 test {

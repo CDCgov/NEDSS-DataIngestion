@@ -20,9 +20,9 @@ public class LabResultProxyContainer extends PageActProxyVO {
     public boolean associatedInvInd=false;
     //private Collection<Object> thePersonVOCollection;
     private Collection<ObservationContainer> theObservationContainerCollection = new ArrayList<>();
-    private Collection<OrganizationContainer> theOrganizationContainerCollection = new ArrayList<>();
+    // private Collection<OrganizationContainer> theOrganizationContainerCollection = new ArrayList<>();
     private Collection<MaterialContainer> theMaterialContainerCollection = new ArrayList<>();
-    private Collection<ParticipationDto> theParticipationDtoCollection = new ArrayList<>();
+    //private Collection<ParticipationDto> theParticipationDtoCollection = new ArrayList<>();
     //  private Collection<Object> theActRelationshipDtoCollection;
     private Collection<RoleDto> theRoleDtoCollection = new ArrayList<>();
     private Collection<Object> theActIdDTCollection;
@@ -32,5 +32,10 @@ public class LabResultProxyContainer extends PageActProxyVO {
     private Collection<MessageLogDto> messageLogDCollection =null;
     private String labClia = null;
     private boolean manualLab = false;
+
+    public LabResultProxyContainer() {
+        theParticipationDtoCollection = new ArrayList<>();
+        theOrganizationContainerCollection = new ArrayList<>();
+    }
 
 }

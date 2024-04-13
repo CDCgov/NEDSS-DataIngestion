@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.kafka.consumer;
 
+import gov.cdc.dataprocessing.constant.KafkaCustomHeader;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
@@ -37,16 +38,12 @@ public class KafkaPublicHealthCaseConsumer {
     )
     public void handleMessageForPublicHealthCase(String message,
                                      @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)
-            throws DataProcessingConsumerException {
-        //TODO: Logic to handle goes here
-        Object result = new Object();
+    {
         try {
-            result = managerService.processingHealthCase("data");
-
-            //TODO: Send out result to next step
-            kafkaManagerProducer.sendData(handleLabTopic, "result");
-        } catch (DataProcessingConsumerException e) {
-            //TODO: Error occurred mid way, send result to edx logging
+            managerService.initiatingInvestigationAndPublicHealthCase(message);
+        }
+        catch (Exception e)
+        {
             kafkaManagerProducer.sendData(logTopic, "result");
         }
     }

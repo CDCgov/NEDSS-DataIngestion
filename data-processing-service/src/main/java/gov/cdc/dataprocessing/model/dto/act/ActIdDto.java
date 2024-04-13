@@ -41,9 +41,7 @@ public class ActIdDto extends BaseContainer implements RootDtoInterface
     private String jurisdictionCd = null;
     private Long programJurisdictionOid = null;
     private String sharedInd = null;
-    private boolean itDirty = false;
-    private boolean itNew = true;
-    private boolean itDelete = false;
+
 
     // NOTE: Act Hist is also a Entity Type
     public String getSuperclass() {
@@ -57,7 +55,9 @@ public class ActIdDto extends BaseContainer implements RootDtoInterface
     }
 
     public ActIdDto() {
-
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
     }
 
     public ActIdDto(ActId actId) {

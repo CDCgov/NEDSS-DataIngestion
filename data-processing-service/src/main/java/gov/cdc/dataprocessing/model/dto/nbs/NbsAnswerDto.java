@@ -23,15 +23,15 @@ public class NbsAnswerDto extends BaseContainer {
     private Timestamp recordStatusTime;
     private Long actUid;
     private Clob answerLargeTxt;
-    private boolean itDirty = false;
-    private boolean itNew = true;
-    private boolean itDelete = false;
+
     private Integer answerGroupSeqNbr;
     private Timestamp addTime;
     private Long addUserId;
 
     public NbsAnswerDto() {
-
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
     }
 
     public NbsAnswerDto(NbsAnswer nbsAnswer) {

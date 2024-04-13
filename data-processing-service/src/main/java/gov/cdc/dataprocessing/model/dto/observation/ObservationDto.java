@@ -141,11 +141,11 @@ public class ObservationDto extends BaseContainer implements RootDtoInterface {
 
     private Integer versionCtrlNbr;
 
-    private boolean itDirty = false;
-
-    private boolean itNew = true;
-
-    private boolean itDelete = false;
+//    private boolean itDirty = false;
+//
+//    private boolean itNew = true;
+//
+//    private boolean itDelete = false;
 
     private String cdVersion;
 
@@ -184,7 +184,9 @@ public class ObservationDto extends BaseContainer implements RootDtoInterface {
     }
 
     public ObservationDto() {
-
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
     }
 
     // Constructor for converting Observation to ObservationDto

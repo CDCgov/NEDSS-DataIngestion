@@ -15,7 +15,6 @@ public class LabProcessingService implements ILabProcessingService {
 
     }
     public Object processingLabResult() throws DataProcessingConsumerException {
-        //TODO: Adding logic here
         try {
             return "processing lab result";
         } catch (Exception e) {
