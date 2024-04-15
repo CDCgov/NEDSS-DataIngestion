@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.nbs.converters;
 
+import gov.cdc.dataingestion.exception.XmlConversionException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder;
 import  gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.ObservationRequest;
@@ -82,6 +83,8 @@ import  java.time.LocalDateTime;
 import  java.util.List;
 import  java.util.ArrayList;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import  org.apache.commons.lang3.StringUtils;
 
@@ -92,7 +95,6 @@ public class Hl7ToRhapsodysXmlConverter {
     private static final DateTimeFormatter formatterWithZone = DateTimeFormatter.ofPattern("yyyyMMddHHmmssX");
     private static final String OBX_VALUE_TYPE_SN = "SN";
     private static final String EMPTY_STRING = "";
-    private static final String CARET_SEPARATOR = "\\^";
     private static final int TS_FMT_ALL = 0;
     private static final int TS_FMT_DATE_ONLY = 1;
     private static final int TS_FMT_DATE_HOUR_ONLY = 2;
@@ -111,7 +113,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7Helper.hl7StringParser(hl7Msg);
     }
 
-    public String convert(String rawMessageId, HL7ParsedMessage<OruR1> hl7ParsedMsg) throws JAXBException, IOException {
+    public String convert(String rawMessageId, HL7ParsedMessage<OruR1> hl7ParsedMsg) throws JAXBException, IOException, XmlConversionException {
         String rhapsodyXml = "";
 
         Container c = new Container();
@@ -148,7 +150,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return sb.toString();
     }
 
-    private HL7LabReportType buildHL7LabReportType(HL7ParsedMessage<OruR1> hl7ParsedMsg) {
+    private HL7LabReportType buildHL7LabReportType(HL7ParsedMessage<OruR1> hl7ParsedMsg) throws XmlConversionException {
         HL7LabReportType lbt = new HL7LabReportType();
 
         if (!hl7ParsedMsg.getParsedMessage().getClass().isNestmateOf(OruR1.class)) {
@@ -909,6 +911,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7RPTType;
     }
 
+    @SuppressWarnings("java:S3776")
     private HL7OBXType buildHL7OBXType(ObservationResult or) {
         HL7OBXType hl7OBXType = new HL7OBXType();
 
@@ -919,8 +922,14 @@ public class Hl7ToRhapsodysXmlConverter {
 
         for (String s : or.getObservationValue()) {
             if (OBX_VALUE_TYPE_SN.equals(hl7OBXType.getValueType())) {
-                String refinedValue = s.replaceAll(CARET_SEPARATOR, ""); // NOSONAR
-                hl7OBXType.getObservationValue().add(refinedValue);
+                Pattern pattern = Pattern.compile("\\[(.*?)\\]"); // Pattern to match text between square brackets
+                Matcher matcher = pattern.matcher(s);
+                String extractedText = "";
+                while (matcher.find()) {
+                    extractedText = matcher.group(1); // Extract text between square brackets
+                }
+                // String refinedValue = s.replaceAll(CARET_SEPARATOR, ""); // NOSONAR
+                hl7OBXType.getObservationValue().add(extractedText);
             } else {
                 hl7OBXType.getObservationValue().add(s);
             }
@@ -2142,7 +2151,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return destList;
     }
 
-    private HL7MSHType buildHL7MSHType(MessageHeader mh) {
+    private HL7MSHType buildHL7MSHType(MessageHeader mh) throws XmlConversionException {
         HL7MSHType mshType = new HL7MSHType();
 
         mshType.setFieldSeparator(mh.getFieldSeparator());
@@ -2152,7 +2161,12 @@ public class Hl7ToRhapsodysXmlConverter {
         mshType.setSendingFacility(buildHL7HDType(mh.getSendingFacility()));
         mshType.setReceivingApplication(buildHL7HDType(mh.getReceivingApplication()));
         mshType.setReceivingFacility(buildHL7HDType(mh.getReceivingFacility()));
-        mshType.setDateTimeOfMessage(buildHL7TSType(mh.getDateTimeOfMessage(), TS_FMT_DATE_HOUR_ONLY));
+
+        if (buildHL7TSType(mh.getDateTimeOfMessage()) == null) {
+            throw new XmlConversionException("MSH Date Time Of Message Can Not Be Empty, Please verify 2.5.1 or 2.3.1 MSH.7");
+        } else {
+            mshType.setDateTimeOfMessage(buildHL7TSType(mh.getDateTimeOfMessage(), TS_FMT_DATE_HOUR_ONLY));
+        }
         mshType.setSecurity("");
         mshType.setMessageType(buildHl7MsgType());
         mshType.setMessageControlID(mh.getMessageControlId());

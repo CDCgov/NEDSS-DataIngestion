@@ -29,6 +29,7 @@ kafka:
     elr_health_case: elr_processing_public_health_case
     elr_handle_lab: elr_processing_handle_lab
     elr_edx_log: elr_edx_log
+    elr_action_tracker: elr_action_tracker
 
 ---
 spring:

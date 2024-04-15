@@ -31,9 +31,7 @@ public class PersonRaceDto extends BaseContainer implements RootDtoInterface {
     private String jurisdictionCd = null;
     private Long programJurisdictionOid = null;
     private String sharedInd = null;
-    private boolean itDirty = false;
-    private boolean itNew = true;
-    private boolean itDelete = false;
+
     private Integer versionCtrlNbr;
     private Timestamp statusTime;
     private String statusCd;
@@ -50,7 +48,9 @@ public class PersonRaceDto extends BaseContainer implements RootDtoInterface {
     }
 
     public PersonRaceDto() {
-
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
     }
 
     public PersonRaceDto(PersonRace personRace) {

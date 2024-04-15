@@ -123,11 +123,7 @@ public class InterventionDT extends BaseContainer implements RootDtoInterface {
 
     private String electronicInd;
 
-    private boolean itDirty = false;
 
-    private boolean itNew = true;
-
-    private boolean itDelete = false;
 
     public String getSuperclass() {
         this.superClassType = NEDSSConstant.CLASSTYPE_ACT;
@@ -140,7 +136,9 @@ public class InterventionDT extends BaseContainer implements RootDtoInterface {
     }
 
     public InterventionDT() {
-
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
     }
 
     public InterventionDT(Intervention domain) {

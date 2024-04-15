@@ -328,9 +328,10 @@ public class KafkaConsumerService {
             String message,
             @Header(KafkaHeaders.EXCEPTION_STACKTRACE) String stacktrace,
             @Header(KafkaHeaderValue.DLT_OCCURRENCE) String dltOccurrence,
-            @Header(KafkaHeaderValue.ORIGINAL_TOPIC) String originalTopic
+            @Header(KafkaHeaderValue.ORIGINAL_TOPIC) String originalTopic,
+            @Header(KafkaHeaders.EXCEPTION_MESSAGE) String msg
     ) {
-        shareProcessingDlt(dltOccurrence, originalTopic, message, stacktrace);
+        shareProcessingDlt(dltOccurrence, originalTopic, message, stacktrace, msg);
     }
 
     //region DLT HANDLER
@@ -343,11 +344,11 @@ public class KafkaConsumerService {
             @Header(KafkaHeaderValue.DLT_OCCURRENCE) String dltOccurrence,
             @Header(KafkaHeaderValue.ORIGINAL_TOPIC) String originalTopic
     ) {
-        shareProcessingDlt(dltOccurrence, originalTopic, message, stacktrace);
+        shareProcessingDlt(dltOccurrence, originalTopic, message, stacktrace, null);
     }
     //endregion
 
-    private void shareProcessingDlt(String dltOccurrence, String originalTopic, String message, String stacktrace) {
+    private void shareProcessingDlt(String dltOccurrence, String originalTopic, String message, String stacktrace, String shortMsg) {
 
         // increase by 1, indicate the dlt had been occurred
         Integer dltCount = Integer.parseInt(dltOccurrence) + 1;
@@ -362,6 +363,10 @@ public class KafkaConsumerService {
                 erroredSource + this.dltSuffix,
                 erroredSource + this.dltSuffix
         );
+
+        if (shortMsg != null && !shortMsg.isEmpty()) {
+            elrDeadLetterDto.setErrorStackTraceShort(shortMsg);
+        }
         processingDltRecord(elrDeadLetterDto);
     }
 
@@ -507,9 +512,12 @@ public class KafkaConsumerService {
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             String stackTrace = sw.toString();
+
+
+            var msg =  e.getMessage();
             // Handle any exceptions here
             kafkaProducerService.sendMessageDlt(
-                    message, "xml_prep_dlt_manual", 0 ,
+                    msg, message, "xml_prep_dlt_manual", 0 ,
                     stackTrace,prepXmlTopic
             );
         }
@@ -545,7 +553,12 @@ public class KafkaConsumerService {
                     customMetricsBuilder.incrementMessagesValidatedSuccess();
                 } catch (DiHL7Exception e) {
                     customMetricsBuilder.incrementMessagesValidatedFailure();
-                    throw new DiHL7Exception(e.getMessage());
+                    String errorMsg=e.getMessage();
+                    if(errorMsg!=null && errorMsg.contains("ValidationException") && errorMsg.contains("HL7 datetime string at MSH-6"))
+                    {
+                        errorMsg=errorMsg.replace("HL7 datetime string at MSH-6","HL7 datetime string at MSH-7");
+                    }
+                    throw new DiHL7Exception(errorMsg);
                 }
                 // Duplication check
                 iHL7DuplicateValidator.validateHL7Document(hl7ValidatedModel);

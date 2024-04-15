@@ -30,14 +30,14 @@ public class EDXDocumentDto extends BaseContainer {
     private String jurisdictionCd = null;
     private Long programJurisdictionOid = null;
     private String sharedInd = null;
-    private boolean itDirty = false;
-    private boolean itNew = false;
-    private boolean itDelete = false;
+
     private String versionNbr;
     private String viewLink;
 
     public EDXDocumentDto() {
-
+           itDirty = false;
+           itNew = false;
+           itDelete = false;
     }
 
     public EDXDocumentDto(EdxDocument domain) {

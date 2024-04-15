@@ -47,11 +47,8 @@ public class KafkaManagerConsumer {
         Object result = new Object();
         try {
             result = managerService.processDistribution(dataType,message);
-
-            //TODO: Send out result to next step
             kafkaManagerProducer.sendData(healthCaseTopic, "result");
         } catch (DataProcessingConsumerException e) {
-            //TODO: Error occurred mid way, send result to edx logging
             kafkaManagerProducer.sendData(logTopic, "result");
         }
     }

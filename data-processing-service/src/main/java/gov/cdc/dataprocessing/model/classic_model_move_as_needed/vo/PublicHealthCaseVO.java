@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo;
 
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.CaseManagementDT;
 import gov.cdc.dataprocessing.model.container.BaseContainer;
+import gov.cdc.dataprocessing.model.dto.ConfirmationMethodDto;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EDXEventProcessDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.PublicHealthCaseDT;
@@ -19,7 +20,7 @@ public class PublicHealthCaseVO extends BaseContainer {
     private boolean isPamCase;
     private CaseManagementDT theCaseManagementDT = new CaseManagementDT();
     private PublicHealthCaseDT thePublicHealthCaseDT = new PublicHealthCaseDT();
-    private Collection<Object> theConfirmationMethodDTCollection;
+    private Collection<ConfirmationMethodDto> theConfirmationMethodDTCollection;
     private Collection<Object> theActIdDTCollection;
     public Collection<Object> theActivityLocatorParticipationDTCollection;
     //Collections added for Participation and Activity Relationship object association

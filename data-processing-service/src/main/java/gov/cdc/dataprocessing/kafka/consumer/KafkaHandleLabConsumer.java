@@ -28,17 +28,13 @@ public class KafkaHandleLabConsumer {
     @KafkaListener(
             topics = "${kafka.topic.elr_handle_lab}"
     )
-    public void handleMessage(String message,
-                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)
+    public void handleMessage(String message)
             throws DataProcessingConsumerException {
-        Object result = new Object();
         try {
-            result = managerService.processingHandleLab("data");
-
-            //TODO: Send out result to next step
-            kafkaManagerProducer.sendData(logTopic, "result");
-        } catch (DataProcessingConsumerException e) {
-            //TODO: Error occurred mid way, send result to edx logging
+            managerService.initiatingLabProcessing(message);
+        }
+        catch (Exception e)
+        {
             kafkaManagerProducer.sendData(logTopic, "result");
         }
     }

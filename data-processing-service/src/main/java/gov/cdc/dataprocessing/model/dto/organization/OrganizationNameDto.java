@@ -24,9 +24,6 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
     private String jurisdictionCd = null;
     private Long programJurisdictionOid = null;
     private String sharedInd = null;
-    private boolean itDirty = false;
-    private boolean itNew = true;
-    private boolean itDelete = false;
 
     @Override
     public Long getLastChgUserId() {
@@ -134,6 +131,10 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
     }
 
     public OrganizationNameDto(){
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
+
     }
     public OrganizationNameDto(OrganizationName organizationName){
         this.organizationUid=organizationName.getOrganizationUid();

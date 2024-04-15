@@ -51,9 +51,7 @@ public class OrganizationDto extends BaseContainer implements RootDtoInterface {
     private String jurisdictionCd = null;
     private Long programJurisdictionOid = null;
     private String sharedInd = null;
-    private boolean itDirty = false;
-    private boolean itNew = true;
-    private boolean itDelete = false;
+
     private String edxInd = null;
 
     //NOTE: Org Hist also same type
@@ -68,6 +66,9 @@ public class OrganizationDto extends BaseContainer implements RootDtoInterface {
     }
 
     public OrganizationDto(){
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
     }
     public OrganizationDto(Organization organization){
         this.organizationUid=organization.getOrganizationUid();

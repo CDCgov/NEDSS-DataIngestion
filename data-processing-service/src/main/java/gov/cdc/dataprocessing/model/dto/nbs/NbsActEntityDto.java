@@ -24,12 +24,12 @@ public class NbsActEntityDto extends BaseContainer {
     private Timestamp recordStatusTime;
     private String  typeCd;
     private Long actUid;
-    private boolean itDirty = false;
-    private boolean itNew = true;
-    private boolean itDelete = false;
+
 
     public NbsActEntityDto() {
-
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
     }
     public NbsActEntityDto(NbsActEntity nbsActEntity) {
         this.nbsActEntityUid = nbsActEntity.getNbsActEntityUid();

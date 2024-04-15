@@ -44,11 +44,6 @@ public class ObsValueCodedDto extends BaseContainer
 
     private String sharedInd = null;
 
-    private boolean itDirty = false;
-
-    private boolean itNew = false;
-
-    private boolean itDelete = false;
 
     private Collection<Object> theObsValueCodedModDTCollection;
 
