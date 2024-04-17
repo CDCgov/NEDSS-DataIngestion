@@ -29,6 +29,7 @@ public class ElrProcessStatusComponent {
         this.reportStatusService = reportStatusService;
     }
 
+    @SuppressWarnings({"java:S3776"})
     @Handler
     public String process(String body){
         String status = "";
@@ -45,9 +46,12 @@ public class ElrProcessStatusComponent {
                     activityLogSb.append("Status: Failure ");
                     List<EdxActivityLogStatus> edxActivityLogList= messageStatus.getNbsIngestionInfo();
                     for(EdxActivityLogStatus edxActivityLogStatus:edxActivityLogList){
-                        String activityLog ="\n\nRecord Id: " + edxActivityLogStatus.getRecordId()
-                                + " \nRecordType: " + edxActivityLogStatus.getRecordType() + " \nLog Type: "
-                                + edxActivityLogStatus.getLogType() + " \nLog Comment: " + edxActivityLogStatus.getLogComment()
+                        String logComment=edxActivityLogStatus.getLogComment();
+                        if(logComment!=null && logComment.length()>200){
+                            logComment=logComment.substring(0,200);
+                        }
+                        String activityLog = "\n\nRecordType: " + edxActivityLogStatus.getRecordType() + " \nLog Type: "
+                                + edxActivityLogStatus.getLogType() + " \nLog Comment: " + logComment
                                 + " \nRecord Status Time: " + edxActivityLogStatus.getRecordStatusTime();
                         activityLogSb.append(activityLog);
                     }

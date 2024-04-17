@@ -87,7 +87,6 @@ public class ReportStatusService {
 
     private static EdxActivityLogStatus getEdxActivityLogStatus(EdxActivityLogModelView edxActivityLogModel) {
         EdxActivityLogStatus edxActivityLogStatus=new EdxActivityLogStatus();
-        edxActivityLogStatus.setRecordId(edxActivityLogModel.getRecordId());
         edxActivityLogStatus.setRecordType(edxActivityLogModel.getRecordType());
         edxActivityLogStatus.setLogType(edxActivityLogModel.getLogType());
         edxActivityLogStatus.setLogComment(edxActivityLogModel.getLogComment());
