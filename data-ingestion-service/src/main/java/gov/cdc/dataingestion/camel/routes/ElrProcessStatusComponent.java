@@ -29,6 +29,7 @@ public class ElrProcessStatusComponent {
         this.reportStatusService = reportStatusService;
     }
 
+    @SuppressWarnings({"java:S3776"})
     @Handler
     public String process(String body){
         String status = "";
