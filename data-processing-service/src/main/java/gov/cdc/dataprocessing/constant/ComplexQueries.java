@@ -154,4 +154,45 @@ public class ComplexQueries {
             + "ON CODE_SET.code_set_group_id = NBS_UI_METADATA.code_set_group_id "
             + "where NBS_UI_Metadata.record_status_cd = 'Active' "
             + "order by NBS_UI_METADATA.investigation_form_cd, NBS_UI_METADATA.order_nbr  ";
+
+
+    public static final String RETRIEVE_OBSERVATION_QUESTION_SQL =
+            " select obs.*," +
+//                    "obs.observation_uid observationUid, obs.cd cd, " +
+//                    " obs.ctrl_cd_display_form ctrlCdDisplayForm , " +
+//                    " obs.version_ctrl_nbr versionCtrlNbr, obs.shared_ind sharedInd, " +
+//                    " obs.local_id localId, " +
+//                    " obs.cd_desc_txt \"cdDescTxt\" , " +
+//                    " obs.cd_system_desc_txt \"cdSystemDescTxt\"  , " +
+//                    " obs.cd_system_cd \"cdSystemCd\" ," +
+//                    " obs.cd_version \"cdVersion\" , " +
+                    " obscode.observation_uid obsCodeUid ," +
+                    "obscode.code code, obscode.original_txt originalTxt, obscode.code_system_desc_txt codeSystemDescTxt," +
+                    " obsdate.observation_uid obsDateUid , " +
+                    " obsdate.from_time fromTime, obsdate.to_time toTime, obsdate.duration_amt durationAmt, obsdate.duration_unit_cd durationUnitCd," +
+                    " obsDate.obs_value_date_seq obsValueDateSeq, " +
+                    " obsnumeric.observation_uid obsNumericUid , " +
+                    " obsnumeric.numeric_value_1 numericValue1, obsnumeric.numeric_value_2 numericValue2, " +
+                    " obsnumeric.numeric_scale_1 numericScale1, obsnumeric.numeric_scale_2 numericScale2, " +
+                    " obsnumeric.numeric_unit_cd numericUnitCd, obsnumeric.obs_value_numeric_seq obsValueNumericSeq, " +
+                    " obstxt.observation_uid obsTxtUid , " +
+                    " obstxt.value_txt valueTxt, obstxt.obs_value_txt_seq obsValueTxtSeq, " +
+                    " ar2.source_act_uid sourceActUid, ar2.target_act_uid targetActUid, " +
+                    " ar2.type_cd typeCd" +
+                    " from Observation obs " +
+                    " left outer join  obs_value_coded obscode " +
+                    " on obs.observation_uid   = obscode.observation_uid " +
+                    " left outer join  obs_value_date obsdate " +
+                    " on obs.observation_uid = obsdate.observation_uid  " +
+                    " left outer join  obs_value_numeric obsnumeric " +
+                    " on obs.observation_uid = obsnumeric.observation_uid " +
+                    " left outer join  obs_value_txt obstxt " +
+                    " on obs.observation_uid = obstxt.observation_uid  " +
+                    " inner join  act_relationship ar  " +
+                    " on  ar.source_act_uid = obs.observation_uid  " +
+                    " left outer join act_relationship ar2 " +
+                    " on ar2.target_act_uid  = ar.source_act_uid " +
+                    " where   " +
+                    "  ar.target_act_uid  = ?1  " +
+                    " order by obs.observation_uid, ar2.source_act_uid  ";
 }

@@ -105,6 +105,71 @@ public class PrepareAssocModelHelper {
         }
     }
 
+    public ActRelationshipDto prepareAssocDTForActRelationship(ActRelationshipDto assocDTInterface) throws DataProcessingException
+    {
+        try {
+            ActRelationshipDto aDTInterface = null;
+            String recStatusCd = assocDTInterface.getRecordStatusCd();
+            String statusCd = assocDTInterface.getStatusCd();
+            logger.debug("AssocDTInterface.Statuscode = "+statusCd);
+            logger.debug("AssocDTInterface.recStatusCd = "+recStatusCd);
+            boolean isRealDirty = assocDTInterface.isItDirty();
+		   /*
+		   if(recStatusCd == null || statusCd == null)
+		   {
+		  logger.debug("RecordStatusCd or statusCode is null");
+		  throw new NEDSSSystemException("RecordStatusCd -----2----"+recStatusCd+"   statusCode--------"+statusCd);
+		   }
+		   */
+            if(recStatusCd == null)
+            {
+                logger.debug("RecordStatusCd is null");
+                throw new DataProcessingException("RecordStatusCd -----2----"+recStatusCd+"   statusCode--------"+statusCd);
+            }
+
+            else if(!(recStatusCd.equals(NEDSSConstant.RECORD_STATUS_ACTIVE) || recStatusCd.equals(NEDSSConstant.RECORD_STATUS_INACTIVE)))
+            {
+                logger.debug("RecordStatusCd is not active or inactive");
+                throw new DataProcessingException("RecordStatusCd is not active or inactive");
+            }
+		   /*else if(!(statusCd.equals(NEDSSConstants.STATUS_ACTIVE) || statusCd.equals(NEDSSConstants.STATUS_INACTIVE)))
+		   {
+		   logger.debug("StatusCd is not A or I");
+		   //throw new NEDSSSystemException("StatusCd is not A or I");
+		   }*/
+            else
+            {
+                try
+                {
+
+                    logger.debug("RecordStatusCd or statusCode is not null");
+                    assocDTInterface.setAddUserId(null);
+                    assocDTInterface.setAddTime(null);
+                    java.util.Date dateTime = new java.util.Date();
+                    Timestamp systemTime = new Timestamp(dateTime.getTime());
+                    assocDTInterface.setRecordStatusTime(systemTime);
+                    assocDTInterface.setStatusTime(systemTime);
+                    assocDTInterface.setLastChgTime(systemTime);
+                }
+                catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+
+                assocDTInterface.setLastChgUserId(212121L);
+
+                assocDTInterface.setLastChgReasonCd(null);
+                aDTInterface = assocDTInterface;
+                logger.debug("DT Prepared");
+            }
+            if(!isRealDirty) aDTInterface.setItDirty(false);//Re-set the flag to original value if necessary
+            return aDTInterface;
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+
     public RoleDto prepareAssocDTForRole(RoleDto assocDTInterface) throws DataProcessingException {
         try {
             RoleDto aDTInterface = null;

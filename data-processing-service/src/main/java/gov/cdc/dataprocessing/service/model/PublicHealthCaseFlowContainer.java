@@ -14,4 +14,6 @@ public class PublicHealthCaseFlowContainer {
     EdxLabInformationDto edxLabInformationDto;
     ObservationDto observationDto;
     Integer nbsInterfaceId;
+    private WdsTrackerView wdsTrackerView = new WdsTrackerView();
+
 }

@@ -165,9 +165,10 @@ public class ManagerService implements IManagerService {
 
                     WdsTrackerView trackerView = new WdsTrackerView();
                     trackerView.setWdsReport(edxLabInformationDto.getWdsReports());
-                    gson = new Gson();
-                    String trackerString = gson.toJson(trackerView);
-                    kafkaManagerProducer.sendDataActionTracker(trackerString);
+//                    gson = new Gson();
+//                    String trackerString = gson.toJson(trackerView);
+//                    kafkaManagerProducer.sendDataActionTracker(trackerString);
+
 
 
 
@@ -181,9 +182,11 @@ public class ManagerService implements IManagerService {
                     phcContainer.setLabResultProxyContainer(labResultProxyContainer);
                     phcContainer.setEdxLabInformationDto(edxLabInformationDto);
                     phcContainer.setObservationDto(observationDto);
+                    phcContainer.setWdsTrackerView(trackerView);
+
                     gson = new Gson();
                     String jsonString = gson.toJson(phcContainer);
-                   // kafkaManagerProducer.sendDataLabHandling(jsonString);
+                    kafkaManagerProducer.sendDataLabHandling(jsonString);
 
                 }
             }

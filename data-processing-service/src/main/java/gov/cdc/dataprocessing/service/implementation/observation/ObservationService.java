@@ -4,6 +4,7 @@ import gov.cdc.dataprocessing.constant.elr.*;
 import gov.cdc.dataprocessing.constant.enums.DataProcessingMapKey;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.*;
+import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.log.NNDActivityLogDto;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.*;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
@@ -15,6 +16,7 @@ import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
+import gov.cdc.dataprocessing.service.interfaces.IInvestigationService;
 import gov.cdc.dataprocessing.service.interfaces.act.IActRelationshipService;
 import gov.cdc.dataprocessing.service.interfaces.answer.IAnswerService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
@@ -42,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.*;
 
 import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
@@ -90,6 +93,8 @@ public class ObservationService implements IObservationService {
 
     private final IUidService uidService;
 
+    private final IInvestigationService investigationService;
+
 
     public ObservationService(INNDActivityLogService nndActivityLogService,
                               IMessageLogService messageLogService,
@@ -111,7 +116,7 @@ public class ObservationService implements IObservationService {
                               PersonUtil personUtil,
                               IProgramAreaService programAreaService,
                               PrepareAssocModelHelper prepareAssocModelHelper,
-                              IUidService uidService) {
+                              IUidService uidService, IInvestigationService investigationService) {
 
         this.nndActivityLogService = nndActivityLogService;
         this.messageLogService = messageLogService;
@@ -134,6 +139,7 @@ public class ObservationService implements IObservationService {
         this.programAreaService = programAreaService;
         this.prepareAssocModelHelper = prepareAssocModelHelper;
         this.uidService = uidService;
+        this.investigationService = investigationService;
     }
 
     /**
@@ -775,7 +781,7 @@ public class ObservationService implements IObservationService {
             //update auto resend notifications
             if(labResultProxyVO.associatedNotificationInd)
             {
-                updateAutoResendNotificationsAsync(labResultProxyVO);
+                investigationService.updateAutoResendNotificationsAsync(labResultProxyVO);
             }
         }
         catch(Exception e)
@@ -1060,136 +1066,6 @@ public class ObservationService implements IObservationService {
 
         }
         return returnVal;
-    }
-
-    private void updateAutoResendNotificationsAsync(BaseContainer v)
-    {
-        try{
-            updateAutoResendNotifications(v);
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Nothing in here for LabResult Proxy Yet
-     * */
-    private void updateAutoResendNotifications(BaseContainer vo) throws DataProcessingException
-    {
-        logger.info("enter NNDMessageSenderHelper.updateAutoResendNotifications--------------");
-        if(
-                //!(vo instanceof VaccinationProxyVO)
-                !(vo instanceof LabResultProxyContainer)
-                //&&!(vo instanceof MorbidityProxyVO)
-                //&&!(vo instanceof InvestigationProxyVO)
-                //&&!(vo instanceof PageActProxyVO)
-                //&&!(vo instanceof PamProxyVO)
-                //&&!(vo instanceof SummaryReportProxyVO)
-            )
-        {
-            throw new DataProcessingException("vo not instance of VaccinationProxyVO,LabResultProxyVO, or MorbidityProxyVO,PamProxyVO, SummaryReportProxyVO");
-        }
-        Collection<Object>  notSumVOColl =null;
-        PublicHealthCaseDT phcDT = null;
-
-
-        //TODO: LAB RESULT WONT HIT ANY OF THESE
-        /*
-        if(
-                vo instanceof InvestigationProxyVO
-                || vo instanceof PamProxyVO
-                ||  vo instanceof PageActProxyVO
-                ||  vo instanceof SummaryReportProxyVO
-        ){
-            if(vo instanceof InvestigationProxyVO)
-            {
-                InvestigationProxyVO invVO = (InvestigationProxyVO)vo;
-                phcDT = invVO.thePublicHealthCaseVO.getThePublicHealthCaseDT();
-                notSumVOColl = invVO.getTheNotificationSummaryVOCollection();
-            }
-            else if(vo instanceof PamProxyVO)
-            {
-                PamProxyVO pamVO = (PamProxyVO)vo;
-                phcDT = pamVO.getPublicHealthCaseVO().getThePublicHealthCaseDT();
-                notSumVOColl = pamVO.getTheNotificationSummaryVOCollection();
-            }
-            else if (vo instanceof LabResultProxyVO)
-            {
-                NNDAutoResendDAOImpl nndAutoResendDAO = new NNDAutoResendDAOImpl();
-                Collection<Object>  theNotificationCollection  = nndAutoResendDAO.getAutoResendNotificationSummaries(getActClassCd(vo), getTypeCd(vo), getRootUid(vo));
-                Iterator<Object>  notIter = theNotificationCollection.iterator();
-                while(notIter.hasNext()){
-                    NotificationSummaryVO notSumVO = (NotificationSummaryVO)notIter.next();
-                    updateNotification(false, notSumVO.getNotificationUid(),notSumVO.getCd(),notSumVO.getCaseClassCd(),notSumVO.getProgAreaCd(),notSumVO.getJurisdictionCd(),notSumVO.getSharedInd(), false, nbsSecurityObj);
-                }
-            }
-            else if(vo instanceof PageActProxyVO)
-            {
-                PageActProxyVO pageActProxyVO= (PageActProxyVO)vo;
-                phcDT = pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT();
-                notSumVOColl = pageActProxyVO.getTheNotificationSummaryVOCollection();
-            }
-            else if (vo instanceof SummaryReportProxyVO)
-            {
-                SummaryReportProxyVO summaryReportProxyVO = (SummaryReportProxyVO)vo;
-                phcDT = summaryReportProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT();
-                notSumVOColl = summaryReportProxyVO.getTheNotificationVOCollection();
-                Iterator<Object>  notSumIter =  notSumVOColl.iterator();
-                while(notSumIter.hasNext()){
-                    NotificationVO notVO = (NotificationVO)notSumIter.next();
-                    Long notificationUid = notVO.getTheNotificationDT().getNotificationUid();
-                    String phcCd = phcDT.getCd();
-                    String phcClassCd = phcDT.getCaseClassCd();
-                    String progAreaCd = phcDT.getProgAreaCd();
-                    String jurisdictionCd = phcDT.getJurisdictionCd();
-                    String sharedInd = phcDT.getSharedInd();
-                    // retrieve the status change
-                    boolean caseStatusChange = phcDT.isCaseStatusDirty();
-                    updateNotification(true, notificationUid,phcCd,phcClassCd,progAreaCd,jurisdictionCd,sharedInd, caseStatusChange, nbsSecurityObj);
-                }
-            }
-            if(
-                    vo instanceof InvestigationProxyVO
-                    || vo instanceof PamProxyVO
-                    || vo instanceof PageActProxyVO)
-            {
-                if(notSumVOColl!=null && notSumVOColl.size()>0){
-                    Iterator<Object>  notSumIter =  notSumVOColl.iterator();
-                    while(notSumIter.hasNext()){
-                        NotificationSummaryVO notSummaryVO = (NotificationSummaryVO)notSumIter.next();
-                        if(notSummaryVO.getIsHistory().equals("F") && !notSummaryVO.getAutoResendInd().equals("F")){
-                            Long notificationUid = notSummaryVO.getNotificationUid();
-                            String phcCd = phcDT.getCd();
-                            String phcClassCd = phcDT.getCaseClassCd();
-                            String progAreaCd = phcDT.getProgAreaCd();
-                            String jurisdictionCd = phcDT.getJurisdictionCd();
-                            String sharedInd = phcDT.getSharedInd();
-
-                            // retrieve the status change
-                            boolean caseStatusChange = phcDT.isCaseStatusDirty();
-                            updateNotification(false, notificationUid,phcCd,phcClassCd,progAreaCd,jurisdictionCd,sharedInd, caseStatusChange, nbsSecurityObj);
-
-                        }
-                    }
-                }
-            }
-
-        }
-        else if(vo instanceof VaccinationProxyVO
-                || vo instanceof MorbidityProxyVO)
-        {
-            NNDAutoResendDAOImpl nndAutoResendDAO = new NNDAutoResendDAOImpl();
-            Collection<Object>  theNotificationCollection  = nndAutoResendDAO.getAutoResendNotificationSummaries(getActClassCd(vo), getTypeCd(vo), getRootUid(vo));
-            Iterator<Object>  notIter = theNotificationCollection.iterator();
-            while(notIter.hasNext()){
-                NotificationSummaryVO notSumVO = (NotificationSummaryVO)notIter.next();
-                updateNotification(false, notSumVO.getNotificationUid(),notSumVO.getCd(),notSumVO.getCaseClassCd(),notSumVO.getProgAreaCd(),notSumVO.getJurisdictionCd(),notSumVO.getSharedInd(), false, nbsSecurityObj);
-            }
-        }
-        logger.info("finish NNDMessageSenderHelper.updateAutoResendNotifications--------------");
-
-        */
     }
 
     private ObservationContainer findObservationByCode(Collection<ObservationContainer> coll, String strCode)
@@ -1504,6 +1380,112 @@ public class ObservationService implements IObservationService {
         }
     }
 
+
+    public boolean processObservation(Long observationUid) throws DataProcessingException {
+        return processObservationWithProcessingDecision(observationUid,
+                null, null);
+
+    }
+
+    private boolean processObservationWithProcessingDecision(Long observationUid, String processingDecisionCd, String processingDecisionTxt) throws DataProcessingException {
+
+        try
+        {
+            ObservationContainer observationVO = observationRepositoryUtil.loadObject(observationUid);
+
+            ObservationDto observationDT = observationVO.getTheObservationDto();
+            observationDT.setProcessingDecisionCd(processingDecisionCd);
+            if(processingDecisionTxt!=null && !processingDecisionTxt.isEmpty())
+            {
+                observationDT.setProcessingDecisionTxt(processingDecisionTxt);
+            }
+
+            String observationType = observationDT.getCtrlCdDisplayForm();
+            String businessTrigger = null;
+            String businessObjLookupName = null;
+
+            if(observationType.equalsIgnoreCase(NEDSSConstant.LABRESULT_CODE)){
+                businessTrigger = NEDSSConstant.OBS_LAB_PROCESS;
+                businessObjLookupName = NBSBOLookup.OBSERVATIONLABREPORT;
+
+            }
+//            else if (observationType.equalsIgnoreCase(NEDSSConstant.MORBIDITY_CODE))
+//            {
+//                accessPermission = nbsSecurityObj.getPermission(
+//                        NBSBOLookup.OBSERVATIONMORBIDITYREPORT,
+//                        NBSOperationLookup.VIEW,
+//                        observationDT.getProgAreaCd(),
+//                        observationDT.getJurisdictionCd(),
+//                        observationDT.getSharedInd());
+//
+//                businessTrigger = NEDSSConstant.OBS_MORB_PROCESS;
+//                businessObjLookupName = NBSBOLookup.OBSERVATIONMORBIDITYREPORT;
+//            }
+            else{
+                throw new DataProcessingException("This is not a Lab Report OR a Morbidity Report! MarkAsReviewed only applies to Lab Report or Morbidity Report ");
+            }
+
+            if (observationDT.getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.OBS_UNPROCESSED))
+            {
+                observationDT.setItNew(false);
+                observationDT.setItDirty(true);
+
+                RootDtoInterface rootDTInterface =  prepareAssocModelHelper.prepareVO(
+                        observationDT,
+                        businessObjLookupName,
+                        businessTrigger,
+                        "OBSERVATION",
+                        NEDSSConstant.BASE,
+                        observationDT.getVersionCtrlNbr()
+                );
+
+                observationRepositoryUtil.saveObservationDto((ObservationDto) rootDTInterface);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+        catch (Exception ex)
+        {
+            throw new DataProcessingException(ex.getMessage(), ex);
+        }
+    }
+
+
+    public void setLabInvAssociation(Long labUid, Long investigationUid) throws DataProcessingException {
+        LabReportSummaryContainer labReportSummaryVO = new LabReportSummaryContainer();
+
+        try {
+
+            labReportSummaryVO.setTouched(true);
+            labReportSummaryVO.setAssociated(true);
+            labReportSummaryVO.setObservationUid(labUid);
+            labReportSummaryVO.setActivityFromTime(new Timestamp(new java.util.Date().getTime()));
+
+            Collection<LabReportSummaryContainer> labReportSummaryVOColl = new ArrayList<>();
+            labReportSummaryVOColl.add(labReportSummaryVO);
+
+            setObservationAssociations(investigationUid, labReportSummaryVOColl);
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+
+    }
+
+    private void setObservationAssociations(Long investigationUid, Collection<LabReportSummaryContainer>  observationSummaryVOColl) throws DataProcessingException {
+        try
+        {
+            investigationService.setAssociations(investigationUid, observationSummaryVOColl,null, null,null, true);
+        }
+        catch (Exception e)
+        {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+
+    }
 
 }
 

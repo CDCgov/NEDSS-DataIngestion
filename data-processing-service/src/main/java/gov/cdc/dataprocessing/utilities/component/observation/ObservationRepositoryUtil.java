@@ -30,6 +30,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 @Component
 public class ObservationRepositoryUtil {
@@ -166,6 +167,15 @@ public class ObservationRepositoryUtil {
     }
 
     @Transactional
+    public Long saveObservationDto(ObservationDto observationDto) throws DataProcessingException {
+        ObservationContainer obsContainer = loadObject(observationDto.getObservationUid());
+        obsContainer.setTheObservationDto(observationDto);
+        obsContainer.setItDirty(true);
+        saveObservation(obsContainer);
+        return observationDto.getObservationUid();
+    }
+
+    @Transactional
     public Long saveObservation(ObservationContainer observationContainer) throws DataProcessingException {
         Long observationUid = -1L;
 
@@ -290,6 +300,223 @@ public class ObservationRepositoryUtil {
         }
 
         return uid;
+    }
+
+    @Transactional
+    public void saveActRelationship(ActRelationshipDto actRelationshipDto) {
+        ActRelationship actRelationship = new ActRelationship(actRelationshipDto);
+
+
+        if (actRelationshipDto.isItNew())
+        {
+            actRelationshipRepository.save(actRelationship);
+        }
+        else if (actRelationshipDto.isItDelete())
+        {
+            actRelationshipRepository.delete(actRelationship);
+        }
+        else if (actRelationshipDto.isItDirty())
+        {
+            if (actRelationshipDto.getTargetActUid() != null &&
+                    actRelationshipDto.getSourceActUid() != null && actRelationshipDto.getTypeCd() != null)
+            {
+                actRelationshipRepository.save(actRelationship);
+            }
+            else
+            {
+//                logger.error(
+//                        "None of the primary key values can be null, TargetUID: " +
+//                                dt.getTargetActUid() + " TypeCd : " +
+//                                dt.getTypeCd() + " SourceUid :" +
+//                                dt.getSourceActUid() + " please check!");
+            }
+        }
+
+
+        actRelationshipRepository.save(actRelationship);
+    }
+
+
+    @Transactional
+    public void setObservationInfo(ObservationDto observationDto) throws DataProcessingException {
+        ObservationContainer observationVO = null;
+
+        if (observationDto.getObservationUid() != null)
+            observationVO = loadObject(observationDto.getObservationUid());
+
+        if (observationVO != null)
+            observationVO.setTheObservationDto(observationDto);
+
+        if (observationVO == null)
+        {
+            observationVO = new ObservationContainer();
+            observationVO.setTheObservationDto(observationDto);
+        }
+
+        observationVO.setTheObservationDto(observationDto);
+        observationVO.setItDirty(true);
+        saveObservation(observationVO);
+    }
+
+    public Collection<ObservationContainer> retrieveObservationQuestion(Long targetActUid) {
+
+        ArrayList<ObservationContainer> theObservationQuestionColl = new ArrayList<ObservationContainer> ();
+        var observationQuestion = observationRepository.retrieveObservationQuestion(targetActUid);
+        if (observationQuestion.isPresent()) {
+            Long previousTargetActUid = null;
+            Long previousObservationUid = null;
+            ObservationContainer obsVO = null;
+            ArrayList<ObsValueCodedDto> obsCodes = null;
+            ArrayList<ObsValueDateDto> obsDates = null;
+            ArrayList<ObsValueNumericDto> obsNumerics = null;
+            ArrayList<ObsValueTxtDto> obsValueTxts = null;
+            for (Observation_Question observation_question : observationQuestion.get()) {
+                Observation_Question obsQA = observation_question;
+
+                // //##!! System.out.println("previousTargetActUid = " +  previousTargetActUid);
+                //   //##!! System.out.println("crrent TargetActUid = " +  obsQA.getTargetActUid());
+                if (previousTargetActUid == null ||
+                        !previousTargetActUid.equals(obsQA.getTargetActUid())) {
+                    if (previousObservationUid == null ||
+                            !previousObservationUid.equals(obsQA.getObservationUid())) {
+                        obsVO = new ObservationContainer();
+                        theObservationQuestionColl.add(obsVO);
+                        //Initialize the Collections for this new Observation
+                        obsCodes = null;
+                        obsDates = null;
+                        obsNumerics = null;
+                        obsValueTxts = null;
+                        logger.debug("Mark - CREATED NEW OBSERVATION Uid=" +
+                                obsQA.getObservationUid());
+                        previousObservationUid = obsQA.getObservationUid();
+                        // put ObeservatioDT
+                        obsVO.getTheObservationDto().setObservationUid(obsQA.getObservationUid());
+                        obsVO.getTheObservationDto().setVersionCtrlNbr(obsQA.getVersionCtrlNbr());
+                        obsVO.getTheObservationDto().setSharedInd(obsQA.getSharedInd());
+                        obsVO.getTheObservationDto().setCd(obsQA.getCd());
+                        obsVO.getTheObservationDto().setCtrlCdDisplayForm(obsQA.getCtrlCdDisplayForm());
+                        obsVO.getTheObservationDto().setLocalId(obsQA.getLocalId());
+                        obsVO.getTheObservationDto().setCdDescTxt(obsQA.getCdDescTxt());
+                        obsVO.getTheObservationDto().setCdSystemDescTxt(obsQA.getCdSystemDescTxt());
+                        obsVO.getTheObservationDto().setCdSystemCd(obsQA.getCdSystemCd());
+                        obsVO.getTheObservationDto().setCdVersion(obsQA.getCdVersion());
+                        obsVO.getTheObservationDto().setItNew(false);
+                        obsVO.getTheObservationDto().setItDirty(false);
+                        // ObsValueCode
+                    }
+                    if (obsQA.getObsCodeUid() != null) {
+                        if (obsCodes == null) {
+                            obsCodes = new ArrayList<>();
+                            obsVO.setTheObsValueCodedDtoCollection(obsCodes);
+                        }
+                        ObsValueCodedDto obsCode = new ObsValueCodedDto();
+                        obsCode.setObservationUid(obsQA.getObsCodeUid());
+                        obsCode.setCode(obsQA.getCode());
+                        obsCode.setCodeSystemDescTxt(obsQA.getCodeSystemDescTxt());
+                        obsCode.setOriginalTxt(obsQA.getOriginalTxt());
+                        obsCode.setItNew(false);
+                        obsCode.setItDirty(false);
+                        obsCodes.add(obsCode);
+                        //obsVO.setTheObsValueCodedDTCollection(obsCodes);
+                    }
+                    // ObsvalueDate
+                    if (obsQA.getObsDateUid() != null) {
+                        if (obsDates == null) {
+                            obsDates = new ArrayList<>();
+                            obsVO.setTheObsValueDateDtoCollection(obsDates);
+                        }
+                        //ArrayList<Object> obsDates = new ArrayList<Object> ();
+                        ObsValueDateDto obsDate = new ObsValueDateDto();
+                        obsDate.setObservationUid(obsQA.getObsDateUid());
+                        obsDate.setFromTime(obsQA.getFromTime());
+                        obsDate.setToTime(obsQA.getToTime());
+                        obsDate.setDurationAmt(obsQA.getDurationAmt());
+                        obsDate.setDurationUnitCd(obsQA.getDurationUnitCd());
+                        obsDate.setObsValueDateSeq(obsQA.getObsValueDateSeq());
+                        obsDate.setItNew(false);
+                        obsDate.setItDirty(false);
+                        obsDates.add(obsDate);
+
+                        //obsVO.setTheObsValueDateDTCollection(obsDates);
+                    }
+                    // ObsvalueNumeric
+                    if (obsQA.getObsNumericUid() != null) {
+                        if (obsNumerics == null) {
+                            obsNumerics = new ArrayList<>();
+                            obsVO.setTheObsValueNumericDtoCollection(obsNumerics);
+                        }
+                        //ArrayList<Object> obsNumerics = new ArrayList<Object> ();
+                        ObsValueNumericDto obsNumeric = new ObsValueNumericDto();
+                        obsNumeric.setObservationUid(obsQA.getObsNumericUid());
+                        obsNumeric.setNumericScale1(obsQA.getNumericScale1());
+                        obsNumeric.setNumericScale2(obsQA.getNumericScale2());
+                        obsNumeric.setNumericValue1(obsQA.getNumericValue1());
+                        obsNumeric.setNumericValue2(obsQA.getNumericValue2());
+                        obsNumeric.setNumericUnitCd(obsQA.getNumericUnitCd());
+                        obsNumeric.setObsValueNumericSeq(obsQA.getObsValueNumericSeq());
+                        obsNumeric.setItNew(false);
+                        obsNumeric.setItDirty(false);
+                        obsNumerics.add(obsNumeric);
+                        // obsVO.setTheObsValueNumericDTCollection(obsNumerics);
+                    }
+                    // ObsvalueTxt
+                    if (obsQA.getObsTxtUid() != null) {
+                        if (obsValueTxts == null) {
+                            obsValueTxts = new ArrayList<>();
+                            obsVO.setTheObsValueTxtDtoCollection(obsValueTxts);
+                        }
+                        //ArrayList<Object> obsValueTxts = new ArrayList<Object> ();
+                        ObsValueTxtDto obsValueTxt = new ObsValueTxtDto();
+                        obsValueTxt.setObservationUid(obsQA.getObsTxtUid());
+                        obsValueTxt.setValueTxt(obsQA.getValueTxt());
+                        obsValueTxt.setObsValueTxtSeq(obsQA.getObsValueTxtSeq());
+                        obsValueTxt.setItNew(false);
+                        obsValueTxt.setItDirty(false);
+                        obsValueTxts.add(obsValueTxt);
+                        //  obsVO.setTheObsValueTxtDTCollection(obsValueTxts);
+                    }
+
+                    previousTargetActUid = obsQA.getTargetActUid();
+                    if (previousTargetActUid != null &&
+                            previousTargetActUid.equals(obsQA.getObservationUid())) {
+                        //       //##!! System.out.println("First time both are equal");
+                        Collection<ActRelationshipDto> actColl = new ArrayList<>();
+                        ActRelationshipDto ar = new ActRelationshipDto();
+                        ar.setSourceActUid(obsQA.getSourceActUid());
+                        ar.setTargetActUid(obsQA.getTargetActUid());
+                        ar.setTypeCd(obsQA.getTypeCd());
+                        ar.setItDirty(false);
+                        actColl.add(ar);
+                        obsVO.setTheActRelationshipDtoCollection(actColl);
+                    }
+                } else {
+                    ObservationContainer innerObs =  theObservationQuestionColl.
+                            get(theObservationQuestionColl.size() - 1);
+                    Collection<ActRelationshipDto> actColl;
+                    if ((actColl = innerObs.getTheActRelationshipDtoCollection()) == null) {
+                        actColl = new ArrayList<>();
+                    }
+                    ActRelationshipDto ar = new ActRelationshipDto();
+                    ar.setSourceActUid(obsQA.getSourceActUid());
+                    ar.setTargetActUid(obsQA.getTargetActUid());
+                    ar.setTypeCd(obsQA.getTypeCd());
+                    ar.setRecordStatusCd(NEDSSConstant.ACTIVE);
+                    ar.setItDirty(false);
+                    actColl.add(ar);
+                    innerObs.setTheActRelationshipDtoCollection(actColl);
+                    theObservationQuestionColl.set(theObservationQuestionColl.size() - 1,
+                            innerObs);
+                }
+
+            }
+            logger.debug("RetrieveSummaryVO");
+            //TODO: INVESTIGATE THIS REPORT
+//            VOTester.createReport(theObservationQuestionColl,
+//                    "RetrievSummaryVO-obsColl");
+        }
+
+        return theObservationQuestionColl;
+
     }
 
     private ObservationDto selectObservation(long obUID) throws  DataProcessingException {
