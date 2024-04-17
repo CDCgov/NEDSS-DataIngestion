@@ -75,6 +75,26 @@ class ElrProcessStatusComponentTest {
         Assertions.assertTrue(processStatus.contains("Status:"));
     }
     @Test
+    void testProcessForNbsFailureWithLogCommentWithMorethan200(){
+        String body = "HL7file-sftpstatus1.txt:7DAC34BD-B011-469A-BF27-25904370E9E3";
+        String rawId = "7DAC34BD-B011-469A-BF27-25904370E9E3";
+
+        MessageStatus status = new MessageStatus();
+        status.getNbsInfo().setNbsInterfaceStatus("Failure");
+        String logComment= "Test Log Comment123 Test Log Comment123 Test Log Comment123 Test Log Comment234 Test Log Comment345 Test Log Comment456 Test Log Comment567 Test Log Comment678 Test Log Comment678 Test Log Comment78901";
+        EdxActivityLogStatus edxActivityLogStatus=new EdxActivityLogStatus();
+        edxActivityLogStatus.setRecordType("Test Record Type");
+        edxActivityLogStatus.setLogType("Test Log Type");
+        edxActivityLogStatus.setLogComment(logComment);
+        edxActivityLogStatus.setRecordStatusTime(new Timestamp(System.currentTimeMillis()));
+        status.getNbsIngestionInfo().add(edxActivityLogStatus);
+        when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(
+                status
+        );
+        String processStatus = elrProcessStatusComponent.process(body);
+        Assertions.assertTrue(processStatus.contains("Status:"));
+    }
+    @Test
     void testProcessForNbsValidationFailed() throws Exception {
         String body = "HL7file-sftpstatus1.txt:7DAC34BD-B011-469A-BF27-25904370E9E3";
         String rawId = "7DAC34BD-B011-469A-BF27-25904370E9E3";
