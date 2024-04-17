@@ -63,7 +63,6 @@ class ElrProcessStatusComponentTest {
         status.getNbsInfo().setNbsInterfaceStatus("Failure");
 
         EdxActivityLogStatus edxActivityLogStatus=new EdxActivityLogStatus();
-        edxActivityLogStatus.setRecordId("Test Record Id");
         edxActivityLogStatus.setRecordType("Test Record Type");
         edxActivityLogStatus.setLogType("Test Log Type");
         edxActivityLogStatus.setLogComment("Test Log Comment");

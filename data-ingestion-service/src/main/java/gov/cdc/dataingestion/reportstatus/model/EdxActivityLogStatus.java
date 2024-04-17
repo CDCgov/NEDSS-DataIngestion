@@ -8,7 +8,6 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 public class EdxActivityLogStatus {
-    private String recordId;
     private String recordType;
     private String logType;
     private String logComment;
