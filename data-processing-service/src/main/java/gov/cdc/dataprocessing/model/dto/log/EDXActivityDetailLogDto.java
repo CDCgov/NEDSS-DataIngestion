@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 @Setter
 public class EDXActivityDetailLogDto extends BaseContainer implements Serializable {
     private static final long serialVersionUID = 1L;
+    private Long edxActivityDetailLogUid;
     private Long edxActivityLogUid;
     private String recordId;
     private String recordType;

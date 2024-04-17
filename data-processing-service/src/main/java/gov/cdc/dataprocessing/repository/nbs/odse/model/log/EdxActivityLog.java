@@ -75,7 +75,7 @@ public class EdxActivityLog {
     }
 
     public EdxActivityLog(EDXActivityLogDto eDXActivityLogDto) {
-        this.id = eDXActivityLogDto.getEdxActivityLogUid();
+        //this.id = eDXActivityLogDto.getEdxActivityLogUid();
         this.sourceUid = eDXActivityLogDto.getSourceUid();
         this.targetUid = eDXActivityLogDto.getTargetUid();
         this.docType = eDXActivityLogDto.getDocType();
@@ -87,7 +87,7 @@ public class EdxActivityLog {
         this.targetTypeCd = eDXActivityLogDto.getTargetTypeCd();
         this.businessObjLocalid = eDXActivityLogDto.getBusinessObjLocalId();
         this.docNm = eDXActivityLogDto.getDocName();
-        this.sourceNm = eDXActivityLogDto.getDocName();
+        this.sourceNm = eDXActivityLogDto.getSrcName();
         this.algorithmAction = eDXActivityLogDto.getAlgorithmAction();
         this.algorithmName = eDXActivityLogDto.getAlgorithmName();
         this.messageId = eDXActivityLogDto.getMessageId();

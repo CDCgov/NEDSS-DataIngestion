@@ -26,6 +26,10 @@ public class KafkaManagerProducer  extends KafkaBaseProducer {
 
     @Value("${kafka.topic.elr_action_tracker}")
     private String actionTrackerTopic = "elr_action_tracker" ;
+
+    @Value("${kafka.topic.elr_edx_log}")
+    private String edx_log_topic = "elr_edx_log";
+
     public void sendDataPhc(String msg) {
         sendData(phcTopic, msg);
     }
@@ -41,6 +45,12 @@ public class KafkaManagerProducer  extends KafkaBaseProducer {
     public void sendData(String topic, String msgContent) {
         String uniqueID = "DP_ELR_" + UUID.randomUUID();
         var record = createProducerRecord(topic, uniqueID, msgContent);
+        // ADD HEADER if needed
+        sendMessage(record);
+    }
+    public void sendDataEdxActivityLog(String msgContent) {
+        String uniqueID = "DP_LOG_" + UUID.randomUUID();
+        var record = createProducerRecord(edx_log_topic, uniqueID, msgContent);
         // ADD HEADER if needed
         sendMessage(record);
     }

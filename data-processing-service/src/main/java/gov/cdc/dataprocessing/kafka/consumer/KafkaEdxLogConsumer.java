@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.kafka.consumer;
 
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.EdxLogException;
+import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -16,9 +17,12 @@ import org.springframework.stereotype.Service;
 public class KafkaEdxLogConsumer {
     private static final Logger logger = LoggerFactory.getLogger(KafkaEdxLogConsumer.class);
     private final IManagerService managerService;
+    private final IEdxLogService edxLogService;
 
-    public KafkaEdxLogConsumer(IManagerService managerService) {
+    public KafkaEdxLogConsumer(IManagerService managerService,
+                               IEdxLogService edxLogService) {
         this.managerService = managerService;
+        this.edxLogService = edxLogService;
     }
 
     @KafkaListener(
@@ -26,6 +30,9 @@ public class KafkaEdxLogConsumer {
     )
     public void handleMessage(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EdxLogException, DataProcessingConsumerException {
-        managerService.processingEdxLog("data");
+        System.out.println("Received message: " + message);
+        edxLogService.saveEdxActivityLogs(message);
+
+        //managerService.processingEdxLog("data");
     }
 }
