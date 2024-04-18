@@ -43,8 +43,5 @@ public class EDXActivityLogDto extends BaseContainer implements Serializable {
     private String messageId;
     private String entityNm;
     private String accessionNbr;
-
-
-
     private String algorithmName;
 }
