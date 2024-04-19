@@ -134,6 +134,7 @@ public class ManagerService implements IManagerService {
         edxLogService.processingLog();
     }
 
+    @Transactional
     public void initiatingInvestigationAndPublicHealthCase(String data) throws DataProcessingException {
         NbsInterfaceModel nbsInterfaceModel = null;
         try {
@@ -167,11 +168,6 @@ public class ManagerService implements IManagerService {
 
                     WdsTrackerView trackerView = new WdsTrackerView();
                     trackerView.setWdsReport(edxLabInformationDto.getWdsReports());
-//                    gson = new Gson();
-//                    String trackerString = gson.toJson(trackerView);
-//                    kafkaManagerProducer.sendDataActionTracker(trackerString);
-
-
 
 
 
@@ -186,9 +182,28 @@ public class ManagerService implements IManagerService {
                     phcContainer.setObservationDto(observationDto);
                     phcContainer.setWdsTrackerView(trackerView);
 
+                    var phc = edxLabInformationDto.getObject();
+                    if (phc != null) {
+                        if (phc instanceof PageActProxyVO) {
+                            var pageActProxyVO = (PageActProxyVO) edxLabInformationDto.getObject();
+                            trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT());
+                        }else{
+                            var pamProxyVO = (PamProxyContainer)edxLabInformationDto.getObject();
+                            trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT());
+                        }
+                    }
+
+//                    gson = new Gson();
+//                    String jsonString = gson.toJson(phcContainer);
+        //            kafkaManagerProducer.sendDataLabHandling(jsonString);
+
+
                     gson = new Gson();
-                    String jsonString = gson.toJson(phcContainer);
-                    kafkaManagerProducer.sendDataLabHandling(jsonString);
+                    String trackerString = gson.toJson(trackerView);
+                    kafkaManagerProducer.sendDataActionTracker(trackerString);
+
+
+
 
                 }
             }
@@ -443,92 +458,6 @@ public class ManagerService implements IManagerService {
 
             throw new DataProcessingConsumerException(e.getMessage(), result);
 
-        }
-    }
-
-    private void loadAndInitCachedValue() throws DataProcessingException {
-
-        if (SrteCache.loincCodesMap.isEmpty()) {
-            cachingValueService.getAOELOINCCodes();
-        }
-        if (SrteCache.raceCodesMap.isEmpty()) {
-            cachingValueService.getRaceCodes();
-        }
-        if (SrteCache.programAreaCodesMap.isEmpty()) {
-            cachingValueService.getAllProgramAreaCodes();
-        }
-        if (SrteCache.jurisdictionCodeMap.isEmpty()) {
-            cachingValueService.getAllJurisdictionCode();
-        }
-        if (SrteCache.jurisdictionCodeMapWithNbsUid.isEmpty()) {
-            cachingValueService.getAllJurisdictionCodeWithNbsUid();
-        }
-        if (SrteCache.programAreaCodesMapWithNbsUid.isEmpty()) {
-            cachingValueService.getAllProgramAreaCodesWithNbsUid();
-        }
-        if (SrteCache.elrXrefsList.isEmpty()) {
-            cachingValueService.getAllElrXref();
-        }
-
-
-        var cache = cacheManager.getCache("srte");
-        if (cache != null) {
-            Cache.ValueWrapper valueWrapper;
-            valueWrapper = cache.get("loincCodes");
-            if (valueWrapper != null) {
-                Object cachedObject = valueWrapper.get();
-                if (cachedObject instanceof TreeMap) {
-                    SrteCache.loincCodesMap = (TreeMap<String, String>) cachedObject;
-                }
-            }
-
-            valueWrapper = cache.get("raceCodes");
-            if (valueWrapper != null) {
-                Object cachedObject = valueWrapper.get();
-                if (cachedObject instanceof TreeMap) {
-                    SrteCache.raceCodesMap = (TreeMap<String, String>) cachedObject;
-                }
-            }
-
-            valueWrapper = cache.get("programAreaCodes");
-            if (valueWrapper != null) {
-                Object cachedObject = valueWrapper.get();
-                if (cachedObject instanceof TreeMap) {
-                    SrteCache.programAreaCodesMap = (TreeMap<String, String>) cachedObject;
-                }
-            }
-
-            valueWrapper = cache.get("jurisdictionCode");
-            if (valueWrapper != null) {
-                Object cachedObject = valueWrapper.get();
-                if (cachedObject instanceof TreeMap) {
-                    SrteCache.jurisdictionCodeMap = (TreeMap<String, String>) cachedObject;
-                }
-            }
-
-            valueWrapper = cache.get("programAreaCodesWithNbsUid");
-            if (valueWrapper != null) {
-                Object cachedObject = valueWrapper.get();
-                if (cachedObject instanceof TreeMap) {
-                    SrteCache.programAreaCodesMapWithNbsUid = (TreeMap<String, Integer>) cachedObject;
-                }
-            }
-
-            valueWrapper = cache.get("jurisdictionCodeWithNbsUid");
-            if (valueWrapper != null) {
-                Object cachedObject = valueWrapper.get();
-                if (cachedObject instanceof TreeMap) {
-                    SrteCache.jurisdictionCodeMapWithNbsUid = (TreeMap<String, Integer>) cachedObject;
-                }
-            }
-
-            valueWrapper = cache.get("elrXref");
-            if (valueWrapper != null) {
-                Object cachedObject = valueWrapper.get();
-                if (cachedObject instanceof TreeMap) {
-                    SrteCache.elrXrefsList = (List<ElrXref>) cachedObject;
-                }
-            }
         }
     }
     private CompletableFuture<Void> loadAndInitCachedValueAsync() {

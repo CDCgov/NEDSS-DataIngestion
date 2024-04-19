@@ -22,6 +22,7 @@ import gov.cdc.dataprocessing.service.model.WdsReport;
 import gov.cdc.dataprocessing.service.model.decision_support.DsmLabMatchHelper;
 import gov.cdc.dataprocessing.utilities.component.EdxPhcrDocumentUtil;
 import gov.cdc.dataprocessing.utilities.component.ValidateDecisionSupport;
+import jakarta.transaction.Transactional;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Unmarshaller;
 import org.springframework.stereotype.Service;
@@ -69,6 +70,7 @@ public class DecisionSupportService implements IDecisionSupportService {
 
 
 
+    @Transactional
     // Was: validateProxyVO
     public EdxLabInformationDto validateProxyContainer(LabResultProxyContainer labResultProxyVO,
                                                 EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {

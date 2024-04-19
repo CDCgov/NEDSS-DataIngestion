@@ -99,7 +99,7 @@ public class CachingValueService implements ICatchingValueService {
             if (!result.isEmpty()) {
                 var data = result;
                 for (LabResult obj :data) {
-                    map.put(obj.getCodeSystemCd(), obj.getLabResultDescTxt());
+                    map.put(obj.getLabResultCd(), obj.getLabResultDescTxt());
                 }
             }
         } catch (Exception e) {

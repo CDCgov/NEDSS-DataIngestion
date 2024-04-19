@@ -18,7 +18,7 @@ public class SrteCustomRepositoryImpl implements SrteCustomRepository{
     //THIS ONE IS  FOR CACHING
     public List<LabResult> getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd()  {
         String codeSql =
-                "Select  Lab_result.LAB_RESULT_CD 'key', lab_result_desc_txt 'value' FROM "
+                "Select  Lab_result.LAB_RESULT_CD , lab_result_desc_txt  FROM "
                         + " Lab_result Lab_result, "
                         + " Lab_coding_system Lab_coding_system WHERE "+
                         " Lab_coding_system.laboratory_id = 'DEFAULT' and "+

@@ -16,7 +16,7 @@ public class Observation_Lab_Summary_ForWorkUp_New extends ObservationBase {
         
     }
     
-    public Observation_Lab_Summary_ForWorkUp_New(ObservationBase base) {
+    public Observation_Lab_Summary_ForWorkUp_New(Observation base) {
         this.observationUid = base.getObservationUid();
         this.activityDurationAmt = base.getActivityDurationAmt();
         this.activityDurationUnitCd = base.getActivityDurationUnitCd();

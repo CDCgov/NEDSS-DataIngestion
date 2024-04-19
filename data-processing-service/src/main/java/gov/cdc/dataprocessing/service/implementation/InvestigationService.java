@@ -77,7 +77,7 @@ public class InvestigationService implements IInvestigationService {
                                 INotificationService notificationService,
                                 IObservationSummaryService observationSummaryService,
                                 QueryHelper queryHelper,
-                                @Qualifier("observation_SummaryRepositoryImpl") Observation_SummaryRepository observationSummaryRepository,
+                                Observation_SummaryRepository observationSummaryRepository,
                                 IContactSummaryService contactSummaryService,
                                 CachingValueService cachingValueService,
                                 ILdfService ldfService,

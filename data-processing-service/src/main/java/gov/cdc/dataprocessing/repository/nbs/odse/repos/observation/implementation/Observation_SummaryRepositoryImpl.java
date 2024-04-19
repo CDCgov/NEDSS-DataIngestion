@@ -1,11 +1,11 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.implementation;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.ObservationBase;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.Observation_Lab_Summary_ForWorkUp_New;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.Observation_Summary;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.Observation_SummaryRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -16,6 +16,9 @@ import java.util.Optional;
 @Repository
 @Transactional
 public class Observation_SummaryRepositoryImpl implements Observation_SummaryRepository {
+
+    @PersistenceContext(unitName = "odse")
+    private EntityManager entityManager;
 
     public  String findAllActiveLabReportUidListForManage_SQL = "SELECT "+
             "ar.source_act_uid \"uid\", "+
@@ -43,8 +46,7 @@ public class Observation_SummaryRepositoryImpl implements Observation_SummaryRep
                     "AND Participation.record_status_cd = 'ACTIVE' " +
                     "AND person_parent_uid = :personParentUid";
 
-    @Autowired
-    private EntityManager entityManager;
+
     @Override
     public Optional<Collection<Observation_Summary>> findAllActiveLabReportUidListForManage(Long investigationUid, String whereClause) {
         var sql = findAllActiveLabReportUidListForManage_SQL + whereClause;

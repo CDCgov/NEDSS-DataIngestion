@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.StoredProcedureQuery;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -18,6 +19,7 @@ public class PublicHealthCaseStoredProcRepository {
     @PersistenceContext(unitName = "odseEntityManagerFactory") // Specify the persistence unit name
     private EntityManager entityManager;
 
+    @Transactional
     public Collection<PublicHealthCaseDT> associatedPublicHealthCaseForMprForCondCd(Long mprUid, String conditionCode) throws DataProcessingException {
         Collection<PublicHealthCaseDT> models = new ArrayList<>();
         try {

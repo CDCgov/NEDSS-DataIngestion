@@ -25,7 +25,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
     private final CustomRepository customRepository;
     private final QueryHelper queryHelper;
 
-    public ObservationSummaryService(@Qualifier("observation_SummaryRepositoryImpl") Observation_SummaryRepository observationSummaryRepository,
+    public ObservationSummaryService(Observation_SummaryRepository observationSummaryRepository,
                                      CustomRepository customRepository, QueryHelper queryHelper) {
         this.observationSummaryRepository = observationSummaryRepository;
         this.customRepository = customRepository;
