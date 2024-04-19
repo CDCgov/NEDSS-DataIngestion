@@ -40,6 +40,9 @@ public class CachingValueService implements ICatchingValueService {
     private final IProgramAreaService programAreaService;
     private final IJurisdictionService jurisdictionService;
     private final ConditionCodeRepository conditionCodeRepository;
+    private final LabResultRepository labResultRepository;
+    private final SnomedCodeRepository snomedCodeRepository;
+    private final SrteCustomRepository srteCustomRepository;
 
     public CachingValueService(JurisdictionCodeRepository jurisdictionCodeRepository,
                                CodeValueGeneralRepository codeValueGeneralRepository,
@@ -51,7 +54,10 @@ public class CachingValueService implements ICatchingValueService {
                                CacheManager cacheManager,
                                IProgramAreaService programAreaService,
                                IJurisdictionService jurisdictionService,
-                               ConditionCodeRepository conditionCodeRepository) {
+                               ConditionCodeRepository conditionCodeRepository,
+                               LabResultRepository labResultRepository,
+                               SnomedCodeRepository snomedCodeRepository,
+                               SrteCustomRepository srteCustomRepository) {
         this.jurisdictionCodeRepository = jurisdictionCodeRepository;
         this.codeValueGeneralRepository = codeValueGeneralRepository;
         this.elrXrefRepository = elrXrefRepository;
@@ -63,7 +69,84 @@ public class CachingValueService implements ICatchingValueService {
         this.programAreaService = programAreaService;
         this.jurisdictionService = jurisdictionService;
         this.conditionCodeRepository = conditionCodeRepository;
+        this.labResultRepository = labResultRepository;
+        this.snomedCodeRepository = snomedCodeRepository;
+        this.srteCustomRepository = srteCustomRepository;
     }
+
+    @Cacheable(cacheNames = "srte", key = "'loinCodeWithComponentName'")
+    public TreeMap<String, String> getAllLoinCodeWithComponentName() throws DataProcessingException {
+        TreeMap<String, String> map = new TreeMap<>();
+        try {
+            var result = loincCodeRepository.findAll();
+            if (!result.isEmpty()) {
+                var data = result;
+                for (LOINCCode obj :data) {
+                    map.put(obj.getLoincCode(), obj.getComponentName());
+                }
+            }
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage());
+        }
+        return  map;
+    }
+
+    @Cacheable(cacheNames = "srte", key = "'labResulDescWithOrgnismName'")
+    public TreeMap<String, String> getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd() throws DataProcessingException {
+        TreeMap<String, String> map = new TreeMap<>();
+        try {
+            var result = srteCustomRepository.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
+            if (!result.isEmpty()) {
+                var data = result;
+                for (LabResult obj :data) {
+                    map.put(obj.getCodeSystemCd(), obj.getLabResultDescTxt());
+                }
+            }
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage());
+        }
+        return  map;
+    }
+
+
+
+    @Cacheable(cacheNames = "srte", key = "'snomedCodeByDesc'")
+    public TreeMap<String, String> getAllSnomedCode() throws DataProcessingException {
+        TreeMap<String, String> map = new TreeMap<>();
+        try {
+            var result = snomedCodeRepository.findAll();
+            if (!result.isEmpty()) {
+                var data = result;
+                for (SnomedCode obj :data) {
+                    map.put(obj.getSnomedCd(), obj.getSnomedDescTxt());
+                }
+            }
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage());
+        }
+        return  map;
+    }
+
+
+
+    // getCodedResultDesc
+    @Cacheable(cacheNames = "srte", key = "'labResulDesc'")
+    public TreeMap<String, String> getLabResultDesc() throws DataProcessingException {
+        TreeMap<String, String> map = new TreeMap<>();
+        try {
+            var result = labResultRepository.findLabResultByDefaultLabAndOrgNameN();
+            if (result.isPresent()) {
+                var data = result.get();
+                for (LabResult obj :data) {
+                    map.put(obj.getLabResultCd(), obj.getLabResultDescTxt());
+                }
+            }
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage());
+        }
+        return  map;
+    }
+
 
     @Cacheable(cacheNames = "srte", key = "'loincCodes'")
     public TreeMap<String, String>  getAOELOINCCodes() throws DataProcessingException {
@@ -366,7 +449,7 @@ public class CachingValueService implements ICatchingValueService {
 //
 //    }
 
-    private TreeMap<String, String> getCodedValuesCallRepos(String pType) throws DataProcessingException {
+    public TreeMap<String, String> getCodedValuesCallRepos(String pType) throws DataProcessingException {
         TreeMap<String, String> map;
         if (pType.equals("S_JURDIC_C")) {
             map = getJurisdictionCode();

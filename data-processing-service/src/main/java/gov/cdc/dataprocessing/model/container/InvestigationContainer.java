@@ -49,4 +49,6 @@ public class InvestigationContainer extends LdfBaseVO {
     private boolean isOOSystemPendInd;
     private Collection<Object>  theContactVOColl;
     private Collection<Object> theCTContactSummaryDTCollection;
+
+    public Collection<Object> theDocumentSummaryVOCollection;
 }

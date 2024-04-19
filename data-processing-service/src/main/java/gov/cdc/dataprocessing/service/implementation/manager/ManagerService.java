@@ -19,11 +19,11 @@ import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.NbsInterfaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.BaseConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 import gov.cdc.dataprocessing.service.implementation.other.CachingValueService;
 import gov.cdc.dataprocessing.service.interfaces.IDecisionSupportService;
+import gov.cdc.dataprocessing.service.interfaces.ILabReportProcessing;
 import gov.cdc.dataprocessing.service.interfaces.auth.ISessionProfileService;
 import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
 import gov.cdc.dataprocessing.service.interfaces.other.IDataExtractionService;
@@ -33,7 +33,6 @@ import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationServ
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService;
 import gov.cdc.dataprocessing.service.model.PublicHealthCaseFlowContainer;
-import gov.cdc.dataprocessing.service.model.WdsReport;
 import gov.cdc.dataprocessing.service.model.WdsTrackerView;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.ManagerUtil;
@@ -80,6 +79,7 @@ public class ManagerService implements IManagerService {
     private final KafkaManagerProducer kafkaManagerProducer;
 
     private final IManagerAggregationService managerAggregationService;
+    private final ILabReportProcessing labReportProcessing;
     @Autowired
     public ManagerService(IObservationService observationService,
                           IEdxLogService edxLogService,
@@ -92,7 +92,8 @@ public class ManagerService implements IManagerService {
                           IDecisionSupportService decisionSupportService,
                           ManagerUtil managerUtil,
                           KafkaManagerProducer kafkaManagerProducer,
-                          IManagerAggregationService managerAggregationService) {
+                          IManagerAggregationService managerAggregationService,
+                          ILabReportProcessing labReportProcessing) {
         this.observationService = observationService;
         this.edxLogService = edxLogService;
         this.handleLabService = handleLabService;
@@ -105,6 +106,7 @@ public class ManagerService implements IManagerService {
         this.managerUtil = managerUtil;
         this.kafkaManagerProducer = kafkaManagerProducer;
         this.managerAggregationService = managerAggregationService;
+        this.labReportProcessing = labReportProcessing;
     }
 
     @Transactional
@@ -226,7 +228,7 @@ public class ManagerService implements IManagerService {
 
 
                 //TODO: 3rd Flow
-                //hL7CommonLabUtil.markAsReviewedHandler(observationDto.getObservationUid(), edxLabInformationDto);
+                labReportProcessing.markAsReviewedHandler(observationDto.getObservationUid(), edxLabInformationDto);
                 if (edxLabInformationDto.getAssociatedPublicHealthCaseUid() != null && edxLabInformationDto.getAssociatedPublicHealthCaseUid().longValue() > 0) {
                     edxLabInformationDto.setPublicHealthCaseUid(edxLabInformationDto.getAssociatedPublicHealthCaseUid());
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_21);
@@ -603,6 +605,38 @@ public class ManagerService implements IManagerService {
                 }
             }
         }).thenRun(() -> {
+            if (SrteCache.labResultByDescMap.isEmpty()) {
+                try {
+                    cachingValueService.getLabResultDesc();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
+            if (SrteCache.snomedCodeByDescMap.isEmpty()) {
+                try {
+                    cachingValueService.getAllSnomedCode();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
+            if (SrteCache.labResultWithOrganismNameIndMap.isEmpty()) {
+                try {
+                    cachingValueService.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
+            if (SrteCache.loinCodeWithComponentNameMap.isEmpty()) {
+                try {
+                    cachingValueService.getAllLoinCodeWithComponentName();
+                } catch (DataProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).thenRun(() -> {
             // Retrieve cached values using Cache.ValueWrapper
             var cache = cacheManager.getCache("srte");
             if (cache != null) {
@@ -685,6 +719,41 @@ public class ManagerService implements IManagerService {
 
                     }
                 }
+
+                valueWrapper = cache.get("labResulDesc");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof List) {
+                        SrteCache.labResultByDescMap = (TreeMap<String, String>) cachedObject;
+                    }
+                }
+
+                valueWrapper = cache.get("snomedCodeByDesc");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof List) {
+                        SrteCache.snomedCodeByDescMap = (TreeMap<String, String>) cachedObject;
+                    }
+                }
+
+                valueWrapper = cache.get("labResulDescWithOrgnismName");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof List) {
+                        SrteCache.labResultWithOrganismNameIndMap = (TreeMap<String, String>) cachedObject;
+                    }
+                }
+
+                valueWrapper = cache.get("loinCodeWithComponentName");
+                if (valueWrapper != null) {
+                    Object cachedObject = valueWrapper.get();
+                    if (cachedObject instanceof List) {
+                        SrteCache.loinCodeWithComponentNameMap = (TreeMap<String, String>) cachedObject;
+                    }
+                }
+
+
+
 
             }
         });

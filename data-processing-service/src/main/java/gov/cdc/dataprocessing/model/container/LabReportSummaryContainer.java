@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.container;
 
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.Observation_Lab_Summary_ForWorkUp_New;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +11,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class LabReportSummaryContainer extends BaseContainer implements RootDtoInterface,Comparable {
+public class LabReportSummaryContainer extends BaseContainer implements RootDtoInterface,Comparable, ReportSummaryInterface {
     private static final long serialVersionUID = 1L;
     private boolean isTouched;
     private boolean isAssociated;
@@ -29,7 +30,7 @@ public class LabReportSummaryContainer extends BaseContainer implements RootDtoI
     private String patientFirstName;
     private String patientLastName;
     private String personLocalId;
-    private Collection<Object> theResultedTestSummaryVOCollection;
+    private Collection<ResultedTestSummaryContainer> theResultedTestSummaryVOCollection;
     private Collection<Object> invSummaryVOs;
     private String orderedTest;
     private Long MPRUid;
@@ -67,6 +68,28 @@ public class LabReportSummaryContainer extends BaseContainer implements RootDtoI
     private Long personParentUid;
     private String currSexCd;
     private String orderingFacility;
+
+    public LabReportSummaryContainer() {
+
+    }
+
+    public LabReportSummaryContainer(Observation_Lab_Summary_ForWorkUp_New observationLabSummaryForWorkUpNew) {
+        uid = observationLabSummaryForWorkUpNew.getUid();
+        localId = observationLabSummaryForWorkUpNew.getLocalId();
+        jurisdictionCd = observationLabSummaryForWorkUpNew.getJurisdictionCd();
+        status = observationLabSummaryForWorkUpNew.getStatusCd();
+        recordStatusCd = observationLabSummaryForWorkUpNew.getRecordStatusCd();
+        orderedTest = observationLabSummaryForWorkUpNew.getCdDescTxt();
+        observationUid = observationLabSummaryForWorkUpNew.getObservationUid();
+        this.programArea = observationLabSummaryForWorkUpNew.getProgAreaCd();
+        recordStatusCd = observationLabSummaryForWorkUpNew.getRecordStatusCd();
+        dateReceived = observationLabSummaryForWorkUpNew.getRptToStateTime();
+        activityFromTime = observationLabSummaryForWorkUpNew.getActivityFromTime();
+        cdSystemCd = observationLabSummaryForWorkUpNew.getCdSystemCd();
+        dateCollected = observationLabSummaryForWorkUpNew.getEffectiveFromTime();
+        processingDecisionCd = observationLabSummaryForWorkUpNew.getProcessingDecisionCd();
+        electronicInd = observationLabSummaryForWorkUpNew.getElectronicInd();
+    }
 
     @Override
     public Long getLastChgUserId() {
@@ -166,5 +189,25 @@ public class LabReportSummaryContainer extends BaseContainer implements RootDtoI
     @Override
     public int compareTo(Object o) {
         return 0;
+    }
+
+    @Override
+    public boolean getIsTouched() {
+        return isTouched;
+    }
+
+    @Override
+    public void setItTouched(boolean touched) {
+        isTouched = touched;
+    }
+
+    @Override
+    public boolean getIsAssociated() {
+        return isAssociated;
+    }
+
+    @Override
+    public void setItAssociated(boolean associated) {
+        isAssociated  = associated;
     }
 }

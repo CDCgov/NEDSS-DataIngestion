@@ -8,6 +8,7 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,11 +21,11 @@ public class LdfBaseVO extends BaseContainer {
     }
 
     /* Read all input ldfs. Descard one with no value entered by user */
-    public void setTheStateDefinedFieldDataDTCollection(Collection<Object> newLdfs) {
+    public void setTheStateDefinedFieldDataDTCollection(List<StateDefinedFieldDataDto> newLdfs) {
         if(newLdfs != null && newLdfs.size() > 0){
             ldfs = new ArrayList<Object> ();
             ldfUids = new ArrayList<Object>();
-            Iterator<Object> itr = newLdfs.iterator();
+            Iterator<StateDefinedFieldDataDto> itr = newLdfs.iterator();
             while (itr.hasNext()) {
                 StateDefinedFieldDataDto dt = (StateDefinedFieldDataDto) itr.next();
                 ldfUids.add(dt.getLdfUid());
