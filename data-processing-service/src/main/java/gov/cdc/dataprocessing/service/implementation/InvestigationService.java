@@ -174,7 +174,7 @@ public class InvestigationService implements IInvestigationService {
      * @param invFromEvent - flag to indicates if lab or morb report is the reactor for investigation.
      */
 
-    private void setObservationAssociationsImpl(Long investigationUID, Collection<LabReportSummaryContainer>  reportSumVOCollection, boolean invFromEvent) throws DataProcessingException {
+    public void setObservationAssociationsImpl(Long investigationUID, Collection<LabReportSummaryContainer>  reportSumVOCollection, boolean invFromEvent) throws DataProcessingException {
 
 
 

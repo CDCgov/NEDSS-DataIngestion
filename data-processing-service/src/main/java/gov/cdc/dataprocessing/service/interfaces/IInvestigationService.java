@@ -14,4 +14,5 @@ public interface IInvestigationService {
                          Collection<Object>  summaryDTColl,
                          Collection<Object> treatmentSumColl,
                          Boolean isNNDResendCheckRequired) throws DataProcessingException;
+    void setObservationAssociationsImpl(Long investigationUID, Collection<LabReportSummaryContainer>  reportSumVOCollection, boolean invFromEvent) throws DataProcessingException;
 }

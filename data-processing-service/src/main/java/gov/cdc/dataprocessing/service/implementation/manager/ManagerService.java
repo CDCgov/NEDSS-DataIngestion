@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
+import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
@@ -13,6 +14,8 @@ import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxy
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PublicHealthCaseVO;
 import gov.cdc.dataprocessing.model.container.ObservationContainer;
 import gov.cdc.dataprocessing.model.container.PamProxyContainer;
+import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
+import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
@@ -24,6 +27,8 @@ import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 import gov.cdc.dataprocessing.service.implementation.other.CachingValueService;
 import gov.cdc.dataprocessing.service.interfaces.IDecisionSupportService;
 import gov.cdc.dataprocessing.service.interfaces.ILabReportProcessing;
+import gov.cdc.dataprocessing.service.interfaces.IPageService;
+import gov.cdc.dataprocessing.service.interfaces.IPamService;
 import gov.cdc.dataprocessing.service.interfaces.auth.ISessionProfileService;
 import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
 import gov.cdc.dataprocessing.service.interfaces.other.IDataExtractionService;
@@ -45,6 +50,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
@@ -80,6 +86,8 @@ public class ManagerService implements IManagerService {
 
     private final IManagerAggregationService managerAggregationService;
     private final ILabReportProcessing labReportProcessing;
+    private final IPageService pageService;
+    private final IPamService pamService;
     @Autowired
     public ManagerService(IObservationService observationService,
                           IEdxLogService edxLogService,
@@ -93,7 +101,9 @@ public class ManagerService implements IManagerService {
                           ManagerUtil managerUtil,
                           KafkaManagerProducer kafkaManagerProducer,
                           IManagerAggregationService managerAggregationService,
-                          ILabReportProcessing labReportProcessing) {
+                          ILabReportProcessing labReportProcessing,
+                          IPageService pageService,
+                          IPamService pamService) {
         this.observationService = observationService;
         this.edxLogService = edxLogService;
         this.handleLabService = handleLabService;
@@ -107,6 +117,8 @@ public class ManagerService implements IManagerService {
         this.kafkaManagerProducer = kafkaManagerProducer;
         this.managerAggregationService = managerAggregationService;
         this.labReportProcessing = labReportProcessing;
+        this.pageService = pageService;
+        this.pamService = pamService;
     }
 
     @Transactional
@@ -269,21 +281,17 @@ public class ManagerService implements IManagerService {
 
                 if (publicHealthCaseVO.getErrorText() != null)
                 {
-                    //TODO: 3rd Flow
-                    // requiredFieldError(publicHealthCaseVO.getErrorText(), edxLabInformationDto);
+                    //TODO: LOGGING
+                    requiredFieldError(publicHealthCaseVO.getErrorText(), edxLabInformationDto);
                 }
 
                 if (pageActProxyVO != null && observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null)
                 {
                     //TODO: 3rd Flow
-                        /*
-                        Object object = nedssUtils.lookupBean(JNDINames.PAGE_PROXY_EJB);
-                        PageProxyHome pageProxyHome = (PageProxyHome) javax.rmi.PortableRemoteObject.narrow(object, PageProxyHome.class);
-                        PageProxyContainer pageProxy = pageProxyHome.create();
-                        phcUid = pageProxy.setPageProxyWithAutoAssoc(NEDSSConstant.CASE, pageActProxyVO,
-                                edxLabInformationDto.getRootObserbationUid(), NEDSSConstant.LABRESULT_CODE, null);
-                        pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().setPublicHealthCaseUid(phcUid);
-                        */
+                    phcUid = pageService.setPageProxyWithAutoAssoc(NEDSSConstant.CASE, pageActProxyVO, edxLabInformationDto.getRootObserbationUid(), NEDSSConstant.LABRESULT_CODE, null);
+
+                    pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().setPublicHealthCaseUid(phcUid);
+
                     edxLabInformationDto.setInvestigationSuccessfullyCreated(true);
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_3);
                     edxLabInformationDto.setPublicHealthCaseUid(phcUid);
@@ -292,13 +300,8 @@ public class ManagerService implements IManagerService {
                 else if (observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null)
                 {
                     //TODO: 3rd Flow
-                        /*
-                        Object object = nedssUtils.lookupBean(JNDINames.PAM_PROXY_EJB);
-                        PamProxyHome pamProxyHome = (PamProxyHome) javax.rmi.PortableRemoteObject.narrow(object, PamProxyHome.class);
-                        PamProxyContainer pamProxy = pamProxyHome.create();
-                        phcUid = pamProxy.setPamProxyWithAutoAssoc(pamProxyVO, edxLabInformationDto.getRootObserbationUid(),
-                                NEDSSConstant.LABRESULT_CODE);
-                        */
+                    phcUid = pamService.setPamProxyWithAutoAssoc(pamProxyVO, edxLabInformationDto.getRootObserbationUid(), NEDSSConstant.LABRESULT_CODE);
+
                     pamProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().setPublicHealthCaseUid(phcUid);
                     edxLabInformationDto.setInvestigationSuccessfullyCreated(true);
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_3);
@@ -306,34 +309,35 @@ public class ManagerService implements IManagerService {
                     edxLabInformationDto.setLabAssociatedToInv(true);
                 }
 
+
+
                 if(edxLabInformationDto.getAction().equalsIgnoreCase(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE)){
                     //TODO: 3rd Flow
-                    //Check for user security to create notification
-                    //checkSecurity(nbsSecurityObj, edxLabInformationDto, NBSBOLookup.NOTIFICATION, NBSOperationLookup.CREATE, programAreaCd, jurisdictionCd);
-                        /*
-                        EDXActivityDetailLogDto edxActivityDetailLogDT = EdxCommonHelper.sendNotification(publicHealthCaseVO, edxLabInformationDto.getNndComment());
-                        edxActivityDetailLogDT.setRecordType(EdxELRConstant.ELR_RECORD_TP);
-                        edxActivityDetailLogDT.setRecordName(EdxELRConstant.ELR_RECORD_NM);
-                        ArrayList<Object> details = (ArrayList<Object>)edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails();
-                        if(details==null){
-                            details = new ArrayList<Object>();
+                    EDXActivityDetailLogDto edxActivityDetailLogDT = EdxCommonHelper.sendNotification(publicHealthCaseVO, edxLabInformationDto.getNndComment());
+
+
+                    edxActivityDetailLogDT.setRecordType(EdxELRConstant.ELR_RECORD_TP);
+                    edxActivityDetailLogDT.setRecordName(EdxELRConstant.ELR_RECORD_NM);
+                    ArrayList<Object> details = (ArrayList<Object>)edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails();
+                    if(details==null){
+                        details = new ArrayList<Object>();
+                    }
+                    details.add(edxActivityDetailLogDT);
+                    edxLabInformationDto.getEdxActivityLogDto().setEDXActivityLogDTWithVocabDetails(details);
+                    if(edxActivityDetailLogDT.getLogType()!=null && edxActivityDetailLogDT.getLogType().equals(EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure.name())){
+                        if(edxActivityDetailLogDT.getComment()!=null && edxActivityDetailLogDT.getComment().indexOf(EdxELRConstant.MISSING_NOTF_REQ_FIELDS)!=-1){
+                            edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_8);
+                            edxLabInformationDto.setNotificationMissingFields(true);
                         }
-                        details.add(edxActivityDetailLogDT);
-                        edxLabInformationDto.getEdxActivityLogDto().setEDXActivityLogDTWithVocabDetails(details);
-                        if(edxActivityDetailLogDT.getLogType()!=null && edxActivityDetailLogDT.getLogType().equals(EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure.name())){
-                            if(edxActivityDetailLogDT.getComment()!=null && edxActivityDetailLogDT.getComment().indexOf(EdxELRConstant.MISSING_NOTF_REQ_FIELDS)!=-1){
-                                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_8);
-                                edxLabInformationDto.setNotificationMissingFields(true);
-                            }
-                            else{
-                                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_10);
-                            }
-                            throw new DataProcessingException("MISSING NOTI REQUIRED: "+edxActivityDetailLogDT.getComment());
-                        }else{
-                            //edxLabInformationDto.setNotificationSuccessfullyCreated(true);
-                            edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_6);
+                        else{
+                            edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_10);
                         }
-                        */
+                        throw new DataProcessingException("MISSING NOTI REQUIRED: "+edxActivityDetailLogDT.getComment());
+                    }else{
+                        //edxLabInformationDto.setNotificationSuccessfullyCreated(true);
+                        edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_6);
+                    }
+
                 }
 
             }
@@ -690,5 +694,23 @@ public class ManagerService implements IManagerService {
         return future;
     }
 
+    private void requiredFieldError(String errorTxt, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
+        if (errorTxt != null) {
+            edxLabInformationDT	.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_5);
+            if (edxLabInformationDT.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails() == null)
+            {
+                edxLabInformationDT.getEdxActivityLogDto().setEDXActivityLogDTWithVocabDetails(
+                        new ArrayList<Object>());
+            }
+
+            //TODO: LOGGING
+//            setActivityDetailLog((ArrayList<Object>) edxLabInformationDT.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails(),
+//                    String.valueOf(edxLabInformationDT.getLocalId()),
+//                    EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure, errorTxt);
+
+            edxLabInformationDT.setInvestigationMissingFields(true);
+            throw new DataProcessingException("MISSING REQUIRED FIELDS: "+errorTxt);
+        }
+    }
 
 }

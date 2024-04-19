@@ -5,12 +5,15 @@ import gov.cdc.dataprocessing.model.container.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ExportReceivingFacilityDT;
+import gov.cdc.dataprocessing.model.dto.log.MessageLogDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -65,4 +68,5 @@ public class PageActProxyVO  extends BaseContainer {
     private boolean					  isConversionHasModified;
 
     private ExportReceivingFacilityDT exportReceivingFacilityDT;
+    private Map<String, MessageLogDto> messageLogDTMap  = new HashMap<String, MessageLogDto>();
 }
