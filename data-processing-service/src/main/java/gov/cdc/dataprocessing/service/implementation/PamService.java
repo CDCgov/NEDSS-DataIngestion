@@ -12,6 +12,11 @@ import gov.cdc.dataprocessing.model.dto.log.NNDActivityLogDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.service.interfaces.IInvestigationService;
 import gov.cdc.dataprocessing.service.interfaces.IPamService;
+import gov.cdc.dataprocessing.service.interfaces.IRetrieveSummaryService;
+import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
+import gov.cdc.dataprocessing.service.interfaces.public_health_case.IPublicHealthCaseService;
+import gov.cdc.dataprocessing.utilities.component.ActRelationshipRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.ParticipationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import org.slf4j.Logger;
@@ -29,12 +34,30 @@ public class PamService implements IPamService {
     private final IInvestigationService investigationService;
     private final PatientRepositoryUtil patientRepositoryUtil;
     private final PrepareAssocModelHelper prepareAssocModelHelper;
+    private final IRetrieveSummaryService retrieveSummaryService;
+    private final IPublicHealthCaseService publicHealthCaseService;
 
+    private final IUidService uidService;
+    private final ParticipationRepositoryUtil participationRepositoryUtil;
 
-    public PamService(IInvestigationService investigationService, PatientRepositoryUtil patientRepositoryUtil, PrepareAssocModelHelper prepareAssocModelHelper) {
+    private final ActRelationshipRepositoryUtil actRelationshipRepositoryUtil;
+
+    public PamService(IInvestigationService investigationService,
+                      PatientRepositoryUtil patientRepositoryUtil,
+                      PrepareAssocModelHelper prepareAssocModelHelper,
+                      IRetrieveSummaryService retrieveSummaryService,
+                      IPublicHealthCaseService publicHealthCaseService,
+                      IUidService uidService,
+                      ParticipationRepositoryUtil participationRepositoryUtil,
+                      ActRelationshipRepositoryUtil actRelationshipRepositoryUtil) {
         this.investigationService = investigationService;
         this.patientRepositoryUtil = patientRepositoryUtil;
         this.prepareAssocModelHelper = prepareAssocModelHelper;
+        this.retrieveSummaryService = retrieveSummaryService;
+        this.publicHealthCaseService = publicHealthCaseService;
+        this.uidService = uidService;
+        this.participationRepositoryUtil = participationRepositoryUtil;
+        this.actRelationshipRepositoryUtil = actRelationshipRepositoryUtil;
     }
 
     public Long setPamProxyWithAutoAssoc(PamProxyContainer pamProxyVO, Long observationUid, String observationTypeCd) throws DataProcessingException {
@@ -115,7 +138,8 @@ public class PamService implements IPamService {
                 else
                     nndActivityLogDT.setLocalId("N/A");
                 //catch & store auto resend notifications exceptions in NNDActivityLog table
-                nndMessageSenderHelper.persistNNDActivityLog(nndActivityLogDT);
+                //TODO: LOGGING
+                //nndMessageSenderHelper.persistNNDActivityLog(nndActivityLogDT);
                 throw new DataProcessingException(e.getMessage(), e);
             }
         }
@@ -212,7 +236,7 @@ public class PamService implements IPamService {
                         falseUid = personVO.getThePersonDto().getPersonUid();
                         // replace the falseId with the realId
                         if (falseUid.intValue() < 0) {
-                            setFalseToNew(pamProxyVO, falseUid, realUid);
+                           uidService.setFalseToNewForPam(pamProxyVO, falseUid, realUid);
                         }
                     } else if (personVO.isItDirty()) {
                         if (personVO.getThePersonDto().getCd().equals(
@@ -260,17 +284,17 @@ public class PamService implements IPamService {
                 }
                 String tableName = "PUBLIC_HEALTH_CASE";
                 String moduleCd = "BASE";
-                publicHealthCaseDT = (PublicHealthCaseDT) prepareVOUtils.prepareVO(rootDTInterface, businessObjLookupName,
-                                businessTriggerCd, tableName, moduleCd);
+                publicHealthCaseDT = (PublicHealthCaseDT) prepareAssocModelHelper.prepareVO(rootDTInterface, businessObjLookupName,
+                                businessTriggerCd, tableName, moduleCd, rootDTInterface.getVersionCtrlNbr());
                 publicHealthCaseVO.setThePublicHealthCaseDT(publicHealthCaseDT);
 
                 falsePublicHealthCaseUid = publicHealthCaseVO
                         .getThePublicHealthCaseDT().getPublicHealthCaseUid();
-                actualUid = actController.setPublicHealthCase(
+                actualUid = publicHealthCaseService.setPublicHealthCase(
                         publicHealthCaseVO);
                 logger.debug("actualUid.intValue() = " + actualUid.intValue());
                 if (falsePublicHealthCaseUid.intValue() < 0) {
-                    setFalseToNew(pamProxyVO, falsePublicHealthCaseUid, actualUid);
+                    uidService.setFalseToNewForPam(pamProxyVO, falsePublicHealthCaseUid, actualUid);
                     publicHealthCaseVO.getThePublicHealthCaseDT()
                             .setPublicHealthCaseUid(actualUid);
                 }
@@ -317,7 +341,7 @@ public class PamService implements IPamService {
                             }
                             if(trigCd != null){
                                 // we only need to update notification when trigCd is not null
-                                RetrieveSummaryVO. updateNotification(notificationUid,trigCd,phcCd,phcClassCd,progAreaCd,jurisdictionCd,sharedInd);
+                                retrieveSummaryService.updateNotification(notificationUid,trigCd,phcCd,phcClassCd,progAreaCd,jurisdictionCd,sharedInd);
                             }
 
                         }
@@ -327,10 +351,11 @@ public class PamService implements IPamService {
             Long docUid = null;
             if (pamProxyVO.getPublicHealthCaseVO()
                     .getTheActRelationshipDTCollection() != null) {
-                for (anIterator = pamProxyVO.getPublicHealthCaseVO()
-                        .getTheActRelationshipDTCollection().iterator(); anIterator
+                Iterator<ActRelationshipDto>  anIteratorAct = null;
+                for (anIteratorAct = pamProxyVO.getPublicHealthCaseVO()
+                        .getTheActRelationshipDTCollection().iterator(); anIteratorAct
                              .hasNext();) {
-                    ActRelationshipDto actRelationshipDT = (ActRelationshipDto) anIterator
+                    ActRelationshipDto actRelationshipDT = (ActRelationshipDto) anIteratorAct
                             .next();
                     if(actRelationshipDT.getTypeCd() != null && actRelationshipDT.getTypeCd().equals(NEDSSConstant.DocToPHC))
                         docUid  = actRelationshipDT.getSourceActUid();
@@ -341,10 +366,10 @@ public class PamService implements IPamService {
                     logger.debug("Got into The ActRelationship loop");
                     try {
                         if (actRelationshipDT.isItDelete()) {
-                            insertActRelationshipHistory(actRelationshipDT);
+                            actRelationshipRepositoryUtil.insertActRelationshipHist(actRelationshipDT);
 
                         }
-                        actRelationshipDAOImpl.store(actRelationshipDT);
+                        actRelationshipRepositoryUtil.storeActRelationship(actRelationshipDT);
                     } catch (Exception e) {
                         throw new DataProcessingException(e.getMessage(),e);
                     }
@@ -376,10 +401,10 @@ public class PamService implements IPamService {
                             .next();
                     try {
                         if (participationDT.isItDelete()) {
-                            insertParticipationHistory(participationDT);
+                            participationRepositoryUtil.insertParticipationHist(participationDT);
 
                         }
-                        participationDAOImpl.store(participationDT);
+                        participationRepositoryUtil.storeParticipation(participationDT);
 
                     } catch (Exception e) {
                         throw new DataProcessingException(e.getMessage(),e);

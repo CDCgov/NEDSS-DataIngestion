@@ -585,4 +585,70 @@ public class ComplexQueries {
             " where  sf.ldf_uid = sdfmd.ldf_uid "+
             " and sf.business_object_uid = :businessObjUid ";
 
+
+    public static final String GET_NBS_DOCUMENT = " SELECT"
+            + " nbsdoc.nbs_document_uid  \"nbsDocumentUid\", "
+            + " nbsdoc.local_id  \"localId\","
+            + " nbsdoc.doc_type_cd  \"docTypeCd\","
+            + " nbsdoc.jurisdiction_cd \"jurisdictionCd\","
+            + " nbsdoc.prog_area_cd  \"progAreaCd\","
+            + " nbsdoc.doc_status_cd \"docStatusCd\", "
+            + " nbsdoc.add_time \"addTime\", "
+            + " nbsdoc.txt \"txt\", "
+            + " nbsdoc.version_ctrl_nbr \"versionCtrlNbr\", "
+            + " nbsdoc.doc_purpose_cd \"docPurposeCd\", "
+            + " nbsdoc.cd_desc_txt \"cdDescTxt\", "
+            + " nbsdoc.sending_facility_nm \"sendingFacilityNm\", "
+            + " nbsdoc.add_user_id \"addUserId\", "
+            + " nbsdoc.record_status_cd \"recordStatusCd\", "
+            + " nbsdoc.processing_decision_cd \"processingDecisionCd\", "
+            + " nbsdoc.processing_decision_txt \"processingDecisiontxt\", "
+            + " nbsdoc.external_version_ctrl_nbr \"externalVersionCtrlNbr\", "
+            + " nbsdoc.cd \"cd\", "
+            + " nbsdoc.doc_payload \"docPayload\", "
+            + " nbsdoc.phdc_doc_derived \"phdcDocDerived\", "
+            + " nbsdoc.payload_view_ind_cd \"payloadViewIndCd\", "
+            + " nbsdoc.nbs_document_metadata_uid \"nbsDocumentMetadataUid\", "
+            + " nbsdoc.record_status_Time \"recordStatusTime\", "
+            + " nbsdoc.program_jurisdiction_oid \"programJurisdictionOid\", "
+            + " nbsdoc.shared_ind \"sharedInd\", "
+            + " nbsdoc.last_chg_user_id \"lastChgUserId\", "
+            + " nbsdoc.nbs_interface_uid \"nbsInterfaceUid\", "
+            + " eep.doc_event_type_cd \"docEventTypeCd\" "
+            + " nbsdoc.effective_time \"effectiveTime\", "
+
+            + " per.person_uid  \"personUid\", "
+            + " per.person_parent_uid \"MPRUid\", "
+            + " nbsdoc.last_chg_time \"lastChgTime\", "
+
+            + " FROM nbs_document nbsdoc "
+            + " inner join participation particip on "
+            + " particip.act_uid = nbsdoc.nbs_document_uid "
+            + " inner join person per on "
+            + " particip.subject_entity_uid = per.person_uid "
+            + " and particip.type_cd='"+NEDSSConstant.SUBJECT_OF_DOC+ "' "
+            + " inner join person_name pername on "
+            + " per.person_uid = pername.person_uid "
+            + " left outer join edx_event_process eep on "
+            + " eep.nbs_document_uid = nbsdoc.nbs_document_uid "
+            + " and eep.doc_event_type_cd in('CASE','LabReport','MorbReport','CT') "
+            + " and eep.parsed_ind = 'N' "
+            + " WHERE  nbsdoc.nbs_document_uid = :NbsUid";
+
+
+
+    public static final String COINFECTION_INV_LIST_FOR_GIVEN_COINFECTION_ID_SQL =
+            "select distinct " +
+                    "phc.public_health_case_uid \"publicHealthCaseUid\"," +
+                    " phc.cd \"conditionCd\" " +
+                    "from "
+            + "Public_health_case phc, person, Participation   "
+            + "where phc.investigation_status_cd='O'  and phc.record_status_cd !='LOG_DEL'  "
+            + "and phc.public_health_case_uid=participation.act_uid "
+            + "and participation.type_cd ='SubjOfPHC' "
+            + "and participation.subject_entity_uid =person.person_uid "
+            + "and coinfection_id= :CoInfect "
+            + "and person.person_parent_uid = :PersonUid ";
+
+
 }

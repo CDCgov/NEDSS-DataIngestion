@@ -177,4 +177,65 @@ public class EntityHelper {
         return retCol;
     }
 
+    public Collection<ActivityLocatorParticipationDto> iterateALPDTActivityLocatorParticipation(Collection<ActivityLocatorParticipationDto> dtCol) throws DataProcessingException {
+
+        Collection<ActivityLocatorParticipationDto> retCol = new ArrayList<> ();
+        Collection<ActivityLocatorParticipationDto> collection = new ArrayList<> ();
+        collection = dtCol;
+
+        Iterator<ActivityLocatorParticipationDto> anIterator = null;
+
+        if (collection != null)
+        {
+
+            try
+            {
+
+                for (anIterator = collection.iterator(); anIterator.hasNext();)
+                {
+
+                    ActivityLocatorParticipationDto alpDT = (ActivityLocatorParticipationDto)anIterator.next();
+                    alpDT = (ActivityLocatorParticipationDto)prepareAssocModel.prepareAssocDTForActivityLocatorParticipation(alpDT);
+                    retCol.add(alpDT);
+                }
+            }
+            catch (Exception e)
+            {
+                throw new DataProcessingException(e.getMessage(),e);
+            }
+        }
+
+        return retCol;
+    }
+
+
+    public Collection<ActRelationshipDto> iterateARDTActRelationship(Collection<ActRelationshipDto> dtCol) throws DataProcessingException {
+
+        Collection<ActRelationshipDto> retCol = new ArrayList<> ();
+        Collection<ActRelationshipDto> collection = new ArrayList<> ();
+        Iterator<ActRelationshipDto> anIterator = null;
+        collection = dtCol;
+        if (collection != null)
+        {
+            try
+            {
+                for (anIterator = collection.iterator(); anIterator.hasNext();)
+                {
+                    ActRelationshipDto arDT = (ActRelationshipDto)anIterator.next();
+                    if(arDT.isItDirty() || arDT.isItNew() || arDT.isItDelete())
+                    {
+                        arDT = prepareAssocModel.prepareAssocDTForActRelationship(arDT);
+                        retCol.add(arDT);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw new DataProcessingException(e.getMessage(),e);
+            }
+        }
+
+        return retCol;
+    }
+
 }

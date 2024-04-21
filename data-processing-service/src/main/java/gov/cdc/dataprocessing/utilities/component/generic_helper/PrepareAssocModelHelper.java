@@ -703,4 +703,56 @@ public class PrepareAssocModelHelper {
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
+
+    public ActivityLocatorParticipationDto prepareAssocDTForActivityLocatorParticipation(ActivityLocatorParticipationDto assocDTInterface)
+            throws DataProcessingException {
+        try {
+            ActivityLocatorParticipationDto aDTInterface = null;
+            String recStatusCd = assocDTInterface.getRecordStatusCd();
+            String statusCd = assocDTInterface.getStatusCd();
+            boolean isRealDirty = assocDTInterface.isItDirty();
+
+            if(recStatusCd == null)
+            {
+                logger.debug("RecordStatusCd is null");
+                throw new DataProcessingException("RecordStatusCd -----2----"+recStatusCd+"   statusCode--------"+statusCd);
+            }
+
+            else if(!(recStatusCd.equals(NEDSSConstant.RECORD_STATUS_ACTIVE) || recStatusCd.equals(NEDSSConstant.RECORD_STATUS_INACTIVE)))
+            {
+                logger.debug("RecordStatusCd is not active or inactive");
+                throw new DataProcessingException("RecordStatusCd is not active or inactive");
+            }
+
+            else
+            {
+                try
+                {
+
+                    logger.debug("RecordStatusCd or statusCode is not null");
+                    assocDTInterface.setAddUserId(null);
+                    assocDTInterface.setAddTime(null);
+                    java.util.Date dateTime = new java.util.Date();
+                    Timestamp systemTime = new Timestamp(dateTime.getTime());
+                    assocDTInterface.setRecordStatusTime(systemTime);
+                    assocDTInterface.setStatusTime(systemTime);
+                    assocDTInterface.setLastChgTime(systemTime);
+                }
+                catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                assocDTInterface.setLastChgReasonCd(null);
+                aDTInterface = assocDTInterface;
+                logger.debug("DT Prepared");
+            }
+            if(!isRealDirty) aDTInterface.setItDirty(false);//Re-set the flag to original value if necessary
+            return aDTInterface;
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+
 }

@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.other_move_as_needed;
 
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.CaseManagementDT;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -164,4 +165,61 @@ public class CaseManagement {
     private String localId;
 
     // Constructors, getters, and setters
+    public CaseManagement() {
+
+    }
+
+    public CaseManagement(CaseManagementDT caseManagementDto) {
+        this.caseManagementUid = caseManagementDto.getCaseManagementUid();
+        this.publicHealthCaseUid = caseManagementDto.getPublicHealthCaseUid();
+        this.status900 = caseManagementDto.getStatus900();
+        this.eharsId = caseManagementDto.getEharsId();
+        this.epiLinkId = caseManagementDto.getEpiLinkId();
+        this.fieldFollUpOojOutcome = caseManagementDto.getFieldFollUpOojOutcome();
+        this.fieldRecordNumber = caseManagementDto.getFieldRecordNumber();
+        this.fldFollUpDispo = caseManagementDto.getFldFollUpDispo();
+        this.fldFollUpDispoDate = caseManagementDto.getFldFollUpDispoDate();
+        this.fldFollUpExamDate = caseManagementDto.getFldFollUpExamDate();
+        this.fldFollUpExpectedDate = caseManagementDto.getFldFollUpExpectedDate();
+        this.fldFollUpExpectedIn = caseManagementDto.getFldFollUpExpectedIn();
+        this.fldFollUpInternetOutcome = caseManagementDto.getFldFollUpInternetOutcome();
+        this.fldFollUpNotificationPlan = caseManagementDto.getFldFollUpNotificationPlan();
+        this.fldFollUpProvDiagnosis = caseManagementDto.getFldFollUpProvDiagnosis();
+        this.fldFollUpProvExmReason = caseManagementDto.getFldFollUpProvExmReason();
+        this.initFollUp = caseManagementDto.getInitFollUp();
+        this.initFollUpClinicCode = caseManagementDto.getInitFollUpClinicCode();
+        this.initFollUpClosedDate = caseManagementDto.getInitFollUpClosedDate();
+        this.initFollUpNotifiable = caseManagementDto.getInitFollUpNotifiable();
+        this.internetFollUp = caseManagementDto.getInternetFollUp();
+        this.oojAgency = caseManagementDto.getOojAgency();
+        this.oojDueDate = caseManagementDto.getOojDueDate();
+        this.oojNumber = caseManagementDto.getOojNumber();
+        this.patIntvStatusCd = caseManagementDto.getPatIntvStatusCd();
+        this.subjComplexion = caseManagementDto.getSubjComplexion();
+        this.subjHair = caseManagementDto.getSubjHair();
+        this.subjHeight = caseManagementDto.getSubjHeight();
+        this.subjOthIdntfyngInfo = caseManagementDto.getSubjOthIdntfyngInfo();
+        this.subjSizeBuild = caseManagementDto.getSubjSizeBuild();
+        this.survClosedDate = caseManagementDto.getSurvClosedDate();
+        this.survPatientFollUp = caseManagementDto.getSurvPatientFollUp();
+        this.survProvDiagnosis = caseManagementDto.getSurvProvDiagnosis();
+        this.survProvExmReason = caseManagementDto.getSurvProvExmReason();
+        this.survProviderContact = caseManagementDto.getSurvProviderContact();
+        this.actRefTypeCd = caseManagementDto.getActRefTypeCd();
+        this.initiatingAgncy = caseManagementDto.getInitiatingAgncy();
+        this.oojInitgAgncyOutcDueDate = caseManagementDto.getOojInitgAgncyOutcDueDate();
+        this.oojInitgAgncyOutcSntDate = caseManagementDto.getOojInitgAgncyOutcSntDate();
+        this.oojInitgAgncyRecdDate = caseManagementDto.getOojInitgAgncyRecdDate();
+        this.isCaseManagementDTPopulated = caseManagementDto.isCaseManagementDTPopulated();
+        this.caseReviewStatus = caseManagementDto.getCaseReviewStatus();
+        this.survAssignedDate = caseManagementDto.getSurvAssignedDate();
+        this.follUpAssignedDate = caseManagementDto.getFollUpAssignedDate();
+        this.initFollUpAssignedDate = caseManagementDto.getInitFollUpAssignedDate();
+        this.interviewAssignedDate = caseManagementDto.getInterviewAssignedDate();
+        this.initInterviewAssignedDate = caseManagementDto.getInitInterviewAssignedDate();
+        this.caseClosedDate = caseManagementDto.getCaseClosedDate();
+        this.caseReviewStatusDate = caseManagementDto.getCaseReviewStatusDate();
+        this.localId = caseManagementDto.getLocalId();
+    }
+
 }

@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EDXEventProcessDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.PublicHealthCaseDT;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
@@ -131,6 +132,43 @@ public class PublicHealthCaseStoredProcRepository {
                 models.add(model);
             }
             return models;
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage());
+        }
+
+    }
+
+
+    @Transactional
+    public   Map<String, EDXEventProcessDT> getEDXEventProcessMap(Long nbsDocumentUid) throws DataProcessingException {
+        Map<String, EDXEventProcessDT> eventProcessMap = new HashMap<>();
+        try {
+
+            StoredProcedureQuery storedProcedure = entityManager.createStoredProcedureQuery("GETEDXEVENTPROCESSBYDOCID_SP");
+
+            // Register the parameters
+            storedProcedure.registerStoredProcedureParameter("nbsDocumentUid", Long.class, ParameterMode.IN);
+
+
+            // Set the parameter values
+
+            // Execute the stored procedure
+            storedProcedure.execute();
+            List<Object[]> results = storedProcedure.getResultList();
+            for (Object[] rs : results) {
+                EDXEventProcessDT edxEventProcessDT = new EDXEventProcessDT();
+                edxEventProcessDT.setEDXEventProcessUid((Long) rs[1]);
+                edxEventProcessDT.setNbsDocumentUid((Long) rs[2]);
+                edxEventProcessDT.setNbsEventUid((Long) rs[3]);
+                edxEventProcessDT.setSourceEventId((String) rs[4]);
+                edxEventProcessDT.setDocEventTypeCd((String) rs[5]);
+                edxEventProcessDT.setAddUserId((Long) rs[6]);
+                edxEventProcessDT.setAddTime((Timestamp) rs[7]);
+                edxEventProcessDT.setParsedInd((String) rs[8]);
+                eventProcessMap.put(edxEventProcessDT.getSourceEventId(), edxEventProcessDT);
+
+            }
+            return eventProcessMap;
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
         }

@@ -1,15 +1,14 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.repos;
 
-import com.fasterxml.jackson.core.StreamReadCapability;
-import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.CTContactSummaryDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EDXEventProcessDT;
 import gov.cdc.dataprocessing.model.container.*;
 import gov.cdc.dataprocessing.model.dto.generic_helper.StateDefinedFieldDataDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.LabResult;
-import gov.cdc.dataprocessing.utilities.component.QueryHelper;
+import gov.cdc.dataprocessing.model.dto.nbs.NBSDocumentDto;
+import gov.cdc.dataprocessing.model.dto.person.PersonDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PublicHealthCaseStoredProcRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
@@ -25,6 +24,11 @@ import static gov.cdc.dataprocessing.constant.ComplexQueries.*;
 public class CustomRepositoryImpl implements CustomRepository {
     @PersistenceContext(unitName = "odse")
     private EntityManager entityManager;
+    private final PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository;
+
+    public CustomRepositoryImpl(PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository) {
+        this.publicHealthCaseStoredProcRepository = publicHealthCaseStoredProcRepository;
+    }
 
     public List<StateDefinedFieldDataDto> getLdfCollection(Long busObjectUid, String conditionCode, String theQuery) {
         Query query = entityManager.createNativeQuery(theQuery);
@@ -535,6 +539,89 @@ public class CustomRepositoryImpl implements CustomRepository {
         }
         return ctContactSummaryDTCollection;
     }
+
+    public NbsDocumentContainer getNbsDocument(Long nbsUid) throws DataProcessingException {
+        Query query = entityManager.createNativeQuery(GET_NBS_DOCUMENT);
+
+        NBSDocumentDto container = new NBSDocumentDto();
+        NbsDocumentContainer nbsDocumentVO = new NbsDocumentContainer();
+        query.setParameter("NbsUid", nbsUid);
+
+        List<Object[]> results = query.getResultList();
+        if (results != null && !results.isEmpty()) {
+            for(var item : results) {
+                int i = 0;
+                container.setNbsDocumentUid(dataNotNull(item[i]) ? Long.valueOf(item[i].toString()): null);
+                container.setLocalId(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+                container.setDocTypeCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+                container.setJurisdictionCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+                container.setProgAreaCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+                container.setDocStatusCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+                container.setAddTime(dataNotNull(item[++i]) ? Timestamp.valueOf(item[i].toString()): null);
+                container.setTxt(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+                container.setVersionCtrlNbr(dataNotNull(item[++i]) ? Integer.valueOf(item[i].toString()): null);
+                container.setDocPurposeCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+                container.setCdDescTxt(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+                container.setSendingFacilityNm(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+                container.setAddUserId(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
+                container.setRecordStatusCd(dataNotNull(item[++i]) ? String.valueOf(Long.parseLong(item[i].toString())): null);
+                container.setProcessingDecisionCd(dataNotNull(item[++i]) ? String.valueOf(Long.parseLong(item[i].toString())): null);
+                container.setProcessingDecisiontxt(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+                container.setExternalVersionCtrlNbr(dataNotNull(item[++i]) ? Integer.valueOf(item[i].toString()): null);
+                container.setCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+
+
+                container.setPayLoadTxt(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+                container.setPhdcDocDerivedTxt(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+                container.setPayloadViewIndCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+                container.setNbsDocumentMetadataUid(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
+                container.setRecordStatusTime(dataNotNull(item[++i]) ? Timestamp.valueOf(item[i].toString()): null);
+                container.setProgramJurisdictionOid(dataNotNull(item[++i]) ? Long.valueOf(Long.parseLong(item[i].toString())): null);
+                container.setSharedInd(dataNotNull(item[++i]) ? String.valueOf(Long.parseLong(item[i].toString())): null);
+                container.setLastChgUserId(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
+                container.setNbsInterfaceUid(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
+                container.setDocEventTypeCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+
+                container.setEffectiveTime(dataNotNull(item[++i]) ? Timestamp.valueOf(item[i].toString()): null);
+
+
+                PersonContainer personVO = new PersonContainer();
+                PersonDto personDT = new PersonDto();
+                personDT.setPersonUid(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
+                personDT.setPersonParentUid(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
+                personVO.setThePersonDto(personDT);
+                nbsDocumentVO.setPatientVO(personVO);
+                nbsDocumentVO.setNbsDocumentDT(container);
+                nbsDocumentVO.setEDXEventProcessDTMap(publicHealthCaseStoredProcRepository.getEDXEventProcessMap(container.getNbsDocumentUid()));
+            }
+        }
+        return nbsDocumentVO;
+    }
+
+
+    public ArrayList<Object> getInvListForCoInfectionId(Long mprUid,String coInfectionId) throws DataProcessingException {
+        ArrayList<Object> coinfectionInvList = new ArrayList<>();
+
+        Query query = entityManager.createNativeQuery(COINFECTION_INV_LIST_FOR_GIVEN_COINFECTION_ID_SQL);
+
+        query.setParameter("CoInfect", coInfectionId);
+        query.setParameter("PersonUid", mprUid);
+
+
+        List<Object[]> results = query.getResultList();
+        if (results != null && !results.isEmpty()) {
+            for(var item : results) {
+                int i = 0;
+                CoinfectionSummaryContainer container = new CoinfectionSummaryContainer();
+                container.setPublicHealthCaseUid(dataNotNull(item[i]) ? Long.valueOf(item[i].toString()): null);
+                container.setConditionCd(dataNotNull(item[i++]) ? String.valueOf(item[i].toString()): null);
+                coinfectionInvList.add(container);
+            }
+        }
+        return coinfectionInvList;
+    }
+
+
 
     private boolean dataNotNull(Object string) {
         return string != null;

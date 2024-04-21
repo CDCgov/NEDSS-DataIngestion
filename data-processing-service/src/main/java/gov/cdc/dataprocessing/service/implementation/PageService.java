@@ -4,6 +4,7 @@ import gov.cdc.dataprocessing.constant.MessageConstants;
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.CaseManagementDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EDXEventProcessDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.PublicHealthCaseDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxyVO;
@@ -15,16 +16,21 @@ import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.log.MessageLogDto;
-import gov.cdc.dataprocessing.model.dto.log.NNDActivityLogDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
 import gov.cdc.dataprocessing.service.interfaces.IInvestigationService;
 import gov.cdc.dataprocessing.service.interfaces.IPageService;
+import gov.cdc.dataprocessing.service.interfaces.IRetrieveSummaryService;
+import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
+import gov.cdc.dataprocessing.service.interfaces.public_health_case.IPublicHealthCaseService;
+import gov.cdc.dataprocessing.utilities.component.*;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -36,14 +42,49 @@ public class PageService implements IPageService {
     private final IInvestigationService investigationService;
     private final PatientRepositoryUtil patientRepositoryUtil;
     private final PrepareAssocModelHelper prepareAssocModelHelper;
+    private final IUidService uidService;
+    private final PamRepositoryUtil pamRepositoryUtil;
+    private final IPublicHealthCaseService publicHealthCaseService;
+    private final IRetrieveSummaryService retrieveSummaryService;
+    private final ActRelationshipRepositoryUtil actRelationshipRepositoryUtil;
+    private final EdxEventProcessRepositoryUtil edxEventProcessRepositoryUtil;
+    private final ParticipationRepositoryUtil participationRepositoryUtil;
+    private final CustomRepository customRepository;
+    private final NbsDocumentRepositoryUtil nbsDocumentRepositoryUtil;
+    private final NbsNoteRepositoryUtil nbsNoteRepositoryUtil;
+
+    private final AssociatedInvestigationUtil associatedInvestigationUtil;
 
 
 
     public PageService(IInvestigationService investigationService,
-                       PatientRepositoryUtil patientRepositoryUtil, PrepareAssocModelHelper prepareAssocModelHelper) {
+                       PatientRepositoryUtil patientRepositoryUtil,
+                       PrepareAssocModelHelper prepareAssocModelHelper,
+                       IUidService uidService,
+                       PamRepositoryUtil pamRepositoryUtil,
+                       IPublicHealthCaseService publicHealthCaseService,
+                       IRetrieveSummaryService retrieveSummaryService,
+                       ActRelationshipRepositoryUtil actRelationshipRepositoryUtil,
+                       EdxEventProcessRepositoryUtil edxEventProcessRepositoryUtil,
+                       ParticipationRepositoryUtil participationRepositoryUtil,
+                       CustomRepository customRepository,
+                       NbsDocumentRepositoryUtil nbsDocumentRepositoryUtil,
+                       NbsNoteRepositoryUtil nbsNoteRepositoryUtil,
+                       AssociatedInvestigationUtil associatedInvestigationUtil) {
         this.investigationService = investigationService;
         this.patientRepositoryUtil = patientRepositoryUtil;
         this.prepareAssocModelHelper = prepareAssocModelHelper;
+        this.uidService = uidService;
+        this.pamRepositoryUtil = pamRepositoryUtil;
+        this.publicHealthCaseService = publicHealthCaseService;
+        this.retrieveSummaryService = retrieveSummaryService;
+        this.actRelationshipRepositoryUtil = actRelationshipRepositoryUtil;
+        this.edxEventProcessRepositoryUtil = edxEventProcessRepositoryUtil;
+        this.participationRepositoryUtil = participationRepositoryUtil;
+        this.customRepository = customRepository;
+        this.nbsDocumentRepositoryUtil = nbsDocumentRepositoryUtil;
+        this.nbsNoteRepositoryUtil = nbsNoteRepositoryUtil;
+        this.associatedInvestigationUtil = associatedInvestigationUtil;
     }
 
     public Long setPageProxyWithAutoAssoc(String typeCd, PageActProxyVO pageProxyVO, Long observationUid,
@@ -164,18 +205,19 @@ public class PageService implements IPageService {
                     // update auto resend notifications
                     investigationService.updateAutoResendNotificationsAsync(pageActProxyVO);
                 } catch (Exception e) {
-                    NNDActivityLogDto nndActivityLogDT = new NNDActivityLogDto();
-                    String phcLocalId = pageActProxyVO.getPublicHealthCaseVO()
-                            .getThePublicHealthCaseDT().getLocalId();
-                    nndActivityLogDT.setErrorMessageTxt(e.toString());
-                    if (phcLocalId != null)
-                        nndActivityLogDT.setLocalId(phcLocalId);
-                    else
-                        nndActivityLogDT.setLocalId("N/A");
-                    // catch & store auto resend notifications exceptions in
-                    // NNDActivityLog table
-                    nndMessageSenderHelper.persistNNDActivityLog(nndActivityLogDT);
-                    e.printStackTrace();
+                    //TODO: LOG NND LOG
+//                    NNDActivityLogDto nndActivityLogDT = new NNDActivityLogDto();
+//                    String phcLocalId = pageActProxyVO.getPublicHealthCaseVO()
+//                            .getThePublicHealthCaseDT().getLocalId();
+//                    nndActivityLogDT.setErrorMessageTxt(e.toString());
+//                    if (phcLocalId != null)
+//                        nndActivityLogDT.setLocalId(phcLocalId);
+//                    else
+//                        nndActivityLogDT.setLocalId("N/A");
+//                    // catch & store auto resend notifications exceptions in
+//                    // NNDActivityLog table
+//                    nndMessageSenderHelper.persistNNDActivityLog(nndActivityLogDT);
+//                    e.printStackTrace();
                 }
             }
             if (pageActProxyVO.isItNew() && (!pageActProxyVO.isItDirty())) {
@@ -261,7 +303,7 @@ public class PageService implements IPageService {
 
                             // replace the falseId with the realId
                             if (falseUid.intValue() < 0) {
-                                setFalseToNew(pageActProxyVO, falseUid, realUid);
+                                uidService.setFalseToNewForPageAct(pageActProxyVO, falseUid, realUid);
                             }
                         } else if (personVO.isItDirty()) {
                             if (personVO.getThePersonDto().getCd().equals(
@@ -300,7 +342,7 @@ public class PageService implements IPageService {
                     publicHealthCaseVO.getThePublicHealthCaseDT().setPageCase(true);
                     if(pageActProxyVO.isItDirty())
                     {
-                        nbsHistoryDAO.getPamHistory(pageActProxyVO.getPublicHealthCaseVO());
+                        pamRepositoryUtil.getPamHistory(pageActProxyVO.getPublicHealthCaseVO());
                     }
                     PublicHealthCaseDT publicHealthCaseDT = publicHealthCaseVO
                             .getThePublicHealthCaseDT();
@@ -329,15 +371,13 @@ public class PageService implements IPageService {
 
                     falsePublicHealthCaseUid = publicHealthCaseVO
                             .getThePublicHealthCaseDT().getPublicHealthCaseUid();
-                    actualUid = actController.setPublicHealthCase(
-                            publicHealthCaseVO);
+                    actualUid = publicHealthCaseService.setPublicHealthCase(publicHealthCaseVO);
                     phcUid= actualUid;
                     logger.debug("actualUid.intValue() = " + actualUid.intValue());
                     if (falsePublicHealthCaseUid.intValue() < 0) {
                         logger.debug("falsePublicHealthCaseUid.intValue() = "
                                 + falsePublicHealthCaseUid.intValue());
-                        setFalseToNew(pageActProxyVO, falsePublicHealthCaseUid,
-                                actualUid);
+                        uidService.setFalseToNewForPageAct(pageActProxyVO, falsePublicHealthCaseUid, actualUid);
                         publicHealthCaseVO.getThePublicHealthCaseDT()
                                 .setPublicHealthCaseUid(actualUid);
                     }
@@ -367,7 +407,8 @@ public class PageService implements IPageService {
 
                     }
                     try {
-                        messageLogDAOImpl.storeMessageLogDTCollection(pageActProxyVO.getMessageLogDTMap().values());
+                        //TODO: Message Log
+                        //messageLogDAOImpl.storeMessageLogDTCollection(pageActProxyVO.getMessageLogDTMap().values());
                     } catch (Exception e) {
                         logger.error("Unable to store the Error message for = "
                                 + falsePublicHealthCaseUid.intValue());
@@ -418,7 +459,7 @@ public class PageService implements IPageService {
                                 if (trigCd != null) {
                                     // we only need to update notification when
                                     // trigCd is not null
-                                    RetrieveSummaryVO.updateNotification(
+                                    retrieveSummaryService.updateNotification(
                                             notificationUid, trigCd, phcCd,
                                             phcClassCd, progAreaCd, jurisdictionCd,
                                             sharedInd);
@@ -430,7 +471,7 @@ public class PageService implements IPageService {
                 }
                 Long docUid = null;
 
-                Iterator<Object> anIteratorActRelationship = null;
+                Iterator<ActRelationshipDto> anIteratorActRelationship = null;
                 if (pageActProxyVO.getPublicHealthCaseVO().getTheActRelationshipDTCollection() != null) {
                     for (anIteratorActRelationship = pageActProxyVO.getPublicHealthCaseVO()
                             .getTheActRelationshipDTCollection().iterator(); anIteratorActRelationship
@@ -448,10 +489,10 @@ public class PageService implements IPageService {
                         logger.debug("Got into The ActRelationship loop");
                         try {
                             if (actRelationshipDT.isItDelete()) {
-                                insertActRelationshipHistory(actRelationshipDT);
+                                actRelationshipRepositoryUtil.insertActRelationshipHist(actRelationshipDT);
 
                             }
-                            actRelationshipDAOImpl.store(actRelationshipDT);
+                            actRelationshipRepositoryUtil.storeActRelationship(actRelationshipDT);
                             logger
                                     .debug("Got into The ActRelationship, The ActUid is "
                                             + actRelationshipDT.getTargetActUid());
@@ -468,7 +509,7 @@ public class PageService implements IPageService {
                             .getEdxEventProcessDTCollection()) {
                         if(processDT.getDocEventTypeCd()!=null && processDT.getDocEventTypeCd().equals(NEDSSConstant.CASE))
                             processDT.setNbsEventUid(phcUid);
-                        documentDAO.insertEventProcessDTs(processDT);
+                        edxEventProcessRepositoryUtil.insertEventProcess(processDT);
                         logger.debug("Inserted the event Process for sourceId: "
                                 + processDT.getSourceEventId());
                     }
@@ -482,7 +523,7 @@ public class PageService implements IPageService {
                     try {
 
                         // get the
-                        NbsDocumentContainer nbsDocVO = nbsDocument.getNBSDocumentWithoutActRelationship(docUid);
+                        NbsDocumentContainer nbsDocVO = nbsDocumentRepositoryUtil.getNBSDocumentWithoutActRelationship(docUid);
                         if (nbsDocVO.getNbsDocumentDT().getJurisdictionCd() == null
                                 || (nbsDocVO.getNbsDocumentDT().getJurisdictionCd() != null && nbsDocVO
                                 .getNbsDocumentDT().getJurisdictionCd()
@@ -491,7 +532,7 @@ public class PageService implements IPageService {
                                     pageActProxyVO.getPublicHealthCaseVO()
                                             .getThePublicHealthCaseDT()
                                             .getJurisdictionCd());
-                        nbsDocument.updateDocumentWithOutthePatient(nbsDocVO);
+                        nbsDocumentRepositoryUtil.updateDocumentWithOutthePatient(nbsDocVO);
                     } catch (Exception e) {
                         logger.error("Error while updating the Document table", e
                                 .getMessage(), e);
@@ -509,17 +550,17 @@ public class PageService implements IPageService {
                                 .next();
                         try {
                             if (participationDT.isItDelete()) {
-                                insertParticipationHistory(participationDT);
+                                participationRepositoryUtil.insertParticipationHist(participationDT);
 
                             }
-                            participationDAOImpl.store(participationDT);
+                            participationRepositoryUtil.storeParticipation(participationDT);
                         } catch (Exception e) {
                             throw new DataProcessingException(e.getMessage());
                         }
                     }
                 }
                 if( pageActProxyVO.isUnsavedNote() && pageActProxyVO.getNbsNoteDTColl()!=null && pageActProxyVO.getNbsNoteDTColl().size()>0){
-                    PageCaseUtil.storeNotes(actualUid, pageActProxyVO.getNbsNoteDTColl());
+                    nbsNoteRepositoryUtil.storeNotes(actualUid, pageActProxyVO.getNbsNoteDTColl());
 
                 }
                 if (pageActProxyVO.getPageVO() != null && pageActProxyVO.isItNew()) {
@@ -541,7 +582,7 @@ public class PageService implements IPageService {
                     && !pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getCoinfectionId().
                     equalsIgnoreCase(NEDSSConstant.COINFCTION_GROUP_ID_NEW_CODE) && mprUid!=null
                     && !pageActProxyVO.isMergeCase() && !NEDSSConstant.INVESTIGATION_STATUS_CODE_CLOSED.equals(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getInvestigationStatusCd())) {
-                coInfectionUtil.updatForConInfectionId(pageActProxyVO, mprUid, actualUid);
+                associatedInvestigationUtil.updatForConInfectionId(pageActProxyVO, mprUid, actualUid);
             }
 
             if(pageActProxyVO.getPublicHealthCaseVO().getTheCaseManagementDT()!=null) {
@@ -557,6 +598,36 @@ public class PageService implements IPageService {
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
+
+    private void updateNamedAsContactDisposition(CaseManagementDT caseManagementDT) throws DataProcessingException {
+        if (caseManagementDT.getPublicHealthCaseUid() == null)  //auto field followup create in progress..
+            return;
+        try {
+
+            String dispositionCd =caseManagementDT.getFldFollUpDispo();
+            if(dispositionCd!=null && dispositionCd.equalsIgnoreCase(NEDSSConstant.FROM1_A_PREVENTATIVE_TREATMENT)) {
+                dispositionCd = NEDSSConstant.TO1_Z_PREVIOUS_PREVENTATIVE_TREATMENT;
+            }
+            else if(dispositionCd!=null && dispositionCd.equalsIgnoreCase(NEDSSConstant.FROM2_C_INFECTED_BROUGHT_TO_TREATMENT)) {
+                dispositionCd = NEDSSConstant.TO2_E_PREVIOUSLY_TREATED_FOR_THIS_INFECTION;
+            }
+            Timestamp fldFollowUpDispDate=caseManagementDT.getFldFollUpDispoDate();
+
+
+            int numbersOfAssociatedContactRecords= ctContactDAO.countNamedAsContactDispoInvestigations(caseManagementDT.getPublicHealthCaseUid());
+            logger.debug("numbersOfAssociatedContactRecords is "+numbersOfAssociatedContactRecords);
+
+            if(numbersOfAssociatedContactRecords>0) {
+                ctContactDAO.updateNamedAsContactDispoInvestigation(dispositionCd,fldFollowUpDispDate, caseManagementDT.getPublicHealthCaseUid());
+                logger.debug("updateNamedAsContactDisposition update was successful for "+numbersOfAssociatedContactRecords+" numbers of associated investigations.");
+            }
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(),e);
+        }
+    }
+
+
+
 
 
 }

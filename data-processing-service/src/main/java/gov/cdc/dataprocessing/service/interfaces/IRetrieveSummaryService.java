@@ -15,4 +15,11 @@ public interface IRetrieveSummaryService {
     Map<Object,Object> retrieveTreatmentSummaryVOForInv(Long publicHealthUID) throws DataProcessingException;
     Map<Object,Object> retrieveDocumentSummaryVOForInv(Long publicHealthUID) throws DataProcessingException;
     Map<Object,Object> getAssociatedDocumentList(Long uid, String targetClassCd, String sourceClassCd) throws DataProcessingException;
+    void updateNotification(Long notificationUid,
+                            String businessTriggerCd,
+                            String phcCd,
+                            String phcClassCd,
+                            String progAreaCd,
+                            String jurisdictionCd,
+                            String sharedInd) throws DataProcessingException;
 }

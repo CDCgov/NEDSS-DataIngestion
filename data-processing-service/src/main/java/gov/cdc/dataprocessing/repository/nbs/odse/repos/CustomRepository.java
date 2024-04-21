@@ -39,4 +39,6 @@ public interface CustomRepository {
     Map<Object, Object> getAssociatedDocumentList(Long uid, String targetClassCd, String sourceClassCd, String theQuery);
 
     List<StateDefinedFieldDataDto> getLdfCollection(Long busObjectUid, String conditionCode, String theQuery);
+    NbsDocumentContainer getNbsDocument(Long nbsUid) throws DataProcessingException;
+    ArrayList<Object> getInvListForCoInfectionId(Long mprUid,String coInfectionId) throws DataProcessingException;
 }
