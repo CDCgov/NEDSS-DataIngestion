@@ -1562,8 +1562,7 @@ public class InvestigationService implements IInvestigationService {
 
 
             // Step 1: Get the Public Health Case
-            thePublicHealthCaseVO = actController.getPublicHealthCase(
-                    publicHealthCaseUID, nbsSecurityObj);
+            thePublicHealthCaseVO = publicHealthCaseRepositoryUtil.loadObject(publicHealthCaseUID);
 
             // before returning PublicHealthCaseVO check security permissions -
             // if no permissions - terminate
@@ -1577,17 +1576,17 @@ public class InvestigationService implements IInvestigationService {
 //            logger
 //                    .info("nbsSecurityObj.checkDataAccess(thePublicHealthCaseVO.getThePublicHealthCaseDT(), NedssBOLookup.INVESTIGATION, NBSOperationLookup.VIEW) is true");
 
-            NBSAuthHelper helper = new NBSAuthHelper();
-            thePublicHealthCaseVO.getThePublicHealthCaseDT().setAddUserName(
-                    helper.getUserName(thePublicHealthCaseVO
-                            .getThePublicHealthCaseDT().getAddUserId()));
-            thePublicHealthCaseVO.getThePublicHealthCaseDT()
-                    .setLastChgUserName(
-                            helper.getUserName(thePublicHealthCaseVO
-                                    .getThePublicHealthCaseDT()
-                                    .getLastChgUserId()));
 
-            BasePamContainer pageVO = pamRootDAO.getPamVO(publicHealthCaseUID);
+
+            //TODO: Auth
+//            NBSAuthHelper helper = new NBSAuthHelper();
+//            thePublicHealthCaseVO.getThePublicHealthCaseDT().setAddUserName(helper.getUserName(thePublicHealthCaseVO.getThePublicHealthCaseDT().getAddUserId()));
+//            thePublicHealthCaseVO.getThePublicHealthCaseDT().setLastChgUserName(helper.getUserName(thePublicHealthCaseVO.getThePublicHealthCaseDT().getLastChgUserId()));
+            thePublicHealthCaseVO.getThePublicHealthCaseDT().setAddUserName("212121");
+            thePublicHealthCaseVO.getThePublicHealthCaseDT().setLastChgUserName("212121");
+
+
+            BasePamContainer pageVO = publicHealthCaseRepositoryUtil.getPamVO(publicHealthCaseUID);
             pageProxyVO.setPageVO(pageVO);
             String strTypeCd;
             String strClassCd;
@@ -1624,7 +1623,7 @@ public class InvestigationService implements IInvestigationService {
                         && recordStatusCd != null
                         && recordStatusCd
                         .equals(NEDSSConstant.RECORD_STATUS_ACTIVE)) {
-                    thePersonVOCollection.add(thePersonVOCollection.add(patientRepositoryUtil.loadPerson(nEntityID)));
+                    thePersonVOCollection.add(patientRepositoryUtil.loadPerson(nEntityID));
                     continue;
                 }
                 if (strClassCd != null
@@ -1647,9 +1646,7 @@ public class InvestigationService implements IInvestigationService {
             pageProxyVO.setPublicHealthCaseVO(thePublicHealthCaseVO);
             pageProxyVO.setThePersonContainerCollection(thePersonVOCollection);
 
-            pageProxyVO.setTheNotificationSummaryVOCollection(RetrieveSummaryVO
-                    .notificationSummaryOnInvestigation(thePublicHealthCaseVO,
-                            pageProxyVO, nbsSecurityObj));
+            pageProxyVO.setTheNotificationSummaryVOCollection(retrieveSummaryService.notificationSummaryOnInvestigation(thePublicHealthCaseVO, pageProxyVO));
 
             if (pageProxyVO.getTheNotificationSummaryVOCollection() != null) {
                 Iterator<Object> it = pageProxyVO
@@ -1764,10 +1761,10 @@ public class InvestigationService implements IInvestigationService {
                 Collection<Object> labSumVOCol = new ArrayList<Object>();
                 HashMap<Object, Object> labSumVOMap = new HashMap<Object, Object>();
 
-                if (nbsSecurityObj.getPermission(NBSBOLookup.OBSERVATIONLABREPORT,
-                        NBSOperationLookup.VIEW,
-                        ProgramAreaJurisdictionUtil.ANY_PROGRAM_AREA,
-                        ProgramAreaJurisdictionUtil.ANY_JURISDICTION)) {
+//                if (nbsSecurityObj.getPermission(NBSBOLookup.OBSERVATIONLABREPORT,
+//                        NBSOperationLookup.VIEW,
+//                        ProgramAreaJurisdictionUtil.ANY_PROGRAM_AREA,
+//                        ProgramAreaJurisdictionUtil.ANY_JURISDICTION)) {
 
                     String labReportViewClause = queryHelper
                             .getDataAccessWhereClause(
@@ -1827,15 +1824,19 @@ public class InvestigationService implements IInvestigationService {
                                 + labSumVOCol.size());
                     }
                     //Add the associated labs from PHDC document
-                    Map<String, EDXEventProcessDT> edxEventsMap = nbsDAO.getEDXEventProcessMapByCaseId(thePublicHealthCaseVO.getThePublicHealthCaseDT().getPublicHealthCaseUid());
-                    CDAEventSummaryParser cdaParser = new CDAEventSummaryParser();
-                    Map<Long, LabReportSummaryContainer> labMapfromDOC = cdaParser.getLabReportMapByPHCUid(edxEventsMap, nbsSecurityObj);
-                    if(labMapfromDOC!=null && labMapfromDOC.size()>0)
+                //TODO: CDA EVENT SUMMARY PARSER
+//                    Map<String, EDXEventProcessDT> edxEventsMap = nbsDAO.getEDXEventProcessMapByCaseId(thePublicHealthCaseVO.getThePublicHealthCaseDT().getPublicHealthCaseUid());
+//                    CDAEventSummaryParser cdaParser = new CDAEventSummaryParser();
+//                    Map<Long, LabReportSummaryContainer> labMapfromDOC = cdaParser.getLabReportMapByPHCUid(edxEventsMap, nbsSecurityObj);
+
+                Map<Long, LabReportSummaryContainer> labMapfromDOC =  new HashMap<>();
+
+                if(labMapfromDOC!=null && labMapfromDOC.size()>0)
                         labSumVOCol.addAll(labMapfromDOC.values());
-                } else {
-                    logger
-                            .debug("user has no permission to view ObservationSummaryVO collection");
-                }
+//                } else {
+//                    logger
+//                            .debug("user has no permission to view ObservationSummaryVO collection");
+//                }
 
                 if (labSumVOCol != null) {
                     pageProxyVO.setTheLabReportSummaryVOCollection(labSumVOCol);
@@ -1961,34 +1962,38 @@ public class InvestigationService implements IInvestigationService {
 
                 // Added this for Investigation audit log summary on the RVCT
                 // Page(civil00014862)
-                if (nbsSecurityObj.getPermission(NBSBOLookup.INVESTIGATION,
-                        NBSOperationLookup.VIEW)) {
+
+//                if (nbsSecurityObj.getPermission(NBSBOLookup.INVESTIGATION,
+//                        NBSOperationLookup.VIEW)) {
 
                     logger.debug("About to get AuditLogSummary for Investigation");
-                    theInvestigationAuditLogSummaryVOCollection = new ArrayList<Object>(
-                            (summaryVO.retrieveInvestigationAuditLogSummaryVO(publicHealthCaseUID)));
+
+                //TODO: AUDIT COLLECTION
+                    theInvestigationAuditLogSummaryVOCollection = new ArrayList<>();
+//                            new ArrayList<Object>(
+//                            (summaryVO.retrieveInvestigationAuditLogSummaryVO(publicHealthCaseUID)));
 
                     logger.debug("Number of Investigation Auditlog summary found: "
                             + theInvestigationAuditLogSummaryVOCollection.size());
                     pageProxyVO
                             .setTheInvestigationAuditLogSummaryVOCollection(theInvestigationAuditLogSummaryVOCollection);
-                } else {
-                    logger
-                            .debug("user has no permission to view InvestigationAuditLogSummaryVO collection");
-                }
+//                } else {
+//                    logger
+//                            .debug("user has no permission to view InvestigationAuditLogSummaryVO collection");
+//                }
 
                 // End (civil00014862)
 
                 // Begin support for Document Summary Section
-                if (nbsSecurityObj.getPermission(NBSBOLookup.DOCUMENT, NBSOperationLookup.VIEW)) {
+//                if (nbsSecurityObj.getPermission(NBSBOLookup.DOCUMENT, NBSOperationLookup.VIEW)) {
                     theDocumentSummaryVOCollection = new ArrayList<Object>(
                             retrieveSummaryService.retrieveDocumentSummaryVOForInv(publicHealthCaseUID).values());
                     pageProxyVO
                             .setTheDocumentSummaryVOCollection(theDocumentSummaryVOCollection);
-                } else {
-                    logger
-                            .debug("user has no permission to view DocumentSummaryVO collection");
-                }
+//                } else {
+//                    logger
+//                            .debug("user has no permission to view DocumentSummaryVO collection");
+//                }
 
                 //TODO: INTERVIEW
 //                if (nbsSecurityObj.getPermission(NBSBOLookup.INTERVIEW,
@@ -2006,28 +2011,32 @@ public class InvestigationService implements IInvestigationService {
 //                }
 
 
-                if (nbsSecurityObj.getPermission(NBSBOLookup.CT_CONTACT,
-                        NBSOperationLookup.VIEW)) {
+//                if (nbsSecurityObj.getPermission(NBSBOLookup.CT_CONTACT,
+//                        NBSOperationLookup.VIEW)) {
                     Collection<Object> contactCollection = contactSummaryService.getContactListForInvestigation(publicHealthCaseUID);
 
                     pageProxyVO
                             .setTheCTContactSummaryDTCollection(contactCollection);
-                } else {
-                    logger
-                            .debug("user has no permission to view Contact Summary collection");
-                }
+//                } else {
+//                    logger
+//                            .debug("user has no permission to view Contact Summary collection");
+//                }
 
 
-                if (nbsSecurityObj.getPermission(NBSBOLookup.INVESTIGATION,
-                        NBSOperationLookup.VIEW)) {
-                    Collection<Object> nbsCaseAttachmentDTColl = nbsAttachmentDAO.getNbsAttachmentCollection(publicHealthCaseUID);
-                    pageProxyVO.setNbsAttachmentDTColl(nbsCaseAttachmentDTColl);
-                    Collection<NbsNoteDto>  nbsCaseNotesColl = nbsAttachmentDAO.getNbsNoteCollection(publicHealthCaseUID);
-                    pageProxyVO.setNbsNoteDTColl(nbsCaseNotesColl);
-                } else {
-                    logger
-                            .debug("user has no permission to view Investigation : Attachments and Notes are secured by Investigation View Permission");
-                }
+//                if (nbsSecurityObj.getPermission(NBSBOLookup.INVESTIGATION,
+//                        NBSOperationLookup.VIEW)) {
+
+  //TODO: INVESTIGATION
+//                    Collection<Object> nbsCaseAttachmentDTColl = nbsAttachmentDAO.getNbsAttachmentCollection(publicHealthCaseUID);
+//                    pageProxyVO.setNbsAttachmentDTColl(nbsCaseAttachmentDTColl);
+//                    Collection<NbsNoteDto>  nbsCaseNotesColl = nbsAttachmentDAO.getNbsNoteCollection(publicHealthCaseUID);
+//                    pageProxyVO.setNbsNoteDTColl(nbsCaseNotesColl);
+
+
+//                } else {
+//                    logger
+//                            .debug("user has no permission to view Investigation : Attachments and Notes are secured by Investigation View Permission");
+//                }
             }
 
         } catch (Exception e) {

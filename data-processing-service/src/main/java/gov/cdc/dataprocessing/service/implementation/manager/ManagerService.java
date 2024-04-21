@@ -313,9 +313,10 @@ public class ManagerService implements IManagerService {
 
                 if(edxLabInformationDto.getAction().equalsIgnoreCase(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE)){
                     //TODO: 3rd Flow
-                    EDXActivityDetailLogDto edxActivityDetailLogDT = EdxCommonHelper.sendNotification(publicHealthCaseVO, edxLabInformationDto.getNndComment());
+                    //TODO: THIS SEEM TO GO TO LOG
+                 //   EDXActivityDetailLogDto edxActivityDetailLogDT = EdxCommonHelper.sendNotification(publicHealthCaseVO, edxLabInformationDto.getNndComment());
 
-
+                    EDXActivityDetailLogDto edxActivityDetailLogDT = new EDXActivityDetailLogDto();
                     edxActivityDetailLogDT.setRecordType(EdxELRConstant.ELR_RECORD_TP);
                     edxActivityDetailLogDT.setRecordName(EdxELRConstant.ELR_RECORD_NM);
                     ArrayList<Object> details = (ArrayList<Object>)edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails();

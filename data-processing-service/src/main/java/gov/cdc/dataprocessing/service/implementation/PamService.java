@@ -16,6 +16,7 @@ import gov.cdc.dataprocessing.service.interfaces.IRetrieveSummaryService;
 import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IPublicHealthCaseService;
 import gov.cdc.dataprocessing.utilities.component.ActRelationshipRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.NbsNoteRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.ParticipationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
@@ -42,6 +43,8 @@ public class PamService implements IPamService {
 
     private final ActRelationshipRepositoryUtil actRelationshipRepositoryUtil;
 
+    private final NbsNoteRepositoryUtil nbsNoteRepositoryUtil;
+
     public PamService(IInvestigationService investigationService,
                       PatientRepositoryUtil patientRepositoryUtil,
                       PrepareAssocModelHelper prepareAssocModelHelper,
@@ -49,7 +52,7 @@ public class PamService implements IPamService {
                       IPublicHealthCaseService publicHealthCaseService,
                       IUidService uidService,
                       ParticipationRepositoryUtil participationRepositoryUtil,
-                      ActRelationshipRepositoryUtil actRelationshipRepositoryUtil) {
+                      ActRelationshipRepositoryUtil actRelationshipRepositoryUtil, NbsNoteRepositoryUtil nbsNoteRepositoryUtil) {
         this.investigationService = investigationService;
         this.patientRepositoryUtil = patientRepositoryUtil;
         this.prepareAssocModelHelper = prepareAssocModelHelper;
@@ -58,6 +61,7 @@ public class PamService implements IPamService {
         this.uidService = uidService;
         this.participationRepositoryUtil = participationRepositoryUtil;
         this.actRelationshipRepositoryUtil = actRelationshipRepositoryUtil;
+        this.nbsNoteRepositoryUtil = nbsNoteRepositoryUtil;
     }
 
     public Long setPamProxyWithAutoAssoc(PamProxyContainer pamProxyVO, Long observationUid, String observationTypeCd) throws DataProcessingException {
@@ -273,7 +277,8 @@ public class PamService implements IPamService {
                 String businessTriggerCd = null;
                 PublicHealthCaseVO publicHealthCaseVO = pamProxyVO.getPublicHealthCaseVO();
                 publicHealthCaseVO.getThePublicHealthCaseDT().setPamCase(true);
-                nbsHistoryDAO.getPamHistory(pamProxyVO.getPublicHealthCaseVO());
+                //TODO: PAM HISTORY
+//                nbsHistoryDAO.getPamHistory(pamProxyVO.getPublicHealthCaseVO());
                 PublicHealthCaseDT publicHealthCaseDT = publicHealthCaseVO.getThePublicHealthCaseDT();
                 RootDtoInterface rootDTInterface = publicHealthCaseDT;
                 String businessObjLookupName = NBSBOLookup.INVESTIGATION;
@@ -304,7 +309,7 @@ public class PamService implements IPamService {
                         + falsePublicHealthCaseUid.intValue());
             }
             if( pamProxyVO.isUnsavedNote() && pamProxyVO.getNbsNoteDTColl()!=null && pamProxyVO.getNbsNoteDTColl().size()>0){
-                PageCaseUtil.storeNotes(actualUid, pamProxyVO.getNbsNoteDTColl());
+                nbsNoteRepositoryUtil.storeNotes(actualUid, pamProxyVO.getNbsNoteDTColl());
 
             }
             // this collection should only be populated in edit scenario, xz defect 11861 (10/01/04)
@@ -382,12 +387,13 @@ public class PamService implements IPamService {
             if(docUid != null){
                 try{
 
-                    NbsDocumentContainer nbsDocVO = nbsDocument.getNBSDocumentWithoutActRelationship(docUid);
-                    if(nbsDocVO.getNbsDocumentDT().getJurisdictionCd()==null || (nbsDocVO.getNbsDocumentDT().getJurisdictionCd()!=null && nbsDocVO.getNbsDocumentDT().getJurisdictionCd().equals("")))
-                    {
-                        nbsDocVO.getNbsDocumentDT().setJurisdictionCd(pamProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getJurisdictionCd());
-                    }
-                    Long nbsDocumentUid = nbsDocument.updateDocumentWithOutthePatient(nbsDocVO);
+                    //TODO: NBS DOCUMENT
+//                    NbsDocumentContainer nbsDocVO = nbsDocument.getNBSDocumentWithoutActRelationship(docUid);
+//                    if(nbsDocVO.getNbsDocumentDT().getJurisdictionCd()==null || (nbsDocVO.getNbsDocumentDT().getJurisdictionCd()!=null && nbsDocVO.getNbsDocumentDT().getJurisdictionCd().equals("")))
+//                    {
+//                        nbsDocVO.getNbsDocumentDT().setJurisdictionCd(pamProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getJurisdictionCd());
+//                    }
+//                    Long nbsDocumentUid = nbsDocument.updateDocumentWithOutthePatient(nbsDocVO);
                 }catch(Exception e){
                     throw new DataProcessingException(e.getMessage(),e);
                 }
@@ -411,17 +417,18 @@ public class PamService implements IPamService {
                     }
                 }
             }
-            if (pamProxyVO.getPamVO() != null && pamProxyVO.isItNew()) {
-                pamRootDAO.insertPamVO(pamProxyVO.getPamVO(), pamProxyVO.getPublicHealthCaseVO());
-            } else if (pamProxyVO.getPamVO() != null && pamProxyVO.isItDirty()) {
-                pamRootDAO.editPamVO(pamProxyVO.getPamVO(), pamProxyVO.getPublicHealthCaseVO());
-
-            }
-            else
-                logger.error("There is error in setPamProxyVO as pamProxyVO.getPamVO() is null");
-
-            logger.debug("the actual Uid for PamProxy Publichealthcase is "
-                    + actualUid);
+            //TODO: NBS PAM
+//            if (pamProxyVO.getPamVO() != null && pamProxyVO.isItNew()) {
+//                pamRootDAO.insertPamVO(pamProxyVO.getPamVO(), pamProxyVO.getPublicHealthCaseVO());
+//            } else if (pamProxyVO.getPamVO() != null && pamProxyVO.isItDirty()) {
+//                pamRootDAO.editPamVO(pamProxyVO.getPamVO(), pamProxyVO.getPublicHealthCaseVO());
+//
+//            }
+//            else
+//                logger.error("There is error in setPamProxyVO as pamProxyVO.getPamVO() is null");
+//
+//            logger.debug("the actual Uid for PamProxy Publichealthcase is "
+//                    + actualUid);
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(),e);
         }

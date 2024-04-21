@@ -7,9 +7,12 @@ import gov.cdc.dataprocessing.model.*;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.CaseManagementDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.PublicHealthCaseDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PublicHealthCaseVO;
+import gov.cdc.dataprocessing.model.container.BasePamContainer;
 import gov.cdc.dataprocessing.model.dto.ConfirmationMethodDto;
+import gov.cdc.dataprocessing.model.dto.NbsCaseAnswerDto;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.ConfirmationMethod;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.PublicHealthCase;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.Act;
@@ -20,15 +23,13 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActIdRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActLocatorParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsActEntityRepository;
 import gov.cdc.dataprocessing.service.implementation.other.OdseIdGeneratorService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 
 import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.EPILINK;
 
@@ -47,6 +48,14 @@ public class PublicHealthCaseRepositoryUtil {
     private final ConfirmationMethodRepository confirmationMethodRepository;
     private final ActLocatorParticipationRepository actLocatorParticipationRepository;
     private final CaseManagementRepository caseManagementRepository;
+    private final ConfirmationMethodRepositoryUtil confirmationMethodRepositoryUtil;
+    private final CaseManagementRepositoryUtil caseManagementRepositoryUtil;
+    private final ActIdRepositoryUtil actIdRepositoryUtil;
+    private final ActLocatorParticipationRepositoryUtil  actLocatorParticipationRepositoryUtil;
+    private final ActRelationshipRepositoryUtil actRelationshipRepositoryUtil;
+    private final ParticipationRepositoryUtil participationRepositoryUtil;
+    private final NbsCaseAnswerRepository nbsCaseAnswerRepository;
+    private final NbsActEntityRepository actEntityRepository;
 
     public PublicHealthCaseRepositoryUtil(PublicHealthCaseRepository publicHealthCaseRepository,
                                           EntityGroupRepository entityGroupRepository,
@@ -60,7 +69,15 @@ public class PublicHealthCaseRepositoryUtil {
                                           ActIdRepository actIdRepository,
                                           ConfirmationMethodRepository confirmationMethodRepository,
                                           ActLocatorParticipationRepository actLocatorParticipationRepository,
-                                          CaseManagementRepository caseManagementRepository) {
+                                          CaseManagementRepository caseManagementRepository,
+                                          ConfirmationMethodRepositoryUtil confirmationMethodRepositoryUtil,
+                                          CaseManagementRepositoryUtil caseManagementRepositoryUtil,
+                                          ActIdRepositoryUtil actIdRepositoryUtil,
+                                          ActLocatorParticipationRepositoryUtil actLocatorParticipationRepositoryUtil,
+                                          ActRelationshipRepositoryUtil actRelationshipRepositoryUtil,
+                                          ParticipationRepositoryUtil participationRepositoryUtil,
+                                          NbsCaseAnswerRepository nbsCaseAnswerRepository,
+                                          NbsActEntityRepository actEntityRepository) {
         this.publicHealthCaseRepository = publicHealthCaseRepository;
         this.entityGroupRepository = entityGroupRepository;
         this.placeRepository = placeRepository;
@@ -74,9 +91,18 @@ public class PublicHealthCaseRepositoryUtil {
         this.confirmationMethodRepository = confirmationMethodRepository;
         this.actLocatorParticipationRepository = actLocatorParticipationRepository;
         this.caseManagementRepository = caseManagementRepository;
+        this.confirmationMethodRepositoryUtil = confirmationMethodRepositoryUtil;
+        this.caseManagementRepositoryUtil = caseManagementRepositoryUtil;
+        this.actIdRepositoryUtil = actIdRepositoryUtil;
+        this.actLocatorParticipationRepositoryUtil = actLocatorParticipationRepositoryUtil;
+        this.actRelationshipRepositoryUtil = actRelationshipRepositoryUtil;
+        this.participationRepositoryUtil = participationRepositoryUtil;
+        this.nbsCaseAnswerRepository = nbsCaseAnswerRepository;
+        this.actEntityRepository = actEntityRepository;
     }
 
 
+    @Transactional
     //TODO: EVALUATE THIS ONE
     public PublicHealthCaseVO update(PublicHealthCaseVO phcVO) throws DataProcessingException {
         /**
@@ -373,6 +399,37 @@ public class PublicHealthCaseRepositoryUtil {
         }
     }
 
+    public PublicHealthCaseVO loadObject(Long phcUid) throws DataProcessingException {
+        var container = new PublicHealthCaseVO();
+
+        var phcDt = publicHealthCaseRepository.findById(phcUid);
+        if (phcDt.isEmpty()) {
+            throw new DataProcessingException("Public Health Case Not Exist");
+        }
+
+        container.setThePublicHealthCaseDT(new PublicHealthCaseDT(phcDt.get()));
+
+        var confirmLst = confirmationMethodRepositoryUtil.getConfirmationMethodByPhc(phcUid);
+        container.setTheConfirmationMethodDTCollection(confirmLst);
+
+        var caseMag = caseManagementRepositoryUtil.getCaseManagementPhc(phcUid);
+        container.setTheCaseManagementDT(caseMag);
+
+        var actIdLst = actIdRepositoryUtil.GetActIdCollection(phcUid);
+        container.setTheActIdDTCollection(actIdLst);
+
+        var actLoc = actLocatorParticipationRepositoryUtil.getActLocatorParticipationCollection(phcUid);
+        container.setTheActivityLocatorParticipationDTCollection(actLoc);
+
+        var actRe = actRelationshipRepositoryUtil.getActRelationshipCollectionFromSourceId(phcUid);
+        container.setTheActRelationshipDTCollection(actRe);
+
+        var pat = participationRepositoryUtil.getParticipations(phcUid);
+        container.setTheParticipationDTCollection(pat);
+
+        return container;
+    }
+
     public PublicHealthCaseVO getPublicHealthCaseContainer(long publicHealthCaseUid) throws DataProcessingException {
         var phc = findPublicHealthCase(publicHealthCaseUid);
         if (phc == null) {
@@ -436,4 +493,126 @@ public class PublicHealthCaseRepositoryUtil {
         var doc = patientEncounterRepository.findById(uid);
         return doc.map(PatientEncounterDto::new).orElse(null);
     }
+
+    public BasePamContainer getPamVO(Long publicHealthCaseUID) throws DataProcessingException {
+        BasePamContainer pamVO = new BasePamContainer();
+        try{
+            Map<Object,Object> pamAnswerDTReturnMap = getPamAnswerDTMaps(publicHealthCaseUID);
+            Map<Object, Object> nbsAnswerMap =new HashMap<Object, Object>();
+            Map<Object, Object> nbsRepeatingAnswerMap =new HashMap<Object, Object>();
+            if(pamAnswerDTReturnMap.get(NEDSSConstant.NON_REPEATING_QUESTION)!=null){
+                nbsAnswerMap=(HashMap<Object, Object>)pamAnswerDTReturnMap.get(NEDSSConstant.NON_REPEATING_QUESTION);
+            }
+            if(pamAnswerDTReturnMap.get(NEDSSConstant.REPEATING_QUESTION)!=null){
+                nbsRepeatingAnswerMap=(HashMap<Object, Object>)pamAnswerDTReturnMap.get(NEDSSConstant.REPEATING_QUESTION);
+            }
+            pamVO.setPamAnswerDTMap(nbsAnswerMap);
+            pamVO.setPageRepeatingAnswerDTMap(nbsRepeatingAnswerMap);
+
+            Collection<NbsActEntityDto>  pamCaseEntityDTCollection= getActEntityDTCollection(publicHealthCaseUID);
+            pamVO.setActEntityDTCollection(pamCaseEntityDTCollection);
+        }catch(Exception ex){
+            throw new DataProcessingException(ex.toString());
+        }
+        return pamVO;
+    }
+
+    private Collection<NbsActEntityDto>  getActEntityDTCollection(Long actUid){
+        Collection<NbsActEntityDto> lst = new ArrayList<>();
+        var res = actEntityRepository.getNbsActEntitiesByActUid(actUid);
+        if (res.isEmpty()) {
+            return new ArrayList<>();
+        }
+        for (var item : res.get()) {
+            NbsActEntityDto data = new NbsActEntityDto(item);
+            lst.add(data);
+        }
+        return lst;
+    }
+    private Map<Object, Object> getPamAnswerDTMaps(Long publicHealthCaseUID) throws DataProcessingException {
+        NbsCaseAnswerDto nbsAnswerDT = new NbsCaseAnswerDto();
+        ArrayList<Object> PamAnswerDTCollection = new ArrayList<Object>();
+        Map<Object, Object> nbsReturnAnswerMap = new HashMap<Object, Object>();
+        Map<Object, Object> nbsAnswerMap = new HashMap<Object, Object>();
+        Map<Object, Object> nbsRepeatingAnswerMap = new HashMap<Object, Object>();
+        try
+        {
+
+            var pamAnsCol = nbsCaseAnswerRepository.getNbsCaseAnswerByActUid(publicHealthCaseUID);
+            if (pamAnsCol.isEmpty()) {
+                return new HashMap<>();
+            }
+
+            PamAnswerDTCollection = new ArrayList(pamAnsCol.get());
+
+            Iterator<Object> it = PamAnswerDTCollection.iterator();
+            Long nbsQuestionUid = 0L;
+            Collection<Object> coll = new ArrayList<Object>();
+            while (it.hasNext())
+            {
+                NbsCaseAnswerDto pamAnsDT = (NbsCaseAnswerDto) it.next();
+
+                if (pamAnsDT.getNbsQuestionUid() != null
+                        && nbsQuestionUid.longValue() != 0
+                        && pamAnsDT.getNbsQuestionUid().longValue() != nbsQuestionUid
+                        .longValue() && coll.size() > 0) {
+                    nbsAnswerMap.put(nbsQuestionUid, coll);
+                    coll = new ArrayList<Object>();
+                }
+
+                if (pamAnsDT.getAnswerGroupSeqNbr() != null && pamAnsDT.getAnswerGroupSeqNbr() > -1)
+                {
+                    if (nbsRepeatingAnswerMap.get(pamAnsDT.getNbsQuestionUid()) == null)
+                    {
+                        Collection collection = new ArrayList();
+                        collection.add(pamAnsDT);
+                        nbsRepeatingAnswerMap.put(pamAnsDT.getNbsQuestionUid(), collection);
+                    }
+                    else
+                    {
+                        Collection collection = (Collection) nbsRepeatingAnswerMap.get(pamAnsDT.getNbsQuestionUid());
+                        collection.add(pamAnsDT);
+                        nbsRepeatingAnswerMap.put(pamAnsDT.getNbsQuestionUid(), collection);
+                    }
+                }
+                else if ((pamAnsDT.getNbsQuestionUid().compareTo(nbsQuestionUid) == 0) && pamAnsDT.getSeqNbr() != null
+                        && pamAnsDT.getSeqNbr().intValue() > 0)
+                {
+                    coll.add(pamAnsDT);
+                }
+                else if (pamAnsDT.getSeqNbr() != null && pamAnsDT.getSeqNbr().intValue() > 0)
+                {
+                    if (coll.size() > 0)
+                    {
+                        nbsAnswerMap.put(nbsQuestionUid, coll);
+                        coll = new ArrayList<Object>();
+                    }
+                    coll.add(pamAnsDT);
+                }
+                else
+                {
+                    if (coll.size() > 0)
+                    {
+                        nbsAnswerMap.put(nbsQuestionUid, coll);
+                    }
+                    nbsAnswerMap.put(pamAnsDT.getNbsQuestionUid(), pamAnsDT);
+                    coll = new ArrayList<Object>();
+                }
+                nbsQuestionUid = pamAnsDT.getNbsQuestionUid();
+                if (!it.hasNext() && coll.size() > 0)
+                {
+                    nbsAnswerMap.put(pamAnsDT.getNbsQuestionUid(), coll);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new DataProcessingException(ex.toString());
+        }
+        nbsReturnAnswerMap.put(NEDSSConstant.NON_REPEATING_QUESTION, nbsAnswerMap);
+        nbsReturnAnswerMap.put(NEDSSConstant.REPEATING_QUESTION, nbsRepeatingAnswerMap);
+
+        return nbsReturnAnswerMap;
+    }
+
 }

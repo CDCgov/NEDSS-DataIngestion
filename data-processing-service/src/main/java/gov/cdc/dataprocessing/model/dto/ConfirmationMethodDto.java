@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.dto;
 
 import gov.cdc.dataprocessing.model.container.BaseContainer;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.ConfirmationMethod;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,6 +33,17 @@ public class ConfirmationMethodDto extends BaseContainer
         itDirty = false;
         itNew = true;
         itDelete = false;
+    }
+
+    public ConfirmationMethodDto(ConfirmationMethod confirmationMethod) {
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
+
+        publicHealthCaseUid = confirmationMethod.getPublicHealthCaseUid();
+        confirmationMethodCd = confirmationMethod.getConfirmationMethodCd();
+        confirmationMethodDescTxt = confirmationMethod.getConfirmationMethodDescTxt();
+        confirmationMethodTime = confirmationMethod.getConfirmationMethodTime();
     }
 
 }

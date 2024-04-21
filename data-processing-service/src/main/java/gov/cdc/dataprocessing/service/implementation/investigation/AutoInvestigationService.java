@@ -58,7 +58,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         PamProxyContainer pamProxyVO = null;
         PublicHealthCaseVO phcVO= createPublicHealthCaseVO(observationVO, edxLabInformationDT);
 
-        Collection<Object> theActIdDTCollection = new ArrayList<Object>();
+        Collection<ActIdDto> theActIdDTCollection = new ArrayList<>();
         ActIdDto actIDDT = new ActIdDto();
         actIDDT.setItNew(true);
         actIDDT.setActIdSeq(1);

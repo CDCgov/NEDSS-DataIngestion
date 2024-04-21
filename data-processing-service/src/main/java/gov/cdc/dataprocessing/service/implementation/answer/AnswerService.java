@@ -48,14 +48,14 @@ public class AnswerService implements IAnswerService {
 
             Map<Object,Object> answerDTReturnMap = getPageAnswerDTMaps(uid);
             Map<Object, NbsAnswerDto> nbsAnswerMap =new HashMap<>();
-            Map<Object, NbsAnswerDto> nbsRepeatingAnswerMap =new HashMap<>();
+            Map<Object, Object> nbsRepeatingAnswerMap =new HashMap<>();
             if(answerDTReturnMap.get(NEDSSConstant.NON_REPEATING_QUESTION)!=null){
                 nbsAnswerMap=(HashMap<Object, NbsAnswerDto>)answerDTReturnMap.get(NEDSSConstant.NON_REPEATING_QUESTION);
                 logger.debug("AnswerRootDAOImpl nbsAnswerMap Size +"+nbsAnswerMap.size());
                 logger.debug("AnswerRootDAOImpl nbsAnswerMap Values +"+nbsAnswerMap.toString());
             }
             if(answerDTReturnMap.get(NEDSSConstant.REPEATING_QUESTION)!=null){
-                nbsRepeatingAnswerMap=(HashMap<Object, NbsAnswerDto>)answerDTReturnMap.get(NEDSSConstant.REPEATING_QUESTION);
+                nbsRepeatingAnswerMap=(HashMap<Object, Object>)answerDTReturnMap.get(NEDSSConstant.REPEATING_QUESTION);
                 logger.debug("AnswerRootDAOImpl nbsRepeatingAnswerMap Size +"+nbsRepeatingAnswerMap.size());
                 logger.debug("AnswerRootDAOImpl nbsRepeatingAnswerMap Values +"+nbsRepeatingAnswerMap.toString());
             }
@@ -165,12 +165,12 @@ public class AnswerService implements IAnswerService {
         try {
 
             if(pageContainer !=null && pageContainer.getAnswerDTMap() !=null ) {
-                Collection<NbsAnswerDto> answerDTColl = pageContainer.getAnswerDTMap().values();
+                Collection<Object> answerDTColl = new ArrayList<>(pageContainer.getAnswerDTMap().values());
                 if(answerDTColl!=null && answerDTColl.size()>0) {
                     storeAnswerDTCollection(answerDTColl, rootDTInterface);
                 }
                 if(pageContainer !=null && pageContainer.getPageRepeatingAnswerDTMap() !=null ) {
-                    Collection<NbsAnswerDto> interviewRepeatingAnswerDTColl = pageContainer.getPageRepeatingAnswerDTMap().values();
+                    Collection<Object> interviewRepeatingAnswerDTColl = pageContainer.getPageRepeatingAnswerDTMap().values();
                     if(interviewRepeatingAnswerDTColl!=null && interviewRepeatingAnswerDTColl.size()>0) {
                         storeAnswerDTCollection(interviewRepeatingAnswerDTColl, rootDTInterface);
                     }
@@ -190,7 +190,7 @@ public class AnswerService implements IAnswerService {
             delete(observationDto);
             if(pageContainer !=null && pageContainer.getAnswerDTMap()!=null && pageContainer.getAnswerDTMap().values()!=null)
             {
-                storeAnswerDTCollection(pageContainer.getAnswerDTMap().values(), observationDto);
+                storeAnswerDTCollection(new ArrayList<>( pageContainer.getAnswerDTMap().values()), observationDto);
             }
             if(pageContainer !=null && pageContainer.getPageRepeatingAnswerDTMap()!=null && pageContainer.getPageRepeatingAnswerDTMap().values()!=null)
             {
@@ -234,12 +234,12 @@ public class AnswerService implements IAnswerService {
         }
     }
 
-    private void storeAnswerDTCollection(Collection<NbsAnswerDto> answerDTColl, ObservationDto interfaceDT) throws DataProcessingException {
+    private void storeAnswerDTCollection(Collection<Object> answerDTColl, ObservationDto interfaceDT) throws DataProcessingException {
         try {
             if (answerDTColl != null){
-                Iterator<NbsAnswerDto> it  = answerDTColl.iterator();
+                Iterator<Object> it  = answerDTColl.iterator();
                 while(it.hasNext()) {
-                    NbsAnswerDto object = it.next();
+                    NbsAnswerDto object = (NbsAnswerDto) it.next();
                     NbsAnswerDto answerDT = object;
                     if(answerDT.isItDirty() || answerDT.isItNew()){
                         nbsAnswerRepository.save(new NbsAnswer(answerDT));
