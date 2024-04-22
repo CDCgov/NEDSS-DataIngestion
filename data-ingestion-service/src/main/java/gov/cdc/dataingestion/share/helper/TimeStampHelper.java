@@ -12,7 +12,7 @@ import java.time.ZonedDateTime;
 @Service
 public class TimeStampHelper {
 
-    private static String TIME_ZONE;
+    private static String timeZone;
 
     private TimeStampHelper() {
     }
@@ -26,20 +26,22 @@ public class TimeStampHelper {
         // Another Option: Timestamp.from(ZonedDateTime.now().toInstant()) //NOSONAR
         //return Timestamp.from(Instant.now());//old implementation. //NOSONAR
 
-        System.out.println("input timezone: " + TIME_ZONE);
-        if (TIME_ZONE == null || TIME_ZONE.isBlank()) {
-            TIME_ZONE="UTC";
+        if (timeZone == null || timeZone.isBlank()) {
+            timeZone="UTC";
         }
         LocalDateTime ldt = LocalDateTime.now();
         ZonedDateTime zdt = ZonedDateTime.of(ldt, ZoneId.systemDefault());
-        ZonedDateTime gmt = zdt.withZoneSameInstant(ZoneId.of(TIME_ZONE));
+        ZonedDateTime gmt = zdt.withZoneSameInstant(ZoneId.of(timeZone));
         return Timestamp.valueOf(gmt.toLocalDateTime());
     }
     public static Instant getInstantNow() {
         return Instant.now();
     }
     @Value("${app.timezone}")
-    public void setDatabase(String timeZone){
-        TIME_ZONE=timeZone;
+    public void setEnvTimeZone(String envTimeZone){
+        timeZone=envTimeZone;
+    }
+    public String getEnvTimeZone(){
+        return timeZone;
     }
 }
