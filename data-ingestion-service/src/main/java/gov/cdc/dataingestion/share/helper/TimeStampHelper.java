@@ -37,6 +37,7 @@ public class TimeStampHelper {
     public static Instant getInstantNow() {
         return Instant.now();
     }
+    @SuppressWarnings("java:S2696")
     @Value("${app.timezone}")
     public void setEnvTimeZone(String envTimeZone){
         timeZone=envTimeZone;
