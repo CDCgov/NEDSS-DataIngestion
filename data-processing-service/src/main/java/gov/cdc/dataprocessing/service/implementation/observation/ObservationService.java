@@ -1381,6 +1381,7 @@ public class ObservationService implements IObservationService {
     }
 
 
+    @Transactional
     public boolean processObservation(Long observationUid) throws DataProcessingException {
         return processObservationWithProcessingDecision(observationUid,
                 null, null);
@@ -1439,7 +1440,8 @@ public class ObservationService implements IObservationService {
                         observationDT.getVersionCtrlNbr()
                 );
 
-                observationRepositoryUtil.saveObservationDto((ObservationDto) rootDTInterface);
+                observationVO.setTheObservationDto((ObservationDto) rootDTInterface);
+                observationRepositoryUtil.saveObservation(observationVO);
                 return true;
             }
             else

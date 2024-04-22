@@ -167,15 +167,6 @@ public class ObservationRepositoryUtil {
     }
 
     @Transactional
-    public Long saveObservationDto(ObservationDto observationDto) throws DataProcessingException {
-        ObservationContainer obsContainer = loadObject(observationDto.getObservationUid());
-        obsContainer.setTheObservationDto(observationDto);
-        obsContainer.setItDirty(true);
-        saveObservation(obsContainer);
-        return observationDto.getObservationUid();
-    }
-
-    @Transactional
     public Long saveObservation(ObservationContainer observationContainer) throws DataProcessingException {
         Long observationUid = -1L;
 

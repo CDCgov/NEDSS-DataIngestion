@@ -124,9 +124,7 @@ public class ManagerService implements IManagerService {
     @Transactional
     public Object processDistribution(String eventType, String data) throws DataProcessingConsumerException {
         Object result = new Object();
-        AuthUser profile = sessionProfileService.getSessionProfile("data-processing");
-        if (profile != null) {
-            AuthUtil.setGlobalAuthUser(profile);
+        if (AuthUtil.authUser != null) {
             switch (eventType) {
                 case EVENT_ELR:
                     result = processingELR(data);
@@ -214,6 +212,10 @@ public class ManagerService implements IManagerService {
                     String trackerString = gson.toJson(trackerView);
                     kafkaManagerProducer.sendDataActionTracker(trackerString);
 
+                    gson = new Gson();
+                    String jsonString = gson.toJson(phcContainer);
+
+                    kafkaManagerProducer.sendDataLabHandling(jsonString);
 
 
 
