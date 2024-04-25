@@ -11,7 +11,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.log.EdxActivityLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.EdxActivityDetailLogRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.EdxActivityLogRepository;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
-import gov.cdc.dataprocessing.service.model.EdxActivityLogMapper;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -30,16 +29,13 @@ public class EdxLogService implements IEdxLogService {
     private final EdxActivityDetailLogRepository edxActivityDetailLogRepository;
     private final KafkaManagerProducer kafkaManagerProducer;
 
-    private final EdxActivityLogMapper edxActivityLogMapper;
 
     public EdxLogService(EdxActivityLogRepository edxActivityLogRepository,
                          EdxActivityDetailLogRepository edxActivityDetailLogRepository,
-                         KafkaManagerProducer kafkaManagerProducer,
-                         EdxActivityLogMapper edxActivityLogMapper) {
+                         KafkaManagerProducer kafkaManagerProducer) {
         this.edxActivityLogRepository = edxActivityLogRepository;
         this.edxActivityDetailLogRepository = edxActivityDetailLogRepository;
         this.kafkaManagerProducer = kafkaManagerProducer;
-        this.edxActivityLogMapper = edxActivityLogMapper;
     }
 
     public Object processingLog() throws EdxLogException {
@@ -71,7 +67,7 @@ public class EdxLogService implements IEdxLogService {
     public void saveEdxActivityLogs(String logMessageJson) throws EdxLogException {
         Gson gson = new Gson();
         EDXActivityLogDto edxActivityLogDto = gson.fromJson(logMessageJson, EDXActivityLogDto.class);
-        EdxActivityLog edxActivityLog = edxActivityLogMapper.map(edxActivityLogDto);
+        EdxActivityLog edxActivityLog = new EdxActivityLog(edxActivityLogDto);
         EdxActivityLog edxActivityLogResult = edxActivityLogRepository.save(edxActivityLog);
         System.out.println("ActivityLog Id:" + edxActivityLogResult.getId());
 
