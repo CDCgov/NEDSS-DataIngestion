@@ -36,8 +36,6 @@ public class KafkaPublicHealthCaseConsumer {
         this.managerService = managerService;
         this.sessionProfileService = sessionProfileService;
 
-        AuthUser profile = this.sessionProfileService.getSessionProfile("data-processing");
-        AuthUtil.setGlobalAuthUser(profile);
     }
 
     @KafkaListener(
@@ -47,6 +45,9 @@ public class KafkaPublicHealthCaseConsumer {
                                      @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)
     {
         try {
+
+            AuthUser profile = this.sessionProfileService.getSessionProfile("data-processing");
+            AuthUtil.setGlobalAuthUser(profile);
             managerService.initiatingInvestigationAndPublicHealthCase(message);
         }
         catch (Exception e)

@@ -40,8 +40,6 @@ public class KafkaManagerConsumer {
         this.kafkaManagerProducer = kafkaManagerProducer;
         this.managerService = managerService;
         this.sessionProfileService = sessionProfileService;
-        AuthUser profile = this.sessionProfileService.getSessionProfile("data-processing");
-        AuthUtil.setGlobalAuthUser(profile);
 
     }
 
@@ -52,9 +50,10 @@ public class KafkaManagerConsumer {
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                               @Header(KafkaCustomHeader.DATA_TYPE) String dataType)
             throws DataProcessingConsumerException {
-        Object result = new Object();
         try {
-            result = managerService.processDistribution(dataType,message);
+            AuthUser profile = this.sessionProfileService.getSessionProfile("data-processing");
+            AuthUtil.setGlobalAuthUser(profile);
+            managerService.processDistribution(dataType,message);
             kafkaManagerProducer.sendData(healthCaseTopic, "result");
         } catch (DataProcessingConsumerException e) {
             kafkaManagerProducer.sendData(logTopic, "result");

@@ -179,11 +179,31 @@ public class ManagerService implements IManagerService {
                     WdsTrackerView trackerView = new WdsTrackerView();
                     trackerView.setWdsReport(edxLabInformationDto.getWdsReports());
 
+                    Long patUid = -1L;
+                    Long patParentUid = -1L;
+                    String patFirstName = null;
+                    String patLastName = null;
+                    for(var item : publicHealthCaseFlowContainer.getLabResultProxyContainer().getThePersonContainerCollection()) {
+                        if (item.getThePersonDto().getCd().equals("PAT")) {
+                            patUid = item.getThePersonDto().getUid();
+                            patParentUid = item.getThePersonDto().getPersonParentUid();
+                            patFirstName = item.getThePersonDto().getFirstNm();
+                            patLastName = item.getThePersonDto().getLastNm();
+                            break;
+                        }
+                    }
 
-
+                    trackerView.setPatientUid(patUid);
+                    trackerView.setPatientParentUid(patParentUid);
+                    trackerView.setPatientFirstName(patFirstName);
+                    trackerView.setPatientLastName(patLastName);
 
                     nbsInterfaceModel.setRecordStatusCd("COMPLETED_V2_STEP_2");
                     nbsInterfaceRepository.save(nbsInterfaceModel);
+
+
+
+
 
                     PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
                     phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());

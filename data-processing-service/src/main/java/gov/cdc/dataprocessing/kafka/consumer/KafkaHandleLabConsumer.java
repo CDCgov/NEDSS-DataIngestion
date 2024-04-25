@@ -27,9 +27,6 @@ public class KafkaHandleLabConsumer {
         this.kafkaManagerProducer = kafkaManagerProducer;
         this.managerService = managerService;
         this.sessionProfileService = sessionProfileService;
-
-        AuthUser profile = this.sessionProfileService.getSessionProfile("data-processing");
-        AuthUtil.setGlobalAuthUser(profile);
     }
 
     @KafkaListener(

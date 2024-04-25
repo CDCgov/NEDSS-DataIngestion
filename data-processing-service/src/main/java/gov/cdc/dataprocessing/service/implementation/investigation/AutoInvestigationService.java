@@ -89,7 +89,6 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         try {
             Object obj=null;
 
-            //Object obj = transferValuesTOActProxyVO(pageActProxyVO,pamProxyVO, personVOCollection, observationVO);
             if(pageActProxyVO!=null)
                 obj=pageActProxyVO;
             else
