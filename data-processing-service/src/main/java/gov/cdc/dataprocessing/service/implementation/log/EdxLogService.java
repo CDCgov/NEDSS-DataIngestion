@@ -29,6 +29,7 @@ public class EdxLogService implements IEdxLogService {
     private final EdxActivityDetailLogRepository edxActivityDetailLogRepository;
     private final KafkaManagerProducer kafkaManagerProducer;
 
+
     public EdxLogService(EdxActivityLogRepository edxActivityLogRepository,
                          EdxActivityDetailLogRepository edxActivityDetailLogRepository,
                          KafkaManagerProducer kafkaManagerProducer) {
@@ -65,15 +66,15 @@ public class EdxLogService implements IEdxLogService {
     @Transactional
     public void saveEdxActivityLogs(String logMessageJson) throws EdxLogException {
         Gson gson = new Gson();
-        EdxActivityLogContainer edxActivityLogContainer = gson.fromJson(logMessageJson, EdxActivityLogContainer.class);
-        EdxActivityLog edxActivityLog = new EdxActivityLog(edxActivityLogContainer.getEdxActivityLogDto());
+        EDXActivityLogDto edxActivityLogDto = gson.fromJson(logMessageJson, EDXActivityLogDto.class);
+        EdxActivityLog edxActivityLog = new EdxActivityLog(edxActivityLogDto);
         EdxActivityLog edxActivityLogResult = edxActivityLogRepository.save(edxActivityLog);
         System.out.println("ActivityLog Id:" + edxActivityLogResult.getId());
 
-        EdxActivityDetailLog edxActivityDetailLog = new EdxActivityDetailLog(edxActivityLogContainer.getEdxActivityDetailLogDto());
-        edxActivityDetailLog.setEdxActivityLogUid(edxActivityLogResult.getId());
-        EdxActivityDetailLog edxActivityDetailLogResult = edxActivityDetailLogRepository.save(edxActivityDetailLog);
-        System.out.println("ActivityDetailLog Id:" + edxActivityDetailLogResult.getId());
+//        EdxActivityDetailLog edxActivityDetailLog = new EdxActivityDetailLog(edxActivityLogContainer.getEdxActivityDetailLogDto());
+//        edxActivityDetailLog.setEdxActivityLogUid(edxActivityLogResult.getId());
+//        EdxActivityDetailLog edxActivityDetailLogResult = edxActivityDetailLogRepository.save(edxActivityDetailLog);
+//        System.out.println("ActivityDetailLog Id:" + edxActivityDetailLogResult.getId());
     }
 
     public void testKafkaproduceLogMessage() {
@@ -86,7 +87,7 @@ public class EdxLogService implements IEdxLogService {
         edxActivityLogDto.setDocType("test doc type1");
         edxActivityLogDto.setRecordStatusCd("Test status cd1");
         edxActivityLogDto.setRecordStatusTime(getCurrentTimeStamp());
-        edxActivityLogDto.setException("test exception1");
+        edxActivityLogDto.setExceptionTxt("test exception1");
         edxActivityLogDto.setImpExpIndCd("I");
         edxActivityLogDto.setSourceTypeCd("INT");
         edxActivityLogDto.setSourceUid(6789L);
@@ -111,7 +112,7 @@ public class EdxLogService implements IEdxLogService {
         detailLogDto.setComment("TEST Comment text12331");
 
         edxActivityLogContainer.setEdxActivityLogDto(edxActivityLogDto);
-        edxActivityLogContainer.setEdxActivityDetailLogDto(detailLogDto);
+//        edxActivityLogContainer.setEdxActivityDetailLogDto(detailLogDto);
 
         Gson gson = new Gson();
         String activityLogJsonString = gson.toJson(edxActivityLogContainer);

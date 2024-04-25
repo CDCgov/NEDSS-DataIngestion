@@ -81,7 +81,7 @@ public class EdxActivityLog {
         this.docType = eDXActivityLogDto.getDocType();
         this.recordStatusCd = eDXActivityLogDto.getRecordStatusCd();
         this.recordStatusTime = eDXActivityLogDto.getRecordStatusTime();
-        this.exceptionTxt = eDXActivityLogDto.getException();
+        this.exceptionTxt = eDXActivityLogDto.getExceptionTxt();
         this.impExpIndCd = eDXActivityLogDto.getImpExpIndCd();
         this.sourceTypeCd = eDXActivityLogDto.getSourceTypeCd();
         this.targetTypeCd = eDXActivityLogDto.getTargetTypeCd();
