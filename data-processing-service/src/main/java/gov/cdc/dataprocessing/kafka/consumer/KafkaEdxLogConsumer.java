@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.kafka.consumer;
 
-import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.EdxLogException;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
@@ -29,10 +28,8 @@ public class KafkaEdxLogConsumer {
             topics = "${kafka.topic.elr_edx_log}"
     )
     public void handleMessage(String message,
-                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EdxLogException, DataProcessingConsumerException {
-        System.out.println("Received message: " + message);
+                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EdxLogException {
+        System.out.println("KafkaEdxLogConsumer Received message: " + message);
         edxLogService.saveEdxActivityLogs(message);
-
-        //managerService.processingEdxLog("data");
     }
 }
