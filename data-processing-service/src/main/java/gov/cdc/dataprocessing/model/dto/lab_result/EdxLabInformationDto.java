@@ -144,6 +144,75 @@ public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDto implements 
 
     private List<WdsReport> wdsReports = new ArrayList<>();
 
+    public EdxLabInformationDto() {
+        unexpectedResultType = false;
+        childSuscWithoutParentResult = false;
+        jurisdictionName								= null;
+        programAreaName									= null;
+        jurisdictionAndProgramAreaSuccessfullyDerived	= false;
+
+        algorithmHasInvestigation						= false;
+        investigationSuccessfullyCreated				= false;
+        investigationMissingFields						= false;
+
+        algorithmHasNotification						= false;
+        notificationSuccessfullyCreated					= false;
+        notificationMissingFields						= false;
+
+        labIsCreate										= false;
+        labIsCreateSuccess								= false;
+        labIsUpdateDRRQ										= false;
+        labIsUpdateSuccess								= false;
+        labIsMarkedAsReviewed							= false;
+
+        multipleSubjectMatch = false;
+        multipleOrderingProvider = false;
+        multipleCollector = false;
+        multiplePrincipalInterpreter = false;
+        multipleOrderingFacility = false;
+        multipleSpecimen = false;
+        ethnicityCodeTranslated = true;
+        obsMethodTranslated = true;
+        raceTranslated = true;
+        sexTranslated = true;
+        ssnInvalid = false;
+        nullClia = false;
+        fillerNumberPresent = true;
+        finalPostCorrected = false;
+        preliminaryPostCorrected = false;
+        preliminaryPostFinal = false;
+        activityTimeOutOfSequence = false;
+        multiplePerformingLab = false;
+        orderTestNameMissing = false;
+        reflexOrderedTestCdMissing = false;
+        reflexResultedTestCdMissing = false;
+        resultedTestNameMissing = false;
+        drugNameMissing = false;
+        obsStatusTranslated = true;
+        activityToTimeMissing = false;
+        systemException = false;
+        universalServiceIdMissing = false;
+        missingOrderingProvider = false;
+        missingOrderingFacility=false;
+        multipleReceivingFacility = false;
+        patientMatch = false;
+        multipleOBR = false;
+        multipleSubject = false;
+        noSubject = false;
+        orderOBRWithParent = false;
+        childOBRWithoutParent = false;
+        invalidXML = false;
+        missingOrderingProviderandFacility = false;
+        createLabPermission = true;
+        updateLabPermission = true;
+        markAsReviewPermission = true;
+        createInvestigationPermission = true;
+        createNotificationPermission = true;
+        matchingAlgorithm = true;
+        fieldTruncationError = false;
+        reasonforStudyCdMissing = false;
+    }
+
     public int getNextUid() {
         nextUid--;
         return nextUid;

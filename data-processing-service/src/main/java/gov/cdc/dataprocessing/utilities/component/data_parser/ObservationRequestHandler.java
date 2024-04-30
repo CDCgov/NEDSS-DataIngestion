@@ -138,6 +138,7 @@ public class ObservationRequestHandler {
                 }
                 else{
                     edxLabInformationDto.setFillerNumber(fillerType.getHL7EntityIdentifier());
+                    edxLabInformationDto.setFillerNumberPresent(true);
                 }
             }
             ActIdDto act2IdDT = new ActIdDto();

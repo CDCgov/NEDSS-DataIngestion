@@ -328,11 +328,9 @@ public class ManagerService implements IManagerService {
         Gson gson = new Gson();
         try {
 
-
-
-
             edxLabInformationDto.setStatus(NbsInterfaceStatus.Success);
             edxLabInformationDto.setUserName(AuthUtil.authUser.getUserId());
+
 
             //TODO: uncomment when deploy
             nbsInterfaceModel = gson.fromJson(data, NbsInterfaceModel.class);
