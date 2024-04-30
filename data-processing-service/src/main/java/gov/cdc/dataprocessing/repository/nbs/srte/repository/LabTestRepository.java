@@ -26,4 +26,7 @@ public interface LabTestRepository extends JpaRepository<LabTest, String> {
 
     @Query("SELECT lt.defaultProgAreaCd AS key FROM LabTest lt WHERE lt.laboratoryId = :laboratoryId AND lt.labTestCd = :labTestCd")
     Optional<List<String>>  findLocalTestDefaultProgramAreaCd(@Param("laboratoryId") String laboratoryId, @Param("labTestCd") String labTestCd);
+
+    @Query("SELECT lt FROM LabTest lt WHERE lt.laboratoryId = :laboratoryId AND lt.labTestCd = :labTestCd")
+    Optional<List<LabTest>>  findLabTestByLabIdAndLabTestCode(@Param("laboratoryId") String laboratoryId, @Param("labTestCd") String labTestCd);
 }

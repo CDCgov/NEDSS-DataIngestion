@@ -14,7 +14,7 @@ public class BasePamContainer {
     private static final long serialVersionUID = 1L;
     private Map<Object, Object> pamAnswerDTMap;
     private Collection<NbsActEntityDto> actEntityDTCollection;
-    private Map<Object, NbsAnswerDto> pageRepeatingAnswerDTMap;
+    private Map<Object, Object> pageRepeatingAnswerDTMap;
     private Map<Object, NbsAnswerDto>  answerDTMap;
 
 }

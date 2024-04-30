@@ -7,6 +7,10 @@ import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 import java.util.*;
 
 public class SrteCache {
+    public static TreeMap<String, String> loinCodeWithComponentNameMap = new TreeMap<>();
+    public static TreeMap<String, String> labResultByDescMap = new TreeMap<>();
+    public static TreeMap<String, String> labResultWithOrganismNameIndMap = new TreeMap<>();
+    public static TreeMap<String, String> snomedCodeByDescMap = new TreeMap<>();
     public static TreeMap<String, String> loincCodesMap = new TreeMap<>();
     public static TreeMap<String, String> raceCodesMap = new TreeMap<>();
     public static TreeMap<String, String> programAreaCodesMap = new TreeMap<>();

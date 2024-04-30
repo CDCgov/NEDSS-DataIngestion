@@ -659,10 +659,10 @@ public class ValidateDecisionSupport {
         } else if (behavior.equalsIgnoreCase("2")) {
             isOverwrite = false;
         }
-        Collection<Object> actIdColl = publicHealthCaseVO
+        Collection<ActIdDto> actIdColl = publicHealthCaseVO
                 .getTheActIdDTCollection();
         if (actIdColl != null && actIdColl.size() > 0) {
-            Iterator<Object> ite = actIdColl.iterator();
+            Iterator<ActIdDto> ite = actIdColl.iterator();
             ActIdDto actIdDT = (ActIdDto) ite.next();
             if (actIdDT.getTypeCd() != null
                     && actIdDT.getTypeCd().equalsIgnoreCase(

@@ -14,4 +14,6 @@ import java.util.Optional;
 public interface SnomedCodeRepository  extends JpaRepository<SnomedCode, String> {
     @Query("SELECT sc FROM SnomedCode sc WHERE sc.snomedCd = :snomedCd")
     Optional<List<SnomedCode>> findSnomedProgramAreaExclusion(@Param("snomedCd") String snomedCd);
+
+
 }

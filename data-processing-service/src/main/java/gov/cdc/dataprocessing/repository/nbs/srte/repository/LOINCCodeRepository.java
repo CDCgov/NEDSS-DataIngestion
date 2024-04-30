@@ -21,4 +21,5 @@ public interface LOINCCodeRepository  extends JpaRepository<LOINCCode, String> {
 
     @Query("SELECT lc FROM LOINCCode lc WHERE lc.loincCode = :loincCd")
     Optional<List<LOINCCode>> findLoinCCodeExclusion(@Param("loincCd") String loincCd);
+
 }

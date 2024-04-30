@@ -1,6 +1,10 @@
 package gov.cdc.dataprocessing.service.implementation.other;
 
+import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxyVO;
+import gov.cdc.dataprocessing.model.container.PamProxyContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.container.BaseContainer;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
@@ -173,6 +177,148 @@ public class UidService implements IUidService {
                 }
 
             }
+        }
+    }
+
+
+    /**
+     * Converts negative UIDs to positive UIDs
+     *
+     * @param pageProxyVO
+     * @param falseUid
+     * @param actualUid
+     */
+    public void setFalseToNewForPageAct(PageActProxyVO pageProxyVO, Long falseUid, Long actualUid) throws DataProcessingException {
+        try {
+            Iterator<Object> anIterator = null;
+
+            ParticipationDto participationDT = null;
+            ActRelationshipDto actRelationshipDT = null;
+            NbsActEntityDto pamCaseEntityDT = null;
+            Collection<ParticipationDto> participationColl = pageProxyVO.getTheParticipationDtoCollection();
+            Collection<ActRelationshipDto> actRelationShipColl = pageProxyVO.getPublicHealthCaseVO().getTheActRelationshipDTCollection();
+            Collection<NbsActEntityDto> pamCaseEntityColl = pageProxyVO.getPageVO().getActEntityDTCollection();
+            Long eventUid = null;
+
+
+            Iterator<ParticipationDto> anIteratorPat = null;
+            if (participationColl != null) {
+                for (anIteratorPat = participationColl.iterator(); anIteratorPat
+                        .hasNext();) {
+                    participationDT = (ParticipationDto) anIteratorPat.next();
+                    logger.debug("(participationDT.getAct() comparedTo falseUid)"
+                            + (participationDT.getActUid().compareTo(falseUid)));
+                    if (participationDT.getActUid().compareTo(falseUid) == 0) {
+                        participationDT.setActUid(actualUid);
+                    }
+                    if (participationDT.getSubjectEntityUid().compareTo(falseUid) == 0) {
+                        participationDT.setSubjectEntityUid(actualUid);
+
+                    }
+                }
+                logger.debug("participationDT.getSubjectEntityUid()"
+                        + participationDT.getSubjectEntityUid());
+            }
+
+            Iterator<ActRelationshipDto> anIteratorActRe = null;
+            if (actRelationShipColl != null) {
+                for (anIteratorActRe = actRelationShipColl.iterator(); anIteratorActRe
+                        .hasNext();) {
+                    actRelationshipDT = (ActRelationshipDto) anIteratorActRe.next();
+
+                    if (actRelationshipDT.getTargetActUid().compareTo(falseUid) == 0) {
+                        actRelationshipDT.setTargetActUid(actualUid);
+                        eventUid=actRelationshipDT.getTargetActUid();
+                    }
+                    if (actRelationshipDT.getSourceActUid().compareTo(falseUid) == 0) {
+                        actRelationshipDT.setSourceActUid(actualUid);
+                    }
+                    logger.debug("ActRelationShipDT: falseUid "
+                            + falseUid.toString() + " actualUid: " + actualUid);
+                }
+            }
+
+            Iterator<NbsActEntityDto> anIteratorNbsActEntity = null;
+            if (pamCaseEntityColl != null) {
+                for (anIteratorNbsActEntity = pamCaseEntityColl.iterator(); anIteratorNbsActEntity
+                        .hasNext();) {
+                    pamCaseEntityDT = (NbsActEntityDto) anIteratorNbsActEntity.next();
+                    if (pamCaseEntityDT.getEntityUid().compareTo(falseUid) == 0) {
+                        pamCaseEntityDT.setEntityUid(actualUid);
+                    }
+                }
+                logger.debug("pamCaseEntityDT.getSubjectEntityUid()"
+                        + pamCaseEntityDT.getEntityUid());
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+
+
+    }
+
+    public void setFalseToNewForPam(PamProxyContainer pamProxyVO, Long falseUid, Long actualUid) throws DataProcessingException {
+        try {
+            Iterator<Object>  anIterator = null;
+
+            ParticipationDto participationDT = null;
+            ActRelationshipDto actRelationshipDT = null;
+            NbsActEntityDto pamCaseEntityDT = null;
+            Collection<ParticipationDto>  participationColl = pamProxyVO.getTheParticipationDTCollection();
+            Collection<ActRelationshipDto>  actRelationShipColl = pamProxyVO
+                    .getPublicHealthCaseVO().getTheActRelationshipDTCollection();
+            Collection<NbsActEntityDto>  pamCaseEntityColl = pamProxyVO.getPamVO().getActEntityDTCollection();
+
+            Iterator<ParticipationDto>  anIteratorPat = null;
+            if (participationColl != null) {
+                for (anIteratorPat = participationColl.iterator(); anIteratorPat.hasNext();) {
+                    participationDT = (ParticipationDto) anIteratorPat.next();
+                    logger.debug("(participationDT.getAct() comparedTo falseUid)"
+                            + (participationDT.getActUid().compareTo(falseUid)));
+                    if (participationDT.getActUid().compareTo(falseUid) == 0) {
+                        participationDT.setActUid(actualUid);
+                    }
+                    if (participationDT.getSubjectEntityUid().compareTo(falseUid) == 0) {
+                        participationDT.setSubjectEntityUid(actualUid);
+                    }
+                }
+                logger.debug("participationDT.getSubjectEntityUid()"
+                        + participationDT.getSubjectEntityUid());
+            }
+
+            Iterator<ActRelationshipDto>  anIteratorAct = null;
+
+            if (actRelationShipColl != null) {
+                for (anIteratorAct = actRelationShipColl.iterator(); anIteratorAct.hasNext();) {
+                    actRelationshipDT = (ActRelationshipDto) anIteratorAct.next();
+
+                    if (actRelationshipDT.getTargetActUid().compareTo(falseUid) == 0) {
+                        actRelationshipDT.setTargetActUid(actualUid);
+                    }
+                    if (actRelationshipDT.getSourceActUid().compareTo(falseUid) == 0) {
+                        actRelationshipDT.setSourceActUid(actualUid);
+                    }
+                    logger.debug("ActRelationShipDT: falseUid "
+                            + falseUid.toString() + " actualUid: " + actualUid);
+                }
+            }
+
+            Iterator<NbsActEntityDto>  anIteratorActEntity = null;
+
+            if (pamCaseEntityColl != null) {
+                for (anIteratorActEntity = pamCaseEntityColl.iterator(); anIteratorActEntity.hasNext();) {
+                    pamCaseEntityDT = (NbsActEntityDto) anIteratorActEntity.next();
+                    if (pamCaseEntityDT.getEntityUid().compareTo(falseUid) == 0) {
+                        pamCaseEntityDT.setEntityUid(actualUid);
+                    }
+                }
+
+            }
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+
         }
     }
 

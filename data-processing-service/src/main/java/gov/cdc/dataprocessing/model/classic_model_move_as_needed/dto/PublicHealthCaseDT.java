@@ -3,6 +3,7 @@ package gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.container.BaseContainer;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.PublicHealthCase;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -137,4 +138,105 @@ public class PublicHealthCaseDT extends BaseContainer implements RootDtoInterfac
     public Long getUid() {
         return publicHealthCaseUid;
     }
+
+
+    public PublicHealthCaseDT(PublicHealthCase publicHealthCase) {
+        this.publicHealthCaseUid = publicHealthCase.getPublicHealthCaseUid();
+        this.activityDurationAmt = publicHealthCase.getActivityDurationAmt();
+        this.activityDurationUnitCd = publicHealthCase.getActivityDurationUnitCd();
+        this.activityFromTime = publicHealthCase.getActivityFromTime();
+        this.activityToTime = publicHealthCase.getActivityToTime();
+        this.addReasonCd = publicHealthCase.getAddReasonCd();
+        this.addTime = publicHealthCase.getAddTime();
+        this.addUserId = publicHealthCase.getAddUserId();
+        this.caseClassCd = publicHealthCase.getCaseClassCd();
+        this.caseTypeCd = publicHealthCase.getCaseTypeCd();
+        this.cd = publicHealthCase.getCd();
+        this.cdDescTxt = publicHealthCase.getCdDescTxt();
+        this.cdSystemCd = publicHealthCase.getCdSystemCd();
+        this.cdSystemDescTxt = publicHealthCase.getCdSystemDescTxt();
+        this.confidentialityCd = publicHealthCase.getConfidentialityCd();
+        this.confidentialityDescTxt = publicHealthCase.getConfidentialityDescTxt();
+        this.detectionMethodCd = publicHealthCase.getDetectionMethodCd();
+        this.detectionMethodDescTxt = publicHealthCase.getDetectionMethodDescTxt();
+        this.diagnosisTime = publicHealthCase.getDiagnosisTime();
+        this.diseaseImportedCd = publicHealthCase.getDiseaseImportedCd();
+        this.diseaseImportedDescTxt = publicHealthCase.getDiseaseImportedDescTxt();
+        this.effectiveDurationAmt = publicHealthCase.getEffectiveDurationAmt();
+        this.effectiveDurationUnitCd = publicHealthCase.getEffectiveDurationUnitCd();
+        this.effectiveFromTime = publicHealthCase.getEffectiveFromTime();
+        this.effectiveToTime = publicHealthCase.getEffectiveToTime();
+        this.groupCaseCnt = publicHealthCase.getGroupCaseCnt();
+        this.investigationStatusCd = publicHealthCase.getInvestigationStatusCd();
+        this.investigatorAssignedTime = publicHealthCase.getInvestigatorAssignedTime();
+        this.jurisdictionCd = publicHealthCase.getJurisdictionCd();
+        this.lastChgReasonCd = publicHealthCase.getLastChgReasonCd();
+        this.lastChgTime = publicHealthCase.getLastChgTime();
+        this.lastChgUserId = publicHealthCase.getLastChgUserId();
+        this.localId = publicHealthCase.getLocalId();
+        this.mmwrWeek = publicHealthCase.getMmwrWeek();
+        this.mmwrYear = publicHealthCase.getMmwrYear();
+        this.outbreakInd = publicHealthCase.getOutbreakInd();
+        this.outbreakFromTime = publicHealthCase.getOutbreakFromTime();
+        this.outbreakToTime = publicHealthCase.getOutbreakToTime();
+        this.outbreakName = publicHealthCase.getOutbreakName();
+        this.outcomeCd = publicHealthCase.getOutcomeCd();
+        this.patAgeAtOnset = publicHealthCase.getPatAgeAtOnset();
+        this.patAgeAtOnsetUnitCd = publicHealthCase.getPatAgeAtOnsetUnitCd();
+        this.patientGroupId = publicHealthCase.getPatientGroupId();
+        this.progAreaCd = publicHealthCase.getProgAreaCd();
+        this.recordStatusCd = publicHealthCase.getRecordStatusCd();
+        this.recordStatusTime = publicHealthCase.getRecordStatusTime();
+        this.repeatNbr = publicHealthCase.getRepeatNbr();
+        this.rptCntyCd = publicHealthCase.getRptCntyCd();
+        this.rptFormCmpltTime = publicHealthCase.getRptFormCmpltTime();
+        this.rptSourceCd = publicHealthCase.getRptSourceCd();
+        this.rptSourceCdDescTxt = publicHealthCase.getRptSourceCdDescTxt();
+        this.rptToCountyTime = publicHealthCase.getRptToCountyTime();
+        this.rptToStateTime = publicHealthCase.getRptToStateTime();
+        this.statusCd = publicHealthCase.getStatusCd();
+        this.statusTime = publicHealthCase.getStatusTime();
+        this.transmissionModeCd = publicHealthCase.getTransmissionModeCd();
+        this.transmissionModeDescTxt = publicHealthCase.getTransmissionModeDescTxt();
+        this.txt = publicHealthCase.getTxt();
+        this.userAffiliationTxt = publicHealthCase.getUserAffiliationTxt();
+        this.programJurisdictionOid = publicHealthCase.getProgramJurisdictionOid();
+        this.sharedInd = publicHealthCase.getSharedInd();
+        this.versionCtrlNbr = publicHealthCase.getVersionCtrlNbr() != null ? publicHealthCase.getVersionCtrlNbr().intValue() : null;
+        this.hospitalizedIndCd = publicHealthCase.getHospitalizedIndCd();
+        this.hospitalizedAdminTime = publicHealthCase.getHospitalizedAdminTime();
+        this.hospitalizedDischargeTime = publicHealthCase.getHospitalizedDischargeTime();
+        this.hospitalizedDurationAmt = publicHealthCase.getHospitalizedDurationAmt();
+        this.pregnantIndCd = publicHealthCase.getPregnantIndCd();
+        this.dayCareIndCd = publicHealthCase.getDayCareIndCd();
+        this.foodHandlerIndCd = publicHealthCase.getFoodHandlerIndCd();
+        this.importedCountryCd = publicHealthCase.getImportedCountryCd();
+        this.importedStateCd = publicHealthCase.getImportedStateCd();
+        this.importedCityDescTxt = publicHealthCase.getImportedCityDescTxt();
+        this.importedCountyCd = publicHealthCase.getImportedCountyCd();
+        this.deceasedTime = publicHealthCase.getDeceasedTime();
+//        this.rptSentTime = publicHealthCase.getRptSentTime();
+        this.countIntervalCd = publicHealthCase.getCountIntervalCd();
+//        this.isSummaryCase = publicHealthCase.isSummaryCase();
+        this.priorityCd = publicHealthCase.getPriorityCd();
+        this.infectiousFromDate = publicHealthCase.getInfectiousFromDate();
+        this.infectiousToDate = publicHealthCase.getInfectiousToDate();
+//        this.contactInvStatus = publicHealthCase.getContactInvStatus();
+        this.contactInvTxt = publicHealthCase.getContactInvTxt();
+        this.referralBasisCd = publicHealthCase.getReferralBasisCd();
+        this.currProcessStateCd = publicHealthCase.getCurrProcessStateCd();
+        this.invPriorityCd = publicHealthCase.getInvPriorityCd();
+        this.coinfectionId = publicHealthCase.getCoinfectionId();
+//        this.associatedSpecimenCollDate = publicHealthCase.getAssociatedSpecimenCollDate();
+//        this.confirmationMethodCd = publicHealthCase.getConfirmationMethodCd();
+//        this.confirmationMethodTime = publicHealthCase.getConfirmationMethodTime();
+//        this.addUserName = publicHealthCase.getAddUserName();
+//        this.lastChgUserName = publicHealthCase.getLastChgUserName();
+//        this.currentInvestigatorUid = publicHealthCase.getCurrentInvestigatorUid();
+//        this.currentPatientUid = publicHealthCase.getCurrentPatientUid();
+    }
+
+
+
+
 }

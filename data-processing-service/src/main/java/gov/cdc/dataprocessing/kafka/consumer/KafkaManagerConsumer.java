@@ -3,8 +3,11 @@ package gov.cdc.dataprocessing.kafka.consumer;
 import gov.cdc.dataprocessing.constant.KafkaCustomHeader;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
+import gov.cdc.dataprocessing.service.implementation.auth.SessionProfileService;
 import gov.cdc.dataprocessing.service.implementation.manager.ManagerService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
+import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,13 +31,16 @@ public class KafkaManagerConsumer {
 
     private final KafkaManagerProducer kafkaManagerProducer;
     private final IManagerService managerService;
+    private final SessionProfileService sessionProfileService;
 
     public KafkaManagerConsumer(
             KafkaManagerProducer kafkaManagerProducer,
-            ManagerService managerService
-    ) {
+            ManagerService managerService,
+            SessionProfileService sessionProfileService) {
         this.kafkaManagerProducer = kafkaManagerProducer;
         this.managerService = managerService;
+        this.sessionProfileService = sessionProfileService;
+
     }
 
     @KafkaListener(
@@ -44,9 +50,10 @@ public class KafkaManagerConsumer {
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                               @Header(KafkaCustomHeader.DATA_TYPE) String dataType)
             throws DataProcessingConsumerException {
-        Object result = new Object();
         try {
-            result = managerService.processDistribution(dataType,message);
+            AuthUser profile = this.sessionProfileService.getSessionProfile("data-processing");
+            AuthUtil.setGlobalAuthUser(profile);
+            managerService.processDistribution(dataType,message);
             kafkaManagerProducer.sendData(healthCaseTopic, "result");
         } catch (DataProcessingConsumerException e) {
             kafkaManagerProducer.sendData(logTopic, "result");

@@ -2,12 +2,13 @@ package gov.cdc.dataprocessing.kafka.consumer;
 
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
+import gov.cdc.dataprocessing.service.implementation.auth.SessionProfileService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
+import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,11 +19,14 @@ public class KafkaHandleLabConsumer {
 
     private final KafkaManagerProducer kafkaManagerProducer;
     private final IManagerService managerService;
+    private final SessionProfileService sessionProfileService;
+
 
     public KafkaHandleLabConsumer(KafkaManagerProducer kafkaManagerProducer,
-                                  IManagerService managerService) {
+                                  IManagerService managerService, SessionProfileService sessionProfileService) {
         this.kafkaManagerProducer = kafkaManagerProducer;
         this.managerService = managerService;
+        this.sessionProfileService = sessionProfileService;
     }
 
     @KafkaListener(
@@ -31,6 +35,10 @@ public class KafkaHandleLabConsumer {
     public void handleMessage(String message)
             throws DataProcessingConsumerException {
         try {
+
+            AuthUser profile = this.sessionProfileService.getSessionProfile("data-processing");
+            AuthUtil.setGlobalAuthUser(profile);
+
             managerService.initiatingLabProcessing(message);
         }
         catch (Exception e)

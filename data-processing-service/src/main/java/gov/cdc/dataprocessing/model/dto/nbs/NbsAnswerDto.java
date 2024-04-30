@@ -12,21 +12,21 @@ import java.sql.Timestamp;
 @Setter
 public class NbsAnswerDto extends BaseContainer {
     private static final long serialVersionUID = 1L;
-    private Long nbsAnswerUid;
-    private Integer seqNbr;
-    private String answerTxt;
-    private Timestamp lastChgTime;
-    private Long lastChgUserId;
-    private Long nbsQuestionUid;
-    private Integer nbsQuestionVersionCtrlNbr;
-    private String recordStatusCd;
-    private Timestamp recordStatusTime;
-    private Long actUid;
-    private Clob answerLargeTxt;
+    protected Long nbsAnswerUid;
+    protected Integer seqNbr;
+    protected String answerTxt;
+    protected Timestamp lastChgTime;
+    protected Long lastChgUserId;
+    protected Long nbsQuestionUid;
+    protected Integer nbsQuestionVersionCtrlNbr;
+    protected String recordStatusCd;
+    protected Timestamp recordStatusTime;
+    protected Long actUid;
+    protected Clob answerLargeTxt;
 
-    private Integer answerGroupSeqNbr;
-    private Timestamp addTime;
-    private Long addUserId;
+    protected Integer answerGroupSeqNbr;
+    protected Timestamp addTime;
+    protected Long addUserId;
 
     public NbsAnswerDto() {
         itDirty = false;

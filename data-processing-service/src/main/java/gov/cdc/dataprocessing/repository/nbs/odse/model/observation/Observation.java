@@ -14,206 +14,207 @@ import java.sql.Timestamp;
 @Table(name = "Observation")
 @Data
 public class Observation implements Serializable {
-    private static final long serialVersionUID = 1L;
+    protected static final long serialVersionUID = 1L;
 
     @Id
     @Column(name = "observation_uid")
-    private Long observationUid;
+    protected Long observationUid;
 
     @Column(name = "activity_duration_amt")
-    private String activityDurationAmt;
+    protected String activityDurationAmt;
 
     @Column(name = "activity_duration_unit_cd")
-    private String activityDurationUnitCd;
+    protected String activityDurationUnitCd;
 
     @Column(name = "activity_from_time")
-    private Timestamp activityFromTime;
+    protected Timestamp activityFromTime;
 
     @Column(name = "activity_to_time")
-    private Timestamp activityToTime;
+    protected Timestamp activityToTime;
 
     @Column(name = "add_reason_cd")
-    private String addReasonCd;
+    protected String addReasonCd;
 
     @Column(name = "add_time")
-    private Timestamp addTime;
+    protected Timestamp addTime;
 
     @Column(name = "add_user_id")
-    private Long addUserId;
+    protected Long addUserId;
 
     @Column(name = "cd")
-    private String cd;
+    protected String cd;
 
     @Column(name = "cd_desc_txt")
-    private String cdDescTxt;
+    protected String cdDescTxt;
 
     @Column(name = "cd_system_cd")
-    private String cdSystemCd;
+    protected String cdSystemCd;
 
     @Column(name = "cd_system_desc_txt")
-    private String cdSystemDescTxt;
+    protected String cdSystemDescTxt;
 
     @Column(name = "confidentiality_cd")
-    private String confidentialityCd;
+    protected String confidentialityCd;
 
     @Column(name = "confidentiality_desc_txt")
-    private String confidentialityDescTxt;
+    protected String confidentialityDescTxt;
 
     @Column(name = "ctrl_cd_display_form")
-    private String ctrlCdDisplayForm;
+    protected String ctrlCdDisplayForm;
 
     @Column(name = "ctrl_cd_user_defined_1")
-    private String ctrlCdUserDefined1;
+    protected String ctrlCdUserDefined1;
 
     @Column(name = "ctrl_cd_user_defined_2")
-    private String ctrlCdUserDefined2;
+    protected String ctrlCdUserDefined2;
 
     @Column(name = "ctrl_cd_user_defined_3")
-    private String ctrlCdUserDefined3;
+    protected String ctrlCdUserDefined3;
 
     @Column(name = "ctrl_cd_user_defined_4")
-    private String ctrlCdUserDefined4;
+    protected String ctrlCdUserDefined4;
 
     @Column(name = "derivation_exp")
-    private Integer derivationExp;
+    protected Integer derivationExp;
 
     @Column(name = "effective_duration_amt")
-    private String effectiveDurationAmt;
+    protected String effectiveDurationAmt;
 
     @Column(name = "effective_duration_unit_cd")
-    private String effectiveDurationUnitCd;
+    protected String effectiveDurationUnitCd;
 
     @Column(name = "effective_from_time")
-    private Timestamp effectiveFromTime;
+    protected Timestamp effectiveFromTime;
 
     @Column(name = "effective_to_time")
-    private Timestamp effectiveToTime;
+    protected Timestamp effectiveToTime;
 
     @Column(name = "electronic_ind")
-    private String electronicInd;
+    protected String electronicInd;
 
     @Column(name = "group_level_cd")
-    private String groupLevelCd;
+    protected String groupLevelCd;
 
     @Column(name = "jurisdiction_cd")
-    private String jurisdictionCd;
+    protected String jurisdictionCd;
 
     @Column(name = "lab_condition_cd")
-    private String labConditionCd;
+    protected String labConditionCd;
 
     @Column(name = "last_chg_reason_cd")
-    private String lastChgReasonCd;
+    protected String lastChgReasonCd;
 
     @Column(name = "last_chg_time")
-    private Timestamp lastChgTime;
+    protected Timestamp lastChgTime;
 
     @Column(name = "last_chg_user_id")
-    private Long lastChgUserId;
+    protected Long lastChgUserId;
 
     @Column(name = "local_id")
-    private String localId;
+    protected String localId;
 
     @Column(name = "method_cd")
-    private String methodCd;
+    protected String methodCd;
 
     @Column(name = "method_desc_txt")
-    private String methodDescTxt;
+    protected String methodDescTxt;
 
     @Column(name = "obs_domain_cd")
-    private String obsDomainCd;
+    protected String obsDomainCd;
 
     @Column(name = "obs_domain_cd_st_1")
-    private String obsDomainCdSt1;
+    protected String obsDomainCdSt1;
 
     @Column(name = "pnu_cd")
-    private String pnuCd;
+    protected String pnuCd;
 
     @Column(name = "priority_cd")
-    private String priorityCd;
+    protected String priorityCd;
 
     @Column(name = "priority_desc_txt")
-    private String priorityDescTxt;
+    protected String priorityDescTxt;
 
     @Column(name = "prog_area_cd")
-    private String progAreaCd;
+    protected String progAreaCd;
 
     @Column(name = "record_status_cd")
-    private String recordStatusCd;
+    protected String recordStatusCd;
 
     @Column(name = "record_status_time")
-    private Timestamp recordStatusTime;
+    protected Timestamp recordStatusTime;
 
     @Column(name = "repeat_nbr")
-    private Integer repeatNbr;
+    protected Integer repeatNbr;
 
     @Column(name = "status_cd")
-    private String statusCd;
+    protected String statusCd;
 
     @Column(name = "status_time")
-    private Timestamp statusTime;
+    protected Timestamp statusTime;
 
     @Column(name = "subject_person_uid")
-    private Long subjectPersonUid;
+    protected Long subjectPersonUid;
 
     @Column(name = "target_site_cd")
-    private String targetSiteCd;
+    protected String targetSiteCd;
 
     @Column(name = "target_site_desc_txt")
-    private String targetSiteDescTxt;
+    protected String targetSiteDescTxt;
 
     @Column(name = "txt")
-    private String txt;
+    protected String txt;
 
     @Column(name = "user_affiliation_txt")
-    private String userAffiliationTxt;
+    protected String userAffiliationTxt;
 
     @Column(name = "value_cd")
-    private String valueCd;
+    protected String valueCd;
 
     @Column(name = "ynu_cd")
-    private String ynuCd;
+    protected String ynuCd;
 
     @Column(name = "program_jurisdiction_oid")
-    private Long programJurisdictionOid;
+    protected Long programJurisdictionOid;
 
     @Column(name = "shared_ind", nullable = false)
-    private String sharedInd;
+    protected String sharedInd;
 
     @Column(name = "version_ctrl_nbr", nullable = false)
-    private Integer versionCtrlNbr;
+    protected Integer versionCtrlNbr;
 
     @Column(name = "alt_cd")
-    private String altCd;
+    protected String altCd;
 
     @Column(name = "alt_cd_desc_txt")
-    private String altCdDescTxt;
+    protected String altCdDescTxt;
 
     @Column(name = "alt_cd_system_cd")
-    private String altCdSystemCd;
+    protected String altCdSystemCd;
 
     @Column(name = "alt_cd_system_desc_txt")
-    private String altCdSystemDescTxt;
+    protected String altCdSystemDescTxt;
 
     @Column(name = "cd_derived_ind")
-    private String cdDerivedInd;
+    protected String cdDerivedInd;
 
     @Column(name = "rpt_to_state_time")
-    private Timestamp rptToStateTime;
+    protected Timestamp rptToStateTime;
 
     @Column(name = "cd_version")
-    private String cdVersion;
+    protected String cdVersion;
 
     @Column(name = "processing_decision_cd")
-    private String processingDecisionCd;
+    protected String processingDecisionCd;
 
     @Column(name = "pregnant_ind_cd")
-    private String pregnantIndCd;
+    protected String pregnantIndCd;
 
     @Column(name = "pregnant_week")
-    private Integer pregnantWeek;
+    protected Integer pregnantWeek;
 
     @Column(name = "processing_decision_txt")
-    private String processingDecisionTxt;
+    protected String processingDecisionTxt;
+
 
     public Observation() {
 
