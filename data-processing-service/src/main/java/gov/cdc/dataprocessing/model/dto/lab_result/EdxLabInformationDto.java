@@ -15,13 +15,13 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.*;
 
+/**
+ * Utility class to store the information that is being shared all across the ELR processing
+ */
 @Getter
 @Setter
 public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDto implements Serializable {
-    /**
-     * Pradeep Kumar Sharma
-     * Utility class to store the information that is being shared all across the ELR processing
-     */
+
     private static final long serialVersionUID = 1L;
     private Timestamp addTime;
     private Timestamp OrderEffectiveDate;
