@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.model.container;
 
+import gov.cdc.dataprocessing.model.NbsNoteDto;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ExportReceivingFacilityDT;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.NotificationVO;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PublicHealthCaseVO;
@@ -47,7 +48,7 @@ public class PamProxyContainer  extends BaseContainer{
     private Collection<Object> theCTContactSummaryDTCollection;
 
     private Collection<Object> nbsAttachmentDTColl;
-    private Collection<Object> nbsNoteDTColl;
+    private Collection<NbsNoteDto> nbsNoteDTColl;
 
     private boolean isUnsavedNote;
     private ExportReceivingFacilityDT exportReceivingFacilityDT;

@@ -17,6 +17,8 @@ public interface ActRelationshipRepository extends JpaRepository<ActRelationship
     @Query("SELECT data FROM ActRelationship data WHERE data.targetActUid = :uid")
     Collection<ActRelationship> findRecordsById(@Param("uid") Long uid);
 
+    @Query("SELECT data FROM ActRelationship data WHERE data.sourceActUid = :uid")
+    Collection<ActRelationship> findRecordsBySourceId(@Param("uid") Long uid);
 
 
     /*

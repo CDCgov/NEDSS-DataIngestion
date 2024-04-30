@@ -1,16 +1,21 @@
 package gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo;
 
+import gov.cdc.dataprocessing.model.NbsNoteDto;
 import gov.cdc.dataprocessing.model.container.BaseContainer;
 import gov.cdc.dataprocessing.model.container.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.ExportReceivingFacilityDT;
+import gov.cdc.dataprocessing.model.dto.log.MessageLogDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.*;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -49,7 +54,7 @@ public class PageActProxyVO  extends BaseContainer {
     private Collection<Object>        theNotificationVOCollection;
     private Collection<Object>        theCSSummaryVOCollection;
     private Collection<Object>        nbsAttachmentDTColl;
-    private Collection<Object>        nbsNoteDTColl;
+    private Collection<NbsNoteDto>        nbsNoteDTColl;
     private Collection<Object>        theDocumentSummaryVOCollection;
     private boolean                   isOOSystemInd;
     private boolean                   isOOSystemPendInd;
@@ -65,4 +70,17 @@ public class PageActProxyVO  extends BaseContainer {
     private boolean					  isConversionHasModified;
 
     private ExportReceivingFacilityDT exportReceivingFacilityDT;
+    private Map<String, MessageLogDto> messageLogDTMap  = new HashMap<String, MessageLogDto>();
+
+    public Object deepCopy() throws CloneNotSupportedException, IOException, ClassNotFoundException
+    {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(this);
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        ObjectInputStream ois = new ObjectInputStream(bais);
+        Object deepCopy = ois.readObject();
+
+        return  deepCopy;
+    }
 }

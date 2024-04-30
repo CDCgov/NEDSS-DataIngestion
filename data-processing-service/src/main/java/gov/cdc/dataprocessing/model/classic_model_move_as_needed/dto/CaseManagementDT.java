@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto;
 
 import gov.cdc.dataprocessing.model.container.BaseContainer;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.other_move_as_needed.CaseManagement;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -63,5 +64,62 @@ public class CaseManagementDT extends BaseContainer {
 
     // not in db
     private String            localId;
+
+
+    public CaseManagementDT() {
+
+    }
+
+    public CaseManagementDT(CaseManagement caseManagement) {
+        this.caseManagementUid = caseManagement.getCaseManagementUid();
+        this.publicHealthCaseUid = caseManagement.getPublicHealthCaseUid();
+        this.status900 = caseManagement.getStatus900();
+        this.eharsId = caseManagement.getEharsId();
+        this.epiLinkId = caseManagement.getEpiLinkId();
+        this.fieldFollUpOojOutcome = caseManagement.getFieldFollUpOojOutcome();
+        this.fieldRecordNumber = caseManagement.getFieldRecordNumber();
+        this.fldFollUpDispo = caseManagement.getFldFollUpDispo();
+        this.fldFollUpDispoDate = caseManagement.getFldFollUpDispoDate();
+        this.fldFollUpExamDate = caseManagement.getFldFollUpExamDate();
+        this.fldFollUpExpectedDate = caseManagement.getFldFollUpExpectedDate();
+        this.fldFollUpExpectedIn = caseManagement.getFldFollUpExpectedIn();
+        this.fldFollUpInternetOutcome = caseManagement.getFldFollUpInternetOutcome();
+        this.fldFollUpNotificationPlan = caseManagement.getFldFollUpNotificationPlan();
+        this.fldFollUpProvDiagnosis = caseManagement.getFldFollUpProvDiagnosis();
+        this.fldFollUpProvExmReason = caseManagement.getFldFollUpProvExmReason();
+        this.initFollUp = caseManagement.getInitFollUp();
+        this.initFollUpClinicCode = caseManagement.getInitFollUpClinicCode();
+        this.initFollUpClosedDate = caseManagement.getInitFollUpClosedDate();
+        this.initFollUpNotifiable = caseManagement.getInitFollUpNotifiable();
+        this.internetFollUp = caseManagement.getInternetFollUp();
+        this.oojAgency = caseManagement.getOojAgency();
+        this.oojDueDate = caseManagement.getOojDueDate();
+        this.oojNumber = caseManagement.getOojNumber();
+        this.patIntvStatusCd = caseManagement.getPatIntvStatusCd();
+        this.subjComplexion = caseManagement.getSubjComplexion();
+        this.subjHair = caseManagement.getSubjHair();
+        this.subjHeight = caseManagement.getSubjHeight();
+        this.subjOthIdntfyngInfo = caseManagement.getSubjOthIdntfyngInfo();
+        this.subjSizeBuild = caseManagement.getSubjSizeBuild();
+        this.survClosedDate = caseManagement.getSurvClosedDate();
+        this.survPatientFollUp = caseManagement.getSurvPatientFollUp();
+        this.survProvDiagnosis = caseManagement.getSurvProvDiagnosis();
+        this.survProvExmReason = caseManagement.getSurvProvExmReason();
+        this.survProviderContact = caseManagement.getSurvProviderContact();
+        this.actRefTypeCd = caseManagement.getActRefTypeCd();
+        this.initiatingAgncy = caseManagement.getInitiatingAgncy();
+        this.oojInitgAgncyOutcDueDate = caseManagement.getOojInitgAgncyOutcDueDate();
+        this.oojInitgAgncyOutcSntDate = caseManagement.getOojInitgAgncyOutcSntDate();
+        this.oojInitgAgncyRecdDate = caseManagement.getOojInitgAgncyRecdDate();
+        this.isCaseManagementDTPopulated = caseManagement.isCaseManagementDTPopulated();
+        this.caseReviewStatus = caseManagement.getCaseReviewStatus();
+        this.survAssignedDate = caseManagement.getSurvAssignedDate();
+        this.follUpAssignedDate = caseManagement.getFollUpAssignedDate();
+        this.initFollUpAssignedDate = caseManagement.getInitFollUpAssignedDate();
+        this.interviewAssignedDate = caseManagement.getInterviewAssignedDate();
+        this.initInterviewAssignedDate = caseManagement.getInitInterviewAssignedDate();
+        this.caseClosedDate = caseManagement.getCaseClosedDate();
+        this.caseReviewStatusDate = caseManagement.getCaseReviewStatusDate();
+    }
 
 }

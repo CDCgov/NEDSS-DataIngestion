@@ -25,4 +25,9 @@ public interface ICatchingValueService {
     List<ConditionCode> getAllConditionCode() throws DataProcessingException;
     TreeMap<String, String> getCodedValue(String code) throws DataProcessingException;
     List<CodeValueGeneral> getGeneralCodedValue(String code);
+    TreeMap<String, String> getCodedValuesCallRepos(String pType) throws DataProcessingException;
+    TreeMap<String, String> getLabResultDesc() throws DataProcessingException;
+    TreeMap<String, String> getAllSnomedCode() throws DataProcessingException;
+    TreeMap<String, String> getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd() throws DataProcessingException;
+    TreeMap<String, String> getAllLoinCodeWithComponentName() throws DataProcessingException;
 }

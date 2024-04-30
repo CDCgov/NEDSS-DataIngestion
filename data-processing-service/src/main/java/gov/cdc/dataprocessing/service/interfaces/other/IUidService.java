@@ -1,8 +1,10 @@
 package gov.cdc.dataprocessing.service.interfaces.other;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxyVO;
 import gov.cdc.dataprocessing.model.container.BaseContainer;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.PamProxyContainer;
 
 public interface IUidService {
     /**
@@ -21,4 +23,7 @@ public interface IUidService {
      * - This is crucial in Observation Flow
      * */
     void setFalseToNewPersonAndOrganization(LabResultProxyContainer labResultProxyContainer, Long falseUid, Long actualUid) throws DataProcessingException;
+
+    void setFalseToNewForPageAct(PageActProxyVO pageProxyVO, Long falseUid, Long actualUid) throws DataProcessingException;
+    void setFalseToNewForPam(PamProxyContainer pamProxyVO, Long falseUid, Long actualUid) throws DataProcessingException;
 }

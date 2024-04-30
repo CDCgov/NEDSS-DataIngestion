@@ -2,9 +2,12 @@ package gov.cdc.dataprocessing.service.implementation.notification;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.NotificationVO;
 import gov.cdc.dataprocessing.model.container.ObservationContainer;
 import gov.cdc.dataprocessing.model.container.BaseContainer;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.dto.notification.NotificationDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.notification.Notification;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.notification.NotificationRepository;
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,17 @@ public class NotificationService implements INotificationService {
 
     public NotificationService(NotificationRepository notificationRepository) {
         this.notificationRepository = notificationRepository;
+    }
+
+    public NotificationDto getNotificationById(Long uid) {
+        var res = notificationRepository.findById(uid);
+        return res.map(NotificationDto::new).orElse(null);
+    }
+
+    public Long saveNotification(NotificationVO notificationVO) {
+        var notification = new Notification(notificationVO.getTheNotificationDT());
+        notificationRepository.save(notification);
+        return notification.getNotificationUid();
     }
 
     public boolean checkForExistingNotification(BaseContainer vo) throws DataProcessingException {

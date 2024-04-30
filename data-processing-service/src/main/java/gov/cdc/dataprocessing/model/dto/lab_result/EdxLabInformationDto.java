@@ -8,6 +8,7 @@ import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.ObservationContainer;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.service.model.WdsReport;
+import gov.cdc.dataprocessing.service.model.WdsTrackerView;
 import lombok.Getter;
 import lombok.Setter;
 
