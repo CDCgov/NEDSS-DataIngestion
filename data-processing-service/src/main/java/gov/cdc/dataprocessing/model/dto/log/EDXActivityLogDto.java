@@ -23,7 +23,7 @@ public class EDXActivityLogDto extends BaseContainer implements Serializable {
     private String recordStatusCd;
     private String recordStatusCdHtml;
     private Timestamp recordStatusTime;
-    private String exception;
+    private String exceptionTxt;
     private String impExpIndCd;
     private String impExpIndCdDesc;
     private String sourceTypeCd;
@@ -33,9 +33,9 @@ public class EDXActivityLogDto extends BaseContainer implements Serializable {
     private String srcName;
     private String viewLink;
     private String exceptionShort;
-    private Collection<Object> EDXActivityLogDTWithVocabDetails;
+    private Collection<EDXActivityDetailLogDto> EDXActivityLogDTWithVocabDetails;
     private Collection<Object> EDXActivityLogDTWithQuesDetails;
-    private Collection<Object> EDXActivityLogDTDetails = new ArrayList();;
+    private Collection<EDXActivityDetailLogDto> EDXActivityLogDTDetails = new ArrayList();
     private Map<Object,Object> newaddedCodeSets = new HashMap<Object,Object>();
     private boolean logDetailAllStatus = false;
     private String algorithmAction;
@@ -43,8 +43,5 @@ public class EDXActivityLogDto extends BaseContainer implements Serializable {
     private String messageId;
     private String entityNm;
     private String accessionNbr;
-
-
-
     private String algorithmName;
 }
