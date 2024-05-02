@@ -10,6 +10,10 @@ import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
 import gov.cdc.dataingestion.validation.services.interfaces.IHL7Service;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +23,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-@Tag(name = "ELR Reports", description = "ELR reports API")
-
 @RestController
 @RequestMapping("/api/reports")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearer-key")
+@Tag(name = "ELR Ingestion", description = "ELR Ingestion API")
 public class ElrReportsController {
 
     private final RawELRService rawELRService;
@@ -56,7 +60,18 @@ public class ElrReportsController {
     @Operation(
             summary = "Submit a plain text HL7 message",
             description = "Submit a plain text HL7 message with msgType header",
-            tags = { "dataingestion", "elr" })
+            parameters = {
+                    @Parameter(in = ParameterIn.HEADER,
+                            name = "clientid",
+                            description = "The Client Id",
+                            required = true,
+                            schema = @Schema(type = "string")),
+                    @Parameter(in = ParameterIn.HEADER,
+                            name = "clientsecret",
+                            description = "The Client Secret",
+                            required = true,
+                            schema = @Schema(type = "string"))}
+    )
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> save(@RequestBody final String payload, @RequestHeader("msgType") String type,
                                        @RequestHeader(name = "version",  defaultValue = "1") String version) {
@@ -81,14 +96,37 @@ public class ElrReportsController {
     @Operation(
             summary = "Get a report information by id",
             description = "Get a HL7 report by the given id",
-            tags = { "dataingestion", "elr" })
+            parameters = {
+                    @Parameter(in = ParameterIn.HEADER,
+                            name = "clientid",
+                            description = "The Client Id",
+                            required = true,
+                            schema = @Schema(type = "string")),
+                    @Parameter(in = ParameterIn.HEADER,
+                            name = "clientsecret",
+                            description = "The Client Secret",
+                            required = true,
+                            schema = @Schema(type = "string"))}
+    )
     @GetMapping(path = "/{id}")
     public ResponseEntity<RawERLDto> getById(@PathVariable String id) {
         return ResponseEntity.ok(rawELRService.getById(id));
     }
 
     @Operation(
-            summary = "Transform parsed ecr data in MSG table into CDA xml")
+            summary = "Transform parsed ecr data in MSG table into CDA xml",
+            parameters = {
+                    @Parameter(in = ParameterIn.HEADER,
+                            name = "clientid",
+                            description = "The Client Id",
+                            required = true,
+                            schema = @Schema(type = "string")),
+                    @Parameter(in = ParameterIn.HEADER,
+                            name = "clientsecret",
+                            description = "The Client Secret",
+                            required = true,
+                            schema = @Schema(type = "string"))}
+    )
     @GetMapping(path = "/ecr/cda-transformation")
     public ResponseEntity<String> processingMsgEcrIntoCDA() throws EcrCdaXmlException {
         var result = ecrMsgQueryService.getSelectedEcrRecord();
@@ -104,7 +142,18 @@ public class ElrReportsController {
     }
 
     @Operation(
-            summary = "Verifying whether the payload is a valid hl7 message or not"
+            summary = "Verifying whether the payload is a valid hl7 message or not",
+            parameters = {
+                    @Parameter(in = ParameterIn.HEADER,
+                            name = "clientid",
+                            description = "The Client Id",
+                            required = true,
+                            schema = @Schema(type = "string")),
+                    @Parameter(in = ParameterIn.HEADER,
+                            name = "clientsecret",
+                            description = "The Client Secret",
+                            required = true,
+                            schema = @Schema(type = "string"))}
     )
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/validate-hl7")
     public ResponseEntity<String> hl7Validator(@RequestBody final String payload) throws DiHL7Exception {

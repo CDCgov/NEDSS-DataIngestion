@@ -4,6 +4,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+@Tag(name = "Token API", description = "Token API to create the JWT Token")
 @RestController
 @Slf4j
 public class TokenController {
@@ -30,6 +33,10 @@ public class TokenController {
     public static RestTemplate restTemplate(RestTemplateBuilder builder) {
         return builder.build();
     }
+    @Operation(
+            summary = "Create JWT Token",
+            description = "Create JWT Token using Keycloak Client Id and Client Secret."
+    )
     @PostMapping("/token")
     public ResponseEntity<String> token(@RequestHeader("clientid") String clientId, @RequestHeader("clientsecret") String clientSecret) {
         log.info("Token URL : " + authTokenUri);
