@@ -1,5 +1,7 @@
 package gov.cdc.dataprocessing.model.dto.edx;
 
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxyVO;
+import gov.cdc.dataprocessing.model.container.PamProxyContainer;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityLogDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NBSDocumentDto;
 import lombok.Getter;
@@ -26,7 +28,12 @@ public class EdxRuleAlgorothmManagerDto implements Serializable {
     private Long dsmAlgorithmUid;
     private String onFailureToCreateInv;
     private String action;
-    private Object object;
+
+    // These two were named object before
+    private PageActProxyVO pageActContainer;
+    private PamProxyContainer pamContainer;
+
+
     private Collection<Object> edxActivityDetailLogDTCollection;
     private String errorText;
     private Collection<Object> sendingFacilityColl;

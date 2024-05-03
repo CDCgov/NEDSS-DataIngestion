@@ -77,7 +77,6 @@ public class PageService implements IPageService {
 //                else
 //                    morbSumVO.setProcessingDecisionCd(processingDecision);
 //                observationColl.add(morbSumVO);
-
             }
 
             investigationService.setObservationAssociationsImpl(publicHealthCaseUID, observationColl, true);

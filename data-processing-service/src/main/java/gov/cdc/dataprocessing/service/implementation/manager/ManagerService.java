@@ -217,16 +217,16 @@ public class ManagerService implements IManagerService {
                     phcContainer.setObservationDto(observationDto);
                     phcContainer.setWdsTrackerView(trackerView);
 
-                    var phc = edxLabInformationDto.getObject();
-                    if (phc != null) {
-                        if (phc instanceof PageActProxyVO) {
-                            var pageActProxyVO = (PageActProxyVO) edxLabInformationDto.getObject();
-                            trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT());
-                        }else{
-                            var pamProxyVO = (PamProxyContainer)edxLabInformationDto.getObject();
-                            trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT());
-                        }
+                    if (edxLabInformationDto.getPageActContainer() != null) {
+                        var pageActProxyVO = (PageActProxyVO) edxLabInformationDto.getPageActContainer();
+                        trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT());
                     }
+                    else
+                    {
+                        var pamProxyVO = (PamProxyContainer)edxLabInformationDto.getPamContainer();
+                        trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT());
+                    }
+
 
 //                    gson = new Gson();
 //                    String jsonString = gson.toJson(phcContainer);
@@ -273,6 +273,12 @@ public class ManagerService implements IManagerService {
             PamProxyContainer pamProxyVO = null;
             PublicHealthCaseVO publicHealthCaseVO = null;
             Long phcUid = null;
+
+            /**
+             * REVIEW NOTE and what not implemented
+             * - Basic reviewed implemented -- clean up needed
+             * - Adv reviewed is not implemented
+             * */
             if (edxLabInformationDto.getAction() != null && edxLabInformationDto.getAction().equalsIgnoreCase(DecisionSupportConstants.MARK_AS_REVIEWED)) {
                 //Check for user security to mark as review lab
                 //checkSecurity(nbsSecurityObj, edxLabInformationDto, NBSBOLookup.OBSERVATIONLABREPORT, NBSOperationLookup.MARKREVIEWED, programAreaCd, jurisdictionCd);
@@ -288,14 +294,22 @@ public class ManagerService implements IManagerService {
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_11);
                 }
 
-            } else if (edxLabInformationDto.getObject() != null) {
+            }
+            else if (edxLabInformationDto.getPageActContainer() != null || edxLabInformationDto.getPamContainer() != null)
+            {
                 //Check for user security to create investigation
                 //checkSecurity(nbsSecurityObj, edxLabInformationDto, NBSBOLookup.INVESTIGATION, NBSOperationLookup.ADD, programAreaCd, jurisdictionCd);
-                if (edxLabInformationDto.getObject() instanceof PageActProxyVO) {
-                    pageActProxyVO = (PageActProxyVO) edxLabInformationDto.getObject();
+
+                /**
+                 * Incoming payload should reach PageActProxyVO
+                 * */
+                if (edxLabInformationDto.getPageActContainer() != null) {
+                    pageActProxyVO =  edxLabInformationDto.getPageActContainer();
                     publicHealthCaseVO = pageActProxyVO.getPublicHealthCaseVO();
-                } else {
-                    pamProxyVO = (PamProxyContainer) edxLabInformationDto.getObject();
+                }
+                else
+                {
+                    pamProxyVO = edxLabInformationDto.getPamContainer();
                     publicHealthCaseVO = pamProxyVO.getPublicHealthCaseVO();
                 }
 
@@ -305,6 +319,7 @@ public class ManagerService implements IManagerService {
                     requiredFieldError(publicHealthCaseVO.getErrorText(), edxLabInformationDto);
 
                 }
+
 
                 if (pageActProxyVO != null && observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null) {
                     //TODO: 3rd Flow
@@ -316,7 +331,9 @@ public class ManagerService implements IManagerService {
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_3);
                     edxLabInformationDto.setPublicHealthCaseUid(phcUid);
                     edxLabInformationDto.setLabAssociatedToInv(true);
-                } else if (observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null) {
+                }
+                else if (observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null)
+                {
                     //TODO: 3rd Flow
                     phcUid = pamService.setPamProxyWithAutoAssoc(pamProxyVO, edxLabInformationDto.getRootObserbationUid(), NEDSSConstant.LABRESULT_CODE);
 
@@ -483,13 +500,15 @@ public class ManagerService implements IManagerService {
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
             }
 
-            if (edxLabInformationDto.getObject() != null && !edxLabInformationDto.isInvestigationSuccessfullyCreated()) {
+            if ((edxLabInformationDto.getPageActContainer() != null || edxLabInformationDto.getPamContainer() != null) && !edxLabInformationDto.isInvestigationSuccessfullyCreated()) {
                 if (edxLabInformationDto.isInvestigationMissingFields()) {
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_5);
                 } else {
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_9);
                 }
-            } else if (edxLabInformationDto.getObject() != null && edxLabInformationDto.isInvestigationSuccessfullyCreated()) {
+            }
+            else if ((edxLabInformationDto.getPageActContainer() != null || edxLabInformationDto.getPamContainer() != null) && edxLabInformationDto.isInvestigationSuccessfullyCreated())
+            {
                 if (edxLabInformationDto.isNotificationMissingFields()) {
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_8);
                 } else {

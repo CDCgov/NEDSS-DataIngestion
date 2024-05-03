@@ -90,9 +90,13 @@ public class AutoInvestigationService implements IAutoInvestigationService {
             Object obj=null;
 
             if(pageActProxyVO!=null)
+            {
                 obj=pageActProxyVO;
+            }
             else
+            {
                 obj=pamProxyVO;
+            }
             return obj;
         } catch (Exception e) {
             throw new DataProcessingException("AutoInvestigationHandler-autoCreateInvestigation NEDSSSystemException raised"+e);
