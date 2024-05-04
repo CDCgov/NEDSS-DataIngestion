@@ -29,6 +29,7 @@ import gov.cdc.dataprocessing.service.implementation.other.CachingValueService;
 import gov.cdc.dataprocessing.service.interfaces.*;
 import gov.cdc.dataprocessing.service.interfaces.material.IMaterialService;
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
+import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.PublicHealthCaseRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.QueryHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
@@ -180,7 +181,6 @@ public class InvestigationService implements IInvestigationService {
     public void setObservationAssociationsImpl(Long investigationUID, Collection<LabReportSummaryContainer>  reportSumVOCollection, boolean invFromEvent) throws DataProcessingException {
 
 
-
         PublicHealthCaseDT phcDT =  publicHealthCaseRepositoryUtil.findPublicHealthCase(investigationUID);
 
         try
@@ -203,7 +203,7 @@ public class InvestigationService implements IInvestigationService {
                     actRelationshipDT.setTargetActUid(investigationUID);
                     actRelationshipDT.setSourceActUid(reportSumVO.getObservationUid());
                     actRelationshipDT.setFromTime(reportSumVO.getActivityFromTime());
-                    actRelationshipDT.setLastChgUserId(Long.parseLong("21212121"));
+                    actRelationshipDT.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
                     //Set from time same as investigation create time if act relationship is created while creating investigation from lab or morbidity report
                     if (invFromEvent) {
                         actRelationshipDT.setFromTime(phcDT.getAddTime());
@@ -214,11 +214,11 @@ public class InvestigationService implements IInvestigationService {
                     boolean reportFromDoc = false;
                     if (reportSumVO instanceof LabReportSummaryContainer) {
                         actRelationshipDT.setTypeCd(NEDSSConstant.LAB_DISPALY_FORM);
-                        if (((LabReportSummaryContainer) reportSumVO).isLabFromDoc()) {
+                        if (reportSumVO.isLabFromDoc()) {
                             reportFromDoc = true;
                         }
                         if (invFromEvent) {
-                            actRelationshipDT.setAddReasonCd(((LabReportSummaryContainer) reportSumVO).getProcessingDecisionCd());
+                            actRelationshipDT.setAddReasonCd(reportSumVO.getProcessingDecisionCd());
                         }
                     }
                     /*
@@ -237,22 +237,22 @@ public class InvestigationService implements IInvestigationService {
 
 
                     if (reportSumVO.getIsAssociated()) {
-                        //actRelationshipDT.setItNew(true);
                         actRelationshipDT.setRecordStatusCd(NEDSSConstant.ACTIVE);
                         actRelationshipDT.setStatusCd(NEDSSConstant.A);
                     } else {
-                        // actRelationshipDT.setItDelete(true);
                         actRelationshipDT.setRecordStatusCd(NEDSSConstant.INACTIVE);
                         actRelationshipDT.setStatusCd(NEDSSConstant.I);
-                        //    actRelationshipDAOImpl.store(actRelationshipDT);
                     }
 
                     actRelationshipDT = prepareAssocModelHelper.prepareAssocDTForActRelationship(actRelationshipDT);
                     // needs to be done here as prepareAssocDT will always set dirty flag true
-                    if (reportSumVO.getIsAssociated()) {
+                    if (reportSumVO.getIsAssociated())
+                    {
                         actRelationshipDT.setItNew(true);
                         actRelationshipDT.setItDirty(false);
-                    } else {
+                    }
+                    else
+                    {
                         actRelationshipDT.setItDelete(true);
                         actRelationshipDT.setItDirty(false);
                     }
@@ -263,13 +263,15 @@ public class InvestigationService implements IInvestigationService {
                         var obs = observationRepositoryUtil.loadObject(reportSumVO.getObservationUid());
                         ObservationDto obsDT = obs.getTheObservationDto();
                         //Starts persist observationDT
-                        if (reportSumVO.getIsAssociated()) {
+                        if (reportSumVO.getIsAssociated())
+                        {
                             obsDT.setItDirty(true);
                             String businessObjLookupName = "";
                             String businessTriggerCd = "";
                             String tableName = NEDSSConstant.OBSERVATION;
                             String moduleCd = NEDSSConstant.BASE;
-                            if (reportSumVO instanceof LabReportSummaryContainer) {
+                            if (reportSumVO instanceof LabReportSummaryContainer)
+                            {
                                 businessObjLookupName = NEDSSConstant.OBSERVATIONLABREPORT;
                                 businessTriggerCd = NEDSSConstant.OBS_LAB_ASC;
                             }
@@ -282,21 +284,28 @@ public class InvestigationService implements IInvestigationService {
                             */
 
                             rootDT = prepareAssocModelHelper.prepareVO(obsDT, businessObjLookupName, businessTriggerCd, tableName, moduleCd, obsDT.getVersionCtrlNbr());
-                        } // End if(observationSumVO.getIsAssociated()==true)
+                        }
 
-                        if (!reportSumVO.getIsAssociated()) {
+                        if (!reportSumVO.getIsAssociated())
+                        {
                             obsDT.setItDirty(true);
                             String businessObjLookupName = "";
                             String businessTriggerCd = "";
                             String tableName = NEDSSConstant.OBSERVATION;
                             String moduleCd = NEDSSConstant.BASE;
-                            if (reportSumVO instanceof LabReportSummaryContainer) {
+                            if (reportSumVO instanceof LabReportSummaryContainer)
+                            {
                                 Collection<ActRelationshipDto> actRelColl = actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(reportSumVO.getObservationUid(), "LabReport");
                                 businessObjLookupName = NEDSSConstant.OBSERVATIONLABREPORT;
                                 if (actRelColl != null && actRelColl.size() > 0)
+                                {
                                     businessTriggerCd = NEDSSConstant.OBS_LAB_DIS_ASC;
+                                }
                                 else
-                                    businessTriggerCd = NEDSSConstant.OBS_LAB_UNPROCESS;// if  Lab does not have other associations it will be sent back into needing review queue
+                                {
+                                    businessTriggerCd = NEDSSConstant.OBS_LAB_UNPROCESS;
+                                    // if  Lab does not have other associations it will be sent back into needing review queue
+                                }
                             }
                             /*
                             if(reportSumVO instanceof MorbReportSummaryVO)
@@ -306,22 +315,21 @@ public class InvestigationService implements IInvestigationService {
                             }
                             */
                             rootDT = prepareAssocModelHelper.prepareVO(obsDT, businessObjLookupName, businessTriggerCd, tableName, moduleCd, obsDT.getVersionCtrlNbr());
-                        } // End Of if(observationSumVO.getIsAssociated()==false)
+                        }
                         obsDT = (ObservationDto) rootDT;
                         //set the previous entered processing decision to null
                         obsDT.setProcessingDecisionCd(null);
                         observationRepositoryUtil.setObservationInfo(obsDT);
-                    } // End Of while(theIterator.hasNext())
-                } // END Of if(!observationSumVOCollection.isEmpty())
+                    }
+                }
             }
-        }// End of try
+        }
         catch(Exception e)
         {
             e.printStackTrace();
             throw new DataProcessingException(e.getMessage());
         }
-
-    }//end of setObservationAssociations()
+    }
 
 
 
