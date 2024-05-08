@@ -19,19 +19,12 @@ import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
-import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
-import gov.cdc.dataprocessing.model.dto.log.EDXActivityLogDto;
-import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.NbsInterfaceRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 import gov.cdc.dataprocessing.service.implementation.other.CachingValueService;
-import gov.cdc.dataprocessing.service.interfaces.IDecisionSupportService;
-import gov.cdc.dataprocessing.service.interfaces.ILabReportProcessing;
-import gov.cdc.dataprocessing.service.interfaces.IPageService;
-import gov.cdc.dataprocessing.service.interfaces.IPamService;
+import gov.cdc.dataprocessing.service.interfaces.*;
 import gov.cdc.dataprocessing.service.interfaces.auth.ISessionProfileService;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
@@ -93,6 +86,7 @@ public class ManagerService implements IManagerService {
     private final ILabReportProcessing labReportProcessing;
     private final IPageService pageService;
     private final IPamService pamService;
+    private final IInvestigationNotificationService investigationNotificationService;
 
     @Autowired
     public ManagerService(IObservationService observationService,
@@ -109,7 +103,8 @@ public class ManagerService implements IManagerService {
                           IManagerAggregationService managerAggregationService,
                           ILabReportProcessing labReportProcessing,
                           IPageService pageService,
-                          IPamService pamService) {
+                          IPamService pamService,
+                          IInvestigationNotificationService investigationNotificationService) {
         this.observationService = observationService;
         this.edxLogService = edxLogService;
         this.handleLabService = handleLabService;
@@ -125,6 +120,7 @@ public class ManagerService implements IManagerService {
         this.labReportProcessing = labReportProcessing;
         this.pageService = pageService;
         this.pamService = pamService;
+        this.investigationNotificationService = investigationNotificationService;
     }
 
     @Transactional
@@ -347,9 +343,7 @@ public class ManagerService implements IManagerService {
                 if(edxLabInformationDto.getAction().equalsIgnoreCase(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE)){
                     //TODO: 3rd Flow
                     //TODO: THIS SEEM TO GO TO LOG
-                 //   EDXActivityDetailLogDto edxActivityDetailLogDT = EdxCommonHelper.sendNotification(publicHealthCaseVO, edxLabInformationDto.getNndComment());
-
-                    EDXActivityDetailLogDto edxActivityDetailLogDT = new EDXActivityDetailLogDto();
+                    EDXActivityDetailLogDto edxActivityDetailLogDT = investigationNotificationService.sendNotification(publicHealthCaseVO, edxLabInformationDto.getNndComment());
                     edxActivityDetailLogDT.setRecordType(EdxELRConstant.ELR_RECORD_TP);
                     edxActivityDetailLogDT.setRecordName(EdxELRConstant.ELR_RECORD_NM);
                     ArrayList<EDXActivityDetailLogDto> details = (ArrayList<EDXActivityDetailLogDto>)edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails();
