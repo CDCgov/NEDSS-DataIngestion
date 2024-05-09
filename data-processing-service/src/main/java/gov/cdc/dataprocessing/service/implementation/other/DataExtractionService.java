@@ -47,14 +47,18 @@ public class DataExtractionService implements IDataExtractionService {
     private final ORCHandler orcHandler;
     private final LabResultUtil labResultUtil;
     private final NbsInterfaceStoredProcRepository nbsInterfaceStoredProcRepository;
+
+    private final DataExtractionServiceUtility dataExtractionServiceUtility;
     public DataExtractionService (
             HL7PatientHandler hl7PatientHandler,
             ObservationRequestHandler observationRequestHandler,
             ObservationResultRequestHandler observationResultRequestHandler,
             IMsgOutEStoredProcService msgOutEStoredProcService,
             ORCHandler orcHandler,
+            DataExtractionServiceUtility dataExtractionServiceUtility,
             LabResultUtil labResultUtil, NbsInterfaceStoredProcRepository nbsInterfaceStoredProcRepository) {
         this.hl7PatientHandler = hl7PatientHandler;
+        this.dataExtractionServiceUtility = dataExtractionServiceUtility;
         this.observationRequestHandler = observationRequestHandler;
         this.observationResultRequestHandler = observationResultRequestHandler;
         this.msgOutEStoredProcService = msgOutEStoredProcService;
@@ -90,7 +94,7 @@ public class DataExtractionService implements IDataExtractionService {
             edxDocumentDto.setItNew(true);
             collectionXmlDoc.add(edxDocumentDto);
 
-            Container container = parsingElrXmlPayload(nbsInterfaceModel.getPayload());
+            Container container = dataExtractionServiceUtility.parsingElrXmlPayload(nbsInterfaceModel.getPayload());
             HL7LabReportType hl7LabReportType = container.getHL7LabReport();
             HL7MSHType hl7MSHType = hl7LabReportType.getHL7MSH();
 
@@ -99,7 +103,7 @@ public class DataExtractionService implements IDataExtractionService {
             List<HL7PATIENTRESULTType> HL7PatientResultArray = hl7LabReportType.getHL7PATIENTRESULT();
             HL7PatientResultSPMType hl7PatientResultSPMType = null;
 
-            if(HL7PatientResultArray == null){
+            if(HL7PatientResultArray == null || HL7PatientResultArray.size() == 0){
                 edxLabInformationDto.setNoSubject(true);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                 logger.error("HL7CommonLabUtil.processELR error thrown as NO patient segment is found.Please check message with NBS_INTERFACE_UID:-" + nbsInterfaceModel.getNbsInterfaceUid());
@@ -121,7 +125,7 @@ public class DataExtractionService implements IDataExtractionService {
 
             List<HL7OrderObservationType> hl7OrderObservationArray = hl7PATIENTRESULTType.getORDEROBSERVATION();
 
-            if(hl7OrderObservationArray==null){
+            if(hl7OrderObservationArray==null || hl7OrderObservationArray.size() == 0){
                 edxLabInformationDto.setOrderTestNameMissing(true);
                 logger.error("HL7CommonLabUtil.processELR error thrown as NO OBR segment is found.Please check message with NBS_INTERFACE_UID:-"+ nbsInterfaceModel.getNbsInterfaceUid());
                 throw new DataProcessingException(EdxELRConstant.NO_ORDTEST_NAME);
@@ -192,11 +196,5 @@ public class DataExtractionService implements IDataExtractionService {
 
     }
 
-    public Container parsingElrXmlPayload(String xmlPayload) throws JAXBException {
 
-        JAXBContext context = JAXBContext.newInstance(Container.class);
-        Unmarshaller unmarshaller = context.createUnmarshaller();
-        StringReader reader = new StringReader(xmlPayload);
-        return (Container) unmarshaller.unmarshal(reader);
-    }
 }
