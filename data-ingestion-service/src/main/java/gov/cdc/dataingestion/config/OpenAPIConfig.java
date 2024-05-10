@@ -33,7 +33,7 @@ public class OpenAPIConfig {
                 .setHost(serverhost)
                 .build();
         serverUrl=uriBuilder.toString();
-        System.out.println("----server url: "+serverUrl);
+
         Server server = new Server();
         server.setUrl(serverUrl);
         server.setDescription("Server URL");
