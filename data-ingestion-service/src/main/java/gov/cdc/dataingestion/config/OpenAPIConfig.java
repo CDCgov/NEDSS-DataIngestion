@@ -6,32 +6,41 @@ import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import org.apache.http.client.utils.URIBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.net.URI;
 import java.util.List;
 
 @Configuration
 public class OpenAPIConfig {
+    @Value("${diserver.host}")
+    private String serverhost;
 
     @Bean
-    public OpenAPI myOpenAPI() {
-        Server devServer = new Server();
-        devServer.setUrl("http://localhost:8081");
-        devServer.setDescription("Server URL in Local environment");
-
-        Server dts1Server = new Server();
-        dts1Server.setUrl("https://dataingestion.dts1.nbspreview.com");
-        dts1Server.setDescription("Server URL in DTS environment");
-
-        Server int1Server = new Server();
-        int1Server.setUrl("https://dataingestion.int1.nbspreview.com");
-        int1Server.setDescription("Server URL in INT environment");
+    public OpenAPI myOpenAPI() throws Exception{
+        String serverUrl = "";
+        String scheme="";
+        if(serverhost!=null && !serverhost.contains("localhost")){
+            scheme="https";
+        }else{
+            scheme="http";
+        }
+        URI uriBuilder = new URIBuilder()
+                .setScheme(scheme)
+                .setHost(serverhost)
+                .build();
+        serverUrl=uriBuilder.toString();
+        System.out.println("----server url: "+serverUrl);
+        Server server = new Server();
+        server.setUrl(serverUrl);
+        server.setDescription("Server URL");
 
         Contact contact = new Contact();
         contact.setEmail("dataingestionservice@cdc.com");
         contact.setName("Data Ingestion Service");
-        contact.setUrl("https://localhost:8080");
 
         Info info = new Info()
                 .title("Data Ingestion API")
@@ -45,6 +54,6 @@ public class OpenAPIConfig {
                                 scheme("bearer").bearerFormat("JWT").
                                 description("JWT Token"));
 
-        return new OpenAPI().info(info).servers(List.of(devServer, dts1Server,int1Server)).components(components);
+        return new OpenAPI().info(info).servers(List.of(server)).components(components);
     }
 }
