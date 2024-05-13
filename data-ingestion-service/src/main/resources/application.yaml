@@ -56,6 +56,14 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: none
+    properties:
+      hibernate:
+        default_schema: dbo
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+        timezone:
+          default_storage: NORMALIZE
   kafka:
     bootstrap-servers: ${BOOTSTRAP_SERVERS}
     group-id: data-ingestion-group
@@ -111,6 +119,14 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: none
+    properties:
+      hibernate:
+        default_schema: dbo
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+        timezone:
+          default_storage: NORMALIZE
   kafka:
     bootstrap-servers: ${BOOTSTRAP_SERVERS}
     group-id: data-ingestion-group
@@ -156,3 +172,6 @@ sftp:
   host: ${DI_SFTP_HOST:dummyhost}
   username: ${DI_SFTP_USER:dummyuser}
   password: ${DI_SFTP_PWD:dummypwd}
+
+app:
+  timezone: ${DI_TIMEZONE:UTC}

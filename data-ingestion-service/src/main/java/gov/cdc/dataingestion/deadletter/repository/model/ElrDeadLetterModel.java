@@ -34,9 +34,7 @@ public class ElrDeadLetterModel {
     @Column(name="message")
     private String message;
 
-    @Basic(optional = false)
-    @Column(name = "created_on",insertable = false, updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_on")
     private Timestamp createdOn;
 
     @Column(name = "updated_on")
