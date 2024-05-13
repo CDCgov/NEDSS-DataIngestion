@@ -4,7 +4,9 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxyVO;
 import gov.cdc.dataprocessing.model.container.BaseContainer;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.NotificationProxyContainer;
 import gov.cdc.dataprocessing.model.container.PamProxyContainer;
+import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 
 public interface IUidService {
     /**
@@ -26,4 +28,5 @@ public interface IUidService {
 
     void setFalseToNewForPageAct(PageActProxyVO pageProxyVO, Long falseUid, Long actualUid) throws DataProcessingException;
     void setFalseToNewForPam(PamProxyContainer pamProxyVO, Long falseUid, Long actualUid) throws DataProcessingException;
+    ActRelationshipDto setFalseToNewForNotification(NotificationProxyContainer notificationProxyVO, Long falseUid, Long actualUid) throws DataProcessingException;
 }

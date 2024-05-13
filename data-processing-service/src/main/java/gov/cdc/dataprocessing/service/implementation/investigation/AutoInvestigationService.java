@@ -73,13 +73,17 @@ public class AutoInvestigationService implements IAutoInvestigationService {
             theActIdDTCollection.add(actID1DT);
             phcVO.setTheActIdDTCollection(theActIdDTCollection);
         }
-        if (edxLabInformationDT.getInvestigationType()!=null && (edxLabInformationDT.getInvestigationType().equalsIgnoreCase(NEDSSConstant.INV_FORM_VAR)
-                || edxLabInformationDT.getInvestigationType().equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT))) {
+        if (edxLabInformationDT.getInvestigationType()!=null
+                && (edxLabInformationDT.getInvestigationType().equalsIgnoreCase(NEDSSConstant.INV_FORM_VAR)
+                || edxLabInformationDT.getInvestigationType().equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)))
+        {
             pamProxyVO = new PamProxyContainer();
             pamProxyVO.setItNew(true);
             pamProxyVO.setItDirty(false);
             pamProxyVO.setPublicHealthCaseVO(phcVO);
-        } else {
+        }
+        else
+        {
             pageActProxyVO = new PageActProxyVO();
             pageActProxyVO.setItNew(true);
             pageActProxyVO.setItDirty(false);
@@ -90,9 +94,13 @@ public class AutoInvestigationService implements IAutoInvestigationService {
             Object obj=null;
 
             if(pageActProxyVO!=null)
+            {
                 obj=pageActProxyVO;
+            }
             else
+            {
                 obj=pamProxyVO;
+            }
             return obj;
         } catch (Exception e) {
             throw new DataProcessingException("AutoInvestigationHandler-autoCreateInvestigation NEDSSSystemException raised"+e);
