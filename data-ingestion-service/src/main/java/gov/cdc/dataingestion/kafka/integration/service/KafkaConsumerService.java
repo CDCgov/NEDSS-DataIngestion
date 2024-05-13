@@ -530,10 +530,10 @@ public class KafkaConsumerService {
         //  - HL7 -> XML
                 // xml conversion can be broke down into multiple smaller pipeline
         //  - Saving record to status table can also be broke to downstream pipeline
-        CompletableFuture.runAsync(() -> {
+//        CompletableFuture.runAsync(() -> {
             log.debug("Received message id will be retrieved from db and associated hl7 will be converted to xml");
             xmlConversionHandlerProcessing(message, operation, dataProcessingEnable);
-        });
+//        });
     }
     private void validationHandler(String message, boolean hl7ValidationActivated, String dataProcessingEnable) throws DuplicateHL7FileFoundException, DiHL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);
