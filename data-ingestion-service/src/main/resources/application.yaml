@@ -156,3 +156,6 @@ sftp:
   host: ${DI_SFTP_HOST:dummyhost}
   username: ${DI_SFTP_USER:dummyuser}
   password: ${DI_SFTP_PWD:dummypwd}
+
+diserver:
+  host: ${DI_SERVER_HOST:localhost:8081}

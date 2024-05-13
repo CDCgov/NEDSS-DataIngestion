@@ -5,6 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
 import gov.cdc.dataingestion.reportstatus.service.ReportStatusService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -18,6 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@SecurityRequirement(name = "bearer-key")
+@Tag(name = "ELR Status", description = "ELR Status API")
 public class ReportStatusController {
     private static Logger logger = LoggerFactory.getLogger(ReportStatusController.class);
 
@@ -27,6 +34,21 @@ public class ReportStatusController {
         this.reportStatusService = reportStatusService;
     }
 
+    @Operation(
+            summary = "Get status by raw id",
+            description = "Return all info from Elr raw and nbs interface tables.",
+            parameters = {
+                    @Parameter(in = ParameterIn.HEADER,
+                            name = "clientid",
+                            description = "The Client Id",
+                            required = true,
+                            schema = @Schema(type = "string")),
+                    @Parameter(in = ParameterIn.HEADER,
+                            name = "clientsecret",
+                            description = "The Client Secret",
+                            required = true,
+                            schema = @Schema(type = "string"))}
+    )
     @GetMapping("/report-status/{id}")
     public ResponseEntity<String> getReportStatus(@PathVariable String id) throws JsonProcessingException {
         logger.debug("Status requested for record with id: '{}'", id);
@@ -52,7 +74,18 @@ public class ReportStatusController {
 
     @Operation(
             summary = "Get all status related to raw id",
-            description = "return all info such as the pipeline which the message is currently at, dlt info, etc.."
+            description = "Return all info such as the pipeline which the message is currently at, dlt info,nbs ingestion etc..",
+            parameters = {
+                    @Parameter(in = ParameterIn.HEADER,
+                            name = "clientid",
+                            description = "The Client Id",
+                            required = true,
+                            schema = @Schema(type = "string")),
+                    @Parameter(in = ParameterIn.HEADER,
+                    name = "clientsecret",
+                    description = "The Client Secret",
+                    required = true,
+                    schema = @Schema(type = "string"))}
             )
     @GetMapping(path = "/get-message-info")
     public ResponseEntity<MessageStatus> getMessageStatus(@RequestParam("raw-id") String rawMessageId)  {
