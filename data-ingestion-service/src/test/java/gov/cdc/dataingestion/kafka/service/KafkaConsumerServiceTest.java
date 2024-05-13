@@ -51,7 +51,6 @@ import java.lang.reflect.Method;
 import java.sql.*;
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -300,8 +299,6 @@ class KafkaConsumerServiceTest {
 
     @Test
     void xmlPreparationConsumerTest() {
-
-        CompletableFuture.runAsync(() -> {
             try {
                 // Produce a test message to the topic
                 String message =  guidForTesting;
@@ -322,7 +319,7 @@ class KafkaConsumerServiceTest {
 
                 when(iValidatedELRRepository.findById(guidForTesting))
                         .thenReturn(Optional.of(model));
-                when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any(), false)).thenReturn(nbsInterfaceModel);
+                when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any(), eq(false))).thenReturn(nbsInterfaceModel);
 
 
                 kafkaConsumerService
@@ -332,8 +329,6 @@ class KafkaConsumerServiceTest {
             }
 
             verify(iValidatedELRRepository, times(2)).findById(guidForTesting);
-        });
-
     }
 
 
@@ -384,31 +379,12 @@ class KafkaConsumerServiceTest {
 
         // Perform assertions
         assertEquals(1, records.count());
-
-        ConsumerRecord<String, String> firstRecord = records.iterator().next();
-        String value = firstRecord.value();
-
-
-        ElrDeadLetterModel model = new ElrDeadLetterModel();
-        model.setErrorMessageId(guidForTesting);
-        model.setMessage(testHL7Message);
-
-
-         CompletableFuture.runAsync(() -> {
-            try {
-                assertThrows(DiAsyncException.class, () -> kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.name(), "false")); //NOSONAR
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
     }
 
     @Test
     void xmlPreparationConsumerTestReInjection() {
         // Produce a test message to the topic
       //  initialDataInsertionAndSelection(xmlPrepTopic);
-
-       CompletableFuture.runAsync(() -> {
             try {
                 var guidForTesting = "test";
                 String message =  guidForTesting;
@@ -439,7 +415,7 @@ class KafkaConsumerServiceTest {
                 validatedELRModel.setRawMessage(testHL7Message);
                 nbsInterfaceModel.setPayload(testHL7Message);
                 when(iValidatedELRRepository.findById(anyString())).thenReturn(Optional.of(validatedELRModel));
-                when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any(), false)).thenReturn(nbsInterfaceModel);
+                when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any(), eq(false))).thenReturn(nbsInterfaceModel);
 
                 kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.name(), "false");
 
@@ -448,8 +424,6 @@ class KafkaConsumerServiceTest {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        });
-
     }
 
     //@Test

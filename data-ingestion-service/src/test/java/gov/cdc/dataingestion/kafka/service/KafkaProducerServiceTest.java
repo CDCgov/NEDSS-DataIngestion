@@ -38,10 +38,6 @@ class KafkaProducerServiceTest {
 
     @BeforeEach
     public void setUp() {
-        // Mocking SendResult and ListenableFuture
-        SendResult<String, String> sendResult = mock(SendResult.class);
-        var future = CompletableFuture.completedFuture(sendResult);
-        when(kafkaTemplate.send(any(ProducerRecord.class))).thenReturn(future);
     }
 
     @AfterAll
