@@ -39,6 +39,8 @@ Data Ingestion for Modernization of NEDSS Project by Enquizit
               DI_SFTP_USER=value
     
               DI_SFTP_PWD=value
+            
+              DI_SERVER_HOST=value
           ```
           - Run "docker-compose up -d"
           - If encounter gradle exception such as missing wrapper then run the following command
