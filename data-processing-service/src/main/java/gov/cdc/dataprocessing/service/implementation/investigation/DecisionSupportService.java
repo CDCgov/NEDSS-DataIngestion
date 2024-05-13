@@ -503,7 +503,13 @@ public class DecisionSupportService implements IDecisionSupportService {
                     String errorText = edxPhcrDocumentUtil.requiredFieldCheck(requireMap, nbsAnswerMap);
                     publicHealthCaseVO.setErrorText(errorText);
                 }
-                edxLabInformationDT.setObject(obj);
+                if (obj instanceof PageActProxyVO) {
+                    edxLabInformationDT.setPageActContainer((PageActProxyVO) obj);
+                }
+                else
+                {
+                    edxLabInformationDT.setPamContainer((PamProxyContainer) obj);
+                }
 
                 var condCode = SrteCache.findConditionCodeByDescription(conditionCode);
                 condCode.ifPresent(code -> edxLabInformationDT.setConditionName(code.getConditionShortNm()));

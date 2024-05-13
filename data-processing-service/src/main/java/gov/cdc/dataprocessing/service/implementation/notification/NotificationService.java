@@ -1,26 +1,41 @@
 package gov.cdc.dataprocessing.service.implementation.notification;
 
+import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.NotificationVO;
-import gov.cdc.dataprocessing.model.container.ObservationContainer;
-import gov.cdc.dataprocessing.model.container.BaseContainer;
-import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.*;
+import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.notification.NotificationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.notification.Notification;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.notification.NotificationRepository;
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
+import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
+import gov.cdc.dataprocessing.utilities.component.ActRelationshipRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.NotificationRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 
 @Service
 public class NotificationService implements INotificationService {
     private final NotificationRepository notificationRepository;
+    private final PrepareAssocModelHelper prepareAssocModelHelper;
+    private final IUidService iUidService;
+    private final ActRelationshipRepositoryUtil actRelationshipRepositoryUtil;
 
-    public NotificationService(NotificationRepository notificationRepository) {
+    private final NotificationRepositoryUtil notificationRepositoryUtil;
+
+    public NotificationService(NotificationRepository notificationRepository,
+                               PrepareAssocModelHelper prepareAssocModelHelper,
+                               IUidService iUidService,
+                               ActRelationshipRepositoryUtil actRelationshipRepositoryUtil, NotificationRepositoryUtil notificationRepositoryUtil) {
         this.notificationRepository = notificationRepository;
+        this.prepareAssocModelHelper = prepareAssocModelHelper;
+        this.iUidService = iUidService;
+        this.actRelationshipRepositoryUtil = actRelationshipRepositoryUtil;
+        this.notificationRepositoryUtil = notificationRepositoryUtil;
     }
 
     public NotificationDto getNotificationById(Long uid) {
@@ -56,7 +71,7 @@ public class NotificationService implements INotificationService {
         /*Both lab and morb class codes are OBS */
 //        if (vo instanceof MorbidityProxyVO) {
 //            // return "OBS"
-//            return NEDSSConstants.CLASS_CD_OBS;
+//            return NEDSSConstant.CLASS_CD_OBS;
 //        }
 
         if (vo instanceof LabResultProxyContainer) {
@@ -66,7 +81,7 @@ public class NotificationService implements INotificationService {
 
 //        else if (vo instanceof VaccinationProxyVO) {
 //            // return "INTV"
-//            return NEDSSConstants.CLASS_CD_INTV;
+//            return NEDSSConstant.CLASS_CD_INTV;
 //        }
         return null;
     }
@@ -88,7 +103,7 @@ public class NotificationService implements INotificationService {
 //                        observationVO.getTheObservationDto().getCtrlCdDisplayForm();
 //                if (ctrlCdDisplayForm != null
 //                        && ctrlCdDisplayForm.equalsIgnoreCase(
-//                        NEDSSConstants.MOB_CTRLCD_DISPLAY))
+//                        NEDSSConstant.MOB_CTRLCD_DISPLAY))
 //                    return observationVO
 //                            .getTheObservationDto()
 //                            .getObservationUid();
@@ -128,6 +143,134 @@ public class NotificationService implements INotificationService {
 //        }
         return null;
     }
+
+
+
+    public Long setNotificationProxy(NotificationProxyContainer notificationProxyVO) throws DataProcessingException
+    {
+
+        Long notificationUid = null;
+        String permissionFlag = "";
+        Collection<Object> act2 = new ArrayList<>();
+
+        try
+        {
+            if (notificationProxyVO == null)
+            {
+                throw new DataProcessingException("notificationproxyVO is null ");
+            }
+
+            String programeAreaCode = notificationProxyVO.getThePublicHealthCaseVO().getThePublicHealthCaseDT().getProgAreaCd();
+            String jurisdictionCode = notificationProxyVO.getThePublicHealthCaseVO().getThePublicHealthCaseDT().getJurisdictionCd();
+            String shared = notificationProxyVO.getThePublicHealthCaseVO().getThePublicHealthCaseDT().getSharedInd();
+
+
+            permissionFlag = "CREATE";
+
+            //TODO: PERMISSION
+//            if (!nbsSecurityObj.getPermission(NBSBOLookup.NOTIFICATION, NBSOperationLookup.CREATE, programeAreaCode, jurisdictionCode, shared))
+//            {
+//
+//                if (!nbsSecurityObj.getPermission(NBSBOLookup.NOTIFICATION, NBSOperationLookup.CREATENEEDSAPPROVAL, programeAreaCode, jurisdictionCode, shared))
+//                {
+//                    throw new DataProcessingException("NO CREATE PERMISSIONS for setNotificationProxy");
+//                }
+//                else
+//                {
+//                    permissionFlag = "CREATENEEDSAPPROVAL";
+//                }
+//            }
+//            else
+//            {
+//                permissionFlag = "CREATE";
+//            }
+        }
+        catch (Exception e)
+        {
+            throw new DataProcessingException(e.toString());
+        }
+
+
+        NotificationVO notifVO = notificationProxyVO.getTheNotificationVO();
+
+        if (notifVO == null)
+        {
+            throw new DataProcessingException("notificationVO is null ");
+        }
+
+        NotificationDto notifDT = notifVO.getTheNotificationDT();
+        notifDT.setProgAreaCd(notificationProxyVO.getThePublicHealthCaseVO().getThePublicHealthCaseDT().getProgAreaCd());
+        notifDT.setJurisdictionCd(notificationProxyVO.getThePublicHealthCaseVO().getThePublicHealthCaseDT().getJurisdictionCd());
+
+        if (permissionFlag.equals("CREATE"))
+        {
+            notifDT.setCaseConditionCd(notificationProxyVO.getThePublicHealthCaseVO().getThePublicHealthCaseDT().getCd());
+        }
+
+        if ((notifVO.isItDirty()) || (notifVO.isItNew()))
+        {
+            String boLookup = NBSBOLookup.NOTIFICATION;
+            String triggerCd = "";
+            if (permissionFlag.equals("CREATE"))
+            {
+                triggerCd = NEDSSConstant.NOT_CR_APR;
+            }
+            if (permissionFlag.equals("CREATENEEDSAPPROVAL"))
+            {
+                triggerCd = NEDSSConstant.NOT_CR_PEND_APR;
+            }
+            String tableName = "Notification";
+            String moduleCd = NEDSSConstant.BASE;
+
+            // TODO: PROPERTY CHECK FOR PROGRAM AREA
+//            if(notifVO.isItNew() && PropertyUtil.isHIVProgramArea(notifDT.getProgAreaCd()))
+//            {
+//                triggerCd = NEDSSConstant.NOT_HIV;// for HIV, notification is always created as completed
+//            }
+//            if(notifVO.isItDirty() && PropertyUtil.isHIVProgramArea(notifDT.getProgAreaCd()))
+//            {
+//                triggerCd = NEDSSConstant.NOT_HIV_EDIT;// for HIV, notification always stay as completed
+//            }
+
+
+            try
+            {
+                notifDT = (NotificationDto) prepareAssocModelHelper.prepareVO(notifDT, boLookup, triggerCd, tableName, moduleCd, notifDT.getVersionCtrlNbr());
+
+                if (notifDT.getCd().isEmpty())
+                {
+                    notifDT.setCd(NEDSSConstant.CLASS_CD_NOTIFICATION);
+                }
+
+                notifVO.setTheNotificationDT(notifDT);
+
+
+                Long falseUid = null;
+                Long realUid = null;
+                realUid = notificationRepositoryUtil.setNotification(notifVO);
+                notificationUid = realUid;
+                falseUid = notifVO.getTheNotificationDT().getNotificationUid();
+
+                if (notifVO.isItNew())
+                {
+                    ActRelationshipDto actRelDT = null;
+                    actRelDT = iUidService.setFalseToNewForNotification(notificationProxyVO, falseUid, realUid);
+                    notifDT.setNotificationUid(realUid);
+
+                    notifVO.setTheNotificationDT(notifDT);
+                    notificationProxyVO.setTheNotificationVO(notifVO);
+                    act2.add(actRelDT);
+                    notificationProxyVO.setTheActRelationshipDTCollection(act2);
+                    actRelationshipRepositoryUtil.storeActRelationship(actRelDT);
+                }
+            }
+            catch (Exception e)
+            {
+                throw new DataProcessingException(" : " + e.toString());
+            }
+        } // end of if new or dirty
+        return notificationUid;
+    } // end of setNotificationProxy
 
 
 

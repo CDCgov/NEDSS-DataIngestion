@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.service.implementation.other;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxyVO;
+import gov.cdc.dataprocessing.model.container.NotificationProxyContainer;
 import gov.cdc.dataprocessing.model.container.PamProxyContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -322,4 +324,27 @@ public class UidService implements IUidService {
         }
     }
 
+    public ActRelationshipDto setFalseToNewForNotification(NotificationProxyContainer notificationProxyVO, Long falseUid, Long actualUid) throws DataProcessingException {
+
+        Iterator<Object> anIterator = null;
+        ActRelationshipDto actRelationshipDT = null;
+        try{
+            Collection<Object> actRelationShipColl = (ArrayList<Object>) notificationProxyVO.getTheActRelationshipDTCollection();
+            Collection<Object> act2 = new ArrayList<Object>();
+
+            if (actRelationShipColl != null)
+            {
+
+                for (anIterator = actRelationShipColl.iterator(); anIterator.hasNext();)
+                {
+                    actRelationshipDT = (ActRelationshipDto) anIterator.next();
+                    actRelationshipDT.setSourceActUid(actualUid);
+                    act2.add(actRelationshipDT);
+                }
+            }
+        }catch(Exception ex){
+            throw new DataProcessingException(ex.toString());
+        }
+        return actRelationshipDT;
+    }
 }

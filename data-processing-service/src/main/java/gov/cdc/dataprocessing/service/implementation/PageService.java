@@ -58,9 +58,13 @@ public class PageService implements IPageService {
                 labSumVO.setObservationUid(observationUid);
                 //set the add_reason_code(processing decision) for act_relationship  from initial follow-up(pre-populated from Lab report processing decision) field in case management
                 if(pageProxyVO.getPublicHealthCaseVO().getTheCaseManagementDT()!=null && pageProxyVO.getPublicHealthCaseVO().getTheCaseManagementDT().getInitFollUp()!=null)
+                {
                     labSumVO.setProcessingDecisionCd(pageProxyVO.getPublicHealthCaseVO().getTheCaseManagementDT().getInitFollUp());
+                }
                 else
+                {
                     labSumVO.setProcessingDecisionCd(processingDecision);
+                }
                 observationColl.add(labSumVO);
 
             }
@@ -77,7 +81,6 @@ public class PageService implements IPageService {
 //                else
 //                    morbSumVO.setProcessingDecisionCd(processingDecision);
 //                observationColl.add(morbSumVO);
-
             }
 
             investigationService.setObservationAssociationsImpl(publicHealthCaseUID, observationColl, true);
