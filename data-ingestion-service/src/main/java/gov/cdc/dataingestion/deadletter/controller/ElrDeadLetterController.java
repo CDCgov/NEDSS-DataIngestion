@@ -66,8 +66,8 @@ public class ElrDeadLetterController {
     }
 
     @Operation(
-            summary = "ReInject the message",
-            description = "ReInject the payload with dlt id",
+            summary = "ReInject the message with dlt id",
+            description = "ReInject the message with dlt id",
             parameters = {
                     @Parameter(in = ParameterIn.HEADER,
                             name = "clientid",
