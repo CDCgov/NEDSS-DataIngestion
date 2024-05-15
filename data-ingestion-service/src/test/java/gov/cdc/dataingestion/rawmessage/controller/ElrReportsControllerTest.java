@@ -41,7 +41,7 @@ class ElrReportsControllerTest {
     void testSaveHL7Message() throws Exception {
         String hl7Payload = "testmessage";
         String messageType = "HL7";
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
+        mockMvc.perform(MockMvcRequestBuilders.post("/elr/dataingestion")
                         .header("msgType", messageType)
                         .contentType("text/plain")
                         .content(hl7Payload)
@@ -61,7 +61,7 @@ class ElrReportsControllerTest {
     void testSaveHL7MessageValidationActivated() throws Exception {
         String hl7Payload = "testmessage";
         String messageType = "HL7";
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
+        mockMvc.perform(MockMvcRequestBuilders.post("/elr/dataingestion")
                         .header("msgType", messageType)
                         .contentType("text/plain")
                         .content(hl7Payload)
@@ -80,7 +80,7 @@ class ElrReportsControllerTest {
     void testSaveHL7MessageHeaderIsEmpty() throws Exception {
         String hl7Payload = "testmessage";
         String messageType = "";
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
+        mockMvc.perform(MockMvcRequestBuilders.post("/elr/dataingestion")
                         .header("msgType", messageType)
                         .contentType("text/plain")
                         .content(hl7Payload)
@@ -91,7 +91,7 @@ class ElrReportsControllerTest {
     @Test
     void testSaveHL7MessageHeaderIsEmptyType() throws Exception {
         String hl7Payload = "testmessage";
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
+        mockMvc.perform(MockMvcRequestBuilders.post("/elr/dataingestion")
                         .header("msgType", "")
                         .contentType("text/plain")
                         .content(hl7Payload)
@@ -102,7 +102,7 @@ class ElrReportsControllerTest {
     @Test
     void testSaveHL7MessageHeaderTypeInvalid() throws Exception {
         String hl7Payload = "testmessage";
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
+        mockMvc.perform(MockMvcRequestBuilders.post("/elr/dataingestion")
                         .header("msgType", "AAA")
                         .contentType("text/plain")
                         .content(hl7Payload)
@@ -113,7 +113,7 @@ class ElrReportsControllerTest {
     @Test
     void testHl7Validator() throws Exception {
         String hl7Payload = "testmessage";
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports/validate-hl7")
+        mockMvc.perform(MockMvcRequestBuilders.post("/elr/validate-hl7")
                         .contentType("text/plain")
                         .content(hl7Payload)
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
