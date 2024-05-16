@@ -25,7 +25,6 @@ import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 import gov.cdc.dataprocessing.service.implementation.other.CachingValueService;
 import gov.cdc.dataprocessing.service.interfaces.*;
-import gov.cdc.dataprocessing.service.interfaces.auth.ISessionProfileService;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
@@ -74,7 +73,7 @@ public class ManagerService implements IManagerService {
 
     private final CacheManager cacheManager;
 
-    private final ISessionProfileService sessionProfileService;
+    private final IAuthUserService authUserService;
 
     private final IDecisionSupportService decisionSupportService;
 
@@ -96,8 +95,7 @@ public class ManagerService implements IManagerService {
                           NbsInterfaceRepository nbsInterfaceRepository,
                           CachingValueService cachingValueService,
                           CacheManager cacheManager,
-                          ISessionProfileService sessionProfileService,
-                          IDecisionSupportService decisionSupportService,
+                          IAuthUserService authUserService, IDecisionSupportService decisionSupportService,
                           ManagerUtil managerUtil,
                           KafkaManagerProducer kafkaManagerProducer,
                           IManagerAggregationService managerAggregationService,
@@ -112,7 +110,7 @@ public class ManagerService implements IManagerService {
         this.nbsInterfaceRepository = nbsInterfaceRepository;
         this.cachingValueService = cachingValueService;
         this.cacheManager = cacheManager;
-        this.sessionProfileService = sessionProfileService;
+        this.authUserService = authUserService;
         this.decisionSupportService = decisionSupportService;
         this.managerUtil = managerUtil;
         this.kafkaManagerProducer = kafkaManagerProducer;
@@ -480,14 +478,14 @@ public class ManagerService implements IManagerService {
             nbsInterfaceRepository.save(nbsInterfaceModel);
 
 
-            PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
-            phcContainer.setLabResultProxyContainer(labResultProxyContainer);
-            phcContainer.setEdxLabInformationDto(edxLabInformationDto);
-            phcContainer.setObservationDto(observationDto);
-            phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
-            gson = new Gson();
-            String jsonString = gson.toJson(phcContainer);
-            kafkaManagerProducer.sendDataPhc(jsonString);
+//            PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
+//            phcContainer.setLabResultProxyContainer(labResultProxyContainer);
+//            phcContainer.setEdxLabInformationDto(edxLabInformationDto);
+//            phcContainer.setObservationDto(observationDto);
+//            phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
+//            gson = new Gson();
+//            String jsonString = gson.toJson(phcContainer);
+//            kafkaManagerProducer.sendDataPhc(jsonString);
 
             //return result;
         } catch (Exception e) {

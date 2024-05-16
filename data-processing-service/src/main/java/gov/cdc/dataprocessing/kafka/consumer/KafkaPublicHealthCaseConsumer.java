@@ -2,7 +2,7 @@ package gov.cdc.dataprocessing.kafka.consumer;
 
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.service.implementation.auth.SessionProfileService;
+import gov.cdc.dataprocessing.service.interfaces.IAuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -25,16 +25,15 @@ public class KafkaPublicHealthCaseConsumer {
     private String logTopic = "elr_edx_log";
     private final KafkaManagerProducer kafkaManagerProducer;
     private final IManagerService managerService;
-    private final SessionProfileService sessionProfileService;
-
+    private final IAuthUserService authUserService;
 
     public KafkaPublicHealthCaseConsumer(
             KafkaManagerProducer kafkaManagerProducer,
-            IManagerService managerService, SessionProfileService sessionProfileService) {
+            IManagerService managerService, IAuthUserService authUserService) {
 
         this.kafkaManagerProducer = kafkaManagerProducer;
         this.managerService = managerService;
-        this.sessionProfileService = sessionProfileService;
+        this.authUserService = authUserService;
 
     }
 
@@ -46,7 +45,7 @@ public class KafkaPublicHealthCaseConsumer {
     {
         try {
 
-            AuthUser profile = this.sessionProfileService.getSessionProfile("data-processing");
+            var profile = this.authUserService.getAuthUserInfo("superuser");
             AuthUtil.setGlobalAuthUser(profile);
             managerService.initiatingInvestigationAndPublicHealthCase(message);
         }
