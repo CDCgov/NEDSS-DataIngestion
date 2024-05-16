@@ -64,7 +64,7 @@ public class PublicHealthCaseStoredProcRepository {
                 model.setEffectiveDurationUnitCd((String) result[20]);
                 model.setEffectiveFromTime((Timestamp) result[21]);
                 model.setEffectiveToTime((Timestamp) result[22]);
-                model.setGroupCaseCnt((Integer) result[23]);
+                model.setGroupCaseCnt(((Short) result[23]).intValue());
                 model.setInvestigationStatusCd((String) result[24]);
                 model.setJurisdictionCd((String) result[25]);
                 model.setLastChgReasonCd((String) result[26]);
@@ -84,7 +84,7 @@ public class PublicHealthCaseStoredProcRepository {
                 model.setRecordStatusTime((Timestamp) result[40]);
                 model.setRepeatNbr((Integer) result[41]);
                 model.setRptCntyCd((String) result[42]);
-                model.setStatusCd((String) result[43]);
+                model.setStatusCd( ((Character) result[43]).toString());
                 model.setStatusTime((Timestamp) result[44]);
                 model.setTransmissionModeCd((String) result[45]);
                 model.setTransmissionModeDescTxt((String) result[46]);
@@ -99,9 +99,9 @@ public class PublicHealthCaseStoredProcRepository {
                 model.setRptToStateTime((Timestamp) result[55]);
                 model.setDiagnosisTime((Timestamp) result[56]);
                 model.setProgramJurisdictionOid((Long) result[57]);
-                model.setSharedInd((String) result[58]);
-                model.setVersionCtrlNbr((Integer) result[59]);
-                model.setCaseTypeCd((String) result[60]);
+                model.setSharedInd(((Character) result[58]).toString());
+                model.setVersionCtrlNbr(((Short) result[59]).intValue());
+                model.setCaseTypeCd(((Character) result[60]).toString());
                 model.setInvestigatorAssignedTime((Timestamp) result[61]);
                 model.setHospitalizedIndCd((String) result[62]);
                 model.setHospitalizedAdminTime((Timestamp) result[63]);

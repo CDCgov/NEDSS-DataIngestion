@@ -400,34 +400,46 @@ public class PublicHealthCaseRepositoryUtil {
     }
 
     public PublicHealthCaseVO loadObject(Long phcUid) throws DataProcessingException {
-        var container = new PublicHealthCaseVO();
+        try {
+            var container = new PublicHealthCaseVO();
 
-        var phcDt = publicHealthCaseRepository.findById(phcUid);
-        if (phcDt.isEmpty()) {
-            throw new DataProcessingException("Public Health Case Not Exist");
+            var phcDt = publicHealthCaseRepository.findById(phcUid);
+            if (phcDt.isEmpty()) {
+                throw new DataProcessingException("Public Health Case Not Exist");
+            }
+
+
+            container.setThePublicHealthCaseDT(new PublicHealthCaseDT(phcDt.get()));
+
+            //  phcDt.setStdHivProgramAreaCode(isStdHivProgramAreaCode);
+            container.getThePublicHealthCaseDT().setStdHivProgramAreaCode(false);
+
+            var confirmLst = confirmationMethodRepositoryUtil.getConfirmationMethodByPhc(phcUid);
+            container.setTheConfirmationMethodDTCollection(confirmLst);
+
+            var caseMag = caseManagementRepositoryUtil.getCaseManagementPhc(phcUid);
+            container.setTheCaseManagementDT(caseMag);
+
+            var actIdLst = actIdRepositoryUtil.GetActIdCollection(phcUid);
+            container.setTheActIdDTCollection(actIdLst);
+
+            var actLoc = actLocatorParticipationRepositoryUtil.getActLocatorParticipationCollection(phcUid);
+            container.setTheActivityLocatorParticipationDTCollection(actLoc);
+
+            var actRe = actRelationshipRepositoryUtil.selectActRelationshipDTCollectionFromActUid(phcUid);
+            container.setTheActRelationshipDTCollection(actRe);
+
+            var pat = participationRepositoryUtil.getParticipationsByActUid(phcUid);
+            container.setTheParticipationDTCollection(pat);
+
+            container.setItNew(false);
+            container.setItDirty(false);
+
+            return container;
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
         }
 
-        container.setThePublicHealthCaseDT(new PublicHealthCaseDT(phcDt.get()));
-
-        var confirmLst = confirmationMethodRepositoryUtil.getConfirmationMethodByPhc(phcUid);
-        container.setTheConfirmationMethodDTCollection(confirmLst);
-
-        var caseMag = caseManagementRepositoryUtil.getCaseManagementPhc(phcUid);
-        container.setTheCaseManagementDT(caseMag);
-
-        var actIdLst = actIdRepositoryUtil.GetActIdCollection(phcUid);
-        container.setTheActIdDTCollection(actIdLst);
-
-        var actLoc = actLocatorParticipationRepositoryUtil.getActLocatorParticipationCollection(phcUid);
-        container.setTheActivityLocatorParticipationDTCollection(actLoc);
-
-        var actRe = actRelationshipRepositoryUtil.getActRelationshipCollectionFromSourceId(phcUid);
-        container.setTheActRelationshipDTCollection(actRe);
-
-        var pat = participationRepositoryUtil.getParticipations(phcUid);
-        container.setTheParticipationDTCollection(pat);
-
-        return container;
     }
 
     public PublicHealthCaseVO getPublicHealthCaseContainer(long publicHealthCaseUid) throws DataProcessingException {
@@ -455,11 +467,13 @@ public class PublicHealthCaseRepositoryUtil {
 
         PublicHealthCaseVO publicHealthCaseContainer = new PublicHealthCaseVO();
         publicHealthCaseContainer.setThePublicHealthCaseDT(phc);
+
         return publicHealthCaseContainer;
     }
 
     public PublicHealthCaseDT findPublicHealthCase(long publicHealthCaseUid) {
         var phc = publicHealthCaseRepository.findById(publicHealthCaseUid);
+        // ADD CODE TO FIND PHC RELATED OBJECT HERE
         return phc.map(PublicHealthCaseDT::new).orElse(null);
     }
 

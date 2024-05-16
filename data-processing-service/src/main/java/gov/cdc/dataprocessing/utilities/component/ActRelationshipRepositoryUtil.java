@@ -25,8 +25,8 @@ public class ActRelationshipRepositoryUtil {
     public Collection<ActRelationshipDto> getActRelationshipCollectionFromSourceId(Long actUid) {
         var res = actRelationshipRepository.findRecordsBySourceId(actUid);
         Collection<ActRelationshipDto> dtoCollection = new ArrayList<>();
-        if (!res.isEmpty()) {
-            for(var item : res) {
+        if (res.isPresent()) {
+            for(var item : res.get()) {
                 var dto  = new ActRelationshipDto(item);
                 dto.setItNew(false);
                 dto.setItDirty(false);
@@ -35,6 +35,29 @@ public class ActRelationshipRepositoryUtil {
         }
         return dtoCollection;
     }
+
+    public Collection<ActRelationshipDto> selectActRelationshipDTCollectionFromActUid(long aUID) throws DataProcessingException
+    {
+        try
+        {
+            var col = actRelationshipRepository.findRecordsByActUid(aUID);
+            Collection<ActRelationshipDto> dtCollection = new ArrayList<>();
+            if (col.isPresent()) {
+                for (var item : col.get()) {
+                    ActRelationshipDto dt = new ActRelationshipDto(item);
+                    dt.setItNew(false);
+                    dt.setItDirty(false);
+                    dtCollection.add(dt);
+                }
+            }
+            return dtCollection;
+        }
+        catch(Exception ndapex)
+        {
+            throw new DataProcessingException(ndapex.toString());
+        }
+    }
+
 
     public void insertActRelationshipHist(ActRelationshipDto actRelationshipDto) {
         var hst = new ActRelationshipHistory(actRelationshipDto);

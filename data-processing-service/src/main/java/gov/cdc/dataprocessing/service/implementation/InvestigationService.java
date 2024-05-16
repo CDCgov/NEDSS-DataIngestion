@@ -590,7 +590,7 @@ public class InvestigationService implements IInvestigationService {
         try {
             
             // Step 1: Get the Pubic Health Case
-            thePublicHealthCaseVO = publicHealthCaseRepositoryUtil.getPublicHealthCaseContainer(publicHealthCaseUID);
+            thePublicHealthCaseVO = publicHealthCaseRepositoryUtil.loadObject(publicHealthCaseUID);
 
             // TODO: Get user name from PHC
             //thePublicHealthCaseVO.getThePublicHealthCaseDT().setAddUserName(helper.getUserName(thePublicHealthCaseVO.getThePublicHealthCaseDT().getAddUserId()));

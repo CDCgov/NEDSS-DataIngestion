@@ -72,6 +72,7 @@ public class NbsQuestionMetadata extends BaseContainer {
     }
 
     public NbsQuestionMetadata(MetaAndWaCommonAttribute commonAttributes) {
+        this.dataLocation = commonAttributes.getDataLocation();
         this.nbsQuestionUid = commonAttributes.getQuestionUid();
         this.addTime = commonAttributes.getAddTime();
         this.addUserId = commonAttributes.getAddUserId();

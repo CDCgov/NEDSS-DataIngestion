@@ -213,15 +213,26 @@ public class ManagerService implements IManagerService {
                     phcContainer.setObservationDto(observationDto);
                     phcContainer.setWdsTrackerView(trackerView);
 
-                    if (edxLabInformationDto.getPageActContainer() != null) {
-                        var pageActProxyVO = (PageActProxyVO) edxLabInformationDto.getPageActContainer();
-                        trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT());
+                    if (edxLabInformationDto.getPageActContainer() != null
+                    || edxLabInformationDto.getPamContainer() != null) {
+                        if (edxLabInformationDto.getPageActContainer() != null) {
+                            var pageActProxyVO = (PageActProxyVO) edxLabInformationDto.getPageActContainer();
+                            trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT());
+                        }
+                        else
+                        {
+                            var pamProxyVO = (PamProxyContainer)edxLabInformationDto.getPamContainer();
+                            trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT());
+                        }
                     }
                     else
                     {
-                        var pamProxyVO = (PamProxyContainer)edxLabInformationDto.getPamContainer();
-                        trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT());
+                        if (edxLabInformationDto.getAction() != null) {
+                            //action 3 is REVIEW
+                            System.out.println("TEST");
+                        }
                     }
+
 
 
 //                    gson = new Gson();
