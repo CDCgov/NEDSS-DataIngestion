@@ -69,7 +69,7 @@ public class ElrReportsController {
                             required = true,
                             schema = @Schema(type = "string"))}
     )
-    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE,path = "/elr/dataingestion")
+    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE,path = "/elr/data-ingestion")
     public ResponseEntity<String> save(@RequestBody final String payload, @RequestHeader("msgType") String type,
                                        @RequestHeader(name = "version",  defaultValue = "1") String version) {
             if (type.isEmpty()) {
@@ -104,7 +104,7 @@ public class ElrReportsController {
                             required = true,
                             schema = @Schema(type = "string"))}
     )
-    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/elr/validate-hl7")
+    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/elr/validation")
     public ResponseEntity<String> hl7Validator(@RequestBody final String payload) throws DiHL7Exception {
         return ResponseEntity.ok(hl7Service.hl7Validator(payload));
     }

@@ -43,7 +43,7 @@ class ElrDeadLetterControllerTest {
 
         when(elrDeadLetterService.getAllErrorDltRecord()).thenReturn(dtoList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/elr/dlt/get-dlt-messages")
+        mockMvc.perform(MockMvcRequestBuilders.get("/elr/error-messages")
                     .with(SecurityMockMvcRequestPostProcessors.jwt())
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -72,7 +72,7 @@ class ElrDeadLetterControllerTest {
 
         when(elrDeadLetterService.getDltRecordById("1")).thenReturn(dto1);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/elr/dlt/get-messge-by-dlt-id")
+        mockMvc.perform(MockMvcRequestBuilders.get("/elr/error-messages")
                         .param("id", "1").with(SecurityMockMvcRequestPostProcessors.jwt())
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -88,8 +88,8 @@ class ElrDeadLetterControllerTest {
 
     @Test
     void testMessageReInject() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/elr/dlt/reprocess-dlt-message")
-                .param("id", "1")
+        mockMvc.perform(MockMvcRequestBuilders.post("/elr/error-messages/re-ingest/1")
+                //.param("dlt-id", "1")
                 .contentType("text/plain")
                 .content("HL7 message")
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))

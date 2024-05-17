@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/elr/dlt")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearer-key")
 @Tag(name = "ELR Dead Letter", description = "Elr Dead Letter Messages")
@@ -40,7 +39,7 @@ public class ElrDeadLetterController {
                             required = true,
                             schema = @Schema(type = "string"))}
     )
-    @GetMapping(path = "/get-dlt-messages")
+    @GetMapping(path = "/elr/error-messages")
     public ResponseEntity<List<ElrDeadLetterDto>> getAllNewErrorMessage() {
         return ResponseEntity.ok(elrDeadLetterService.getAllErrorDltRecord());
     }
@@ -60,8 +59,8 @@ public class ElrDeadLetterController {
                             required = true,
                             schema = @Schema(type = "string"))}
     )
-    @GetMapping(path = "/get-messge-by-dlt-id")
-    public ResponseEntity<ElrDeadLetterDto> getErrorMessage(@RequestParam("id") String id) throws DeadLetterTopicException {
+    @GetMapping(path = "/elr/error-messages/{dlt-id}")
+    public ResponseEntity<ElrDeadLetterDto> getErrorMessage(@PathVariable("dlt-id") String id) throws DeadLetterTopicException {
         return ResponseEntity.ok(elrDeadLetterService.getDltRecordById(id));
     }
 
@@ -80,8 +79,8 @@ public class ElrDeadLetterController {
                             required = true,
                             schema = @Schema(type = "string"))}
     )
-    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/reprocess-dlt-message")
-    public ResponseEntity<ElrDeadLetterDto> messageReInject(@RequestParam("id") String id, @RequestBody final String payload) throws DeadLetterTopicException {
-        return ResponseEntity.ok(elrDeadLetterService.updateAndReprocessingMessage(id, payload));
+    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/elr/error-messages/re-ingest/{dlt-id}")
+    public ResponseEntity<ElrDeadLetterDto> messageReInject(@PathVariable("dlt-id") String dltId, @RequestBody final String payload) throws DeadLetterTopicException {
+        return ResponseEntity.ok(elrDeadLetterService.updateAndReprocessingMessage(dltId, payload));
     }
 }
