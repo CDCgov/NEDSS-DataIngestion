@@ -132,7 +132,6 @@ public class ManagerService implements IManagerService {
                 default:
                     break;
             }
-            AuthUtil.setGlobalAuthUser(null);
             return result;
         } else {
             throw new DataProcessingConsumerException("Invalid User");
@@ -478,14 +477,14 @@ public class ManagerService implements IManagerService {
             nbsInterfaceRepository.save(nbsInterfaceModel);
 
 
-//            PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
-//            phcContainer.setLabResultProxyContainer(labResultProxyContainer);
-//            phcContainer.setEdxLabInformationDto(edxLabInformationDto);
-//            phcContainer.setObservationDto(observationDto);
-//            phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
-//            gson = new Gson();
-//            String jsonString = gson.toJson(phcContainer);
-//            kafkaManagerProducer.sendDataPhc(jsonString);
+            PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
+            phcContainer.setLabResultProxyContainer(labResultProxyContainer);
+            phcContainer.setEdxLabInformationDto(edxLabInformationDto);
+            phcContainer.setObservationDto(observationDto);
+            phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
+            gson = new Gson();
+            String jsonString = gson.toJson(phcContainer);
+            kafkaManagerProducer.sendDataPhc(jsonString);
 
             //return result;
         } catch (Exception e) {

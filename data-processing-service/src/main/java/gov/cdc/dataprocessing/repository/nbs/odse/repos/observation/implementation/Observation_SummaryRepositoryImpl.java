@@ -6,11 +6,15 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.Observation_
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.Observation_SummaryRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -48,12 +52,23 @@ public class Observation_SummaryRepositoryImpl implements Observation_SummaryRep
 
 
     @Override
-    public Optional<Collection<Observation_Summary>> findAllActiveLabReportUidListForManage(Long investigationUid, String whereClause) {
+    public Collection<Observation_Summary> findAllActiveLabReportUidListForManage(Long investigationUid, String whereClause) {
         var sql = findAllActiveLabReportUidListForManage_SQL + whereClause;
-        var res =  entityManager.createQuery(sql, Observation_Summary.class)
-                .setParameter("targetActUid", investigationUid)
-                .getResultList();
-        return Optional.ofNullable(res);
+        var lst = new ArrayList<Observation_Summary>();
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("targetActUid", investigationUid);
+        List<Object[]> results = query.getResultList();
+
+        if (results != null && !results.isEmpty()) {
+            for(var result : results) {
+                Observation_Summary container = new Observation_Summary();
+                container.setUid((Long) result[0]);
+                container.setAddTime((Timestamp) result[1]);
+                container.setAddReasonCd((String) result[2]);
+            }
+        }
+        return lst;
     }
 
     @Override
