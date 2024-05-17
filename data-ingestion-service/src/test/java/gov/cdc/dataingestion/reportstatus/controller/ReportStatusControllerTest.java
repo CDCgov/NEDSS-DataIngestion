@@ -81,7 +81,7 @@ class ReportStatusControllerTest {
     @Test
     @SuppressWarnings("java:S5976")
     void testGetReportStatusBlankIdProvided() throws IOException {
-        String id = " ";
+        String id = "";
 
         try {
             reportStatusController.getReportStatus(id);
