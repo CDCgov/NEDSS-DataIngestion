@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.utilities.component;
 
+import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.MessageConstants;
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
@@ -291,10 +292,7 @@ public class PageRepositoryUtil {
 
             Map<Object, Object> repeatingAnswermapMap =pageActProxyCopyVO.getPageVO().getPageRepeatingAnswerDTMap();
 
-
-            // TODO CONDITION
-//            String investigationFormCd = CachedDropDowns.getConditionCdAndInvFormCd().get(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getCd()).toString();
-
+            String investigationFormCd = SrteCache.investigationFormConditionCode.get(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getCd());
             Map<Object, Object> mapFromQuestions = new HashMap<Object,Object>();
 //           TODO CONINFECT FORM CD
 //            Collection<Object> nbsQuestionUidCollection = getCoinfectionQuestionListForFormCd(investigationFormCd);
@@ -383,10 +381,9 @@ public class PageRepositoryUtil {
         Long publicHealthCaseUid =null;
         try {
             // TODO: CONINFECT FORM CD
-//            String investigationFormCd = CachedDropDowns.getConditionCdAndInvFormCd().get(coninfectionSummaryVO.getConditionCd()).toString();
+            String investigationFormCd = SrteCache.investigationFormConditionCode.get(coninfectionSummaryVO.getConditionCd());
 //            Collection<Object> toNbsQuestionUidCollection = getCoinfectionQuestionListForFormCd(investigationFormCd);
 
-            String investigationFormCd = null;
             Collection<Object> toNbsQuestionUidCollection = new ArrayList<>();
             publicHealthCaseUid=coninfectionSummaryVO.getPublicHealthCaseUid();
             java.util.Date dateTime = new java.util.Date();

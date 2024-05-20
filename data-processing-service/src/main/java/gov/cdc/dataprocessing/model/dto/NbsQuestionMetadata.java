@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.dto;
 
 import gov.cdc.dataprocessing.model.container.BaseContainer;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.custom_model.QuestionRequiredNnd;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
 import gov.cdc.dataprocessing.service.model.MetaAndWaCommonAttribute;
 import lombok.Getter;
@@ -113,4 +114,11 @@ public class NbsQuestionMetadata extends BaseContainer {
         this.coinfectionIndCd = commonAttributes.getCoinfectionIndCd();
     }
 
+
+    public NbsQuestionMetadata(QuestionRequiredNnd data) {
+        this.nbsQuestionUid = data.getNbsQuestionUid();
+        this.questionIdentifier = data.getQuestionIdentifier();
+        this.questionLabel = data.getQuestionLabel();
+        this.dataLocation = data.getDataLocation();
+    }
 }
