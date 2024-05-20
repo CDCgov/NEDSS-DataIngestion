@@ -12,13 +12,11 @@ import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
 import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
-import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
 import gov.cdc.dataprocessing.service.interfaces.person.INokMatchingService;
-import gov.cdc.dataprocessing.service.interfaces.person.IPatientMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.person.IProviderMatchingService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -160,7 +158,6 @@ class PersonServiceTest {
         personContainer.setRole("testrole");
 
         EdxLabInformationDto edxLabInformationDto=new EdxLabInformationDto();
-        //edxLabInformationDto.setPatientUid(111L);
         boolean orderingProviderIndicator=false;
 
         EDXActivityDetailLogDto eDXActivityDetailLogDto = new EDXActivityDetailLogDto();
@@ -216,7 +213,6 @@ class PersonServiceTest {
         Collection<PersonContainer> personCollection=new ArrayList<>();
         PersonContainer personContainer=new PersonContainer();
         personContainer.thePersonDto.setPersonUid(111L);
-        //personContainer.getThePersonDto().setCdDescTxt(EdxELRConstant.ELR_PATIENT_DESC);
         personCollection.add(personContainer);
 
         LabResultProxyContainer matchedlabResultProxyVO=new LabResultProxyContainer();
@@ -233,7 +229,7 @@ class PersonServiceTest {
         //matchedLabResultProxyVO
         Collection<PersonContainer> personCollection=new ArrayList<>();
         PersonContainer personContainer=new PersonContainer();
-        personContainer.getThePersonDto().setCdDescTxt(EdxELRConstant.ELR_PATIENT_DESC); //condition 1
+        personContainer.getThePersonDto().setCdDescTxt(EdxELRConstant.ELR_PATIENT_DESC);
         personContainer.getThePersonDto().setPersonUid(123L);
         personContainer.getThePersonDto().setPersonParentUid(234L);
         personContainer.getThePersonDto().setLocalId("111");
@@ -242,7 +238,7 @@ class PersonServiceTest {
 
         //person name
         PersonNameDto personNameDT=new PersonNameDto();
-        personNameDT.setPersonNameSeq(1); //condition 2
+        personNameDT.setPersonNameSeq(1);
         personContainer.getThePersonNameDtoCollection().add(personNameDT);
 
         //person race
@@ -282,11 +278,11 @@ class PersonServiceTest {
         Collection<PersonContainer> personCollection1=new ArrayList<>();
 
         PersonContainer personContainer1=new PersonContainer();
-        personContainer1.getThePersonDto().setCdDescTxt(EdxELRConstant.ELR_PATIENT_DESC); //condition
+        personContainer1.getThePersonDto().setCdDescTxt(EdxELRConstant.ELR_PATIENT_DESC);
         personCollection1.add(personContainer1);
         //person name
         PersonNameDto personNameDT1=new PersonNameDto();
-        personNameDT1.setPersonNameSeq(1); //condition 2
+        personNameDT1.setPersonNameSeq(1);
         personContainer1.getThePersonNameDtoCollection().add(personNameDT1);
 
         //person race
@@ -334,7 +330,7 @@ class PersonServiceTest {
         //matchedLabResultProxyVO
         Collection<PersonContainer> personCollection=new ArrayList<>();
         PersonContainer personContainer=new PersonContainer();
-        personContainer.getThePersonDto().setCdDescTxt(EdxELRConstant.ELR_PATIENT_DESC); //condition 1
+        personContainer.getThePersonDto().setCdDescTxt(EdxELRConstant.ELR_PATIENT_DESC);
         personContainer.getThePersonDto().setPersonUid(123L);
         personContainer.getThePersonDto().setPersonParentUid(234L);
         personContainer.getThePersonDto().setLocalId("111");
@@ -383,7 +379,7 @@ class PersonServiceTest {
         Collection<PersonContainer> personCollection1=new ArrayList<>();
 
         PersonContainer personContainer1=new PersonContainer();
-        personContainer1.getThePersonDto().setCdDescTxt(EdxELRConstant.ELR_PATIENT_DESC); //condition
+        personContainer1.getThePersonDto().setCdDescTxt(EdxELRConstant.ELR_PATIENT_DESC);
         personCollection1.add(personContainer1);
         //person name
         personContainer1.setThePersonNameDtoCollection(null);
