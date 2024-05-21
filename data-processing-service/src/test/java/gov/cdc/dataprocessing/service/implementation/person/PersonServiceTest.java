@@ -67,7 +67,7 @@ class PersonServiceTest {
         assertNotNull(personContainerResult);
     }
     @Test //TODO
-    void processingNextOfKin_personid_null() throws DataProcessingException {
+    void processingNextOfKin_personid_null() {
         PersonContainer personContainer=new PersonContainer();
         personContainer.thePersonDto.setPersonUid(null);
         LabResultProxyContainer labResultProxyContainer=new LabResultProxyContainer();
