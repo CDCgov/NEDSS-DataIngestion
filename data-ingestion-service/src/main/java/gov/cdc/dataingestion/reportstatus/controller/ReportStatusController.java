@@ -48,7 +48,7 @@ public class ReportStatusController {
                             required = true,
                             schema = @Schema(type = "string"))}
     )
-    @GetMapping("/elr/status/{elr-id}")
+    @GetMapping("/api/elrs/status/{elr-id}")
     public ResponseEntity<String> getReportStatus(@PathVariable("elr-id") String elrId) throws JsonProcessingException {
         logger.debug("Status requested for record with id: '{}'", elrId);
 
@@ -86,7 +86,7 @@ public class ReportStatusController {
                     required = true,
                     schema = @Schema(type = "string"))}
             )
-    @GetMapping(path = "/elr/status-info/{elr-id}")
+    @GetMapping(path = "/api/elrs/status-details/{elr-id}")
     public ResponseEntity<MessageStatus> getMessageStatus(@PathVariable("elr-id") String rawMessageId)  {
         var info = reportStatusService.getMessageStatus(rawMessageId);
         return ResponseEntity.ok(info);

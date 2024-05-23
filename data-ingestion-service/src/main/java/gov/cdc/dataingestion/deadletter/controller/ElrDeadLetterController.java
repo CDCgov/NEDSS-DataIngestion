@@ -39,7 +39,7 @@ public class ElrDeadLetterController {
                             required = true,
                             schema = @Schema(type = "string"))}
     )
-    @GetMapping(path = "/elr/error-messages")
+    @GetMapping(path = "/api/elrs/error-messages")
     public ResponseEntity<List<ElrDeadLetterDto>> getAllNewErrorMessage() {
         return ResponseEntity.ok(elrDeadLetterService.getAllErrorDltRecord());
     }
@@ -59,7 +59,7 @@ public class ElrDeadLetterController {
                             required = true,
                             schema = @Schema(type = "string"))}
     )
-    @GetMapping(path = "/elr/error-messages/{dlt-id}")
+    @GetMapping(path = "/api/elrs/error-messages/{dlt-id}")
     public ResponseEntity<ElrDeadLetterDto> getErrorMessage(@PathVariable("dlt-id") String id) throws DeadLetterTopicException {
         return ResponseEntity.ok(elrDeadLetterService.getDltRecordById(id));
     }
@@ -79,7 +79,7 @@ public class ElrDeadLetterController {
                             required = true,
                             schema = @Schema(type = "string"))}
     )
-    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/elr/error-messages/re-ingest/{dlt-id}")
+    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/api/elrs/{dlt-id}")
     public ResponseEntity<ElrDeadLetterDto> messageReInject(@PathVariable("dlt-id") String dltId, @RequestBody final String payload) throws DeadLetterTopicException {
         return ResponseEntity.ok(elrDeadLetterService.updateAndReprocessingMessage(dltId, payload));
     }
