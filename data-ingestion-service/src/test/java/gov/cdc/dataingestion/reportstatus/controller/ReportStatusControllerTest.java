@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
@@ -81,7 +80,7 @@ class ReportStatusControllerTest {
     @Test
     @SuppressWarnings("java:S5976")
     void testGetReportStatusBlankIdProvided() throws IOException {
-        String id = " ";
+        String id = "";
 
         try {
             reportStatusController.getReportStatus(id);
