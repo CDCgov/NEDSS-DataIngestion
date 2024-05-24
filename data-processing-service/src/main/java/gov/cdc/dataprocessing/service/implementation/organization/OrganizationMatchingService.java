@@ -447,8 +447,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 if (organizationNameDto.getNmUseCd() != null
                         && organizationNameDto.getNmUseCd().equals(
                         NEDSSConstant.LEGAL)) {
-                    if (organizationNameDto.getNmTxt() != null
-                            || organizationNameDto.getNmTxt() != null)
+                    if (organizationNameDto.getNmTxt() != null)
                         nameStr = organizationNameDto.getNmTxt();
                 }
             }
