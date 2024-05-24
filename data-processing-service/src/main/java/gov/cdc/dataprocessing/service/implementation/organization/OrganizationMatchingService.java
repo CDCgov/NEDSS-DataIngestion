@@ -69,9 +69,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
             if (localId != null) {
                 try {
                     // Try to get the matching with the match string and type (was hash code)
-//                    EdxEntityMatchDto edxEntityMatchingDT = edxDao
-//                            .getEdxEntityMatch(NEDSSConstant.ORGANIZATION_CLASS_CODE, localId);
-                    System.out.println("11111 for getEdxEntityMatchOnMatchString localId:"+localId);
                     EdxEntityMatchDto edxEntityMatchingDT =
                             edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(NEDSSConstant.ORGANIZATION_CLASS_CODE, localId);
                     if (edxEntityMatchingDT != null
@@ -116,8 +113,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                     }
                     try {
                         // Try to get the matching with the type and match string
-//                        EdxEntityMatchDto edxEntityMatchingDT = edxDao
-//                                .getEdxEntityMatch(NEDSSConstant.ORGANIZATION_CLASS_CODE, identifier);
                         EdxEntityMatchDto edxEntityMatchingDT =
                                 edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(NEDSSConstant.ORGANIZATION_CLASS_CODE, identifier);
                         if (edxEntityMatchingDT != null
@@ -125,7 +120,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                             if (localEdxEntityMatchDT != null) {
                                 localEdxEntityMatchDT.setEntityUid(edxEntityMatchingDT
                                         .getEntityUid());
-//                                edxDao.setEdxEntityMatchDT(localEdxEntityMatchDT);
                                 edxPatientMatchRepositoryUtil.saveEdxEntityMatch(localEdxEntityMatchDT);
                             }
                             edxActivityDetailLogDto.setRecordId(""
@@ -147,7 +141,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                                         + ex.getMessage(), ex);
                     }
                     if (identifier != null) {
-                        System.out.println("-----identifier:"+identifier);
                         EdxEntityMatchDto edxEntityMatchDT = new EdxEntityMatchDto();
                         edxEntityMatchDT.setTypeCd(NEDSSConstant.ORGANIZATION);
                         edxEntityMatchDT.setMatchString(identifier);
@@ -165,14 +158,11 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
             if (nameAddStrSt1 != null) {
                 nameAddStrSt1 = nameAddStrSt1.toUpperCase();
                 nameAddStrSt1hshCd = nameAddStrSt1.hashCode();
-                System.out.println("-----nameAddStrSt1hshCd:"+nameAddStrSt1hshCd);
             }
             if (nameAddStrSt1 != null) {
 
                 try {
                     // Try to get the matching with the type and match string
-//                    EdxEntityMatchDto edxEntityMatchingDT = edxDao
-//                            .getEdxEntityMatch(NEDSSConstant.ORGANIZATION_CLASS_CODE, nameAddStrSt1);
                     EdxEntityMatchDto edxEntityMatchingDT =
                             edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(NEDSSConstant.ORGANIZATION_CLASS_CODE, nameAddStrSt1);
                     if (edxEntityMatchingDT != null
@@ -180,8 +170,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                         if (localEdxEntityMatchDT != null) {
                             localEdxEntityMatchDT.setEntityUid(edxEntityMatchingDT
                                     .getEntityUid());
-                            System.out.println("-----edxEntityMatchingDT.getEntityUid():"+edxEntityMatchingDT.getEntityUid());
-//                            edxDao.setEdxEntityMatchDT(localEdxEntityMatchDT);
                             edxPatientMatchRepositoryUtil.saveEdxEntityMatch(localEdxEntityMatchDT);
                         }
                         edxActivityDetailLogDto.setRecordId(""
@@ -211,21 +199,15 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
             if (nameTelePhone != null) {
                 nameTelePhone = nameTelePhone.toUpperCase();
                 nameTelePhonehshCd = nameTelePhone.hashCode();
-                System.out.println("------ nameTelePhonehshCd:"+nameTelePhonehshCd);
             }
             if (nameTelePhone != null) {
                 try {
-//                    EdxEntityMatchDto edxEntityMatchingDT = edxDao
-//                            .getEdxEntityMatch(NEDSSConstant.ORGANIZATION_CLASS_CODE, nameTelePhone);
                     EdxEntityMatchDto edxEntityMatchingDT =
                             edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(NEDSSConstant.ORGANIZATION_CLASS_CODE, nameTelePhone);
                     if (edxEntityMatchingDT != null
                             && edxEntityMatchingDT.getEntityUid() != null) {
                         if (localEdxEntityMatchDT != null) {
                             localEdxEntityMatchDT.setEntityUid(edxEntityMatchingDT
-                                    .getEntityUid());
-//                            edxDao.setEdxEntityMatchDT(localEdxEntityMatchDT);
-                            System.out.println("----- before nameTelePhone save edxEntityMatchingDT.getEntityUid():"+edxEntityMatchingDT
                                     .getEntityUid());
                             edxPatientMatchRepositoryUtil.saveEdxEntityMatch(localEdxEntityMatchDT);
                         }
@@ -274,7 +256,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 edxEntityMatchDT
                         .setMatchStringHashCode(Long.valueOf(nameAddStrSt1hshCd));
                 try {
-//                    edxDao.setEdxEntityMatchDT(edxEntityMatchDT);
                     edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
                 } catch (Exception e) {
                     logger.error("Error in creating the EdxEntityMatchDT with nameAddStrSt1:"
@@ -293,7 +274,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 edxEntityMatchDT
                         .setMatchStringHashCode(Long.valueOf(nameTelePhonehshCd));
                 try {
-//                    edxDao.setEdxEntityMatchDT(edxEntityMatchDT);
                     edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
                 } catch (Exception e) {
                     logger.error("Error in creating the EdxEntityMatchDT with nameTelePhone:"
@@ -308,12 +288,9 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 while (it.hasNext()) {
                     EdxEntityMatchDto edxEntityMatchDT =  it.next();
                     edxEntityMatchDT.setEntityUid(entityUid);
-                    System.out.println("-----before save coll != null:"+entityUid);
-//                    edxDao.setEdxEntityMatchDT(edxEntityMatchDT);
                     edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
                 }
             }
-            System.out.println("----before getMatchingOrganization END entityUid:"+entityUid);
             edxActivityDetailLogDto.setRecordId("" + entityUid);
             edxActivityDetailLogDto.setComment("" + DET_MSG_ENTITY_EXISTS_FAIL_NEW
                     + edxActivityDetailLogDto.getRecordId());
@@ -406,6 +383,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
             logger.debug(ex.getMessage() + errorMessage);
             throw new DataProcessingException(errorMessage, ex);
         }
+        System.out.println("identifierList:"+identifierList);
         return identifierList;
     }
 
@@ -450,10 +428,9 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 }
             }
         }
-        System.out.println("nameAddressStreetOne nameAddStr:"+nameAddStr);
         if (nameAddStr != null)
             nameAddStr = getNameString(organizationContainer) + nameAddStr;
-        System.out.println("nameAddressStreetOne after getNameString nameAddStr:"+nameAddStr);
+
         return nameAddStr;
     }
 
@@ -512,7 +489,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
         if (nameTeleStr != null) {
             nameTeleStr = getNameString(organizationContainer) + nameTeleStr;
         }
-        System.out.println("------nameTeleStr:"+nameTeleStr);
         return nameTeleStr;
     }
 }
