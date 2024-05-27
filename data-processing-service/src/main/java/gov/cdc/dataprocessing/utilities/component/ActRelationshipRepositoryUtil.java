@@ -6,6 +6,8 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationship;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationshipHistory;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipHistoryRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipRepository;
+import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -72,6 +74,8 @@ public class ActRelationshipRepositoryUtil {
         ActRelationship data = new ActRelationship(dt);
         if (dt.isItNew())
         {
+            data.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+            data.setLastChgTime(TimeStampUtil.getCurrentTimeStamp());
             actRelationshipRepository.save(data);
         }
         else if (dt.isItDelete())
