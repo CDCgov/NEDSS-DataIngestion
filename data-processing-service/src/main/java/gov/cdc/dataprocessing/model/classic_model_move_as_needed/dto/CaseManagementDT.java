@@ -111,7 +111,7 @@ public class CaseManagementDT extends BaseContainer {
         this.oojInitgAgncyOutcDueDate = caseManagement.getOojInitgAgncyOutcDueDate();
         this.oojInitgAgncyOutcSntDate = caseManagement.getOojInitgAgncyOutcSntDate();
         this.oojInitgAgncyRecdDate = caseManagement.getOojInitgAgncyRecdDate();
-        this.isCaseManagementDTPopulated = caseManagement.isCaseManagementDTPopulated();
+//        this.isCaseManagementDTPopulated = caseManagement.isCaseManagementDTPopulated();
         this.caseReviewStatus = caseManagement.getCaseReviewStatus();
         this.survAssignedDate = caseManagement.getSurvAssignedDate();
         this.follUpAssignedDate = caseManagement.getFollUpAssignedDate();

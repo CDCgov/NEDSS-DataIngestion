@@ -152,11 +152,11 @@ public class NotificationRepositoryUtil {
 
         notificationVO.getTheNotificationDT().setNotificationUid(uid);
 
-        actIdRepositoryUtil.insertActIdCollection(uid, notificationVO.getTheActIdDTCollection());
+      //  actIdRepositoryUtil.insertActIdCollection(uid, notificationVO.getTheActIdDTCollection());
 
-        actLocatorParticipationRepositoryUtil.insertActLocatorParticipationCollection(uid, notificationVO.getTheActivityLocatorParticipationDTCollection());
+      //  actLocatorParticipationRepositoryUtil.insertActLocatorParticipationCollection(uid, notificationVO.getTheActivityLocatorParticipationDTCollection());
 
-        notificationVO.setItNew(false);
+        notificationVO.setItNew(true);
         notificationVO.setItDirty(false);
 
         return uid;

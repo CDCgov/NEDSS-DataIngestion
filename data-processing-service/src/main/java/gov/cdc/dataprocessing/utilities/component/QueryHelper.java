@@ -2,6 +2,9 @@ package gov.cdc.dataprocessing.utilities.component;
 
 import gov.cdc.dataprocessing.model.RealizedRole;
 import gov.cdc.dataprocessing.model.UserProfile;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.AuthUserRealizedRole;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
+import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.jurisdiction.ProgAreaJurisdictionUtil;
 import org.springframework.stereotype.Component;
 
@@ -77,11 +80,10 @@ public class QueryHelper {
         StringBuffer hashedPAJList = new StringBuffer();
 
 
-        UserProfile theUserProfile = new UserProfile();
 
         //TODO WE NEED USER PROFILE -- Check flow chart for this one
-        for (Iterator<RealizedRole> it = theUserProfile.getTheRealizedRoleCollection().iterator(); it.hasNext(); ) {
-            RealizedRole rRole = (RealizedRole) it.next();
+        for (Iterator<AuthUserRealizedRole> it = AuthUtil.authUserRealizedRoleCollection.iterator(); it.hasNext(); ) {
+            RealizedRole rRole = new RealizedRole(it.next());
 
             if (rRole.isGuest() == guest) { //only consider roles that match the requested guest status
                 boolean isOpAvailable = true;

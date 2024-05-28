@@ -7,11 +7,8 @@ import lombok.EqualsAndHashCode;
 
 import java.sql.Timestamp;
 
-@EqualsAndHashCode(callSuper = true)
-@Entity
-@Table(name = "Observation")
 @Data
-public class Observation_Summary extends ObservationBase{
+public class Observation_Summary {
     private Long uid;
     private Timestamp addTime;
     private String addReasonCd;

@@ -74,6 +74,7 @@ public class CachingValueService implements ICatchingValueService {
         this.srteCustomRepository = srteCustomRepository;
     }
 
+
     @Cacheable(cacheNames = "srte", key = "'loinCodeWithComponentName'")
     public TreeMap<String, String> getAllLoinCodeWithComponentName() throws DataProcessingException {
         TreeMap<String, String> map = new TreeMap<>();
