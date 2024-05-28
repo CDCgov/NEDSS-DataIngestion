@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model;
 
 import gov.cdc.dataprocessing.model.container.BaseContainer;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.AuthUserRealizedRole;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,4 +21,17 @@ public class RealizedRole extends BaseContainer
 
     private String recordStatus = "";
     private String guestString ="N";
+
+
+    public RealizedRole() {
+
+    }
+
+    public RealizedRole(AuthUserRealizedRole role) {
+        roleName = role.getAuthRoleNm();
+        programAreaCode = role.getProgAreaCd();
+        jurisdictionCode = role.getJurisdictionCd();
+//        recordStatus = role.getRecordStatusCd();
+
+    }
 }

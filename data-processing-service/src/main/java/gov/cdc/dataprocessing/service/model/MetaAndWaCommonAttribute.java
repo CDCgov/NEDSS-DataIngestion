@@ -52,6 +52,7 @@ public class MetaAndWaCommonAttribute {
     private String codeSetClassCd;
     private Long nbsUiComponentUid;
     private String hl7SegmentField;
+    private String dataLocation;
 
     public MetaAndWaCommonAttribute() {
         // Default constructor
@@ -59,6 +60,7 @@ public class MetaAndWaCommonAttribute {
 
     // Constructor to parse WAQuestion object into CommonAttributes
     public MetaAndWaCommonAttribute(WAQuestion waQuestion) {
+        this.dataLocation = waQuestion.getDataLocation();
         this.questionUid = waQuestion.getWaQuestionUid();
         this.addUserId = waQuestion.getAddUserId();
         this.addTime = waQuestion.getAddTime();
@@ -90,6 +92,7 @@ public class MetaAndWaCommonAttribute {
 
     // Constructor to parse NbsUiMetaData object into CommonAttributes
     public MetaAndWaCommonAttribute(NbsUiMetaData nbsUiMetaData) {
+        this.dataLocation = nbsUiMetaData.getDataLocation();
         this.id = nbsUiMetaData.getId();
         this.questionUid = nbsUiMetaData.getQuestionUid();
         this.parentUid = nbsUiMetaData.getParentUid();

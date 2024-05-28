@@ -15,10 +15,10 @@ import java.util.Optional;
 @Repository
 public interface ActRelationshipRepository extends JpaRepository<ActRelationship, Long> {
     @Query("SELECT data FROM ActRelationship data WHERE data.targetActUid = :uid")
-    Collection<ActRelationship> findRecordsById(@Param("uid") Long uid);
+    Optional<Collection<ActRelationship>> findRecordsByActUid(@Param("uid") Long uid);
 
     @Query("SELECT data FROM ActRelationship data WHERE data.sourceActUid = :uid")
-    Collection<ActRelationship> findRecordsBySourceId(@Param("uid") Long uid);
+    Optional<Collection<ActRelationship>> findRecordsBySourceId(@Param("uid") Long uid);
 
 
     /*

@@ -31,7 +31,7 @@ public class ComplexQueries {
             + "NBS_UI_METADATA.question_oid_system_txt, "
             + "CODE_SET.code_set_nm codeSetNm, "
             + "CODE_SET.class_cd codeSetClassCd, "
-            + "NBS_UI_METADATA.data_location, "
+            + "NBS_UI_METADATA.data_location dataLocation, " // + "NBS_UI_METADATA.data_location dataLocation, "
             + "NBS_UI_METADATA.data_cd, "
             + "NBS_UI_METADATA.data_use_cd, "
             + "NBS_UI_METADATA.field_size, "

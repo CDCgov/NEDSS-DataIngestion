@@ -90,10 +90,11 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
         Map<Object,Object> map = null;
         TreatmentContainer treatmentSummaryVO = new TreatmentContainer();
         try {
-            treatmentsSummaryVOHashMap =customRepository.retrieveTreatmentSummaryVOForInv(publicHealthUID, aQuery);
 
 
             //TODO: CDA -- IS THIS ECR?
+//            treatmentsSummaryVOHashMap =customRepository.retrieveTreatmentSummaryVOForInv(publicHealthUID, aQuery);
+
 //            Map<String, EDXEventProcessDT> edxEventsMap = getEDXEventProcessMapByCaseId(publicHealthUID);
 //            CDAEventSummaryParser cdaParser = new CDAEventSummaryParser();
 //            if(treatmentsSummaryVOHashMap==null)

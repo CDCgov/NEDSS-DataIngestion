@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.service.implementation.answer;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.PublicHealthCaseDT;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsAnswerDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
@@ -15,10 +16,12 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsActEntityReposito
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsAnswerHistRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsAnswerRepository;
 import gov.cdc.dataprocessing.service.interfaces.answer.IAnswerService;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -176,6 +179,11 @@ public class AnswerService implements IAnswerService {
                     }
                 }
             }
+
+            if (pageContainer == null) {
+                pageContainer = new PageContainer();
+                pageContainer.setActEntityDTCollection(new ArrayList<>());
+            }
             storeActEntityDTCollection(pageContainer.getActEntityDTCollection(), rootDTInterface);
 
         } catch (Exception e) {
@@ -213,6 +221,11 @@ public class AnswerService implements IAnswerService {
                     }
                     else if(pamCaseEntityDT.isItDirty() || pamCaseEntityDT.isItNew())
                     {
+                        var nbsActEntity = new NbsActEntity(pamCaseEntityDT);
+                        nbsActEntity.setActUid(rootDTInterface.getObservationUid());
+                        nbsActEntity.setLastChgUserId(2121L);
+                        nbsActEntity.setRecordStatusCd("OPEN");
+                        nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
                         nbsActEntityRepository .save(new NbsActEntity(pamCaseEntityDT));
                     }
                 }
@@ -222,6 +235,34 @@ public class AnswerService implements IAnswerService {
             throw new DataProcessingException(ex.toString());
         }
     }
+
+    public void storeActEntityDTCollectionWithPublicHealthCase(Collection<NbsActEntityDto> pamDTCollection, PublicHealthCaseDT rootDTInterface)
+            throws  DataProcessingException{
+        try{
+            if(pamDTCollection.size()>0){
+                Iterator<NbsActEntityDto> it  = pamDTCollection.iterator();
+                while(it.hasNext()){
+                    NbsActEntityDto pamCaseEntityDT = (NbsActEntityDto)it.next();
+                    if(pamCaseEntityDT.isItDelete()){
+                        nbsActEntityRepository.deleteNbsEntityAct(pamCaseEntityDT.getNbsActEntityUid());
+                    }
+                    else if(pamCaseEntityDT.isItDirty() || pamCaseEntityDT.isItNew())
+                    {
+                        var nbsActEntity = new NbsActEntity(pamCaseEntityDT);
+                        nbsActEntity.setActUid(rootDTInterface.getPublicHealthCaseUid());
+                        nbsActEntity.setLastChgUserId(2121L);
+                        nbsActEntity.setRecordStatusCd("OPEN");
+                        nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
+                        nbsActEntityRepository .save(nbsActEntity);
+                    }
+                }
+            }
+        }
+        catch(Exception ex){
+            throw new DataProcessingException(ex.toString());
+        }
+    }
+
 
 
     private void insertActEntityDTCollection(Collection<NbsActEntityDto> actEntityDTCollection, ObservationDto observationDto) {

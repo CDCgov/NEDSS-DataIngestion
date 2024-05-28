@@ -349,37 +349,38 @@ public class InvestigationService implements IInvestigationService {
      * */
     private void updateAutoResendNotifications(BaseContainer vo) throws DataProcessingException
     {
-        logger.info("enter NNDMessageSenderHelper.updateAutoResendNotifications--------------");
-        if(
-            //!(vo instanceof VaccinationProxyVO)
-                !(vo instanceof LabResultProxyContainer)
-            //&&!(vo instanceof MorbidityProxyVO)
-            //&&!(vo instanceof InvestigationProxyVO)
-            //&&!(vo instanceof PageActProxyVO)
-            //&&!(vo instanceof PamProxyVO)
-            //&&!(vo instanceof SummaryReportProxyVO)
-        )
-        {
-            throw new DataProcessingException("vo not instance of VaccinationProxyVO,LabResultProxyVO, or MorbidityProxyVO,PamProxyVO, SummaryReportProxyVO");
-        }
-        Collection<Object>  notSumVOColl =null;
-        PublicHealthCaseDT phcDT = null;
-
-
-        //TODO: LAB RESULT WONT HIT ANY OF THESE
-
-        if(
-                vo instanceof InvestigationContainer
-//                || vo instanceof PamProxyContainer
-//                ||  vo instanceof PageActProxyVO
-//                ||  vo instanceof SummaryReportProxyVO
-        ){
-            if(vo instanceof InvestigationContainer)
+        try {
+            logger.info("enter NNDMessageSenderHelper.updateAutoResendNotifications--------------");
+            if(
+                //!(vo instanceof VaccinationProxyVO)
+                    !(vo instanceof LabResultProxyContainer)
+                            //&&!(vo instanceof MorbidityProxyVO)
+                            &&!(vo instanceof InvestigationContainer)
+                            &&!(vo instanceof PageActProxyVO)
+                            &&!(vo instanceof PamProxyContainer)
+//            &&!(vo instanceof SummaryReportProxyVO)
+            )
             {
-                InvestigationContainer invVO = (InvestigationContainer)vo;
-                phcDT = invVO.thePublicHealthCaseVO.getThePublicHealthCaseDT();
-                notSumVOColl = invVO.getTheNotificationSummaryVOCollection();
+                throw new DataProcessingException("vo not instance of VaccinationProxyVO,LabResultProxyVO, or MorbidityProxyVO,PamProxyVO, SummaryReportProxyVO");
             }
+            Collection<Object>  notSumVOColl =null;
+            PublicHealthCaseDT phcDT = null;
+
+
+            //TODO: LAB RESULT WONT HIT ANY OF THESE
+
+            if(
+                    vo instanceof InvestigationContainer
+                            || vo instanceof PamProxyContainer
+                            ||  vo instanceof PageActProxyVO
+//                ||  vo instanceof SummaryReportProxyVO
+            ){
+                if(vo instanceof InvestigationContainer)
+                {
+                    InvestigationContainer invVO = (InvestigationContainer)vo;
+                    phcDT = invVO.thePublicHealthCaseVO.getThePublicHealthCaseDT();
+                    notSumVOColl = invVO.getTheNotificationSummaryVOCollection();
+                }
 //            else if(vo instanceof PamProxyContainer)
 //            {
 //                PamProxyVO pamVO = (PamProxyVO)vo;
@@ -421,34 +422,34 @@ public class InvestigationService implements IInvestigationService {
 //                    updateNotification(true, notificationUid,phcCd,phcClassCd,progAreaCd,jurisdictionCd,sharedInd, caseStatusChange, nbsSecurityObj);
 //                }
 //            }
-            if(
-                    vo instanceof InvestigationContainer
-//                    || vo instanceof PamProxyContainer
-//                    || vo instanceof PageActProxyVO
-            )
-            {
-                if(notSumVOColl!=null && notSumVOColl.size()>0){
-                    Iterator<Object>  notSumIter =  notSumVOColl.iterator();
-                    while(notSumIter.hasNext()){
-                        NotificationSummaryContainer notSummaryVO = (NotificationSummaryContainer)notSumIter.next();
-                        if(notSummaryVO.getIsHistory().equals("F") && !notSummaryVO.getAutoResendInd().equals("F")){
-                            Long notificationUid = notSummaryVO.getNotificationUid();
-                            String phcCd = phcDT.getCd();
-                            String phcClassCd = phcDT.getCaseClassCd();
-                            String progAreaCd = phcDT.getProgAreaCd();
-                            String jurisdictionCd = phcDT.getJurisdictionCd();
-                            String sharedInd = phcDT.getSharedInd();
+                if(
+                        vo instanceof InvestigationContainer
+                                || vo instanceof PamProxyContainer
+                                || vo instanceof PageActProxyVO
+                )
+                {
+                    if(notSumVOColl!=null && notSumVOColl.size()>0){
+                        Iterator<Object>  notSumIter =  notSumVOColl.iterator();
+                        while(notSumIter.hasNext()){
+                            NotificationSummaryContainer notSummaryVO = (NotificationSummaryContainer)notSumIter.next();
+                            if(notSummaryVO.getIsHistory().equals("F") && !notSummaryVO.getAutoResendInd().equals("F")){
+                                Long notificationUid = notSummaryVO.getNotificationUid();
+                                String phcCd = phcDT.getCd();
+                                String phcClassCd = phcDT.getCaseClassCd();
+                                String progAreaCd = phcDT.getProgAreaCd();
+                                String jurisdictionCd = phcDT.getJurisdictionCd();
+                                String sharedInd = phcDT.getSharedInd();
 
-                            // retrieve the status change
-                            boolean caseStatusChange = phcDT.isCaseStatusDirty();
-                            updateNotification(false, notificationUid,phcCd,phcClassCd,progAreaCd,jurisdictionCd,sharedInd, caseStatusChange);
+                                // retrieve the status change
+                                boolean caseStatusChange = phcDT.isCaseStatusDirty();
+                                updateNotification(false, notificationUid,phcCd,phcClassCd,progAreaCd,jurisdictionCd,sharedInd, caseStatusChange);
 
+                            }
                         }
                     }
                 }
-            }
 
-        }
+            }
 //        else if(vo instanceof VaccinationProxyVO
 //                || vo instanceof MorbidityProxyVO)
 //        {
@@ -461,6 +462,10 @@ public class InvestigationService implements IInvestigationService {
 //            }
 //        }
 //        logger.info("finish NNDMessageSenderHelper.updateAutoResendNotifications--------------");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
     }
@@ -590,7 +595,7 @@ public class InvestigationService implements IInvestigationService {
         try {
             
             // Step 1: Get the Pubic Health Case
-            thePublicHealthCaseVO = publicHealthCaseRepositoryUtil.getPublicHealthCaseContainer(publicHealthCaseUID);
+            thePublicHealthCaseVO = publicHealthCaseRepositoryUtil.loadObject(publicHealthCaseUID);
 
             // TODO: Get user name from PHC
             //thePublicHealthCaseVO.getThePublicHealthCaseDT().setAddUserName(helper.getUserName(thePublicHealthCaseVO.getThePublicHealthCaseDT().getAddUserId()));

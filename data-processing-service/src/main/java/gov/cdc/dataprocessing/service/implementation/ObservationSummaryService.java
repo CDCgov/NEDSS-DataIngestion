@@ -37,15 +37,15 @@ public class ObservationSummaryService implements IObservationSummaryService {
         Collection<UidSummaryContainer>  uidSummaryVOCollection  = new ArrayList<>();
         try{
             var obsSums = observationSummaryRepository.findAllActiveLabReportUidListForManage(investigationUid, whereClause);
-            if (obsSums.isPresent()) {
-                for(var item : obsSums.get()) {
-                    UidSummaryContainer container = new UidSummaryContainer();
-                    container.setUid(item.getUid());
-                    container.setAddTime(item.getAddTime());
-                    container.setAddReasonCd(item.getAddReasonCd());
-                    uidSummaryVOCollection.add(container);
-                }
+
+            for(var item : obsSums) {
+                UidSummaryContainer container = new UidSummaryContainer();
+                container.setUid(item.getUid());
+                container.setAddTime(item.getAddTime());
+                container.setAddReasonCd(item.getAddReasonCd());
+                uidSummaryVOCollection.add(container);
             }
+
         }catch(Exception ex){
             throw new DataProcessingException(ex.toString(), ex);
         }

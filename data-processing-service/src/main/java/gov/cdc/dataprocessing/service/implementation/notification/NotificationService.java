@@ -237,7 +237,7 @@ public class NotificationService implements INotificationService {
             {
                 notifDT = (NotificationDto) prepareAssocModelHelper.prepareVO(notifDT, boLookup, triggerCd, tableName, moduleCd, notifDT.getVersionCtrlNbr());
 
-                if (notifDT.getCd().isEmpty())
+                if (notifDT.getCd() == null || (notifDT.getCd() != null && notifDT.getCd().isEmpty()))
                 {
                     notifDT.setCd(NEDSSConstant.CLASS_CD_NOTIFICATION);
                 }

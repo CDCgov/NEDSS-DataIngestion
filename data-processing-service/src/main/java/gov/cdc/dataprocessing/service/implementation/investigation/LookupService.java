@@ -76,6 +76,7 @@ public class LookupService implements ILookupService {
     }
 
 
+    // PG_Generic_V2_Investigation
     public TreeMap<Object,Object>  getDMBQuestionMapAfterPublish() {
         TreeMap<Object,Object> dmbQuestionMap = null;
 
@@ -87,11 +88,17 @@ public class LookupService implements ILookupService {
             if (res.isPresent()) {
                 for(var item : res.get()) {
                     var commonAttribute = new MetaAndWaCommonAttribute(item);
+                    if (commonAttribute.getQuestionIdentifier().equalsIgnoreCase("INV161")) {
+                        System.out.println("TEST");
+                    }
                     metaQuestion.add(commonAttribute);
                 }
                 if (res2.isPresent()) {
                     for(var item : res2.get()) {
                         var commonAttribute = new MetaAndWaCommonAttribute(item);
+                        if (commonAttribute.getQuestionIdentifier().equalsIgnoreCase("INV161")) {
+                            System.out.println("TEST");
+                        }
                         metaQuestion.add(commonAttribute);
                     }
                 }
@@ -104,7 +111,9 @@ public class LookupService implements ILookupService {
             e.printStackTrace();
         }
         if(dmbQuestionMap != null)
+        {
             OdseCache.dmbMap.putAll(dmbQuestionMap);
+        }
         return dmbQuestionMap;
     }
 
@@ -367,64 +376,78 @@ public class LookupService implements ILookupService {
         map = new TreeMap[coll.size()];
         NbsQuestionMetadata qMetadata = null;
         try{
-            if (coll != null && coll.size() > 0) {
-                Iterator ite = coll.iterator();
-                while (ite.hasNext()) {
+            if (coll.size() > 0) {
+                for (MetaAndWaCommonAttribute metaAndWaCommonAttribute : coll) {
                     sizecount++;
 
-
-                    qMetadata = new NbsQuestionMetadata((MetaAndWaCommonAttribute) ite.next());
+                    if(metaAndWaCommonAttribute.getQuestionIdentifier().equalsIgnoreCase("INV161")) {
+                        System.out.println("TEST");
+                    }
+                    if (metaAndWaCommonAttribute.getDataLocation() != null) {
+                        System.out.println("TEST");
+                    }
+                    qMetadata = new NbsQuestionMetadata(metaAndWaCommonAttribute);
                     String dataType = qMetadata.getDataType();
                     List<CodeValueGeneral> aList = new ArrayList<>();
-                    if(dataType != null && dataType.equals(NEDSSConstant.NBS_QUESTION_DATATYPE_CODED_VALUE)){
+                    if (dataType != null && dataType.equals(NEDSSConstant.NBS_QUESTION_DATATYPE_CODED_VALUE)) {
                         aList = catchingValueService.getGeneralCodedValue(qMetadata.getCodeSetNm());
                         qMetadata.setAList(aList);
                     }
 
-                    if(qMetadata.getInvestigationFormCd() != null){
+                    if (qMetadata.getInvestigationFormCd() != null) {
 
-                        if(loopcount==0){
+                        if (loopcount == 0)
+                        {
                             previousFormCode = qMetadata.getInvestigationFormCd();
                             String questionId = qMetadata.getQuestionIdentifier() == null ? "" : qMetadata.getQuestionIdentifier();
                             String ldfPageId = qMetadata.getLdfPageId() == null ? "" : qMetadata.getLdfPageId();
                             String uiMetadataUid = qMetadata.getNbsUiMetadataUid() == null ? "" : qMetadata.getNbsUiMetadataUid().toString();
-                            if(!questionId.equals("")) {
+                            if (!questionId.equals("")) {
                                 map[count] = new TreeMap<Object, Object>();
-                                map[count].put(questionId ,qMetadata);
+                                map[count].put(questionId, qMetadata);
                                 loopcount++;
                             }
 
-                        }else{
+                        }
+                        else
+                        {
                             currentFormCode = qMetadata.getInvestigationFormCd();
-                            if(currentFormCode.equals(previousFormCode)){
+                            if (currentFormCode.equals(previousFormCode))
+                            {
                                 String questionId = qMetadata.getQuestionIdentifier() == null ? "" : qMetadata.getQuestionIdentifier();
                                 String ldfPageId = qMetadata.getLdfPageId() == null ? "" : qMetadata.getLdfPageId();
                                 String uiMetadataUid = qMetadata.getNbsUiMetadataUid() == null ? "" : qMetadata.getNbsUiMetadataUid().toString();
-                                if(!questionId.equals("")) {
-                                    map[count].put(questionId ,qMetadata);
+                                if (!questionId.equals(""))
+                                {
+                                    map[count].put(questionId, qMetadata);
                                 }
-
-                            }else{
+                            }
+                            else
+                            {
+                                if(previousFormCode.equalsIgnoreCase("PG_Generic_V2_Investigation")) {
+                                    System.out.println("TEST");
+                                }
                                 qCodeMap.put(previousFormCode, map[count]);
-                                count= count+1;
+                                count = count + 1;
                                 String questionId = qMetadata.getQuestionIdentifier() == null ? "" : qMetadata.getQuestionIdentifier();
                                 String ldfPageId = qMetadata.getLdfPageId() == null ? "" : qMetadata.getLdfPageId();
                                 String uiMetadataUid = qMetadata.getNbsUiMetadataUid() == null ? "" : qMetadata.getNbsUiMetadataUid().toString();
-                                if(!questionId.equals("")) {
+                                if (!questionId.equals(""))
+                                {
                                     map[count] = new TreeMap<Object, Object>();
-                                    map[count].put(questionId ,qMetadata);
+                                    map[count].put(questionId, qMetadata);
                                 }
 
                             }
                             previousFormCode = currentFormCode;
                             loopcount++;
-
-
                         }
 
                     }
-                    if(sizecount==coll.size())
-                    {
+                    if (sizecount == coll.size()) {
+                        if(qCodeMap.containsKey("PG_Generic_V2_Investigation")) {
+                            System.out.println("TEST");
+                        }
                         qCodeMap.put(qMetadata.getInvestigationFormCd(), map[count]);
                     }
 

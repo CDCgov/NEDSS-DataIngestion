@@ -134,8 +134,8 @@ public class CaseManagement {
     @Column(name = "ooj_initg_agncy_recd_date")
     private Timestamp oojInitgAgncyRecdDate;
 
-    @Column(name = "is_case_management_dt_populated")
-    private boolean isCaseManagementDTPopulated;
+//    @Column(name = "is_case_management_dt_populated")
+//    private boolean isCaseManagementDTPopulated;
 
     @Column(name = "case_review_status")
     private String caseReviewStatus;
@@ -161,8 +161,8 @@ public class CaseManagement {
     @Column(name = "case_review_status_date")
     private Timestamp caseReviewStatusDate;
 
-    @Column(name = "local_id")
-    private String localId;
+//    @Column(name = "local_id")
+//    private String localId;
 
     // Constructors, getters, and setters
     public CaseManagement() {
@@ -210,7 +210,7 @@ public class CaseManagement {
         this.oojInitgAgncyOutcDueDate = caseManagementDto.getOojInitgAgncyOutcDueDate();
         this.oojInitgAgncyOutcSntDate = caseManagementDto.getOojInitgAgncyOutcSntDate();
         this.oojInitgAgncyRecdDate = caseManagementDto.getOojInitgAgncyRecdDate();
-        this.isCaseManagementDTPopulated = caseManagementDto.isCaseManagementDTPopulated();
+//        this.isCaseManagementDTPopulated = caseManagementDto.isCaseManagementDTPopulated();
         this.caseReviewStatus = caseManagementDto.getCaseReviewStatus();
         this.survAssignedDate = caseManagementDto.getSurvAssignedDate();
         this.follUpAssignedDate = caseManagementDto.getFollUpAssignedDate();
@@ -219,7 +219,7 @@ public class CaseManagement {
         this.initInterviewAssignedDate = caseManagementDto.getInitInterviewAssignedDate();
         this.caseClosedDate = caseManagementDto.getCaseClosedDate();
         this.caseReviewStatusDate = caseManagementDto.getCaseReviewStatusDate();
-        this.localId = caseManagementDto.getLocalId();
+//        this.localId = caseManagementDto.getLocalId();
     }
 
 }

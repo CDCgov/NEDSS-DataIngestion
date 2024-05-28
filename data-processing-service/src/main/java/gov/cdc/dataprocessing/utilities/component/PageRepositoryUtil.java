@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.utilities.component;
 
+import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.MessageConstants;
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
@@ -19,6 +20,7 @@ import gov.cdc.dataprocessing.model.dto.nbs.NbsAnswerDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
 import gov.cdc.dataprocessing.service.interfaces.IInvestigationService;
+import gov.cdc.dataprocessing.service.interfaces.IPamService;
 import gov.cdc.dataprocessing.service.interfaces.IRetrieveSummaryService;
 import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IPublicHealthCaseService;
@@ -50,6 +52,7 @@ public class PageRepositoryUtil {
     private final ParticipationRepositoryUtil participationRepositoryUtil;
     private final NbsNoteRepositoryUtil  nbsNoteRepositoryUtil;
     private final CustomRepository  customRepository;
+    private final IPamService pamService;
     private static final Logger logger = LoggerFactory.getLogger(PageRepositoryUtil.class);
 
     public PageRepositoryUtil(IInvestigationService investigationService,
@@ -61,7 +64,7 @@ public class PageRepositoryUtil {
                               EdxEventProcessRepositoryUtil edxEventProcessRepositoryUtil,
                               NbsDocumentRepositoryUtil nbsDocumentRepositoryUtil,
                               ParticipationRepositoryUtil participationRepositoryUtil,
-                              NbsNoteRepositoryUtil nbsNoteRepositoryUtil, CustomRepository customRepository) {
+                              NbsNoteRepositoryUtil nbsNoteRepositoryUtil, CustomRepository customRepository, IPamService pamService) {
         this.investigationService = investigationService;
         this.patientRepositoryUtil = patientRepositoryUtil;
         this.uidService = uidService;
@@ -75,6 +78,7 @@ public class PageRepositoryUtil {
         this.participationRepositoryUtil = participationRepositoryUtil;
         this.nbsNoteRepositoryUtil = nbsNoteRepositoryUtil;
         this.customRepository = customRepository;
+        this.pamService = pamService;
     }
 
     public Long setPageActProxyVO(PageActProxyVO pageProxyVO) throws DataProcessingException {
@@ -230,15 +234,16 @@ public class PageRepositoryUtil {
                 }
 
                 //TODO: PAM
-//                if (pageActProxyVO.getPageVO() != null && pageActProxyVO.isItNew()) {
-//                    pamRootDAO.insertPamVO(pageActProxyVO.getPageVO(), pageActProxyVO.getPublicHealthCaseVO());
-//                } else if (pageActProxyVO.getPageVO() != null && pageActProxyVO.isItDirty()) {
+                if (pageActProxyVO.getPageVO() != null && pageActProxyVO.isItNew()) {
+                    pamService.insertPamVO(pageActProxyVO.getPageVO(), pageActProxyVO.getPublicHealthCaseVO());
+
+                } else if (pageActProxyVO.getPageVO() != null && pageActProxyVO.isItDirty()) {
 //                    pamRootDAO.editPamVO(pageActProxyVO.getPageVO(), pageActProxyVO.getPublicHealthCaseVO());
-//
-//                } else
-//                {
-//                    logger.error("There is error in setPageActProxyVO as pageProxyVO.getPageVO() is null");
-//                }
+                    logger.info("test");
+                } else
+                {
+                    logger.error("There is error in setPageActProxyVO as pageProxyVO.getPageVO() is null");
+                }
 
 
             }
@@ -287,10 +292,7 @@ public class PageRepositoryUtil {
 
             Map<Object, Object> repeatingAnswermapMap =pageActProxyCopyVO.getPageVO().getPageRepeatingAnswerDTMap();
 
-
-            // TODO CONDITION
-//            String investigationFormCd = CachedDropDowns.getConditionCdAndInvFormCd().get(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getCd()).toString();
-
+            String investigationFormCd = SrteCache.investigationFormConditionCode.get(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getCd());
             Map<Object, Object> mapFromQuestions = new HashMap<Object,Object>();
 //           TODO CONINFECT FORM CD
 //            Collection<Object> nbsQuestionUidCollection = getCoinfectionQuestionListForFormCd(investigationFormCd);
@@ -379,10 +381,9 @@ public class PageRepositoryUtil {
         Long publicHealthCaseUid =null;
         try {
             // TODO: CONINFECT FORM CD
-//            String investigationFormCd = CachedDropDowns.getConditionCdAndInvFormCd().get(coninfectionSummaryVO.getConditionCd()).toString();
+            String investigationFormCd = SrteCache.investigationFormConditionCode.get(coninfectionSummaryVO.getConditionCd());
 //            Collection<Object> toNbsQuestionUidCollection = getCoinfectionQuestionListForFormCd(investigationFormCd);
 
-            String investigationFormCd = null;
             Collection<Object> toNbsQuestionUidCollection = new ArrayList<>();
             publicHealthCaseUid=coninfectionSummaryVO.getPublicHealthCaseUid();
             java.util.Date dateTime = new java.util.Date();

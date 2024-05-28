@@ -1053,16 +1053,15 @@ public class ObservationService implements IObservationService {
 
 
             // Does not seem to hit this case
-            if (labResultProxyVO.getPageVO() != null) {
-                if(labResultProxyVO.isItDirty()) {
-                    PageContainer pageContainer =(PageContainer)labResultProxyVO.getPageVO();
-                    answerService.storePageAnswer(pageContainer, rootDT);
-                }
-            else {
-                    PageContainer pageContainer =(PageContainer)labResultProxyVO.getPageVO();
-                    answerService.insertPageVO(pageContainer, rootDT);
-                }
+            PageContainer pageContainer =(PageContainer)labResultProxyVO.getPageVO();
+            if(labResultProxyVO.isItDirty())
+            {
+                answerService.storePageAnswer(pageContainer, rootDT);
             }
+            else {
+                    answerService.insertPageVO(pageContainer, rootDT);
+            }
+
 
         }
         return returnVal;

@@ -128,6 +128,7 @@ public class NbsUiMetaData {
     private String codeSetClassCd;
     private Long nbsUiComponentUid;
     private String hl7SegmentField;
+    private String dataLocation;
 
 
 }
