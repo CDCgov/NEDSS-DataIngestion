@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.component;
+package gov.cdc.dataprocessing.utilities.component.wds;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.CaseManagementDT;
@@ -14,6 +14,7 @@ import gov.cdc.dataprocessing.model.dto.NbsCaseAnswerDto;
 import gov.cdc.dataprocessing.model.dto.NbsQuestionMetadata;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.utilities.StringUtils;
+import gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;

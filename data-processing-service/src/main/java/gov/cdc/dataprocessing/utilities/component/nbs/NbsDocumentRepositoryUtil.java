@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.component;
+package gov.cdc.dataprocessing.utilities.component.nbs;
 
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
@@ -14,6 +14,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.NbsDocumentHistRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.NbsDocumentRepository;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
+import gov.cdc.dataprocessing.utilities.component.participation.ParticipationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import org.springframework.stereotype.Component;
 

@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.component;
+package gov.cdc.dataprocessing.utilities.component.public_health_case;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
@@ -25,6 +25,9 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActLocatorParticipat
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsActEntityRepository;
 import gov.cdc.dataprocessing.service.implementation.other.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.utilities.component.act.ActIdRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.act.ActLocatorParticipationRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
 
@@ -51,7 +54,7 @@ public class PublicHealthCaseRepositoryUtil {
     private final ConfirmationMethodRepositoryUtil confirmationMethodRepositoryUtil;
     private final CaseManagementRepositoryUtil caseManagementRepositoryUtil;
     private final ActIdRepositoryUtil actIdRepositoryUtil;
-    private final ActLocatorParticipationRepositoryUtil  actLocatorParticipationRepositoryUtil;
+    private final ActLocatorParticipationRepositoryUtil actLocatorParticipationRepositoryUtil;
     private final ActRelationshipRepositoryUtil actRelationshipRepositoryUtil;
     private final ParticipationRepositoryUtil participationRepositoryUtil;
     private final NbsCaseAnswerRepository nbsCaseAnswerRepository;

@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.component;
+package gov.cdc.dataprocessing.utilities.component.page_and_pam;
 
 import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.MessageConstants;
@@ -28,6 +28,7 @@ import gov.cdc.dataprocessing.service.interfaces.public_health_case.IPublicHealt
 import gov.cdc.dataprocessing.service.model.action.PageActPatient;
 import gov.cdc.dataprocessing.service.model.action.PageActPhc;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
+import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import org.slf4j.Logger;

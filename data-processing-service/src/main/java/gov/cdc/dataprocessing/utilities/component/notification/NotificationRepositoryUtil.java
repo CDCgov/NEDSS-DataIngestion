@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.component;
+package gov.cdc.dataprocessing.utilities.component.notification;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
@@ -11,9 +11,13 @@ import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.notification.Notification;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.notification.NotificationRepository;
 import gov.cdc.dataprocessing.service.implementation.other.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.utilities.component.act.ActIdRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.act.ActLocatorParticipationRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.act.ActRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
+import gov.cdc.dataprocessing.utilities.component.participation.ParticipationRepositoryUtil;
 import jakarta.transaction.Transactional;
-import org.checkerframework.checker.units.qual.N;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;

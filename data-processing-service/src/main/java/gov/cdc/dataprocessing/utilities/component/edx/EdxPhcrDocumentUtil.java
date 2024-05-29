@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.component;
+package gov.cdc.dataprocessing.utilities.component.edx;
 
 import gov.cdc.dataprocessing.cache.OdseCache;
 import gov.cdc.dataprocessing.cache.SrteCache;

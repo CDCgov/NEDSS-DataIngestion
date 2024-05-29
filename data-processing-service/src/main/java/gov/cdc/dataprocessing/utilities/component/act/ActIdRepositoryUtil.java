@@ -1,7 +1,6 @@
-package gov.cdc.dataprocessing.utilities.component;
+package gov.cdc.dataprocessing.utilities.component.act;
 
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.act.Act;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActIdRepository;
 import org.springframework.stereotype.Component;

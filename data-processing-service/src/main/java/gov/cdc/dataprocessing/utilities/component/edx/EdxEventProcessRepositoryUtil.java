@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.component;
+package gov.cdc.dataprocessing.utilities.component.edx;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
@@ -7,6 +7,7 @@ import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EDXEventPro
 import gov.cdc.dataprocessing.repository.nbs.odse.model.EdxEventProcess;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.EdxEventProcessRepository;
 import gov.cdc.dataprocessing.service.implementation.other.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.utilities.component.act.ActRepositoryUtil;
 import org.springframework.stereotype.Component;
 
 @Component

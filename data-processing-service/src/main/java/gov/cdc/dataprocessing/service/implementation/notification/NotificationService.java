@@ -11,8 +11,8 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.notification.Notificatio
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.notification.NotificationRepository;
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
 import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
-import gov.cdc.dataprocessing.utilities.component.ActRelationshipRepositoryUtil;
-import gov.cdc.dataprocessing.utilities.component.NotificationRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.notification.NotificationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import org.springframework.stereotype.Service;
 

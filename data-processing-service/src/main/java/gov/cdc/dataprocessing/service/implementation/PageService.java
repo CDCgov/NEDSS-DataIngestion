@@ -7,7 +7,7 @@ import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxy
 import gov.cdc.dataprocessing.model.container.LabReportSummaryContainer;
 import gov.cdc.dataprocessing.service.interfaces.IInvestigationService;
 import gov.cdc.dataprocessing.service.interfaces.IPageService;
-import gov.cdc.dataprocessing.utilities.component.*;
+import gov.cdc.dataprocessing.utilities.component.page_and_pam.PageRepositoryUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.utilities.component;
+package gov.cdc.dataprocessing.utilities.component.nbs;
 
 import gov.cdc.dataprocessing.model.NbsNoteDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.NbsNote;

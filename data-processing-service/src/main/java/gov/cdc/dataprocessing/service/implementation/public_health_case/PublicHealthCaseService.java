@@ -7,7 +7,7 @@ import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IPublicHealthCaseService;
-import gov.cdc.dataprocessing.utilities.component.PublicHealthCaseRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.public_health_case.PublicHealthCaseRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
