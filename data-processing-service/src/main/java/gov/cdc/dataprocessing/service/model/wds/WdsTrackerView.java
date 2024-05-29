@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.service.model.wds;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.PublicHealthCaseDT;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 public class WdsTrackerView {
     private List<WdsReport> wdsReport;
-    PublicHealthCaseDT publicHealthCase;
+    PublicHealthCaseDto publicHealthCase;
     Long patientUid;
     Long patientParentUid;
     String patientFirstName;

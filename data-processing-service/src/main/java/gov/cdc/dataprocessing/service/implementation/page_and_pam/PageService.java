@@ -2,9 +2,9 @@ package gov.cdc.dataprocessing.service.implementation.page_and_pam;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.CaseManagementDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxyVO;
-import gov.cdc.dataprocessing.model.container.LabReportSummaryContainer;
+import gov.cdc.dataprocessing.model.container.model.LabReportSummaryContainer;
+import gov.cdc.dataprocessing.model.container.model.PageActProxyContainer;
+import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationService;
 import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPageService;
 import gov.cdc.dataprocessing.utilities.component.page_and_pam.PageRepositoryUtil;
@@ -30,7 +30,7 @@ public class PageService implements IPageService {
         this.pageRepositoryUtil = pageRepositoryUtil;
     }
 
-    public Long setPageProxyWithAutoAssoc(String typeCd, PageActProxyVO pageProxyVO, Long observationUid,
+    public Long setPageProxyWithAutoAssoc(String typeCd, PageActProxyContainer pageProxyVO, Long observationUid,
                                           String observationTypeCd, String processingDecision) throws DataProcessingException {
         Long publicHealthCaseUID=null;
         try {
@@ -44,7 +44,7 @@ public class PageService implements IPageService {
         return publicHealthCaseUID;
     }
 
-    public Long setPageProxyWithAutoAssoc(PageActProxyVO pageProxyVO, Long observationUid, 
+    public Long setPageProxyWithAutoAssoc(PageActProxyContainer pageProxyVO, Long observationUid,
                                           String observationTypeCd, String processingDecision) throws  DataProcessingException {
         Long publicHealthCaseUID;
         try {
@@ -57,9 +57,9 @@ public class PageService implements IPageService {
                 labSumVO.setItAssociated(true);
                 labSumVO.setObservationUid(observationUid);
                 //set the add_reason_code(processing decision) for act_relationship  from initial follow-up(pre-populated from Lab report processing decision) field in case management
-                if(pageProxyVO.getPublicHealthCaseVO().getTheCaseManagementDT()!=null && pageProxyVO.getPublicHealthCaseVO().getTheCaseManagementDT().getInitFollUp()!=null)
+                if(pageProxyVO.getPublicHealthCaseContainer().getTheCaseManagementDto()!=null && pageProxyVO.getPublicHealthCaseContainer().getTheCaseManagementDto().getInitFollUp()!=null)
                 {
-                    labSumVO.setProcessingDecisionCd(pageProxyVO.getPublicHealthCaseVO().getTheCaseManagementDT().getInitFollUp());
+                    labSumVO.setProcessingDecisionCd(pageProxyVO.getPublicHealthCaseContainer().getTheCaseManagementDto().getInitFollUp());
                 }
                 else
                 {
@@ -76,8 +76,8 @@ public class PageService implements IPageService {
 //                morbSumVO.setItAssociated(true);
 //                morbSumVO.setObservationUid(observationUid);
 //                //set the add_reason_code(processing decision) for act_relationship  from initial follow-up(pre-populated from Morb report processing decision) field in case management
-//                if(pageProxyVO.getPublicHealthCaseVO().getTheCaseManagementDT()!=null && pageProxyVO.getPublicHealthCaseVO().getTheCaseManagementDT().getInitFollUp()!=null)
-//                    morbSumVO.setProcessingDecisionCd(pageProxyVO.getPublicHealthCaseVO().getTheCaseManagementDT().getInitFollUp());
+//                if(pageProxyVO.getPublicHealthCaseContainer().getTheCaseManagementDto()!=null && pageProxyVO.getPublicHealthCaseContainer().getTheCaseManagementDto().getInitFollUp()!=null)
+//                    morbSumVO.setProcessingDecisionCd(pageProxyVO.getPublicHealthCaseContainer().getTheCaseManagementDto().getInitFollUp());
 //                else
 //                    morbSumVO.setProcessingDecisionCd(processingDecision);
 //                observationColl.add(morbSumVO);
@@ -91,27 +91,27 @@ public class PageService implements IPageService {
     }
 
 
-    private void updateNamedAsContactDisposition(CaseManagementDT caseManagementDT) throws DataProcessingException {
-        if (caseManagementDT.getPublicHealthCaseUid() == null)  //auto field followup create in progress..
+    private void updateNamedAsContactDisposition(CaseManagementDto caseManagementDto) throws DataProcessingException {
+        if (caseManagementDto.getPublicHealthCaseUid() == null)  //auto field followup create in progress..
             return;
         try {
 
-            String dispositionCd =caseManagementDT.getFldFollUpDispo();
+            String dispositionCd = caseManagementDto.getFldFollUpDispo();
             if(dispositionCd!=null && dispositionCd.equalsIgnoreCase(NEDSSConstant.FROM1_A_PREVENTATIVE_TREATMENT)) {
                 dispositionCd = NEDSSConstant.TO1_Z_PREVIOUS_PREVENTATIVE_TREATMENT;
             }
             else if(dispositionCd!=null && dispositionCd.equalsIgnoreCase(NEDSSConstant.FROM2_C_INFECTED_BROUGHT_TO_TREATMENT)) {
                 dispositionCd = NEDSSConstant.TO2_E_PREVIOUSLY_TREATED_FOR_THIS_INFECTION;
             }
-            Timestamp fldFollowUpDispDate=caseManagementDT.getFldFollUpDispoDate();
+            Timestamp fldFollowUpDispDate= caseManagementDto.getFldFollUpDispoDate();
 
 
             //TODO: CONTACT DIPOSITION
-//            int numbersOfAssociatedContactRecords= ctContactDAO.countNamedAsContactDispoInvestigations(caseManagementDT.getPublicHealthCaseUid());
+//            int numbersOfAssociatedContactRecords= ctContactDAO.countNamedAsContactDispoInvestigations(caseManagementDto.getPublicHealthCaseUid());
 //            logger.debug("numbersOfAssociatedContactRecords is "+numbersOfAssociatedContactRecords);
 //
 //            if(numbersOfAssociatedContactRecords>0) {
-//                ctContactDAO.updateNamedAsContactDispoInvestigation(dispositionCd,fldFollowUpDispDate, caseManagementDT.getPublicHealthCaseUid());
+//                ctContactDAO.updateNamedAsContactDispoInvestigation(dispositionCd,fldFollowUpDispDate, caseManagementDto.getPublicHealthCaseUid());
 //                logger.debug("updateNamedAsContactDisposition update was successful for "+numbersOfAssociatedContactRecords+" numbers of associated investigations.");
 //            }
         } catch (Exception e) {

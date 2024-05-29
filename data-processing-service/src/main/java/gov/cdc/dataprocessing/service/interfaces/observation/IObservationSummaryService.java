@@ -1,9 +1,9 @@
 package gov.cdc.dataprocessing.service.interfaces.observation;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.LabReportSummaryContainer;
-import gov.cdc.dataprocessing.model.container.ProviderDataForPrintContainer;
-import gov.cdc.dataprocessing.model.container.UidSummaryContainer;
+import gov.cdc.dataprocessing.model.container.model.LabReportSummaryContainer;
+import gov.cdc.dataprocessing.model.container.model.ProviderDataForPrintContainer;
+import gov.cdc.dataprocessing.model.container.model.UidSummaryContainer;
 
 import java.util.ArrayList;
 import java.util.Collection;

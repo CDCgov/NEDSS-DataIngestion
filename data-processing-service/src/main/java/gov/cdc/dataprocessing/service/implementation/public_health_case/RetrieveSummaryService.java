@@ -3,12 +3,9 @@ package gov.cdc.dataprocessing.service.implementation.public_health_case;
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EDXEventProcessDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.PublicHealthCaseDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.NotificationVO;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxyVO;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PublicHealthCaseVO;
-import gov.cdc.dataprocessing.model.container.*;
+import gov.cdc.dataprocessing.model.container.model.*;
+import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessDto;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.model.dto.notification.NotificationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IRetrieveSummaryService;
@@ -50,13 +47,13 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                                                                 Collection<LabReportSummaryContainer> reportSumVOCollection){
 
         try {
-            PublicHealthCaseDT publicHealthCaseDT = null;
+            PublicHealthCaseDto publicHealthCaseDto = null;
 
-            publicHealthCaseDT = publicHealthCaseRepositoryUtil.findPublicHealthCase(investigationUID);
+            publicHealthCaseDto = publicHealthCaseRepositoryUtil.findPublicHealthCase(investigationUID);
 
-            if(publicHealthCaseDT.isStdHivProgramAreaCode()){
+            if(publicHealthCaseDto.isStdHivProgramAreaCode()){
                 //TODO: LOGGING PIPELINE
-                createAndStoreMessageLogDTCollection( reportSumVOCollection, publicHealthCaseDT);
+                createAndStoreMessageLogDTCollection( reportSumVOCollection, publicHealthCaseDto);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -94,7 +91,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
             //TODO: CDA -- IS THIS ECR?
 //            treatmentsSummaryVOHashMap =customRepository.retrieveTreatmentSummaryVOForInv(publicHealthUID, aQuery);
 
-//            Map<String, EDXEventProcessDT> edxEventsMap = getEDXEventProcessMapByCaseId(publicHealthUID);
+//            Map<String, EDXEventProcessDto> edxEventsMap = getEDXEventProcessMapByCaseId(publicHealthUID);
 //            CDAEventSummaryParser cdaParser = new CDAEventSummaryParser();
 //            if(treatmentsSummaryVOHashMap==null)
 //            {
@@ -112,8 +109,8 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
     } // retrieveTreatmentSummaryList
 
 
-    private Map<String, EDXEventProcessDT> getEDXEventProcessMapByCaseId(Long publicHealthCaseUid) throws DataProcessingException {
-        Map<String, EDXEventProcessDT> eventProcessMap = new HashMap<String, EDXEventProcessDT>();
+    private Map<String, EDXEventProcessDto> getEDXEventProcessMapByCaseId(Long publicHealthCaseUid) throws DataProcessingException {
+        Map<String, EDXEventProcessDto> eventProcessMap = new HashMap<String, EDXEventProcessDto>();
         try {
 
             eventProcessMap = customRepository.getEDXEventProcessMapByCaseId(publicHealthCaseUid);
@@ -142,19 +139,19 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
     } // retrieveDocumentSummaryList
 
 
-    public Collection<Object>  notificationSummaryOnInvestigation(PublicHealthCaseVO publicHealthCaseVO, Object object) throws DataProcessingException {
+    public Collection<Object>  notificationSummaryOnInvestigation(PublicHealthCaseContainer publicHealthCaseContainer, Object object) throws DataProcessingException {
 
         Collection<Object>  theNotificationSummaryVOCollection  = null;
         Long publicHealthCaseUID = null;
         NotificationSummaryContainer notificationSummaryVO = null;
 
         try{
-            if (publicHealthCaseVO != null) {
-                publicHealthCaseUID = publicHealthCaseVO.getThePublicHealthCaseDT().
+            if (publicHealthCaseContainer != null) {
+                publicHealthCaseUID = publicHealthCaseContainer.getThePublicHealthCaseDto().
                         getPublicHealthCaseUid();
             }
 
-            if (publicHealthCaseVO.getThePublicHealthCaseDT().getCaseClassCd() != null) {
+            if (publicHealthCaseContainer.getThePublicHealthCaseDto().getCaseClassCd() != null) {
                 theNotificationSummaryVOCollection  = (ArrayList<Object>) retrieveNotificationSummaryListForInvestigation(publicHealthCaseUID);
             }
             else {
@@ -187,22 +184,22 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                     if (notificationSummaryVO.getRecordStatusCd() != null &&
                             notificationSummaryVO.getRecordStatusCd().trim().equals(
                                     NEDSSConstant.PENDING_APPROVAL_STATUS)) {
-                        notificationSummaryVO.setCd(publicHealthCaseVO.
-                                getThePublicHealthCaseDT().getCd());
-                        notificationSummaryVO.setCdTxt(publicHealthCaseVO.
-                                getThePublicHealthCaseDT().
+                        notificationSummaryVO.setCd(publicHealthCaseContainer.
+                                getThePublicHealthCaseDto().getCd());
+                        notificationSummaryVO.setCdTxt(publicHealthCaseContainer.
+                                getThePublicHealthCaseDto().
                                 getCdDescTxt());
 
                         //The following lines of code were commented out for  notificationSummaryVO.setCaseClassCd as there was a bug openend 
                         //in release 3.0 where the notificationSummary was getting the caseClassCd from publicHealthCase for Pending approval cases only.
                         /**As this was not a true reflection of notification, and to fix the bog, this code was commented out.
-                         /   notificationSummaryVO.setCaseClassCd(publicHealthCaseVO.
-                         /                                    getThePublicHealthCaseDT().
+                         /   notificationSummaryVO.setCaseClassCd(publicHealthCaseContainer.
+                         /                                    getThePublicHealthCaseDto().
                          getCaseClassCd());
                          CachedDropDownValues cachedDropDownValues = new CachedDropDownValues();
                          String caseClassCdTxt = cachedDropDownValues.getDescForCode(
                          NEDSSConstant.CASE_CLASS_CODE_SET_NM,
-                         publicHealthCaseVO.getThePublicHealthCaseDT().getCaseClassCd());
+                         publicHealthCaseContainer.getThePublicHealthCaseDto().getCaseClassCd());
                          notificationSummaryVO.setCaseClassCdTxt(caseClassCdTxt);
                          */ //!!##System.out.println("notificationSummaryVO.getCaseClassCd()" + notificationSummaryVO.getCaseClassCd());
                     }
@@ -250,8 +247,8 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                             }
                         }
                     }
-                    else if(object instanceof PageActProxyVO) {
-                        PageActProxyVO pageProxy = (PageActProxyVO) object;
+                    else if(object instanceof PageActProxyContainer) {
+                        PageActProxyContainer pageProxy = (PageActProxyContainer) object;
                         if(notificationSummaryVO.isCaseReport()){
                             if(notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_APPROVED_CODE) ){
                                 pageProxy.setOOSystemInd(true);
@@ -280,7 +277,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
      * LOGGING
      * TODO: this need to move to logging pipeline
      * */
-    private void createAndStoreMessageLogDTCollection(Collection<LabReportSummaryContainer> reportSumVOCollection,PublicHealthCaseDT publicHealthCaseDT){
+    private void createAndStoreMessageLogDTCollection(Collection<LabReportSummaryContainer> reportSumVOCollection, PublicHealthCaseDto publicHealthCaseDto){
 //        try {
 //            Collection<MessageLogDT> coll =  new ArrayList<MessageLogDT>();
 //            java.util.Date dateTime = new java.util.Date();
@@ -295,7 +292,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
 //                    ReportSummaryInterface reportSumVO = (ReportSummaryInterface)theIterator.next();
 //                    if(reportSumVO.getIsAssociated()== true && reportSumVO.getIsTouched()== true){
 //                        PublicHealthCaseRootDAOImpl phc = new PublicHealthCaseRootDAOImpl();
-//                        PublicHealthCaseDT phcDT =phc.getOpenPublicHealthCaseWithInvestigatorDT(publicHealthCaseDT.getPublicHealthCaseUid());
+//                        PublicHealthCaseDto phcDT =phc.getOpenPublicHealthCaseWithInvestigatorDT(publicHealthCaseDto.getPublicHealthCaseUid());
 //                        Long providerUid=nbsSecurityObj.getTheUserProfile().getTheUser().getProviderUid();
 //                        if( phcDT!=null
 //                                && (providerUid==null
@@ -311,7 +308,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
 //                    messageLogDAOImpl.storeMessageLogDTCollection(coll);
 //                } catch (Exception e) {
 //                    logger.error("Unable to store the Error message in createAndStoreMesssageLogDTCollection for = "
-//                            + publicHealthCaseDT.toString());
+//                            + publicHealthCaseDto.toString());
 //                }
 //            }
 //        } catch (Exception e) {
@@ -554,15 +551,15 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
         {
 
             var resNotification = notificationRepositoryUtil.getNotificationContainer(notificationUid);
-            NotificationVO notificationVO = resNotification;
+            NotificationContainer notificationContainer = resNotification;
             NotificationDto newNotificationDT = null;
-            NotificationDto notificationDT = notificationVO.getTheNotificationDT();
+            NotificationDto notificationDT = notificationContainer.getTheNotificationDT();
             notificationDT.setProgAreaCd(progAreaCd);
             notificationDT.setJurisdictionCd(jurisdictionCd);
             notificationDT.setCaseConditionCd(phcCd);
             notificationDT.setSharedInd(sharedInd);
             notificationDT.setCaseClassCd(phcClassCd);
-            notificationVO.setItDirty(true);
+            notificationContainer.setItDirty(true);
             notificationDT.setItDirty(true);
 
             //retreive the new NotificationDT generated by PrepareVOUtils
@@ -570,11 +567,11 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                     notificationDT, NBSBOLookup.NOTIFICATION, businessTriggerCd,
                     "Notification", NEDSSConstant.BASE, notificationDT.getVersionCtrlNbr());
 
-            //replace old NotificationDT in NotificationVO with the new NotificationDT
-            notificationVO.setTheNotificationDT(newNotificationDT);
+            //replace old NotificationDT in NotificationContainer with the new NotificationDT
+            notificationContainer.setTheNotificationDT(newNotificationDT);
 
             //TODO: NOTIFICATION UPDATE NEED TO BE IT WON THING
-            Long newNotficationUid = notificationRepositoryUtil.setNotification(notificationVO);
+            Long newNotficationUid = notificationRepositoryUtil.setNotification(notificationContainer);
         }catch (Exception e){
             throw new DataProcessingException("Error in calling ActControllerEJB.setNotification()" + e.toString());
         }

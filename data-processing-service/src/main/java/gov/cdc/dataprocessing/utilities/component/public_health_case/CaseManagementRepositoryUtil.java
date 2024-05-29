@@ -1,10 +1,8 @@
 package gov.cdc.dataprocessing.utilities.component.public_health_case;
 
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.CaseManagementDT;
-import gov.cdc.dataprocessing.model.dto.ConfirmationMethodDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.CaseManagementRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.ConfirmationMethodRepository;
+import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.phc.CaseManagementRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -19,19 +17,19 @@ public class CaseManagementRepositoryUtil {
         this.caseManagementRepository = caseManagementRepository;
     }
 
-    public CaseManagementDT getCaseManagementPhc(Long phcUid) {
-        Collection<CaseManagementDT> lst = new ArrayList<>();
+    public CaseManagementDto getCaseManagementPhc(Long phcUid) {
+        Collection<CaseManagementDto> lst = new ArrayList<>();
         var res = caseManagementRepository.findRecordsByPhcUid(phcUid);
         if (res.isEmpty()) {
             return null;
         } else {
             for(var item : res.get()) {
                 //NOTE: THIS SHOULD ONLY RETURN A SINGLE DATA NOT A COLLECTION
-                CaseManagementDT data = new CaseManagementDT(item);
+                CaseManagementDto data = new CaseManagementDto(item);
                 return data;
             }
         }
 
-        return new CaseManagementDT();
+        return new CaseManagementDto();
     }
 }

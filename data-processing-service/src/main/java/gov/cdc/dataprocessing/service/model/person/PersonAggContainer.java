@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.service.model.person;
 
-import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import lombok.Getter;
 import lombok.Setter;
 

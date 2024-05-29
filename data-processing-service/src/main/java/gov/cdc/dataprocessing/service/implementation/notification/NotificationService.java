@@ -3,8 +3,11 @@ package gov.cdc.dataprocessing.service.implementation.notification;
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.NotificationVO;
-import gov.cdc.dataprocessing.model.container.*;
+import gov.cdc.dataprocessing.model.container.base.BaseContainer;
+import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.NotificationContainer;
+import gov.cdc.dataprocessing.model.container.model.NotificationProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.notification.NotificationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.notification.Notification;
@@ -43,8 +46,8 @@ public class NotificationService implements INotificationService {
         return res.map(NotificationDto::new).orElse(null);
     }
 
-    public Long saveNotification(NotificationVO notificationVO) {
-        var notification = new Notification(notificationVO.getTheNotificationDT());
+    public Long saveNotification(NotificationContainer notificationContainer) {
+        var notification = new Notification(notificationContainer.getTheNotificationDT());
         notificationRepository.save(notification);
         return notification.getNotificationUid();
     }
@@ -138,7 +141,7 @@ public class NotificationService implements INotificationService {
 //            // the vaccination UID
 //            return ((VaccinationProxyVO) vo)
 //                    .theInterventionVO
-//                    .getTheInterventionDT()
+//                    .getTheInterventionDto()
 //                    .getInterventionUid();
 //        }
         return null;
@@ -160,9 +163,9 @@ public class NotificationService implements INotificationService {
                 throw new DataProcessingException("notificationproxyVO is null ");
             }
 
-            String programeAreaCode = notificationProxyVO.getThePublicHealthCaseVO().getThePublicHealthCaseDT().getProgAreaCd();
-            String jurisdictionCode = notificationProxyVO.getThePublicHealthCaseVO().getThePublicHealthCaseDT().getJurisdictionCd();
-            String shared = notificationProxyVO.getThePublicHealthCaseVO().getThePublicHealthCaseDT().getSharedInd();
+            String programeAreaCode = notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getProgAreaCd();
+            String jurisdictionCode = notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getJurisdictionCd();
+            String shared = notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getSharedInd();
 
 
             permissionFlag = "CREATE";
@@ -191,7 +194,7 @@ public class NotificationService implements INotificationService {
         }
 
 
-        NotificationVO notifVO = notificationProxyVO.getTheNotificationVO();
+        NotificationContainer notifVO = notificationProxyVO.getTheNotificationContainer();
 
         if (notifVO == null)
         {
@@ -199,12 +202,12 @@ public class NotificationService implements INotificationService {
         }
 
         NotificationDto notifDT = notifVO.getTheNotificationDT();
-        notifDT.setProgAreaCd(notificationProxyVO.getThePublicHealthCaseVO().getThePublicHealthCaseDT().getProgAreaCd());
-        notifDT.setJurisdictionCd(notificationProxyVO.getThePublicHealthCaseVO().getThePublicHealthCaseDT().getJurisdictionCd());
+        notifDT.setProgAreaCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getProgAreaCd());
+        notifDT.setJurisdictionCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getJurisdictionCd());
 
         if (permissionFlag.equals("CREATE"))
         {
-            notifDT.setCaseConditionCd(notificationProxyVO.getThePublicHealthCaseVO().getThePublicHealthCaseDT().getCd());
+            notifDT.setCaseConditionCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getCd());
         }
 
         if ((notifVO.isItDirty()) || (notifVO.isItNew()))
@@ -258,7 +261,7 @@ public class NotificationService implements INotificationService {
                     notifDT.setNotificationUid(realUid);
 
                     notifVO.setTheNotificationDT(notifDT);
-                    notificationProxyVO.setTheNotificationVO(notifVO);
+                    notificationProxyVO.setTheNotificationContainer(notifVO);
                     act2.add(actRelDT);
                     notificationProxyVO.setTheActRelationshipDTCollection(act2);
                     actRelationshipRepositoryUtil.storeActRelationship(actRelDT);

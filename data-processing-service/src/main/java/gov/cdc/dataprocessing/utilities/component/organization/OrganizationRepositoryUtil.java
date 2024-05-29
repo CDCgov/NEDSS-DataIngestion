@@ -4,7 +4,7 @@ import gov.cdc.dataprocessing.constant.elr.DataTables;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.OrganizationContainer;
+import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;

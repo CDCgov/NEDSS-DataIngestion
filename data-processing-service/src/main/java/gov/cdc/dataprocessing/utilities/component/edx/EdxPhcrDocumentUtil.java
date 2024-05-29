@@ -4,9 +4,9 @@ import gov.cdc.dataprocessing.cache.OdseCache;
 import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.NBSConstantUtil;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PublicHealthCaseVO;
-import gov.cdc.dataprocessing.model.dto.NbsCaseAnswerDto;
-import gov.cdc.dataprocessing.model.dto.NbsQuestionMetadata;
+import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import org.springframework.stereotype.Component;
 
@@ -144,25 +144,25 @@ public class EdxPhcrDocumentUtil {
 
 
     public NbsCaseAnswerDto setStandardNBSCaseAnswerVals(
-            PublicHealthCaseVO publicHealthCaseVO,
+            PublicHealthCaseContainer publicHealthCaseContainer,
             NbsCaseAnswerDto nbsCaseAnswerDT) {
 
-        nbsCaseAnswerDT.setActUid(publicHealthCaseVO.getThePublicHealthCaseDT()
+        nbsCaseAnswerDT.setActUid(publicHealthCaseContainer.getThePublicHealthCaseDto()
                 .getPublicHealthCaseUid());
-        nbsCaseAnswerDT.setAddTime(publicHealthCaseVO
-                .getThePublicHealthCaseDT().getAddTime());
-        nbsCaseAnswerDT.setLastChgTime(publicHealthCaseVO
-                .getThePublicHealthCaseDT().getLastChgTime());
-        nbsCaseAnswerDT.setAddUserId(publicHealthCaseVO
-                .getThePublicHealthCaseDT().getAddUserId());
-        nbsCaseAnswerDT.setLastChgUserId(publicHealthCaseVO
-                .getThePublicHealthCaseDT().getLastChgUserId());
+        nbsCaseAnswerDT.setAddTime(publicHealthCaseContainer
+                .getThePublicHealthCaseDto().getAddTime());
+        nbsCaseAnswerDT.setLastChgTime(publicHealthCaseContainer
+                .getThePublicHealthCaseDto().getLastChgTime());
+        nbsCaseAnswerDT.setAddUserId(publicHealthCaseContainer
+                .getThePublicHealthCaseDto().getAddUserId());
+        nbsCaseAnswerDT.setLastChgUserId(publicHealthCaseContainer
+                .getThePublicHealthCaseDto().getLastChgUserId());
         nbsCaseAnswerDT.setRecordStatusCd("OPEN");
         if (nbsCaseAnswerDT.getSeqNbr() != null
                 && nbsCaseAnswerDT.getSeqNbr().intValue() < 0)
             nbsCaseAnswerDT.setSeqNbr(0);
-        nbsCaseAnswerDT.setRecordStatusTime(publicHealthCaseVO
-                .getThePublicHealthCaseDT().getRecordStatusTime());
+        nbsCaseAnswerDT.setRecordStatusTime(publicHealthCaseContainer
+                .getThePublicHealthCaseDto().getRecordStatusTime());
         nbsCaseAnswerDT.setItNew(true);
         // if (nbsCaseAnswerDT.getNbsQuestionUid() == null) {
         // logger.error("There is no question identifier");

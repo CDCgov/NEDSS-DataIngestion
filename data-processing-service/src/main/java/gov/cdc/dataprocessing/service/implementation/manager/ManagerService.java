@@ -10,11 +10,7 @@ import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.exception.EdxLogException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxyVO;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PublicHealthCaseVO;
-import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
-import gov.cdc.dataprocessing.model.container.ObservationContainer;
-import gov.cdc.dataprocessing.model.container.PamProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
@@ -213,13 +209,13 @@ public class ManagerService implements IManagerService {
                     if (edxLabInformationDto.getPageActContainer() != null
                     || edxLabInformationDto.getPamContainer() != null) {
                         if (edxLabInformationDto.getPageActContainer() != null) {
-                            var pageActProxyVO = (PageActProxyVO) edxLabInformationDto.getPageActContainer();
-                            trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT());
+                            var pageActProxyVO = (PageActProxyContainer) edxLabInformationDto.getPageActContainer();
+                            trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
                         }
                         else
                         {
                             var pamProxyVO = (PamProxyContainer)edxLabInformationDto.getPamContainer();
-                            trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT());
+                            trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
                         }
                     }
                     else
@@ -273,9 +269,9 @@ public class ManagerService implements IManagerService {
             }
 
 
-            PageActProxyVO pageActProxyVO = null;
+            PageActProxyContainer pageActProxyContainer = null;
             PamProxyContainer pamProxyVO = null;
-            PublicHealthCaseVO publicHealthCaseVO = null;
+            PublicHealthCaseContainer publicHealthCaseContainer = null;
             Long phcUid = null;
 
             /**
@@ -305,31 +301,31 @@ public class ManagerService implements IManagerService {
                 //checkSecurity(nbsSecurityObj, edxLabInformationDto, NBSBOLookup.INVESTIGATION, NBSOperationLookup.ADD, programAreaCd, jurisdictionCd);
 
                 /**
-                 * Incoming payload should reach PageActProxyVO
+                 * Incoming payload should reach PageActProxyContainer
                  * */
                 if (edxLabInformationDto.getPageActContainer() != null) {
-                    pageActProxyVO =  edxLabInformationDto.getPageActContainer();
-                    publicHealthCaseVO = pageActProxyVO.getPublicHealthCaseVO();
+                    pageActProxyContainer =  edxLabInformationDto.getPageActContainer();
+                    publicHealthCaseContainer = pageActProxyContainer.getPublicHealthCaseContainer();
                 }
                 else
                 {
                     pamProxyVO = edxLabInformationDto.getPamContainer();
-                    publicHealthCaseVO = pamProxyVO.getPublicHealthCaseVO();
+                    publicHealthCaseContainer = pamProxyVO.getPublicHealthCaseContainer();
                 }
 
-                if (publicHealthCaseVO.getErrorText() != null)
+                if (publicHealthCaseContainer.getErrorText() != null)
                 {
                     //TODO: LOGGING
-                    requiredFieldError(publicHealthCaseVO.getErrorText(), edxLabInformationDto);
+                    requiredFieldError(publicHealthCaseContainer.getErrorText(), edxLabInformationDto);
 
                 }
 
 
-                if (pageActProxyVO != null && observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null) {
+                if (pageActProxyContainer != null && observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null) {
                     //TODO: 3rd Flow
-                    phcUid = pageService.setPageProxyWithAutoAssoc(NEDSSConstant.CASE, pageActProxyVO, edxLabInformationDto.getRootObserbationUid(), NEDSSConstant.LABRESULT_CODE, null);
+                    phcUid = pageService.setPageProxyWithAutoAssoc(NEDSSConstant.CASE, pageActProxyContainer, edxLabInformationDto.getRootObserbationUid(), NEDSSConstant.LABRESULT_CODE, null);
 
-                    pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().setPublicHealthCaseUid(phcUid);
+                    pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setPublicHealthCaseUid(phcUid);
 
                     edxLabInformationDto.setInvestigationSuccessfullyCreated(true);
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_3);
@@ -341,7 +337,7 @@ public class ManagerService implements IManagerService {
                     //TODO: 3rd Flow
                     phcUid = pamService.setPamProxyWithAutoAssoc(pamProxyVO, edxLabInformationDto.getRootObserbationUid(), NEDSSConstant.LABRESULT_CODE);
 
-                    pamProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().setPublicHealthCaseUid(phcUid);
+                    pamProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setPublicHealthCaseUid(phcUid);
                     edxLabInformationDto.setInvestigationSuccessfullyCreated(true);
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_3);
                     edxLabInformationDto.setPublicHealthCaseUid(phcUid);
@@ -351,7 +347,7 @@ public class ManagerService implements IManagerService {
                 if(edxLabInformationDto.getAction().equalsIgnoreCase(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE)){
                     //TODO: 3rd Flow
                     //TODO: THIS SEEM TO GO TO LOG
-                    EDXActivityDetailLogDto edxActivityDetailLogDT = investigationNotificationService.sendNotification(publicHealthCaseVO, edxLabInformationDto.getNndComment());
+                    EDXActivityDetailLogDto edxActivityDetailLogDT = investigationNotificationService.sendNotification(publicHealthCaseContainer, edxLabInformationDto.getNndComment());
                     edxActivityDetailLogDT.setRecordType(EdxELRConstant.ELR_RECORD_TP);
                     edxActivityDetailLogDT.setRecordName(EdxELRConstant.ELR_RECORD_NM);
                     ArrayList<EDXActivityDetailLogDto> details = (ArrayList<EDXActivityDetailLogDto>)edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails();

@@ -2,7 +2,7 @@ package gov.cdc.dataprocessing.service.implementation.person;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;

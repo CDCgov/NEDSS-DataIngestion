@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.model.dto.lookup;
 
-import gov.cdc.dataprocessing.repository.nbs.odse.model.LookupQuestionExtended;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.lookup.LookupQuestionExtended;
 import lombok.Getter;
 import lombok.Setter;
 

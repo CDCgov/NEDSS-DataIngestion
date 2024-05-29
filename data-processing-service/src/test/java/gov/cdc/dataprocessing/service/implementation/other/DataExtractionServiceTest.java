@@ -4,8 +4,6 @@ import com.google.gson.Gson;
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
-import gov.cdc.dataprocessing.model.container.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;

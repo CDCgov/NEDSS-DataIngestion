@@ -2,9 +2,9 @@ package gov.cdc.dataprocessing.repository.nbs.odse.repos;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.CTContactSummaryDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EDXEventProcessDT;
-import gov.cdc.dataprocessing.model.container.*;
+import gov.cdc.dataprocessing.model.container.model.*;
+import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessDto;
+import gov.cdc.dataprocessing.model.dto.phc.CTContactSummaryDto;
 import gov.cdc.dataprocessing.model.dto.generic_helper.StateDefinedFieldDataDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NBSDocumentDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
-
 import static gov.cdc.dataprocessing.constant.ComplexQueries.*;
 
 @Repository
@@ -67,7 +66,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         }
         return map;
     }
-    public Map<String, EDXEventProcessDT>getEDXEventProcessMapByCaseId(Long publicHealthCaseUid) {
+    public Map<String, EDXEventProcessDto>getEDXEventProcessMapByCaseId(Long publicHealthCaseUid) {
         String docQuery = " SELECT"
                 + " edx_event_process_uid  \"eDXEventProcessUid\", "
                 + " nbs_document_uid  \"nbsDocumentUid\", "
@@ -80,13 +79,13 @@ public class CustomRepositoryImpl implements CustomRepository {
                 + " where edx_event_process.nbs_event_uid=act_relationship.source_act_uid "
                 + " and act_relationship.target_act_uid = :TargetActUid order by nbs_document_uid";
 
-        Map<String, EDXEventProcessDT> map= new HashMap<> ();
+        Map<String, EDXEventProcessDto> map= new HashMap<> ();
         Query query = entityManager.createNativeQuery(docQuery);
         query.setParameter("TargetActUid", publicHealthCaseUid);
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
             for(var item : results) {
-                EDXEventProcessDT  container = new EDXEventProcessDT();
+                EDXEventProcessDto container = new EDXEventProcessDto();
                 int i = 0;
                 container.setEDXEventProcessUid(dataNotNull(item[i]) ? Long.valueOf(item[i].toString()): null);
                 container.setNbsDocumentUid(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
@@ -502,14 +501,14 @@ public class CustomRepositoryImpl implements CustomRepository {
         return vals;
     }
 
-    public Collection<CTContactSummaryDT> getContactByPatientInfo(String queryString) {
+    public Collection<CTContactSummaryDto> getContactByPatientInfo(String queryString) {
         Query query = entityManager.createNativeQuery(queryString);
 
-        Collection<CTContactSummaryDT> ctContactSummaryDTCollection = new ArrayList<>();
+        Collection<CTContactSummaryDto> ctContactSummaryDtoCollection = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
             for(var item : results) {
-                CTContactSummaryDT contact = new CTContactSummaryDT();
+                CTContactSummaryDto contact = new CTContactSummaryDto();
                 contact.setNamedOnDate(dataNotNull(item[0]) ? Timestamp.valueOf(item[0].toString()) : null );
                 contact.setCtContactUid(dataNotNull(item[1]) ? Long.valueOf(item[1].toString()) : null );
                 contact.setLocalId(dataNotNull(item[2]) ? String.valueOf(item[2].toString()) : null );
@@ -534,10 +533,10 @@ public class CustomRepositoryImpl implements CustomRepository {
                 contact.setContactMprUid(dataNotNull(item[20]) ? Long.valueOf(item[20].toString()) : null );
                 contact.setSubjectPhcCd(dataNotNull(item[21]) ? String.valueOf(item[21].toString()) : null );
                 contact.setSubjectMprUid(dataNotNull(item[22]) ? Long.valueOf(item[22].toString()) : null );
-                ctContactSummaryDTCollection.add(contact);
+                ctContactSummaryDtoCollection.add(contact);
             }
         }
-        return ctContactSummaryDTCollection;
+        return ctContactSummaryDtoCollection;
     }
 
     public NbsDocumentContainer getNbsDocument(Long nbsUid) throws DataProcessingException {

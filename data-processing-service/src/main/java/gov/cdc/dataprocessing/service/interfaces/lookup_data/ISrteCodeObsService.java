@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.service.interfaces.lookup_data;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueCodedDto;
 
 import java.util.Collection;

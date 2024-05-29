@@ -1,17 +1,17 @@
 package gov.cdc.dataprocessing.utilities.component.wds;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.CaseManagementDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.PublicHealthCaseDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PublicHealthCaseVO;
-import gov.cdc.dataprocessing.model.container.BasePamContainer;
+import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
+import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
+import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.dsma_algorithm.CodedType;
 import gov.cdc.dataprocessing.model.dsma_algorithm.DefaultValueType;
 import gov.cdc.dataprocessing.model.dsma_algorithm.InvestigationDefaultValuesType;
-import gov.cdc.dataprocessing.model.dto.ConfirmationMethodDto;
-import gov.cdc.dataprocessing.model.dto.EdxRuleManageDto;
-import gov.cdc.dataprocessing.model.dto.NbsCaseAnswerDto;
-import gov.cdc.dataprocessing.model.dto.NbsQuestionMetadata;
+import gov.cdc.dataprocessing.model.dto.phc.ConfirmationMethodDto;
+import gov.cdc.dataprocessing.model.dto.edx.EdxRuleManageDto;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.utilities.StringUtils;
 import gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil;
@@ -31,12 +31,12 @@ public class ValidateDecisionSupport {
         this.edxPHCRDocumentUtil = edxPHCRDocumentUtil;
     }
 
-    public void processNbsObject(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseVO publicHealthCaseVO, NbsQuestionMetadata metaData){
-        PublicHealthCaseDT publicHealthCaseDT = publicHealthCaseVO.getThePublicHealthCaseDT();
-        processNBSObjectDT( edxRuleManageDT, publicHealthCaseVO, publicHealthCaseDT, metaData);
+    public void processNbsObject(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData){
+        PublicHealthCaseDto publicHealthCaseDto = publicHealthCaseContainer.getThePublicHealthCaseDto();
+        processNBSObjectDT( edxRuleManageDT, publicHealthCaseContainer, publicHealthCaseDto, metaData);
     }
 
-    public void processNBSObjectDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseVO publicHealthCaseVO, Object object, NbsQuestionMetadata metaData) {
+    public void processNBSObjectDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, Object object, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
 
@@ -105,7 +105,7 @@ public class ValidateDecisionSupport {
     }
 
 
-    public void processNBSCaseAnswerDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseVO publicHealthCaseVO, BasePamContainer pamVO, NbsQuestionMetadata metaData) {
+    public void processNBSCaseAnswerDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, BasePamContainer pamVO, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
         if (behavior.equalsIgnoreCase("1")) {
@@ -131,7 +131,7 @@ public class ValidateDecisionSupport {
                         nbsAnswerDT.setAnswerTxt(code);
                         nbsAnswerDT.setNbsQuestionUid(metaData.getNbsQuestionUid());
                         nbsAnswerDT.setSeqNbr(i++);
-                        edxPHCRDocumentUtil.setStandardNBSCaseAnswerVals(publicHealthCaseVO, nbsAnswerDT);
+                        edxPHCRDocumentUtil.setStandardNBSCaseAnswerVals(publicHealthCaseContainer, nbsAnswerDT);
                         list.add(nbsAnswerDT);
                     }
                 }
@@ -154,7 +154,7 @@ public class ValidateDecisionSupport {
                     nbsAnswerDT.setAnswerTxt(edxRuleManageDT.getDefaultStringValue());
                 nbsAnswerDT.setNbsQuestionUid(metaData.getNbsQuestionUid());
                 nbsAnswerDT.setSeqNbr(0);
-                edxPHCRDocumentUtil.setStandardNBSCaseAnswerVals(publicHealthCaseVO, nbsAnswerDT);
+                edxPHCRDocumentUtil.setStandardNBSCaseAnswerVals(publicHealthCaseContainer, nbsAnswerDT);
                 answerMap.put(metaData.getQuestionIdentifier(), nbsAnswerDT);
             }
         } else {
@@ -171,7 +171,7 @@ public class ValidateDecisionSupport {
                             nbsAnswerDT.setAnswerTxt(code);
                             nbsAnswerDT.setNbsQuestionUid(metaData.getNbsQuestionUid());
                             nbsAnswerDT.setSeqNbr(i++);
-                            edxPHCRDocumentUtil.setStandardNBSCaseAnswerVals(publicHealthCaseVO, nbsAnswerDT);
+                            edxPHCRDocumentUtil.setStandardNBSCaseAnswerVals(publicHealthCaseContainer, nbsAnswerDT);
                             list.add(nbsAnswerDT);
                         }
                     }
@@ -194,7 +194,7 @@ public class ValidateDecisionSupport {
                         nbsAnswerDT.setAnswerTxt(edxRuleManageDT.getDefaultStringValue());
                     nbsAnswerDT.setNbsQuestionUid(metaData.getNbsQuestionUid());
                     nbsAnswerDT.setSeqNbr(0);
-                    edxPHCRDocumentUtil.setStandardNBSCaseAnswerVals(publicHealthCaseVO, nbsAnswerDT);
+                    edxPHCRDocumentUtil.setStandardNBSCaseAnswerVals(publicHealthCaseContainer, nbsAnswerDT);
                     answerMap.put(metaData.getQuestionIdentifier(), nbsAnswerDT);
                 }
             } else {
@@ -205,7 +205,7 @@ public class ValidateDecisionSupport {
         pamVO.setPamAnswerDTMap(answerMap);
     }
 
-    public  void processConfirmationMethodCodeDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseVO publicHealthCaseVO, NbsQuestionMetadata metaData) {
+    public  void processConfirmationMethodCodeDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
         if (behavior.equalsIgnoreCase("1")) {
@@ -223,13 +223,13 @@ public class ValidateDecisionSupport {
                         String code = (String) iterator.next();
                         ConfirmationMethodDto confirmDT = new ConfirmationMethodDto();
                         confirmDT.setConfirmationMethodCd(code);
-                        confirmDT.setPublicHealthCaseUid(publicHealthCaseVO.getThePublicHealthCaseDT().getPublicHealthCaseUid());
+                        confirmDT.setPublicHealthCaseUid(publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid());
                         confirmDT.setItNew(true);
 
 
 
                         //check the previous time entered:
-                        Collection<ConfirmationMethodDto> confirmColl = publicHealthCaseVO.getTheConfirmationMethodDTCollection();
+                        Collection<ConfirmationMethodDto> confirmColl = publicHealthCaseContainer.getTheConfirmationMethodDTCollection();
                         if(confirmColl!=null){
                             Iterator<ConfirmationMethodDto> cofirmIt = confirmColl.iterator();
                             Timestamp time = null;
@@ -248,10 +248,10 @@ public class ValidateDecisionSupport {
                         list.add(confirmDT);
                     }
                 }
-                publicHealthCaseVO.setTheConfirmationMethodDTCollection(list);
+                publicHealthCaseContainer.setTheConfirmationMethodDTCollection(list);
             }
         } else {
-            if (publicHealthCaseVO.getTheConfirmationMethodDTCollection() == null) {
+            if (publicHealthCaseContainer.getTheConfirmationMethodDTCollection() == null) {
                 Collection<ConfirmationMethodDto> list = new ArrayList<>();
                 if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) {
                     Collection<Object> toValueColl = edxRuleManageDT.getDefaultCodedValueColl();
@@ -261,12 +261,12 @@ public class ValidateDecisionSupport {
                             String code = (String) iterator.next();
                             ConfirmationMethodDto confirmDT = new ConfirmationMethodDto();
                             confirmDT.setConfirmationMethodCd(code);
-                            confirmDT.setPublicHealthCaseUid(publicHealthCaseVO.getThePublicHealthCaseDT().getPublicHealthCaseUid());
+                            confirmDT.setPublicHealthCaseUid(publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid());
                             confirmDT.setItNew(true);
                             list.add(confirmDT);
                         }
                     }
-                    publicHealthCaseVO.setTheConfirmationMethodDTCollection(list);
+                    publicHealthCaseContainer.setTheConfirmationMethodDTCollection(list);
                 } else {
 //                    logger.error("This should not happen! There is some critical error in the metadata! Please check." + metaData.toString());
                 }
@@ -278,7 +278,7 @@ public class ValidateDecisionSupport {
                     Iterator<?> iterator = toValueColl.iterator();
                     while (iterator.hasNext()) {
                         String code = (String) iterator.next();
-                        Collection<ConfirmationMethodDto> confirmColl = publicHealthCaseVO.getTheConfirmationMethodDTCollection();
+                        Collection<ConfirmationMethodDto> confirmColl = publicHealthCaseContainer.getTheConfirmationMethodDTCollection();
                         Iterator<ConfirmationMethodDto> cofirmIt = confirmColl.iterator();
                         boolean matchFound = false;
                         while (cofirmIt.hasNext()) {
@@ -300,12 +300,12 @@ public class ValidateDecisionSupport {
                             ConfirmationMethodDto confirmDT = new ConfirmationMethodDto();
                             confirmDT.setConfirmationMethodCd(code);
                             confirmDT.setConfirmationMethodTime(time);
-                            confirmDT.setPublicHealthCaseUid(publicHealthCaseVO.getThePublicHealthCaseDT().getPublicHealthCaseUid());
+                            confirmDT.setPublicHealthCaseUid(publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid());
                             confirmDT.setItNew(true);
                             list.add(confirmDT);
                         }
                     }
-                    publicHealthCaseVO.setTheConfirmationMethodDTCollection(list);
+                    publicHealthCaseContainer.setTheConfirmationMethodDTCollection(list);
                 }
             }
         }
@@ -346,7 +346,7 @@ public class ValidateDecisionSupport {
         }
     }
 
-    public PublicHealthCaseVO processConfirmationMethodTimeDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseVO publicHealthCaseVO, NbsQuestionMetadata metaData) {
+    public PublicHealthCaseContainer processConfirmationMethodTimeDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
         if (behavior.equalsIgnoreCase("1")) {
@@ -362,23 +362,23 @@ public class ValidateDecisionSupport {
 
         if (isOverwrite) {
             Collection<ConfirmationMethodDto> list = new ArrayList<>();
-            if (time != null && publicHealthCaseVO.getTheConfirmationMethodDTCollection() != null) {
-                Iterator<?> iterator = publicHealthCaseVO.getTheConfirmationMethodDTCollection().iterator();
+            if (time != null && publicHealthCaseContainer.getTheConfirmationMethodDTCollection() != null) {
+                Iterator<?> iterator = publicHealthCaseContainer.getTheConfirmationMethodDTCollection().iterator();
                 while (iterator.hasNext()) {
                     ConfirmationMethodDto confirmDT = (ConfirmationMethodDto) iterator.next();
                     confirmDT.setConfirmationMethodTime(Timestamp.valueOf(time));
                     list.add(confirmDT);
                 }
-                publicHealthCaseVO.setTheConfirmationMethodDTCollection(list);
+                publicHealthCaseContainer.setTheConfirmationMethodDTCollection(list);
             } else {
                 ConfirmationMethodDto confirmDT = new ConfirmationMethodDto();
                 confirmDT.setConfirmationMethodTime(Timestamp.valueOf(time));
-                confirmDT.setPublicHealthCaseUid(publicHealthCaseVO.getThePublicHealthCaseDT().getPublicHealthCaseUid());
+                confirmDT.setPublicHealthCaseUid(publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid());
                 confirmDT.setItNew(true);
 
 
                 //check previous code entered:
-                Collection<ConfirmationMethodDto> confirmColl = publicHealthCaseVO.getTheConfirmationMethodDTCollection();
+                Collection<ConfirmationMethodDto> confirmColl = publicHealthCaseContainer.getTheConfirmationMethodDTCollection();
                 if(confirmColl!=null){
                     Iterator<ConfirmationMethodDto> cofirmIt = confirmColl.iterator();
                     String code;
@@ -395,24 +395,24 @@ public class ValidateDecisionSupport {
 
 
                 list.add(confirmDT);
-                publicHealthCaseVO.setTheConfirmationMethodDTCollection(list);
+                publicHealthCaseContainer.setTheConfirmationMethodDTCollection(list);
             }
 
         } else {
             boolean loopbreak = false;
-            if (publicHealthCaseVO.getTheConfirmationMethodDTCollection() == null) {
+            if (publicHealthCaseContainer.getTheConfirmationMethodDTCollection() == null) {
                 Collection<ConfirmationMethodDto> list = new ArrayList<>();
                 if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) {
                     ConfirmationMethodDto confirmDT = new ConfirmationMethodDto();
                     confirmDT.setConfirmationMethodTime(Timestamp.valueOf(time));
-                    confirmDT.setPublicHealthCaseUid(publicHealthCaseVO.getThePublicHealthCaseDT().getPublicHealthCaseUid());
+                    confirmDT.setPublicHealthCaseUid(publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid());
                     confirmDT.setItNew(true);
                     list.add(confirmDT);
-                    publicHealthCaseVO.setTheConfirmationMethodDTCollection(list);
+                    publicHealthCaseContainer.setTheConfirmationMethodDTCollection(list);
                 } else {
 
-                    if(publicHealthCaseVO.getTheConfirmationMethodDTCollection()!=null){
-                        Iterator<?> iterator = publicHealthCaseVO.getTheConfirmationMethodDTCollection().iterator();
+                    if(publicHealthCaseContainer.getTheConfirmationMethodDTCollection()!=null){
+                        Iterator<?> iterator = publicHealthCaseContainer.getTheConfirmationMethodDTCollection().iterator();
                         while (iterator.hasNext()) {
                             ConfirmationMethodDto confirmDT = (ConfirmationMethodDto) iterator.next();
                             if (confirmDT.getConfirmationMethodTime() != null) {
@@ -423,41 +423,41 @@ public class ValidateDecisionSupport {
                             list.add(confirmDT);
                         }
                         if (!loopbreak)
-                            publicHealthCaseVO.setTheConfirmationMethodDTCollection(list);
+                            publicHealthCaseContainer.setTheConfirmationMethodDTCollection(list);
 
                     }
                     else{//if the getTheConfirmationMethodDtoCollection == null, overwrite
 
                         ConfirmationMethodDto confirmDT = new ConfirmationMethodDto();
                         confirmDT.setConfirmationMethodTime(Timestamp.valueOf(time));
-                        confirmDT.setPublicHealthCaseUid(publicHealthCaseVO.getThePublicHealthCaseDT().getPublicHealthCaseUid());
+                        confirmDT.setPublicHealthCaseUid(publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid());
                         confirmDT.setItNew(true);
 
                         list.add(confirmDT);
-                        publicHealthCaseVO.setTheConfirmationMethodDTCollection(list);
+                        publicHealthCaseContainer.setTheConfirmationMethodDTCollection(list);
                     }
                 }
             } else {
-//                logger.debug("publicHealthCaseVO().getTheConfirmationMethodDtoCollection()!=null for  metaData.getQuestionIdentifier():-" + metaData.getQuestionIdentifier());
+//                logger.debug("publicHealthCaseContainer().getTheConfirmationMethodDtoCollection()!=null for  metaData.getQuestionIdentifier():-" + metaData.getQuestionIdentifier());
 //                logger.error(edxRuleManageDT.toString());
             }
         }
-        return publicHealthCaseVO;
+        return publicHealthCaseContainer;
     }
 
-    public void processNBSCaseManagementDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseVO publicHealthCaseVO, NbsQuestionMetadata metaData){
-        if (publicHealthCaseVO.getTheCaseManagementDT() != null) {
-            CaseManagementDT caseManagementDT = publicHealthCaseVO.getTheCaseManagementDT();
-            caseManagementDT.setCaseManagementDTPopulated(true);
-            processNBSObjectDT( edxRuleManageDT, publicHealthCaseVO, caseManagementDT, metaData);
+    public void processNBSCaseManagementDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData){
+        if (publicHealthCaseContainer.getTheCaseManagementDto() != null) {
+            CaseManagementDto caseManagementDto = publicHealthCaseContainer.getTheCaseManagementDto();
+            caseManagementDto.setCaseManagementDTPopulated(true);
+            processNBSObjectDT( edxRuleManageDT, publicHealthCaseContainer, caseManagementDto, metaData);
         } else{
 //            logger.error("********Decision Support Setting Case Management value for non-STD/HIV Case?? Check STD_PROGRAM_AREAS setting in Property file*********");
         }
     }
 
-    public void processConfirmationMethodCodeDTRequired(PublicHealthCaseVO publicHealthCaseVO){
+    public void processConfirmationMethodCodeDTRequired(PublicHealthCaseContainer publicHealthCaseContainer){
 
-        Collection<ConfirmationMethodDto> confirmColl = publicHealthCaseVO.getTheConfirmationMethodDTCollection();
+        Collection<ConfirmationMethodDto> confirmColl = publicHealthCaseContainer.getTheConfirmationMethodDTCollection();
 
         if(confirmColl!=null){
             Iterator<ConfirmationMethodDto> cofirmIt = confirmColl.iterator();
@@ -468,7 +468,7 @@ public class ValidateDecisionSupport {
                     confirmDT.setConfirmationMethodCd("NA");
                     Collection<ConfirmationMethodDto> list = new ArrayList<>();
                     list.add(confirmDT);
-                    publicHealthCaseVO.setTheConfirmationMethodDTCollection(list);
+                    publicHealthCaseContainer.setTheConfirmationMethodDTCollection(list);
                 }
 
             }
@@ -652,7 +652,7 @@ public class ValidateDecisionSupport {
 
 
     public void processActIds(EdxRuleManageDto edxRuleManageDT,
-                                     PublicHealthCaseVO publicHealthCaseVO, NbsQuestionMetadata metaData) {
+                              PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
         if (behavior.equalsIgnoreCase("1")) {
@@ -660,7 +660,7 @@ public class ValidateDecisionSupport {
         } else if (behavior.equalsIgnoreCase("2")) {
             isOverwrite = false;
         }
-        Collection<ActIdDto> actIdColl = publicHealthCaseVO
+        Collection<ActIdDto> actIdColl = publicHealthCaseContainer
                 .getTheActIdDTCollection();
         if (actIdColl != null && actIdColl.size() > 0) {
             Iterator<ActIdDto> ite = actIdColl.iterator();

@@ -1,11 +1,10 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.repos;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.CTContactSummaryDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EDXEventProcessDT;
-import gov.cdc.dataprocessing.model.container.*;
+import gov.cdc.dataprocessing.model.container.model.*;
+import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessDto;
+import gov.cdc.dataprocessing.model.dto.phc.CTContactSummaryDto;
 import gov.cdc.dataprocessing.model.dto.generic_helper.StateDefinedFieldDataDto;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.LabResult;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -15,7 +14,7 @@ import java.util.Map;
 
 @Repository
 public interface CustomRepository {
-    Collection<CTContactSummaryDT> getContactByPatientInfo(String queryString);
+    Collection<CTContactSummaryDto> getContactByPatientInfo(String queryString);
     Map<Object,Object> getLabParticipations(Long observationUID);
     ArrayList<Object> getPatientPersonInfo(Long observationUID);
     ArrayList<Object>  getProviderInfo(Long observationUID,String partTypeCd);
@@ -32,7 +31,7 @@ public interface CustomRepository {
     ArrayList<ResultedTestSummaryContainer> getSusceptibilityResultedTestSummary(String typeCode, Long observationUid);
     Map<Object,Object>  getAssociatedInvList(Long uid,String sourceClassCd, String theQuery);
     Map<Object, Object> retrieveTreatmentSummaryVOForInv(Long publicHealthUID, String theQuery);
-    Map<String, EDXEventProcessDT>getEDXEventProcessMapByCaseId(Long publicHealthCaseUid);
+    Map<String, EDXEventProcessDto>getEDXEventProcessMapByCaseId(Long publicHealthCaseUid);
     Map<Object, Object> retrieveDocumentSummaryVOForInv(Long publicHealthUID);
     List<NotificationSummaryContainer> retrieveNotificationSummaryListForInvestigation(Long publicHealthUID, String theQuery);
 

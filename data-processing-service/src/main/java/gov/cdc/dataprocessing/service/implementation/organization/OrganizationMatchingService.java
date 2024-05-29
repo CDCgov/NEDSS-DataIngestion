@@ -3,7 +3,7 @@ package gov.cdc.dataprocessing.service.implementation.organization;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.MsgType;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.OrganizationContainer;
+import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;

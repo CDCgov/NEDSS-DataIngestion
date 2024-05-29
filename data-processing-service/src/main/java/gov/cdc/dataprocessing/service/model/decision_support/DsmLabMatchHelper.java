@@ -3,7 +3,7 @@ package gov.cdc.dataprocessing.service.model.decision_support;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.model.dsma_algorithm.Algorithm;
 import gov.cdc.dataprocessing.model.dsma_algorithm.CodedType;
 import gov.cdc.dataprocessing.model.dsma_algorithm.ElrCriteriaType;
@@ -182,7 +182,7 @@ public class DsmLabMatchHelper {
      * @return true if this algorithm is a match, false otherwise
      */
     public WdsReport isThisLabAMatch(Collection<String> resultedTestCodeColl,
-                                   Collection<ObservationContainer> resultedTestColl, String sendingFacilityClia, String sendingFacilityName) {
+                                     Collection<ObservationContainer> resultedTestColl, String sendingFacilityClia, String sendingFacilityName) {
         //Is this Decision Support Algorithm looking for the lab test(s) in these Lab results?
         WdsReport wdsReport = new WdsReport();
         boolean testNotMatched = testsDoNotMatch(resultedTestCodeColl, resultedTestCodeMap, andOrLogic);

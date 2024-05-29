@@ -6,14 +6,13 @@ import gov.cdc.dataprocessing.constant.RenderConstant;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.CaseManagementDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.PublicHealthCaseDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxyVO;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PublicHealthCaseVO;
-import gov.cdc.dataprocessing.model.container.*;
-import gov.cdc.dataprocessing.model.dto.EdxRuleManageDto;
-import gov.cdc.dataprocessing.model.dto.NbsCaseAnswerDto;
-import gov.cdc.dataprocessing.model.dto.NbsQuestionMetadata;
+import gov.cdc.dataprocessing.model.container.model.*;
+import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
+import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
+import gov.cdc.dataprocessing.model.dto.edx.EdxRuleManageDto;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.lookup.PrePopMappingDto;
@@ -54,9 +53,9 @@ public class AutoInvestigationService implements IAutoInvestigationService {
 
     public Object autoCreateInvestigation(ObservationContainer observationVO,
                                           EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
-        PageActProxyVO pageActProxyVO = null;
+        PageActProxyContainer pageActProxyContainer = null;
         PamProxyContainer pamProxyVO = null;
-        PublicHealthCaseVO phcVO= createPublicHealthCaseVO(observationVO, edxLabInformationDT);
+        PublicHealthCaseContainer phcVO= createPublicHealthCaseVO(observationVO, edxLabInformationDT);
 
         Collection<ActIdDto> theActIdDTCollection = new ArrayList<>();
         ActIdDto actIDDT = new ActIdDto();
@@ -80,22 +79,22 @@ public class AutoInvestigationService implements IAutoInvestigationService {
             pamProxyVO = new PamProxyContainer();
             pamProxyVO.setItNew(true);
             pamProxyVO.setItDirty(false);
-            pamProxyVO.setPublicHealthCaseVO(phcVO);
+            pamProxyVO.setPublicHealthCaseContainer(phcVO);
         }
         else
         {
-            pageActProxyVO = new PageActProxyVO();
-            pageActProxyVO.setItNew(true);
-            pageActProxyVO.setItDirty(false);
-            pageActProxyVO.setPublicHealthCaseVO(phcVO);
-            populateProxyFromPrePopMapping(pageActProxyVO, edxLabInformationDT);
+            pageActProxyContainer = new PageActProxyContainer();
+            pageActProxyContainer.setItNew(true);
+            pageActProxyContainer.setItDirty(false);
+            pageActProxyContainer.setPublicHealthCaseContainer(phcVO);
+            populateProxyFromPrePopMapping(pageActProxyContainer, edxLabInformationDT);
         }
         try {
             Object obj=null;
 
-            if(pageActProxyVO!=null)
+            if(pageActProxyContainer !=null)
             {
-                obj=pageActProxyVO;
+                obj= pageActProxyContainer;
             }
             else
             {
@@ -108,7 +107,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
 
     }
 
-    public Object transferValuesTOActProxyVO(PageActProxyVO pageActProxyVO,PamProxyContainer pamActProxyVO,
+    public Object transferValuesTOActProxyVO(PageActProxyContainer pageActProxyContainer, PamProxyContainer pamActProxyVO,
                                              Collection<PersonContainer> personVOCollection,
                                              ObservationContainer rootObservationVO,
                                              Collection<Object> entities,
@@ -121,10 +120,10 @@ public class AutoInvestigationService implements IAutoInvestigationService {
             Collection<ParticipationDto> partColl = new ArrayList<>();
             Collection<NbsActEntityDto> nbsActEntityDTColl = new ArrayList<>();
             long personUid=-1;
-            if(pageActProxyVO!=null)
-                personUid=pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getPublicHealthCaseUid()-1;
+            if(pageActProxyContainer !=null)
+                personUid= pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getPublicHealthCaseUid()-1;
             else{
-                personUid=pamActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getPublicHealthCaseUid()-1;
+                personUid=pamActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getPublicHealthCaseUid()-1;
             }
             if(personVOCollection!=null){
                 Iterator<PersonContainer> it=personVOCollection.iterator();
@@ -141,8 +140,8 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                         patientVO.getThePersonDto().setItNew(true);
                         personVO.getThePersonDto().setElectronicInd(NEDSSConstant.ELECTRONIC_IND);
                         personVO.getThePersonDto().setStatusTime(new Timestamp(new Date().getTime()));
-                        if(pageActProxyVO!=null)
-                            pageActProxyVO.setThePersonContainerCollection(thePersonVOCollection);
+                        if(pageActProxyContainer !=null)
+                            pageActProxyContainer.setThePersonContainerCollection(thePersonVOCollection);
                         else{
                             pamActProxyVO.setThePersonVOCollection(thePersonVOCollection);
                         }
@@ -164,7 +163,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                         isPhysicianOfPHCDT=true;
                     }
 
-                    createActEntityObject(participationDT,pageActProxyVO,pamActProxyVO,nbsActEntityDTColl,partColl);
+                    createActEntityObject(participationDT, pageActProxyContainer,pamActProxyVO,nbsActEntityDTColl,partColl);
                 }
             }
             if(coll!=null){
@@ -202,23 +201,23 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                         partDT.setSubjectEntityUid(personUid);
                     }
                     if(createActEntity){
-                        createActEntityObject(partDT,pageActProxyVO,pamActProxyVO,nbsActEntityDTColl,partColl);
+                        createActEntityObject(partDT, pageActProxyContainer,pamActProxyVO,nbsActEntityDTColl,partColl);
                     }
 
                 }
 
             }
 
-            if(pageActProxyVO!=null){
-                pageActProxyVO.setTheParticipationDtoCollection(partColl);
+            if(pageActProxyContainer !=null){
+                pageActProxyContainer.setTheParticipationDtoCollection(partColl);
                 BasePamContainer pamVO = null;
-                if(pageActProxyVO.getPageVO()!=null)
-                    pamVO=pageActProxyVO.getPageVO();
+                if(pageActProxyContainer.getPageVO()!=null)
+                    pamVO= pageActProxyContainer.getPageVO();
                 else
                     pamVO = new BasePamContainer();
                 pamVO.setActEntityDTCollection(nbsActEntityDTColl);
-                pageActProxyVO.setPageVO(pamVO);
-                return pageActProxyVO;
+                pageActProxyContainer.setPageVO(pamVO);
+                return pageActProxyContainer;
             }
             else{
                 pamActProxyVO.setTheParticipationDTCollection(partColl);
@@ -237,78 +236,78 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         }
     }
 
-    private PublicHealthCaseVO createPublicHealthCaseVO(ObservationContainer observationVO, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
-        PublicHealthCaseVO phcVO = new PublicHealthCaseVO();
+    private PublicHealthCaseContainer createPublicHealthCaseVO(ObservationContainer observationVO, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
+        PublicHealthCaseContainer phcVO = new PublicHealthCaseContainer();
 
-        phcVO.getThePublicHealthCaseDT().setLastChgTime(new java.sql.Timestamp(new Date().getTime()));
+        phcVO.getThePublicHealthCaseDto().setLastChgTime(new java.sql.Timestamp(new Date().getTime()));
 
-        phcVO.getThePublicHealthCaseDT().setPublicHealthCaseUid(Long.valueOf(edxLabInformationDT.getNextUid()-1));
+        phcVO.getThePublicHealthCaseDto().setPublicHealthCaseUid(Long.valueOf(edxLabInformationDT.getNextUid()-1));
         //edxLabInformationDT.setNextUid(edxLabInformationDT.getNextUid());
-        phcVO.getThePublicHealthCaseDT().setJurisdictionCd((observationVO.getTheObservationDto().getJurisdictionCd()));
-        phcVO.getThePublicHealthCaseDT().setRptFormCmpltTime(observationVO.getTheObservationDto().getRptToStateTime());
-        //phcVO.getThePublicHealthCaseDT().setCaseClassCd(EdxELRConstant.ELR_CONFIRMED_CD);
+        phcVO.getThePublicHealthCaseDto().setJurisdictionCd((observationVO.getTheObservationDto().getJurisdictionCd()));
+        phcVO.getThePublicHealthCaseDto().setRptFormCmpltTime(observationVO.getTheObservationDto().getRptToStateTime());
+        //phcVO.getThePublicHealthCaseDto().setCaseClassCd(EdxELRConstant.ELR_CONFIRMED_CD);
 
-        phcVO.getThePublicHealthCaseDT().setAddTime(new Timestamp(new Date().getTime()));
+        phcVO.getThePublicHealthCaseDto().setAddTime(new Timestamp(new Date().getTime()));
         //TODO: SECURITY
-        //phcVO.getThePublicHealthCaseDT().setAddUserId(Long.valueOf("securityObj.getEntryID()"));
-        phcVO.getThePublicHealthCaseDT().setAddUserId(Long.valueOf(2121L));
-        phcVO.getThePublicHealthCaseDT().setCaseTypeCd(EdxELRConstant.ELR_INDIVIDUAL);
+        //phcVO.getThePublicHealthCaseDto().setAddUserId(Long.valueOf("securityObj.getEntryID()"));
+        phcVO.getThePublicHealthCaseDto().setAddUserId(Long.valueOf(2121L));
+        phcVO.getThePublicHealthCaseDto().setCaseTypeCd(EdxELRConstant.ELR_INDIVIDUAL);
 
         var res = conditionCodeRepository.findProgramAreaConditionCodeByConditionCode(edxLabInformationDT.getConditionCode());
         ConditionCodeWithPA programAreaVO = new ConditionCodeWithPA();
         if (res.isPresent()) {
             programAreaVO = res.get().get(0);
         }
-        phcVO.getThePublicHealthCaseDT().setCd(programAreaVO.getConditionCd());
-        phcVO.getThePublicHealthCaseDT().setProgAreaCd(programAreaVO.getStateProgAreaCode());
+        phcVO.getThePublicHealthCaseDto().setCd(programAreaVO.getConditionCd());
+        phcVO.getThePublicHealthCaseDto().setProgAreaCd(programAreaVO.getStateProgAreaCode());
 
         if(SrteCache.checkWhetherPAIsStdOrHiv(programAreaVO.getStateProgAreaCode()))
-            phcVO.getThePublicHealthCaseDT().setReferralBasisCd(NEDSSConstant.REFERRAL_BASIS_LAB);
+            phcVO.getThePublicHealthCaseDto().setReferralBasisCd(NEDSSConstant.REFERRAL_BASIS_LAB);
 
-        phcVO.getThePublicHealthCaseDT().setSharedInd(NEDSSConstant.TRUE);
-        phcVO.getThePublicHealthCaseDT().setCdDescTxt(programAreaVO.getConditionShortNm());
-        phcVO.getThePublicHealthCaseDT().setGroupCaseCnt(1);
-        phcVO.getThePublicHealthCaseDT().setInvestigationStatusCd(EdxELRConstant.ELR_OPEN_CD);
-        phcVO.getThePublicHealthCaseDT().setActivityFromTime(
+        phcVO.getThePublicHealthCaseDto().setSharedInd(NEDSSConstant.TRUE);
+        phcVO.getThePublicHealthCaseDto().setCdDescTxt(programAreaVO.getConditionShortNm());
+        phcVO.getThePublicHealthCaseDto().setGroupCaseCnt(1);
+        phcVO.getThePublicHealthCaseDto().setInvestigationStatusCd(EdxELRConstant.ELR_OPEN_CD);
+        phcVO.getThePublicHealthCaseDto().setActivityFromTime(
                 StringUtils.stringToStrutsTimestamp(StringUtils
                         .formatDate(new Timestamp((new Date()).getTime()))));
         Calendar now = Calendar.getInstance();
         String dateValue = (now.get(Calendar.MONTH)+1) +"/" + now.get(Calendar.DATE) +"/" + now.get(Calendar.YEAR);
         int[] weekAndYear = RulesEngineUtil.CalcMMWR(dateValue);
-        phcVO.getThePublicHealthCaseDT().setMmwrWeek(weekAndYear[0]+"");
-        phcVO.getThePublicHealthCaseDT().setMmwrYear(weekAndYear[1]+"");
-        phcVO.getThePublicHealthCaseDT().setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
+        phcVO.getThePublicHealthCaseDto().setMmwrWeek(weekAndYear[0]+"");
+        phcVO.getThePublicHealthCaseDto().setMmwrYear(weekAndYear[1]+"");
+        phcVO.getThePublicHealthCaseDto().setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
         if (edxLabInformationDT.getConditionCode() != null) {
             phcVO.setCoinfectionCondition(SrteCache.coInfectionConditionCode.containsKey(edxLabInformationDT.getConditionCode())? true:false);
             if (phcVO.isCoinfectionCondition()) {
-                phcVO.getThePublicHealthCaseDT().setCoinfectionId(NEDSSConstant.COINFCTION_GROUP_ID_NEW_CODE);
+                phcVO.getThePublicHealthCaseDto().setCoinfectionId(NEDSSConstant.COINFCTION_GROUP_ID_NEW_CODE);
             }
         }
-        phcVO.getThePublicHealthCaseDT().setItNew(true);
-        phcVO.getThePublicHealthCaseDT().setItDirty(false);
+        phcVO.getThePublicHealthCaseDto().setItNew(true);
+        phcVO.getThePublicHealthCaseDto().setItDirty(false);
         phcVO.setItNew(true);
         phcVO.setItDirty(false);
 
         try{
-            boolean isSTDProgramArea = SrteCache.checkWhetherPAIsStdOrHiv(phcVO.getThePublicHealthCaseDT().getProgAreaCd());
+            boolean isSTDProgramArea = SrteCache.checkWhetherPAIsStdOrHiv(phcVO.getThePublicHealthCaseDto().getProgAreaCd());
             if (isSTDProgramArea) {
                 //gt-ND-4592 - STD_HIV_DATAMART Fails To Populate Investigations Created From An ELR
                 // per Pradeep need an empty case mgt
-                CaseManagementDT caseMgtDT = new CaseManagementDT();
-                caseMgtDT.setPublicHealthCaseUid(phcVO.getThePublicHealthCaseDT().getPublicHealthCaseUid());
+                CaseManagementDto caseMgtDT = new CaseManagementDto();
+                caseMgtDT.setPublicHealthCaseUid(phcVO.getThePublicHealthCaseDto().getPublicHealthCaseUid());
                 //caseMgtDT.setItNew(true); //not currently used
                 //caseMgtDT.setItDirty(false); //not currently used
                 caseMgtDT.setCaseManagementDTPopulated(true);
-                phcVO.setTheCaseManagementDT(caseMgtDT);
+                phcVO.setTheCaseManagementDto(caseMgtDT);
             }
         } catch(Exception ex){
-            throw new DataProcessingException("Unexpected exception setting CaseManagementDT to PHC -->" +ex.toString());
+            throw new DataProcessingException("Unexpected exception setting CaseManagementDto to PHC -->" +ex.toString());
         }
 
         return phcVO;
     }
 
-    private void populateProxyFromPrePopMapping(PageActProxyVO pageActProxyVO, EdxLabInformationDto edxLabInformationDT)
+    private void populateProxyFromPrePopMapping(PageActProxyContainer pageActProxyContainer, EdxLabInformationDto edxLabInformationDT)
             throws DataProcessingException {
         try {
             lookupService.fillPrePopMap();
@@ -371,17 +370,17 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                     }
                 }
             }
-            populateFromPrePopMapping(prePopMap, pageActProxyVO);
+            populateFromPrePopMapping(prePopMap, pageActProxyContainer);
 
         } catch (Exception e) {
             throw new DataProcessingException("AutoInvestigationHandler-populateProxyFromPrePopMapping Exception raised" + e);
         }
     }
 
-    private void populateFromPrePopMapping(TreeMap<Object, Object> prePopMap, PageActProxyVO pageActProxyVO)
+    private void populateFromPrePopMapping(TreeMap<Object, Object> prePopMap, PageActProxyContainer pageActProxyContainer)
             throws Exception {
         try {
-            PublicHealthCaseDT phcDT = pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT();
+            PublicHealthCaseDto phcDT = pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto();
             var res = conditionCodeRepository.findProgramAreaConditionCode(
                     1,
                     new ArrayList<>(Collections.singletonList(phcDT.getProgAreaCd()))
@@ -488,7 +487,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                         }
                     }
                 }
-                pageActProxyVO.getPageVO().setPamAnswerDTMap(answerMap);
+                pageActProxyContainer.getPageVO().setPamAnswerDTMap(answerMap);
             }
             else
             {
@@ -499,14 +498,14 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         }
     }
 
-    private void createActEntityObject(ParticipationDto partDT, PageActProxyVO pageActProxyVO,
+    private void createActEntityObject(ParticipationDto partDT, PageActProxyContainer pageActProxyContainer,
                                        PamProxyContainer pamActProxyVO, Collection<NbsActEntityDto> nbsActEntityDTColl, Collection<ParticipationDto> partColl ) throws DataProcessingException {
 
         partDT.setActClassCd(NEDSSConstant.CLASS_CD_CASE);
-        if(pageActProxyVO!=null)
-            partDT.setActUid(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getPublicHealthCaseUid());
+        if(pageActProxyContainer !=null)
+            partDT.setActUid(pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getPublicHealthCaseUid());
         else
-            partDT.setActUid(pamActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getPublicHealthCaseUid());
+            partDT.setActUid(pamActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getPublicHealthCaseUid());
         //partDT.setTypeCd(typeCd.trim());
         //partDT.setTypeDescTxt(srtc.getDescForCode("PAR_TYPE", partDT.getTypeCd()));
         var tree = catchingValueService.getCodedValue(partDT.getTypeCd());
@@ -523,18 +522,18 @@ public class AutoInvestigationService implements IAutoInvestigationService {
 
         NbsActEntityDto nbsActEntityDT = new NbsActEntityDto();
 
-        if(pageActProxyVO!=null){
-            nbsActEntityDT.setAddTime(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getAddTime());
-            nbsActEntityDT.setLastChgTime(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getLastChgTime());
-            nbsActEntityDT.setLastChgUserId(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getLastChgUserId());
-            nbsActEntityDT.setRecordStatusCd(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getRecordStatusCd());
-            nbsActEntityDT.setAddUserId(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getAddUserId());
+        if(pageActProxyContainer !=null){
+            nbsActEntityDT.setAddTime(pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getAddTime());
+            nbsActEntityDT.setLastChgTime(pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getLastChgTime());
+            nbsActEntityDT.setLastChgUserId(pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getLastChgUserId());
+            nbsActEntityDT.setRecordStatusCd(pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getRecordStatusCd());
+            nbsActEntityDT.setAddUserId(pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getAddUserId());
         }else{
-            nbsActEntityDT.setAddTime(pamActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getAddTime());
-            nbsActEntityDT.setLastChgTime(pamActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getLastChgTime());
-            nbsActEntityDT.setLastChgUserId(pamActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getLastChgUserId());
-            nbsActEntityDT.setRecordStatusCd(pamActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getRecordStatusCd());
-            nbsActEntityDT.setAddUserId(pamActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getAddUserId());
+            nbsActEntityDT.setAddTime(pamActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getAddTime());
+            nbsActEntityDT.setLastChgTime(pamActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getLastChgTime());
+            nbsActEntityDT.setLastChgUserId(pamActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getLastChgUserId());
+            nbsActEntityDT.setRecordStatusCd(pamActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getRecordStatusCd());
+            nbsActEntityDT.setAddUserId(pamActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getAddUserId());
         }
         nbsActEntityDT.setActUid(partDT.getActUid());
         nbsActEntityDT.setEntityUid(partDT.getSubjectEntityUid());

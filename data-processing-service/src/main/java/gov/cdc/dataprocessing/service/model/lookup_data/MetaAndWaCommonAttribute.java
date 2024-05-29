@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.service.model.lookup_data;
 
-import gov.cdc.dataprocessing.repository.nbs.odse.model.NbsUiMetaData;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.WAQuestion;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsUiMetaData;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.question.WAQuestion;
 import lombok.Getter;
 import lombok.Setter;
 

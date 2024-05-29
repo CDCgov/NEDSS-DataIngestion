@@ -1,9 +1,8 @@
 package gov.cdc.dataprocessing.service.interfaces.jurisdiction;
 
-import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
-import gov.cdc.dataprocessing.model.container.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ProgramAreaCode;
 
 import java.util.Collection;

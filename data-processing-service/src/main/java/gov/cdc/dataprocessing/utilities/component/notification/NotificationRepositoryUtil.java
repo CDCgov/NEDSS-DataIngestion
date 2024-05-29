@@ -3,7 +3,7 @@ package gov.cdc.dataprocessing.utilities.component.notification;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.NotificationVO;
+import gov.cdc.dataprocessing.model.container.model.NotificationContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.notification.NotificationDto;
@@ -53,8 +53,8 @@ public class NotificationRepositoryUtil {
         this.odseIdGeneratorService = odseIdGeneratorService;
     }
 
-    public NotificationVO getNotificationContainer(Long uid) {
-        NotificationVO notificationContainer = new NotificationVO();
+    public NotificationContainer getNotificationContainer(Long uid) {
+        NotificationContainer notificationContainer = new NotificationContainer();
         var notificationData = notificationRepository.findById(uid);
         if (!notificationData.isPresent()) {
             return null;
@@ -92,41 +92,41 @@ public class NotificationRepositoryUtil {
 
 
     @Transactional
-    public Long setNotification(NotificationVO notificationVO) throws DataProcessingException
+    public Long setNotification(NotificationContainer notificationContainer) throws DataProcessingException
     {
         Long notificationUid = -1L;
 
         try
         {
-            Collection<ActivityLocatorParticipationDto> alpDTCol = notificationVO.getTheActivityLocatorParticipationDTCollection();
-            Collection<ActRelationshipDto> arDTCol = notificationVO.getTheActRelationshipDTCollection();
-            Collection<ParticipationDto> pDTCol = notificationVO.getTheParticipationDTCollection();
+            Collection<ActivityLocatorParticipationDto> alpDTCol = notificationContainer.getTheActivityLocatorParticipationDTCollection();
+            Collection<ActRelationshipDto> arDTCol = notificationContainer.getTheActRelationshipDTCollection();
+            Collection<ParticipationDto> pDTCol = notificationContainer.getTheParticipationDTCollection();
 
             if (alpDTCol != null)
             {
                 var col1 = entityHelper.iterateALPDTActivityLocatorParticipation(alpDTCol);
-                notificationVO.setTheActivityLocatorParticipationDTCollection(col1);
+                notificationContainer.setTheActivityLocatorParticipationDTCollection(col1);
             }
 
             if (arDTCol != null)
             {
                 var col2 = entityHelper.iterateARDTActRelationship(arDTCol);
-                notificationVO.setTheActRelationshipDTCollection(col2);
+                notificationContainer.setTheActRelationshipDTCollection(col2);
             }
 
             if (pDTCol != null)
             {
                 var col3 = entityHelper.iteratePDTForParticipation(pDTCol);
-                notificationVO.setTheParticipationDTCollection(col3);
+                notificationContainer.setTheParticipationDTCollection(col3);
             }
 
-            if (notificationVO.isItNew())
+            if (notificationContainer.isItNew())
             {
-                notificationUid = createNotification(notificationVO);
+                notificationUid = createNotification(notificationContainer);
             }
             else
             {
-                var  notification = getNotificationContainer(notificationVO.getTheNotificationDT().getNotificationUid());
+                var  notification = getNotificationContainer(notificationContainer.getTheNotificationDT().getNotificationUid());
                 updateNotification(notification);
                 notificationUid = notification.getTheNotificationDT().getNotificationUid();
             }
@@ -138,57 +138,57 @@ public class NotificationRepositoryUtil {
         return notificationUid;
     }
 
-    private Long createNotification(NotificationVO notificationVO) throws DataProcessingException {
+    private Long createNotification(NotificationContainer notificationContainer) throws DataProcessingException {
         var uidData = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.NOTIFICATION);
         var uid = uidData.getSeedValueNbr();
         var localId = uidData.getUidPrefixCd() + uid + uidData.getUidSuffixCd();
 
         actRepositoryUtil.insertActivityId(uid,NEDSSConstant.NOTIFICATION_CLASS_CODE, NEDSSConstant.EVENT_MOOD_CODE);
 
-        Notification notification = new Notification(notificationVO.getTheNotificationDT());
+        Notification notification = new Notification(notificationContainer.getTheNotificationDT());
         notification.setNotificationUid(uid);
         notification.setLocalId(localId);
 
         notificationRepository.save(notification);
-        notificationVO.getTheNotificationDT().setItDirty(false);
-        notificationVO.getTheNotificationDT().setItNew(false);
-        notificationVO.getTheNotificationDT().setItDelete(false);
+        notificationContainer.getTheNotificationDT().setItDirty(false);
+        notificationContainer.getTheNotificationDT().setItNew(false);
+        notificationContainer.getTheNotificationDT().setItDelete(false);
 
-        notificationVO.getTheNotificationDT().setNotificationUid(uid);
+        notificationContainer.getTheNotificationDT().setNotificationUid(uid);
 
-      //  actIdRepositoryUtil.insertActIdCollection(uid, notificationVO.getTheActIdDTCollection());
+      //  actIdRepositoryUtil.insertActIdCollection(uid, notificationContainer.getTheActIdDTCollection());
 
-      //  actLocatorParticipationRepositoryUtil.insertActLocatorParticipationCollection(uid, notificationVO.getTheActivityLocatorParticipationDTCollection());
+      //  actLocatorParticipationRepositoryUtil.insertActLocatorParticipationCollection(uid, notificationContainer.getTheActivityLocatorParticipationDTCollection());
 
-        notificationVO.setItNew(true);
-        notificationVO.setItDirty(false);
+        notificationContainer.setItNew(true);
+        notificationContainer.setItDirty(false);
 
         return uid;
     }
 
-    private Long updateNotification(NotificationVO notificationVO) throws DataProcessingException {
-        var uid = notificationVO.getTheUpdatedNotificationDT().getNotificationUid();
-        var localId = notificationVO.getTheNotificationDT().getLocalId();
+    private Long updateNotification(NotificationContainer notificationContainer) throws DataProcessingException {
+        var uid = notificationContainer.getTheUpdatedNotificationDto().getNotificationUid();
+        var localId = notificationContainer.getTheNotificationDT().getLocalId();
 
         actRepositoryUtil.insertActivityId(uid,NEDSSConstant.NOTIFICATION_CLASS_CODE, NEDSSConstant.EVENT_MOOD_CODE);
 
-        Notification notification = new Notification(notificationVO.getTheNotificationDT());
+        Notification notification = new Notification(notificationContainer.getTheNotificationDT());
         notification.setNotificationUid(uid);
         notification.setLocalId(localId);
 
         notificationRepository.save(notification);
-        notificationVO.getTheNotificationDT().setItDirty(false);
-        notificationVO.getTheNotificationDT().setItNew(false);
-        notificationVO.getTheNotificationDT().setItDelete(false);
+        notificationContainer.getTheNotificationDT().setItDirty(false);
+        notificationContainer.getTheNotificationDT().setItNew(false);
+        notificationContainer.getTheNotificationDT().setItDelete(false);
 
-        notificationVO.getTheNotificationDT().setNotificationUid(uid);
+        notificationContainer.getTheNotificationDT().setNotificationUid(uid);
 
-        actIdRepositoryUtil.insertActIdCollection(uid, notificationVO.getTheActIdDTCollection());
+        actIdRepositoryUtil.insertActIdCollection(uid, notificationContainer.getTheActIdDTCollection());
 
-        actLocatorParticipationRepositoryUtil.insertActLocatorParticipationCollection(uid, notificationVO.getTheActivityLocatorParticipationDTCollection());
+        actLocatorParticipationRepositoryUtil.insertActLocatorParticipationCollection(uid, notificationContainer.getTheActivityLocatorParticipationDTCollection());
 
-        notificationVO.setItNew(false);
-        notificationVO.setItDirty(false);
+        notificationContainer.setItNew(false);
+        notificationContainer.setItDirty(false);
 
         return uid;
     }

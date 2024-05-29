@@ -1,10 +1,10 @@
 package gov.cdc.dataprocessing.service.interfaces.public_health_case;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxyVO;
-import gov.cdc.dataprocessing.model.container.ObservationContainer;
-import gov.cdc.dataprocessing.model.container.PamProxyContainer;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.model.PageActProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.PamProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 
 import java.util.Collection;
@@ -16,7 +16,7 @@ public interface IAutoInvestigationService {
      * This investigation type is ultimately coming from WDS Algo
      * */
     Object autoCreateInvestigation(ObservationContainer observationVO, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException;
-    Object transferValuesTOActProxyVO(PageActProxyVO pageActProxyVO, PamProxyContainer pamActProxyVO,
+    Object transferValuesTOActProxyVO(PageActProxyContainer pageActProxyContainer, PamProxyContainer pamActProxyVO,
                                       Collection<PersonContainer> personVOCollection,
                                       ObservationContainer rootObservationVO,
                                       Collection<Object> entities,

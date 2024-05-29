@@ -2,11 +2,11 @@ package gov.cdc.dataprocessing.utilities.component.public_health_case;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.PublicHealthCaseDT;
-import gov.cdc.dataprocessing.model.dto.NbsCaseAnswerDto;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
 
 public class CdaPhcProcessor {
-    public static void setStandardNBSCaseAnswerVals(PublicHealthCaseDT phcDT,
+    public static void setStandardNBSCaseAnswerVals(PublicHealthCaseDto phcDT,
                                                     NbsCaseAnswerDto nbsCaseAnswerDT) throws DataProcessingException {
         try {
             nbsCaseAnswerDT.setActUid(phcDT.getPublicHealthCaseUid());

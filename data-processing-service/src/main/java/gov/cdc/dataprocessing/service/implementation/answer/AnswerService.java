@@ -2,17 +2,17 @@ package gov.cdc.dataprocessing.service.implementation.answer;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.PublicHealthCaseDT;
+import gov.cdc.dataprocessing.model.container.model.PageContainer;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsAnswerDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
-import gov.cdc.dataprocessing.model.container.PageContainer;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsActEntity;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsActEntityHist;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsAnswer;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsAnswerHist;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsActEntityHistRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsActEntityRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityHistRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsAnswerHistRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsAnswerRepository;
 import gov.cdc.dataprocessing.service.interfaces.answer.IAnswerService;
@@ -21,7 +21,6 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -236,7 +235,7 @@ public class AnswerService implements IAnswerService {
         }
     }
 
-    public void storeActEntityDTCollectionWithPublicHealthCase(Collection<NbsActEntityDto> pamDTCollection, PublicHealthCaseDT rootDTInterface)
+    public void storeActEntityDTCollectionWithPublicHealthCase(Collection<NbsActEntityDto> pamDTCollection, PublicHealthCaseDto rootDTInterface)
             throws  DataProcessingException{
         try{
             if(pamDTCollection.size()>0){

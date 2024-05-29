@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.repos;
 
-import gov.cdc.dataprocessing.repository.nbs.odse.model.AuthUserRealizedRole;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUserRealizedRole;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomAuthUserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;

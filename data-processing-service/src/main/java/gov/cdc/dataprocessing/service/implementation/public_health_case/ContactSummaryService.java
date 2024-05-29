@@ -4,7 +4,7 @@ import gov.cdc.dataprocessing.constant.CTConstants;
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.CTContactSummaryDT;
+import gov.cdc.dataprocessing.model.dto.phc.CTContactSummaryDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonName;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
@@ -144,16 +144,16 @@ public class ContactSummaryService implements IContactSummaryService {
 
 
     private  Collection<Object> getContactNamedByPatientDTColl(String sql) throws DataProcessingException {
-        CTContactSummaryDT cTContactSummaryDT  = new CTContactSummaryDT();
-        ArrayList<CTContactSummaryDT>  cTContactNameByPatientSummDTColl  = new ArrayList<> ();
+        CTContactSummaryDto cTContactSummaryDto = new CTContactSummaryDto();
+        ArrayList<CTContactSummaryDto>  cTContactNameByPatientSummDTColl  = new ArrayList<> ();
         ArrayList<Object>  returnCTContactNameByPatientSummDTColl  = new ArrayList<Object> ();
         try
         {
             cTContactNameByPatientSummDTColl  = new ArrayList<>(customRepository.getContactByPatientInfo(sql));
 
-            Iterator<CTContactSummaryDT> it = cTContactNameByPatientSummDTColl.iterator();
+            Iterator<CTContactSummaryDto> it = cTContactNameByPatientSummDTColl.iterator();
             while(it.hasNext()){
-                CTContactSummaryDT cTContactSumyDT = (CTContactSummaryDT)it.next();
+                CTContactSummaryDto cTContactSumyDT = (CTContactSummaryDto)it.next();
                 cTContactSumyDT.setContactNamedByPatient(true);
                 Long contactEntityUid = cTContactSumyDT.getContactEntityUid();
                 var lst = personNameRepository.findByParentUid(contactEntityUid);
@@ -229,15 +229,15 @@ public class ContactSummaryService implements IContactSummaryService {
 
 
     private Collection<Object> getPatientNamedAsContactSummDTColl(String sql, boolean otherInfected) throws  DataProcessingException {
-        CTContactSummaryDT  ctContactSummaryDT  = new CTContactSummaryDT();
-        ArrayList<CTContactSummaryDT>  ctNameByPatientSummDTColl  = new ArrayList<> ();
+        CTContactSummaryDto ctContactSummaryDto = new CTContactSummaryDto();
+        ArrayList<CTContactSummaryDto>  ctNameByPatientSummDTColl  = new ArrayList<> ();
         ArrayList<Object>  returnCTNameByPatientSummDTColl  = new ArrayList<Object> ();
         try
         {
             ctNameByPatientSummDTColl  = new ArrayList<>(customRepository.getContactByPatientInfo(sql));
-            Iterator<CTContactSummaryDT> it = ctNameByPatientSummDTColl.iterator();
+            Iterator<CTContactSummaryDto> it = ctNameByPatientSummDTColl.iterator();
             while(it.hasNext()){
-                CTContactSummaryDT cTContactSumyDT = (CTContactSummaryDT)it.next();
+                CTContactSummaryDto cTContactSumyDT = (CTContactSummaryDto)it.next();
                 cTContactSumyDT.setContactNamedByPatient(false);
                 cTContactSumyDT.setPatientNamedByContact(true);
                 cTContactSumyDT.setOtherNamedByPatient(otherInfected);

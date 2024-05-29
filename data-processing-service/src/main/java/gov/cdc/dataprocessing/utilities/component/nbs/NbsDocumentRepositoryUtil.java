@@ -3,21 +3,20 @@ package gov.cdc.dataprocessing.utilities.component.nbs;
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.NbsDocumentContainer;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.model.container.model.NbsDocumentContainer;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.nbs.NBSDocumentDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.NbsDocument;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.NbsDocumentHist;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.NbsDocumentHistRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.NbsDocumentRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsDocument;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsDocumentHist;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsDocumentHistRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsDocumentRepository;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.participation.ParticipationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import org.springframework.stereotype.Component;
-
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
 @Component
 public class NbsDocumentRepositoryUtil {
     private final CustomRepository customRepository;

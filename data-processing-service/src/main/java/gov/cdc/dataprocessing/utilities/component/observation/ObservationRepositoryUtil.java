@@ -3,7 +3,7 @@ package gov.cdc.dataprocessing.utilities.component.observation;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;

@@ -1,12 +1,12 @@
 package gov.cdc.dataprocessing.utilities.component.page_and_pam;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PublicHealthCaseVO;
-import gov.cdc.dataprocessing.model.dto.NbsCaseAnswerDto;
+import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.NbsCaseAnswerRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsActEntityRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsCaseAnswerRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -22,13 +22,13 @@ public class PamRepositoryUtil {
         this.nbsActEntityRepository = nbsActEntityRepository;
         this.nbsCaseAnswerRepository = nbsCaseAnswerRepository;
     }
-    public PublicHealthCaseVO getPamHistory(PublicHealthCaseVO publicHealthCaseVO) throws DataProcessingException {
+    public PublicHealthCaseContainer getPamHistory(PublicHealthCaseContainer publicHealthCaseContainer) throws DataProcessingException {
         try{
-            Collection<NbsActEntityDto> pamEntityColl = getPamCaseEntityDTCollection(publicHealthCaseVO.getThePublicHealthCaseDT());
-            publicHealthCaseVO.setNbsCaseEntityCollection(pamEntityColl);
-            Collection<NbsCaseAnswerDto>  pamAnswerColl = getPamAnswerDTCollection(publicHealthCaseVO.getThePublicHealthCaseDT());
-            publicHealthCaseVO.setNbsAnswerCollection(pamAnswerColl);
-            return publicHealthCaseVO;
+            Collection<NbsActEntityDto> pamEntityColl = getPamCaseEntityDTCollection(publicHealthCaseContainer.getThePublicHealthCaseDto());
+            publicHealthCaseContainer.setNbsCaseEntityCollection(pamEntityColl);
+            Collection<NbsCaseAnswerDto>  pamAnswerColl = getPamAnswerDTCollection(publicHealthCaseContainer.getThePublicHealthCaseDto());
+            publicHealthCaseContainer.setNbsAnswerCollection(pamAnswerColl);
+            return publicHealthCaseContainer;
         }catch(Exception ex){
             throw new DataProcessingException(ex.toString());
         }

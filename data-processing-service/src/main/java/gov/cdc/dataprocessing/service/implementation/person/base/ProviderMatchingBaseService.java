@@ -2,7 +2,7 @@ package gov.cdc.dataprocessing.service.implementation.person.base;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;

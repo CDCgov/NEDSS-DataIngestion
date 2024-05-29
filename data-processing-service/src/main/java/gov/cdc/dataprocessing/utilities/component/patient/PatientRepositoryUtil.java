@@ -3,7 +3,7 @@ package gov.cdc.dataprocessing.utilities.component.patient;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;

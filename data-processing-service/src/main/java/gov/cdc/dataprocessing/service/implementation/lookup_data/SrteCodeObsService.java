@@ -3,7 +3,7 @@ package gov.cdc.dataprocessing.service.implementation.lookup_data;
 import gov.cdc.dataprocessing.constant.elr.ELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueCodedDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.ProgAreaSnomeCodeStoredProcRepository;

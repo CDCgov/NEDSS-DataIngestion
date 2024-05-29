@@ -1,8 +1,8 @@
 package gov.cdc.dataprocessing.utilities.component.nbs;
 
-import gov.cdc.dataprocessing.model.NbsNoteDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.NbsNote;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.NbsNoteRepository;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsNoteDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsNote;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsNoteRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;

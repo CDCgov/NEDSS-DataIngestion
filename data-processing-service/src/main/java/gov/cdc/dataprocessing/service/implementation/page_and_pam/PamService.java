@@ -3,9 +3,9 @@ package gov.cdc.dataprocessing.service.implementation.page_and_pam;
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.PublicHealthCaseDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PublicHealthCaseVO;
-import gov.cdc.dataprocessing.model.container.*;
+import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
+import gov.cdc.dataprocessing.model.container.model.*;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.log.NNDActivityLogDto;
@@ -102,7 +102,7 @@ public class PamService implements IPamService {
         }
     }
 
-    public void insertPamVO(BasePamContainer pamVO,PublicHealthCaseVO publichHealthCaseVO)
+    public void insertPamVO(BasePamContainer pamVO, PublicHealthCaseContainer publichHealthCaseVO)
             throws DataProcessingException{
         try {
             Collection<Object>  pamDTCollection  =new ArrayList<Object> ();
@@ -118,7 +118,7 @@ public class PamService implements IPamService {
             }
             //NOTE: PAM IS EMPTY IN RELEVANT FLOW
            // storePamAnswerDTCollection(repeatingAnswerDTCollection, publichHealthCaseVO);
-            answerService.storeActEntityDTCollectionWithPublicHealthCase(pamVO.getActEntityDTCollection(),  publichHealthCaseVO.getThePublicHealthCaseDT());
+            answerService.storeActEntityDTCollectionWithPublicHealthCase(pamVO.getActEntityDTCollection(),  publichHealthCaseVO.getThePublicHealthCaseDto());
         } catch (Exception e) {
             throw new DataProcessingException(e.toString());
         }
@@ -127,8 +127,8 @@ public class PamService implements IPamService {
 
     private Long setPamProxy(PamProxyContainer pamProxyVO) throws DataProcessingException {
 
-        PublicHealthCaseDT phcDT = pamProxyVO.getPublicHealthCaseVO()
-                .getThePublicHealthCaseDT();
+        PublicHealthCaseDto phcDT = pamProxyVO.getPublicHealthCaseContainer()
+                .getThePublicHealthCaseDto();
 
         // if both are false throw exception
         if ((!pamProxyVO.isItNew()) && (!pamProxyVO.isItDirty())) {
@@ -164,8 +164,8 @@ public class PamService implements IPamService {
             }
             catch (Exception e) {
                 NNDActivityLogDto nndActivityLogDT = new NNDActivityLogDto();
-                String phcLocalId = pamProxyVO.getPublicHealthCaseVO().
-                        getThePublicHealthCaseDT().getLocalId();
+                String phcLocalId = pamProxyVO.getPublicHealthCaseContainer().
+                        getThePublicHealthCaseDto().getLocalId();
                 nndActivityLogDT.setErrorMessageTxt(e.toString());
                 if (phcLocalId != null)
                     nndActivityLogDT.setLocalId(phcLocalId);
@@ -312,14 +312,14 @@ public class PamService implements IPamService {
                 } // end of for
             } // end of if(pamProxyVO.getThePersonVOCollection() != null)
 
-            if (pamProxyVO.getPublicHealthCaseVO() != null) {
+            if (pamProxyVO.getPublicHealthCaseContainer() != null) {
                 String businessTriggerCd = null;
-                PublicHealthCaseVO publicHealthCaseVO = pamProxyVO.getPublicHealthCaseVO();
-                publicHealthCaseVO.getThePublicHealthCaseDT().setPamCase(true);
+                PublicHealthCaseContainer publicHealthCaseContainer = pamProxyVO.getPublicHealthCaseContainer();
+                publicHealthCaseContainer.getThePublicHealthCaseDto().setPamCase(true);
                 //TODO: PAM HISTORY
-//                nbsHistoryDAO.getPamHistory(pamProxyVO.getPublicHealthCaseVO());
-                PublicHealthCaseDT publicHealthCaseDT = publicHealthCaseVO.getThePublicHealthCaseDT();
-                RootDtoInterface rootDTInterface = publicHealthCaseDT;
+//                nbsHistoryDAO.getPamHistory(pamProxyVO.getPublicHealthCaseContainer());
+                PublicHealthCaseDto publicHealthCaseDto = publicHealthCaseContainer.getThePublicHealthCaseDto();
+                RootDtoInterface rootDTInterface = publicHealthCaseDto;
                 String businessObjLookupName = NBSBOLookup.INVESTIGATION;
                 if (pamProxyVO.isItNew()) {
                     businessTriggerCd = "INV_CR";
@@ -328,21 +328,21 @@ public class PamService implements IPamService {
                 }
                 String tableName = "PUBLIC_HEALTH_CASE";
                 String moduleCd = "BASE";
-                publicHealthCaseDT = (PublicHealthCaseDT) prepareAssocModelHelper.prepareVO(rootDTInterface, businessObjLookupName,
+                publicHealthCaseDto = (PublicHealthCaseDto) prepareAssocModelHelper.prepareVO(rootDTInterface, businessObjLookupName,
                                 businessTriggerCd, tableName, moduleCd, rootDTInterface.getVersionCtrlNbr());
-                publicHealthCaseVO.setThePublicHealthCaseDT(publicHealthCaseDT);
+                publicHealthCaseContainer.setThePublicHealthCaseDto(publicHealthCaseDto);
 
-                falsePublicHealthCaseUid = publicHealthCaseVO
-                        .getThePublicHealthCaseDT().getPublicHealthCaseUid();
+                falsePublicHealthCaseUid = publicHealthCaseContainer
+                        .getThePublicHealthCaseDto().getPublicHealthCaseUid();
                 actualUid = publicHealthCaseService.setPublicHealthCase(
-                        publicHealthCaseVO);
+                        publicHealthCaseContainer);
                 logger.debug("actualUid.intValue() = " + actualUid.intValue());
                 if (falsePublicHealthCaseUid.intValue() < 0) {
                     uidService.setFalseToNewForPam(pamProxyVO, falsePublicHealthCaseUid, actualUid);
-                    publicHealthCaseVO.getThePublicHealthCaseDT()
+                    publicHealthCaseContainer.getThePublicHealthCaseDto()
                             .setPublicHealthCaseUid(actualUid);
                 }
-                Long publicHealthCaseUid =publicHealthCaseVO.getThePublicHealthCaseDT().getPublicHealthCaseUid();
+                Long publicHealthCaseUid = publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid();
 
                 logger.debug("falsePublicHealthCaseUid.intValue() = "
                         + falsePublicHealthCaseUid.intValue());
@@ -393,10 +393,10 @@ public class PamService implements IPamService {
                 }
             }
             Long docUid = null;
-            if (pamProxyVO.getPublicHealthCaseVO()
+            if (pamProxyVO.getPublicHealthCaseContainer()
                     .getTheActRelationshipDTCollection() != null) {
                 Iterator<ActRelationshipDto>  anIteratorAct = null;
-                for (anIteratorAct = pamProxyVO.getPublicHealthCaseVO()
+                for (anIteratorAct = pamProxyVO.getPublicHealthCaseContainer()
                         .getTheActRelationshipDTCollection().iterator(); anIteratorAct
                              .hasNext();) {
                     ActRelationshipDto actRelationshipDT = (ActRelationshipDto) anIteratorAct
@@ -430,7 +430,7 @@ public class PamService implements IPamService {
 //                    NbsDocumentContainer nbsDocVO = nbsDocument.getNBSDocumentWithoutActRelationship(docUid);
 //                    if(nbsDocVO.getNbsDocumentDT().getJurisdictionCd()==null || (nbsDocVO.getNbsDocumentDT().getJurisdictionCd()!=null && nbsDocVO.getNbsDocumentDT().getJurisdictionCd().equals("")))
 //                    {
-//                        nbsDocVO.getNbsDocumentDT().setJurisdictionCd(pamProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().getJurisdictionCd());
+//                        nbsDocVO.getNbsDocumentDT().setJurisdictionCd(pamProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getJurisdictionCd());
 //                    }
 //                    Long nbsDocumentUid = nbsDocument.updateDocumentWithOutthePatient(nbsDocVO);
                 }catch(Exception e){
@@ -458,9 +458,9 @@ public class PamService implements IPamService {
             }
             //TODO: NBS PAM
 //            if (pamProxyVO.getPamVO() != null && pamProxyVO.isItNew()) {
-//                pamRootDAO.insertPamVO(pamProxyVO.getPamVO(), pamProxyVO.getPublicHealthCaseVO());
+//                pamRootDAO.insertPamVO(pamProxyVO.getPamVO(), pamProxyVO.getPublicHealthCaseContainer());
 //            } else if (pamProxyVO.getPamVO() != null && pamProxyVO.isItDirty()) {
-//                pamRootDAO.editPamVO(pamProxyVO.getPamVO(), pamProxyVO.getPublicHealthCaseVO());
+//                pamRootDAO.editPamVO(pamProxyVO.getPamVO(), pamProxyVO.getPublicHealthCaseContainer());
 //
 //            }
 //            else

@@ -1,14 +1,14 @@
 package gov.cdc.dataprocessing.service.implementation.uid_generator;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxyVO;
-import gov.cdc.dataprocessing.model.container.NotificationProxyContainer;
-import gov.cdc.dataprocessing.model.container.PamProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.NotificationProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.PageActProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.PamProxyContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
-import gov.cdc.dataprocessing.model.container.BaseContainer;
-import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import org.slf4j.Logger;
@@ -190,7 +190,7 @@ public class UidService implements IUidService {
      * @param falseUid
      * @param actualUid
      */
-    public void setFalseToNewForPageAct(PageActProxyVO pageProxyVO, Long falseUid, Long actualUid) throws DataProcessingException {
+    public void setFalseToNewForPageAct(PageActProxyContainer pageProxyVO, Long falseUid, Long actualUid) throws DataProcessingException {
         try {
             Iterator<Object> anIterator = null;
 
@@ -198,7 +198,7 @@ public class UidService implements IUidService {
             ActRelationshipDto actRelationshipDT = null;
             NbsActEntityDto pamCaseEntityDT = null;
             Collection<ParticipationDto> participationColl = pageProxyVO.getTheParticipationDtoCollection();
-            Collection<ActRelationshipDto> actRelationShipColl = pageProxyVO.getPublicHealthCaseVO().getTheActRelationshipDTCollection();
+            Collection<ActRelationshipDto> actRelationShipColl = pageProxyVO.getPublicHealthCaseContainer().getTheActRelationshipDTCollection();
             Collection<NbsActEntityDto> pamCaseEntityColl = pageProxyVO.getPageVO().getActEntityDTCollection();
             Long eventUid = null;
 
@@ -270,7 +270,7 @@ public class UidService implements IUidService {
             NbsActEntityDto pamCaseEntityDT = null;
             Collection<ParticipationDto>  participationColl = pamProxyVO.getTheParticipationDTCollection();
             Collection<ActRelationshipDto>  actRelationShipColl = pamProxyVO
-                    .getPublicHealthCaseVO().getTheActRelationshipDTCollection();
+                    .getPublicHealthCaseContainer().getTheActRelationshipDTCollection();
             Collection<NbsActEntityDto>  pamCaseEntityColl = pamProxyVO.getPamVO().getActEntityDTCollection();
 
             Iterator<ParticipationDto>  anIteratorPat = null;

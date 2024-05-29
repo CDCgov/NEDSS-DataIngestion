@@ -2,10 +2,10 @@ package gov.cdc.dataprocessing.service.implementation.observation;
 
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.LabReportSummaryContainer;
-import gov.cdc.dataprocessing.model.container.ProviderDataForPrintContainer;
-import gov.cdc.dataprocessing.model.container.ResultedTestSummaryContainer;
-import gov.cdc.dataprocessing.model.container.UidSummaryContainer;
+import gov.cdc.dataprocessing.model.container.model.LabReportSummaryContainer;
+import gov.cdc.dataprocessing.model.container.model.ProviderDataForPrintContainer;
+import gov.cdc.dataprocessing.model.container.model.ResultedTestSummaryContainer;
+import gov.cdc.dataprocessing.model.container.model.UidSummaryContainer;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.Observation_SummaryRepository;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationSummaryService;

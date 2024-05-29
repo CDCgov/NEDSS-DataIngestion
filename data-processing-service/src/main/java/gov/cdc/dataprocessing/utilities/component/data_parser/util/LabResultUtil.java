@@ -1,10 +1,10 @@
 package gov.cdc.dataprocessing.utilities.component.data_parser.util;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
-import gov.cdc.dataprocessing.model.container.OrganizationContainer;
+import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.edx.EdxELRLabMapDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
-import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;

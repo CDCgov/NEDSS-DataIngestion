@@ -3,27 +3,25 @@ package gov.cdc.dataprocessing.utilities.component.public_health_case;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.*;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.CaseManagementDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.PublicHealthCaseDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PublicHealthCaseVO;
-import gov.cdc.dataprocessing.model.container.BasePamContainer;
-import gov.cdc.dataprocessing.model.dto.ConfirmationMethodDto;
-import gov.cdc.dataprocessing.model.dto.NbsCaseAnswerDto;
+import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
+import gov.cdc.dataprocessing.model.dto.phc.*;
+import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.ConfirmationMethod;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.PublicHealthCase;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.phc.ConfirmationMethod;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.phc.PublicHealthCase;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.Act;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActLocatorParticipation;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.other_move_as_needed.CaseManagement;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.*;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.phc.CaseManagement;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActIdRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActLocatorParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsActEntityRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsCaseAnswerRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.phc.*;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
 import gov.cdc.dataprocessing.utilities.component.act.ActIdRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActLocatorParticipationRepositoryUtil;
@@ -108,23 +106,23 @@ public class PublicHealthCaseRepositoryUtil {
 
     @Transactional
     //TODO: EVALUATE THIS ONE
-    public PublicHealthCaseVO update(PublicHealthCaseVO phcVO) throws DataProcessingException {
+    public PublicHealthCaseContainer update(PublicHealthCaseContainer phcVO) throws DataProcessingException {
         /**
          * Inserts ConfirmationMethodDT collection
          */
 
         if (phcVO != null && phcVO.getTheConfirmationMethodDTCollection() != null)
         {
-            insertConfirmationMethods(phcVO.getThePublicHealthCaseDT().getUid(), phcVO.getTheConfirmationMethodDTCollection());
+            insertConfirmationMethods(phcVO.getThePublicHealthCaseDto().getUid(), phcVO.getTheConfirmationMethodDTCollection());
         }
         /**
-         * Inserts CaseManagementDT
+         * Inserts CaseManagementDto
          */
 
-        if (phcVO != null && phcVO.getTheCaseManagementDT() != null
-                && phcVO.getTheCaseManagementDT().isCaseManagementDTPopulated)
+        if (phcVO != null && phcVO.getTheCaseManagementDto() != null
+                && phcVO.getTheCaseManagementDto().isCaseManagementDTPopulated)
         {
-            insertCaseManagementDT(phcVO.getThePublicHealthCaseDT().getUid(), phcVO.getTheCaseManagementDT());
+            insertCaseManagementDT(phcVO.getThePublicHealthCaseDto().getUid(), phcVO.getTheCaseManagementDto());
         }
         /**
          * Inserts ActIdDT collection
@@ -132,7 +130,7 @@ public class PublicHealthCaseRepositoryUtil {
 
         if (phcVO != null && phcVO.getTheActIdDTCollection() != null)
         {
-            insertActivityIDs(phcVO.getThePublicHealthCaseDT().getUid(), phcVO.getTheActIdDTCollection());
+            insertActivityIDs(phcVO.getThePublicHealthCaseDto().getUid(), phcVO.getTheActIdDTCollection());
         }
 
         /**
@@ -141,7 +139,7 @@ public class PublicHealthCaseRepositoryUtil {
 
         if (phcVO != null && phcVO.getTheActivityLocatorParticipationDTCollection() != null)
         {
-            insertActivityLocatorParticipations(phcVO.getThePublicHealthCaseDT().getUid() ,phcVO.getTheActivityLocatorParticipationDTCollection());
+            insertActivityLocatorParticipations(phcVO.getThePublicHealthCaseDto().getUid() ,phcVO.getTheActivityLocatorParticipationDTCollection());
         }
 
         phcVO.setItNew(false);
@@ -151,17 +149,17 @@ public class PublicHealthCaseRepositoryUtil {
     }
 
     @Transactional
-    public PublicHealthCaseVO create(PublicHealthCaseVO phcVO) throws DataProcessingException {
+    public PublicHealthCaseContainer create(PublicHealthCaseContainer phcVO) throws DataProcessingException {
         long phcUid;
-        phcVO.getThePublicHealthCaseDT().setVersionCtrlNbr(1);
-        if(phcVO.getThePublicHealthCaseDT().getSharedInd() == null)
+        phcVO.getThePublicHealthCaseDto().setVersionCtrlNbr(1);
+        if(phcVO.getThePublicHealthCaseDto().getSharedInd() == null)
         {
-            phcVO.getThePublicHealthCaseDT().setSharedInd("T");
+            phcVO.getThePublicHealthCaseDto().setSharedInd("T");
         }
         phcUid = insertPublicHealthCase(phcVO);
 
 
-        phcVO.getThePublicHealthCaseDT().setPublicHealthCaseUid(phcUid);
+        phcVO.getThePublicHealthCaseDto().setPublicHealthCaseUid(phcUid);
 
 
         /**
@@ -173,13 +171,13 @@ public class PublicHealthCaseRepositoryUtil {
             insertConfirmationMethods(phcUid, phcVO.getTheConfirmationMethodDTCollection());
         }
         /**
-         * Inserts CaseManagementDT
+         * Inserts CaseManagementDto
          */
 
-        if (phcVO != null && phcVO.getTheCaseManagementDT() != null
-                && phcVO.getTheCaseManagementDT().isCaseManagementDTPopulated)
+        if (phcVO != null && phcVO.getTheCaseManagementDto() != null
+                && phcVO.getTheCaseManagementDto().isCaseManagementDTPopulated)
         {
-            insertCaseManagementDT(phcUid, phcVO.getTheCaseManagementDT());
+            insertCaseManagementDT(phcUid, phcVO.getTheCaseManagementDto());
         }
         /**
          * Inserts ActIdDT collection
@@ -201,7 +199,7 @@ public class PublicHealthCaseRepositoryUtil {
 
         phcVO.setItNew(false);
         phcVO.setItDirty(false);
-        phcUid = phcVO.getThePublicHealthCaseDT().getPublicHealthCaseUid();
+        phcUid = phcVO.getThePublicHealthCaseDto().getPublicHealthCaseUid();
 
         return phcVO;
     }
@@ -262,20 +260,20 @@ public class PublicHealthCaseRepositoryUtil {
         }
     }
 
-    private void insertCaseManagementDT(Long phcUid, CaseManagementDT caseManagementDT) throws DataProcessingException {
-        updateCaseManagementWithEPIIDandFRNum(caseManagementDT);
-        CaseManagement data = new CaseManagement(caseManagementDT);
+    private void insertCaseManagementDT(Long phcUid, CaseManagementDto caseManagementDto) throws DataProcessingException {
+        updateCaseManagementWithEPIIDandFRNum(caseManagementDto);
+        CaseManagement data = new CaseManagement(caseManagementDto);
         data.setPublicHealthCaseUid(phcUid);
 
         caseManagementRepository.save(data);
 
     }
 
-    private void updateCaseManagementWithEPIIDandFRNum(CaseManagementDT caseManagementDT) throws DataProcessingException {
+    private void updateCaseManagementWithEPIIDandFRNum(CaseManagementDto caseManagementDto) throws DataProcessingException {
         // generate EPI Link Id (Lot Nbr) and field record number if not present
 
         try {
-            if (caseManagementDT.getEpiLinkId() == null && caseManagementDT.getFieldRecordNumber() == null)
+            if (caseManagementDto.getEpiLinkId() == null && caseManagementDto.getFieldRecordNumber() == null)
             {
                 SimpleDateFormat sdf = new SimpleDateFormat("yy"); // Just the year, with 2 digits
                 String twoDigitYear = sdf.format(Calendar.getInstance()
@@ -289,10 +287,10 @@ public class PublicHealthCaseRepositoryUtil {
                 String lotNum = "NBS_STATE_CODE"
                         + epiLinkId.substring(2, epiLinkId.length()-2)
                         + twoDigitYear;
-                caseManagementDT.setEpiLinkId(lotNum);
-                caseManagementDT.setFieldRecordNumber(lotNum);
+                caseManagementDto.setEpiLinkId(lotNum);
+                caseManagementDto.setFieldRecordNumber(lotNum);
             }
-            else if (caseManagementDT.getEpiLinkId() != null && caseManagementDT.getFieldRecordNumber() == null)
+            else if (caseManagementDto.getEpiLinkId() != null && caseManagementDto.getFieldRecordNumber() == null)
             {
                 SimpleDateFormat sdf = new SimpleDateFormat("yy"); // Just the year, with 2 digits
                 String twoDigitYear = sdf.format(Calendar.getInstance()
@@ -306,7 +304,7 @@ public class PublicHealthCaseRepositoryUtil {
                 String fieldRecordNumber =  "NBS_STATE_CODE"
                         + epiLinkId.substring(2, epiLinkId.length()-2)
                         + twoDigitYear;
-                caseManagementDT.setFieldRecordNumber(fieldRecordNumber);
+                caseManagementDto.setFieldRecordNumber(fieldRecordNumber);
             }
 
         } catch (Exception e) {
@@ -314,9 +312,9 @@ public class PublicHealthCaseRepositoryUtil {
         }
     }
 
-    private Long insertPublicHealthCase(PublicHealthCaseVO phcVO) throws DataProcessingException {
+    private Long insertPublicHealthCase(PublicHealthCaseContainer phcVO) throws DataProcessingException {
         var uid = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.PUBLIC_HEALTH_CASE);
-        var phcDT = phcVO.getThePublicHealthCaseDT();
+        var phcDT = phcVO.getThePublicHealthCaseDto();
         if (phcDT.getCaseTypeCd().equals(NEDSSConstant.I) && (phcDT.getInvestigationStatusCd() == null
                 || phcDT.getInvestigationStatusCd().trim().equals("") || phcDT.getProgAreaCd() == null
                 || phcDT.getProgAreaCd().trim().equals("") || phcDT.getJurisdictionCd() == null
@@ -357,7 +355,7 @@ public class PublicHealthCaseRepositoryUtil {
         phcDT.setItDirty(false);
         phcDT.setItDelete(false);
 
-        phcVO.setThePublicHealthCaseDT(phcDT);
+        phcVO.setThePublicHealthCaseDto(phcDT);
         return phcUid;
     }
 
@@ -405,9 +403,9 @@ public class PublicHealthCaseRepositoryUtil {
         }
     }
 
-    public PublicHealthCaseVO loadObject(Long phcUid) throws DataProcessingException {
+    public PublicHealthCaseContainer loadObject(Long phcUid) throws DataProcessingException {
         try {
-            var container = new PublicHealthCaseVO();
+            var container = new PublicHealthCaseContainer();
 
             var phcDt = publicHealthCaseRepository.findById(phcUid);
             if (phcDt.isEmpty()) {
@@ -415,16 +413,16 @@ public class PublicHealthCaseRepositoryUtil {
             }
 
 
-            container.setThePublicHealthCaseDT(new PublicHealthCaseDT(phcDt.get()));
+            container.setThePublicHealthCaseDto(new PublicHealthCaseDto(phcDt.get()));
 
             //  phcDt.setStdHivProgramAreaCode(isStdHivProgramAreaCode);
-            container.getThePublicHealthCaseDT().setStdHivProgramAreaCode(false);
+            container.getThePublicHealthCaseDto().setStdHivProgramAreaCode(false);
 
             var confirmLst = confirmationMethodRepositoryUtil.getConfirmationMethodByPhc(phcUid);
             container.setTheConfirmationMethodDTCollection(confirmLst);
 
             var caseMag = caseManagementRepositoryUtil.getCaseManagementPhc(phcUid);
-            container.setTheCaseManagementDT(caseMag);
+            container.setTheCaseManagementDto(caseMag);
 
             var actIdLst = actIdRepositoryUtil.GetActIdCollection(phcUid);
             container.setTheActIdDTCollection(actIdLst);
@@ -448,7 +446,7 @@ public class PublicHealthCaseRepositoryUtil {
 
     }
 
-    public PublicHealthCaseVO getPublicHealthCaseContainer(long publicHealthCaseUid) throws DataProcessingException {
+    public PublicHealthCaseContainer getPublicHealthCaseContainer(long publicHealthCaseUid) throws DataProcessingException {
         var phc = findPublicHealthCase(publicHealthCaseUid);
         if (phc == null) {
             throw new DataProcessingException("Public Health Case Not Exist");
@@ -471,16 +469,16 @@ public class PublicHealthCaseRepositoryUtil {
 //        }
         phc.setStdHivProgramAreaCode(isStdHivProgramAreaCode);
 
-        PublicHealthCaseVO publicHealthCaseContainer = new PublicHealthCaseVO();
-        publicHealthCaseContainer.setThePublicHealthCaseDT(phc);
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        publicHealthCaseContainer.setThePublicHealthCaseDto(phc);
 
         return publicHealthCaseContainer;
     }
 
-    public PublicHealthCaseDT findPublicHealthCase(long publicHealthCaseUid) {
+    public PublicHealthCaseDto findPublicHealthCase(long publicHealthCaseUid) {
         var phc = publicHealthCaseRepository.findById(publicHealthCaseUid);
         // ADD CODE TO FIND PHC RELATED OBJECT HERE
-        return phc.map(PublicHealthCaseDT::new).orElse(null);
+        return phc.map(PublicHealthCaseDto::new).orElse(null);
     }
 
 

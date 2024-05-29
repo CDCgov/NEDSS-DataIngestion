@@ -84,10 +84,10 @@ public class ConcurrentCheck {
 //            if(tableName.equalsIgnoreCase("Public_Health_Case"))
 //            {
 //                PublicHealthCaseDAOImpl pDao = new PublicHealthCaseDAOImpl();
-//                PublicHealthCaseDT phcDT  = (PublicHealthCaseDT)pDao.loadObject(theRootDTInterface.getUid().longValue());
+//                PublicHealthCaseDto phcDT  = (PublicHealthCaseDto)pDao.loadObject(theRootDTInterface.getUid().longValue());
 //                if(theRootDTInterface.getVersionCtrlNbr() == null)
-//                    ((PublicHealthCaseDT)theRootDTInterface).setVersionCtrlNbr(new Integer(1));
-//                PublicHealthCaseDT newPhcDT= (PublicHealthCaseDT)theRootDTInterface;
+//                    ((PublicHealthCaseDto)theRootDTInterface).setVersionCtrlNbr(new Integer(1));
+//                PublicHealthCaseDto newPhcDT= (PublicHealthCaseDto)theRootDTInterface;
 //                /**TODO PKS UPDATE FOR MERGE INVESTIGATIONS
 //                 if(phcDT.getVersionCtrlNbr().equals(theRootDTInterface.getVersionCtrlNbr())
 //                 || (phcDT.getVersionCtrlNbr().equals(newPhcDT.getVersionCtrlNbr()-1) && newPhcDT.isReentrant()))*/
@@ -110,9 +110,9 @@ public class ConcurrentCheck {
 //            if(tableName.equalsIgnoreCase(DataTables.INTERVENTION_TABLE) )
 //            {
 //                InterventionDAOImpl pDao = new InterventionDAOImpl();
-//                InterventionDT interventionDT  = (InterventionDT)pDao.loadObject(theRootDTInterface.getUid().longValue());
+//                InterventionDto interventionDT  = (InterventionDto)pDao.loadObject(theRootDTInterface.getUid().longValue());
 //                if(theRootDTInterface.getVersionCtrlNbr() == null)
-//                    ((InterventionDT)theRootDTInterface).setVersionCtrlNbr(new Integer(1));
+//                    ((InterventionDto)theRootDTInterface).setVersionCtrlNbr(new Integer(1));
 //                if(interventionDT.getVersionCtrlNbr().equals(theRootDTInterface.getVersionCtrlNbr()))
 //                {
 //                    return true;

@@ -5,15 +5,10 @@ import gov.cdc.dataprocessing.constant.EdxPHCRConstants;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.PublicHealthCaseDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.NotificationVO;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxyVO;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PublicHealthCaseVO;
-import gov.cdc.dataprocessing.model.container.BasePamContainer;
-import gov.cdc.dataprocessing.model.container.NotificationProxyContainer;
-import gov.cdc.dataprocessing.model.container.PamProxyContainer;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
-import gov.cdc.dataprocessing.model.dto.NbsQuestionMetadata;
+import gov.cdc.dataprocessing.model.container.model.*;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
+import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
@@ -54,13 +49,13 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
     public EDXActivityDetailLogDto sendNotification(Object pageObj, String nndComment) throws DataProcessingException {
         NotificationProxyContainer notProxyVO = null;
         // Create the Notification object
-        PublicHealthCaseVO publicHealthCaseVO;
-        if (pageObj instanceof PageActProxyVO) {
-            publicHealthCaseVO = ((PageActProxyVO) pageObj).getPublicHealthCaseVO();
+        PublicHealthCaseContainer publicHealthCaseContainer;
+        if (pageObj instanceof PageActProxyContainer) {
+            publicHealthCaseContainer = ((PageActProxyContainer) pageObj).getPublicHealthCaseContainer();
         } else if (pageObj instanceof PamProxyContainer) {
-            publicHealthCaseVO = ((PamProxyContainer) pageObj).getPublicHealthCaseVO();
-        } else if (pageObj instanceof PublicHealthCaseVO) {
-            publicHealthCaseVO = ((PublicHealthCaseVO) pageObj);
+            publicHealthCaseContainer = ((PamProxyContainer) pageObj).getPublicHealthCaseContainer();
+        } else if (pageObj instanceof PublicHealthCaseContainer) {
+            publicHealthCaseContainer = ((PublicHealthCaseContainer) pageObj);
         } else {
             throw new DataProcessingException("Cannot create Notification for unknown page type: " + pageObj.getClass().getCanonicalName());
         }
@@ -70,21 +65,21 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         notDT.setAddTime(new java.sql.Timestamp(new Date().getTime()));
         notDT.setTxt(nndComment);
         notDT.setStatusCd("A");
-        notDT.setCaseClassCd(publicHealthCaseVO.getThePublicHealthCaseDT().getCaseClassCd());
+        notDT.setCaseClassCd(publicHealthCaseContainer.getThePublicHealthCaseDto().getCaseClassCd());
         notDT.setStatusTime(new java.sql.Timestamp(new Date().getTime()));
         notDT.setVersionCtrlNbr(1);
         notDT.setSharedInd("T");
-        notDT.setCaseConditionCd(publicHealthCaseVO.getThePublicHealthCaseDT().getCd());
+        notDT.setCaseConditionCd(publicHealthCaseContainer.getThePublicHealthCaseDto().getCd());
         notDT.setAutoResendInd("F");
 
-        NotificationVO notVO = new NotificationVO();
+        NotificationContainer notVO = new NotificationContainer();
         notVO.setTheNotificationDT(notDT);
         notVO.setItNew(true);
 
         // create the act relationship between the phc & notification
         ActRelationshipDto actDT1 = new ActRelationshipDto();
         actDT1.setItNew(true);
-        actDT1.setTargetActUid(publicHealthCaseVO.getThePublicHealthCaseDT().getPublicHealthCaseUid());
+        actDT1.setTargetActUid(publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid());
         actDT1.setSourceActUid(notDT.getNotificationUid());
         actDT1.setAddTime(new java.sql.Timestamp(new Date().getTime()));
         actDT1.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
@@ -97,8 +92,8 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
 
         notProxyVO = new NotificationProxyContainer();
         notProxyVO.setItNew(true);
-        notProxyVO.setThePublicHealthCaseVO(publicHealthCaseVO);
-        notProxyVO.setTheNotificationVO(notVO);
+        notProxyVO.setThePublicHealthCaseContainer(publicHealthCaseContainer);
+        notProxyVO.setTheNotificationContainer(notVO);
 
         ArrayList<Object> actRelColl = new ArrayList<Object>();
         actRelColl.add(0, actDT1);
@@ -122,7 +117,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         try {
             boolean formatErr = false;
 
-            PublicHealthCaseDT phcDT = notificationProxyVO.getThePublicHealthCaseVO().getThePublicHealthCaseDT();
+            PublicHealthCaseDto phcDT = notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto();
             Long publicHealthCaseUid = phcDT.getPublicHealthCaseUid();
             try
             {
@@ -174,12 +169,12 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             catch (Exception ex) {
                 throw new Exception(ex.toString(), ex);
             }
-            String programAreaCd = notificationProxyVO.getThePublicHealthCaseVO().getThePublicHealthCaseDT().getProgAreaCd();
-            NotificationVO notifVO = notificationProxyVO.getTheNotificationVO();
+            String programAreaCd = notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getProgAreaCd();
+            NotificationContainer notifVO = notificationProxyVO.getTheNotificationContainer();
             NotificationDto notifDT = notifVO.getTheNotificationDT();
             notifDT.setProgAreaCd(programAreaCd);
             notifVO.setTheNotificationDT(notifDT);
-            notificationProxyVO.setTheNotificationVO(notifVO);
+            notificationProxyVO.setTheNotificationContainer(notifVO);
             Long realNotificationUid = setNotificationProxy(notificationProxyVO);
             eDXActivityDetailLogDT.setRecordId(""+realNotificationUid);
             if (!formatErr)
@@ -214,7 +209,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         try {
             BasePamContainer pamVO=null;
             Collection<ParticipationDto> participationDTCollection  = null;
-            PublicHealthCaseDT publicHealthCaseDT = null;
+            PublicHealthCaseDto publicHealthCaseDto = null;
             Collection<PersonContainer> personVOCollection = null;
             Map<Object, Object>  answerMap = null;
             Collection<ActIdDto>  actIdColl = null;
@@ -223,7 +218,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             if(formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)||formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_VAR))
             {
                 PamProxyContainer proxyVO = new PamProxyContainer();
-                if(pageObj == null || pageObj instanceof PublicHealthCaseVO)
+                if(pageObj == null || pageObj instanceof PublicHealthCaseContainer)
                 {
                     //TODO PAM
                     // proxyVO =  pamproxy.getPamProxy(publicHealthCaseUid);
@@ -234,45 +229,45 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                 }
                 pamVO = proxyVO.getPamVO();
                 answerMap = pamVO.getPamAnswerDTMap();
-                if(pageObj == null || pageObj instanceof  PublicHealthCaseVO)
+                if(pageObj == null || pageObj instanceof PublicHealthCaseContainer)
                 {
-                    participationDTCollection  = proxyVO.getPublicHealthCaseVO().getTheParticipationDTCollection();
+                    participationDTCollection  = proxyVO.getPublicHealthCaseContainer().getTheParticipationDTCollection();
                 }
                 else
                 {
                     participationDTCollection = proxyVO.getTheParticipationDTCollection();
                 }
                 personVOCollection  = proxyVO.getThePersonVOCollection();
-                publicHealthCaseDT = proxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT();
-                actIdColl = proxyVO.getPublicHealthCaseVO().getTheActIdDTCollection();
+                publicHealthCaseDto = proxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto();
+                actIdColl = proxyVO.getPublicHealthCaseContainer().getTheActIdDTCollection();
             }
             else
             {
                 // HIT THIS
-                PageActProxyVO pageProxyVO  = null;
-                if(pageObj == null  || pageObj instanceof  PublicHealthCaseVO)
+                PageActProxyContainer pageProxyVO  = null;
+                if(pageObj == null  || pageObj instanceof PublicHealthCaseContainer)
                 {
                     pageProxyVO =  investigationService.getPageProxyVO(NEDSSConstant.CASE, publicHealthCaseUid);
                 }
                 else
                 {
-                    pageProxyVO = (PageActProxyVO) pageObj;
+                    pageProxyVO = (PageActProxyContainer) pageObj;
                 }
-                PageActProxyVO pageActProxyVO=pageProxyVO;
-                pamVO=pageActProxyVO.getPageVO();
+                PageActProxyContainer pageActProxyContainer =pageProxyVO;
+                pamVO= pageActProxyContainer.getPageVO();
 
                 answerMap = (pageProxyVO).getPageVO().getPamAnswerDTMap();
-                if(pageObj == null || pageObj instanceof  PublicHealthCaseVO)
+                if(pageObj == null || pageObj instanceof PublicHealthCaseContainer)
                 {
-                    participationDTCollection  = pageActProxyVO.getPublicHealthCaseVO().getTheParticipationDTCollection();
+                    participationDTCollection  = pageActProxyContainer.getPublicHealthCaseContainer().getTheParticipationDTCollection();
                 }
                 else
                 {
-                    participationDTCollection = pageActProxyVO.getTheParticipationDtoCollection();
+                    participationDTCollection = pageActProxyContainer.getTheParticipationDtoCollection();
                 }
-                personVOCollection  = pageActProxyVO.getThePersonContainerCollection();
-                publicHealthCaseDT = pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT();
-                actIdColl = pageActProxyVO.getPublicHealthCaseVO().getTheActIdDTCollection();
+                personVOCollection  = pageActProxyContainer.getThePersonContainerCollection();
+                publicHealthCaseDto = pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto();
+                actIdColl = pageActProxyContainer.getPublicHealthCaseContainer().getTheActIdDTCollection();
             }
 
 
@@ -280,12 +275,12 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             PersonDto personDT = personVO.getThePersonDto();
 
 
-            String programAreaCode = publicHealthCaseDT.getProgAreaCd();
-            String jurisdictionCode = publicHealthCaseDT.getJurisdictionCd();
-            String shared = publicHealthCaseDT.getSharedInd();
-            if (publicHealthCaseDT == null)
+            String programAreaCode = publicHealthCaseDto.getProgAreaCd();
+            String jurisdictionCode = publicHealthCaseDto.getJurisdictionCd();
+            String shared = publicHealthCaseDto.getSharedInd();
+            if (publicHealthCaseDto == null)
             {
-                throw new DataProcessingException("publicHealthCaseDT is null ");
+                throw new DataProcessingException("publicHealthCaseDto is null ");
             }
 
             // TODO: SECURITY CHECK
@@ -322,9 +317,9 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                         String attrToChk = dLocation.substring(dLocation.indexOf(".") + 1);
 
                         String getterNm = createGetterMethod(attrToChk);
-                        Map<Object, Object> methodMap = getMethods(publicHealthCaseDT.getClass());
+                        Map<Object, Object> methodMap = getMethods(publicHealthCaseDto.getClass());
                         Method method = (Method) methodMap.get(getterNm.toLowerCase());
-                        Object obj = method.invoke(publicHealthCaseDT, (Object[]) null);
+                        Object obj = method.invoke(publicHealthCaseDto, (Object[]) null);
                         checkObject(obj, missingFields, metaData);
                     } else if (dLocation.toLowerCase().startsWith("person.")) {
                         String attrToChk = dLocation.substring(dLocation.indexOf(".") + 1);
