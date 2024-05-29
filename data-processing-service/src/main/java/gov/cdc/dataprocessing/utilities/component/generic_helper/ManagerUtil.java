@@ -8,7 +8,7 @@ import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.service.interfaces.person.IPersonService;
-import gov.cdc.dataprocessing.service.model.PersonAggContainer;
+import gov.cdc.dataprocessing.service.model.person.PersonAggContainer;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;

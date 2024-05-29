@@ -7,8 +7,7 @@ import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.ObservationContainer;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
-import gov.cdc.dataprocessing.service.model.WdsReport;
-import gov.cdc.dataprocessing.service.model.WdsTrackerView;
+import gov.cdc.dataprocessing.service.model.wds.WdsReport;
 import lombok.Getter;
 import lombok.Setter;
 

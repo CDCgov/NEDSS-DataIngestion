@@ -7,15 +7,13 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.NbsQuestionMetadata;
 import gov.cdc.dataprocessing.model.dto.lookup.LookupMappingDto;
 import gov.cdc.dataprocessing.model.dto.lookup.PrePopMappingDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.NbsUiMetaData;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.WAQuestion;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.LookupMappingRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.NbsUiMetaDataRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.WAQuestionRepository;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
-import gov.cdc.dataprocessing.service.interfaces.ILookupService;
+import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
-import gov.cdc.dataprocessing.service.model.MetaAndWaCommonAttribute;
+import gov.cdc.dataprocessing.service.model.lookup_data.MetaAndWaCommonAttribute;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

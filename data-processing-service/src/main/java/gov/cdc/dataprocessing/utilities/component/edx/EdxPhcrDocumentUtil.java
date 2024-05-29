@@ -7,8 +7,7 @@ import gov.cdc.dataprocessing.constant.NBSConstantUtil;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PublicHealthCaseVO;
 import gov.cdc.dataprocessing.model.dto.NbsCaseAnswerDto;
 import gov.cdc.dataprocessing.model.dto.NbsQuestionMetadata;
-import gov.cdc.dataprocessing.service.implementation.investigation.LookupService;
-import gov.cdc.dataprocessing.service.interfaces.ILookupService;
+import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import org.springframework.stereotype.Component;
 
 import java.util.*;

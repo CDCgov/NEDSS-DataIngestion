@@ -11,10 +11,10 @@ import gov.cdc.dataprocessing.model.dsma_algorithm.SendingSystemType;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueCodedDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueNumericDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueTxtDto;
-import gov.cdc.dataprocessing.service.model.WdsReport;
-import gov.cdc.dataprocessing.service.model.WdsValueCodedReport;
-import gov.cdc.dataprocessing.service.model.WdsValueNumericReport;
-import gov.cdc.dataprocessing.service.model.WdsValueTextReport;
+import gov.cdc.dataprocessing.service.model.wds.WdsReport;
+import gov.cdc.dataprocessing.service.model.wds.WdsValueCodedReport;
+import gov.cdc.dataprocessing.service.model.wds.WdsValueNumericReport;
+import gov.cdc.dataprocessing.service.model.wds.WdsValueTextReport;
 import lombok.Getter;
 import lombok.Setter;
 

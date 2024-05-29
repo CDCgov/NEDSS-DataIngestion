@@ -28,7 +28,7 @@ import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService
 import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationService;
 import gov.cdc.dataprocessing.service.interfaces.person.IPersonService;
 import gov.cdc.dataprocessing.service.interfaces.role.IRoleService;
-import gov.cdc.dataprocessing.service.model.PersonAggContainer;
+import gov.cdc.dataprocessing.service.model.person.PersonAggContainer;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.ManagerUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

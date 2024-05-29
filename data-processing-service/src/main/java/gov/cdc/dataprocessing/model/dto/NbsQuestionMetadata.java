@@ -3,7 +3,7 @@ package gov.cdc.dataprocessing.model.dto;
 import gov.cdc.dataprocessing.model.container.BaseContainer;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.custom_model.QuestionRequiredNnd;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
-import gov.cdc.dataprocessing.service.model.MetaAndWaCommonAttribute;
+import gov.cdc.dataprocessing.service.model.lookup_data.MetaAndWaCommonAttribute;
 import lombok.Getter;
 import lombok.Setter;
 
