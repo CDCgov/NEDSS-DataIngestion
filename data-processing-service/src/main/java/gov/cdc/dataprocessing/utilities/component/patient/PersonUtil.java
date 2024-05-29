@@ -7,7 +7,7 @@ import gov.cdc.dataprocessing.model.container.BaseContainer;
 import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.service.implementation.person.PatientMatchingService;
 import gov.cdc.dataprocessing.service.implementation.person.ProviderMatchingService;
-import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import gov.cdc.dataprocessing.utilities.component.observation.ObservationUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;

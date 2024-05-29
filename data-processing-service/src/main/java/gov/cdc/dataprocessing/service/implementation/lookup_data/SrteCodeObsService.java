@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.service.implementation.other;
+package gov.cdc.dataprocessing.service.implementation.lookup_data;
 
 import gov.cdc.dataprocessing.constant.elr.ELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
@@ -8,7 +8,7 @@ import gov.cdc.dataprocessing.model.dto.observation.ObsValueCodedDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.ProgAreaSnomeCodeStoredProcRepository;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.*;
-import gov.cdc.dataprocessing.service.interfaces.other.ISrteCodeObsService;
+import gov.cdc.dataprocessing.service.interfaces.lookup_data.ISrteCodeObsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

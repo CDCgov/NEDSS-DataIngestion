@@ -12,7 +12,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.NbsUiMetaDataRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.WAQuestionRepository;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
-import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.service.model.lookup_data.MetaAndWaCommonAttribute;
 import org.springframework.stereotype.Service;
 

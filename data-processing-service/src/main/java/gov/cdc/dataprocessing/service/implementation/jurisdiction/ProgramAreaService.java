@@ -2,7 +2,6 @@ package gov.cdc.dataprocessing.service.implementation.jurisdiction;
 
 import gov.cdc.dataprocessing.constant.elr.ELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
-import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.ObservationContainer;
@@ -11,7 +10,7 @@ import gov.cdc.dataprocessing.repository.nbs.srte.model.ProgramAreaCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.ProgramAreaCodeRepository;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationCodeService;
-import gov.cdc.dataprocessing.service.interfaces.other.ISrteCodeObsService;
+import gov.cdc.dataprocessing.service.interfaces.lookup_data.ISrteCodeObsService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

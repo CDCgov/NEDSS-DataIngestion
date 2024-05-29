@@ -1,10 +1,10 @@
-package gov.cdc.dataprocessing.service.implementation.other;
+package gov.cdc.dataprocessing.service.implementation.observation;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.edx.EDXDocumentDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.edx.EdxDocument;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.edx.EdxDocumentRepository;
-import gov.cdc.dataprocessing.service.interfaces.other.IEdxDocumentService;
+import gov.cdc.dataprocessing.service.interfaces.observation.IEdxDocumentService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.service.interfaces.other;
+package gov.cdc.dataprocessing.service.interfaces.uid_generator;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxyVO;

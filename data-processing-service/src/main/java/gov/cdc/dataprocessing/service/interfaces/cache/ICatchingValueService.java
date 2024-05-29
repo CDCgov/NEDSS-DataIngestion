@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.service.interfaces.other;
+package gov.cdc.dataprocessing.service.interfaces.cache;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.*;

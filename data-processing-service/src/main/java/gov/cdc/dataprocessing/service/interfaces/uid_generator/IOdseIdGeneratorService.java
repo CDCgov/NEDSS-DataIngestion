@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.service.interfaces.other;
+package gov.cdc.dataprocessing.service.interfaces.uid_generator;
 
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;

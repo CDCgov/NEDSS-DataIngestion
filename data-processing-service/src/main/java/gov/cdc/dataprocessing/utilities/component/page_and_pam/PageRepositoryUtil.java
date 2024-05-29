@@ -23,7 +23,7 @@ import gov.cdc.dataprocessing.service.implementation.person.base.PatientMatching
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationService;
 import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPamService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IRetrieveSummaryService;
-import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IPublicHealthCaseService;
 import gov.cdc.dataprocessing.service.model.action.PageActPatient;
 import gov.cdc.dataprocessing.service.model.action.PageActPhc;

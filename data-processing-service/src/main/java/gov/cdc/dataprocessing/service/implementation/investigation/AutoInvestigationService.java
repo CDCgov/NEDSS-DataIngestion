@@ -27,7 +27,7 @@ import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCodeWithPA;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.ConditionCodeRepository;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IAutoInvestigationService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
-import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.utilities.DynamicBeanBinding;
 import gov.cdc.dataprocessing.utilities.RulesEngineUtil;
 import gov.cdc.dataprocessing.utilities.StringUtils;

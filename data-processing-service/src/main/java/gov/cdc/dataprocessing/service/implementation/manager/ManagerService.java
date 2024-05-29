@@ -23,15 +23,14 @@ import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.NbsInterfaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
-import gov.cdc.dataprocessing.service.implementation.other.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService;
-import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
-import gov.cdc.dataprocessing.service.interfaces.other.IDataExtractionService;
-import gov.cdc.dataprocessing.service.interfaces.other.IHandleLabService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.data_extraction.IDataExtractionService;
 import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPageService;
 import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPamService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IDecisionSupportService;
@@ -68,8 +67,6 @@ public class ManagerService implements IManagerService {
 
     private final IEdxLogService edxLogService;
 
-    private final IHandleLabService handleLabService;
-
     private final IDataExtractionService dataExtractionService;
 
     private final NbsInterfaceRepository nbsInterfaceRepository;
@@ -95,7 +92,6 @@ public class ManagerService implements IManagerService {
     @Autowired
     public ManagerService(IObservationService observationService,
                           IEdxLogService edxLogService,
-                          IHandleLabService handleLabService,
                           IDataExtractionService dataExtractionService,
                           NbsInterfaceRepository nbsInterfaceRepository,
                           CachingValueService cachingValueService,
@@ -110,7 +106,6 @@ public class ManagerService implements IManagerService {
                           IInvestigationNotificationService investigationNotificationService) {
         this.observationService = observationService;
         this.edxLogService = edxLogService;
-        this.handleLabService = handleLabService;
         this.dataExtractionService = dataExtractionService;
         this.nbsInterfaceRepository = nbsInterfaceRepository;
         this.cachingValueService = cachingValueService;

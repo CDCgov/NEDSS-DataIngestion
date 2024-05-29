@@ -13,7 +13,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityLocatorPart
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PhysicalLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PostalLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.TeleLocatorRepository;
-import gov.cdc.dataprocessing.service.implementation.other.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;

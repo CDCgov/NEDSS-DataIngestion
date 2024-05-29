@@ -17,11 +17,11 @@ import gov.cdc.dataprocessing.service.implementation.observation.ObservationServ
 import gov.cdc.dataprocessing.service.implementation.organization.OrganizationService;
 import gov.cdc.dataprocessing.service.implementation.person.PersonService;
 import gov.cdc.dataprocessing.service.implementation.observation.ObservationMatchingService;
-import gov.cdc.dataprocessing.service.implementation.other.UidService;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidService;
 import gov.cdc.dataprocessing.service.implementation.role.RoleService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
-import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService;

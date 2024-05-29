@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.service.implementation.other;
+package gov.cdc.dataprocessing.service.implementation.data_extraction;
 
 import gov.cdc.dataprocessing.model.phdc.Container;
 import jakarta.xml.bind.JAXBContext;

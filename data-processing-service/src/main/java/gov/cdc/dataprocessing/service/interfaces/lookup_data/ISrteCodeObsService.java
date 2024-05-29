@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.service.interfaces.other;
+package gov.cdc.dataprocessing.service.interfaces.lookup_data;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.ObservationContainer;

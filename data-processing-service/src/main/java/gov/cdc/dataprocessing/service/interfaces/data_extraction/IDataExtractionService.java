@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.service.interfaces.other;
+package gov.cdc.dataprocessing.service.interfaces.data_extraction;
 
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
