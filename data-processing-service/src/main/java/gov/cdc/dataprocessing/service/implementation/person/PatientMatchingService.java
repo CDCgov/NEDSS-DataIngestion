@@ -11,6 +11,7 @@ import gov.cdc.dataprocessing.service.interfaces.person.IPatientMatchingService;
 import gov.cdc.dataprocessing.service.implementation.person.base.PatientMatchingBaseService;
 import gov.cdc.dataprocessing.service.model.PersonId;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
+import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import jakarta.transaction.Transactional;
@@ -29,8 +30,9 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
             EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
             EntityHelper entityHelper,
             PatientRepositoryUtil patientRepositoryUtil,
-            CachingValueService cachingValueService) {
-        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService);
+            CachingValueService cachingValueService,
+            PrepareAssocModelHelper prepareAssocModelHelper) {
+        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
     }
 
     @Transactional
@@ -40,7 +42,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
         String patientRole = personContainer.getRole();
         EdxPatientMatchDto edxPatientFoundDT;
         EdxPatientMatchDto edxPatientMatchFoundDT = null;
-        PersonId patientPersonUid;
+        PersonId patientPersonUid = null;
         boolean matchFound = false;
 
         boolean newPatientCreationApplied = false;
@@ -194,6 +196,17 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
                  * 2.0 NOTE: if new patient flow, skip revision
                  * otherwise: go to update existing patient
                  * */
+
+                //REVISION
+                if (!newPatientCreationApplied) {
+                    personContainer.getThePersonDto().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
+                } else {
+                    personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
+                }
+
+                // SetPatientRevision
+
+                //END REVISION
 
 
                 if (!newPatientCreationApplied && personContainer.getPatientMatchedFound()) {

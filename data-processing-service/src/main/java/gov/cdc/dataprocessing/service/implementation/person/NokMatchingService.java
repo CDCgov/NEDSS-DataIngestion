@@ -10,6 +10,7 @@ import gov.cdc.dataprocessing.service.interfaces.person.INokMatchingService;
 import gov.cdc.dataprocessing.service.implementation.person.base.NokMatchingBaseService;
 import gov.cdc.dataprocessing.service.model.PersonId;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
+import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import jakarta.transaction.Transactional;
@@ -30,8 +31,9 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
             EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
             EntityHelper entityHelper,
             PatientRepositoryUtil patientRepositoryUtil,
-            CachingValueService cachingValueService) {
-        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService);
+            CachingValueService cachingValueService,
+            PrepareAssocModelHelper prepareAssocModelHelper) {
+        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
     }
     @Transactional
     public EdxPatientMatchDto getMatchingNextOfKin(PersonContainer personContainer) throws DataProcessingException {

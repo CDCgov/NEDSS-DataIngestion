@@ -9,6 +9,7 @@ import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.service.implementation.other.CachingValueService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
+import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.model.Coded;
@@ -29,16 +30,19 @@ public class MatchingBaseService  {
     private final EntityHelper entityHelper;
     private final PatientRepositoryUtil patientRepositoryUtil;
     private final CachingValueService cachingValueService;
+    private final PrepareAssocModelHelper prepareAssocModelHelper;
+
 
     public MatchingBaseService(
-                                EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
-                               EntityHelper entityHelper,
-                               PatientRepositoryUtil patientRepositoryUtil,
-                               CachingValueService cachingValueService) {
+            EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
+            EntityHelper entityHelper,
+            PatientRepositoryUtil patientRepositoryUtil,
+            CachingValueService cachingValueService, PrepareAssocModelHelper prepareAssocModelHelper) {
         this.edxPatientMatchRepositoryUtil = edxPatientMatchRepositoryUtil;
         this.entityHelper = entityHelper;
         this.patientRepositoryUtil = patientRepositoryUtil;
         this.cachingValueService = cachingValueService;
+        this.prepareAssocModelHelper = prepareAssocModelHelper;
     }
 
     protected String getLocalId(PersonContainer personContainer) {
