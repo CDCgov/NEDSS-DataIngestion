@@ -42,7 +42,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
     }
 
-    protected Long setPatientRevision(PersonContainer personVO, String businessTriggerCd) throws DataProcessingException {
+    public Long setPatientRevision(PersonContainer personVO, String businessTriggerCd) throws DataProcessingException {
         PersonContainer mprPersonVO = null;
         Long mprPersonUid = null;
         Long personUid = null;
@@ -93,7 +93,8 @@ public class PatientMatchingBaseService extends MatchingBaseService{
             // NOTE: SHOULD NOT HIT THIS ONE EITHER
             if (personVO.getThePersonDto() != null && (personVO.getThePersonDto().getElectronicInd() != null
                     && !personVO.getThePersonDto().getElectronicInd().equals(NEDSSConstant.ELECTRONIC_IND_ELR)))
-            {// ldf code
+            {
+                // ldf code
                 // begin
 //                LDFHelper ldfHelper = LDFHelper.getInstance();
 //                ldfHelper.setLDFCollection(personVO.getTheStateDefinedFieldDataDTCollection(), personVO.getLdfUids(),

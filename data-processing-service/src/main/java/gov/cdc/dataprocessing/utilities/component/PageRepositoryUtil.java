@@ -19,6 +19,7 @@ import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsAnswerDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
+import gov.cdc.dataprocessing.service.implementation.person.base.PatientMatchingBaseService;
 import gov.cdc.dataprocessing.service.interfaces.IInvestigationService;
 import gov.cdc.dataprocessing.service.interfaces.IPamService;
 import gov.cdc.dataprocessing.service.interfaces.IRetrieveSummaryService;
@@ -53,6 +54,8 @@ public class PageRepositoryUtil {
     private final NbsNoteRepositoryUtil  nbsNoteRepositoryUtil;
     private final CustomRepository  customRepository;
     private final IPamService pamService;
+    private final PatientMatchingBaseService patientMatchingBaseService;
+
     private static final Logger logger = LoggerFactory.getLogger(PageRepositoryUtil.class);
 
     public PageRepositoryUtil(IInvestigationService investigationService,
@@ -64,7 +67,8 @@ public class PageRepositoryUtil {
                               EdxEventProcessRepositoryUtil edxEventProcessRepositoryUtil,
                               NbsDocumentRepositoryUtil nbsDocumentRepositoryUtil,
                               ParticipationRepositoryUtil participationRepositoryUtil,
-                              NbsNoteRepositoryUtil nbsNoteRepositoryUtil, CustomRepository customRepository, IPamService pamService) {
+                              NbsNoteRepositoryUtil nbsNoteRepositoryUtil, CustomRepository customRepository, IPamService pamService,
+                              PatientMatchingBaseService patientMatchingBaseService) {
         this.investigationService = investigationService;
         this.patientRepositoryUtil = patientRepositoryUtil;
         this.uidService = uidService;
@@ -79,6 +83,7 @@ public class PageRepositoryUtil {
         this.nbsNoteRepositoryUtil = nbsNoteRepositoryUtil;
         this.customRepository = customRepository;
         this.pamService = pamService;
+        this.patientMatchingBaseService = patientMatchingBaseService;
     }
 
     public Long setPageActProxyVO(PageActProxyVO pageProxyVO) throws DataProcessingException {
@@ -866,8 +871,13 @@ public class PageRepositoryUtil {
                         try {
                             var fakeId = personVO.getThePersonDto().getPersonUid();
                             personVO.getThePersonDto().setPersonUid(personVO.getThePersonDto().getPersonParentUid());
-                            patientRepositoryUtil.updateExistingPerson(personVO);
-                            patientRevisionUid= personVO.getThePersonDto().getPersonParentUid();
+                        //    patientRepositoryUtil.updateExistingPerson(personVO);
+
+                            var data = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd);
+
+
+
+                            patientRevisionUid= data;
                             realUid = patientRevisionUid;
                             pageActPatient.setPatientRevisionUid(patientRevisionUid);
                             personVO.getThePersonDto().setPersonUid(fakeId);
@@ -903,8 +913,10 @@ public class PageRepositoryUtil {
                     {
                         String businessTriggerCd = NEDSSConstant.PAT_EDIT;
                         try {
-                            patientRepositoryUtil.updateExistingPerson(personVO);
-                            realUid = personVO.getThePersonDto().getPersonParentUid();
+                            //patientRepositoryUtil.updateExistingPerson(personVO);
+                            var data = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd);
+
+                            realUid = data;
                             patientRevisionUid= realUid;
                             pageActPatient.setPatientRevisionUid(patientRevisionUid);
                         }  catch (Exception ex) {

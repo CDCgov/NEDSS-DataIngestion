@@ -146,6 +146,18 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
         }
 
         try {
+
+//            if (!newPersonCreationApplied) {
+//                personContainer.getThePersonDto().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
+//            }
+//            else {
+//                personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
+//            }
+//
+//            patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR);
+//            personContainer.getThePersonDto().setPersonUid(patientUid);
+
+
             if (!newPersonCreationApplied) {
                 // patientRepositoryUtil.updateExistingPerson(personVO);
                 personContainer.getThePersonDto().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());

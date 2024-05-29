@@ -206,20 +206,23 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
 
                 // SetPatientRevision
 
+                patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR);
+                personContainer.getThePersonDto().setPersonUid(patientUid);
+
                 //END REVISION
 
-
-                if (!newPatientCreationApplied && personContainer.getPatientMatchedFound()) {
-                    personContainer.getThePersonDto().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
-                    patientPersonUid = updateExistingPerson(personContainer, NEDSSConstant.PAT_CR, personContainer.getThePersonDto().getPersonParentUid());
-
-                    personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
-                    personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
-                    personContainer.getThePersonDto().setPersonUid(patientPersonUid.getPersonId());
-                }
-                else if (newPatientCreationApplied) {
-                    setPersonHashCdPatient(personContainer);
-                }
+//
+//                if (!newPatientCreationApplied && personContainer.getPatientMatchedFound()) {
+//                    personContainer.getThePersonDto().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
+//                    patientPersonUid = updateExistingPerson(personContainer, NEDSSConstant.PAT_CR, personContainer.getThePersonDto().getPersonParentUid());
+//
+//                    personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
+//                    personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
+//                    personContainer.getThePersonDto().setPersonUid(patientPersonUid.getPersonId());
+//                }
+//                else if (newPatientCreationApplied) {
+//                    setPersonHashCdPatient(personContainer);
+//                }
             } catch (Exception e) {
                 logger.error("Error in getting the entity Controller or Setting the Patient" + e.getMessage());
                 throw new DataProcessingException("Error in getting the entity Controller or Setting the Patient" + e.getMessage(), e);

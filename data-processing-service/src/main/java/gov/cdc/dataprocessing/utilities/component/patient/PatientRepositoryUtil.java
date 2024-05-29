@@ -206,6 +206,8 @@ public class PatientRepositoryUtil {
 
         //NOTE: Update Person
         Person person = new Person(personContainer.getThePersonDto());
+        var ver = person.getVersionCtrlNbr();
+        person.setVersionCtrlNbr(++ver);
         try {
             personRepository.save(person);
         } catch (Exception e) {

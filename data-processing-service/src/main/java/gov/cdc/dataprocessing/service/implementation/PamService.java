@@ -10,6 +10,7 @@ import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.log.NNDActivityLogDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.service.implementation.person.base.PatientMatchingBaseService;
 import gov.cdc.dataprocessing.service.interfaces.IInvestigationService;
 import gov.cdc.dataprocessing.service.interfaces.IPamService;
 import gov.cdc.dataprocessing.service.interfaces.IRetrieveSummaryService;
@@ -47,6 +48,8 @@ public class PamService implements IPamService {
     private final NbsNoteRepositoryUtil nbsNoteRepositoryUtil;
     private final IAnswerService answerService;
 
+    private final PatientMatchingBaseService patientMatchingBaseService;
+
     public PamService(IInvestigationService investigationService,
                       PatientRepositoryUtil patientRepositoryUtil,
                       PrepareAssocModelHelper prepareAssocModelHelper,
@@ -54,7 +57,8 @@ public class PamService implements IPamService {
                       IPublicHealthCaseService publicHealthCaseService,
                       IUidService uidService,
                       ParticipationRepositoryUtil participationRepositoryUtil,
-                      ActRelationshipRepositoryUtil actRelationshipRepositoryUtil, NbsNoteRepositoryUtil nbsNoteRepositoryUtil, IAnswerService answerService) {
+                      ActRelationshipRepositoryUtil actRelationshipRepositoryUtil, NbsNoteRepositoryUtil nbsNoteRepositoryUtil, IAnswerService answerService,
+                      PatientMatchingBaseService patientMatchingBaseService) {
         this.investigationService = investigationService;
         this.patientRepositoryUtil = patientRepositoryUtil;
         this.prepareAssocModelHelper = prepareAssocModelHelper;
@@ -65,6 +69,7 @@ public class PamService implements IPamService {
         this.actRelationshipRepositoryUtil = actRelationshipRepositoryUtil;
         this.nbsNoteRepositoryUtil = nbsNoteRepositoryUtil;
         this.answerService = answerService;
+        this.patientMatchingBaseService = patientMatchingBaseService;
     }
 
     public Long setPamProxyWithAutoAssoc(PamProxyContainer pamProxyVO, Long observationUid, String observationTypeCd) throws DataProcessingException {
@@ -242,8 +247,13 @@ public class PamService implements IPamService {
 //                                realUid = entityController.setPatientRevision(
 //                                        personVO, businessTriggerCd,
 //                                        nbsSecurityObj);
-                                var data = patientRepositoryUtil.createPerson(personVO);
-                                realUid = data.getPersonParentUid();
+
+
+//                                var data = patientRepositoryUtil.createPerson(personVO);
+//                                realUid = data.getPersonParentUid();
+
+                                var data = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd);
+                                realUid = data;
                             }  catch (Exception ex) {
                                 throw new DataProcessingException(ex.getMessage(),ex);
                             }
@@ -272,8 +282,12 @@ public class PamService implements IPamService {
                                 NEDSSConstant.PAT)) {
                             String businessTriggerCd = NEDSSConstant.PAT_EDIT;
                             try {
-                                var data = patientRepositoryUtil.createPerson(personVO);
-                                realUid = data.getPersonParentUid();
+//                                var data = patientRepositoryUtil.createPerson(personVO);
+//                                realUid = data.getPersonParentUid();
+
+                                var data = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd);
+                                realUid = data;
+
                             }  catch (Exception ex) {
                                 throw new DataProcessingException(ex.getMessage(),ex);
                             }
