@@ -185,7 +185,6 @@ public class ProgramAreaService implements IProgramAreaService {
                     if (progAreaCd != null)
                     {
                         found = true;
-                        //System.out.println("Found!" + progAreaCd);
                         paHTBL.put(progAreaCd.trim(), progAreaCd.trim());
                         if (paHTBL.size() != 1)
                         {

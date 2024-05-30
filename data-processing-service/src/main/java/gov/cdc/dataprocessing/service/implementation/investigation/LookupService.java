@@ -86,17 +86,11 @@ public class LookupService implements ILookupService {
             if (res.isPresent()) {
                 for(var item : res.get()) {
                     var commonAttribute = new MetaAndWaCommonAttribute(item);
-                    if (commonAttribute.getQuestionIdentifier().equalsIgnoreCase("INV161")) {
-                        System.out.println("TEST");
-                    }
                     metaQuestion.add(commonAttribute);
                 }
                 if (res2.isPresent()) {
                     for(var item : res2.get()) {
                         var commonAttribute = new MetaAndWaCommonAttribute(item);
-                        if (commonAttribute.getQuestionIdentifier().equalsIgnoreCase("INV161")) {
-                            System.out.println("TEST");
-                        }
                         metaQuestion.add(commonAttribute);
                     }
                 }
@@ -377,13 +371,6 @@ public class LookupService implements ILookupService {
             if (coll.size() > 0) {
                 for (MetaAndWaCommonAttribute metaAndWaCommonAttribute : coll) {
                     sizecount++;
-
-                    if(metaAndWaCommonAttribute.getQuestionIdentifier().equalsIgnoreCase("INV161")) {
-                        System.out.println("TEST");
-                    }
-                    if (metaAndWaCommonAttribute.getDataLocation() != null) {
-                        System.out.println("TEST");
-                    }
                     qMetadata = new NbsQuestionMetadata(metaAndWaCommonAttribute);
                     String dataType = qMetadata.getDataType();
                     List<CodeValueGeneral> aList = new ArrayList<>();
@@ -422,9 +409,6 @@ public class LookupService implements ILookupService {
                             }
                             else
                             {
-                                if(previousFormCode.equalsIgnoreCase("PG_Generic_V2_Investigation")) {
-                                    System.out.println("TEST");
-                                }
                                 qCodeMap.put(previousFormCode, map[count]);
                                 count = count + 1;
                                 String questionId = qMetadata.getQuestionIdentifier() == null ? "" : qMetadata.getQuestionIdentifier();
@@ -443,9 +427,6 @@ public class LookupService implements ILookupService {
 
                     }
                     if (sizecount == coll.size()) {
-                        if(qCodeMap.containsKey("PG_Generic_V2_Investigation")) {
-                            System.out.println("TEST");
-                        }
                         qCodeMap.put(qMetadata.getInvestigationFormCd(), map[count]);
                     }
 
