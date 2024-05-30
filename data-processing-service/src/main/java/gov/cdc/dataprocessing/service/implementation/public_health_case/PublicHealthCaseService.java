@@ -19,8 +19,6 @@ import java.util.Collection;
 @Service
 @Slf4j
 public class PublicHealthCaseService implements IPublicHealthCaseService {
-    private static final Logger logger = LoggerFactory.getLogger(PublicHealthCaseService.class);
-
     private final EntityHelper entityHelper;
     private final PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil;
     public PublicHealthCaseService(EntityHelper entityHelper,

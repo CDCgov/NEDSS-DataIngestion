@@ -17,7 +17,6 @@ import java.util.Iterator;
 
 @Service
 public class RoleService implements IRoleService {
-    private static final Logger logger = LoggerFactory.getLogger(RoleService.class);
     private final RoleRepository roleRepository;
     private final PrepareAssocModelHelper prepareAssocModelHelper;
 

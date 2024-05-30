@@ -18,8 +18,6 @@ import java.util.*;
 @Service
 public class SrteCodeObsService implements ISrteCodeObsService {
     private boolean programAreaDerivationExcludeFlag = false;
-    private static final Logger logger = LoggerFactory.getLogger(SrteCodeObsService.class);
-
     private final ProgAreaSnomeCodeStoredProcRepository progAreaSnomeCodeStoredProcRepository;
     private final SnomedConditionRepository snomedConditionRepository;
     private final LOINCCodeRepository loincCodeRepository;

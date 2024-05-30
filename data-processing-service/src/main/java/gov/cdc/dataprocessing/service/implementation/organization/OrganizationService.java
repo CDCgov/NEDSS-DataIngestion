@@ -20,7 +20,6 @@ import java.util.Collection;
 @Service
 @Slf4j
 public class OrganizationService implements IOrganizationService {
-    private static final Logger logger = LoggerFactory.getLogger(OrganizationService.class);
 
     private static IOrganizationMatchingService iOrganizationMatchingService;
     private final OrganizationRepositoryUtil organizationRepositoryUtil;

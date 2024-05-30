@@ -14,8 +14,6 @@ import java.util.Collection;
 
 @Service
 public class MessageLogService implements IMessageLogService {
-    private static final Logger logger = LoggerFactory.getLogger(MessageLogService.class);
-
     private final MessageLogRepository messageLogRepository;
 
     public MessageLogService(MessageLogRepository messageLogRepository) {

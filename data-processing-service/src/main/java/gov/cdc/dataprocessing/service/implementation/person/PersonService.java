@@ -29,8 +29,6 @@ import java.util.*;
 @Service
 @Slf4j
 public class PersonService implements IPersonService {
-    private static final Logger logger = LoggerFactory.getLogger(PersonService.class);
-
     private final IPatientMatchingService patientMatchingService;
     private final INokMatchingService nokMatchingService;
     private final IProviderMatchingService providerMatchingService;

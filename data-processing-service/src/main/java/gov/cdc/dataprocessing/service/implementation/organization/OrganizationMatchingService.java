@@ -31,14 +31,11 @@ import java.util.List;
 public class OrganizationMatchingService implements IOrganizationMatchingService {
     private static final Logger logger = LoggerFactory.getLogger(OrganizationMatchingService.class);
     private final EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil;
-    private final EdxEntityMatchRepository edxEntityMatchRepository;
     private final OrganizationRepositoryUtil organizationRepositoryUtil;
 
     public OrganizationMatchingService(EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
-                                       EdxEntityMatchRepository edxEntityMatchRepository,
                                        OrganizationRepositoryUtil organizationRepositoryUtil) {
         this.edxPatientMatchRepositoryUtil = edxPatientMatchRepositoryUtil;
-        this.edxEntityMatchRepository = edxEntityMatchRepository;
         this.organizationRepositoryUtil=organizationRepositoryUtil;
     }
 

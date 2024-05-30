@@ -21,7 +21,6 @@ import java.util.*;
 @Service
 @Slf4j
 public class ProgramAreaService implements IProgramAreaService {
-    private static final Logger logger = LoggerFactory.getLogger(ProgramAreaService.class);
     boolean programAreaDerivationExcludeFlag;
 
     private final ISrteCodeObsService srteCodeObsService;

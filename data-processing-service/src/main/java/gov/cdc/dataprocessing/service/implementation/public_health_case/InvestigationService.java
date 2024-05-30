@@ -529,7 +529,7 @@ public class InvestigationService implements IInvestigationService {
                 UpdatedNotificationDto updatedNotification = new UpdatedNotificationDto();
 
                 updatedNotification.setAddTime(new Timestamp(System.currentTimeMillis()));
-                updatedNotification.setAddUserId(212121L);
+                updatedNotification.setAddUserId(AuthUtil.authUser.getAuthUserUid());
                 updatedNotification.setCaseStatusChg(caseStatusChange);
                 updatedNotification.setItNew(true);
                 updatedNotification.setNotificationUid(notificationDT.getNotificationUid());
@@ -600,11 +600,11 @@ public class InvestigationService implements IInvestigationService {
 
             // TODO: Get user name from PHC
             //thePublicHealthCaseContainer.getThePublicHealthCaseDto().setAddUserName(helper.getUserName(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getAddUserId()));
-            thePublicHealthCaseContainer.getThePublicHealthCaseDto().setAddUserName("212121");
+            thePublicHealthCaseContainer.getThePublicHealthCaseDto().setAddUserName(AuthUtil.authUser.getUserId());
 
             // TODO: Get user name from PHC
             //thePublicHealthCaseContainer.getThePublicHealthCaseDto().setLastChgUserName(helper.getUserName(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getLastChgUserId()));
-            thePublicHealthCaseContainer.getThePublicHealthCaseDto().setLastChgUserName("212121");
+            thePublicHealthCaseContainer.getThePublicHealthCaseDto().setLastChgUserName(AuthUtil.authUser.getUserId());
 
             thePublicHealthCaseDto = thePublicHealthCaseContainer.getThePublicHealthCaseDto();
 
@@ -1582,8 +1582,8 @@ public class InvestigationService implements IInvestigationService {
 //            NBSAuthHelper helper = new NBSAuthHelper();
 //            thePublicHealthCaseContainer.getThePublicHealthCaseDto().setAddUserName(helper.getUserName(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getAddUserId()));
 //            thePublicHealthCaseContainer.getThePublicHealthCaseDto().setLastChgUserName(helper.getUserName(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getLastChgUserId()));
-            thePublicHealthCaseContainer.getThePublicHealthCaseDto().setAddUserName("212121");
-            thePublicHealthCaseContainer.getThePublicHealthCaseDto().setLastChgUserName("212121");
+            thePublicHealthCaseContainer.getThePublicHealthCaseDto().setAddUserName(AuthUtil.authUser.getUserId());
+            thePublicHealthCaseContainer.getThePublicHealthCaseDto().setLastChgUserName(AuthUtil.authUser.getUserId());
 
 
             BasePamContainer pageVO = publicHealthCaseRepositoryUtil.getPamVO(publicHealthCaseUID);

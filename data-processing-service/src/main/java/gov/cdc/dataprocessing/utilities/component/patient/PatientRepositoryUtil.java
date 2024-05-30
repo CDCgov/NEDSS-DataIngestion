@@ -44,12 +44,7 @@ public class PatientRepositoryUtil {
     private final PersonEthnicRepository personEthnicRepository;
     private final EntityIdRepository entityIdRepository;
 
-    private final PrepareAssocModelHelper prepareAssocModelHelper;
-//    private final EntityLocatorParticipationRepository entityLocatorParticipationRepository;
     private final RoleRepository roleRepository;
-//    private final TeleLocatorRepository teleLocatorRepository;
-//    private final PostalLocatorRepository postalLocatorRepository;
-//    private final PhysicalLocatorRepository physicalLocatorRepository;
     private final IOdseIdGeneratorService odseIdGeneratorService;
 
     private final IEntityLocatorParticipationService entityLocatorParticipationService;
@@ -62,7 +57,6 @@ public class PatientRepositoryUtil {
             PersonRaceRepository personRaceRepository,
             PersonEthnicRepository personEthnicRepository,
             EntityIdRepository entityIdRepository,
-            PrepareAssocModelHelper prepareAssocModelHelper,
             RoleRepository roleRepository,
             IOdseIdGeneratorService odseIdGeneratorService,
             IEntityLocatorParticipationService entityLocatorParticipationService) {
@@ -72,7 +66,6 @@ public class PatientRepositoryUtil {
         this.personRaceRepository = personRaceRepository;
         this.personEthnicRepository = personEthnicRepository;
         this.entityIdRepository = entityIdRepository;
-        this.prepareAssocModelHelper = prepareAssocModelHelper;
         this.roleRepository = roleRepository;
         this.odseIdGeneratorService = odseIdGeneratorService;
         this.entityLocatorParticipationService = entityLocatorParticipationService;

@@ -40,7 +40,6 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
 
 @Service
 public class MaterialService implements IMaterialService {
-    private static final Logger logger = LoggerFactory.getLogger(MaterialService.class);
     private final MaterialRepository materialRepository;
     private final EntityIdRepository entityIdRepository;
     private final EntityLocatorParticipationRepository entityLocatorParticipationRepository;

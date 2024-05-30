@@ -15,7 +15,6 @@ import java.util.Collection;
 
 @Service
 public class EdxDocumentService implements IEdxDocumentService {
-    private static final Logger logger = LoggerFactory.getLogger(EdxDocumentService.class);
     private final EdxDocumentRepository edxDocumentRepository;
 
     public EdxDocumentService(EdxDocumentRepository edxDocumentRepository) {

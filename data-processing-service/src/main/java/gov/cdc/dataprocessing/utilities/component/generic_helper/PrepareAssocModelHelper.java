@@ -156,7 +156,7 @@ public class PrepareAssocModelHelper {
                     e.printStackTrace();
                 }
 
-                assocDTInterface.setLastChgUserId(212121L);
+                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
 
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;

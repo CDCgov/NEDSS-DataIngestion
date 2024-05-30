@@ -31,9 +31,6 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
 @Service
 @Slf4j
 public class EdxLogService implements IEdxLogService {
-
-    private static final Logger logger = LoggerFactory.getLogger(EdxLogService.class);
-
     private final EdxActivityLogRepository edxActivityLogRepository;
     private final EdxActivityDetailLogRepository edxActivityDetailLogRepository;
     private final KafkaManagerProducer kafkaManagerProducer;

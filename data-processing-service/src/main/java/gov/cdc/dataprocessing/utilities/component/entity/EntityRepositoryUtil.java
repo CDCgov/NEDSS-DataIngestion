@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class EntityRepositoryUtil {
-    private static final Logger logger = LoggerFactory.getLogger(EntityRepositoryUtil.class);
     private final EntityRepository entityRepository;
 
 

@@ -15,7 +15,6 @@ import java.util.Collection;
 
 @Service
 public class ActRelationshipService implements IActRelationshipService {
-    private static final Logger logger = LoggerFactory.getLogger(ActRelationshipService.class);
     private final ActRelationshipRepository actRelationshipRepository;
 
 

@@ -16,8 +16,6 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
 
 @Service
 public class NNDActivityLogService implements INNDActivityLogService {
-    private static final Logger logger = LoggerFactory.getLogger(NNDActivityLogService.class);
-
     private final NNDActivityLogRepository nndActivityLogRepository;
     private final OdseIdGeneratorService odseIdGeneratorService;
 

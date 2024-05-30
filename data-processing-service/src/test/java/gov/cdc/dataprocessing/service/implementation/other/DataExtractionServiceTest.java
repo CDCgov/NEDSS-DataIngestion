@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
@@ -17,6 +19,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.service.implementation.data_extraction.DataExtractionService;
 import gov.cdc.dataprocessing.service.implementation.data_extraction.DataExtractionServiceUtility;
 import gov.cdc.dataprocessing.service.interfaces.stored_proc.IMsgOutEStoredProcService;
+import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.HL7PatientHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.ORCHandler;
@@ -61,9 +64,11 @@ class DataExtractionServiceTest {
         dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, msgOutEStoredProcService, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
         authUtil = mock(AuthUtil.class);
 
+        AuthUserProfileInfo userInfo = new AuthUserProfileInfo();
         AuthUser user = new AuthUser();
         user.setAuthUserUid(1L);
-        authUtil.setGlobalAuthUser(user);
+        userInfo.setAuthUser(user);
+        authUtil.setGlobalAuthUser(userInfo);
     }
 
     @Test

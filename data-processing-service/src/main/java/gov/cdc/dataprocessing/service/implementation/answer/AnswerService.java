@@ -16,6 +16,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityReposito
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsAnswerHistRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsAnswerRepository;
 import gov.cdc.dataprocessing.service.interfaces.answer.IAnswerService;
+import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -222,7 +223,7 @@ public class AnswerService implements IAnswerService {
                     {
                         var nbsActEntity = new NbsActEntity(pamCaseEntityDT);
                         nbsActEntity.setActUid(rootDTInterface.getObservationUid());
-                        nbsActEntity.setLastChgUserId(2121L);
+                        nbsActEntity.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
                         nbsActEntity.setRecordStatusCd("OPEN");
                         nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
                         nbsActEntityRepository .save(new NbsActEntity(pamCaseEntityDT));
@@ -249,7 +250,7 @@ public class AnswerService implements IAnswerService {
                     {
                         var nbsActEntity = new NbsActEntity(pamCaseEntityDT);
                         nbsActEntity.setActUid(rootDTInterface.getPublicHealthCaseUid());
-                        nbsActEntity.setLastChgUserId(2121L);
+                        nbsActEntity.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
                         nbsActEntity.setRecordStatusCd("OPEN");
                         nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
                         nbsActEntityRepository .save(nbsActEntity);

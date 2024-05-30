@@ -71,8 +71,6 @@ public class ManagerService implements IManagerService {
 
     private final CacheManager cacheManager;
 
-    private final IAuthUserService authUserService;
-
     private final IDecisionSupportService decisionSupportService;
 
     private final ManagerUtil managerUtil;
@@ -92,7 +90,7 @@ public class ManagerService implements IManagerService {
                           NbsInterfaceRepository nbsInterfaceRepository,
                           CachingValueService cachingValueService,
                           CacheManager cacheManager,
-                          IAuthUserService authUserService, IDecisionSupportService decisionSupportService,
+                          IDecisionSupportService decisionSupportService,
                           ManagerUtil managerUtil,
                           KafkaManagerProducer kafkaManagerProducer,
                           IManagerAggregationService managerAggregationService,
@@ -106,7 +104,6 @@ public class ManagerService implements IManagerService {
         this.nbsInterfaceRepository = nbsInterfaceRepository;
         this.cachingValueService = cachingValueService;
         this.cacheManager = cacheManager;
-        this.authUserService = authUserService;
         this.decisionSupportService = decisionSupportService;
         this.managerUtil = managerUtil;
         this.kafkaManagerProducer = kafkaManagerProducer;

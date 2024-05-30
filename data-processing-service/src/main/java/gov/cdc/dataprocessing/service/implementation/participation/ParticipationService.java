@@ -20,20 +20,15 @@ import java.util.Collections;
 
 @Service
 public class ParticipationService implements IParticipationService {
-    private static final Logger logger = LoggerFactory.getLogger(ParticipationService.class);
     private final ParticipationRepository participationRepository;
     private final ParticipationHistRepository participationHistRepository;
-    private final ParticipationStoredProcRepository participationStoredProcRepository;
 
-    private final EntityRepository entityRepository;
 
     public ParticipationService(ParticipationRepository participationRepository,
-                                ParticipationHistRepository participationHistRepository,
-                                ParticipationStoredProcRepository participationStoredProcRepository, EntityRepository entityRepository) {
+                                ParticipationHistRepository participationHistRepository
+    ) {
         this.participationRepository = participationRepository;
         this.participationHistRepository = participationHistRepository;
-        this.participationStoredProcRepository = participationStoredProcRepository;
-        this.entityRepository = entityRepository;
     }
 
     public Long findPatientMprUidByObservationUid(String classCode, String typeCode, Long actUid) {

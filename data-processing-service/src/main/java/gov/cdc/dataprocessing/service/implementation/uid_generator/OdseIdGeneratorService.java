@@ -14,7 +14,6 @@ import java.util.Optional;
 
 @Service
 public class OdseIdGeneratorService implements IOdseIdGeneratorService {
-    private static final Logger logger = LoggerFactory.getLogger(OdseIdGeneratorService.class);
     private final LocalUidGeneratorRepository localUidGeneratorRepository;
 
     public OdseIdGeneratorService(LocalUidGeneratorRepository localUidGeneratorRepository) {

@@ -18,7 +18,6 @@ import java.util.Collection;
 
 @Service
 public class PageService implements IPageService {
-    private static final Logger logger = LoggerFactory.getLogger(PageService.class);
     private final IInvestigationService investigationService;
 
     private final PageRepositoryUtil pageRepositoryUtil;

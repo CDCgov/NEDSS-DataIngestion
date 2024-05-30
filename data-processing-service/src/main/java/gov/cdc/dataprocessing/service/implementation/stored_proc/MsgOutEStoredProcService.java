@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MsgOutEStoredProcService implements IMsgOutEStoredProcService {
-    private static final Logger logger = LoggerFactory.getLogger(MsgOutEStoredProcService.class);
 
     private final StoredProcRepository storedProcRepository;
 
