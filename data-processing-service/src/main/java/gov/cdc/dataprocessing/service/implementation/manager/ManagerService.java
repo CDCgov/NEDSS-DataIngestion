@@ -345,7 +345,7 @@ public class ManagerService implements IManagerService {
                     details.add(edxActivityDetailLogDT);
                     edxLabInformationDto.getEdxActivityLogDto().setEDXActivityLogDTWithVocabDetails(details);
                     if(edxActivityDetailLogDT.getLogType()!=null && edxActivityDetailLogDT.getLogType().equals(EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure.name())){
-                        if(edxActivityDetailLogDT.getComment()!=null && edxActivityDetailLogDT.getComment().indexOf(EdxELRConstant.MISSING_NOTF_REQ_FIELDS)!=-1){
+                        if(edxActivityDetailLogDT.getComment()!=null && edxActivityDetailLogDT.getComment().contains(EdxELRConstant.MISSING_NOTF_REQ_FIELDS)){
                             edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_8);
                             edxLabInformationDto.setNotificationMissingFields(true);
                         }
@@ -369,7 +369,7 @@ public class ManagerService implements IManagerService {
         }
     }
 
-    private Object processingELR(String data) throws DataProcessingConsumerException {
+    private Object processingELR(String data) {
         NbsInterfaceModel nbsInterfaceModel = null;
         Object result = new Object();
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
@@ -412,14 +412,6 @@ public class ManagerService implements IManagerService {
                 managerUtil.setPersonUIDOnUpdate(aPersonUid, labResultProxyContainer);
             }
             edxLabInformationDto.setLabResultProxyContainer(labResultProxyContainer);
-
-            String nbsOperation = edxLabInformationDto.isLabIsCreate() ? "ADD" : "EDIT";
-
-            ObservationContainer orderTest = managerUtil.getObservationWithOrderDomainCode(labResultProxyContainer);
-
-            String programAreaCd = orderTest.getTheObservationDto().getProgAreaCd();
-            String jurisdictionCd = orderTest.getTheObservationDto().getJurisdictionCd();
-
 
             observationDto = observationService.processingLabResultContainer(labResultProxyContainer);
 
@@ -473,7 +465,7 @@ public class ManagerService implements IManagerService {
             edxLabInformationDto.setStatus(NbsInterfaceStatus.Failure);
             edxLabInformationDto.setSystemException(true);
 
-            if (e.toString().indexOf("Invalid XML") != -1) {
+            if (e.toString().contains("Invalid XML")) {
                 edxLabInformationDto.setInvalidXML(true);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
             }
@@ -485,7 +477,10 @@ public class ManagerService implements IManagerService {
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_9);
                 }
             }
-            else if ((edxLabInformationDto.getPageActContainer() != null || edxLabInformationDto.getPamContainer() != null) && edxLabInformationDto.isInvestigationSuccessfullyCreated())
+            else if (
+                    (edxLabInformationDto.getPageActContainer() != null
+                    || edxLabInformationDto.getPamContainer() != null)
+                    && edxLabInformationDto.isInvestigationSuccessfullyCreated())
             {
                 if (edxLabInformationDto.isNotificationMissingFields()) {
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_8);
@@ -501,7 +496,9 @@ public class ManagerService implements IManagerService {
 
                 if(edxLabInformationDto.getErrorText()==null){
                     //if error text is null, that means lab was not created due to unexpected error.
-                    if(e!=null && (e.getMessage().contains(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG) || e.getMessage().contains(EdxELRConstant.ORACLE_FIELD_TRUNCATION_ERROR_MSG))){
+                    if(e.getMessage().contains(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG)
+                            || e.getMessage().contains(EdxELRConstant.ORACLE_FIELD_TRUNCATION_ERROR_MSG))
+                    {
                         edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_18);
                         edxLabInformationDto.setFieldTruncationError(true);
                         edxLabInformationDto.setSystemException(false);
@@ -522,7 +519,7 @@ public class ManagerService implements IManagerService {
                         }catch(Exception ex){
                             logger.error("Exception while formatting exception message for Activity Log: "+ex.getMessage(), ex);
                         }
-                    } else if (e!=null && e.getMessage().contains(EdxELRConstant.DATE_VALIDATION)) {
+                    } else if (e.getMessage().contains(EdxELRConstant.DATE_VALIDATION)) {
                         edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_20);
                         edxLabInformationDto.setInvalidDateError(true);
                         edxLabInformationDto.setSystemException(false);
@@ -549,7 +546,7 @@ public class ManagerService implements IManagerService {
                             edxLabInformationDto.setEthnicityCodeTranslated(true);
                             StringWriter errors = new StringWriter();
                             e.printStackTrace(new PrintWriter(errors));
-                            String exceptionMessage = accessionNumberToAppend+"\n"+errors.toString();
+                            String exceptionMessage = accessionNumberToAppend+"\n"+errors;
                             detailedMsg = exceptionMessage.substring(0,Math.min(exceptionMessage.length(), 2000));
                         }catch(Exception ex){
                             logger.error("Exception while formatting exception message for Activity Log: "+ex.getMessage(), ex);
