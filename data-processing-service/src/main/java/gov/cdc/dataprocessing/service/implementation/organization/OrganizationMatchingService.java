@@ -103,7 +103,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
             int identifierHshCd = 0;
             List identifierList = null;
             identifierList = getIdentifier(organizationContainer);
-            System.out.println("22222222 after getIdentifier identifierList:"+identifierList);
             if (identifierList != null && !identifierList.isEmpty()) {
                 for (int k = 0; k < identifierList.size(); k++) {
                     identifier = (String) identifierList.get(k);
@@ -383,7 +382,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
             logger.debug(ex.getMessage() + errorMessage);
             throw new DataProcessingException(errorMessage, ex);
         }
-        System.out.println("identifierList:"+identifierList);
         return identifierList;
     }
 

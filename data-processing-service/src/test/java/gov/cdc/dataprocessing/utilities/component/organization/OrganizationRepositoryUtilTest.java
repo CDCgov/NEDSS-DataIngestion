@@ -37,6 +37,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.Participat
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PrepareEntityStoredProcRepository;
 import gov.cdc.dataprocessing.service.interfaces.other.IOdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.model.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
@@ -94,9 +95,11 @@ class OrganizationRepositoryUtilTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        AuthUserProfileInfo authUserProfileInfo=new AuthUserProfileInfo();
         AuthUser user = new AuthUser();
         user.setAuthUserUid(1L);
-        authUtil.setGlobalAuthUser(user);
+        authUserProfileInfo.setAuthUser(user);
+        authUtil.setGlobalAuthUser(authUserProfileInfo);
     }
 
     @AfterEach
@@ -204,7 +207,6 @@ class OrganizationRepositoryUtilTest {
         localIdModel.setUidSuffixCd("TEST_SX");
         when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION)).thenReturn(localIdModel);
         long orgIdResult = organizationRepositoryUtil.createOrganization(organizationContainer);
-        System.out.println("-- createOrganization-- orgId:" + orgIdResult);
         assertEquals(1234L, orgIdResult);
     }
 
@@ -623,29 +625,29 @@ class OrganizationRepositoryUtilTest {
         entityIdDto.setEntityUid(123L);
         entityIdDto.setEntityIdSeq(1234);
         entityIdDto.setAddReasonCd("TEST_REASON_CD");
-        entityIdDto.setAddTime(new Timestamp(2024, 05, 27, 10, 12, 53, 693));
+        entityIdDto.setAddTime(new Timestamp(System.currentTimeMillis()));
         entityIdDto.setAddUserId(123L);
         entityIdDto.setAssigningAuthorityCd("TEST");
         entityIdDto.setAssigningAuthorityDescTxt("TEST");
         entityIdDto.setDurationAmt("123");
         entityIdDto.setDurationUnitCd("TEST");
-        entityIdDto.setEffectiveFromTime(new Timestamp(2024, 05, 27, 10, 12, 53, 693));
-        entityIdDto.setEffectiveToTime(new Timestamp(2024, 05, 27, 10, 12, 53, 693));
+        entityIdDto.setEffectiveFromTime(new Timestamp(System.currentTimeMillis()));
+        entityIdDto.setEffectiveToTime(new Timestamp(System.currentTimeMillis()));
         entityIdDto.setLastChgReasonCd("TEST");
-        entityIdDto.setLastChgTime(new Timestamp(2024, 05, 27, 10, 12, 53, 693));
+        entityIdDto.setLastChgTime(new Timestamp(System.currentTimeMillis()));
         entityIdDto.setLastChgUserId(123L);
         entityIdDto.setRecordStatusCd("TEST");
-        entityIdDto.setRecordStatusTime(new Timestamp(2024, 05, 27, 10, 12, 53, 693));
+        entityIdDto.setRecordStatusTime(new Timestamp(System.currentTimeMillis()));
 
         entityIdDto.setRootExtensionTxt("TEST");
         entityIdDto.setStatusCd("TEST");
-        entityIdDto.setStatusTime(new Timestamp(2024, 05, 27, 10, 12, 53, 693));
+        entityIdDto.setStatusTime(new Timestamp(System.currentTimeMillis()));
         entityIdDto.setTypeCd("TEST");
         entityIdDto.setTypeDescTxt("TEST");
         entityIdDto.setUserAffiliationTxt("TEST");
-        entityIdDto.setValidFromTime(new Timestamp(2024, 05, 27, 10, 12, 53, 693));
-        entityIdDto.setValidToTime(new Timestamp(2024, 05, 27, 10, 12, 53, 693));
-        entityIdDto.setAsOfDate(new Timestamp(2024, 05, 27, 10, 12, 53, 693));
+        entityIdDto.setValidFromTime(new Timestamp(System.currentTimeMillis()));
+        entityIdDto.setValidToTime(new Timestamp(System.currentTimeMillis()));
+        entityIdDto.setAsOfDate(new Timestamp(System.currentTimeMillis()));
         entityIdDto.setAssigningAuthorityIdType("TEST");
         return entityIdDto;
     }
