@@ -118,7 +118,7 @@ public class OrganizationRepositoryUtil {
             String localUid = "";
             LocalUidGenerator localIdModel = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION);
             organizationUid = localIdModel.getSeedValueNbr();
-            logger.debug("createOrganization organizationUid SeedValueNbr: {}",organizationUid);
+            logger.debug("createOrganization organizationUid SeedValueNbr: {}", organizationUid);
             localUid = localIdModel.getUidPrefixCd() + organizationUid + localIdModel.getUidSuffixCd();
 
             if (organizationContainer.getTheOrganizationDto().getLocalId() == null || organizationContainer.getTheOrganizationDto().getLocalId().trim().length() == 0) {
@@ -501,11 +501,11 @@ public class OrganizationRepositoryUtil {
         ovo.setTheRoleDTCollection(roleColl);
 
 
-       // if (actUid != null) {
-            //SelectsParticipationDTCollection
-            Collection<ParticipationDto> parColl = selectParticipationDTCollection(organizationUID, actUid);
-            ovo.setTheParticipationDtoCollection(parColl);
-      //  }
+        // if (actUid != null) {
+        //SelectsParticipationDTCollection
+        Collection<ParticipationDto> parColl = selectParticipationDTCollection(organizationUID, actUid);
+        ovo.setTheParticipationDtoCollection(parColl);
+        //  }
 
         ovo.setItNew(false);
         ovo.setItDirty(false);

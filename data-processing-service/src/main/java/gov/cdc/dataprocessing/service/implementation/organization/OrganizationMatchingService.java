@@ -4,14 +4,14 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.MsgType;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.OrganizationContainer;
-import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
-import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
 import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
+import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.matching.EdxEntityMatchDto;
+import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.matching.EdxEntityMatchRepository;
 import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationMatchingService;
 import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
@@ -39,7 +39,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                                        OrganizationRepositoryUtil organizationRepositoryUtil) {
         this.edxPatientMatchRepositoryUtil = edxPatientMatchRepositoryUtil;
         this.edxEntityMatchRepository = edxEntityMatchRepository;
-        this.organizationRepositoryUtil=organizationRepositoryUtil;
+        this.organizationRepositoryUtil = organizationRepositoryUtil;
     }
 
     @Transactional
@@ -240,7 +240,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
 //                entityUid = entityController.setOrganization(organizationContainer,
 //                        businessTriggerCd, nbsSecurityObj);
                 String businessTriggerCd = NEDSSConstant.ORG_CR;
-                entityUid=organizationRepositoryUtil.setOrganization(organizationContainer,
+                entityUid = organizationRepositoryUtil.setOrganization(organizationContainer,
                         businessTriggerCd);
             } catch (Exception e) {
                 logger.error("Error in getting the entity Controller or setting the Organization");
@@ -285,7 +285,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
             if (coll != null) {
                 Iterator<EdxEntityMatchDto> it = coll.iterator();
                 while (it.hasNext()) {
-                    EdxEntityMatchDto edxEntityMatchDT =  it.next();
+                    EdxEntityMatchDto edxEntityMatchDT = it.next();
                     edxEntityMatchDT.setEntityUid(entityUid);
                     edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
                 }
@@ -310,6 +310,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
     }
 
     // getting identifiers for PHCR Organizations
+    @SuppressWarnings("java:S6541")
     private List<String> getIdentifier(OrganizationContainer organizationContainer) throws DataProcessingException {
         String carrot = "^";
         List<String> identifierList = new ArrayList<String>();
@@ -445,13 +446,15 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 if (organizationNameDto.getNmUseCd() != null
                         && organizationNameDto.getNmUseCd().equals(
                         NEDSSConstant.LEGAL)) {
-                    if (organizationNameDto.getNmTxt() != null)
+                    if (organizationNameDto.getNmTxt() != null) {
                         nameStr = organizationNameDto.getNmTxt();
+                    }
                 }
             }
         }
         return nameStr;
     }
+
     private String telePhoneTxt(OrganizationContainer organizationContainer) {
         String nameTeleStr = null;
         String carrot = "^";
