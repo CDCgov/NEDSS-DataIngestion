@@ -8,9 +8,9 @@ group = 'gov.cdc.dataingestion'
 version = '0.0.1-SNAPSHOT'
 
 dependencies {
-
     jacocoAggregation project(':hl7-parser')
     jacocoAggregation project(':data-ingestion-service')
+    jacocoAggregation project(':data-processing-service')
 }
 
 reporting {
