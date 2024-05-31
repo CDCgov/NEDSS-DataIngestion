@@ -22,6 +22,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.organization.OrganizationName;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.LabResult;
 import gov.cdc.dataprocessing.service.interfaces.stored_proc.IMsgOutEStoredProcService;
+import gov.cdc.dataprocessing.service.model.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.HL7PatientHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.ORCHandler;
@@ -72,9 +73,11 @@ class DataExtractionServiceTest {
         dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, msgOutEStoredProcService, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
         authUtil = mock(AuthUtil.class);
 
+        AuthUserProfileInfo authUserProfileInfo=new AuthUserProfileInfo();
         AuthUser user = new AuthUser();
         user.setAuthUserUid(1L);
-        authUtil.setGlobalAuthUser(user);
+        authUserProfileInfo.setAuthUser(user);
+        authUtil.setGlobalAuthUser(authUserProfileInfo);
     }
 
     @Test
