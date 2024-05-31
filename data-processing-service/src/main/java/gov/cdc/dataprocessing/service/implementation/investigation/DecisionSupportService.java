@@ -275,19 +275,22 @@ public class DecisionSupportService implements IDecisionSupportService {
      *  this return true, if Action is Review, Investigation, and Investigation with Notification
      * */
     private boolean checkActionInvalid(Algorithm algorithmDocument, boolean criteriaMatch) {
-        return algorithmDocument != null && criteriaMatch && algorithmDocument.getAction() != null
-                &&
-                (
-                        (algorithmDocument.getAction().getCreateInvestigation() != null
-                                && algorithmDocument.getAction().getCreateInvestigation().getOnFailureToCreateInvestigation().getCode().equals("2"))
-
-                                ||
-                                (algorithmDocument.getAction().getCreateInvestigationWithNND() != null
-                                        && algorithmDocument.getAction().getCreateInvestigationWithNND().getOnFailureToCreateNND().getCode().equals("2"))
-                                ||
-                                (algorithmDocument.getAction().getMarkAsReviewed() != null
-                                        && algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2"))
-                );
+        boolean result = false;
+        if (algorithmDocument != null && criteriaMatch && algorithmDocument.getAction() != null) {
+            if (algorithmDocument.getAction().getCreateInvestigation() != null) {
+                result = algorithmDocument.getAction().getCreateInvestigation().getOnFailureToCreateInvestigation().getCode().equals("2");
+            } else if (algorithmDocument.getAction().getCreateInvestigationWithNND() != null) {
+//                if (algorithmDocument.getAction().getCreateInvestigationWithNND().getOnFailureToCreateNND().getCode().equals("3")) {
+//                    result = true;
+//                }
+                if (algorithmDocument.getAction().getCreateInvestigationWithNND().getOnFailureToCreateInvestigation().getCode().equals("2")) {
+                    result = true;
+                }
+            } else if (algorithmDocument.getAction().getMarkAsReviewed() != null) {
+                result = algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2");
+            }
+        }
+        return result;
     }
 
 

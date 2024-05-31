@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 public class NbsActEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "nbs_act_entity_uid")
     private Long nbsActEntityUid;
 

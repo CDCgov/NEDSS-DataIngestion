@@ -24,22 +24,27 @@ public class EdxPhcrDocumentUtil {
         this.lookupService = lookupService;
     }
 
-    public Map<Object, Object> loadQuestions(String conditionCode){
+    public Map<Object, Object> loadQuestions(String conditionCode)
+    {
         Map<Object, Object> questionMap;
         String invFormCd = "";
-        if (SrteCache.investigationFormConditionCode.containsKey(conditionCode)) {
+        if (SrteCache.investigationFormConditionCode.containsKey(conditionCode))
+        {
             invFormCd = SrteCache.investigationFormConditionCode.get(conditionCode);
         }
         if(invFormCd==null || invFormCd.startsWith("INV_FORM"))
+        {
             invFormCd= DecisionSupportConstants.CORE_INV_FORM;
+        }
         ArrayList<Object> questionList = new ArrayList<Object> ();
         Map<Object,Object> tempMap = new HashMap<Object,Object>();
         Map<Object,Object> generalMap = new HashMap<Object,Object>();
 
         //Check to see if it is single condition or multiple conditions
-        if(invFormCd != null){
-
-            if(invFormCd.equals(NBSConstantUtil.INV_FORM_RVCT)|| invFormCd.equals(NBSConstantUtil.INV_FORM_VAR)){
+        if(invFormCd != null)
+        {
+            if(invFormCd.equals(NBSConstantUtil.INV_FORM_RVCT)|| invFormCd.equals(NBSConstantUtil.INV_FORM_VAR))
+            {
                 if(lookupService.getQuestionMap()!=null && lookupService.getQuestionMap().containsKey(invFormCd))
                 {
                     tempMap = (Map<Object, Object> )lookupService.getQuestionMap().get(invFormCd);
@@ -48,28 +53,34 @@ public class EdxPhcrDocumentUtil {
             else
             {
                 if(OdseCache.dmbMap.containsKey(invFormCd))
+                {
                     tempMap.putAll((Map<Object, Object> ) OdseCache.dmbMap.get(invFormCd));
+                }
                 else if(!OdseCache.dmbMap.containsKey(invFormCd))
                 {
                     Map<Object, Object> questions = (Map<Object, Object> )lookupService.getDMBQuestionMapAfterPublish().get(invFormCd);
                     if(questions != null)
+                    {
                         tempMap.putAll(questions);
+                    }
                 }
                 else
+                {
                     tempMap = new HashMap<Object,Object>();
+                }
             }
 
             if(tempMap != null){
-                Iterator<Object> tempIter = tempMap.keySet().iterator();
-                while(tempIter.hasNext()) {
-                    String key = (String) tempIter.next();
+                for (Object o : tempMap.keySet()) {
+                    String key = (String) o;
                     NbsQuestionMetadata metaData = (NbsQuestionMetadata) tempMap.get(key);
-                    if(generalMap.containsKey(key)) { //overwrite it
+                    if (generalMap.containsKey(key))
+                    { //overwrite it
                         generalMap.remove(key);
                         generalMap.put(key, metaData);
-                        continue;
                     }
-                    else{
+                    else
+                    {
                         generalMap.put(key, metaData);
                     }
                 }

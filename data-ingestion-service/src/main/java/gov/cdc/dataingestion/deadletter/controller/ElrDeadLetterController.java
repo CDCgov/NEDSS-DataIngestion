@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/reports-dlt")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearer-key")
 @Tag(name = "ELR Dead Letter", description = "Elr Dead Letter Messages")
@@ -40,14 +39,14 @@ public class ElrDeadLetterController {
                             required = true,
                             schema = @Schema(type = "string"))}
     )
-    @GetMapping(path = "/get-error-messages")
+    @GetMapping(path = "/api/elrs/error-messages")
     public ResponseEntity<List<ElrDeadLetterDto>> getAllNewErrorMessage() {
         return ResponseEntity.ok(elrDeadLetterService.getAllErrorDltRecord());
     }
 
     @Operation(
-            summary = "Get dead letter message by id",
-            description = "Get dead letter message by id",
+            summary = "Get dead letter message by dlt id",
+            description = "Get dead letter message by dlt id",
             parameters = {
                     @Parameter(in = ParameterIn.HEADER,
                             name = "clientid",
@@ -60,13 +59,14 @@ public class ElrDeadLetterController {
                             required = true,
                             schema = @Schema(type = "string"))}
     )
-    @GetMapping(path = "/get-message")
-    public ResponseEntity<ElrDeadLetterDto> getErrorMessage(@RequestParam("id") String id) throws DeadLetterTopicException {
+    @GetMapping(path = "/api/elrs/error-messages/{dlt-id}")
+    public ResponseEntity<ElrDeadLetterDto> getErrorMessage(@PathVariable("dlt-id") String id) throws DeadLetterTopicException {
         return ResponseEntity.ok(elrDeadLetterService.getDltRecordById(id));
     }
+
     @Operation(
-            summary = "ReInject the message",
-            description = "ReInject the message",
+            summary = "ReInject the message with dlt id",
+            description = "ReInject the message with dlt id",
             parameters = {
                     @Parameter(in = ParameterIn.HEADER,
                             name = "clientid",
@@ -79,8 +79,8 @@ public class ElrDeadLetterController {
                             required = true,
                             schema = @Schema(type = "string"))}
     )
-    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/inject-message")
-    public ResponseEntity<ElrDeadLetterDto> messageReInject(@RequestParam("id") String id, @RequestBody final String payload) throws DeadLetterTopicException {
-        return ResponseEntity.ok(elrDeadLetterService.updateAndReprocessingMessage(id, payload));
+    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/api/elrs/{dlt-id}")
+    public ResponseEntity<ElrDeadLetterDto> messageReInject(@PathVariable("dlt-id") String dltId, @RequestBody final String payload) throws DeadLetterTopicException {
+        return ResponseEntity.ok(elrDeadLetterService.updateAndReprocessingMessage(dltId, payload));
     }
 }

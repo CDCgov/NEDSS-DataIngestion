@@ -43,7 +43,7 @@ class ElrDeadLetterControllerTest {
 
         when(elrDeadLetterService.getAllErrorDltRecord()).thenReturn(dtoList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/reports-dlt/get-error-messages")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/elrs/error-messages")
                     .with(SecurityMockMvcRequestPostProcessors.jwt())
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -64,32 +64,9 @@ class ElrDeadLetterControllerTest {
 
     }
 
-    //@Test
-    void testGetErrorMessageSuccess() throws Exception {
-        ElrDeadLetterDto dto1 = new ElrDeadLetterDto(
-                "1", "topic-a", "error stack trace", 1, "ERROR", "system", "system"
-        );
-
-        when(elrDeadLetterService.getDltRecordById("1")).thenReturn(dto1);
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/reports-dlt/get-message")
-                        .param("id", "1").with(SecurityMockMvcRequestPostProcessors.jwt())
-                )
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.errorMessageId").value("1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.errorMessageSource").value("topic-a"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.errorStackTrace").value("error stack trace"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.dltOccurrence").value(1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.dltStatus").value("ERROR"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.createdBy").value("system"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.updatedBy").value("system"));
-
-    }
-
     @Test
     void testMessageReInject() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports-dlt/inject-message")
-                .param("id", "1")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/elrs/1")
                 .contentType("text/plain")
                 .content("HL7 message")
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))

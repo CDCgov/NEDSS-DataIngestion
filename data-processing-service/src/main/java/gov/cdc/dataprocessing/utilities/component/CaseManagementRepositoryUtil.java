@@ -32,6 +32,6 @@ public class CaseManagementRepositoryUtil {
             }
         }
 
-        return null;
+        return new CaseManagementDT();
     }
 }

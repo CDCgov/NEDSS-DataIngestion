@@ -14,7 +14,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationship;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.*;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.Participation;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActIdRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActLocatorParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipRepository;
@@ -22,6 +21,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.service.implementation.other.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.utilities.component.ActRelationshipRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -30,7 +30,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 @Component
 public class ObservationRepositoryUtil {
@@ -49,6 +48,7 @@ public class ObservationRepositoryUtil {
     private final ParticipationRepository participationRepository;
     private final EntityHelper entityHelper;
     private final OdseIdGeneratorService odseIdGeneratorService;
+    private final ActRelationshipRepositoryUtil actRelationshipRepositoryUtil;
 
     private final ActRepository actRepository;
 
@@ -64,7 +64,9 @@ public class ObservationRepositoryUtil {
                                      ActRelationshipRepository actRelationshipRepository,
                                      ParticipationRepository participationRepository,
                                      EntityHelper entityHelper,
-                                     OdseIdGeneratorService odseIdGeneratorService, ActRepository actRepository) {
+                                     OdseIdGeneratorService odseIdGeneratorService,
+                                     ActRelationshipRepositoryUtil actRelationshipRepositoryUtil,
+                                     ActRepository actRepository) {
         this.observationRepository = observationRepository;
         this.observationReasonRepository = observationReasonRepository;
         this.actIdRepository = actIdRepository;
@@ -78,6 +80,7 @@ public class ObservationRepositoryUtil {
         this.participationRepository = participationRepository;
         this.entityHelper = entityHelper;
         this.odseIdGeneratorService = odseIdGeneratorService;
+        this.actRelationshipRepositoryUtil = actRelationshipRepositoryUtil;
         this.actRepository = actRepository;
     }
 
@@ -151,7 +154,7 @@ public class ObservationRepositoryUtil {
             obVO.setTheActivityLocatorParticipationDtoCollection(activityLocatorParticipationColl);
 
             //Selects ActRelationshiopDTcollection
-            Collection<ActRelationshipDto> actColl = selectActRelationshipDTCollection(obUID);
+            Collection<ActRelationshipDto> actColl = actRelationshipRepositoryUtil.selectActRelationshipDTCollectionFromActUid(obUID);
             obVO.setTheActRelationshipDtoCollection(actColl);
 
             //SelectsParticipationDTCollection
@@ -694,38 +697,22 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private Collection<ActRelationshipDto> selectActRelationshipDTCollection(long aUID) throws DataProcessingException
-    {
-        try
-        {
-            Collection<ActRelationship> col = actRelationshipRepository.findRecordsById(aUID);
-            Collection<ActRelationshipDto> dtCollection = new ArrayList<>();
-            for (var item : col) {
-                ActRelationshipDto dt = new ActRelationshipDto(item);
-                dt.setItNew(false);
-                dt.setItDirty(false);
-                dtCollection.add(dt);
-            }
-            return dtCollection;
-        }
-        catch(Exception ndapex)
-        {
-            throw new DataProcessingException(ndapex.toString());
-        }
-    }
 
     private Collection<ParticipationDto> selectParticipationDTCollection(long aUID) throws DataProcessingException
     {
         try
         {
-            Collection<Participation> col = participationRepository.findRecordsById(aUID);
+            var col = participationRepository.findByActUid(aUID);
             Collection<ParticipationDto> dtCollection = new ArrayList<>();
-            for (var item : col) {
-                ParticipationDto dt = new ParticipationDto(item);
-                dt.setItNew(false);
-                dt.setItDirty(false);
-                dtCollection.add(dt);
+            if (col.isPresent()) {
+                for (var item : col.get()) {
+                    ParticipationDto dt = new ParticipationDto(item);
+                    dt.setItNew(false);
+                    dt.setItDirty(false);
+                    dtCollection.add(dt);
+                }
             }
+
             return dtCollection;
         }
         catch(Exception ndapex)

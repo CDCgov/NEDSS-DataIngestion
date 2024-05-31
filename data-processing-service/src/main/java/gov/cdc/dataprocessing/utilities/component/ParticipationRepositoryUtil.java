@@ -24,10 +24,10 @@ public class ParticipationRepositoryUtil {
     }
 
     public Collection<ParticipationDto> getParticipationCollection(Long actUid) {
-        var res = participationRepository.findRecordsById(actUid);
+        var res = participationRepository.findByActUid(actUid);
         Collection<ParticipationDto> dtoCollection = new ArrayList<>();
-        if (!res.isEmpty()) {
-            for(var item : res) {
+        if (res.isPresent()) {
+            for(var item : res.get()) {
                 var dto  = new ParticipationDto(item);
                 dto.setItNew(false);
                 dto.setItDirty(false);
@@ -74,6 +74,18 @@ public class ParticipationRepositoryUtil {
     public Collection<ParticipationDto> getParticipations(Long subjectEntityUid) {
         Collection<ParticipationDto> col = new ArrayList<>();
         var res = participationRepository.findByParentUid(subjectEntityUid);
+        if (res.isPresent()) {
+            for(var item : res.get()) {
+                var pat = new ParticipationDto(item);
+                col.add(pat);
+            }
+        }
+        return col;
+    }
+
+    public Collection<ParticipationDto> getParticipationsByActUid(Long actUid) {
+        Collection<ParticipationDto> col = new ArrayList<>();
+        var res = participationRepository.findByActUid(actUid);
         if (res.isPresent()) {
             for(var item : res.get()) {
                 var pat = new ParticipationDto(item);

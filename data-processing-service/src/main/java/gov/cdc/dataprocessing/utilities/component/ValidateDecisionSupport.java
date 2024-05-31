@@ -564,7 +564,7 @@ public class ValidateDecisionSupport {
                             }
                             return true;
                         } else if (logic.equalsIgnoreCase("=")) {
-                            if (ob.toString().equals(edxRuleManageDT.getValue())) {
+                            if (ob.toString().trim().equals(edxRuleManageDT.getValue())) {
                                 return true;
                             }
                         } else if (logic.equalsIgnoreCase("!=")) {

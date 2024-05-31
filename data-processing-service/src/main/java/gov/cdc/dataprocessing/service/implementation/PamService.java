@@ -13,6 +13,7 @@ import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.service.interfaces.IInvestigationService;
 import gov.cdc.dataprocessing.service.interfaces.IPamService;
 import gov.cdc.dataprocessing.service.interfaces.IRetrieveSummaryService;
+import gov.cdc.dataprocessing.service.interfaces.answer.IAnswerService;
 import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IPublicHealthCaseService;
 import gov.cdc.dataprocessing.utilities.component.ActRelationshipRepositoryUtil;
@@ -44,6 +45,7 @@ public class PamService implements IPamService {
     private final ActRelationshipRepositoryUtil actRelationshipRepositoryUtil;
 
     private final NbsNoteRepositoryUtil nbsNoteRepositoryUtil;
+    private final IAnswerService answerService;
 
     public PamService(IInvestigationService investigationService,
                       PatientRepositoryUtil patientRepositoryUtil,
@@ -52,7 +54,7 @@ public class PamService implements IPamService {
                       IPublicHealthCaseService publicHealthCaseService,
                       IUidService uidService,
                       ParticipationRepositoryUtil participationRepositoryUtil,
-                      ActRelationshipRepositoryUtil actRelationshipRepositoryUtil, NbsNoteRepositoryUtil nbsNoteRepositoryUtil) {
+                      ActRelationshipRepositoryUtil actRelationshipRepositoryUtil, NbsNoteRepositoryUtil nbsNoteRepositoryUtil, IAnswerService answerService) {
         this.investigationService = investigationService;
         this.patientRepositoryUtil = patientRepositoryUtil;
         this.prepareAssocModelHelper = prepareAssocModelHelper;
@@ -62,6 +64,7 @@ public class PamService implements IPamService {
         this.participationRepositoryUtil = participationRepositoryUtil;
         this.actRelationshipRepositoryUtil = actRelationshipRepositoryUtil;
         this.nbsNoteRepositoryUtil = nbsNoteRepositoryUtil;
+        this.answerService = answerService;
     }
 
     public Long setPamProxyWithAutoAssoc(PamProxyContainer pamProxyVO, Long observationUid, String observationTypeCd) throws DataProcessingException {
@@ -91,6 +94,28 @@ public class PamService implements IPamService {
             return investigationUID;
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+    public void insertPamVO(BasePamContainer pamVO,PublicHealthCaseVO publichHealthCaseVO)
+            throws DataProcessingException{
+        try {
+            Collection<Object>  pamDTCollection  =new ArrayList<Object> ();
+            Collection<Object>  repeatingAnswerDTCollection  =new ArrayList<Object> ();
+            if(pamVO.getPamAnswerDTMap()!=null){
+                pamDTCollection= pamVO.getPamAnswerDTMap().values();
+            }
+
+            //NOTE: PAM IS EMPTY IN RELEVANT FLOW
+            //storePamAnswerDTCollection(pamDTCollection, publichHealthCaseVO);
+            if(pamVO.getPageRepeatingAnswerDTMap()!=null){
+                repeatingAnswerDTCollection= pamVO.getPageRepeatingAnswerDTMap().values();
+            }
+            //NOTE: PAM IS EMPTY IN RELEVANT FLOW
+           // storePamAnswerDTCollection(repeatingAnswerDTCollection, publichHealthCaseVO);
+            answerService.storeActEntityDTCollectionWithPublicHealthCase(pamVO.getActEntityDTCollection(),  publichHealthCaseVO.getThePublicHealthCaseDT());
+        } catch (Exception e) {
+            throw new DataProcessingException(e.toString());
         }
     }
 
@@ -434,5 +459,8 @@ public class PamService implements IPamService {
         }
         return actualUid;
     }
+
+
+
 
 }

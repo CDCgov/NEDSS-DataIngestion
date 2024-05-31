@@ -2,10 +2,11 @@ package gov.cdc.dataprocessing.kafka.consumer;
 
 import gov.cdc.dataprocessing.constant.KafkaCustomHeader;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.service.implementation.auth.SessionProfileService;
 import gov.cdc.dataprocessing.service.implementation.manager.ManagerService;
+import gov.cdc.dataprocessing.service.interfaces.IAuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -31,15 +32,15 @@ public class KafkaManagerConsumer {
 
     private final KafkaManagerProducer kafkaManagerProducer;
     private final IManagerService managerService;
-    private final SessionProfileService sessionProfileService;
+    private final IAuthUserService authUserService;
 
     public KafkaManagerConsumer(
             KafkaManagerProducer kafkaManagerProducer,
             ManagerService managerService,
-            SessionProfileService sessionProfileService) {
+            IAuthUserService authUserService) {
         this.kafkaManagerProducer = kafkaManagerProducer;
         this.managerService = managerService;
-        this.sessionProfileService = sessionProfileService;
+        this.authUserService = authUserService;
 
     }
 
@@ -49,9 +50,9 @@ public class KafkaManagerConsumer {
     public void handleMessage(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                               @Header(KafkaCustomHeader.DATA_TYPE) String dataType)
-            throws DataProcessingConsumerException {
+            throws DataProcessingException {
         try {
-            AuthUser profile = this.sessionProfileService.getSessionProfile("data-processing");
+            var profile = this.authUserService.getAuthUserInfo("superuser");
             AuthUtil.setGlobalAuthUser(profile);
             managerService.processDistribution(dataType,message);
             kafkaManagerProducer.sendData(healthCaseTopic, "result");

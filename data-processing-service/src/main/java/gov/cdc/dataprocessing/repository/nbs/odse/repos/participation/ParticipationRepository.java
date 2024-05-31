@@ -16,7 +16,7 @@ import java.util.Optional;
 @Repository
 public interface ParticipationRepository extends JpaRepository<Participation, ParticipationId> {
     @Query("SELECT data FROM Participation data WHERE data.actUid = :uid")
-    Collection<Participation> findRecordsById(@Param("uid") Long uid);
+    Optional<Collection<Participation>> findByActUid(@Param("uid") Long uid);
 
     @Query("SELECT data FROM Participation data WHERE data.subjectEntityUid = :parentUid")
     Optional<List<Participation>> findByParentUid(@Param("parentUid") Long parentUid);

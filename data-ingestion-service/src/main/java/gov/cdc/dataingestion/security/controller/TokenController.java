@@ -37,7 +37,7 @@ public class TokenController {
             summary = "Create JWT Token",
             description = "Create JWT Token using Keycloak Client Id and Client Secret."
     )
-    @PostMapping("/token")
+    @PostMapping("/api/auth/token")
     public ResponseEntity<String> token(@RequestHeader("clientid") String clientId, @RequestHeader("clientsecret") String clientSecret) {
         log.info("Token URL : " + authTokenUri);
         String accessToken = null;

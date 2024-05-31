@@ -25,7 +25,6 @@ import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 import gov.cdc.dataprocessing.service.implementation.other.CachingValueService;
 import gov.cdc.dataprocessing.service.interfaces.*;
-import gov.cdc.dataprocessing.service.interfaces.auth.ISessionProfileService;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
@@ -74,7 +73,7 @@ public class ManagerService implements IManagerService {
 
     private final CacheManager cacheManager;
 
-    private final ISessionProfileService sessionProfileService;
+    private final IAuthUserService authUserService;
 
     private final IDecisionSupportService decisionSupportService;
 
@@ -96,8 +95,7 @@ public class ManagerService implements IManagerService {
                           NbsInterfaceRepository nbsInterfaceRepository,
                           CachingValueService cachingValueService,
                           CacheManager cacheManager,
-                          ISessionProfileService sessionProfileService,
-                          IDecisionSupportService decisionSupportService,
+                          IAuthUserService authUserService, IDecisionSupportService decisionSupportService,
                           ManagerUtil managerUtil,
                           KafkaManagerProducer kafkaManagerProducer,
                           IManagerAggregationService managerAggregationService,
@@ -112,7 +110,7 @@ public class ManagerService implements IManagerService {
         this.nbsInterfaceRepository = nbsInterfaceRepository;
         this.cachingValueService = cachingValueService;
         this.cacheManager = cacheManager;
-        this.sessionProfileService = sessionProfileService;
+        this.authUserService = authUserService;
         this.decisionSupportService = decisionSupportService;
         this.managerUtil = managerUtil;
         this.kafkaManagerProducer = kafkaManagerProducer;
@@ -134,7 +132,6 @@ public class ManagerService implements IManagerService {
                 default:
                     break;
             }
-            AuthUtil.setGlobalAuthUser(null);
             return result;
         } else {
             throw new DataProcessingConsumerException("Invalid User");
@@ -213,15 +210,26 @@ public class ManagerService implements IManagerService {
                     phcContainer.setObservationDto(observationDto);
                     phcContainer.setWdsTrackerView(trackerView);
 
-                    if (edxLabInformationDto.getPageActContainer() != null) {
-                        var pageActProxyVO = (PageActProxyVO) edxLabInformationDto.getPageActContainer();
-                        trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT());
+                    if (edxLabInformationDto.getPageActContainer() != null
+                    || edxLabInformationDto.getPamContainer() != null) {
+                        if (edxLabInformationDto.getPageActContainer() != null) {
+                            var pageActProxyVO = (PageActProxyVO) edxLabInformationDto.getPageActContainer();
+                            trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT());
+                        }
+                        else
+                        {
+                            var pamProxyVO = (PamProxyContainer)edxLabInformationDto.getPamContainer();
+                            trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT());
+                        }
                     }
                     else
                     {
-                        var pamProxyVO = (PamProxyContainer)edxLabInformationDto.getPamContainer();
-                        trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT());
+                        if (edxLabInformationDto.getAction() != null) {
+                            //action 3 is REVIEW
+                            System.out.println("TEST");
+                        }
                     }
+
 
 
 //                    gson = new Gson();

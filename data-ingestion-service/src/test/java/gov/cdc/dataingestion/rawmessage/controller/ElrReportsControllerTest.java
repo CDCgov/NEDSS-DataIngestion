@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,6 +19,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @WebMvcTest(ElrReportsController.class)
 @ActiveProfiles("test")
@@ -41,7 +43,7 @@ class ElrReportsControllerTest {
     void testSaveHL7Message() throws Exception {
         String hl7Payload = "testmessage";
         String messageType = "HL7";
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/elrs")
                         .header("msgType", messageType)
                         .contentType("text/plain")
                         .content(hl7Payload)
@@ -58,29 +60,26 @@ class ElrReportsControllerTest {
     }
 
     @Test
-    void testSaveHL7MessageValidationActivated() throws Exception {
-        String hl7Payload = "testmessage";
+    void testSaveHL7Message_no_ValidationActivate() throws Exception {
+        String payload = "Test payload";
         String messageType = "HL7";
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
-                        .header("msgType", messageType)
-                        .contentType("text/plain")
-                        .content(hl7Payload)
-                        .with(SecurityMockMvcRequestPostProcessors.jwt()))
-                .andExpect(MockMvcResultMatchers.status().isOk());
-
         RawERLDto rawERLDto = new RawERLDto();
         rawERLDto.setType(messageType);
-        rawERLDto.setPayload(hl7Payload);
-        rawERLDto.setValidationActive(true);
+        rawERLDto.setPayload(payload);
 
-        verify(rawELRService).submission(rawERLDto, "1");
+        when(rawELRService.submission(rawERLDto, "1")).thenReturn("OK");
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/elrs")
+                        .param("id", "1").with(SecurityMockMvcRequestPostProcessors.jwt())
+                        .header("msgType", messageType)
+                        .contentType(MediaType.TEXT_PLAIN_VALUE)
+                        .content(payload))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
-
     @Test
     void testSaveHL7MessageHeaderIsEmpty() throws Exception {
         String hl7Payload = "testmessage";
         String messageType = "";
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/elrs")
                         .header("msgType", messageType)
                         .contentType("text/plain")
                         .content(hl7Payload)
@@ -91,7 +90,7 @@ class ElrReportsControllerTest {
     @Test
     void testSaveHL7MessageHeaderIsEmptyType() throws Exception {
         String hl7Payload = "testmessage";
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/elrs")
                         .header("msgType", "")
                         .contentType("text/plain")
                         .content(hl7Payload)
@@ -102,7 +101,7 @@ class ElrReportsControllerTest {
     @Test
     void testSaveHL7MessageHeaderTypeInvalid() throws Exception {
         String hl7Payload = "testmessage";
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/elrs")
                         .header("msgType", "AAA")
                         .contentType("text/plain")
                         .content(hl7Payload)
@@ -113,7 +112,7 @@ class ElrReportsControllerTest {
     @Test
     void testHl7Validator() throws Exception {
         String hl7Payload = "testmessage";
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/reports/validate-hl7")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/elrs/validate")
                         .contentType("text/plain")
                         .content(hl7Payload)
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
