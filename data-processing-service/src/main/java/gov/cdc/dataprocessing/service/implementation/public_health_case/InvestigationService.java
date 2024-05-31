@@ -368,8 +368,6 @@ public class InvestigationService implements IInvestigationService {
             PublicHealthCaseDto phcDT = null;
 
 
-            //TODO: LAB RESULT WONT HIT ANY OF THESE
-
             if(
                     vo instanceof InvestigationContainer
                             || vo instanceof PamProxyContainer
@@ -474,7 +472,6 @@ public class InvestigationService implements IInvestigationService {
     private  void updateNotification(boolean isSummaryCase, Long notificationUid, String phcCd,
                                    String phcClassCd, String progAreaCd, String jurisdictionCd,
                                    String sharedInd, boolean caseStatusChange) throws DataProcessingException {
-        //TODO: PERMISSION
         boolean checkNotificationPermission = true;//nbsSecurityObj.getPermission(NBSBOLookup.NOTIFICATION, NBSOperationLookup.CREATE,progAreaCd,jurisdictionCd,sharedInd);
         boolean checkNotificationPermission1 = true;//nbsSecurityObj.getPermission(NBSBOLookup.NOTIFICATION, NBSOperationLookup.CREATENEEDSAPPROVAL,progAreaCd,jurisdictionCd,sharedInd);
         String businessTriggerCd = null;
@@ -598,11 +595,9 @@ public class InvestigationService implements IInvestigationService {
             // Step 1: Get the Pubic Health Case
             thePublicHealthCaseContainer = publicHealthCaseRepositoryUtil.loadObject(publicHealthCaseUID);
 
-            // TODO: Get user name from PHC
             //thePublicHealthCaseContainer.getThePublicHealthCaseDto().setAddUserName(helper.getUserName(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getAddUserId()));
             thePublicHealthCaseContainer.getThePublicHealthCaseDto().setAddUserName(AuthUtil.authUser.getUserId());
 
-            // TODO: Get user name from PHC
             //thePublicHealthCaseContainer.getThePublicHealthCaseDto().setLastChgUserName(helper.getUserName(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getLastChgUserId()));
             thePublicHealthCaseContainer.getThePublicHealthCaseDto().setLastChgUserName(AuthUtil.authUser.getUserId());
 
@@ -845,7 +840,6 @@ public class InvestigationService implements IInvestigationService {
             try {
                 //code for new ldf back end
                 if(!lite) {
-                    //TODO: INVESTIGATE LDF
                     theStateDefinedFieldDTCollection  = new ArrayList<>(ldfService.getLDFCollection(publicHealthCaseUID, investigationProxyVO.getBusinessObjectName()));
                 }
             }
@@ -866,7 +860,6 @@ public class InvestigationService implements IInvestigationService {
             Date dtc = new Date();
             ////##!! System.out.println("the InvestigationProxyVO time before start getting associated reports is :" + (dtc.getTime()- dta.getTime()));
 
-            //TODO: CHECK THIS PERM
             if (!lite
 //                    && nbsSecurityObj.getPermission(NBSBOLookup.OBSERVATIONLABREPORT,
 //                    "VIEW",
@@ -921,7 +914,6 @@ public class InvestigationService implements IInvestigationService {
             Collection<Object>  morbSumVOCol = new ArrayList<Object> ();
             HashMap<Object,Object> morbSumVoMap = new HashMap<Object,Object>();
 
-            //TODO CHECK THIS PERM ---- ALSO THIS IS MORBIDITY
             /*
             if (!lite && nbsSecurityObj.getPermission(NBSBOLookup.OBSERVATIONMORBIDITYREPORT,
                     "VIEW",
@@ -971,7 +963,6 @@ public class InvestigationService implements IInvestigationService {
 //
 //            }
 
-            //TODO: THIS IS INTERVENTION
 //            if (!lite && nbsSecurityObj.getPermission(NBSBOLookup.INTERVENTIONVACCINERECORD, "VIEW"))
 //            {
 //                RetrieveSummaryVO retrievePhcVaccinations = new RetrieveSummaryVO();
@@ -1456,7 +1447,6 @@ public class InvestigationService implements IInvestigationService {
                     } //outer while
                 } //if
             }
-            //TODO: MORBIDITY
             /*
             else if (sumVO instanceof MorbReportSummaryVO)
             {
@@ -1578,7 +1568,6 @@ public class InvestigationService implements IInvestigationService {
 
 
 
-            //TODO: Auth
 //            NBSAuthHelper helper = new NBSAuthHelper();
 //            thePublicHealthCaseContainer.getThePublicHealthCaseDto().setAddUserName(helper.getUserName(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getAddUserId()));
 //            thePublicHealthCaseContainer.getThePublicHealthCaseDto().setLastChgUserName(helper.getUserName(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getLastChgUserId()));
@@ -1701,7 +1690,6 @@ public class InvestigationService implements IInvestigationService {
                     strTypeCd = actRelationshipDT.getTypeCd();
                     recordStatusCd = actRelationshipDT.getRecordStatusCd();
 
-                    //TODO INTERVENTION
 //                    if (strClassCd != null
 //                            && strClassCd
 //                            .compareToIgnoreCase(NEDSSConstant.INTERVENTION_CLASS_CODE) == 0
@@ -1824,7 +1812,6 @@ public class InvestigationService implements IInvestigationService {
                                 + labSumVOCol.size());
                     }
                     //Add the associated labs from PHDC document
-                //TODO: CDA EVENT SUMMARY PARSER
 //                    Map<String, EDXEventProcessDto> edxEventsMap = nbsDAO.getEDXEventProcessMapByCaseId(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid());
 //                    CDAEventSummaryParser cdaParser = new CDAEventSummaryParser();
 //                    Map<Long, LabReportSummaryContainer> labMapfromDOC = cdaParser.getLabReportMapByPHCUid(edxEventsMap, nbsSecurityObj);
@@ -1843,7 +1830,6 @@ public class InvestigationService implements IInvestigationService {
 
                 }
 
-//                TODO: MORBIDITY
 //                Collection<Object> morbSumVOCol = new ArrayList<Object>();
 //                if (nbsSecurityObj.getPermission(
 //                        NBSBOLookup.OBSERVATIONMORBIDITYREPORT,
@@ -1921,7 +1907,6 @@ public class InvestigationService implements IInvestigationService {
 //
 //                }
 
-//                TODO: INVERVENTION
 //                if (nbsSecurityObj.getPermission(
 //                        NBSBOLookup.INTERVENTIONVACCINERECORD,
 //                        NBSOperationLookup.VIEW)) {
@@ -1938,7 +1923,6 @@ public class InvestigationService implements IInvestigationService {
 //                            .debug("user has no permission to view VaccinationSummaryVO collection");
 //                }
 
-                //TODO: TREATMENT
                 // Begin support for TreatmentSummary
 //                if (nbsSecurityObj.getPermission(NBSBOLookup.TREATMENT,
 //                        NBSOperationLookup.VIEW,
@@ -1968,7 +1952,6 @@ public class InvestigationService implements IInvestigationService {
 
                     logger.debug("About to get AuditLogSummary for Investigation");
 
-                //TODO: AUDIT COLLECTION
                     theInvestigationAuditLogSummaryVOCollection = new ArrayList<>();
 //                            new ArrayList<Object>(
 //                            (summaryVO.retrieveInvestigationAuditLogSummaryVO(publicHealthCaseUID)));
@@ -1995,7 +1978,6 @@ public class InvestigationService implements IInvestigationService {
 //                            .debug("user has no permission to view DocumentSummaryVO collection");
 //                }
 
-                //TODO: INTERVIEW
 //                if (nbsSecurityObj.getPermission(NBSBOLookup.INTERVIEW,
 //                        NBSOperationLookup.VIEW)) {
 //                    InterviewSummaryDAO interviewSummaryDAO = new InterviewSummaryDAO();
@@ -2026,7 +2008,6 @@ public class InvestigationService implements IInvestigationService {
 //                if (nbsSecurityObj.getPermission(NBSBOLookup.INVESTIGATION,
 //                        NBSOperationLookup.VIEW)) {
 
-  //TODO: INVESTIGATION
 //                    Collection<Object> nbsCaseAttachmentDTColl = nbsAttachmentDAO.getNbsAttachmentCollection(publicHealthCaseUID);
 //                    pageProxyVO.setNbsAttachmentDTColl(nbsCaseAttachmentDTColl);
 //                    Collection<NbsNoteDto>  nbsCaseNotesColl = nbsAttachmentDAO.getNbsNoteCollection(publicHealthCaseUID);

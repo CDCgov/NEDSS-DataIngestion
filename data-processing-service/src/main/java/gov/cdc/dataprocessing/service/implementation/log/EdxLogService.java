@@ -234,8 +234,6 @@ public class EdxLogService implements IEdxLogService {
             String id = String.valueOf(edxLabInformationDto.getLocalId());
             boolean errorReturned = false;
 
-            // TODO: Need to complete the detail activity logs
-
             if (edxLabInformationDto.isInvalidXML()) {
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure, EdxELRConstant.INVALID_XML);
                 errorReturned = true;

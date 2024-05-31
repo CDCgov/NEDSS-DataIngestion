@@ -287,7 +287,6 @@ public class CachingValueService implements ICatchingValueService {
 
 
 
-    //TODO: CACHED
     public TreeMap<String, String> getCodedValues(String pType, String key) throws DataProcessingException {
         var cache = cacheManager.getCache("srte");
         if (cache != null) {
@@ -312,7 +311,6 @@ public class CachingValueService implements ICatchingValueService {
         return SrteCache.codedValuesMap;
     }
 
-    //TODO: CACHED
     public  String getCodeDescTxtForCd(String code, String codeSetNm) throws DataProcessingException {
         var cache = cacheManager.getCache("srte");
         if (cache != null) {
@@ -359,7 +357,6 @@ public class CachingValueService implements ICatchingValueService {
 
     }
 
-    //TODO: CACHED
     public String getCountyCdByDesc(String county, String stateCd) throws DataProcessingException {
 
         if (county == null || stateCd == null) {

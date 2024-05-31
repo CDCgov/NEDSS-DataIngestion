@@ -109,7 +109,6 @@ public class PageRepositoryUtil {
              * */
             if (pageActProxyContainer.isItNew()) {
 
-                //TODO: PERM
 //                boolean checkInvestigationAutoCreatePermission = nbsSecurityObj
 //                        .getPermission(NBSBOLookup.INVESTIGATION,
 //                                NBSOperationLookup.AUTOCREATE, phcDT
@@ -129,7 +128,6 @@ public class PageRepositoryUtil {
 //                logger.info("user has add permissions for setPageProxy");
             }
             else if (pageActProxyContainer.isItDirty()) {
-                //TODO: PERM
 //                if (!nbsSecurityObj.getPermission(NBSBOLookup.INVESTIGATION,
 //                        NBSOperationLookup.EDIT, phcDT.getProgAreaCd(), phcDT
 //                                .getJurisdictionCd(), phcDT.getSharedInd())) {
@@ -146,7 +144,7 @@ public class PageRepositoryUtil {
                     // update auto resend notifications
                     investigationService.updateAutoResendNotificationsAsync(pageActProxyContainer);
                 } catch (Exception e) {
-                    //TODO: LOG NND LOG
+                    //TODO: LOGGING NND LOG
 //                    NNDActivityLogDto nndActivityLogDT = new NNDActivityLogDto();
 //                    String phcLocalId = pageActProxyContainer.getPublicHealthCaseContainer()
 //                            .getThePublicHealthCaseDto().getLocalId();
@@ -242,7 +240,6 @@ public class PageRepositoryUtil {
                     nbsNoteRepositoryUtil.storeNotes(actualUid, pageActProxyContainer.getNbsNoteDTColl());
                 }
 
-                //TODO: PAM
                 if (pageActProxyContainer.getPageVO() != null && pageActProxyContainer.isItNew()) {
                     pamService.insertPamVO(pageActProxyContainer.getPageVO(), pageActProxyContainer.getPublicHealthCaseContainer());
 
@@ -303,7 +300,6 @@ public class PageRepositoryUtil {
 
             String investigationFormCd = SrteCache.investigationFormConditionCode.get(pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getCd());
             Map<Object, Object> mapFromQuestions = new HashMap<Object,Object>();
-//           TODO CONINFECT FORM CD
 //            Collection<Object> nbsQuestionUidCollection = getCoinfectionQuestionListForFormCd(investigationFormCd);
             Collection<Object> nbsQuestionUidCollection = new ArrayList<>();
             Map<Object,Object> updatedValuesMap = new HashMap<Object, Object>();
@@ -389,7 +385,6 @@ public class PageRepositoryUtil {
             throws DataProcessingException {
         Long publicHealthCaseUid =null;
         try {
-            // TODO: CONINFECT FORM CD
             String investigationFormCd = SrteCache.investigationFormConditionCode.get(coninfectionSummaryVO.getConditionCd());
 //            Collection<Object> toNbsQuestionUidCollection = getCoinfectionQuestionListForFormCd(investigationFormCd);
 
@@ -789,7 +784,6 @@ public class PageRepositoryUtil {
                     //Commented out as its tries to update MPR concurrently within same transaction.
                     // First for current investigation's patient and then coinfection investigation's patient.
                 }else if(dbLocation!=null && dbLocation.contains("CASE_MANAGEMENT.")){
-                    //TODO: INVESTIGATE THIS
 //                    String columnName = dbLocation.substring(dbLocation.indexOf(".")+1,dbLocation.length());
 //                    String getterMethod = DynamicBeanBinding.getGetterName(columnName);
 //

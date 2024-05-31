@@ -50,7 +50,6 @@ public class UidService implements IUidService {
             roleColl = ((LabResultProxyContainer) proxyVO).getTheRoleDtoCollection();
         }
 
-        //TODO: MORBIDITY
 //            if (proxyVO instanceof MorbidityProxyVO)
 //            {
 //                participationColl = (ArrayList<Object> ) ( (MorbidityProxyVO) proxyVO).
@@ -253,8 +252,6 @@ public class UidService implements IUidService {
                         + pamCaseEntityDT.getEntityUid());
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
             throw new DataProcessingException(e.getMessage(), e);
         }
 

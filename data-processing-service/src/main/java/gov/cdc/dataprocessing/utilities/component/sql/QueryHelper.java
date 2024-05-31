@@ -79,7 +79,6 @@ public class QueryHelper {
 
 
 
-        //TODO WE NEED USER PROFILE -- Check flow chart for this one
         for (Iterator<AuthUserRealizedRole> it = AuthUtil.authUserRealizedRoleCollection.iterator(); it.hasNext(); ) {
             RealizedRoleDto rRole = new RealizedRoleDto(it.next());
 

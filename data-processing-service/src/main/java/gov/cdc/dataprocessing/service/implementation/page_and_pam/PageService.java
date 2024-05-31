@@ -67,7 +67,6 @@ public class PageService implements IPageService {
                 observationColl.add(labSumVO);
 
             }
-            // TODO: MORBIDITY
             else
             {
 //                MorbReportSummaryVO morbSumVO = new MorbReportSummaryVO();
@@ -105,7 +104,6 @@ public class PageService implements IPageService {
             Timestamp fldFollowUpDispDate= caseManagementDto.getFldFollUpDispoDate();
 
 
-            //TODO: CONTACT DIPOSITION
 //            int numbersOfAssociatedContactRecords= ctContactDAO.countNamedAsContactDispoInvestigations(caseManagementDto.getPublicHealthCaseUid());
 //            logger.debug("numbersOfAssociatedContactRecords is "+numbersOfAssociatedContactRecords);
 //

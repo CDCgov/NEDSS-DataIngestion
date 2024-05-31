@@ -137,7 +137,7 @@ public class ManagerService implements IManagerService {
     }
 
     @Transactional
-    public void initiatingInvestigationAndPublicHealthCase(String data) throws DataProcessingException {
+    public void initiatingInvestigationAndPublicHealthCase(String data) {
         NbsInterfaceModel nbsInterfaceModel = null;
         try {
             Gson gson = new Gson();
@@ -250,14 +250,13 @@ public class ManagerService implements IManagerService {
 
     }
 
-    public void initiatingLabProcessing(String data) throws DataProcessingConsumerException {
+    public void initiatingLabProcessing(String data) {
         NbsInterfaceModel nbsInterfaceModel = null;
         try {
             Gson gson = new Gson();
             PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(data, PublicHealthCaseFlowContainer.class);
             EdxLabInformationDto edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
-            LabResultProxyContainer labResultProxyContainer = publicHealthCaseFlowContainer.getLabResultProxyContainer();
             var res = nbsInterfaceRepository.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
             if (res.isPresent()) {
                 nbsInterfaceModel = res.get();
@@ -268,22 +267,16 @@ public class ManagerService implements IManagerService {
 
             PageActProxyContainer pageActProxyContainer = null;
             PamProxyContainer pamProxyVO = null;
-            PublicHealthCaseContainer publicHealthCaseContainer = null;
-            Long phcUid = null;
+            PublicHealthCaseContainer publicHealthCaseContainer;
+            Long phcUid;
 
-            /**
-             * REVIEW NOTE and what not implemented
-             * - Basic reviewed implemented -- clean up needed
-             * - Adv reviewed is not implemented
-             * */
+
             if (edxLabInformationDto.getAction() != null && edxLabInformationDto.getAction().equalsIgnoreCase(DecisionSupportConstants.MARK_AS_REVIEWED)) {
                 //Check for user security to mark as review lab
                 //checkSecurity(nbsSecurityObj, edxLabInformationDto, NBSBOLookup.OBSERVATIONLABREPORT, NBSOperationLookup.MARKREVIEWED, programAreaCd, jurisdictionCd);
 
-
-                //TODO: 3rd Flow
                 labReportProcessing.markAsReviewedHandler(observationDto.getObservationUid(), edxLabInformationDto);
-                if (edxLabInformationDto.getAssociatedPublicHealthCaseUid() != null && edxLabInformationDto.getAssociatedPublicHealthCaseUid().longValue() > 0) {
+                if (edxLabInformationDto.getAssociatedPublicHealthCaseUid() != null && edxLabInformationDto.getAssociatedPublicHealthCaseUid() > 0) {
                     edxLabInformationDto.setPublicHealthCaseUid(edxLabInformationDto.getAssociatedPublicHealthCaseUid());
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_21);
                     edxLabInformationDto.setLabAssociatedToInv(true);
@@ -314,12 +307,10 @@ public class ManagerService implements IManagerService {
                 {
                     //TODO: LOGGING
                     requiredFieldError(publicHealthCaseContainer.getErrorText(), edxLabInformationDto);
-
                 }
 
 
                 if (pageActProxyContainer != null && observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null) {
-                    //TODO: 3rd Flow
                     phcUid = pageService.setPageProxyWithAutoAssoc(NEDSSConstant.CASE, pageActProxyContainer, edxLabInformationDto.getRootObserbationUid(), NEDSSConstant.LABRESULT_CODE, null);
 
                     pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setPublicHealthCaseUid(phcUid);
@@ -331,7 +322,6 @@ public class ManagerService implements IManagerService {
                 }
                 else if (observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null)
                 {
-                    //TODO: 3rd Flow
                     phcUid = pamService.setPamProxyWithAutoAssoc(pamProxyVO, edxLabInformationDto.getRootObserbationUid(), NEDSSConstant.LABRESULT_CODE);
 
                     pamProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setPublicHealthCaseUid(phcUid);
@@ -341,9 +331,10 @@ public class ManagerService implements IManagerService {
                     edxLabInformationDto.setLabAssociatedToInv(true);
                 }
 
-                if(edxLabInformationDto.getAction().equalsIgnoreCase(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE)){
+                if(edxLabInformationDto.getAction() != null
+                        && edxLabInformationDto.getAction().equalsIgnoreCase(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE)){
                     //TODO: 3rd Flow
-                    //TODO: THIS SEEM TO GO TO LOG
+                    //TODO: LOGGING
                     EDXActivityDetailLogDto edxActivityDetailLogDT = investigationNotificationService.sendNotification(publicHealthCaseContainer, edxLabInformationDto.getNndComment());
                     edxActivityDetailLogDT.setRecordType(EdxELRConstant.ELR_RECORD_TP);
                     edxActivityDetailLogDT.setRecordName(EdxELRConstant.ELR_RECORD_NM);
@@ -389,17 +380,9 @@ public class ManagerService implements IManagerService {
             edxLabInformationDto.setStatus(NbsInterfaceStatus.Success);
             edxLabInformationDto.setUserName(AuthUtil.authUser.getUserId());
 
-
-            //TODO: uncomment when deploy
             nbsInterfaceModel = gson.fromJson(data, NbsInterfaceModel.class);
 
-
-            //TODO: uncomment when debug
-//             nbsInterfaceModel = nbsInterfaceRepository.findById(Integer.valueOf(data)).get();
-//             nbsInterfaceModel.setObservationUid(null);
-
             edxLabInformationDto.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
-            //loadAndInitCachedValue();
 
             CompletableFuture<Void> cacheLoadingFuture = loadAndInitCachedValueAsync();
             cacheLoadingFuture.join();

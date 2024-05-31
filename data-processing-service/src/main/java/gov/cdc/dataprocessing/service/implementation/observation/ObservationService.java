@@ -186,7 +186,6 @@ public class ObservationService implements IObservationService {
         {
             if (actType.equalsIgnoreCase(NEDSSConstant.INTERVENTION_CLASS_CODE))
             {
-                //TODO: LOAD INTERVENTION
                // obj = interventionRootDAOImpl.loadObject(anUid.longValue());
             }
             else if (actType.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE))
@@ -1104,7 +1103,6 @@ public class ObservationService implements IObservationService {
             return processLabReportObsContainerCollection( (LabResultProxyContainer) proxyVO, ELR_PROCESSING);
         }
 
-        //TODO: Morbidity is from a different flow
         //If coming from morbidity, processing this way
 //            if (proxyVO instanceof MorbidityProxyVO)
 //            {
@@ -1319,7 +1317,6 @@ public class ObservationService implements IObservationService {
                 isLabResultProxyVO = true;
             }
 
-            //TODO: MORBIDITY
 //            if (proxyVO instanceof MorbidityProxyVO)
 //            {
 //                obsVOColl = ( (MorbidityProxyVO) proxyVO).getTheObservationContainerCollection();

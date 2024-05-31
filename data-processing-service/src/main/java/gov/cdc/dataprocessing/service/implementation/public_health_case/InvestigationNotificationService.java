@@ -214,13 +214,11 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             Map<Object, Object>  answerMap = null;
             Collection<ActIdDto>  actIdColl = null;
 
-            //NOTE TODO: ONLY SPECIFIC USE CASE GOT TO THIS ONE -- HAVE NOT FOUND ONE SO FAR
             if(formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)||formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_VAR))
             {
                 PamProxyContainer proxyVO = new PamProxyContainer();
                 if(pageObj == null || pageObj instanceof PublicHealthCaseContainer)
                 {
-                    //TODO PAM
                     // proxyVO =  pamproxy.getPamProxy(publicHealthCaseUid);
                 }
                 else
@@ -283,7 +281,6 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                 throw new DataProcessingException("publicHealthCaseDto is null ");
             }
 
-            // TODO: SECURITY CHECK
 //            if (!nbsSecurityObj.getPermission(NBSBOLookup.NOTIFICATION,
 //                    "CREATE",
 //                    programAreaCode,

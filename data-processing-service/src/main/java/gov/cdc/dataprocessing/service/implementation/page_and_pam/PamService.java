@@ -85,7 +85,6 @@ public class PamService implements IPamService {
                 observationColl.add(labSumVO);
 
             }
-            // TODO: MORBIDITY
             else
             {
 //                MorbReportSummaryVO morbSumVO = new MorbReportSummaryVO();
@@ -138,7 +137,6 @@ public class PamService implements IPamService {
         }
         if (pamProxyVO.isItNew()) {
             
-            //TODO: PERM
 //            boolean checkInvestigationAutoCreatePermission = nbsSecurityObj.getPermission(NBSBOLookup.INVESTIGATION,
 //                    NBSOperationLookup.AUTOCREATE, phcDT.getProgAreaCd(),	ProgramAreaJurisdictionUtil.ANY_JURISDICTION, phcDT.getSharedInd());
 //
@@ -149,7 +147,6 @@ public class PamService implements IPamService {
 //            }
 //            logger.info("user has add permissions for setPamProxy");
         } else if (pamProxyVO.isItDirty()) {
-            //TODO: PERM
 //            if (!nbsSecurityObj.getPermission(NBSBOLookup.INVESTIGATION, NBSOperationLookup.EDIT, phcDT.getProgAreaCd(), phcDT.getJurisdictionCd(), phcDT.getSharedInd())) {
 //                logger.info("no edit permissions for setPamProxy");
 //                throw new NEDSSSystemException("NO EDIT PERMISSIONS for setPamProxy");

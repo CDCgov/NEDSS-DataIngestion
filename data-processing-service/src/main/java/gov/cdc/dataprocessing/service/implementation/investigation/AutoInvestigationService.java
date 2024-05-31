@@ -249,8 +249,6 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         //phcVO.getThePublicHealthCaseDto().setCaseClassCd(EdxELRConstant.ELR_CONFIRMED_CD);
 
         phcVO.getThePublicHealthCaseDto().setAddTime(new Timestamp(new Date().getTime()));
-        //TODO: SECURITY
-        //phcVO.getThePublicHealthCaseDto().setAddUserId(Long.valueOf("securityObj.getEntryID()"));
         phcVO.getThePublicHealthCaseDto().setAddUserId(AuthUtil.authUser.getAuthUserUid());
         phcVO.getThePublicHealthCaseDto().setCaseTypeCd(EdxELRConstant.ELR_INDIVIDUAL);
 

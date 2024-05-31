@@ -768,7 +768,7 @@ public class OrganizationRepositoryUtil {
         try {
             List<Participation> participationList = new ArrayList<>();
 
-            if (act_uid == null) {
+            if (act_uid != null) {
                 var result = participationRepository.findBySubjectEntityUidAndActUid(uid, act_uid);
                 if (result.isPresent() && !result.get().isEmpty()) {
                     participationList = result.get();

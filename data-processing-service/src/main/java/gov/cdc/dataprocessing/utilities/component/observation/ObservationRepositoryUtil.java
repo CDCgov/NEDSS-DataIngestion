@@ -504,7 +504,6 @@ public class ObservationRepositoryUtil {
 
             }
             logger.debug("RetrieveSummaryVO");
-            //TODO: INVESTIGATE THIS REPORT
 //            VOTester.createReport(theObservationQuestionColl,
 //                    "RetrievSummaryVO-obsColl");
         }

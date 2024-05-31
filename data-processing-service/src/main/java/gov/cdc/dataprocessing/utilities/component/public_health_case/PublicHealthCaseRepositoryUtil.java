@@ -105,7 +105,6 @@ public class PublicHealthCaseRepositoryUtil {
 
 
     @Transactional
-    //TODO: EVALUATE THIS ONE
     public PublicHealthCaseContainer update(PublicHealthCaseContainer phcVO) throws DataProcessingException {
         /**
          * Inserts ConfirmationMethodDT collection

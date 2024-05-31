@@ -88,7 +88,6 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
         try {
 
 
-            //TODO: CDA -- IS THIS ECR?
 //            treatmentsSummaryVOHashMap =customRepository.retrieveTreatmentSummaryVOForInv(publicHealthUID, aQuery);
 
 //            Map<String, EDXEventProcessDto> edxEventsMap = getEDXEventProcessMapByCaseId(publicHealthUID);
@@ -206,7 +205,6 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                 }
             }
 
-            // TODO:Needs to be fixed to move to Action class.
 
             if (theNotificationSummaryVOCollection  != null) {
                 Iterator<Object>  anIterator1 = theNotificationSummaryVOCollection.iterator();
@@ -570,7 +568,6 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
             //replace old NotificationDT in NotificationContainer with the new NotificationDT
             notificationContainer.setTheNotificationDT(newNotificationDT);
 
-            //TODO: NOTIFICATION UPDATE NEED TO BE IT WON THING
             Long newNotficationUid = notificationRepositoryUtil.setNotification(notificationContainer);
         }catch (Exception e){
             throw new DataProcessingException("Error in calling ActControllerEJB.setNotification()" + e.toString());

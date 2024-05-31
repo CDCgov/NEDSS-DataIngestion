@@ -88,7 +88,6 @@ public class ConcurrentCheck {
 //                if(theRootDTInterface.getVersionCtrlNbr() == null)
 //                    ((PublicHealthCaseDto)theRootDTInterface).setVersionCtrlNbr(new Integer(1));
 //                PublicHealthCaseDto newPhcDT= (PublicHealthCaseDto)theRootDTInterface;
-//                /**TODO PKS UPDATE FOR MERGE INVESTIGATIONS
 //                 if(phcDT.getVersionCtrlNbr().equals(theRootDTInterface.getVersionCtrlNbr())
 //                 || (phcDT.getVersionCtrlNbr().equals(newPhcDT.getVersionCtrlNbr()-1) && newPhcDT.isReentrant()))*/
 //                if(phcDT.getVersionCtrlNbr().equals(theRootDTInterface.getVersionCtrlNbr()) )

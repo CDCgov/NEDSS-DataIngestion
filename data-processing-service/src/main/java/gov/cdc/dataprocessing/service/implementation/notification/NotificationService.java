@@ -170,7 +170,6 @@ public class NotificationService implements INotificationService {
 
             permissionFlag = "CREATE";
 
-            //TODO: PERMISSION
 //            if (!nbsSecurityObj.getPermission(NBSBOLookup.NOTIFICATION, NBSOperationLookup.CREATE, programeAreaCode, jurisdictionCode, shared))
 //            {
 //
