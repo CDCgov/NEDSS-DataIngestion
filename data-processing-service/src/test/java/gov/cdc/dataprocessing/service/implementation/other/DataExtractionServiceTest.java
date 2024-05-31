@@ -1,14 +1,11 @@
 package gov.cdc.dataprocessing.service.implementation.other;
 
 import com.google.gson.Gson;
-import com.nimbusds.jose.Header;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.Patient;
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.OrganizationContainer;
-import gov.cdc.dataprocessing.model.dto.edx.EdxELRLabMapDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
@@ -19,8 +16,6 @@ import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.stored_proc.NbsInterfaceStoredProcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.organization.OrganizationName;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.LabResult;
 import gov.cdc.dataprocessing.service.interfaces.stored_proc.IMsgOutEStoredProcService;
 import gov.cdc.dataprocessing.service.model.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -29,23 +24,17 @@ import gov.cdc.dataprocessing.utilities.component.data_parser.ORCHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.ObservationRequestHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.ObservationResultRequestHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.LabResultUtil;
-import gov.cdc.dataprocessing.utilities.model.Coded;
 import jakarta.xml.bind.JAXBException;
-import org.aspectj.weaver.ast.Or;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.security.core.parameters.P;
 
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class DataExtractionServiceTest {
 
@@ -479,9 +468,9 @@ class DataExtractionServiceTest {
         labResultProxyContainer.setPageProxyTypeCd("");
         ParticipationDto part = new ParticipationDto();
         part.setAddReasonCd("because");
-        part.setAddTime(new Timestamp(2024, 05, 03, 10, 59, 53, 693));
+        part.setAddTime(new Timestamp(System.currentTimeMillis()));
         part.setAddUserId(123L);
-        part.setLastChgTime(new Timestamp(2024, 05, 03, 10, 59, 53, 693));
+        part.setLastChgTime(new Timestamp(System.currentTimeMillis()));
         part.setRecordStatusCd("ACTIVE");
         part.setStatusCd("A");
         part.setTypeCd("AUT");
