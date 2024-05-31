@@ -91,7 +91,7 @@ class DataExtractionServiceTest {
     }
 
     @Test
-    void testParsingDataToObjectThrowsDataProcessingException() throws JAXBException, DataProcessingConsumerException, DataProcessingException {
+    void testParsingDataToObjectThrowsDataProcessingException() throws JAXBException {
         Gson gson = new Gson();
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataThrowsException(), NbsInterfaceModel.class);
 
@@ -110,7 +110,7 @@ class DataExtractionServiceTest {
     }
 
     @Test
-    void testParsingDataToObjectThrowsMoreThanOnePatientException() throws JAXBException {
+    void testParsingDataToObjectThrowsMoreThanOnePatientException() {
         Gson gson = new Gson();
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataThrowGreaterThanOnePatientException(), NbsInterfaceModel.class);
 
@@ -343,12 +343,12 @@ class DataExtractionServiceTest {
         return identifiersType;
     }
 
-    private IdentifierType getIdentifierType() {
-        IdentifierType idType = new IdentifierType();
-        idType.setIDTypeCode("id type");
-        idType.setIDNumber("id number");
-        return idType;
-    }
+//    private IdentifierType getIdentifierType() {
+//        IdentifierType idType = new IdentifierType();
+//        idType.setIDTypeCode("id type");
+//        idType.setIDNumber("id number");
+//        return idType;
+//    }
 
     private NoteType getNotesType() {
         NoteType notes = new NoteType();
