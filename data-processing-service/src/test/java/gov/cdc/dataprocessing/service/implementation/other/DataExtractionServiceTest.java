@@ -343,13 +343,6 @@ class DataExtractionServiceTest {
         return identifiersType;
     }
 
-//    private IdentifierType getIdentifierType() {
-//        IdentifierType idType = new IdentifierType();
-//        idType.setIDTypeCode("id type");
-//        idType.setIDNumber("id number");
-//        return idType;
-//    }
-
     private NoteType getNotesType() {
         NoteType notes = new NoteType();
         return notes;
