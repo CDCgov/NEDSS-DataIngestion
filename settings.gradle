@@ -13,5 +13,5 @@ include 'cdaschema'
 include 'data-ingestion-service'
 
 //Ignore this for now
-//include 'data-processing-service'
+include 'data-processing-service'
 
