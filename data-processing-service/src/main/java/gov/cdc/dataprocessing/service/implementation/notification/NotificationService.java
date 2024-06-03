@@ -15,6 +15,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.notification.Notificatio
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.generic_helper.PropertyUtil;
 import gov.cdc.dataprocessing.utilities.component.notification.NotificationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.*;
 
 @Service
 public class NotificationService implements INotificationService {
+
     private final NotificationRepository notificationRepository;
     private final PrepareAssocModelHelper prepareAssocModelHelper;
     private final IUidService iUidService;
@@ -30,15 +32,20 @@ public class NotificationService implements INotificationService {
 
     private final NotificationRepositoryUtil notificationRepositoryUtil;
 
+    private final PropertyUtil propertyUtil;
+
     public NotificationService(NotificationRepository notificationRepository,
                                PrepareAssocModelHelper prepareAssocModelHelper,
                                IUidService iUidService,
-                               ActRelationshipRepositoryUtil actRelationshipRepositoryUtil, NotificationRepositoryUtil notificationRepositoryUtil) {
+                               ActRelationshipRepositoryUtil actRelationshipRepositoryUtil,
+                               NotificationRepositoryUtil notificationRepositoryUtil,
+                               PropertyUtil propertyUtil) {
         this.notificationRepository = notificationRepository;
         this.prepareAssocModelHelper = prepareAssocModelHelper;
         this.iUidService = iUidService;
         this.actRelationshipRepositoryUtil = actRelationshipRepositoryUtil;
         this.notificationRepositoryUtil = notificationRepositoryUtil;
+        this.propertyUtil = propertyUtil;
     }
 
     public NotificationDto getNotificationById(Long uid) {
@@ -222,15 +229,14 @@ public class NotificationService implements INotificationService {
             String tableName = "Notification";
             String moduleCd = NEDSSConstant.BASE;
 
-            // TODO: PROPERTY CHECK FOR PROGRAM AREA
-//            if(notifVO.isItNew() && PropertyUtil.isHIVProgramArea(notifDT.getProgAreaCd()))
-//            {
-//                triggerCd = NEDSSConstant.NOT_HIV;// for HIV, notification is always created as completed
-//            }
-//            if(notifVO.isItDirty() && PropertyUtil.isHIVProgramArea(notifDT.getProgAreaCd()))
-//            {
-//                triggerCd = NEDSSConstant.NOT_HIV_EDIT;// for HIV, notification always stay as completed
-//            }
+            if(notifVO.isItNew() && propertyUtil.isHIVProgramArea(notifDT.getProgAreaCd()))
+            {
+                triggerCd = NEDSSConstant.NOT_HIV;// for HIV, notification is always created as completed
+            }
+            if(notifVO.isItDirty() && propertyUtil.isHIVProgramArea(notifDT.getProgAreaCd()))
+            {
+                triggerCd = NEDSSConstant.NOT_HIV_EDIT;// for HIV, notification always stay as completed
+            }
 
 
             try
