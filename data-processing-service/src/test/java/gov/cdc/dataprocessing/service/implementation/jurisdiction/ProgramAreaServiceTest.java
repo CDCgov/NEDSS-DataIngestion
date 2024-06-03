@@ -12,7 +12,6 @@ import gov.cdc.dataprocessing.repository.nbs.srte.repository.ProgramAreaCodeRepo
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationCodeService;
 import gov.cdc.dataprocessing.service.interfaces.other.ISrteCodeObsService;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
