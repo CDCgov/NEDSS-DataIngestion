@@ -27,8 +27,6 @@ import gov.cdc.dataprocessing.service.interfaces.material.IMaterialService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -213,7 +211,10 @@ public class MaterialService implements IMaterialService {
             }
         }
 
-        return materialContainer.getTheMaterialDto().getMaterialUid();
+        if (materialContainer.getTheMaterialDto() !=  null) {
+            return materialContainer.getTheMaterialDto().getMaterialUid();
+        }
+        return null;
     }
 
     private Long insertNewMaterial(MaterialContainer materialContainer) throws DataProcessingException {
@@ -268,11 +269,11 @@ public class MaterialService implements IMaterialService {
     }
     private void persistingEntityId(Long uid, Collection<EntityIdDto> entityIdCollection ) throws DataProcessingException {
         try {
-            Iterator<EntityIdDto> anIterator = null;
+            Iterator<EntityIdDto> anIterator;
             ArrayList<EntityIdDto>  entityList = (ArrayList<EntityIdDto> )entityIdCollection;
             anIterator = entityList.iterator();
             int maxSeq = 0;
-            while (null != anIterator && anIterator.hasNext()) {
+            while (anIterator.hasNext()) {
                 EntityIdDto entityID = anIterator.next();
                 if(maxSeq == 0) {
                     if(null == entityID.getEntityUid() || entityID.getEntityUid() < 0) {

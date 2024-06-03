@@ -33,9 +33,9 @@ import java.util.*;
 
 @Service
 public class InvestigationNotificationService  implements IInvestigationNotificationService {
-    private IInvestigationService investigationService;
-    private INotificationService notificationService;
-    private CustomNbsQuestionRepository customNbsQuestionRepository;
+    private final IInvestigationService investigationService;
+    private final INotificationService notificationService;
+    private final CustomNbsQuestionRepository customNbsQuestionRepository;
 
     public InvestigationNotificationService(
             IInvestigationService investigationService,
@@ -47,7 +47,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
     }
 
     public EDXActivityDetailLogDto sendNotification(Object pageObj, String nndComment) throws DataProcessingException {
-        NotificationProxyContainer notProxyVO = null;
+        NotificationProxyContainer notProxyVO;
         // Create the Notification object
         PublicHealthCaseContainer publicHealthCaseContainer;
         if (pageObj instanceof PageActProxyContainer) {
@@ -95,17 +95,16 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         notProxyVO.setThePublicHealthCaseContainer(publicHealthCaseContainer);
         notProxyVO.setTheNotificationContainer(notVO);
 
-        ArrayList<Object> actRelColl = new ArrayList<Object>();
+        ArrayList<Object> actRelColl = new ArrayList<>();
         actRelColl.add(0, actDT1);
         notProxyVO.setTheActRelationshipDTCollection(actRelColl);
 
         // EdxPHCRDocumentUtil.sendProxyToEJB(notProxyVO, pageObj);
-        EDXActivityDetailLogDto eDXActivityDetailLogDT = sendProxyToEJB(notProxyVO, pageObj);
-        return eDXActivityDetailLogDT;
+        return sendProxyToEJB(notProxyVO, pageObj);
     }
 
 
-    private EDXActivityDetailLogDto  sendProxyToEJB(NotificationProxyContainer notificationProxyVO, Object pageObj)throws DataProcessingException
+    private EDXActivityDetailLogDto  sendProxyToEJB(NotificationProxyContainer notificationProxyVO, Object pageObj)
     {
         HashMap<Object,Object> nndRequiredMap = new HashMap<>();
         EDXActivityDetailLogDto eDXActivityDetailLogDT = new EDXActivityDetailLogDto();
@@ -125,7 +124,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                 TreeMap<String, String> condAndFormCdTreeMap = SrteCache.investigationFormConditionCode;
 
                 String investigationFormCd = condAndFormCdTreeMap.get(phcDT.getCd());
-                Collection<QuestionRequiredNnd>  notifReqColl = new ArrayList<>();
+                Collection<QuestionRequiredNnd>  notifReqColl;
 
                     notifReqColl = customNbsQuestionRepository.retrieveQuestionRequiredNnd(investigationFormCd);
 
@@ -136,10 +135,10 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                         }
                     }
 
-                    Map<?,?> result = null;
+                    Map<?,?> result;
                     try {
                         result= validatePAMNotficationRequiredFieldsGivenPageProxy(pageObj, publicHealthCaseUid, subMap,investigationFormCd);
-                        StringBuffer errorText =new StringBuffer(20);
+                        StringBuilder errorText =new StringBuilder(20);
                         if(result!=null && result.size()>0){
                             int i =  result.size();
                             Collection<?> coll =result.values();
@@ -147,7 +146,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                             while(it.hasNext()){
                                 String label = (String)it.next();
                                 --i;
-                                errorText.append("["+label+"]");
+                                errorText.append("[").append(label).append("]");
                                 if(it.hasNext()){
                                     errorText.append("; and ");
                                 }
@@ -157,7 +156,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                             }
                             formatErr = true;
                             eDXActivityDetailLogDT.setLogType(EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure.name());
-                            eDXActivityDetailLogDT.setComment(EdxELRConstant.MISSING_NOTF_REQ_FIELDS+ errorText.toString());
+                            eDXActivityDetailLogDT.setComment(EdxELRConstant.MISSING_NOTF_REQ_FIELDS+ errorText);
                             return eDXActivityDetailLogDT;
                         }
                     }
@@ -176,7 +175,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             notifVO.setTheNotificationDT(notifDT);
             notificationProxyVO.setTheNotificationContainer(notifVO);
             Long realNotificationUid = setNotificationProxy(notificationProxyVO);
-            eDXActivityDetailLogDT.setRecordId(""+realNotificationUid);
+            eDXActivityDetailLogDT.setRecordId(String.valueOf(realNotificationUid));
             if (!formatErr)
             {
                 eDXActivityDetailLogDT.setComment("Notification created (UID: "+realNotificationUid+")");
@@ -197,9 +196,6 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
 
     /**
      * Returns the list of Fields that are required (and not filled) to Create Notification from PAM Cases
-     * @param publicHealthCaseUid
-     * @param reqFields
-     * @return
      */
     private Map<Object, Object> validatePAMNotficationRequiredFieldsGivenPageProxy(Object pageObj, Long publicHealthCaseUid,
                                                                                   Map<Object, Object>  reqFields, String formCd) throws DataProcessingException {
@@ -207,12 +203,12 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         Map<Object, Object>  missingFields = new TreeMap<>();
 
         try {
-            BasePamContainer pamVO=null;
-            Collection<ParticipationDto> participationDTCollection  = null;
-            PublicHealthCaseDto publicHealthCaseDto = null;
-            Collection<PersonContainer> personVOCollection = null;
-            Map<Object, Object>  answerMap = null;
-            Collection<ActIdDto>  actIdColl = null;
+            BasePamContainer pamVO;
+            Collection<ParticipationDto> participationDTCollection;
+            PublicHealthCaseDto publicHealthCaseDto;
+            Collection<PersonContainer> personVOCollection;
+            Map<Object, Object>  answerMap;
+            Collection<ActIdDto>  actIdColl;
 
             if(formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)||formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_VAR))
             {
@@ -242,7 +238,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             else
             {
                 // HIT THIS
-                PageActProxyContainer pageProxyVO  = null;
+                PageActProxyContainer pageProxyVO;
                 if(pageObj == null  || pageObj instanceof PublicHealthCaseContainer)
                 {
                     pageProxyVO =  investigationService.getPageProxyVO(NEDSSConstant.CASE, publicHealthCaseUid);
@@ -270,7 +266,10 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
 
 
             PersonContainer personVO = getPersonVO(NEDSSConstant.PHC_PATIENT, participationDTCollection,personVOCollection );
-            PersonDto personDT = personVO.getThePersonDto();
+            PersonDto personDT = new PersonDto();
+            if (personVO != null) {
+                personDT = personVO.getThePersonDto();
+            }
 
 
             String programAreaCode = publicHealthCaseDto.getProgAreaCd();
@@ -306,7 +305,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                 String label = metaData.getQuestionLabel() == null ? "" : metaData.getQuestionLabel();
                 Long nbsQueUid = metaData.getNbsQuestionUid();
                 if (!dLocation.equals("")) {
-                    if (dLocation.startsWith("NBS_Answer.")) {
+                    if (dLocation.startsWith("NBS_Answer.") && answerMap != null) {
                         if (answerMap.get(key) == null) {
                             missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
                         }
@@ -379,20 +378,20 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                             for (ActIdDto adt : actIdColl) {
                                 String typeCd = adt.getTypeCd() == null ? "" : adt.getTypeCd();
                                 String value = adt.getRootExtensionTxt() == null ? "" : adt.getRootExtensionTxt();
-                                if (typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD) && value.equals("") && (label.toLowerCase().indexOf("state") != -1)) {
+                                if (typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD) && value.equals("") && (label.toLowerCase().contains("state"))) {
                                     Map<Object, Object> methodMap = getMethods(adt.getClass());
                                     Method method = (Method) methodMap.get(getterNm.toLowerCase());
                                     Object obj = method.invoke(adt, (Object[]) null);
                                     checkObject(obj, missingFields, metaData);
                                 } else if (typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD)
                                         && formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)
-                                        && (label.toLowerCase().indexOf("state") != -1)) {
+                                        && (label.toLowerCase().contains("state"))) {
                                     Map<Object, Object> methodMap = getMethods(adt.getClass());
                                     Method method = (Method) methodMap.get(getterNm.toLowerCase());
                                     Object obj = method.invoke(adt, (Object[]) null);
                                     checkObject(obj, missingFields, metaData);
                                 } else if (typeCd.equalsIgnoreCase("CITY")
-                                        && value.equals("") && (label.toLowerCase().indexOf("city") != -1)) {
+                                        && value.equals("") && (label.toLowerCase().contains("city"))) {
                                     Map<Object, Object> methodMap = getMethods(adt.getClass());
                                     Method method = (Method) methodMap.get(getterNm.toLowerCase());
                                     Object obj = method.invoke(adt, (Object[]) null);
@@ -400,7 +399,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                                 }
                             }
                         } else if (formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)
-                                && (label.toLowerCase().indexOf("state") != -1)) {
+                                && (label.toLowerCase().contains("state"))) {
                             missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
                         }
                     } else if (dLocation.toLowerCase().startsWith("nbs_case_answer.")
@@ -438,11 +437,10 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
 
         try {
             StringTokenizer tokenizer = new StringTokenizer(attrToChk,"_");
-            String methodName = "";
+            StringBuilder methodName = new StringBuilder();
             while (tokenizer.hasMoreTokens()){
                 String token = tokenizer.nextToken();
-                methodName = methodName + Character.toUpperCase(token.charAt(0)) +
-                        token.substring(1).toLowerCase();
+                methodName.append(Character.toUpperCase(token.charAt(0))).append(token.substring(1).toLowerCase());
 
             }
             return "get" + methodName;
@@ -455,11 +453,10 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
     private  Map<Object, Object>  getMethods(Class beanClass) throws DataProcessingException {
         try {
             Method[] gettingMethods = beanClass.getMethods();
-            Map<Object, Object>  resultMap = new HashMap<Object, Object>();
+            Map<Object, Object>  resultMap = new HashMap<>();
             for (Method gettingMethod : gettingMethods) {
-                Method method = (Method) gettingMethod;
-                String methodName = method.getName().toLowerCase();
-                resultMap.put(methodName, method);
+                String methodName = ( gettingMethod).getName().toLowerCase();
+                resultMap.put(methodName,  gettingMethod);
             }
             return resultMap;
         } catch (SecurityException e) {
@@ -482,11 +479,11 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
     private PersonContainer getPersonVO(String type_cd, Collection<ParticipationDto> participationDTCollection,
                                         Collection<PersonContainer> personVOCollection) throws DataProcessingException {
         try {
-            ParticipationDto participationDT = null;
-            PersonContainer personVO = null;
+            ParticipationDto participationDT;
+            PersonContainer personVO;
             if (participationDTCollection  != null) {
-                Iterator<ParticipationDto> anIterator1 = null;
-                Iterator<PersonContainer> anIterator2 = null;
+                Iterator<ParticipationDto> anIterator1;
+                Iterator<PersonContainer> anIterator2 ;
                 for (anIterator1 = participationDTCollection.iterator(); anIterator1.hasNext();) {
                     participationDT =  anIterator1.next();
                     if (participationDT.getTypeCd() != null && (participationDT.getTypeCd()).compareTo(type_cd) == 0) {
@@ -520,8 +517,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
     {
 
         try {
-            Long notificationUid = notificationService.setNotificationProxy(notificationProxyVO);
-            return notificationUid;
+            return notificationService.setNotificationProxy(notificationProxyVO);
         }
         catch (Exception ex) {
             throw new DataProcessingException(ex.getMessage(),ex);

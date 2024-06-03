@@ -79,7 +79,7 @@ public class ObservationUtil {
             }
 
         } catch (Exception ex) {
-            throw new DataProcessingException("Error while retrieving a " + uidListType + " uid. " + ex.toString(), ex);
+            throw new DataProcessingException("Error while retrieving a " + uidListType + " uid. " + ex.getMessage(), ex);
         }
 
         return anUid;

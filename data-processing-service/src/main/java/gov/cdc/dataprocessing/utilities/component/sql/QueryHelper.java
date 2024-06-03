@@ -25,9 +25,9 @@ public class QueryHelper {
     public String getDataAccessWhereClause(String businessObjLookupName, String operation, String alias) {
 
         String whereClause = null;
-        String columnName = null;
-        String ownerList = null;
-        String guestList = null;
+        String columnName;
+        String ownerList;
+        String guestList;
 
 //        boolean paSecured = NBSBOLookup.isSecuredByProgramArea(
 //                businessObjLookupName);
@@ -74,13 +74,12 @@ public class QueryHelper {
     }
 
     private String getHashedPAJList(String businessObjLookupName, String operation, boolean guest) {
-        Collection<Object> allPAJList = new HashSet<Object>();
+        Collection<Object> allPAJList = new HashSet<>();
         StringBuffer hashedPAJList = new StringBuffer();
 
 
-
-        for (Iterator<AuthUserRealizedRole> it = AuthUtil.authUserRealizedRoleCollection.iterator(); it.hasNext(); ) {
-            RealizedRoleDto rRole = new RealizedRoleDto(it.next());
+        for (AuthUserRealizedRole authUserRealizedRole : AuthUtil.authUserRealizedRoleCollection) {
+            RealizedRoleDto rRole = new RealizedRoleDto(authUserRealizedRole);
 
             if (rRole.isGuest() == guest) { //only consider roles that match the requested guest status
                 boolean isOpAvailable = true;
@@ -96,9 +95,9 @@ public class QueryHelper {
             }
         }
 
-        for (Iterator<Object> allIt = allPAJList.iterator(); allIt.hasNext(); ) {
+        for (Object o : allPAJList) {
 
-            Long cd = (Long) allIt.next();
+            Long cd = (Long) o;
             if (cd != null) {
                 if (cd.toString().trim().length() != 0) {
                     hashedPAJList = hashedPAJList.append(cd).append(", ");

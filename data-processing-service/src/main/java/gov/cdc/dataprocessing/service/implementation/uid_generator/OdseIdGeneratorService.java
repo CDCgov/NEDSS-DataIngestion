@@ -6,8 +6,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.LocalUidGenerato
 import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorService;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

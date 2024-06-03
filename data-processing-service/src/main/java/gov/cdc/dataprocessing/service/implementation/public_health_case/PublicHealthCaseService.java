@@ -10,8 +10,6 @@ import gov.cdc.dataprocessing.service.interfaces.public_health_case.IPublicHealt
 import gov.cdc.dataprocessing.utilities.component.public_health_case.PublicHealthCaseRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -30,19 +28,19 @@ public class PublicHealthCaseService implements IPublicHealthCaseService {
 
     public Long setPublicHealthCase(PublicHealthCaseContainer publicHealthCaseContainer) throws DataProcessingException {
 
-        Long PubHealthCaseUid = -1L;
+        Long PubHealthCaseUid;
 
         try
         {
 
-            PublicHealthCaseDto publicHealthCase = null;
+            PublicHealthCaseDto publicHealthCase;
 
             Collection<ActivityLocatorParticipationDto> alpDTCol = publicHealthCaseContainer.getTheActivityLocatorParticipationDTCollection();
             Collection<ActRelationshipDto> arDTCol = publicHealthCaseContainer.getTheActRelationshipDTCollection();
             Collection<ParticipationDto> pDTCol = publicHealthCaseContainer.getTheParticipationDTCollection();
-            Collection<ActivityLocatorParticipationDto> col = null;
-            Collection<ActRelationshipDto> colActRelationship = null;
-            Collection<ParticipationDto> colParticipation = null;
+            Collection<ActivityLocatorParticipationDto> col;
+            Collection<ActRelationshipDto> colActRelationship;
+            Collection<ParticipationDto> colParticipation ;
 
             if (alpDTCol != null)
             {

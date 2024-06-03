@@ -12,8 +12,6 @@ import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaServic
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationCodeService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ISrteCodeObsService;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -224,7 +222,7 @@ public class ProgramAreaService implements IProgramAreaService {
         }
         else if (paHTBL.size() == 1)
         {
-            returnMap.put(ELRConstant.PROGRAM_AREA_HASHMAP_KEY, paHTBL.keys().nextElement().toString());
+            returnMap.put(ELRConstant.PROGRAM_AREA_HASHMAP_KEY, paHTBL.keys().nextElement());
         }
         else
         {
@@ -236,21 +234,16 @@ public class ProgramAreaService implements IProgramAreaService {
     public String deriveProgramAreaCd(LabResultProxyContainer labResultProxyVO, ObservationContainer orderTest) throws DataProcessingException {
             //Gathering the result tests
             Collection<ObservationContainer>  resultTests = new ArrayList<> ();
-            for (Iterator<ObservationContainer> it = labResultProxyVO.getTheObservationContainerCollection().
-                    iterator(); it.hasNext(); )
-            {
-                ObservationContainer obsVO = (ObservationContainer) it.next();
-
-                String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
-                if (obsDomainCdSt1 != null &&
-                        obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.RESULTED_TEST_OBS_DOMAIN_CD))
-                {
-                    resultTests.add(obsVO);
-                }
+        for (ObservationContainer obsVO : labResultProxyVO.getTheObservationContainerCollection()) {
+            String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
+            if (obsDomainCdSt1 != null &&
+                    obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.RESULTED_TEST_OBS_DOMAIN_CD)) {
+                resultTests.add(obsVO);
             }
+        }
 
             //Get the reporting lab clia
-            String reportingLabCLIA = "";
+            String reportingLabCLIA;
             if(labResultProxyVO.getLabClia()!=null && labResultProxyVO.isManualLab())
                 reportingLabCLIA =labResultProxyVO.getLabClia();
             else

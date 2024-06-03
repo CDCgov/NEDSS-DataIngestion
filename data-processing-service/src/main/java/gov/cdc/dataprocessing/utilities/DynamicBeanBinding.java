@@ -9,17 +9,13 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 public class DynamicBeanBinding {
-    private static Map<Object, Object> beanMethodMap = new HashMap<Object, Object>();
+    private static Map<Object, Object> beanMethodMap = new HashMap<>();
 
 
 
     /**
      * populateBean populates the metadata relevant colNm to the Bean Object and
      * returns
-     *
-     * @param bean
-     * @param colNm
-     * @throws Exception
      */
     public static void populateBean(Object bean, String colNm, String colVal)
             throws Exception {
@@ -58,7 +54,7 @@ public class DynamicBeanBinding {
                     arg[0] = Integer.valueOf(colVal);
 
                 } else if (pType.equalsIgnoreCase("java.math.BigDecimal")) {
-                    arg[0] = BigDecimal.valueOf(Long.valueOf(colVal).longValue());
+                    arg[0] = BigDecimal.valueOf(Long.parseLong(colVal));
 
                 } else if (pType.equalsIgnoreCase("boolean")) {
                     arg[0] = colVal;
@@ -82,15 +78,9 @@ public class DynamicBeanBinding {
         }
     }
 
-    /**
-     *
-     * @param columnName
-     * @return
-     * @throws Exception
-     */
     private static String getSetterName(String columnName) throws Exception {
         try {
-            StringBuffer sb = new StringBuffer("set");
+            StringBuilder sb = new StringBuilder("set");
             StringTokenizer st = new StringTokenizer(columnName, "_");
             while (st.hasMoreTokens()) {
                 String s = st.nextToken();
@@ -104,20 +94,16 @@ public class DynamicBeanBinding {
         }
     }
 
-    /**
-     *
-     * @return
-     * @throws Exception
-     */
+
     @SuppressWarnings("unchecked")
     private static Map<Object, Object> getMethods(Class<?> beanClass)
             throws Exception {
         try {
             if (beanMethodMap.get(beanClass) == null) {
                 Method[] gettingMethods = beanClass.getMethods();
-                Map<Object, Object> resultMap = new HashMap<Object, Object>();
-                for (int i = 0; i < gettingMethods.length; i++) {
-                    Method method = (Method) gettingMethods[i];
+                Map<Object, Object> resultMap = new HashMap<>();
+                for (Method gettingMethod : gettingMethods) {
+                    Method method =  gettingMethod;
                     String methodName = method.getName();
                     Object[] parmTypes = method.getParameterTypes();
                     if (methodName.startsWith("set") && parmTypes.length == 1)

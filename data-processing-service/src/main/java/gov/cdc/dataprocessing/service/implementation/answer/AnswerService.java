@@ -54,13 +54,9 @@ public class AnswerService implements IAnswerService {
             Map<Object, Object> nbsRepeatingAnswerMap =new HashMap<>();
             if(answerDTReturnMap.get(NEDSSConstant.NON_REPEATING_QUESTION)!=null){
                 nbsAnswerMap=(HashMap<Object, NbsAnswerDto>)answerDTReturnMap.get(NEDSSConstant.NON_REPEATING_QUESTION);
-                logger.debug("AnswerRootDAOImpl nbsAnswerMap Size +"+nbsAnswerMap.size());
-                logger.debug("AnswerRootDAOImpl nbsAnswerMap Values +"+nbsAnswerMap.toString());
             }
             if(answerDTReturnMap.get(NEDSSConstant.REPEATING_QUESTION)!=null){
                 nbsRepeatingAnswerMap=(HashMap<Object, Object>)answerDTReturnMap.get(NEDSSConstant.REPEATING_QUESTION);
-                logger.debug("AnswerRootDAOImpl nbsRepeatingAnswerMap Size +"+nbsRepeatingAnswerMap.size());
-                logger.debug("AnswerRootDAOImpl nbsRepeatingAnswerMap Values +"+nbsRepeatingAnswerMap.toString());
             }
             pageContainer.setAnswerDTMap(nbsAnswerMap);
             pageContainer.setPageRepeatingAnswerDTMap(nbsRepeatingAnswerMap);
@@ -83,10 +79,10 @@ public class AnswerService implements IAnswerService {
     }
 
     public Map<Object, Object> getPageAnswerDTMaps(Long actUid) throws DataAccessException, DataProcessingException {
-        ArrayList<NbsAnswerDto> pageAnswerDTCollection = new ArrayList<NbsAnswerDto>();
-        Map<Object, Object> nbsReturnAnswerMap = new HashMap<Object, Object>();
-        Map<Object, Object> nbsAnswerMap = new HashMap<Object, Object>();
-        Map<Object, Object> nbsRepeatingAnswerMap = new HashMap<Object, Object>();
+        ArrayList<NbsAnswerDto> pageAnswerDTCollection = new ArrayList<>();
+        Map<Object, Object> nbsReturnAnswerMap = new HashMap<>();
+        Map<Object, Object> nbsAnswerMap = new HashMap<>();
+        Map<Object, Object> nbsRepeatingAnswerMap = new HashMap<>();
 
 
         var result = nbsAnswerRepository.getPageAnswerByActUid(actUid);
@@ -103,37 +99,37 @@ public class AnswerService implements IAnswerService {
 
             Iterator<NbsAnswerDto> it = pageAnswerDTCollection.iterator();
             Long nbsQuestionUid = 0L;
-            Collection<NbsAnswerDto> coll = new ArrayList<NbsAnswerDto>();
+            Collection<NbsAnswerDto> coll = new ArrayList<>();
             while (it.hasNext())
             {
-                NbsAnswerDto pageAnsDT = (NbsAnswerDto) it.next();
+                NbsAnswerDto pageAnsDT = it.next();
 
                 if (pageAnsDT.getAnswerGroupSeqNbr() != null && pageAnsDT.getAnswerGroupSeqNbr() > -1)
                 {
                     if (nbsRepeatingAnswerMap.get(pageAnsDT.getNbsQuestionUid()) == null)
                     {
-                        Collection collection = new ArrayList();
+                        Collection<NbsAnswerDto> collection = new ArrayList<>();
                         collection.add(pageAnsDT);
                         nbsRepeatingAnswerMap.put(pageAnsDT.getNbsQuestionUid(), collection);
                     }
                     else
                     {
-                        Collection collection = (Collection) nbsRepeatingAnswerMap.get(pageAnsDT.getNbsQuestionUid());
+                        Collection<NbsAnswerDto>  collection = (Collection<NbsAnswerDto> ) nbsRepeatingAnswerMap.get(pageAnsDT.getNbsQuestionUid());
                         collection.add(pageAnsDT);
                         nbsRepeatingAnswerMap.put(pageAnsDT.getNbsQuestionUid(), collection);
                     }
                 }
                 else if ((pageAnsDT.getNbsQuestionUid().compareTo(nbsQuestionUid) == 0)
-                        && pageAnsDT.getSeqNbr() != null && pageAnsDT.getSeqNbr().intValue() > 0)
+                        && pageAnsDT.getSeqNbr() != null && pageAnsDT.getSeqNbr() > 0)
                 {
                     coll.add(pageAnsDT);
                 }
-                else if (pageAnsDT.getSeqNbr() != null && pageAnsDT.getSeqNbr().intValue() > 0)
+                else if (pageAnsDT.getSeqNbr() != null && pageAnsDT.getSeqNbr() > 0)
                 {
                     if (coll.size() > 0)
                     {
                         nbsAnswerMap.put(nbsQuestionUid, coll);
-                        coll = new ArrayList<NbsAnswerDto>();
+                        coll = new ArrayList<>();
                     }
                     coll.add(pageAnsDT);
                 }
@@ -144,7 +140,7 @@ public class AnswerService implements IAnswerService {
                         nbsAnswerMap.put(nbsQuestionUid, coll);
                     }
                     nbsAnswerMap.put(pageAnsDT.getNbsQuestionUid(), pageAnsDT);
-                    coll = new ArrayList<NbsAnswerDto>();
+                    coll = new ArrayList<>();
                 }
                 nbsQuestionUid = pageAnsDT.getNbsQuestionUid();
                 if (!it.hasNext() && coll.size() > 0)
@@ -169,12 +165,12 @@ public class AnswerService implements IAnswerService {
 
             if(pageContainer !=null && pageContainer.getAnswerDTMap() !=null ) {
                 Collection<Object> answerDTColl = new ArrayList<>(pageContainer.getAnswerDTMap().values());
-                if(answerDTColl!=null && answerDTColl.size()>0) {
+                if(answerDTColl.size()>0) {
                     storeAnswerDTCollection(answerDTColl, rootDTInterface);
                 }
-                if(pageContainer !=null && pageContainer.getPageRepeatingAnswerDTMap() !=null ) {
+                if(pageContainer.getPageRepeatingAnswerDTMap() != null) {
                     Collection<Object> interviewRepeatingAnswerDTColl = pageContainer.getPageRepeatingAnswerDTMap().values();
-                    if(interviewRepeatingAnswerDTColl!=null && interviewRepeatingAnswerDTColl.size()>0) {
+                    if(interviewRepeatingAnswerDTColl.size()>0) {
                         storeAnswerDTCollection(interviewRepeatingAnswerDTColl, rootDTInterface);
                     }
                 }
@@ -196,15 +192,18 @@ public class AnswerService implements IAnswerService {
     public void storePageAnswer(PageContainer pageContainer, ObservationDto observationDto) throws DataProcessingException{
         try {
             delete(observationDto);
-            if(pageContainer !=null && pageContainer.getAnswerDTMap()!=null && pageContainer.getAnswerDTMap().values()!=null)
+            if(pageContainer != null && pageContainer.getAnswerDTMap() != null)
             {
                 storeAnswerDTCollection(new ArrayList<>( pageContainer.getAnswerDTMap().values()), observationDto);
             }
-            if(pageContainer !=null && pageContainer.getPageRepeatingAnswerDTMap()!=null && pageContainer.getPageRepeatingAnswerDTMap().values()!=null)
+            if(pageContainer != null && pageContainer.getPageRepeatingAnswerDTMap() != null)
             {
                 storeAnswerDTCollection(pageContainer.getPageRepeatingAnswerDTMap().values(), observationDto);
             }
-            insertActEntityDTCollection(pageContainer.getActEntityDTCollection(), observationDto);
+
+            if (pageContainer != null) {
+                insertActEntityDTCollection(pageContainer.getActEntityDTCollection(), observationDto);
+            }
         } catch (Exception e) {
             throw new DataProcessingException("InterviewAnswerRootDAOImpl:store- answerDTColl could not be stored", e);
         }
@@ -213,20 +212,16 @@ public class AnswerService implements IAnswerService {
     private void storeActEntityDTCollection(Collection<NbsActEntityDto> pamDTCollection, ObservationDto rootDTInterface) throws  DataProcessingException{
         try{
             if(pamDTCollection.size()>0){
-                Iterator<NbsActEntityDto> it  = pamDTCollection.iterator();
-                while(it.hasNext()){
-                    NbsActEntityDto pamCaseEntityDT = (NbsActEntityDto)it.next();
-                    if(pamCaseEntityDT.isItDelete()){
+                for (NbsActEntityDto pamCaseEntityDT : pamDTCollection) {
+                    if (pamCaseEntityDT.isItDelete()) {
                         nbsActEntityRepository.deleteNbsEntityAct(pamCaseEntityDT.getNbsActEntityUid());
-                    }
-                    else if(pamCaseEntityDT.isItDirty() || pamCaseEntityDT.isItNew())
-                    {
+                    } else if (pamCaseEntityDT.isItDirty() || pamCaseEntityDT.isItNew()) {
                         var nbsActEntity = new NbsActEntity(pamCaseEntityDT);
                         nbsActEntity.setActUid(rootDTInterface.getObservationUid());
                         nbsActEntity.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
                         nbsActEntity.setRecordStatusCd("OPEN");
                         nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
-                        nbsActEntityRepository .save(new NbsActEntity(pamCaseEntityDT));
+                        nbsActEntityRepository.save(new NbsActEntity(pamCaseEntityDT));
                     }
                 }
             }
@@ -240,20 +235,16 @@ public class AnswerService implements IAnswerService {
             throws  DataProcessingException{
         try{
             if(pamDTCollection.size()>0){
-                Iterator<NbsActEntityDto> it  = pamDTCollection.iterator();
-                while(it.hasNext()){
-                    NbsActEntityDto pamCaseEntityDT = (NbsActEntityDto)it.next();
-                    if(pamCaseEntityDT.isItDelete()){
+                for (NbsActEntityDto pamCaseEntityDT : pamDTCollection) {
+                    if (pamCaseEntityDT.isItDelete()) {
                         nbsActEntityRepository.deleteNbsEntityAct(pamCaseEntityDT.getNbsActEntityUid());
-                    }
-                    else if(pamCaseEntityDT.isItDirty() || pamCaseEntityDT.isItNew())
-                    {
+                    } else if (pamCaseEntityDT.isItDirty() || pamCaseEntityDT.isItNew()) {
                         var nbsActEntity = new NbsActEntity(pamCaseEntityDT);
                         nbsActEntity.setActUid(rootDTInterface.getPublicHealthCaseUid());
                         nbsActEntity.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
                         nbsActEntity.setRecordStatusCd("OPEN");
                         nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
-                        nbsActEntityRepository .save(nbsActEntity);
+                        nbsActEntityRepository.save(nbsActEntity);
                     }
                 }
             }
@@ -267,9 +258,7 @@ public class AnswerService implements IAnswerService {
 
     private void insertActEntityDTCollection(Collection<NbsActEntityDto> actEntityDTCollection, ObservationDto observationDto) {
         if(actEntityDTCollection.size()>0){
-            Iterator<NbsActEntityDto> it  = actEntityDTCollection.iterator();
-            while(it.hasNext()){
-                NbsActEntityDto pamCaseEntityDT = (NbsActEntityDto)it.next();
+            for (NbsActEntityDto pamCaseEntityDT : actEntityDTCollection) {
                 nbsActEntityRepository.save(new NbsActEntity(pamCaseEntityDT));
             }
         }
@@ -278,13 +267,11 @@ public class AnswerService implements IAnswerService {
     private void storeAnswerDTCollection(Collection<Object> answerDTColl, ObservationDto interfaceDT) throws DataProcessingException {
         try {
             if (answerDTColl != null){
-                Iterator<Object> it  = answerDTColl.iterator();
-                while(it.hasNext()) {
-                    NbsAnswerDto object = (NbsAnswerDto) it.next();
-                    NbsAnswerDto answerDT = object;
-                    if(answerDT.isItDirty() || answerDT.isItNew()){
+                for (Object o : answerDTColl) {
+                    NbsAnswerDto answerDT = (NbsAnswerDto) o;
+                    if (answerDT.isItDirty() || answerDT.isItNew()) {
                         nbsAnswerRepository.save(new NbsAnswer(answerDT));
-                    } else if(answerDT.isItDelete()) {
+                    } else if (answerDT.isItDelete()) {
                         nbsAnswerRepository.deleteNbsAnswer(answerDT.getNbsAnswerUid());
                     }
                 }
@@ -330,19 +317,14 @@ public class AnswerService implements IAnswerService {
     private void insertAnswerHistoryDTCollection(Collection<NbsAnswerDto> oldAnswerDTCollection) throws DataProcessingException {
         try {
             if (oldAnswerDTCollection != null) {
-                Iterator<NbsAnswerDto> it = oldAnswerDTCollection.iterator();
-                while (it.hasNext()) {
-                    Object obj=it.next();
-                    if(obj!=null && obj instanceof ArrayList<?> && ((ArrayList<Object>)obj).size()>0) {
-                        Iterator<NbsAnswerDto> iter = ((ArrayList<NbsAnswerDto>)obj).iterator();
-                        while(iter.hasNext()){
-                            NbsAnswerDto answerDT = iter.next();
+                for (Object obj : oldAnswerDTCollection) {
+                    if (obj instanceof ArrayList<?> && ((ArrayList<Object>) obj).size() > 0) {
+                        for (NbsAnswerDto answerDT : (ArrayList<NbsAnswerDto>) obj) {
                             nbsAnswerRepository.deleteNbsAnswer(answerDT.getNbsAnswerUid());
                             nbsAnswerHistRepository.save(new NbsAnswerHist(answerDT));
                         }
-                    }
-                    else if(obj!=null && obj instanceof NbsAnswerDto){
-                        NbsAnswerDto answerDT = (NbsAnswerDto)obj;
+                    } else if (obj instanceof NbsAnswerDto) {
+                        NbsAnswerDto answerDT = (NbsAnswerDto) obj;
                         nbsAnswerRepository.deleteNbsAnswer(answerDT.getNbsAnswerUid());
                         nbsAnswerHistRepository.save(new NbsAnswerHist(answerDT));
                     }
@@ -358,9 +340,7 @@ public class AnswerService implements IAnswerService {
         try {
 
             if (nbsCaseEntityDTColl != null) {
-                Iterator<NbsActEntityDto> it = nbsCaseEntityDTColl.iterator();
-                while (it.hasNext()) {
-                    NbsActEntityDto nbsActEntityDto = (NbsActEntityDto) it.next();
+                for (NbsActEntityDto nbsActEntityDto : nbsCaseEntityDTColl) {
                     nbsActEntityRepository.deleteNbsEntityAct(nbsActEntityDto.getNbsActEntityUid());
 
                     var data = new NbsActEntityHist(nbsActEntityDto);

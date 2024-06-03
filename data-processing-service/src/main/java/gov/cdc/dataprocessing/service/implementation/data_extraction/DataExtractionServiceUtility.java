@@ -15,7 +15,6 @@ public class DataExtractionServiceUtility {
         JAXBContext context = JAXBContext.newInstance(Container.class);
         Unmarshaller unmarshaller = context.createUnmarshaller();
         StringReader reader = new StringReader(xmlPayload);
-        Container result = (Container) unmarshaller.unmarshal(reader);
-        return result;
+        return (Container) unmarshaller.unmarshal(reader);
     }
 }

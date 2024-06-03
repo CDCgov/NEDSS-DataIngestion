@@ -10,8 +10,6 @@ import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionServi
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
@@ -25,14 +23,11 @@ import java.util.TreeMap;
 @Service
 @Slf4j
 public class CachingValueService implements ICatchingValueService {
-    private static final Logger logger = LoggerFactory.getLogger(CachingValueService.class);
-
     private final JurisdictionCodeRepository jurisdictionCodeRepository;
     private final CodeValueGeneralRepository codeValueGeneralRepository;
     private final ElrXrefRepository elrXrefRepository;
     private  final RaceCodeRepository raceCodeRepository;
     private final StateCountyCodeValueRepository stateCountyCodeValueRepository;
-
     private final StateCodeRepository stateCodeRepository;
     private final LOINCCodeRepository loincCodeRepository;
 
@@ -82,8 +77,7 @@ public class CachingValueService implements ICatchingValueService {
         try {
             var result = loincCodeRepository.findAll();
             if (!result.isEmpty()) {
-                var data = result;
-                for (LOINCCode obj :data) {
+                for (LOINCCode obj : result) {
                     map.put(obj.getLoincCode(), obj.getComponentName());
                 }
             }
@@ -99,8 +93,7 @@ public class CachingValueService implements ICatchingValueService {
         try {
             var result = srteCustomRepository.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
             if (!result.isEmpty()) {
-                var data = result;
-                for (LabResult obj :data) {
+                for (LabResult obj : result) {
                     map.put(obj.getLabResultCd(), obj.getLabResultDescTxt());
                 }
             }
@@ -118,8 +111,7 @@ public class CachingValueService implements ICatchingValueService {
         try {
             var result = snomedCodeRepository.findAll();
             if (!result.isEmpty()) {
-                var data = result;
-                for (SnomedCode obj :data) {
+                for (SnomedCode obj : result) {
                     map.put(obj.getSnomedCd(), obj.getSnomedDescTxt());
                 }
             }
@@ -299,9 +291,9 @@ public class CachingValueService implements ICatchingValueService {
                 }
             }
         }
-        if (
+        if ( cache != null && (
                 (SrteCache.codedValuesMap.get(key) != null && SrteCache.codedValuesMap.get(key).isEmpty())
-                    || SrteCache.codedValuesMap.get(key) == null
+                    || SrteCache.codedValuesMap.get(key) == null)
         ) {
             SrteCache.codedValuesMap.putAll(getCodedValuesCallRepos(pType));
             cache.put("codedValues", SrteCache.codedValuesMap);
@@ -323,8 +315,10 @@ public class CachingValueService implements ICatchingValueService {
                 }
             }
         }
-        if ((SrteCache.codeDescTxtMap.get(code) != null && SrteCache.codeDescTxtMap.get(code).isEmpty())
-                        || SrteCache.codeDescTxtMap.get(code) == null
+        if (
+                cache != null && (
+                (SrteCache.codeDescTxtMap.get(code) != null && SrteCache.codeDescTxtMap.get(code).isEmpty())
+                        || SrteCache.codeDescTxtMap.get(code) == null)
         ) {
             SrteCache.codeDescTxtMap.putAll(getCodedValuesCallRepos(codeSetNm));
             cache.put("codeDescTxt", SrteCache.codeDescTxtMap);
@@ -379,8 +373,9 @@ public class CachingValueService implements ICatchingValueService {
             }
         }
 
-        if ((SrteCache.countyCodeByDescMap.get(cnty) != null && SrteCache.countyCodeByDescMap.get(cnty).isEmpty())
-                || SrteCache.countyCodeByDescMap.get(cnty) == null
+        if ( cache != null &&
+                ((SrteCache.countyCodeByDescMap.get(cnty) != null && SrteCache.countyCodeByDescMap.get(cnty).isEmpty())
+                || SrteCache.countyCodeByDescMap.get(cnty) == null)
         ) {
             SrteCache.countyCodeByDescMap.putAll(getCountyCdByDescCallRepos(stateCd));
             cache.put("countyCodeByDesc", SrteCache.countyCodeByDescMap);
@@ -414,7 +409,8 @@ public class CachingValueService implements ICatchingValueService {
 
     public List<CodeValueGeneral> findCodeValuesByCodeSetNmAndCode(String codeSetNm, String code) {
         var result = codeValueGeneralRepository.findCodeValuesByCodeSetNmAndCode(codeSetNm, code);
-        return result.get();
+        return result.orElseGet(ArrayList::new);
+
     }
 
     public StateCode findStateCodeByStateNm(String stateNm) {

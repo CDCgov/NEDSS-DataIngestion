@@ -43,9 +43,9 @@ public class NbsDocumentRepositoryUtil {
 
     public NbsDocumentContainer getNBSDocumentWithoutActRelationship(Long nbsDocUid) throws  DataProcessingException {
         try {
-            NbsDocumentContainer nbsDocumentVO = null;
-            PersonContainer personVO = null;
-            ParticipationDto participationDt = null;
+            NbsDocumentContainer nbsDocumentVO;
+            PersonContainer personVO ;
+            ParticipationDto participationDt ;
 
             try {
                 nbsDocumentVO = customRepository.getNbsDocument(nbsDocUid);
@@ -88,7 +88,7 @@ public class NbsDocumentRepositoryUtil {
                 nbsDocumentDT.setSuperclass("ACT");
                 RootDtoInterface rootDTInterface = nbsDocVO.getNbsDocumentDT();
                 String businessObjLookupName = NBSBOLookup.DOCUMENT;
-                String businessTriggerCd = null;
+                String businessTriggerCd ;
                 businessTriggerCd = "DOC_PROCESS";
 
                 if (nbsDocumentDT.getRecordStatusCd() != null

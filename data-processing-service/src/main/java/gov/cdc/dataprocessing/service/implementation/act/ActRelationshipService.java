@@ -6,8 +6,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationship;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipRepository;
 import gov.cdc.dataprocessing.service.interfaces.act.IActRelationshipService;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,7 +14,6 @@ import java.util.Collection;
 @Service
 public class ActRelationshipService implements IActRelationshipService {
     private final ActRelationshipRepository actRelationshipRepository;
-
 
     public ActRelationshipService(ActRelationshipRepository actRelationshipRepository) {
         this.actRelationshipRepository = actRelationshipRepository;

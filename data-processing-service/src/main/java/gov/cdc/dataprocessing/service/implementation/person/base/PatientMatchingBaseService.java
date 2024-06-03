@@ -42,9 +42,9 @@ public class PatientMatchingBaseService extends MatchingBaseService{
     }
 
     public Long setPatientRevision(PersonContainer personVO, String businessTriggerCd) throws DataProcessingException {
-        PersonContainer mprPersonVO = null;
-        Long mprPersonUid = null;
-        Long personUid = null;
+        PersonContainer mprPersonVO;
+        Long mprPersonUid;
+        Long personUid;
         try {
             PersonDto personDT = personVO.getThePersonDto();
 
@@ -106,10 +106,6 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         return personUid;
     }
 
-    /**
-     * @roseuid 3E7B380C036B
-     * @J2EE_METHOD -- setPersonInternal
-     */
     private Long setPersonInternal(PersonContainer personVO, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException {
         Long personUID = -1L;
         String localId = "";
@@ -213,7 +209,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                 }
             }
 
-            if(mprUID == null)
+            if(mprUID == null && newRevision.getThePersonDto() != null)
             {
                 throw new DataProcessingException("A person parent uid expected for this person uid: "+ newRevision.getThePersonDto().getPersonUid());
             }
@@ -244,7 +240,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
             throws DataProcessingException
     {
         try {
-            Collection<PersonContainer> aNewRevisionList = new ArrayList<PersonContainer> ();
+            Collection<PersonContainer> aNewRevisionList = new ArrayList<> ();
             aNewRevisionList.add(newRevision);
 
             MPRUpdateContainer mprUpdateVO = new MPRUpdateContainer(mpr, aNewRevisionList);
@@ -392,10 +388,10 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                         && personContainer.getThePersonNameDtoCollection().size() > 0) {
                     Collection<PersonNameDto> personNameDtoColl = personContainer
                             .getThePersonNameDtoCollection();
-                    Iterator personNameIterator = personNameDtoColl.iterator();
+                    Iterator<PersonNameDto> personNameIterator = personNameDtoColl.iterator();
                     Timestamp asofDate = null;
                     while (personNameIterator.hasNext()) {
-                        PersonNameDto personNameDto = (PersonNameDto) personNameIterator
+                        PersonNameDto personNameDto =  personNameIterator
                                 .next();
                         if (personNameDto.getNmUseCd() == null)
                         {
@@ -482,13 +478,13 @@ public class PatientMatchingBaseService extends MatchingBaseService{
     protected PersonId setAndCreateNewPerson(PersonContainer psn) throws DataProcessingException {
         PersonId personUID = new PersonId();
         PersonContainer personContainer = psn.deepClone();
-        Person person = null;
+        Person person;
         Collection<EntityLocatorParticipationDto> elpDTCol = personContainer.getTheEntityLocatorParticipationDtoCollection();
         Collection<RoleDto> rDTCol = personContainer.getTheRoleDtoCollection();
         Collection<ParticipationDto> pDTCol = personContainer.getTheParticipationDtoCollection();
-        Collection<EntityLocatorParticipationDto> colEntityLocatorParticipation = null;
-        Collection<RoleDto> colRole = null;
-        Collection<ParticipationDto> colParticipation = null;
+        Collection<EntityLocatorParticipationDto> colEntityLocatorParticipation;
+        Collection<RoleDto> colRole;
+        Collection<ParticipationDto> colParticipation;
         // NOTE: Sorting out Collection such as: Entity Locator Participation, Role, Participation
         if (elpDTCol != null) {
             colEntityLocatorParticipation = getEntityHelper().iterateELPDTForEntityLocatorParticipation(elpDTCol);
@@ -531,7 +527,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                 throw new DataProcessingException("Existing Patient Not Found");
             }
 
-            logger.debug("Ent Controller past the find - person = " + person.toString());
+            logger.debug("Ent Controller past the find - person = " + person);
             logger.debug("Ent Controllerpast the find - person.getPrimaryKey = " + person.getPersonUid());
 
         } catch (Exception e) {
@@ -574,15 +570,15 @@ public class PatientMatchingBaseService extends MatchingBaseService{
     }
     private void setPersonToMatchEntityPatient(PersonContainer personContainer) throws DataProcessingException {
         Long patientUid = personContainer.getThePersonDto().getPersonUid();
-        EdxPatientMatchDto edxPatientMatchDto = new EdxPatientMatchDto();
+        EdxPatientMatchDto edxPatientMatchDto;
         String cdDescTxt = personContainer.thePersonDto.getCdDescTxt();
         if (cdDescTxt == null || cdDescTxt.equalsIgnoreCase("") || !cdDescTxt.equalsIgnoreCase(EdxELRConstant.ELR_NOK_DESC)) {
-            String identifierStr = null;
+            String identifierStr;
             int identifierStrhshCd = 0;
-            List identifierStrList = getIdentifier(personContainer);
+            List<String> identifierStrList = getIdentifier(personContainer);
             if (identifierStrList != null && !identifierStrList.isEmpty()) {
-                for (int k = 0; k < identifierStrList.size(); k++) {
-                    identifierStr = (String) identifierStrList.get(k);
+                for (String s : identifierStrList) {
+                    identifierStr =  s;
                     if (identifierStr != null) {
                         identifierStr = identifierStr.toUpperCase();
                         identifierStrhshCd = identifierStr.hashCode();
@@ -609,7 +605,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
             // Matching with last name ,first name ,date of birth and current
             // sex
 
-            String namesdobcursexStr = null;
+            String namesdobcursexStr;
             int namesdobcursexStrhshCd = 0;
             namesdobcursexStr = getLNmFnmDobCurSexStr(personContainer);
             if (namesdobcursexStr != null) {

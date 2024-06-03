@@ -108,7 +108,7 @@ public class ObservationRequestHandler {
                 if (organizationContainer.getRole() != null && organizationContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_SENDING_FACILITY_CD)) {
                     sendingOrgVO = organizationContainer;
                 }
-                Collection<EntityIdDto> entityCollection = sendingOrgVO.getTheEntityIdDtoCollection();
+                Collection<EntityIdDto> entityCollection = sendingOrgVO != null ? sendingOrgVO.getTheEntityIdDtoCollection() : new ArrayList<>();
                 for (EntityIdDto entityIdDto : entityCollection) {
                     if (entityIdDto.getTypeCd().equalsIgnoreCase(EdxELRConstant.ELR_FACILITY_CD)) {
                         sendingFacilityId = entityIdDto;
@@ -122,8 +122,8 @@ public class ObservationRequestHandler {
             actIdDto.setActIdSeq(1);
             actIdDto.setActUid(edxLabInformationDto.getRootObserbationUid());
             actIdDto.setRootExtensionTxt(edxLabInformationDto.getMessageControlID());
-            actIdDto.setAssigningAuthorityCd(sendingFacilityId.getAssigningAuthorityCd());
-            actIdDto.setAssigningAuthorityDescTxt(sendingFacilityId.getAssigningAuthorityDescTxt());
+            actIdDto.setAssigningAuthorityCd(sendingFacilityId != null ? sendingFacilityId.getAssigningAuthorityCd() : "");
+            actIdDto.setAssigningAuthorityDescTxt(sendingFacilityId != null ? sendingFacilityId.getAssigningAuthorityDescTxt() : "");
             actIdDto.setTypeCd(EdxELRConstant.ELR_MESSAGE_CTRL_CD);
             actIdDto.setTypeDescTxt(EdxELRConstant.ELR_MESSAGE_CTRL_DESC);
             actIdDto.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
@@ -144,8 +144,8 @@ public class ObservationRequestHandler {
             ActIdDto act2IdDT = new ActIdDto();
             act2IdDT.setActUid(edxLabInformationDto.getRootObserbationUid());
             act2IdDT.setActIdSeq(2);
-            act2IdDT.setAssigningAuthorityCd(sendingFacilityId.getAssigningAuthorityCd());
-            act2IdDT.setAssigningAuthorityDescTxt(sendingFacilityId.getAssigningAuthorityDescTxt());
+            act2IdDT.setAssigningAuthorityCd(sendingFacilityId != null ? sendingFacilityId.getAssigningAuthorityCd() : "");
+            act2IdDT.setAssigningAuthorityDescTxt(sendingFacilityId != null ? sendingFacilityId.getAssigningAuthorityDescTxt() : "");
             act2IdDT.setRootExtensionTxt(fillerType.getHL7EntityIdentifier());
             act2IdDT.setTypeCd(EdxELRConstant.ELR_FILLER_NUMBER_CD);
             act2IdDT.setTypeDescTxt(EdxELRConstant.ELR_FILLER_NUMBER_DESC);

@@ -56,7 +56,7 @@ public class NotificationRepositoryUtil {
     public NotificationContainer getNotificationContainer(Long uid) {
         NotificationContainer notificationContainer = new NotificationContainer();
         var notificationData = notificationRepository.findById(uid);
-        if (!notificationData.isPresent()) {
+        if (notificationData.isEmpty()) {
             return null;
         }
         NotificationDto notificationDto = new NotificationDto(notificationData.get());
@@ -94,7 +94,7 @@ public class NotificationRepositoryUtil {
     @Transactional
     public Long setNotification(NotificationContainer notificationContainer) throws DataProcessingException
     {
-        Long notificationUid = -1L;
+        Long notificationUid;
 
         try
         {
@@ -166,7 +166,7 @@ public class NotificationRepositoryUtil {
         return uid;
     }
 
-    private Long updateNotification(NotificationContainer notificationContainer) throws DataProcessingException {
+    private Long updateNotification(NotificationContainer notificationContainer) {
         var uid = notificationContainer.getTheUpdatedNotificationDto().getNotificationUid();
         var localId = notificationContainer.getTheNotificationDT().getLocalId();
 

@@ -77,7 +77,7 @@ public class JurisdictionService implements IJurisdictionService {
         try {
             //Retieve provider uid and patient uid
             Collection<ParticipationDto>  partColl = null;
-            boolean isLabReport = false, isMorbReport = false;
+            boolean isLabReport = false;
             String jurisdictionDerivationInd = AuthUtil.authUser.getJurisdictionDerivationInd();
 //            if (proxyVO instanceof MorbidityProxyVO)
 //            {
@@ -91,7 +91,7 @@ public class JurisdictionService implements IJurisdictionService {
                 isLabReport = true;
                 partColl = ( (LabResultProxyContainer) proxyVO).getTheParticipationDtoCollection();
             }
-            if (partColl == null || partColl.size() <= 0)
+            if (partColl == null || partColl.size() == 0)
             {
                 throw new DataProcessingException("Participation collection is null or empty, it is: " + partColl);
             }
@@ -200,19 +200,22 @@ public class JurisdictionService implements IJurisdictionService {
             }
 
             //set jurisdiction for order test
-            if (jMap != null && jMap.containsKey(ELRConstant.JURISDICTION_HASHMAP_KEY))
-            {
-                rootObsDT.setJurisdictionCd( (String) jMap.get(ELRConstant.JURISDICTION_HASHMAP_KEY));
+            if (rootObsDT != null) {
+                if (jMap != null && jMap.containsKey(ELRConstant.JURISDICTION_HASHMAP_KEY))
+                {
+                    rootObsDT.setJurisdictionCd(jMap.get(ELRConstant.JURISDICTION_HASHMAP_KEY));
+                }
+                else
+                {
+                    rootObsDT.setJurisdictionCd(null);
+                }
             }
-            else
-            {
-                rootObsDT.setJurisdictionCd(null);
-            }
+
 
             //Return errors if any
             if (jMap != null && jMap.containsKey("ERROR"))
             {
-                return (String) jMap.get("ERROR");
+                return jMap.get("ERROR");
             }
             else
             {
@@ -233,8 +236,8 @@ public class JurisdictionService implements IJurisdictionService {
                                                                  OrganizationContainer organizationContainer,
                                                                  OrganizationContainer organizationContainer2) throws DataProcessingException {
         try {
-            Collection<String> patientJurisdictionCollection = null;
-            Collection<String> providerJurisdictionCollection = null;
+            Collection<String> patientJurisdictionCollection;
+            Collection<String> providerJurisdictionCollection;
             Collection<String> organizationJurisdictionCollection = null;
             HashMap<String, String> map = new HashMap<>();
             detailError = new StringBuffer();
@@ -258,16 +261,13 @@ public class JurisdictionService implements IJurisdictionService {
                     providerJurisdictionCollection = findJurisdiction(providerContainer.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
                     if(!(providerJurisdictionCollection.size()==0))
                         // Check to see the provider size.  Only proceed if the provider size is not greater than 1.
-                        if (providerJurisdictionCollection.size() <= 1)
+                        if (providerJurisdictionCollection.size() == 1)
                         {
                             // Check the result to make sure that there is a value for the provider's jurisdiction.
                             // If not then go and find the jurisdiction based on the provider
-                            if (providerJurisdictionCollection.size() == 1)
-                            {
-                                Iterator<String> iter = providerJurisdictionCollection.iterator();
-                                jurisdiction = iter.next();
-                                map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
-                            }
+                            Iterator<String> iter = providerJurisdictionCollection.iterator();
+                            jurisdiction = iter.next();
+                            map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
 
                         }
                 }
@@ -327,7 +327,7 @@ public class JurisdictionService implements IJurisdictionService {
 
     private Collection<String> findJurisdiction(Collection<EntityLocatorParticipationDto> entityLocatorPartColl, String useCd, String classCd)
     {
-            PostalLocatorDto postalDt = null;
+            PostalLocatorDto postalDt;
             Collection<String> coll = new ArrayList<>();
 
             // Check to make sure that you are able to get a locator participation
@@ -420,8 +420,7 @@ public class JurisdictionService implements IJurisdictionService {
     {
         if(searchZip != null && searchZip.trim().length()>5)
         {
-            String toReturn = searchZip.substring(0, 5);
-            return toReturn;
+            return searchZip.substring(0, 5);
         }
         else
         {

@@ -21,7 +21,7 @@ public class LabReportProcessing implements ILabReportProcessing {
         String markAsReviewedFlag = "";
         try {
 
-            if(edxLabInformationDT.getAssociatedPublicHealthCaseUid()==null || edxLabInformationDT.getAssociatedPublicHealthCaseUid().longValue()<0){
+            if(edxLabInformationDT.getAssociatedPublicHealthCaseUid()==null || edxLabInformationDT.getAssociatedPublicHealthCaseUid() <0){
                 boolean returnValue = observationService.processObservation(observationUid);
                 if (returnValue) {
                     markAsReviewedFlag = "PROCESSED";

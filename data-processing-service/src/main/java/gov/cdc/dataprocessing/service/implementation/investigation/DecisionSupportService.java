@@ -34,9 +34,6 @@ import java.util.*;
 
 @Service
 public class DecisionSupportService implements IDecisionSupportService {
-    static final String ApplyToAllSystems = "ALL";
-    // private static List<DsmLabMatchHelper> activeElrAlgorithmList = new ArrayList<DsmLabMatchHelper>();
-    // private static Boolean elrAlgorithmsPresent = true;  //any active algorithms?
     private final EdxPhcrDocumentUtil edxPhcrDocumentUtil;
     private final IAutoInvestigationService autoInvestigationService;
     private final ValidateDecisionSupport validateDecisionSupport;
@@ -55,21 +52,13 @@ public class DecisionSupportService implements IDecisionSupportService {
         this.dsmAlgorithmService = dsmAlgorithmService;
     }
     /*sort PublicHealthCaseDTs by add_time descending*/
-    final Comparator<PublicHealthCaseDto> ADDTIME_ORDER = new Comparator<PublicHealthCaseDto>() {
-        public int compare(PublicHealthCaseDto e1, PublicHealthCaseDto e2) {
-            return e2.getAddTime().compareTo(e1.getAddTime());
-        }
-    };
-    final Comparator<DsmLabMatchHelper> AlGORITHM_NM_ORDER = new Comparator<DsmLabMatchHelper>() {
-        public int compare(DsmLabMatchHelper e1, DsmLabMatchHelper e2) {
-            return e1.getAlgorithmNm().compareToIgnoreCase(e2.getAlgorithmNm());
-        }
-    };
+    final Comparator<PublicHealthCaseDto> ADDTIME_ORDER = (e1, e2) -> e2.getAddTime().compareTo(e1.getAddTime());
+    final Comparator<DsmLabMatchHelper> AlGORITHM_NM_ORDER = (e1, e2) -> e1.getAlgorithmNm().compareToIgnoreCase(e2.getAlgorithmNm());
 
 
     private boolean checkActiveWdsAlgorithm(EdxLabInformationDto edxLabInformationDT,
                                                              List<DsmLabMatchHelper> activeElrAlgorithmList ) throws DataProcessingException {
-        boolean elrAlgorithmsPresent = true;
+        boolean elrAlgorithmsPresent;
         // Validating existing WDS Algorithm
         try {
             List<WdsReport> wdsReportList = new ArrayList<>();
@@ -199,11 +188,11 @@ public class DecisionSupportService implements IDecisionSupportService {
             List<WdsReport> wdsReports = new ArrayList<>();
 
             for (DsmLabMatchHelper dsmLabMatchHelper : activeElrAlgorithmList) {
-                boolean criteriaMatch = false;
+                boolean criteriaMatch;
 
 
                 //Was AlgorithmDocument
-                Algorithm algorithmDocument = null;
+                Algorithm algorithmDocument;
                 //reset for every algorithm processing
                 edxLabInformationDT.setAssociatedPublicHealthCaseUid(-1L);
                 edxLabInformationDT.setMatchingPublicHealthCaseDtoColl(null);
@@ -250,7 +239,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                  questionIdentifierMap
                 );
 
-                if (edxLabInformationDT.isMatchingAlgorithm())
+                if (edxLabInformationDT.isMatchingAlgorithm() && algorithmDocument != null)
                 {
                     wdsReports.add(wdsReport);
                     edxLabInformationDT.setDsmAlgorithmName(algorithmDocument.getAlgorithmName());
@@ -337,7 +326,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                 questionIdentifierMap = edxPhcrDocumentUtil.loadQuestions(conditionCode);
             }
             edxLabInformationDT.setConditionCode(conditionCode);
-            boolean isdateLogicValidForNewInv = false;
+            boolean isdateLogicValidForNewInv;
             boolean applyAdvInvLogic = false;
 
             boolean invLogicApplied =  algorithmDocument.getElrAdvancedCriteria().getInvLogic() != null
@@ -380,6 +369,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                         ||
                         (applyAdvInvLogic && !isdateLogicValidForNewInv && isAdvancedInvCriteriaValid)
                     )
+
             )
             {
                 wdsReport.setAction("MARK_AS_REVIEWED");
@@ -387,10 +377,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                 if (conditionCode != null)
                 {
                     var condCode = SrteCache.findConditionCodeByDescription(conditionCode);
-                    if (condCode.isPresent())
-                    {
-                        edxLabInformationDT.setConditionName(condCode.get().getConditionShortNm());
-                    }
+                    condCode.ifPresent(code -> edxLabInformationDT.setConditionName(code.getConditionShortNm()));
                 }
                 edxLabInformationDT.setMatchingAlgorithm(true);
                 if (algorithmDocument.getAction() != null && algorithmDocument.getAction().getMarkAsReviewed() != null)
@@ -422,7 +409,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                 edxLabInformationDT.setInvestigationType(algorithmDocument.getInvestigationType());
                 //AUTO INVESTIGATION
                 Object obj = autoInvestigationService.autoCreateInvestigation(orderedTestObservationVO, edxLabInformationDT);
-                BasePamContainer pamVO = null;
+                BasePamContainer pamVO;
                 if (obj instanceof PageActProxyContainer)
                 {
                     pageActProxyContainer = (PageActProxyContainer) obj;
@@ -530,21 +517,20 @@ public class DecisionSupportService implements IDecisionSupportService {
 
 
     private Collection<DsmAlgorithm> selectDSMAlgorithmDTCollection() throws DataProcessingException {
-        Collection<DsmAlgorithm> algorithmList = new ArrayList<> ();
-
+        Collection<DsmAlgorithm> algorithmList;
         try
         {
             algorithmList = dsmAlgorithmService.findActiveDsmAlgorithm();
         } catch(Exception se2) {
             throw new DataProcessingException(se2.getMessage(), se2);
         }
-        return algorithmList; //return all recs
-    } //selectDSMAlgorithmDTCollection
+        return algorithmList;
+    }
 
 
     private Algorithm parseAlgorithmXml(String xmlPayLoadContent)
             throws Exception {
-        Algorithm algorithmDocument = null;
+        Algorithm algorithmDocument;
         try {
 
             JAXBContext contextObj = JAXBContext.newInstance("gov.cdc.dataprocessing.model.dsma_algorithm");
@@ -564,11 +550,11 @@ public class DecisionSupportService implements IDecisionSupportService {
      * Execute when action in available
      * */
     private boolean specimenCollectionDateCriteria(EventDateLogicType eventDateLogicType,EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
-        boolean isdateLogicValidForNewInv = false;
+        boolean isdateLogicValidForNewInv;
         String comparatorCode="";
         int value=0;
         Long associatedPHCUid= -1L;
-        Long mprUid= -1L;
+        long mprUid= -1L;
         if(edxLabInformationDT.getPersonParentUid()>0)
         {
             mprUid =edxLabInformationDT.getPersonParentUid();
@@ -604,27 +590,26 @@ public class DecisionSupportService implements IDecisionSupportService {
             Timestamp specimenCollectionDate=new Timestamp(edxLabInformationDT.getRootObservationContainer().getTheObservationDto().getEffectiveFromTime().getTime());
             long specimenCollectionDays = specimenCollectionDate.getTime()/(1000 * 60 * 60 * 24);
 
-            if(specimenCollectionDate!=null && comparatorCode.length()>0  && mprUid>0)
+            if(comparatorCode.length() > 0 && mprUid > 0)
             {
                 Collection<PublicHealthCaseDto> associatedPhcDTCollection = publicHealthCaseStoredProcRepository.associatedPublicHealthCaseForMprForCondCd(mprUid, edxLabInformationDT.getConditionCode());
 
                 if(associatedPhcDTCollection!=null && associatedPhcDTCollection.size()>0){
                     for (PublicHealthCaseDto publicHealthCaseDto : associatedPhcDTCollection) {
                         boolean isdateLogicValidWithThisInv = true;
-                        PublicHealthCaseDto phcDT = publicHealthCaseDto;
-                        Long dateCompare = null;
-                        if (phcDT.getAssociatedSpecimenCollDate() != null)
+                        long dateCompare;
+                        if (publicHealthCaseDto.getAssociatedSpecimenCollDate() != null)
                         {
-                            dateCompare = phcDT.getAssociatedSpecimenCollDate().getTime() / (1000 * 60 * 60 * 24);
+                            dateCompare = publicHealthCaseDto.getAssociatedSpecimenCollDate().getTime() / (1000 * 60 * 60 * 24);
                         }
                         else
                         {
-                            dateCompare = phcDT.getAddTime().getTime() / (1000 * 60 * 60 * 24);
-                            phcDT.setAssociatedSpecimenCollDate(phcDT.getAddTime());
+                            dateCompare = publicHealthCaseDto.getAddTime().getTime() / (1000 * 60 * 60 * 24);
+                            publicHealthCaseDto.setAssociatedSpecimenCollDate(publicHealthCaseDto.getAddTime());
                         }
-                        int daysDifference = (int) specimenCollectionDays - dateCompare.intValue();
+                        int daysDifference = (int) specimenCollectionDays - (int) dateCompare;
 
-                        if (phcDT.getAssociatedSpecimenCollDate() != null) {
+                        if (publicHealthCaseDto.getAssociatedSpecimenCollDate() != null) {
                             if (comparatorCode.contains(NEDSSConstant.LESS_THAN_LOGIC) && daysDifference > value) {
                                 isdateLogicValidWithThisInv = false;
                             }
@@ -641,9 +626,9 @@ public class DecisionSupportService implements IDecisionSupportService {
                         if (isdateLogicValidWithThisInv) {
                             if (edxLabInformationDT.getMatchingPublicHealthCaseDtoColl() == null)
                             {
-                                edxLabInformationDT.setMatchingPublicHealthCaseDtoColl(new ArrayList<PublicHealthCaseDto>());
+                                edxLabInformationDT.setMatchingPublicHealthCaseDtoColl(new ArrayList<>());
                             }
-                            edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().add(phcDT);
+                            edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().add(publicHealthCaseDto);
                         }
                     }
                 }else{
@@ -655,7 +640,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                 && edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().size() > 0)
         {
             List phclist = new ArrayList<Object>(edxLabInformationDT.getMatchingPublicHealthCaseDtoColl());
-            Collections.sort(phclist, ADDTIME_ORDER);
+            phclist.sort(ADDTIME_ORDER);
             associatedPHCUid = ((PublicHealthCaseDto)phclist.get(0)).getPublicHealthCaseUid();
             isdateLogicValidForNewInv= false;
         }
@@ -700,7 +685,7 @@ public class DecisionSupportService implements IDecisionSupportService {
             if(edxLabInformationDT.getMatchingPublicHealthCaseDtoColl()!=null
                     && edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().size()>0)
             {
-                for (Object phcDT : edxLabInformationDT.getMatchingPublicHealthCaseDtoColl()) {
+                for (PublicHealthCaseDto phcDT : edxLabInformationDT.getMatchingPublicHealthCaseDtoColl()) {
 
                     if (advanceInvCriteriaMap != null
                             && advanceInvCriteriaMap.size() > 0)
@@ -744,7 +729,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                          * loop
                          */
                         if (isAdvancedInvCriteriaMet){
-                            edxLabInformationDT.setAssociatedPublicHealthCaseUid(((PublicHealthCaseDto)phcDT).getPublicHealthCaseUid());
+                            edxLabInformationDT.setAssociatedPublicHealthCaseUid(phcDT.getPublicHealthCaseUid());
                             break;
                         }
                     } else {// There is no advanced investigation criteria selected to be matched
@@ -814,12 +799,9 @@ public class DecisionSupportService implements IDecisionSupportService {
             else if (actionType.getDeleteDocument() != null)
             {
                 DeleteDocumentType specificActionType = actionType.getDeleteDocument();
-                specificActionType.getAlert();
-                specificActionType.getComment();
-                specificActionType.getReasonForDeletion();
             }
 
-            if (applicationMap != null && applicationMap.size() > 0)
+            if (applicationMap.size() > 0)
                 edxRuleAlgorothmManagerDT.setEdxRuleApplyDTMap(applicationMap);
 
         } catch (Exception e) {
@@ -921,10 +903,9 @@ public class DecisionSupportService implements IDecisionSupportService {
 
     private Map<String, Object> getAdvancedInvCriteriaMap(Algorithm algorithmDocument) throws DataProcessingException{
 
-        Map<String, Object> advanceInvCriteriaMap = new HashMap<String, Object>();
+        Map<String, Object> advanceInvCriteriaMap = new HashMap<>();
         try{
-            InvCriteriaType advanceInvCriteriaType = algorithmDocument
-                    .getElrAdvancedCriteria().getInvCriteria();
+            InvCriteriaType advanceInvCriteriaType = algorithmDocument.getElrAdvancedCriteria().getInvCriteria();
             /* Create the advanced Criteria map to compare against matched PHCs */
             if (advanceInvCriteriaType != null) {
                 for (int i = 0; i < advanceInvCriteriaType.getInvValue().size(); i++) {
@@ -936,7 +917,7 @@ public class DecisionSupportService implements IDecisionSupportService {
 
                     if (criteriaType.getInvStringValue() == null
                             && criteriaType.getInvCodedValue().size() > 0) {
-                        String value = null;
+                        String value;
                         String[] array = new String[criteriaType
                                 .getInvCodedValue().size()];
                         for (int j = 0; j < criteriaType.getInvCodedValue().size(); j++) {

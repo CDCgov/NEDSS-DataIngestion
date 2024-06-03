@@ -18,7 +18,6 @@ import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.stored_proc.NbsInterf
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.service.implementation.data_extraction.DataExtractionService;
 import gov.cdc.dataprocessing.service.implementation.data_extraction.DataExtractionServiceUtility;
-import gov.cdc.dataprocessing.service.interfaces.stored_proc.IMsgOutEStoredProcService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.HL7PatientHandler;
@@ -44,7 +43,6 @@ class DataExtractionServiceTest {
     HL7PatientHandler hl7PatientHandler;
     ObservationRequestHandler observationRequestHandler;
     ObservationResultRequestHandler observationResultRequestHandler;
-    IMsgOutEStoredProcService msgOutEStoredProcService;
     ORCHandler orcHandler;
     LabResultUtil labResultUtil;
     NbsInterfaceStoredProcRepository nbsInterfaceStoredProcRepository;
@@ -57,11 +55,10 @@ class DataExtractionServiceTest {
         hl7PatientHandler = mock(HL7PatientHandler.class);
         observationRequestHandler = mock(ObservationRequestHandler.class);
         observationResultRequestHandler = mock(ObservationResultRequestHandler.class);
-        msgOutEStoredProcService = mock(IMsgOutEStoredProcService.class);
         orcHandler = mock(ORCHandler.class);
         labResultUtil = mock(LabResultUtil.class);
         nbsInterfaceStoredProcRepository = mock(NbsInterfaceStoredProcRepository.class);
-        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, msgOutEStoredProcService, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
+        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
         authUtil = mock(AuthUtil.class);
 
         AuthUserProfileInfo userInfo = new AuthUserProfileInfo();
@@ -77,7 +74,7 @@ class DataExtractionServiceTest {
         NbsInterfaceModel nbsInterfaceModel = null;
         nbsInterfaceModel = gson.fromJson(getData(), NbsInterfaceModel.class);
         utility = new DataExtractionServiceUtility();
-        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, msgOutEStoredProcService, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
+        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
 
 
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
@@ -98,7 +95,7 @@ class DataExtractionServiceTest {
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataThrowsException(), NbsInterfaceModel.class);
 
         utility = mock(DataExtractionServiceUtility.class);
-        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, msgOutEStoredProcService, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
+        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
 
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         edxLabInformationDto.setStatus(NbsInterfaceStatus.Success);
@@ -117,7 +114,7 @@ class DataExtractionServiceTest {
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataThrowGreaterThanOnePatientException(), NbsInterfaceModel.class);
 
         utility = new DataExtractionServiceUtility();
-        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, msgOutEStoredProcService, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
+        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
 
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         edxLabInformationDto.setStatus(NbsInterfaceStatus.Success);
@@ -134,7 +131,7 @@ class DataExtractionServiceTest {
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataForParentResultException(), NbsInterfaceModel.class);
 
         utility = new DataExtractionServiceUtility();
-        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, msgOutEStoredProcService, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
+        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
 
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         edxLabInformationDto.setStatus(NbsInterfaceStatus.Success);
@@ -151,7 +148,7 @@ class DataExtractionServiceTest {
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataForMultipleOBRException(), NbsInterfaceModel.class);
 
         utility = new DataExtractionServiceUtility();
-        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, msgOutEStoredProcService, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
+        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
 
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         edxLabInformationDto.setStatus(NbsInterfaceStatus.Success);
@@ -168,7 +165,7 @@ class DataExtractionServiceTest {
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataForParentNotNull(), NbsInterfaceModel.class);
 
         utility = new DataExtractionServiceUtility();
-        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, msgOutEStoredProcService, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
+        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
 
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         edxLabInformationDto.setStatus(NbsInterfaceStatus.Success);
@@ -185,7 +182,7 @@ class DataExtractionServiceTest {
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataForParentObsValueDesc(), NbsInterfaceModel.class);
 
         utility = new DataExtractionServiceUtility();
-        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, msgOutEStoredProcService, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
+        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
 
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         edxLabInformationDto.setStatus(NbsInterfaceStatus.Success);
@@ -202,7 +199,7 @@ class DataExtractionServiceTest {
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataForHL7PatientID(), NbsInterfaceModel.class);
 
         utility = new DataExtractionServiceUtility();
-        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, msgOutEStoredProcService, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
+        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
 
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         edxLabInformationDto.setStatus(NbsInterfaceStatus.Success);
@@ -219,7 +216,7 @@ class DataExtractionServiceTest {
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataForAlternateId(), NbsInterfaceModel.class);
 
         utility = new DataExtractionServiceUtility();
-        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, msgOutEStoredProcService, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
+        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
 
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         edxLabInformationDto.setStatus(NbsInterfaceStatus.Success);
@@ -236,7 +233,7 @@ class DataExtractionServiceTest {
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataForAlternateId2(), NbsInterfaceModel.class);
 
         utility = new DataExtractionServiceUtility();
-        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, msgOutEStoredProcService, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
+        dataExtractionService = new DataExtractionService(hl7PatientHandler, observationRequestHandler, observationResultRequestHandler, orcHandler, utility, labResultUtil, nbsInterfaceStoredProcRepository);
 
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         edxLabInformationDto.setStatus(NbsInterfaceStatus.Success);

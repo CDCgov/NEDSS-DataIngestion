@@ -190,7 +190,7 @@ public class InvestigationService implements IInvestigationService {
             if(!reportSumVOCollection.isEmpty())
             {
                 for (LabReportSummaryContainer reportSumVO : reportSumVOCollection) {
-                    ActRelationshipDto actRelationshipDT = null;
+                    ActRelationshipDto actRelationshipDT;
                     RootDtoInterface rootDT = null;
 
                     //Gets and checks whether any association change; if changed, do something, else go next one
@@ -348,7 +348,7 @@ public class InvestigationService implements IInvestigationService {
     /**
      * Nothing in here for LabResult Proxy Yet
      * */
-    private void updateAutoResendNotifications(BaseContainer vo) throws DataProcessingException
+    private void updateAutoResendNotifications(BaseContainer vo)
     {
         try {
             logger.info("enter NNDMessageSenderHelper.updateAutoResendNotifications--------------");
@@ -428,10 +428,9 @@ public class InvestigationService implements IInvestigationService {
                 )
                 {
                     if(notSumVOColl!=null && notSumVOColl.size()>0){
-                        Iterator<Object>  notSumIter =  notSumVOColl.iterator();
-                        while(notSumIter.hasNext()){
-                            NotificationSummaryContainer notSummaryVO = (NotificationSummaryContainer)notSumIter.next();
-                            if(notSummaryVO.getIsHistory().equals("F") && !notSummaryVO.getAutoResendInd().equals("F")){
+                        for (Object o : notSumVOColl) {
+                            NotificationSummaryContainer notSummaryVO = (NotificationSummaryContainer) o;
+                            if (notSummaryVO.getIsHistory().equals("F") && !notSummaryVO.getAutoResendInd().equals("F")) {
                                 Long notificationUid = notSummaryVO.getNotificationUid();
                                 String phcCd = phcDT.getCd();
                                 String phcClassCd = phcDT.getCaseClassCd();
@@ -441,7 +440,7 @@ public class InvestigationService implements IInvestigationService {
 
                                 // retrieve the status change
                                 boolean caseStatusChange = phcDT.isCaseStatusDirty();
-                                updateNotification(false, notificationUid,phcCd,phcClassCd,progAreaCd,jurisdictionCd,sharedInd, caseStatusChange);
+                                updateNotification(false, notificationUid, phcCd, phcClassCd, progAreaCd, jurisdictionCd, sharedInd, caseStatusChange);
 
                             }
                         }
@@ -474,7 +473,7 @@ public class InvestigationService implements IInvestigationService {
                                    String sharedInd, boolean caseStatusChange) throws DataProcessingException {
         boolean checkNotificationPermission = true;//nbsSecurityObj.getPermission(NBSBOLookup.NOTIFICATION, NBSOperationLookup.CREATE,progAreaCd,jurisdictionCd,sharedInd);
         boolean checkNotificationPermission1 = true;//nbsSecurityObj.getPermission(NBSBOLookup.NOTIFICATION, NBSOperationLookup.CREATENEEDSAPPROVAL,progAreaCd,jurisdictionCd,sharedInd);
-        String businessTriggerCd = null;
+        String businessTriggerCd;
         if(isSummaryCase){
             businessTriggerCd = NEDSSConstant.NOT_CR_APR;
         }
@@ -499,7 +498,7 @@ public class InvestigationService implements IInvestigationService {
             if (notification != null) {
                 notificationContainer.setTheNotificationDT(notification);
             }
-            NotificationDto newNotificationDT = null;
+            NotificationDto newNotificationDT;
             NotificationDto notificationDT = notificationContainer.getTheNotificationDT();
             notificationDT.setProgAreaCd(progAreaCd);
             notificationDT.setJurisdictionCd(jurisdictionCd);
@@ -541,7 +540,7 @@ public class InvestigationService implements IInvestigationService {
         {
             e.printStackTrace();
             logger.error("Error calling ActController.setNotification() " + e.getMessage());
-            throw new DataProcessingException("Error in calling ActControllerEJB.setNotification()" + e.toString(), e);
+            throw new DataProcessingException("Error in calling ActControllerEJB.setNotification()" + e.getMessage(), e);
         }
 
         logger.info("updateNotification on NNDMessageSenderHelper complete");
@@ -561,32 +560,29 @@ public class InvestigationService implements IInvestigationService {
 
         var investigationProxyVO = new InvestigationContainer();
 
-        PublicHealthCaseDto thePublicHealthCaseDto = null;
-        PublicHealthCaseContainer thePublicHealthCaseContainer = null;
+        PublicHealthCaseDto thePublicHealthCaseDto;
+        PublicHealthCaseContainer thePublicHealthCaseContainer;
 
         ArrayList<Object>  theParticipationDTCollection;
         ArrayList<Object> theRoleDTCollection;
 
-        ArrayList<Object>  thePersonVOCollection  = new ArrayList<Object> (); // Person (VO)
-        ArrayList<Object>  theOrganizationVOCollection  = new ArrayList<Object> (); // Organization (VO)
-        ArrayList<Object>  theMaterialVOCollection  = new ArrayList<Object> (); // Material (VO)
+        ArrayList<Object>  thePersonVOCollection  = new ArrayList<> (); // Person (VO)
+        ArrayList<Object>  theOrganizationVOCollection  = new ArrayList<> (); // Organization (VO)
+        ArrayList<Object>  theMaterialVOCollection  = new ArrayList<> (); // Material (VO)
         ArrayList<ObservationContainer>  theObservationVOCollection  = new ArrayList<> (); // Observation (VO)
-        ArrayList<Object>  theInterventionVOCollection  = new ArrayList<Object> (); // Itervention (VO)
-        ArrayList<Object>  theEntityGroupVOCollection  = new ArrayList<Object> (); // Group (VO)
-        ArrayList<Object>  theNonPersonLivingSubjectVOCollection  = new ArrayList<Object> (); // NPLS (VO)
-        ArrayList<Object>  thePlaceVOCollection  = new ArrayList<Object> (); // Place (VO)
+        ArrayList<Object>  theInterventionVOCollection  = new ArrayList<> (); // Itervention (VO)
+        ArrayList<Object>  theEntityGroupVOCollection  = new ArrayList<> (); // Group (VO)
+        ArrayList<Object>  theNonPersonLivingSubjectVOCollection  = new ArrayList<> (); // NPLS (VO)
+        ArrayList<Object>  thePlaceVOCollection  = new ArrayList<> (); // Place (VO)
         //ArrayList<Object> theNotificationVOCollection  = new ArrayList<Object> ();		// Notification (VO)
-        ArrayList<Object>  theReferralVOCollection  = new ArrayList<Object> (); // Referral (VO)
-        ArrayList<Object>  thePatientEncounterVOCollection  = new ArrayList<Object> (); // PatientEncounter (VO)
-        ArrayList<Object>  theClinicalDocumentVOCollection  = new ArrayList<Object> (); // Clinical Document (VO)
+        ArrayList<Object>  theReferralVOCollection  = new ArrayList<> (); // Referral (VO)
+        ArrayList<Object>  thePatientEncounterVOCollection  = new ArrayList<> (); // PatientEncounter (VO)
+        ArrayList<Object>  theClinicalDocumentVOCollection  = new ArrayList<> (); // Clinical Document (VO)
 
         // Summary Collections
-        ArrayList<Object>  theObservationSummaryVOCollection  = new ArrayList<Object> ();
-        ArrayList<Object>  theVaccinationSummaryVOCollection  = new ArrayList<Object> ();
-        ArrayList<Object>  theNotificationSummaryVOCollection  = new ArrayList<Object> ();
         ArrayList<StateDefinedFieldDataDto>  theStateDefinedFieldDTCollection  = new ArrayList<> ();
-        ArrayList<Object>  theTreatmentSummaryVOCollection  = new ArrayList<Object> ();
-        ArrayList<Object>  theDocumentSummaryVOCollection  = new ArrayList<Object> ();
+        ArrayList<Object>  theTreatmentSummaryVOCollection;
+        ArrayList<Object>  theDocumentSummaryVOCollection;
 
         Object theLookedUpObject;
 
@@ -615,9 +611,9 @@ public class InvestigationService implements IInvestigationService {
             logger.debug("PatientGroupID = " + PatientGroupID);
             String strTypeCd;
             String strClassCd;
-            String recordStatusCd = "";
+            String recordStatusCd;
             Long nEntityID;
-            ParticipationDto participationDT = null;
+            ParticipationDto participationDT ;
 
             Iterator<ParticipationDto>  participationIterator = thePublicHealthCaseContainer.
                     getTheParticipationDTCollection().iterator();
@@ -626,7 +622,7 @@ public class InvestigationService implements IInvestigationService {
 
             // Populate the Entity collections with the results
             while (participationIterator.hasNext()) {
-                participationDT = (ParticipationDto) participationIterator.next();
+                participationDT = participationIterator.next();
                 nEntityID = participationDT.getSubjectEntityUid();
                 strClassCd = participationDT.getSubjectClassCd();
                 strTypeCd = participationDT.getTypeCd();
@@ -699,14 +695,13 @@ public class InvestigationService implements IInvestigationService {
                 }
             }
 
-            ActRelationshipDto actRelationshipDT = null;
+            ActRelationshipDto actRelationshipDT;
             //Get the Vaccinations for a PublicHealthCase/Investigation
-            Iterator<ActRelationshipDto>  actRelationshipIterator = thePublicHealthCaseContainer.
-                    getTheActRelationshipDTCollection().iterator();
 
             // Populate the ACT collections in the results
-            while (actRelationshipIterator.hasNext()) {
-                actRelationshipDT = (ActRelationshipDto) actRelationshipIterator.next();
+            for (ActRelationshipDto actRelationshipDto : thePublicHealthCaseContainer.
+                    getTheActRelationshipDTCollection()) {
+                actRelationshipDT = actRelationshipDto;
                 logger.debug("inside while actUid: " +
                         actRelationshipDT.getTargetActUid() + " observationUid: " +
                         actRelationshipDT.getSourceActUid());
@@ -760,7 +755,7 @@ public class InvestigationService implements IInvestigationService {
                         && recordStatusCd != null && recordStatusCd.equals(NEDSSConstant.RECORD_STATUS_ACTIVE)) {
 
                     var doc = publicHealthCaseRepositoryUtil.getClinicalDocument(nSourceActID);
-                    if (doc != null){
+                    if (doc != null) {
                         ClinicalDocumentContainer documentContainer = new ClinicalDocumentContainer();
                         documentContainer.setTheClinicalDocumentDT(doc);
                         theClinicalDocumentVOCollection.add(documentContainer);
@@ -801,7 +796,7 @@ public class InvestigationService implements IInvestigationService {
                                 0 && strTypeCd != null &&
                         strTypeCd.equals(NEDSSConstant.PHC_INV_FORM)) {
                     ObservationContainer parentObservationVO = observationRepositoryUtil.loadObject(nSourceActID);
-                    theObservationVOCollection  = (ArrayList<ObservationContainer> ) observationRepositoryUtil.retrieveObservationQuestion(nSourceActID);
+                    theObservationVOCollection = (ArrayList<ObservationContainer>) observationRepositoryUtil.retrieveObservationQuestion(nSourceActID);
                     //  //##!! System.out.println("Size of VO in retrieveObservationQA : " +theObservationVOCollection.size() );
                     theObservationVOCollection.add(parentObservationVO);
                     continue;
@@ -845,7 +840,7 @@ public class InvestigationService implements IInvestigationService {
             }
             catch (Exception e) {
                 logger.error("Exception occured while retrieving LDFCollection<Object>  = " +
-                        e.toString());
+                        e.getMessage());
             }
 
             if (theStateDefinedFieldDTCollection  != null) {
@@ -855,8 +850,8 @@ public class InvestigationService implements IInvestigationService {
             }
 
 
-            Collection<Object>  labSumVOCol = new ArrayList<Object> ();
-            HashMap<Object,Object> labSumVOMap = new HashMap<Object,Object>();
+            Collection<Object>  labSumVOCol = new ArrayList<> ();
+            HashMap<Object,Object> labSumVOMap;
             Date dtc = new Date();
             ////##!! System.out.println("the InvestigationProxyVO time before start getting associated reports is :" + (dtc.getTime()- dta.getTime()));
 
@@ -872,9 +867,9 @@ public class InvestigationService implements IInvestigationService {
 
                 Collection<UidSummaryContainer>  LabReportUidSummarVOs = observationSummaryService.findAllActiveLabReportUidListForManage(publicHealthCaseUID,labReportViewClause);
                 String uidType = "LABORATORY_UID";
-                Collection<Object>  newLabReportSummaryVOCollection  = new ArrayList<Object> ();
-                Collection<?>  labReportSummaryVOCollection  = new ArrayList<Object> ();
-                LabReportSummaryContainer labReportSummaryVOs = new LabReportSummaryContainer();
+                Collection<Object>  newLabReportSummaryVOCollection  = new ArrayList<> ();
+                Collection<?>  labReportSummaryVOCollection;
+                LabReportSummaryContainer labReportSummaryVOs;
 
                 if(LabReportUidSummarVOs != null && LabReportUidSummarVOs.size() > 0)
                 {
@@ -886,10 +881,8 @@ public class InvestigationService implements IInvestigationService {
                         if(labSumVOMap.containsKey("labEventList"))
                         {
                             labReportSummaryVOCollection  = (ArrayList<?> )labSumVOMap.get("labEventList");
-                            Iterator<?>  iterator = labReportSummaryVOCollection.iterator();
-                            while( iterator.hasNext())
-                            {
-                                labReportSummaryVOs = (LabReportSummaryContainer) iterator. next();
+                            for (Object o : labReportSummaryVOCollection) {
+                                labReportSummaryVOs = (LabReportSummaryContainer) o;
                                 labSumVOCol.add(labReportSummaryVOs);
 
                             }
@@ -911,8 +904,8 @@ public class InvestigationService implements IInvestigationService {
             }
 
 
-            Collection<Object>  morbSumVOCol = new ArrayList<Object> ();
-            HashMap<Object,Object> morbSumVoMap = new HashMap<Object,Object>();
+            Collection<Object>  morbSumVOCol = new ArrayList<> ();
+            HashMap<Object,Object> morbSumVoMap = new HashMap<>();
 
             /*
             if (!lite && nbsSecurityObj.getPermission(NBSBOLookup.OBSERVATIONMORBIDITYREPORT,
@@ -981,23 +974,20 @@ public class InvestigationService implements IInvestigationService {
                 investigationProxyVO.setTheNotificationSummaryVOCollection(retrieveSummaryService.notificationSummaryOnInvestigation(thePublicHealthCaseContainer, investigationProxyVO));
 
                 if(investigationProxyVO.getTheNotificationSummaryVOCollection()!=null){
-                    Iterator<Object> it = investigationProxyVO.getTheNotificationSummaryVOCollection().iterator();
-                    while(it.hasNext()){
-                        NotificationSummaryContainer notifVO = (NotificationSummaryContainer)it.next();
-                        Iterator<ActRelationshipDto> actIterator = investigationProxyVO.getThePublicHealthCaseContainer().getTheActRelationshipDTCollection().iterator();
-                        while(actIterator.hasNext()){
-                            ActRelationshipDto actRelationDT = (ActRelationshipDto)actIterator.next();
-                            if((notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_SHARE_NOTF) ||
+                    for (Object o : investigationProxyVO.getTheNotificationSummaryVOCollection()) {
+                        NotificationSummaryContainer notifVO = (NotificationSummaryContainer) o;
+                        for (ActRelationshipDto actRelationDT : investigationProxyVO.getThePublicHealthCaseContainer().getTheActRelationshipDTCollection()) {
+                            if ((notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_SHARE_NOTF) ||
                                     notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_SHARE_NOTF_PHDC))
-                                    && notifVO.getNotificationUid().compareTo(actRelationDT.getSourceActUid())==0){
+                                    && notifVO.getNotificationUid().compareTo(actRelationDT.getSourceActUid()) == 0) {
                                 actRelationDT.setShareInd(true);
                             }
                             if ((notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_EXP_NOTF) ||
                                     notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_EXP_NOTF_PHDC)) &&
-                                    notifVO.getNotificationUid().compareTo(actRelationDT.getSourceActUid())==0){
+                                    notifVO.getNotificationUid().compareTo(actRelationDT.getSourceActUid()) == 0) {
                                 actRelationDT.setExportInd(true);
                             }
-                            if(notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_NOTF) && notifVO.getNotificationUid().compareTo(actRelationDT.getSourceActUid())==0){
+                            if (notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_NOTF) && notifVO.getNotificationUid().compareTo(actRelationDT.getSourceActUid()) == 0) {
                                 actRelationDT.setNNDInd(true);
                             }
                         }
@@ -1015,7 +1005,7 @@ public class InvestigationService implements IInvestigationService {
 
                 logger.debug("About to get TreatmentSummaryList for Investigation");
                 //RetrieveSummaryVO rsvo = new RetrieveSummaryVO();
-                theTreatmentSummaryVOCollection  = new ArrayList<Object> ((retrieveSummaryService.retrieveTreatmentSummaryVOForInv(publicHealthCaseUID)).values());
+                theTreatmentSummaryVOCollection  = new ArrayList<> ((retrieveSummaryService.retrieveTreatmentSummaryVOForInv(publicHealthCaseUID)).values());
                 logger.debug("Number of treatments found: " +
                         theTreatmentSummaryVOCollection.size());
                 investigationProxyVO.setTheTreatmentSummaryVOCollection(
@@ -1032,7 +1022,7 @@ public class InvestigationService implements IInvestigationService {
 //                    && nbsSecurityObj.getPermission(NBSBOLookup.DOCUMENT, "VIEW")
             )
             {
-                theDocumentSummaryVOCollection  = new ArrayList<Object> (retrieveSummaryService.retrieveDocumentSummaryVOForInv(publicHealthCaseUID).values());
+                theDocumentSummaryVOCollection  = new ArrayList<> (retrieveSummaryService.retrieveDocumentSummaryVOForInv(publicHealthCaseUID).values());
                 investigationProxyVO.setTheDocumentSummaryVOCollection(theDocumentSummaryVOCollection);
             }
             else {
@@ -1071,12 +1061,12 @@ public class InvestigationService implements IInvestigationService {
     }
 
     private HashMap<Object, Object> getObservationSummaryListForWorkupRevisited(Collection<UidSummaryContainer> uidList,boolean isCDCFormPrintCase, String uidType) throws DataProcessingException {
-        ArrayList<Object>  labSummList = new ArrayList<Object> ();
-        ArrayList<Object>  labEventList = new ArrayList<Object> ();
+        ArrayList<Object>  labSummList = new ArrayList<> ();
+        ArrayList<Object>  labEventList = new ArrayList<> ();
         int count = 0;
 
 
-        Long providerUid=null;
+        Long providerUid;
 
         if (uidList != null) {
             String dataAccessWhereClause = queryHelper.getDataAccessWhereClause(NBSBOLookup.OBSERVATIONLABREPORT, "VIEW", "");
@@ -1183,12 +1173,12 @@ public class InvestigationService implements IInvestigationService {
 
                             if(isCDCFormPrintCase && providerUid!=null && LabAsSourceForInvestigation!=null){
                                 ProviderDataForPrintContainer providerDataForPrintVO =null;
-                                if(labRepEvent.getProviderDataForPrintVO()==null){
+                                if(labRepEvent != null && labRepEvent.getProviderDataForPrintVO()==null){
                                     providerDataForPrintVO =new ProviderDataForPrintContainer();
                                     labRepEvent.setProviderDataForPrintVO(providerDataForPrintVO);
                                 }
                                 Long orderingFacilityUid = null;
-                                if(uidMap.get(NEDSSConstant.PAR101_TYP_CD)!=null){
+                                if(uidMap != null && uidMap.get(NEDSSConstant.PAR101_TYP_CD)!=null){
                                     orderingFacilityUid=(Long)uidMap.get(NEDSSConstant.PAR101_TYP_CD);
                                 }
                                 if(orderingFacilityUid!=null){
@@ -1247,7 +1237,7 @@ public class InvestigationService implements IInvestigationService {
 
         this.populateDescTxtFromCachedValues(labSummList);
         this.populateDescTxtFromCachedValues(labEventList);
-        HashMap<Object, Object> returnMap = new HashMap<Object, Object>();
+        HashMap<Object, Object> returnMap = new HashMap<>();
         returnMap.put("labSummList", labSummList);
         returnMap.put("labEventList", labEventList);
         return returnMap;
@@ -1257,22 +1247,21 @@ public class InvestigationService implements IInvestigationService {
 
     private void populateDescTxtFromCachedValues(Collection<Object>
                                                          reportSummaryVOCollection) throws DataProcessingException {
-        ReportSummaryInterface sumVO = null;
-        LabReportSummaryContainer labVO = null;
+        ReportSummaryInterface sumVO ;
+        LabReportSummaryContainer labVO;
         LabReportSummaryContainer labMorbVO = null;
       //  MorbReportSummaryVO morbVO = null;
-        ResultedTestSummaryContainer resVO = null;
-        Iterator<ResultedTestSummaryContainer> resItor = null;
+        ResultedTestSummaryContainer resVO;
+        Iterator<ResultedTestSummaryContainer> resItor;
         Iterator<Object> labMorbItor = null;
-        ResultedTestSummaryContainer susVO = null;
-        Iterator<Object> susItor = null;
-        Collection<Object> susColl = null;
+        ResultedTestSummaryContainer susVO;
+        Iterator<Object> susItor;
+        Collection<Object> susColl ;
         Collection<Object> labMorbColl = null;
         String tempStr = null;
 
-        Iterator<Object>  itor = reportSummaryVOCollection.iterator();
-        while (itor.hasNext()) {
-            sumVO = (LabReportSummaryContainer) itor.next();
+        for (Object o : reportSummaryVOCollection) {
+            sumVO = (LabReportSummaryContainer) o;
             if (sumVO instanceof LabReportSummaryContainer) {
                 labVO = (LabReportSummaryContainer) sumVO;
                 labVO.setType(NEDSSConstant.LAB_REPORT_DESC);
@@ -1282,7 +1271,7 @@ public class InvestigationService implements IInvestigationService {
                 }
                 if (labVO.getJurisdiction() != null) {
                     tempStr = SrteCache.jurisdictionCodeMap.get(labVO.getJurisdiction());
-                    if(!tempStr.isEmpty())
+                    if (!tempStr.isEmpty())
                         labVO.setJurisdiction(tempStr);
                 }
                 if (labVO.getStatus() != null) {
@@ -1297,79 +1286,59 @@ public class InvestigationService implements IInvestigationService {
                         resVO = (ResultedTestSummaryContainer) resItor.next();
 
 
-                        if (resVO.getCtrlCdUserDefined1() != null)
-                        {
-                            if (resVO.getCtrlCdUserDefined1() != null && resVO.getCtrlCdUserDefined1().equals("N"))
-                            {
+                        if (resVO.getCtrlCdUserDefined1() != null) {
+                            if (resVO.getCtrlCdUserDefined1() != null && resVO.getCtrlCdUserDefined1().equals("N")) {
                                 if (resVO.getCodedResultValue() != null &&
                                         !resVO.getCodedResultValue().equals("")) {
-                                    tempStr =  SrteCache.labResultByDescMap.get(resVO.getCodedResultValue());
+                                    tempStr = SrteCache.labResultByDescMap.get(resVO.getCodedResultValue());
                                     resVO.setCodedResultValue(tempStr);
                                 }
-                            }
-                            else if (resVO.getCtrlCdUserDefined1() == null || resVO.getCtrlCdUserDefined1().equals("Y"))
-                            {
-                                if (resVO.getOrganismName() != null && resVO.getOrganismCodeSystemCd()!=null ) {
+                            } else if (resVO.getCtrlCdUserDefined1() == null || resVO.getCtrlCdUserDefined1().equals("Y")) {
+                                if (resVO.getOrganismName() != null && resVO.getOrganismCodeSystemCd() != null) {
                                     if (resVO.getOrganismCodeSystemCd() != null && resVO.getOrganismCodeSystemCd().equals("SNM")) {
                                         tempStr = SrteCache.snomedCodeByDescMap.get(resVO.getCodedResultValue());
                                         resVO.setOrganismName(tempStr);
-                                    }
-                                    else {
+                                    } else {
                                         tempStr = SrteCache.labResultWithOrganismNameIndMap.get(resVO.getCodedResultValue());
                                         resVO.setOrganismName(tempStr);
                                     }
                                 }
                             }
-                        }else if (resVO.getCtrlCdUserDefined1() == null ){
-                            if (resVO.getOrganismName() != null){
+                        } else if (resVO.getCtrlCdUserDefined1() == null) {
+                            if (resVO.getOrganismName() != null) {
 //System.out.println("got in with an org for elr");
-                                if (resVO.getOrganismCodeSystemCd()!=null ) {
+                                if (resVO.getOrganismCodeSystemCd() != null) {
                                     if (resVO.getOrganismCodeSystemCd().equals("SNM")) {
                                         tempStr = SrteCache.snomedCodeByDescMap.get(resVO.getCodedResultValue());
-                                        if (tempStr == null)
-                                        {
+                                        if (tempStr == null) {
                                             resVO.setOrganismName(resVO.getOrganismName());
-                                        }
-                                        else
-                                        {
+                                        } else {
                                             resVO.setOrganismName(tempStr);
                                         }
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         tempStr = SrteCache.labResultWithOrganismNameIndMap.get(resVO.getCodedResultValue());
-                                        if (tempStr == null)
-                                        {
+                                        if (tempStr == null) {
                                             resVO.setOrganismName(resVO.getOrganismName());
-                                        }
-                                        else
-                                        {
+                                        } else {
                                             resVO.setOrganismName(tempStr);
                                         }
 
                                     }
-                                }
-                                else
-                                {
+                                } else {
                                     resVO.setOrganismName(resVO.getOrganismName());
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 tempStr = SrteCache.labResultWithOrganismNameIndMap.get(resVO.getCodedResultValue());
-                                if (tempStr == null)
-                                {
+                                if (tempStr == null) {
                                     resVO.setOrganismName(resVO.getCodedResultValue());
-                                }
-                                else
-                                {
+                                } else {
                                     resVO.setOrganismName(tempStr);
                                 }
                             }
                         }
 
-                        if ( (resVO.getCdSystemCd() != null) &&
-                                (! (resVO.getCdSystemCd().equals("")))) {
+                        if ((resVO.getCdSystemCd() != null) &&
+                                (!(resVO.getCdSystemCd().equals("")))) {
                             if (resVO.getCdSystemCd().equals("LN")) {
                                 if (resVO.getResultedTestCd() != null &&
                                         !resVO.getResultedTestCd().equals("")) {
@@ -1379,13 +1348,12 @@ public class InvestigationService implements IInvestigationService {
                                     if (tempStr != null && !tempStr.equals(""))
                                         resVO.setResultedTest(tempStr);
                                 }
-                            }
-                            else if (!resVO.getCdSystemCd().equals("LN")) {
+                            } else if (!resVO.getCdSystemCd().equals("LN")) {
                                 if (resVO.getResultedTestCd() != null &&
                                         !resVO.getResultedTestCd().equals("")) {
-                                    var res = labTestRepository.findLabTestByLabIdAndLabTestCode(resVO.getCdSystemCd(),resVO.getResultedTestCd());
+                                    var res = labTestRepository.findLabTestByLabIdAndLabTestCode(resVO.getCdSystemCd(), resVO.getResultedTestCd());
                                     if (res.isPresent()) {
-                                        tempStr =  res.get().get(0).getLabResultDescTxt();
+                                        tempStr = res.get().get(0).getLabResultDescTxt();
                                     }
                                     if (tempStr != null && !tempStr.equals(""))
                                         resVO.setResultedTest(tempStr);
@@ -1394,8 +1362,8 @@ public class InvestigationService implements IInvestigationService {
                             }
                         }
                         // Added this for ER16368
-                        if ((resVO.getResultedTestStatusCd() != null) &&(! (resVO.getResultedTestStatusCd().equals("")))){
-                            tempStr = cachingValueService.getCodeDescTxtForCd("ACT_OBJ_ST",resVO.getResultedTestStatusCd());
+                        if ((resVO.getResultedTestStatusCd() != null) && (!(resVO.getResultedTestStatusCd().equals("")))) {
+                            tempStr = cachingValueService.getCodeDescTxtForCd("ACT_OBJ_ST", resVO.getResultedTestStatusCd());
                             if (tempStr != null && !tempStr.equals(""))
                                 resVO.setResultedTestStatus(tempStr);
                         }
@@ -1423,16 +1391,15 @@ public class InvestigationService implements IInvestigationService {
                                                 susVO.setResultedTest(tempStr);
                                             }
                                         }
-                                    }
-                                    else if (!susVO.getCdSystemCd().equals("LN")) {
+                                    } else if (!susVO.getCdSystemCd().equals("LN")) {
                                         if (susVO.getResultedTestCd() != null &&
                                                 !susVO.getResultedTestCd().equals("")) {
 //                                            tempStr = cdv.getResultedTestDescLab(susVO.getCdSystemCd(),
 //                                                    susVO.getResultedTestCd());
 
-                                            var res = labTestRepository.findLabTestByLabIdAndLabTestCode(resVO.getCdSystemCd(),resVO.getResultedTestCd());
+                                            var res = labTestRepository.findLabTestByLabIdAndLabTestCode(resVO.getCdSystemCd(), resVO.getResultedTestCd());
                                             if (res.isPresent()) {
-                                                tempStr =  res.get().get(0).getLabResultDescTxt();
+                                                tempStr = res.get().get(0).getLabResultDescTxt();
                                             }
 
                                             if (tempStr != null && !tempStr.equals("")) {
@@ -1537,14 +1504,14 @@ public class InvestigationService implements IInvestigationService {
         ArrayList<PersonContainer> thePersonVOCollection = new ArrayList<>();
         ArrayList<OrganizationContainer> theOrganizationVOCollection = new ArrayList<>();
         ArrayList<MaterialContainer> theMaterialVOCollection = new ArrayList<>();
-        ArrayList<Object> theInterventionVOCollection = new ArrayList<Object>();
+        ArrayList<Object> theInterventionVOCollection = new ArrayList<>();
 
         // Summary Collections
-        ArrayList<Object> theVaccinationSummaryVOCollection = new ArrayList<Object>();
-        ArrayList<Object> theTreatmentSummaryVOCollection = new ArrayList<Object>();
-        ArrayList<Object> theInvestigationAuditLogSummaryVOCollection = new ArrayList<Object>(); // civil00014862
+        ArrayList<Object> theVaccinationSummaryVOCollection = new ArrayList<>();
+        ArrayList<Object> theTreatmentSummaryVOCollection = new ArrayList<>();
+        ArrayList<Object> theInvestigationAuditLogSummaryVOCollection; // civil00014862
 
-        ArrayList<Object> theDocumentSummaryVOCollection = new ArrayList<Object>();
+        ArrayList<Object> theDocumentSummaryVOCollection;
 
         Object theLookedUpObject;
 
@@ -1579,9 +1546,9 @@ public class InvestigationService implements IInvestigationService {
             pageProxyVO.setPageVO(pageVO);
             String strTypeCd;
             String strClassCd;
-            String recordStatusCd = "";
+            String recordStatusCd;
             Long nEntityID;
-            ParticipationDto participationDT = null;
+            ParticipationDto participationDT;
 
             Iterator<ParticipationDto> participationIterator = thePublicHealthCaseContainer
                     .getTheParticipationDTCollection().iterator();
@@ -1590,7 +1557,7 @@ public class InvestigationService implements IInvestigationService {
 
             // Populate the Entity collections with the results
             while (participationIterator.hasNext()) {
-                participationDT = (ParticipationDto) participationIterator
+                participationDT = participationIterator
                         .next();
                 nEntityID = participationDT.getSubjectEntityUid();
                 strClassCd = participationDT.getSubjectClassCd();
@@ -1638,24 +1605,19 @@ public class InvestigationService implements IInvestigationService {
             pageProxyVO.setTheNotificationSummaryVOCollection(retrieveSummaryService.notificationSummaryOnInvestigation(thePublicHealthCaseContainer, pageProxyVO));
 
             if (pageProxyVO.getTheNotificationSummaryVOCollection() != null) {
-                Iterator<Object> it = pageProxyVO
-                        .getTheNotificationSummaryVOCollection().iterator();
-                while (it.hasNext()) {
-                    NotificationSummaryContainer notifVO = (NotificationSummaryContainer) it
-                            .next();
-                    Iterator<ActRelationshipDto> actIterator = pageProxyVO
+                for (Object o : pageProxyVO
+                        .getTheNotificationSummaryVOCollection()) {
+                    NotificationSummaryContainer notifVO = (NotificationSummaryContainer) o;
+                    for (ActRelationshipDto actRelationDT : pageProxyVO
                             .getPublicHealthCaseContainer()
-                            .getTheActRelationshipDTCollection().iterator();
-                    while (actIterator.hasNext()) {
-                        ActRelationshipDto actRelationDT = (ActRelationshipDto) actIterator
-                                .next();
+                            .getTheActRelationshipDTCollection()) {
                         if ((notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_SHARE_NOTF) ||
                                 notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_SHARE_NOTF_PHDC))
                                 && notifVO.getNotificationUid().compareTo(
                                 actRelationDT.getSourceActUid()) == 0) {
                             actRelationDT.setShareInd(true);
                         }
-                        if ( (notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_EXP_NOTF) ||
+                        if ((notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_EXP_NOTF) ||
                                 notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_EXP_NOTF_PHDC))
                                 && notifVO.getNotificationUid().compareTo(
                                 actRelationDT.getSourceActUid()) == 0) {
@@ -1674,13 +1636,11 @@ public class InvestigationService implements IInvestigationService {
             if(typeCd!=null && !typeCd.equals(NEDSSConstant.CASE_LITE)) {
                 ActRelationshipDto actRelationshipDT = null;
                 // Get the Vaccinations for a PublicHealthCase/Investigation
-                Iterator<ActRelationshipDto> actRelationshipIterator = thePublicHealthCaseContainer
-                        .getTheActRelationshipDTCollection().iterator();
 
                 // Populate the ACT collections in the results
-                while (actRelationshipIterator.hasNext()) {
-                    actRelationshipDT = (ActRelationshipDto) actRelationshipIterator
-                            .next();
+                for (ActRelationshipDto actRelationshipDto : thePublicHealthCaseContainer
+                        .getTheActRelationshipDTCollection()) {
+                    actRelationshipDT = actRelationshipDto;
                     logger.debug("inside while actUid: "
                             + actRelationshipDT.getTargetActUid()
                             + " observationUid: "
@@ -1746,8 +1706,8 @@ public class InvestigationService implements IInvestigationService {
 
 
 
-                Collection<Object> labSumVOCol = new ArrayList<Object>();
-                HashMap<Object, Object> labSumVOMap = new HashMap<Object, Object>();
+                Collection<Object> labSumVOCol = new ArrayList<>();
+                HashMap<Object, Object> labSumVOMap;
 
 //                if (nbsSecurityObj.getPermission(NBSBOLookup.OBSERVATIONLABREPORT,
 //                        NBSOperationLookup.VIEW,
@@ -1766,20 +1726,18 @@ public class InvestigationService implements IInvestigationService {
                                     publicHealthCaseUID, labReportViewClause);
 
                     String uidType = "LABORATORY_UID";
-                    Collection<?> labReportSummaryVOCollection = new ArrayList<Object>();
-                    LabReportSummaryContainer labReportSummaryVOs = new LabReportSummaryContainer();
+                    Collection<?> labReportSummaryVOCollection;
+                    LabReportSummaryContainer labReportSummaryVOs;
                     if (LabReportUidSummarVOs != null
                             && LabReportUidSummarVOs.size() > 0) {
                         // labSumVOCol = new
                         // ObservationProcessor().retrieveLabReportSummary(LabReportUidSummarVOs,
                         // nbsSecurityObj);
-                        boolean isCDCFormPrintCase= false;
+                        boolean isCDCFormPrintCase;
                         if(typeCd.equalsIgnoreCase(NEDSSConstant.PRINT_CDC_CASE)){
                             isCDCFormPrintCase = true;
                             if(LabReportUidSummarVOs!=null && LabReportUidSummarVOs.size()>0){
-                                Iterator it = LabReportUidSummarVOs.iterator();
-                                while(it.hasNext()){
-                                    UidSummaryContainer uidSummaryVO = (UidSummaryContainer)it.next();
+                                for (UidSummaryContainer uidSummaryVO : LabReportUidSummarVOs) {
                                     uidSummaryVO.setStatusTime(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getAddTime());
                                 }
                             }
@@ -1795,11 +1753,8 @@ public class InvestigationService implements IInvestigationService {
                             if (labSumVOMap.containsKey("labEventList")) {
                                 labReportSummaryVOCollection = (ArrayList<?>) labSumVOMap
                                         .get("labEventList");
-                                Iterator<?> iterator = labReportSummaryVOCollection
-                                        .iterator();
-                                while (iterator.hasNext()) {
-                                    labReportSummaryVOs = (LabReportSummaryContainer) iterator
-                                            .next();
+                                for (Object o : labReportSummaryVOCollection) {
+                                    labReportSummaryVOs = (LabReportSummaryContainer) o;
                                     labSumVOCol.add(labReportSummaryVOs);
                                 }
                             }
@@ -1969,7 +1924,7 @@ public class InvestigationService implements IInvestigationService {
 
                 // Begin support for Document Summary Section
 //                if (nbsSecurityObj.getPermission(NBSBOLookup.DOCUMENT, NBSOperationLookup.VIEW)) {
-                    theDocumentSummaryVOCollection = new ArrayList<Object>(
+                    theDocumentSummaryVOCollection = new ArrayList<>(
                             retrieveSummaryService.retrieveDocumentSummaryVOForInv(publicHealthCaseUID).values());
                     pageProxyVO
                             .setTheDocumentSummaryVOCollection(theDocumentSummaryVOCollection);

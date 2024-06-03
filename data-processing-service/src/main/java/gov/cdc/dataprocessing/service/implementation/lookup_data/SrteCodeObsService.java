@@ -9,8 +9,6 @@ import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.ProgAreaSnomeCodeStoredProcRepository;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.*;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ISrteCodeObsService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -123,12 +121,12 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
         if (cdSystemCd != null && !cdSystemCd.equals("LN") && altCdSystemCd == null) {
             var result = labTestLoincRepository.findLoincCds(labClia, obsDT.getCd());
-            List<String> loincCdList = new ArrayList<>();
+            List<String> loincCdList;
             if (result.isPresent()) {
                 loincCdList = result.get();
-                if (loincCdList != null && loincCdList.size() == 1) {
+                if (loincCdList.size() == 1) {
                     obsDT.setAltCdSystemCd("LN");
-                    obsDT.setAltCd( (String) loincCdList.get(0));
+                    obsDT.setAltCd(loincCdList.get(0));
                     obsDT.setCdDerivedInd("Y");
                 }
             }
@@ -141,23 +139,21 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         {
             return;
         }
-        for (Iterator<ObsValueCodedDto> it = obsValueCodedDtos.iterator(); it.hasNext(); ) {
-            ObsValueCodedDto obsValueCodedDto = (ObsValueCodedDto) it.next();
-            if (obsValueCodedDto == null)
-            {
+        for (ObsValueCodedDto obsValueCodedDto : obsValueCodedDtos) {
+            if (obsValueCodedDto == null) {
                 continue;
             }
             String cdSystemCd = obsValueCodedDto.getCodeSystemCd();
             String altCdSystemCd = obsValueCodedDto.getAltCdSystemCd();
             if (cdSystemCd != null && !cdSystemCd.equals("SNM") && altCdSystemCd == null) {
-                var result = labResultSnomedRepository.findSnomedCds(labClia, obsValueCodedDto.getCode());;
-                List<String> snomedCdList = new ArrayList<>();
+                var result = labResultSnomedRepository.findSnomedCds(labClia, obsValueCodedDto.getCode());
+                List<String> snomedCdList;
                 if (result.isPresent()) {
                     snomedCdList = result.get();
                     //If only one snomed cd found, use it, otherwise discard
-                    if (snomedCdList != null && snomedCdList.size() == 1) {
+                    if (snomedCdList.size() == 1) {
                         obsValueCodedDto.setAltCdSystemCd("SNM");
-                        obsValueCodedDto.setAltCd( (String) snomedCdList.get(0));
+                        obsValueCodedDto.setAltCd(snomedCdList.get(0));
                         obsValueCodedDto.setCodeDerivedInd("Y");
                     }
                 }
@@ -168,7 +164,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
 
     public HashMap<Object, Object> getProgramArea(String reportingLabCLIA, Collection<ObservationContainer> observationContainerCollection, String electronicInd) throws DataProcessingException {
-        HashMap<Object, Object> returnMap = new HashMap<Object, Object>();
+        HashMap<Object, Object> returnMap = new HashMap<>();
         if (reportingLabCLIA == null)
         {
             returnMap.put(NEDSSConstant.ERROR, NEDSSConstant.REPORTING_LAB_CLIA_NULL);
@@ -176,12 +172,12 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         }
 
         Iterator<ObservationContainer> obsIt = observationContainerCollection.iterator();
-        Hashtable<Object, Object> paHTBL = new Hashtable<Object, Object>();
+        Hashtable<Object, Object> paHTBL = new Hashtable<>();
 
         //iterator through each resultTest
         while (obsIt.hasNext())
         {
-            ObservationContainer obsVO = (ObservationContainer) obsIt.next();
+            ObservationContainer obsVO = obsIt.next();
             ObservationDto obsDt = obsVO.getTheObservationDto();
 
             String obsDomainCdSt1 = obsDt.getObsDomainCdSt1();
@@ -307,7 +303,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
      */
     // AK - 7/25/04
     public String getPAFromSNOMEDCodes(String reportingLabCLIA, Collection<ObsValueCodedDto> obsValueCodedDtoColl) throws DataProcessingException {
-        Vector<Object> snomedVector = new Vector<Object>();
+        Vector<Object> snomedVector = new Vector<>();
         if (reportingLabCLIA == null)
         {
             return null;
@@ -375,14 +371,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         var result = snomedCodeRepository.findSnomedProgramAreaExclusion(snomedCd);
         if (result.isPresent()) {
             for(var item: result.get()) {
-                if (item.getPaDerivationExcludeCd() != null && item.getPaDerivationExcludeCd().equals(NEDSSConstant.YES))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return item.getPaDerivationExcludeCd() != null && item.getPaDerivationExcludeCd().equals(NEDSSConstant.YES);
             }
         }
         return false;
@@ -398,15 +387,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         var result = labResultRepository.findLabResultProgramAreaExclusion(labResultCd, reportingLabCLIA);
         if (result.isPresent()) {
             for(var item : result.get()) {
-                var elem = item;
-                if (elem.getPaDerivationExcludeCd() != null && elem.getPaDerivationExcludeCd().equals(NEDSSConstant.YES))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return item.getPaDerivationExcludeCd() != null && item.getPaDerivationExcludeCd().equals(NEDSSConstant.YES);
             }
         }
         return false;
@@ -429,8 +410,8 @@ public class SrteCodeObsService implements ISrteCodeObsService {
             return null;
         }
 
-        Map<String, Object> progAreaCdList = null;
-        Vector<Object> toReturn = new Vector<Object>();
+        Map<String, Object> progAreaCdList;
+        Vector<Object> toReturn = new Vector<>();
         String lastPACode = null;
 
         try {
@@ -489,7 +470,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
             return null;
         }
 
-        Vector<Object> loincVector = new Vector<Object>();
+        Vector<Object> loincVector = new Vector<>();
 
         if(cdSystemCd.equals(ELRConstant.ELR_OBSERVATION_LOINC))
         {
@@ -526,14 +507,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         var result =  labTestRepository.findLabTestForExclusion(labTestCd, reportingLabCLIA);
         if(result.isPresent()) {
             for(var item : result.get()) {
-                if (item.getPaDerivationExcludeCd() != null && item.getPaDerivationExcludeCd().equals(NEDSSConstant.YES))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return item.getPaDerivationExcludeCd() != null && item.getPaDerivationExcludeCd().equals(NEDSSConstant.YES);
             }
         }
         return false;
@@ -543,14 +517,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         var result =  loincCodeRepository.findLoinCCodeExclusion(loincCd);
         if(result.isPresent()) {
             for(var item : result.get()) {
-                if (item.getPaDerivationExcludeCode() != null && item.getPaDerivationExcludeCode().equals(NEDSSConstant.YES))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return item.getPaDerivationExcludeCode() != null && item.getPaDerivationExcludeCode().equals(NEDSSConstant.YES);
             }
         }
         return false;
@@ -564,14 +531,14 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     // AK - 7/25/04
     public String getPAFromLocalResultCode(String reportingLabCLIA, Collection<ObsValueCodedDto> obsValueCodedDtoColl) {
         String lastProgAreaCd = null;
-        String progAreaCd = null;
+        String progAreaCd;
 
         if (obsValueCodedDtoColl == null || reportingLabCLIA == null)
         {
             return null;
         }
 
-        Vector<Object> codeVector = new Vector<Object>();
+        Vector<Object> codeVector = new Vector<>();
 
         for (ObsValueCodedDto obsValueCodedDto : obsValueCodedDtoColl) {
             String code = obsValueCodedDto.getCode();
@@ -607,16 +574,19 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     } //end of method
 
     private String findLocalResultDefaultConditionProgramAreaCd(Vector<Object> codeVector, String reportingLabCLIA, String nextLookup) {
-        Vector<Object> toReturn = new Vector<Object>();
+        Vector<Object> toReturn = new Vector<>();
         String lastPACode = null;
         try {
             for (int k = 0; k < codeVector.size(); k++) {
                 var result = conditionCodeRepository.findConditionCodeByLabResultLabIdAndCd(
                         codeVector.elementAt(k).toString(),
                         reportingLabCLIA);
-                Collection<String> defaultPACColl = result.get();
+                Collection<String> defaultPACColl = new ArrayList<>();
+                if (result.isPresent()) {
+                    defaultPACColl = result.get();
+                }
                 if (defaultPACColl.size() == 1) {
-                    String currentPACode = defaultPACColl.iterator().next().toString();
+                    String currentPACode = defaultPACColl.iterator().next();
                     // Compare with previously retrieved PA and return null if they are different.
                     if (lastPACode == null)
                     {
@@ -637,16 +607,19 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     } //end of getProgAreaCdLocalDefault(...)
 
     private String findLocalResultDefaultConditionProgramAreaCdFromLabResult(Vector<Object> codeVector, String reportingLabCLIA, String nextLookup) {
-        Vector<Object> toReturn = new Vector<Object>();
+        Vector<Object> toReturn = new Vector<>();
         String lastPACode = null;
         try {
             for (int k = 0; k < codeVector.size(); k++) {
                 var result = labResultRepository.findLocalResultDefaultProgramAreaCd(
                         codeVector.elementAt(k).toString(),
                         reportingLabCLIA);
-                Collection<String> defaultPACColl = result.get();
+                Collection<String> defaultPACColl = new ArrayList<>();
+                if (result.isPresent()) {
+                    defaultPACColl = result.get();
+                }
                 if (defaultPACColl.size() == 1) {
-                    String currentPACode = defaultPACColl.iterator().next().toString();
+                    String currentPACode = defaultPACColl.iterator().next();
                     // Compare with previously retrieved PA and return null if they are different.
                     if (lastPACode == null)
                     {
@@ -668,16 +641,19 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
 
     private String findLocalResultDefaultConditionProgramAreaCdFromLabTest(Vector<Object> codeVector, String reportingLabCLIA, String nextLookup) {
-        Vector<Object> toReturn = new Vector<Object>();
+        Vector<Object> toReturn = new Vector<>();
         String lastPACode = null;
         try {
             for (int k = 0; k < codeVector.size(); k++) {
                 var result = labTestRepository.findLocalTestDefaultConditionProgramAreaCd(
                         codeVector.elementAt(k).toString(),
                         reportingLabCLIA);
-                Collection<String> defaultPACColl = result.get();
+                Collection<String> defaultPACColl = new ArrayList<>();
+                if (result.isPresent()) {
+                    defaultPACColl = result.get();
+                }
                 if (defaultPACColl.size() == 1) {
-                    String currentPACode = defaultPACColl.iterator().next().toString();
+                    String currentPACode = defaultPACColl.iterator().next();
                     // Compare with previously retrieved PA and return null if they are different.
                     if (lastPACode == null)
                     {
@@ -698,16 +674,19 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     } //end of getProgAreaCdLocalDefault(...)
 
     private String findLocalResultDefaultConditionProgramAreaCdFromLabTestWithoutJoin(Vector<Object> codeVector, String reportingLabCLIA, String nextLookup) {
-        Vector<Object> toReturn = new Vector<Object>();
+        Vector<Object> toReturn = new Vector<>();
         String lastPACode = null;
         try {
             for (int k = 0; k < codeVector.size(); k++) {
                 var result = labTestRepository.findLocalTestDefaultProgramAreaCd(
                         codeVector.elementAt(k).toString(),
                         reportingLabCLIA);
-                Collection<String> defaultPACColl = result.get();
+                Collection<String> defaultPACColl = new ArrayList<>();
+                if (result.isPresent()) {
+                    defaultPACColl = result.get();
+                }
                 if (defaultPACColl.size() == 1) {
-                    String currentPACode = defaultPACColl.iterator().next().toString();
+                    String currentPACode = defaultPACColl.iterator().next();
                     // Compare with previously retrieved PA and return null if they are different.
                     if (lastPACode == null)
                     {
@@ -758,9 +737,9 @@ public class SrteCodeObsService implements ISrteCodeObsService {
             return null;
         }
 
-        String progAreaCd = null;
+        String progAreaCd;
 
-        Vector<Object> codeVector = new Vector<Object>();
+        Vector<Object> codeVector = new Vector<>();
         codeVector.addElement(code);
 
         String codeSql = null;

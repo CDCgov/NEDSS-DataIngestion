@@ -35,9 +35,9 @@ public class EdxPhcrDocumentUtil {
         {
             invFormCd= DecisionSupportConstants.CORE_INV_FORM;
         }
-        ArrayList<Object> questionList = new ArrayList<Object> ();
-        Map<Object,Object> tempMap = new HashMap<Object,Object>();
-        Map<Object,Object> generalMap = new HashMap<Object,Object>();
+        ArrayList<Object> questionList = new ArrayList<> ();
+        Map<Object,Object> tempMap = new HashMap<>();
+        Map<Object,Object> generalMap = new HashMap<>();
 
         //Check to see if it is single condition or multiple conditions
         if(invFormCd != null)
@@ -65,7 +65,7 @@ public class EdxPhcrDocumentUtil {
                 }
                 else
                 {
-                    tempMap = new HashMap<Object,Object>();
+                    tempMap = new HashMap<>();
                 }
             }
 
@@ -97,7 +97,7 @@ public class EdxPhcrDocumentUtil {
         //
         String requireFieldError = null;
         Iterator<Object> iter = (requiredQuestionIdentifierMap.keySet()).iterator();
-        Collection<Object> errorTextColl = new ArrayList<Object>();
+        Collection<Object> errorTextColl = new ArrayList<>();
         try {
             while(iter.hasNext()){
                 String reqdKey = (String) iter.next();
@@ -118,16 +118,16 @@ public class EdxPhcrDocumentUtil {
         }
         if(errorTextColl!=null && errorTextColl.size()>0){
             Iterator<Object> iterator = errorTextColl.iterator();
-            String errorTextString ="";
+            StringBuilder errorTextString = new StringBuilder();
             while(iterator.hasNext()){
                 String errorText = (String)iterator.next();
                 if(errorTextColl.size()==1){
-                    errorTextString =errorText;
+                    errorTextString = new StringBuilder(errorText);
                 }else{
                     if(iterator.hasNext()){
-                        errorTextString =errorTextString+ errorText+"; " ;
+                        errorTextString.append(errorText).append("; ");
                     }else{
-                        errorTextString =errorTextString+" and "+errorText+". ";
+                        errorTextString.append(" and ").append(errorText).append(". ");
                     }
                 }
             }
@@ -159,7 +159,7 @@ public class EdxPhcrDocumentUtil {
                 .getThePublicHealthCaseDto().getLastChgUserId());
         nbsCaseAnswerDT.setRecordStatusCd("OPEN");
         if (nbsCaseAnswerDT.getSeqNbr() != null
-                && nbsCaseAnswerDT.getSeqNbr().intValue() < 0)
+                && nbsCaseAnswerDT.getSeqNbr() < 0)
             nbsCaseAnswerDT.setSeqNbr(0);
         nbsCaseAnswerDT.setRecordStatusTime(publicHealthCaseContainer
                 .getThePublicHealthCaseDto().getRecordStatusTime());

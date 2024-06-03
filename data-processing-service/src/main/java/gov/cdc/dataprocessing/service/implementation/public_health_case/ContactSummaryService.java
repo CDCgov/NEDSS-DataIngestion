@@ -70,7 +70,7 @@ public class ContactSummaryService implements IContactSummaryService {
                 dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll("program_jurisdiction_oid", "contact.program_jurisdiction_oid");
                 dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll("shared_ind", "contact.shared_ind");
             }
-            Collection<Object>  PHCcTContactNameByPatientSummDTColl  = new ArrayList<Object> ();
+            Collection<Object>  PHCcTContactNameByPatientSummDTColl;
             String sql  =SELECT_PHCPAT_NAMED_BY_PATIENT_COLLECTION1 + dataAccessWhereClause1
                     + SELECT_PHCPAT_NAMED_BY_PATIENT_COLLECTION3 + publicHealthCaseUID+ dataAccessWhereClause;
             PHCcTContactNameByPatientSummDTColl = getContactNamedByPatientDTColl(sql);
@@ -100,7 +100,7 @@ public class ContactSummaryService implements IContactSummaryService {
                 dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll("program_jurisdiction_oid", "CT_CONTACT.program_jurisdiction_oid");
                 dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll("shared_ind", "CT_CONTACT.shared_ind_cd");
             }
-            Collection<Object>  PHCcTContactNameByPatientSummDTColl  = new ArrayList<Object> ();
+            Collection<Object>  PHCcTContactNameByPatientSummDTColl;
             String sql  = SELECT_PHCPAT_NAMED_BY_CONTACT_COLLECTION +publicHealthCaseUID
                     + dataAccessWhereClause + dataAccessWhereClause1;
             PHCcTContactNameByPatientSummDTColl = getPatientNamedAsContactSummDTColl(sql, false);
@@ -132,7 +132,7 @@ public class ContactSummaryService implements IContactSummaryService {
                 dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll("program_jurisdiction_oid", "CT_CONTACT.program_jurisdiction_oid");
                 dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll("shared_ind", "CT_CONTACT.shared_ind_cd");
             }
-            Collection<Object>  PHCcTContactNameByPatientSummDTColl  = new ArrayList<Object> ();
+            Collection<Object>  PHCcTContactNameByPatientSummDTColl;
             String sql  =SELECT_PHCPAT_OTHER_NAMED_BY_CONTACT_COLLECTION + publicHealthCaseUID
                     + dataAccessWhereClause+dataAccessWhereClause1;
             PHCcTContactNameByPatientSummDTColl = getPatientNamedAsContactSummDTColl(sql, true);
@@ -145,15 +145,13 @@ public class ContactSummaryService implements IContactSummaryService {
 
     private  Collection<Object> getContactNamedByPatientDTColl(String sql) throws DataProcessingException {
         CTContactSummaryDto cTContactSummaryDto = new CTContactSummaryDto();
-        ArrayList<CTContactSummaryDto>  cTContactNameByPatientSummDTColl  = new ArrayList<> ();
-        ArrayList<Object>  returnCTContactNameByPatientSummDTColl  = new ArrayList<Object> ();
+        ArrayList<CTContactSummaryDto>  cTContactNameByPatientSummDTColl ;
+        ArrayList<Object>  returnCTContactNameByPatientSummDTColl  = new ArrayList<> ();
         try
         {
             cTContactNameByPatientSummDTColl  = new ArrayList<>(customRepository.getContactByPatientInfo(sql));
 
-            Iterator<CTContactSummaryDto> it = cTContactNameByPatientSummDTColl.iterator();
-            while(it.hasNext()){
-                CTContactSummaryDto cTContactSumyDT = (CTContactSummaryDto)it.next();
+            for (CTContactSummaryDto cTContactSumyDT : cTContactNameByPatientSummDTColl) {
                 cTContactSumyDT.setContactNamedByPatient(true);
                 Long contactEntityUid = cTContactSumyDT.getContactEntityUid();
                 var lst = personNameRepository.findByParentUid(contactEntityUid);
@@ -165,19 +163,17 @@ public class ContactSummaryService implements IContactSummaryService {
                 //add the contact summary dt
                 returnCTContactNameByPatientSummDTColl.add(cTContactSumyDT);
 
-                var lst2 = personNameRepository.findByParentUid(contactEntityUid);
                 Collection contactNameColl = new ArrayList<>();
                 if (lst.isPresent()) {
                     contactNameColl = lst.get();
                 }
 
-                if(contactNameColl != null && contactNameColl.size() > 0) {
-                    Iterator iter = contactNameColl.iterator();
-                    while(iter.hasNext()){
-                        PersonNameDto personNameDT = (PersonNameDto)iter.next();
-                        if(personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)){
-                            String lastName = (personNameDT.getLastNm()==null)?"No Last":personNameDT.getLastNm();
-                            String firstName = (personNameDT.getFirstNm()==null)?"No First":personNameDT.getFirstNm();
+                if (contactNameColl.size() > 0) {
+                    for (Object o : contactNameColl) {
+                        PersonNameDto personNameDT = (PersonNameDto) o;
+                        if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
+                            String lastName = (personNameDT.getLastNm() == null) ? "No Last" : personNameDT.getLastNm();
+                            String firstName = (personNameDT.getFirstNm() == null) ? "No First" : personNameDT.getFirstNm();
                             String personName = lastName + ", " + firstName;
                             cTContactSumyDT.setName(personName);
                             cTContactSumyDT.setContactName(personName);
@@ -193,14 +189,13 @@ public class ContactSummaryService implements IContactSummaryService {
                     if (lst3.isPresent()) {
                         ctOtherNameColl = lst3.get();
                     }
-                    if(ctOtherNameColl != null && ctOtherNameColl.size() > 0) {
-                        Iterator<PersonName> otherIter = ctOtherNameColl.iterator();
-                        while(otherIter.hasNext()){
-                            PersonNameDto personNameDT =  new PersonNameDto(otherIter.next());
+                    if (ctOtherNameColl.size() > 0) {
+                        for (PersonName name : ctOtherNameColl) {
+                            PersonNameDto personNameDT = new PersonNameDto(name);
                             if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
-                                String lastName = (personNameDT.getLastNm()==null)?"No Last":personNameDT.getLastNm();
-                                String firstName = (personNameDT.getFirstNm()==null)?"No First":personNameDT.getFirstNm();
-                                String personName =lastName + ", " + firstName;
+                                String lastName = (personNameDT.getLastNm() == null) ? "No Last" : personNameDT.getLastNm();
+                                String firstName = (personNameDT.getFirstNm() == null) ? "No First" : personNameDT.getFirstNm();
+                                String personName = lastName + ", " + firstName;
                                 cTContactSumyDT.setOtherInfectedPatientName(personName);
                                 break;
                             }
@@ -229,23 +224,20 @@ public class ContactSummaryService implements IContactSummaryService {
 
 
     private Collection<Object> getPatientNamedAsContactSummDTColl(String sql, boolean otherInfected) throws  DataProcessingException {
-        CTContactSummaryDto ctContactSummaryDto = new CTContactSummaryDto();
-        ArrayList<CTContactSummaryDto>  ctNameByPatientSummDTColl  = new ArrayList<> ();
-        ArrayList<Object>  returnCTNameByPatientSummDTColl  = new ArrayList<Object> ();
+        ArrayList<CTContactSummaryDto>  ctNameByPatientSummDTColl;
+        ArrayList<Object>  returnCTNameByPatientSummDTColl  = new ArrayList<> ();
         try
         {
             ctNameByPatientSummDTColl  = new ArrayList<>(customRepository.getContactByPatientInfo(sql));
-            Iterator<CTContactSummaryDto> it = ctNameByPatientSummDTColl.iterator();
-            while(it.hasNext()){
-                CTContactSummaryDto cTContactSumyDT = (CTContactSummaryDto)it.next();
+            for (CTContactSummaryDto cTContactSumyDT : ctNameByPatientSummDTColl) {
                 cTContactSumyDT.setContactNamedByPatient(false);
                 cTContactSumyDT.setPatientNamedByContact(true);
                 cTContactSumyDT.setOtherNamedByPatient(otherInfected);
 
                 cTContactSumyDT.setAssociatedMap(retrieveSummaryService.getAssociatedDocumentList(
-                                cTContactSumyDT.getCtContactUid(),
-                                NEDSSConstant.CLASS_CD_CONTACT,
-                                NEDSSConstant.ACT_CLASS_CD_FOR_DOC));
+                        cTContactSumyDT.getCtContactUid(),
+                        NEDSSConstant.CLASS_CD_CONTACT,
+                        NEDSSConstant.ACT_CLASS_CD_FOR_DOC));
                 //go ahead and add the summary dt into the collection
                 returnCTNameByPatientSummDTColl.add(cTContactSumyDT);
 
@@ -256,18 +248,17 @@ public class ContactSummaryService implements IContactSummaryService {
                 Collection<PersonName> subjectNameColl = new ArrayList<>();
 
                 var lst = personNameRepository.findByParentUid(contactSubjectEntityUid);
-                if(lst.isPresent()) {
+                if (lst.isPresent()) {
                     subjectNameColl = lst.get();
                 }
 
-                if(subjectNameColl != null && subjectNameColl.size() > 0) {
-                    Iterator<PersonName> iter = subjectNameColl.iterator();
-                    while(iter.hasNext()){
-                        PersonNameDto personNameDT = new PersonNameDto(iter.next());
-                        if(personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)){
-                            String lastName = (personNameDT.getLastNm()==null)?"No Last":personNameDT.getLastNm();
-                            String firstName = (personNameDT.getFirstNm()==null)?"No First":personNameDT.getFirstNm();
-                            String personName =lastName + ", " + firstName;
+                if (subjectNameColl.size() > 0) {
+                    for (PersonName name : subjectNameColl) {
+                        PersonNameDto personNameDT = new PersonNameDto(name);
+                        if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
+                            String lastName = (personNameDT.getLastNm() == null) ? "No Last" : personNameDT.getLastNm();
+                            String firstName = (personNameDT.getFirstNm() == null) ? "No First" : personNameDT.getFirstNm();
+                            String personName = lastName + ", " + firstName;
                             cTContactSumyDT.setNamedBy(personName);
                             cTContactSumyDT.setSubjectName(personName);
                             break;
@@ -281,19 +272,20 @@ public class ContactSummaryService implements IContactSummaryService {
                     Collection<PersonName> contactNameColl = new ArrayList<>();
 
                     var lst2 = personNameRepository.findByParentUid(contactEntityUid);
-                    if(lst2.isPresent()) {
-                        contactNameColl = lst.get();
+                    if (lst2.isPresent()) {
+                        if (lst.isPresent()) {
+                            contactNameColl = lst.get();
+                        }
                     }
 
 
-                    if(contactNameColl != null && contactNameColl.size() > 0) {
-                        Iterator<PersonName> ctIter = contactNameColl.iterator();
-                        while(ctIter.hasNext()){
-                            PersonNameDto personNameDT = new PersonNameDto(ctIter.next());
+                    if (contactNameColl.size() > 0) {
+                        for (PersonName name : contactNameColl) {
+                            PersonNameDto personNameDT = new PersonNameDto(name);
                             if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
-                                String lastName = (personNameDT.getLastNm()==null)?"No Last":personNameDT.getLastNm();
-                                String firstName = (personNameDT.getFirstNm()==null)?"No First":personNameDT.getFirstNm();
-                                String personName =lastName + ", " + firstName;
+                                String lastName = (personNameDT.getLastNm() == null) ? "No Last" : personNameDT.getLastNm();
+                                String firstName = (personNameDT.getFirstNm() == null) ? "No First" : personNameDT.getFirstNm();
+                                String personName = lastName + ", " + firstName;
                                 cTContactSumyDT.setContactName(personName);
                                 break;
                             }
@@ -305,18 +297,17 @@ public class ContactSummaryService implements IContactSummaryService {
                 if (otherEntityUid != null) {
                     Collection<PersonName> ctOtherNameColl = new ArrayList<>();
                     var lst3 = personNameRepository.findByParentUid(otherEntityUid);
-                    if(lst3.isPresent()) {
-                        ctOtherNameColl = lst.get();
+                    if (lst3.isPresent()) {
+                        ctOtherNameColl = lst3.get();
                     }
 
-                    if(ctOtherNameColl != null && ctOtherNameColl.size() > 0) {
-                        Iterator<PersonName> otherIter = ctOtherNameColl.iterator();
-                        while(otherIter.hasNext()){
-                            PersonNameDto personNameDT = new PersonNameDto(otherIter.next());
+                    if (ctOtherNameColl.size() > 0) {
+                        for (PersonName name : ctOtherNameColl) {
+                            PersonNameDto personNameDT = new PersonNameDto(name);
                             if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
-                                String lastName = (personNameDT.getLastNm()==null)?"No Last":personNameDT.getLastNm();
-                                String firstName = (personNameDT.getFirstNm()==null)?"No First":personNameDT.getFirstNm();
-                                String personName =lastName + ", " + firstName;
+                                String lastName = (personNameDT.getLastNm() == null) ? "No Last" : personNameDT.getLastNm();
+                                String firstName = (personNameDT.getFirstNm() == null) ? "No First" : personNameDT.getFirstNm();
+                                String personName = lastName + ", " + firstName;
                                 cTContactSumyDT.setOtherInfectedPatientName(personName);
                                 break;
                             }

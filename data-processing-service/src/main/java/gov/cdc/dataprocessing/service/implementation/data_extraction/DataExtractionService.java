@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.service.implementation.data_extraction;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
-import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.edx.EDXDocumentDto;
@@ -10,7 +9,6 @@ import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.stored_proc.NbsInterfaceStoredProcRepository;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.service.interfaces.data_extraction.IDataExtractionService;
-import gov.cdc.dataprocessing.service.interfaces.stored_proc.IMsgOutEStoredProcService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.LabResultUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.HL7PatientHandler;
@@ -38,9 +36,6 @@ public class DataExtractionService implements IDataExtractionService {
     private final HL7PatientHandler hl7PatientHandler;
     private final ObservationRequestHandler observationRequestHandler;
     private final ObservationResultRequestHandler observationResultRequestHandler;
-
-    // this one will call out ro msgoute storedProc
-    private final IMsgOutEStoredProcService msgOutEStoredProcService;
     private final ORCHandler orcHandler;
     private final LabResultUtil labResultUtil;
     private final NbsInterfaceStoredProcRepository nbsInterfaceStoredProcRepository;
@@ -50,7 +45,6 @@ public class DataExtractionService implements IDataExtractionService {
             HL7PatientHandler hl7PatientHandler,
             ObservationRequestHandler observationRequestHandler,
             ObservationResultRequestHandler observationResultRequestHandler,
-            IMsgOutEStoredProcService msgOutEStoredProcService,
             ORCHandler orcHandler,
             DataExtractionServiceUtility dataExtractionServiceUtility,
             LabResultUtil labResultUtil, NbsInterfaceStoredProcRepository nbsInterfaceStoredProcRepository) {
@@ -58,18 +52,17 @@ public class DataExtractionService implements IDataExtractionService {
         this.dataExtractionServiceUtility = dataExtractionServiceUtility;
         this.observationRequestHandler = observationRequestHandler;
         this.observationResultRequestHandler = observationResultRequestHandler;
-        this.msgOutEStoredProcService = msgOutEStoredProcService;
         this.orcHandler = orcHandler;
         this.labResultUtil = labResultUtil;
         this.nbsInterfaceStoredProcRepository = nbsInterfaceStoredProcRepository;
     }
 
     @Transactional
-    public LabResultProxyContainer parsingDataToObject(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto) throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+    public LabResultProxyContainer parsingDataToObject(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto) throws JAXBException, DataProcessingException {
 
         LabResultProxyContainer labResultProxyContainer;
         int rootObsUid = 0;
-        long userId = AuthUtil.authUser.getAuthUserUid();;
+        long userId = AuthUtil.authUser.getAuthUserUid();
         Timestamp time = new Timestamp(new Date().getTime());
 
             edxLabInformationDto.setRootObserbationUid(--rootObsUid);
@@ -79,7 +72,7 @@ public class DataExtractionService implements IDataExtractionService {
             edxLabInformationDto.setAddTime(time);
 
             // Set Collection of EDXDocumentDto
-            Collection<EDXDocumentDto> collectionXmlDoc = new ArrayList<EDXDocumentDto>();
+            Collection<EDXDocumentDto> collectionXmlDoc = new ArrayList<>();
             EDXDocumentDto edxDocumentDto = new EDXDocumentDto();
             edxDocumentDto.setAddTime(time);
             edxDocumentDto.setDocTypeCd(EdxELRConstant.ELR_DOC_TYPE_CD);

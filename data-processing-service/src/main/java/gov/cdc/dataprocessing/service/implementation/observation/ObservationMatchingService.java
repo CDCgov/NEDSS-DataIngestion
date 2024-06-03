@@ -178,7 +178,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
                 ) {
                     edxLabInformationDT.setOriginalAssociatedPHCUid(actRelationshipDto.getTargetActUid());
                 }
-                if (actRelationshipDto.getTypeCd().equals(EdxELRConstant.ELR_AR_LAB_COMMENT)) {
+                if (actRelationshipDto.getTypeCd() != null && actRelationshipDto.getTypeCd().equals(EdxELRConstant.ELR_AR_LAB_COMMENT)) {
                     updatedARCollection.add(actRelationshipDto);
                 }
                 else {
@@ -205,7 +205,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
         labResultProxyVO.setTheParticipationDtoCollection(updatedPartCollection);
 
         Collection<RoleDto> rolecoll = new ArrayList<>();
-        Long patientUid = null;
+        Long patientUid;
         Collection<PersonContainer> coll = matchedlabResultProxyVO.getThePersonContainerCollection();
 
         if(coll!=null){
@@ -250,6 +250,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
                 String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
                 if (obsDomainCdSt1 != null
                     && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)
+                        && matchedObservationDto != null
                 )
                 {
                     obsVO.getTheObservationDto().setObservationUid(matchedObservationUid);

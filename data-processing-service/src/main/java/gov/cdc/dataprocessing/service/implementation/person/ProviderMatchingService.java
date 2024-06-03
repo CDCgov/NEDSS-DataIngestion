@@ -39,14 +39,14 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
     @Transactional
     public EDXActivityDetailLogDto getMatchingProvider(PersonContainer personContainer) throws DataProcessingException {
         Long entityUid = personContainer.getThePersonDto().getPersonUid();
-        Collection<EdxEntityMatchDto> coll = new ArrayList<EdxEntityMatchDto>();
+        Collection<EdxEntityMatchDto> coll = new ArrayList<>();
         EDXActivityDetailLogDto edxActivityDetailLogDto = new EDXActivityDetailLogDto();
         String DET_MSG_ENTITY_EXISTS_SUCCESS = "Provider entity found with entity uid : ";
         String DET_MSG_ENTITY_EXISTS_FAIL_NEW = "Provider not found. New Provider created with person uid : ";
         // creating new localID DT for
         // local identifier
         EdxEntityMatchDto theEdxEntityMatchDto = null;
-        String localId = null;
+        String localId;
         int localIdhshCd = 0;
         localId = getLocalId(personContainer); // if id = 123
         if (localId != null) {
@@ -57,11 +57,11 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
             // Try to get the matching with the match string
             EdxEntityMatchDto edxEntityMatchingDT = getEdxPatientMatchRepositoryUtil().getEdxEntityMatchOnMatchString(NEDSSConstant.PRV, localId);
             if (edxEntityMatchingDT != null && edxEntityMatchingDT.getEntityUid() != null) {
-                edxActivityDetailLogDto.setRecordId("" + edxEntityMatchingDT.getEntityUid());
+                edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
                 edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS + edxEntityMatchingDT.getEntityUid());
-                edxActivityDetailLogDto.setRecordType("" + MsgType.Provider);
+                edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Provider));
                 edxActivityDetailLogDto.setRecordName("PHCR_IMPORT");
-                edxActivityDetailLogDto.setLogType("" + EdxRuleAlgorothmManagerDto.STATUS_VAL.Success);
+                edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
                 return edxActivityDetailLogDto;
             }
         } catch (Exception ex) {
@@ -76,13 +76,13 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
         }
 
         // Matching the Identifier (i.e. NPI)
-        String identifier = null;
+        String identifier;
         int identifierHshCd = 0;
-        List identifierList = null;
+        List identifierList ;
         identifierList = getIdentifier(personContainer);
         if (identifierList != null && !identifierList.isEmpty()) {
-            for (int k = 0; k < identifierList.size(); k++) {
-                identifier = (String) identifierList.get(k);
+            for (Object o : identifierList) {
+                identifier = (String) o;
                 if (identifier != null) {
                     identifier = identifier.toUpperCase();
                     identifierHshCd = identifier.hashCode();
@@ -97,11 +97,11 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
                                 getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(theEdxEntityMatchDto);
                             }
                         }
-                        edxActivityDetailLogDto.setRecordId("" + edxEntityMatchingDT.getEntityUid());
+                        edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
                         edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS + edxEntityMatchingDT.getEntityUid());
-                        edxActivityDetailLogDto.setRecordType("" + MsgType.Provider);
+                        edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Provider));
                         edxActivityDetailLogDto.setRecordName("PHCR_IMPORT");
-                        edxActivityDetailLogDto.setLogType("" + EdxRuleAlgorothmManagerDto.STATUS_VAL.Success);
+                        edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
                         return edxActivityDetailLogDto;
                     }
                 } catch (Exception ex) {
@@ -120,7 +120,7 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
         }
 
         // Matching with name and address with street address1 alone
-        String nameAddStrSt1 = null;
+        String nameAddStrSt1;
         int nameAddStrSt1hshCd = 0;
         nameAddStrSt1 = nameAddressStreetOneProvider(personContainer);
         if (nameAddStrSt1 != null) {
@@ -137,11 +137,11 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
                                 getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(theEdxEntityMatchDto);
                             }
                         }
-                        edxActivityDetailLogDto.setRecordId("" + edxEntityMatchingDT.getEntityUid());
+                        edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
                         edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS + edxEntityMatchingDT.getEntityUid());
-                        edxActivityDetailLogDto.setRecordType("" + MsgType.Provider);
+                        edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Provider));
                         edxActivityDetailLogDto.setRecordName("PHCR_IMPORT");
-                        edxActivityDetailLogDto.setLogType("" + EdxRuleAlgorothmManagerDto.STATUS_VAL.Success);
+                        edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
                         return edxActivityDetailLogDto;
                     }
                 } catch (Exception ex) {
@@ -152,7 +152,7 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
         }
 
         // Continue for name Telephone with no extension
-        String nameTelePhone = null;
+        String nameTelePhone;
         int nameTelePhonehshCd = 0;
         nameTelePhone = telePhoneTxtProvider(personContainer);
         if (nameTelePhone != null) {
@@ -169,11 +169,11 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
                                 getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(theEdxEntityMatchDto);
                             }
                         }
-                        edxActivityDetailLogDto.setRecordId("" + edxEntityMatchingDT.getEntityUid());
+                        edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
                         edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS + edxEntityMatchingDT.getEntityUid());
-                        edxActivityDetailLogDto.setRecordType("" + MsgType.Provider);
+                        edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Provider));
                         edxActivityDetailLogDto.setRecordName("PHCR_IMPORT");
-                        edxActivityDetailLogDto.setLogType("" + EdxRuleAlgorothmManagerDto.STATUS_VAL.Success);
+                        edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
                         return edxActivityDetailLogDto;
                     }
                 } catch (Exception ex) {
@@ -235,9 +235,7 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
             coll.add(theEdxEntityMatchDto);
         }
         if (coll != null) {
-            Iterator<EdxEntityMatchDto> it = coll.iterator();
-            while (it.hasNext()) {
-                EdxEntityMatchDto edxEntityMatchDto = (EdxEntityMatchDto) it.next();
+            for (EdxEntityMatchDto edxEntityMatchDto : coll) {
                 edxEntityMatchDto.setEntityUid(entityUid);
                 if (personContainer.getRole() == null) {
                     getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDto);
@@ -245,11 +243,11 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
             }
         }
         // returnung the entity Uid which is just created
-        edxActivityDetailLogDto.setRecordId("" + entityUid);
-        edxActivityDetailLogDto.setComment("" + DET_MSG_ENTITY_EXISTS_FAIL_NEW + edxActivityDetailLogDto.getRecordId());
-        edxActivityDetailLogDto.setRecordType("" + MsgType.Provider);
+        edxActivityDetailLogDto.setRecordId(String.valueOf(entityUid));
+        edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_FAIL_NEW + edxActivityDetailLogDto.getRecordId());
+        edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Provider));
         edxActivityDetailLogDto.setRecordName("PHCR_IMPORT");
-        edxActivityDetailLogDto.setLogType("" + EdxRuleAlgorothmManagerDto.STATUS_VAL.Success);
+        edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
         return edxActivityDetailLogDto;
     }
 

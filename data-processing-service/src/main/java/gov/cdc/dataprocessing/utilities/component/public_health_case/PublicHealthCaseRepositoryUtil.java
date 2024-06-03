@@ -106,11 +106,14 @@ public class PublicHealthCaseRepositoryUtil {
 
     @Transactional
     public PublicHealthCaseContainer update(PublicHealthCaseContainer phcVO) throws DataProcessingException {
+        if (phcVO == null) {
+            return null;
+        }
         /**
          * Inserts ConfirmationMethodDT collection
          */
 
-        if (phcVO != null && phcVO.getTheConfirmationMethodDTCollection() != null)
+        if (phcVO.getTheConfirmationMethodDTCollection() != null)
         {
             insertConfirmationMethods(phcVO.getThePublicHealthCaseDto().getUid(), phcVO.getTheConfirmationMethodDTCollection());
         }
@@ -118,7 +121,7 @@ public class PublicHealthCaseRepositoryUtil {
          * Inserts CaseManagementDto
          */
 
-        if (phcVO != null && phcVO.getTheCaseManagementDto() != null
+        if (phcVO.getTheCaseManagementDto() != null
                 && phcVO.getTheCaseManagementDto().isCaseManagementDTPopulated)
         {
             insertCaseManagementDT(phcVO.getThePublicHealthCaseDto().getUid(), phcVO.getTheCaseManagementDto());
@@ -127,7 +130,7 @@ public class PublicHealthCaseRepositoryUtil {
          * Inserts ActIdDT collection
          */
 
-        if (phcVO != null && phcVO.getTheActIdDTCollection() != null)
+        if (phcVO.getTheActIdDTCollection() != null)
         {
             insertActivityIDs(phcVO.getThePublicHealthCaseDto().getUid(), phcVO.getTheActIdDTCollection());
         }
@@ -136,7 +139,7 @@ public class PublicHealthCaseRepositoryUtil {
          * Inserts ActivityLocatorParticipationDT collection
          */
 
-        if (phcVO != null && phcVO.getTheActivityLocatorParticipationDTCollection() != null)
+        if (phcVO.getTheActivityLocatorParticipationDTCollection() != null)
         {
             insertActivityLocatorParticipations(phcVO.getThePublicHealthCaseDto().getUid() ,phcVO.getTheActivityLocatorParticipationDTCollection());
         }
@@ -165,7 +168,7 @@ public class PublicHealthCaseRepositoryUtil {
          * Inserts ConfirmationMethodDT collection
          */
 
-        if (phcVO != null && phcVO.getTheConfirmationMethodDTCollection() != null)
+        if (phcVO.getTheConfirmationMethodDTCollection() != null)
         {
             insertConfirmationMethods(phcUid, phcVO.getTheConfirmationMethodDTCollection());
         }
@@ -173,8 +176,7 @@ public class PublicHealthCaseRepositoryUtil {
          * Inserts CaseManagementDto
          */
 
-        if (phcVO != null && phcVO.getTheCaseManagementDto() != null
-                && phcVO.getTheCaseManagementDto().isCaseManagementDTPopulated)
+        if (phcVO.getTheCaseManagementDto() != null && phcVO.getTheCaseManagementDto().isCaseManagementDTPopulated)
         {
             insertCaseManagementDT(phcUid, phcVO.getTheCaseManagementDto());
         }
@@ -182,7 +184,7 @@ public class PublicHealthCaseRepositoryUtil {
          * Inserts ActIdDT collection
          */
 
-        if (phcVO != null && phcVO.getTheActIdDTCollection() != null)
+        if (phcVO.getTheActIdDTCollection() != null)
         {
             insertActivityIDs(phcUid, phcVO.getTheActIdDTCollection());
         }
@@ -191,14 +193,13 @@ public class PublicHealthCaseRepositoryUtil {
          * Inserts ActivityLocatorParticipationDT collection
          */
 
-        if (phcVO != null && phcVO.getTheActivityLocatorParticipationDTCollection() != null)
+        if (phcVO.getTheActivityLocatorParticipationDTCollection() != null)
         {
             insertActivityLocatorParticipations(phcUid ,phcVO.getTheActivityLocatorParticipationDTCollection());
         }
 
         phcVO.setItNew(false);
         phcVO.setItDirty(false);
-        phcUid = phcVO.getThePublicHealthCaseDto().getPublicHealthCaseUid();
 
         return phcVO;
     }
@@ -209,7 +210,7 @@ public class PublicHealthCaseRepositoryUtil {
         try{
             while (iterator.hasNext())
             {
-                ActivityLocatorParticipationDto  activityLocatorVO = (ActivityLocatorParticipationDto)iterator.next();
+                ActivityLocatorParticipationDto  activityLocatorVO = iterator.next();
 
                 if (activityLocatorVO.getLocatorUid() != null && activityLocatorVO.getEntityUid() != null)
                 {
@@ -224,7 +225,7 @@ public class PublicHealthCaseRepositoryUtil {
     }
 
     private void insertActivityIDs(Long phcUid, Collection<ActIdDto> activityIDs) throws DataProcessingException {
-        Iterator<ActIdDto> anIterator = null;
+        Iterator<ActIdDto> anIterator;
         ArrayList<ActIdDto>  activityList = (ArrayList<ActIdDto> )activityIDs;
 
         try
@@ -236,7 +237,7 @@ public class PublicHealthCaseRepositoryUtil {
 
             while(anIterator.hasNext())
             {
-                ActIdDto activityID = (ActIdDto)anIterator.next();
+                ActIdDto activityID = anIterator.next();
 
                 if (activityID != null)
                 {
@@ -247,10 +248,11 @@ public class PublicHealthCaseRepositoryUtil {
                     activityID.setItDirty(false);
                     activityID.setItNew(false);
                     activityID.setItDelete(false);
+                    activityID.setActUid(phcUid);
                 }
                 //else
                 //throw new NEDSSObservationDAOAppException("Empty person name collection");
-                activityID.setActUid(phcUid);
+
             }
         }
         catch(Exception ex)
@@ -340,7 +342,7 @@ public class PublicHealthCaseRepositoryUtil {
 
         phc.setCaseClassCd("C");
 
-        String coInfectionGroupID = null;
+        String coInfectionGroupID;
         if (phcDT.getCoinfectionId() != null
                 && phcDT.getCoinfectionId().equalsIgnoreCase(NEDSSConstant.COINFCTION_GROUP_ID_NEW_CODE)) {
             var coInfectUid = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.COINFECTION_GROUP);
@@ -361,7 +363,7 @@ public class PublicHealthCaseRepositoryUtil {
     private void insertConfirmationMethods(Long phcUid, Collection<ConfirmationMethodDto> coll) throws DataProcessingException {
         if(!coll.isEmpty())
         {
-            Iterator<ConfirmationMethodDto> anIterator = null;
+            Iterator<ConfirmationMethodDto> anIterator;
             ArrayList<ConfirmationMethodDto> methodList = (ArrayList<ConfirmationMethodDto> )coll;
 
             try
@@ -373,7 +375,7 @@ public class PublicHealthCaseRepositoryUtil {
 
                 while(anIterator.hasNext())
                 {
-                    ConfirmationMethodDto confirmationMethod = (ConfirmationMethodDto)anIterator.next();
+                    ConfirmationMethodDto confirmationMethod = anIterator.next();
 
                     if (confirmationMethod != null)
                     {
@@ -515,8 +517,8 @@ public class PublicHealthCaseRepositoryUtil {
         BasePamContainer pamVO = new BasePamContainer();
         try{
             Map<Object,Object> pamAnswerDTReturnMap = getPamAnswerDTMaps(publicHealthCaseUID);
-            Map<Object, Object> nbsAnswerMap =new HashMap<Object, Object>();
-            Map<Object, Object> nbsRepeatingAnswerMap =new HashMap<Object, Object>();
+            Map<Object, Object> nbsAnswerMap =new HashMap<>();
+            Map<Object, Object> nbsRepeatingAnswerMap =new HashMap<>();
             if(pamAnswerDTReturnMap.get(NEDSSConstant.NON_REPEATING_QUESTION)!=null){
                 nbsAnswerMap=(HashMap<Object, Object>)pamAnswerDTReturnMap.get(NEDSSConstant.NON_REPEATING_QUESTION);
             }
@@ -548,10 +550,10 @@ public class PublicHealthCaseRepositoryUtil {
     }
     private Map<Object, Object> getPamAnswerDTMaps(Long publicHealthCaseUID) throws DataProcessingException {
         NbsCaseAnswerDto nbsAnswerDT = new NbsCaseAnswerDto();
-        ArrayList<Object> PamAnswerDTCollection = new ArrayList<Object>();
-        Map<Object, Object> nbsReturnAnswerMap = new HashMap<Object, Object>();
-        Map<Object, Object> nbsAnswerMap = new HashMap<Object, Object>();
-        Map<Object, Object> nbsRepeatingAnswerMap = new HashMap<Object, Object>();
+        ArrayList<Object> PamAnswerDTCollection;
+        Map<Object, Object> nbsReturnAnswerMap = new HashMap<>();
+        Map<Object, Object> nbsAnswerMap = new HashMap<>();
+        Map<Object, Object> nbsRepeatingAnswerMap = new HashMap<>();
         try
         {
 
@@ -564,17 +566,17 @@ public class PublicHealthCaseRepositoryUtil {
 
             Iterator<Object> it = PamAnswerDTCollection.iterator();
             Long nbsQuestionUid = 0L;
-            Collection<Object> coll = new ArrayList<Object>();
+            Collection<Object> coll = new ArrayList<>();
             while (it.hasNext())
             {
                 NbsCaseAnswerDto pamAnsDT = (NbsCaseAnswerDto) it.next();
 
                 if (pamAnsDT.getNbsQuestionUid() != null
-                        && nbsQuestionUid.longValue() != 0
+                        && nbsQuestionUid != 0
                         && pamAnsDT.getNbsQuestionUid().longValue() != nbsQuestionUid
                         .longValue() && coll.size() > 0) {
                     nbsAnswerMap.put(nbsQuestionUid, coll);
-                    coll = new ArrayList<Object>();
+                    coll = new ArrayList<>();
                 }
 
                 if (pamAnsDT.getAnswerGroupSeqNbr() != null && pamAnsDT.getAnswerGroupSeqNbr() > -1)
@@ -592,17 +594,17 @@ public class PublicHealthCaseRepositoryUtil {
                         nbsRepeatingAnswerMap.put(pamAnsDT.getNbsQuestionUid(), collection);
                     }
                 }
-                else if ((pamAnsDT.getNbsQuestionUid().compareTo(nbsQuestionUid) == 0) && pamAnsDT.getSeqNbr() != null
-                        && pamAnsDT.getSeqNbr().intValue() > 0)
+                else if ((pamAnsDT.getNbsQuestionUid() != null && pamAnsDT.getNbsQuestionUid().compareTo(nbsQuestionUid) == 0) && pamAnsDT.getSeqNbr() != null
+                        && pamAnsDT.getSeqNbr() > 0)
                 {
                     coll.add(pamAnsDT);
                 }
-                else if (pamAnsDT.getSeqNbr() != null && pamAnsDT.getSeqNbr().intValue() > 0)
+                else if (pamAnsDT.getSeqNbr() != null && pamAnsDT.getSeqNbr() > 0)
                 {
                     if (coll.size() > 0)
                     {
                         nbsAnswerMap.put(nbsQuestionUid, coll);
-                        coll = new ArrayList<Object>();
+                        coll = new ArrayList<>();
                     }
                     coll.add(pamAnsDT);
                 }
@@ -613,7 +615,7 @@ public class PublicHealthCaseRepositoryUtil {
                         nbsAnswerMap.put(nbsQuestionUid, coll);
                     }
                     nbsAnswerMap.put(pamAnsDT.getNbsQuestionUid(), pamAnsDT);
-                    coll = new ArrayList<Object>();
+                    coll = new ArrayList<>();
                 }
                 nbsQuestionUid = pamAnsDT.getNbsQuestionUid();
                 if (!it.hasNext() && coll.size() > 0)

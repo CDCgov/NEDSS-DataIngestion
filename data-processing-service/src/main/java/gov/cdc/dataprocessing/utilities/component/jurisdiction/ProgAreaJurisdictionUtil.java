@@ -34,22 +34,15 @@ public class ProgAreaJurisdictionUtil {
      * the given program area and jurisdiction.  This will usually be a single hash
      * code, but when the jurisdiction code is ALL, a hash code for each jurisdiction
      * in the jurisdictionMap is created.
-     * @param programAreaCode
-     * @param jurisdictionCode
-     * @return Collection
-     * @roseuid 3CE115FC0260
      */
     public Collection<Object> getPAJHashList(String programAreaCode, String jurisdictionCode)
     {
-        ArrayList<Object>  arrayList = new ArrayList<Object>();
+        ArrayList<Object>  arrayList = new ArrayList<>();
         if(jurisdictionCode.equals("ALL"))
         {
             //get key set
             Set<String> jurisdictionKeys = SrteCache.jurisdictionCodeMapWithNbsUid.keySet();
-            Iterator<String> itrJKeys = jurisdictionKeys.iterator();
-            while(itrJKeys.hasNext())
-            {
-                String jCode = (String) itrJKeys.next();
+            for (String jCode : jurisdictionKeys) {
                 arrayList.add(getPAJHash(programAreaCode, jCode));
             }
         }

@@ -27,7 +27,6 @@ public class EdxEventProcessRepositoryUtil {
     public void insertEventProcess(EDXEventProcessDto edxEventProcessDto) throws DataProcessingException {
         var uidObj = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.NBS_DOCUMENT);
         var uid = uidObj.getSeedValueNbr();
-        var localUid = uidObj.getUidPrefixCd() + uid + uidObj.getUidSuffixCd();
 
         actRepositoryUtil.insertActivityId(uid, edxEventProcessDto.getDocEventTypeCd(),  NEDSSConstant.EVENT_MOOD_CODE );
 

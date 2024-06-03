@@ -25,8 +25,7 @@ public class CaseManagementRepositoryUtil {
         } else {
             for(var item : res.get()) {
                 //NOTE: THIS SHOULD ONLY RETURN A SINGLE DATA NOT A COLLECTION
-                CaseManagementDto data = new CaseManagementDto(item);
-                return data;
+                return new CaseManagementDto(item);
             }
         }
 

@@ -7,8 +7,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.NNDActivityLogReposi
 import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
 import gov.cdc.dataprocessing.service.interfaces.log.INNDActivityLogService;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.NND_METADATA;
@@ -33,7 +31,7 @@ public class NNDActivityLogService implements INNDActivityLogService {
         nndActivityLogDto.setRecordStatusTime(timeStamp);
         nndActivityLogDto.setStatusCd("E");
         nndActivityLogDto.setStatusTime(timeStamp);
-        long uid = 0;
+        long uid;
 
         if(nndActivityLogDto.getNndActivityLogUid() == null) {
             var id = odseIdGeneratorService.getLocalIdAndUpdateSeed(NND_METADATA);

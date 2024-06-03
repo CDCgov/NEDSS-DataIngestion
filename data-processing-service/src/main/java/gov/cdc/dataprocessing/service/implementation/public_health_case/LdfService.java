@@ -26,12 +26,14 @@ public class LdfService implements ILdfService {
     public List<StateDefinedFieldDataDto> getLDFCollection(Long busObjectUid, String conditionCode) throws DataProcessingException {
 
         StateDefinedFieldDataDto stateDefinedFieldDataDT = new StateDefinedFieldDataDto();
-        List<StateDefinedFieldDataDto> pList = new ArrayList<> ();
+        List<StateDefinedFieldDataDto> pList;
         try
         {
-            StringBuffer query = new StringBuffer(SELECT_LDF);
+            StringBuilder query = new StringBuilder(SELECT_LDF);
             if (conditionCode != null) //only include this where clause when the cond code is not null
+            {
                 query.append(this.SELECT_LDF_COND_CD_WHERE_CLAUSE);
+            }
             query.append(this.SELECT_LDF_ORDER_BY);
             pList = customRepository.getLdfCollection(busObjectUid, conditionCode, query.toString());
 

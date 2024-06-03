@@ -2,18 +2,12 @@ package gov.cdc.dataprocessing.service.implementation.participation;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ParticipationHistId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.Participation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.ParticipationHist;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.ParticipationStoredProcRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationHistRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.service.interfaces.paticipation.IParticipationService;
 import jakarta.transaction.Transactional;
-import org.hibernate.mapping.Collection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;

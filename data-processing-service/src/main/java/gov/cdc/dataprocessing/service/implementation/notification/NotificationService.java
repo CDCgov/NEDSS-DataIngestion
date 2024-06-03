@@ -117,24 +117,22 @@ public class NotificationService implements INotificationService {
             // the root Lab observation UID out of the observation collection
             Collection<ObservationContainer> obsColl =
                     ((LabResultProxyContainer) vo).getTheObservationContainerCollection();
-            Iterator<ObservationContainer> iter = obsColl.iterator();
-            while (iter.hasNext()) {
-                ObservationContainer observationContainer = (ObservationContainer) iter.next();
-                String obsDomainCdSt1 =
-                        observationContainer.getTheObservationDto().getObsDomainCdSt1();
-                String obsCtrlCdDisplayForm =
-                        observationContainer.getTheObservationDto().getCtrlCdDisplayForm();
-                if (obsDomainCdSt1 != null
-                        && obsDomainCdSt1.equalsIgnoreCase(
-                        NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD)
-                        && obsCtrlCdDisplayForm != null
-                        && obsCtrlCdDisplayForm.equalsIgnoreCase(
-                        NEDSSConstant.LAB_REPORT)) {
-                    return observationContainer
-                            .getTheObservationDto()
-                            .getObservationUid();
+                for (ObservationContainer observationContainer : obsColl) {
+                    String obsDomainCdSt1 =
+                            observationContainer.getTheObservationDto().getObsDomainCdSt1();
+                    String obsCtrlCdDisplayForm =
+                            observationContainer.getTheObservationDto().getCtrlCdDisplayForm();
+                    if (obsDomainCdSt1 != null
+                            && obsDomainCdSt1.equalsIgnoreCase(
+                            NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD)
+                            && obsCtrlCdDisplayForm != null
+                            && obsCtrlCdDisplayForm.equalsIgnoreCase(
+                            NEDSSConstant.LAB_REPORT)) {
+                        return observationContainer
+                                .getTheObservationDto()
+                                .getObservationUid();
+                    }
                 }
-            }
 
         }
 //            else if (vo instanceof VaccinationProxyVO) {
@@ -153,7 +151,7 @@ public class NotificationService implements INotificationService {
     {
 
         Long notificationUid = null;
-        String permissionFlag = "";
+        String permissionFlag;
         Collection<Object> act2 = new ArrayList<>();
 
         try
@@ -239,7 +237,7 @@ public class NotificationService implements INotificationService {
             {
                 notifDT = (NotificationDto) prepareAssocModelHelper.prepareVO(notifDT, boLookup, triggerCd, tableName, moduleCd, notifDT.getVersionCtrlNbr());
 
-                if (notifDT.getCd() == null || (notifDT.getCd() != null && notifDT.getCd().isEmpty()))
+                if (notifDT.getCd() == null || notifDT.getCd().isEmpty())
                 {
                     notifDT.setCd(NEDSSConstant.CLASS_CD_NOTIFICATION);
                 }
@@ -247,15 +245,15 @@ public class NotificationService implements INotificationService {
                 notifVO.setTheNotificationDT(notifDT);
 
 
-                Long falseUid = null;
-                Long realUid = null;
+                Long falseUid;
+                Long realUid;
                 realUid = notificationRepositoryUtil.setNotification(notifVO);
                 notificationUid = realUid;
                 falseUid = notifVO.getTheNotificationDT().getNotificationUid();
 
                 if (notifVO.isItNew())
                 {
-                    ActRelationshipDto actRelDT = null;
+                    ActRelationshipDto actRelDT;
                     actRelDT = iUidService.setFalseToNewForNotification(notificationProxyVO, falseUid, realUid);
                     notifDT.setNotificationUid(realUid);
 
@@ -268,7 +266,7 @@ public class NotificationService implements INotificationService {
             }
             catch (Exception e)
             {
-                throw new DataProcessingException(" : " + e.toString());
+                throw new DataProcessingException(" : " + e);
             }
         } // end of if new or dirty
         return notificationUid;

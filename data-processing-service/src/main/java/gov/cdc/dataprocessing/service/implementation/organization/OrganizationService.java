@@ -11,8 +11,6 @@ import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationMatchingService;
 import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -35,8 +33,7 @@ public class OrganizationService implements IOrganizationService {
     }
 
     public OrganizationContainer testloadObject(long orguid, long actid) throws DataProcessingException {
-        OrganizationContainer organizationContainer = organizationRepositoryUtil.loadObject(orguid, actid);
-        return organizationContainer;
+        return organizationRepositoryUtil.loadObject(orguid, actid);
     }
 
     public OrganizationContainer processingOrganization(LabResultProxyContainer labResultProxyContainer) throws DataProcessingConsumerException {
@@ -47,7 +44,7 @@ public class OrganizationService implements IOrganizationService {
             if (orgColl != null && !orgColl.isEmpty()) {
                 for (OrganizationContainer organizationContainer : orgColl) {
 
-                    Long orgUid;
+                    long orgUid;
                     if (organizationContainer.getRole() != null && organizationContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_SENDING_FACILITY_CD) && labResultProxyContainer.getSendingFacilityUid() != null) {
                         orgUid = labResultProxyContainer.getSendingFacilityUid();
                     }

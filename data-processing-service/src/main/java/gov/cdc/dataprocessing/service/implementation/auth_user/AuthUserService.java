@@ -21,7 +21,7 @@ public class AuthUserService implements IAuthUserService {
 
     public AuthUserProfileInfo getAuthUserInfo(String authUserId) throws DataProcessingException {
         var authUser = this.authUserRepository.findAuthUserByUserId(authUserId);
-        AuthUserProfileInfo authUserData = null;
+        AuthUserProfileInfo authUserData;
         if (authUser.isPresent()) {
             authUserData = new AuthUserProfileInfo();
             authUserData.setAuthUser(authUser.get());

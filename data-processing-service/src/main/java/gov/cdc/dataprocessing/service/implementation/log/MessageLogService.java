@@ -6,8 +6,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.log.MessageLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.MessageLogRepository;
 import gov.cdc.dataprocessing.service.interfaces.log.IMessageLogService;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -25,9 +23,8 @@ public class MessageLogService implements IMessageLogService {
         try{
             if(messageLogDtoCollection !=null)
             {
-                java.util.Iterator<MessageLogDto> it = messageLogDtoCollection.iterator();
-                while(it.hasNext()){
-                    MessageLog msg = new MessageLog(it.next());
+                for (MessageLogDto messageLogDto : messageLogDtoCollection) {
+                    MessageLog msg = new MessageLog(messageLogDto);
                     messageLogRepository.save(msg);
                 }
             }

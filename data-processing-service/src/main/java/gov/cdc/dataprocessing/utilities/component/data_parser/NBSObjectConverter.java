@@ -318,11 +318,11 @@ public class NBSObjectConverter {
                 return zip;
             }
             // for zip code like: 123456789
-            else if (zip.length() == 9 && zip.indexOf("-") == -1) {
+            else if (zip.length() == 9 && !zip.contains("-")) {
                 zip = zip.substring(0, 5) + "-" + zip.substring(5, 9);
                 // for zip code like: 123456,1234567890: Will ignore 12345-6789
             }
-            else if (zip.length() > 5 && zip.indexOf("-") == -1) {
+            else if (zip.length() > 5 && !zip.contains("-")) {
                 zip = zip.substring(0, 5);
             }
         }// end of if
@@ -589,7 +589,7 @@ public class NBSObjectConverter {
         /** length"5 */
         boolean incorrectLength;
 
-        ArrayList<String> areaAndNumber = new ArrayList<String>();
+        ArrayList<String> areaAndNumber = new ArrayList<>();
         incorrectLength = checkIfAreaCodeMoreThan3Digits(areaAndNumber, hl7AreaCityCode);
         if(!incorrectLength)
             incorrectLength = checkIfNumberMoreThan10Digits(areaAndNumber, hl7LocalNumber);

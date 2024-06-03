@@ -6,10 +6,6 @@ import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
-import gov.cdc.dataprocessing.utilities.component.observation.ObservationRepositoryUtil;
-import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
-import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import org.springframework.stereotype.Component;
 
 @Component

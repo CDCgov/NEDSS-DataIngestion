@@ -159,50 +159,11 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
         roleAggregation(labResult);
 
-        //progAndJurisdictionAggregationAsync( labResult,  edxLabInformationDto,  personAggContainer, organizationContainer);
         CompletableFuture<Void> progAndJurisdictionFuture = progAndJurisdictionAggregationAsync(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
         try {
             progAndJurisdictionFuture.get();
         } catch (InterruptedException | ExecutionException e) {
             throw new DataProcessingException("Failed to execute progAndJurisdictionAggregationAsync", e);
-        }
-    }
-
-
-    /**
-     * Description: propagating program area and jurisdiction.
-     * */
-    private void progAndJurisdictionAggregation(LabResultProxyContainer labResult,
-                                                EdxLabInformationDto edxLabInformationDto,
-                                                PersonAggContainer personAggContainer,
-                                                OrganizationContainer organizationContainer) throws DataProcessingException {
-        // Pulling Jurisdiction and Program from OBS
-        ObservationContainer observationRequest = null;
-        Collection<ObservationContainer> observationResults = new ArrayList<>();
-        for (ObservationContainer obsVO : labResult.getTheObservationContainerCollection()) {
-            String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
-
-            // Observation  hit this is originated from Observation Result
-            if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_RESULT_CD)) {
-                observationResults.add(obsVO);
-            }
-
-            // Observation hit is originated from Observation Request (ROOT)
-            else if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD))
-            {
-                observationRequest = obsVO;
-            }
-        }
-
-        if(observationRequest.getTheObservationDto().getProgAreaCd()==null)
-        {
-            programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
-        }
-
-        if(observationRequest.getTheObservationDto().getJurisdictionCd()==null)
-        {
-            jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
-                    organizationContainer, observationRequest);
         }
     }
 
@@ -229,7 +190,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
                 }
             }
 
-            if (observationRequest.getTheObservationDto().getProgAreaCd() == null) {
+            if (observationRequest != null && observationRequest.getTheObservationDto().getProgAreaCd() == null) {
                 try {
                     programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
                 } catch (DataProcessingException e) {
@@ -237,7 +198,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
                 }
             }
 
-            if (observationRequest.getTheObservationDto().getJurisdictionCd() == null) {
+            if (observationRequest != null && observationRequest.getTheObservationDto().getJurisdictionCd() == null) {
                 try {
                     jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
                             organizationContainer, observationRequest);
@@ -312,7 +273,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
                 //We will write the role if there are no existing role relationships.
                 if (roleDT.getScopingEntityUid() == null)
                 {
-                    Long count = 0L;
+                    long count;
                     count = roleService.loadCountBySubjectCdComb(roleDT).longValue();
                     if (count == 0) {
                         roleDT.setRoleSeq(count + 1);
@@ -322,11 +283,11 @@ public class ManagerAggregationService implements IManagerAggregationService {
                 }
                 else
                 {
-                    int checkIfExisits = 0;
+                    int checkIfExisits;
                     checkIfExisits = roleService.loadCountBySubjectScpingCdComb(roleDT);
 
                     if (checkIfExisits == 0) {
-                        long countForPKValues = 0;
+                        long countForPKValues;
                         countForPKValues = roleService.loadCountBySubjectCdComb(roleDT);
                         //We will write the role relationship for follwoing provider in scope of ELR patient
                         if (countForPKValues == 0

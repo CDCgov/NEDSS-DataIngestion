@@ -20,8 +20,6 @@ import gov.cdc.dataprocessing.service.interfaces.person.IPersonService;
 import gov.cdc.dataprocessing.service.interfaces.person.IProviderMatchingService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -126,7 +124,7 @@ public class PersonService implements IPersonService {
             }
 
             personContainer.setRole(EdxELRConstant.ELR_PROV_CD);
-            EDXActivityDetailLogDto eDXActivityDetailLogDto = new EDXActivityDetailLogDto();
+            EDXActivityDetailLogDto eDXActivityDetailLogDto;
             eDXActivityDetailLogDto = providerMatchingService.getMatchingProvider(personContainer);
             String personUId;
             personUId = eDXActivityDetailLogDto.getRecordId();
@@ -152,9 +150,7 @@ public class PersonService implements IPersonService {
 
     private PersonNameDto parsingPersonName(PersonContainer personContainer) throws DataProcessingException {
         Collection<PersonNameDto> personNames = personContainer.getThePersonNameDtoCollection();
-        Iterator<PersonNameDto> pnIter = personNames.iterator();
-        while (pnIter.hasNext()) {
-            PersonNameDto personName = pnIter.next();
+        for (PersonNameDto personName : personNames) {
             if (personName.getNmUseCd().equals("L")) {
                 return personName;
             }
@@ -166,12 +162,10 @@ public class PersonService implements IPersonService {
         Long matchedPersonUid = null;
         Collection<PersonContainer> personCollection = matchedlabResultProxyVO.getThePersonContainerCollection();
         if(personCollection!=null){
-            Iterator<PersonContainer> iterator = personCollection.iterator();
 
-            while(iterator.hasNext()){
-                PersonContainer personVO = iterator.next();
+            for (PersonContainer personVO : personCollection) {
                 String perDomainCdStr = personVO.getThePersonDto().getCdDescTxt();
-                if(perDomainCdStr!= null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)){
+                if (perDomainCdStr != null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)) {
                     matchedPersonUid = personVO.getThePersonDto().getPersonUid();
                 }
             }

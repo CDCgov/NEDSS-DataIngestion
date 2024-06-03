@@ -17,7 +17,7 @@ public class CdaPhcProcessor {
             nbsCaseAnswerDT
                     .setRecordStatusCd(NEDSSConstant.OPEN_INVESTIGATION);
             if (nbsCaseAnswerDT.getSeqNbr() != null
-                    && nbsCaseAnswerDT.getSeqNbr().intValue() < 0)
+                    && nbsCaseAnswerDT.getSeqNbr() < 0)
                 nbsCaseAnswerDT.setSeqNbr(0);
             nbsCaseAnswerDT.setRecordStatusTime(phcDT.getRecordStatusTime());
             nbsCaseAnswerDT.setItNew(true);

@@ -128,8 +128,7 @@ public class EntityIdUtil {
             if (strTime != null && strTime.trim().length() > 0) {
                 t = formatter.parse(strTime);
                 logger.debug(String.valueOf(t));
-                Timestamp ts = new Timestamp(t.getTime());
-                return ts;
+                return new Timestamp(t.getTime());
             }
             else {
                 return null;
@@ -144,8 +143,6 @@ public class EntityIdUtil {
     /**
      * The earliest date that can be stored in SQL is Jan 1st, 1753 and the latest is Dec 31st, 9999
      * Check the date so we don't get a SQL error.
-     * @param dateVal
-     * @return true if invalid date
      */
     public boolean isDateNotOkForDatabase (Timestamp dateVal) {
         if (dateVal == null)

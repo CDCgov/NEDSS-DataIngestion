@@ -82,13 +82,13 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
 
             // NOTE: Matching by Identifier
             if (!matchFound) {
-                String IdentifierStr = null;
+                String IdentifierStr;
                 int identifierStrhshCd = 0;
 
-                List identifierStrList = getIdentifier(personContainer);
+                List<String> identifierStrList = getIdentifier(personContainer);
                 if (identifierStrList != null && !identifierStrList.isEmpty()) {
-                    for (int k = 0; k < identifierStrList.size(); k++) {
-                        IdentifierStr = (String) identifierStrList.get(k);
+                    for (String s : identifierStrList) {
+                        IdentifierStr = s;
                         if (IdentifierStr != null) {
                             IdentifierStr = IdentifierStr.toUpperCase();
                             identifierStrhshCd = IdentifierStr.hashCode();
@@ -102,7 +102,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
                             // Try to get the matching with the hash code
                             edxPatientMatchFoundDT = getEdxPatientMatchRepositoryUtil().getEdxPatientMatchOnMatchString(cd, IdentifierStr);
 
-                            if (edxPatientMatchFoundDT.isMultipleMatch()){
+                            if (edxPatientMatchFoundDT.isMultipleMatch()) {
                                 matchFound = false;
                                 multipleMatchFound = true;
                             } else if (edxPatientMatchFoundDT.getPatientUid() == null || (edxPatientMatchFoundDT.getPatientUid() != null && edxPatientMatchFoundDT.getPatientUid() <= 0)) {
@@ -118,8 +118,8 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
 
             // NOTE: Matching with last name ,first name ,date of birth and current sex
             if (!matchFound) {
-                String namesdobcursexStr = null;
-                int namesdobcursexStrhshCd = 0;
+                String namesdobcursexStr;
+                int namesdobcursexStrhshCd;
                 namesdobcursexStr = getLNmFnmDobCurSexStr(personContainer);
                 if (namesdobcursexStr != null) {
                     namesdobcursexStr = namesdobcursexStr.toUpperCase();
@@ -153,9 +153,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
                 if (personContainer.getTheEntityIdDtoCollection() != null) {
                     //SORTING out existing EntityId
                     Collection<EntityIdDto> newEntityIdDtoColl = new ArrayList<>();
-                    Iterator<EntityIdDto> iter = personContainer.getTheEntityIdDtoCollection().iterator();
-                    while (iter.hasNext()) {
-                        EntityIdDto entityIdDto = iter.next();
+                    for (EntityIdDto entityIdDto : personContainer.getTheEntityIdDtoCollection()) {
                         if (entityIdDto.getTypeCd() != null && !entityIdDto.getTypeCd().equalsIgnoreCase("LR")) {
                             newEntityIdDtoColl.add(entityIdDto);
                         }

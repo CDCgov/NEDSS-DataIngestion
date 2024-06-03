@@ -52,7 +52,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
 
 
     public Map<Object,Object> getLabParticipations(Long observationUID) throws DataProcessingException {
-        Map<Object,Object> vals = new HashMap<Object,Object>();
+        Map<Object,Object> vals;
         try {
 
             vals = customRepository.getLabParticipations(observationUID);
@@ -66,11 +66,10 @@ public class ObservationSummaryService implements IObservationSummaryService {
 
     public ArrayList<Object>  getPatientPersonInfo(Long observationUID) throws DataProcessingException
     {
-        ArrayList<Object> vals= new ArrayList<> ();
+        ArrayList<Object> vals;
         try
         {
-            var res = customRepository.getPatientPersonInfo(observationUID);
-            vals = res;
+            vals = customRepository.getPatientPersonInfo(observationUID);
         }
         catch(Exception ex)
         {
@@ -84,7 +83,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
 
     public ArrayList<Object>  getProviderInfo(Long observationUID,String partTypeCd) throws DataProcessingException
     {
-        ArrayList<Object> orderProviderInfo= new ArrayList<Object> ();
+        ArrayList<Object> orderProviderInfo;
         try
         {
            orderProviderInfo = customRepository.getProviderInfo(observationUID, partTypeCd);
@@ -99,7 +98,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
 
     public ArrayList<Object>  getActIdDetails(Long observationUID) throws DataProcessingException
     {
-        ArrayList<Object> actIdDetails= new ArrayList<Object> ();
+        ArrayList<Object> actIdDetails;
         try
         {
             actIdDetails = customRepository.getActIdDetails(observationUID);
@@ -115,7 +114,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
     public String getReportingFacilityName(Long organizationUid) throws DataProcessingException
     {
 
-        String orgName = null;
+        String orgName;
 
         try {
            orgName = customRepository.getReportingFacilityName(organizationUid);
@@ -126,7 +125,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
     }
 
     public String getSpecimanSource(Long materialUid) throws DataProcessingException {
-        String specSource = null;
+        String specSource;
         try {
             specSource = customRepository.getSpecimanSource(materialUid);
         } catch (Exception ex) {
@@ -216,7 +215,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
             }
             if (orderProvider[5] != null){
                 providerUid= (Long)orderProvider[5];
-                labRep.setProviderUid((String)(orderProvider[5]+""));
+                labRep.setProviderUid((String.valueOf(orderProvider[5])));
             }
         }
 
@@ -227,10 +226,8 @@ public class ObservationSummaryService implements IObservationSummaryService {
 
     public void getTestAndSusceptibilities(String typeCode, Long observationUid, LabReportSummaryContainer labRepEvent, LabReportSummaryContainer labRepSumm)
     {
-        String query = "";
-
         ResultedTestSummaryContainer testVO = new ResultedTestSummaryContainer();
-        ArrayList<ResultedTestSummaryContainer>  testList = null;
+        ArrayList<ResultedTestSummaryContainer>  testList;
 
         testList = customRepository.getTestAndSusceptibilities(typeCode, observationUid, labRepEvent, labRepSumm);
         //afterReflex = System.currentTimeMillis();
@@ -243,12 +240,9 @@ public class ObservationSummaryService implements IObservationSummaryService {
             if(labRepSumm != null)
                 labRepSumm.setTheResultedTestSummaryVOCollection(testList);
 
-            Iterator<ResultedTestSummaryContainer> it = testList.iterator();
-
             //timing
             //t3begin = System.currentTimeMillis();
-            while (it.hasNext()) {
-                ResultedTestSummaryContainer RVO = it.next();
+            for (ResultedTestSummaryContainer RVO : testList) {
                 setSusceptibility(RVO, labRepEvent, labRepSumm);
 
             }
@@ -258,7 +252,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
 
     public Map<Object,Object>  getAssociatedInvList(Long uid,String sourceClassCd) throws DataProcessingException
     {
-        Map<Object,Object> assocoiatedInvMap= new HashMap<Object,Object> ();
+        Map<Object,Object> assocoiatedInvMap;
         try{
             String dataAccessWhereClause = queryHelper.getDataAccessWhereClause(NBSBOLookup.INVESTIGATION, "VIEW", "");
             if (dataAccessWhereClause == null) {
@@ -289,7 +283,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         int countResult = 0;
         int countSus = 0;
         UidSummaryContainer sourceActUidVO = new UidSummaryContainer();
-        ArrayList<UidSummaryContainer>  susList = new ArrayList<> ();
+        ArrayList<UidSummaryContainer>  susList;
 
         Long sourceActUid = RVO.getSourceActUid();
         countResult = countResult + 1;
@@ -300,14 +294,14 @@ public class ObservationSummaryService implements IObservationSummaryService {
         //totalSus += (afterSus - beforeSus);
         if (susList != null) {
             Iterator<UidSummaryContainer> susIter = susList.iterator();
-            ArrayList<ResultedTestSummaryContainer>  susListFinal = new ArrayList<> ();
+            ArrayList<ResultedTestSummaryContainer>  susListFinal ;
             //timing
             //t4begin = System.currentTimeMillis();
 
             ArrayList<Object>  multipleSusceptArray = new ArrayList<> ();
 
             while (susIter.hasNext()) {
-                UidSummaryContainer uidVO = (UidSummaryContainer) susIter.next();
+                UidSummaryContainer uidVO = susIter.next();
                 Long sourceAct = uidVO.getUid();
 
                 countSus = countSus + 1;
@@ -319,12 +313,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
                 //afterReflex2 = System.currentTimeMillis();
                 //totalReflex2 += (afterReflex2 - beforeReflex2);
 
-                Iterator<ResultedTestSummaryContainer> multSuscepts = susListFinal.iterator();
-                while (multSuscepts.hasNext())
-                {
-                    ResultedTestSummaryContainer rtsVO = multSuscepts.next();
-                    multipleSusceptArray.add(rtsVO);
-                }
+                multipleSusceptArray.addAll(susListFinal);
                 //multipleSuscept.add(susListFinal);
             }
 

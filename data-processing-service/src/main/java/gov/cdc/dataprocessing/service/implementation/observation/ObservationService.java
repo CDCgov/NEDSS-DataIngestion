@@ -388,7 +388,7 @@ public class ObservationService implements IObservationService {
      * */
     private Map<DataProcessingMapKey, Object>  retrieveObservationFromActRelationship(Collection<ActRelationshipDto> actRelColl) throws DataProcessingException
     {
-        List<Object> obs_org = new ArrayList<Object> ();
+        List<Object> obs_org = new ArrayList<> ();
         Map<DataProcessingMapKey, Object> mapper = new HashMap<>();
         Collection<ObservationContainer> theObservationContainerCollection = new ArrayList<> ();
         Collection<OrganizationContainer>  performingLabColl = new ArrayList<> ();
@@ -455,7 +455,7 @@ public class ObservationService implements IObservationService {
 
                     //Retrieves all reflex observations, including each ordered and its resulted
                     Collection<ObservationContainer> reflexObsColl = retrieveReflexObservationsFromActRelationship(rtObservationContainer.getTheActRelationshipDtoCollection());
-                    if (reflexObsColl == null || reflexObsColl.size() <= 0) {
+                    if (reflexObsColl == null || reflexObsColl.isEmpty()) {
                         continue;
                     }
                     theObservationContainerCollection.addAll(reflexObsColl);
@@ -510,7 +510,7 @@ public class ObservationService implements IObservationService {
                 //Retrieves its associated reflex resulted tests
                 Collection<ObservationContainer> reflexRTs = retrieveReflexRTsAkaObservationFromActRelationship(reflexObs.getTheActRelationshipDtoCollection());
                 if (reflexRTs == null
-                    || reflexRTs.size() < 0
+                    || reflexRTs.isEmpty()
                 ) {
                     continue;
                 }
@@ -852,7 +852,7 @@ public class ObservationService implements IObservationService {
             }
 
             //For ELR update, mpr uid may be not available
-            if(patientMprUid == null || patientMprUid.longValue() < 0)
+            if(patientMprUid < 0)
             {
                 patientMprUid = participationService.findPatientMprUidByObservationUid(
                         NEDSSConstant.PERSON,
@@ -876,7 +876,7 @@ public class ObservationService implements IObservationService {
             {
                 for (OrganizationContainer vo : labResultProxyVO.getTheOrganizationContainerCollection()) {
                     organizationContainer = vo;
-                    OrganizationDto newOrganizationDto = null;
+                    OrganizationDto newOrganizationDto;
 
                     var orgCheck = organizationRepositoryUtil.loadObject(organizationContainer.getTheOrganizationDto().getOrganizationUid(), null);
                     Integer existingVer = null;
@@ -910,19 +910,19 @@ public class ObservationService implements IObservationService {
                         );
 
                         organizationContainer.setTheOrganizationDto(newOrganizationDto);
-                        realUid = organizationRepositoryUtil.setOrganization(organizationContainer, null);
+                        organizationRepositoryUtil.setOrganization(organizationContainer, null);
                     }
                 }
             }
 
             //MaterialCollection
 
-            MaterialContainer materialContainer = null;
+            MaterialContainer materialContainer;
             if (labResultProxyVO.getTheMaterialContainerCollection() != null)
             {
                 for (MaterialContainer vo : labResultProxyVO.getTheMaterialContainerCollection()) {
                     materialContainer = vo;
-                    MaterialDto newMaterialDto = null;
+                    MaterialDto newMaterialDto;
                     logger.debug("materialUID: " + materialContainer.getTheMaterialDto().getMaterialUid());
 
                     Integer eixstVerNum = null;
@@ -970,20 +970,19 @@ public class ObservationService implements IObservationService {
                 for (ParticipationDto dt : labResultProxyVO.getTheParticipationDtoCollection()) {
 
                     logger.debug("Inside loop size of participations: " + labResultProxyVO.getTheParticipationDtoCollection().size());
-                    ParticipationDto participationDto = dt;
                     try {
-                        if (participationDto != null) {
-                            if (participationDto.isItDelete()) {
-                                participationService.saveParticipationHist(participationDto);
+                        if (dt != null) {
+                            if (dt.isItDelete()) {
+                                participationService.saveParticipationHist(dt);
                             }
 
-                            participationService.saveParticipation(participationDto);
+                            participationService.saveParticipation(dt);
 
 
                             logger.debug("got the participationDto, the ACTUID is " +
-                                    participationDto.getActUid());
+                                    dt.getActUid());
                             logger.debug("got the participationDto, the subjectEntityUid is " +
-                                    participationDto.getSubjectEntityUid());
+                                    dt.getSubjectEntityUid());
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -1124,7 +1123,7 @@ public class ObservationService implements IObservationService {
     private Map<Object, Object> processLabReportObsContainerCollection(LabResultProxyContainer labResultProxyVO, boolean ELR_PROCESSING) throws DataProcessingException {
         Collection<ObservationContainer>obsContainerCollection = labResultProxyVO.getTheObservationContainerCollection();
         ObservationContainer observationContainer;
-        Map<Object, Object> returnObsVal = new HashMap<>();
+        Map<Object, Object> returnObsVal;
         boolean isMannualLab = false;
 
         //Find out if it is mannual lab
@@ -1244,7 +1243,9 @@ public class ObservationService implements IObservationService {
         try
         {
             //Find observation local id
-            if(localIds == null) localIds = new HashMap<Object, Object> ();
+            if(localIds == null) {
+                localIds = new HashMap<> ();
+            }
             var resObs = observationRepository.findById(observationUid);
             ObservationDto obsDT = new ObservationDto();
             if (resObs.isPresent()) {
@@ -1322,7 +1323,7 @@ public class ObservationService implements IObservationService {
 //                obsVOColl = ( (MorbidityProxyVO) proxyVO).getTheObservationContainerCollection();
 //            }
 
-            ObservationContainer observationContainer = null;
+            ObservationContainer observationContainer ;
             Long returnObsVal = null;
 
             if (obsVOColl != null && obsVOColl.size() > 0)
@@ -1398,8 +1399,8 @@ public class ObservationService implements IObservationService {
             }
 
             String observationType = observationDT.getCtrlCdDisplayForm();
-            String businessTrigger = null;
-            String businessObjLookupName = null;
+            String businessTrigger;
+            String businessObjLookupName;
 
             if(observationType.equalsIgnoreCase(NEDSSConstant.LABRESULT_CODE)){
                 businessTrigger = NEDSSConstant.OBS_LAB_PROCESS;

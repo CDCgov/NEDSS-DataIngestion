@@ -8,7 +8,6 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.exception.EdxLogException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
@@ -20,7 +19,6 @@ import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.NbsInterfaceRepositor
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
-import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
@@ -115,25 +113,19 @@ public class ManagerService implements IManagerService {
     }
 
     @Transactional
-    public Object processDistribution(String eventType, String data) throws DataProcessingConsumerException {
-        Object result = new Object();
+    public void processDistribution(String eventType, String data) throws DataProcessingConsumerException {
         if (AuthUtil.authUser != null) {
             switch (eventType) {
                 case EVENT_ELR:
-                    result = processingELR(data);
+                    processingELR(data);
                     break;
                 default:
                     break;
             }
-            return result;
         } else {
             throw new DataProcessingConsumerException("Invalid User");
         }
 
-    }
-
-    public void processingEdxLog(String data) throws EdxLogException {
-        edxLogService.processingLog();
     }
 
     @Transactional
@@ -224,11 +216,6 @@ public class ManagerService implements IManagerService {
                     }
 
 
-
-//                    gson = new Gson();
-//                    String jsonString = gson.toJson(phcContainer);
-        //            kafkaManagerProducer.sendDataLabHandling(jsonString);
-
                     gson = new Gson();
                     String trackerString = gson.toJson(trackerView);
                     kafkaManagerProducer.sendDataActionTracker(trackerString);
@@ -250,6 +237,7 @@ public class ManagerService implements IManagerService {
 
     }
 
+    @Transactional
     public void initiatingLabProcessing(String data) {
         NbsInterfaceModel nbsInterfaceModel = null;
         try {
@@ -369,9 +357,8 @@ public class ManagerService implements IManagerService {
         }
     }
 
-    private Object processingELR(String data) {
+    private void processingELR(String data) {
         NbsInterfaceModel nbsInterfaceModel = null;
-        Object result = new Object();
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         String detailedMsg = "";
         Gson gson = new Gson();
@@ -585,7 +572,6 @@ public class ManagerService implements IManagerService {
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
         }
-        return result;
     }
 
     private CompletableFuture<Void> loadAndInitCachedValueAsync() {
@@ -824,7 +810,7 @@ public class ManagerService implements IManagerService {
             if (edxLabInformationDT.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails() == null)
             {
                 edxLabInformationDT.getEdxActivityLogDto().setEDXActivityLogDTWithVocabDetails(
-                        new ArrayList<EDXActivityDetailLogDto>());
+                        new ArrayList<>());
             }
 
             //TODO: LOGGING
