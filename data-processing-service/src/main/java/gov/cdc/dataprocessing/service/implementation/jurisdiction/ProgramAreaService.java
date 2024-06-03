@@ -2,7 +2,6 @@ package gov.cdc.dataprocessing.service.implementation.jurisdiction;
 
 import gov.cdc.dataprocessing.constant.elr.ELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
-import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.ObservationContainer;
@@ -146,7 +145,7 @@ public class ProgramAreaService implements IProgramAreaService {
                 //NOTE: this wont happen in ELR flow
                 else
                 {
-                    progAreaCd = srteCodeObsService.getPAFromSNOMEDCodes(NEDSSConstant.DEFAULT, obsResult.getTheObsValueCodedDtoCollection());
+                    progAreaCd = srteCodeObsService.getPAFromSNOMEDCodes(NEDSSConstant.DEFAULT, obsResult.getTheObsValueCodedDtoCollection());//NOSONAR
                 }
 
 
@@ -263,7 +262,7 @@ public class ProgramAreaService implements IProgramAreaService {
                 reportingLabCLIA = NEDSSConstant.DEFAULT;
 
             //Get program area
-            if(!orderTest.getTheObservationDto().getElectronicInd().equals(NEDSSConstant.ELECTRONIC_IND_ELR)){
+            if(orderTest.getTheObservationDto().getElectronicInd()!=null && !orderTest.getTheObservationDto().getElectronicInd().equals(NEDSSConstant.ELECTRONIC_IND_ELR)){
                 Map<Object, Object> paResults = null;
                 if (resultTests.size() > 0)
                 {
