@@ -85,8 +85,8 @@ public class ProgramAreaService implements IProgramAreaService {
         if (paResults != null && paResults.containsKey("ERROR"))
         {
             observationRequest.getTheObservationDto().setProgAreaCd(null);
-        } 
-        else 
+        }
+        else
         {
             observationRequest.getTheObservationDto().setProgAreaCd(programAreaCode);
         }
@@ -97,8 +97,8 @@ public class ProgramAreaService implements IProgramAreaService {
      * Description: method getting program area given CLIA and Observation Requests
      * */
     private HashMap<String, String> getProgramAreaHelper(String reportingLabCLIA,
-                                                  Collection<ObservationContainer> observationResults,
-                                                  String electronicInd) throws DataProcessingException {
+                                                         Collection<ObservationContainer> observationResults,
+                                                         String electronicInd) throws DataProcessingException {
 
         HashMap<String, String> returnMap = new HashMap<>();
         if (reportingLabCLIA == null)
@@ -126,10 +126,10 @@ public class ProgramAreaService implements IProgramAreaService {
 
             // make sure you are dealing with a resulted test here.
             if (
-                obsDomainCdSt1 != null &&
-                obsDomainCdSt1.equals(ELRConstant.ELR_OBSERVATION_RESULT) &&
-                obsDTCode != null &&
-                !obsDTCode.equals(NEDSSConstant.ACT114_TYP_CD)
+                    obsDomainCdSt1 != null &&
+                            obsDomainCdSt1.equals(ELRConstant.ELR_OBSERVATION_RESULT) &&
+                            obsDTCode != null &&
+                            !obsDTCode.equals(NEDSSConstant.ACT114_TYP_CD)
             )
             {
                 // Retrieve PAs using Lab Result --> SNOMED code mapping
@@ -232,8 +232,8 @@ public class ProgramAreaService implements IProgramAreaService {
     } //end of getProgramArea
 
     public String deriveProgramAreaCd(LabResultProxyContainer labResultProxyVO, ObservationContainer orderTest) throws DataProcessingException {
-            //Gathering the result tests
-            Collection<ObservationContainer>  resultTests = new ArrayList<> ();
+        //Gathering the result tests
+        Collection<ObservationContainer>  resultTests = new ArrayList<> ();
         for (ObservationContainer obsVO : labResultProxyVO.getTheObservationContainerCollection()) {
             String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
             if (obsDomainCdSt1 != null &&
@@ -242,49 +242,53 @@ public class ProgramAreaService implements IProgramAreaService {
             }
         }
 
-            //Get the reporting lab clia
-            String reportingLabCLIA;
-            if(labResultProxyVO.getLabClia()!=null && labResultProxyVO.isManualLab())
-                reportingLabCLIA =labResultProxyVO.getLabClia();
-            else
-                reportingLabCLIA = observationCodeService.getReportingLabCLIA(labResultProxyVO);
+        //Get the reporting lab clia
+        String reportingLabCLIA = "";
+        if(labResultProxyVO.getLabClia()!=null && labResultProxyVO.isManualLab())
+        {
+            reportingLabCLIA =labResultProxyVO.getLabClia();
+        }
+        else
+        {
+            reportingLabCLIA = observationCodeService.getReportingLabCLIA(labResultProxyVO);
+        }
 
-            if(reportingLabCLIA == null || reportingLabCLIA.trim().equals(""))
-                reportingLabCLIA = NEDSSConstant.DEFAULT;
+        if(reportingLabCLIA == null || reportingLabCLIA.trim().equals(""))
+        {
+            reportingLabCLIA = NEDSSConstant.DEFAULT;
+        }
 
-            //Get program area
-            if(!orderTest.getTheObservationDto().getElectronicInd().equals(NEDSSConstant.ELECTRONIC_IND_ELR)){
-                Map<Object, Object> paResults = null;
-                if (resultTests.size() > 0)
-                {
-                    paResults = srteCodeObsService.getProgramArea(reportingLabCLIA, resultTests, orderTest.getTheObservationDto().getElectronicInd());
-                }
-
-                //set program area for order test
-                if (paResults != null &&
-                        paResults.containsKey(ELRConstant.PROGRAM_AREA_HASHMAP_KEY))
-                {
-                    orderTest.getTheObservationDto().setProgAreaCd( (String) paResults.get(
-                            ELRConstant.PROGRAM_AREA_HASHMAP_KEY));
-                }
-                else
-                {
-                    orderTest.getTheObservationDto().setProgAreaCd(null);
-                }
-
-
-                //Return errors if any
-                if (paResults != null &&
-                        paResults.containsKey("ERROR"))
-                {
-                    return (String) paResults.get("ERROR");
-                }
-                else
-                {
-                    return null;
-                }
+        //Get program area
+        if(!orderTest.getTheObservationDto().getElectronicInd().equals(NEDSSConstant.ELECTRONIC_IND_ELR)){
+            Map<Object, Object> paResults = null;
+            if (resultTests.size() > 0)
+            {
+                paResults = srteCodeObsService.getProgramArea(reportingLabCLIA, resultTests, orderTest.getTheObservationDto().getElectronicInd());
             }
-            return null;
+
+
+            //set program area for order test
+            if (paResults != null &&
+                    paResults.containsKey(ELRConstant.PROGRAM_AREA_HASHMAP_KEY))
+            {
+                orderTest.getTheObservationDto().setProgAreaCd( (String) paResults.get(
+                        ELRConstant.PROGRAM_AREA_HASHMAP_KEY));
+            }
+            else
+            {
+                orderTest.getTheObservationDto().setProgAreaCd(null);
+            }
+
+            if (paResults != null && paResults.containsKey("ERROR"))
+            {
+                return (String) paResults.get("ERROR");
+            }
+            else
+            {
+                return null;
+            }
+        }
+        return null;
     }
 
 

@@ -2,14 +2,12 @@ package gov.cdc.dataprocessing.service.implementation.organization;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationMatchingService;
-import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -20,20 +18,13 @@ import java.util.Collection;
 public class OrganizationService implements IOrganizationService {
 
     private static IOrganizationMatchingService iOrganizationMatchingService;
-    private final OrganizationRepositoryUtil organizationRepositoryUtil;
 
     private final IUidService uidService;
 
     public OrganizationService(IOrganizationMatchingService iOrganizationMatchingService,
-                               OrganizationRepositoryUtil organizationRepositoryUtil,
                                IUidService uidService) {
         this.iOrganizationMatchingService = iOrganizationMatchingService;
-        this.organizationRepositoryUtil = organizationRepositoryUtil;
         this.uidService = uidService;
-    }
-
-    public OrganizationContainer testloadObject(long orguid, long actid) throws DataProcessingException {
-        return organizationRepositoryUtil.loadObject(orguid, actid);
     }
 
     public OrganizationContainer processingOrganization(LabResultProxyContainer labResultProxyContainer) throws DataProcessingConsumerException {
@@ -52,7 +43,6 @@ public class OrganizationService implements IOrganizationService {
                     {
                         EDXActivityDetailLogDto eDXActivityDetailLogDto = iOrganizationMatchingService.getMatchingOrganization(organizationContainer);
                         orgUid = Long.parseLong(eDXActivityDetailLogDto.getRecordId());
-
                     }
                     Long falseUid = organizationContainer.getTheOrganizationDto().getOrganizationUid();
                     //match found!!!!
