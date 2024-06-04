@@ -147,7 +147,8 @@ public class JurisdictionService implements IJurisdictionService {
                 if(reportingFacilityUid!=null)
                 {
                     // reportingFacilityVO = getOrganization(reportingFacilityUid);
-                    orderingFacilityVO = organizationRepositoryUtil.loadObject(orderingFacilityUid, null);
+                    //it was assigned to orderingFacilityVO in the first implementation.not sure if it was correct.
+                    reportingFacilityVO = organizationRepositoryUtil.loadObject(orderingFacilityUid, null);
                 }
             }
             catch (Exception rex)
@@ -235,6 +236,8 @@ public class JurisdictionService implements IJurisdictionService {
             HashMap<String, String> map = new HashMap<>();
             detailError = new StringBuffer();
             String jurisdiction =null;
+            //Initial value was not set in the first implementation.
+            detailError.append("Patient: ");
             patientJurisdictionCollection = findJurisdiction(patientContainer.getTheEntityLocatorParticipationDtoCollection(), "H", "PST");
 
             // Check to see the subject size.  Only proceed if the subject size is not greater than 1.
@@ -251,6 +254,7 @@ public class JurisdictionService implements IJurisdictionService {
 
                 if (jurisdiction==null && providerContainer !=null)
                 {
+                    detailError.append("Provider: ");
                     providerJurisdictionCollection = findJurisdiction(providerContainer.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
                     if(!(providerJurisdictionCollection.size()==0))
                         // Check to see the provider size.  Only proceed if the provider size is not greater than 1.
@@ -271,6 +275,7 @@ public class JurisdictionService implements IJurisdictionService {
                 if(jurisdiction==null){
                     if (organizationContainer != null)
                     {
+                        detailError.append("Ordering Facility: ");
                         organizationJurisdictionCollection = findJurisdiction(organizationContainer.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
                     }
                     if (organizationJurisdictionCollection != null)
@@ -293,6 +298,7 @@ public class JurisdictionService implements IJurisdictionService {
                 if (jurisdiction == null) {
                     organizationJurisdictionCollection = null;
                     if (organizationContainer2 != null) {
+                        detailError.append("Ordering Facility: ");
                         organizationJurisdictionCollection = findJurisdiction(organizationContainer2.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
                     }
                     if (organizationJurisdictionCollection != null) {
@@ -343,10 +349,9 @@ public class JurisdictionService implements IJurisdictionService {
                             // Parse the zip if is valid.
                             if (postalDt != null) {
 
-                                String searchZip = postalDt.getZipCd();
-                                if (searchZip != null && searchZip.length() > 5) {
-                                    searchZip = parseZip(postalDt.getZipCd());
-                                }
+                                String searchZip;
+                                searchZip = parseZip(postalDt.getZipCd());
+
                                 if (searchZip == null) {
                                     searchZip = "NO ZIP";
                                 }
