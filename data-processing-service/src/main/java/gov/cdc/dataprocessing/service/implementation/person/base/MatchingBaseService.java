@@ -95,6 +95,11 @@ public class MatchingBaseService  {
                                 coded.setCodesetName(NEDSSConstant.EI_AUTH);
                                 //TODO: This call out to code value general Repos and Caching the recrod
                                 //var codedValueGenralList = getCachingValueService().findCodeValuesByCodeSetNmAndCode(coded.getCodesetName(), coded.getCode());
+
+                                /*
+                                NotificationSRTCodeLookupTranslationDAOImpl lookupDAO = new NotificationSRTCodeLookupTranslationDAOImpl();
+								lookupDAO.retrieveSRTCodeInfo(coded);
+                                * */
                                 if (idDto.getRootExtensionTxt() != null
                                         && idDto.getTypeCd() != null
                                         && coded.getCode() != null

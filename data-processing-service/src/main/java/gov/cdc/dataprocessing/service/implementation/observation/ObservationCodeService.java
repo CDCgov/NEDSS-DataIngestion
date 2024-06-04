@@ -13,6 +13,7 @@ import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationCodeService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ISrteCodeObsService;
+import gov.cdc.dataprocessing.utilities.component.generic_helper.PropertyUtil;
 import gov.cdc.dataprocessing.utilities.component.observation.ObservationUtil;
 import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
 import org.springframework.stereotype.Service;
@@ -25,13 +26,16 @@ public class ObservationCodeService implements IObservationCodeService {
     private final ISrteCodeObsService srteCodeObsService;
     private final OrganizationRepositoryUtil organizationRepositoryUtil;
     private final ObservationUtil observationUtil;
+    private final PropertyUtil propertyUtil;
 
     public ObservationCodeService(ISrteCodeObsService srteCodeObsService,
                                   OrganizationRepositoryUtil organizationRepositoryUtil,
-                                  ObservationUtil observationUtil) {
+                                  ObservationUtil observationUtil,
+                                  PropertyUtil propertyUtil) {
         this.srteCodeObsService = srteCodeObsService;
         this.organizationRepositoryUtil = organizationRepositoryUtil;
         this.observationUtil = observationUtil;
+        this.propertyUtil = propertyUtil;
     }
 
 
@@ -45,10 +49,10 @@ public class ObservationCodeService implements IObservationCodeService {
 
         //if this is not an STD Program Area - we can skip this overhead
         //TODO: CACHING
-//        String programAreaCd = orderTest.getTheObservationDto().getProgAreaCd();
-//        if ((programAreaCd == null) || (!PropertyUtil.isStdOrHivProgramArea(programAreaCd))) {
-//            return derivedConditionList;
-//        }
+        String programAreaCd = orderTest.getTheObservationDto().getProgAreaCd();
+        if ((programAreaCd == null) || (!propertyUtil.isStdOrHivProgramArea(programAreaCd))) {
+            return derivedConditionList;
+        }
 
         // Get the result tests
         Collection<ObservationContainer> resultTests = new ArrayList<>();

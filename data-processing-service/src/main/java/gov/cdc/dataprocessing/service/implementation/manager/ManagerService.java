@@ -321,7 +321,6 @@ public class ManagerService implements IManagerService {
 
                 if(edxLabInformationDto.getAction() != null
                         && edxLabInformationDto.getAction().equalsIgnoreCase(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE)){
-                    //TODO: 3rd Flow
                     //TODO: LOGGING
                     EDXActivityDetailLogDto edxActivityDetailLogDT = investigationNotificationService.sendNotification(publicHealthCaseContainer, edxLabInformationDto.getNndComment());
                     edxActivityDetailLogDT.setRecordType(EdxELRConstant.ELR_RECORD_TP);
