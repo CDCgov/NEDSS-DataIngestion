@@ -33,9 +33,9 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class DataExtractionServiceTest {
 
@@ -66,6 +66,7 @@ class DataExtractionServiceTest {
         user.setAuthUserUid(1L);
         userInfo.setAuthUser(user);
         authUtil.setGlobalAuthUser(userInfo);
+
     }
 
     @Test
@@ -90,7 +91,7 @@ class DataExtractionServiceTest {
     }
 
     @Test
-    void testParsingDataToObjectThrowsDataProcessingException() throws JAXBException, DataProcessingConsumerException, DataProcessingException {
+    void testParsingDataToObjectThrowsDataProcessingException() throws JAXBException {
         Gson gson = new Gson();
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataThrowsException(), NbsInterfaceModel.class);
 
@@ -109,7 +110,7 @@ class DataExtractionServiceTest {
     }
 
     @Test
-    void testParsingDataToObjectThrowsMoreThanOnePatientException() throws JAXBException {
+    void testParsingDataToObjectThrowsMoreThanOnePatientException() {
         Gson gson = new Gson();
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataThrowGreaterThanOnePatientException(), NbsInterfaceModel.class);
 
@@ -342,13 +343,6 @@ class DataExtractionServiceTest {
         return identifiersType;
     }
 
-    private IdentifierType getIdentifierType() {
-        IdentifierType idType = new IdentifierType();
-        idType.setIDTypeCode("id type");
-        idType.setIDNumber("id number");
-        return idType;
-    }
-
     private NoteType getNotesType() {
         NoteType notes = new NoteType();
         return notes;
@@ -467,9 +461,9 @@ class DataExtractionServiceTest {
         labResultProxyContainer.setPageProxyTypeCd("");
         ParticipationDto part = new ParticipationDto();
         part.setAddReasonCd("because");
-        part.setAddTime(new Timestamp(2024, 05, 03, 10, 59, 53, 693));
+        part.setAddTime(new Timestamp(System.currentTimeMillis()));
         part.setAddUserId(123L);
-        part.setLastChgTime(new Timestamp(2024, 05, 03, 10, 59, 53, 693));
+        part.setLastChgTime(new Timestamp(System.currentTimeMillis()));
         part.setRecordStatusCd("ACTIVE");
         part.setStatusCd("A");
         part.setTypeCd("AUT");

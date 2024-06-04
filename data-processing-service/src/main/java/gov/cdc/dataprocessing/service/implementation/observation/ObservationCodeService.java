@@ -49,10 +49,10 @@ public class ObservationCodeService implements IObservationCodeService {
 
         //if this is not an STD Program Area - we can skip this overhead
         //TODO: CACHING
-        String programAreaCd = orderTest.getTheObservationDto().getProgAreaCd();
-        if ((programAreaCd == null) || (!propertyUtil.isStdOrHivProgramArea(programAreaCd))) {
-            return derivedConditionList;
-        }
+//        String programAreaCd = orderTest.getTheObservationDto().getProgAreaCd();
+//        if ((programAreaCd == null) || (!propertyUtil.isStdOrHivProgramArea(programAreaCd))) {
+//            return derivedConditionList;
+//        }
 
         // Get the result tests
         Collection<ObservationContainer> resultTests = new ArrayList<>();
