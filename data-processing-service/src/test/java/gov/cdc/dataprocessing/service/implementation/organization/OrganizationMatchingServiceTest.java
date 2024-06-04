@@ -54,7 +54,7 @@ class OrganizationMatchingServiceTest {
 
     @Test
     void getMatchingOrganization() throws DataProcessingException {
-        OrganizationContainer organizationContainer= new OrganizationContainer();
+        OrganizationContainer organizationContainer = new OrganizationContainer();
         organizationContainer.setLocalIdentifier("123");
 
         EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
@@ -62,60 +62,61 @@ class OrganizationMatchingServiceTest {
         edxEntityMatchDto.setTypeCd(NEDSSConstant.ORGANIZATION_CLASS_CODE);
         edxEntityMatchDto.setMatchString("TEST_MATCHSTRING");
 
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(),anyString())).thenReturn(edxEntityMatchDto);
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenReturn(edxEntityMatchDto);
 
-        //call test method
         EDXActivityDetailLogDto edxActivityDetailLogDtoResult = organizationMatchingService.getMatchingOrganization(organizationContainer);
         assertNotNull(edxActivityDetailLogDtoResult);
     }
+
     @Test
     void getMatchingOrganization_no_entitymatch_for_localid() throws DataProcessingException {
-        OrganizationContainer organizationContainer= new OrganizationContainer();
+        OrganizationContainer organizationContainer = new OrganizationContainer();
         organizationContainer.setLocalIdentifier("123");
 
         EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
 
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(),anyString())).thenReturn(edxEntityMatchDto);
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenReturn(edxEntityMatchDto);
 
-        //call test method
         EDXActivityDetailLogDto edxActivityDetailLogDtoResult = organizationMatchingService.getMatchingOrganization(organizationContainer);
         assertNotNull(edxActivityDetailLogDtoResult);
     }
+
     @Test
     void getMatchingOrganization_for_setOrganization_throwExp() throws DataProcessingException {
-        OrganizationContainer organizationContainer= new OrganizationContainer();
+        OrganizationContainer organizationContainer = new OrganizationContainer();
         organizationContainer.setLocalIdentifier("123");
 
         EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
 
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(),anyString())).thenReturn(edxEntityMatchDto);
-        when(organizationRepositoryUtilMock.setOrganization(any(OrganizationContainer.class),anyString())).thenThrow(Mockito.mock(DataProcessingException.class));
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenReturn(edxEntityMatchDto);
+        when(organizationRepositoryUtilMock.setOrganization(any(OrganizationContainer.class), anyString())).thenThrow(Mockito.mock(DataProcessingException.class));
         assertThrows(DataProcessingException.class, () -> organizationMatchingService.getMatchingOrganization(organizationContainer));
     }
+
     @Test
     void getMatchingOrganization_for_localid_throwExp() throws DataProcessingException {
-        OrganizationContainer organizationContainer= new OrganizationContainer();
+        OrganizationContainer organizationContainer = new OrganizationContainer();
         organizationContainer.setLocalIdentifier("123");
 
         EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
 
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(),anyString())).thenReturn(edxEntityMatchDto);
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenReturn(edxEntityMatchDto);
 
-        //call test method
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(),anyString())).thenThrow(Mockito.mock(DataProcessingException.class));
-        //call test method
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenThrow(Mockito.mock(DataProcessingException.class));
+
         assertThrows(DataProcessingException.class, () -> organizationMatchingService.getMatchingOrganization(organizationContainer));
     }
+
     @Test
     void getMatchingOrganization_entitymatch_for_identifier() throws DataProcessingException {
-        OrganizationContainer organizationContainer= new OrganizationContainer();
+        OrganizationContainer organizationContainer = new OrganizationContainer();
 
         EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
         edxEntityMatchDto.setEntityUid(123L);
         edxEntityMatchDto.setTypeCd(NEDSSConstant.ORGANIZATION_CLASS_CODE);
         edxEntityMatchDto.setMatchString("TEST_MATCHSTRING");
 
-        EntityIdDto entityIdDT=new EntityIdDto();
+        EntityIdDto entityIdDT = new EntityIdDto();
         entityIdDT.setStatusCd(NEDSSConstant.STATUS_ACTIVE);
         entityIdDT.setRootExtensionTxt("TEST_ROOT_EXTN");
         entityIdDT.setTypeCd("TEST_TYPE_CD");
@@ -125,22 +126,22 @@ class OrganizationMatchingServiceTest {
 
         organizationContainer.getTheEntityIdDtoCollection().add(entityIdDT);
 
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(),anyString())).thenReturn(edxEntityMatchDto);
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenReturn(edxEntityMatchDto);
 
-        //call test method
         EDXActivityDetailLogDto edxActivityDetailLogDtoResult = organizationMatchingService.getMatchingOrganization(organizationContainer);
         assertNotNull(edxActivityDetailLogDtoResult);
     }
+
     @Test
     void getMatchingOrganization_for_identifier_throwExp() throws DataProcessingException {
-        OrganizationContainer organizationContainer= new OrganizationContainer();
+        OrganizationContainer organizationContainer = new OrganizationContainer();
 
         EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
         edxEntityMatchDto.setEntityUid(123L);
         edxEntityMatchDto.setTypeCd(NEDSSConstant.ORGANIZATION_CLASS_CODE);
         edxEntityMatchDto.setMatchString("TEST_MATCHSTRING");
 
-        EntityIdDto entityIdDT=new EntityIdDto();
+        EntityIdDto entityIdDT = new EntityIdDto();
         entityIdDT.setStatusCd(NEDSSConstant.STATUS_ACTIVE);
         entityIdDT.setRootExtensionTxt("TEST_ROOT_EXTN");
         entityIdDT.setTypeCd("TEST_TYPE_CD");
@@ -150,60 +151,62 @@ class OrganizationMatchingServiceTest {
 
         organizationContainer.getTheEntityIdDtoCollection().add(entityIdDT);
 
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(),anyString())).thenThrow(Mockito.mock(DataProcessingException.class));
-        //call test method
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenThrow(Mockito.mock(DataProcessingException.class));
+
         assertThrows(DataProcessingException.class, () -> organizationMatchingService.getMatchingOrganization(organizationContainer));
     }
+
     @Test
     void getMatchingOrganization_entitymatch_for_identifier_coded() throws DataProcessingException {
-        OrganizationContainer organizationContainer= new OrganizationContainer();
+        OrganizationContainer organizationContainer = new OrganizationContainer();
 
         EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
         edxEntityMatchDto.setEntityUid(123L);
         edxEntityMatchDto.setTypeCd(NEDSSConstant.ORGANIZATION_CLASS_CODE);
         edxEntityMatchDto.setMatchString("TEST_MATCHSTRING");
 
-        EntityIdDto entityIdDT=new EntityIdDto();
+        EntityIdDto entityIdDT = new EntityIdDto();
         entityIdDT.setStatusCd(NEDSSConstant.STATUS_ACTIVE);
         entityIdDT.setRootExtensionTxt("TEST_ROOT_EXTN");
         entityIdDT.setTypeCd("TEST_TYPE_CD");
 
         organizationContainer.getTheEntityIdDtoCollection().add(entityIdDT);
 
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(),anyString())).thenReturn(edxEntityMatchDto);
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenReturn(edxEntityMatchDto);
 
-        //call test method
         EDXActivityDetailLogDto edxActivityDetailLogDtoResult = organizationMatchingService.getMatchingOrganization(organizationContainer);
         assertNotNull(edxActivityDetailLogDtoResult);
     }
+
     @Test
     void getMatchingOrganization_entitymatch_for_identifier_throws_exception() throws DataProcessingException {
-        OrganizationContainer organizationContainer= new OrganizationContainer();
+        OrganizationContainer organizationContainer = new OrganizationContainer();
 
         EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
         edxEntityMatchDto.setEntityUid(123L);
         edxEntityMatchDto.setTypeCd(NEDSSConstant.ORGANIZATION_CLASS_CODE);
         edxEntityMatchDto.setMatchString("TEST_MATCHSTRING");
 
-        EntityIdDto entityIdDT=new EntityIdDto();
+        EntityIdDto entityIdDT = new EntityIdDto();
         entityIdDT.setRootExtensionTxt("TEST_ROOT_EXTN");
         entityIdDT.setTypeCd("TEST_TYPE_CD");
 
         organizationContainer.getTheEntityIdDtoCollection().add(entityIdDT);
 
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(),anyString())).thenReturn(edxEntityMatchDto);
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenReturn(edxEntityMatchDto);
         assertThrows(DataProcessingException.class, () -> organizationMatchingService.getMatchingOrganization(organizationContainer));
     }
+
     @Test
     void getMatchingOrganization_entitymatch_for_identifier_throws_exception1() throws DataProcessingException {
-        OrganizationContainer organizationContainer= new OrganizationContainer();
+        OrganizationContainer organizationContainer = new OrganizationContainer();
 
         EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
         edxEntityMatchDto.setEntityUid(123L);
         edxEntityMatchDto.setTypeCd(NEDSSConstant.ORGANIZATION_CLASS_CODE);
         edxEntityMatchDto.setMatchString("TEST_MATCHSTRING");
 
-        EntityIdDto entityIdDT=new EntityIdDto();
+        EntityIdDto entityIdDT = new EntityIdDto();
         entityIdDT.setStatusCd(NEDSSConstant.STATUS_ACTIVE);
         entityIdDT.setRootExtensionTxt("TEST_ROOT_EXTN");
         entityIdDT.setTypeCd("TEST_TYPE_CD");
@@ -211,18 +214,19 @@ class OrganizationMatchingServiceTest {
 
         organizationContainer.getTheEntityIdDtoCollection().add(entityIdDT);
 
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(),anyString())).thenReturn(edxEntityMatchDto);
-        //call test method
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenReturn(edxEntityMatchDto);
+
         EDXActivityDetailLogDto edxActivityDetailLogDtoResult = organizationMatchingService.getMatchingOrganization(organizationContainer);
         assertNotNull(edxActivityDetailLogDtoResult);
     }
+
     @Test
     void getMatchingOrganization_no_entitymatch_for_identifier() throws DataProcessingException {
-        OrganizationContainer organizationContainer= new OrganizationContainer();
+        OrganizationContainer organizationContainer = new OrganizationContainer();
 
         EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
 
-        EntityIdDto entityIdDT=new EntityIdDto();
+        EntityIdDto entityIdDT = new EntityIdDto();
         entityIdDT.setStatusCd(NEDSSConstant.STATUS_ACTIVE);
         entityIdDT.setRootExtensionTxt("TEST_ROOT_EXTN");
         entityIdDT.setTypeCd("TEST_TYPE_CD");
@@ -232,28 +236,28 @@ class OrganizationMatchingServiceTest {
 
         organizationContainer.getTheEntityIdDtoCollection().add(entityIdDT);
 
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(),anyString())).thenReturn(edxEntityMatchDto);
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenReturn(edxEntityMatchDto);
 
-        //call test method
         EDXActivityDetailLogDto edxActivityDetailLogDtoResult = organizationMatchingService.getMatchingOrganization(organizationContainer);
         assertNotNull(edxActivityDetailLogDtoResult);
     }
+
     @Test
     void getMatchingOrganization_entitymatch_for_nameAddStr() throws DataProcessingException {
-        OrganizationContainer organizationContainer= new OrganizationContainer();
+        OrganizationContainer organizationContainer = new OrganizationContainer();
 
         EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
         edxEntityMatchDto.setEntityUid(123L);
         edxEntityMatchDto.setTypeCd(NEDSSConstant.ORGANIZATION_CLASS_CODE);
         edxEntityMatchDto.setMatchString("TEST_MATCHSTRING");
 
-        EntityLocatorParticipationDto entLocPartDT=new EntityLocatorParticipationDto();
+        EntityLocatorParticipationDto entLocPartDT = new EntityLocatorParticipationDto();
         entLocPartDT.setEntityUid(123L);
         entLocPartDT.setClassCd(NEDSSConstant.POSTAL);
         entLocPartDT.setCd(NEDSSConstant.OFFICE_CD);
         entLocPartDT.setUseCd(NEDSSConstant.WORK_PLACE);
 
-        PostalLocatorDto postLocDT=new PostalLocatorDto();
+        PostalLocatorDto postLocDT = new PostalLocatorDto();
         postLocDT.setStreetAddr1("STREET_ADDR1");
         postLocDT.setCityDescTxt("CITYDESCTXT");
         postLocDT.setStateCd("STATE_CD");
@@ -263,25 +267,25 @@ class OrganizationMatchingServiceTest {
 
         organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entLocPartDT);
 
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(),anyString())).thenReturn(edxEntityMatchDto);
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenReturn(edxEntityMatchDto);
 
-        //call test method
         EDXActivityDetailLogDto edxActivityDetailLogDtoResult = organizationMatchingService.getMatchingOrganization(organizationContainer);
         assertNotNull(edxActivityDetailLogDtoResult);
     }
+
     @Test
     void getMatchingOrganization_no_entitymatch_for_nameAddStr() throws DataProcessingException {
-        OrganizationContainer organizationContainer= new OrganizationContainer();
+        OrganizationContainer organizationContainer = new OrganizationContainer();
 
         EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
 
-        EntityLocatorParticipationDto entLocPartDT=new EntityLocatorParticipationDto();
+        EntityLocatorParticipationDto entLocPartDT = new EntityLocatorParticipationDto();
         entLocPartDT.setEntityUid(123L);
         entLocPartDT.setClassCd(NEDSSConstant.POSTAL);
         entLocPartDT.setCd(NEDSSConstant.OFFICE_CD);
         entLocPartDT.setUseCd(NEDSSConstant.WORK_PLACE);
 
-        PostalLocatorDto postLocDT=new PostalLocatorDto();
+        PostalLocatorDto postLocDT = new PostalLocatorDto();
         postLocDT.setStreetAddr1("STREET_ADDR1");
         postLocDT.setCityDescTxt("CITYDESCTXT");
         postLocDT.setStateCd("STATE_CD");
@@ -291,10 +295,10 @@ class OrganizationMatchingServiceTest {
 
         organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entLocPartDT);
 
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(),anyString())).thenReturn(edxEntityMatchDto);
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenReturn(edxEntityMatchDto);
 
         doNothing().when(edxPatientMatchRepositoryUtil).saveEdxEntityMatch(isA(EdxEntityMatchDto.class));
-        //call test method
+
         EDXActivityDetailLogDto edxActivityDetailLogDtoResult = organizationMatchingService.getMatchingOrganization(organizationContainer);
         assertNotNull(edxActivityDetailLogDtoResult);
         verify(edxPatientMatchRepositoryUtil, times(1)).saveEdxEntityMatch(isA(EdxEntityMatchDto.class));
@@ -302,17 +306,17 @@ class OrganizationMatchingServiceTest {
 
     @Test
     void getMatchingOrganization_for_nameAddStr_throwExp() throws DataProcessingException {
-        OrganizationContainer organizationContainer= new OrganizationContainer();
+        OrganizationContainer organizationContainer = new OrganizationContainer();
 
         EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
 
-        EntityLocatorParticipationDto entLocPartDT=new EntityLocatorParticipationDto();
+        EntityLocatorParticipationDto entLocPartDT = new EntityLocatorParticipationDto();
         entLocPartDT.setEntityUid(123L);
         entLocPartDT.setClassCd(NEDSSConstant.POSTAL);
         entLocPartDT.setCd(NEDSSConstant.OFFICE_CD);
         entLocPartDT.setUseCd(NEDSSConstant.WORK_PLACE);
 
-        PostalLocatorDto postLocDT=new PostalLocatorDto();
+        PostalLocatorDto postLocDT = new PostalLocatorDto();
         postLocDT.setStreetAddr1("STREET_ADDR1");
         postLocDT.setCityDescTxt("CITYDESCTXT");
         postLocDT.setStateCd("STATE_CD");
@@ -322,21 +326,22 @@ class OrganizationMatchingServiceTest {
 
         organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entLocPartDT);
 
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(),anyString())).thenReturn(edxEntityMatchDto);
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenReturn(edxEntityMatchDto);
 
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(),anyString())).thenThrow(Mockito.mock(DataProcessingException.class));
-        //call test method
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenThrow(Mockito.mock(DataProcessingException.class));
+
         assertThrows(DataProcessingException.class, () -> organizationMatchingService.getMatchingOrganization(organizationContainer));
     }
+
     @Test
     void getMatchingOrganization_entitymatch_for_telephoneTxt() throws DataProcessingException {
-        OrganizationContainer organizationContainer= new OrganizationContainer();
+        OrganizationContainer organizationContainer = new OrganizationContainer();
         //Org name
-        OrganizationNameDto organizationNameDto= new OrganizationNameDto();
+        OrganizationNameDto organizationNameDto = new OrganizationNameDto();
         organizationNameDto.setNmUseCd(NEDSSConstant.LEGAL);
         organizationNameDto.setNmTxt("test_org_name");
 
-        Collection<OrganizationNameDto> theOrganizationNameDtoCollection= new ArrayList<>();
+        Collection<OrganizationNameDto> theOrganizationNameDtoCollection = new ArrayList<>();
         theOrganizationNameDtoCollection.add(organizationNameDto);
         organizationContainer.setTheOrganizationNameDtoCollection(theOrganizationNameDtoCollection);
 
@@ -345,33 +350,33 @@ class OrganizationMatchingServiceTest {
         edxEntityMatchDto.setTypeCd(NEDSSConstant.ORGANIZATION_CLASS_CODE);
         edxEntityMatchDto.setMatchString("TEST_MATCHSTRING");
 
-        EntityLocatorParticipationDto entLocPartDT=new EntityLocatorParticipationDto();
+        EntityLocatorParticipationDto entLocPartDT = new EntityLocatorParticipationDto();
         entLocPartDT.setEntityUid(123L);
         entLocPartDT.setClassCd(NEDSSConstant.TELE);
         entLocPartDT.setCd(NEDSSConstant.PHONE);
 
-        TeleLocatorDto teleLocDT=new TeleLocatorDto();
+        TeleLocatorDto teleLocDT = new TeleLocatorDto();
         teleLocDT.setPhoneNbrTxt("1234567890");
 
         entLocPartDT.setTheTeleLocatorDto(teleLocDT);
 
         organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entLocPartDT);
 
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(),anyString())).thenReturn(edxEntityMatchDto);
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenReturn(edxEntityMatchDto);
 
-        //call test method
         EDXActivityDetailLogDto edxActivityDetailLogDtoResult = organizationMatchingService.getMatchingOrganization(organizationContainer);
         assertNotNull(edxActivityDetailLogDtoResult);
     }
+
     @Test
     void getMatchingOrganization_entitymatch_for_telephoneTxt_throwExp() throws DataProcessingException {
-        OrganizationContainer organizationContainer= new OrganizationContainer();
+        OrganizationContainer organizationContainer = new OrganizationContainer();
         //Org name
-        OrganizationNameDto organizationNameDto= new OrganizationNameDto();
+        OrganizationNameDto organizationNameDto = new OrganizationNameDto();
         organizationNameDto.setNmUseCd(NEDSSConstant.LEGAL);
         organizationNameDto.setNmTxt("test_org_name");
 
-        Collection<OrganizationNameDto> theOrganizationNameDtoCollection= new ArrayList<>();
+        Collection<OrganizationNameDto> theOrganizationNameDtoCollection = new ArrayList<>();
         theOrganizationNameDtoCollection.add(organizationNameDto);
         organizationContainer.setTheOrganizationNameDtoCollection(theOrganizationNameDtoCollection);
 
@@ -380,52 +385,53 @@ class OrganizationMatchingServiceTest {
         edxEntityMatchDto.setTypeCd(NEDSSConstant.ORGANIZATION_CLASS_CODE);
         edxEntityMatchDto.setMatchString("TEST_MATCHSTRING");
 
-        EntityLocatorParticipationDto entLocPartDT=new EntityLocatorParticipationDto();
+        EntityLocatorParticipationDto entLocPartDT = new EntityLocatorParticipationDto();
         entLocPartDT.setEntityUid(123L);
         entLocPartDT.setClassCd(NEDSSConstant.TELE);
         entLocPartDT.setCd(NEDSSConstant.PHONE);
 
-        TeleLocatorDto teleLocDT=new TeleLocatorDto();
+        TeleLocatorDto teleLocDT = new TeleLocatorDto();
         teleLocDT.setPhoneNbrTxt("1234567890");
 
         entLocPartDT.setTheTeleLocatorDto(teleLocDT);
 
         organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entLocPartDT);
 
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(),anyString())).thenThrow(Mockito.mock(DataProcessingException.class));
-        //call test method
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenThrow(Mockito.mock(DataProcessingException.class));
+
         assertThrows(DataProcessingException.class, () -> organizationMatchingService.getMatchingOrganization(organizationContainer));
     }
+
     @Test
     void getMatchingOrganization_no_entitymatch_for_telephoneTxt() throws DataProcessingException {
-        OrganizationContainer organizationContainer= new OrganizationContainer();
+        OrganizationContainer organizationContainer = new OrganizationContainer();
         //Org name
-        OrganizationNameDto organizationNameDto= new OrganizationNameDto();
+        OrganizationNameDto organizationNameDto = new OrganizationNameDto();
         organizationNameDto.setNmUseCd(NEDSSConstant.LEGAL);
         organizationNameDto.setNmTxt("test_org_name");
 
-        Collection<OrganizationNameDto> theOrganizationNameDtoCollection= new ArrayList<>();
+        Collection<OrganizationNameDto> theOrganizationNameDtoCollection = new ArrayList<>();
         theOrganizationNameDtoCollection.add(organizationNameDto);
         organizationContainer.setTheOrganizationNameDtoCollection(theOrganizationNameDtoCollection);
 
         EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
 
-        EntityLocatorParticipationDto entLocPartDT=new EntityLocatorParticipationDto();
+        EntityLocatorParticipationDto entLocPartDT = new EntityLocatorParticipationDto();
         entLocPartDT.setEntityUid(123L);
         entLocPartDT.setClassCd(NEDSSConstant.TELE);
         entLocPartDT.setCd(NEDSSConstant.PHONE);
 
-        TeleLocatorDto teleLocDT=new TeleLocatorDto();
+        TeleLocatorDto teleLocDT = new TeleLocatorDto();
         teleLocDT.setPhoneNbrTxt("1234567890");
 
         entLocPartDT.setTheTeleLocatorDto(teleLocDT);
 
         organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entLocPartDT);
 
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(),anyString())).thenReturn(edxEntityMatchDto);
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenReturn(edxEntityMatchDto);
 
         doNothing().when(edxPatientMatchRepositoryUtil).saveEdxEntityMatch(isA(EdxEntityMatchDto.class));
-        //call test method
+
         EDXActivityDetailLogDto edxActivityDetailLogDtoResult = organizationMatchingService.getMatchingOrganization(organizationContainer);
         assertNotNull(edxActivityDetailLogDtoResult);
 

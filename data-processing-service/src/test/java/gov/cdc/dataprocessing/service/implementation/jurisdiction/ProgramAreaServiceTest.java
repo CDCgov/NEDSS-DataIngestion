@@ -91,9 +91,8 @@ class ProgramAreaServiceTest {
         ObservationDto observationDto = new ObservationDto();
         observationDto.setElectronicInd(NEDSSConstant.ELECTRONIC_IND_ELR);
         observationRequest.setTheObservationDto(observationDto);
-        //
+
         when(srteCodeObsService.getPAFromSNOMEDCodes(any(),any())).thenReturn("TEST_PA");
-        //Call test method
         programAreaService.getProgramArea(observationResults,observationRequest,"TEST");
         verify(srteCodeObsService,times(2)).getPAFromSNOMEDCodes(any(), any());
     }
@@ -120,11 +119,10 @@ class ProgramAreaServiceTest {
         ObservationDto observationDto = new ObservationDto();
         observationDto.setElectronicInd(NEDSSConstant.ELECTRONIC_IND_ELR);
         observationRequest.setTheObservationDto(observationDto);
-        //
+
         when(srteCodeObsService.getPAFromSNOMEDCodes(any(),any())).thenReturn(null);
         when(srteCodeObsService.getPAFromLOINCCode(any(),any())).thenReturn("TEST_PA");
 
-        //Call test method
         programAreaService.getProgramArea(observationResults,observationRequest,"TEST");
         verify(srteCodeObsService,times(2)).getPAFromLOINCCode(any(), any());
     }
@@ -151,18 +149,18 @@ class ProgramAreaServiceTest {
         ObservationDto observationDto = new ObservationDto();
         observationDto.setElectronicInd(NEDSSConstant.ELECTRONIC_IND_ELR);
         observationRequest.setTheObservationDto(observationDto);
-        //
+
         when(srteCodeObsService.getPAFromSNOMEDCodes(any(),any())).thenReturn(null);
         when(srteCodeObsService.getPAFromLOINCCode(any(),any())).thenReturn(null);
         when(srteCodeObsService.getPAFromLocalResultCode(any(),any())).thenReturn("TEST_PA");
-        //Call test method
+
         programAreaService.getProgramArea(observationResults,observationRequest,"TEST");
         verify(srteCodeObsService,times(2)).getPAFromLocalResultCode(any(), any());
     }
     @Test
     void getProgramArea_LocalTestCode() throws DataProcessingException {
         Collection<ObservationContainer> observationResults=new ArrayList<>();
-        //1
+
         ObservationContainer observationContainer1=new ObservationContainer();
         ObservationDto obsDt1=new ObservationDto();
         obsDt1.setObsDomainCdSt1(ELRConstant.ELR_OBSERVATION_RESULT);
@@ -175,13 +173,12 @@ class ProgramAreaServiceTest {
         ObservationDto observationDto = new ObservationDto();
         observationDto.setElectronicInd(NEDSSConstant.ELECTRONIC_IND_ELR);
         observationRequest.setTheObservationDto(observationDto);
-        //
+
         when(srteCodeObsService.getPAFromSNOMEDCodes(any(),any())).thenReturn(null);
         when(srteCodeObsService.getPAFromLOINCCode(any(),any())).thenReturn(null);
         when(srteCodeObsService.getPAFromLocalResultCode(any(),any())).thenReturn(null);
         when(srteCodeObsService.getPAFromLocalTestCode(any(),any())).thenReturn("TEST_PA");
 
-        //Call test method
         programAreaService.getProgramArea(observationResults,observationRequest,"TEST");
         verify(srteCodeObsService,times(1)).getPAFromLocalTestCode(any(), any());
     }
@@ -201,13 +198,12 @@ class ProgramAreaServiceTest {
         ObservationDto observationDto = new ObservationDto();
         observationDto.setElectronicInd(NEDSSConstant.ELECTRONIC_IND_ELR);
         observationRequest.setTheObservationDto(observationDto);
-        //
+
         when(srteCodeObsService.getPAFromSNOMEDCodes(any(),any())).thenReturn(null);
         when(srteCodeObsService.getPAFromLOINCCode(any(),any())).thenReturn(null);
         when(srteCodeObsService.getPAFromLocalResultCode(any(),any())).thenReturn(null);
         when(srteCodeObsService.getPAFromLocalTestCode(any(),any())).thenReturn(null);
 
-        //Call test method
         programAreaService.getProgramArea(observationResults,observationRequest,"TEST");
         verify(srteCodeObsService,times(1)).getPAFromLocalTestCode(any(), any());
     }
@@ -227,7 +223,6 @@ class ProgramAreaServiceTest {
         obsValueCodedDtoCol.add(obsValueCodedDto);
         observationContainer1.setTheObsValueCodedDtoCollection(obsValueCodedDtoCol);
 
-        //2
         ObservationContainer observationContainer2=new ObservationContainer();
         ObservationDto obsDt2=new ObservationDto();
         obsDt2.setObsDomainCdSt1(ELRConstant.ELR_OBSERVATION_RESULT);
@@ -241,10 +236,10 @@ class ProgramAreaServiceTest {
         ObservationDto observationDto = new ObservationDto();
         observationDto.setElectronicInd(NEDSSConstant.ELECTRONIC_IND_ELR);
         observationRequest.setTheObservationDto(observationDto);
-        //
+
         when(srteCodeObsService.getPAFromSNOMEDCodes(any(),eq(null))).thenReturn("TEST_PA1");
         when(srteCodeObsService.getPAFromSNOMEDCodes(any(),eq(observationContainer1.getTheObsValueCodedDtoCollection()))).thenReturn("TEST_PA2");
-        //Call test method
+
         programAreaService.getProgramArea(observationResults,observationRequest,"TEST");
         verify(srteCodeObsService,times(2)).getPAFromSNOMEDCodes(any(), any());
     }
@@ -259,11 +254,10 @@ class ProgramAreaServiceTest {
 
         labResultProxyVO.setLabClia("TEST123");
         labResultProxyVO.setManualLab(true);
-        //
+
         ObservationContainer orderTest=new ObservationContainer();
         orderTest.getTheObservationDto().setElectronicInd(NEDSSConstant.RESULTED_TEST_OBS_DOMAIN_CD);
 
-        //
         HashMap<Object, Object> paResults=new HashMap<>();
         paResults.put(ELRConstant.PROGRAM_AREA_HASHMAP_KEY, "TEST_PA");
         paResults.put("ERROR", "ERROR_PA");
@@ -285,13 +279,13 @@ class ProgramAreaServiceTest {
 
         labResultProxyVO.setLabClia(null);
         labResultProxyVO.setManualLab(false);
-        //
+
         ObservationContainer orderTest=new ObservationContainer();
         orderTest.getTheObservationDto().setElectronicInd(NEDSSConstant.RESULTED_TEST_OBS_DOMAIN_CD);
-        //
+
         when(observationCodeService.getReportingLabCLIA(any())).thenReturn(null);
         when(srteCodeObsService.getProgramArea(any(), any(), any())).thenReturn(null);
-        //call test method
+
         String result= programAreaService.deriveProgramAreaCd(labResultProxyVO,orderTest);
         assertNull(result);
         verify(srteCodeObsService,times(1)).getProgramArea(any(), any(), any());

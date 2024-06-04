@@ -35,7 +35,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 class JurisdictionServiceTest {
@@ -112,7 +111,7 @@ class JurisdictionServiceTest {
         Collection<String> jurisdictionsList = new ArrayList<>();
         jurisdictionsList.add("111");
         when(jurisdictionParticipationRepository.findJurisdictionForCity(any(), any(), any())).thenReturn(Optional.of(jurisdictionsList));
-        //call test method;
+
         jurisdictionService.assignJurisdiction(patientContainer, providerContainer, organizationContainer, observationRequest);
         verify(jurisdictionParticipationRepository).findJurisdictionForCity(any(), any(), any());
     }
@@ -141,7 +140,7 @@ class JurisdictionServiceTest {
         Collection<String> jurisdictionsList = new ArrayList<>();
         jurisdictionsList.add("111");
         when(jurisdictionParticipationRepository.findJurisdictionForCity(any(), any(), any())).thenReturn(Optional.of(jurisdictionsList));
-        //call test method;
+
         jurisdictionService.assignJurisdiction(patientContainer, providerContainer, organizationContainer, observationRequest);
         verify(jurisdictionParticipationRepository).findJurisdictionForCity(any(), any(), any());
     }
@@ -169,7 +168,7 @@ class JurisdictionServiceTest {
         Collection<String> jurisdictionsList = new ArrayList<>();
         jurisdictionsList.add("111");
         when(jurisdictionParticipationRepository.findJurisdictionForCity(any(), any(), any())).thenReturn(Optional.of(jurisdictionsList));
-        //call test method;
+
         jurisdictionService.assignJurisdiction(patientContainer, providerContainer, organizationContainer, observationRequest);
         verify(jurisdictionParticipationRepository).findJurisdictionForCity(any(), any(), any());
     }
@@ -197,7 +196,7 @@ class JurisdictionServiceTest {
         Collection<String> jurisdictionsList = new ArrayList<>();
         jurisdictionsList.add("111");
         when(jurisdictionParticipationRepository.findJurisdictionForCity(any(), any(), any())).thenReturn(Optional.of(jurisdictionsList));
-        //call test method;
+
         jurisdictionService.assignJurisdiction(patientContainer, providerContainer, organizationContainer, observationRequest);
         verify(jurisdictionParticipationRepository).findJurisdictionForCity(any(), any(), any());
     }
@@ -226,7 +225,7 @@ class JurisdictionServiceTest {
 
         Collection<String> jurisdictionsList = new ArrayList<>();//Empty
         when(jurisdictionParticipationRepository.findJurisdictionForCity(any(), any(), any())).thenReturn(Optional.of(jurisdictionsList));
-        //call test method;
+
         jurisdictionService.assignJurisdiction(patientContainer, providerContainer, organizationContainer, observationRequest);
         verify(jurisdictionParticipationRepository).findJurisdictionForCity(any(), any(), any());
     }
@@ -299,7 +298,7 @@ class JurisdictionServiceTest {
         entityLocatorPartColl.add(entityLocatorDT_po);
         organizationContainer2.setTheEntityLocatorParticipationDtoCollection(entityLocatorPartColl);
         when(organizationRepositoryUtil.loadObject(any(), any())).thenReturn(organizationContainer2);
-        //call test method
+
         jurisdictionService.deriveJurisdictionCd(labResultProxyContainer, rootObsDT);
         verify(organizationRepositoryUtil,times(2)).loadObject(any(), any());
     }
@@ -322,7 +321,7 @@ class JurisdictionServiceTest {
         personDto.setPersonUid(123L);
         personContainer.setThePersonDto(personDto);
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(personContainer);
-        //call test method
+
         jurisdictionService.deriveJurisdictionCd(labResultProxyContainer, rootObsDT);
         verify(patientRepositoryUtil,times(1)).loadPerson(123L);
     }
@@ -349,7 +348,7 @@ class JurisdictionServiceTest {
         personContainerCol.add(personContainer);
         personContainerCol.add(new PersonContainer());
         labResultProxyContainer.setThePersonContainerCollection(personContainerCol);
-        //call test method
+
         String result=jurisdictionService.deriveJurisdictionCd(labResultProxyContainer, rootObsDT);
         assertNull(result);
     }
@@ -370,7 +369,7 @@ class JurisdictionServiceTest {
         OrganizationContainer organizationContainer = new OrganizationContainer();
 
         when(organizationRepositoryUtil.loadObject(any(), any())).thenReturn(organizationContainer);
-        //call test method
+
         jurisdictionService.deriveJurisdictionCd(labResultProxyContainer, rootObsDT);
         verify(organizationRepositoryUtil).loadObject(any(), any());
     }
@@ -413,7 +412,7 @@ class JurisdictionServiceTest {
         OrganizationContainer organizationContainer = new OrganizationContainer();
 
         when(organizationRepositoryUtil.loadObject(any(), any())).thenReturn(organizationContainer);
-        //call test method
+
         jurisdictionService.deriveJurisdictionCd(labResultProxyContainer, rootObsDT);
         verify(organizationRepositoryUtil).loadObject(any(), any());
     }

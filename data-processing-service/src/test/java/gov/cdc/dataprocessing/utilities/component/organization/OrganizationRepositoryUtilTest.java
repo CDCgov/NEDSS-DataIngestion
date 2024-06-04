@@ -164,7 +164,7 @@ class OrganizationRepositoryUtilTest {
         ArrayList<EntityIdDto> entityList = new ArrayList<>();
         entityList.add(entityIdDto);
         organizationContainer.setTheEntityIdDtoCollection(entityList);
-        //organizationContainer.getTheEntityIdDtoCollection();
+
         EntityId entityId = new EntityId(entityIdDto);
         when(entityIdRepository.save(entityId)).thenReturn(entityId);
 
@@ -191,7 +191,7 @@ class OrganizationRepositoryUtilTest {
         organizationContainer.setTheRoleDTCollection(theRoleDTCollection);
         when(roleRepository.save(new Role(roleDto))).thenReturn(new Role(roleDto));
 
-        long orgIdResult = organizationRepositoryUtil.createOrganization(organizationContainer);
+        organizationRepositoryUtil.createOrganization(organizationContainer);
         verify(roleRepository, times(1)).save(new Role(roleDto));
     }
 
@@ -230,7 +230,6 @@ class OrganizationRepositoryUtilTest {
         localIdModel.setUidPrefixCd("TEST_PX");
         localIdModel.setUidSuffixCd("TEST_SX");
 
-        Organization organization = new Organization(organizationDto);
         when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION)).thenThrow(Mockito.mock(DataProcessingException.class));
         assertThrows(DataProcessingException.class, () -> organizationRepositoryUtil.createOrganization(organizationContainer));
     }
@@ -267,7 +266,7 @@ class OrganizationRepositoryUtilTest {
         ArrayList<EntityIdDto> entityList = new ArrayList<>();
         entityList.add(entityIdDto);
         organizationContainer.setTheEntityIdDtoCollection(entityList);
-        //organizationContainer.getTheEntityIdDtoCollection();
+
         EntityId entityId = new EntityId(entityIdDto);
         when(entityIdRepository.save(entityId)).thenReturn(entityId);
 
@@ -308,7 +307,7 @@ class OrganizationRepositoryUtilTest {
     }
 
     @Test
-    void updateOrganization_with_throw_exp() throws DataProcessingException {
+    void updateOrganization_with_throw_exp() {
         OrganizationContainer organizationContainer = null;
         assertThrows(DataProcessingException.class, () -> organizationRepositoryUtil.updateOrganization(organizationContainer));
     }
@@ -362,7 +361,7 @@ class OrganizationRepositoryUtilTest {
         Organization organization = new Organization();
         organization.setOrganizationUid(123L);
         organization.setAddReasonCode("TEST");
-        //organizationRepository.findById(123L);
+
         when(organizationRepository.findById(123L)).thenReturn(Optional.of(organization));
         //Select Org
         List<OrganizationName> organizationNameList = new ArrayList<>();
@@ -398,7 +397,7 @@ class OrganizationRepositoryUtilTest {
         participation.setCode("TEST");
         participation.setSubjectEntityUid(123L);
         participationList.add(participation);
-        //participationRepository.findBySubjectEntityUid(uid);
+
         when(participationRepository.findBySubjectEntityUid(123L)).thenReturn(Optional.of(participationList));
         //select Role
         List<Role> roleList = new ArrayList<>();
@@ -425,7 +424,7 @@ class OrganizationRepositoryUtilTest {
         prepareEntity.setObjectStatusState("TEST_OBJ_STATUS_CD");
 
         when(prepareEntityStoredProcRepository.getPrepareEntity(any(), any(), any(), any())).thenReturn(prepareEntity);
-        //call test method
+
         Long orgIdResult=organizationRepositoryUtil.setOrganization(organizationContainer, "TEST");
         assertEquals(1234L,orgIdResult);
     }
@@ -471,7 +470,7 @@ class OrganizationRepositoryUtilTest {
         Organization organization = new Organization();
         organization.setOrganizationUid(123L);
         organization.setAddReasonCode("TEST");
-        //organizationRepository.findById(123L);
+
         when(organizationRepository.findById(123L)).thenReturn(Optional.of(organization));
         //Select Org
         List<OrganizationName> organizationNameList = new ArrayList<>();
@@ -526,7 +525,7 @@ class OrganizationRepositoryUtilTest {
         prepareEntity.setObjectStatusState("TEST_OBJ_STATUS_CD");
 
         when(prepareEntityStoredProcRepository.getPrepareEntity(any(), any(), any(), any())).thenReturn(prepareEntity);
-        //call test method
+
         Long orgIdResult=organizationRepositoryUtil.setOrganization(organizationContainer, "TEST");
         assertEquals(1234L,orgIdResult);
     }
@@ -537,7 +536,7 @@ class OrganizationRepositoryUtilTest {
         Organization organization = new Organization();
         organization.setOrganizationUid(123L);
         organization.setAddReasonCode("TEST");
-        //organizationRepository.findById(123L);
+
         when(organizationRepository.findById(123L)).thenReturn(Optional.of(organization));
         //Select Org
         List<OrganizationName> organizationNameList = new ArrayList<>();
@@ -597,9 +596,9 @@ class OrganizationRepositoryUtilTest {
         participation.setSubjectEntityUid(123L);
         participation.setCode("TEST");
         participationList.add(participation);
-        //participationRepository.findBySubjectEntityUidAndActUid(123L, 123L);
+
         when(participationRepository.findBySubjectEntityUidAndActUid(123L, 123L)).thenReturn(Optional.of(participationList));
-        //call test method
+
         OrganizationContainer organizationContainer = organizationRepositoryUtil.loadObject(123L, 123L);
         assertNotNull(organizationContainer);
     }

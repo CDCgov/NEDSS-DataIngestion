@@ -501,11 +501,11 @@ public class OrganizationRepositoryUtil {
         ovo.setTheRoleDTCollection(roleColl);
 
 
-        // if (actUid != null) {
+
         //SelectsParticipationDTCollection
         Collection<ParticipationDto> parColl = selectParticipationDTCollection(organizationUID, actUid);
         ovo.setTheParticipationDtoCollection(parColl);
-        //  }
+
 
         ovo.setItNew(false);
         ovo.setItDirty(false);

@@ -8,7 +8,6 @@ import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationService;
 import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
-import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,15 +21,12 @@ public class OrganizationService implements IOrganizationService {
     private static final Logger logger = LoggerFactory.getLogger(OrganizationService.class);
 
     private static IOrganizationMatchingService iOrganizationMatchingService;
-    private final OrganizationRepositoryUtil organizationRepositoryUtil;
 
     private final IUidService uidService;
 
     public OrganizationService(IOrganizationMatchingService iOrganizationMatchingService,
-                               OrganizationRepositoryUtil organizationRepositoryUtil,
                                IUidService uidService) {
         this.iOrganizationMatchingService = iOrganizationMatchingService;
-        this.organizationRepositoryUtil = organizationRepositoryUtil;
         this.uidService = uidService;
     }
 

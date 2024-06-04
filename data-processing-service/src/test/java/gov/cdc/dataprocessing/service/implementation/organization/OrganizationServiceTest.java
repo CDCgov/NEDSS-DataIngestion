@@ -8,7 +8,6 @@ import gov.cdc.dataprocessing.model.container.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
-import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,8 +26,7 @@ import static org.mockito.Mockito.when;
 class OrganizationServiceTest {
     @Mock
     private IOrganizationMatchingService iOrganizationMatchingServiceMock;
-    @Mock
-    private OrganizationRepositoryUtil organizationRepositoryUtilMock;
+
     @Mock
     private IUidService uidServiceMock;
 
@@ -42,7 +40,6 @@ class OrganizationServiceTest {
     @AfterEach
     void tearDown() {
         Mockito.reset(iOrganizationMatchingServiceMock);
-        Mockito.reset(organizationRepositoryUtilMock);
         Mockito.reset(uidServiceMock);
     }
 
@@ -58,7 +55,6 @@ class OrganizationServiceTest {
         theOrganizationContainerCollection.add(organizationContainer);
         labResultProxyContainer.setTheOrganizationContainerCollection(theOrganizationContainerCollection);
 
-        //call test method
         OrganizationContainer organizationContainerResult = organizationService.processingOrganization(labResultProxyContainer);
         assertNull(organizationContainerResult);
     }
@@ -77,7 +73,7 @@ class OrganizationServiceTest {
         EDXActivityDetailLogDto eDXActivityDetailLogDto= new EDXActivityDetailLogDto();
         eDXActivityDetailLogDto.setRecordId("123");
         when(iOrganizationMatchingServiceMock.getMatchingOrganization(organizationContainer)).thenReturn(eDXActivityDetailLogDto);
-        //call test method
+
         OrganizationContainer organizationContainerResult = organizationService.processingOrganization(labResultProxyContainer);
         assertNotNull(organizationContainerResult);
     }
@@ -95,7 +91,7 @@ class OrganizationServiceTest {
         EDXActivityDetailLogDto eDXActivityDetailLogDto= new EDXActivityDetailLogDto();
         eDXActivityDetailLogDto.setRecordId("123");
         when(iOrganizationMatchingServiceMock.getMatchingOrganization(organizationContainer)).thenReturn(eDXActivityDetailLogDto);
-        //call test method
+
         OrganizationContainer organizationContainerResult = organizationService.processingOrganization(labResultProxyContainer);
         assertNull(organizationContainerResult);
     }

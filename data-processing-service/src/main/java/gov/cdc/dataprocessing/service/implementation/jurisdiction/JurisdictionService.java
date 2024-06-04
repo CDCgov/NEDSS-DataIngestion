@@ -349,7 +349,7 @@ public class JurisdictionService implements IJurisdictionService {
                             // Parse the zip if is valid.
                             if (postalDt != null) {
 
-                                String searchZip = postalDt.getZipCd();
+                                String searchZip;
                                 searchZip = parseZip(postalDt.getZipCd());
 
                                 if (searchZip == null) {

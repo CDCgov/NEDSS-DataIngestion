@@ -88,9 +88,4 @@ public class RoleService implements IRoleService {
         roleRepository.deleteRoleByPk(roleDto.getSubjectEntityUid(), roleDto.getCd(), roleDto.getRoleSeq());
     }
 
-//    private Long loadingRoleKeyIfExist(RoleDto roleDto) {
-//        Long count = 0L;
-//        var result = roleRepository.countByPk(roleDto.getSubjectEntityUid(), roleDto.getCd(), roleDto.getRoleSeq());
-//        return result.orElse(count);
-//    }
 }
