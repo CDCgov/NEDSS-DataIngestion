@@ -385,8 +385,8 @@ public class DsmLabMatchHelper {
 
                                 numericReport.setCodeType("OBS_NUMERIC_VALUE");
                                 numericReport.setWdsCode(algorithmNumericValue.getValue1().toString());
-                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1().toString());
-                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2().toString());
+                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1()!= null ? obsValueNumericDT.getNumericValue1().toString(): "");
+                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2()!= null ? obsValueNumericDT.getNumericValue2().toString(): "");
 
                                 numericReport.setOperator(NEDSSConstant.EQUAL_LOGIC);
 
@@ -409,8 +409,8 @@ public class DsmLabMatchHelper {
                                 //For BigDecimal must use CompareTo and not Equals (using Equals 5.0 is not equal to 5.00, using CompareTo they are equal)
                                 numericReport.setCodeType("OBS_NUMERIC_VALUE");
                                 numericReport.setWdsCode(algorithmNumericValue.getValue1().toString());
-                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1().toString());
-                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2().toString());
+                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1() != null ? obsValueNumericDT.getNumericValue1().toString() : "");
+                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2() != null ? obsValueNumericDT.getNumericValue2().toString(): "");
                                 numericReport.setOperator(NEDSSConstant.GREATER_THAN_LOGIC);
 
                                 if (!isTiterLab && obsValueNumericDT.getNumericValue1() != null
@@ -430,8 +430,8 @@ public class DsmLabMatchHelper {
                             {
                                 numericReport.setCodeType("OBS_NUMERIC_VALUE");
                                 numericReport.setWdsCode(algorithmNumericValue.getValue1().toString());
-                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1().toString());
-                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2().toString());
+                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1() != null ? obsValueNumericDT.getNumericValue1().toString() : "");
+                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2() != null ? obsValueNumericDT.getNumericValue2().toString(): "");
                                 numericReport.setOperator(NEDSSConstant.GREATER_THAN_OR_EQUAL_LOGIC);
 
                                 if (!isTiterLab && obsValueNumericDT.getNumericValue1() != null
@@ -457,8 +457,8 @@ public class DsmLabMatchHelper {
 
                                 numericReport.setCodeType("OBS_NUMERIC_VALUE");
                                 numericReport.setWdsCode(algorithmNumericValue.getValue1().toString());
-                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1().toString());
-                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2().toString());
+                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1() != null ? obsValueNumericDT.getNumericValue1().toString() : "");
+                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2() != null ? obsValueNumericDT.getNumericValue2().toString() : "");
                                 numericReport.setOperator(NEDSSConstant.LESS_THAN_LOGIC);
 
                                 if (!isTiterLab && obsValueNumericDT.getNumericValue1() != null
@@ -480,8 +480,8 @@ public class DsmLabMatchHelper {
 
                                 numericReport.setCodeType("OBS_NUMERIC_VALUE");
                                 numericReport.setWdsCode(algorithmNumericValue.getValue1().toString());
-                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1().toString());
-                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2().toString());
+                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1() != null ? obsValueNumericDT.getNumericValue1().toString() : "");
+                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2() != null ? obsValueNumericDT.getNumericValue2().toString() : "");
                                 numericReport.setOperator(NEDSSConstant.LESS_THAN_OR_EQUAL_LOGIC);
 
                                 if (!isTiterLab && obsValueNumericDT.getNumericValue1() != null
@@ -507,8 +507,8 @@ public class DsmLabMatchHelper {
                             {
                                 numericReport.setCodeType("OBS_NUMERIC_VALUE");
                                 numericReport.setWdsCode(algorithmNumericValue.getValue1().toString());
-                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1().toString());
-                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2().toString());
+                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1() != null ? obsValueNumericDT.getNumericValue1().toString() : "");
+                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2() != null ? obsValueNumericDT.getNumericValue2().toString() : "");
                                 numericReport.setOperator(NEDSSConstant.NOT_EQUAL_LOGIC);
 
                                 if (!isTiterLab && obsValueNumericDT.getNumericValue1() != null
@@ -529,8 +529,8 @@ public class DsmLabMatchHelper {
                             {
                                 numericReport.setCodeType("OBS_NUMERIC_VALUE");
                                 numericReport.setWdsCode(algorithmNumericValue.getValue1().toString());
-                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1().toString());
-                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2().toString());
+                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1() != null ? obsValueNumericDT.getNumericValue1().toString() : "");
+                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2() != null ? obsValueNumericDT.getNumericValue2().toString() : "");
                                 numericReport.setOperator(NEDSSConstant.BETWEEN_LOGIC);
                                 if (obsValueNumericDT.getNumericValue1() != null
                                         && (obsValueNumericDT.getNumericValue1().compareTo(algorithmNumericValue.getValue1()) == 0
@@ -549,8 +549,8 @@ public class DsmLabMatchHelper {
                                 numericReport.setMatchedFound(false);
                                 numericReport.setCodeType("OBS_NUMERIC_VALUE");
                                 numericReport.setWdsCode(algorithmNumericValue.getValue1().toString());
-                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1().toString());
-                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue2().toString());
+                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1() != null ? obsValueNumericDT.getNumericValue1().toString() : "");
+                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue2() != null ? obsValueNumericDT.getNumericValue2().toString() : "");
                             }
                             wdsReport.getWdsValueNumericReportList().add(numericReport);
 
