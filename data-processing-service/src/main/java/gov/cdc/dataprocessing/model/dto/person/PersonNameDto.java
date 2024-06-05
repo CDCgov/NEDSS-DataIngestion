@@ -2,7 +2,7 @@ package gov.cdc.dataprocessing.model.dto.person;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
-import gov.cdc.dataprocessing.model.container.BaseContainer;
+import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonName;
 import lombok.Getter;
 import lombok.Setter;

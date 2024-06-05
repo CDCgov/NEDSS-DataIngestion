@@ -3,14 +3,15 @@ package gov.cdc.dataprocessing.service.implementation.person;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
-import gov.cdc.dataprocessing.service.implementation.other.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
 import gov.cdc.dataprocessing.service.interfaces.person.IPatientMatchingService;
 import gov.cdc.dataprocessing.service.implementation.person.base.PatientMatchingBaseService;
-import gov.cdc.dataprocessing.service.model.PersonId;
+import gov.cdc.dataprocessing.service.model.person.PersonId;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
+import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import jakarta.transaction.Transactional;
@@ -29,8 +30,9 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
             EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
             EntityHelper entityHelper,
             PatientRepositoryUtil patientRepositoryUtil,
-            CachingValueService cachingValueService) {
-        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService);
+            CachingValueService cachingValueService,
+            PrepareAssocModelHelper prepareAssocModelHelper) {
+        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
     }
 
     @Transactional
@@ -40,7 +42,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
         String patientRole = personContainer.getRole();
         EdxPatientMatchDto edxPatientFoundDT;
         EdxPatientMatchDto edxPatientMatchFoundDT = null;
-        PersonId patientPersonUid;
+        PersonId patientPersonUid = null;
         boolean matchFound = false;
 
         boolean newPatientCreationApplied = false;
@@ -80,13 +82,13 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
 
             // NOTE: Matching by Identifier
             if (!matchFound) {
-                String IdentifierStr = null;
+                String IdentifierStr;
                 int identifierStrhshCd = 0;
 
-                List identifierStrList = getIdentifier(personContainer);
+                List<String> identifierStrList = getIdentifier(personContainer);
                 if (identifierStrList != null && !identifierStrList.isEmpty()) {
-                    for (int k = 0; k < identifierStrList.size(); k++) {
-                        IdentifierStr = (String) identifierStrList.get(k);
+                    for (String s : identifierStrList) {
+                        IdentifierStr = s;
                         if (IdentifierStr != null) {
                             IdentifierStr = IdentifierStr.toUpperCase();
                             identifierStrhshCd = IdentifierStr.hashCode();
@@ -100,7 +102,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
                             // Try to get the matching with the hash code
                             edxPatientMatchFoundDT = getEdxPatientMatchRepositoryUtil().getEdxPatientMatchOnMatchString(cd, IdentifierStr);
 
-                            if (edxPatientMatchFoundDT.isMultipleMatch()){
+                            if (edxPatientMatchFoundDT.isMultipleMatch()) {
                                 matchFound = false;
                                 multipleMatchFound = true;
                             } else if (edxPatientMatchFoundDT.getPatientUid() == null || (edxPatientMatchFoundDT.getPatientUid() != null && edxPatientMatchFoundDT.getPatientUid() <= 0)) {
@@ -116,8 +118,8 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
 
             // NOTE: Matching with last name ,first name ,date of birth and current sex
             if (!matchFound) {
-                String namesdobcursexStr = null;
-                int namesdobcursexStrhshCd = 0;
+                String namesdobcursexStr;
+                int namesdobcursexStrhshCd;
                 namesdobcursexStr = getLNmFnmDobCurSexStr(personContainer);
                 if (namesdobcursexStr != null) {
                     namesdobcursexStr = namesdobcursexStr.toUpperCase();
@@ -151,9 +153,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
                 if (personContainer.getTheEntityIdDtoCollection() != null) {
                     //SORTING out existing EntityId
                     Collection<EntityIdDto> newEntityIdDtoColl = new ArrayList<>();
-                    Iterator<EntityIdDto> iter = personContainer.getTheEntityIdDtoCollection().iterator();
-                    while (iter.hasNext()) {
-                        EntityIdDto entityIdDto = iter.next();
+                    for (EntityIdDto entityIdDto : personContainer.getTheEntityIdDtoCollection()) {
                         if (entityIdDto.getTypeCd() != null && !entityIdDto.getTypeCd().equalsIgnoreCase("LR")) {
                             newEntityIdDtoColl.add(entityIdDto);
                         }
@@ -195,18 +195,32 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
                  * otherwise: go to update existing patient
                  * */
 
-
-                if (!newPatientCreationApplied && personContainer.getPatientMatchedFound()) {
+                //REVISION
+                if (!newPatientCreationApplied) {
                     personContainer.getThePersonDto().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
-                    patientPersonUid = updateExistingPerson(personContainer, NEDSSConstant.PAT_CR, personContainer.getThePersonDto().getPersonParentUid());
-
+                } else {
                     personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
-                    personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
-                    personContainer.getThePersonDto().setPersonUid(patientPersonUid.getPersonId());
                 }
-                else if (newPatientCreationApplied) {
-                    setPersonHashCdPatient(personContainer);
-                }
+
+                // SetPatientRevision
+
+                patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR);
+                personContainer.getThePersonDto().setPersonUid(patientUid);
+
+                //END REVISION
+
+//
+//                if (!newPatientCreationApplied && personContainer.getPatientMatchedFound()) {
+//                    personContainer.getThePersonDto().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
+//                    patientPersonUid = updateExistingPerson(personContainer, NEDSSConstant.PAT_CR, personContainer.getThePersonDto().getPersonParentUid());
+//
+//                    personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
+//                    personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
+//                    personContainer.getThePersonDto().setPersonUid(patientPersonUid.getPersonId());
+//                }
+//                else if (newPatientCreationApplied) {
+//                    setPersonHashCdPatient(personContainer);
+//                }
             } catch (Exception e) {
                 logger.error("Error in getting the entity Controller or Setting the Patient" + e.getMessage());
                 throw new DataProcessingException("Error in getting the entity Controller or Setting the Patient" + e.getMessage(), e);

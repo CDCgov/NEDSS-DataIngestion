@@ -1,17 +1,15 @@
 package gov.cdc.dataprocessing.service.implementation.public_health_case;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.PublicHealthCaseDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PublicHealthCaseVO;
+import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IPublicHealthCaseService;
-import gov.cdc.dataprocessing.utilities.component.PublicHealthCaseRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.public_health_case.PublicHealthCaseRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -19,8 +17,6 @@ import java.util.Collection;
 @Service
 @Slf4j
 public class PublicHealthCaseService implements IPublicHealthCaseService {
-    private static final Logger logger = LoggerFactory.getLogger(PublicHealthCaseService.class);
-
     private final EntityHelper entityHelper;
     private final PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil;
     public PublicHealthCaseService(EntityHelper entityHelper,
@@ -30,50 +26,50 @@ public class PublicHealthCaseService implements IPublicHealthCaseService {
         this.publicHealthCaseRepositoryUtil = publicHealthCaseRepositoryUtil;
     }
 
-    public Long setPublicHealthCase(PublicHealthCaseVO publicHealthCaseVO) throws DataProcessingException {
+    public Long setPublicHealthCase(PublicHealthCaseContainer publicHealthCaseContainer) throws DataProcessingException {
 
-        Long PubHealthCaseUid = -1L;
+        Long PubHealthCaseUid;
 
         try
         {
 
-            PublicHealthCaseDT publicHealthCase = null;
+            PublicHealthCaseDto publicHealthCase;
 
-            Collection<ActivityLocatorParticipationDto> alpDTCol = publicHealthCaseVO.getTheActivityLocatorParticipationDTCollection();
-            Collection<ActRelationshipDto> arDTCol = publicHealthCaseVO.getTheActRelationshipDTCollection();
-            Collection<ParticipationDto> pDTCol = publicHealthCaseVO.getTheParticipationDTCollection();
-            Collection<ActivityLocatorParticipationDto> col = null;
-            Collection<ActRelationshipDto> colActRelationship = null;
-            Collection<ParticipationDto> colParticipation = null;
+            Collection<ActivityLocatorParticipationDto> alpDTCol = publicHealthCaseContainer.getTheActivityLocatorParticipationDTCollection();
+            Collection<ActRelationshipDto> arDTCol = publicHealthCaseContainer.getTheActRelationshipDTCollection();
+            Collection<ParticipationDto> pDTCol = publicHealthCaseContainer.getTheParticipationDTCollection();
+            Collection<ActivityLocatorParticipationDto> col;
+            Collection<ActRelationshipDto> colActRelationship;
+            Collection<ParticipationDto> colParticipation ;
 
             if (alpDTCol != null)
             {
                 col = entityHelper.iterateALPDTActivityLocatorParticipation(alpDTCol);
-                publicHealthCaseVO.setTheActivityLocatorParticipationDTCollection(col);
+                publicHealthCaseContainer.setTheActivityLocatorParticipationDTCollection(col);
             }
 
             if (arDTCol != null)
             {
                 colActRelationship = entityHelper.iterateARDTActRelationship(arDTCol);
-                publicHealthCaseVO.setTheActRelationshipDTCollection(colActRelationship);
+                publicHealthCaseContainer.setTheActRelationshipDTCollection(colActRelationship);
             }
 
             if (pDTCol != null)
             {
                 colParticipation = entityHelper.iteratePDTForParticipation(pDTCol);
-                publicHealthCaseVO.setTheParticipationDTCollection(colParticipation);
+                publicHealthCaseContainer.setTheParticipationDTCollection(colParticipation);
             }
 
-            if (publicHealthCaseVO.isItNew())
+            if (publicHealthCaseContainer.isItNew())
             {
-                publicHealthCaseRepositoryUtil.create(publicHealthCaseVO);
-                publicHealthCase =  publicHealthCaseVO.getThePublicHealthCaseDT();
+                publicHealthCaseRepositoryUtil.create(publicHealthCaseContainer);
+                publicHealthCase =  publicHealthCaseContainer.getThePublicHealthCaseDto();
                 PubHealthCaseUid = publicHealthCase.getPublicHealthCaseUid();
             }
             else
             {
-                publicHealthCaseRepositoryUtil.update(publicHealthCaseVO);
-                PubHealthCaseUid = publicHealthCaseVO.getThePublicHealthCaseDT().getPublicHealthCaseUid();
+                publicHealthCaseRepositoryUtil.update(publicHealthCaseContainer);
+                PubHealthCaseUid = publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid();
             }
         }
         catch (Exception e)

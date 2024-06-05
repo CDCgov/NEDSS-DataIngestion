@@ -2,14 +2,15 @@ package gov.cdc.dataprocessing.service.implementation.person;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
-import gov.cdc.dataprocessing.service.implementation.other.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
 import gov.cdc.dataprocessing.service.interfaces.person.INokMatchingService;
 import gov.cdc.dataprocessing.service.implementation.person.base.NokMatchingBaseService;
-import gov.cdc.dataprocessing.service.model.PersonId;
+import gov.cdc.dataprocessing.service.model.person.PersonId;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
+import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import jakarta.transaction.Transactional;
@@ -30,25 +31,26 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
             EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
             EntityHelper entityHelper,
             PatientRepositoryUtil patientRepositoryUtil,
-            CachingValueService cachingValueService) {
-        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService);
+            CachingValueService cachingValueService,
+            PrepareAssocModelHelper prepareAssocModelHelper) {
+        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
     }
     @Transactional
     public EdxPatientMatchDto getMatchingNextOfKin(PersonContainer personContainer) throws DataProcessingException {
         Long patientUid = personContainer.getThePersonDto().getPersonUid();
         EdxPatientMatchDto edxPatientFoundDT = null;
         EdxPatientMatchDto edxPatientMatchFoundDT = null;
-        PersonId patientPersonUid = null;
+        PersonId patientPersonUid;
         boolean matchFound = false;
         boolean newPersonCreationApplied = false;
 
-        String nameAddStrSt1 = null;
-        int nameAddStrSt1hshCd = 0;
-        List nameAddressStreetOneStrList = nameAddressStreetOneNOK(personContainer);
+        String nameAddStrSt1;
+        int nameAddStrSt1hshCd;
+        List<String> nameAddressStreetOneStrList = nameAddressStreetOneNOK(personContainer);
 
         if (nameAddressStreetOneStrList != null && !nameAddressStreetOneStrList.isEmpty()) {
-            for (int k = 0; k < nameAddressStreetOneStrList.size(); k++) {
-                nameAddStrSt1 = (String) nameAddressStreetOneStrList.get(k);
+            for (String s : nameAddressStreetOneStrList) {
+                nameAddStrSt1 = s;
                 if (nameAddStrSt1 != null) {
                     nameAddStrSt1 = nameAddStrSt1.toUpperCase();
                     nameAddStrSt1hshCd = nameAddStrSt1.hashCode();
@@ -58,7 +60,7 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
                             edxPatientFoundDT.setPatientUid(patientUid);
                             edxPatientFoundDT.setTypeCd(NEDSSConstant.NOK);
                             edxPatientFoundDT.setMatchString(nameAddStrSt1);
-                            edxPatientFoundDT.setMatchStringHashCode((long)(nameAddStrSt1hshCd));
+                            edxPatientFoundDT.setMatchStringHashCode((long) (nameAddStrSt1hshCd));
                         }
                         // Try to get the Next of Kin matching with the match string
                         edxPatientMatchFoundDT = getEdxPatientMatchRepositoryUtil().getEdxPatientMatchOnMatchString(edxPatientFoundDT.getTypeCd(), nameAddStrSt1);
@@ -76,12 +78,12 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
         }
 
         if (!matchFound) {
-            String nameTelePhone = null;
-            int nameTelePhonehshCd = 0;
-            List nameTelePhoneStrList = telePhoneTxtNOK(personContainer);
+            String nameTelePhone;
+            int nameTelePhonehshCd;
+            List<String> nameTelePhoneStrList = telePhoneTxtNOK(personContainer);
             if (nameTelePhoneStrList != null && !nameTelePhoneStrList.isEmpty()) {
-                for (int k = 0; k < nameTelePhoneStrList.size(); k++) {
-                    nameTelePhone = (String) nameTelePhoneStrList.get(k);
+                for (String s : nameTelePhoneStrList) {
+                    nameTelePhone = s;
                     if (nameTelePhone != null) {
                         nameTelePhone = nameTelePhone.toUpperCase();
                         nameTelePhonehshCd = nameTelePhone.hashCode();
@@ -91,7 +93,7 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
                                 edxPatientFoundDT.setPatientUid(patientUid);
                                 edxPatientFoundDT.setTypeCd(NEDSSConstant.NOK);
                                 edxPatientFoundDT.setMatchString(nameTelePhone);
-                                edxPatientFoundDT.setMatchStringHashCode((long)(nameTelePhonehshCd));
+                                edxPatientFoundDT.setMatchStringHashCode((long) (nameTelePhonehshCd));
                             }
                             // Try to get the matching with the match string
                             edxPatientMatchFoundDT = getEdxPatientMatchRepositoryUtil().getEdxPatientMatchOnMatchString(edxPatientFoundDT.getTypeCd(), nameTelePhone);
@@ -114,9 +116,7 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
         if (!matchFound) {
             if (personContainer.getTheEntityIdDtoCollection() != null) {
                 Collection<EntityIdDto> newEntityIdDtoColl = new ArrayList<>();
-                Iterator<EntityIdDto> iter = personContainer.getTheEntityIdDtoCollection().iterator();
-                while (iter.hasNext()) {
-                    EntityIdDto entityIdDto = (EntityIdDto) iter.next();
+                for (EntityIdDto entityIdDto : personContainer.getTheEntityIdDtoCollection()) {
                     if (entityIdDto.getTypeCd() != null && !entityIdDto.getTypeCd().equalsIgnoreCase("LR")) {
                         newEntityIdDtoColl.add(entityIdDto);
                     }
@@ -144,7 +144,19 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
         }
 
         try {
-            if (!newPersonCreationApplied) {
+
+//            if (!newPersonCreationApplied) {
+//                personContainer.getThePersonDto().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
+//            }
+//            else {
+//                personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
+//            }
+//
+//            patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR);
+//            personContainer.getThePersonDto().setPersonUid(patientUid);
+
+
+            if (!newPersonCreationApplied && edxPatientMatchFoundDT != null) {
                 // patientRepositoryUtil.updateExistingPerson(personVO);
                 personContainer.getThePersonDto().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
                 patientPersonUid = updateExistingPerson(personContainer, NEDSSConstant.PAT_CR, personContainer.getThePersonDto().getPersonParentUid());

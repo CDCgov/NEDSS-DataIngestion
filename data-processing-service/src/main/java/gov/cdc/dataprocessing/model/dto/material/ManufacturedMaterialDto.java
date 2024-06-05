@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.model.dto.material;
 
-import gov.cdc.dataprocessing.model.container.BaseContainer;
+import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.material.ManufacturedMaterial;
 import lombok.Getter;
 import lombok.Setter;

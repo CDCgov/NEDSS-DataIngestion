@@ -36,16 +36,16 @@ public class EntityHelper {
      */
     public Collection<EntityLocatorParticipationDto> iterateELPDTForEntityLocatorParticipation(Collection<EntityLocatorParticipationDto> dtCol) throws DataProcessingException {
         Collection<EntityLocatorParticipationDto> retCol = new ArrayList<>();
-        Collection<EntityLocatorParticipationDto> collection = new ArrayList<>();
-        Iterator<EntityLocatorParticipationDto> anIterator = null;
+        Collection<EntityLocatorParticipationDto> collection;
+        Iterator<EntityLocatorParticipationDto> anIterator;
         collection = dtCol;
         logger.debug("Collection<Object> size before iteration in iterateELPDT " + collection.size());
         try {
             for (anIterator = collection.iterator(); anIterator.hasNext(); ) {
-                EntityLocatorParticipationDto elpDT = (EntityLocatorParticipationDto) anIterator.next();
+                EntityLocatorParticipationDto elpDT =  anIterator.next();
                 EntityLocatorParticipationDto assocDTInterface = elpDT;
                 logger.debug("Iterating EntityLocatorParticipationDT");
-                elpDT = (EntityLocatorParticipationDto) prepareAssocModel.prepareAssocDTForEntityLocatorParticipation(assocDTInterface);
+                elpDT =  prepareAssocModel.prepareAssocDTForEntityLocatorParticipation(assocDTInterface);
                 logger.debug("Came back from PrepareVOUtils");
                 retCol.add(elpDT);
             }
@@ -71,21 +71,21 @@ public class EntityHelper {
      */
     public Collection<RoleDto> iterateRDT(Collection<RoleDto> dtCol) throws DataProcessingException {
         Collection<RoleDto> retCol = new ArrayList<>();
-        Collection<RoleDto> collection = new ArrayList<>();
-        Iterator<RoleDto> anIterator = null;
+        Collection<RoleDto> collection;
+        Iterator<RoleDto> anIterator ;
         collection = dtCol;
         logger.debug("Collection<Object> size before iteration in iterateRDT " + collection.size());
         if (collection != null) {
             try {
                 for (anIterator = collection.iterator(); anIterator.hasNext();) {
-                    RoleDto rDT = (RoleDto) anIterator.next();
+                    RoleDto rDT =  anIterator.next();
                     if (rDT.isItDirty() || rDT.isItNew() || rDT.isItDelete()) {
                         logger.debug("EntityController:rdT.IsItDelete"
                                 + rDT.isItDelete() + "rdt.IsItNew:"
                                 + rDT.isItNew() + "rdt.IsItDirty:"
                                 + rDT.isItDirty());
                         RoleDto assocDTInterface = rDT;
-                        rDT = (RoleDto) prepareAssocModel.prepareAssocDTForRole(assocDTInterface);
+                        rDT =  prepareAssocModel.prepareAssocDTForRole(assocDTInterface);
                         retCol.add(rDT);
                     }
                 }
@@ -180,10 +180,10 @@ public class EntityHelper {
     public Collection<ActivityLocatorParticipationDto> iterateALPDTActivityLocatorParticipation(Collection<ActivityLocatorParticipationDto> dtCol) throws DataProcessingException {
 
         Collection<ActivityLocatorParticipationDto> retCol = new ArrayList<> ();
-        Collection<ActivityLocatorParticipationDto> collection = new ArrayList<> ();
+        Collection<ActivityLocatorParticipationDto> collection;
         collection = dtCol;
 
-        Iterator<ActivityLocatorParticipationDto> anIterator = null;
+        Iterator<ActivityLocatorParticipationDto> anIterator;
 
         if (collection != null)
         {
@@ -194,8 +194,8 @@ public class EntityHelper {
                 for (anIterator = collection.iterator(); anIterator.hasNext();)
                 {
 
-                    ActivityLocatorParticipationDto alpDT = (ActivityLocatorParticipationDto)anIterator.next();
-                    alpDT = (ActivityLocatorParticipationDto)prepareAssocModel.prepareAssocDTForActivityLocatorParticipation(alpDT);
+                    ActivityLocatorParticipationDto alpDT = anIterator.next();
+                    alpDT = prepareAssocModel.prepareAssocDTForActivityLocatorParticipation(alpDT);
                     retCol.add(alpDT);
                 }
             }
@@ -212,8 +212,8 @@ public class EntityHelper {
     public Collection<ActRelationshipDto> iterateARDTActRelationship(Collection<ActRelationshipDto> dtCol) throws DataProcessingException {
 
         Collection<ActRelationshipDto> retCol = new ArrayList<> ();
-        Collection<ActRelationshipDto> collection = new ArrayList<> ();
-        Iterator<ActRelationshipDto> anIterator = null;
+        Collection<ActRelationshipDto> collection;
+        Iterator<ActRelationshipDto> anIterator;
         collection = dtCol;
         if (collection != null)
         {
@@ -221,7 +221,7 @@ public class EntityHelper {
             {
                 for (anIterator = collection.iterator(); anIterator.hasNext();)
                 {
-                    ActRelationshipDto arDT = (ActRelationshipDto)anIterator.next();
+                    ActRelationshipDto arDT = anIterator.next();
                     if(arDT.isItDirty() || arDT.isItNew() || arDT.isItDelete())
                     {
                         arDT = prepareAssocModel.prepareAssocDTForActRelationship(arDT);

@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.EdxLogException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
-import gov.cdc.dataprocessing.model.container.EdxActivityLogContainer;
+import gov.cdc.dataprocessing.model.container.model.EdxActivityLogContainer;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
@@ -17,8 +17,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.EdxActivityLogReposi
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -31,9 +29,6 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
 @Service
 @Slf4j
 public class EdxLogService implements IEdxLogService {
-
-    private static final Logger logger = LoggerFactory.getLogger(EdxLogService.class);
-
     private final EdxActivityLogRepository edxActivityLogRepository;
     private final EdxActivityDetailLogRepository edxActivityDetailLogRepository;
     private final KafkaManagerProducer kafkaManagerProducer;
@@ -57,7 +52,7 @@ public class EdxLogService implements IEdxLogService {
 
     @Transactional
     @Override
-    public EdxActivityLog saveEdxActivityLog(EDXActivityLogDto edxActivityLogDto) throws EdxLogException {
+    public EdxActivityLog saveEdxActivityLog(EDXActivityLogDto edxActivityLogDto)  {
         EdxActivityLog edxActivityLog = new EdxActivityLog(edxActivityLogDto);
         EdxActivityLog edxActivityLogResult = edxActivityLogRepository.save(edxActivityLog);
         System.out.println("ActivityLog Id:" + edxActivityLogResult.getId());
@@ -66,14 +61,14 @@ public class EdxLogService implements IEdxLogService {
 
     @Transactional
     @Override
-    public EdxActivityDetailLog saveEdxActivityDetailLog(EDXActivityDetailLogDto detailLogDto) throws EdxLogException {
+    public EdxActivityDetailLog saveEdxActivityDetailLog(EDXActivityDetailLogDto detailLogDto) {
         EdxActivityDetailLog edxActivityDetailLog = new EdxActivityDetailLog(detailLogDto);
         EdxActivityDetailLog edxActivityDetailLogResult = edxActivityDetailLogRepository.save(edxActivityDetailLog);
         System.out.println("ActivityDetailLog Id:" + edxActivityDetailLogResult.getId());
         return edxActivityDetailLogResult;
     }
     @Transactional
-    public void saveEdxActivityLogs(String logMessageJson) throws EdxLogException {
+    public void saveEdxActivityLogs(String logMessageJson) {
         Gson gson = new Gson();
         EDXActivityLogDto edxActivityLogDto = gson.fromJson(logMessageJson, EDXActivityLogDto.class);
         EdxActivityLog edxActivityLog = new EdxActivityLog(edxActivityLogDto);
@@ -237,8 +232,6 @@ public class EdxLogService implements IEdxLogService {
             String id = String.valueOf(edxLabInformationDto.getLocalId());
             boolean errorReturned = false;
 
-            // TODO: Need to complete the detail activity logs
-
             if (edxLabInformationDto.isInvalidXML()) {
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure, EdxELRConstant.INVALID_XML);
                 errorReturned = true;
@@ -384,25 +377,25 @@ public class EdxLogService implements IEdxLogService {
             if (edxLabInformationDto.isMultipleSubjectMatch()) {
                 String msg = EdxELRConstant.SUBJECTMATCH_MULT.replace("%1",
                         edxLabInformationDto.getEntityName()).replace("%2",
-                        edxLabInformationDto.getPersonParentUid() + "");
+                        String.valueOf(edxLabInformationDto.getPersonParentUid()));
                 setActivityDetailLog(detailList,
-                        edxLabInformationDto.getPersonParentUid() + "",
+                        String.valueOf(edxLabInformationDto.getPersonParentUid()),
                         EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
             }
             if (edxLabInformationDto.isPatientMatch()) {
                 String msg = EdxELRConstant.SUBJECT_MATCH_FOUND.replace("%1",
                         edxLabInformationDto.getEntityName()).replace("%2",
-                        edxLabInformationDto.getPersonParentUid() + "");
+                        String.valueOf(edxLabInformationDto.getPersonParentUid()));
                 setActivityDetailLog(detailList,
-                        edxLabInformationDto.getPersonParentUid() + "",
+                        String.valueOf(edxLabInformationDto.getPersonParentUid()),
                         EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
             }
             if (!edxLabInformationDto.isMultipleSubjectMatch() && !edxLabInformationDto.isPatientMatch() && edxLabInformationDto.getPersonParentUid() != 0) {
                 String msg = EdxELRConstant.SUJBECTMATCH_NO.replace("%1",
                         edxLabInformationDto.getEntityName()).replace("%2",
-                        edxLabInformationDto.getPersonParentUid() + "");
+                        String.valueOf(edxLabInformationDto.getPersonParentUid()));
                 setActivityDetailLog(detailList,
-                        edxLabInformationDto.getPersonParentUid() + "",
+                        String.valueOf(edxLabInformationDto.getPersonParentUid()),
                         EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
             }
             if (edxLabInformationDto.isLabIsCreateSuccess() && edxLabInformationDto.getJurisdictionName() != null) {
@@ -497,17 +490,17 @@ public class EdxLogService implements IEdxLogService {
                         EdxELRConstant.NULL_CLIA);
             }
             if (edxLabInformationDto.isInvestigationSuccessfullyCreated()) {
-                String msg = EdxELRConstant.INV_SUCCESS_CREATED.replace("%1", edxLabInformationDto.getPublicHealthCaseUid() + "");
-                setActivityDetailLog(detailList, edxLabInformationDto.getPublicHealthCaseUid() + "", EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
+                String msg = EdxELRConstant.INV_SUCCESS_CREATED.replace("%1", String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()));
+                setActivityDetailLog(detailList, String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()), EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
             }
             if (edxLabInformationDto.isLabAssociatedToInv()) {
-                String msg = EdxELRConstant.LAB_ASSOCIATED_TO_INV.replace("%1", edxLabInformationDto.getPublicHealthCaseUid() + "");
-                setActivityDetailLog(detailList, edxLabInformationDto.getPublicHealthCaseUid() + "", EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
+                String msg = EdxELRConstant.LAB_ASSOCIATED_TO_INV.replace("%1", String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()));
+                setActivityDetailLog(detailList, String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()), EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
             }
 
             if (edxLabInformationDto.isNotificationSuccessfullyCreated()) {
-                String msg = EdxELRConstant.NOT_SUCCESS_CREATED.replace("%1", edxLabInformationDto.getNotificationUid() + "");
-                setActivityDetailLog(detailList, edxLabInformationDto.getNotificationUid() + "", EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
+                String msg = EdxELRConstant.NOT_SUCCESS_CREATED.replace("%1", String.valueOf(edxLabInformationDto.getNotificationUid()));
+                setActivityDetailLog(detailList, String.valueOf(edxLabInformationDto.getNotificationUid()), EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
             }
             if (edxLabInformationDto.isInvestigationMissingFields()) {
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success,
@@ -520,12 +513,10 @@ public class EdxLogService implements IEdxLogService {
             edxLabInformationDto.getEdxActivityLogDto().setEDXActivityLogDTWithVocabDetails(detailList);
         }
         catch (Exception e) {
-            String id = String.valueOf(edxLabInformationDto.getLocalId());
             ArrayList<EDXActivityDetailLogDto> delailList = (ArrayList<EDXActivityDetailLogDto>)edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails();
             if (delailList == null) {
                 delailList = new ArrayList<EDXActivityDetailLogDto>();
             }
-            return;
         }
     }
 }

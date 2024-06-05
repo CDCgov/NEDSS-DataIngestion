@@ -4,16 +4,16 @@ import gov.cdc.dataprocessing.constant.elr.DataTables;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.OrganizationContainer;
+import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
+import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
+import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
+import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.locator.PhysicalLocatorDto;
 import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
 import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
-import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
-import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
-import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityODSE;
@@ -36,11 +36,12 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.Organizatio
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.OrganizationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorService;
+import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PrepareEntityStoredProcRepository;
-import gov.cdc.dataprocessing.service.interfaces.other.IOdseIdGeneratorService;
+
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
-import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,6 @@ import java.util.stream.Collectors;
 @Component
 public class OrganizationRepositoryUtil {
     private static final Logger logger = LoggerFactory.getLogger(OrganizationRepositoryUtil.class);
-    private final static String ORGANIZATION = "ORGANIZATION";
     /**
      * Organization Entity Code
      */
@@ -106,19 +106,19 @@ public class OrganizationRepositoryUtil {
     @Transactional
     public Organization findOrganizationByUid(Long orgUid) {
         var result = organizationRepository.findById(orgUid);
-        return result.get();
+        return result.orElseGet(Organization::new);
+
     }
 
     @Transactional
     public long createOrganization(OrganizationContainer organizationContainer)
             throws DataProcessingException {
-        Long organizationUid = 121212L;
+        Long organizationUid ;
         long oldOrgUid = organizationContainer.getTheOrganizationDto().getOrganizationUid();
         try {
-            String localUid = "";
+            String localUid ;
             LocalUidGenerator localIdModel = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION);
             organizationUid = localIdModel.getSeedValueNbr();
-            logger.debug("createOrganization organizationUid SeedValueNbr: {}", organizationUid);
             localUid = localIdModel.getUidPrefixCd() + organizationUid + localIdModel.getUidSuffixCd();
 
             if (organizationContainer.getTheOrganizationDto().getLocalId() == null || organizationContainer.getTheOrganizationDto().getLocalId().trim().length() == 0) {
@@ -128,11 +128,16 @@ public class OrganizationRepositoryUtil {
              * Starts inserting a new organization
              */
             if (organizationContainer != null) {
-                // Upper stream require this id to not mutated (must be negative), so falseToNew Method can parse the id correctly
-                organizationContainer.getTheOrganizationDto().setOrganizationUid(Long.valueOf(organizationUid));
-                organizationContainer.getTheOrganizationDto().setLocalId(localUid);
-                organizationContainer.getTheOrganizationDto().setVersionCtrlNbr(Integer.valueOf(1));
-                insertOrganization(organizationContainer);
+                try {
+                    // Upper stream require this id to not mutated (must be negative), so falseToNew Method can parse the id correctly
+                    organizationContainer.getTheOrganizationDto().setOrganizationUid(organizationUid);
+                    organizationContainer.getTheOrganizationDto().setLocalId(localUid);
+                    organizationContainer.getTheOrganizationDto().setVersionCtrlNbr(1);
+                    insertOrganization(organizationContainer);
+                } catch (Exception e) {
+                    throw new DataProcessingException(e.getMessage(), e);
+                }
+
             }
             if (organizationContainer.getTheOrganizationNameDtoCollection() != null && !organizationContainer.getTheOrganizationNameDtoCollection().isEmpty()) {
                 insertOrganizationNames(organizationContainer);
@@ -156,7 +161,7 @@ public class OrganizationRepositoryUtil {
             logger.error("Error while creating Organization", ex);
             throw new DataProcessingException(ex.getMessage(), ex);
         }
-        return organizationUid.longValue();
+        return organizationUid;
     }
 
     @Transactional
@@ -166,9 +171,11 @@ public class OrganizationRepositoryUtil {
             /**
              * Starts inserting a new organization
              */
-            if (organizationContainer != null) {
-                insertOrganization(organizationContainer);
+            if (organizationContainer == null) {
+                throw new DataProcessingException("Organization Container Is Null");
             }
+            insertOrganization(organizationContainer);
+
             if (organizationContainer.getTheOrganizationNameDtoCollection() != null && !organizationContainer.getTheOrganizationNameDtoCollection().isEmpty()) {
                 insertOrganizationNames(organizationContainer);
             }
@@ -184,6 +191,7 @@ public class OrganizationRepositoryUtil {
             if (organizationContainer.getTheRoleDTCollection() != null && !organizationContainer.getTheRoleDTCollection().isEmpty()) {
                 createRole(organizationContainer);
             }
+
         } catch (Exception ex) {
             logger.error("Error while creating Organization", ex);
             throw new DataProcessingException(ex.getMessage(), ex);
@@ -192,7 +200,7 @@ public class OrganizationRepositoryUtil {
 
     private Long insertOrganization(OrganizationContainer organizationContainer) throws DataProcessingException {
         OrganizationDto organizationDto = organizationContainer.getTheOrganizationDto();
-        Long organizationUid = 0L;//new Long(0);
+        Long organizationUid;
         try {
             /**
              * Inserts into entity table for organization
@@ -222,9 +230,9 @@ public class OrganizationRepositoryUtil {
     private void insertOrganizationNames(OrganizationContainer organizationContainer)
             throws DataProcessingException {
         logger.debug("insertOrganizationNames(long organizationUID, Collection<Object>  organizationNames)");
-        Iterator<OrganizationNameDto> anIterator = null;
+        Iterator<OrganizationNameDto> anIterator;
         try {
-            long organizationUID = organizationContainer.getTheOrganizationDto().getOrganizationUid().longValue();
+            long organizationUID = organizationContainer.getTheOrganizationDto().getOrganizationUid();
             Collection<OrganizationNameDto> organizationNames = organizationContainer.getTheOrganizationNameDtoCollection();
             /**
              * Inserts Organization names
@@ -234,7 +242,7 @@ public class OrganizationRepositoryUtil {
                 OrganizationNameDto orgNameDT = anIterator.next();
 
                 if (orgNameDT.getOrganizationNameSeq() == null)
-                    orgNameDT.setOrganizationNameSeq(Integer.valueOf(3));
+                    orgNameDT.setOrganizationNameSeq(3);
 
                 if (orgNameDT != null) {
                     orgNameDT.setOrganizationUid(organizationUID);
@@ -242,7 +250,7 @@ public class OrganizationRepositoryUtil {
                     // Save Organization Name records
                     organizationNameRepository.save(orgName);
 
-                    orgNameDT.setOrganizationUid(Long.valueOf(organizationUID));
+                    orgNameDT.setOrganizationUid(organizationUID);
                     orgNameDT.setItNew(false);
                     orgNameDT.setItDirty(false);
                 }
@@ -259,9 +267,9 @@ public class OrganizationRepositoryUtil {
         ArrayList<EntityIdDto> entityList = (ArrayList<EntityIdDto>) organizationContainer.getTheEntityIdDtoCollection();
         try {
             Long pUid = organizationContainer.getTheOrganizationDto().getOrganizationUid();
-            for (int i = 0; i < entityList.size(); i++) {
-                entityList.get(i).setEntityUid(pUid);
-                entityIdRepository.save(new EntityId(entityList.get(i)));
+            for (EntityIdDto entityIdDto : entityList) {
+                entityIdDto.setEntityUid(pUid);
+                entityIdRepository.save(new EntityId(entityIdDto));
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
@@ -271,10 +279,8 @@ public class OrganizationRepositoryUtil {
     private void createEntityLocatorParticipation(OrganizationContainer ovo) throws DataProcessingException {
         ArrayList<EntityLocatorParticipationDto> entityLocatorList = (ArrayList<EntityLocatorParticipationDto>) ovo.getTheEntityLocatorParticipationDtoCollection();
         try {
-            for (int i = 0; i < entityLocatorList.size(); i++) {
-                EntityLocatorParticipationDto entityLocatorDT = entityLocatorList.get(i);
+            for (EntityLocatorParticipationDto entityLocatorDT : entityLocatorList) {
                 LocalUidGenerator localUid = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION);
-//                Long uniqueId = UniqueIdGenerator.generateUniqueId();
                 if (entityLocatorDT.getClassCd().equals(NEDSSConstant.PHYSICAL) && entityLocatorDT.getThePhysicalLocatorDto() != null) {
                     entityLocatorDT.getThePhysicalLocatorDto().setPhysicalLocatorUid(localUid.getSeedValueNbr());
                     physicalLocatorRepository.save(new PhysicalLocator(entityLocatorDT.getThePhysicalLocatorDto()));
@@ -303,8 +309,7 @@ public class OrganizationRepositoryUtil {
     private void createRole(OrganizationContainer ovo) throws DataProcessingException {
         ArrayList<RoleDto> roleList = (ArrayList<RoleDto>) ovo.getTheRoleDTCollection();
         try {
-            for (int i = 0; i < roleList.size(); i++) {
-                RoleDto obj = roleList.get(i);
+            for (RoleDto obj : roleList) {
                 roleRepository.save(new Role(obj));
             }
         } catch (Exception e) {
@@ -314,12 +319,15 @@ public class OrganizationRepositoryUtil {
 
     /**
      * Sets the organization values in the databse based on the businessTrigger
+<<<<<<< HEAD
+=======
      *
      * @param organizationContainer the OrganizationContainer
      * @param businessTriggerCd     the String
      * @return organizationUID the Long
      * @roseuid 3E6E4E05003E
      * @J2EE_METHOD -- setOrganization
+>>>>>>> main
      */
     @Transactional
     public Long setOrganization(OrganizationContainer organizationContainer,
@@ -336,7 +344,7 @@ public class OrganizationRepositoryUtil {
     }
 
     private Long setOrganizationInternal(OrganizationContainer organizationContainer, String businessTriggerCd) throws DataProcessingException {
-        Long organizationUID = Long.valueOf(-1);
+        Long organizationUID;
         try {
             logger.debug("\n\n Inside set");
             if (!organizationContainer.isItNew() && !organizationContainer.isItDirty()) {
@@ -429,8 +437,8 @@ public class OrganizationRepositoryUtil {
     private void prepareOrganizationNameBeforePersistence(
             OrganizationContainer organizationContainer) throws DataProcessingException {
         try {
-            Collection<OrganizationNameDto> namesCollection = null;
-            Iterator<OrganizationNameDto> anIterator = null;
+            Collection<OrganizationNameDto> namesCollection;
+            Iterator<OrganizationNameDto> anIterator;
             String selectedName = null;
             namesCollection = organizationContainer.getTheOrganizationNameDtoCollection();
             if (namesCollection != null) {
@@ -460,10 +468,6 @@ public class OrganizationRepositoryUtil {
      * loading the ParticipationDTCollection  for this organization.  The elr can result in
      * the participation to have a substantial amount of Reporting labs with the same
      * subjectEntityUid, therefore need to select based on teh actUid for the observation also.
-     *
-     * @param organizationUID
-     * @param actUid
-     * @return
      */
     public OrganizationContainer loadObject(Long organizationUID, Long actUid) throws DataProcessingException {
         OrganizationContainer ovo = new OrganizationContainer();
@@ -513,12 +517,12 @@ public class OrganizationRepositoryUtil {
     }
 
     private OrganizationDto selectOrganization(long organizationUID) throws DataProcessingException {
-        OrganizationDto organizationDto = null;
+        OrganizationDto organizationDto;
         /**
          * Selects organization from organization table
          */
         try {
-            Organization organizatioModel = findOrganizationByUid(Long.valueOf(organizationUID));
+            Organization organizatioModel = findOrganizationByUid(organizationUID);
             organizationDto = new OrganizationDto(organizatioModel);
             organizationDto.setItNew(false);
             organizationDto.setItDirty(false);
@@ -531,19 +535,16 @@ public class OrganizationRepositoryUtil {
 
     /**
      * Selects the  Names of the Organization
-     *
-     * @param organizationUID long   the OrganizationUID
-     * @return Collection
-     * @throws DataProcessingException
-     * @throws DataProcessingException
      */
     private Collection<OrganizationNameDto> selectOrganizationNames(long organizationUID) throws DataProcessingException {
         Collection<OrganizationNameDto> returnArrayList = new ArrayList<>();
         try {
             Optional<List<OrganizationName>> listOptional = organizationNameRepository.findByOrganizationUid(organizationUID);
-            List<OrganizationName> organizationNameList = listOptional.get();
-            for (Iterator<OrganizationName> anIterator = organizationNameList.iterator(); anIterator.hasNext(); ) {
-                OrganizationName organizationNameModel = anIterator.next();
+            List<OrganizationName> organizationNameList = new ArrayList<>();
+            if(listOptional.isPresent()) {
+                organizationNameList = listOptional.get();
+            }
+            for (OrganizationName organizationNameModel : organizationNameList) {
                 OrganizationNameDto organizationNameDto = new OrganizationNameDto(organizationNameModel);
                 organizationNameDto.setItNew(false);
                 organizationNameDto.setItDirty(false);
@@ -559,19 +560,18 @@ public class OrganizationRepositoryUtil {
 
     /**
      * This method is used to retrieve entityID objects for a specific organization.
-     *
-     * @param organizationUID the long
-     * @throws DataProcessingException
-     * @J2EE_METHOD --  selectEntityIDs
      **/
     private Collection<EntityIdDto> selectEntityIDs(long organizationUID) throws DataProcessingException {
         try {
-            Optional<List<EntityId>> idListOptional = entityIdRepository.findByEntityUid(organizationUID);
-            List<EntityId> idList = idListOptional.get();
+            Optional<List<EntityId>> idListOptional = this.entityIdRepository.findByEntityUid(organizationUID);
+            List<EntityId> idList = new ArrayList<>();
+            if (idListOptional.isPresent()) {
+                idList = idListOptional.get();
+            }
+
 
             Collection<EntityIdDto> entityIdList = new ArrayList<>();
-            for (Iterator<EntityId> anIterator = idList.iterator(); anIterator.hasNext(); ) {
-                EntityId entityId = anIterator.next();
+            for (EntityId entityId : idList) {
                 EntityIdDto entityIdDto = new EntityIdDto(entityId);
                 entityIdDto.setItNew(false);
                 entityIdDto.setItDirty(false);
@@ -590,7 +590,11 @@ public class OrganizationRepositoryUtil {
             throws DataProcessingException {
         Collection<EntityLocatorParticipationDto> entityLocatorParticipationList = new ArrayList<>();
         try {
-            List<EntityLocatorParticipation> entityLocatorParticipations = entityLocatorParticipationRepository.findByParentUid(organizationUID).get();
+            var res =  entityLocatorParticipationRepository.findByParentUid(organizationUID);
+            List<EntityLocatorParticipation> entityLocatorParticipations = new ArrayList<>();
+            if (res.isPresent()) {
+                entityLocatorParticipations = res.get();
+            }
 
             if (!entityLocatorParticipations.isEmpty()) {
                 List<EntityLocatorParticipation> physicalLocators;
@@ -610,17 +614,17 @@ public class OrganizationRepositoryUtil {
                 if (!physicalLocators.isEmpty()) {
                     Optional<List<PhysicalLocator>> existingLocator = physicalLocatorRepository.findByPhysicalLocatorUids(
                             physicalLocators.stream()
-                                    .map(x -> x.getLocatorUid())
+                                    .map(EntityLocatorParticipation::getLocatorUid)
                                     .collect(Collectors.toList()));
 
                     if (existingLocator.isPresent()) {
                         List<PhysicalLocator> physicalLocatorList = existingLocator.get();
-                        for (int j = 0; j < physicalLocatorList.size(); j++) {
+                        for (PhysicalLocator physicalLocator : physicalLocatorList) {
                             EntityLocatorParticipationDto entityLocatorVO = new EntityLocatorParticipationDto();
                             entityLocatorVO.setItNew(false);
                             entityLocatorVO.setItDirty(false);
                             entityLocatorVO.setItDelete(false);
-                            PhysicalLocatorDto physicalLocatorDT = new PhysicalLocatorDto(physicalLocatorList.get(j));
+                            PhysicalLocatorDto physicalLocatorDT = new PhysicalLocatorDto(physicalLocator);
                             physicalLocatorDT.setImageTxt(null);
                             entityLocatorVO.setThePhysicalLocatorDto(physicalLocatorDT);
                             entityLocatorParticipationList.add(entityLocatorVO);
@@ -630,16 +634,16 @@ public class OrganizationRepositoryUtil {
                 if (!postalLocators.isEmpty()) {
                     var existingLocator = postalLocatorRepository.findByPostalLocatorUids(
                             postalLocators.stream()
-                                    .map(x -> x.getLocatorUid())
+                                    .map(EntityLocatorParticipation::getLocatorUid)
                                     .collect(Collectors.toList()));
                     if (existingLocator.isPresent()) {
                         List<PostalLocator> postalLocatorList = existingLocator.get();
-                        for (int j = 0; j < postalLocatorList.size(); j++) {
+                        for (PostalLocator postalLocator : postalLocatorList) {
                             EntityLocatorParticipationDto entityLocatorVO = new EntityLocatorParticipationDto();
                             entityLocatorVO.setItNew(false);
                             entityLocatorVO.setItDirty(false);
                             entityLocatorVO.setItDelete(false);
-                            PostalLocatorDto postalLocatorDT = new PostalLocatorDto(postalLocatorList.get(j));
+                            PostalLocatorDto postalLocatorDT = new PostalLocatorDto(postalLocator);
                             entityLocatorVO.setThePostalLocatorDto(postalLocatorDT);
                             entityLocatorParticipationList.add(entityLocatorVO);
                         }
@@ -648,16 +652,16 @@ public class OrganizationRepositoryUtil {
                 if (!teleLocators.isEmpty()) {
                     var existingLocator = teleLocatorRepository.findByTeleLocatorUids(
                             teleLocators.stream()
-                                    .map(x -> x.getLocatorUid())
+                                    .map(EntityLocatorParticipation::getLocatorUid)
                                     .collect(Collectors.toList()));
                     if (existingLocator.isPresent()) {
                         List<TeleLocator> teleLocatorList = existingLocator.get();
-                        for (int j = 0; j < teleLocatorList.size(); j++) {
+                        for (TeleLocator teleLocator : teleLocatorList) {
                             EntityLocatorParticipationDto entityLocatorVO = new EntityLocatorParticipationDto();
                             entityLocatorVO.setItNew(false);
                             entityLocatorVO.setItDirty(false);
                             entityLocatorVO.setItDelete(false);
-                            TeleLocatorDto teleLocatorDto = new TeleLocatorDto(teleLocatorList.get(j));
+                            TeleLocatorDto teleLocatorDto = new TeleLocatorDto(teleLocator);
                             entityLocatorVO.setTheTeleLocatorDto(teleLocatorDto);
                             entityLocatorParticipationList.add(entityLocatorVO);
                         }
@@ -672,18 +676,16 @@ public class OrganizationRepositoryUtil {
         return entityLocatorParticipationList;
     }
 
-    /**
-     * @param uid, sqlStatement
-     * @return java.util.Collection<Object>
-     * @throws DataProcessingException
-     * @roseuid 3C434E6C0115
-     */
+
     private Collection<RoleDto> selectRoleDTCollection(long uid) throws DataProcessingException {
         Collection<RoleDto> retval = new ArrayList<>();
         try {
-            List<Role> roleList = roleRepository.findBySubjectEntityUid(Long.valueOf(uid)).get();
-            for (Iterator<Role> anIterator = roleList.iterator(); anIterator.hasNext(); ) {
-                Role roleModel = anIterator.next();
+            var res =  roleRepository.findBySubjectEntityUid(uid);
+            List<Role> roleList = new ArrayList<>();
+            if (res.isPresent()) {
+                roleList =res.get();
+            }
+            for (Role roleModel : roleList) {
                 RoleDto newdt = new RoleDto(roleModel);
                 newdt.setItNew(false);
                 newdt.setItDirty(false);
@@ -698,11 +700,6 @@ public class OrganizationRepositoryUtil {
 
     /**
      * Loads a partcipation record based on the actUid and subjectEntityUid.
-     *
-     * @param uid
-     * @param act_uid
-     * @return
-     * @throws DataProcessingException
      */
     private Collection<ParticipationDto> selectParticipationDTCollection(Long uid, Long act_uid)
             throws DataProcessingException {
@@ -723,9 +720,8 @@ public class OrganizationRepositoryUtil {
 
             ArrayList<ParticipationDto> retList = new ArrayList<>();
 
-            for (Iterator<Participation> anIterator = participationList.iterator();
-                 anIterator.hasNext(); ) {
-                ParticipationDto participationDto = new ParticipationDto(anIterator.next());
+            for (Participation participation : participationList) {
+                ParticipationDto participationDto = new ParticipationDto(participation);
                 participationDto.setItNew(false);
                 participationDto.setItDirty(false);
                 retList.add(participationDto);
@@ -741,6 +737,8 @@ public class OrganizationRepositoryUtil {
     /**
      * This method is used to prepare Dirty Acts,Dirty Entities,New Acts And New Entities depending
      * you want to edit,delete or create records
+<<<<<<< HEAD
+=======
      *
      * @param organizationDto   -- The DT to be prepared
      * @param businessTriggerCd
@@ -748,6 +746,7 @@ public class OrganizationRepositoryUtil {
      * @param moduleCd
      * @return RootDTInterface -- the prepared DT(System attribute Set)
      * @throws DataProcessingException
+>>>>>>> main
      */
     public OrganizationDto prepareVO(OrganizationDto organizationDto, String businessTriggerCd, String tableName, String moduleCd) throws DataProcessingException {
         try {

@@ -3,10 +3,10 @@ package gov.cdc.dataprocessing.service.implementation.material;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.container.model.MaterialContainer;
 import gov.cdc.dataprocessing.model.dto.material.ManufacturedMaterialDto;
 import gov.cdc.dataprocessing.model.dto.material.MaterialDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
-import gov.cdc.dataprocessing.model.container.MaterialContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
@@ -21,14 +21,12 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.material.ManufacturedMaterialRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.material.MaterialRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
-import gov.cdc.dataprocessing.service.implementation.other.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
 import gov.cdc.dataprocessing.service.interfaces.material.IMaterialService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -40,7 +38,6 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
 
 @Service
 public class MaterialService implements IMaterialService {
-    private static final Logger logger = LoggerFactory.getLogger(MaterialService.class);
     private final MaterialRepository materialRepository;
     private final EntityIdRepository entityIdRepository;
     private final EntityLocatorParticipationRepository entityLocatorParticipationRepository;
@@ -214,7 +211,10 @@ public class MaterialService implements IMaterialService {
             }
         }
 
-        return materialContainer.getTheMaterialDto().getMaterialUid();
+        if (materialContainer.getTheMaterialDto() !=  null) {
+            return materialContainer.getTheMaterialDto().getMaterialUid();
+        }
+        return null;
     }
 
     private Long insertNewMaterial(MaterialContainer materialContainer) throws DataProcessingException {
@@ -269,11 +269,11 @@ public class MaterialService implements IMaterialService {
     }
     private void persistingEntityId(Long uid, Collection<EntityIdDto> entityIdCollection ) throws DataProcessingException {
         try {
-            Iterator<EntityIdDto> anIterator = null;
+            Iterator<EntityIdDto> anIterator;
             ArrayList<EntityIdDto>  entityList = (ArrayList<EntityIdDto> )entityIdCollection;
             anIterator = entityList.iterator();
             int maxSeq = 0;
-            while (null != anIterator && anIterator.hasNext()) {
+            while (anIterator.hasNext()) {
                 EntityIdDto entityID = anIterator.next();
                 if(maxSeq == 0) {
                     if(null == entityID.getEntityUid() || entityID.getEntityUid() < 0) {

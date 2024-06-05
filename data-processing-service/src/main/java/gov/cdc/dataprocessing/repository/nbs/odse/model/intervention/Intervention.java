@@ -1,5 +1,5 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.intervention;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.InterventionDT;
+import gov.cdc.dataprocessing.model.dto.phc.InterventionDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -7,7 +7,6 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
@@ -185,7 +184,7 @@ public class Intervention  {
 
     }
 
-    public Intervention(InterventionDT dto) {
+    public Intervention(InterventionDto dto) {
         this.interventionUid = dto.getInterventionUid();
         this.activityDurationAmt = dto.getActivityDurationAmt();
         this.activityDurationUnitCd = dto.getActivityDurationUnitCd();

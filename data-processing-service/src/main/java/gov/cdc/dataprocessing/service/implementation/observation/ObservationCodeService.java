@@ -3,17 +3,17 @@ package gov.cdc.dataprocessing.service.implementation.observation;
 import gov.cdc.dataprocessing.constant.elr.ELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.BaseContainer;
-import gov.cdc.dataprocessing.model.container.OrganizationContainer;
-import gov.cdc.dataprocessing.model.container.ObservationContainer;
-import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
+import gov.cdc.dataprocessing.model.container.base.BaseContainer;
+import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueCodedDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
-import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationCodeService;
-import gov.cdc.dataprocessing.service.interfaces.other.ISrteCodeObsService;
+import gov.cdc.dataprocessing.service.interfaces.lookup_data.ISrteCodeObsService;
+import gov.cdc.dataprocessing.utilities.component.generic_helper.PropertyUtil;
 import gov.cdc.dataprocessing.utilities.component.observation.ObservationUtil;
 import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
 import org.springframework.stereotype.Service;
@@ -26,13 +26,16 @@ public class ObservationCodeService implements IObservationCodeService {
     private final ISrteCodeObsService srteCodeObsService;
     private final OrganizationRepositoryUtil organizationRepositoryUtil;
     private final ObservationUtil observationUtil;
+    private final PropertyUtil propertyUtil;
 
     public ObservationCodeService(ISrteCodeObsService srteCodeObsService,
                                   OrganizationRepositoryUtil organizationRepositoryUtil,
-                                  ObservationUtil observationUtil) {
+                                  ObservationUtil observationUtil,
+                                  PropertyUtil propertyUtil) {
         this.srteCodeObsService = srteCodeObsService;
         this.organizationRepositoryUtil = organizationRepositoryUtil;
         this.observationUtil = observationUtil;
+        this.propertyUtil = propertyUtil;
     }
 
 
@@ -47,7 +50,7 @@ public class ObservationCodeService implements IObservationCodeService {
         //if this is not an STD Program Area - we can skip this overhead
         //TODO: CACHING
 //        String programAreaCd = orderTest.getTheObservationDto().getProgAreaCd();
-//        if ((programAreaCd == null) || (!PropertyUtil.isStdOrHivProgramArea(programAreaCd))) {
+//        if ((programAreaCd == null) || (!propertyUtil.isStdOrHivProgramArea(programAreaCd))) {
 //            return derivedConditionList;
 //        }
 
@@ -94,8 +97,7 @@ public class ObservationCodeService implements IObservationCodeService {
         // iterator through each resultTest
         for (ObservationContainer observationContainer : observationContainerCollection) {
             ArrayList<String> resultedTestConditionList;
-            ObservationContainer obsVO = observationContainer;
-            ObservationDto obsDt = obsVO.getTheObservationDto();
+            ObservationDto obsDt = observationContainer.getTheObservationDto();
 
             String obsDomainCdSt1 = obsDt.getObsDomainCdSt1();
             String obsDTCode = obsDt.getCd();
@@ -110,14 +112,14 @@ public class ObservationCodeService implements IObservationCodeService {
                 // Retrieve Condition List using SNM Lab Result --> SNOMED code mapping
                 // If ELR, use actual CLIA - if manual use "DEFAULT" as CLIA
                 if (electronicInd.equals(NEDSSConstant.ELECTRONIC_IND_ELR)) {
-                    resultedTestConditionList = getConditionsFromSNOMEDCodes(reportingLabCLIA, obsVO.getTheObsValueCodedDtoCollection());
+                    resultedTestConditionList = getConditionsFromSNOMEDCodes(reportingLabCLIA, observationContainer.getTheObsValueCodedDtoCollection());
                 } else {
-                    resultedTestConditionList = getConditionsFromSNOMEDCodes(NEDSSConstant.DEFAULT, obsVO.getTheObsValueCodedDtoCollection());
+                    resultedTestConditionList = getConditionsFromSNOMEDCodes(NEDSSConstant.DEFAULT, observationContainer.getTheObsValueCodedDtoCollection());
                 }
 
                 // if no conditions found - try LN to retrieve Condition using Resulted Test --> LOINC mapping
                 if (resultedTestConditionList.isEmpty()) {
-                    String loincCondition = getConditionForLOINCCode(reportingLabCLIA, obsVO);
+                    String loincCondition = getConditionForLOINCCode(reportingLabCLIA, observationContainer);
                     if (loincCondition != null
                             && !loincCondition.isEmpty()
                     ) {
@@ -127,7 +129,7 @@ public class ObservationCodeService implements IObservationCodeService {
 
                 // none - try LR to retrieve default Condition using Local Result Code to condition mapping
                 if (resultedTestConditionList.isEmpty()) {
-                    String localResultDefaultConditionCd = getConditionCodeForLocalResultCode(reportingLabCLIA, obsVO.getTheObsValueCodedDtoCollection());
+                    String localResultDefaultConditionCd = getConditionCodeForLocalResultCode(reportingLabCLIA, observationContainer.getTheObsValueCodedDtoCollection());
                     if (localResultDefaultConditionCd != null
                             && !localResultDefaultConditionCd.isEmpty()
                     ) {
@@ -136,7 +138,7 @@ public class ObservationCodeService implements IObservationCodeService {
                 }
                 // none - try LT to retrieve default Condition using Local Test Code to condition mapping
                 if (resultedTestConditionList.isEmpty()) {
-                    String localTestDefaultConditionCd = getConditionCodeForLocalTestCode(reportingLabCLIA, obsVO);
+                    String localTestDefaultConditionCd = getConditionCodeForLocalTestCode(reportingLabCLIA, observationContainer);
                     if (localTestDefaultConditionCd != null
                             && !localTestDefaultConditionCd.isEmpty()
                     ) {
@@ -258,8 +260,7 @@ public class ObservationCodeService implements IObservationCodeService {
                 Collection<EntityIdDto>  entityIdColl = reportingLabVO.getTheEntityIdDtoCollection();
 
                 if (entityIdColl != null && entityIdColl.size() > 0) {
-                    for (Iterator<EntityIdDto> it = entityIdColl.iterator(); it.hasNext(); ) {
-                        EntityIdDto idDT = (EntityIdDto) it.next();
+                    for (EntityIdDto idDT : entityIdColl) {
                         if (idDT == null) {
                             continue;
                         }
@@ -289,24 +290,20 @@ public class ObservationCodeService implements IObservationCodeService {
     // AK - 7/25/04
     private ArrayList<String> getConditionsFromSNOMEDCodes(String reportingLabCLIA, Collection<ObsValueCodedDto> obsValueCodedDtoColl) throws DataProcessingException {
 
-        ArrayList<String> snomedConditionList = new ArrayList<String>();
+        ArrayList<String> snomedConditionList = new ArrayList<>();
 
         if (obsValueCodedDtoColl != null) {
-            Iterator<ObsValueCodedDto> codedDtIt = obsValueCodedDtoColl.iterator();
-            while (codedDtIt.hasNext()) {
+            for (ObsValueCodedDto obsValueCodedDto : obsValueCodedDtoColl) {
                 String snomedCd = "";
                 String conditionCd = "";
-                ObsValueCodedDto codedDt =  codedDtIt.next();
-                String codeSystemCd = codedDt.getCodeSystemCd();
+                String codeSystemCd = obsValueCodedDto.getCodeSystemCd();
 
-                if (codeSystemCd == null || codeSystemCd.trim().equals(""))
-                {
+                if (codeSystemCd == null || codeSystemCd.trim().equals("")) {
                     continue;
                 }
 
-                String obsCode = codedDt.getCode();
-                if (obsCode == null || obsCode.trim().equals(""))
-                {
+                String obsCode = obsValueCodedDto.getCode();
+                if (obsCode == null || obsCode.trim().equals("")) {
                     continue;
                 }
 
@@ -316,13 +313,11 @@ public class ObservationCodeService implements IObservationCodeService {
                  * ObsValueCodedDto.code(Local Result to Snomed lookup)
                  */
                 if (!codeSystemCd.equals(ELRConstant.ELR_SNOMED_CD)) {
-                    Map<String, Object> snomedMap =  srteCodeObsService.getSnomed(codedDt.getCode(), ELRConstant.TYPE, reportingLabCLIA);
+                    Map<String, Object> snomedMap = srteCodeObsService.getSnomed(obsValueCodedDto.getCode(), ELRConstant.TYPE, reportingLabCLIA);
 
-                    if(snomedMap.containsKey("COUNT") && (Integer) snomedMap.get("COUNT") == 1) {
+                    if (snomedMap.containsKey("COUNT") && (Integer) snomedMap.get("COUNT") == 1) {
                         snomedCd = (String) snomedMap.get("LOINC");
-                    }
-                    else
-                    {
+                    } else {
                         continue;
                     }
                 }
@@ -342,8 +337,7 @@ public class ObservationCodeService implements IObservationCodeService {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                if (conditionCd != null && !conditionCd.isEmpty())
-                {
+                if (conditionCd != null && !conditionCd.isEmpty()) {
                     snomedConditionList.add(conditionCd);
                 }
             } // end of while has next
@@ -409,15 +403,13 @@ public class ObservationCodeService implements IObservationCodeService {
      */
     private String getConditionCodeForLocalResultCode(String reportingLabCLIA, Collection<ObsValueCodedDto> obsValueCodedDtoColl) {
         String conditionCd = "";
-        HashMap<String, String> conditionMap = new HashMap<String,String>();
+        HashMap<String, String> conditionMap = new HashMap<>();
         if (obsValueCodedDtoColl == null || reportingLabCLIA == null)
         {
             return null;
         }
 
-        Iterator<ObsValueCodedDto> codedDtIt = obsValueCodedDtoColl.iterator();
-        while (codedDtIt.hasNext()) {
-            ObsValueCodedDto obsValueCodedDto = (ObsValueCodedDto) codedDtIt.next();
+        for (ObsValueCodedDto obsValueCodedDto : obsValueCodedDtoColl) {
             String code = obsValueCodedDto.getCode();
             //String codeSystemCd = obsValueCodedDto.getCodeSystemCd();
             if (code != null) {
@@ -457,8 +449,7 @@ public class ObservationCodeService implements IObservationCodeService {
         }
 
         String testCd = obsDt.getCd();
-        String conditionCd = srteCodeObsService.getDefaultConditionForLocalResultCode(testCd, reportingLabCLIA);
-        return (conditionCd);
+        return (srteCodeObsService.getDefaultConditionForLocalResultCode(testCd, reportingLabCLIA));
     }
 
     /**

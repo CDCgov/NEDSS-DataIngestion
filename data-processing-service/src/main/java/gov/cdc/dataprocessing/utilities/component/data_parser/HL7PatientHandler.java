@@ -5,9 +5,9 @@ import gov.cdc.dataprocessing.constant.elr.ELRConstant;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
-import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
@@ -17,7 +17,7 @@ import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
-import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.EntityIdUtil;
 import org.slf4j.Logger;
@@ -280,7 +280,7 @@ public class HL7PatientHandler {
 
             //Setup Person Address
             List<HL7XADType> addressArray = hl7PIDType.getPatientAddress();
-            Collection<Object> addressCollection = new ArrayList<Object>();
+            Collection<Object> addressCollection = new ArrayList<>();
 
             if (!addressArray.isEmpty()) {
                 HL7XADType addressType = addressArray.get(0);
@@ -355,7 +355,7 @@ public class HL7PatientHandler {
             }
 
             if(labResultProxyContainer.getThePersonContainerCollection()==null){
-                labResultProxyContainer.setThePersonContainerCollection(new ArrayList<PersonContainer>());
+                labResultProxyContainer.setThePersonContainerCollection(new ArrayList<>());
             }
             labResultProxyContainer.getThePersonContainerCollection().add(personContainer);
 
@@ -541,7 +541,7 @@ public class HL7PatientHandler {
             PersonContainer personContainer = parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
 
             List<HL7XADType> addressArray = hl7NK1Type.getAddress();
-            Collection<Object> addressCollection = new ArrayList<Object>();
+            Collection<Object> addressCollection = new ArrayList<>();
             if (!addressArray.isEmpty()) {
                 HL7XADType addressType = addressArray.get(0);
                 nbsObjectConverter.personAddressType(addressType, EdxELRConstant.ELR_NEXT_OF_KIN, personContainer);

@@ -39,14 +39,10 @@ public class PrepareAssocModelHelper {
      * This method is used to populate the system attributes on the 5 association
      * tables (ActRelationship, Participation, Role, EntityLocatoryParticipation, and
      * ActLocatorParticipation).
-     *
-     * @param assocDTInterface
-     * @return AssocDTInterface
-     * @roseuid 3CD96F960027
      */
     public EntityLocatorParticipationDto prepareAssocDTForEntityLocatorParticipation(EntityLocatorParticipationDto assocDTInterface) throws DataProcessingException {
         try {
-            EntityLocatorParticipationDto aDTInterface = null;
+            EntityLocatorParticipationDto aDTInterface ;
             String recStatusCd = assocDTInterface.getRecordStatusCd();
             String statusCd = assocDTInterface.getStatusCd();
             logger.debug("AssocDTInterface.Statuscode = "+statusCd);
@@ -108,11 +104,9 @@ public class PrepareAssocModelHelper {
     public ActRelationshipDto prepareAssocDTForActRelationship(ActRelationshipDto assocDTInterface) throws DataProcessingException
     {
         try {
-            ActRelationshipDto aDTInterface = null;
+            ActRelationshipDto aDTInterface;
             String recStatusCd = assocDTInterface.getRecordStatusCd();
             String statusCd = assocDTInterface.getStatusCd();
-            logger.debug("AssocDTInterface.Statuscode = "+statusCd);
-            logger.debug("AssocDTInterface.recStatusCd = "+recStatusCd);
             boolean isRealDirty = assocDTInterface.isItDirty();
 		   /*
 		   if(recStatusCd == null || statusCd == null)
@@ -156,7 +150,7 @@ public class PrepareAssocModelHelper {
                     e.printStackTrace();
                 }
 
-                assocDTInterface.setLastChgUserId(212121L);
+                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
 
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;
@@ -172,11 +166,9 @@ public class PrepareAssocModelHelper {
 
     public RoleDto prepareAssocDTForRole(RoleDto assocDTInterface) throws DataProcessingException {
         try {
-            RoleDto aDTInterface = null;
+            RoleDto aDTInterface;
             String recStatusCd = assocDTInterface.getRecordStatusCd();
             String statusCd = assocDTInterface.getStatusCd();
-            logger.debug("AssocDTInterface.Statuscode = "+statusCd);
-            logger.debug("AssocDTInterface.recStatusCd = "+recStatusCd);
             boolean isRealDirty = assocDTInterface.isItDirty();
 
             if(recStatusCd == null)
@@ -285,10 +277,6 @@ public class PrepareAssocModelHelper {
      * This method is used to populate the system attributes on the 5 association
      * tables (ActRelationship, Participation, Role, EntityLocatoryParticipation, and
      * ActLocatorParticipation).
-     *
-     * @param assocDTInterface
-     * @return AssocDTInterface
-     * @roseuid 3CD96F960027
      */
     public ActivityLocatorParticipationDto prepareActivityLocatorParticipationDT(ActivityLocatorParticipationDto assocDTInterface) throws DataProcessingException
     {
@@ -370,13 +358,6 @@ public class PrepareAssocModelHelper {
     /**
      * This method is used to prepare Dirty Acts,Dirty Entities,New Acts And New Entities depending
      * you want to edit,delete or create records
-     * @param theRootDTInterface -- The DT to be prepared
-     * @param businessObjLookupName
-     * @param businessTriggerCd
-     * @param tableName
-     * @param moduleCd
-     * @return RootDTInterface -- the prepared DT(System attribute Set)
-     * @roseuid 3C7422C50093
      */
     public RootDtoInterface prepareVO(RootDtoInterface theRootDTInterface, String businessObjLookupName,
                                 String businessTriggerCd, String tableName, String moduleCd,
@@ -427,12 +408,6 @@ public class PrepareAssocModelHelper {
     /**
      * This method prepares the Act value object if it is New(Create)
      * and check null for record Status State and set the System attributes in the rootDTInterface
-     * @param theRootDTInterface
-     * @param businessObjLookupName
-     * @param businessTriggerCd
-     * @param tableName
-     * @param moduleCd
-     * @return RootDTInterface
      */
     private RootDtoInterface prepareNewActVO(RootDtoInterface theRootDTInterface, String businessObjLookupName, String businessTriggerCd, String tableName, String moduleCd)
             throws DataProcessingException
@@ -490,14 +465,6 @@ public class PrepareAssocModelHelper {
 
     /**
      * This method prepares the Entity value object if it is New(Create)
-     *
-     * @param theRootDTInterface -- The DT that needs to be prepared
-     * @param businessObjLookupName
-     * @param businessTriggerCd
-     * @param tableName
-     * @param moduleCd
-     * @return RootDTInterface -- represents the DT whose system attribute needs to be set
-     * @roseuid 3C7D8D0E0172
      */
     private RootDtoInterface prepareNewEntityVO(RootDtoInterface theRootDTInterface, String businessObjLookupName,
                                                 String businessTriggerCd, String tableName, String moduleCd)
@@ -567,13 +534,6 @@ public class PrepareAssocModelHelper {
     /**
      * This method prepares the Act value object if it is Dirty(Edit,update or Delete)
      * and check null for record Status State and set the System attribures in the rootDTInterface
-     * @param theRootDTInterface -- The DT that needs to be prepared
-     * @param businessObjLookupName
-     * @param businessTriggerCd
-     * @param tableName
-     * @param moduleCd
-     * @return RootDTInterface -- represents the DT whose system attribute needs to be set
-     * @roseuid 3C6BC0B70278
      */
     private RootDtoInterface prepareDirtyActVO(RootDtoInterface theRootDTInterface,
                                               String businessObjLookupName, String businessTriggerCd, String tableName,
@@ -635,13 +595,6 @@ public class PrepareAssocModelHelper {
     /**
      * This method prepares the Entity value object if it is Dirty(Edit,update or Delete)
      * and check null for record Status State and set the System attribures in the rootDTInterface
-     * @param theRootDTInterface -- The DT that needs to be prepared
-     * @param businessObjLookupName
-     * @param businessTriggerCd
-     * @param tableName
-     * @param moduleCd
-     * @return RootDTInterface -- represents the DT whose system attribute needs to be set
-     * @roseuid 3C7D8D0202C0
      */
     private RootDtoInterface prepareDirtyEntityVO(RootDtoInterface theRootDTInterface,
                                                  String businessObjLookupName, String businessTriggerCd,
@@ -707,7 +660,7 @@ public class PrepareAssocModelHelper {
     public ActivityLocatorParticipationDto prepareAssocDTForActivityLocatorParticipation(ActivityLocatorParticipationDto assocDTInterface)
             throws DataProcessingException {
         try {
-            ActivityLocatorParticipationDto aDTInterface = null;
+            ActivityLocatorParticipationDto aDTInterface;
             String recStatusCd = assocDTInterface.getRecordStatusCd();
             String statusCd = assocDTInterface.getStatusCd();
             boolean isRealDirty = assocDTInterface.isItDirty();

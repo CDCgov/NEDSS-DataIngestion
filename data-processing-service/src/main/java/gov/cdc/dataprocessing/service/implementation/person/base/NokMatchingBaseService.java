@@ -3,13 +3,14 @@ package gov.cdc.dataprocessing.service.implementation.person.base;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
 import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
-import gov.cdc.dataprocessing.service.implementation.other.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
+import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import org.slf4j.Logger;
@@ -17,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -26,8 +26,9 @@ public class NokMatchingBaseService extends PatientMatchingBaseService {
 
     public NokMatchingBaseService(EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
                                   EntityHelper entityHelper, PatientRepositoryUtil patientRepositoryUtil,
-                                  CachingValueService cachingValueService) {
-        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService);
+                                  CachingValueService cachingValueService,
+                                  PrepareAssocModelHelper prepareAssocModelHelper) {
+        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
     }
 
     protected void setPersonHashCdNok(PersonContainer personContainer) throws DataProcessingException {
@@ -55,13 +56,11 @@ public class NokMatchingBaseService extends PatientMatchingBaseService {
     protected List<String> nameAddressStreetOneNOK(PersonContainer personContainer) {
         String nameAddStr = null;
         String carrot = "^";
-        List<String> nameAddressStreetOnelNOKist = new ArrayList();
+        List<String> nameAddressStreetOnelNOKist = new ArrayList<>();
         if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && personContainer.getTheEntityLocatorParticipationDtoCollection().size() > 0) {
-            Iterator<EntityLocatorParticipationDto> addIter = personContainer.getTheEntityLocatorParticipationDtoCollection().iterator();
 
-            while (addIter.hasNext()) {
-                EntityLocatorParticipationDto entLocPartDT = (EntityLocatorParticipationDto) addIter.next();
-                if (entLocPartDT.getClassCd() != null && entLocPartDT.getRecordStatusCd() !=null
+            for (EntityLocatorParticipationDto entLocPartDT : personContainer.getTheEntityLocatorParticipationDtoCollection()) {
+                if (entLocPartDT.getClassCd() != null && entLocPartDT.getRecordStatusCd() != null
                         && entLocPartDT.getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE) && entLocPartDT.getClassCd().equals(
                         NEDSSConstant.POSTAL)) {
                     if (entLocPartDT.getCd() != null) {
@@ -92,17 +91,14 @@ public class NokMatchingBaseService extends PatientMatchingBaseService {
     protected List<String> telePhoneTxtNOK(PersonContainer personContainer) {
         String nameTeleStr = null;
         String carrot = "^";
-        List<String> telePhoneTxtList = new ArrayList();
+        List<String> telePhoneTxtList = new ArrayList<>();
         if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && personContainer.getTheEntityLocatorParticipationDtoCollection().size() > 0) {
-            Iterator<EntityLocatorParticipationDto> addIter = personContainer.getTheEntityLocatorParticipationDtoCollection().iterator();
-            while (addIter.hasNext()) {
-                EntityLocatorParticipationDto entLocPartDT = (EntityLocatorParticipationDto) addIter.next();
+            for (EntityLocatorParticipationDto entLocPartDT : personContainer.getTheEntityLocatorParticipationDtoCollection()) {
                 if (entLocPartDT.getClassCd() != null && entLocPartDT.getClassCd().equals(NEDSSConstant.TELE)
-                        && entLocPartDT.getRecordStatusCd()!=null && entLocPartDT.getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE)) {
+                        && entLocPartDT.getRecordStatusCd() != null && entLocPartDT.getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE)) {
                     if (entLocPartDT.getCd() != null) {
                         TeleLocatorDto teleLocDT = entLocPartDT.getTheTeleLocatorDto();
-                        if (teleLocDT != null && teleLocDT.getPhoneNbrTxt() != null && !teleLocDT.getPhoneNbrTxt().equals(""))
-                        {
+                        if (teleLocDT != null && teleLocDT.getPhoneNbrTxt() != null && !teleLocDT.getPhoneNbrTxt().equals("")) {
                             nameTeleStr = carrot + teleLocDT.getPhoneNbrTxt();
                         }
 
@@ -125,16 +121,16 @@ public class NokMatchingBaseService extends PatientMatchingBaseService {
     }
     private void setPersonToMatchEntityNok(PersonContainer personContainer) throws DataProcessingException {
         Long patientUid = personContainer.getThePersonDto().getPersonUid();
-        EdxPatientMatchDto edxPatientMatchDto = new EdxPatientMatchDto();
+        EdxPatientMatchDto edxPatientMatchDto;
         String cdDescTxt = personContainer.thePersonDto.getCdDescTxt();
         if (cdDescTxt != null && cdDescTxt.equalsIgnoreCase(EdxELRConstant.ELR_NOK_DESC)) {
-            String nameAddStrSt1 = null;
-            int nameAddStrSt1hshCd = 0;
-            List nameAddressStreetOneStrList = nameAddressStreetOneNOK(personContainer);
+            String nameAddStrSt1 ;
+            int nameAddStrSt1hshCd;
+            List<String> nameAddressStreetOneStrList = nameAddressStreetOneNOK(personContainer);
             if (nameAddressStreetOneStrList != null
                     && !nameAddressStreetOneStrList.isEmpty()) {
-                for (int k = 0; k < nameAddressStreetOneStrList.size(); k++) {
-                    nameAddStrSt1 = (String) nameAddressStreetOneStrList.get(k);
+                for (String s : nameAddressStreetOneStrList) {
+                    nameAddStrSt1 = s;
                     if (nameAddStrSt1 != null) {
                         nameAddStrSt1 = nameAddStrSt1.toUpperCase();
                         nameAddStrSt1hshCd = nameAddStrSt1.hashCode();
@@ -143,7 +139,7 @@ public class NokMatchingBaseService extends PatientMatchingBaseService {
                             edxPatientMatchDto.setPatientUid(patientUid);
                             edxPatientMatchDto.setTypeCd(NEDSSConstant.NOK);
                             edxPatientMatchDto.setMatchString(nameAddStrSt1);
-                            edxPatientMatchDto.setMatchStringHashCode((long)nameAddStrSt1hshCd);
+                            edxPatientMatchDto.setMatchStringHashCode((long) nameAddStrSt1hshCd);
                             try {
                                 getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDto);
                             } catch (Exception e) {
@@ -155,12 +151,12 @@ public class NokMatchingBaseService extends PatientMatchingBaseService {
                     }
                 }
             }
-            List nameTelePhoneStrList = telePhoneTxtNOK(personContainer);
-            String nameTelePhone = null;
-            int nameTelePhonehshCd = 0;
+            List<String> nameTelePhoneStrList = telePhoneTxtNOK(personContainer);
+            String nameTelePhone;
+            int nameTelePhonehshCd;
             if (nameTelePhoneStrList != null && !nameTelePhoneStrList.isEmpty()) {
-                for (int k = 0; k < nameTelePhoneStrList.size(); k++) {
-                    nameTelePhone = (String) nameTelePhoneStrList.get(k);
+                for (String s : nameTelePhoneStrList) {
+                    nameTelePhone = s;
                     if (nameTelePhone != null) {
                         nameTelePhone = nameTelePhone.toUpperCase();
                         nameTelePhonehshCd = nameTelePhone.hashCode();
@@ -169,7 +165,7 @@ public class NokMatchingBaseService extends PatientMatchingBaseService {
                             edxPatientMatchDto.setPatientUid(patientUid);
                             edxPatientMatchDto.setTypeCd(NEDSSConstant.NOK);
                             edxPatientMatchDto.setMatchString(nameTelePhone);
-                            edxPatientMatchDto.setMatchStringHashCode((long)nameTelePhonehshCd);
+                            edxPatientMatchDto.setMatchStringHashCode((long) nameTelePhonehshCd);
                             try {
                                 getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDto);
                             } catch (Exception e) {

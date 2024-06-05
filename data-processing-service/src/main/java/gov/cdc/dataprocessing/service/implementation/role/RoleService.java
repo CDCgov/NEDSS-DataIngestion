@@ -7,17 +7,13 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.service.interfaces.role.IRoleService;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 @Service
 public class RoleService implements IRoleService {
-    private static final Logger logger = LoggerFactory.getLogger(RoleService.class);
     private final RoleRepository roleRepository;
     private final PrepareAssocModelHelper prepareAssocModelHelper;
 

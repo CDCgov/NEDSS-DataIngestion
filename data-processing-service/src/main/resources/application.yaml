@@ -31,6 +31,10 @@ kafka:
     elr_edx_log: elr_edx_log
     elr_action_tracker: elr_action_tracker
 
+nbs:
+  data:
+    hiv_program_areas: ${HIV_PROG_AREA:}
+
 ---
 spring:
   config:

@@ -3,11 +3,11 @@ package gov.cdc.dataprocessing.utilities.component.data_parser.util;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.model.phdc.HL7CXType;
 import gov.cdc.dataprocessing.model.phdc.HL7DTType;
-import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -128,8 +128,7 @@ public class EntityIdUtil {
             if (strTime != null && strTime.trim().length() > 0) {
                 t = formatter.parse(strTime);
                 logger.debug(String.valueOf(t));
-                Timestamp ts = new Timestamp(t.getTime());
-                return ts;
+                return new Timestamp(t.getTime());
             }
             else {
                 return null;
@@ -144,8 +143,6 @@ public class EntityIdUtil {
     /**
      * The earliest date that can be stored in SQL is Jan 1st, 1753 and the latest is Dec 31st, 9999
      * Check the date so we don't get a SQL error.
-     * @param dateVal
-     * @return true if invalid date
      */
     public boolean isDateNotOkForDatabase (Timestamp dateVal) {
         if (dateVal == null)

@@ -3,7 +3,7 @@ package gov.cdc.dataprocessing.utilities.component.organization;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.OrganizationContainer;
+import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
@@ -36,8 +36,9 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.Organizatio
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PrepareEntityStoredProcRepository;
-import gov.cdc.dataprocessing.service.interfaces.other.IOdseIdGeneratorService;
-import gov.cdc.dataprocessing.service.model.AuthUserProfileInfo;
+
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;

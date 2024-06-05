@@ -1,9 +1,9 @@
 package gov.cdc.dataprocessing.service.interfaces.observation;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.BaseContainer;
-import gov.cdc.dataprocessing.model.container.ObservationContainer;
-import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.base.BaseContainer;
+import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 
 import java.util.ArrayList;
 

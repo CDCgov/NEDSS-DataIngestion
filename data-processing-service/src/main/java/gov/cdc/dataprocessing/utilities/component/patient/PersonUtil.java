@@ -2,12 +2,12 @@ package gov.cdc.dataprocessing.utilities.component.patient;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
-import gov.cdc.dataprocessing.model.container.BaseContainer;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.service.implementation.person.PatientMatchingService;
 import gov.cdc.dataprocessing.service.implementation.person.ProviderMatchingService;
-import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import gov.cdc.dataprocessing.utilities.component.observation.ObservationUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
@@ -37,7 +37,7 @@ public class PersonUtil {
 
     @Transactional
     public Long processLabPersonContainerCollection(Collection<PersonContainer> personContainerCollection, boolean morbidityApplied,
-                                             BaseContainer dataContainer) throws DataProcessingException {
+                                                    BaseContainer dataContainer) throws DataProcessingException {
         if (personContainerCollection == null || personContainerCollection.isEmpty()) {
             throw new DataProcessingException("Person container collection is null");
         }

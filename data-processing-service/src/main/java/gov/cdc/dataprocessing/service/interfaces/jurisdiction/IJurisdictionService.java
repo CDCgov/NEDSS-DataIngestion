@@ -1,11 +1,11 @@
 package gov.cdc.dataprocessing.service.interfaces.jurisdiction;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.ObservationContainer;
-import gov.cdc.dataprocessing.model.container.OrganizationContainer;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
-import gov.cdc.dataprocessing.model.container.BaseContainer;
+import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.JurisdictionCode;
 
 import java.util.List;

@@ -2,15 +2,13 @@ package gov.cdc.dataprocessing.service.implementation.organization;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
-import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
-import gov.cdc.dataprocessing.model.container.OrganizationContainer;
+import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
-import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationService;
-import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
+import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationMatchingService;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -18,7 +16,6 @@ import java.util.Collection;
 @Service
 @Slf4j
 public class OrganizationService implements IOrganizationService {
-    private static final Logger logger = LoggerFactory.getLogger(OrganizationService.class);
 
     private static IOrganizationMatchingService iOrganizationMatchingService;
 
@@ -38,7 +35,7 @@ public class OrganizationService implements IOrganizationService {
             if (orgColl != null && !orgColl.isEmpty()) {
                 for (OrganizationContainer organizationContainer : orgColl) {
 
-                    Long orgUid;
+                    long orgUid;
                     if (organizationContainer.getRole() != null && organizationContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_SENDING_FACILITY_CD) && labResultProxyContainer.getSendingFacilityUid() != null) {
                         orgUid = labResultProxyContainer.getSendingFacilityUid();
                     }
