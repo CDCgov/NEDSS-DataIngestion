@@ -4,11 +4,9 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.log.NNDActivityLogDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.log.NNDActivityLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.NNDActivityLogRepository;
-import gov.cdc.dataprocessing.service.implementation.other.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
 import gov.cdc.dataprocessing.service.interfaces.log.INNDActivityLogService;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.NND_METADATA;
@@ -16,8 +14,6 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
 
 @Service
 public class NNDActivityLogService implements INNDActivityLogService {
-    private static final Logger logger = LoggerFactory.getLogger(NNDActivityLogService.class);
-
     private final NNDActivityLogRepository nndActivityLogRepository;
     private final OdseIdGeneratorService odseIdGeneratorService;
 
@@ -35,7 +31,7 @@ public class NNDActivityLogService implements INNDActivityLogService {
         nndActivityLogDto.setRecordStatusTime(timeStamp);
         nndActivityLogDto.setStatusCd("E");
         nndActivityLogDto.setStatusTime(timeStamp);
-        long uid = 0;
+        long uid;
 
         if(nndActivityLogDto.getNndActivityLogUid() == null) {
             var id = odseIdGeneratorService.getLocalIdAndUpdateSeed(NND_METADATA);

@@ -3,14 +3,10 @@ package gov.cdc.dataprocessing.service.implementation.observation;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.OrganizationContainer;
-import gov.cdc.dataprocessing.model.container.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
-import gov.cdc.dataprocessing.model.container.MaterialContainer;
-import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.stored_proc.ObservationMatchStoredProcRepository;
@@ -182,7 +178,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
                 ) {
                     edxLabInformationDT.setOriginalAssociatedPHCUid(actRelationshipDto.getTargetActUid());
                 }
-                if (actRelationshipDto.getTypeCd().equals(EdxELRConstant.ELR_AR_LAB_COMMENT)) {
+                if (actRelationshipDto.getTypeCd() != null && actRelationshipDto.getTypeCd().equals(EdxELRConstant.ELR_AR_LAB_COMMENT)) {
                     updatedARCollection.add(actRelationshipDto);
                 }
                 else {
@@ -209,7 +205,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
         labResultProxyVO.setTheParticipationDtoCollection(updatedPartCollection);
 
         Collection<RoleDto> rolecoll = new ArrayList<>();
-        Long patientUid = null;
+        Long patientUid;
         Collection<PersonContainer> coll = matchedlabResultProxyVO.getThePersonContainerCollection();
 
         if(coll!=null){
@@ -254,6 +250,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
                 String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
                 if (obsDomainCdSt1 != null
                     && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)
+                        && matchedObservationDto != null
                 )
                 {
                     obsVO.getTheObservationDto().setObservationUid(matchedObservationUid);

@@ -1,14 +1,12 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.repos;
 
-import gov.cdc.dataprocessing.repository.nbs.odse.model.AuthUserRealizedRole;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.NbsUiMetaData;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.custom_model.QuestionRequiredNnd;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomNbsQuestionRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

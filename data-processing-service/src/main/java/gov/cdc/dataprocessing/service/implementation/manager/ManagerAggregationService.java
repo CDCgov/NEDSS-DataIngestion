@@ -3,13 +3,13 @@ package gov.cdc.dataprocessing.service.implementation.manager;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.ObservationContainer;
-import gov.cdc.dataprocessing.model.container.OrganizationContainer;
+import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
-import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.service.implementation.jurisdiction.JurisdictionService;
 import gov.cdc.dataprocessing.service.implementation.jurisdiction.ProgramAreaService;
@@ -17,18 +17,18 @@ import gov.cdc.dataprocessing.service.implementation.observation.ObservationServ
 import gov.cdc.dataprocessing.service.implementation.organization.OrganizationService;
 import gov.cdc.dataprocessing.service.implementation.person.PersonService;
 import gov.cdc.dataprocessing.service.implementation.observation.ObservationMatchingService;
-import gov.cdc.dataprocessing.service.implementation.other.UidService;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidService;
 import gov.cdc.dataprocessing.service.implementation.role.RoleService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
-import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService;
 import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationService;
 import gov.cdc.dataprocessing.service.interfaces.person.IPersonService;
 import gov.cdc.dataprocessing.service.interfaces.role.IRoleService;
-import gov.cdc.dataprocessing.service.model.PersonAggContainer;
+import gov.cdc.dataprocessing.service.model.person.PersonAggContainer;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.ManagerUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -159,50 +159,11 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
         roleAggregation(labResult);
 
-        //progAndJurisdictionAggregationAsync( labResult,  edxLabInformationDto,  personAggContainer, organizationContainer);
         CompletableFuture<Void> progAndJurisdictionFuture = progAndJurisdictionAggregationAsync(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
         try {
             progAndJurisdictionFuture.get();
         } catch (InterruptedException | ExecutionException e) {
             throw new DataProcessingException("Failed to execute progAndJurisdictionAggregationAsync", e);
-        }
-    }
-
-
-    /**
-     * Description: propagating program area and jurisdiction.
-     * */
-    private void progAndJurisdictionAggregation(LabResultProxyContainer labResult,
-                                                EdxLabInformationDto edxLabInformationDto,
-                                                PersonAggContainer personAggContainer,
-                                                OrganizationContainer organizationContainer) throws DataProcessingException {
-        // Pulling Jurisdiction and Program from OBS
-        ObservationContainer observationRequest = null;
-        Collection<ObservationContainer> observationResults = new ArrayList<>();
-        for (ObservationContainer obsVO : labResult.getTheObservationContainerCollection()) {
-            String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
-
-            // Observation  hit this is originated from Observation Result
-            if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_RESULT_CD)) {
-                observationResults.add(obsVO);
-            }
-
-            // Observation hit is originated from Observation Request (ROOT)
-            else if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD))
-            {
-                observationRequest = obsVO;
-            }
-        }
-
-        if(observationRequest.getTheObservationDto().getProgAreaCd()==null)
-        {
-            programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
-        }
-
-        if(observationRequest.getTheObservationDto().getJurisdictionCd()==null)
-        {
-            jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
-                    organizationContainer, observationRequest);
         }
     }
 
@@ -229,7 +190,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
                 }
             }
 
-            if (observationRequest.getTheObservationDto().getProgAreaCd() == null) {
+            if (observationRequest != null && observationRequest.getTheObservationDto().getProgAreaCd() == null) {
                 try {
                     programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
                 } catch (DataProcessingException e) {
@@ -237,7 +198,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
                 }
             }
 
-            if (observationRequest.getTheObservationDto().getJurisdictionCd() == null) {
+            if (observationRequest != null && observationRequest.getTheObservationDto().getJurisdictionCd() == null) {
                 try {
                     jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
                             organizationContainer, observationRequest);
@@ -312,7 +273,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
                 //We will write the role if there are no existing role relationships.
                 if (roleDT.getScopingEntityUid() == null)
                 {
-                    Long count = 0L;
+                    long count;
                     count = roleService.loadCountBySubjectCdComb(roleDT).longValue();
                     if (count == 0) {
                         roleDT.setRoleSeq(count + 1);
@@ -322,11 +283,11 @@ public class ManagerAggregationService implements IManagerAggregationService {
                 }
                 else
                 {
-                    int checkIfExisits = 0;
+                    int checkIfExisits;
                     checkIfExisits = roleService.loadCountBySubjectScpingCdComb(roleDT);
 
                     if (checkIfExisits == 0) {
-                        long countForPKValues = 0;
+                        long countForPKValues;
                         countForPKValues = roleService.loadCountBySubjectCdComb(roleDT);
                         //We will write the role relationship for follwoing provider in scope of ELR patient
                         if (countForPKValues == 0

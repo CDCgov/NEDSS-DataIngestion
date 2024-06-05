@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.model.dto.log;
 
-import gov.cdc.dataprocessing.model.container.BaseContainer;
+import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.log.MessageLog;
 import lombok.Getter;
 import lombok.Setter;

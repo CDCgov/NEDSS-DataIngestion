@@ -4,18 +4,16 @@ import gov.cdc.dataprocessing.cache.OdseCache;
 import gov.cdc.dataprocessing.constant.NBSConstantUtil;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.dto.NbsQuestionMetadata;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
 import gov.cdc.dataprocessing.model.dto.lookup.LookupMappingDto;
 import gov.cdc.dataprocessing.model.dto.lookup.PrePopMappingDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.NbsUiMetaData;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.WAQuestion;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.LookupMappingRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.NbsUiMetaDataRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.WAQuestionRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.lookup.LookupMappingRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsUiMetaDataRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.WAQuestionRepository;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
-import gov.cdc.dataprocessing.service.interfaces.ILookupService;
-import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
-import gov.cdc.dataprocessing.service.model.MetaAndWaCommonAttribute;
+import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.model.lookup_data.MetaAndWaCommonAttribute;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -39,7 +37,7 @@ public class LookupService implements ILookupService {
     }
 
     public TreeMap<Object, Object> getToPrePopFormMapping(String formCd) throws DataProcessingException {
-        TreeMap<Object, Object> returnMap = null;
+        TreeMap<Object, Object> returnMap;
         try {
             returnMap = (TreeMap<Object, Object>) OdseCache.toPrePopFormMapping.get(formCd);
             if (returnMap == null) {
@@ -71,7 +69,9 @@ public class LookupService implements ILookupService {
             e.printStackTrace();
         }
 
-        OdseCache.map.putAll(questionMap);
+        if (questionMap != null) {
+            OdseCache.map.putAll(questionMap);
+        }
         return questionMap;
     }
 
@@ -88,17 +88,11 @@ public class LookupService implements ILookupService {
             if (res.isPresent()) {
                 for(var item : res.get()) {
                     var commonAttribute = new MetaAndWaCommonAttribute(item);
-                    if (commonAttribute.getQuestionIdentifier().equalsIgnoreCase("INV161")) {
-                        System.out.println("TEST");
-                    }
                     metaQuestion.add(commonAttribute);
                 }
                 if (res2.isPresent()) {
                     for(var item : res2.get()) {
                         var commonAttribute = new MetaAndWaCommonAttribute(item);
-                        if (commonAttribute.getQuestionIdentifier().equalsIgnoreCase("INV161")) {
-                            System.out.println("TEST");
-                        }
                         metaQuestion.add(commonAttribute);
                     }
                 }
@@ -161,17 +155,16 @@ public class LookupService implements ILookupService {
         int count = 0;
         int loopcount = 0;
         int sizecount = 0;
-        String currentFormCode = "";
+        String currentFormCode;
         String previousFormCode = "";
 
         TreeMap<Object, Object>[] map = new TreeMap[coll.size()];
         PrePopMappingDto qMetadata = null;
         try {
-            if (coll != null && coll.size() > 0) {
-                Iterator<LookupMappingDto> ite = coll.iterator();
-                while (ite.hasNext()) {
+            if (coll.size() > 0) {
+                for (LookupMappingDto lookupMappingDto : coll) {
                     sizecount++;
-                    qMetadata = new PrePopMappingDto(ite.next());
+                    qMetadata = new PrePopMappingDto(lookupMappingDto);
 
                     if (qMetadata.getFromFormCd() != null) {
 
@@ -180,13 +173,13 @@ public class LookupService implements ILookupService {
                             String fromQuestionId = qMetadata.getFromQuestionIdentifier() == null ? ""
                                     : qMetadata.getFromQuestionIdentifier();
                             String fromAns = qMetadata.getFromAnswerCode();
-                            map[count] = new TreeMap<Object, Object>();
+                            map[count] = new TreeMap<>();
                             if (!fromQuestionId.equals("")) {
                                 if (fromAns != null) {
                                     fromQuestionId = fromQuestionId + "$" + fromAns;
                                     map[count].put(fromQuestionId, qMetadata);
                                 }
-                                PrePopMappingDto qMetadata1 = (PrePopMappingDto)qMetadata.deepCopy();
+                                PrePopMappingDto qMetadata1 = (PrePopMappingDto) qMetadata.deepCopy();
                                 qMetadata1.setFromAnswerCode(null);
                                 map[count].put(qMetadata.getFromQuestionIdentifier(), qMetadata1);
                                 loopcount++;
@@ -203,7 +196,7 @@ public class LookupService implements ILookupService {
                                         fromQuestionId = fromQuestionId + "$" + fromAns;
                                         map[count].put(fromQuestionId, qMetadata);
                                     }
-                                    PrePopMappingDto qMetadata1 = (PrePopMappingDto)qMetadata.deepCopy();
+                                    PrePopMappingDto qMetadata1 = (PrePopMappingDto) qMetadata.deepCopy();
                                     qMetadata1.setFromAnswerCode(null);
                                     map[count].put(qMetadata.getFromQuestionIdentifier(), qMetadata1);
                                 }
@@ -215,12 +208,12 @@ public class LookupService implements ILookupService {
                                         : qMetadata.getFromQuestionIdentifier();
                                 String fromAns = qMetadata.getFromAnswerCode();
                                 if (!fromQuestionId.equals("")) {
-                                    map[count] = new TreeMap<Object, Object>();
+                                    map[count] = new TreeMap<>();
                                     if (fromAns != null) {
                                         fromQuestionId = fromQuestionId + "$" + fromAns;
                                         map[count].put(fromQuestionId, qMetadata);
                                     }
-                                    PrePopMappingDto qMetadata1 = (PrePopMappingDto)qMetadata.deepCopy();
+                                    PrePopMappingDto qMetadata1 = (PrePopMappingDto) qMetadata.deepCopy();
                                     qMetadata1.setFromAnswerCode(null);
                                     map[count].put(qMetadata.getFromQuestionIdentifier(), qMetadata1);
                                 }
@@ -249,17 +242,16 @@ public class LookupService implements ILookupService {
         int count = 0;
         int loopcount = 0;
         int sizecount = 0;
-        String currentFormCode = "";
+        String currentFormCode;
         String previousFormCode = "";
 
         TreeMap<Object, Object>[] map = new TreeMap[coll.size()];
         PrePopMappingDto qMetadata = null;
         try {
-            if (coll != null && coll.size() > 0) {
-                Iterator<LookupMappingDto> ite = coll.iterator();
-                while (ite.hasNext()) {
+            if (coll.size() > 0) {
+                for (LookupMappingDto lookupMappingDto : coll) {
                     sizecount++;
-                    qMetadata = new PrePopMappingDto(ite.next());
+                    qMetadata = new PrePopMappingDto(lookupMappingDto);
 
                     if (qMetadata.getToFormCd() != null) {
 
@@ -269,16 +261,16 @@ public class LookupService implements ILookupService {
                                     : qMetadata.getToQuestionIdentifier();
                             String fromQuestionId = qMetadata.getFromQuestionIdentifier() == null ? ""
                                     : qMetadata.getFromQuestionIdentifier();
-                            toQuestionId = toQuestionId+'^'+fromQuestionId;
+                            toQuestionId = toQuestionId + '^' + fromQuestionId;
                             String fromAns = qMetadata.getFromAnswerCode();
-                            String toQuestionIdWithAns = null;
-                            map[count] = new TreeMap<Object, Object>();
+                            String toQuestionIdWithAns;
+                            map[count] = new TreeMap<>();
                             if (!toQuestionId.equals("")) {
                                 if (fromAns != null) {
                                     toQuestionIdWithAns = toQuestionId + "$" + fromAns;
                                     map[count].put(toQuestionIdWithAns, qMetadata);
                                 }
-                                PrePopMappingDto qMetadata1 = (PrePopMappingDto)qMetadata.deepCopy();
+                                PrePopMappingDto qMetadata1 = (PrePopMappingDto) qMetadata.deepCopy();
                                 qMetadata1.setToAnswerCode(null);
                                 map[count].put(toQuestionId, qMetadata1);
                                 loopcount++;
@@ -292,14 +284,14 @@ public class LookupService implements ILookupService {
                                 String fromAns = qMetadata.getFromAnswerCode();
                                 String fromQuestionId = qMetadata.getFromQuestionIdentifier() == null ? ""
                                         : qMetadata.getFromQuestionIdentifier();
-                                String toQuestionIdWithAns = null;
-                                toQuestionId = toQuestionId+'^'+fromQuestionId;
+                                String toQuestionIdWithAns;
+                                toQuestionId = toQuestionId + '^' + fromQuestionId;
                                 if (!toQuestionId.equals("")) {
                                     if (fromAns != null) {
                                         toQuestionIdWithAns = toQuestionId + "$" + fromAns;
                                         map[count].put(toQuestionIdWithAns, qMetadata);
                                     }
-                                    PrePopMappingDto qMetadata1 = (PrePopMappingDto)qMetadata.deepCopy();
+                                    PrePopMappingDto qMetadata1 = (PrePopMappingDto) qMetadata.deepCopy();
                                     qMetadata1.setToAnswerCode(null);
                                     map[count].put(toQuestionId, qMetadata1);
                                 }
@@ -312,15 +304,15 @@ public class LookupService implements ILookupService {
                                 String fromAns = qMetadata.getFromAnswerCode();
                                 String fromQuestionId = qMetadata.getFromQuestionIdentifier() == null ? ""
                                         : qMetadata.getFromQuestionIdentifier();
-                                toQuestionId = toQuestionId+'^'+fromQuestionId;
-                                String toQuestionIdWithAns = null;
-                                map[count] = new TreeMap<Object, Object>();
+                                toQuestionId = toQuestionId + '^' + fromQuestionId;
+                                String toQuestionIdWithAns;
+                                map[count] = new TreeMap<>();
                                 if (!toQuestionId.equals("")) {
                                     if (fromAns != null) {
                                         toQuestionIdWithAns = toQuestionId + "$" + fromAns;
                                         map[count].put(toQuestionIdWithAns, qMetadata);
                                     }
-                                    PrePopMappingDto qMetadata1 = (PrePopMappingDto)qMetadata.deepCopy();
+                                    PrePopMappingDto qMetadata1 = (PrePopMappingDto) qMetadata.deepCopy();
                                     qMetadata1.setToAnswerCode(null);
                                     map[count].put(toQuestionId, qMetadata1);
                                 }
@@ -363,15 +355,14 @@ public class LookupService implements ILookupService {
 
 
     private TreeMap<Object,Object> createDMBQuestionMap(Collection<MetaAndWaCommonAttribute>  coll) throws Exception{
-        TreeMap<Object, Object> qCodeMap = new TreeMap<Object, Object>();
+        TreeMap<Object, Object> qCodeMap = new TreeMap<>();
         int count =0;
         int loopcount=0;
         int sizecount=0;
-        String currentFormCode="";
+        String currentFormCode;
         String previousFormCode="";
 
         //For Demo Purpose CHOLERA Metadata
-        TreeMap<Object,Object> qInvFormChlrMap = new TreeMap<Object,Object>();
         TreeMap<Object, Object>[] map ;
         map = new TreeMap[coll.size()];
         NbsQuestionMetadata qMetadata = null;
@@ -379,16 +370,9 @@ public class LookupService implements ILookupService {
             if (coll.size() > 0) {
                 for (MetaAndWaCommonAttribute metaAndWaCommonAttribute : coll) {
                     sizecount++;
-
-                    if(metaAndWaCommonAttribute.getQuestionIdentifier().equalsIgnoreCase("INV161")) {
-                        System.out.println("TEST");
-                    }
-                    if (metaAndWaCommonAttribute.getDataLocation() != null) {
-                        System.out.println("TEST");
-                    }
                     qMetadata = new NbsQuestionMetadata(metaAndWaCommonAttribute);
                     String dataType = qMetadata.getDataType();
-                    List<CodeValueGeneral> aList = new ArrayList<>();
+                    List<CodeValueGeneral> aList;
                     if (dataType != null && dataType.equals(NEDSSConstant.NBS_QUESTION_DATATYPE_CODED_VALUE)) {
                         aList = catchingValueService.getGeneralCodedValue(qMetadata.getCodeSetNm());
                         qMetadata.setAList(aList);
@@ -403,7 +387,7 @@ public class LookupService implements ILookupService {
                             String ldfPageId = qMetadata.getLdfPageId() == null ? "" : qMetadata.getLdfPageId();
                             String uiMetadataUid = qMetadata.getNbsUiMetadataUid() == null ? "" : qMetadata.getNbsUiMetadataUid().toString();
                             if (!questionId.equals("")) {
-                                map[count] = new TreeMap<Object, Object>();
+                                map[count] = new TreeMap<>();
                                 map[count].put(questionId, qMetadata);
                                 loopcount++;
                             }
@@ -424,9 +408,6 @@ public class LookupService implements ILookupService {
                             }
                             else
                             {
-                                if(previousFormCode.equalsIgnoreCase("PG_Generic_V2_Investigation")) {
-                                    System.out.println("TEST");
-                                }
                                 qCodeMap.put(previousFormCode, map[count]);
                                 count = count + 1;
                                 String questionId = qMetadata.getQuestionIdentifier() == null ? "" : qMetadata.getQuestionIdentifier();
@@ -434,7 +415,7 @@ public class LookupService implements ILookupService {
                                 String uiMetadataUid = qMetadata.getNbsUiMetadataUid() == null ? "" : qMetadata.getNbsUiMetadataUid().toString();
                                 if (!questionId.equals(""))
                                 {
-                                    map[count] = new TreeMap<Object, Object>();
+                                    map[count] = new TreeMap<>();
                                     map[count].put(questionId, qMetadata);
                                 }
 
@@ -445,9 +426,6 @@ public class LookupService implements ILookupService {
 
                     }
                     if (sizecount == coll.size()) {
-                        if(qCodeMap.containsKey("PG_Generic_V2_Investigation")) {
-                            System.out.println("TEST");
-                        }
                         qCodeMap.put(qMetadata.getInvestigationFormCd(), map[count]);
                     }
 
@@ -466,8 +444,7 @@ public class LookupService implements ILookupService {
     private Collection<LookupMappingDto>  getPrePopMapping() throws DataProcessingException {
 
         try {
-            Collection<LookupMappingDto>  prepopMapping = retrievePrePopMapping();
-            return prepopMapping;
+            return retrievePrePopMapping();
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }
@@ -480,7 +457,10 @@ public class LookupService implements ILookupService {
             var res = nbsUiMetaDataRepository.findPamQuestionMetaData();
             Collection<Object>  questions = new ArrayList<>();
             if (res.isPresent()) {
-                questions  = nbsUiMetaDataRepository.findPamQuestionMetaData().get();
+                var data = nbsUiMetaDataRepository.findPamQuestionMetaData();
+                if (data.isPresent()) {
+                    questions  = data.get();
+                }
             }
             return questions;
         } catch (Exception e) {
@@ -489,13 +469,11 @@ public class LookupService implements ILookupService {
     }
 
     private TreeMap<Object,Object> createQuestionMap(Collection<Object>  coll) {
-        TreeMap<Object,Object> qCodeMap = new TreeMap<Object,Object>();
-        TreeMap<Object,Object> qInvFormRVCTMap = new TreeMap<Object,Object>();
+        TreeMap<Object,Object> qCodeMap = new TreeMap<>();
+        TreeMap<Object,Object> qInvFormRVCTMap = new TreeMap<>();
         if (coll != null && coll.size() > 0) {
-            Iterator<Object>  ite = coll.iterator();
-            while (ite.hasNext()) {
-                NbsQuestionMetadata qMetadata = (NbsQuestionMetadata) ite
-                        .next();
+            for (Object o : coll) {
+                NbsQuestionMetadata qMetadata = (NbsQuestionMetadata) o;
                 if (qMetadata.getInvestigationFormCd().equals(
                         NBSConstantUtil.INV_FORM_RVCT))
                     qInvFormRVCTMap.put(qMetadata.getQuestionIdentifier(),

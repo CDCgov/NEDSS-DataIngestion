@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.service.model.action;
 
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.PublicHealthCaseDT;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +9,6 @@ import lombok.Setter;
 public class PageActPatient {
     Long patientRevisionUid;
     Long mprUid;
-    PublicHealthCaseDT phcDT;
+    PublicHealthCaseDto phcDT;
 
 }

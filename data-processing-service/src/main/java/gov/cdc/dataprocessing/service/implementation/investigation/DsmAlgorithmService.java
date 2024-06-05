@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.service.implementation.investigation;
 
-import gov.cdc.dataprocessing.repository.nbs.odse.model.DsmAlgorithm;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.DsmAlgorithmRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.dsm.DsmAlgorithm;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.dsm.DsmAlgorithmRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

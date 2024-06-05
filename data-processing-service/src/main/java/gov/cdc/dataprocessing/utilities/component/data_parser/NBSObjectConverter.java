@@ -3,9 +3,9 @@ package gov.cdc.dataprocessing.utilities.component.data_parser;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.OrganizationContainer;
+import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
@@ -16,7 +16,7 @@ import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
-import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.EntityIdUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -318,11 +318,11 @@ public class NBSObjectConverter {
                 return zip;
             }
             // for zip code like: 123456789
-            else if (zip.length() == 9 && zip.indexOf("-") == -1) {
+            else if (zip.length() == 9 && !zip.contains("-")) {
                 zip = zip.substring(0, 5) + "-" + zip.substring(5, 9);
                 // for zip code like: 123456,1234567890: Will ignore 12345-6789
             }
-            else if (zip.length() > 5 && zip.indexOf("-") == -1) {
+            else if (zip.length() > 5 && !zip.contains("-")) {
                 zip = zip.substring(0, 5);
             }
         }// end of if
@@ -589,7 +589,7 @@ public class NBSObjectConverter {
         /** length"5 */
         boolean incorrectLength;
 
-        ArrayList<String> areaAndNumber = new ArrayList<String>();
+        ArrayList<String> areaAndNumber = new ArrayList<>();
         incorrectLength = checkIfAreaCodeMoreThan3Digits(areaAndNumber, hl7AreaCityCode);
         if(!incorrectLength)
             incorrectLength = checkIfNumberMoreThan10Digits(areaAndNumber, hl7LocalNumber);

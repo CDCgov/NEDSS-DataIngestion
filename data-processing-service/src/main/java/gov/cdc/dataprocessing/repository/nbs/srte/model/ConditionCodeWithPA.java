@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.repository.nbs.srte.model;
 
 
-import gov.cdc.dataprocessing.model.container.ProgramAreaContainer;
+import gov.cdc.dataprocessing.model.container.model.ProgramAreaContainer;
 import jakarta.persistence.*;
 import lombok.Data;
 

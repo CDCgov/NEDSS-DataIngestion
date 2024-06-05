@@ -1,8 +1,8 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.EDXEventProcessDT;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.PublicHealthCaseDT;
+import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessDto;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
@@ -21,8 +21,8 @@ public class PublicHealthCaseStoredProcRepository {
     private EntityManager entityManager;
 
     @Transactional
-    public Collection<PublicHealthCaseDT> associatedPublicHealthCaseForMprForCondCd(Long mprUid, String conditionCode) throws DataProcessingException {
-        Collection<PublicHealthCaseDT> models = new ArrayList<>();
+    public Collection<PublicHealthCaseDto> associatedPublicHealthCaseForMprForCondCd(Long mprUid, String conditionCode) throws DataProcessingException {
+        Collection<PublicHealthCaseDto> models = new ArrayList<>();
         try {
 
             StoredProcedureQuery storedProcedure = entityManager.createStoredProcedureQuery("ASSO_PHC_FOR_MPR_COND_SP");
@@ -40,7 +40,7 @@ public class PublicHealthCaseStoredProcRepository {
             storedProcedure.execute();
             List<Object[]> results = storedProcedure.getResultList();
             for (Object[] result : results) {
-                PublicHealthCaseDT model = new PublicHealthCaseDT();
+                PublicHealthCaseDto model = new PublicHealthCaseDto();
                 model.setPublicHealthCaseUid((Long) result[0]);
                 model.setActivityDurationAmt((String) result[1]);
                 model.setActivityDurationUnitCd((String) result[2]);
@@ -140,8 +140,8 @@ public class PublicHealthCaseStoredProcRepository {
 
 
     @Transactional
-    public   Map<String, EDXEventProcessDT> getEDXEventProcessMap(Long nbsDocumentUid) throws DataProcessingException {
-        Map<String, EDXEventProcessDT> eventProcessMap = new HashMap<>();
+    public   Map<String, EDXEventProcessDto> getEDXEventProcessMap(Long nbsDocumentUid) throws DataProcessingException {
+        Map<String, EDXEventProcessDto> eventProcessMap = new HashMap<>();
         try {
 
             StoredProcedureQuery storedProcedure = entityManager.createStoredProcedureQuery("GETEDXEVENTPROCESSBYDOCID_SP");
@@ -156,16 +156,16 @@ public class PublicHealthCaseStoredProcRepository {
             storedProcedure.execute();
             List<Object[]> results = storedProcedure.getResultList();
             for (Object[] rs : results) {
-                EDXEventProcessDT edxEventProcessDT = new EDXEventProcessDT();
-                edxEventProcessDT.setEDXEventProcessUid((Long) rs[1]);
-                edxEventProcessDT.setNbsDocumentUid((Long) rs[2]);
-                edxEventProcessDT.setNbsEventUid((Long) rs[3]);
-                edxEventProcessDT.setSourceEventId((String) rs[4]);
-                edxEventProcessDT.setDocEventTypeCd((String) rs[5]);
-                edxEventProcessDT.setAddUserId((Long) rs[6]);
-                edxEventProcessDT.setAddTime((Timestamp) rs[7]);
-                edxEventProcessDT.setParsedInd((String) rs[8]);
-                eventProcessMap.put(edxEventProcessDT.getSourceEventId(), edxEventProcessDT);
+                EDXEventProcessDto edxEventProcessDto = new EDXEventProcessDto();
+                edxEventProcessDto.setEDXEventProcessUid((Long) rs[1]);
+                edxEventProcessDto.setNbsDocumentUid((Long) rs[2]);
+                edxEventProcessDto.setNbsEventUid((Long) rs[3]);
+                edxEventProcessDto.setSourceEventId((String) rs[4]);
+                edxEventProcessDto.setDocEventTypeCd((String) rs[5]);
+                edxEventProcessDto.setAddUserId((Long) rs[6]);
+                edxEventProcessDto.setAddTime((Timestamp) rs[7]);
+                edxEventProcessDto.setParsedInd((String) rs[8]);
+                eventProcessMap.put(edxEventProcessDto.getSourceEventId(), edxEventProcessDto);
 
             }
             return eventProcessMap;

@@ -7,7 +7,6 @@ public class TimeStampUtil {
     public static Timestamp getCurrentTimeStamp() {
         long currentTimeMillis = System.currentTimeMillis();
         Date currentDate = new Date(currentTimeMillis);
-        Timestamp currentTimestamp = new Timestamp(currentDate.getTime());
-        return currentTimestamp;
+        return new Timestamp(currentDate.getTime());
     }
 }

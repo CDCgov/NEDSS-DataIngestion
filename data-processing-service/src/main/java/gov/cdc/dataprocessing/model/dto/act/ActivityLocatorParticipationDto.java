@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.model.dto.act;
 
-import gov.cdc.dataprocessing.model.container.BaseContainer;
+import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActLocatorParticipation;
 import lombok.Getter;
 import lombok.Setter;

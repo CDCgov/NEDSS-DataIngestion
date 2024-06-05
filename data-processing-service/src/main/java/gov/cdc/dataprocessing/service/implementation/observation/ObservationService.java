@@ -3,10 +3,10 @@ package gov.cdc.dataprocessing.service.implementation.observation;
 import gov.cdc.dataprocessing.constant.elr.*;
 import gov.cdc.dataprocessing.constant.enums.DataProcessingMapKey;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.*;
+import gov.cdc.dataprocessing.model.container.base.BaseContainer;
+import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.log.NNDActivityLogDto;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.dto.*;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.edx.EDXDocumentDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
@@ -16,18 +16,18 @@ import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
-import gov.cdc.dataprocessing.service.interfaces.IInvestigationService;
+import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationService;
 import gov.cdc.dataprocessing.service.interfaces.act.IActRelationshipService;
 import gov.cdc.dataprocessing.service.interfaces.answer.IAnswerService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
-import gov.cdc.dataprocessing.service.interfaces.other.IEdxDocumentService;
+import gov.cdc.dataprocessing.service.interfaces.observation.IEdxDocumentService;
 import gov.cdc.dataprocessing.service.interfaces.log.IMessageLogService;
 import gov.cdc.dataprocessing.service.interfaces.log.INNDActivityLogService;
 import gov.cdc.dataprocessing.service.interfaces.material.IMaterialService;
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService;
-import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationCodeService;
 import gov.cdc.dataprocessing.service.interfaces.paticipation.IParticipationService;
 import gov.cdc.dataprocessing.service.interfaces.role.IRoleService;
@@ -186,7 +186,6 @@ public class ObservationService implements IObservationService {
         {
             if (actType.equalsIgnoreCase(NEDSSConstant.INTERVENTION_CLASS_CODE))
             {
-                //TODO: LOAD INTERVENTION
                // obj = interventionRootDAOImpl.loadObject(anUid.longValue());
             }
             else if (actType.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE))
@@ -389,7 +388,7 @@ public class ObservationService implements IObservationService {
      * */
     private Map<DataProcessingMapKey, Object>  retrieveObservationFromActRelationship(Collection<ActRelationshipDto> actRelColl) throws DataProcessingException
     {
-        List<Object> obs_org = new ArrayList<Object> ();
+        List<Object> obs_org = new ArrayList<> ();
         Map<DataProcessingMapKey, Object> mapper = new HashMap<>();
         Collection<ObservationContainer> theObservationContainerCollection = new ArrayList<> ();
         Collection<OrganizationContainer>  performingLabColl = new ArrayList<> ();
@@ -456,7 +455,7 @@ public class ObservationService implements IObservationService {
 
                     //Retrieves all reflex observations, including each ordered and its resulted
                     Collection<ObservationContainer> reflexObsColl = retrieveReflexObservationsFromActRelationship(rtObservationContainer.getTheActRelationshipDtoCollection());
-                    if (reflexObsColl == null || reflexObsColl.size() <= 0) {
+                    if (reflexObsColl == null || reflexObsColl.isEmpty()) {
                         continue;
                     }
                     theObservationContainerCollection.addAll(reflexObsColl);
@@ -511,7 +510,7 @@ public class ObservationService implements IObservationService {
                 //Retrieves its associated reflex resulted tests
                 Collection<ObservationContainer> reflexRTs = retrieveReflexRTsAkaObservationFromActRelationship(reflexObs.getTheActRelationshipDtoCollection());
                 if (reflexRTs == null
-                    || reflexRTs.size() < 0
+                    || reflexRTs.isEmpty()
                 ) {
                     continue;
                 }
@@ -853,7 +852,7 @@ public class ObservationService implements IObservationService {
             }
 
             //For ELR update, mpr uid may be not available
-            if(patientMprUid == null || patientMprUid.longValue() < 0)
+            if(patientMprUid < 0)
             {
                 patientMprUid = participationService.findPatientMprUidByObservationUid(
                         NEDSSConstant.PERSON,
@@ -877,7 +876,7 @@ public class ObservationService implements IObservationService {
             {
                 for (OrganizationContainer vo : labResultProxyVO.getTheOrganizationContainerCollection()) {
                     organizationContainer = vo;
-                    OrganizationDto newOrganizationDto = null;
+                    OrganizationDto newOrganizationDto;
 
                     var orgCheck = organizationRepositoryUtil.loadObject(organizationContainer.getTheOrganizationDto().getOrganizationUid(), null);
                     Integer existingVer = null;
@@ -911,19 +910,19 @@ public class ObservationService implements IObservationService {
                         );
 
                         organizationContainer.setTheOrganizationDto(newOrganizationDto);
-                        realUid = organizationRepositoryUtil.setOrganization(organizationContainer, null);
+                        organizationRepositoryUtil.setOrganization(organizationContainer, null);
                     }
                 }
             }
 
             //MaterialCollection
 
-            MaterialContainer materialContainer = null;
+            MaterialContainer materialContainer;
             if (labResultProxyVO.getTheMaterialContainerCollection() != null)
             {
                 for (MaterialContainer vo : labResultProxyVO.getTheMaterialContainerCollection()) {
                     materialContainer = vo;
-                    MaterialDto newMaterialDto = null;
+                    MaterialDto newMaterialDto;
                     logger.debug("materialUID: " + materialContainer.getTheMaterialDto().getMaterialUid());
 
                     Integer eixstVerNum = null;
@@ -971,20 +970,19 @@ public class ObservationService implements IObservationService {
                 for (ParticipationDto dt : labResultProxyVO.getTheParticipationDtoCollection()) {
 
                     logger.debug("Inside loop size of participations: " + labResultProxyVO.getTheParticipationDtoCollection().size());
-                    ParticipationDto participationDto = dt;
                     try {
-                        if (participationDto != null) {
-                            if (participationDto.isItDelete()) {
-                                participationService.saveParticipationHist(participationDto);
+                        if (dt != null) {
+                            if (dt.isItDelete()) {
+                                participationService.saveParticipationHist(dt);
                             }
 
-                            participationService.saveParticipation(participationDto);
+                            participationService.saveParticipation(dt);
 
 
                             logger.debug("got the participationDto, the ACTUID is " +
-                                    participationDto.getActUid());
+                                    dt.getActUid());
                             logger.debug("got the participationDto, the subjectEntityUid is " +
-                                    participationDto.getSubjectEntityUid());
+                                    dt.getSubjectEntityUid());
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -1104,7 +1102,6 @@ public class ObservationService implements IObservationService {
             return processLabReportObsContainerCollection( (LabResultProxyContainer) proxyVO, ELR_PROCESSING);
         }
 
-        //TODO: Morbidity is from a different flow
         //If coming from morbidity, processing this way
 //            if (proxyVO instanceof MorbidityProxyVO)
 //            {
@@ -1126,7 +1123,7 @@ public class ObservationService implements IObservationService {
     private Map<Object, Object> processLabReportObsContainerCollection(LabResultProxyContainer labResultProxyVO, boolean ELR_PROCESSING) throws DataProcessingException {
         Collection<ObservationContainer>obsContainerCollection = labResultProxyVO.getTheObservationContainerCollection();
         ObservationContainer observationContainer;
-        Map<Object, Object> returnObsVal = new HashMap<>();
+        Map<Object, Object> returnObsVal;
         boolean isMannualLab = false;
 
         //Find out if it is mannual lab
@@ -1246,7 +1243,9 @@ public class ObservationService implements IObservationService {
         try
         {
             //Find observation local id
-            if(localIds == null) localIds = new HashMap<Object, Object> ();
+            if(localIds == null) {
+                localIds = new HashMap<> ();
+            }
             var resObs = observationRepository.findById(observationUid);
             ObservationDto obsDT = new ObservationDto();
             if (resObs.isPresent()) {
@@ -1319,13 +1318,12 @@ public class ObservationService implements IObservationService {
                 isLabResultProxyVO = true;
             }
 
-            //TODO: MORBIDITY
 //            if (proxyVO instanceof MorbidityProxyVO)
 //            {
 //                obsVOColl = ( (MorbidityProxyVO) proxyVO).getTheObservationContainerCollection();
 //            }
 
-            ObservationContainer observationContainer = null;
+            ObservationContainer observationContainer ;
             Long returnObsVal = null;
 
             if (obsVOColl != null && obsVOColl.size() > 0)
@@ -1401,8 +1399,8 @@ public class ObservationService implements IObservationService {
             }
 
             String observationType = observationDT.getCtrlCdDisplayForm();
-            String businessTrigger = null;
-            String businessObjLookupName = null;
+            String businessTrigger;
+            String businessObjLookupName;
 
             if(observationType.equalsIgnoreCase(NEDSSConstant.LABRESULT_CODE)){
                 businessTrigger = NEDSSConstant.OBS_LAB_PROCESS;

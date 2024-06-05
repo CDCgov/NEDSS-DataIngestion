@@ -6,10 +6,6 @@ import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
-import gov.cdc.dataprocessing.utilities.component.observation.ObservationRepositoryUtil;
-import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
-import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -84,11 +80,10 @@ public class ConcurrentCheck {
 //            if(tableName.equalsIgnoreCase("Public_Health_Case"))
 //            {
 //                PublicHealthCaseDAOImpl pDao = new PublicHealthCaseDAOImpl();
-//                PublicHealthCaseDT phcDT  = (PublicHealthCaseDT)pDao.loadObject(theRootDTInterface.getUid().longValue());
+//                PublicHealthCaseDto phcDT  = (PublicHealthCaseDto)pDao.loadObject(theRootDTInterface.getUid().longValue());
 //                if(theRootDTInterface.getVersionCtrlNbr() == null)
-//                    ((PublicHealthCaseDT)theRootDTInterface).setVersionCtrlNbr(new Integer(1));
-//                PublicHealthCaseDT newPhcDT= (PublicHealthCaseDT)theRootDTInterface;
-//                /**TODO PKS UPDATE FOR MERGE INVESTIGATIONS
+//                    ((PublicHealthCaseDto)theRootDTInterface).setVersionCtrlNbr(new Integer(1));
+//                PublicHealthCaseDto newPhcDT= (PublicHealthCaseDto)theRootDTInterface;
 //                 if(phcDT.getVersionCtrlNbr().equals(theRootDTInterface.getVersionCtrlNbr())
 //                 || (phcDT.getVersionCtrlNbr().equals(newPhcDT.getVersionCtrlNbr()-1) && newPhcDT.isReentrant()))*/
 //                if(phcDT.getVersionCtrlNbr().equals(theRootDTInterface.getVersionCtrlNbr()) )
@@ -110,9 +105,9 @@ public class ConcurrentCheck {
 //            if(tableName.equalsIgnoreCase(DataTables.INTERVENTION_TABLE) )
 //            {
 //                InterventionDAOImpl pDao = new InterventionDAOImpl();
-//                InterventionDT interventionDT  = (InterventionDT)pDao.loadObject(theRootDTInterface.getUid().longValue());
+//                InterventionDto interventionDT  = (InterventionDto)pDao.loadObject(theRootDTInterface.getUid().longValue());
 //                if(theRootDTInterface.getVersionCtrlNbr() == null)
-//                    ((InterventionDT)theRootDTInterface).setVersionCtrlNbr(new Integer(1));
+//                    ((InterventionDto)theRootDTInterface).setVersionCtrlNbr(new Integer(1));
 //                if(interventionDT.getVersionCtrlNbr().equals(theRootDTInterface.getVersionCtrlNbr()))
 //                {
 //                    return true;

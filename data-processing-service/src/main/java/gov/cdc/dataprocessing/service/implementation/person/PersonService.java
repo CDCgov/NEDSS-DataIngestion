@@ -4,8 +4,8 @@ import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
-import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
@@ -13,15 +13,13 @@ import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
-import gov.cdc.dataprocessing.service.interfaces.other.IUidService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import gov.cdc.dataprocessing.service.interfaces.person.INokMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.person.IPatientMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.person.IPersonService;
 import gov.cdc.dataprocessing.service.interfaces.person.IProviderMatchingService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -29,8 +27,6 @@ import java.util.*;
 @Service
 @Slf4j
 public class PersonService implements IPersonService {
-    private static final Logger logger = LoggerFactory.getLogger(PersonService.class);
-
     private final IPatientMatchingService patientMatchingService;
     private final INokMatchingService nokMatchingService;
     private final IProviderMatchingService providerMatchingService;
@@ -128,7 +124,7 @@ public class PersonService implements IPersonService {
             }
 
             personContainer.setRole(EdxELRConstant.ELR_PROV_CD);
-            EDXActivityDetailLogDto eDXActivityDetailLogDto = new EDXActivityDetailLogDto();
+            EDXActivityDetailLogDto eDXActivityDetailLogDto;
             eDXActivityDetailLogDto = providerMatchingService.getMatchingProvider(personContainer);
             String personUId;
             personUId = eDXActivityDetailLogDto.getRecordId();
@@ -154,9 +150,7 @@ public class PersonService implements IPersonService {
 
     private PersonNameDto parsingPersonName(PersonContainer personContainer) throws DataProcessingException {
         Collection<PersonNameDto> personNames = personContainer.getThePersonNameDtoCollection();
-        Iterator<PersonNameDto> pnIter = personNames.iterator();
-        while (pnIter.hasNext()) {
-            PersonNameDto personName = pnIter.next();
+        for (PersonNameDto personName : personNames) {
             if (personName.getNmUseCd().equals("L")) {
                 return personName;
             }
@@ -168,12 +162,10 @@ public class PersonService implements IPersonService {
         Long matchedPersonUid = null;
         Collection<PersonContainer> personCollection = matchedlabResultProxyVO.getThePersonContainerCollection();
         if(personCollection!=null){
-            Iterator<PersonContainer> iterator = personCollection.iterator();
 
-            while(iterator.hasNext()){
-                PersonContainer personVO = iterator.next();
+            for (PersonContainer personVO : personCollection) {
                 String perDomainCdStr = personVO.getThePersonDto().getCdDescTxt();
-                if(perDomainCdStr!= null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)){
+                if (perDomainCdStr != null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)) {
                     matchedPersonUid = personVO.getThePersonDto().getPersonUid();
                 }
             }

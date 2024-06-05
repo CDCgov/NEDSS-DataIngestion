@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.model.dto.participation;
 
-import gov.cdc.dataprocessing.model.container.BaseContainer;
+import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.Participation;
 import lombok.Getter;
 import lombok.Setter;

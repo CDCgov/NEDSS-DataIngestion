@@ -2,10 +2,10 @@ package gov.cdc.dataprocessing.utilities.component.data_parser.util;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.MaterialContainer;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
-import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
-import gov.cdc.dataprocessing.model.container.MaterialContainer;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.material.MaterialDto;
@@ -32,7 +32,7 @@ public class HL7SpecimenUtil {
     }
 
     public void process251Specimen(HL7PatientResultSPMType hL7PatientResultSPMType, LabResultProxyContainer labResultProxyContainer,
-                                          ObservationDto observationDto, PersonContainer collectorVO, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
+                                   ObservationDto observationDto, PersonContainer collectorVO, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         try {
             List<HL7SPECIMENType> hl7SPECIMENTypeArray =hL7PatientResultSPMType.getSPECIMEN();
             if(hl7SPECIMENTypeArray!=null && hl7SPECIMENTypeArray.size()>1)

@@ -6,9 +6,9 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
-import gov.cdc.dataprocessing.model.container.BaseContainer;
-import gov.cdc.dataprocessing.model.container.ObservationContainer;
-import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.base.BaseContainer;
+import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -79,7 +79,7 @@ public class ObservationUtil {
             }
 
         } catch (Exception ex) {
-            throw new DataProcessingException("Error while retrieving a " + uidListType + " uid. " + ex.toString(), ex);
+            throw new DataProcessingException("Error while retrieving a " + uidListType + " uid. " + ex.getMessage(), ex);
         }
 
         return anUid;

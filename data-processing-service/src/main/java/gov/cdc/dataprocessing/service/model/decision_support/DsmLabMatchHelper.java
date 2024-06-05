@@ -3,7 +3,7 @@ package gov.cdc.dataprocessing.service.model.decision_support;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.model.dsma_algorithm.Algorithm;
 import gov.cdc.dataprocessing.model.dsma_algorithm.CodedType;
 import gov.cdc.dataprocessing.model.dsma_algorithm.ElrCriteriaType;
@@ -11,10 +11,10 @@ import gov.cdc.dataprocessing.model.dsma_algorithm.SendingSystemType;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueCodedDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueNumericDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueTxtDto;
-import gov.cdc.dataprocessing.service.model.WdsReport;
-import gov.cdc.dataprocessing.service.model.WdsValueCodedReport;
-import gov.cdc.dataprocessing.service.model.WdsValueNumericReport;
-import gov.cdc.dataprocessing.service.model.WdsValueTextReport;
+import gov.cdc.dataprocessing.service.model.wds.WdsReport;
+import gov.cdc.dataprocessing.service.model.wds.WdsValueCodedReport;
+import gov.cdc.dataprocessing.service.model.wds.WdsValueNumericReport;
+import gov.cdc.dataprocessing.service.model.wds.WdsValueTextReport;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -182,7 +182,7 @@ public class DsmLabMatchHelper {
      * @return true if this algorithm is a match, false otherwise
      */
     public WdsReport isThisLabAMatch(Collection<String> resultedTestCodeColl,
-                                   Collection<ObservationContainer> resultedTestColl, String sendingFacilityClia, String sendingFacilityName) {
+                                     Collection<ObservationContainer> resultedTestColl, String sendingFacilityClia, String sendingFacilityName) {
         //Is this Decision Support Algorithm looking for the lab test(s) in these Lab results?
         WdsReport wdsReport = new WdsReport();
         boolean testNotMatched = testsDoNotMatch(resultedTestCodeColl, resultedTestCodeMap, andOrLogic);

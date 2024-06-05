@@ -3,7 +3,7 @@ package gov.cdc.dataprocessing.utilities.component.observation;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
@@ -20,8 +20,8 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipRepos
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
-import gov.cdc.dataprocessing.service.implementation.other.OdseIdGeneratorService;
-import gov.cdc.dataprocessing.utilities.component.ActRelationshipRepositoryUtil;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -180,9 +180,9 @@ public class ObservationRepositoryUtil {
             Collection<ActivityLocatorParticipationDto> alpDTCol = observationContainer.getTheActivityLocatorParticipationDtoCollection();
             Collection<ActRelationshipDto> arDTCol = observationContainer.getTheActRelationshipDtoCollection();
             Collection<ParticipationDto> pDTCol = observationContainer.getTheParticipationDtoCollection();
-            Collection<ActRelationshipDto> colAct = null;
-            Collection<ParticipationDto> colParticipation = null;
-            Collection<ActivityLocatorParticipationDto> colActLocatorParticipation = null;
+            Collection<ActRelationshipDto> colAct;
+            Collection<ParticipationDto> colParticipation;
+            Collection<ActivityLocatorParticipationDto> colActLocatorParticipation;
 
 
             if (alpDTCol != null)
@@ -206,8 +206,7 @@ public class ObservationRepositoryUtil {
             if (observationContainer.isItNew())
             {
                 //observation = home.create(observationContainer);
-                var obsUid =  createNewObservation(observationContainer);
-                observationUid = obsUid;
+                observationUid = createNewObservation(observationContainer);
             }
             else
             {
@@ -250,7 +249,7 @@ public class ObservationRepositoryUtil {
 
     @Transactional
     public Long updateObservation(ObservationContainer observationContainer) throws DataProcessingException {
-        Long uid = -1L;
+        Long uid;
         if (observationContainer.getTheObservationDto().getObservationUid() == null) {
             uid = saveNewObservation(observationContainer.getTheObservationDto());
             observationContainer.getTheObservationDto().setItNew(false);
@@ -354,7 +353,7 @@ public class ObservationRepositoryUtil {
 
     public Collection<ObservationContainer> retrieveObservationQuestion(Long targetActUid) {
 
-        ArrayList<ObservationContainer> theObservationQuestionColl = new ArrayList<ObservationContainer> ();
+        ArrayList<ObservationContainer> theObservationQuestionColl = new ArrayList<> ();
         var observationQuestion = observationRepository.retrieveObservationQuestion(targetActUid);
         if (observationQuestion.isPresent()) {
             Long previousTargetActUid = null;
@@ -365,14 +364,13 @@ public class ObservationRepositoryUtil {
             ArrayList<ObsValueNumericDto> obsNumerics = null;
             ArrayList<ObsValueTxtDto> obsValueTxts = null;
             for (Observation_Question observation_question : observationQuestion.get()) {
-                Observation_Question obsQA = observation_question;
 
                 // //##!! System.out.println("previousTargetActUid = " +  previousTargetActUid);
                 //   //##!! System.out.println("crrent TargetActUid = " +  obsQA.getTargetActUid());
                 if (previousTargetActUid == null ||
-                        !previousTargetActUid.equals(obsQA.getTargetActUid())) {
+                        !previousTargetActUid.equals(observation_question.getTargetActUid())) {
                     if (previousObservationUid == null ||
-                            !previousObservationUid.equals(obsQA.getObservationUid())) {
+                            !previousObservationUid.equals(observation_question.getObservationUid())) {
                         obsVO = new ObservationContainer();
                         theObservationQuestionColl.add(obsVO);
                         //Initialize the Collections for this new Observation
@@ -381,52 +379,52 @@ public class ObservationRepositoryUtil {
                         obsNumerics = null;
                         obsValueTxts = null;
                         logger.debug("Mark - CREATED NEW OBSERVATION Uid=" +
-                                obsQA.getObservationUid());
-                        previousObservationUid = obsQA.getObservationUid();
+                                observation_question.getObservationUid());
+                        previousObservationUid = observation_question.getObservationUid();
                         // put ObeservatioDT
-                        obsVO.getTheObservationDto().setObservationUid(obsQA.getObservationUid());
-                        obsVO.getTheObservationDto().setVersionCtrlNbr(obsQA.getVersionCtrlNbr());
-                        obsVO.getTheObservationDto().setSharedInd(obsQA.getSharedInd());
-                        obsVO.getTheObservationDto().setCd(obsQA.getCd());
-                        obsVO.getTheObservationDto().setCtrlCdDisplayForm(obsQA.getCtrlCdDisplayForm());
-                        obsVO.getTheObservationDto().setLocalId(obsQA.getLocalId());
-                        obsVO.getTheObservationDto().setCdDescTxt(obsQA.getCdDescTxt());
-                        obsVO.getTheObservationDto().setCdSystemDescTxt(obsQA.getCdSystemDescTxt());
-                        obsVO.getTheObservationDto().setCdSystemCd(obsQA.getCdSystemCd());
-                        obsVO.getTheObservationDto().setCdVersion(obsQA.getCdVersion());
+                        obsVO.getTheObservationDto().setObservationUid(observation_question.getObservationUid());
+                        obsVO.getTheObservationDto().setVersionCtrlNbr(observation_question.getVersionCtrlNbr());
+                        obsVO.getTheObservationDto().setSharedInd(observation_question.getSharedInd());
+                        obsVO.getTheObservationDto().setCd(observation_question.getCd());
+                        obsVO.getTheObservationDto().setCtrlCdDisplayForm(observation_question.getCtrlCdDisplayForm());
+                        obsVO.getTheObservationDto().setLocalId(observation_question.getLocalId());
+                        obsVO.getTheObservationDto().setCdDescTxt(observation_question.getCdDescTxt());
+                        obsVO.getTheObservationDto().setCdSystemDescTxt(observation_question.getCdSystemDescTxt());
+                        obsVO.getTheObservationDto().setCdSystemCd(observation_question.getCdSystemCd());
+                        obsVO.getTheObservationDto().setCdVersion(observation_question.getCdVersion());
                         obsVO.getTheObservationDto().setItNew(false);
                         obsVO.getTheObservationDto().setItDirty(false);
                         // ObsValueCode
                     }
-                    if (obsQA.getObsCodeUid() != null) {
+                    if (observation_question.getObsCodeUid() != null) {
                         if (obsCodes == null) {
                             obsCodes = new ArrayList<>();
                             obsVO.setTheObsValueCodedDtoCollection(obsCodes);
                         }
                         ObsValueCodedDto obsCode = new ObsValueCodedDto();
-                        obsCode.setObservationUid(obsQA.getObsCodeUid());
-                        obsCode.setCode(obsQA.getCode());
-                        obsCode.setCodeSystemDescTxt(obsQA.getCodeSystemDescTxt());
-                        obsCode.setOriginalTxt(obsQA.getOriginalTxt());
+                        obsCode.setObservationUid(observation_question.getObsCodeUid());
+                        obsCode.setCode(observation_question.getCode());
+                        obsCode.setCodeSystemDescTxt(observation_question.getCodeSystemDescTxt());
+                        obsCode.setOriginalTxt(observation_question.getOriginalTxt());
                         obsCode.setItNew(false);
                         obsCode.setItDirty(false);
                         obsCodes.add(obsCode);
                         //obsVO.setTheObsValueCodedDTCollection(obsCodes);
                     }
                     // ObsvalueDate
-                    if (obsQA.getObsDateUid() != null) {
+                    if (observation_question.getObsDateUid() != null) {
                         if (obsDates == null) {
                             obsDates = new ArrayList<>();
                             obsVO.setTheObsValueDateDtoCollection(obsDates);
                         }
                         //ArrayList<Object> obsDates = new ArrayList<Object> ();
                         ObsValueDateDto obsDate = new ObsValueDateDto();
-                        obsDate.setObservationUid(obsQA.getObsDateUid());
-                        obsDate.setFromTime(obsQA.getFromTime());
-                        obsDate.setToTime(obsQA.getToTime());
-                        obsDate.setDurationAmt(obsQA.getDurationAmt());
-                        obsDate.setDurationUnitCd(obsQA.getDurationUnitCd());
-                        obsDate.setObsValueDateSeq(obsQA.getObsValueDateSeq());
+                        obsDate.setObservationUid(observation_question.getObsDateUid());
+                        obsDate.setFromTime(observation_question.getFromTime());
+                        obsDate.setToTime(observation_question.getToTime());
+                        obsDate.setDurationAmt(observation_question.getDurationAmt());
+                        obsDate.setDurationUnitCd(observation_question.getDurationUnitCd());
+                        obsDate.setObsValueDateSeq(observation_question.getObsValueDateSeq());
                         obsDate.setItNew(false);
                         obsDate.setItDirty(false);
                         obsDates.add(obsDate);
@@ -434,51 +432,51 @@ public class ObservationRepositoryUtil {
                         //obsVO.setTheObsValueDateDTCollection(obsDates);
                     }
                     // ObsvalueNumeric
-                    if (obsQA.getObsNumericUid() != null) {
+                    if (observation_question.getObsNumericUid() != null) {
                         if (obsNumerics == null) {
                             obsNumerics = new ArrayList<>();
                             obsVO.setTheObsValueNumericDtoCollection(obsNumerics);
                         }
                         //ArrayList<Object> obsNumerics = new ArrayList<Object> ();
                         ObsValueNumericDto obsNumeric = new ObsValueNumericDto();
-                        obsNumeric.setObservationUid(obsQA.getObsNumericUid());
-                        obsNumeric.setNumericScale1(obsQA.getNumericScale1());
-                        obsNumeric.setNumericScale2(obsQA.getNumericScale2());
-                        obsNumeric.setNumericValue1(obsQA.getNumericValue1());
-                        obsNumeric.setNumericValue2(obsQA.getNumericValue2());
-                        obsNumeric.setNumericUnitCd(obsQA.getNumericUnitCd());
-                        obsNumeric.setObsValueNumericSeq(obsQA.getObsValueNumericSeq());
+                        obsNumeric.setObservationUid(observation_question.getObsNumericUid());
+                        obsNumeric.setNumericScale1(observation_question.getNumericScale1());
+                        obsNumeric.setNumericScale2(observation_question.getNumericScale2());
+                        obsNumeric.setNumericValue1(observation_question.getNumericValue1());
+                        obsNumeric.setNumericValue2(observation_question.getNumericValue2());
+                        obsNumeric.setNumericUnitCd(observation_question.getNumericUnitCd());
+                        obsNumeric.setObsValueNumericSeq(observation_question.getObsValueNumericSeq());
                         obsNumeric.setItNew(false);
                         obsNumeric.setItDirty(false);
                         obsNumerics.add(obsNumeric);
                         // obsVO.setTheObsValueNumericDTCollection(obsNumerics);
                     }
                     // ObsvalueTxt
-                    if (obsQA.getObsTxtUid() != null) {
+                    if (observation_question.getObsTxtUid() != null) {
                         if (obsValueTxts == null) {
                             obsValueTxts = new ArrayList<>();
                             obsVO.setTheObsValueTxtDtoCollection(obsValueTxts);
                         }
                         //ArrayList<Object> obsValueTxts = new ArrayList<Object> ();
                         ObsValueTxtDto obsValueTxt = new ObsValueTxtDto();
-                        obsValueTxt.setObservationUid(obsQA.getObsTxtUid());
-                        obsValueTxt.setValueTxt(obsQA.getValueTxt());
-                        obsValueTxt.setObsValueTxtSeq(obsQA.getObsValueTxtSeq());
+                        obsValueTxt.setObservationUid(observation_question.getObsTxtUid());
+                        obsValueTxt.setValueTxt(observation_question.getValueTxt());
+                        obsValueTxt.setObsValueTxtSeq(observation_question.getObsValueTxtSeq());
                         obsValueTxt.setItNew(false);
                         obsValueTxt.setItDirty(false);
                         obsValueTxts.add(obsValueTxt);
                         //  obsVO.setTheObsValueTxtDTCollection(obsValueTxts);
                     }
 
-                    previousTargetActUid = obsQA.getTargetActUid();
+                    previousTargetActUid = observation_question.getTargetActUid();
                     if (previousTargetActUid != null &&
-                            previousTargetActUid.equals(obsQA.getObservationUid())) {
+                            previousTargetActUid.equals(observation_question.getObservationUid())) {
                         //       //##!! System.out.println("First time both are equal");
                         Collection<ActRelationshipDto> actColl = new ArrayList<>();
                         ActRelationshipDto ar = new ActRelationshipDto();
-                        ar.setSourceActUid(obsQA.getSourceActUid());
-                        ar.setTargetActUid(obsQA.getTargetActUid());
-                        ar.setTypeCd(obsQA.getTypeCd());
+                        ar.setSourceActUid(observation_question.getSourceActUid());
+                        ar.setTargetActUid(observation_question.getTargetActUid());
+                        ar.setTypeCd(observation_question.getTypeCd());
                         ar.setItDirty(false);
                         actColl.add(ar);
                         obsVO.setTheActRelationshipDtoCollection(actColl);
@@ -491,9 +489,9 @@ public class ObservationRepositoryUtil {
                         actColl = new ArrayList<>();
                     }
                     ActRelationshipDto ar = new ActRelationshipDto();
-                    ar.setSourceActUid(obsQA.getSourceActUid());
-                    ar.setTargetActUid(obsQA.getTargetActUid());
-                    ar.setTypeCd(obsQA.getTypeCd());
+                    ar.setSourceActUid(observation_question.getSourceActUid());
+                    ar.setTargetActUid(observation_question.getTargetActUid());
+                    ar.setTypeCd(observation_question.getTypeCd());
                     ar.setRecordStatusCd(NEDSSConstant.ACTIVE);
                     ar.setItDirty(false);
                     actColl.add(ar);
@@ -504,7 +502,6 @@ public class ObservationRepositoryUtil {
 
             }
             logger.debug("RetrieveSummaryVO");
-            //TODO: INVESTIGATE THIS REPORT
 //            VOTester.createReport(theObservationQuestionColl,
 //                    "RetrievSummaryVO-obsColl");
         }

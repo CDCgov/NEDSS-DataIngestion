@@ -2,7 +2,7 @@ package gov.cdc.dataprocessing.service.implementation.person.base;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.PersonContainer;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
@@ -12,8 +12,9 @@ import gov.cdc.dataprocessing.model.dto.matching.EdxEntityMatchDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
-import gov.cdc.dataprocessing.service.implementation.other.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
+import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.model.Coded;
@@ -34,8 +35,9 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
             EntityHelper entityHelper,
             PatientRepositoryUtil patientRepositoryUtil,
-            CachingValueService cachingValueService) {
-        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService);
+            CachingValueService cachingValueService,
+            PrepareAssocModelHelper prepareAssocModelHelper) {
+        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
     }
 
     protected String telePhoneTxtProvider(PersonContainer personContainer) {
@@ -44,9 +46,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
 
         if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null
                 && personContainer.getTheEntityLocatorParticipationDtoCollection().size() > 0) {
-            Iterator<EntityLocatorParticipationDto> addIter = personContainer.getTheEntityLocatorParticipationDtoCollection().iterator();
-            while (addIter.hasNext()) {
-                EntityLocatorParticipationDto entLocPartDT = (EntityLocatorParticipationDto) addIter.next();
+            for (EntityLocatorParticipationDto entLocPartDT : personContainer.getTheEntityLocatorParticipationDtoCollection()) {
                 if (entLocPartDT.getClassCd() != null && entLocPartDT.getClassCd().equals(NEDSSConstant.TELE)) {
                     if (entLocPartDT.getCd() != null && entLocPartDT.getCd().equals(NEDSSConstant.PHONE)) {
                         TeleLocatorDto teleLocDT = entLocPartDT.getTheTeleLocatorDto();
@@ -68,9 +68,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         String nameAddStr = null;
         String carrot = "^";
         if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && personContainer.getTheEntityLocatorParticipationDtoCollection().size() > 0) {
-            Iterator<EntityLocatorParticipationDto> addIter = personContainer.getTheEntityLocatorParticipationDtoCollection().iterator();
-            while (addIter.hasNext()) {
-                EntityLocatorParticipationDto entLocPartDT = (EntityLocatorParticipationDto) addIter.next();
+            for (EntityLocatorParticipationDto entLocPartDT : personContainer.getTheEntityLocatorParticipationDtoCollection()) {
                 if (entLocPartDT.getClassCd() != null && entLocPartDT.getClassCd().equals(NEDSSConstant.POSTAL)) {
                     if (entLocPartDT.getCd() != null
                             && entLocPartDT.getCd().equals(NEDSSConstant.OFFICE_CD)
@@ -126,8 +124,8 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         }
     }
     private Long persistingProvider(PersonContainer personContainer, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException  {
-        Long personUID =  -1L;
-        String localId = "";
+        Long personUID ;
+        String localId ;
         boolean isELRCase = false;
         try {
             localId = personContainer.getThePersonDto().getLocalId();
@@ -136,9 +134,9 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                 isELRCase = true;
             }
 
-            Collection<EntityLocatorParticipationDto> collParLocator = null;
-            Collection<RoleDto> colRole = null;
-            Collection<ParticipationDto> colPar = null;
+            Collection<EntityLocatorParticipationDto> collParLocator ;
+            Collection<RoleDto> colRole;
+            Collection<ParticipationDto> colPar ;
 
 
             collParLocator = personContainer.getTheEntityLocatorParticipationDtoCollection();
@@ -180,24 +178,23 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
     private void setProvidertoEntityMatch(PersonContainer personContainer) throws Exception {
 
         Long entityUid = personContainer.getThePersonDto().getPersonUid();
-        String identifier = null;
-        int identifierHshCd = 0;
-        List identifierList = null;
+        String identifier ;
+        int identifierHshCd;
+        List<String> identifierList;
         identifierList = getIdentifierForProvider(personContainer);
-        if (identifierList != null && !identifierList.isEmpty()) {
-            for (int k = 0; k < identifierList.size(); k++) {
-                identifier = (String) identifierList.get(k);
-                if (identifier != null)
-                {
+        if (!identifierList.isEmpty()) {
+            for (String s : identifierList) {
+                identifier = s;
+                if (identifier != null) {
                     identifier = identifier.toUpperCase();
                 }
-                identifierHshCd = identifier.hashCode();
                 if (identifier != null) {
+                    identifierHshCd = identifier.hashCode();
                     EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
                     edxEntityMatchDto.setEntityUid(entityUid);
                     edxEntityMatchDto.setTypeCd(NEDSSConstant.PRV);
                     edxEntityMatchDto.setMatchString(identifier);
-                    edxEntityMatchDto.setMatchStringHashCode((long)identifierHshCd);
+                    edxEntityMatchDto.setMatchStringHashCode((long) identifierHshCd);
                     try {
                         getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDto);
                     } catch (Exception e) {
@@ -211,7 +208,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         }
 
         // Matching with name and address with street address1 alone
-        String nameAddStrSt1 = null;
+        String nameAddStrSt1;
         int nameAddStrSt1hshCd = 0;
         nameAddStrSt1 = nameAddressStreetOneProvider(personContainer);
         if (nameAddStrSt1 != null) {
@@ -220,7 +217,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         }
 
         // Continue for name Telephone with no extension
-        String nameTelePhone = null;
+        String nameTelePhone ;
         int nameTelePhonehshCd = 0;
         nameTelePhone = telePhoneTxtProvider(personContainer);
         if (nameTelePhone != null) {
@@ -265,21 +262,19 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
     }
     private List<String> getIdentifierForProvider(PersonContainer personContainer) throws DataProcessingException {
         String carrot = "^";
-        List<String> identifierList = new ArrayList<String>();
+        List<String> identifierList = new ArrayList<>();
         String identifier = null;
         Collection<EntityIdDto> newEntityIdDtoColl = new ArrayList<>();
         try{
             if (personContainer.getTheEntityIdDtoCollection() != null
                     && personContainer.getTheEntityIdDtoCollection().size() > 0) {
                 Collection<EntityIdDto> entityIdDtoColl = personContainer.getTheEntityIdDtoCollection();
-                Iterator<EntityIdDto> entityIdIterator = entityIdDtoColl.iterator();
-                while (entityIdIterator.hasNext()) {
-                    EntityIdDto entityIdDto = (EntityIdDto) entityIdIterator.next();
+                for (EntityIdDto entityIdDto : entityIdDtoColl) {
                     if ((entityIdDto.getStatusCd().equalsIgnoreCase(NEDSSConstant.STATUS_ACTIVE))) {
                         if ((entityIdDto.getRootExtensionTxt() != null)
                                 && (entityIdDto.getTypeCd() != null)
                                 && (entityIdDto.getAssigningAuthorityCd() != null)
-                                && (entityIdDto.getAssigningAuthorityDescTxt() !=null)
+                                && (entityIdDto.getAssigningAuthorityDescTxt() != null)
                                 && (entityIdDto.getAssigningAuthorityIdType() != null)) {
                             identifier = entityIdDto.getRootExtensionTxt()
                                     + carrot + entityIdDto.getTypeCd() + carrot
@@ -287,7 +282,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                                     + carrot
                                     + entityIdDto.getAssigningAuthorityDescTxt()
                                     + carrot + entityIdDto.getAssigningAuthorityIdType();
-                        }else {
+                        } else {
                             try {
 
 //                                Coded coded = new Coded();
@@ -309,12 +304,11 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
 //                                var codedValueGenralList = getCachingValueService().findCodeValuesByCodeSetNmAndCode(coded.getCodesetName(), coded.getCode());
 
 
-
                                 if (entityIdDto.getRootExtensionTxt() != null
                                         && entityIdDto.getTypeCd() != null
-                                        && coded.getCode()!=null
-                                        && coded.getCodeDescription()!=null
-                                        && coded.getCodeSystemCd()!=null){
+                                        && coded.getCode() != null
+                                        && coded.getCodeDescription() != null
+                                        && coded.getCodeSystemCd() != null) {
                                     identifier = entityIdDto.getRootExtensionTxt()
                                             + carrot + entityIdDto.getTypeCd() + carrot
                                             + coded.getCode() + carrot
@@ -323,14 +317,14 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                                 }
 
 
-                            }catch (Exception ex) {
+                            } catch (Exception ex) {
                                 String errorMessage = "The assigning authority "
                                         + entityIdDto.getAssigningAuthorityCd()
                                         + " does not exists in the system. ";
                                 logger.debug(ex.getMessage() + errorMessage);
                             }
                         }
-                        if (entityIdDto.getTypeCd()!=null && !entityIdDto.getTypeCd().equalsIgnoreCase("LR")) {
+                        if (entityIdDto.getTypeCd() != null && !entityIdDto.getTypeCd().equalsIgnoreCase("LR")) {
                             newEntityIdDtoColl.add(entityIdDto);
                         }
                         if (identifier != null) {
@@ -357,11 +351,8 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         String nameStr = null;
         if (personContainer.getThePersonNameDtoCollection() != null && personContainer.getThePersonNameDtoCollection().size() > 0) {
             Collection<PersonNameDto> personNameDtoColl = personContainer.getThePersonNameDtoCollection();
-            Iterator<PersonNameDto> nameCollIter = personNameDtoColl.iterator();
-            while (nameCollIter.hasNext()) {
-                PersonNameDto personNameDto = (PersonNameDto) nameCollIter.next();
-                if (personNameDto.getNmUseCd() == null)
-                {
+            for (PersonNameDto personNameDto : personNameDtoColl) {
+                if (personNameDto.getNmUseCd() == null) {
                     String Message = "personNameDT.getNmUseCd() is null";
                     logger.debug(Message);
                 }

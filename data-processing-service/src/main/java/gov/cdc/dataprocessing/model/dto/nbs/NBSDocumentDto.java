@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.model.dto.nbs;
 
-import gov.cdc.dataprocessing.model.container.BaseContainer;
+import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import lombok.Getter;
 import lombok.Setter;

@@ -8,13 +8,8 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.exception.EdxLogException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PageActProxyVO;
-import gov.cdc.dataprocessing.model.classic_model_move_as_needed.vo.PublicHealthCaseVO;
-import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
-import gov.cdc.dataprocessing.model.container.ObservationContainer;
-import gov.cdc.dataprocessing.model.container.PamProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
@@ -23,17 +18,20 @@ import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.NbsInterfaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
-import gov.cdc.dataprocessing.service.implementation.other.CachingValueService;
-import gov.cdc.dataprocessing.service.interfaces.*;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService;
-import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
-import gov.cdc.dataprocessing.service.interfaces.other.IDataExtractionService;
-import gov.cdc.dataprocessing.service.interfaces.other.IHandleLabService;
-import gov.cdc.dataprocessing.service.model.PublicHealthCaseFlowContainer;
-import gov.cdc.dataprocessing.service.model.WdsTrackerView;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.data_extraction.IDataExtractionService;
+import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPageService;
+import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPamService;
+import gov.cdc.dataprocessing.service.interfaces.public_health_case.IDecisionSupportService;
+import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationNotificationService;
+import gov.cdc.dataprocessing.service.interfaces.action.ILabReportProcessing;
+import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
+import gov.cdc.dataprocessing.service.model.wds.WdsTrackerView;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.ManagerUtil;
 import jakarta.transaction.Transactional;
@@ -63,8 +61,6 @@ public class ManagerService implements IManagerService {
 
     private final IEdxLogService edxLogService;
 
-    private final IHandleLabService handleLabService;
-
     private final IDataExtractionService dataExtractionService;
 
     private final NbsInterfaceRepository nbsInterfaceRepository;
@@ -72,8 +68,6 @@ public class ManagerService implements IManagerService {
     private final ICatchingValueService cachingValueService;
 
     private final CacheManager cacheManager;
-
-    private final IAuthUserService authUserService;
 
     private final IDecisionSupportService decisionSupportService;
 
@@ -90,12 +84,11 @@ public class ManagerService implements IManagerService {
     @Autowired
     public ManagerService(IObservationService observationService,
                           IEdxLogService edxLogService,
-                          IHandleLabService handleLabService,
                           IDataExtractionService dataExtractionService,
                           NbsInterfaceRepository nbsInterfaceRepository,
                           CachingValueService cachingValueService,
                           CacheManager cacheManager,
-                          IAuthUserService authUserService, IDecisionSupportService decisionSupportService,
+                          IDecisionSupportService decisionSupportService,
                           ManagerUtil managerUtil,
                           KafkaManagerProducer kafkaManagerProducer,
                           IManagerAggregationService managerAggregationService,
@@ -105,12 +98,10 @@ public class ManagerService implements IManagerService {
                           IInvestigationNotificationService investigationNotificationService) {
         this.observationService = observationService;
         this.edxLogService = edxLogService;
-        this.handleLabService = handleLabService;
         this.dataExtractionService = dataExtractionService;
         this.nbsInterfaceRepository = nbsInterfaceRepository;
         this.cachingValueService = cachingValueService;
         this.cacheManager = cacheManager;
-        this.authUserService = authUserService;
         this.decisionSupportService = decisionSupportService;
         this.managerUtil = managerUtil;
         this.kafkaManagerProducer = kafkaManagerProducer;
@@ -122,29 +113,23 @@ public class ManagerService implements IManagerService {
     }
 
     @Transactional
-    public Object processDistribution(String eventType, String data) throws DataProcessingConsumerException {
-        Object result = new Object();
+    public void processDistribution(String eventType, String data) throws DataProcessingConsumerException {
         if (AuthUtil.authUser != null) {
             switch (eventType) {
                 case EVENT_ELR:
-                    result = processingELR(data);
+                    processingELR(data);
                     break;
                 default:
                     break;
             }
-            return result;
         } else {
             throw new DataProcessingConsumerException("Invalid User");
         }
 
     }
 
-    public void processingEdxLog(String data) throws EdxLogException {
-        edxLogService.processingLog();
-    }
-
     @Transactional
-    public void initiatingInvestigationAndPublicHealthCase(String data) throws DataProcessingException {
+    public void initiatingInvestigationAndPublicHealthCase(String data) {
         NbsInterfaceModel nbsInterfaceModel = null;
         try {
             Gson gson = new Gson();
@@ -213,13 +198,13 @@ public class ManagerService implements IManagerService {
                     if (edxLabInformationDto.getPageActContainer() != null
                     || edxLabInformationDto.getPamContainer() != null) {
                         if (edxLabInformationDto.getPageActContainer() != null) {
-                            var pageActProxyVO = (PageActProxyVO) edxLabInformationDto.getPageActContainer();
-                            trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT());
+                            var pageActProxyVO = (PageActProxyContainer) edxLabInformationDto.getPageActContainer();
+                            trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
                         }
                         else
                         {
                             var pamProxyVO = (PamProxyContainer)edxLabInformationDto.getPamContainer();
-                            trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT());
+                            trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
                         }
                     }
                     else
@@ -230,11 +215,6 @@ public class ManagerService implements IManagerService {
                         }
                     }
 
-
-
-//                    gson = new Gson();
-//                    String jsonString = gson.toJson(phcContainer);
-        //            kafkaManagerProducer.sendDataLabHandling(jsonString);
 
                     gson = new Gson();
                     String trackerString = gson.toJson(trackerView);
@@ -257,14 +237,14 @@ public class ManagerService implements IManagerService {
 
     }
 
-    public void initiatingLabProcessing(String data) throws DataProcessingConsumerException {
+    @Transactional
+    public void initiatingLabProcessing(String data) {
         NbsInterfaceModel nbsInterfaceModel = null;
         try {
             Gson gson = new Gson();
             PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(data, PublicHealthCaseFlowContainer.class);
             EdxLabInformationDto edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
-            LabResultProxyContainer labResultProxyContainer = publicHealthCaseFlowContainer.getLabResultProxyContainer();
             var res = nbsInterfaceRepository.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
             if (res.isPresent()) {
                 nbsInterfaceModel = res.get();
@@ -273,24 +253,18 @@ public class ManagerService implements IManagerService {
             }
 
 
-            PageActProxyVO pageActProxyVO = null;
+            PageActProxyContainer pageActProxyContainer = null;
             PamProxyContainer pamProxyVO = null;
-            PublicHealthCaseVO publicHealthCaseVO = null;
-            Long phcUid = null;
+            PublicHealthCaseContainer publicHealthCaseContainer;
+            Long phcUid;
 
-            /**
-             * REVIEW NOTE and what not implemented
-             * - Basic reviewed implemented -- clean up needed
-             * - Adv reviewed is not implemented
-             * */
+
             if (edxLabInformationDto.getAction() != null && edxLabInformationDto.getAction().equalsIgnoreCase(DecisionSupportConstants.MARK_AS_REVIEWED)) {
                 //Check for user security to mark as review lab
                 //checkSecurity(nbsSecurityObj, edxLabInformationDto, NBSBOLookup.OBSERVATIONLABREPORT, NBSOperationLookup.MARKREVIEWED, programAreaCd, jurisdictionCd);
 
-
-                //TODO: 3rd Flow
                 labReportProcessing.markAsReviewedHandler(observationDto.getObservationUid(), edxLabInformationDto);
-                if (edxLabInformationDto.getAssociatedPublicHealthCaseUid() != null && edxLabInformationDto.getAssociatedPublicHealthCaseUid().longValue() > 0) {
+                if (edxLabInformationDto.getAssociatedPublicHealthCaseUid() != null && edxLabInformationDto.getAssociatedPublicHealthCaseUid() > 0) {
                     edxLabInformationDto.setPublicHealthCaseUid(edxLabInformationDto.getAssociatedPublicHealthCaseUid());
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_21);
                     edxLabInformationDto.setLabAssociatedToInv(true);
@@ -305,31 +279,29 @@ public class ManagerService implements IManagerService {
                 //checkSecurity(nbsSecurityObj, edxLabInformationDto, NBSBOLookup.INVESTIGATION, NBSOperationLookup.ADD, programAreaCd, jurisdictionCd);
 
                 /**
-                 * Incoming payload should reach PageActProxyVO
+                 * Incoming payload should reach PageActProxyContainer
                  * */
                 if (edxLabInformationDto.getPageActContainer() != null) {
-                    pageActProxyVO =  edxLabInformationDto.getPageActContainer();
-                    publicHealthCaseVO = pageActProxyVO.getPublicHealthCaseVO();
+                    pageActProxyContainer =  edxLabInformationDto.getPageActContainer();
+                    publicHealthCaseContainer = pageActProxyContainer.getPublicHealthCaseContainer();
                 }
                 else
                 {
                     pamProxyVO = edxLabInformationDto.getPamContainer();
-                    publicHealthCaseVO = pamProxyVO.getPublicHealthCaseVO();
+                    publicHealthCaseContainer = pamProxyVO.getPublicHealthCaseContainer();
                 }
 
-                if (publicHealthCaseVO.getErrorText() != null)
+                if (publicHealthCaseContainer.getErrorText() != null)
                 {
                     //TODO: LOGGING
-                    requiredFieldError(publicHealthCaseVO.getErrorText(), edxLabInformationDto);
-
+                    requiredFieldError(publicHealthCaseContainer.getErrorText(), edxLabInformationDto);
                 }
 
 
-                if (pageActProxyVO != null && observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null) {
-                    //TODO: 3rd Flow
-                    phcUid = pageService.setPageProxyWithAutoAssoc(NEDSSConstant.CASE, pageActProxyVO, edxLabInformationDto.getRootObserbationUid(), NEDSSConstant.LABRESULT_CODE, null);
+                if (pageActProxyContainer != null && observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null) {
+                    phcUid = pageService.setPageProxyWithAutoAssoc(NEDSSConstant.CASE, pageActProxyContainer, edxLabInformationDto.getRootObserbationUid(), NEDSSConstant.LABRESULT_CODE, null);
 
-                    pageActProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().setPublicHealthCaseUid(phcUid);
+                    pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setPublicHealthCaseUid(phcUid);
 
                     edxLabInformationDto.setInvestigationSuccessfullyCreated(true);
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_3);
@@ -338,20 +310,19 @@ public class ManagerService implements IManagerService {
                 }
                 else if (observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null)
                 {
-                    //TODO: 3rd Flow
                     phcUid = pamService.setPamProxyWithAutoAssoc(pamProxyVO, edxLabInformationDto.getRootObserbationUid(), NEDSSConstant.LABRESULT_CODE);
 
-                    pamProxyVO.getPublicHealthCaseVO().getThePublicHealthCaseDT().setPublicHealthCaseUid(phcUid);
+                    pamProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setPublicHealthCaseUid(phcUid);
                     edxLabInformationDto.setInvestigationSuccessfullyCreated(true);
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_3);
                     edxLabInformationDto.setPublicHealthCaseUid(phcUid);
                     edxLabInformationDto.setLabAssociatedToInv(true);
                 }
 
-                if(edxLabInformationDto.getAction().equalsIgnoreCase(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE)){
-                    //TODO: 3rd Flow
-                    //TODO: THIS SEEM TO GO TO LOG
-                    EDXActivityDetailLogDto edxActivityDetailLogDT = investigationNotificationService.sendNotification(publicHealthCaseVO, edxLabInformationDto.getNndComment());
+                if(edxLabInformationDto.getAction() != null
+                        && edxLabInformationDto.getAction().equalsIgnoreCase(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE)){
+                    //TODO: LOGGING
+                    EDXActivityDetailLogDto edxActivityDetailLogDT = investigationNotificationService.sendNotification(publicHealthCaseContainer, edxLabInformationDto.getNndComment());
                     edxActivityDetailLogDT.setRecordType(EdxELRConstant.ELR_RECORD_TP);
                     edxActivityDetailLogDT.setRecordName(EdxELRConstant.ELR_RECORD_NM);
                     ArrayList<EDXActivityDetailLogDto> details = (ArrayList<EDXActivityDetailLogDto>)edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails();
@@ -361,7 +332,7 @@ public class ManagerService implements IManagerService {
                     details.add(edxActivityDetailLogDT);
                     edxLabInformationDto.getEdxActivityLogDto().setEDXActivityLogDTWithVocabDetails(details);
                     if(edxActivityDetailLogDT.getLogType()!=null && edxActivityDetailLogDT.getLogType().equals(EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure.name())){
-                        if(edxActivityDetailLogDT.getComment()!=null && edxActivityDetailLogDT.getComment().indexOf(EdxELRConstant.MISSING_NOTF_REQ_FIELDS)!=-1){
+                        if(edxActivityDetailLogDT.getComment()!=null && edxActivityDetailLogDT.getComment().contains(EdxELRConstant.MISSING_NOTF_REQ_FIELDS)){
                             edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_8);
                             edxLabInformationDto.setNotificationMissingFields(true);
                         }
@@ -385,9 +356,8 @@ public class ManagerService implements IManagerService {
         }
     }
 
-    private Object processingELR(String data) throws DataProcessingConsumerException {
+    private void processingELR(String data) {
         NbsInterfaceModel nbsInterfaceModel = null;
-        Object result = new Object();
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         String detailedMsg = "";
         Gson gson = new Gson();
@@ -396,17 +366,9 @@ public class ManagerService implements IManagerService {
             edxLabInformationDto.setStatus(NbsInterfaceStatus.Success);
             edxLabInformationDto.setUserName(AuthUtil.authUser.getUserId());
 
-
-            //TODO: uncomment when deploy
             nbsInterfaceModel = gson.fromJson(data, NbsInterfaceModel.class);
 
-
-            //TODO: uncomment when debug
-//             nbsInterfaceModel = nbsInterfaceRepository.findById(Integer.valueOf(data)).get();
-//             nbsInterfaceModel.setObservationUid(null);
-
             edxLabInformationDto.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
-            //loadAndInitCachedValue();
 
             CompletableFuture<Void> cacheLoadingFuture = loadAndInitCachedValueAsync();
             cacheLoadingFuture.join();
@@ -436,14 +398,6 @@ public class ManagerService implements IManagerService {
                 managerUtil.setPersonUIDOnUpdate(aPersonUid, labResultProxyContainer);
             }
             edxLabInformationDto.setLabResultProxyContainer(labResultProxyContainer);
-
-            String nbsOperation = edxLabInformationDto.isLabIsCreate() ? "ADD" : "EDIT";
-
-            ObservationContainer orderTest = managerUtil.getObservationWithOrderDomainCode(labResultProxyContainer);
-
-            String programAreaCd = orderTest.getTheObservationDto().getProgAreaCd();
-            String jurisdictionCd = orderTest.getTheObservationDto().getJurisdictionCd();
-
 
             observationDto = observationService.processingLabResultContainer(labResultProxyContainer);
 
@@ -497,7 +451,7 @@ public class ManagerService implements IManagerService {
             edxLabInformationDto.setStatus(NbsInterfaceStatus.Failure);
             edxLabInformationDto.setSystemException(true);
 
-            if (e.toString().indexOf("Invalid XML") != -1) {
+            if (e.toString().contains("Invalid XML")) {
                 edxLabInformationDto.setInvalidXML(true);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
             }
@@ -509,7 +463,10 @@ public class ManagerService implements IManagerService {
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_9);
                 }
             }
-            else if ((edxLabInformationDto.getPageActContainer() != null || edxLabInformationDto.getPamContainer() != null) && edxLabInformationDto.isInvestigationSuccessfullyCreated())
+            else if (
+                    (edxLabInformationDto.getPageActContainer() != null
+                    || edxLabInformationDto.getPamContainer() != null)
+                    && edxLabInformationDto.isInvestigationSuccessfullyCreated())
             {
                 if (edxLabInformationDto.isNotificationMissingFields()) {
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_8);
@@ -525,7 +482,9 @@ public class ManagerService implements IManagerService {
 
                 if(edxLabInformationDto.getErrorText()==null){
                     //if error text is null, that means lab was not created due to unexpected error.
-                    if(e!=null && (e.getMessage().contains(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG) || e.getMessage().contains(EdxELRConstant.ORACLE_FIELD_TRUNCATION_ERROR_MSG))){
+                    if(e.getMessage().contains(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG)
+                            || e.getMessage().contains(EdxELRConstant.ORACLE_FIELD_TRUNCATION_ERROR_MSG))
+                    {
                         edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_18);
                         edxLabInformationDto.setFieldTruncationError(true);
                         edxLabInformationDto.setSystemException(false);
@@ -546,7 +505,7 @@ public class ManagerService implements IManagerService {
                         }catch(Exception ex){
                             logger.error("Exception while formatting exception message for Activity Log: "+ex.getMessage(), ex);
                         }
-                    } else if (e!=null && e.getMessage().contains(EdxELRConstant.DATE_VALIDATION)) {
+                    } else if (e.getMessage().contains(EdxELRConstant.DATE_VALIDATION)) {
                         edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_20);
                         edxLabInformationDto.setInvalidDateError(true);
                         edxLabInformationDto.setSystemException(false);
@@ -573,7 +532,7 @@ public class ManagerService implements IManagerService {
                             edxLabInformationDto.setEthnicityCodeTranslated(true);
                             StringWriter errors = new StringWriter();
                             e.printStackTrace(new PrintWriter(errors));
-                            String exceptionMessage = accessionNumberToAppend+"\n"+errors.toString();
+                            String exceptionMessage = accessionNumberToAppend+"\n"+errors;
                             detailedMsg = exceptionMessage.substring(0,Math.min(exceptionMessage.length(), 2000));
                         }catch(Exception ex){
                             logger.error("Exception while formatting exception message for Activity Log: "+ex.getMessage(), ex);
@@ -612,7 +571,6 @@ public class ManagerService implements IManagerService {
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
         }
-        return result;
     }
 
     private CompletableFuture<Void> loadAndInitCachedValueAsync() {
@@ -851,7 +809,7 @@ public class ManagerService implements IManagerService {
             if (edxLabInformationDT.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails() == null)
             {
                 edxLabInformationDT.getEdxActivityLogDto().setEDXActivityLogDTWithVocabDetails(
-                        new ArrayList<EDXActivityDetailLogDto>());
+                        new ArrayList<>());
             }
 
             //TODO: LOGGING

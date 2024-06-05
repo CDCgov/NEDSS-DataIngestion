@@ -4,13 +4,13 @@ import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.OrganizationContainer;
-import gov.cdc.dataprocessing.model.container.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.edx.EdxLabIdentiferDto;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
-import gov.cdc.dataprocessing.model.container.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
@@ -19,7 +19,7 @@ import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.phdc.*;
-import gov.cdc.dataprocessing.service.interfaces.other.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.CommonLabUtil;
 import org.slf4j.Logger;
@@ -366,18 +366,18 @@ public class ObservationResultRequestHandler {
                 labResultProxyContainer.getTheOrganizationContainerCollection().add(producerOrg);
             }
             List<HL7CEType> methodArray = hl7OBXType.getObservationMethod();
-            String methodCd = null;
-            String methodDescTxt = null;
+            StringBuilder methodCd = null;
+            StringBuilder methodDescTxt = null;
             final String delimiter = "**";
             for (HL7CEType method : methodArray) {
                 if (method.getHL7Identifier() != null) {
                     if (methodCd == null)
                     {
-                        methodCd = method.getHL7Identifier() + delimiter;
+                        methodCd = new StringBuilder(method.getHL7Identifier() + delimiter);
                     }
                     else
                     {
-                        methodCd = methodCd + method.getHL7Identifier() + delimiter;
+                        methodCd.append(method.getHL7Identifier()).append(delimiter);
                     }
 
                     String str = checkingValueService.getCodeDescTxtForCd("OBS_METH", method.getHL7Identifier());
@@ -390,11 +390,11 @@ public class ObservationResultRequestHandler {
                     if (method.getHL7Text() != null) {
                         if (methodDescTxt == null)
                         {
-                            methodDescTxt = method.getHL7Text() + delimiter;
+                            methodDescTxt = new StringBuilder(method.getHL7Text() + delimiter);
                         }
                         else
                         {
-                            methodDescTxt = methodDescTxt + method.getHL7Text() + delimiter;
+                            methodDescTxt.append(method.getHL7Text()).append(delimiter);
                         }
                     }
                 }
@@ -402,14 +402,14 @@ public class ObservationResultRequestHandler {
 
             if (methodCd != null && methodCd.lastIndexOf(delimiter) > 0)
             {
-                methodCd = methodCd.substring(0, methodCd.lastIndexOf(delimiter));
+                methodCd = new StringBuilder(methodCd.substring(0, methodCd.lastIndexOf(delimiter)));
             }
             if (methodDescTxt != null && methodDescTxt.lastIndexOf(delimiter) > 0)
             {
-                methodDescTxt = methodDescTxt.substring(0, methodDescTxt.lastIndexOf(delimiter));
+                methodDescTxt = new StringBuilder(methodDescTxt.substring(0, methodDescTxt.lastIndexOf(delimiter)));
             }
-            observationContainer.getTheObservationDto().setMethodCd(methodCd);
-            observationContainer.getTheObservationDto().setMethodDescTxt(methodDescTxt);
+            observationContainer.getTheObservationDto().setMethodCd(methodCd != null ? methodCd.toString() : "");
+            observationContainer.getTheObservationDto().setMethodDescTxt(methodDescTxt != null ? methodDescTxt.toString() : "");
         } catch (Exception e) {
             logger.error("ObservationResultRequest.getObservationResult Exception thrown while parsing XML document. Please check!!!"+e.getMessage(), e);
             throw new DataProcessingException("Exception thrown at ObservationResultRequest.getObservationResult:"+ e.getMessage());

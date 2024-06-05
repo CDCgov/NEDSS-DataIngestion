@@ -5,13 +5,10 @@ import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.StoredProcRepository;
 import gov.cdc.dataprocessing.service.interfaces.stored_proc.IMsgOutEStoredProcService;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class MsgOutEStoredProcService implements IMsgOutEStoredProcService {
-    private static final Logger logger = LoggerFactory.getLogger(MsgOutEStoredProcService.class);
 
     private final StoredProcRepository storedProcRepository;
 
