@@ -240,10 +240,11 @@ public class ManagerService implements IManagerService {
     @Transactional
     public void initiatingLabProcessing(String data) {
         NbsInterfaceModel nbsInterfaceModel = null;
+        EdxLabInformationDto edxLabInformationDto=null;
         try {
             Gson gson = new Gson();
             PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(data, PublicHealthCaseFlowContainer.class);
-            EdxLabInformationDto edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
+            edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
             var res = nbsInterfaceRepository.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
             if (res.isPresent()) {
@@ -302,7 +303,6 @@ public class ManagerService implements IManagerService {
                     phcUid = pageService.setPageProxyWithAutoAssoc(NEDSSConstant.CASE, pageActProxyContainer, edxLabInformationDto.getRootObserbationUid(), NEDSSConstant.LABRESULT_CODE, null);
 
                     pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setPublicHealthCaseUid(phcUid);
-
                     edxLabInformationDto.setInvestigationSuccessfullyCreated(true);
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_3);
                     edxLabInformationDto.setPublicHealthCaseUid(phcUid);
@@ -352,6 +352,15 @@ public class ManagerService implements IManagerService {
             if (nbsInterfaceModel != null) {
                 nbsInterfaceModel.setRecordStatusCd("FAILED_V2_STEP_3");
                 nbsInterfaceRepository.save(nbsInterfaceModel);
+            }
+        }finally {
+            if(nbsInterfaceModel != null) {
+                edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
+                edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "");
+
+                Gson gson = new Gson();
+                String jsonString = gson.toJson(edxLabInformationDto.getEdxActivityLogDto());
+                kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
         }
     }
@@ -561,13 +570,10 @@ public class ManagerService implements IManagerService {
             // and keep public health case stuff in the try
             //            if(result != null) {
             if(nbsInterfaceModel != null) {
-                System.out.println("Source name: " + edxLabInformationDto.getSendingFacilityName());
-                System.out.println("edxLabInformationDto.getErrorText():"+edxLabInformationDto.getErrorText());
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
                 gson = new Gson();
                 String jsonString = gson.toJson(edxLabInformationDto.getEdxActivityLogDto());
-                System.out.println("inside finally block jsonString: " + jsonString);
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
         }
