@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.EdxLogException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
-import gov.cdc.dataprocessing.model.container.model.EdxActivityLogContainer;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
@@ -23,8 +22,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-
-import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -52,19 +50,9 @@ public class EdxLogService implements IEdxLogService {
 
     @Transactional
     @Override
-    public EdxActivityLog saveEdxActivityLog(EDXActivityLogDto edxActivityLogDto)  {
-        EdxActivityLog edxActivityLog = new EdxActivityLog(edxActivityLogDto);
-        EdxActivityLog edxActivityLogResult = edxActivityLogRepository.save(edxActivityLog);
-        System.out.println("ActivityLog Id:" + edxActivityLogResult.getId());
-        return edxActivityLogResult;
-    }
-
-    @Transactional
-    @Override
     public EdxActivityDetailLog saveEdxActivityDetailLog(EDXActivityDetailLogDto detailLogDto) {
         EdxActivityDetailLog edxActivityDetailLog = new EdxActivityDetailLog(detailLogDto);
         EdxActivityDetailLog edxActivityDetailLogResult = edxActivityDetailLogRepository.save(edxActivityDetailLog);
-        System.out.println("ActivityDetailLog Id:" + edxActivityDetailLogResult.getId());
         return edxActivityDetailLogResult;
     }
     @Transactional
@@ -72,59 +60,26 @@ public class EdxLogService implements IEdxLogService {
         Gson gson = new Gson();
         EDXActivityLogDto edxActivityLogDto = gson.fromJson(logMessageJson, EDXActivityLogDto.class);
         EdxActivityLog edxActivityLog = new EdxActivityLog(edxActivityLogDto);
-        EdxActivityLog edxActivityLogResult = edxActivityLogRepository.save(edxActivityLog);
-        System.out.println("ActivityLog Id:" + edxActivityLogResult.getId());
+        //Check if the activity log has already been created for the source.
+        Long activityLogId = 0L;
+        Optional<EdxActivityLog> dbActivityLogOptional = edxActivityLogRepository.findBySourceUid(edxActivityLog.getSourceUid());
+        if (dbActivityLogOptional.isPresent()) {
+            EdxActivityLog dbActivityLog = dbActivityLogOptional.get();
+            dbActivityLog.setExceptionTxt(edxActivityLogDto.getExceptionTxt());
+            edxActivityLogRepository.save(dbActivityLog);
+            activityLogId=dbActivityLog.getId();
+        }else {
+            EdxActivityLog edxActivityLogNew = edxActivityLogRepository.save(edxActivityLog);
+            activityLogId=edxActivityLogNew.getId();
+        }
 
         Collection<EDXActivityDetailLogDto> edxActivityDetailLogsList= edxActivityLogDto.getEDXActivityLogDTWithVocabDetails();
-        System.out.println("edxActivityDetailLogs size:" + edxActivityDetailLogsList.size());
         for (EDXActivityDetailLogDto eDXActivityDetailLogDto: edxActivityDetailLogsList) {
-            eDXActivityDetailLogDto.setEdxActivityLogUid(edxActivityLogResult.getId());
+            eDXActivityDetailLogDto.setEdxActivityLogUid(activityLogId);
             saveEdxActivityDetailLog(eDXActivityDetailLogDto);
         }
     }
 
-    public void testKafkaproduceLogMessage() {
-        EdxActivityLogContainer edxActivityLogContainer = new EdxActivityLogContainer();
-        //Activity Log
-        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
-        edxActivityLogDto.setSourceUid(12345678L);
-        edxActivityLogDto.setTargetUid(12345L);
-        edxActivityLogDto.setTargetUid(4567L);
-        edxActivityLogDto.setDocType("test doc type1");
-        edxActivityLogDto.setRecordStatusCd("Test status cd1");
-        edxActivityLogDto.setRecordStatusTime(getCurrentTimeStamp());
-        edxActivityLogDto.setExceptionTxt("test exception1");
-        edxActivityLogDto.setImpExpIndCd("I");
-        edxActivityLogDto.setSourceTypeCd("INT");
-        edxActivityLogDto.setSourceUid(6789L);
-        edxActivityLogDto.setTargetTypeCd("LAB");
-        edxActivityLogDto.setBusinessObjLocalId("TESTBO1231");
-        edxActivityLogDto.setDocName("DOC NAME1");
-        edxActivityLogDto.setSrcName("TSTSRCNM1");
-        edxActivityLogDto.setAlgorithmAction("TSTALGACT1");
-        edxActivityLogDto.setAlgorithmName("TSTALGNM1");
-        edxActivityLogDto.setMessageId("TSTMSGID1231");
-        edxActivityLogDto.setEntityNm("TEST Entity name1");
-        edxActivityLogDto.setAccessionNbr("TST ACC 501");
-
-        //Activity Detail Log
-        EDXActivityDetailLogDto detailLogDto = new EDXActivityDetailLogDto();
-        //detailLogDto.setEdxActivityDetailLogUid(12345678L);
-        //detailLogDto.setEdxActivityLogUid(72276L);
-        detailLogDto.setRecordId("RC2341");
-        detailLogDto.setRecordType("TEST Record Type1");
-        detailLogDto.setRecordName("TEST_Record Name1");
-        detailLogDto.setLogType("TEST Log Type1");
-        detailLogDto.setComment("TEST Comment text12331");
-
-        edxActivityLogContainer.setEdxActivityLogDto(edxActivityLogDto);
-//        edxActivityLogContainer.setEdxActivityDetailLogDto(detailLogDto);
-
-        Gson gson = new Gson();
-        String activityLogJsonString = gson.toJson(edxActivityLogContainer);
-        System.out.println("--json string to topic edx activity log---:" + activityLogJsonString);
-        kafkaManagerProducer.sendDataEdxActivityLog(activityLogJsonString);
-    }
     public void updateActivityLogDT(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto) {
         EDXActivityLogDto edxActivityLogDto = edxLabInformationDto.getEdxActivityLogDto();
         Date dateTime = new Date();
@@ -170,7 +125,6 @@ public class EdxLogService implements IEdxLogService {
         detailLogs.add(edxActivityDetailLogDto);
     }
     private void setActivityLogExceptionTxt(EDXActivityLogDto edxActivityLogDto, String errorText) {
-        System.out.println("setActivityLogExceptionTxt errorText: " + errorText);
         switch (errorText) {
             case EdxELRConstant.ELR_MASTER_LOG_ID_1:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_1);
@@ -222,7 +176,6 @@ public class EdxLogService implements IEdxLogService {
     }
 
     public void addActivityDetailLogs(EdxLabInformationDto edxLabInformationDto, String detailedMsg) {
-        System.out.println(" addActivityDetailLogs detailedMsg:" + detailedMsg);
         try{
             ArrayList<EDXActivityDetailLogDto> detailList =
                     (ArrayList<EDXActivityDetailLogDto>) edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTDetails();
@@ -489,6 +442,45 @@ public class EdxLogService implements IEdxLogService {
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success,
                         EdxELRConstant.NULL_CLIA);
             }
+//            if (edxLabInformationDto.isInvestigationSuccessfullyCreated()) {
+//                String msg = EdxELRConstant.INV_SUCCESS_CREATED.replace("%1", String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()));
+//                setActivityDetailLog(detailList, String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()), EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
+//            }
+//            if (edxLabInformationDto.isLabAssociatedToInv()) {
+//                String msg = EdxELRConstant.LAB_ASSOCIATED_TO_INV.replace("%1", String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()));
+//                setActivityDetailLog(detailList, String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()), EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
+//            }
+//
+//            if (edxLabInformationDto.isNotificationSuccessfullyCreated()) {
+//                String msg = EdxELRConstant.NOT_SUCCESS_CREATED.replace("%1", String.valueOf(edxLabInformationDto.getNotificationUid()));
+//                setActivityDetailLog(detailList, String.valueOf(edxLabInformationDto.getNotificationUid()), EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
+//            }
+//            if (edxLabInformationDto.isInvestigationMissingFields()) {
+//                setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success,
+//                        EdxELRConstant.OFCI);
+//            }
+//            if (edxLabInformationDto.isNotificationMissingFields()) {
+//                setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success,
+//                        EdxELRConstant.OFCN);
+//            }
+            edxLabInformationDto.getEdxActivityLogDto().setEDXActivityLogDTWithVocabDetails(detailList);
+        }
+        catch (Exception e) {
+            ArrayList<EDXActivityDetailLogDto> delailList = (ArrayList<EDXActivityDetailLogDto>)edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails();
+            if (delailList == null) {
+                delailList = new ArrayList<EDXActivityDetailLogDto>();
+            }
+        }
+    }
+    public void addActivityDetailLogsForWDS(EdxLabInformationDto edxLabInformationDto, String detailedMsg) {
+        try{
+            ArrayList<EDXActivityDetailLogDto> detailList =
+                    (ArrayList<EDXActivityDetailLogDto>) edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTDetails();
+            if (detailList == null) {
+                detailList = new ArrayList<>();
+            }
+            String id = String.valueOf(edxLabInformationDto.getLocalId());
+
             if (edxLabInformationDto.isInvestigationSuccessfullyCreated()) {
                 String msg = EdxELRConstant.INV_SUCCESS_CREATED.replace("%1", String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()));
                 setActivityDetailLog(detailList, String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()), EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
@@ -513,10 +505,7 @@ public class EdxLogService implements IEdxLogService {
             edxLabInformationDto.getEdxActivityLogDto().setEDXActivityLogDTWithVocabDetails(detailList);
         }
         catch (Exception e) {
-            ArrayList<EDXActivityDetailLogDto> delailList = (ArrayList<EDXActivityDetailLogDto>)edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails();
-            if (delailList == null) {
-                delailList = new ArrayList<EDXActivityDetailLogDto>();
-            }
+            log.error("Error while adding activity detail log.", e);
         }
     }
 }
