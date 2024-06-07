@@ -29,7 +29,6 @@ public class KafkaEdxLogConsumer {
     )
     public void handleMessage(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EdxLogException {
-        System.out.println("KafkaEdxLogConsumer Received message: " + message);
         edxLogService.saveEdxActivityLogs(message);
     }
 }

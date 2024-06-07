@@ -11,15 +11,12 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.log.EdxActivityLog;
 public interface IEdxLogService {
     Object processingLog() throws EdxLogException;
 
-    EdxActivityLog saveEdxActivityLog(EDXActivityLogDto edxActivityLogDto) throws EdxLogException;
-
     EdxActivityDetailLog saveEdxActivityDetailLog(EDXActivityDetailLogDto detailLogDto) throws EdxLogException;
 
     void saveEdxActivityLogs(String logMessageJson) throws EdxLogException;
 
-    void testKafkaproduceLogMessage();
-
     void updateActivityLogDT(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto);
 
     void addActivityDetailLogs(EdxLabInformationDto edxLabInformationDto, String detailedMsg);
+    void addActivityDetailLogsForWDS(EdxLabInformationDto edxLabInformationDto, String detailedMsg);
 }
