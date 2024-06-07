@@ -21,6 +21,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import jakarta.transaction.Transactional;
@@ -728,6 +729,9 @@ public class ObservationRepositoryUtil {
             act.setMoodCode(NEDSSConstant.EVENT_MOOD_CODE);
 
             actRepository.save(act);
+
+            observationDto.setAddUserId(AuthUtil.authUser.getNedssEntryId());
+            observationDto.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
 
             Observation observation = new Observation(observationDto);
             observation.setVersionCtrlNbr(1);
