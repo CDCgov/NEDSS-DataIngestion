@@ -42,7 +42,7 @@ public class KafkaHandleLabConsumer {
         }
         catch (Exception e)
         {
-            kafkaManagerProducer.sendData(logTopic, "result");
+        //    kafkaManagerProducer.sendData(logTopic, "result");
         }
     }
 }
