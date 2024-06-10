@@ -308,6 +308,8 @@ public class EdxELRConstant {
             "Jurisdiction derived.";
     public static final String PROG_AREA_DERIVED =
             "Program Area derived.";
+    public static final String IS_PROVIDER = "Provider derived";
+    public static final String IS_NOT_PROVIDER = "Provider not derived";
     public static final String NO_JURISDICTION_DERIVED =
             "Jurisdiction not derived.";
     public static final String NO_PROG_AREA_DERIVED =

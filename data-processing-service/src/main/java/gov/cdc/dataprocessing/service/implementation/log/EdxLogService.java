@@ -403,6 +403,11 @@ public class EdxLogService implements IEdxLogService {
             }else{
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure, EdxELRConstant.NO_NEXT_OF_KIN);
             }
+            if(edxLabInformationDto.isProvider()) {
+                setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, EdxELRConstant.IS_PROVIDER);
+            }else{
+                setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure, EdxELRConstant.IS_NOT_PROVIDER);
+            }
             if (edxLabInformationDto.isLabIsCreateSuccess() && edxLabInformationDto.getJurisdictionName() != null) {
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success,
                         EdxELRConstant.JURISDICTION_DERIVED);
