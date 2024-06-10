@@ -645,7 +645,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         String lastPACode = null;
         try {
             for (int k = 0; k < codeVector.size(); k++) {
-                var result = labTestRepository.findLocalTestDefaultConditionProgramAreaCd(
+                var result = conditionCodeRepository.findLocalTestDefaultConditionProgramAreaCd(
                         codeVector.elementAt(k).toString(),
                         reportingLabCLIA);
                 Collection<String> defaultPACColl = new ArrayList<>();
