@@ -32,8 +32,7 @@ public class KafkaHandleLabConsumer {
     @KafkaListener(
             topics = "${kafka.topic.elr_handle_lab}"
     )
-    public void handleMessage(String message)
-            throws DataProcessingConsumerException {
+    public void handleMessage(String message) {
         try {
             var auth = authUserService.getAuthUserInfo("superuser");
             AuthUtil.setGlobalAuthUser(auth);
@@ -42,7 +41,7 @@ public class KafkaHandleLabConsumer {
         }
         catch (Exception e)
         {
-        //    kafkaManagerProducer.sendData(logTopic, "result");
+            e.printStackTrace();
         }
     }
 }

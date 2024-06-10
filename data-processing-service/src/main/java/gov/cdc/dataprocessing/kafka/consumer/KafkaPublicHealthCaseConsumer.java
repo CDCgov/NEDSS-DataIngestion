@@ -50,7 +50,7 @@ public class KafkaPublicHealthCaseConsumer {
         }
         catch (Exception e)
         {
-         //   kafkaManagerProducer.sendData(logTopic, "result");
+             e.printStackTrace();
         }
     }
 

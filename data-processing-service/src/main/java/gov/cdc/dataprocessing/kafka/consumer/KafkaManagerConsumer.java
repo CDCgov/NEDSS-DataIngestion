@@ -54,9 +54,7 @@ public class KafkaManagerConsumer {
             var profile = this.authUserService.getAuthUserInfo("superuser");
             AuthUtil.setGlobalAuthUser(profile);
             managerService.processDistribution(dataType,message);
-            //kafkaManagerProducer.sendData(healthCaseTopic, "result");
         } catch (DataProcessingConsumerException e) {
-            //kafkaManagerProducer.sendData(logTopic, "result");
             e.printStackTrace();
         }
     }
