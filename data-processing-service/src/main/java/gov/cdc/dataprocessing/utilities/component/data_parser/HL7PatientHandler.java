@@ -168,6 +168,9 @@ public class HL7PatientHandler {
                 elrXref = result.get();
             }
             String toCode = elrXref.getToCode();
+            if (toCode == null && personContainer.getThePersonDto().getCurrSexCd() != null) {
+                toCode = personContainer.getThePersonDto().getCurrSexCd();
+            }
             if (toCode != null && !toCode.trim().isEmpty()){
                 personContainer.getThePersonDto().setCurrSexCd(toCode.trim());
                 edxLabInformationDto.setSexTranslated(true);

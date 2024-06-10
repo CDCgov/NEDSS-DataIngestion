@@ -440,14 +440,14 @@ public class ManagerService implements IManagerService {
             nbsInterfaceRepository.save(nbsInterfaceModel);
 
 
-//            PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
-//            phcContainer.setLabResultProxyContainer(labResultProxyContainer);
-//            phcContainer.setEdxLabInformationDto(edxLabInformationDto);
-//            phcContainer.setObservationDto(observationDto);
-//            phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
-//            gson = new Gson();
-//            String jsonString = gson.toJson(phcContainer);
-//            kafkaManagerProducer.sendDataPhc(jsonString);
+            PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
+            phcContainer.setLabResultProxyContainer(labResultProxyContainer);
+            phcContainer.setEdxLabInformationDto(edxLabInformationDto);
+            phcContainer.setObservationDto(observationDto);
+            phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
+            gson = new Gson();
+            String jsonString = gson.toJson(phcContainer);
+            kafkaManagerProducer.sendDataPhc(jsonString);
 
             //return result;
         }
@@ -567,7 +567,9 @@ public class ManagerService implements IManagerService {
 
             //throw new DataProcessingConsumerException(e.getMessage(), result);
 
-        } finally {
+        }
+        finally
+        {
             // do logging in here since we want it to be done within the first flow and not wait for the 2nd flow (health case flow)
             // and keep public health case stuff in the try
             //            if(result != null) {
