@@ -398,6 +398,11 @@ public class EdxLogService implements IEdxLogService {
                         String.valueOf(edxLabInformationDto.getPersonParentUid()),
                         EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
             }
+            if(edxLabInformationDto.isNextOfKin()) {
+                setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, EdxELRConstant.NEXT_OF_KIN);
+            }else{
+                setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure, EdxELRConstant.NO_NEXT_OF_KIN);
+            }
             if (edxLabInformationDto.isLabIsCreateSuccess() && edxLabInformationDto.getJurisdictionName() != null) {
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success,
                         EdxELRConstant.JURISDICTION_DERIVED);

@@ -127,6 +127,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
             try {
                 return patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
             } catch (DataProcessingConsumerException | DataProcessingException e) {
+                edxLabInformationDto.setNextOfKin(false);
                 throw new RuntimeException(e);
             }
         });
@@ -367,7 +368,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
                 PersonContainer personContainer = it.next();
                 if (personContainer.getRole() != null && personContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
                     patientService.processingNextOfKin(labResultProxyContainer, personContainer);
-
+                    edxLabInformationDto.setNextOfKin(true);
                 }
                 else {
                     if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_CD)) {

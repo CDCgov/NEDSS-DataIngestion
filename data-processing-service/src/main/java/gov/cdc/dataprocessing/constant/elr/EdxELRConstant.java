@@ -258,6 +258,8 @@ public class EdxELRConstant {
             "Multiple patient matches found. New Patient created: %1 (UID: %2).";
     public static final String SUJBECTMATCH_NO =
             "Patient match not found; New Patient created: %1 (UID: %2).";
+    public static final String NEXT_OF_KIN = "Next of kin is created";
+    public static final String NO_NEXT_OF_KIN = "Next of Kin cannot be created";
     public static final String MULTIPLE_PROVIDER =
             "Multiple Ordering Providers were associated to a single Ordered Test. The message was processed in NBS using the first Ordering Provider.";
     public static final String MULTIPLE_COLLECTOR =
@@ -396,6 +398,7 @@ public class EdxELRConstant {
     public static final String ELR_MASTER_MSG_ID_20="Error creating lab. Invalid Date encountered. See Activity Details.";
     public static final String ELR_MASTER_MSG_ID_21="Successfully Mark Lab as Reviewed and associated to existing investigation.";
     public static final String ELR_MASTER_MSG_ID_22="Lab updated successfully and logged in Documents Requiring Security Assignment queue.";
+    public static final String ELR_MASTER_MSG_ID_23="";
 
 
     public static final String SQL_FIELD_TRUNCATION_ERROR_MSG="String or binary data would be truncated";
