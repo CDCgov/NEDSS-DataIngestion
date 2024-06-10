@@ -450,7 +450,9 @@ public class ManagerService implements IManagerService {
 //            kafkaManagerProducer.sendDataPhc(jsonString);
 
             //return result;
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             if (nbsInterfaceModel != null) {
                 nbsInterfaceModel.setRecordStatusCd("FAILED_V2");
                 nbsInterfaceRepository.save(nbsInterfaceModel);

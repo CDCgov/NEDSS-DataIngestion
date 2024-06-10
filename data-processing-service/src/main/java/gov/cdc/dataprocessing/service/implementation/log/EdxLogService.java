@@ -90,6 +90,9 @@ public class EdxLogService implements IEdxLogService {
         edxActivityLogDto.setSourceUid(Long.valueOf(nbsInterfaceModel.getNbsInterfaceUid()));
         edxActivityLogDto.setTargetUid(edxLabInformationDto.getRootObserbationUid());
 
+        if (edxLabInformationDto.getErrorText() == null) {
+            edxLabInformationDto.setErrorText("");
+        }
         setActivityLogExceptionTxt(edxActivityLogDto, edxLabInformationDto.getErrorText());
 
         edxActivityLogDto.setImpExpIndCd("I");
