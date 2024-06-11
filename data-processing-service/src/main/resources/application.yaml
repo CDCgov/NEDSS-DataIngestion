@@ -41,28 +41,24 @@ spring:
     activate:
       on-profile: default
   datasource:
-    url: jdbc:sqlserver://${DI_NBS_DBSERVER};databaseName=${DI_DBNAME};encrypt=true;trustServerCertificate=true;
-    username: ${DI_NBS_DBUSER}
-    password: ${DI_NBS_DBPASSWORD}
-    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     hikari:
       connection-timeout: 60000
-      maximum-pool-size: 5
+      maximum-pool-size: 10
+    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    username: ${NBS_DBUSER}
+    password: ${NBS_DBPASSWORD}
     nbs:
-      url: jdbc:sqlserver://${DI_NBS_DBSERVER};databaseName=${DI_NBS_DBNAME};encrypt=true;trustServerCertificate=true;
-      username: ${DI_NBS_DBUSER}
-      password: ${DI_NBS_DBPASSWORD}
-      driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_MSGOUTE;encrypt=true;trustServerCertificate=true;
     odse:
-      url: jdbc:sqlserver://${DI_NBS_DBSERVER};databaseName=${DI_ODSE_DBNAME};encrypt=true;trustServerCertificate=true;
+      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_ODSE;encrypt=true;trustServerCertificate=true;
     srte:
-      url: jdbc:sqlserver://${DI_NBS_DBSERVER};databaseName=${DI_SRTE_DBNAME};encrypt=true;trustServerCertificate=true;
+      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_SRTE;encrypt=true;trustServerCertificate=true;
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: none
   kafka:
-    bootstrap-servers: ${BOOTSTRAP_SERVERS}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER}
     group-id: data-processing-group
     consumer:
       maxPollIntervalMs: 30000
