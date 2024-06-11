@@ -138,11 +138,13 @@ public class PersonService implements IPersonService {
             }
             if (orderingProviderIndicator)
             {
+                edxLabInformationDto.setProvider(true);
                 return personContainer;
             }
             orderingProviderIndicator= false;
 
         } catch (Exception e) {
+            edxLabInformationDto.setProvider(false);
             throw new DataProcessingException(e.getMessage());
         }
         return null;
