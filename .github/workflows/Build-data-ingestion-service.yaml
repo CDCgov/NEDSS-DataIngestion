@@ -45,7 +45,7 @@ jobs:
       GIT_USER_NAME: ${{secrets.GIT_USER_NAME}}
       HELM_TOKEN: ${{secrets.HELM_TOKEN}}
 
-  call-build-dataprocessing-microservice-container-workflow-1:
+  call-build-dataprocessing-microservice-container-workflow:
     name: Build Container
     needs: sonar_scan
     uses: CDCgov/NEDSS-Workflows/.github/workflows/Build-gradle-microservice-container.yaml@main
