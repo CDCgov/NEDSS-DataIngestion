@@ -450,7 +450,9 @@ public class ManagerService implements IManagerService {
             kafkaManagerProducer.sendDataPhc(jsonString);
 
             //return result;
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             if (nbsInterfaceModel != null) {
                 nbsInterfaceModel.setRecordStatusCd("FAILED_V2");
                 nbsInterfaceRepository.save(nbsInterfaceModel);
@@ -565,7 +567,9 @@ public class ManagerService implements IManagerService {
 
             //throw new DataProcessingConsumerException(e.getMessage(), result);
 
-        } finally {
+        }
+        finally
+        {
             // do logging in here since we want it to be done within the first flow and not wait for the 2nd flow (health case flow)
             // and keep public health case stuff in the try
             //            if(result != null) {
