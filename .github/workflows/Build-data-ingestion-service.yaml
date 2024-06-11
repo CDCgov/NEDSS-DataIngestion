@@ -5,7 +5,6 @@ on:
       - main
       - master
       - rel-**
-      - CNDIT-1383-**
     paths-ignore:
       - "docker-compose.yml"
       - "**.md"
