@@ -13,7 +13,8 @@ import java.util.Optional;
 
 @Repository
 public interface ConditionCodeRepository extends JpaRepository<BaseConditionCode, String> {
-    @Query("SELECT cc.progAreaCd AS key FROM ConditionCode cc WHERE cc.conditionCd = (SELECT lr.defaultConditionCd FROM LabResult lr WHERE lr.laboratoryId = :laboratoryId AND lr.labResultCd = :labResultCd)")
+    @Query("SELECT cc.progAreaCd AS key FROM ConditionCode cc " +
+            "WHERE cc.conditionCd = (SELECT lr.defaultConditionCd FROM LabResult lr WHERE lr.laboratoryId = :laboratoryId AND lr.labResultCd = :labResultCd)")
     Optional<List<String>> findConditionCodeByLabResultLabIdAndCd(
             @Param("laboratoryId") String laboratoryId,
             @Param("labResultCd") String labResultCd
@@ -70,5 +71,11 @@ public interface ConditionCodeRepository extends JpaRepository<BaseConditionCode
             "ON c.prog_area_cd = p.prog_area_cd " +
             "AND c.condition_cd = :condition_cd ", nativeQuery = true)
     Optional<List<ConditionCodeWithPA>> findProgramAreaConditionCodeByConditionCode(@Param("condition_cd") String condition_cd);
+
+
+    @Query(value = "SELECT cc.prog_area_cd  FROM Condition_code cc " +
+            "WHERE cc.condition_cd =" +
+            " (SELECT lt.default_condition_cd FROM Lab_test lt WHERE lt.laboratory_id = :laboratoryId AND lt.lab_test_cd = :labTestCd)", nativeQuery = true)
+    Optional<List<String>> findLocalTestDefaultConditionProgramAreaCd(@Param("laboratoryId") String laboratoryId, @Param("labTestCd") String labTestCd);
 
 }

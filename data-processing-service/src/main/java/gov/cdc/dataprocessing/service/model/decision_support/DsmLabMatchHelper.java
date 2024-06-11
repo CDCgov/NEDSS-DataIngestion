@@ -430,8 +430,8 @@ public class DsmLabMatchHelper {
                             {
                                 numericReport.setCodeType("OBS_NUMERIC_VALUE");
                                 numericReport.setWdsCode(algorithmNumericValue.getValue1().toString());
-                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1().toString());
-                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2().toString());
+                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1() != null ? obsValueNumericDT.getNumericValue1().toString() : "");
+                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2() != null ? obsValueNumericDT.getNumericValue2().toString(): "");
                                 numericReport.setOperator(NEDSSConstant.GREATER_THAN_OR_EQUAL_LOGIC);
 
                                 if (!isTiterLab && obsValueNumericDT.getNumericValue1() != null
