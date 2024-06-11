@@ -7,8 +7,6 @@ COPY build.gradle /usr/src/dataprocessing/build.gradle
 COPY settings.gradle /usr/src/dataprocessing/settings.gradle
 
 #Copy sources
-COPY hl7-parser /usr/src/dataprocessing/hl7-parser
-#COPY cdaschema /usr/src/dataingestion/cdaschema
 COPY data-processing-service /usr/src/dataprocessing/data-processing-service
 
 COPY . /usr/src/dataprocessing
