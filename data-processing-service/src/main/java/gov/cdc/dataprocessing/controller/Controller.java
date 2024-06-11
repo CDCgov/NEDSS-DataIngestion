@@ -32,7 +32,6 @@ public class Controller {
         return ResponseEntity.ok("OK");
     }
     @GetMapping("/status")
-    @ResponseBody
     public ResponseEntity<String> getDataPipelineStatusHealth() {
         log.info("Data Processing Service Status OK");
         return ResponseEntity.status(HttpStatus.OK).body("Data Processing Service Status OK");
