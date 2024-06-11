@@ -92,6 +92,8 @@ public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDto implements 
     private boolean sexTranslated;
     private boolean ssnInvalid;
     private boolean nullClia;
+    private boolean nextOfKin;
+    private boolean isProvider;
     //Error Variables
     private boolean fillerNumberPresent;
     private boolean finalPostCorrected;
@@ -177,12 +179,14 @@ public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDto implements 
         sexTranslated = true;
         ssnInvalid = false;
         nullClia = false;
+        nextOfKin = false;
         fillerNumberPresent = true;
         finalPostCorrected = false;
         preliminaryPostCorrected = false;
         preliminaryPostFinal = false;
         activityTimeOutOfSequence = false;
         multiplePerformingLab = false;
+        isProvider = false;
         orderTestNameMissing = false;
         reflexOrderedTestCdMissing = false;
         reflexResultedTestCdMissing = false;
