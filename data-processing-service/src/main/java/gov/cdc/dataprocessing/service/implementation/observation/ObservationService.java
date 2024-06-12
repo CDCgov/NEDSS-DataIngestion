@@ -174,6 +174,32 @@ public class ObservationService implements IObservationService {
     }
 
 
+    @Transactional
+    public boolean processObservation(Long observationUid) throws DataProcessingException {
+        return processObservationWithProcessingDecision(observationUid,
+                null, null);
+
+    }
+
+    public void setLabInvAssociation(Long labUid, Long investigationUid) throws DataProcessingException {
+        LabReportSummaryContainer labReportSummaryVO = new LabReportSummaryContainer();
+
+        try {
+
+            labReportSummaryVO.setTouched(true);
+            labReportSummaryVO.setAssociated(true);
+            labReportSummaryVO.setObservationUid(labUid);
+            labReportSummaryVO.setActivityFromTime(new Timestamp(new java.util.Date().getTime()));
+
+            Collection<LabReportSummaryContainer> labReportSummaryVOColl = new ArrayList<>();
+            labReportSummaryVOColl.add(labReportSummaryVO);
+
+            setObservationAssociations(investigationUid, labReportSummaryVOColl);
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+
+    }
 
     /**
      * Loading Existing Either Observation or Intervention
@@ -184,11 +210,7 @@ public class ObservationService implements IObservationService {
         BaseContainer obj = null;
         if (anUid != null)
         {
-            if (actType.equalsIgnoreCase(NEDSSConstant.INTERVENTION_CLASS_CODE))
-            {
-               // obj = interventionRootDAOImpl.loadObject(anUid.longValue());
-            }
-            else if (actType.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE))
+            if (actType.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE))
             {
                 obj = observationRepositoryUtil.loadObject(anUid);
             }
@@ -207,22 +229,18 @@ public class ObservationService implements IObservationService {
         Map<DataProcessingMapKey, Object> assocMapper = retrievePersonAndRoleFromParticipation(partColl);
 
         if (assocMapper.containsKey(DataProcessingMapKey.PERSON)) {
-            //allEntityHolder.add(this.RETRIEVED_PERSONS_FOR_PROXY, assocMapper.get(DataProcessingMapKey.ROLE));
             entityHolder.put(DataProcessingMapKey.PERSON,  assocMapper.get(DataProcessingMapKey.PERSON));
         }
 
         //Retrieve associated organizations
-        //allEntityHolder.add(this.RETRIEVED_ORGANIZATIONS_FOR_PROXY, retrieveOrganizationVOsForProxyVO(partColl));
         entityHolder.put(DataProcessingMapKey.ORGANIZATION,  retrieveOrganizationFromParticipation(partColl));
 
 
         //Retrieve associated materials
-        //allEntityHolder.add(this.RETRIEVED_MATERIALS_FOR_PROXY, retrieveMaterialVOsForProxyVO(partColl));
         entityHolder.put(DataProcessingMapKey.MATERIAL,  retrieveMaterialFromParticipation(partColl));
 
 
         if (assocMapper.containsKey(DataProcessingMapKey.ROLE)) {
-            //allEntityHolder.add(this.RETRIEVED_PATIENT_ROLES, assocMapper.get(DataProcessingMapKey.PERSON));
             entityHolder.put(DataProcessingMapKey.ROLE, assocMapper.get(DataProcessingMapKey.ROLE));
         }
 
@@ -388,7 +406,6 @@ public class ObservationService implements IObservationService {
      * */
     private Map<DataProcessingMapKey, Object>  retrieveObservationFromActRelationship(Collection<ActRelationshipDto> actRelColl) throws DataProcessingException
     {
-        List<Object> obs_org = new ArrayList<> ();
         Map<DataProcessingMapKey, Object> mapper = new HashMap<>();
         Collection<ObservationContainer> theObservationContainerCollection = new ArrayList<> ();
         Collection<OrganizationContainer>  performingLabColl = new ArrayList<> ();
@@ -439,9 +456,8 @@ public class ObservationService implements IObservationService {
                     }
                 }
                 //If a Resulted Test observation
-                else if (typeCd != null
-                        && typeCd.equalsIgnoreCase(NEDSSConstant.ACT108_TYP_CD)
-                ) {
+                else if (typeCd != null && typeCd.equalsIgnoreCase(NEDSSConstant.ACT108_TYP_CD))
+                {
                     ObservationContainer rtObservationContainer = (ObservationContainer) getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, observationUid);
                     if (rtObservationContainer == null) {
                         continue;
@@ -634,7 +650,7 @@ public class ObservationService implements IObservationService {
     }
 
     /**
-     *  public LabResultProxyVO getLabResultProxyVO(Long observationId,  boolean isELR, NBSSecurityObj nbsSecurityObj)
+     *  LabResultProxyVO getLabResultProxyVO(Long observationId,  boolean isELR, NBSSecurityObj nbsSecurityObj)
      * */
     private LabResultProxyContainer loadingObservationToLabResultContainer(Long observationId,  boolean isELR) throws DataProcessingException {
         LabResultProxyContainer lrProxyVO =  new LabResultProxyContainer();
@@ -693,6 +709,7 @@ public class ObservationService implements IObservationService {
             }
         }
 
+        //TODO: Not sure what would hit this case
         if (!isELR) {
             boolean exists = notificationService.checkForExistingNotification(lrProxyVO);
             lrProxyVO.setAssociatedNotificationInd(exists);
@@ -730,36 +747,13 @@ public class ObservationService implements IObservationService {
     }
 
     private Map<Object, Object> setLabResultProxy(LabResultProxyContainer labResultProxyVO) throws DataProcessingException {
-            NNDActivityLogDto nndActivityLogDto = null;
 
             //saving LabResultProxyVO before updating auto resend notifications
             Map<Object, Object> returnVal = setLabResultProxyWithoutNotificationAutoResend(labResultProxyVO);
 
+            updateLabResultWithAutoResendNotification(labResultProxyVO);
 
-            nndActivityLogDto = updateLabResultWithAutoResendNotification(labResultProxyVO);
-
-
-            //TODO: THIS ONE SEND OF EMAIL NOTIFICATION BASED ON THE FLAG IN ENV
-            /*
-            if(labResultProxyVO.isItNew() && propertyUtil.getEnableELRAlert()!=null && propertyUtil.getEnableELRAlert().equals(NEDSSConstant.TRUE))
-            {
-                try
-                {
-                    java.util.Date date = new java.util.Date();
-                    long time1 = date.getTime();
-                    logger.debug("time1 is :" + time1);
-                    String LocalId= (String)returnVal.get(NEDSSConstant.SETLAB_RETURN_OBS_LOCAL);
-                    alertLabsEmailMessage(labResultProxyVO,LocalId);
-                    java.util.Date date2 = new java.util.Date();
-                    long time2 = date2.getTime();
-                    logger.debug("time2 is :" + time2);
-                    logger.debug("Total alertfunctionality  time taken is:" + (time2-time1));
-                }
-                catch(Exception e){
-                    logger.error("Alert message could not be captured" + e.getMessage());
-                }
-            }
-            */
+            //TODO: EMAIL NOTIFICATION IS FLAGGED HERE
 
             if(labResultProxyVO.getMessageLogDCollection()!=null && labResultProxyVO.getMessageLogDCollection().size()>0){
                 try {
@@ -806,9 +800,6 @@ public class ObservationService implements IObservationService {
     }
 
     private Map<Object, Object> setLabResultProxyWithoutNotificationAutoResend(LabResultProxyContainer labResultProxyVO) throws DataProcessingException {
-        //Before doing anything
-        //TODO: Verify this check
-        //checkMethodArgs(labResultProxyVO);
 
         //Set flag for type of processing
         boolean ELR_PROCESSING = false;
@@ -818,9 +809,6 @@ public class ObservationService implements IObservationService {
         {
             ELR_PROCESSING = true;
         }
-
-        //Check permission to proceed
-        //checkPermissionToSetProxy(labResultProxyVO, securityObj, ELR_PROCESSING);
 
         //All well to proceed
         Map<Object, Object> returnVal = new HashMap<>();
@@ -836,6 +824,7 @@ public class ObservationService implements IObservationService {
                     false,
                     labResultProxyVO
             );
+
             if (patientMprUid != null)
             {
             {
@@ -1212,7 +1201,7 @@ public class ObservationService implements IObservationService {
             )
             {
                 String jurisdictionError = jurisdictionService.deriveJurisdictionCd(labResultProxyVO, orderTest.getTheObservationDto());
-                if (jurisdictionCd != null)
+                if (jurisdictionError != null)
                 {
                     returnErrors.put(NEDSSConstant.SETLAB_RETURN_JURISDICTION_ERRORS, jurisdictionCd);
                 }
@@ -1378,12 +1367,7 @@ public class ObservationService implements IObservationService {
     }
 
 
-    @Transactional
-    public boolean processObservation(Long observationUid) throws DataProcessingException {
-        return processObservationWithProcessingDecision(observationUid,
-                null, null);
 
-    }
 
     private boolean processObservationWithProcessingDecision(Long observationUid, String processingDecisionCd, String processingDecisionTxt) throws DataProcessingException {
 
@@ -1454,30 +1438,11 @@ public class ObservationService implements IObservationService {
     }
 
 
-    public void setLabInvAssociation(Long labUid, Long investigationUid) throws DataProcessingException {
-        LabReportSummaryContainer labReportSummaryVO = new LabReportSummaryContainer();
-
-        try {
-
-            labReportSummaryVO.setTouched(true);
-            labReportSummaryVO.setAssociated(true);
-            labReportSummaryVO.setObservationUid(labUid);
-            labReportSummaryVO.setActivityFromTime(new Timestamp(new java.util.Date().getTime()));
-
-            Collection<LabReportSummaryContainer> labReportSummaryVOColl = new ArrayList<>();
-            labReportSummaryVOColl.add(labReportSummaryVO);
-
-            setObservationAssociations(investigationUid, labReportSummaryVOColl);
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
-
-    }
-
     private void setObservationAssociations(Long investigationUid, Collection<LabReportSummaryContainer>  observationSummaryVOColl) throws DataProcessingException {
         try
         {
-            investigationService.setAssociations(investigationUid, observationSummaryVOColl,null, null,null, true);
+            investigationService.setAssociations(investigationUid, observationSummaryVOColl,
+                    null, null,null, true);
         }
         catch (Exception e)
         {
