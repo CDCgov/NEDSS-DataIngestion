@@ -507,9 +507,11 @@ public class ObservationServiceTest {
         long labUid = 1L;
         long investigationUid = 1L;
 
-        doNothing().when(investigationService).setAssociations(eq(investigationUid), anyCollection(), eq(null), eq(null), eq(null), eq(true));
+        doNothing().when(investigationService).setAssociations(eq(investigationUid), anyCollection(),
+                eq(null), eq(null), eq(null), eq(true));
         observationService.setLabInvAssociation(labUid, investigationUid);
-        verify(investigationService, times(1)).setAssociations(eq(investigationUid), anyCollection(), eq(null), eq(null), eq(null), eq(true));
+        verify(investigationService, times(1)).setAssociations(eq(investigationUid),
+                anyCollection(), eq(null), eq(null), eq(null), eq(true));
     }
 
     @Test
