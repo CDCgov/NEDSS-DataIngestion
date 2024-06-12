@@ -14,10 +14,8 @@ import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.ObservationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
-import gov.cdc.dataprocessing.service.implementation.organization.OrganizationService;
 import gov.cdc.dataprocessing.service.interfaces.act.IActRelationshipService;
 import gov.cdc.dataprocessing.service.interfaces.answer.IAnswerService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
@@ -28,7 +26,6 @@ import gov.cdc.dataprocessing.service.interfaces.material.IMaterialService;
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IEdxDocumentService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationCodeService;
-import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.paticipation.IParticipationService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationService;
 import gov.cdc.dataprocessing.service.interfaces.role.IRoleService;
@@ -50,7 +47,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
