@@ -46,7 +46,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
     private final ILookupService lookupService;
     public AutoInvestigationService(ConditionCodeRepository conditionCodeRepository,
                                     ICatchingValueService catchingValueService,
-                                    LookupService lookupService) {
+                                    ILookupService lookupService) {
         this.conditionCodeRepository = conditionCodeRepository;
         this.catchingValueService = catchingValueService;
         this.lookupService = lookupService;
@@ -88,6 +88,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
             pageActProxyContainer.setItNew(true);
             pageActProxyContainer.setItDirty(false);
             pageActProxyContainer.setPublicHealthCaseContainer(phcVO);
+            pageActProxyContainer.setPageVO(new BasePamContainer());
             populateProxyFromPrePopMapping(pageActProxyContainer, edxLabInformationDT);
         }
         try {
@@ -322,7 +323,8 @@ public class AutoInvestigationService implements IAutoInvestigationService {
             for (ObservationContainer obs : obsCollection) {
                 if (obs.getTheObsValueNumericDtoCollection() != null
                         && obs.getTheObsValueNumericDtoCollection().size() > 0
-                        && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd())) {
+                        && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd()))
+                {
 
                     List<ObsValueNumericDto> obsValueNumList = new ArrayList<>(obs.getTheObsValueNumericDtoCollection());
                     String value = obsValueNumList.get(0).getNumericUnitCd() == null
@@ -330,15 +332,19 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                             : obsValueNumList.get(0).getNumericValue1() + "^"
                             + obsValueNumList.get(0).getNumericUnitCd();
                     prePopMap.put(obs.getTheObservationDto().getCd(), value);
-                } else if (obs.getTheObsValueDateDtoCollection() != null
+                }
+                else if (obs.getTheObsValueDateDtoCollection() != null
                         && obs.getTheObsValueDateDtoCollection().size() > 0
-                        && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd())) {
+                        && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd()))
+                {
                     List<ObsValueDateDto> obsValueDateList = new ArrayList<>(obs.getTheObsValueDateDtoCollection());
 
                     String value = StringUtils.formatDate(obsValueDateList.get(0).getFromTime());
                     prePopMap.put(obs.getTheObservationDto().getCd(), value);
-                } else if (obs.getTheObsValueCodedDtoCollection() != null
-                        && obs.getTheObsValueCodedDtoCollection().size() > 0) {
+                }
+                else if (obs.getTheObsValueCodedDtoCollection() != null
+                        && obs.getTheObsValueCodedDtoCollection().size() > 0)
+                {
 
                     List<ObsValueCodedDto> obsValueCodeList = new ArrayList<>(obs.getTheObsValueCodedDtoCollection());
 
@@ -348,8 +354,10 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                     } else if (fromPrePopMap.containsKey(obs.getTheObservationDto().getCd())) {
                         prePopMap.put(obs.getTheObservationDto().getCd(), obsValueCodeList.get(0).getCode());
                     }
-                } else if (obs.getTheObsValueTxtDtoCollection() != null && obs.getTheObsValueTxtDtoCollection().size() > 0
-                        && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd())) {
+                }
+                else if (obs.getTheObsValueTxtDtoCollection() != null && obs.getTheObsValueTxtDtoCollection().size() > 0
+                        && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd()))
+                {
                     for (ObsValueTxtDto obsValueTxtDT : obs.getTheObsValueTxtDtoCollection()) {
                         if (obsValueTxtDT.getTxtTypeCd() == null || obsValueTxtDT.getTxtTypeCd().trim().equals("")
                                 || obsValueTxtDT.getTxtTypeCd().equalsIgnoreCase("O")) {
