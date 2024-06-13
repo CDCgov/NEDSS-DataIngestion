@@ -387,6 +387,12 @@ public class EdxLogService implements IEdxLogService {
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, EdxELRConstant.DOC_CREATE_SUCCESS);
             }
+            if(edxLabInformationDto.isObservationMatch()) {
+                setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, EdxELRConstant.OBSERVATION_MATCH);
+            }else{
+                String msg = EdxELRConstant.OBSERVATION_NOT_MATCH.replace("%1", Long.toString(edxLabInformationDto.getRootObserbationUid()));
+                setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
+            }
             if (edxLabInformationDto.isLabIsUpdateSuccess()) {
                 String msg = null;
                 if (edxLabInformationDto.isLabIsUpdateDRRQ())
