@@ -46,6 +46,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
         if (edxLabInformationDto.getRootObservationContainer() != null) {
             obsDT = matchingObservation(edxLabInformationDto);
         } else {
+            edxLabInformationDto.setObservationMatch(false);
             logger.error("Error!! masterObsVO not available for fillerNbr:" + edxLabInformationDto.getFillerNumber());
             return null;
         }
@@ -57,6 +58,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
             odsStatus = "N";
             if (msgStatus == null || odsStatus == null)
             {
+                edxLabInformationDto.setObservationMatch(false);
                 logger.error("Error!! null status cd: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);
                 return null;
             }
@@ -82,6 +84,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
                     throw new DataProcessingException("An Observation Lab test match was found for Accession # " + fillerNumber + ", but the activity time is out of sequence.");
                 }
                 // MATCHED
+                edxLabInformationDto.setObservationMatch(true);
                 return obsDT;
             }
             else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
@@ -117,6 +120,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
             }
         }
 
+        edxLabInformationDto.setObservationMatch(false);
         return null;
     }
 
