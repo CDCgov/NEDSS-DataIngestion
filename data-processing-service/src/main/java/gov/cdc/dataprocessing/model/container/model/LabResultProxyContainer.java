@@ -6,22 +6,20 @@ import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 
 @Getter
 @Setter
 public class LabResultProxyContainer extends PageActProxyContainer {
+    @Serial
     private static final long serialVersionUID = 1L;
     public boolean associatedNotificationInd;
     private Long sendingFacilityUid;
     public boolean associatedInvInd=false;
-    //private Collection<Object> thePersonVOCollection;
     private Collection<ObservationContainer> theObservationContainerCollection = new ArrayList<>();
-    // private Collection<OrganizationContainer> theOrganizationContainerCollection = new ArrayList<>();
     private Collection<MaterialContainer> theMaterialContainerCollection = new ArrayList<>();
-    //private Collection<ParticipationDto> theParticipationDtoCollection = new ArrayList<>();
-    //  private Collection<Object> theActRelationshipDtoCollection;
     private Collection<RoleDto> theRoleDtoCollection = new ArrayList<>();
     private Collection<Object> theActIdDTCollection;
     public Collection<Object> theInterventionVOCollection;
