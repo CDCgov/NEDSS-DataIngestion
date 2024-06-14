@@ -353,6 +353,22 @@ public class ManagerService implements IManagerService {
                 nbsInterfaceModel.setRecordStatusCd("FAILED_V2_STEP_3");
                 nbsInterfaceRepository.save(nbsInterfaceModel);
             }
+            if ((edxLabInformationDto.getPageActContainer() != null || edxLabInformationDto.getPamContainer() != null) && !edxLabInformationDto.isInvestigationSuccessfullyCreated()) {
+                if (edxLabInformationDto.isInvestigationMissingFields()) {
+                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_5);
+                } else {
+                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_9);
+                }
+            }
+            else if ((edxLabInformationDto.getPageActContainer() != null
+                            || edxLabInformationDto.getPamContainer() != null)
+                            && edxLabInformationDto.isInvestigationSuccessfullyCreated()){
+                if (edxLabInformationDto.isNotificationMissingFields()) {
+                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_8);
+                } else {
+                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_10);
+                }
+            }
         }finally {
             if(nbsInterfaceModel != null) {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);

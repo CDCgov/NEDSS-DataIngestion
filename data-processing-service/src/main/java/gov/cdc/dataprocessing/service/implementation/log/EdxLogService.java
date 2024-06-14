@@ -181,7 +181,7 @@ public class EdxLogService implements IEdxLogService {
     public void addActivityDetailLogs(EdxLabInformationDto edxLabInformationDto, String detailedMsg) {
         try{
             ArrayList<EDXActivityDetailLogDto> detailList =
-                    (ArrayList<EDXActivityDetailLogDto>) edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTDetails();
+                    (ArrayList<EDXActivityDetailLogDto>) edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails();
             if (detailList == null) {
                 detailList = new ArrayList<>();
             }
@@ -390,6 +390,12 @@ public class EdxLogService implements IEdxLogService {
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, EdxELRConstant.DOC_CREATE_SUCCESS);
             }
+            if(edxLabInformationDto.isObservationMatch()) {
+                setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, EdxELRConstant.OBSERVATION_MATCH);
+            }else{
+                String msg = EdxELRConstant.OBSERVATION_NOT_MATCH.replace("%1", Long.toString(edxLabInformationDto.getRootObserbationUid()));
+                setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
+            }
             if (edxLabInformationDto.isLabIsUpdateSuccess()) {
                 String msg = null;
                 if (edxLabInformationDto.isLabIsUpdateDRRQ())
@@ -488,12 +494,18 @@ public class EdxLogService implements IEdxLogService {
     public void addActivityDetailLogsForWDS(EdxLabInformationDto edxLabInformationDto, String detailedMsg) {
         try{
             ArrayList<EDXActivityDetailLogDto> detailList =
-                    (ArrayList<EDXActivityDetailLogDto>) edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTDetails();
+                    (ArrayList<EDXActivityDetailLogDto>) edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails();
             if (detailList == null) {
                 detailList = new ArrayList<>();
             }
             String id = String.valueOf(edxLabInformationDto.getLocalId());
 
+            if (!edxLabInformationDto.isCreateNotificationPermission()) {
+                String msg = EdxELRConstant.NO_NOT_PERMISSION.replace("%1", edxLabInformationDto.getUserName());
+                setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure, msg);
+                setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success,
+                        EdxELRConstant.OFCN);
+            }
             if (edxLabInformationDto.isInvestigationSuccessfullyCreated()) {
                 String msg = EdxELRConstant.INV_SUCCESS_CREATED.replace("%1", String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()));
                 setActivityDetailLog(detailList, String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()), EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);

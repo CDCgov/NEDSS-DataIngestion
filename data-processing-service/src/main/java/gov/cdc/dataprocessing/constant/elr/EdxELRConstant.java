@@ -316,6 +316,8 @@ public class EdxELRConstant {
             "Program Area not derived.";
     public static final String LAB_CREATE_SUCCESS =
             "Lab %1 created and associated to Patient.";
+    public static final String OBSERVATION_MATCH = "Observation match found";
+    public static final String OBSERVATION_NOT_MATCH = "Observation match not found, Observation created with id: %1";
     public static final String DOC_CREATE_SUCCESS =
             "Document created and associated to Lab.";
     public static final String MISSING_ORD_PROV =

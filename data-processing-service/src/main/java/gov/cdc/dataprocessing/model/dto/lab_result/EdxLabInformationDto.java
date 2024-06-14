@@ -138,6 +138,7 @@ public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDto implements 
     private boolean invalidDateError;
     private String algorithmAndOrLogic;
     private boolean labAssociatedToInv;
+    private boolean observationMatch;
 
     private boolean reasonforStudyCdMissing;
     private Collection<PublicHealthCaseDto> matchingPublicHealthCaseDtoColl;
