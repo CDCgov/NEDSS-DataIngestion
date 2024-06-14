@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.service.implementation.observation;
 
+import com.google.gson.Gson;
 import gov.cdc.dataprocessing.constant.elr.ELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
@@ -26,25 +27,85 @@ public class ObservationCodeService implements IObservationCodeService {
     private final ISrteCodeObsService srteCodeObsService;
     private final OrganizationRepositoryUtil organizationRepositoryUtil;
     private final ObservationUtil observationUtil;
-    private final PropertyUtil propertyUtil;
 
     public ObservationCodeService(ISrteCodeObsService srteCodeObsService,
                                   OrganizationRepositoryUtil organizationRepositoryUtil,
-                                  ObservationUtil observationUtil,
-                                  PropertyUtil propertyUtil) {
+                                  ObservationUtil observationUtil
+    ) {
         this.srteCodeObsService = srteCodeObsService;
         this.organizationRepositoryUtil = organizationRepositoryUtil;
         this.observationUtil = observationUtil;
-        this.propertyUtil = propertyUtil;
     }
 
 
+    public String getReportingLabCLIA(BaseContainer proxy) throws DataProcessingException {
+        Collection<ParticipationDto>  partColl = null;
+        if (proxy instanceof LabResultProxyContainer)
+        {
+            partColl = ( (LabResultProxyContainer) proxy).getTheParticipationDtoCollection();
+        }
+//            if (proxy instanceof MorbidityProxyVO)
+//            {
+//                partColl = ( (MorbidityProxyVO) proxy).getTheParticipationDTCollection();
+//            }
+
+        //Get the reporting lab
+        Long reportingLabUid = observationUtil.getUid(partColl, null,
+                NEDSSConstant.ENTITY_UID_LIST_TYPE,
+                NEDSSConstant.ORGANIZATION,
+                NEDSSConstant.PAR111_TYP_CD,
+                NEDSSConstant.PART_ACT_CLASS_CD,
+                NEDSSConstant.RECORD_STATUS_ACTIVE);
+
+        OrganizationContainer reportingLabVO = null;
+
+        if (reportingLabUid != null)
+        {
+            reportingLabVO = organizationRepositoryUtil.loadObject(reportingLabUid, null);
+        }
+
+
+        //Get the CLIA
+        String reportingLabCLIA = null;
+
+        if(reportingLabVO != null)
+        {
+            Collection<EntityIdDto>  entityIdColl = reportingLabVO.getTheEntityIdDtoCollection();
+
+            if (entityIdColl != null && entityIdColl.size() > 0) {
+                for (EntityIdDto idDT : entityIdColl) {
+                    if (idDT == null) {
+                        continue;
+                    }
+
+                    String authoCd = idDT.getAssigningAuthorityCd();
+                    String idTypeCd = idDT.getTypeCd();
+                    if (authoCd != null && idTypeCd != null &&
+                            authoCd.equalsIgnoreCase(NEDSSConstant.REPORTING_LAB_CLIA) &&
+                            idTypeCd.equalsIgnoreCase(NEDSSConstant.REPORTING_LAB_FI_TYPE)) { //civil00011659
+                        reportingLabCLIA = idDT.getRootExtensionTxt();
+                        break;
+                    }
+                }
+            }
+        }
+        return reportingLabCLIA;
+    }
+
+
+
     /**
+     * UNREACHABLE METHOD for the current flow; only reached if the payload is not ELR
      * deriveTheConditionCodeList - used by Associate to Investigations
      *    when associating an STD lab to a closed investigation.
      *    Condition list determines the Processing Decision to show.
      */
     public ArrayList<String> deriveTheConditionCodeList(LabResultProxyContainer labResultProxyVO, ObservationContainer orderTest) throws DataProcessingException {
+
+        Gson gson = new Gson();
+        var strLab = gson.toJson(labResultProxyVO);
+        var strOrder = gson.toJson(orderTest);
+
         ArrayList<String> derivedConditionList = new ArrayList<>();
 
         //if this is not an STD Program Area - we can skip this overhead
@@ -224,61 +285,6 @@ public class ObservationCodeService implements IObservationCodeService {
         }
         return reportingLabCLIA;
     }
-
-    public String getReportingLabCLIA(BaseContainer proxy) throws DataProcessingException {
-            Collection<ParticipationDto>  partColl = null;
-            if (proxy instanceof LabResultProxyContainer)
-            {
-                partColl = ( (LabResultProxyContainer) proxy).getTheParticipationDtoCollection();
-            }
-//            if (proxy instanceof MorbidityProxyVO)
-//            {
-//                partColl = ( (MorbidityProxyVO) proxy).getTheParticipationDTCollection();
-//            }
-
-            //Get the reporting lab
-            Long reportingLabUid = observationUtil.getUid(partColl, null,
-                    NEDSSConstant.ENTITY_UID_LIST_TYPE,
-                    NEDSSConstant.ORGANIZATION,
-                    NEDSSConstant.PAR111_TYP_CD,
-                    NEDSSConstant.PART_ACT_CLASS_CD,
-                    NEDSSConstant.RECORD_STATUS_ACTIVE);
-
-            OrganizationContainer reportingLabVO = null;
-
-            if (reportingLabUid != null)
-            {
-                reportingLabVO = organizationRepositoryUtil.loadObject(reportingLabUid, null);
-            }
-
-
-            //Get the CLIA
-            String reportingLabCLIA = null;
-
-            if(reportingLabVO != null)
-            {
-                Collection<EntityIdDto>  entityIdColl = reportingLabVO.getTheEntityIdDtoCollection();
-
-                if (entityIdColl != null && entityIdColl.size() > 0) {
-                    for (EntityIdDto idDT : entityIdColl) {
-                        if (idDT == null) {
-                            continue;
-                        }
-
-                        String authoCd = idDT.getAssigningAuthorityCd();
-                        String idTypeCd = idDT.getTypeCd();
-                        if (authoCd != null && idTypeCd != null &&
-                                authoCd.equalsIgnoreCase(NEDSSConstant.REPORTING_LAB_CLIA) &&
-                                idTypeCd.equalsIgnoreCase(NEDSSConstant.REPORTING_LAB_FI_TYPE)) { //civil00011659
-                            reportingLabCLIA = idDT.getRootExtensionTxt();
-                            break;
-                        }
-                    }
-                }
-            }
-            return reportingLabCLIA;
-    }
-
 
     /**
      * Returns a List of Condition Codes associated with the passed Snomed codes.

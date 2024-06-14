@@ -281,6 +281,7 @@ public class PublicHealthCase {
 
     public PublicHealthCase(PublicHealthCaseDto publicHealthCaseDto) {
         // Copy values from PublicHealthCaseDto to PublicHealthCase
+
         this.publicHealthCaseUid = publicHealthCaseDto.getPublicHealthCaseUid();
         this.activityDurationAmt = publicHealthCaseDto.getActivityDurationAmt();
         this.activityDurationUnitCd = publicHealthCaseDto.getActivityDurationUnitCd();
@@ -367,6 +368,7 @@ public class PublicHealthCase {
         this.currProcessStateCd = publicHealthCaseDto.getCurrProcessStateCd();
         this.invPriorityCd = publicHealthCaseDto.getInvPriorityCd();
         this.coinfectionId = publicHealthCaseDto.getCoinfectionId();
+
 //        this.associatedSpecimenCollDate = publicHealthCaseDto.getAssociatedSpecimenCollDate();
 //        this.confirmationMethodCd = publicHealthCaseDto.getConfirmationMethodCd();
 //        this.confirmationMethodTime = publicHealthCaseDto.getConfirmationMethodTime();

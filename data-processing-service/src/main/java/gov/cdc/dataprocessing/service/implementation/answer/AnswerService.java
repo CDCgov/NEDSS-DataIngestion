@@ -209,28 +209,6 @@ public class AnswerService implements IAnswerService {
         }
     }
 
-    private void storeActEntityDTCollection(Collection<NbsActEntityDto> pamDTCollection, ObservationDto rootDTInterface) throws  DataProcessingException{
-        try{
-            if(pamDTCollection.size()>0){
-                for (NbsActEntityDto pamCaseEntityDT : pamDTCollection) {
-                    if (pamCaseEntityDT.isItDelete()) {
-                        nbsActEntityRepository.deleteNbsEntityAct(pamCaseEntityDT.getNbsActEntityUid());
-                    } else if (pamCaseEntityDT.isItDirty() || pamCaseEntityDT.isItNew()) {
-                        var nbsActEntity = new NbsActEntity(pamCaseEntityDT);
-                        nbsActEntity.setActUid(rootDTInterface.getObservationUid());
-                        nbsActEntity.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
-                        nbsActEntity.setRecordStatusCd("OPEN");
-                        nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
-                        nbsActEntityRepository.save(new NbsActEntity(pamCaseEntityDT));
-                    }
-                }
-            }
-        }
-        catch(Exception ex){
-            throw new DataProcessingException(ex.toString());
-        }
-    }
-
     public void storeActEntityDTCollectionWithPublicHealthCase(Collection<NbsActEntityDto> pamDTCollection, PublicHealthCaseDto rootDTInterface)
             throws  DataProcessingException{
         try{
@@ -255,6 +233,27 @@ public class AnswerService implements IAnswerService {
     }
 
 
+    private void storeActEntityDTCollection(Collection<NbsActEntityDto> pamDTCollection, ObservationDto rootDTInterface) throws  DataProcessingException{
+        try{
+            if(pamDTCollection.size()>0){
+                for (NbsActEntityDto pamCaseEntityDT : pamDTCollection) {
+                    if (pamCaseEntityDT.isItDelete()) {
+                        nbsActEntityRepository.deleteNbsEntityAct(pamCaseEntityDT.getNbsActEntityUid());
+                    } else if (pamCaseEntityDT.isItDirty() || pamCaseEntityDT.isItNew()) {
+                        var nbsActEntity = new NbsActEntity(pamCaseEntityDT);
+                        nbsActEntity.setActUid(rootDTInterface.getObservationUid());
+                        nbsActEntity.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                        nbsActEntity.setRecordStatusCd("OPEN");
+                        nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
+                        nbsActEntityRepository.save(new NbsActEntity(pamCaseEntityDT));
+                    }
+                }
+            }
+        }
+        catch(Exception ex){
+            throw new DataProcessingException(ex.toString());
+        }
+    }
 
     private void insertActEntityDTCollection(Collection<NbsActEntityDto> actEntityDTCollection, ObservationDto observationDto) {
         if(actEntityDTCollection.size()>0){

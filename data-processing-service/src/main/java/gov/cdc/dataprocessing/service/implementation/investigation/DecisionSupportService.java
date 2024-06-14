@@ -55,6 +55,106 @@ public class DecisionSupportService implements IDecisionSupportService {
     final Comparator<PublicHealthCaseDto> ADDTIME_ORDER = (e1, e2) -> e2.getAddTime().compareTo(e1.getAddTime());
     final Comparator<DsmLabMatchHelper> AlGORITHM_NM_ORDER = (e1, e2) -> e1.getAlgorithmNm().compareToIgnoreCase(e2.getAlgorithmNm());
 
+    @Transactional
+    // Was: validateProxyVO
+    public EdxLabInformationDto validateProxyContainer(LabResultProxyContainer labResultProxyVO,
+                                                       EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
+        List<DsmLabMatchHelper> activeElrAlgorithmList = new ArrayList<>();
+        var wdsExist = checkActiveWdsAlgorithm( edxLabInformationDT, activeElrAlgorithmList );
+        if (!wdsExist) {
+            return edxLabInformationDT;
+
+        }
+        Collection<ObservationContainer>  resultedTestColl=new ArrayList<>();
+        Collection<String> resultedTestCodeColl =  new ArrayList<>();
+        ObservationContainer orderedTestObservationVO;
+
+        Map<Object, Object> questionIdentifierMap = null;
+        try
+        {
+            Collection<PersonContainer> personVOCollection=new ArrayList<>();
+            if (labResultProxyVO.getThePersonContainerCollection() != null)
+            {
+                personVOCollection=labResultProxyVO.getThePersonContainerCollection();
+            }
+            orderedTestObservationVO = setupObservationValuesForWds(edxLabInformationDT, labResultProxyVO, resultedTestColl, resultedTestCodeColl);
+
+            //See if we have a matching algorithm for this lab in the order of Algorithm Names
+            activeElrAlgorithmList.sort(AlGORITHM_NM_ORDER);
+
+
+            List<WdsReport> wdsReports = new ArrayList<>();
+
+            for (DsmLabMatchHelper dsmLabMatchHelper : activeElrAlgorithmList) {
+                boolean criteriaMatch;
+
+
+                //Was AlgorithmDocument
+                Algorithm algorithmDocument;
+                //reset for every algorithm processing
+                edxLabInformationDT.setAssociatedPublicHealthCaseUid(-1L);
+                edxLabInformationDT.setMatchingPublicHealthCaseDtoColl(null);
+                //if returns true, lab matched algorithm, continue with the investigation criteria match is one exists.
+
+                WdsReport wdsReport = dsmLabMatchHelper.isThisLabAMatch(
+                        resultedTestCodeColl,
+                        resultedTestColl,
+                        edxLabInformationDT.getSendingFacilityClia(),
+                        edxLabInformationDT.getSendingFacilityName()
+                );
+                boolean isLabMatched = wdsReport.isAlgorithmMatched();
+                if (isLabMatched)
+                {
+                    algorithmDocument = dsmLabMatchHelper.getAlgorithmDocument();
+                    criteriaMatch = true;
+                }
+                else
+                {
+                    // IF NOT MATCH FOUND CONTINUE and skip the comparing logic
+                    wdsReports.add(wdsReport);
+                    continue;
+                }
+
+                String conditionCode = null;
+                if (algorithmDocument != null && algorithmDocument.getApplyToConditions() != null)
+                {
+                    List<CodedType> conditionArray = algorithmDocument.getApplyToConditions().getCondition();
+                    for (CodedType codeType : conditionArray) {
+                        conditionCode = codeType.getCode();
+                    }
+                }
+
+
+                // Determine next step based on ACTION
+                updateObservationBasedOnAction(
+                        algorithmDocument,
+                        criteriaMatch,
+                        conditionCode,
+                        orderedTestObservationVO,
+                        personVOCollection,
+                        edxLabInformationDT,
+                        wdsReport,
+                        questionIdentifierMap
+                );
+
+                if (edxLabInformationDT.isMatchingAlgorithm() && algorithmDocument != null)
+                {
+                    wdsReports.add(wdsReport);
+                    edxLabInformationDT.setDsmAlgorithmName(algorithmDocument.getAlgorithmName());
+                    break;
+                }
+
+                wdsReports.add(wdsReport);
+
+            }
+
+            edxLabInformationDT.getWdsReports().addAll(wdsReports);
+            return edxLabInformationDT;
+
+        } catch (Exception e) {
+            throw new DataProcessingException("ERROR:-ValidateDecisionSupport.validateProxyVO No action has been specified. Please check." + e, e);
+        }
+    }
 
     private boolean checkActiveWdsAlgorithm(EdxLabInformationDto edxLabInformationDT,
                                                              List<DsmLabMatchHelper> activeElrAlgorithmList ) throws DataProcessingException {
@@ -64,7 +164,6 @@ public class DecisionSupportService implements IDecisionSupportService {
             List<WdsReport> wdsReportList = new ArrayList<>();
             WdsReport report = new WdsReport();
             Collection<DsmAlgorithm> algorithmCollection = selectDSMAlgorithmDTCollection();
-
             if (algorithmCollection == null || algorithmCollection.isEmpty())  {
                 //no algorithms defined
                 elrAlgorithmsPresent = false;
@@ -157,106 +256,6 @@ public class DecisionSupportService implements IDecisionSupportService {
         return orderedTestObservationVO;
     }
 
-    @Transactional
-    // Was: validateProxyVO
-    public EdxLabInformationDto validateProxyContainer(LabResultProxyContainer labResultProxyVO,
-                                                EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
-        List<DsmLabMatchHelper> activeElrAlgorithmList = new ArrayList<>();
-        var wdsExist = checkActiveWdsAlgorithm( edxLabInformationDT, activeElrAlgorithmList );
-        if (!wdsExist) {
-            return edxLabInformationDT;
-
-        }
-        Collection<ObservationContainer>  resultedTestColl=new ArrayList<>();
-        Collection<String> resultedTestCodeColl =  new ArrayList<>();
-        ObservationContainer orderedTestObservationVO;
-
-        Map<Object, Object> questionIdentifierMap = null;
-        try
-        {
-            Collection<PersonContainer> personVOCollection=new ArrayList<>();
-            if (labResultProxyVO.getThePersonContainerCollection() != null)
-            {
-                personVOCollection=labResultProxyVO.getThePersonContainerCollection();
-            }
-            orderedTestObservationVO = setupObservationValuesForWds(edxLabInformationDT, labResultProxyVO, resultedTestColl, resultedTestCodeColl);
-
-            //See if we have a matching algorithm for this lab in the order of Algorithm Names
-            activeElrAlgorithmList.sort(AlGORITHM_NM_ORDER);
-
-
-            List<WdsReport> wdsReports = new ArrayList<>();
-
-            for (DsmLabMatchHelper dsmLabMatchHelper : activeElrAlgorithmList) {
-                boolean criteriaMatch;
-
-
-                //Was AlgorithmDocument
-                Algorithm algorithmDocument;
-                //reset for every algorithm processing
-                edxLabInformationDT.setAssociatedPublicHealthCaseUid(-1L);
-                edxLabInformationDT.setMatchingPublicHealthCaseDtoColl(null);
-                //if returns true, lab matched algorithm, continue with the investigation criteria match is one exists.
-
-                WdsReport wdsReport = dsmLabMatchHelper.isThisLabAMatch(
-                        resultedTestCodeColl,
-                        resultedTestColl,
-                        edxLabInformationDT.getSendingFacilityClia(),
-                        edxLabInformationDT.getSendingFacilityName()
-                );
-                boolean isLabMatched = wdsReport.isAlgorithmMatched();
-                if (isLabMatched)
-                {
-                    algorithmDocument = dsmLabMatchHelper.getAlgorithmDocument();
-                    criteriaMatch = true;
-                }
-                else
-                {
-                    // IF NOT MATCH FOUND CONTINUE and skip the comparing logic
-                    wdsReports.add(wdsReport);
-                    continue;
-                }
-
-                String conditionCode = null;
-                if (algorithmDocument != null && algorithmDocument.getApplyToConditions() != null)
-                {
-                    List<CodedType> conditionArray = algorithmDocument.getApplyToConditions().getCondition();
-                    for (CodedType codeType : conditionArray) {
-                        conditionCode = codeType.getCode();
-                    }
-                }
-
-
-                // Determine next step based on ACTION
-                updateObservationBasedOnAction(
-                 algorithmDocument,
-                 criteriaMatch,
-                 conditionCode,
-                 orderedTestObservationVO,
-                 personVOCollection,
-                 edxLabInformationDT,
-                 wdsReport,
-                 questionIdentifierMap
-                );
-
-                if (edxLabInformationDT.isMatchingAlgorithm() && algorithmDocument != null)
-                {
-                    wdsReports.add(wdsReport);
-                    edxLabInformationDT.setDsmAlgorithmName(algorithmDocument.getAlgorithmName());
-                    break;
-                }
-
-                wdsReports.add(wdsReport);
-
-            }
-
-            edxLabInformationDT.getWdsReports().addAll(wdsReports);
-            return edxLabInformationDT;
-
-        } catch (Exception e) {
-            throw new DataProcessingException("ERROR:-ValidateDecisionSupport.validateProxyVO No action has been specified. Please check." + e, e);
-        }
-    }
 
     /**
      * Description:

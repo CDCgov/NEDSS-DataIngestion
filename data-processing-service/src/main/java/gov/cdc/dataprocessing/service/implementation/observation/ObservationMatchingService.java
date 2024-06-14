@@ -124,7 +124,9 @@ public class ObservationMatchingService implements IObservationMatchingService {
         return null;
     }
 
-    public void processMatchedProxyVO(LabResultProxyContainer labResultProxyVO, LabResultProxyContainer matchedlabResultProxyVO, EdxLabInformationDto edxLabInformationDT) {
+    public void processMatchedProxyVO(LabResultProxyContainer labResultProxyVO,
+                                      LabResultProxyContainer matchedlabResultProxyVO,
+                                      EdxLabInformationDto edxLabInformationDT) {
         Long matchedObservationUid =null;
         ObservationDto matchedObservationDto = null;
         Collection<ObservationContainer> observationCollection = matchedlabResultProxyVO.getTheObservationContainerCollection();
