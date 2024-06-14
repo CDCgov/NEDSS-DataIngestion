@@ -401,8 +401,6 @@ public class ManagerService implements IManagerService {
 
             LabResultProxyContainer labResultProxyContainer = dataExtractionService.parsingDataToObject(nbsInterfaceModel, edxLabInformationDto);
 
-            var t = gson.toJson(labResultProxyContainer);
-
             edxLabInformationDto.setLabResultProxyContainer(labResultProxyContainer);
 
             if (nbsInterfaceModel.getObservationUid() != null && nbsInterfaceModel.getObservationUid() > 0) {
