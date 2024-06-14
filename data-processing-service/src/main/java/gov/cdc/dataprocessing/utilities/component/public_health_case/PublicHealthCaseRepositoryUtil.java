@@ -340,7 +340,7 @@ public class PublicHealthCaseRepositoryUtil {
         phc.setPublicHealthCaseUid(phcUid);
         phc.setLocalId(phcLocalUid);
 
-        phc.setCaseClassCd("C");
+//        phc.setCaseClassCd("C");
 
         String coInfectionGroupID;
         if (phcDT.getCoinfectionId() != null
