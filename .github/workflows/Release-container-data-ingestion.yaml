@@ -22,7 +22,7 @@ on:
         type: string
         default: SNAPSHOT
       values_file_with_path:
-        description: What is the path to the helm chart in NBS helm chart repository? (ex. charts/dataingestion-service/values-dataingestion-dev.yaml)
+        description: What is the path to the helm chart in NBS helm chart repository? (ex. charts/dataingestion-service/values-int1.yaml)
         type: string
         default: "charts/<microservice>/<values_filename.yaml>"
       build-new-container:
