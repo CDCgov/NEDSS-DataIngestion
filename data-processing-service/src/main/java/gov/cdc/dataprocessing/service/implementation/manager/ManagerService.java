@@ -3,6 +3,7 @@ package gov.cdc.dataprocessing.service.implementation.manager;
 import com.google.gson.Gson;
 import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
+import gov.cdc.dataprocessing.constant.DpConstant;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
@@ -183,7 +184,7 @@ public class ManagerService implements IManagerService {
                     trackerView.setPatientLastName(patLastName);
 
 
-                    nbsInterfaceModel.setRecordStatusCd("COMPLETED_V2_STEP_2");
+                    nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_2);
                     nbsInterfaceRepository.save(nbsInterfaceModel);
 
 
@@ -232,7 +233,7 @@ public class ManagerService implements IManagerService {
         } catch (Exception e) {
             detailedMsg = e.getMessage();
             if (nbsInterfaceModel != null) {
-                nbsInterfaceModel.setRecordStatusCd("FAILED_V2_STEP_2");
+                nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_2);
                 nbsInterfaceRepository.save(nbsInterfaceModel);
             }
 
@@ -362,11 +363,14 @@ public class ManagerService implements IManagerService {
                     }
 
                 }
-
             }
-        } catch (Exception e) {
+            nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_3);
+            nbsInterfaceRepository.save(nbsInterfaceModel);
+        }
+        catch (Exception e)
+        {
             if (nbsInterfaceModel != null) {
-                nbsInterfaceModel.setRecordStatusCd("FAILED_V2_STEP_3");
+                nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_3);
                 nbsInterfaceRepository.save(nbsInterfaceModel);
             }
             if ((edxLabInformationDto.getPageActContainer() != null || edxLabInformationDto.getPamContainer() != null) && !edxLabInformationDto.isInvestigationSuccessfullyCreated()) {
@@ -468,7 +472,7 @@ public class ManagerService implements IManagerService {
 
 
             nbsInterfaceModel.setObservationUid(observationDto.getObservationUid().intValue());
-            nbsInterfaceModel.setRecordStatusCd("COMPLETED_V2");
+            nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_1);
             nbsInterfaceRepository.save(nbsInterfaceModel);
 
 
@@ -486,9 +490,8 @@ public class ManagerService implements IManagerService {
         catch (Exception e)
         {
             if (nbsInterfaceModel != null) {
-                nbsInterfaceModel.setRecordStatusCd("FAILED_V2");
+                nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_1);
                 nbsInterfaceRepository.save(nbsInterfaceModel);
-                System.out.println("ERROR");
             }
             String accessionNumberToAppend = "Accession Number:" + edxLabInformationDto.getFillerNumber();
             edxLabInformationDto.setStatus(NbsInterfaceStatus.Failure);
@@ -847,7 +850,7 @@ public class ManagerService implements IManagerService {
 
     private void requiredFieldError(String errorTxt, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
         if (errorTxt != null) {
-            edxLabInformationDT	.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_5);
+            edxLabInformationDT.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_5);
             if (edxLabInformationDT.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails() == null)
             {
                 edxLabInformationDT.getEdxActivityLogDto().setEDXActivityLogDTWithVocabDetails(

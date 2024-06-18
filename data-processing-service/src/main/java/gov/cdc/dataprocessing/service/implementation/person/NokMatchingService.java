@@ -152,25 +152,10 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
                 personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
             }
 
-            // SetPatientRevision
-
             patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR, NEDSSConstant.NOK);
             personContainer.getThePersonDto().setPersonUid(patientUid);
 
 
-            logger.error("NOK CREATED" +  patientUid);
-
-//            if (!newPersonCreationApplied && edxPatientMatchFoundDT != null) {
-//                // patientRepositoryUtil.updateExistingPerson(personVO);
-//                personContainer.getThePersonDto().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
-//                patientPersonUid = updateExistingPerson(personContainer, NEDSSConstant.PAT_CR, personContainer.getThePersonDto().getPersonParentUid());
-//                personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
-//                personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
-//                personContainer.getThePersonDto().setPersonUid(patientPersonUid.getPersonId());
-//            }
-//            else if (newPersonCreationApplied) {
-//                setPersonHashCdNok(personContainer);
-//            }
         } catch (Exception e) {
             logger.error("Error in getting the entity Controller or Setting the Patient" + e.getMessage());
             throw new DataProcessingException("Error in getting the entity Controller or Setting the Patient" + e.getMessage(), e);

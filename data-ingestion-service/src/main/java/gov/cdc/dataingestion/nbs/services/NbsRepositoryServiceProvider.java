@@ -25,7 +25,7 @@ public class NbsRepositoryServiceProvider {
 
 	private static final String IMPEXP_CD = "I";
 	private static final String STATUS_UNPROCESSED = "QUEUED";
-	private static final String STATUS_UNPROCESSED_V2 = "QUEUED_V2";
+	private static final String STATUS_UNPROCESSED_V2 = "RTI_QUEUED";
 
 	private static final String SYSTEM_NAME_NBS = "NBS";
 	private static final String DOCUMENT_TYPE_CODE = "11648804";
