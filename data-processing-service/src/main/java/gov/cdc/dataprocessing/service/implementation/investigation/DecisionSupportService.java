@@ -261,22 +261,31 @@ public class DecisionSupportService implements IDecisionSupportService {
      * Description:
      *  this return true, if Action is Review, Investigation, and Investigation with Notification
      * */
-    private boolean checkActionInvalid(Algorithm algorithmDocument, boolean criteriaMatch) {
+    protected boolean checkActionInvalid(Algorithm algorithmDocument, boolean criteriaMatch) {
         boolean result = false;
-        if (algorithmDocument != null && criteriaMatch && algorithmDocument.getAction() != null) {
-            if (algorithmDocument.getAction().getCreateInvestigation() != null) {
-                result = algorithmDocument.getAction().getCreateInvestigation().getOnFailureToCreateInvestigation().getCode().equals("2");
-            } else if (algorithmDocument.getAction().getCreateInvestigationWithNND() != null) {
-//                if (algorithmDocument.getAction().getCreateInvestigationWithNND().getOnFailureToCreateNND().getCode().equals("3")) {
-//                    result = true;
-//                }
-                if (algorithmDocument.getAction().getCreateInvestigationWithNND().getOnFailureToCreateInvestigation().getCode().equals("2")) {
-                    result = true;
-                }
-            } else if (algorithmDocument.getAction().getMarkAsReviewed() != null) {
-                result = algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2");
-            }
+        if (!criteriaMatch || algorithmDocument == null || algorithmDocument.getAction() == null) {
+            return false;
         }
+
+        String code = "";
+
+        if (algorithmDocument.getAction().getCreateInvestigation() != null)
+        {
+            code = algorithmDocument.getAction().getCreateInvestigation().getOnFailureToCreateInvestigation().getCode();
+        }
+        else if (algorithmDocument.getAction().getCreateInvestigationWithNND() != null)
+        {
+            code = algorithmDocument.getAction().getCreateInvestigationWithNND().getOnFailureToCreateInvestigation().getCode();
+        }
+        else if (algorithmDocument.getAction().getMarkAsReviewed() != null)
+        {
+            code = algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode();
+        }
+
+        if (code.equals("2") || code.equals("1")) {
+            result = true;
+        }
+
         return result;
     }
 
@@ -548,6 +557,7 @@ public class DecisionSupportService implements IDecisionSupportService {
     /**
      * Execute when action in available
      * */
+    @SuppressWarnings("java:S6541")
     private boolean specimenCollectionDateCriteria(EventDateLogicType eventDateLogicType,EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
         boolean isdateLogicValidForNewInv;
         String comparatorCode="";
@@ -654,6 +664,7 @@ public class DecisionSupportService implements IDecisionSupportService {
     /**
      * Execute when action is review
      * */
+    @SuppressWarnings("java:S6541")
     private boolean checkAdvancedInvCriteria(Algorithm algorithmDocument,
                                              EdxLabInformationDto edxLabInformationDT,
                                              Map<Object, Object> questionIdentifierMap) throws DataProcessingException {
