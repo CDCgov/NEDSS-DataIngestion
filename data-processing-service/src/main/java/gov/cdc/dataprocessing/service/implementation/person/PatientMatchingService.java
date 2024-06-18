@@ -204,7 +204,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
 
                 // SetPatientRevision
 
-                patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR);
+                patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR, NEDSSConstant.PAT);
                 personContainer.getThePersonDto().setPersonUid(patientUid);
 
                 //END REVISION

@@ -251,7 +251,7 @@ public class PamService implements IPamService {
 //                                var data = patientRepositoryUtil.createPerson(personVO);
 //                                realUid = data.getPersonParentUid();
 
-                                realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd);
+                                realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
                             }  catch (Exception ex) {
                                 throw new DataProcessingException(ex.getMessage(),ex);
                             }
@@ -283,7 +283,7 @@ public class PamService implements IPamService {
 //                                var data = patientRepositoryUtil.createPerson(personVO);
 //                                realUid = data.getPersonParentUid();
 
-                                realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd);
+                                realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
 
                             }  catch (Exception ex) {
                                 throw new DataProcessingException(ex.getMessage(),ex);

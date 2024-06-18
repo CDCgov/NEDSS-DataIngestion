@@ -40,7 +40,7 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
         Long patientUid = personContainer.getThePersonDto().getPersonUid();
         EdxPatientMatchDto edxPatientFoundDT = null;
         EdxPatientMatchDto edxPatientMatchFoundDT = null;
-        PersonId patientPersonUid;
+        PersonId patientPersonUid = null;
         boolean matchFound = false;
         boolean newPersonCreationApplied = false;
 
@@ -145,28 +145,32 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
 
         try {
 
-//            if (!newPersonCreationApplied) {
-//                personContainer.getThePersonDto().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
-//            }
-//            else {
-//                personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
-//            }
-//
-//            patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR);
-//            personContainer.getThePersonDto().setPersonUid(patientUid);
-
-
-            if (!newPersonCreationApplied && edxPatientMatchFoundDT != null) {
-                // patientRepositoryUtil.updateExistingPerson(personVO);
+            //REVISION
+            if (!newPersonCreationApplied) {
                 personContainer.getThePersonDto().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
-                patientPersonUid = updateExistingPerson(personContainer, NEDSSConstant.PAT_CR, personContainer.getThePersonDto().getPersonParentUid());
+            } else {
                 personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
-                personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
-                personContainer.getThePersonDto().setPersonUid(patientPersonUid.getPersonId());
             }
-            else if (newPersonCreationApplied) {
-                setPersonHashCdNok(personContainer);
-            }
+
+            // SetPatientRevision
+
+            patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR, NEDSSConstant.NOK);
+            personContainer.getThePersonDto().setPersonUid(patientUid);
+
+
+            logger.error("NOK CREATED" +  patientUid);
+
+//            if (!newPersonCreationApplied && edxPatientMatchFoundDT != null) {
+//                // patientRepositoryUtil.updateExistingPerson(personVO);
+//                personContainer.getThePersonDto().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
+//                patientPersonUid = updateExistingPerson(personContainer, NEDSSConstant.PAT_CR, personContainer.getThePersonDto().getPersonParentUid());
+//                personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
+//                personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
+//                personContainer.getThePersonDto().setPersonUid(patientPersonUid.getPersonId());
+//            }
+//            else if (newPersonCreationApplied) {
+//                setPersonHashCdNok(personContainer);
+//            }
         } catch (Exception e) {
             logger.error("Error in getting the entity Controller or Setting the Patient" + e.getMessage());
             throw new DataProcessingException("Error in getting the entity Controller or Setting the Patient" + e.getMessage(), e);

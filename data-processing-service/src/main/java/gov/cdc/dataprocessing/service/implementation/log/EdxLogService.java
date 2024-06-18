@@ -2,8 +2,10 @@ package gov.cdc.dataprocessing.service.implementation.log;
 
 import com.google.gson.Gson;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
+import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.EdxLogException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
@@ -73,11 +75,14 @@ public class EdxLogService implements IEdxLogService {
             activityLogId=edxActivityLogNew.getId();
         }
 
-        Collection<EDXActivityDetailLogDto> edxActivityDetailLogsList= edxActivityLogDto.getEDXActivityLogDTWithVocabDetails();
-        for (EDXActivityDetailLogDto eDXActivityDetailLogDto: edxActivityDetailLogsList) {
-            eDXActivityDetailLogDto.setEdxActivityLogUid(activityLogId);
-            saveEdxActivityDetailLog(eDXActivityDetailLogDto);
+        if (edxActivityLogDto.getEDXActivityLogDTWithVocabDetails() != null) {
+            Collection<EDXActivityDetailLogDto> edxActivityDetailLogsList= edxActivityLogDto.getEDXActivityLogDTWithVocabDetails();
+            for (EDXActivityDetailLogDto eDXActivityDetailLogDto: edxActivityDetailLogsList) {
+                eDXActivityDetailLogDto.setEdxActivityLogUid(activityLogId);
+                saveEdxActivityDetailLog(eDXActivityDetailLogDto);
+            }
         }
+
     }
 
     public void updateActivityLogDT(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto) {
@@ -340,7 +345,7 @@ public class EdxLogService implements IEdxLogService {
             }
             if (edxLabInformationDto.isPatientMatch()) {
                 String msg = EdxELRConstant.SUBJECT_MATCH_FOUND.replace("%1",
-                        edxLabInformationDto.getEntityName()).replace("%2",
+                        String.valueOf(edxLabInformationDto.getPatientUid())).replace("%2",
                         String.valueOf(edxLabInformationDto.getPersonParentUid()));
                 setActivityDetailLog(detailList,
                         String.valueOf(edxLabInformationDto.getPersonParentUid()),
@@ -348,14 +353,25 @@ public class EdxLogService implements IEdxLogService {
             }
             if (!edxLabInformationDto.isMultipleSubjectMatch() && !edxLabInformationDto.isPatientMatch() && edxLabInformationDto.getPersonParentUid() != 0) {
                 String msg = EdxELRConstant.SUJBECTMATCH_NO.replace("%1",
-                        edxLabInformationDto.getEntityName()).replace("%2",
+                        String.valueOf(edxLabInformationDto.getPersonParentUid())).replace("%2",
                         String.valueOf(edxLabInformationDto.getPersonParentUid()));
                 setActivityDetailLog(detailList,
                         String.valueOf(edxLabInformationDto.getPersonParentUid()),
                         EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
             }
             if(edxLabInformationDto.isNextOfKin()) {
-                setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, EdxELRConstant.NEXT_OF_KIN);
+
+                var nokInfo = edxLabInformationDto.getLabResultProxyContainer().getThePersonContainerCollection()
+                                .stream().filter(nok -> nok.getRole().equals(NEDSSConstant.NOK)).findFirst();
+                String nokUid;
+                String nokParentUid;
+                String message = EdxELRConstant.NEXT_OF_KIN;
+                if (nokInfo.isPresent()) {
+                    nokUid = nokInfo.get().getThePersonDto().getUid().toString();
+                    nokParentUid = nokInfo.get().getThePersonDto().getPersonParentUid().toString();
+                    message = message + ". (UID: " + nokUid + ", PUID: " + nokParentUid + ")";
+                }
+                setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, message);
             }else{
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure, EdxELRConstant.NO_NEXT_OF_KIN);
             }

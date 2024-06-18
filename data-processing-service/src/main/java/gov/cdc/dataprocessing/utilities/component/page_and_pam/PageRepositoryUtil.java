@@ -856,7 +856,7 @@ public class PageRepositoryUtil {
                         //    patientRepositoryUtil.updateExistingPerson(personVO);
 
 
-                            patientRevisionUid= patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd);
+                            patientRevisionUid= patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
                             realUid = patientRevisionUid;
                             pageActPatient.setPatientRevisionUid(patientRevisionUid);
                             personVO.getThePersonDto().setPersonUid(fakeId);
@@ -894,7 +894,7 @@ public class PageRepositoryUtil {
                         try {
                             //patientRepositoryUtil.updateExistingPerson(personVO);
 
-                            realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd);
+                            realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
                             patientRevisionUid= realUid;
                             pageActPatient.setPatientRevisionUid(patientRevisionUid);
                         }  catch (Exception ex) {
