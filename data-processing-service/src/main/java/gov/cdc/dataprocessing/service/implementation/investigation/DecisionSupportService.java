@@ -261,9 +261,9 @@ public class DecisionSupportService implements IDecisionSupportService {
      * Description:
      *  this return true, if Action is Review, Investigation, and Investigation with Notification
      * */
-    private boolean checkActionInvalid(Algorithm algorithmDocument, boolean criteriaMatch) {
+    protected boolean checkActionInvalid(Algorithm algorithmDocument, boolean criteriaMatch) {
         boolean result = false;
-        if (algorithmDocument == null || criteriaMatch && algorithmDocument.getAction() == null) {
+        if (!criteriaMatch || algorithmDocument == null || algorithmDocument.getAction() == null) {
             return false;
         }
 

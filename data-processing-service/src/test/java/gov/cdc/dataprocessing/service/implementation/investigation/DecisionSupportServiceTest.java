@@ -9,6 +9,10 @@ import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.model.container.model.PageActProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
+import gov.cdc.dataprocessing.model.dsma_algorithm.ActionType;
+import gov.cdc.dataprocessing.model.dsma_algorithm.Algorithm;
+import gov.cdc.dataprocessing.model.dsma_algorithm.CodedType;
+import gov.cdc.dataprocessing.model.dsma_algorithm.CreateInvestigationType;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleManageDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
@@ -38,8 +42,7 @@ import org.mockito.MockitoAnnotations;
 import java.lang.reflect.Type;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -154,6 +157,58 @@ public class DecisionSupportServiceTest {
         assertEquals("CREATE_INVESTIGATION_WITH_NOTIFICATION", res.getWdsReports().get(0).getAction());
 
     }
+
+    @Test
+    void checkActionInvalid_invest_code_2() {
+        Algorithm algo = new Algorithm();
+        ActionType actionType = new ActionType();
+        var action = new CreateInvestigationType();
+        var codeType = new CodedType();
+        codeType.setCode("2");
+        action.setOnFailureToCreateInvestigation(codeType);
+        actionType.setCreateInvestigation(action);
+        algo.setAction(actionType);
+        boolean matching = true;
+        var res = decisionSupportService.checkActionInvalid(algo, matching);
+
+        assertTrue(res);
+    }
+
+    @Test
+    void checkActionInvalid_return_false() {
+        Algorithm algo = new Algorithm();
+        ActionType actionType = new ActionType();
+        var action = new CreateInvestigationType();
+        var codeType = new CodedType();
+        codeType.setCode("2");
+        action.setOnFailureToCreateInvestigation(codeType);
+        actionType.setCreateInvestigation(action);
+        algo.setAction(actionType);
+        boolean matching = false;
+        var res = decisionSupportService.checkActionInvalid(algo, matching);
+
+        assertFalse(res);
+    }
+
+    @Test
+    void checkActionInvalid_return_false_2() {
+        Algorithm algo = new Algorithm();
+        algo.setAction(null);
+        boolean matching = true;
+        var res = decisionSupportService.checkActionInvalid(algo, matching);
+
+        assertFalse(res);
+    }
+
+    @Test
+    void checkActionInvalid_return_false_3() {
+        Algorithm algo = null;
+        boolean matching = true;
+        var res = decisionSupportService.checkActionInvalid(algo, matching);
+
+        assertFalse(res);
+    }
+
 
 
 }
