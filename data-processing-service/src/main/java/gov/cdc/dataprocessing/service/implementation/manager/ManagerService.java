@@ -131,10 +131,12 @@ public class ManagerService implements IManagerService {
     @Transactional
     public void initiatingInvestigationAndPublicHealthCase(String data) {
         NbsInterfaceModel nbsInterfaceModel = null;
+        EdxLabInformationDto edxLabInformationDto = null;
+        String detailedMsg = "";
         try {
             Gson gson = new Gson();
             PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(data, PublicHealthCaseFlowContainer.class);
-            EdxLabInformationDto edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
+            edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
             LabResultProxyContainer labResultProxyContainer = publicHealthCaseFlowContainer.getLabResultProxyContainer();
             var res = nbsInterfaceRepository.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
@@ -228,11 +230,25 @@ public class ManagerService implements IManagerService {
                 }
             }
         } catch (Exception e) {
+            detailedMsg = e.getMessage();
             if (nbsInterfaceModel != null) {
                 nbsInterfaceModel.setRecordStatusCd("FAILED_V2_STEP_2");
                 nbsInterfaceRepository.save(nbsInterfaceModel);
             }
 
+        }
+        finally
+        {
+            // do logging in here since we want it to be done within the first flow and not wait for the 2nd flow (health case flow)
+            // and keep public health case stuff in the try
+            //            if(result != null) {
+            if(nbsInterfaceModel != null) {
+                edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
+                edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
+                Gson gson = new Gson();
+                String jsonString = gson.toJson(edxLabInformationDto.getEdxActivityLogDto());
+                kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
+            }
         }
 
     }

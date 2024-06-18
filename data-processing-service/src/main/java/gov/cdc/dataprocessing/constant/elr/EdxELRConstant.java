@@ -284,6 +284,8 @@ public class EdxELRConstant {
             "An invalid SSN is in the message.";
     public static final String NULL_CLIA =
             "The Reporting Facility did not have a CLIA number.";
+
+    public static final String WDS_REPORT = "WDS Algorithm had been applied on ";
     public static final String FILLER_FAIL =
             "The Filler Order Number is missing.";
     public static final String NO_MATCHING_ALGORITHM =
