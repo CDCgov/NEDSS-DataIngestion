@@ -9,10 +9,7 @@ import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.model.container.model.PageActProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
-import gov.cdc.dataprocessing.model.dsma_algorithm.ActionType;
-import gov.cdc.dataprocessing.model.dsma_algorithm.Algorithm;
-import gov.cdc.dataprocessing.model.dsma_algorithm.CodedType;
-import gov.cdc.dataprocessing.model.dsma_algorithm.CreateInvestigationType;
+import gov.cdc.dataprocessing.model.dsma_algorithm.*;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleManageDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
@@ -156,6 +153,22 @@ public class DecisionSupportServiceTest {
         assertNotNull(res);
         assertEquals("CREATE_INVESTIGATION_WITH_NOTIFICATION", res.getWdsReports().get(0).getAction());
 
+    }
+
+    @Test
+    void checkActionInvalid_review_code_1() {
+        Algorithm algo = new Algorithm();
+        ActionType actionType = new ActionType();
+        var action = new MarkAsReviewedType();
+        var codeType = new CodedType();
+        codeType.setCode("1");
+        action.setOnFailureToMarkAsReviewed(codeType);
+        actionType.setMarkAsReviewed(action);
+        algo.setAction(actionType);
+        boolean matching = true;
+        var res = decisionSupportService.checkActionInvalid(algo, matching);
+
+        assertTrue(res);
     }
 
     @Test

@@ -557,6 +557,7 @@ public class DecisionSupportService implements IDecisionSupportService {
     /**
      * Execute when action in available
      * */
+    @SuppressWarnings("java:S6541")
     private boolean specimenCollectionDateCriteria(EventDateLogicType eventDateLogicType,EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
         boolean isdateLogicValidForNewInv;
         String comparatorCode="";
@@ -663,6 +664,7 @@ public class DecisionSupportService implements IDecisionSupportService {
     /**
      * Execute when action is review
      * */
+    @SuppressWarnings("java:S6541")
     private boolean checkAdvancedInvCriteria(Algorithm algorithmDocument,
                                              EdxLabInformationDto edxLabInformationDT,
                                              Map<Object, Object> questionIdentifierMap) throws DataProcessingException {
