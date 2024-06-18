@@ -263,23 +263,29 @@ public class DecisionSupportService implements IDecisionSupportService {
      * */
     private boolean checkActionInvalid(Algorithm algorithmDocument, boolean criteriaMatch) {
         boolean result = false;
-        if (algorithmDocument != null && criteriaMatch && algorithmDocument.getAction() != null) {
-            if (algorithmDocument.getAction().getCreateInvestigation() != null) {
-                String code = algorithmDocument.getAction().getCreateInvestigation().getOnFailureToCreateInvestigation().getCode();
-                if (code.equals("2") || code.equals("1")) {
-                    result = true;
-                }
-            } else if (algorithmDocument.getAction().getCreateInvestigationWithNND() != null) {
-                if (algorithmDocument.getAction().getCreateInvestigationWithNND().getOnFailureToCreateInvestigation().getCode().equals("2") || (algorithmDocument.getAction().getCreateInvestigationWithNND().getOnFailureToCreateInvestigation().getCode().equals("1"))) {
-                    result = true;
-                }
-            } else if (algorithmDocument.getAction().getMarkAsReviewed() != null) {
-                String code = algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode();
-                if (code.equals("2") || code.equals("1")) {
-                    result = true;
-                }
-            }
+        if (algorithmDocument == null || criteriaMatch && algorithmDocument.getAction() == null) {
+            return false;
         }
+
+        String code = "";
+
+        if (algorithmDocument.getAction().getCreateInvestigation() != null)
+        {
+            code = algorithmDocument.getAction().getCreateInvestigation().getOnFailureToCreateInvestigation().getCode();
+        }
+        else if (algorithmDocument.getAction().getCreateInvestigationWithNND() != null)
+        {
+            code = algorithmDocument.getAction().getCreateInvestigationWithNND().getOnFailureToCreateInvestigation().getCode();
+        }
+        else if (algorithmDocument.getAction().getMarkAsReviewed() != null)
+        {
+            code = algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode();
+        }
+
+        if (code.equals("2") || code.equals("1")) {
+            result = true;
+        }
+
         return result;
     }
 
