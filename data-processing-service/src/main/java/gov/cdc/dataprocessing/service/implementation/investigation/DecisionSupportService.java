@@ -265,16 +265,19 @@ public class DecisionSupportService implements IDecisionSupportService {
         boolean result = false;
         if (algorithmDocument != null && criteriaMatch && algorithmDocument.getAction() != null) {
             if (algorithmDocument.getAction().getCreateInvestigation() != null) {
-                result = algorithmDocument.getAction().getCreateInvestigation().getOnFailureToCreateInvestigation().getCode().equals("2");
+                String code = algorithmDocument.getAction().getCreateInvestigation().getOnFailureToCreateInvestigation().getCode();
+                if (code.equals("2") || code.equals("1")) {
+                    result = true;
+                }
             } else if (algorithmDocument.getAction().getCreateInvestigationWithNND() != null) {
-//                if (algorithmDocument.getAction().getCreateInvestigationWithNND().getOnFailureToCreateNND().getCode().equals("3")) {
-//                    result = true;
-//                }
-                if (algorithmDocument.getAction().getCreateInvestigationWithNND().getOnFailureToCreateInvestigation().getCode().equals("2")) {
+                if (algorithmDocument.getAction().getCreateInvestigationWithNND().getOnFailureToCreateInvestigation().getCode().equals("2") || (algorithmDocument.getAction().getCreateInvestigationWithNND().getOnFailureToCreateInvestigation().getCode().equals("1"))) {
                     result = true;
                 }
             } else if (algorithmDocument.getAction().getMarkAsReviewed() != null) {
-                result = algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2");
+                String code = algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode();
+                if (code.equals("2") || code.equals("1")) {
+                    result = true;
+                }
             }
         }
         return result;
