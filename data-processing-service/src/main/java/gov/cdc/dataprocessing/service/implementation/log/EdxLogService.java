@@ -487,23 +487,24 @@ public class EdxLogService implements IEdxLogService {
 
                 action = item.getAction();
                 sb.append(action).append(" Action. ");
+                String underCond = "Under condition ";
                 if (!item.getWdsValueNumericReportList().isEmpty()) {
                     var wdsNumeric = item.getWdsValueNumericReportList().get(0);
-                    sb.append("Matched on Numeric type. ").append("Under condition ").append(wdsNumeric.getWdsCode())
+                    sb.append("Matched on Numeric type. ").append(underCond).append(wdsNumeric.getWdsCode())
                             .append("(WDS value) ").append(wdsNumeric.getOperator()).append(" ")
                             .append(wdsNumeric.getInputCode1()).append(" (Input value 1) & ")
-                            .append(wdsNumeric.getInputCode2()).append(" (Input value 2)"); // NOSONAR
+                            .append(wdsNumeric.getInputCode2()).append(" (Input value 2)");
                 }
                 else if (!item.getWdsValueTextReportList().isEmpty()) {
                     var wdsText = item.getWdsValueTextReportList().get(0);
-                    sb.append("Matched on Text Value type. ").append("Under condition ").append(wdsText.getWdsCode())
+                    sb.append("Matched on Text Value type. ").append(underCond).append(wdsText.getWdsCode())
                             .append("(WDS value) matching with ")
-                            .append(wdsText.getInputCode()); // NOSONAR
+                            .append(wdsText.getInputCode());
                 }
                 else if (item.getWdsValueCodedReport() != null ) {
-                    sb.append("Matched on Coded Value type. ").append("Under condition ").append(item.getWdsValueCodedReport().getWdsCode())
+                    sb.append("Matched on Coded Value type. ").append(underCond).append(item.getWdsValueCodedReport().getWdsCode())
                             .append("(WDS value) matching with ")
-                            .append(item.getWdsValueCodedReport().getInputCode()); // NOSONAR
+                            .append(item.getWdsValueCodedReport().getInputCode());
                 }
 
                 msg = msg + sb;

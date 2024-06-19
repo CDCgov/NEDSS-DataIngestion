@@ -922,7 +922,7 @@ public class PageRepositoryUtil {
 
         return pageActPatient;
     }
-
+    @SuppressWarnings("java:S3457")
     private PageActPhc processingPhcContainerForPageAct(
             PageActProxyContainer pageActProxyContainer,
             boolean isCoInfectionCondition) throws DataProcessingException

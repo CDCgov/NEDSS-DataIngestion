@@ -713,21 +713,25 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
 
             for (EntityLocatorParticipationDto entLocPartDT : personContainer.getTheEntityLocatorParticipationDtoCollection()) {
-                if (entLocPartDT.getClassCd() != null && entLocPartDT.getRecordStatusCd() != null
-                        && entLocPartDT.getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE) && entLocPartDT.getClassCd().equals(
-                        NEDSSConstant.POSTAL)) {
-                    if (entLocPartDT.getCd() != null) {
-                        PostalLocatorDto postLocDT = entLocPartDT.getThePostalLocatorDto();
-                        if (postLocDT != null) {
-                            if ((postLocDT.getStreetAddr1() != null && !postLocDT.getStreetAddr1().equals(""))
-                                    && (postLocDT.getCityDescTxt() != null && !postLocDT.getCityDescTxt().equals(""))
-                                    && (postLocDT.getStateCd() != null && !postLocDT.getStateCd().equals("")) && (postLocDT.getZipCd() != null
-                                    && !postLocDT.getZipCd().equals(""))) {
-
-                                nameAddStr = carrot + postLocDT.getStreetAddr1() + carrot + postLocDT.getCityDescTxt() + carrot
-                                        + postLocDT.getStateCd() + carrot + postLocDT.getZipCd();
-                            }
-                        }
+                if (entLocPartDT.getClassCd() != null
+                        && entLocPartDT.getRecordStatusCd() != null
+                        && entLocPartDT.getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE)
+                        && entLocPartDT.getClassCd().equals(NEDSSConstant.POSTAL)
+                        && entLocPartDT.getCd() != null)
+                {
+                    PostalLocatorDto postLocDT = entLocPartDT.getThePostalLocatorDto();
+                    if (postLocDT != null
+                            && (postLocDT.getStreetAddr1() != null
+                            && !postLocDT.getStreetAddr1().equals(""))
+                            && (postLocDT.getCityDescTxt() != null
+                            && !postLocDT.getCityDescTxt().equals(""))
+                            && (postLocDT.getStateCd() != null
+                            && !postLocDT.getStateCd().equals(""))
+                            && (postLocDT.getZipCd() != null
+                            && !postLocDT.getZipCd().equals("")))
+                    {
+                        nameAddStr = carrot + postLocDT.getStreetAddr1() + carrot + postLocDT.getCityDescTxt() + carrot
+                                + postLocDT.getStateCd() + carrot + postLocDT.getZipCd();
                     }
                 }
             }
@@ -744,36 +748,34 @@ public class PatientMatchingBaseService extends MatchingBaseService{
 
     @SuppressWarnings("java:S3776")
     protected List<String> telePhoneTxtNOK(PersonContainer personContainer) {
-        String nameTeleStr = null;
         String carrot = "^";
         List<String> telePhoneTxtList = new ArrayList<>();
+
         if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
             for (EntityLocatorParticipationDto entLocPartDT : personContainer.getTheEntityLocatorParticipationDtoCollection()) {
                 if (entLocPartDT.getClassCd() != null && entLocPartDT.getClassCd().equals(NEDSSConstant.TELE)
                         && entLocPartDT.getRecordStatusCd() != null && entLocPartDT.getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE)) {
-                    if (entLocPartDT.getCd() != null) {
-                        TeleLocatorDto teleLocDT = entLocPartDT.getTheTeleLocatorDto();
-                        if (teleLocDT != null && teleLocDT.getPhoneNbrTxt() != null && !teleLocDT.getPhoneNbrTxt().equals("")) {
-                            nameTeleStr = carrot + teleLocDT.getPhoneNbrTxt();
-                        }
 
-                    }
-                    if (nameTeleStr != null) {
+                    TeleLocatorDto teleLocDT = entLocPartDT.getTheTeleLocatorDto();
+                    if (teleLocDT != null && teleLocDT.getPhoneNbrTxt() != null && !teleLocDT.getPhoneNbrTxt().isEmpty()) {
+                        StringBuilder nameTeleStr = new StringBuilder();
+                        nameTeleStr.append(carrot).append(teleLocDT.getPhoneNbrTxt());
 
-                        if (getNamesStr(personContainer) != null) {
-                            nameTeleStr = getNamesStr(personContainer) + nameTeleStr;
-                            telePhoneTxtList.add(nameTeleStr);
+                        String namesStr = getNamesStr(personContainer);
+                        if (namesStr != null) {
+                            nameTeleStr.insert(0, namesStr);
+                            telePhoneTxtList.add(nameTeleStr.toString());
                         } else {
-                            return null;
+                            return null; //NOSONAR
                         }
                     }
                 }
-
             }
         }
 
         return telePhoneTxtList;
     }
+
 
 
 
