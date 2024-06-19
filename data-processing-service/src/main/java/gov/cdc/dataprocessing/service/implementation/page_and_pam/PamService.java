@@ -399,11 +399,6 @@ public class PamService implements IPamService {
                             .next();
                     if(actRelationshipDT.getTypeCd() != null && actRelationshipDT.getTypeCd().equals(NEDSSConstant.DocToPHC))
                         docUid  = actRelationshipDT.getSourceActUid();
-                    logger.debug("the actRelationshipDT statusTime is "
-                            + actRelationshipDT.getStatusTime());
-                    logger.debug("the actRelationshipDT statusCode is "
-                            + actRelationshipDT.getStatusCd());
-                    logger.debug("Got into The ActRelationship loop");
                     try {
                         if (actRelationshipDT.isItDelete()) {
                             actRelationshipRepositoryUtil.insertActRelationshipHist(actRelationshipDT);

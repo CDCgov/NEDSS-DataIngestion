@@ -35,6 +35,8 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
             PrepareAssocModelHelper prepareAssocModelHelper) {
         super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
     }
+
+    @SuppressWarnings("java:S6541")
     @Transactional
     public EdxPatientMatchDto getMatchingNextOfKin(PersonContainer personContainer) throws DataProcessingException {
         Long patientUid = personContainer.getThePersonDto().getPersonUid();
@@ -88,16 +90,14 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
                         nameTelePhone = nameTelePhone.toUpperCase();
                         nameTelePhonehshCd = nameTelePhone.hashCode();
                         try {
-                            if (nameTelePhone != null) {
-                                edxPatientFoundDT = new EdxPatientMatchDto();
-                                edxPatientFoundDT.setPatientUid(patientUid);
-                                edxPatientFoundDT.setTypeCd(NEDSSConstant.NOK);
-                                edxPatientFoundDT.setMatchString(nameTelePhone);
-                                edxPatientFoundDT.setMatchStringHashCode((long) (nameTelePhonehshCd));
-                            }
+                            edxPatientFoundDT = new EdxPatientMatchDto();
+                            edxPatientFoundDT.setPatientUid(patientUid);
+                            edxPatientFoundDT.setTypeCd(NEDSSConstant.NOK);
+                            edxPatientFoundDT.setMatchString(nameTelePhone);
+                            edxPatientFoundDT.setMatchStringHashCode((long) (nameTelePhonehshCd));
                             // Try to get the matching with the match string
                             edxPatientMatchFoundDT = getEdxPatientMatchRepositoryUtil().getEdxPatientMatchOnMatchString(edxPatientFoundDT.getTypeCd(), nameTelePhone);
-                            if (edxPatientMatchFoundDT.getPatientUid() == null || (edxPatientMatchFoundDT.getPatientUid() != null && edxPatientMatchFoundDT.getPatientUid() <= 0)) {
+                            if (edxPatientMatchFoundDT.getPatientUid() == null || edxPatientMatchFoundDT.getPatientUid() <= 0) {
                                 matchFound = false;
                             } else {
                                 matchFound = true;

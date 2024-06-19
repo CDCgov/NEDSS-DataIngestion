@@ -90,6 +90,7 @@ public class PageRepositoryUtil {
         this.patientMatchingBaseService = patientMatchingBaseService;
     }
 
+    @SuppressWarnings("java:S6541")
     public Long setPageActProxyVO(PageActProxyContainer pageProxyVO) throws DataProcessingException {
         try {
             PageActProxyContainer pageActProxyContainer = pageProxyVO;
@@ -821,6 +822,7 @@ public class PageRepositoryUtil {
         }
     }
 
+    @SuppressWarnings("java:S6541")
     private PageActPatient processingPersonContainerForPageAct(PageActProxyContainer pageActProxyContainer,
                                                                PublicHealthCaseDto phcDT) throws DataProcessingException
     {

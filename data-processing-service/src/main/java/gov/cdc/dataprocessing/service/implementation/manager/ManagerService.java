@@ -129,6 +129,7 @@ public class ManagerService implements IManagerService {
 
     }
 
+    @SuppressWarnings("java:S6541")
     @Transactional
     public void initiatingInvestigationAndPublicHealthCase(String data) {
         NbsInterfaceModel nbsInterfaceModel = null;
@@ -240,9 +241,6 @@ public class ManagerService implements IManagerService {
         }
         finally
         {
-            // do logging in here since we want it to be done within the first flow and not wait for the 2nd flow (health case flow)
-            // and keep public health case stuff in the try
-            //            if(result != null) {
             if(nbsInterfaceModel != null) {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
@@ -254,6 +252,7 @@ public class ManagerService implements IManagerService {
 
     }
 
+    @SuppressWarnings("java:S6541")
     @Transactional
     public void initiatingLabProcessing(String data) {
         NbsInterfaceModel nbsInterfaceModel = null;
@@ -401,6 +400,7 @@ public class ManagerService implements IManagerService {
         }
     }
 
+    @SuppressWarnings("java:S6541")
     private void processingELR(String data) {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
@@ -605,9 +605,6 @@ public class ManagerService implements IManagerService {
         }
         finally
         {
-            // do logging in here since we want it to be done within the first flow and not wait for the 2nd flow (health case flow)
-            // and keep public health case stuff in the try
-            //            if(result != null) {
             if(nbsInterfaceModel != null) {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);

@@ -108,6 +108,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         return personUid;
     }
 
+    @SuppressWarnings("java:S3776")
     private Long setPersonInternal(PersonContainer personVO, String businessObjLookupName, String businessTriggerCd,
                                    String personType) throws DataProcessingException {
         Long personUID = -1L;
@@ -271,15 +272,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
     {
         try
         {
-
-            if(setMPR(mpr, businessTriggerCd, personType) != null)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return setMPR(mpr, businessTriggerCd, personType) != null;
         }
         catch(Exception rex)
         {
@@ -384,6 +377,8 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         }
         return personId;
     }
+
+    @SuppressWarnings("java:S6541")
     protected String getLNmFnmDobCurSexStr(PersonContainer personContainer) {
         String namedobcursexStr = null;
         String carrot = "^";
@@ -534,11 +529,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                 throw new DataProcessingException("Existing Patient Not Found");
             }
 
-            logger.debug("Ent Controller past the find - person = " + person);
-            logger.debug("Ent Controllerpast the find - person.getPrimaryKey = " + person.getPersonUid());
-
         } catch (Exception e) {
-            logger.error("EntityControllerEJB.getPersonInternal: " + e.getMessage(), e);
             throw new DataProcessingException(e.getMessage(), e);
         }
         return personId;
@@ -650,16 +641,14 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                     setPersonToMatchEntityNok(personContainer);
                 }
             } catch (Exception e) {
-                //per defect #1836 change to warning..
-                logger.warn("Unable to setPatientHashCd for personUid: "+personUid);
-                logger.warn("Exception in setPatientToEntityMatch -> unhandled exception: " +e.getMessage());
+                e.printStackTrace();
             }
         } catch (Exception e) {
-            logger.error("EntityControllerEJB.setPatientHashCd: " + e.getMessage(), e);
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
+    @SuppressWarnings("java:S3776")
     private void setPersonToMatchEntityNok(PersonContainer personContainer) throws DataProcessingException {
         Long patientUid = personContainer.getThePersonDto().getPersonUid();
         EdxPatientMatchDto edxPatientMatchDto;
@@ -675,20 +664,16 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                     if (nameAddStrSt1 != null) {
                         nameAddStrSt1 = nameAddStrSt1.toUpperCase();
                         nameAddStrSt1hshCd = nameAddStrSt1.hashCode();
-                        if (nameAddStrSt1 != null) {
-                            edxPatientMatchDto = new EdxPatientMatchDto();
-                            edxPatientMatchDto.setPatientUid(patientUid);
-                            edxPatientMatchDto.setTypeCd(NEDSSConstant.NOK);
-                            edxPatientMatchDto.setMatchString(nameAddStrSt1);
-                            edxPatientMatchDto.setMatchStringHashCode((long) nameAddStrSt1hshCd);
-                            try {
-                                getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDto);
-                            } catch (Exception e) {
-                                logger.error("Error in creating the setEdxPatientMatchDT with nameAddString:" + nameAddStrSt1 + " " + e.getMessage());
-                                throw new DataProcessingException(e.getMessage(), e);
-                            }
+                        edxPatientMatchDto = new EdxPatientMatchDto();
+                        edxPatientMatchDto.setPatientUid(patientUid);
+                        edxPatientMatchDto.setTypeCd(NEDSSConstant.NOK);
+                        edxPatientMatchDto.setMatchString(nameAddStrSt1);
+                        edxPatientMatchDto.setMatchStringHashCode((long) nameAddStrSt1hshCd);
+                        try {
+                            getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDto);
+                        } catch (Exception e) {
+                            throw new DataProcessingException(e.getMessage(), e);
                         }
-
                     }
                 }
             }
@@ -701,18 +686,15 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                     if (nameTelePhone != null) {
                         nameTelePhone = nameTelePhone.toUpperCase();
                         nameTelePhonehshCd = nameTelePhone.hashCode();
-                        if (nameTelePhone != null) {
-                            edxPatientMatchDto = new EdxPatientMatchDto();
-                            edxPatientMatchDto.setPatientUid(patientUid);
-                            edxPatientMatchDto.setTypeCd(NEDSSConstant.NOK);
-                            edxPatientMatchDto.setMatchString(nameTelePhone);
-                            edxPatientMatchDto.setMatchStringHashCode((long) nameTelePhonehshCd);
-                            try {
-                                getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDto);
-                            } catch (Exception e) {
-                                logger.error("Error in creating the EdxEntityMatchDT with nameTelePhone:" + nameTelePhone + " " + e.getMessage());
-                                throw new DataProcessingException(e.getMessage(), e);
-                            }
+                        edxPatientMatchDto = new EdxPatientMatchDto();
+                        edxPatientMatchDto.setPatientUid(patientUid);
+                        edxPatientMatchDto.setTypeCd(NEDSSConstant.NOK);
+                        edxPatientMatchDto.setMatchString(nameTelePhone);
+                        edxPatientMatchDto.setMatchStringHashCode((long) nameTelePhonehshCd);
+                        try {
+                            getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDto);
+                        } catch (Exception e) {
+                            throw new DataProcessingException(e.getMessage(), e);
                         }
 
                     }
@@ -723,11 +705,12 @@ public class PatientMatchingBaseService extends MatchingBaseService{
     }
 
 
+    @SuppressWarnings("java:S3776")
     protected List<String> nameAddressStreetOneNOK(PersonContainer personContainer) {
         String nameAddStr = null;
         String carrot = "^";
         List<String> nameAddressStreetOnelNOKist = new ArrayList<>();
-        if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && personContainer.getTheEntityLocatorParticipationDtoCollection().size() > 0) {
+        if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
 
             for (EntityLocatorParticipationDto entLocPartDT : personContainer.getTheEntityLocatorParticipationDtoCollection()) {
                 if (entLocPartDT.getClassCd() != null && entLocPartDT.getRecordStatusCd() != null
@@ -758,11 +741,13 @@ public class PatientMatchingBaseService extends MatchingBaseService{
 
         return nameAddressStreetOnelNOKist;
     }
+
+    @SuppressWarnings("java:S3776")
     protected List<String> telePhoneTxtNOK(PersonContainer personContainer) {
         String nameTeleStr = null;
         String carrot = "^";
         List<String> telePhoneTxtList = new ArrayList<>();
-        if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && personContainer.getTheEntityLocatorParticipationDtoCollection().size() > 0) {
+        if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
             for (EntityLocatorParticipationDto entLocPartDT : personContainer.getTheEntityLocatorParticipationDtoCollection()) {
                 if (entLocPartDT.getClassCd() != null && entLocPartDT.getClassCd().equals(NEDSSConstant.TELE)
                         && entLocPartDT.getRecordStatusCd() != null && entLocPartDT.getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE)) {
