@@ -257,7 +257,7 @@ public class EdxELRConstant {
     public static final String SUBJECTMATCH_MULT =
             "Multiple patient matches found. New Patient created: %1 (UID: %2).";
     public static final String SUJBECTMATCH_NO =
-            "Patient match not found; New Patient created: %1 (UID: %2).";
+            "Patient match not found; New Patient created (UID: %1, PUID: %2).";
     public static final String NEXT_OF_KIN = "Next of kin is created";
     public static final String NO_NEXT_OF_KIN = "Next of Kin cannot be created";
     public static final String MULTIPLE_PROVIDER =
@@ -284,6 +284,8 @@ public class EdxELRConstant {
             "An invalid SSN is in the message.";
     public static final String NULL_CLIA =
             "The Reporting Facility did not have a CLIA number.";
+
+    public static final String WDS_REPORT = "WDS Algorithm had been applied on ";
     public static final String FILLER_FAIL =
             "The Filler Order Number is missing.";
     public static final String NO_MATCHING_ALGORITHM =
@@ -331,7 +333,7 @@ public class EdxELRConstant {
     public static final String LAB_UPDATE_SUCCESS_DRSA  =
             "Lab %1 updated and logged in Documents Requiring Security Assignment queue.";
     public static final String SUBJECT_MATCH_FOUND =
-            "Patient match found: %1 (UID: %2).";
+            "Patient match found. (UID: %1, PUID: %2).";
     public static final String NO_REASON_FOR_STUDY =
             "The code for Reason For Study is missing.";
     public static final String MULTIPLE_OBR = "The ELR includes Multiple Ordered Tests (OBRs).  Child OBR(s) are missing Parent Result (OBR-26) and/or Parent (OBR-29) values.";

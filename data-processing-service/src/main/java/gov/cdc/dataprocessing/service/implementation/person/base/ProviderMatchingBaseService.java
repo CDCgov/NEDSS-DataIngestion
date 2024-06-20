@@ -67,7 +67,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
     protected String nameAddressStreetOneProvider(PersonContainer personContainer) {
         String nameAddStr = null;
         String carrot = "^";
-        if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && personContainer.getTheEntityLocatorParticipationDtoCollection().size() > 0) {
+        if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
             for (EntityLocatorParticipationDto entLocPartDT : personContainer.getTheEntityLocatorParticipationDtoCollection()) {
                 if (entLocPartDT.getClassCd() != null && entLocPartDT.getClassCd().equals(NEDSSConstant.POSTAL)) {
                     if (entLocPartDT.getCd() != null
@@ -251,7 +251,6 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             try {
                 getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDto);
             } catch (Exception e) {
-                logger.error("Error in creating the EdxEntityMatchDT with nameTelePhone:" + nameTelePhone + " " + e.getMessage());
                 throw new DataProcessingException(e.getMessage(), e);
             }
         }

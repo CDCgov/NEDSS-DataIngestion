@@ -35,6 +35,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
         super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
     }
 
+    @SuppressWarnings("java:S6541")
     @Transactional
     public EdxPatientMatchDto getMatchingPatient(PersonContainer personContainer) throws DataProcessingException {
         Long patientUid = personContainer.getThePersonDto().getPersonUid();
@@ -204,7 +205,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
 
                 // SetPatientRevision
 
-                patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR);
+                patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR, NEDSSConstant.PAT);
                 personContainer.getThePersonDto().setPersonUid(patientUid);
 
                 //END REVISION
