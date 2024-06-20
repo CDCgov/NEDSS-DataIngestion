@@ -77,14 +77,13 @@ class ProviderMatchingServiceTest {
         assertEquals(String.valueOf(edxEntityMatchingDT.getEntityUid()),edxActivityDetailLogDtoResult.getRecordId());
     }
     @Test
-    void getMatchingProvider_local_id_with_entityMatch_null() throws DataProcessingException {
+    void getMatchingProvider_local_id_with_entityMatch_null_throw_exp() throws DataProcessingException {
         PersonContainer personContainer=new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
         personContainer.setLocalIdentifier("123");
         EdxEntityMatchDto edxEntityMatchingDT=new EdxEntityMatchDto();
         when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(),any())).thenReturn(edxEntityMatchingDT);
-        EDXActivityDetailLogDto edxActivityDetailLogDtoResult=providerMatchingService.getMatchingProvider(personContainer);
-        assertEquals(String.valueOf(123L),edxActivityDetailLogDtoResult.getRecordId());
+        assertThrows(DataProcessingException.class, () -> providerMatchingService.getMatchingProvider(personContainer));
     }
     @Test
     void getMatchingProvider_local_id_throws_exp() throws DataProcessingException {
