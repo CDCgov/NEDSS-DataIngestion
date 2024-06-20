@@ -35,12 +35,14 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
             PrepareAssocModelHelper prepareAssocModelHelper) {
         super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
     }
+
+    @SuppressWarnings("java:S6541")
     @Transactional
     public EdxPatientMatchDto getMatchingNextOfKin(PersonContainer personContainer) throws DataProcessingException {
         Long patientUid = personContainer.getThePersonDto().getPersonUid();
         EdxPatientMatchDto edxPatientFoundDT = null;
         EdxPatientMatchDto edxPatientMatchFoundDT = null;
-        PersonId patientPersonUid;
+        PersonId patientPersonUid = null;
         boolean matchFound = false;
         boolean newPersonCreationApplied = false;
 
@@ -88,16 +90,14 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
                         nameTelePhone = nameTelePhone.toUpperCase();
                         nameTelePhonehshCd = nameTelePhone.hashCode();
                         try {
-                            if (nameTelePhone != null) {
-                                edxPatientFoundDT = new EdxPatientMatchDto();
-                                edxPatientFoundDT.setPatientUid(patientUid);
-                                edxPatientFoundDT.setTypeCd(NEDSSConstant.NOK);
-                                edxPatientFoundDT.setMatchString(nameTelePhone);
-                                edxPatientFoundDT.setMatchStringHashCode((long) (nameTelePhonehshCd));
-                            }
+                            edxPatientFoundDT = new EdxPatientMatchDto();
+                            edxPatientFoundDT.setPatientUid(patientUid);
+                            edxPatientFoundDT.setTypeCd(NEDSSConstant.NOK);
+                            edxPatientFoundDT.setMatchString(nameTelePhone);
+                            edxPatientFoundDT.setMatchStringHashCode((long) (nameTelePhonehshCd));
                             // Try to get the matching with the match string
                             edxPatientMatchFoundDT = getEdxPatientMatchRepositoryUtil().getEdxPatientMatchOnMatchString(edxPatientFoundDT.getTypeCd(), nameTelePhone);
-                            if (edxPatientMatchFoundDT.getPatientUid() == null || (edxPatientMatchFoundDT.getPatientUid() != null && edxPatientMatchFoundDT.getPatientUid() <= 0)) {
+                            if (edxPatientMatchFoundDT.getPatientUid() == null || edxPatientMatchFoundDT.getPatientUid() <= 0) {
                                 matchFound = false;
                             } else {
                                 matchFound = true;
@@ -145,28 +145,17 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
 
         try {
 
-//            if (!newPersonCreationApplied) {
-//                personContainer.getThePersonDto().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
-//            }
-//            else {
-//                personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
-//            }
-//
-//            patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR);
-//            personContainer.getThePersonDto().setPersonUid(patientUid);
-
-
-            if (!newPersonCreationApplied && edxPatientMatchFoundDT != null) {
-                // patientRepositoryUtil.updateExistingPerson(personVO);
+            //REVISION
+            if (!newPersonCreationApplied) {
                 personContainer.getThePersonDto().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
-                patientPersonUid = updateExistingPerson(personContainer, NEDSSConstant.PAT_CR, personContainer.getThePersonDto().getPersonParentUid());
+            } else {
                 personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
-                personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
-                personContainer.getThePersonDto().setPersonUid(patientPersonUid.getPersonId());
             }
-            else if (newPersonCreationApplied) {
-                setPersonHashCdNok(personContainer);
-            }
+
+            patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR, NEDSSConstant.NOK);
+            personContainer.getThePersonDto().setPersonUid(patientUid);
+
+
         } catch (Exception e) {
             logger.error("Error in getting the entity Controller or Setting the Patient" + e.getMessage());
             throw new DataProcessingException("Error in getting the entity Controller or Setting the Patient" + e.getMessage(), e);

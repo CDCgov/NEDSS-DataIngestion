@@ -267,11 +267,8 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 edxEntityMatchDT.setMatchString(nameTelePhone);
                 edxEntityMatchDT.setMatchStringHashCode((long) nameTelePhonehshCd);
                 try {
-//                    edxDao.setEdxEntityMatchDT(edxEntityMatchDT);
                     edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
                 } catch (Exception e) {
-                    logger.error("Error in creating the EdxEntityMatchDT with nameTelePhone:"
-                            + nameTelePhone + " " + e.getMessage());
                     throw new DataProcessingException(e.getMessage(), e);
                 }
             }
