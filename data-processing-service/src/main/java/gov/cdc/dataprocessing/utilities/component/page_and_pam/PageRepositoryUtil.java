@@ -90,6 +90,7 @@ public class PageRepositoryUtil {
         this.patientMatchingBaseService = patientMatchingBaseService;
     }
 
+    @SuppressWarnings("java:S6541")
     public Long setPageActProxyVO(PageActProxyContainer pageProxyVO) throws DataProcessingException {
         try {
             PageActProxyContainer pageActProxyContainer = pageProxyVO;
@@ -821,6 +822,7 @@ public class PageRepositoryUtil {
         }
     }
 
+    @SuppressWarnings("java:S6541")
     private PageActPatient processingPersonContainerForPageAct(PageActProxyContainer pageActProxyContainer,
                                                                PublicHealthCaseDto phcDT) throws DataProcessingException
     {
@@ -856,7 +858,7 @@ public class PageRepositoryUtil {
                         //    patientRepositoryUtil.updateExistingPerson(personVO);
 
 
-                            patientRevisionUid= patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd);
+                            patientRevisionUid= patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
                             realUid = patientRevisionUid;
                             pageActPatient.setPatientRevisionUid(patientRevisionUid);
                             personVO.getThePersonDto().setPersonUid(fakeId);
@@ -894,7 +896,7 @@ public class PageRepositoryUtil {
                         try {
                             //patientRepositoryUtil.updateExistingPerson(personVO);
 
-                            realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd);
+                            realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
                             patientRevisionUid= realUid;
                             pageActPatient.setPatientRevisionUid(patientRevisionUid);
                         }  catch (Exception ex) {
@@ -920,7 +922,7 @@ public class PageRepositoryUtil {
 
         return pageActPatient;
     }
-
+    @SuppressWarnings("java:S3457")
     private PageActPhc processingPhcContainerForPageAct(
             PageActProxyContainer pageActProxyContainer,
             boolean isCoInfectionCondition) throws DataProcessingException
