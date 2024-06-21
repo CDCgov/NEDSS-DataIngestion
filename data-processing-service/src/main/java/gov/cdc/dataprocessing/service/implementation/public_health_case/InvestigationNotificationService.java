@@ -157,7 +157,6 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                             formatErr = true;
                             eDXActivityDetailLogDT.setLogType(EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure.name());
                             eDXActivityDetailLogDT.setComment(EdxELRConstant.MISSING_NOTF_REQ_FIELDS+ errorText);
-                            return eDXActivityDetailLogDT;
                         }
                     }
                     catch (Exception e) {
@@ -309,7 +308,8 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                         if (answerMap.get(key) == null) {
                             missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
                         }
-                    } else if (dLocation.toLowerCase().startsWith("public_health_case.")) {
+                    }
+                    else if (dLocation.toLowerCase().startsWith("public_health_case.")) {
                         String attrToChk = dLocation.substring(dLocation.indexOf(".") + 1);
 
                         String getterNm = createGetterMethod(attrToChk);
@@ -317,14 +317,18 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                         Method method = (Method) methodMap.get(getterNm.toLowerCase());
                         Object obj = method.invoke(publicHealthCaseDto, (Object[]) null);
                         checkObject(obj, missingFields, metaData);
-                    } else if (dLocation.toLowerCase().startsWith("person.")) {
+                    }
+                    else if (dLocation.toLowerCase().startsWith("person."))
+                    {
                         String attrToChk = dLocation.substring(dLocation.indexOf(".") + 1);
                         String getterNm = createGetterMethod(attrToChk);
                         Map<Object, Object> methodMap = getMethods(personDT.getClass());
                         Method method = (Method) methodMap.get(getterNm.toLowerCase());
                         Object obj = method.invoke(personDT, (Object[]) null);
                         checkObject(obj, missingFields, metaData);
-                    } else if (dLocation.toLowerCase().startsWith("postal_locator.")) {
+                    }
+                    else if (dLocation.toLowerCase().startsWith("postal_locator."))
+                    {
                         String attrToChk = dLocation.substring(dLocation.indexOf(".") + 1);
                         String getterNm = createGetterMethod(attrToChk);
                         PostalLocatorDto postalLocator = new PostalLocatorDto();
@@ -352,7 +356,9 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                         } else {
                             checkObject(null, missingFields, metaData);
                         }
-                    } else if (dLocation.toLowerCase().startsWith("person_race.")) {
+                    }
+                    else if (dLocation.toLowerCase().startsWith("person_race."))
+                    {
                         String attrToChk = dLocation.substring(dLocation.indexOf(".") + 1);
                         String getterNm = createGetterMethod(attrToChk);
                         PersonRaceDto personRace = new PersonRaceDto();
@@ -402,13 +408,17 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                                 && (label.toLowerCase().contains("state"))) {
                             missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
                         }
-                    } else if (dLocation.toLowerCase().startsWith("nbs_case_answer.")
+                    }
+                    else if (dLocation.toLowerCase().startsWith("nbs_case_answer.")
                             && !(formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)
-                            || formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_VAR))) {
+                            || formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_VAR)))
+                    {
                         if (answerMap == null || answerMap.size() == 0 || (answerMap.get(nbsQueUid) == null && answerMap.get(metaData.getQuestionIdentifier()) == null)) {
                             missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
                         }
-                    } else if (dLocation.toLowerCase().startsWith("nbs_case_answer.") && (formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT))) {
+                    }
+                    else if (dLocation.toLowerCase().startsWith("nbs_case_answer.") && (formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)))
+                    {
                         if (answerMap == null || answerMap.size() == 0 || (answerMap.get(nbsQueUid) == null && answerMap.get(metaData.getQuestionIdentifier()) == null)) {
                             missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
                         }
@@ -515,7 +525,6 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
 
     private Long setNotificationProxy(NotificationProxyContainer notificationProxyVO) throws DataProcessingException
     {
-
         try {
             return notificationService.setNotificationProxy(notificationProxyVO);
         }
