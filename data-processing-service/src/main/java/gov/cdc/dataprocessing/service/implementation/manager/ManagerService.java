@@ -156,80 +156,85 @@ public class ManagerService implements IManagerService {
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_22);
             }
 
-            if (edxLabInformationDto.isLabIsCreate()) {
-                if (observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null) {
+            if (edxLabInformationDto.isLabIsCreate() && observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null)
+            {
+                // This logic here determine whether logic is mark as review or not
+                decisionSupportService.validateProxyContainer(labResultProxyContainer, edxLabInformationDto);
 
-                    // This logic here determine whether logic is mark as review or not
-                    decisionSupportService.validateProxyContainer(labResultProxyContainer, edxLabInformationDto);
+                WdsTrackerView trackerView = new WdsTrackerView();
+                trackerView.setWdsReport(edxLabInformationDto.getWdsReports());
 
-                    WdsTrackerView trackerView = new WdsTrackerView();
-                    trackerView.setWdsReport(edxLabInformationDto.getWdsReports());
-
-                    Long patUid = -1L;
-                    Long patParentUid = -1L;
-                    String patFirstName = null;
-                    String patLastName = null;
-                    for(var item : publicHealthCaseFlowContainer.getLabResultProxyContainer().getThePersonContainerCollection()) {
-                        if (item.getThePersonDto().getCd().equals("PAT")) {
-                            patUid = item.getThePersonDto().getUid();
-                            patParentUid = item.getThePersonDto().getPersonParentUid();
-                            patFirstName = item.getThePersonDto().getFirstNm();
-                            patLastName = item.getThePersonDto().getLastNm();
-                            break;
-                        }
+                Long patUid = -1L;
+                Long patParentUid = -1L;
+                String patFirstName = null;
+                String patLastName = null;
+                for(var item : publicHealthCaseFlowContainer.getLabResultProxyContainer().getThePersonContainerCollection()) {
+                    if (item.getThePersonDto().getCd().equals("PAT")) {
+                        patUid = item.getThePersonDto().getUid();
+                        patParentUid = item.getThePersonDto().getPersonParentUid();
+                        patFirstName = item.getThePersonDto().getFirstNm();
+                        patLastName = item.getThePersonDto().getLastNm();
+                        break;
                     }
+                }
 
-                    trackerView.setPatientUid(patUid);
-                    trackerView.setPatientParentUid(patParentUid);
-                    trackerView.setPatientFirstName(patFirstName);
-                    trackerView.setPatientLastName(patLastName);
-
-
-                    nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_2);
-                    nbsInterfaceRepository.save(nbsInterfaceModel);
+                trackerView.setPatientUid(patUid);
+                trackerView.setPatientParentUid(patParentUid);
+                trackerView.setPatientFirstName(patFirstName);
+                trackerView.setPatientLastName(patLastName);
 
 
+                nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_2);
+                nbsInterfaceRepository.save(nbsInterfaceModel);
 
 
 
-                    PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
-                    phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
-                    phcContainer.setLabResultProxyContainer(labResultProxyContainer);
-                    phcContainer.setEdxLabInformationDto(edxLabInformationDto);
-                    phcContainer.setObservationDto(observationDto);
-                    phcContainer.setWdsTrackerView(trackerView);
 
-                    if (edxLabInformationDto.getPageActContainer() != null
-                    || edxLabInformationDto.getPamContainer() != null) {
-                        if (edxLabInformationDto.getPageActContainer() != null) {
-                            var pageActProxyVO = (PageActProxyContainer) edxLabInformationDto.getPageActContainer();
-                            trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
-                        }
-                        else
-                        {
-                            var pamProxyVO = (PamProxyContainer)edxLabInformationDto.getPamContainer();
-                            trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
-                        }
+
+                PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
+                phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
+                phcContainer.setLabResultProxyContainer(labResultProxyContainer);
+                phcContainer.setEdxLabInformationDto(edxLabInformationDto);
+                phcContainer.setObservationDto(observationDto);
+                phcContainer.setWdsTrackerView(trackerView);
+
+                if (edxLabInformationDto.getPageActContainer() != null
+                || edxLabInformationDto.getPamContainer() != null) {
+                    if (edxLabInformationDto.getPageActContainer() != null) {
+                        var pageActProxyVO = (PageActProxyContainer) edxLabInformationDto.getPageActContainer();
+                        trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
                     }
                     else
                     {
-                        if (edxLabInformationDto.getAction() != null) {
-                            //action 3 is REVIEW
-                            System.out.println("TEST");
-                        }
+                        var pamProxyVO = (PamProxyContainer)edxLabInformationDto.getPamContainer();
+                        trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
                     }
-
-
-                    gson = new Gson();
-                    String trackerString = gson.toJson(trackerView);
-                    kafkaManagerProducer.sendDataActionTracker(trackerString);
-
-                    gson = new Gson();
-                    String jsonString = gson.toJson(phcContainer);
-                    kafkaManagerProducer.sendDataLabHandling(jsonString);
-
-
                 }
+                else
+                {
+                    if (edxLabInformationDto.getAction() != null) {
+                        //action 3 is REVIEW
+                        System.out.println("TEST");
+                    }
+                }
+
+
+                gson = new Gson();
+                String trackerString = gson.toJson(trackerView);
+                kafkaManagerProducer.sendDataActionTracker(trackerString);
+
+                gson = new Gson();
+                String jsonString = gson.toJson(phcContainer);
+                kafkaManagerProducer.sendDataLabHandling(jsonString);
+
+
+
+            }
+            else
+            {
+                // Concluded the flow if no WDS, set status to COMPLETED STEP 1
+                nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_COMPLETED_STEP_1);
+                nbsInterfaceRepository.save(nbsInterfaceModel);
             }
         } catch (Exception e) {
             detailedMsg = e.getMessage();
@@ -268,8 +273,6 @@ public class ManagerService implements IManagerService {
             } else {
                 throw new DataProcessingException("NBS Interface Data Not Exist");
             }
-
-
             PageActProxyContainer pageActProxyContainer = null;
             PamProxyContainer pamProxyVO = null;
             PublicHealthCaseContainer publicHealthCaseContainer;
@@ -277,9 +280,6 @@ public class ManagerService implements IManagerService {
 
 
             if (edxLabInformationDto.getAction() != null && edxLabInformationDto.getAction().equalsIgnoreCase(DecisionSupportConstants.MARK_AS_REVIEWED)) {
-                //Check for user security to mark as review lab
-                //checkSecurity(nbsSecurityObj, edxLabInformationDto, NBSBOLookup.OBSERVATIONLABREPORT, NBSOperationLookup.MARKREVIEWED, programAreaCd, jurisdictionCd);
-
                 labReportProcessing.markAsReviewedHandler(observationDto.getObservationUid(), edxLabInformationDto);
                 if (edxLabInformationDto.getAssociatedPublicHealthCaseUid() != null && edxLabInformationDto.getAssociatedPublicHealthCaseUid() > 0) {
                     edxLabInformationDto.setPublicHealthCaseUid(edxLabInformationDto.getAssociatedPublicHealthCaseUid());
@@ -294,10 +294,6 @@ public class ManagerService implements IManagerService {
             {
                 //Check for user security to create investigation
                 //checkSecurity(nbsSecurityObj, edxLabInformationDto, NBSBOLookup.INVESTIGATION, NBSOperationLookup.ADD, programAreaCd, jurisdictionCd);
-
-                /**
-                 * Incoming payload should reach PageActProxyContainer
-                 * */
                 if (edxLabInformationDto.getPageActContainer() != null) {
                     pageActProxyContainer =  edxLabInformationDto.getPageActContainer();
                     publicHealthCaseContainer = pageActProxyContainer.getPublicHealthCaseContainer();
@@ -357,7 +353,6 @@ public class ManagerService implements IManagerService {
                         }
                         throw new DataProcessingException("MISSING NOTI REQUIRED: "+edxActivityDetailLogDT.getComment());
                     }else{
-                        //edxLabInformationDto.setNotificationSuccessfullyCreated(true);
                         edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_6);
                     }
 

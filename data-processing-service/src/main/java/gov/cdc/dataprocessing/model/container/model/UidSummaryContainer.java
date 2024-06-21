@@ -135,7 +135,7 @@ public class UidSummaryContainer extends BaseContainer implements RootDtoInterfa
 
     @Override
     public Long getUid() {
-        return null;
+        return uid;
     }
 
     @Override
