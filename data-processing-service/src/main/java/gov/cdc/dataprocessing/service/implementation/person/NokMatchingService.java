@@ -124,7 +124,7 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
                 personContainer.setTheEntityIdDtoCollection(newEntityIdDtoColl);
             }
             try {
-                if (personContainer.getThePersonDto().getCd().equals(NEDSSConstant.PAT)) { // Patient
+                if (personContainer.getThePersonDto().getCd()!=null && personContainer.getThePersonDto().getCd().equals(NEDSSConstant.PAT)) { // Patient
                     patientPersonUid = setAndCreateNewPerson(personContainer);
                     personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
                     personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
