@@ -5,12 +5,19 @@ import com.google.gson.reflect.TypeToken;
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
+import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
+import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
+import gov.cdc.dataprocessing.model.dto.notification.NotificationDto;
+import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
+import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.phc.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.Observation;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.edx.EdxDocumentRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.ObservationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.Observation_SummaryRepository;
@@ -34,6 +41,8 @@ import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepos
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.public_health_case.PublicHealthCaseRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.sql.QueryHelper;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
+import jakarta.servlet.http.Part;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,9 +51,15 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import javax.swing.text.html.Option;
 import java.lang.reflect.Type;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
@@ -343,6 +358,193 @@ public class InvestigationServiceTests {
 
         verify(publicHealthCaseRepositoryUtil, times(1)).findPublicHealthCase(eq(investigationUid));
         verify(observationRepositoryUtil, times(0)).loadObject(eq(10006210L));
+    }
+
+
+    @Test
+    void getPageProxyVO_Success() throws DataProcessingException, ParseException {
+        String typeCd= "PRINT_CDC_CASE";
+        long publicHealthCaseUid = 10006070L;
+        String phcDTStr = "{\"caseStatusDirty\":false,\"isPamCase\":false,\"isPageCase\":false,\"isStdHivProgramAreaCode\":false,\"caseTypeCd\":\"I\",\"publicHealthCaseUid\":10006070,\"activityFromTime\":\"Jun 20, 2024, 12:00:00 AM\",\"addTime\":\"Jun 20, 2024, 12:36:18 PM\",\"addUserId\":36,\"cd\":\"11120\",\"cdDescTxt\":\"Acute flaccid myelitis\",\"groupCaseCnt\":1,\"investigationStatusCd\":\"O\",\"jurisdictionCd\":\"130001\",\"lastChgTime\":\"Jun 20, 2024, 12:36:18 PM\",\"lastChgUserId\":36,\"localId\":\"CAS10006070GA01\",\"mmwrWeek\":\"25\",\"mmwrYear\":\"2024\",\"progAreaCd\":\"GCD\",\"recordStatusCd\":\"OPEN\",\"recordStatusTime\":\"Jun 20, 2024, 12:36:18 PM\",\"rptFormCmpltTime\":\"Jun 20, 2024, 12:36:11 PM\",\"statusCd\":\"A\",\"programJurisdictionOid\":1300100009,\"sharedInd\":\"T\",\"versionCtrlNbr\":1,\"isSummaryCase\":false,\"itNew\":false,\"itOld\":false,\"itDirty\":false,\"itDelete\":false}";
+        Gson gson = new Gson();
+        var phcDt = gson.fromJson(phcDTStr, PublicHealthCaseDto.class);
+
+        PublicHealthCaseContainer phcConn = new PublicHealthCaseContainer();
+        phcConn.setThePublicHealthCaseDto(phcDt);
+        var patCol = new ArrayList<ParticipationDto>();
+        var pat = new ParticipationDto();
+        pat.setSubjectEntityUid(11L);
+        pat.setSubjectClassCd(NEDSSConstant.ORGANIZATION);
+        pat.setTypeCd("TYPE");
+        pat.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        patCol.add(pat);
+        pat = new ParticipationDto();
+        pat.setSubjectEntityUid(12L);
+        pat.setSubjectClassCd(NEDSSConstant.PERSON);
+        pat.setTypeCd("TYPE");
+        pat.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        patCol.add(pat);
+        pat = new ParticipationDto();
+        pat.setSubjectEntityUid(13L);
+        pat.setSubjectClassCd(NEDSSConstant.MATERIAL);
+        pat.setTypeCd("TYPE");
+        pat.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        patCol.add(pat);
+        phcConn.setTheParticipationDTCollection(patCol);
+        when(publicHealthCaseRepositoryUtil.loadObject(10006070L)).thenReturn(phcConn);
+
+        var pageVO = new BasePamContainer();
+        when(publicHealthCaseRepositoryUtil.getPamVO(10006070L)).thenReturn(pageVO);
+
+        when(organizationRepositoryUtil.loadObject(11L, null)).thenReturn(new OrganizationContainer());
+        when(patientRepositoryUtil.loadPerson(12L)).thenReturn(new PersonContainer());
+        when(materialService.loadMaterialObject(13L)).thenReturn(new MaterialContainer());
+
+
+        var notiSumCol = new ArrayList<>();
+        var noti = new NotificationSummaryContainer();
+        noti.setCdNotif(NEDSSConstant.CLASS_CD_SHARE_NOTF);
+        noti.setNotificationUid(14L);
+        notiSumCol.add(noti);
+        noti = new NotificationSummaryContainer();
+        noti.setCdNotif(NEDSSConstant.CLASS_CD_EXP_NOTF);
+        noti.setNotificationUid(15L);
+        notiSumCol.add(noti);
+        noti = new NotificationSummaryContainer();
+        noti.setCdNotif(NEDSSConstant.CLASS_CD_NOTF);
+        noti.setNotificationUid(16L);
+        notiSumCol.add(noti);
+
+        var actCol = new ArrayList<ActRelationshipDto>();
+        var act = new ActRelationshipDto();
+        act.setSourceActUid(14L);
+        act.setSourceClassCd("SRC");
+        actCol.add(act);
+        act = new ActRelationshipDto();
+        act.setSourceActUid(15L);
+        act.setSourceClassCd("SRC");
+        actCol.add(act);
+        act = new ActRelationshipDto();
+        act.setSourceActUid(16L);
+        act.setSourceClassCd("SRC");
+        actCol.add(act);
+        phcConn.setTheActRelationshipDTCollection(actCol);
+
+
+
+        when(retrieveSummaryService.notificationSummaryOnInvestigation(any(), any())).thenReturn(notiSumCol);
+
+        when(queryHelper
+                .getDataAccessWhereClause( NBSBOLookup.OBSERVATIONLABREPORT, "VIEW", "obs"))
+                .thenReturn("BLAH");
+
+        var uidSumCol = new ArrayList<UidSummaryContainer>();
+        var uidSum = new UidSummaryContainer();
+        uidSum.setUid(17L);
+        String dateString = "2024-06-20 12:36:18.0";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+        Date parsedDate = dateFormat.parse(dateString);
+
+        uidSum.setAddTime(new Timestamp(parsedDate.getTime()));
+        uidSumCol.add(uidSum);
+        when(observationSummaryService
+                .findAllActiveLabReportUidListForManage(10006070L, " AND BLAH"))
+                .thenReturn(uidSumCol);
+
+        // getObservationSummaryListForWorkupRevisited
+        // isCDCFormPrintCase = true, uidType = LABORATORY_UID
+        var obs = new Observation();
+        obs.setObservationUid(18L);
+        obs.setRecordStatusCd("UNPROCESSED");
+        when(observationRepository.findById(17L)).thenReturn(Optional.of(obs));
+        var map = new HashMap<>();
+        map.put(NEDSSConstant.PAR110_TYP_CD, 19L);
+        map.put(NEDSSConstant.PAR101_TYP_CD, 20L);
+
+        when(observationSummaryService.getLabParticipations(18L)).thenReturn(map);
+        var orgConn = new OrganizationContainer();
+        var orgNameCol = new ArrayList<OrganizationNameDto>();
+        var orgName = new OrganizationNameDto();
+        orgName.setNmTxt("TEST");
+        orgNameCol.add(orgName);
+        orgConn.setTheOrganizationNameDtoCollection(orgNameCol);
+        when(organizationRepositoryUtil.loadObject(20L, null)).thenReturn(orgConn);
+
+        var actIdCol = new ArrayList<Object>();
+        actIdCol.add("19");
+        when(observationSummaryService.getActIdDetails(18L)).thenReturn(actIdCol);
+
+        var result = investigationService.getPageProxyVO(typeCd, publicHealthCaseUid);
+
+
+        assertNotNull(result);
+        verify(observationSummaryService, times(1)).getActIdDetails(eq(18L));
+        verify(organizationRepositoryUtil, times(1)).loadObject(eq(20L), eq(null));
+        verify(observationSummaryService, times(1)).getLabParticipations(eq(18L));
+
+
+    }
+
+    @Test
+    void processingNonAssociatedReportSummaryContainer_Success() throws DataProcessingException {
+        var reportSumVO = new LabReportSummaryContainer();
+        reportSumVO.setAssociated(false);
+        var odsDT = new ObservationDto();
+        odsDT.setVersionCtrlNbr(1);
+        var rootDT = new ObservationDto();
+        rootDT.setObservationUid(10L);
+
+        var actCol = new ArrayList<ActRelationshipDto>();
+        var act = new ActRelationshipDto();
+        actCol.add(act);
+        when(actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(10L, "LabReport"))
+                .thenReturn(actCol);
+        when(prepareAssocModelHelper.prepareVO(any(),
+                eq(NEDSSConstant.OBSERVATIONLABREPORT),
+                eq(NEDSSConstant.OBS_LAB_UNPROCESS),
+                eq(NEDSSConstant.OBSERVATION),
+                eq(NEDSSConstant.BASE),
+                eq(1) ))
+                .thenReturn(rootDT);
+
+        var test = investigationService.processingNonAssociatedReportSummaryContainer(reportSumVO, odsDT, rootDT);
+
+        assertNotNull(test);
+    }
+
+    @Test
+    void updateAutoResendNotifications_Success_InvestigationConn() {
+        var pageProx = new InvestigationContainer();
+        var phcConn = new PublicHealthCaseContainer();
+        var phcDt = new PublicHealthCaseDto();
+        phcDt.setCaseClassCd("CASE");
+        phcDt.setProgAreaCd("PRG");
+        phcDt.setJurisdictionCd("JUST");
+        phcDt.setSharedInd("Y");
+        phcDt.setCaseStatusDirty(false);
+        phcDt.setCd("CODE");
+        phcConn.setThePublicHealthCaseDto(phcDt);
+        pageProx.setThePublicHealthCaseContainer(phcConn);
+        var notSummaryCol = new ArrayList<Object>();
+        var notSum = new NotificationSummaryContainer();
+        notSum.setIsHistory("F");
+        notSum.setAutoResendInd("T");
+        notSum.setNotificationUid(10L);
+
+        notSummaryCol.add(notSum);
+        pageProx.setTheNotificationSummaryVOCollection(notSummaryCol);
+
+        var notification = new NotificationDto();
+        notification.setVersionCtrlNbr(1);
+        notification.setAutoResendInd("T");
+        notification.setNotificationUid(11L);
+        when(notificationService.getNotificationById(10L))
+                .thenReturn(notification);
+
+        investigationService.updateAutoResendNotifications(pageProx);
+
+        verify(notificationService, times(1)).saveNotification(any());
+
     }
 
 }
