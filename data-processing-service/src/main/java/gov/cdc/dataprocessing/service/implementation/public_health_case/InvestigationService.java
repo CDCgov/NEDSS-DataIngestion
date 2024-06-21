@@ -278,14 +278,6 @@ public class InvestigationService implements IInvestigationService {
     }
 
     public PageActProxyContainer getPageProxyVO(String typeCd, Long publicHealthCaseUID) throws DataProcessingException {
-
-//        if (!nbsSecurityObj.getPermission(NBSBOLookup.INVESTIGATION,
-//                NBSOperationLookup.VIEW)) {
-//            logger
-//                    .info("nbsSecurityObj.getPermission(NedssBOLookup.INVESTIGATION,NBSOperationLookup.VIEW) is false");
-//            throw new NEDSSSystemException("NO PERMISSIONS");
-//        }
-//        logger.info("nbsSecurityObj.getPermission(NedssBOLookup.INVESTIGATION,NBSOperationLookup.VIEW) is true");
         PageActProxyContainer pageProxyVO = new PageActProxyContainer();
 
         PublicHealthCaseContainer thePublicHealthCaseContainer = null;
@@ -305,28 +297,8 @@ public class InvestigationService implements IInvestigationService {
         Object theLookedUpObject;
 
         try {
-
-
-            // Step 1: Get the Public Health Case
             thePublicHealthCaseContainer = publicHealthCaseRepositoryUtil.loadObject(publicHealthCaseUID);
 
-            // before returning PublicHealthCaseContainer check security permissions -
-            // if no permissions - terminate
-//            if (!nbsSecurityObj.checkDataAccess(thePublicHealthCaseContainer
-//                            .getThePublicHealthCaseDto(), NBSBOLookup.INVESTIGATION,
-//                    NBSOperationLookup.VIEW)) {
-//                logger
-//                        .info("nbsSecurityObj.checkDataAccess(thePublicHealthCaseContainer.getThePublicHealthCaseDto(), NedssBOLookup.INVESTIGATION, NBSOperationLookup.VIEW) is false");
-//                throw new NEDSSSystemException("NO ACCESS PERMISSIONS");
-//            }
-//            logger
-//                    .info("nbsSecurityObj.checkDataAccess(thePublicHealthCaseContainer.getThePublicHealthCaseDto(), NedssBOLookup.INVESTIGATION, NBSOperationLookup.VIEW) is true");
-
-
-
-//            NBSAuthHelper helper = new NBSAuthHelper();
-//            thePublicHealthCaseContainer.getThePublicHealthCaseDto().setAddUserName(helper.getUserName(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getAddUserId()));
-//            thePublicHealthCaseContainer.getThePublicHealthCaseDto().setLastChgUserName(helper.getUserName(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getLastChgUserId()));
             thePublicHealthCaseContainer.getThePublicHealthCaseDto().setAddUserName(AuthUtil.authUser.getUserId());
             thePublicHealthCaseContainer.getThePublicHealthCaseDto().setLastChgUserName(AuthUtil.authUser.getUserId());
 
@@ -424,84 +396,20 @@ public class InvestigationService implements IInvestigationService {
 
             if(typeCd!=null && !typeCd.equals(NEDSSConstant.CASE_LITE)) {
                 ActRelationshipDto actRelationshipDT = null;
-                // Get the Vaccinations for a PublicHealthCase/Investigation
-
-                // Populate the ACT collections in the results
-                for (ActRelationshipDto actRelationshipDto : thePublicHealthCaseContainer
-                        .getTheActRelationshipDTCollection()) {
+                for (ActRelationshipDto actRelationshipDto : thePublicHealthCaseContainer.getTheActRelationshipDTCollection()) {
                     actRelationshipDT = actRelationshipDto;
-                    logger.debug("inside while actUid: "
-                            + actRelationshipDT.getTargetActUid()
-                            + " observationUid: "
-                            + actRelationshipDT.getSourceActUid());
                     Long nSourceActID = actRelationshipDT.getSourceActUid();
                     strClassCd = actRelationshipDT.getSourceClassCd();
                     strTypeCd = actRelationshipDT.getTypeCd();
                     recordStatusCd = actRelationshipDT.getRecordStatusCd();
-
-//                    if (strClassCd != null
-//                            && strClassCd
-//                            .compareToIgnoreCase(NEDSSConstant.INTERVENTION_CLASS_CODE) == 0
-//                            && recordStatusCd != null
-//                            && recordStatusCd
-//                            .equals(NEDSSConstant.RECORD_STATUS_ACTIVE)
-//                            && strTypeCd != null && !strTypeCd.equals("1180")) {
-//                        InterventionContainer interventionVO = actController
-//                                .getIntervention(nSourceActID, nbsSecurityObj);
-//                        theInterventionVOCollection.add(interventionVO);
-//                        InterventionDto intDT = interventionVO
-//                                .getTheInterventionDto();
-//
-//                        if (intDT.getCd() != null
-//                                && intDT.getCd().compareToIgnoreCase(
-//                                "VACCINES/ANTISERA") == 0) {
-//                            Collection<Object> intPartDTs = interventionVO
-//                                    .getTheParticipationDTCollection();
-//                            Iterator<Object> intPartIter = intPartDTs.iterator();
-//                            while (intPartIter.hasNext()) {
-//                                ParticipationDT dt = (ParticipationDT) intPartIter
-//                                        .next();
-//
-//                                if (dt.getTypeCd() != null
-//                                        && dt.getTypeCd() == NEDSSConstant.VACCINATION_ADMINISTERED_TYPE_CODE) {
-//                                    VaccinationSummaryVO vaccinationSummaryVO = new VaccinationSummaryVO();
-//                                    vaccinationSummaryVO.setActivityFromTime(intDT
-//                                            .getActivityFromTime());
-//                                    vaccinationSummaryVO.setInterventionUid(intDT
-//                                            .getInterventionUid());
-//                                    vaccinationSummaryVO.setLocalId(intDT
-//                                            .getLocalId());
-//                                    MaterialDT materialDT = entityController
-//                                            .getMaterialInfo(dt
-//                                                            .getSubjectEntityUid(),
-//                                                    nbsSecurityObj);
-//                                    vaccinationSummaryVO
-//                                            .setVaccineAdministered(materialDT
-//                                                    .getNm());
-//                                    // theVaccinationSummaryVOCollection.add(vaccinationSummaryVO);
-//                                }
-//                            }
-//                        }
-//                        continue;
-//                    }
-
                     if (nSourceActID == null || strClassCd == null) {
-                        logger
-                                .debug("PageProxyEJB.getInvestigation: check for nulls: SourceActUID"
-                                        + nSourceActID + " classCd: " + strClassCd);
+                        logger.debug("PageProxyEJB.getInvestigation: check for nulls: SourceActUID" + nSourceActID + " classCd: " + strClassCd);
                         continue;
                     }
                 }
 
-
-
                 Collection<Object> labSumVOCol = new ArrayList<>();
                 HashMap<Object, Object> labSumVOMap;
-
-//                if (nbsSecurityObj.getPermission(NBSBOLookup.OBSERVATIONLABREPORT,
-//                        NBSOperationLookup.VIEW,
-//                        ProgramAreaJurisdictionUtil.ANY_PROGRAM_AREA,
-//                        ProgramAreaJurisdictionUtil.ANY_JURISDICTION)) {
 
                 String labReportViewClause = queryHelper
                         .getDataAccessWhereClause(
@@ -519,9 +427,6 @@ public class InvestigationService implements IInvestigationService {
                 LabReportSummaryContainer labReportSummaryVOs;
                 if (LabReportUidSummarVOs != null
                         && LabReportUidSummarVOs.size() > 0) {
-                    // labSumVOCol = new
-                    // ObservationProcessor().retrieveLabReportSummary(LabReportUidSummarVOs,
-                    // nbsSecurityObj);
                     boolean isCDCFormPrintCase;
                     if(typeCd.equalsIgnoreCase(NEDSSConstant.PRINT_CDC_CASE)){
                         isCDCFormPrintCase = true;
@@ -548,220 +453,23 @@ public class InvestigationService implements IInvestigationService {
                             }
                         }
                     }
-
-                    logger.debug("Size of labreport Collection<Object>  :"
-                            + labSumVOCol.size());
-
-                    logger.debug("Size of labreport Collection<Object>  :"
-                            + labSumVOCol.size());
                 }
-                //Add the associated labs from PHDC document
-//                    Map<String, EDXEventProcessDto> edxEventsMap = nbsDAO.getEDXEventProcessMapByCaseId(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid());
-//                    CDAEventSummaryParser cdaParser = new CDAEventSummaryParser();
-//                    Map<Long, LabReportSummaryContainer> labMapfromDOC = cdaParser.getLabReportMapByPHCUid(edxEventsMap, nbsSecurityObj);
-
                 Map<Long, LabReportSummaryContainer> labMapfromDOC =  new HashMap<>();
 
                 if(labMapfromDOC!=null && labMapfromDOC.size()>0)
+                {
                     labSumVOCol.addAll(labMapfromDOC.values());
-//                } else {
-//                    logger
-//                            .debug("user has no permission to view ObservationSummaryVO collection");
-//                }
-
+                }
                 if (labSumVOCol != null) {
                     pageProxyVO.setTheLabReportSummaryVOCollection(labSumVOCol);
 
                 }
-
-//                Collection<Object> morbSumVOCol = new ArrayList<Object>();
-//                if (nbsSecurityObj.getPermission(
-//                        NBSBOLookup.OBSERVATIONMORBIDITYREPORT,
-//                        NBSOperationLookup.VIEW,
-//                        ProgramAreaJurisdictionUtil.ANY_PROGRAM_AREA,
-//                        ProgramAreaJurisdictionUtil.ANY_JURISDICTION)) {
-//                    String morbReportViewClause = nbsSecurityObj
-//                            .getDataAccessWhereClause(
-//                                    NBSBOLookup.OBSERVATIONMORBIDITYREPORT,
-//                                    NBSOperationLookup.VIEW, "obs");
-//                    morbReportViewClause = morbReportViewClause != null ? " AND "
-//                            + morbReportViewClause : "";
-//                    Collection<Object> morbReportUidSummarVOs = new ObservationSummaryDAOImpl()
-//                            .findAllActiveMorbReportUidListForManage(
-//                                    publicHealthCaseUID, morbReportViewClause);
-//
-//                    String uidType = "MORBIDITY_UID";
-//                    Collection<?> mobReportSummaryVOCollection = new ArrayList<Object>();
-//                    MorbReportSummaryVO mobReportSummaryVOs = new MorbReportSummaryVO();
-//                    HashMap<Object, Object> morbSumVoMap = new HashMap<Object, Object>();
-//                    if (morbReportUidSummarVOs != null
-//                            && morbReportUidSummarVOs.size() > 0) {
-//                        // morbSumVOCol = new
-//                        // ObservationProcessor().retrieveMorbReportSummary(morbReportUidSummarVOs,
-//                        // nbsSecurityObj);
-//                        boolean isCDCFormPrintCase= false;
-//                        if(typeCd.equalsIgnoreCase(NEDSSConstant.PRINT_CDC_CASE)){
-//                            if(morbReportUidSummarVOs!=null && morbReportUidSummarVOs.size()>0){
-//                                Iterator it = morbReportUidSummarVOs.iterator();
-//                                while(it.hasNext()){
-//                                    UidSummaryVO uidSummaryVO = (UidSummaryVO)it.next();
-//                                    uidSummaryVO.setStatusTime(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getAddTime());
-//                                }
-//                            }
-//
-//                            isCDCFormPrintCase = true;
-//                        }else{
-//                            isCDCFormPrintCase= false;
-//                        }
-//                        morbSumVoMap = new ObservationProcessor()
-//                                .retrieveMorbReportSummaryRevisited(
-//                                        morbReportUidSummarVOs, isCDCFormPrintCase, nbsSecurityObj,
-//                                        uidType);
-//                        if (morbSumVoMap != null) {
-//
-//                            if (morbSumVoMap.containsKey("MorbEventColl")) {
-//                                mobReportSummaryVOCollection = (ArrayList<?>) morbSumVoMap
-//                                        .get("MorbEventColl");
-//                                Iterator<?> iterator = mobReportSummaryVOCollection
-//                                        .iterator();
-//                                while (iterator.hasNext()) {
-//                                    mobReportSummaryVOs = (MorbReportSummaryVO) iterator
-//                                            .next();
-//                                    morbSumVOCol.add(mobReportSummaryVOs);
-//
-//                                }
-//                            }
-//                        }
-//                        logger.debug("Size of Morbidity Collection<Object>  :"
-//                                + morbSumVOCol.size());
-//                    }
-//                    //Add the associated morbs from PHDC document
-//                    NbsDocumentDAOImpl nbsDAO = new NbsDocumentDAOImpl();
-//                    Map<String, EDXEventProcessDto> edxEventsMap = nbsDAO.getEDXEventProcessMapByCaseId(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid());
-//                    CDAEventSummaryParser cdaParser = new CDAEventSummaryParser();
-//                    Map<Long, MorbReportSummaryVO> morbMapfromDOC = cdaParser.getMorbReportMapByPHCUid(edxEventsMap, nbsSecurityObj);
-//                    if(morbMapfromDOC!=null && morbMapfromDOC.size()>0)
-//                        morbSumVOCol.addAll(morbMapfromDOC.values());
-//                } else {
-//                    logger
-//                            .debug("user has no permission to view ObservationSummaryVO collection");
-//                }
-//                if (morbSumVOCol != null) {
-//                    pageProxyVO.setTheMorbReportSummaryVOCollection(morbSumVOCol);
-//
-//                }
-
-//                if (nbsSecurityObj.getPermission(
-//                        NBSBOLookup.INTERVENTIONVACCINERECORD,
-//                        NBSOperationLookup.VIEW)) {
-//                    RetrieveSummaryVO retrievePhcVaccinations = new RetrieveSummaryVO();
-//                    theVaccinationSummaryVOCollection = new ArrayList<Object>(
-//                            retrievePhcVaccinations
-//                                    .retrieveVaccinationSummaryVOForInv(
-//                                            publicHealthCaseUID, nbsSecurityObj)
-//                                    .values());
-//                    pageProxyVO
-//                            .setTheVaccinationSummaryVOCollection(theVaccinationSummaryVOCollection);
-//                } else {
-//                    logger
-//                            .debug("user has no permission to view VaccinationSummaryVO collection");
-//                }
-
-                // Begin support for TreatmentSummary
-//                if (nbsSecurityObj.getPermission(NBSBOLookup.TREATMENT,
-//                        NBSOperationLookup.VIEW,
-//                        ProgramAreaJurisdictionUtil.ANY_PROGRAM_AREA,
-//                        ProgramAreaJurisdictionUtil.ANY_JURISDICTION)) {
-//
-//                    logger
-//                            .debug("About to get TreatmentSummaryList for Investigation");
-//                    RetrieveSummaryVO rsvo = new RetrieveSummaryVO();
-//                    theTreatmentSummaryVOCollection = new ArrayList<Object>((rsvo
-//                            .retrieveTreatmentSummaryVOForInv(publicHealthCaseUID,
-//                                    nbsSecurityObj)).values());
-//                    logger.debug("Number of treatments found: "
-//                            + theTreatmentSummaryVOCollection.size());
-//                    pageProxyVO
-//                            .setTheTreatmentSummaryVOCollection(theTreatmentSummaryVOCollection);
-//                } else {
-//                    logger
-//                            .debug("user has no permission to view TreatmentSummaryVO collection");
-//                }
-
-                // Added this for Investigation audit log summary on the RVCT
-                // Page(civil00014862)
-
-//                if (nbsSecurityObj.getPermission(NBSBOLookup.INVESTIGATION,
-//                        NBSOperationLookup.VIEW)) {
-
-                logger.debug("About to get AuditLogSummary for Investigation");
-
                 theInvestigationAuditLogSummaryVOCollection = new ArrayList<>();
-//                            new ArrayList<Object>(
-//                            (summaryVO.retrieveInvestigationAuditLogSummaryVO(publicHealthCaseUID)));
-
-                logger.debug("Number of Investigation Auditlog summary found: "
-                        + theInvestigationAuditLogSummaryVOCollection.size());
-                pageProxyVO
-                        .setTheInvestigationAuditLogSummaryVOCollection(theInvestigationAuditLogSummaryVOCollection);
-//                } else {
-//                    logger
-//                            .debug("user has no permission to view InvestigationAuditLogSummaryVO collection");
-//                }
-
-                // End (civil00014862)
-
-                // Begin support for Document Summary Section
-//                if (nbsSecurityObj.getPermission(NBSBOLookup.DOCUMENT, NBSOperationLookup.VIEW)) {
-                theDocumentSummaryVOCollection = new ArrayList<>(
-                        retrieveSummaryService.retrieveDocumentSummaryVOForInv(publicHealthCaseUID).values());
-                pageProxyVO
-                        .setTheDocumentSummaryVOCollection(theDocumentSummaryVOCollection);
-//                } else {
-//                    logger
-//                            .debug("user has no permission to view DocumentSummaryVO collection");
-//                }
-
-//                if (nbsSecurityObj.getPermission(NBSBOLookup.INTERVIEW,
-//                        NBSOperationLookup.VIEW)) {
-//                    InterviewSummaryDAO interviewSummaryDAO = new InterviewSummaryDAO();
-//                    Collection<Object> interviewCollection = interviewSummaryDAO
-//                            .getInterviewListForInvestigation(publicHealthCaseUID,
-//                                    pageProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getProgAreaCd(),
-//                                    nbsSecurityObj);
-//
-//                    pageProxyVO
-//                            .setTheInterviewSummaryDTCollection(interviewCollection);
-//                } else {
-//                    logger.debug("User has no permission to view Interview Summary collection");
-//                }
-
-
-//                if (nbsSecurityObj.getPermission(NBSBOLookup.CT_CONTACT,
-//                        NBSOperationLookup.VIEW)) {
+                pageProxyVO.setTheInvestigationAuditLogSummaryVOCollection(theInvestigationAuditLogSummaryVOCollection);
+                theDocumentSummaryVOCollection = new ArrayList<>(retrieveSummaryService.retrieveDocumentSummaryVOForInv(publicHealthCaseUID).values());
+                pageProxyVO.setTheDocumentSummaryVOCollection(theDocumentSummaryVOCollection);
                 Collection<Object> contactCollection = contactSummaryService.getContactListForInvestigation(publicHealthCaseUID);
-
-                pageProxyVO
-                        .setTheCTContactSummaryDTCollection(contactCollection);
-//                } else {
-//                    logger
-//                            .debug("user has no permission to view Contact Summary collection");
-//                }
-
-
-//                if (nbsSecurityObj.getPermission(NBSBOLookup.INVESTIGATION,
-//                        NBSOperationLookup.VIEW)) {
-
-//                    Collection<Object> nbsCaseAttachmentDTColl = nbsAttachmentDAO.getNbsAttachmentCollection(publicHealthCaseUID);
-//                    pageProxyVO.setNbsAttachmentDTColl(nbsCaseAttachmentDTColl);
-//                    Collection<NbsNoteDto>  nbsCaseNotesColl = nbsAttachmentDAO.getNbsNoteCollection(publicHealthCaseUID);
-//                    pageProxyVO.setNbsNoteDTColl(nbsCaseNotesColl);
-
-
-//                } else {
-//                    logger
-//                            .debug("user has no permission to view Investigation : Attachments and Notes are secured by Investigation View Permission");
-//                }
+                pageProxyVO.setTheCTContactSummaryDTCollection(contactCollection);
             }
 
         } catch (Exception e) {
@@ -791,13 +499,10 @@ public class InvestigationService implements IInvestigationService {
         try {
             logger.info("enter NNDMessageSenderHelper.updateAutoResendNotifications--------------");
             if(
-                //!(vo instanceof VaccinationProxyVO)
                     !(vo instanceof LabResultProxyContainer)
-                            //&&!(vo instanceof MorbidityProxyVO)
                             &&!(vo instanceof InvestigationContainer)
                             &&!(vo instanceof PageActProxyContainer)
                             &&!(vo instanceof PamProxyContainer)
-//            &&!(vo instanceof SummaryReportProxyVO)
             )
             {
                 throw new DataProcessingException("vo not instance of VaccinationProxyVO,LabResultProxyVO, or MorbidityProxyVO,PamProxyVO, SummaryReportProxyVO");
@@ -810,7 +515,6 @@ public class InvestigationService implements IInvestigationService {
                     vo instanceof InvestigationContainer
                             || vo instanceof PamProxyContainer
                             ||  vo instanceof PageActProxyContainer
-//                ||  vo instanceof SummaryReportProxyVO
             ){
                 if(vo instanceof InvestigationContainer)
                 {
@@ -818,47 +522,6 @@ public class InvestigationService implements IInvestigationService {
                     phcDT = invVO.thePublicHealthCaseContainer.getThePublicHealthCaseDto();
                     notSumVOColl = invVO.getTheNotificationSummaryVOCollection();
                 }
-//            else if(vo instanceof PamProxyContainer)
-//            {
-//                PamProxyVO pamVO = (PamProxyVO)vo;
-//                phcDT = pamVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto();
-//                notSumVOColl = pamVO.getTheNotificationSummaryVOCollection();
-//            }
-//            else if (vo instanceof LabResultProxyContainer)
-//            {
-//                NNDAutoResendDAOImpl nndAutoResendDAO = new NNDAutoResendDAOImpl();
-//                Collection<Object>  theNotificationCollection  = nndAutoResendDAO.getAutoResendNotificationSummaries(getActClassCd(vo), getTypeCd(vo), getRootUid(vo));
-//                Iterator<Object>  notIter = theNotificationCollection.iterator();
-//                while(notIter.hasNext()){
-//                    NotificationSummaryVO notSumVO = (NotificationSummaryVO)notIter.next();
-//                    updateNotification(false, notSumVO.getNotificationUid(),notSumVO.getCd(),notSumVO.getCaseClassCd(),notSumVO.getProgAreaCd(),notSumVO.getJurisdictionCd(),notSumVO.getSharedInd(), false, nbsSecurityObj);
-//                }
-//            }
-//            else if(vo instanceof PageActProxyContainer)
-//            {
-//                PageActProxyContainer pageActProxyVO= (PageActProxyContainer)vo;
-//                phcDT = pageActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto();
-//                notSumVOColl = pageActProxyVO.getTheNotificationSummaryVOCollection();
-//            }
-//            else if (vo instanceof SummaryReportProxyVO)
-//            {
-//                SummaryReportProxyVO summaryReportProxyVO = (SummaryReportProxyVO)vo;
-//                phcDT = summaryReportProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto();
-//                notSumVOColl = summaryReportProxyVO.getTheNotificationVOCollection();
-//                Iterator<Object>  notSumIter =  notSumVOColl.iterator();
-//                while(notSumIter.hasNext()){
-//                    NotificationContainer notVO = (NotificationContainer)notSumIter.next();
-//                    Long notificationUid = notVO.getTheNotificationDT().getNotificationUid();
-//                    String phcCd = phcDT.getCd();
-//                    String phcClassCd = phcDT.getCaseClassCd();
-//                    String progAreaCd = phcDT.getProgAreaCd();
-//                    String jurisdictionCd = phcDT.getJurisdictionCd();
-//                    String sharedInd = phcDT.getSharedInd();
-//                    // retrieve the status change
-//                    boolean caseStatusChange = phcDT.isCaseStatusDirty();
-//                    updateNotification(true, notificationUid,phcCd,phcClassCd,progAreaCd,jurisdictionCd,sharedInd, caseStatusChange, nbsSecurityObj);
-//                }
-//            }
                 if(
                         vo instanceof InvestigationContainer
                                 || vo instanceof PamProxyContainer
@@ -886,19 +549,6 @@ public class InvestigationService implements IInvestigationService {
                 }
 
             }
-//        else if(vo instanceof VaccinationProxyVO
-//                || vo instanceof MorbidityProxyVO)
-//        {
-//            NNDAutoResendDAOImpl nndAutoResendDAO = new NNDAutoResendDAOImpl();
-//            Collection<Object>  theNotificationCollection  = nndAutoResendDAO.getAutoResendNotificationSummaries(getActClassCd(vo), getTypeCd(vo), getRootUid(vo));
-//            Iterator<Object>  notIter = theNotificationCollection.iterator();
-//            while(notIter.hasNext()){
-//                NotificationSummaryVO notSumVO = (NotificationSummaryVO)notIter.next();
-//                updateNotification(false, notSumVO.getNotificationUid(),notSumVO.getCd(),notSumVO.getCaseClassCd(),notSumVO.getProgAreaCd(),notSumVO.getJurisdictionCd(),notSumVO.getSharedInd(), false, nbsSecurityObj);
-//            }
-//        }
-//        logger.info("finish NNDMessageSenderHelper.updateAutoResendNotifications--------------");
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1188,7 +838,6 @@ public class InvestigationService implements IInvestigationService {
                         strTypeCd.equals(NEDSSConstant.PHC_INV_FORM)) {
                     ObservationContainer parentObservationVO = observationRepositoryUtil.loadObject(nSourceActID);
                     theObservationVOCollection = (ArrayList<ObservationContainer>) observationRepositoryUtil.retrieveObservationQuestion(nSourceActID);
-                    //  //##!! System.out.println("Size of VO in retrieveObservationQA : " +theObservationVOCollection.size() );
                     theObservationVOCollection.add(parentObservationVO);
                     continue;
                 }
@@ -1217,55 +866,36 @@ public class InvestigationService implements IInvestigationService {
             investigationProxyVO.setTheReferralVOCollection(theReferralVOCollection);
             investigationProxyVO.setThePatientEncounterVOCollection(
                     thePatientEncounterVOCollection);
-            //investigationProxyVO.setTheNotificationVOCollection( theNotificationVOCollection  );
             investigationProxyVO.setTheObservationVOCollection(
                     theObservationVOCollection);
 
-            //for LDFs
-            // ArrayList<Object> ldfList = new ArrayList<Object> ();
             try {
-                //code for new ldf back end
                 if(!lite) {
                     theStateDefinedFieldDTCollection  = new ArrayList<>(ldfService.getLDFCollection(publicHealthCaseUID, investigationProxyVO.getBusinessObjectName()));
                 }
             }
             catch (Exception e) {
-                logger.error("Exception occured while retrieving LDFCollection<Object>  = " +
-                        e.getMessage());
+                logger.error("Exception occured while retrieving LDFCollection<Object>  = " + e.getMessage());
             }
 
             if (theStateDefinedFieldDTCollection  != null) {
-                logger.debug("Before setting LDFCollection<Object>  = " +
-                        theStateDefinedFieldDTCollection.size());
                 investigationProxyVO.setTheStateDefinedFieldDataDTCollection(theStateDefinedFieldDTCollection);
             }
 
-
             Collection<Object>  labSumVOCol = new ArrayList<> ();
             HashMap<Object,Object> labSumVOMap;
-            Date dtc = new Date();
-            ////##!! System.out.println("the InvestigationProxyVO time before start getting associated reports is :" + (dtc.getTime()- dta.getTime()));
-
-            if (!lite
-//                    && nbsSecurityObj.getPermission(NBSBOLookup.OBSERVATIONLABREPORT,
-//                    "VIEW",
-//                    "ANY",
-//                    "ANY")
-            )
+            if (!lite)
             {
                 String labReportViewClause = queryHelper.getDataAccessWhereClause(NBSBOLookup.OBSERVATIONLABREPORT, "VIEW", "obs");
                 labReportViewClause = labReportViewClause != null? " AND " + labReportViewClause:"";
 
                 Collection<UidSummaryContainer>  LabReportUidSummarVOs = observationSummaryService.findAllActiveLabReportUidListForManage(publicHealthCaseUID,labReportViewClause);
                 String uidType = "LABORATORY_UID";
-                Collection<Object>  newLabReportSummaryVOCollection  = new ArrayList<> ();
                 Collection<?>  labReportSummaryVOCollection;
                 LabReportSummaryContainer labReportSummaryVOs;
 
                 if(LabReportUidSummarVOs != null && LabReportUidSummarVOs.size() > 0)
                 {
-                    //labSumVOCol = new ObservationProcessor().
-                    // retrieveLabReportSummary(LabReportUidSummarVOs, nbsSecurityObj);
                     labSumVOMap = retrieveLabReportSummaryRevisited(LabReportUidSummarVOs,false, uidType);
                     if(labSumVOMap !=null)
                     {
@@ -1279,87 +909,17 @@ public class InvestigationService implements IInvestigationService {
                             }
                         }
                     }
-
                     logger.debug("Size of labreport Collection<Object>  :" + labSumVOCol.size());
                 }
             }
             else {
-                logger.debug(
-                        "user has no permission to view ObservationSummaryVO collection");
-
+                logger.debug("user has no permission to view ObservationSummaryVO collection");
             }
 
             if (labSumVOCol != null) {
                 investigationProxyVO.setTheLabReportSummaryVOCollection(labSumVOCol);
 
             }
-
-
-            Collection<Object>  morbSumVOCol = new ArrayList<> ();
-            HashMap<Object,Object> morbSumVoMap = new HashMap<>();
-
-            /*
-            if (!lite && nbsSecurityObj.getPermission(NBSBOLookup.OBSERVATIONMORBIDITYREPORT,
-                    "VIEW",
-                    "ANY",
-                    "ANY")
-            )
-            {
-                String morbReportViewClause = getDataAccessWhereClause(NBSBOLookup.OBSERVATIONMORBIDITYREPORT, "VIEW", "obs");
-                morbReportViewClause = morbReportViewClause != null? " AND " + morbReportViewClause : "";
-                Collection<Object>  morbReportUidSummarVOs =new ObservationSummaryDAOImpl().findAllActiveMorbReportUidListForManage(publicHealthCaseUID, morbReportViewClause);
-                String uidType = "MORBIDITY_UID";
-                Collection<Object>  newMobReportSummaryVOCollection  = new ArrayList<Object> ();
-                Collection<?>  mobReportSummaryVOCollection  = new ArrayList<Object> ();
-                MorbReportSummaryVO mobReportSummaryVOs = new MorbReportSummaryVO();
-
-                if(morbReportUidSummarVOs != null && morbReportUidSummarVOs.size() > 0)
-                {
-                    //morbSumVOCol = new ObservationProcessor().
-                    // retrieveMorbReportSummaryRevisited(morbReportUidSummarVOs, nbsSecurityObj, uidType);
-                    morbSumVoMap = new ObservationProcessor().
-                            retrieveMorbReportSummaryRevisited(morbReportUidSummarVOs, false, nbsSecurityObj, uidType);
-
-                    if(morbSumVoMap !=null)
-                    {
-                        if(morbSumVoMap.containsKey("MorbEventColl"))
-                        {
-                            mobReportSummaryVOCollection  = (ArrayList<?> )morbSumVoMap.get("MorbEventColl");
-                            Iterator<?>  iterator = mobReportSummaryVOCollection.iterator();
-                            while( iterator.hasNext())
-                            {
-                                mobReportSummaryVOs = (MorbReportSummaryVO) iterator. next();
-                                morbSumVOCol.add(mobReportSummaryVOs);
-
-                            }
-                        }
-                    }
-                    logger.debug("Size of Morbidity Collection<Object>  :" + morbSumVOCol.size());
-                }
-
-            }*/
-//            else {
-//                logger.debug(
-//                        "user has no permission to view ObservationSummaryVO collection");
-//            }
-//            if (morbSumVOCol != null) {
-//                investigationProxyVO.setTheMorbReportSummaryVOCollection(morbSumVOCol);
-//
-//            }
-
-//            if (!lite && nbsSecurityObj.getPermission(NBSBOLookup.INTERVENTIONVACCINERECORD, "VIEW"))
-//            {
-//                RetrieveSummaryVO retrievePhcVaccinations = new RetrieveSummaryVO();
-//                theVaccinationSummaryVOCollection  = new ArrayList<Object> (
-//                        retrievePhcVaccinations.retrieveVaccinationSummaryVOForInv(
-//                                publicHealthCaseUID, nbsSecurityObj).values());
-//                investigationProxyVO.setTheVaccinationSummaryVOCollection(
-//                        theVaccinationSummaryVOCollection);
-//            }
-//            else {
-//                logger.debug("user has no permission to view VaccinationSummaryVO collection");
-//            }
-
 
             if(!lite) {
                 investigationProxyVO.setTheNotificationSummaryVOCollection(retrieveSummaryService.notificationSummaryOnInvestigation(thePublicHealthCaseContainer, investigationProxyVO));
@@ -1386,16 +946,9 @@ public class InvestigationService implements IInvestigationService {
                 }
             }
 
-            //Begin support for TreatmentSummary
-            if (!lite
-//                    && nbsSecurityObj.getPermission(NBSBOLookup.TREATMENT,
-//                    "VIEW",
-//                    "ANY",
-//                    "ANY")
-            ) {
-
+            if (!lite)
+            {
                 logger.debug("About to get TreatmentSummaryList for Investigation");
-                //RetrieveSummaryVO rsvo = new RetrieveSummaryVO();
                 theTreatmentSummaryVOCollection  = new ArrayList<> ((retrieveSummaryService.retrieveTreatmentSummaryVOForInv(publicHealthCaseUID)).values());
                 logger.debug("Number of treatments found: " +
                         theTreatmentSummaryVOCollection.size());
@@ -1406,12 +959,8 @@ public class InvestigationService implements IInvestigationService {
                 logger.debug(
                         "user has no permission to view TreatmentSummaryVO collection");
             }
-            // end treatment support
 
-            // document support starts here
-            if (!lite
-//                    && nbsSecurityObj.getPermission(NBSBOLookup.DOCUMENT, "VIEW")
-            )
+            if (!lite)
             {
                 theDocumentSummaryVOCollection  = new ArrayList<> (retrieveSummaryService.retrieveDocumentSummaryVOForInv(publicHealthCaseUID).values());
                 investigationProxyVO.setTheDocumentSummaryVOCollection(theDocumentSummaryVOCollection);
@@ -1420,9 +969,7 @@ public class InvestigationService implements IInvestigationService {
                 logger.debug(
                         "user has no permission to view DocumentSummaryVO collection");
             }
-            if (!lite
-//                    && nbsSecurityObj.getPermission(NBSBOLookup.CT_CONTACT, "VIEW")
-            )
+            if (!lite)
             {
                 Collection<Object> contactCollection= contactSummaryService.getContactListForInvestigation(publicHealthCaseUID);
 
@@ -1442,9 +989,7 @@ public class InvestigationService implements IInvestigationService {
     }
 
     private HashMap<Object, Object> retrieveLabReportSummaryRevisited(Collection<UidSummaryContainer> labReportUids, boolean isCDCFormPrintCase, String uidType) throws DataProcessingException {
-        //labReportUids = getLongArrayList(labReportUids);
         HashMap<Object, Object> labReportSummarMap = getObservationSummaryListForWorkupRevisited(labReportUids, isCDCFormPrintCase, uidType);
-
         return labReportSummarMap;
     }
 
@@ -1465,17 +1010,13 @@ public class InvestigationService implements IInvestigationService {
                 dataAccessWhereClause = " AND " + dataAccessWhereClause;
             }
 
-
-
             LabReportSummaryContainer labVO = new LabReportSummaryContainer();
-
 
             Collection<Observation_Lab_Summary_ForWorkUp_New> labList = new ArrayList<> ();
             Long LabAsSourceForInvestigation = null;
             try {
 
                 Timestamp fromTime = null;
-                //   uidList = (ArrayList<Object> )getUidSummaryVOArrayList(uidList);
                 Iterator<UidSummaryContainer> itLabId = uidList.iterator();
                 while (itLabId.hasNext()) {
                     if(uidType.equals("PERSON_PARENT_UID")){
@@ -1504,76 +1045,75 @@ public class InvestigationService implements IInvestigationService {
                         }
                     }
                     if(labList != null) {
-                        Iterator<Observation_Lab_Summary_ForWorkUp_New> labIt = labList.iterator();
-                        while (labIt.hasNext()) {
-                            LabReportSummaryContainer labRepVO = new LabReportSummaryContainer(labIt.next());
+                        for (Observation_Lab_Summary_ForWorkUp_New observationLabSummaryForWorkUpNew : labList) {
+                            LabReportSummaryContainer labRepVO = new LabReportSummaryContainer(observationLabSummaryForWorkUpNew);
                             labRepVO.setActivityFromTime(fromTime);
                             LabReportSummaryContainer labRepSumm = null;
                             LabReportSummaryContainer labRepEvent = null;
-                            Map<Object,Object> uidMap = observationSummaryService.getLabParticipations(labRepVO.getObservationUid());
-                            if (uidMap != null && uidMap.containsKey(NEDSSConstant.PAR110_TYP_CD) ){
-                                if (labRepVO.getRecordStatusCd()!=null && (labRepVO.getRecordStatusCd().equals("UNPROCESSED"))) {
-                                    labRepSumm = labRepVO ;
-                                    labRepSumm.setMPRUid((Long)uidMap.get(NEDSSConstant.PAR110_TYP_CD));
+                            Map<Object, Object> uidMap = observationSummaryService.getLabParticipations(labRepVO.getObservationUid());
+                            if (uidMap != null && uidMap.containsKey(NEDSSConstant.PAR110_TYP_CD)) {
+                                if (labRepVO.getRecordStatusCd() != null && (labRepVO.getRecordStatusCd().equals("UNPROCESSED"))) {
+                                    labRepSumm = labRepVO;
+                                    labRepSumm.setMPRUid((Long) uidMap.get(NEDSSConstant.PAR110_TYP_CD));
                                 }
-                                if(labRepVO.getRecordStatusCd()!=null && !labRepVO.getRecordStatusCd().equals("LOG_DEL")){
+                                if (labRepVO.getRecordStatusCd() != null && !labRepVO.getRecordStatusCd().equals("LOG_DEL")) {
                                     labRepEvent = labRepVO;
-                                    labRepEvent.setMPRUid((Long)uidMap.get(NEDSSConstant.PAR110_TYP_CD));
+                                    labRepEvent.setMPRUid((Long) uidMap.get(NEDSSConstant.PAR110_TYP_CD));
                                 }
                             }
 
-                            ArrayList<Object>  valList = observationSummaryService.getPatientPersonInfo(labRepVO.getObservationUid());
-                            ArrayList<Object>  providerDetails = observationSummaryService.getProviderInfo(labRepVO.getObservationUid(),"ORD");
-                            ArrayList<Object>  actIdDetails = observationSummaryService.getActIdDetails(labRepVO.getObservationUid());
-                            Map<Object,Object> associationsMap = observationSummaryService.getAssociatedInvList(labRepVO.getObservationUid(), "OBS");
-                            if(labRepEvent!=null){
+                            ArrayList<Object> valList = observationSummaryService.getPatientPersonInfo(labRepVO.getObservationUid());
+                            ArrayList<Object> providerDetails = observationSummaryService.getProviderInfo(labRepVO.getObservationUid(), "ORD");
+                            ArrayList<Object> actIdDetails = observationSummaryService.getActIdDetails(labRepVO.getObservationUid());
+                            Map<Object, Object> associationsMap = observationSummaryService.getAssociatedInvList(labRepVO.getObservationUid(), "OBS");
+                            if (labRepEvent != null) {
                                 labRepEvent.setAssociationsMap(associationsMap);
                             }
-                            if(labRepSumm!=null){
+                            if (labRepSumm != null) {
                                 labRepSumm.setAssociationsMap(associationsMap);
                             }
                             if (uidMap != null && uidMap.containsKey(NEDSSConstant.PAR111_TYP_CD) && labRepEvent != null) {
-                                labRepEvent.setReportingFacility(observationSummaryService.getReportingFacilityName((Long)uidMap.get(NEDSSConstant.PAR111_TYP_CD)));
+                                labRepEvent.setReportingFacility(observationSummaryService.getReportingFacilityName((Long) uidMap.get(NEDSSConstant.PAR111_TYP_CD)));
                             }
                             if (uidMap != null && uidMap.containsKey(NEDSSConstant.PAR111_TYP_CD) && labRepSumm != null) {
-                                labRepSumm.setReportingFacility(observationSummaryService.getReportingFacilityName((Long)uidMap.get(NEDSSConstant.PAR111_TYP_CD)));
+                                labRepSumm.setReportingFacility(observationSummaryService.getReportingFacilityName((Long) uidMap.get(NEDSSConstant.PAR111_TYP_CD)));
                             }
 
                             if (uidMap != null && uidMap.containsKey(NEDSSConstant.PAR101_TYP_CD) && labRepEvent != null) {
-                                labRepEvent.setOrderingFacility(observationSummaryService.getReportingFacilityName((Long)uidMap.get(NEDSSConstant.PAR101_TYP_CD)));
+                                labRepEvent.setOrderingFacility(observationSummaryService.getReportingFacilityName((Long) uidMap.get(NEDSSConstant.PAR101_TYP_CD)));
                             }
                             if (uidMap != null && uidMap.containsKey(NEDSSConstant.PAR101_TYP_CD) && labRepSumm != null) {
-                                labRepSumm.setOrderingFacility(observationSummaryService.getReportingFacilityName((Long)uidMap.get(NEDSSConstant.PAR101_TYP_CD)));
+                                labRepSumm.setOrderingFacility(observationSummaryService.getReportingFacilityName((Long) uidMap.get(NEDSSConstant.PAR101_TYP_CD)));
                             }
 
                             if (uidMap != null && uidMap.containsKey(NEDSSConstant.PAR104_TYP_CD) && labRepEvent != null) {
-                                var code = observationSummaryService.getSpecimanSource((Long)uidMap.get(NEDSSConstant.PAR104_TYP_CD));
-                                var tree = cachingValueService.getCodedValues("SPECMN_SRC",code);
+                                var code = observationSummaryService.getSpecimanSource((Long) uidMap.get(NEDSSConstant.PAR104_TYP_CD));
+                                var tree = cachingValueService.getCodedValues("SPECMN_SRC", code);
                                 labRepEvent.setSpecimenSource(tree.get(code));
                             }
                             if (uidMap != null && uidMap.containsKey(NEDSSConstant.PAR104_TYP_CD) && labRepSumm != null) {
-                                var code = observationSummaryService.getSpecimanSource((Long)uidMap.get(NEDSSConstant.PAR104_TYP_CD));
-                                var tree = cachingValueService.getCodedValues("SPECMN_SRC",code);
+                                var code = observationSummaryService.getSpecimanSource((Long) uidMap.get(NEDSSConstant.PAR104_TYP_CD));
+                                var tree = cachingValueService.getCodedValues("SPECMN_SRC", code);
                                 labRepSumm.setSpecimenSource(tree.get(code));
                             }
 
                             providerUid = observationSummaryService.getProviderInformation(providerDetails, labRepEvent);
 
-                            if(isCDCFormPrintCase && providerUid!=null && LabAsSourceForInvestigation!=null){
-                                ProviderDataForPrintContainer providerDataForPrintVO =null;
-                                if(labRepEvent != null && labRepEvent.getProviderDataForPrintVO()==null){
-                                    providerDataForPrintVO =new ProviderDataForPrintContainer();
+                            if (isCDCFormPrintCase && providerUid != null && LabAsSourceForInvestigation != null) {
+                                ProviderDataForPrintContainer providerDataForPrintVO = null;
+                                if (labRepEvent != null && labRepEvent.getProviderDataForPrintVO() == null) {
+                                    providerDataForPrintVO = new ProviderDataForPrintContainer();
                                     labRepEvent.setProviderDataForPrintVO(providerDataForPrintVO);
                                 }
                                 Long orderingFacilityUid = null;
-                                if(uidMap != null && uidMap.get(NEDSSConstant.PAR101_TYP_CD)!=null){
-                                    orderingFacilityUid=(Long)uidMap.get(NEDSSConstant.PAR101_TYP_CD);
+                                if (uidMap != null && uidMap.get(NEDSSConstant.PAR101_TYP_CD) != null) {
+                                    orderingFacilityUid = (Long) uidMap.get(NEDSSConstant.PAR101_TYP_CD);
                                 }
-                                if(orderingFacilityUid!=null){
+                                if (orderingFacilityUid != null) {
                                     var org = organizationRepositoryUtil.loadObject(orderingFacilityUid, null);
-                                    if(org != null && !org.getTheOrganizationNameDtoCollection().isEmpty()) {
+                                    if (org != null && !org.getTheOrganizationNameDtoCollection().isEmpty()) {
                                         OrganizationNameDto dt = null;
-                                        for(var item : org.getTheOrganizationNameDtoCollection()) {
+                                        for (var item : org.getTheOrganizationNameDtoCollection()) {
                                             dt = item;
                                             break;
                                         }
@@ -1583,7 +1123,7 @@ public class InvestigationService implements IInvestigationService {
                                     observationSummaryService.getOrderingFacilityAddress(providerDataForPrintVO, orderingFacilityUid);
                                     observationSummaryService.getOrderingFacilityPhone(providerDataForPrintVO, orderingFacilityUid);
                                 }
-                                if(providerUid!=null){
+                                if (providerUid != null) {
                                     observationSummaryService.getOrderingPersonAddress(providerDataForPrintVO, providerUid);
                                     observationSummaryService.getOrderingPersonPhone(providerDataForPrintVO, providerUid);
                                 }
@@ -1605,9 +1145,9 @@ public class InvestigationService implements IInvestigationService {
                                 }
                             }
 
-                            if(labRepEvent!= null)
+                            if (labRepEvent != null)
                                 labEventList.add(labRepEvent);
-                            if(labRepSumm !=null)
+                            if (labRepSumm != null)
                                 labSummList.add(labRepSumm);
 
                             Long ObservationUID = labRepVO.getObservationUid();
@@ -1636,7 +1176,6 @@ public class InvestigationService implements IInvestigationService {
         ReportSummaryInterface sumVO ;
         LabReportSummaryContainer labVO;
         LabReportSummaryContainer labMorbVO = null;
-      //  MorbReportSummaryVO morbVO = null;
         ResultedTestSummaryContainer resVO;
         Iterator<ResultedTestSummaryContainer> resItor;
         Iterator<Object> labMorbItor = null;
@@ -1692,7 +1231,6 @@ public class InvestigationService implements IInvestigationService {
                             }
                         } else if (resVO.getCtrlCdUserDefined1() == null) {
                             if (resVO.getOrganismName() != null) {
-//System.out.println("got in with an org for elr");
                                 if (resVO.getOrganismCodeSystemCd() != null) {
                                     if (resVO.getOrganismCodeSystemCd().equals("SNM")) {
                                         tempStr = SrteCache.snomedCodeByDescMap.get(resVO.getCodedResultValue());
@@ -1780,9 +1318,6 @@ public class InvestigationService implements IInvestigationService {
                                     } else if (!susVO.getCdSystemCd().equals("LN")) {
                                         if (susVO.getResultedTestCd() != null &&
                                                 !susVO.getResultedTestCd().equals("")) {
-//                                            tempStr = cdv.getResultedTestDescLab(susVO.getCdSystemCd(),
-//                                                    susVO.getResultedTestCd());
-
                                             var res = labTestRepository.findLabTestByLabIdAndLabTestCode(resVO.getCdSystemCd(), resVO.getResultedTestCd());
                                             if (res.isPresent()) {
                                                 tempStr = res.get().get(0).getLabResultDescTxt();
@@ -1800,75 +1335,6 @@ public class InvestigationService implements IInvestigationService {
                     } //outer while
                 } //if
             }
-            /*
-            else if (sumVO instanceof MorbReportSummaryVO)
-            {
-                morbVO = (MorbReportSummaryVO) sumVO;
-                if (morbVO.getCondition() != null) {
-                    tempStr = cdv.getConditionDesc(morbVO.getCondition());
-                    morbVO.setConditionDescTxt(tempStr);
-                }
-                if (morbVO.getProgramArea() != null) {
-                    tempStr = cdv.getProgramAreaDesc(morbVO.getProgramArea());
-                    morbVO.setProgramArea(tempStr);
-                }
-                if (morbVO.getJurisdiction() != null) {
-                    tempStr = cdv.getJurisdictionDesc(morbVO.getJurisdiction());
-                    morbVO.setJurisdiction(tempStr);
-                }
-                morbVO.setType(NEDSSConstant.MORB_REPORT_DESC);
-                if (morbVO.getReportType() != null) {
-                    tempStr = cdv.getDescForCode("MORB_RPT_TYPE", morbVO.getReportType());
-                    morbVO.setReportTypeDescTxt(tempStr);
-                }
-                labMorbColl = morbVO.getTheLabReportSummaryVOColl();
-                if (labMorbColl != null) {
-                    //morb has collection of labsumvo
-                    labMorbItor = labMorbColl.iterator();
-                    while (labMorbItor.hasNext()) {
-                        labMorbVO = (LabReportSummaryVO) labMorbItor.next();
-                        if (labMorbVO.getTheResultedTestSummaryVOCollection() != null) {
-
-                            //lab has collection of ResultedTestSummaryVO
-                            resItor = labMorbVO.getTheResultedTestSummaryVOCollection().
-                                    iterator();
-                            while (resItor.hasNext()) {
-                                resVO = (ResultedTestSummaryVO) resItor.next();
-                                if (resVO.getCodedResultValue() != null &&
-                                        !resVO.getCodedResultValue().equals("")) {
-                                    //tempStr = cdv.getCodedResultDesc(resVO.getCodedResultValue());
-                                    //resVO.setCodedResultValue(tempStr);
-                                }
-                                if (resVO.getResultedTest() != null &&
-                                        !resVO.getResultedTest().equals("")) {
-                                    //tempStr = cdv.getResultedTestDesc(resVO.getResultedTestCd());
-                                    //resVO.setResultedTest(tempStr);
-
-                                }
-
-                                susColl = resVO.getTheSusTestSummaryVOColl();
-                                if (susColl != null && susColl.size() > 0) {
-                                    //ResultedTestSummaryVO has collection of SusTestSummaryVO
-                                    susItor = susColl.iterator();
-                                    while (susItor.hasNext()) {
-                                        susVO = (ResultedTestSummaryVO) susItor.next();
-                                        if (susVO.getCodedResultValue() != null &&
-                                                !susVO.getCodedResultValue().equals("")) {
-                                            tempStr = cdv.getCodedResultDesc(susVO.
-                                                    getCodedResultValue());
-                                            susVO.setCodedResultValue(tempStr);
-                                        }
-
-                                    } // inner while
-                                }
-                            } //outer while
-                        } //if lab
-                    } // while labmorb
-                } //if labmorbcoll
-
-            }
-            */
-
         }
     }
 
