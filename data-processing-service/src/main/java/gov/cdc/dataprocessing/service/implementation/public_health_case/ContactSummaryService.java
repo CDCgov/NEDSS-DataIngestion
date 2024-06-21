@@ -170,7 +170,7 @@ public class ContactSummaryService implements IContactSummaryService {
 
                 if (contactNameColl.size() > 0) {
                     for (Object o : contactNameColl) {
-                        PersonNameDto personNameDT = (PersonNameDto) o;
+                        PersonNameDto personNameDT = new PersonNameDto( (PersonName) o);
                         if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
                             String lastName = (personNameDT.getLastNm() == null) ? "No Last" : personNameDT.getLastNm();
                             String firstName = (personNameDT.getFirstNm() == null) ? "No First" : personNameDT.getFirstNm();
@@ -208,11 +208,16 @@ public class ContactSummaryService implements IContactSummaryService {
                 if (cTContactSumyDT.getContactProcessingDecisionCd() != null &&
                         cTContactSumyDT.getDispositionCd() != null &&
                         (cTContactSumyDT.getContactProcessingDecisionCd().equals(CTConstants.RecordSearchClosure)
-                                || cTContactSumyDT.getContactProcessingDecisionCd().equals(CTConstants.SecondaryReferral))) {
+                                || cTContactSumyDT.getContactProcessingDecisionCd().equals(CTConstants.SecondaryReferral)))
+                {
                     if (cTContactSumyDT.getDispositionCd().equals("A")) //preventative treatment
+                    {
                         cTContactSumyDT.setDispositionCd("Z"); //prev preventative treated
+                    }
                     else if (cTContactSumyDT.getDispositionCd().equals("C")) //infected brought to treat
+                    {
                         cTContactSumyDT.setDispositionCd("E"); //prev treated
+                    }
                 }
             } //while
         }
