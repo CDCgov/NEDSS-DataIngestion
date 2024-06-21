@@ -62,7 +62,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
                 // Try to get the matching with the match string
                 //	(was hash code but hash code had dups on rare occasions)
                 edxPatientMatchFoundDT = getEdxPatientMatchRepositoryUtil().getEdxPatientMatchOnMatchString(cd, localId);
-                if (edxPatientMatchFoundDT.isMultipleMatch()){
+                if (edxPatientMatchFoundDT != null && edxPatientMatchFoundDT.isMultipleMatch()){
                     multipleMatchFound = true;
                     matchFound = false;
                 }
