@@ -52,22 +52,23 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
         if (localId != null) {
             localId = localId.toUpperCase();
             localIdhshCd = localId.hashCode();
-        }
-        try {
-            // Try to get the matching with the match string
-            EdxEntityMatchDto edxEntityMatchingDT = getEdxPatientMatchRepositoryUtil().getEdxEntityMatchOnMatchString(NEDSSConstant.PRV, localId);
-            if (edxEntityMatchingDT != null && edxEntityMatchingDT.getEntityUid() != null) {
-                edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
-                edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS + edxEntityMatchingDT.getEntityUid());
-                edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Provider));
-                edxActivityDetailLogDto.setRecordName("PHCR_IMPORT");
-                edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
-                return edxActivityDetailLogDto;
+            try {
+                // Try to get the matching with the match string
+                EdxEntityMatchDto edxEntityMatchingDT = getEdxPatientMatchRepositoryUtil().getEdxEntityMatchOnMatchString(NEDSSConstant.PRV, localId);
+                if (edxEntityMatchingDT != null && edxEntityMatchingDT.getEntityUid() != null) {
+                    edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
+                    edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS + edxEntityMatchingDT.getEntityUid());
+                    edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Provider));
+                    edxActivityDetailLogDto.setRecordName("PHCR_IMPORT");
+                    edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
+                    return edxActivityDetailLogDto;
+                }
+            } catch (Exception ex) {
+                logger.error("Error in geting the  matching Provider");
+                throw new DataProcessingException("Error in geting the  matching Provider" + ex.getMessage(), ex);
             }
-        } catch (Exception ex) {
-            logger.error("Error in geting the  matching Provider");
-            throw new DataProcessingException("Error in geting the  matching Provider" + ex.getMessage(), ex);
         }
+
         if (localId != null) {
             theEdxEntityMatchDto = new EdxEntityMatchDto();
             theEdxEntityMatchDto.setTypeCd(NEDSSConstant.PRV);

@@ -224,12 +224,12 @@ public class PatientMatchingBaseService extends MatchingBaseService{
 
             //Retrieve a mpr with the mprUID
             PersonContainer mpr = getPatientRepositoryUtil().loadPerson(mprUID);
-            mpr.setMPRUpdateValid(newRevision.isMPRUpdateValid());
 
             logger.debug("mpr is: " + mpr);
 
             if(mpr != null) //With the MPR, update...
             {
+                mpr.setMPRUpdateValid(newRevision.isMPRUpdateValid());
                 //localId need to be same for MPR and Revision and it need to be set at backend
                 newRevision.getThePersonDto().setLocalId(mpr.getThePersonDto().getLocalId());
                 return update(mpr, newRevision, personType);
