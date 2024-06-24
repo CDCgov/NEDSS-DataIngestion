@@ -85,7 +85,7 @@ class NokMatchingServiceTest {
         assertNotNull(edxPatientMatchResult);
     }
     @Test
-    void getMatchingNextOfKin_name_addr_street_throw_exp() throws DataProcessingException {
+    void getMatchingNextOfKin_name_addr_street_throw_exp() {
         PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
 
@@ -160,7 +160,7 @@ class NokMatchingServiceTest {
         assertNotNull(edxPatientMatchResult);
     }
     @Test
-    void getMatchingNextOfKin_telephone_throw_exp() throws DataProcessingException {
+    void getMatchingNextOfKin_telephone_throw_exp() {
         PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
         personContainer.thePersonDto.setCd(NEDSSConstant.PAT);
@@ -216,14 +216,12 @@ class NokMatchingServiceTest {
         personContainer.getThePersonNameDtoCollection().add(personNameDto);
 
         EdxPatientMatchDto edxPatientMatchFoundDT = new EdxPatientMatchDto();
-        //edxPatientMatchFoundDT.setPatientUid(222L);
         when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(any(), any())).thenReturn(edxPatientMatchFoundDT);
 
-        //EdxPatientMatchDto edxPatientMatchResult =nokMatchingService.getMatchingNextOfKin(personContainer);
         assertThrows(DataProcessingException.class, () -> nokMatchingService.getMatchingNextOfKin(personContainer));
     }
     @Test
-    void getMatchingNextOfKin_throw_exp() throws DataProcessingException {
+    void getMatchingNextOfKin_throw_exp() {
         PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
         assertThrows(DataProcessingException.class, () -> nokMatchingService.getMatchingNextOfKin(personContainer));
