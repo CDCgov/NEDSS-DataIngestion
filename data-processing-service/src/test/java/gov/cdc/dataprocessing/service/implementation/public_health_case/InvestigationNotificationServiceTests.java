@@ -5,6 +5,7 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.PageActProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.PamProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
@@ -38,8 +39,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 public class InvestigationNotificationServiceTests {
@@ -69,6 +69,58 @@ public class InvestigationNotificationServiceTests {
     @AfterEach
     void tearDown() {
         Mockito.reset(investigationService, notificationService, customNbsQuestionRepository, authUtil);
+    }
+
+
+    @Test
+    void sendNotification_Success_Page() throws DataProcessingException {
+        var obj = new PageActProxyContainer();
+        var phcDt = new PublicHealthCaseDto();
+        phcDt.setCaseClassCd("CASE");
+        phcDt.setCd("CODE");
+        phcDt.setPublicHealthCaseUid(10L);
+        phcDt.setProgAreaCd("PROG");
+        phcDt.setJurisdictionCd("JUS");
+        phcDt.setSharedInd("Y");
+        PublicHealthCaseContainer ohcC = new PublicHealthCaseContainer();
+        ohcC.setThePublicHealthCaseDto(phcDt);
+        obj.setPublicHealthCaseContainer(ohcC);
+        String nndComment = "COM";
+        var test = investigationNotificationService.sendNotification(obj, nndComment);
+
+        assertEquals("Failure", test.getLogType());
+    }
+
+    @Test
+    void sendNotification_Success_Pam() throws DataProcessingException {
+        var obj = new PamProxyContainer();
+        var phcDt = new PublicHealthCaseDto();
+        phcDt.setCaseClassCd("CASE");
+        phcDt.setCd("CODE");
+        phcDt.setPublicHealthCaseUid(10L);
+        phcDt.setProgAreaCd("PROG");
+        phcDt.setJurisdictionCd("JUS");
+        phcDt.setSharedInd("Y");
+        PublicHealthCaseContainer ohcC = new PublicHealthCaseContainer();
+        ohcC.setThePublicHealthCaseDto(phcDt);
+        obj.setPublicHealthCaseContainer(ohcC);
+        String nndComment = "COM";
+        var test = investigationNotificationService.sendNotification(obj, nndComment);
+
+        assertEquals("Failure", test.getLogType());
+    }
+
+    @Test
+    void sendNotification_Exception()  {
+        var obj = new Person();
+        String nndComment = "COM";
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            investigationNotificationService.sendNotification(obj, nndComment);
+
+        });
+
+        assertNotNull(thrown);
+        assertEquals("Cannot create Notification for unknown page type: gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person", thrown.getMessage());
     }
 
     @Test
@@ -182,6 +234,28 @@ public class InvestigationNotificationServiceTests {
 
         assertNotNull(test);
         assertEquals("PHCR_IMPORT", test.getRecordName());
+    }
+
+
+    @Test
+    void validatePAMNotficationRequiredFieldsGivenPageProxy_Success_PAM_1stCond() throws DataProcessingException {
+        PamProxyContainer pageObj = new PamProxyContainer();
+        pageObj.setTheParticipationDTCollection(new ArrayList<>());
+        pageObj.setThePersonVOCollection(new ArrayList<>());
+        var basePam = new BasePamContainer();
+        basePam.setPamAnswerDTMap(new HashMap<>());
+        pageObj.setPamVO(basePam);
+
+        var phc = new PublicHealthCaseContainer();
+        phc.setTheActIdDTCollection(new ArrayList<>());
+        pageObj.setPublicHealthCaseContainer(phc);
+        Long publicHealthCaseUid = 10L;
+        Map<Object, Object>  reqFields = new HashMap<>();
+        String formCd = NEDSSConstant.INV_FORM_RVCT;
+
+
+        var test = investigationNotificationService.validatePAMNotficationRequiredFieldsGivenPageProxy(pageObj,
+                publicHealthCaseUid, reqFields, formCd);
     }
 
 }

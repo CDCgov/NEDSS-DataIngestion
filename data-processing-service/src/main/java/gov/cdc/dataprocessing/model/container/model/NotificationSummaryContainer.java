@@ -214,22 +214,22 @@ public class NotificationSummaryContainer extends BaseContainer implements RootD
 
     @Override
     public String getRecordStatusCd() {
-        return null;
+        return recordStatusCd;
     }
 
     @Override
     public void setRecordStatusCd(String aRecordStatusCd) {
-
+        this.recordStatusCd = aRecordStatusCd;
     }
 
     @Override
     public Timestamp getRecordStatusTime() {
-        return null;
+        return recordStatusTime;
     }
 
     @Override
     public void setRecordStatusTime(Timestamp aRecordStatusTime) {
-
+        this.recordStatusTime = aRecordStatusTime;
     }
 
     @Override

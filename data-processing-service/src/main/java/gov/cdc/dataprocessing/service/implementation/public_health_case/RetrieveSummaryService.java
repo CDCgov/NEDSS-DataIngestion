@@ -4,7 +4,6 @@ import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.*;
-import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessDto;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.model.dto.notification.NotificationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
@@ -53,7 +52,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
 
             if(publicHealthCaseDto.isStdHivProgramAreaCode()){
                 //TODO: LOGGING PIPELINE
-                createAndStoreMessageLogDTCollection( reportSumVOCollection, publicHealthCaseDto);
+                // createAndStoreMessageLogDTCollection( reportSumVOCollection, publicHealthCaseDto);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,7 +65,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
      * @param publicHealthUID -- UID  for investigation to Access Treatment related to it
      * @return HashMap<Object,Object> -- HashMap<Object,Object> of TreatmentSummaryVO for the passed investigationUID
      */
-    public Map<Object,Object> retrieveTreatmentSummaryVOForInv(Long publicHealthUID) throws DataProcessingException {
+    public Map<Object,Object> retrieveTreatmentSummaryVOForInv(Long publicHealthUID) {
         String aQuery = null;
 
         String dataAccessWhereClause = queryHelper.getDataAccessWhereClause(NBSBOLookup.TREATMENT, "VIEW", "Treatment");
@@ -85,50 +84,16 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
         //TreeMap<Object, Object> treatmentsSummaryVOTreeMap = new TreeMap<Object, Object>();
         Map<Object,Object> map = null;
         TreatmentContainer treatmentSummaryVO = new TreatmentContainer();
-        try {
 
-
-//            treatmentsSummaryVOHashMap =customRepository.retrieveTreatmentSummaryVOForInv(publicHealthUID, aQuery);
-
-//            Map<String, EDXEventProcessDto> edxEventsMap = getEDXEventProcessMapByCaseId(publicHealthUID);
-//            CDAEventSummaryParser cdaParser = new CDAEventSummaryParser();
-//            if(treatmentsSummaryVOHashMap==null)
-//            {
-//                treatmentsSummaryVOHashMap = new HashMap<Object, Object>();
-//            }
-//            treatmentsSummaryVOHashMap.putAll(cdaParser.getTreatmentMapByPHCUid(edxEventsMap));
-        }
-
-
-        catch (Exception ex) {
-            throw new DataProcessingException(ex.toString());
-        }
+        //TODO: DIFFER FLOW
 
         return treatmentsSummaryVOHashMap;
     } // retrieveTreatmentSummaryList
 
 
-    private Map<String, EDXEventProcessDto> getEDXEventProcessMapByCaseId(Long publicHealthCaseUid) throws DataProcessingException {
-        Map<String, EDXEventProcessDto> eventProcessMap;
-        try {
-
-            eventProcessMap = customRepository.getEDXEventProcessMapByCaseId(publicHealthCaseUid);
-
-        } catch (Exception e) {
-            throw new DataProcessingException(e.toString(), e);
-        }
-        return eventProcessMap;
-    }
-
-
     public Map<Object,Object> retrieveDocumentSummaryVOForInv(Long publicHealthUID) throws DataProcessingException {
-
-        Map<Object,Object> documentSummaryVOColl = new HashMap<Object,Object>();
-        ArrayList<Object> docList= new ArrayList<Object> ();
-        Map<Object,Object> map = null;
-        //SummaryDT summaryDT = new SummaryDT();
+        Map<Object,Object> documentSummaryVOColl;
         try {
-
             documentSummaryVOColl = customRepository.retrieveDocumentSummaryVOForInv(publicHealthUID);
         }
         catch (Exception rsuex) {
@@ -142,173 +107,125 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
 
         Collection<Object>  theNotificationSummaryVOCollection;
         Long publicHealthCaseUID = null;
-        NotificationSummaryContainer notificationSummaryVO;
+        NotificationSummaryContainer notificationSummaryVO = null;
 
-        try{
-            if (publicHealthCaseContainer != null) {
-                publicHealthCaseUID = publicHealthCaseContainer.getThePublicHealthCaseDto().
-                        getPublicHealthCaseUid();
-            }
-
-            if (publicHealthCaseContainer != null && publicHealthCaseContainer.getThePublicHealthCaseDto().getCaseClassCd() != null) {
-                theNotificationSummaryVOCollection  =retrieveNotificationSummaryListForInvestigation(publicHealthCaseUID);
-            }
-            else {
-                theNotificationSummaryVOCollection  =retrieveNotificationSummaryListForInvestigation1(publicHealthCaseUID);
-
-            }
-            if (theNotificationSummaryVOCollection  != null) {
-                Iterator<Object> anIterator = theNotificationSummaryVOCollection.iterator();
-                int count = 0;
-                while (anIterator.hasNext()) {
-                    notificationSummaryVO = (NotificationSummaryContainer) anIterator.next();
-
-                    if (count == 0) { //check only for the current Notification record
-                        if (notificationSummaryVO.getRecordStatusCd().trim().equals(
-                                NEDSSConstant.NOTIFICATION_APPROVED_CODE) ||
-                                notificationSummaryVO.getRecordStatusCd().trim().equals(
-                                        NEDSSConstant.NOTIFICATION_PENDING_CODE) ||
-                                (notificationSummaryVO.getAutoResendInd() != null && notificationSummaryVO.getAutoResendInd().equalsIgnoreCase("T"))) {
-                            if(object instanceof InvestigationContainer){
-                                InvestigationContainer investigationProxyVO = (InvestigationContainer)object;
-                                investigationProxyVO.setAssociatedNotificationsInd(true);
-                            } else if(object instanceof PamProxyContainer) {
-                                PamProxyContainer pamProxy = (PamProxyContainer) object;
-                                pamProxy.setAssociatedNotificationsInd(true);
-                            }
-                        }
-                    }
-                    count++;
-
-                    if (notificationSummaryVO.getRecordStatusCd() != null &&
-                            notificationSummaryVO.getRecordStatusCd().trim().equals(
-                                    NEDSSConstant.PENDING_APPROVAL_STATUS)) {
-                        notificationSummaryVO.setCd(publicHealthCaseContainer.
-                                getThePublicHealthCaseDto().getCd());
-                        notificationSummaryVO.setCdTxt(publicHealthCaseContainer.
-                                getThePublicHealthCaseDto().
-                                getCdDescTxt());
-
-                        //The following lines of code were commented out for  notificationSummaryVO.setCaseClassCd as there was a bug openend 
-                        //in release 3.0 where the notificationSummary was getting the caseClassCd from publicHealthCase for Pending approval cases only.
-                        /**As this was not a true reflection of notification, and to fix the bog, this code was commented out.
-                         /   notificationSummaryVO.setCaseClassCd(publicHealthCaseContainer.
-                         /                                    getThePublicHealthCaseDto().
-                         getCaseClassCd());
-                         CachedDropDownValues cachedDropDownValues = new CachedDropDownValues();
-                         String caseClassCdTxt = cachedDropDownValues.getDescForCode(
-                         NEDSSConstant.CASE_CLASS_CODE_SET_NM,
-                         publicHealthCaseContainer.getThePublicHealthCaseDto().getCaseClassCd());
-                         notificationSummaryVO.setCaseClassCdTxt(caseClassCdTxt);
-                         */ //!!##System.out.println("notificationSummaryVO.getCaseClassCd()" + notificationSummaryVO.getCaseClassCd());
-                    }
-                }
-            }
-
-
-            if (theNotificationSummaryVOCollection  != null) {
-                for (Object o : theNotificationSummaryVOCollection) {
-                    notificationSummaryVO = (NotificationSummaryContainer) o;
-                    if (object instanceof InvestigationContainer) {
-                        InvestigationContainer investigationProxyVO = (InvestigationContainer) object;
-                        if (notificationSummaryVO.isCaseReport()) {
-                            if (notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_APPROVED_CODE)) {
-                                investigationProxyVO.setOOSystemInd(true);
-                            }
-
-                            if (notificationSummaryVO.isHistory != null &&
-                                    !notificationSummaryVO.isHistory.equals("T") &&
-                                    notificationSummaryVO.getCdNotif() != null &&
-                                    (notificationSummaryVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_EXP_NOTF) || notificationSummaryVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_EXP_NOTF_PHDC)) &&
-                                    !(notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_REJECTED_CODE) ||
-                                            notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_MESSAGE_FAILED))) {
-                                investigationProxyVO.setOOSystemPendInd(true);
-                            }
-                        }
-
-                    } else if (object instanceof PamProxyContainer) {
-                        PamProxyContainer pamProxy = (PamProxyContainer) object;
-                        if (notificationSummaryVO.isCaseReport()) {
-                            if (notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_APPROVED_CODE)) {
-                                pamProxy.setOOSystemInd(true);
-                            }
-
-                            if (notificationSummaryVO.isHistory != null &&
-                                    !notificationSummaryVO.isHistory.equals("T") &&
-                                    notificationSummaryVO.getCdNotif() != null &&
-                                    (notificationSummaryVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_EXP_NOTF) || notificationSummaryVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_EXP_NOTF_PHDC)) &&
-                                    !(notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_REJECTED_CODE)
-                                            || notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_MESSAGE_FAILED))) {
-                                pamProxy.setOOSystemPendInd(true);
-                            }
-                        }
-                    } else if (object instanceof PageActProxyContainer) {
-                        PageActProxyContainer pageProxy = (PageActProxyContainer) object;
-                        if (notificationSummaryVO.isCaseReport()) {
-                            if (notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_APPROVED_CODE)) {
-                                pageProxy.setOOSystemInd(true);
-                            }
-
-                            if (notificationSummaryVO.isHistory != null &&
-                                    !notificationSummaryVO.isHistory.equals("T") &&
-                                    notificationSummaryVO.getCdNotif() != null &&
-                                    (notificationSummaryVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_EXP_NOTF) || notificationSummaryVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_EXP_NOTF_PHDC)) &&
-                                    !(notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_REJECTED_CODE)
-                                            || notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_MESSAGE_FAILED))) {
-                                pageProxy.setOOSystemPendInd(true);
-                            }
-                        }
-                    }
-                }
-            }
-        }catch(Exception ex){
-            throw new DataProcessingException(ex.toString());
+        if (publicHealthCaseContainer != null) {
+            publicHealthCaseUID = publicHealthCaseContainer.getThePublicHealthCaseDto().
+                    getPublicHealthCaseUid();
         }
+
+        if (publicHealthCaseContainer != null && publicHealthCaseContainer.getThePublicHealthCaseDto().getCaseClassCd() != null) {
+            theNotificationSummaryVOCollection  =retrieveNotificationSummaryListForInvestigation(publicHealthCaseUID);
+        }
+        else {
+            theNotificationSummaryVOCollection  =retrieveNotificationSummaryListForInvestigation1(publicHealthCaseUID);
+        }
+        if (theNotificationSummaryVOCollection  != null) {
+            Iterator<Object> anIterator = theNotificationSummaryVOCollection.iterator();
+            int count = 0;
+            while (anIterator.hasNext()) {
+                notificationSummaryVO = (NotificationSummaryContainer) anIterator.next();
+
+                if (count == 0) { //check only for the current Notification record
+                    if (notificationSummaryVO.getRecordStatusCd().trim().equals(
+                            NEDSSConstant.NOTIFICATION_APPROVED_CODE) ||
+                            notificationSummaryVO.getRecordStatusCd().trim().equals(
+                                    NEDSSConstant.NOTIFICATION_PENDING_CODE) ||
+                            (notificationSummaryVO.getAutoResendInd() != null && notificationSummaryVO.getAutoResendInd().equalsIgnoreCase("T"))) {
+                        if(object instanceof InvestigationContainer){
+                            InvestigationContainer investigationProxyVO = (InvestigationContainer)object;
+                            investigationProxyVO.setAssociatedNotificationsInd(true);
+                        } else if(object instanceof PamProxyContainer) {
+                            PamProxyContainer pamProxy = (PamProxyContainer) object;
+                            pamProxy.setAssociatedNotificationsInd(true);
+                        }
+                    }
+                }
+                count++;
+
+                if (notificationSummaryVO.getRecordStatusCd() != null &&
+                        notificationSummaryVO.getRecordStatusCd().trim().equals(
+                                NEDSSConstant.PENDING_APPROVAL_STATUS)) {
+                    notificationSummaryVO.setCd(publicHealthCaseContainer.
+                            getThePublicHealthCaseDto().getCd());
+                    notificationSummaryVO.setCdTxt(publicHealthCaseContainer.
+                            getThePublicHealthCaseDto().
+                            getCdDescTxt());
+                }
+            }
+        }
+
+        theNotificationSummaryVOCollection = notificationSummaryOnInvestigationProcessingNotificationCol(theNotificationSummaryVOCollection,
+                 notificationSummaryVO,
+                 object);
         return theNotificationSummaryVOCollection;
     } //end of observationAssociates()
 
+    protected Collection<Object> notificationSummaryOnInvestigationProcessingNotificationCol(Collection<Object> theNotificationSummaryVOCollection,
+                                                                               NotificationSummaryContainer notificationSummaryVO,
+                                                                               Object object) {
+        if (theNotificationSummaryVOCollection  != null) {
+            for (Object o : theNotificationSummaryVOCollection) {
+                notificationSummaryVO = (NotificationSummaryContainer) o;
+                if (object instanceof InvestigationContainer) {
+                    InvestigationContainer investigationProxyVO = (InvestigationContainer) object;
+                    if (notificationSummaryVO.isCaseReport()) {
+                        if (notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_APPROVED_CODE)) {
+                            investigationProxyVO.setOOSystemInd(true);
+                        }
 
-    /**
-     * LOGGING
-     * TODO: this need to move to logging pipeline
-     * */
-    private void createAndStoreMessageLogDTCollection(Collection<LabReportSummaryContainer> reportSumVOCollection, PublicHealthCaseDto publicHealthCaseDto){
-//        try {
-//            Collection<MessageLogDT> coll =  new ArrayList<MessageLogDT>();
-//            java.util.Date dateTime = new java.util.Date();
-//            Timestamp time = new Timestamp(dateTime.getTime());
-//
-//            if(!reportSumVOCollection.isEmpty())
-//            {
-//                logger.debug("Number of observation sum vo: " + reportSumVOCollection.size());
-//                Iterator<Object>  theIterator = reportSumVOCollection.iterator();
-//                while( theIterator.hasNext() )
-//                {
-//                    ReportSummaryInterface reportSumVO = (ReportSummaryInterface)theIterator.next();
-//                    if(reportSumVO.getIsAssociated()== true && reportSumVO.getIsTouched()== true){
-//                        PublicHealthCaseRootDAOImpl phc = new PublicHealthCaseRootDAOImpl();
-//                        PublicHealthCaseDto phcDT =phc.getOpenPublicHealthCaseWithInvestigatorDT(publicHealthCaseDto.getPublicHealthCaseUid());
-//                        Long providerUid=nbsSecurityObj.getTheUserProfile().getTheUser().getProviderUid();
-//                        if( phcDT!=null
-//                                && (providerUid==null
-//                                || !(providerUid.compareTo(phcDT.getCurrentInvestigatorUid())==0))){
-//                            MessageLogDT messageLogDT =createMessageLogDT(phcDT, nbsSecurityObj);
-//                            coll.add(messageLogDT);
-//                        }
-//
-//                    }
-//                }
-//                MessageLogDAOImpl messageLogDAOImpl =  new MessageLogDAOImpl();
-//                try {
-//                    messageLogDAOImpl.storeMessageLogDTCollection(coll);
-//                } catch (Exception e) {
-//                    logger.error("Unable to store the Error message in createAndStoreMesssageLogDTCollection for = "
-//                            + publicHealthCaseDto.toString());
-//                }
-//            }
-//        } catch (Exception e) {
-//            logger.error("createAndStoreMesssageLogDTCollection error throw"+ e.getMessage(),e);
-//        }
+                        if (notificationSummaryVO.isHistory != null &&
+                                !notificationSummaryVO.isHistory.equals("T") &&
+                                notificationSummaryVO.getCdNotif() != null &&
+                                (notificationSummaryVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_EXP_NOTF)
+                                        || notificationSummaryVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_EXP_NOTF_PHDC))
+                                && !(notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_REJECTED_CODE) ||
+                                        notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_MESSAGE_FAILED))) {
+                            investigationProxyVO.setOOSystemPendInd(true);
+                        }
+                    }
+
+                }
+                else if (object instanceof PamProxyContainer)
+                {
+                    PamProxyContainer pamProxy = (PamProxyContainer) object;
+                    if (notificationSummaryVO.isCaseReport()) {
+                        if (notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_APPROVED_CODE)) {
+                            pamProxy.setOOSystemInd(true);
+                        }
+
+                        if (notificationSummaryVO.isHistory != null &&
+                                !notificationSummaryVO.isHistory.equals("T") &&
+                                notificationSummaryVO.getCdNotif() != null &&
+                                (notificationSummaryVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_EXP_NOTF) || notificationSummaryVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_EXP_NOTF_PHDC)) &&
+                                !(notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_REJECTED_CODE)
+                                        || notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_MESSAGE_FAILED))) {
+                            pamProxy.setOOSystemPendInd(true);
+                        }
+                    }
+                }
+                else if (object instanceof PageActProxyContainer)
+                {
+                    PageActProxyContainer pageProxy = (PageActProxyContainer) object;
+                    if (notificationSummaryVO.isCaseReport()) {
+                        if (notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_APPROVED_CODE)) {
+                            pageProxy.setOOSystemInd(true);
+                        }
+
+                        if (notificationSummaryVO.isHistory != null &&
+                                !notificationSummaryVO.isHistory.equals("T") &&
+                                notificationSummaryVO.getCdNotif() != null &&
+                                (notificationSummaryVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_EXP_NOTF) || notificationSummaryVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_EXP_NOTF_PHDC)) &&
+                                !(notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_REJECTED_CODE)
+                                        || notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_MESSAGE_FAILED))) {
+                            pageProxy.setOOSystemPendInd(true);
+                        }
+                    }
+                }
+            }
+        }
+
+        return theNotificationSummaryVOCollection;
     }
 
 
@@ -317,161 +234,128 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
      * investigationUID to papulate the Notification summary on investigation page
      * @return Collection<Object>  -- Collection<Object>  of NotificationSummaryVO for the passed publicHealthCaseDT
      */
-    public Collection<Object>  retrieveNotificationSummaryListForInvestigation(Long publicHealthUID) throws DataProcessingException {
+    protected Collection<Object>  retrieveNotificationSummaryListForInvestigation(Long publicHealthUID) throws DataProcessingException {
         ArrayList<Object> theNotificationSummaryVOCollection  = new ArrayList<> ();
         if (publicHealthUID != null) {
-//            if (!nbsSecurityObj.getPermission(NBSBOLookup.INVESTIGATION,
-//                    NBSOperationLookup.VIEW)) {
-//                logger.info("INVESTIGATION = " + NBSBOLookup.INVESTIGATION +
-//                        ",  VIEW = " + NBSOperationLookup.VIEW);
-//                throw new NEDSSSystemException("no permissions to VIEW a notification");
-//            }
-
             String statement[] = new String[2];
-            
             statement[0] = SELECT_NOTIFICATION_FOR_INVESTIGATION_SQL;
             statement[1] = SELECT_NOTIFICATION_HIST_FOR_INVESTIGATION_SQL +" ORDER BY notHist.version_ctrl_nbr DESC";
+            for (String s : statement) {
+                List<NotificationSummaryContainer> retval;
+
+                retval = customRepository.retrieveNotificationSummaryListForInvestigation(publicHealthUID, s);
+                if (retval.size() == 0) {
+                    break;
+                }
+                for (NotificationSummaryContainer newVO : retval) {
+                    if (newVO.getCaseClassCd() != null
+                            && newVO.getCaseClassCd().trim().length() != 0) {
+                        TreeMap<?, ?> map = catchingValueService.getCodedValuesCallRepos("PHC_CLASS");
+                        newVO.setCaseClassCdTxt((String) map.get(newVO.getCaseClassCd()));
+                    }
+                    if (newVO.getCd() != null
+                            && newVO.getCd().trim().length() != 0) {
+                        TreeMap<?, ?> map = catchingValueService.getCodedValuesCallRepos("PHC_CLASS");
+                        newVO.setCdTxt((String) map.get(newVO.getCd()));
+                    }
+
+                    if (newVO.getCdNotif() != null
+                            && newVO.getCdNotif().trim().length() != 0) {
+                        newVO.setCdNotif(newVO.getCdNotif());
+                        newVO.setNotificationSrtDescCd(catchingValueService.getCodeDescTxtForCd(newVO.getCdNotif(), "NBS_DOC_PURPOSE"));
+                    }
+                    if (newVO.getRecipient() != null
+                            && newVO.getRecipient().trim().length() != 0) {
+                        newVO.setRecipient(newVO.getRecipient());
+                    } else if (newVO.getRecipient() == null) {
+                        if (newVO.getNndInd() != null && newVO.getNndInd().equals(NEDSSConstant.YES))
+                            newVO.setRecipient(NEDSSConstant.ADMINFLAGCDC);
+                        else
+                            newVO.setRecipient(NEDSSConstant.LOCAl_DESC);
+                    }
+
+                    if (newVO.getCdNotif() != null && !newVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_NOTF))
+                        newVO.setCaseReport(true);
+
+                    newVO.setItNew(false);
+                    newVO.setItDirty(false);
+                    theNotificationSummaryVOCollection.add(newVO);
+                }
+            }
+        }
+        return theNotificationSummaryVOCollection;
+    }
+    @SuppressWarnings("unchecked")
+    protected Collection<Object>  retrieveNotificationSummaryListForInvestigation1(Long publicHealthUID) throws DataProcessingException {
+        ArrayList<Object> theNotificationSummaryVOCollection  = new ArrayList<> ();
+        if (publicHealthUID != null) {
+            String dataAccessWhereClause = queryHelper.getDataAccessWhereClause(
+                    NBSBOLookup.INVESTIGATION, "VIEW",
+                    "Notification");
+
+            if (dataAccessWhereClause == null) {
+                dataAccessWhereClause = "";
+            }
+            else {
+                dataAccessWhereClause = " AND " + dataAccessWhereClause;
+
+            }
+            String statement[] = new String[2];
+
+            statement[0] = SELECT_NOTIFICATION_FOR_INVESTIGATION_SQL1 +
+                    dataAccessWhereClause;
+            statement[1] = SELECT_NOTIFICATION_HIST_FOR_INVESTIGATION_SQL1 +
+                    dataAccessWhereClause + " ORDER BY notHist.version_ctrl_nbr DESC";
 
             NotificationSummaryContainer notifVO = new NotificationSummaryContainer();
-            try
-            {
-                for (String s : statement) {
-                    List<NotificationSummaryContainer> retval;
+            TreeMap<?, ?> mapPhcClass =  catchingValueService.getCodedValuesCallRepos("PHC_CLASS");
+            TreeMap<?, ?> mapPhcType =  catchingValueService.getCodedValuesCallRepos("PHC_TYPE");
 
 
-                    retval = customRepository.retrieveNotificationSummaryListForInvestigation(publicHealthUID, s);
-                    //break if there is no existing Notification
-                    if (retval.size() == 0) {
-                        break;
+            for (String s : statement) {
+                List<Object> inputArg = new ArrayList<>();
+                inputArg.add(publicHealthUID);
+                List<NotificationSummaryContainer> retval;
+                retval = customRepository.retrieveNotificationSummaryListForInvestigation(publicHealthUID, s);
+
+
+                //break out of loop if there is no existing Notification
+                if (retval.size() == 0) {
+                    break;
+                }
+                for (NotificationSummaryContainer newVO : retval) {
+                    if (newVO.getCaseClassCd() != null
+                            && newVO.getCaseClassCd().trim().length() != 0) {
+                        newVO.setCaseClassCdTxt((String) mapPhcClass.get(newVO.getCaseClassCd()));
                     }
-                    for (NotificationSummaryContainer newVO : retval) {
-                        if (newVO.getCaseClassCd() != null
-                                && newVO.getCaseClassCd().trim().length() != 0) {
-                            TreeMap<?, ?> map = catchingValueService.getCodedValuesCallRepos("PHC_CLASS");
-                            newVO.setCaseClassCdTxt((String) map.get(newVO.getCaseClassCd()));
-                        }
-                        if (newVO.getCd() != null
-                                && newVO.getCd().trim().length() != 0) {
-                            TreeMap<?, ?> map = catchingValueService.getCodedValuesCallRepos("PHC_CLASS");
-                            newVO.setCdTxt((String) map.get(newVO.getCd()));
-                        }
-
-                        if (newVO.getCdNotif() != null
-                                && newVO.getCdNotif().trim().length() != 0) {
-                            newVO.setCdNotif(newVO.getCdNotif());
-                            newVO.setNotificationSrtDescCd(catchingValueService.getCodeDescTxtForCd(newVO.getCdNotif(), "NBS_DOC_PURPOSE"));
-                        }
-                        if (newVO.getRecipient() != null
-                                && newVO.getRecipient().trim().length() != 0) {
-                            newVO.setRecipient(newVO.getRecipient());
-                        } else if (newVO.getRecipient() == null) {
-                            if (newVO.getNndInd() != null && newVO.getNndInd().equals(NEDSSConstant.YES))
-                                newVO.setRecipient(NEDSSConstant.ADMINFLAGCDC);
-                            else
-                                newVO.setRecipient(NEDSSConstant.LOCAl_DESC);
-                        }
-
-                        if (newVO.getCdNotif() != null && !newVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_NOTF))
-                            newVO.setCaseReport(true);
-
-                        newVO.setItNew(false);
-                        newVO.setItDirty(false);
-                        theNotificationSummaryVOCollection.add(newVO);
+                    if (newVO.getCd() != null
+                            && newVO.getCd().trim().length() != 0) {
+                        newVO.setCdTxt((String) mapPhcType.get(newVO.getCd()));
                     }
+
+                    if (newVO.getCdNotif() != null
+                            && newVO.getCdNotif().trim().length() != 0) {
+                        newVO.setCdNotif(newVO.getCdNotif());
+                        newVO.setNotificationSrtDescCd(catchingValueService.getCodeDescTxtForCd(newVO.getCdNotif(), "NBS_DOC_PURPOSE"));
+                    }
+                    if (newVO.getRecipient() != null
+                            && newVO.getRecipient().trim().length() != 0) {
+                        newVO.setRecipient(newVO.getRecipient());
+                    } else {
+                        if (newVO.getNndInd() != null && newVO.getNndInd().equals(NEDSSConstant.YES))
+                            newVO.setRecipient(NEDSSConstant.ADMINFLAGCDC);
+                        else
+                            newVO.setRecipient(NEDSSConstant.LOCAl_DESC);
+                    }
+
+                    if (!newVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_NOTF))
+                        newVO.setCaseReport(true);
+
+                    newVO.setItNew(false);
+                    newVO.setItDirty(false);
+                    theNotificationSummaryVOCollection.add(newVO);
                 }
             }
-            catch (Exception e) {
-                throw new DataProcessingException(e.getMessage());
-            }
-
-        }
-
-        return theNotificationSummaryVOCollection;
-    } //retrieveNotificationSummaryListForInvestigationo
-
-
-    /**
-     * This method will access the Collection<Object>  of NotificationSummaryList for passed
-     * investigationUID to papulate the Notification summary on investigation page
-     * @return Collection<Object>  -- Collection<Object>  of NotificationSummaryVO for the passed publicHealthCaseDT
-     */
-
-    @SuppressWarnings("unchecked")
-    public Collection<Object>  retrieveNotificationSummaryListForInvestigation1(Long publicHealthUID) throws DataProcessingException {
-        ArrayList<Object> theNotificationSummaryVOCollection  = new ArrayList<> ();
-        try {
-            if (publicHealthUID != null) {
-                String dataAccessWhereClause = queryHelper.getDataAccessWhereClause(
-                        NBSBOLookup.INVESTIGATION, "VIEW",
-                        "Notification");
-
-                if (dataAccessWhereClause == null) {
-                    dataAccessWhereClause = "";
-                }
-                else {
-                    dataAccessWhereClause = " AND " + dataAccessWhereClause;
-
-                }
-                String statement[] = new String[2];
-
-                statement[0] = SELECT_NOTIFICATION_FOR_INVESTIGATION_SQL1 +
-                        dataAccessWhereClause;
-                statement[1] = SELECT_NOTIFICATION_HIST_FOR_INVESTIGATION_SQL1 +
-                        dataAccessWhereClause + " ORDER BY notHist.version_ctrl_nbr DESC";
-
-                NotificationSummaryContainer notifVO = new NotificationSummaryContainer();
-                TreeMap<?, ?> mapPhcClass =  catchingValueService.getCodedValuesCallRepos("PHC_CLASS");
-                TreeMap<?, ?> mapPhcType =  catchingValueService.getCodedValuesCallRepos("PHC_TYPE");
-
-
-                for (String s : statement) {
-                    List<Object> inputArg = new ArrayList<>();
-                    inputArg.add(publicHealthUID);
-                    List<NotificationSummaryContainer> retval;
-                    retval = customRepository.retrieveNotificationSummaryListForInvestigation(publicHealthUID, s);
-
-
-                    //break out of loop if there is no existing Notification
-                    if (retval.size() == 0) {
-                        break;
-                    }
-                    for (NotificationSummaryContainer newVO : retval) {
-                        if (newVO.getCaseClassCd() != null
-                                && newVO.getCaseClassCd().trim().length() != 0) {
-                            newVO.setCaseClassCdTxt((String) mapPhcClass.get(newVO.getCaseClassCd()));
-                        }
-                        if (newVO.getCd() != null
-                                && newVO.getCd().trim().length() != 0) {
-                            newVO.setCdTxt((String) mapPhcType.get(newVO.getCd()));
-                        }
-
-                        if (newVO.getCdNotif() != null
-                                && newVO.getCdNotif().trim().length() != 0) {
-                            newVO.setCdNotif(newVO.getCdNotif());
-                            newVO.setNotificationSrtDescCd(catchingValueService.getCodeDescTxtForCd(newVO.getCdNotif(), "NBS_DOC_PURPOSE"));
-                        }
-                        if (newVO.getRecipient() != null
-                                && newVO.getRecipient().trim().length() != 0) {
-                            newVO.setRecipient(newVO.getRecipient());
-                        } else {
-                            if (newVO.getNndInd() != null && newVO.getNndInd().equals(NEDSSConstant.YES))
-                                newVO.setRecipient(NEDSSConstant.ADMINFLAGCDC);
-                            else
-                                newVO.setRecipient(NEDSSConstant.LOCAl_DESC);
-                        }
-
-                        if (!newVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_NOTF))
-                            newVO.setCaseReport(true);
-
-                        newVO.setItNew(false);
-                        newVO.setItDirty(false);
-                        theNotificationSummaryVOCollection.add(newVO);
-                    }
-                }
-
-            }
-        }catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
         }
         return theNotificationSummaryVOCollection;
     }
@@ -553,7 +437,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
 
             Long newNotficationUid = notificationRepositoryUtil.setNotification(notificationContainer);
         }catch (Exception e){
-            throw new DataProcessingException("Error in calling ActControllerEJB.setNotification()" + e.toString());
+            throw new DataProcessingException("Error in calling ActControllerEJB.setNotification() " + e.getMessage());
         }
 
 

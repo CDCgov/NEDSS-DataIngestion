@@ -26,6 +26,7 @@ import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigati
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
 import org.springframework.stereotype.Service;
 
+import javax.xml.crypto.Data;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
@@ -118,55 +119,45 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
 
             PublicHealthCaseDto phcDT = notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto();
             Long publicHealthCaseUid = phcDT.getPublicHealthCaseUid();
-            try
-            {
-                Map<Object,Object> subMap = new HashMap<>();
-                TreeMap<String, String> condAndFormCdTreeMap = SrteCache.investigationFormConditionCode;
 
-                String investigationFormCd = condAndFormCdTreeMap.get(phcDT.getCd());
-                Collection<QuestionRequiredNnd>  notifReqColl;
+            Map<Object,Object> subMap = new HashMap<>();
+            TreeMap<String, String> condAndFormCdTreeMap = SrteCache.investigationFormConditionCode;
 
-                    notifReqColl = customNbsQuestionRepository.retrieveQuestionRequiredNnd(investigationFormCd);
+            String investigationFormCd = condAndFormCdTreeMap.get(phcDT.getCd());
+            Collection<QuestionRequiredNnd>  notifReqColl;
 
-                    if(notifReqColl != null && notifReqColl.size() > 0) {
-                        for (QuestionRequiredNnd questionRequiredNnd : notifReqColl) {
-                            NbsQuestionMetadata metaData = new NbsQuestionMetadata(questionRequiredNnd);
-                            subMap.put(metaData.getNbsQuestionUid(), metaData);
-                        }
-                    }
+            notifReqColl = customNbsQuestionRepository.retrieveQuestionRequiredNnd(investigationFormCd);
 
-                    Map<?,?> result;
-                    try {
-                        result= validatePAMNotficationRequiredFieldsGivenPageProxy(pageObj, publicHealthCaseUid, subMap,investigationFormCd);
-                        StringBuilder errorText =new StringBuilder(20);
-                        if(result!=null && result.size()>0){
-                            int i =  result.size();
-                            Collection<?> coll =result.values();
-                            Iterator<?> it= coll.iterator();
-                            while(it.hasNext()){
-                                String label = (String)it.next();
-                                --i;
-                                errorText.append("[").append(label).append("]");
-                                if(it.hasNext()){
-                                    errorText.append("; and ");
-                                }
-                                if(i==0)
-                                    errorText.append(".");
-
-                            }
-                            formatErr = true;
-                            eDXActivityDetailLogDT.setLogType(EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure.name());
-                            eDXActivityDetailLogDT.setComment(EdxELRConstant.MISSING_NOTF_REQ_FIELDS+ errorText);
-                        }
-                    }
-                    catch (Exception e) {
-                        throw new Exception(e.toString(), e);
-                    }
-
+            if(notifReqColl != null && notifReqColl.size() > 0) {
+                for (QuestionRequiredNnd questionRequiredNnd : notifReqColl) {
+                    NbsQuestionMetadata metaData = new NbsQuestionMetadata(questionRequiredNnd);
+                    subMap.put(metaData.getNbsQuestionUid(), metaData);
+                }
             }
-            catch (Exception ex) {
-                throw new Exception(ex.toString(), ex);
+
+            Map<?,?> result;
+            result= validatePAMNotficationRequiredFieldsGivenPageProxy(pageObj, publicHealthCaseUid, subMap,investigationFormCd);
+            StringBuilder errorText =new StringBuilder(20);
+            if(result!=null && result.size()>0){
+                int i =  result.size();
+                Collection<?> coll =result.values();
+                Iterator<?> it= coll.iterator();
+                while(it.hasNext()){
+                    String label = (String)it.next();
+                    --i;
+                    errorText.append("[").append(label).append("]");
+                    if(it.hasNext()){
+                        errorText.append("; and ");
+                    }
+                    if(i==0)
+                        errorText.append(".");
+
+                }
+                formatErr = true;
+                eDXActivityDetailLogDT.setLogType(EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure.name());
+                eDXActivityDetailLogDT.setComment(EdxELRConstant.MISSING_NOTF_REQ_FIELDS+ errorText);
             }
+
             String programAreaCd = notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getProgAreaCd();
             NotificationContainer notifVO = notificationProxyVO.getTheNotificationContainer();
             NotificationDto notifDT = notifVO.getTheNotificationDT();
@@ -196,107 +187,86 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
     /**
      * Returns the list of Fields that are required (and not filled) to Create Notification from PAM Cases
      */
-    private Map<Object, Object> validatePAMNotficationRequiredFieldsGivenPageProxy(Object pageObj, Long publicHealthCaseUid,
+    protected Map<Object, Object> validatePAMNotficationRequiredFieldsGivenPageProxy(Object pageObj, Long publicHealthCaseUid,
                                                                                   Map<Object, Object>  reqFields, String formCd) throws DataProcessingException {
 
         Map<Object, Object>  missingFields = new TreeMap<>();
 
-        try {
-            BasePamContainer pamVO;
-            Collection<ParticipationDto> participationDTCollection;
-            PublicHealthCaseDto publicHealthCaseDto;
-            Collection<PersonContainer> personVOCollection;
-            Map<Object, Object>  answerMap;
-            Collection<ActIdDto>  actIdColl;
+        BasePamContainer pamVO;
+        Collection<ParticipationDto> participationDTCollection;
+        PublicHealthCaseDto publicHealthCaseDto;
+        Collection<PersonContainer> personVOCollection;
+        Map<Object, Object>  answerMap;
+        Collection<ActIdDto>  actIdColl;
 
-            if(formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)||formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_VAR))
+        if(formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)||formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_VAR))
+        {
+            PamProxyContainer proxyVO = new PamProxyContainer();
+            if(pageObj == null || pageObj instanceof PublicHealthCaseContainer)
             {
-                PamProxyContainer proxyVO = new PamProxyContainer();
-                if(pageObj == null || pageObj instanceof PublicHealthCaseContainer)
-                {
-                    // proxyVO =  pamproxy.getPamProxy(publicHealthCaseUid);
-                }
-                else
-                {
-                    proxyVO = (PamProxyContainer) pageObj;
-                }
-                pamVO = proxyVO.getPamVO();
-                answerMap = pamVO.getPamAnswerDTMap();
-                if(pageObj == null || pageObj instanceof PublicHealthCaseContainer)
-                {
-                    participationDTCollection  = proxyVO.getPublicHealthCaseContainer().getTheParticipationDTCollection();
-                }
-                else
-                {
-                    participationDTCollection = proxyVO.getTheParticipationDTCollection();
-                }
-                personVOCollection  = proxyVO.getThePersonVOCollection();
-                publicHealthCaseDto = proxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto();
-                actIdColl = proxyVO.getPublicHealthCaseContainer().getTheActIdDTCollection();
+                // proxyVO =  pamproxy.getPamProxy(publicHealthCaseUid);
             }
             else
             {
-                // HIT THIS
-                PageActProxyContainer pageProxyVO;
-                if(pageObj == null  || pageObj instanceof PublicHealthCaseContainer)
-                {
-                    pageProxyVO =  investigationService.getPageProxyVO(NEDSSConstant.CASE, publicHealthCaseUid);
-                }
-                else
-                {
-                    pageProxyVO = (PageActProxyContainer) pageObj;
-                }
-                PageActProxyContainer pageActProxyContainer =pageProxyVO;
-                pamVO= pageActProxyContainer.getPageVO();
-
-                answerMap = (pageProxyVO).getPageVO().getPamAnswerDTMap();
-                if(pageObj == null || pageObj instanceof PublicHealthCaseContainer)
-                {
-                    participationDTCollection  = pageActProxyContainer.getPublicHealthCaseContainer().getTheParticipationDTCollection();
-                }
-                else
-                {
-                    participationDTCollection = pageActProxyContainer.getTheParticipationDtoCollection();
-                }
-                personVOCollection  = pageActProxyContainer.getThePersonContainerCollection();
-                publicHealthCaseDto = pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto();
-                actIdColl = pageActProxyContainer.getPublicHealthCaseContainer().getTheActIdDTCollection();
+                proxyVO = (PamProxyContainer) pageObj;
             }
-
-
-            PersonContainer personVO = getPersonVO(NEDSSConstant.PHC_PATIENT, participationDTCollection,personVOCollection );
-            PersonDto personDT = new PersonDto();
-            if (personVO != null) {
-                personDT = personVO.getThePersonDto();
-            }
-
-
-            String programAreaCode = publicHealthCaseDto.getProgAreaCd();
-            String jurisdictionCode = publicHealthCaseDto.getJurisdictionCd();
-            String shared = publicHealthCaseDto.getSharedInd();
-            if (publicHealthCaseDto == null)
+            pamVO = proxyVO.getPamVO();
+            answerMap = pamVO.getPamAnswerDTMap();
+            if(pageObj == null || pageObj instanceof PublicHealthCaseContainer)
             {
-                throw new DataProcessingException("publicHealthCaseDto is null ");
+                // participationDTCollection  = proxyVO.getPublicHealthCaseContainer().getTheParticipationDTCollection();
+                participationDTCollection = new ArrayList<>();
             }
+            else
+            {
+                participationDTCollection = proxyVO.getTheParticipationDTCollection();
+            }
+            personVOCollection  = proxyVO.getThePersonVOCollection();
+            publicHealthCaseDto = proxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto();
+            actIdColl = proxyVO.getPublicHealthCaseContainer().getTheActIdDTCollection();
+        }
+        else
+        {
+            // HIT THIS
+            PageActProxyContainer pageProxyVO;
+            if(pageObj == null  || pageObj instanceof PublicHealthCaseContainer)
+            {
+                pageProxyVO =  investigationService.getPageProxyVO(NEDSSConstant.CASE, publicHealthCaseUid);
+            }
+            else
+            {
+                pageProxyVO = (PageActProxyContainer) pageObj;
+            }
+            PageActProxyContainer pageActProxyContainer =pageProxyVO;
+            pamVO= pageActProxyContainer.getPageVO();
 
-//            if (!nbsSecurityObj.getPermission(NBSBOLookup.NOTIFICATION,
-//                    "CREATE",
-//                    programAreaCode,
-//                    jurisdictionCode, shared)) {
-//                if (!nbsSecurityObj.getPermission(NBSBOLookup.NOTIFICATION,
-//                        NBSOperationLookup.
-//                                CREATENEEDSAPPROVAL,
-//                        programAreaCode,
-//                        jurisdictionCode, shared))
-//
-//                {
-//                    logger.info(
-//                            "no review permissions for validateRvctNotficationRequiredFields");
-//                    throw new NEDSSSystemException("NO CREATE or CREATE NEEDS APPROVAL PERMISSIONS for NotificcationProxyEJB - validatePAMNotficationRequiredFieldsGivenPageProxy");
-//                }
-//
-//            }
-            //Iterate through the reqFields  Map<Object, Object>  and find missing NND Req questions answered by looking @ datalocation
+            answerMap = (pageProxyVO).getPageVO().getPamAnswerDTMap();
+            if(pageObj == null || pageObj instanceof PublicHealthCaseContainer)
+            {
+                participationDTCollection  = pageActProxyContainer.getPublicHealthCaseContainer().getTheParticipationDTCollection();
+            }
+            else
+            {
+                participationDTCollection = pageActProxyContainer.getTheParticipationDtoCollection();
+            }
+            personVOCollection  = pageActProxyContainer.getThePersonContainerCollection();
+            publicHealthCaseDto = pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto();
+            actIdColl = pageActProxyContainer.getPublicHealthCaseContainer().getTheActIdDTCollection();
+        }
+
+
+        PersonContainer personVO = getPersonVO(NEDSSConstant.PHC_PATIENT, participationDTCollection,personVOCollection );
+        PersonDto personDT = new PersonDto();
+        if (personVO != null) {
+            personDT = personVO.getThePersonDto();
+        }
+
+
+        String programAreaCode = publicHealthCaseDto.getProgAreaCd();
+        String jurisdictionCode = publicHealthCaseDto.getJurisdictionCd();
+        String shared = publicHealthCaseDto.getSharedInd();
+
+        try {
             for (Object o : reqFields.keySet()) {
                 Long key = (Long) o;
                 NbsQuestionMetadata metaData = (NbsQuestionMetadata) reqFields.get(key);
@@ -426,12 +396,10 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
 
                 }
             }
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage());
         }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            throw new DataProcessingException(e.getMessage(),e);
-        }
+
         if (missingFields.size() == 0)
         {
             return null;
@@ -443,94 +411,70 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
     }
 
 
-    private String createGetterMethod(String attrToChk) throws DataProcessingException {
+    private String createGetterMethod(String attrToChk) {
+        StringTokenizer tokenizer = new StringTokenizer(attrToChk,"_");
+        StringBuilder methodName = new StringBuilder();
+        while (tokenizer.hasMoreTokens()){
+            String token = tokenizer.nextToken();
+            methodName.append(Character.toUpperCase(token.charAt(0))).append(token.substring(1).toLowerCase());
 
-        try {
-            StringTokenizer tokenizer = new StringTokenizer(attrToChk,"_");
-            StringBuilder methodName = new StringBuilder();
-            while (tokenizer.hasMoreTokens()){
-                String token = tokenizer.nextToken();
-                methodName.append(Character.toUpperCase(token.charAt(0))).append(token.substring(1).toLowerCase());
-
-            }
-            return "get" + methodName;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
         }
+        return "get" + methodName;
     }
 
 
-    private  Map<Object, Object>  getMethods(Class beanClass) throws DataProcessingException {
-        try {
-            Method[] gettingMethods = beanClass.getMethods();
-            Map<Object, Object>  resultMap = new HashMap<>();
-            for (Method gettingMethod : gettingMethods) {
-                String methodName = ( gettingMethod).getName().toLowerCase();
-                resultMap.put(methodName,  gettingMethod);
-            }
-            return resultMap;
-        } catch (SecurityException e) {
-            throw new DataProcessingException(e.getMessage(), e);
+    private  Map<Object, Object>  getMethods(Class beanClass) {
+        Method[] gettingMethods = beanClass.getMethods();
+        Map<Object, Object>  resultMap = new HashMap<>();
+        for (Method gettingMethod : gettingMethods) {
+            String methodName = ( gettingMethod).getName().toLowerCase();
+            resultMap.put(methodName,  gettingMethod);
         }
+        return resultMap;
     }
 
-    private void checkObject(Object obj,  Map<Object, Object>  missingFields, NbsQuestionMetadata metaData) throws DataProcessingException {
-        try {
-            String value = obj == null ? "" : obj.toString();
-            if(value == null || (value != null && value.trim().length() == 0)) {
-                missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
-            }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+    private void checkObject(Object obj,  Map<Object, Object>  missingFields, NbsQuestionMetadata metaData)  {
+        String value = obj == null ? "" : obj.toString();
+        if(value == null || (value != null && value.trim().length() == 0)) {
+            missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
         }
-
     }
 
     private PersonContainer getPersonVO(String type_cd, Collection<ParticipationDto> participationDTCollection,
-                                        Collection<PersonContainer> personVOCollection) throws DataProcessingException {
-        try {
-            ParticipationDto participationDT;
-            PersonContainer personVO;
-            if (participationDTCollection  != null) {
-                Iterator<ParticipationDto> anIterator1;
-                Iterator<PersonContainer> anIterator2 ;
-                for (anIterator1 = participationDTCollection.iterator(); anIterator1.hasNext();) {
-                    participationDT =  anIterator1.next();
-                    if (participationDT.getTypeCd() != null && (participationDT.getTypeCd()).compareTo(type_cd) == 0) {
-                        for (anIterator2 = personVOCollection.iterator(); anIterator2.hasNext();) {
-                            personVO =  anIterator2.next();
-                            if (personVO.getThePersonDto().getPersonUid().longValue() == participationDT
-                                    .getSubjectEntityUid().longValue()) {
-                                return personVO;
-                            }
-                            else
-                            {
-                                continue;
-                            }
+                                        Collection<PersonContainer> personVOCollection)  {
+        ParticipationDto participationDT;
+        PersonContainer personVO;
+        if (participationDTCollection  != null) {
+            Iterator<ParticipationDto> anIterator1;
+            Iterator<PersonContainer> anIterator2 ;
+            for (anIterator1 = participationDTCollection.iterator(); anIterator1.hasNext();) {
+                participationDT =  anIterator1.next();
+                if (participationDT.getTypeCd() != null && (participationDT.getTypeCd()).compareTo(type_cd) == 0) {
+                    for (anIterator2 = personVOCollection.iterator(); anIterator2.hasNext();) {
+                        personVO =  anIterator2.next();
+                        if (personVO.getThePersonDto().getPersonUid().longValue() == participationDT
+                                .getSubjectEntityUid().longValue()) {
+                            return personVO;
+                        }
+                        else
+                        {
+                            continue;
                         }
                     }
-                    else
-                    {
-                        continue;
-                    }
+                }
+                else
+                {
+                    continue;
                 }
             }
-            return null;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DataProcessingException(e.getMessage(), e);
         }
+        return null;
     }
 
 
     private Long setNotificationProxy(NotificationProxyContainer notificationProxyVO) throws DataProcessingException
     {
-        try {
-            return notificationService.setNotificationProxy(notificationProxyVO);
-        }
-        catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage(),ex);
-        }
+        return notificationService.setNotificationProxy(notificationProxyVO);
     }
 
 }
