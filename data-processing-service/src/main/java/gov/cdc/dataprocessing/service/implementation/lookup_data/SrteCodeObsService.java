@@ -163,7 +163,9 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     }
 
 
-    public HashMap<Object, Object> getProgramArea(String reportingLabCLIA, Collection<ObservationContainer> observationContainerCollection, String electronicInd) throws DataProcessingException {
+    public HashMap<Object, Object> getProgramArea(String reportingLabCLIA,
+                                                  Collection<ObservationContainer> observationContainerCollection,
+                                                  String electronicInd) throws DataProcessingException {
         HashMap<Object, Object> returnMap = new HashMap<>();
         if (reportingLabCLIA == null)
         {
@@ -220,62 +222,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
                 }
 
-                // Retrieve PAs using Resulted Test --> LOINC mapping
-                if (!found)
-                {
-                    progAreaCd = getPAFromLOINCCode(reportingLabCLIA, obsVO);
-                    // If PA returned, check to see if it is the same one as before.
-                    if (progAreaCd != null)
-                    {
-                        found = true;
-                        paHTBL.put(progAreaCd.trim(), progAreaCd.trim());
-                        if (paHTBL.size() != 1)
-                        {
-                            break;
-                        }
-                    }
-                }
-
-                // Retrieve PAs using Local Result Code to PA mapping
-                if (!found)
-                {
-                    progAreaCd = getPAFromLocalResultCode(reportingLabCLIA, obsVO.getTheObsValueCodedDtoCollection());
-                    // If PA returned, check to see if it is the same one as before.
-                    if (progAreaCd != null)
-                    {
-                        found = true;
-                        //System.out.println("Found!" + progAreaCd);
-                        paHTBL.put(progAreaCd.trim(), progAreaCd.trim());
-                        if (paHTBL.size() != 1)
-                        {
-                            break;
-                        }
-                    }
-                }
-
-                // Retrieve PAs using Local Result Code to PA mapping
-                if (!found)
-                {
-                    progAreaCd = getPAFromLocalTestCode(reportingLabCLIA, obsVO);
-                    // If PA returned, check to see if it is the same one as before.
-                    if (progAreaCd != null)
-                    {
-                        found = true;
-                        paHTBL.put(progAreaCd.trim(), progAreaCd.trim());
-                        if (paHTBL.size() != 1)
-                        {
-                            break;
-                        }
-                    }
-                }
-
-                //If we haven't found a PA and the no components were excluded based on the exclude flag,
-                //clear the PA hashtable which will fail the derivation
-                if (!found && !programAreaDerivationExcludeFlag)
-                {
-                    paHTBL.clear();
-                    break;
-                }
+               ///adawfaf
             }
         } //end of while
 
@@ -293,7 +240,6 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         }
         return returnMap;
     } //end of getProgramArea
-
 
     /**
      * Returns a collection of Snomed codes to be used to resolve the program area code.
@@ -404,7 +350,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
      *
      */
     // AK 7/25/04
-    private String getProgAreaCd(Vector<Object> codeVector, String reportingLabCLIA, String nextLookUp, String type) {
+    protected String getProgAreaCd(Vector<Object> codeVector, String reportingLabCLIA, String nextLookUp, String type) {
         if (codeVector == null || codeVector.size() == 0)
         {
             return null;
@@ -430,10 +376,6 @@ public class SrteCodeObsService implements ISrteCodeObsService {
                 if (lastPACode == null)
                 {
                     lastPACode = currentPAcode;
-                }
-                else if (!currentPAcode.equals(lastPACode))
-                {
-                    return null;
                 }
             } //end of for
         }
@@ -640,6 +582,45 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     } //end of getProgAreaCdLocalDefault(...)
 
 
+    /**
+     * Attempts to resolve a program area cd based on LocalTestDefault cd.
+     * @param reportingLabCLIA : String
+     * @return progAreaCd : String
+     */
+    // AK - 7/25/04
+    public String getPAFromLocalTestCode(String reportingLabCLIA, ObservationContainer resultTestVO) {
+
+        ObservationDto obsDt = resultTestVO.getTheObservationDto();
+
+        String code = getLocalTestCode(obsDt);
+
+        if (reportingLabCLIA == null || code == null || code.trim().equals(""))
+        {
+            return null;
+        }
+
+        //Check if this code should be excluded from Program Area derivation
+        if (removePADerivationExcludedLabTestCodes(code, reportingLabCLIA))
+        {
+            return null;
+        }
+
+        String progAreaCd;
+
+        Vector<Object> codeVector = new Vector<>();
+        codeVector.addElement(code);
+
+        String codeSql = null;
+
+        progAreaCd = findLocalResultDefaultConditionProgramAreaCdFromLabTest(codeVector, reportingLabCLIA, "NEXT");
+
+        if (progAreaCd == null) {
+            progAreaCd = findLocalResultDefaultConditionProgramAreaCdFromLabTestWithoutJoin(codeVector, reportingLabCLIA, "NEXT");
+        }
+        return progAreaCd;
+
+    } //end of method
+
     private String findLocalResultDefaultConditionProgramAreaCdFromLabTest(Vector<Object> codeVector, String reportingLabCLIA, String nextLookup) {
         Vector<Object> toReturn = new Vector<>();
         String lastPACode = null;
@@ -705,53 +686,6 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         } //end of catch
         return lastPACode;
     } //end of getProgAreaCdLocalDefault(...)
-
-
-
-    /**
-     * Attempts to resolve a program area cd based on LocalTestDefault cd.
-     * @param reportingLabCLIA : String
-     * @return progAreaCd : String
-     */
-    // AK - 7/25/04
-    public String getPAFromLocalTestCode(String reportingLabCLIA, ObservationContainer resultTestVO) {
-
-        ObservationDto obsDt = resultTestVO.getTheObservationDto();
-
-        //If this test has a LOINC, we should return and not treat it as a local test 
-        if (obsDt.equals(ELRConstant.ELR_OBSERVATION_LOINC))
-        {
-            return null;
-        }
-
-        String code = getLocalTestCode(obsDt);
-
-        if (reportingLabCLIA == null || code == null || code.trim().equals(""))
-        {
-            return null;
-        }
-
-        //Check if this code should be excluded from Program Area derivation
-        if (removePADerivationExcludedLabTestCodes(code, reportingLabCLIA))
-        {
-            return null;
-        }
-
-        String progAreaCd;
-
-        Vector<Object> codeVector = new Vector<>();
-        codeVector.addElement(code);
-
-        String codeSql = null;
-
-        progAreaCd = findLocalResultDefaultConditionProgramAreaCdFromLabTest(codeVector, reportingLabCLIA, "NEXT");
-
-        if (progAreaCd == null) {
-            progAreaCd = findLocalResultDefaultConditionProgramAreaCdFromLabTestWithoutJoin(codeVector, reportingLabCLIA, "NEXT");
-        }
-        return progAreaCd;
-
-    } //end of method
 
     /**
      * Returns the code that will be used to help resolve the program area cd
