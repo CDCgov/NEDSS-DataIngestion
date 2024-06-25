@@ -10,7 +10,6 @@ import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.notification.Notification;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.Observation;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.phc.PublicHealthCase;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.notification.NotificationRepository;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
@@ -23,7 +22,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.internal.matchers.Null;
 
 import java.util.ArrayList;
 import java.util.Collection;
