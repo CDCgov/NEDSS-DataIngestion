@@ -2,12 +2,14 @@ package gov.cdc.dataprocessing.service.implementation.manager;
 
 import com.google.gson.Gson;
 import gov.cdc.dataprocessing.cache.SrteCache;
+import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
+import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityLogDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
@@ -315,6 +317,210 @@ public class ManagerServiceTest {
 
         verify(nbsInterfaceRepository, times(1)).findByNbsInterfaceUid(any());
 
+    }
+
+    @Test
+    void initiatingLabProcessing_Test_MarkReviewed_Assoc() throws DataProcessingException {
+        PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = new PublicHealthCaseFlowContainer();
+        var edxLabInfoDto = new EdxLabInformationDto();
+        var obsDto = new ObservationDto();
+        var labResult = new LabResultProxyContainer();
+
+        edxLabInfoDto.setLabIsUpdateDRSA(false);
+        edxLabInfoDto.setLabIsCreate(true);
+        edxLabInfoDto.setWdsReports(new ArrayList<>());
+        var pageAct = new PageActProxyContainer();
+        var phcConn = new PublicHealthCaseContainer();
+        var phcDt = new PublicHealthCaseDto();
+        phcConn.setThePublicHealthCaseDto(phcDt);
+        pageAct.setPublicHealthCaseContainer(phcConn);
+        edxLabInfoDto.setPageActContainer(pageAct);
+        edxLabInfoDto.setAction(DecisionSupportConstants.MARK_AS_REVIEWED);
+        edxLabInfoDto.setAssociatedPublicHealthCaseUid(12L);
+
+        obsDto.setJurisdictionCd("A");
+        obsDto.setProgAreaCd("A");
+        obsDto.setObservationUid(11L);
+
+        publicHealthCaseFlowContainer.setEdxLabInformationDto(edxLabInfoDto);
+        publicHealthCaseFlowContainer.setObservationDto(obsDto);
+        publicHealthCaseFlowContainer.setLabResultProxyContainer(labResult);
+        publicHealthCaseFlowContainer.setNbsInterfaceId(10);
+
+        var nbs = new NbsInterfaceModel();
+        nbs.setNbsInterfaceUid(10);
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.of(nbs));
+
+        managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
+        verify(nbsInterfaceRepository, times(1)).save(any());
+        verify(labReportProcessing, times(1)).markAsReviewedHandler(any(), any());
+
+
+    }
+
+    @Test
+    void initiatingLabProcessing_Test_MarkReviewed_NotAssoc() throws DataProcessingException {
+        PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = new PublicHealthCaseFlowContainer();
+        var edxLabInfoDto = new EdxLabInformationDto();
+        var obsDto = new ObservationDto();
+        var labResult = new LabResultProxyContainer();
+
+        edxLabInfoDto.setLabIsUpdateDRSA(false);
+        edxLabInfoDto.setLabIsCreate(true);
+        edxLabInfoDto.setWdsReports(new ArrayList<>());
+        var pageAct = new PageActProxyContainer();
+        var phcConn = new PublicHealthCaseContainer();
+        var phcDt = new PublicHealthCaseDto();
+        phcConn.setThePublicHealthCaseDto(phcDt);
+        pageAct.setPublicHealthCaseContainer(phcConn);
+        edxLabInfoDto.setPageActContainer(pageAct);
+        edxLabInfoDto.setAction(DecisionSupportConstants.MARK_AS_REVIEWED);
+
+        obsDto.setJurisdictionCd("A");
+        obsDto.setProgAreaCd("A");
+        obsDto.setObservationUid(11L);
+
+        publicHealthCaseFlowContainer.setEdxLabInformationDto(edxLabInfoDto);
+        publicHealthCaseFlowContainer.setObservationDto(obsDto);
+        publicHealthCaseFlowContainer.setLabResultProxyContainer(labResult);
+        publicHealthCaseFlowContainer.setNbsInterfaceId(10);
+
+        var nbs = new NbsInterfaceModel();
+        nbs.setNbsInterfaceUid(10);
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.of(nbs));
+
+        managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
+        verify(nbsInterfaceRepository, times(1)).save(any());
+        verify(labReportProcessing, times(1)).markAsReviewedHandler(any(), any());
+
+
+    }
+
+    @Test
+    void initiatingLabProcessing_Test_Investigation_Page() throws DataProcessingException {
+        PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = new PublicHealthCaseFlowContainer();
+        var edxLabInfoDto = new EdxLabInformationDto();
+        var obsDto = new ObservationDto();
+        var labResult = new LabResultProxyContainer();
+
+        edxLabInfoDto.setLabIsUpdateDRSA(false);
+        edxLabInfoDto.setLabIsCreate(true);
+        edxLabInfoDto.setWdsReports(new ArrayList<>());
+        var pageAct = new PageActProxyContainer();
+        var phcConn = new PublicHealthCaseContainer();
+        var phcDt = new PublicHealthCaseDto();
+        phcConn.setThePublicHealthCaseDto(phcDt);
+        pageAct.setPublicHealthCaseContainer(phcConn);
+        edxLabInfoDto.setPageActContainer(pageAct);
+        edxLabInfoDto.setAction(DecisionSupportConstants.CREATE_INVESTIGATION_VALUE);
+        edxLabInfoDto.setAssociatedPublicHealthCaseUid(12L);
+
+        obsDto.setJurisdictionCd("A");
+        obsDto.setProgAreaCd("A");
+        obsDto.setObservationUid(11L);
+
+        publicHealthCaseFlowContainer.setEdxLabInformationDto(edxLabInfoDto);
+        publicHealthCaseFlowContainer.setObservationDto(obsDto);
+        publicHealthCaseFlowContainer.setLabResultProxyContainer(labResult);
+        publicHealthCaseFlowContainer.setNbsInterfaceId(10);
+
+        var nbs = new NbsInterfaceModel();
+        nbs.setNbsInterfaceUid(10);
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.of(nbs));
+        when(pageService.setPageProxyWithAutoAssoc(any(), any(),
+                any(), any(), any())).thenReturn(12L);
+
+
+        managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
+        verify(nbsInterfaceRepository, times(1)).save(any());
+    }
+
+    @Test
+    void initiatingLabProcessing_Test_Investigation_Pam() throws DataProcessingException {
+        PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = new PublicHealthCaseFlowContainer();
+        var edxLabInfoDto = new EdxLabInformationDto();
+        var obsDto = new ObservationDto();
+        var labResult = new LabResultProxyContainer();
+
+        edxLabInfoDto.setLabIsUpdateDRSA(false);
+        edxLabInfoDto.setLabIsCreate(true);
+        edxLabInfoDto.setWdsReports(new ArrayList<>());
+        var pageAct = new PamProxyContainer();
+        var phcConn = new PublicHealthCaseContainer();
+        var phcDt = new PublicHealthCaseDto();
+        phcConn.setThePublicHealthCaseDto(phcDt);
+        pageAct.setPublicHealthCaseContainer(phcConn);
+        edxLabInfoDto.setPamContainer(pageAct);
+        edxLabInfoDto.setAction(DecisionSupportConstants.CREATE_INVESTIGATION_VALUE);
+        edxLabInfoDto.setAssociatedPublicHealthCaseUid(12L);
+
+        obsDto.setJurisdictionCd("A");
+        obsDto.setProgAreaCd("A");
+        obsDto.setObservationUid(11L);
+
+        publicHealthCaseFlowContainer.setEdxLabInformationDto(edxLabInfoDto);
+        publicHealthCaseFlowContainer.setObservationDto(obsDto);
+        publicHealthCaseFlowContainer.setLabResultProxyContainer(labResult);
+        publicHealthCaseFlowContainer.setNbsInterfaceId(10);
+
+        var nbs = new NbsInterfaceModel();
+        nbs.setNbsInterfaceUid(10);
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.of(nbs));
+        when(pamService.setPamProxyWithAutoAssoc(any(), any(),
+                any())).thenReturn(12L);
+
+
+        managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
+        verify(nbsInterfaceRepository, times(1)).save(any());
+    }
+
+    @Test
+    void initiatingLabProcessing_Test_Investigation_Notification_Page() throws DataProcessingException {
+        PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = new PublicHealthCaseFlowContainer();
+        var edxLabInfoDto = new EdxLabInformationDto();
+        var obsDto = new ObservationDto();
+        var labResult = new LabResultProxyContainer();
+
+        edxLabInfoDto.setLabIsUpdateDRSA(false);
+        edxLabInfoDto.setLabIsCreate(true);
+        edxLabInfoDto.setWdsReports(new ArrayList<>());
+        var pageAct = new PageActProxyContainer();
+        var phcConn = new PublicHealthCaseContainer();
+        var phcDt = new PublicHealthCaseDto();
+        phcConn.setThePublicHealthCaseDto(phcDt);
+        pageAct.setPublicHealthCaseContainer(phcConn);
+        edxLabInfoDto.setPageActContainer(pageAct);
+        edxLabInfoDto.setAction(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE);
+        edxLabInfoDto.setAssociatedPublicHealthCaseUid(12L);
+
+        EDXActivityLogDto edx = new EDXActivityLogDto();
+        edx.setEDXActivityLogDTWithVocabDetails(new ArrayList<>());
+        edxLabInfoDto.setEdxActivityLogDto(edx);
+
+        obsDto.setJurisdictionCd("A");
+        obsDto.setProgAreaCd("A");
+        obsDto.setObservationUid(11L);
+
+        publicHealthCaseFlowContainer.setEdxLabInformationDto(edxLabInfoDto);
+        publicHealthCaseFlowContainer.setObservationDto(obsDto);
+        publicHealthCaseFlowContainer.setLabResultProxyContainer(labResult);
+        publicHealthCaseFlowContainer.setNbsInterfaceId(10);
+
+        var nbs = new NbsInterfaceModel();
+        nbs.setNbsInterfaceUid(10);
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.of(nbs));
+        when(pageService.setPageProxyWithAutoAssoc(any(), any(),
+                any(), any(), any())).thenReturn(12L);
+
+        EDXActivityDetailLogDto detail = new EDXActivityDetailLogDto();
+        detail.setLogType(null);
+        when(investigationNotificationService.sendNotification(any(), any()))
+                .thenReturn(detail);
+
+
+
+        managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
+        verify(nbsInterfaceRepository, times(1)).save(any());
     }
 
 

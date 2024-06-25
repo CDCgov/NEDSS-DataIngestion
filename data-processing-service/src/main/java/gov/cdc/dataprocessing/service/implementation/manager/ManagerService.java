@@ -291,7 +291,9 @@ public class ManagerService implements IManagerService {
 
 
                 if (pageActProxyContainer != null && observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null) {
-                    phcUid = pageService.setPageProxyWithAutoAssoc(NEDSSConstant.CASE, pageActProxyContainer, edxLabInformationDto.getRootObserbationUid(), NEDSSConstant.LABRESULT_CODE, null);
+                    phcUid = pageService.setPageProxyWithAutoAssoc(NEDSSConstant.CASE, pageActProxyContainer,
+                            edxLabInformationDto.getRootObserbationUid(),
+                            NEDSSConstant.LABRESULT_CODE, null);
 
                     pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setPublicHealthCaseUid(phcUid);
                     edxLabInformationDto.setInvestigationSuccessfullyCreated(true);
