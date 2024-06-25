@@ -71,7 +71,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
         this.roleService = roleService;
     }
 
-    public void processingObservationMatching(EdxLabInformationDto edxLabInformationDto,
+    public EdxLabInformationDto processingObservationMatching(EdxLabInformationDto edxLabInformationDto,
                                                        LabResultProxyContainer labResultProxyContainer,
                                                        Long aPersonUid) throws DataProcessingException {
         ObservationDto observationDto = observationMatchingService.checkingMatchingObservation(edxLabInformationDto);
@@ -97,6 +97,8 @@ public class ManagerAggregationService implements IManagerAggregationService {
         else {
             edxLabInformationDto.setLabIsCreate(true);
         }
+
+        return edxLabInformationDto;
     }
 
     public void serviceAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws DataProcessingConsumerException,

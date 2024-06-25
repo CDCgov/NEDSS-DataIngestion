@@ -1,8 +1,10 @@
 package gov.cdc.dataprocessing.kafka.consumer;
 
+import com.google.gson.Gson;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
+import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -46,7 +48,9 @@ public class KafkaPublicHealthCaseConsumer {
 
             var profile = this.authUserService.getAuthUserInfo("superuser");
             AuthUtil.setGlobalAuthUser(profile);
-            managerService.initiatingInvestigationAndPublicHealthCase(message);
+            Gson gson = new Gson();
+            PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(message, PublicHealthCaseFlowContainer.class);
+            managerService.initiatingInvestigationAndPublicHealthCase(publicHealthCaseFlowContainer);
         }
         catch (Exception e)
         {

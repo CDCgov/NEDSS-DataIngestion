@@ -22,6 +22,7 @@ import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
+import gov.cdc.dataprocessing.service.interfaces.manager.IManagerCacheService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
@@ -66,10 +67,6 @@ public class ManagerService implements IManagerService {
 
     private final NbsInterfaceRepository nbsInterfaceRepository;
 
-    private final ICatchingValueService cachingValueService;
-
-    private final CacheManager cacheManager;
-
     private final IDecisionSupportService decisionSupportService;
 
     private final ManagerUtil managerUtil;
@@ -82,13 +79,13 @@ public class ManagerService implements IManagerService {
     private final IPamService pamService;
     private final IInvestigationNotificationService investigationNotificationService;
 
+    private final IManagerCacheService managerCacheService;
+
     @Autowired
     public ManagerService(IObservationService observationService,
                           IEdxLogService edxLogService,
                           IDataExtractionService dataExtractionService,
                           NbsInterfaceRepository nbsInterfaceRepository,
-                          CachingValueService cachingValueService,
-                          CacheManager cacheManager,
                           IDecisionSupportService decisionSupportService,
                           ManagerUtil managerUtil,
                           KafkaManagerProducer kafkaManagerProducer,
@@ -96,13 +93,12 @@ public class ManagerService implements IManagerService {
                           ILabReportProcessing labReportProcessing,
                           IPageService pageService,
                           IPamService pamService,
-                          IInvestigationNotificationService investigationNotificationService) {
+                          IInvestigationNotificationService investigationNotificationService,
+                          IManagerCacheService managerCacheService) {
         this.observationService = observationService;
         this.edxLogService = edxLogService;
         this.dataExtractionService = dataExtractionService;
         this.nbsInterfaceRepository = nbsInterfaceRepository;
-        this.cachingValueService = cachingValueService;
-        this.cacheManager = cacheManager;
         this.decisionSupportService = decisionSupportService;
         this.managerUtil = managerUtil;
         this.kafkaManagerProducer = kafkaManagerProducer;
@@ -111,6 +107,7 @@ public class ManagerService implements IManagerService {
         this.pageService = pageService;
         this.pamService = pamService;
         this.investigationNotificationService = investigationNotificationService;
+        this.managerCacheService = managerCacheService;
     }
 
     @Transactional
@@ -131,13 +128,11 @@ public class ManagerService implements IManagerService {
 
     @SuppressWarnings("java:S6541")
     @Transactional
-    public void initiatingInvestigationAndPublicHealthCase(String data) {
+    public void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = null;
         String detailedMsg = "";
         try {
-            Gson gson = new Gson();
-            PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(data, PublicHealthCaseFlowContainer.class);
             edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
             LabResultProxyContainer labResultProxyContainer = publicHealthCaseFlowContainer.getLabResultProxyContainer();
@@ -183,13 +178,8 @@ public class ManagerService implements IManagerService {
                 trackerView.setPatientFirstName(patFirstName);
                 trackerView.setPatientLastName(patLastName);
 
-
                 nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_2);
                 nbsInterfaceRepository.save(nbsInterfaceModel);
-
-
-
-
 
                 PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
                 phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
@@ -210,24 +200,15 @@ public class ManagerService implements IManagerService {
                         trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
                     }
                 }
-                else
-                {
-                    if (edxLabInformationDto.getAction() != null) {
-                        //action 3 is REVIEW
-                        System.out.println("TEST");
-                    }
-                }
 
 
-                gson = new Gson();
+                Gson gson = new Gson();
                 String trackerString = gson.toJson(trackerView);
                 kafkaManagerProducer.sendDataActionTracker(trackerString);
 
                 gson = new Gson();
                 String jsonString = gson.toJson(phcContainer);
                 kafkaManagerProducer.sendDataLabHandling(jsonString);
-
-
 
             }
             else
@@ -259,12 +240,10 @@ public class ManagerService implements IManagerService {
 
     @SuppressWarnings("java:S6541")
     @Transactional
-    public void initiatingLabProcessing(String data) {
+    public void initiatingLabProcessing(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto=null;
         try {
-            Gson gson = new Gson();
-            PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(data, PublicHealthCaseFlowContainer.class);
             edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
             var res = nbsInterfaceRepository.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
@@ -410,7 +389,7 @@ public class ManagerService implements IManagerService {
 
             edxLabInformationDto.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
 
-            CompletableFuture<Void> cacheLoadingFuture = loadAndInitCachedValueAsync();
+            CompletableFuture<Void> cacheLoadingFuture = managerCacheService.loadAndInitCachedValueAsync();
             cacheLoadingFuture.join();
 
 
@@ -426,7 +405,7 @@ public class ManagerService implements IManagerService {
             ObservationDto observationDto;
 
             // Checking for matching observation
-            managerAggregationService.processingObservationMatching(edxLabInformationDto, labResultProxyContainer, aPersonUid);
+            edxLabInformationDto = managerAggregationService.processingObservationMatching(edxLabInformationDto, labResultProxyContainer, aPersonUid);
 
 
             // This process patient, provider, nok, and organization. Then it will update both parsedData and edxLabInformationDto accordingly
@@ -608,236 +587,6 @@ public class ManagerService implements IManagerService {
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
         }
-    }
-
-    private CompletableFuture<Void> loadAndInitCachedValueAsync() {
-        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-            if (SrteCache.loincCodesMap.isEmpty()) {
-                try {
-                    cachingValueService.getAOELOINCCodes();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.raceCodesMap.isEmpty()) {
-                try {
-                    cachingValueService.getRaceCodes();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.programAreaCodesMap.isEmpty()) {
-                try {
-                    cachingValueService.getAllProgramAreaCodes();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.jurisdictionCodeMap.isEmpty()) {
-                try {
-                    cachingValueService.getAllJurisdictionCode();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.jurisdictionCodeMapWithNbsUid.isEmpty()) {
-                try {
-                    cachingValueService.getAllJurisdictionCodeWithNbsUid();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.programAreaCodesMapWithNbsUid.isEmpty()) {
-                try {
-                    cachingValueService.getAllProgramAreaCodesWithNbsUid();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.elrXrefsList.isEmpty()) {
-                try {
-                    cachingValueService.getAllElrXref();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.coInfectionConditionCode.isEmpty()) {
-                try {
-                    cachingValueService.getAllOnInfectionConditionCode();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.conditionCodes.isEmpty() || SrteCache.investigationFormConditionCode.isEmpty()) {
-                try {
-                    cachingValueService.getAllConditionCode();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.labResultByDescMap.isEmpty()) {
-                try {
-                    cachingValueService.getLabResultDesc();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.snomedCodeByDescMap.isEmpty()) {
-                try {
-                    cachingValueService.getAllSnomedCode();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.labResultWithOrganismNameIndMap.isEmpty()) {
-                try {
-                    cachingValueService.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.loinCodeWithComponentNameMap.isEmpty()) {
-                try {
-                    cachingValueService.getAllLoinCodeWithComponentName();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            // Retrieve cached values using Cache.ValueWrapper
-            var cache = cacheManager.getCache("srte");
-            if (cache != null) {
-                Cache.ValueWrapper valueWrapper;
-                valueWrapper = cache.get("loincCodes");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof TreeMap) {
-                        SrteCache.loincCodesMap = (TreeMap<String, String>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("raceCodes");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof TreeMap) {
-                        SrteCache.raceCodesMap = (TreeMap<String, String>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("programAreaCodes");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof TreeMap) {
-                        SrteCache.programAreaCodesMap = (TreeMap<String, String>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("jurisdictionCode");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof TreeMap) {
-                        SrteCache.jurisdictionCodeMap = (TreeMap<String, String>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("programAreaCodesWithNbsUid");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof TreeMap) {
-                        SrteCache.programAreaCodesMapWithNbsUid = (TreeMap<String, Integer>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("jurisdictionCodeWithNbsUid");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof TreeMap) {
-                        SrteCache.jurisdictionCodeMapWithNbsUid = (TreeMap<String, Integer>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("elrXref");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof List) {
-                        SrteCache.elrXrefsList = (List<ElrXref>) cachedObject;
-                    }
-                }
-
-
-                valueWrapper = cache.get("coInfectionConditionCode");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof List) {
-                        SrteCache.coInfectionConditionCode = (TreeMap<String, String>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("conditionCode");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof List) {
-                        SrteCache.conditionCodes = (List<ConditionCode>) cachedObject;
-
-                        // Populate Code for Investigation Form
-                        for (ConditionCode obj : SrteCache.conditionCodes) {
-                            SrteCache.investigationFormConditionCode.put(obj.getConditionCd(), obj.getInvestigationFormCd());
-                        }
-
-                    }
-                }
-
-                valueWrapper = cache.get("labResulDesc");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof List) {
-                        SrteCache.labResultByDescMap = (TreeMap<String, String>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("snomedCodeByDesc");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof List) {
-                        SrteCache.snomedCodeByDescMap = (TreeMap<String, String>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("labResulDescWithOrgnismName");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof List) {
-                        SrteCache.labResultWithOrganismNameIndMap = (TreeMap<String, String>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("loinCodeWithComponentName");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof List) {
-                        SrteCache.loinCodeWithComponentNameMap = (TreeMap<String, String>) cachedObject;
-                    }
-                }
-
-
-
-
-            }
-        });
-
-        return future;
     }
 
     private void requiredFieldError(String errorTxt, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
