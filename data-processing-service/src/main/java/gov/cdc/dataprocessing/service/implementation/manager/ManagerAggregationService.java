@@ -352,10 +352,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
                         personContainerObj =  patientService.processingPatient(labResultProxyContainer, edxLabInformationDto, personContainer);
                     }
                     else if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
-                        var prv = patientService.processingProvider(labResultProxyContainer, edxLabInformationDto, personContainer, orderingProviderIndicator);
-                        if (prv != null) {
-                            providerVOObj = prv;
-                        }
+                        providerVOObj = patientService.processingProvider(labResultProxyContainer, edxLabInformationDto, personContainer, orderingProviderIndicator);
                     }
                 }
             }

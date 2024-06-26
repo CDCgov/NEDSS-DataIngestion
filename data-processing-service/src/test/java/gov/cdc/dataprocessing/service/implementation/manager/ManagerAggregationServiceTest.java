@@ -452,11 +452,14 @@ public class ManagerAggregationServiceTest {
         var perCon = new PersonContainer();
         perCon.setRole(EdxELRConstant.ELR_NEXT_OF_KIN);
         personContainerCollection.add(perCon);
+
         perCon = new PersonContainer();
         var perDt = new PersonDto();
         perDt.setCd(EdxELRConstant.ELR_PATIENT_CD);
         perCon.setThePersonDto(perDt);
         personContainerCollection.add(perCon);
+
+        perCon = new PersonContainer();
         perDt = new PersonDto();
         perDt.setCd(EdxELRConstant.ELR_PROVIDER_CD);
         perCon.setThePersonDto(perDt);
