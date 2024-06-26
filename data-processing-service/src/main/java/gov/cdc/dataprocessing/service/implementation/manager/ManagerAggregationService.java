@@ -11,14 +11,6 @@ import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
-import gov.cdc.dataprocessing.service.implementation.jurisdiction.JurisdictionService;
-import gov.cdc.dataprocessing.service.implementation.jurisdiction.ProgramAreaService;
-import gov.cdc.dataprocessing.service.implementation.observation.ObservationService;
-import gov.cdc.dataprocessing.service.implementation.organization.OrganizationService;
-import gov.cdc.dataprocessing.service.implementation.person.PersonService;
-import gov.cdc.dataprocessing.service.implementation.observation.ObservationMatchingService;
-import gov.cdc.dataprocessing.service.implementation.uid_generator.UidService;
-import gov.cdc.dataprocessing.service.implementation.role.RoleService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
@@ -29,8 +21,6 @@ import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationServi
 import gov.cdc.dataprocessing.service.interfaces.person.IPersonService;
 import gov.cdc.dataprocessing.service.interfaces.role.IRoleService;
 import gov.cdc.dataprocessing.service.model.person.PersonAggContainer;
-import gov.cdc.dataprocessing.utilities.component.generic_helper.ManagerUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -38,29 +28,24 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @Service
-@Slf4j
 public class ManagerAggregationService implements IManagerAggregationService {
+    private final IOrganizationService organizationService;
+    private final IPersonService patientService;
+    private final IUidService uidService;
+    private final IObservationService observationService;
+    private final IObservationMatchingService observationMatchingService;
+    private final IProgramAreaService programAreaService;
+    private final IJurisdictionService jurisdictionService;
+    private final IRoleService roleService;
 
-    ManagerUtil managerUtil;
-    IOrganizationService organizationService;
-    IPersonService patientService;
-    IUidService uidService;
-    IObservationService observationService;
-    IObservationMatchingService observationMatchingService;
-    IProgramAreaService programAreaService;
-    IJurisdictionService jurisdictionService;
-    IRoleService roleService;
-
-    public ManagerAggregationService(ManagerUtil managerUtil,
-                                     OrganizationService organizationService,
-                                     PersonService patientService,
-                                     UidService uidService,
-                                     ObservationService observationService,
-                                     ObservationMatchingService observationMatchingService,
-                                     ProgramAreaService programAreaService,
-                                     JurisdictionService jurisdictionService,
-                                     RoleService roleService) {
-        this.managerUtil = managerUtil;
+    public ManagerAggregationService(IOrganizationService organizationService,
+                                     IPersonService patientService,
+                                     IUidService uidService,
+                                     IObservationService observationService,
+                                     IObservationMatchingService observationMatchingService,
+                                     IProgramAreaService programAreaService,
+                                     IJurisdictionService jurisdictionService,
+                                     IRoleService roleService) {
         this.organizationService = organizationService;
         this.patientService = patientService;
         this.uidService = uidService;
@@ -70,6 +55,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
         this.jurisdictionService = jurisdictionService;
         this.roleService = roleService;
     }
+
 
     public EdxLabInformationDto processingObservationMatching(EdxLabInformationDto edxLabInformationDto,
                                                        LabResultProxyContainer labResultProxyContainer,
@@ -100,18 +86,6 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
         return edxLabInformationDto;
     }
-
-    public void serviceAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws DataProcessingConsumerException,
-            DataProcessingException {
-        Collection<ObservationContainer> observationContainerCollection = labResult.getTheObservationContainerCollection();
-        Collection<PersonContainer> personContainerCollection = labResult.getThePersonContainerCollection();
-
-        observationAggregation(labResult, edxLabInformationDto, observationContainerCollection);
-        patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
-        organizationService.processingOrganization(labResult);
-
-    }
-
 
     public void serviceAggregationAsync(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws
             DataProcessingException {
@@ -171,7 +145,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     }
 
 
-    private CompletableFuture<Void> progAndJurisdictionAggregationAsync(LabResultProxyContainer labResult,
+    protected CompletableFuture<Void> progAndJurisdictionAggregationAsync(LabResultProxyContainer labResult,
                                                                         EdxLabInformationDto edxLabInformationDto,
                                                                         PersonAggContainer personAggContainer,
                                                                         OrganizationContainer organizationContainer) {
@@ -213,7 +187,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     }
 
 
-    private void roleAggregation(LabResultProxyContainer labResult) {
+    protected void roleAggregation(LabResultProxyContainer labResult) {
         /**
          *Roles must be checked for NEW, UPDATED, MARK FOR DELETE buckets.
          */
@@ -333,7 +307,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     }
 
 
-    private void observationAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto, Collection<ObservationContainer> observationContainerCollection) {
+    protected void observationAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto, Collection<ObservationContainer> observationContainerCollection) {
         if (observationContainerCollection != null && !observationContainerCollection.isEmpty()) {
             for (ObservationContainer obsVO : observationContainerCollection) {
                 if (obsVO.getTheObservationDto().getObservationUid() == edxLabInformationDto.getRootObserbationUid()
@@ -356,7 +330,8 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
     }
 
-    private PersonAggContainer patientAggregation(LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto,
+    protected PersonAggContainer patientAggregation(LabResultProxyContainer labResultProxyContainer,
+                                                    EdxLabInformationDto edxLabInformationDto,
                                                   Collection<PersonContainer>  personContainerCollection) throws DataProcessingConsumerException, DataProcessingException {
 
         PersonAggContainer container = new PersonAggContainer();
