@@ -246,10 +246,6 @@ public class ManagerCacheService implements IManagerCacheService {
                         SrteCache.loinCodeWithComponentNameMap = (TreeMap<String, String>) cachedObject;
                     }
                 }
-
-
-
-
             }
         });
 
