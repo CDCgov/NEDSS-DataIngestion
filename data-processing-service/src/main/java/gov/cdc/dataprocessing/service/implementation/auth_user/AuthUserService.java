@@ -35,18 +35,4 @@ public class AuthUserService implements IAuthUserService {
         return authUserData;
     }
 
-
-    //DUMMY
-    public AuthUser getSessionProfile(String userName) {
-        var profile = this.authUserRepository.findAuthUserByUserId(userName);
-        if (profile.isPresent()) {
-            return profile.get();
-        } else {
-            // this is for debug and development only
-            AuthUser authUser = new AuthUser();
-            authUser.setAuthUserUid(123L);
-            authUser.setUserId("data-processing");
-            return authUser;
-        }
-    }
 }

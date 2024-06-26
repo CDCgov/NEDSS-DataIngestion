@@ -17,13 +17,9 @@ public class MsgOutEStoredProcService implements IMsgOutEStoredProcService {
     }
 
     @Transactional
-    public void callUpdateSpecimenCollDateSP(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
-        try {
-            storedProcRepository.updateSpecimenCollDateSP(edxLabInformationDto.getNbsInterfaceUid(),
-                    edxLabInformationDto.getRootObservationContainer().getTheObservationDto().getEffectiveFromTime()
-            );
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
-        }
+    public void callUpdateSpecimenCollDateSP(EdxLabInformationDto edxLabInformationDto) {
+        storedProcRepository.updateSpecimenCollDateSP(edxLabInformationDto.getNbsInterfaceUid(),
+                edxLabInformationDto.getRootObservationContainer().getTheObservationDto().getEffectiveFromTime()
+        );
     }
 }

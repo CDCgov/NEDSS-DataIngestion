@@ -6,5 +6,4 @@ import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 
 public interface IAuthUserService {
     AuthUserProfileInfo getAuthUserInfo(String authUserId) throws DataProcessingException;
-    AuthUser getSessionProfile(String userName);
 }
