@@ -478,7 +478,9 @@ public class ManagerService implements IManagerService {
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
             }
 
-            if ((edxLabInformationDto.getPageActContainer() != null || edxLabInformationDto.getPamContainer() != null) && !edxLabInformationDto.isInvestigationSuccessfullyCreated()) {
+            if ((edxLabInformationDto.getPageActContainer() != null
+                    || edxLabInformationDto.getPamContainer() != null)
+                    && !edxLabInformationDto.isInvestigationSuccessfullyCreated()) {
                 if (edxLabInformationDto.isInvestigationMissingFields()) {
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_5);
                 } else {
@@ -565,7 +567,10 @@ public class ManagerService implements IManagerService {
                     edxLabInformationDto.setSystemException(false);
                 }
 
-                if(edxLabInformationDto.isReflexResultedTestCdMissing() || edxLabInformationDto.isResultedTestNameMissing() || edxLabInformationDto.isOrderTestNameMissing() || edxLabInformationDto.isReasonforStudyCdMissing()){
+                if(edxLabInformationDto.isReflexResultedTestCdMissing()
+                        || edxLabInformationDto.isResultedTestNameMissing()
+                        || edxLabInformationDto.isOrderTestNameMissing()
+                        || edxLabInformationDto.isReasonforStudyCdMissing()){
                     try{
                         String exceptionMsg = e.getMessage();
                         String textToLookFor = "XMLElementName: ";

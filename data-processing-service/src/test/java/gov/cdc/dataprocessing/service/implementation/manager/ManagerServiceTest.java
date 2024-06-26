@@ -3,11 +3,13 @@ package gov.cdc.dataprocessing.service.implementation.manager;
 import com.google.gson.Gson;
 import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
+import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
 import gov.cdc.dataprocessing.model.container.model.*;
+import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityLogDto;
@@ -523,5 +525,573 @@ public class ManagerServiceTest {
         verify(nbsInterfaceRepository, times(1)).save(any());
     }
 
+
+    @Test
+    void initiatingLabProcessing_Error_1() throws DataProcessingException {
+        PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = new PublicHealthCaseFlowContainer();
+        var edxLabInfoDto = new EdxLabInformationDto();
+        var obsDto = new ObservationDto();
+        var labResult = new LabResultProxyContainer();
+
+        edxLabInfoDto.setLabIsUpdateDRSA(false);
+        edxLabInfoDto.setLabIsCreate(true);
+        edxLabInfoDto.setWdsReports(new ArrayList<>());
+        var pageAct = new PageActProxyContainer();
+        var phcConn = new PublicHealthCaseContainer();
+        var phcDt = new PublicHealthCaseDto();
+        phcConn.setThePublicHealthCaseDto(phcDt);
+        phcConn.setErrorText("ERROR");
+        pageAct.setPublicHealthCaseContainer(phcConn);
+        edxLabInfoDto.setPageActContainer(pageAct);
+        edxLabInfoDto.setAction(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE);
+        edxLabInfoDto.setAssociatedPublicHealthCaseUid(12L);
+
+        EDXActivityLogDto edx = new EDXActivityLogDto();
+        edx.setEDXActivityLogDTWithVocabDetails(null);
+        edxLabInfoDto.setEdxActivityLogDto(edx);
+
+        obsDto.setJurisdictionCd("A");
+        obsDto.setProgAreaCd("A");
+        obsDto.setObservationUid(11L);
+
+        publicHealthCaseFlowContainer.setEdxLabInformationDto(edxLabInfoDto);
+        publicHealthCaseFlowContainer.setObservationDto(obsDto);
+        publicHealthCaseFlowContainer.setLabResultProxyContainer(labResult);
+        publicHealthCaseFlowContainer.setNbsInterfaceId(10);
+
+        var nbs = new NbsInterfaceModel();
+        nbs.setNbsInterfaceUid(10);
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.of(nbs));
+        when(pageService.setPageProxyWithAutoAssoc(any(), any(),
+                any(), any(), any())).thenReturn(12L);
+
+        EDXActivityDetailLogDto detail = new EDXActivityDetailLogDto();
+        detail.setLogType(null);
+        when(investigationNotificationService.sendNotification(any(), any()))
+                .thenReturn(detail);
+
+
+
+        managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
+        verify(nbsInterfaceRepository, times(1)).save(any());
+    }
+
+    @Test
+    void initiatingLabProcessing_Error_2() throws DataProcessingException {
+        PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = new PublicHealthCaseFlowContainer();
+        var edxLabInfoDto = new EdxLabInformationDto();
+        var obsDto = new ObservationDto();
+        var labResult = new LabResultProxyContainer();
+
+        edxLabInfoDto.setLabIsUpdateDRSA(false);
+        edxLabInfoDto.setLabIsCreate(true);
+        edxLabInfoDto.setWdsReports(new ArrayList<>());
+        var pageAct = new PamProxyContainer();
+        var phcConn = new PublicHealthCaseContainer();
+        var phcDt = new PublicHealthCaseDto();
+        phcConn.setThePublicHealthCaseDto(phcDt);
+        phcConn.setErrorText("ERROR");
+        pageAct.setPublicHealthCaseContainer(phcConn);
+        edxLabInfoDto.setPamContainer(pageAct);
+        edxLabInfoDto.setInvestigationSuccessfullyCreated(true);
+        edxLabInfoDto.setAction(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE);
+        edxLabInfoDto.setAssociatedPublicHealthCaseUid(12L);
+
+        EDXActivityLogDto edx = new EDXActivityLogDto();
+        edx.setEDXActivityLogDTWithVocabDetails(null);
+        edxLabInfoDto.setEdxActivityLogDto(edx);
+
+        obsDto.setJurisdictionCd("A");
+        obsDto.setProgAreaCd("A");
+        obsDto.setObservationUid(11L);
+
+        publicHealthCaseFlowContainer.setEdxLabInformationDto(edxLabInfoDto);
+        publicHealthCaseFlowContainer.setObservationDto(obsDto);
+        publicHealthCaseFlowContainer.setLabResultProxyContainer(labResult);
+        publicHealthCaseFlowContainer.setNbsInterfaceId(10);
+
+        var nbs = new NbsInterfaceModel();
+        nbs.setNbsInterfaceUid(10);
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.of(nbs));
+        when(pageService.setPageProxyWithAutoAssoc(any(), any(),
+                any(), any(), any())).thenReturn(12L);
+
+        EDXActivityDetailLogDto detail = new EDXActivityDetailLogDto();
+        detail.setLogType(null);
+        when(investigationNotificationService.sendNotification(any(), any()))
+                .thenReturn(detail);
+
+
+
+        managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
+        verify(nbsInterfaceRepository, times(1)).save(any());
+    }
+
+
+    @Test
+    void initiatingLabProcessing_Error_3() throws DataProcessingException {
+        PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = new PublicHealthCaseFlowContainer();
+        var edxLabInfoDto = new EdxLabInformationDto();
+        var obsDto = new ObservationDto();
+        var labResult = new LabResultProxyContainer();
+
+        edxLabInfoDto.setLabIsUpdateDRSA(false);
+        edxLabInfoDto.setLabIsCreate(true);
+        edxLabInfoDto.setWdsReports(new ArrayList<>());
+        var pageAct = new PageActProxyContainer();
+        var phcConn = new PublicHealthCaseContainer();
+        var phcDt = new PublicHealthCaseDto();
+        phcConn.setThePublicHealthCaseDto(phcDt);
+        pageAct.setPublicHealthCaseContainer(phcConn);
+        edxLabInfoDto.setPageActContainer(pageAct);
+        edxLabInfoDto.setAction(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE);
+        edxLabInfoDto.setAssociatedPublicHealthCaseUid(12L);
+
+        EDXActivityLogDto edx = new EDXActivityLogDto();
+        var detailLogCol = new ArrayList<EDXActivityDetailLogDto>();
+        var detailLog = new EDXActivityDetailLogDto();
+        detailLog.setLogType(EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure.name());
+        detailLog.setComment(EdxELRConstant.MISSING_NOTF_REQ_FIELDS);
+        detailLogCol.add(detailLog);
+        edx.setEDXActivityLogDTWithVocabDetails(detailLogCol);
+
+
+        edxLabInfoDto.setEdxActivityLogDto(edx);
+
+        obsDto.setJurisdictionCd("A");
+        obsDto.setProgAreaCd("A");
+        obsDto.setObservationUid(11L);
+
+        publicHealthCaseFlowContainer.setEdxLabInformationDto(edxLabInfoDto);
+        publicHealthCaseFlowContainer.setObservationDto(obsDto);
+        publicHealthCaseFlowContainer.setLabResultProxyContainer(labResult);
+        publicHealthCaseFlowContainer.setNbsInterfaceId(10);
+
+        var nbs = new NbsInterfaceModel();
+        nbs.setNbsInterfaceUid(10);
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.of(nbs));
+        when(pageService.setPageProxyWithAutoAssoc(any(), any(),
+                any(), any(), any())).thenReturn(12L);
+
+
+        when(investigationNotificationService.sendNotification(any(), any()))
+                .thenReturn(detailLog);
+
+
+
+        managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
+        verify(nbsInterfaceRepository, times(1)).save(any());
+    }
+
+    @Test
+    void initiatingLabProcessing_Error_4() throws DataProcessingException {
+        PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = new PublicHealthCaseFlowContainer();
+        var edxLabInfoDto = new EdxLabInformationDto();
+        var obsDto = new ObservationDto();
+        var labResult = new LabResultProxyContainer();
+
+        edxLabInfoDto.setLabIsUpdateDRSA(false);
+        edxLabInfoDto.setLabIsCreate(true);
+        edxLabInfoDto.setWdsReports(new ArrayList<>());
+        var pageAct = new PageActProxyContainer();
+        var phcConn = new PublicHealthCaseContainer();
+        var phcDt = new PublicHealthCaseDto();
+        phcConn.setThePublicHealthCaseDto(phcDt);
+        pageAct.setPublicHealthCaseContainer(phcConn);
+        edxLabInfoDto.setPageActContainer(pageAct);
+        edxLabInfoDto.setAction(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE);
+        edxLabInfoDto.setAssociatedPublicHealthCaseUid(12L);
+
+        EDXActivityLogDto edx = new EDXActivityLogDto();
+        var detailLogCol = new ArrayList<EDXActivityDetailLogDto>();
+        var detailLog = new EDXActivityDetailLogDto();
+        detailLog.setLogType(EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure.name());
+        detailLog.setComment(EdxELRConstant.MISSING_NOTF_REQ_FIELDS);
+        detailLogCol.add(detailLog);
+        edx.setEDXActivityLogDTWithVocabDetails(detailLogCol);
+
+
+        edxLabInfoDto.setEdxActivityLogDto(edx);
+
+        obsDto.setJurisdictionCd("A");
+        obsDto.setProgAreaCd("A");
+        obsDto.setObservationUid(11L);
+
+        publicHealthCaseFlowContainer.setEdxLabInformationDto(edxLabInfoDto);
+        publicHealthCaseFlowContainer.setObservationDto(obsDto);
+        publicHealthCaseFlowContainer.setLabResultProxyContainer(labResult);
+        publicHealthCaseFlowContainer.setNbsInterfaceId(10);
+
+        var nbs = new NbsInterfaceModel();
+        nbs.setNbsInterfaceUid(10);
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.of(nbs));
+        when(pageService.setPageProxyWithAutoAssoc(any(), any(),
+                any(), any(), any())).thenReturn(12L);
+
+
+        detailLog.setComment(null);
+        when(investigationNotificationService.sendNotification(any(), any()))
+                .thenReturn(detailLog);
+
+
+
+        managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
+        verify(nbsInterfaceRepository, times(1)).save(any());
+    }
+
+    @Test
+    void processDistribution_Error_1() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+        var test = new TestDataReader();
+        String eventType = EVENT_ELR;
+
+        NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
+        Gson gson = new Gson();
+        String data = gson.toJson(labData);
+
+
+        //   managerService.processDistribution(eventType, data);
+        CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
+        when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
+        when(mockedFuture.join()).thenReturn(null); // You can adjust this to simulate different behaviors
+
+        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
+        when(dataExtractionService.parsingDataToObject(any(), any())).thenReturn(labResultProxyContainer);
+
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        edxLabInformationDto.setLabIsUpdateDRRQ(true);
+        edxLabInformationDto.setLabIsCreate(true);
+        edxLabInformationDto.setLabIsCreateSuccess(true);
+        edxLabInformationDto.setProgramAreaName(null);
+        var edxAcLog = new EDXActivityLogDto();
+        edxLabInformationDto.setEdxActivityLogDto(edxAcLog);
+        var conn = new PageActProxyContainer();
+        edxLabInformationDto.setPageActContainer(conn);
+        edxLabInformationDto.setInvestigationMissingFields(true);
+        edxLabInformationDto.setReflexResultedTestCdMissing(true);
+        when(managerAggregationService.processingObservationMatching(any(), any(), any())).thenReturn(edxLabInformationDto);
+
+
+
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setLocalId("LOCAL");
+        observationDto.setObservationUid(10L);
+        observationDto.setProgAreaCd("A");
+        SrteCache.programAreaCodesMap.put("A", "A");
+        observationDto.setJurisdictionCd("A");
+        SrteCache.jurisdictionCodeMap.put("A", "A");
+
+        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException("Invalid XML"));;
+
+
+        managerService.processDistribution(eventType, data);
+
+        verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
+    }
+
+    @Test
+    void processDistribution_Error_2() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+        var test = new TestDataReader();
+        String eventType = EVENT_ELR;
+
+        NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
+        Gson gson = new Gson();
+        String data = gson.toJson(labData);
+
+
+        //   managerService.processDistribution(eventType, data);
+        CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
+        when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
+        when(mockedFuture.join()).thenReturn(null); // You can adjust this to simulate different behaviors
+
+        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
+        when(dataExtractionService.parsingDataToObject(any(), any())).thenReturn(labResultProxyContainer);
+
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        edxLabInformationDto.setLabIsUpdateDRRQ(true);
+        edxLabInformationDto.setLabIsCreate(true);
+        edxLabInformationDto.setLabIsCreateSuccess(true);
+        edxLabInformationDto.setProgramAreaName(null);
+        var edxAcLog = new EDXActivityLogDto();
+        edxLabInformationDto.setEdxActivityLogDto(edxAcLog);
+        var conn = new PageActProxyContainer();
+        edxLabInformationDto.setPageActContainer(conn);
+        edxLabInformationDto.setInvestigationMissingFields(false);
+        edxLabInformationDto.setReflexResultedTestCdMissing(true);
+        when(managerAggregationService.processingObservationMatching(any(), any(), any())).thenReturn(edxLabInformationDto);
+
+
+
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setLocalId("LOCAL");
+        observationDto.setObservationUid(10L);
+        observationDto.setProgAreaCd("A");
+        SrteCache.programAreaCodesMap.put("A", "A");
+        observationDto.setJurisdictionCd("A");
+        SrteCache.jurisdictionCodeMap.put("A", "A");
+
+        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));;
+
+
+        managerService.processDistribution(eventType, data);
+
+        verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
+    }
+
+    @Test
+    void processDistribution_Error_3() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+        var test = new TestDataReader();
+        String eventType = EVENT_ELR;
+
+        NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
+        Gson gson = new Gson();
+        String data = gson.toJson(labData);
+
+
+        //   managerService.processDistribution(eventType, data);
+        CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
+        when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
+        when(mockedFuture.join()).thenReturn(null); // You can adjust this to simulate different behaviors
+
+        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
+        when(dataExtractionService.parsingDataToObject(any(), any())).thenReturn(labResultProxyContainer);
+
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        edxLabInformationDto.setLabIsUpdateDRRQ(true);
+        edxLabInformationDto.setLabIsCreate(true);
+        edxLabInformationDto.setLabIsCreateSuccess(true);
+        edxLabInformationDto.setProgramAreaName(null);
+        var edxAcLog = new EDXActivityLogDto();
+        edxLabInformationDto.setEdxActivityLogDto(edxAcLog);
+        var conn = new PageActProxyContainer();
+        edxLabInformationDto.setPageActContainer(conn);
+        edxLabInformationDto.setInvestigationMissingFields(false);
+        edxLabInformationDto.setReflexResultedTestCdMissing(true);
+        edxLabInformationDto.setInvestigationSuccessfullyCreated(true);
+        when(managerAggregationService.processingObservationMatching(any(), any(), any())).thenReturn(edxLabInformationDto);
+
+
+
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setLocalId("LOCAL");
+        observationDto.setObservationUid(10L);
+        observationDto.setProgAreaCd("A");
+        SrteCache.programAreaCodesMap.put("A", "A");
+        observationDto.setJurisdictionCd("A");
+        SrteCache.jurisdictionCodeMap.put("A", "A");
+
+        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));;
+
+
+        managerService.processDistribution(eventType, data);
+
+        verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
+    }
+
+    @Test
+    void processDistribution_Error_4() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+        var test = new TestDataReader();
+        String eventType = EVENT_ELR;
+
+        NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
+        Gson gson = new Gson();
+        String data = gson.toJson(labData);
+
+
+        //   managerService.processDistribution(eventType, data);
+        CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
+        when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
+        when(mockedFuture.join()).thenReturn(null); // You can adjust this to simulate different behaviors
+
+        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
+        when(dataExtractionService.parsingDataToObject(any(), any())).thenReturn(labResultProxyContainer);
+
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        edxLabInformationDto.setLabIsUpdateDRRQ(true);
+        edxLabInformationDto.setLabIsCreate(true);
+        edxLabInformationDto.setLabIsCreateSuccess(true);
+        edxLabInformationDto.setProgramAreaName(null);
+        var edxAcLog = new EDXActivityLogDto();
+        edxLabInformationDto.setEdxActivityLogDto(edxAcLog);
+        var conn = new PageActProxyContainer();
+        edxLabInformationDto.setPageActContainer(conn);
+        edxLabInformationDto.setInvestigationMissingFields(false);
+        edxLabInformationDto.setReflexResultedTestCdMissing(true);
+        edxLabInformationDto.setInvestigationSuccessfullyCreated(true);
+        edxLabInformationDto.setNotificationMissingFields(true);
+        when(managerAggregationService.processingObservationMatching(any(), any(), any())).thenReturn(edxLabInformationDto);
+
+
+
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setLocalId("LOCAL");
+        observationDto.setObservationUid(10L);
+        observationDto.setProgAreaCd("A");
+        SrteCache.programAreaCodesMap.put("A", "A");
+        observationDto.setJurisdictionCd("A");
+        SrteCache.jurisdictionCodeMap.put("A", "A");
+
+        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));;
+
+
+        managerService.processDistribution(eventType, data);
+
+        verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
+    }
+
+    @Test
+    void processDistribution_Error_5() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+        var test = new TestDataReader();
+        String eventType = EVENT_ELR;
+
+        NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
+        Gson gson = new Gson();
+        String data = gson.toJson(labData);
+
+
+        //   managerService.processDistribution(eventType, data);
+        CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
+        when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
+        when(mockedFuture.join()).thenReturn(null); // You can adjust this to simulate different behaviors
+
+        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
+        when(dataExtractionService.parsingDataToObject(any(), any())).thenReturn(labResultProxyContainer);
+
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        edxLabInformationDto.setLabIsUpdateDRRQ(true);
+        edxLabInformationDto.setLabIsCreate(true);
+        edxLabInformationDto.setLabIsCreateSuccess(true);
+        edxLabInformationDto.setProgramAreaName(null);
+        var edxAcLog = new EDXActivityLogDto();
+        edxLabInformationDto.setEdxActivityLogDto(edxAcLog);
+        var conn = new PageActProxyContainer();
+        edxLabInformationDto.setPageActContainer(null);
+        edxLabInformationDto.setInvestigationMissingFields(false);
+        edxLabInformationDto.setReflexResultedTestCdMissing(true);
+        edxLabInformationDto.setInvestigationSuccessfullyCreated(true);
+        edxLabInformationDto.setNotificationMissingFields(true);
+        edxLabInformationDto.setErrorText(null);
+        when(managerAggregationService.processingObservationMatching(any(), any(), any())).thenReturn(edxLabInformationDto);
+
+
+
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setLocalId("LOCAL");
+        observationDto.setObservationUid(10L);
+        observationDto.setProgAreaCd("A");
+        SrteCache.programAreaCodesMap.put("A", "A");
+        observationDto.setJurisdictionCd("A");
+        SrteCache.jurisdictionCodeMap.put("A", "A");
+
+        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));;
+
+
+        managerService.processDistribution(eventType, data);
+
+        verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
+    }
+
+    @Test
+    void processDistribution_Error_6() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+        var test = new TestDataReader();
+        String eventType = EVENT_ELR;
+
+        NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
+        Gson gson = new Gson();
+        String data = gson.toJson(labData);
+
+
+        //   managerService.processDistribution(eventType, data);
+        CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
+        when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
+        when(mockedFuture.join()).thenReturn(null); // You can adjust this to simulate different behaviors
+
+        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
+        when(dataExtractionService.parsingDataToObject(any(), any())).thenReturn(labResultProxyContainer);
+
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        edxLabInformationDto.setLabIsUpdateDRRQ(true);
+        edxLabInformationDto.setLabIsCreate(true);
+        edxLabInformationDto.setLabIsCreateSuccess(true);
+        edxLabInformationDto.setProgramAreaName(null);
+        var edxAcLog = new EDXActivityLogDto();
+        edxLabInformationDto.setEdxActivityLogDto(edxAcLog);
+        var conn = new PageActProxyContainer();
+        edxLabInformationDto.setPageActContainer(null);
+        edxLabInformationDto.setInvestigationMissingFields(false);
+        edxLabInformationDto.setReflexResultedTestCdMissing(true);
+        edxLabInformationDto.setInvestigationSuccessfullyCreated(true);
+        edxLabInformationDto.setNotificationMissingFields(true);
+        edxLabInformationDto.setErrorText(null);
+        when(managerAggregationService.processingObservationMatching(any(), any(), any())).thenReturn(edxLabInformationDto);
+
+
+
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setLocalId("LOCAL");
+        observationDto.setObservationUid(10L);
+        observationDto.setProgAreaCd("A");
+        SrteCache.programAreaCodesMap.put("A", "A");
+        observationDto.setJurisdictionCd("A");
+        SrteCache.jurisdictionCodeMap.put("A", "A");
+
+        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.DATE_VALIDATION));;
+
+
+        managerService.processDistribution(eventType, data);
+
+        verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
+    }
+
+    @Test
+    void processDistribution_Error_7() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+        var test = new TestDataReader();
+        String eventType = EVENT_ELR;
+
+        NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
+        Gson gson = new Gson();
+        String data = gson.toJson(labData);
+
+
+        //   managerService.processDistribution(eventType, data);
+        CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
+        when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
+        when(mockedFuture.join()).thenReturn(null); // You can adjust this to simulate different behaviors
+
+        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
+        when(dataExtractionService.parsingDataToObject(any(), any())).thenReturn(labResultProxyContainer);
+
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        edxLabInformationDto.setLabIsUpdateDRRQ(true);
+        edxLabInformationDto.setLabIsCreate(true);
+        edxLabInformationDto.setLabIsCreateSuccess(true);
+        edxLabInformationDto.setProgramAreaName(null);
+        var edxAcLog = new EDXActivityLogDto();
+        edxLabInformationDto.setEdxActivityLogDto(edxAcLog);
+        var conn = new PageActProxyContainer();
+        edxLabInformationDto.setPageActContainer(null);
+        edxLabInformationDto.setInvestigationMissingFields(false);
+        edxLabInformationDto.setReflexResultedTestCdMissing(true);
+        edxLabInformationDto.setInvestigationSuccessfullyCreated(true);
+        edxLabInformationDto.setNotificationMissingFields(true);
+        edxLabInformationDto.setErrorText(null);
+        when(managerAggregationService.processingObservationMatching(any(), any(), any())).thenReturn(edxLabInformationDto);
+
+
+
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setLocalId("LOCAL");
+        observationDto.setObservationUid(10L);
+        observationDto.setProgAreaCd("A");
+        SrteCache.programAreaCodesMap.put("A", "A");
+        observationDto.setJurisdictionCd("A");
+        SrteCache.jurisdictionCodeMap.put("A", "A");
+
+        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException("BLAH"));;
+
+
+        managerService.processDistribution(eventType, data);
+
+        verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
+    }
 
 }
