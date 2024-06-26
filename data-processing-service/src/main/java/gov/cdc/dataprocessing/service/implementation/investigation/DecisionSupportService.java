@@ -156,7 +156,8 @@ public class DecisionSupportService implements IDecisionSupportService {
         }
     }
 
-    private boolean checkActiveWdsAlgorithm(EdxLabInformationDto edxLabInformationDT,
+
+    protected boolean checkActiveWdsAlgorithm(EdxLabInformationDto edxLabInformationDT,
                                                              List<DsmLabMatchHelper> activeElrAlgorithmList ) throws DataProcessingException {
         boolean elrAlgorithmsPresent;
         // Validating existing WDS Algorithm
@@ -179,14 +180,20 @@ public class DecisionSupportService implements IDecisionSupportService {
                 DSMAlgorithmDto algorithmDT = new DSMAlgorithmDto(dsmAlgorithm);
                 String algorithmString = algorithmDT.getAlgorithmPayload();
                 //skip inactive and case reports
-                if (algorithmDT.getStatusCd() != null && algorithmDT.getStatusCd().contentEquals(NEDSSConstant.INACTIVE) ||
-                        algorithmDT.getEventType() != null && algorithmDT.getEventType().equals(NEDSSConstant.PHC_236))
+                if (algorithmDT.getStatusCd() != null
+                        && algorithmDT.getStatusCd().equals(NEDSSConstant.INACTIVE) ||
+                        algorithmDT.getEventType() != null
+                                && algorithmDT.getEventType().equals(NEDSSConstant.PHC_236))
                 {
                     continue; //skip inactive
                 }
 
                 // Suppose to be Algorithm
-                Algorithm algorithmDocument = parseAlgorithmXml(algorithmString);
+                Algorithm algorithmDocument = null;
+
+                if (algorithmString != null) {
+                    algorithmDocument = parseAlgorithmXml(algorithmString);
+                }
                 //helper class DSMLabMatchHelper will assist with algorithm matching
                 DsmLabMatchHelper dsmLabMatchHelper = null;
                 try {
@@ -222,7 +229,7 @@ public class DecisionSupportService implements IDecisionSupportService {
     }
 
 
-    private ObservationContainer setupObservationValuesForWds(
+    protected ObservationContainer setupObservationValuesForWds(
                         EdxLabInformationDto edxLabInformationDT,
                         LabResultProxyContainer labResultProxyVO,
                         Collection<ObservationContainer>  resultedTestColl,

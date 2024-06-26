@@ -22,6 +22,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PublicHealth
 import gov.cdc.dataprocessing.service.implementation.auth_user.AuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IAutoInvestigationService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
+import gov.cdc.dataprocessing.service.model.decision_support.DsmLabMatchHelper;
 import gov.cdc.dataprocessing.test_data.TestData;
 import gov.cdc.dataprocessing.test_data.TestDataReader;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -222,6 +223,64 @@ public class DecisionSupportServiceTest {
         assertFalse(res);
     }
 
+    @Test
+    void checkActiveWdsAlgorithm_Test() throws DataProcessingException {
+        EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
+        List<DsmLabMatchHelper> activeElrAlgorithmList = new ArrayList<>();
 
+        var dsmLst = new ArrayList<DsmAlgorithm>();
+        var dsm = new DsmAlgorithm();
+        dsmLst.add(dsm);
+        when(dsmAlgorithmService.findActiveDsmAlgorithm()).thenReturn(dsmLst);
+
+        var res = decisionSupportService.checkActiveWdsAlgorithm(edxLabInformationDT, activeElrAlgorithmList);
+
+        assertFalse(res);
+    }
+
+
+    @Test
+    void checkActiveWdsAlgorithm_Test_2() throws DataProcessingException {
+        EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
+        List<DsmLabMatchHelper> activeElrAlgorithmList = new ArrayList<>();
+
+
+        var res = decisionSupportService.checkActiveWdsAlgorithm(edxLabInformationDT, activeElrAlgorithmList);
+
+        assertFalse(res);
+    }
+
+
+    @Test
+    void checkActiveWdsAlgorithm_Test_3() throws DataProcessingException {
+        EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
+        List<DsmLabMatchHelper> activeElrAlgorithmList = new ArrayList<>();
+
+        var dsmLst = new ArrayList<DsmAlgorithm>();
+        var dsm = new DsmAlgorithm();
+        dsm.setStatusCd(NEDSSConstant.INACTIVE);
+        dsmLst.add(dsm);
+        when(dsmAlgorithmService.findActiveDsmAlgorithm()).thenReturn(dsmLst);
+
+        var res = decisionSupportService.checkActiveWdsAlgorithm(edxLabInformationDT, activeElrAlgorithmList);
+
+        assertFalse(res);
+    }
+
+    @Test
+    void checkActiveWdsAlgorithm_Test_4() throws DataProcessingException {
+        EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
+        List<DsmLabMatchHelper> activeElrAlgorithmList = new ArrayList<>();
+
+        var dsmLst = new ArrayList<DsmAlgorithm>();
+        var dsm = new DsmAlgorithm();
+        dsm.setEventType(NEDSSConstant.PHC_236);
+        dsmLst.add(dsm);
+        when(dsmAlgorithmService.findActiveDsmAlgorithm()).thenReturn(dsmLst);
+
+        var res = decisionSupportService.checkActiveWdsAlgorithm(edxLabInformationDT, activeElrAlgorithmList);
+
+        assertFalse(res);
+    }
 
 }
