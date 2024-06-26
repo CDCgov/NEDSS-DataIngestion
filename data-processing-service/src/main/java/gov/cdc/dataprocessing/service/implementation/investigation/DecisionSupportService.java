@@ -321,7 +321,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                 checkActionNotMarkedAsReviewed(algorithmDocument)
         ) && applyAdvInvLogic;
     }
-    private void updateObservationBasedOnAction(Algorithm algorithmDocument,
+    protected void updateObservationBasedOnAction(Algorithm algorithmDocument,
                                                 boolean criteriaMatch,
                                                 String conditionCode,
                                                 ObservationContainer orderedTestObservationVO,
@@ -485,7 +485,9 @@ public class DecisionSupportService implements IDecisionSupportService {
                                     && metaData.getDataType().toUpperCase().startsWith("PART"))
                             {
                                 entityMapCollection.add(edxRuleManageDT);
-                                if (edxRuleManageDT.getParticipationTypeCode() == null || edxRuleManageDT.getParticipationUid() == null || edxRuleManageDT.getParticipationClassCode() == null) {
+                                if (edxRuleManageDT.getParticipationTypeCode() == null
+                                        || edxRuleManageDT.getParticipationUid() == null
+                                        || edxRuleManageDT.getParticipationClassCode() == null) {
                                     throw new Exception("ValidateDecisionSupport.validateProxyVO Exception thrown for edxRuleManageDT:-" + edxRuleManageDT);
                                 }
                             }
@@ -565,7 +567,8 @@ public class DecisionSupportService implements IDecisionSupportService {
      * Execute when action in available
      * */
     @SuppressWarnings("java:S6541")
-    private boolean specimenCollectionDateCriteria(EventDateLogicType eventDateLogicType,EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
+    protected boolean specimenCollectionDateCriteria(EventDateLogicType eventDateLogicType,
+                                                     EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
         boolean isdateLogicValidForNewInv;
         String comparatorCode="";
         int value=0;
@@ -608,7 +611,8 @@ public class DecisionSupportService implements IDecisionSupportService {
 
             if(comparatorCode.length() > 0 && mprUid > 0)
             {
-                Collection<PublicHealthCaseDto> associatedPhcDTCollection = publicHealthCaseStoredProcRepository.associatedPublicHealthCaseForMprForCondCd(mprUid, edxLabInformationDT.getConditionCode());
+                Collection<PublicHealthCaseDto> associatedPhcDTCollection = publicHealthCaseStoredProcRepository
+                        .associatedPublicHealthCaseForMprForCondCd(mprUid, edxLabInformationDT.getConditionCode());
 
                 if(associatedPhcDTCollection!=null && associatedPhcDTCollection.size()>0){
                     for (PublicHealthCaseDto publicHealthCaseDto : associatedPhcDTCollection) {
@@ -626,18 +630,10 @@ public class DecisionSupportService implements IDecisionSupportService {
                         int daysDifference = (int) specimenCollectionDays - (int) dateCompare;
 
                         if (publicHealthCaseDto.getAssociatedSpecimenCollDate() != null) {
-                            if (comparatorCode.contains(NEDSSConstant.LESS_THAN_LOGIC) && daysDifference > value) {
-                                isdateLogicValidWithThisInv = false;
-                            }
-                            else if (comparatorCode.contains(NEDSSConstant.GREATER_THAN_LOGIC) && daysDifference < value) {
-                                isdateLogicValidWithThisInv = false;
-                            }
-                            else if (comparatorCode.equals(NEDSSConstant.EQUAL_LOGIC) && daysDifference != value) {
-                                isdateLogicValidWithThisInv = false;
-                            }
-                            else if (!comparatorCode.contains(NEDSSConstant.EQUAL_LOGIC) && daysDifference == value) {
-                                isdateLogicValidWithThisInv = false;
-                            }
+                            isdateLogicValidWithThisInv = specimenDateTimeCheck(
+                                    comparatorCode, daysDifference,
+                                    value, isdateLogicValidWithThisInv
+                            );
                         }
                         if (isdateLogicValidWithThisInv) {
                             if (edxLabInformationDT.getMatchingPublicHealthCaseDtoColl() == null)
@@ -668,11 +664,27 @@ public class DecisionSupportService implements IDecisionSupportService {
         return isdateLogicValidForNewInv;
     }
 
+    protected boolean specimenDateTimeCheck(String comparatorCode, int daysDifference,
+                                            int value, boolean isdateLogicValidWithThisInv) {
+        if (comparatorCode.contains(NEDSSConstant.LESS_THAN_LOGIC) && daysDifference > value) {
+            isdateLogicValidWithThisInv = false;
+        }
+        else if (comparatorCode.contains(NEDSSConstant.GREATER_THAN_LOGIC) && daysDifference < value) {
+            isdateLogicValidWithThisInv = false;
+        }
+        else if (comparatorCode.equals(NEDSSConstant.EQUAL_LOGIC) && daysDifference != value) {
+            isdateLogicValidWithThisInv = false;
+        }
+        else if (!comparatorCode.contains(NEDSSConstant.EQUAL_LOGIC) && daysDifference == value) {
+            isdateLogicValidWithThisInv = false;
+        }
+        return isdateLogicValidWithThisInv;
+    }
     /**
      * Execute when action is review
      * */
     @SuppressWarnings("java:S6541")
-    private boolean checkAdvancedInvCriteria(Algorithm algorithmDocument,
+    protected boolean checkAdvancedInvCriteria(Algorithm algorithmDocument,
                                              EdxLabInformationDto edxLabInformationDT,
                                              Map<Object, Object> questionIdentifierMap) throws DataProcessingException {
         boolean isAdvancedInvCriteriaMet = false;

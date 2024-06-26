@@ -5,15 +5,14 @@ import com.google.gson.reflect.TypeToken;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
-import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
-import gov.cdc.dataprocessing.model.container.model.PageActProxyContainer;
-import gov.cdc.dataprocessing.model.container.model.PersonContainer;
+import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
+import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dsma_algorithm.*;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleManageDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.dsm.DsmAlgorithm;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomAuthUserRepository;
@@ -23,6 +22,7 @@ import gov.cdc.dataprocessing.service.implementation.auth_user.AuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IAutoInvestigationService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.service.model.decision_support.DsmLabMatchHelper;
+import gov.cdc.dataprocessing.service.model.wds.WdsReport;
 import gov.cdc.dataprocessing.test_data.TestData;
 import gov.cdc.dataprocessing.test_data.TestDataReader;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -38,11 +38,14 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Type;
+import java.math.BigInteger;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 public class DecisionSupportServiceTest {
     @Mock
@@ -283,4 +286,226 @@ public class DecisionSupportServiceTest {
         assertFalse(res);
     }
 
+    @Test
+    void updateObservationBasedOnAction_Test() throws DataProcessingException {
+        Algorithm algorithmDocument = new Algorithm();
+        var actionType = new ActionType();
+        var review = new MarkAsReviewedType();
+        var code = new CodedType();
+        code.setCode("2");
+        review.setOnFailureToMarkAsReviewed(code);
+        actionType.setMarkAsReviewed(review);
+        algorithmDocument.setAction(actionType);
+        var elrAdv = new ElrAdvancedCriteriaType();
+        var invLogic = new InvLogicType();
+        var codeType = new CodedType();
+        codeType.setCode(NEDSSConstant.YES);
+        invLogic.setInvLogicInd(codeType);
+        elrAdv.setInvLogic(invLogic);
+        algorithmDocument.setElrAdvancedCriteria(elrAdv);
+
+        boolean criteriaMatch = true;
+        String conditionCode = "TEST";
+        ObservationContainer orderedTestObservationVO = new ObservationContainer();
+        Collection<PersonContainer> personVOCollection = new ArrayList<>();
+        EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
+        WdsReport wdsReport = new WdsReport();
+        Map<Object, Object> questionIdentifierMap = new HashMap<>();
+
+        decisionSupportService.updateObservationBasedOnAction(algorithmDocument, criteriaMatch, conditionCode,
+                orderedTestObservationVO, personVOCollection, edxLabInformationDT, wdsReport, questionIdentifierMap);
+
+        verify(edxPhcrDocumentUtil, times(1)).loadQuestions(any());
+    }
+
+    @Test
+    void updateObservationBasedOnAction_Test_2() throws DataProcessingException {
+        Algorithm algorithmDocument = new Algorithm();
+        var actionType = new ActionType();
+        var review = new CreateInvestigationType();
+        var code = new CodedType();
+        code.setCode("2");
+        review.setOnFailureToCreateInvestigation(code);
+        actionType.setCreateInvestigation(review);
+        algorithmDocument.setAction(actionType);
+        var elrAdv = new ElrAdvancedCriteriaType();
+        var invLogic = new InvLogicType();
+        var codeType = new CodedType();
+        codeType.setCode(NEDSSConstant.YES);
+        invLogic.setInvLogicInd(codeType);
+        elrAdv.setInvLogic(invLogic);
+        algorithmDocument.setElrAdvancedCriteria(elrAdv);
+
+        boolean criteriaMatch = true;
+        String conditionCode = "TEST";
+        ObservationContainer orderedTestObservationVO = new ObservationContainer();
+        Collection<PersonContainer> personVOCollection = new ArrayList<>();
+        EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
+        var ruleMap = new HashMap<>();
+        var rule = new EdxRuleManageDto();
+        ruleMap.put("1", rule);
+        rule = new EdxRuleManageDto();
+        ruleMap.put("2", rule);
+        rule = new EdxRuleManageDto();
+        ruleMap.put("3", rule);
+        rule = new EdxRuleManageDto();
+        ruleMap.put("4", rule);
+        rule = new EdxRuleManageDto();
+        ruleMap.put("5", rule);
+        rule = new EdxRuleManageDto();
+        ruleMap.put("6", rule);
+        rule = new EdxRuleManageDto();
+        rule.setParticipationClassCode("CODE");
+        rule.setParticipationUid(1L);
+        rule.setParticipationTypeCode("CODE");
+        ruleMap.put("7", rule);
+        edxLabInformationDT.setEdxRuleApplyDTMap(ruleMap);
+        WdsReport wdsReport = new WdsReport();
+        Map<Object, Object> questionIdentifierMap = new HashMap<>();
+
+        var pam = new PageActProxyContainer();
+        pam.setPublicHealthCaseContainer(new PublicHealthCaseContainer());
+        pam.setPageVO(new BasePamContainer());
+
+        var questionMap = new HashMap<>();
+        var question = new NbsQuestionMetadata();
+        question.setDataLocation("PUBLIC_HEALTH_CASE");
+        questionMap.put("1", question);
+        question = new NbsQuestionMetadata();
+        question.setDataLocation("NBS_CASE_ANSWER");
+        questionMap.put("2", question);
+        question = new NbsQuestionMetadata();
+        question.setDataLocation("CONFIRMATION_METHOD.CONFIRMATION_METHOD_CD");
+        questionMap.put("3", question);
+        question = new NbsQuestionMetadata();
+        question.setDataLocation("CONFIRMATION_METHOD.CONFIRMATION_METHOD_TIME");
+        questionMap.put("4", question);
+        question = new NbsQuestionMetadata();
+        question.setDataLocation("ACT_ID.ROOT_EXTENSION_TXT");
+        questionMap.put("5", question);
+        question = new NbsQuestionMetadata();
+        question.setDataLocation("CASE_MANAGEMENT");
+        questionMap.put("6", question);
+        question = new NbsQuestionMetadata();
+        question.setDataLocation("PART");
+        question.setDataType("PART");
+        questionMap.put("7", question);
+
+        questionMap.put("_REQUIRED", new HashMap<>());
+
+
+
+
+        when(edxPhcrDocumentUtil.loadQuestions(any()))
+                .thenReturn(questionMap);
+
+        when(autoInvestigationService.autoCreateInvestigation(any(), any()))
+                .thenReturn(pam);
+
+
+        decisionSupportService.updateObservationBasedOnAction(algorithmDocument, criteriaMatch, conditionCode,
+                orderedTestObservationVO, personVOCollection, edxLabInformationDT, wdsReport, questionIdentifierMap);
+
+        verify(edxPhcrDocumentUtil, times(1)).loadQuestions(any());
+    }
+
+
+    @Test
+    void updateObservationBasedOnAction_Test_3() throws DataProcessingException {
+        Algorithm algorithmDocument = new Algorithm();
+        var actionType = new ActionType();
+        var review = new CreateInvestigationType();
+        var code = new CodedType();
+        code.setCode("2");
+        review.setOnFailureToCreateInvestigation(code);
+        actionType.setCreateInvestigation(review);
+        algorithmDocument.setAction(actionType);
+        var elrAdv = new ElrAdvancedCriteriaType();
+        var invLogic = new InvLogicType();
+        var codeType = new CodedType();
+        codeType.setCode(NEDSSConstant.YES);
+        invLogic.setInvLogicInd(codeType);
+        elrAdv.setInvLogic(invLogic);
+        algorithmDocument.setElrAdvancedCriteria(elrAdv);
+
+        boolean criteriaMatch = true;
+        String conditionCode = "TEST";
+        ObservationContainer orderedTestObservationVO = new ObservationContainer();
+        Collection<PersonContainer> personVOCollection = new ArrayList<>();
+        EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
+        var ruleMap = new HashMap<>();
+        var rule = new EdxRuleManageDto();
+        ruleMap.put("1", rule);
+        edxLabInformationDT.setEdxRuleApplyDTMap(ruleMap);
+        WdsReport wdsReport = new WdsReport();
+        Map<Object, Object> questionIdentifierMap = new HashMap<>();
+
+        var pam = new PamProxyContainer();
+        pam.setPublicHealthCaseContainer(new PublicHealthCaseContainer());
+        pam.setPamVO(new BasePamContainer());
+
+        var questionMap = new HashMap<>();
+        var question = new NbsQuestionMetadata();
+        question.setDataLocation("PUBLIC_HEALTH_CASE");
+        questionMap.put("1", question);
+
+        when(edxPhcrDocumentUtil.loadQuestions(any()))
+                .thenReturn(questionMap);
+
+        when(autoInvestigationService.autoCreateInvestigation(any(), any()))
+                .thenReturn(pam);
+
+
+        decisionSupportService.updateObservationBasedOnAction(algorithmDocument, criteriaMatch, conditionCode,
+                orderedTestObservationVO, personVOCollection, edxLabInformationDT, wdsReport, questionIdentifierMap);
+
+        verify(edxPhcrDocumentUtil, times(1)).loadQuestions(any());
+    }
+
+    @Test
+    void specimenCollectionDateCriteria_Test() throws DataProcessingException {
+        EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
+        edxLabInformationDT.setPersonParentUid(10L);
+        edxLabInformationDT.setConditionCode("COND");
+        var obs = new ObservationContainer();
+        var obsDt = new ObservationDto();
+        obsDt.setEffectiveFromTime(TimeStampUtil.getCurrentTimeStampPlusOneHour());
+        obs.setTheObservationDto(obsDt);
+        edxLabInformationDT.setRootObservationContainer(obs);
+        EventDateLogicType eventDateLogicType = new EventDateLogicType();
+
+        var elrTimeLogic = new ElrTimeLogicType();
+        var codeType = new CodedType();
+        codeType.setCode(NEDSSConstant.YES);
+        elrTimeLogic.setElrTimeLogicInd(codeType);
+        eventDateLogicType.setElrTimeLogic(elrTimeLogic);
+
+        var withinTime = new IntegerNumericType();
+        codeType = new CodedType();
+        codeType.setCode("BLAH");
+        withinTime.setComparatorCode(codeType);
+        withinTime.setUnit(codeType);
+        withinTime.setValue1(BigInteger.ONE);
+
+        eventDateLogicType.setWithinTimePeriod(withinTime);
+
+
+        var phcDtCol = new ArrayList<PublicHealthCaseDto>();
+        var phcDt = new PublicHealthCaseDto();
+        phcDt.setAssociatedSpecimenCollDate(TimeStampUtil.getCurrentTimeStamp());
+        phcDt.setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        phcDt.setPublicHealthCaseUid(11L);
+        phcDtCol.add(phcDt);
+        phcDt = new PublicHealthCaseDto();
+        phcDt.setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        phcDt.setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        phcDt.setPublicHealthCaseUid(12L);
+        phcDtCol.add(phcDt);
+        when(publicHealthCaseStoredProcRepository.associatedPublicHealthCaseForMprForCondCd(any(), any()))
+                .thenReturn(phcDtCol);
+
+        var res = decisionSupportService.specimenCollectionDateCriteria(eventDateLogicType, edxLabInformationDT);
+
+        assertFalse(res);
+    }
 }
