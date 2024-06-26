@@ -27,6 +27,7 @@ import gov.cdc.dataprocessing.test_data.TestData;
 import gov.cdc.dataprocessing.test_data.TestDataReader;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil;
+import gov.cdc.dataprocessing.utilities.component.public_health_case.AdvancedCriteria;
 import gov.cdc.dataprocessing.utilities.component.wds.ValidateDecisionSupport;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -58,6 +59,8 @@ public class DecisionSupportServiceTest {
     private PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository;
     @Mock
     private DsmAlgorithmService dsmAlgorithmService;
+    @Mock
+    private AdvancedCriteria advancedCriteria;
     @InjectMocks
     private DecisionSupportService decisionSupportService;
     @Mock
@@ -78,7 +81,7 @@ public class DecisionSupportServiceTest {
     @AfterEach
     void tearDown() {
         Mockito.reset(edxPhcrDocumentUtil, autoInvestigationService, validateDecisionSupport, publicHealthCaseStoredProcRepository,
-                dsmAlgorithmService , authUtil);
+                dsmAlgorithmService , authUtil, advancedCriteria);
     }
 
 
@@ -123,6 +126,7 @@ public class DecisionSupportServiceTest {
         PageActProxyContainer obj = gson.fromJson(objString, PageActProxyContainer.class);
 
         when(autoInvestigationService.autoCreateInvestigation(any(), any())).thenReturn(obj);
+        when(advancedCriteria.getAdvancedInvCriteriaMap(any())).thenReturn(new HashMap<>());
 
 
         var res = decisionSupportService.validateProxyContainer(labProxyContainer, edxLab);
@@ -151,6 +155,8 @@ public class DecisionSupportServiceTest {
         PageActProxyContainer obj = gson.fromJson(objString, PageActProxyContainer.class);
 
         when(autoInvestigationService.autoCreateInvestigation(any(), any())).thenReturn(obj);
+
+        when(advancedCriteria.getAdvancedInvCriteriaMap(any())).thenReturn(new HashMap<>());
 
         var res = decisionSupportService.validateProxyContainer(labProxyContainer, edxLab);
 
@@ -312,6 +318,9 @@ public class DecisionSupportServiceTest {
         WdsReport wdsReport = new WdsReport();
         Map<Object, Object> questionIdentifierMap = new HashMap<>();
 
+        when(advancedCriteria.getAdvancedInvCriteriaMap(any())).thenReturn(new HashMap<>());
+
+
         decisionSupportService.updateObservationBasedOnAction(algorithmDocument, criteriaMatch, conditionCode,
                 orderedTestObservationVO, personVOCollection, edxLabInformationDT, wdsReport, questionIdentifierMap);
 
@@ -402,6 +411,7 @@ public class DecisionSupportServiceTest {
         when(autoInvestigationService.autoCreateInvestigation(any(), any()))
                 .thenReturn(pam);
 
+        when(advancedCriteria.getAdvancedInvCriteriaMap(any())).thenReturn(new HashMap<>());
 
         decisionSupportService.updateObservationBasedOnAction(algorithmDocument, criteriaMatch, conditionCode,
                 orderedTestObservationVO, personVOCollection, edxLabInformationDT, wdsReport, questionIdentifierMap);
@@ -455,6 +465,7 @@ public class DecisionSupportServiceTest {
         when(autoInvestigationService.autoCreateInvestigation(any(), any()))
                 .thenReturn(pam);
 
+        when(advancedCriteria.getAdvancedInvCriteriaMap(any())).thenReturn(new HashMap<>());
 
         decisionSupportService.updateObservationBasedOnAction(algorithmDocument, criteriaMatch, conditionCode,
                 orderedTestObservationVO, personVOCollection, edxLabInformationDT, wdsReport, questionIdentifierMap);
@@ -482,7 +493,7 @@ public class DecisionSupportServiceTest {
 
         var withinTime = new IntegerNumericType();
         codeType = new CodedType();
-        codeType.setCode("BLAH");
+        codeType.setCode(NEDSSConstant.EQUAL_LOGIC);
         withinTime.setComparatorCode(codeType);
         withinTime.setUnit(codeType);
         withinTime.setValue1(BigInteger.ONE);
@@ -508,4 +519,161 @@ public class DecisionSupportServiceTest {
 
         assertFalse(res);
     }
+
+    @Test
+    void specimenDateTimeCheck_Test() {
+        String comparatorCode = NEDSSConstant.LESS_THAN_LOGIC;
+        int daysDifference = 1;
+        int value = 0;
+        boolean isdateLogicValidWithThisInv = true;
+
+        var res = decisionSupportService.specimenDateTimeCheck(comparatorCode, daysDifference, value, isdateLogicValidWithThisInv);
+
+        assertFalse(res);
+    }
+
+    @Test
+    void specimenDateTimeCheck_Test_2() {
+        String comparatorCode = NEDSSConstant.GREATER_THAN_LOGIC;
+        int daysDifference = 1;
+        int value = 2;
+        boolean isdateLogicValidWithThisInv = true;
+
+        var res = decisionSupportService.specimenDateTimeCheck(comparatorCode, daysDifference, value, isdateLogicValidWithThisInv);
+
+        assertFalse(res);
+    }
+
+    @Test
+    void specimenDateTimeCheck_Test_3() {
+        String comparatorCode = NEDSSConstant.EQUAL_LOGIC;
+        int daysDifference = 1;
+        int value = 2;
+        boolean isdateLogicValidWithThisInv = true;
+
+        var res = decisionSupportService.specimenDateTimeCheck(comparatorCode, daysDifference, value, isdateLogicValidWithThisInv);
+
+        assertFalse(res);
+    }
+
+
+    @Test
+    void specimenDateTimeCheck_Test_4() {
+        String comparatorCode = NEDSSConstant.LESS_THAN_LOGIC;
+        int daysDifference = 2;
+        int value = 2;
+        boolean isdateLogicValidWithThisInv = true;
+
+        var res = decisionSupportService.specimenDateTimeCheck(comparatorCode, daysDifference, value, isdateLogicValidWithThisInv);
+
+        assertFalse(res);
+    }
+
+    @Test
+    void checkAdvancedInvCriteria_Test() throws DataProcessingException {
+        Algorithm algorithmDocument = new Algorithm();
+        var elrAdv = new ElrAdvancedCriteriaType();
+        var invCrite = new InvCriteriaType();
+        elrAdv.setInvCriteria(invCrite);
+        algorithmDocument.setElrAdvancedCriteria(elrAdv);
+
+        EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
+        var phcCol = new ArrayList<PublicHealthCaseDto>();
+        var phcDt = new PublicHealthCaseDto();
+        phcDt.setPublicHealthCaseUid(10L);
+        phcCol.add(phcDt);
+        edxLabInformationDT.setMatchingPublicHealthCaseDtoColl(phcCol);
+
+        Map<Object, Object> questionIdentifierMap = new HashMap<>();
+        var meta = new NbsQuestionMetadata();
+        questionIdentifierMap.put("1", meta);
+        questionIdentifierMap.put("2", meta);
+
+        Map<String, Object> advanceInvCriteriaMap = new HashMap<>();
+        var edxRule = new EdxRuleManageDto();
+        advanceInvCriteriaMap.put("1", edxRule);
+
+        var lst = new ArrayList<>();
+        edxRule = new EdxRuleManageDto();
+        lst.add(edxRule);
+        advanceInvCriteriaMap.put("2",lst);
+
+        when(advancedCriteria.getAdvancedInvCriteriaMap(any())).thenReturn(advanceInvCriteriaMap);
+        when(validateDecisionSupport.checkNbsObject(any(), any(), any())).thenReturn(true);
+
+
+        decisionSupportService.checkAdvancedInvCriteria(algorithmDocument, edxLabInformationDT, questionIdentifierMap);
+
+        verify(validateDecisionSupport, times(2)).checkNbsObject(any(), any(), any());
+    }
+
+    @Test
+    void checkAdvancedInvCriteria_Test_2() throws DataProcessingException {
+        Algorithm algorithmDocument = new Algorithm();
+        var elrAdv = new ElrAdvancedCriteriaType();
+        var invCrite = new InvCriteriaType();
+        elrAdv.setInvCriteria(invCrite);
+        algorithmDocument.setElrAdvancedCriteria(elrAdv);
+
+        EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
+        var phcCol = new ArrayList<PublicHealthCaseDto>();
+        var phcDt = new PublicHealthCaseDto();
+        phcDt.setPublicHealthCaseUid(10L);
+        phcCol.add(phcDt);
+        edxLabInformationDT.setMatchingPublicHealthCaseDtoColl(phcCol);
+
+        Map<Object, Object> questionIdentifierMap = new HashMap<>();
+        var meta = new NbsQuestionMetadata();
+        questionIdentifierMap.put("1", meta);
+        questionIdentifierMap.put("2", meta);
+
+        Map<String, Object> advanceInvCriteriaMap = new HashMap<>();
+        var edxRule = new EdxRuleManageDto();
+        advanceInvCriteriaMap.put("1", edxRule);
+
+        var lst = new ArrayList<>();
+        edxRule = new EdxRuleManageDto();
+        lst.add(edxRule);
+        advanceInvCriteriaMap.put("2",lst);
+
+        when(advancedCriteria.getAdvancedInvCriteriaMap(any())).thenReturn(advanceInvCriteriaMap);
+        when(validateDecisionSupport.checkNbsObject(any(), any(), any())).thenReturn(false);
+
+
+        decisionSupportService.checkAdvancedInvCriteria(algorithmDocument, edxLabInformationDT, questionIdentifierMap);
+
+        verify(validateDecisionSupport, times(1)).checkNbsObject(any(), any(), any());
+    }
+
+
+    @Test
+    void checkAdvancedInvCriteriaForCreateInvNoti_Test() throws DataProcessingException {
+        Algorithm algorithmDocument = new Algorithm();
+        EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
+        Map<Object, Object> questionIdentifierMap = new HashMap<>();
+
+
+        Map<String, Object> advanceInvCriteriaMap = new HashMap<>();
+        var edxRule = new EdxRuleManageDto();
+        advanceInvCriteriaMap.put("1", edxRule);
+
+        var phcCol = new ArrayList<PublicHealthCaseDto>();
+        var phcDt = new PublicHealthCaseDto();
+        phcDt.setPublicHealthCaseUid(10L);
+        phcCol.add(phcDt);
+        edxLabInformationDT.setMatchingPublicHealthCaseDtoColl(phcCol);
+
+        var meta = new NbsQuestionMetadata();
+        questionIdentifierMap.put("1", meta);
+
+
+        when(advancedCriteria.getAdvancedInvCriteriaMap(any())).thenReturn(advanceInvCriteriaMap);
+
+        when(validateDecisionSupport.checkNbsObject(any(), any(), any())).thenReturn(true);
+
+
+        decisionSupportService.checkAdvancedInvCriteriaForCreateInvNoti(algorithmDocument, edxLabInformationDT, questionIdentifierMap);
+
+    }
+
 }
