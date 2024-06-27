@@ -50,6 +50,7 @@ public class CdaMapper implements ICdaMapper {
         this.treatmentMappingHelper = new CdaTreatmentMappingHelper(this.cdaMapHelper);
     }
 
+
     public String tranformSelectedEcrToCDAXml(EcrSelectedRecord input) throws EcrCdaXmlException {
         String inv168 = "";
 
@@ -160,6 +161,9 @@ public class CdaMapper implements ICdaMapper {
 
     }
 
+    /**
+     * Part of mainmessage
+     * */
     private CdaContainerComp mapParentContainer(POCDMT000040ClinicalDocument1 clinicalDocument,
                                                 EcrSelectedRecord input, String inv168) throws EcrCdaXmlException {
 
