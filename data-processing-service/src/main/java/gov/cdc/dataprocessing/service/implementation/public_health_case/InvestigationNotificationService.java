@@ -421,7 +421,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         return "get" + methodName;
     }
 
-
+    @SuppressWarnings("java:S3740")
     private  Map<Object, Object>  getMethods(Class beanClass) {
         Method[] gettingMethods = beanClass.getMethods();
         Map<Object, Object>  resultMap = new HashMap<>();

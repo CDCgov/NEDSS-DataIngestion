@@ -24,7 +24,6 @@ import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCodeWithPA;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.ConditionCodeRepository;
-import gov.cdc.dataprocessing.service.implementation.manager.ManagerService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IAutoInvestigationService;
@@ -309,6 +308,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         return phcVO;
     }
 
+    @SuppressWarnings("java:S3776")
     protected void populateProxyFromPrePopMapping(PageActProxyContainer pageActProxyContainer,
                                                   EdxLabInformationDto edxLabInformationDT)
             throws DataProcessingException {
