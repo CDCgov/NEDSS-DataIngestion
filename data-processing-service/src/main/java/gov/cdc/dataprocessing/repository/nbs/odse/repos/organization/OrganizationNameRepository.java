@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.repos.organization;
 
-import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.OrganizationNameId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.organization.OrganizationName;
 import org.springframework.data.jpa.repository.JpaRepository;

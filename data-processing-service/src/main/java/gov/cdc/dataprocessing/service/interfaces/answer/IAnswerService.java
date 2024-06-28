@@ -1,10 +1,10 @@
 package gov.cdc.dataprocessing.service.interfaces.answer;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
+import gov.cdc.dataprocessing.model.container.model.PageContainer;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
-import gov.cdc.dataprocessing.model.container.model.PageContainer;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 
 import java.util.Collection;
 

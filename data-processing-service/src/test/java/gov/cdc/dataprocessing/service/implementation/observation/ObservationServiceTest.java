@@ -51,7 +51,7 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class ObservationServiceTest {
+class ObservationServiceTest {
     @Mock
     private INNDActivityLogService nndActivityLogService;
     @Mock
@@ -194,7 +194,7 @@ public class ObservationServiceTest {
         actReDto.setTargetClassCd(NEDSSConstant.OBSERVATION_CLASS_CODE);
         actReDto.setRecordStatusCd(NEDSSConstant.ACTIVE);
         actReDto.setSourceActUid(4L);
-        actReDto.setTypeCd(((NEDSSConstant.ACT108_TYP_CD)));
+        actReDto.setTypeCd(NEDSSConstant.ACT108_TYP_CD);
         actCol.add(actReDto);
 
         observationContainer.setTheActRelationshipDtoCollection(actCol);

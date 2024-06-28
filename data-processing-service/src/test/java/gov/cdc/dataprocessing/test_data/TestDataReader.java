@@ -1,10 +1,9 @@
 package gov.cdc.dataprocessing.test_data;
 
 import com.google.gson.Gson;
-import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 
-import java.io.*;
-import java.lang.reflect.Type;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 public class TestDataReader {

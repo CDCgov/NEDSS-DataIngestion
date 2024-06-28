@@ -5,9 +5,9 @@ import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
+import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
-import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationMatchingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

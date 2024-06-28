@@ -9,8 +9,8 @@ import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ProgramAreaCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.ProgramAreaCodeRepository;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
-import gov.cdc.dataprocessing.service.interfaces.observation.IObservationCodeService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ISrteCodeObsService;
+import gov.cdc.dataprocessing.service.interfaces.observation.IObservationCodeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

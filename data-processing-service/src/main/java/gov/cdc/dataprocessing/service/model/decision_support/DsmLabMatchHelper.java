@@ -40,6 +40,10 @@ public class DsmLabMatchHelper {
     private Boolean algorithmIsAndLogic = false;
     private Boolean algorithmIsOrLogic = false;
 
+    public DsmLabMatchHelper() {
+
+    }
+
     /**
      * Constructor - expects algorithm payload (see DSMAlgorithm.xsd)
      * Get the values from the algorithm and populate class variables.

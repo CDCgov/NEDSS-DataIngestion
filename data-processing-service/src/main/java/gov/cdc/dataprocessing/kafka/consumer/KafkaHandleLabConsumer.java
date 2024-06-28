@@ -1,9 +1,10 @@
 package gov.cdc.dataprocessing.kafka.consumer;
 
-import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
+import com.google.gson.Gson;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
+import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,8 +37,9 @@ public class KafkaHandleLabConsumer {
         try {
             var auth = authUserService.getAuthUserInfo("superuser");
             AuthUtil.setGlobalAuthUser(auth);
-
-            managerService.initiatingLabProcessing(message);
+            Gson gson = new Gson();
+            PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(message, PublicHealthCaseFlowContainer.class);
+            managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
         }
         catch (Exception e)
         {

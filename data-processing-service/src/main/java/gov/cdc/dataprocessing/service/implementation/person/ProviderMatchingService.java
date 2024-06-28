@@ -4,12 +4,12 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.MsgType;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
-import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
+import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.matching.EdxEntityMatchDto;
 import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
-import gov.cdc.dataprocessing.service.interfaces.person.IProviderMatchingService;
 import gov.cdc.dataprocessing.service.implementation.person.base.ProviderMatchingBaseService;
+import gov.cdc.dataprocessing.service.interfaces.person.IProviderMatchingService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 @Service

@@ -3,7 +3,7 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.matching;
 
 import gov.cdc.dataprocessing.model.dto.matching.EdxEntityMatchDto;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
 @Entity
 @Table(name = "EDX_entity_match")

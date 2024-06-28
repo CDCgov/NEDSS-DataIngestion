@@ -21,7 +21,6 @@ import org.mockito.MockitoAnnotations;
 
 import java.sql.Timestamp;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -74,9 +73,9 @@ class PatientMatchingBaseServiceTest {
                         any()
                 )).thenReturn(personDto);
 
-        PersonContainer personContainer_prepare=new PersonContainer();
-        personContainer_prepare.setItNew(true);
-        personContainer_prepare.getThePersonDto().setVersionCtrlNbr(1);
+        PersonContainer personContainerPrepare=new PersonContainer();
+        personContainerPrepare.setItNew(true);
+        personContainerPrepare.getThePersonDto().setVersionCtrlNbr(1);
 
         PersonNameDto personNameDto = new PersonNameDto();
         personNameDto.setNmUseCd("L");
@@ -84,9 +83,9 @@ class PatientMatchingBaseServiceTest {
         personNameDto.setAsOfDate(new Timestamp(System.currentTimeMillis()));
         personNameDto.setLastNm("TEST_LST_NM");
         personNameDto.setFirstNm("TEST_FIRST_NM");
-        personContainer_prepare.getThePersonNameDtoCollection().add(personNameDto);
+        personContainerPrepare.getThePersonNameDtoCollection().add(personNameDto);
 
-        when(patientRepositoryUtil.preparePersonNameBeforePersistence(any())).thenReturn(personContainer_prepare);
+        when(patientRepositoryUtil.preparePersonNameBeforePersistence(any())).thenReturn(personContainerPrepare);
 
         Person person = new Person();
         person.setPersonUid(222L);
@@ -116,9 +115,9 @@ class PatientMatchingBaseServiceTest {
                         any()
                 )).thenReturn(personDto);
 
-        PersonContainer personContainer_prepare=new PersonContainer();
-        personContainer_prepare.setItNew(true);
-        personContainer_prepare.getThePersonDto().setVersionCtrlNbr(1);
+        PersonContainer personContainerPrepare=new PersonContainer();
+        personContainerPrepare.setItNew(true);
+        personContainerPrepare.getThePersonDto().setVersionCtrlNbr(1);
 
         PersonNameDto personNameDto = new PersonNameDto();
         personNameDto.setNmUseCd("L");
@@ -126,9 +125,9 @@ class PatientMatchingBaseServiceTest {
         personNameDto.setAsOfDate(new Timestamp(System.currentTimeMillis()));
         personNameDto.setLastNm("TEST_LST_NM");
         personNameDto.setFirstNm("TEST_FIRST_NM");
-        personContainer_prepare.getThePersonNameDtoCollection().add(personNameDto);
+        personContainerPrepare.getThePersonNameDtoCollection().add(personNameDto);
 
-        when(patientRepositoryUtil.preparePersonNameBeforePersistence(any())).thenReturn(personContainer_prepare);
+        when(patientRepositoryUtil.preparePersonNameBeforePersistence(any())).thenReturn(personContainerPrepare);
 
         Person person = new Person();
         person.setPersonUid(222L);
@@ -138,9 +137,7 @@ class PatientMatchingBaseServiceTest {
 
         patientMatchingBaseService.setPatientRevision(personContainer,"",NEDSSConstant.NOK);
     }
-    @Test
-    void updateExistingPerson() {
-    }
+
 
     @Test
     void getLNmFnmDobCurSexStr() {
@@ -176,23 +173,4 @@ class PatientMatchingBaseServiceTest {
         patientMatchingBaseService.getLNmFnmDobCurSexStr(personContainer);
     }
 
-    @Test
-    void setPersonHashCdPatient() {
-    }
-
-    @Test
-    void setAndCreateNewPerson() {
-    }
-
-    @Test
-    void setPersonHashCdNok() {
-    }
-
-    @Test
-    void nameAddressStreetOneNOK() {
-    }
-
-    @Test
-    void telePhoneTxtNOK() {
-    }
 }

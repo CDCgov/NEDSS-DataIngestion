@@ -5,21 +5,22 @@ import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
-import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
+import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dsma_algorithm.*;
 import gov.cdc.dataprocessing.model.dto.dsm.DSMAlgorithmDto;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleManageDto;
-import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.dsm.DsmAlgorithm;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PublicHealthCaseStoredProcRepository;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IAutoInvestigationService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IDecisionSupportService;
-import gov.cdc.dataprocessing.service.model.wds.WdsReport;
 import gov.cdc.dataprocessing.service.model.decision_support.DsmLabMatchHelper;
+import gov.cdc.dataprocessing.service.model.wds.WdsReport;
 import gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil;
+import gov.cdc.dataprocessing.utilities.component.public_health_case.AdvancedCriteria;
 import gov.cdc.dataprocessing.utilities.component.wds.ValidateDecisionSupport;
 import jakarta.transaction.Transactional;
 import jakarta.xml.bind.JAXBContext;
@@ -39,17 +40,19 @@ public class DecisionSupportService implements IDecisionSupportService {
     private final ValidateDecisionSupport validateDecisionSupport;
     private final PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository;
     private final DsmAlgorithmService dsmAlgorithmService;
+    private final AdvancedCriteria advancedCriteria;
 
     public DecisionSupportService(EdxPhcrDocumentUtil edxPhcrDocumentUtil,
                                   IAutoInvestigationService autoInvestigationService,
                                   ValidateDecisionSupport validateDecisionSupport,
                                   PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository,
-                                  DsmAlgorithmService dsmAlgorithmService) {
+                                  DsmAlgorithmService dsmAlgorithmService, AdvancedCriteria advancedCriteria) {
         this.edxPhcrDocumentUtil = edxPhcrDocumentUtil;
         this.autoInvestigationService = autoInvestigationService;
         this.validateDecisionSupport = validateDecisionSupport;
         this.publicHealthCaseStoredProcRepository = publicHealthCaseStoredProcRepository;
         this.dsmAlgorithmService = dsmAlgorithmService;
+        this.advancedCriteria = advancedCriteria;
     }
     /*sort PublicHealthCaseDTs by add_time descending*/
     final Comparator<PublicHealthCaseDto> ADDTIME_ORDER = (e1, e2) -> e2.getAddTime().compareTo(e1.getAddTime());
@@ -156,7 +159,8 @@ public class DecisionSupportService implements IDecisionSupportService {
         }
     }
 
-    private boolean checkActiveWdsAlgorithm(EdxLabInformationDto edxLabInformationDT,
+    @SuppressWarnings("java:S3776")
+    protected boolean checkActiveWdsAlgorithm(EdxLabInformationDto edxLabInformationDT,
                                                              List<DsmLabMatchHelper> activeElrAlgorithmList ) throws DataProcessingException {
         boolean elrAlgorithmsPresent;
         // Validating existing WDS Algorithm
@@ -179,14 +183,20 @@ public class DecisionSupportService implements IDecisionSupportService {
                 DSMAlgorithmDto algorithmDT = new DSMAlgorithmDto(dsmAlgorithm);
                 String algorithmString = algorithmDT.getAlgorithmPayload();
                 //skip inactive and case reports
-                if (algorithmDT.getStatusCd() != null && algorithmDT.getStatusCd().contentEquals(NEDSSConstant.INACTIVE) ||
-                        algorithmDT.getEventType() != null && algorithmDT.getEventType().equals(NEDSSConstant.PHC_236))
+                if (algorithmDT.getStatusCd() != null
+                        && algorithmDT.getStatusCd().equals(NEDSSConstant.INACTIVE) ||
+                        algorithmDT.getEventType() != null
+                                && algorithmDT.getEventType().equals(NEDSSConstant.PHC_236))
                 {
                     continue; //skip inactive
                 }
 
                 // Suppose to be Algorithm
-                Algorithm algorithmDocument = parseAlgorithmXml(algorithmString);
+                Algorithm algorithmDocument = null;
+
+                if (algorithmString != null) {
+                    algorithmDocument = parseAlgorithmXml(algorithmString);
+                }
                 //helper class DSMLabMatchHelper will assist with algorithm matching
                 DsmLabMatchHelper dsmLabMatchHelper = null;
                 try {
@@ -222,7 +232,7 @@ public class DecisionSupportService implements IDecisionSupportService {
     }
 
 
-    private ObservationContainer setupObservationValuesForWds(
+    protected ObservationContainer setupObservationValuesForWds(
                         EdxLabInformationDto edxLabInformationDT,
                         LabResultProxyContainer labResultProxyVO,
                         Collection<ObservationContainer>  resultedTestColl,
@@ -314,7 +324,9 @@ public class DecisionSupportService implements IDecisionSupportService {
                 checkActionNotMarkedAsReviewed(algorithmDocument)
         ) && applyAdvInvLogic;
     }
-    private void updateObservationBasedOnAction(Algorithm algorithmDocument,
+
+    @SuppressWarnings({"java:S107", "java:S6541", "java:S6541", "java:S3776"})
+    protected void updateObservationBasedOnAction(Algorithm algorithmDocument,
                                                 boolean criteriaMatch,
                                                 String conditionCode,
                                                 ObservationContainer orderedTestObservationVO,
@@ -478,7 +490,9 @@ public class DecisionSupportService implements IDecisionSupportService {
                                     && metaData.getDataType().toUpperCase().startsWith("PART"))
                             {
                                 entityMapCollection.add(edxRuleManageDT);
-                                if (edxRuleManageDT.getParticipationTypeCode() == null || edxRuleManageDT.getParticipationUid() == null || edxRuleManageDT.getParticipationClassCode() == null) {
+                                if (edxRuleManageDT.getParticipationTypeCode() == null
+                                        || edxRuleManageDT.getParticipationUid() == null
+                                        || edxRuleManageDT.getParticipationClassCode() == null) {
                                     throw new Exception("ValidateDecisionSupport.validateProxyVO Exception thrown for edxRuleManageDT:-" + edxRuleManageDT);
                                 }
                             }
@@ -557,8 +571,9 @@ public class DecisionSupportService implements IDecisionSupportService {
     /**
      * Execute when action in available
      * */
-    @SuppressWarnings("java:S6541")
-    private boolean specimenCollectionDateCriteria(EventDateLogicType eventDateLogicType,EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
+    @SuppressWarnings({"java:S6541", "java:S3776"})
+    protected boolean specimenCollectionDateCriteria(EventDateLogicType eventDateLogicType,
+                                                     EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
         boolean isdateLogicValidForNewInv;
         String comparatorCode="";
         int value=0;
@@ -601,7 +616,8 @@ public class DecisionSupportService implements IDecisionSupportService {
 
             if(comparatorCode.length() > 0 && mprUid > 0)
             {
-                Collection<PublicHealthCaseDto> associatedPhcDTCollection = publicHealthCaseStoredProcRepository.associatedPublicHealthCaseForMprForCondCd(mprUid, edxLabInformationDT.getConditionCode());
+                Collection<PublicHealthCaseDto> associatedPhcDTCollection = publicHealthCaseStoredProcRepository
+                        .associatedPublicHealthCaseForMprForCondCd(mprUid, edxLabInformationDT.getConditionCode());
 
                 if(associatedPhcDTCollection!=null && associatedPhcDTCollection.size()>0){
                     for (PublicHealthCaseDto publicHealthCaseDto : associatedPhcDTCollection) {
@@ -619,18 +635,10 @@ public class DecisionSupportService implements IDecisionSupportService {
                         int daysDifference = (int) specimenCollectionDays - (int) dateCompare;
 
                         if (publicHealthCaseDto.getAssociatedSpecimenCollDate() != null) {
-                            if (comparatorCode.contains(NEDSSConstant.LESS_THAN_LOGIC) && daysDifference > value) {
-                                isdateLogicValidWithThisInv = false;
-                            }
-                            else if (comparatorCode.contains(NEDSSConstant.GREATER_THAN_LOGIC) && daysDifference < value) {
-                                isdateLogicValidWithThisInv = false;
-                            }
-                            else if (comparatorCode.equals(NEDSSConstant.EQUAL_LOGIC) && daysDifference != value) {
-                                isdateLogicValidWithThisInv = false;
-                            }
-                            else if (!comparatorCode.contains(NEDSSConstant.EQUAL_LOGIC) && daysDifference == value) {
-                                isdateLogicValidWithThisInv = false;
-                            }
+                            isdateLogicValidWithThisInv = specimenDateTimeCheck(
+                                    comparatorCode, daysDifference,
+                                    value, isdateLogicValidWithThisInv
+                            );
                         }
                         if (isdateLogicValidWithThisInv) {
                             if (edxLabInformationDT.getMatchingPublicHealthCaseDtoColl() == null)
@@ -661,18 +669,34 @@ public class DecisionSupportService implements IDecisionSupportService {
         return isdateLogicValidForNewInv;
     }
 
+    protected boolean specimenDateTimeCheck(String comparatorCode, int daysDifference,
+                                            int value, boolean isdateLogicValidWithThisInv) {
+        if (comparatorCode.contains(NEDSSConstant.LESS_THAN_LOGIC) && daysDifference > value) {
+            isdateLogicValidWithThisInv = false;
+        }
+        else if (comparatorCode.contains(NEDSSConstant.GREATER_THAN_LOGIC) && daysDifference < value) {
+            isdateLogicValidWithThisInv = false;
+        }
+        else if (comparatorCode.equals(NEDSSConstant.EQUAL_LOGIC) && daysDifference != value) {
+            isdateLogicValidWithThisInv = false;
+        }
+        else if (!comparatorCode.contains(NEDSSConstant.EQUAL_LOGIC) && daysDifference == value) {
+            isdateLogicValidWithThisInv = false;
+        }
+        return isdateLogicValidWithThisInv;
+    }
     /**
      * Execute when action is review
      * */
-    @SuppressWarnings("java:S6541")
-    private boolean checkAdvancedInvCriteria(Algorithm algorithmDocument,
+    @SuppressWarnings({"java:S6541", "java:S3776"})
+    protected boolean checkAdvancedInvCriteria(Algorithm algorithmDocument,
                                              EdxLabInformationDto edxLabInformationDT,
                                              Map<Object, Object> questionIdentifierMap) throws DataProcessingException {
         boolean isAdvancedInvCriteriaMet = false;
 
         try{
 
-            Map<String, Object> advanceInvCriteriaMap = getAdvancedInvCriteriaMap(algorithmDocument);
+            Map<String, Object> advanceInvCriteriaMap = advancedCriteria.getAdvancedInvCriteriaMap(algorithmDocument);
             /*
              * return match as true if there is no investigation is compare and
              * advanceInvCriteriaMap is empty
@@ -820,13 +844,14 @@ public class DecisionSupportService implements IDecisionSupportService {
     }
 
 
-    private boolean checkAdvancedInvCriteriaForCreateInvNoti(
+    @SuppressWarnings("java:S3776")
+    protected boolean checkAdvancedInvCriteriaForCreateInvNoti(
             Algorithm algorithmDocument,
             EdxLabInformationDto edxLabInformationDT,
             Map<Object, Object> questionIdentifierMap) throws DataProcessingException {
 
         try{
-            Map<String, Object> advanceInvCriteriaMap = getAdvancedInvCriteriaMap(algorithmDocument);
+            Map<String, Object> advanceInvCriteriaMap = advancedCriteria.getAdvancedInvCriteriaMap(algorithmDocument);
 
             /*
              * return match as true if there is no investigation to compare and
@@ -911,57 +936,6 @@ public class DecisionSupportService implements IDecisionSupportService {
         return false;
     }
 
-    private Map<String, Object> getAdvancedInvCriteriaMap(Algorithm algorithmDocument) throws DataProcessingException{
-
-        Map<String, Object> advanceInvCriteriaMap = new HashMap<>();
-        try{
-            InvCriteriaType advanceInvCriteriaType = algorithmDocument.getElrAdvancedCriteria().getInvCriteria();
-            /* Create the advanced Criteria map to compare against matched PHCs */
-            if (advanceInvCriteriaType != null) {
-                for (int i = 0; i < advanceInvCriteriaType.getInvValue().size(); i++) {
-                    InvValueType criteriaType = advanceInvCriteriaType
-                            .getInvValue().get(i);
-                    CodedType criteriaQuestionType = criteriaType.getInvQuestion();
-                    CodedType criteriaLogicType = criteriaType
-                            .getInvQuestionLogic();
-
-                    if (criteriaType.getInvStringValue() == null
-                            && criteriaType.getInvCodedValue().size() > 0) {
-                        String value;
-                        String[] array = new String[criteriaType
-                                .getInvCodedValue().size()];
-                        for (int j = 0; j < criteriaType.getInvCodedValue().size(); j++) {
-                            array[j] = criteriaType.getInvCodedValue().get(j)
-                                    .getCode();
-                        }
-                        Arrays.sort(array);
-                        value = String.join(",", array);
-                        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
-                        edxRuleManageDT.setQuestionId(criteriaQuestionType
-                                .getCode());
-                        edxRuleManageDT.setLogic(criteriaLogicType.getCode());
-                        edxRuleManageDT.setAdvanceCriteria(true);
-                        edxRuleManageDT.setValue(value);
-                        advanceInvCriteriaMap.put(criteriaQuestionType.getCode(),
-                                edxRuleManageDT);
-
-                    } else {
-                        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
-                        edxRuleManageDT.setQuestionId(criteriaQuestionType
-                                .getCode());
-                        edxRuleManageDT.setLogic(criteriaLogicType.getCode());
-                        edxRuleManageDT.setAdvanceCriteria(true);
-                        edxRuleManageDT.setValue(criteriaType.getInvStringValue());
-                        advanceInvCriteriaMap.put(criteriaQuestionType.getCode(),
-                                edxRuleManageDT);
-                    }
-                }
-            }
-        }catch(Exception ex){
-            throw new DataProcessingException ("Exception while creating advanced Investigation Criteria Map: ", ex);
-        }
-        return advanceInvCriteriaMap;
-    }
 
 
 

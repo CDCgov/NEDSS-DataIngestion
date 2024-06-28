@@ -6,9 +6,9 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.custom.SrteCustomRepository;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -277,8 +277,9 @@ public class CachingValueService implements ICatchingValueService {
         return  new ArrayList<>();
     }
 
-
-
+    /**
+     * Retrieve value from Cache
+     * */
     public TreeMap<String, String> getCodedValues(String pType, String key) throws DataProcessingException {
         var cache = cacheManager.getCache("srte");
         if (cache != null) {
@@ -303,6 +304,9 @@ public class CachingValueService implements ICatchingValueService {
         return SrteCache.codedValuesMap;
     }
 
+    /**
+     * Retrieve value from Cache
+     * */
     public  String getCodeDescTxtForCd(String code, String codeSetNm) throws DataProcessingException {
         var cache = cacheManager.getCache("srte");
         if (cache != null) {
@@ -326,15 +330,7 @@ public class CachingValueService implements ICatchingValueService {
 
         return SrteCache.codeDescTxtMap.get(code);
     }
-//    public  String getCodeDescTxtForCd(String code, String codeSetNm) throws DataProcessingException {
-//        var map = getCodedValuesCallRepos(codeSetNm);
-//        String codeDesc = "";
-//
-//        if (map.containsKey(code)) {
-//            codeDesc = map.get(code);
-//        }
-//        return codeDesc;
-//    }
+
     public String findToCode(String fromCodeSetNm, String fromCode, String toCodeSetNm) throws DataProcessingException {
         try {
             var result = elrXrefRepository.findToCodeByConditions(fromCodeSetNm, fromCode, toCodeSetNm);
@@ -383,29 +379,6 @@ public class CachingValueService implements ICatchingValueService {
         return SrteCache.countyCodeByDescMap.get(cnty);
     }
 
-    private TreeMap<String, String> getCountyCdByDescCallRepos(String stateCd) throws DataProcessingException {
-        TreeMap<String, String> codeMap = new TreeMap<>();
-        try {
-            Optional<List<StateCountyCodeValue>> result;
-            if( stateCd==null || stateCd.trim().equals("")) {
-                result = stateCountyCodeValueRepository.findByIndentLevelNbr();
-            } else {
-                result = stateCountyCodeValueRepository.findByIndentLevelNbrAndParentIsCdOrderByCodeDescTxt(stateCd);
-            }
-
-            if (result.isPresent()) {
-                var res  = result.get();
-                for (StateCountyCodeValue obj : res) {
-                    codeMap.put(obj.getCode() + " COUNTY", obj.getAssigningAuthorityDescTxt());
-                }
-            }
-            return codeMap;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
-        }
-
-    }
-
     public List<CodeValueGeneral> findCodeValuesByCodeSetNmAndCode(String codeSetNm, String code) {
         var result = codeValueGeneralRepository.findCodeValuesByCodeSetNmAndCode(codeSetNm, code);
         return result.orElseGet(ArrayList::new);
@@ -417,31 +390,10 @@ public class CachingValueService implements ICatchingValueService {
         return res.orElseGet(StateCode::new);
     }
 
-//    public String getCountyCdByDesc(String county, String stateCd) throws DataProcessingException {
-//        try {
-//            String code = "";
-//            String cnty = county.toUpperCase();
-//            if (!cnty.endsWith("COUNTY")) {
-//                cnty = cnty + " COUNTY";
-//            }
-//            Optional<List<StateCountyCodeValue>> result;
-//            if( stateCd==null || stateCd.trim().equals("")) {
-//                result = stateCountyCodeValueRepository.findByIndentLevelNbr();
-//            } else {
-//                result = stateCountyCodeValueRepository.findByIndentLevelNbrAndParentIsCdOrderByCodeDescTxt(stateCd);
-//            }
-//
-//            if (result.isPresent()) {
-//                String comparer = cnty;
-//                var res = result.get().stream().filter(x -> x.getCode().equals(comparer)).findFirst();
-//                code = res.get().getCode();
-//            }
-//            return code;
-//        } catch (Exception e) {
-//            throw new DataProcessingException(e.getMessage());
-//        }
-//
-//    }
+    public List<CodeValueGeneral> getGeneralCodedValue(String code) {
+        var res = codeValueGeneralRepository.findCodeValuesByCodeSetNm(code);
+        return res.orElseGet(ArrayList::new);
+    }
 
     public TreeMap<String, String> getCodedValuesCallRepos(String pType) throws DataProcessingException {
         TreeMap<String, String> map;
@@ -449,21 +401,6 @@ public class CachingValueService implements ICatchingValueService {
             map = getJurisdictionCode();
         } else {
             map = getCodedValue(pType);
-        }
-        return map;
-    }
-
-    private TreeMap<String, String> getJurisdictionCode() throws DataProcessingException {
-        TreeMap<String, String> map = new TreeMap<>();
-        try {
-            var codes = jurisdictionCodeRepository.findJurisdictionCodeValues();
-            if (codes.isPresent()) {
-                for (JurisdictionCode obj : codes.get()) {
-                    map.put(obj.getCode(), obj.getCodeDescTxt());
-                }
-            }
-        } catch (Exception e) {
-            throw  new DataProcessingException(e.getMessage());
         }
         return map;
     }
@@ -498,11 +435,44 @@ public class CachingValueService implements ICatchingValueService {
     }
 
 
-
-    public List<CodeValueGeneral> getGeneralCodedValue(String code) {
-        var res = codeValueGeneralRepository.findCodeValuesByCodeSetNm(code);
-        return res.orElseGet(ArrayList::new);
+    private TreeMap<String, String> getJurisdictionCode() throws DataProcessingException {
+        TreeMap<String, String> map = new TreeMap<>();
+        try {
+            var codes = jurisdictionCodeRepository.findJurisdictionCodeValues();
+            if (codes.isPresent()) {
+                for (JurisdictionCode obj : codes.get()) {
+                    map.put(obj.getCode(), obj.getCodeDescTxt());
+                }
+            }
+        } catch (Exception e) {
+            throw  new DataProcessingException(e.getMessage());
+        }
+        return map;
     }
+
+    protected TreeMap<String, String> getCountyCdByDescCallRepos(String stateCd) throws DataProcessingException {
+        TreeMap<String, String> codeMap = new TreeMap<>();
+        try {
+            Optional<List<StateCountyCodeValue>> result;
+            if( stateCd==null || stateCd.trim().equals("")) {
+                result = stateCountyCodeValueRepository.findByIndentLevelNbr();
+            } else {
+                result = stateCountyCodeValueRepository.findByIndentLevelNbrAndParentIsCdOrderByCodeDescTxt(stateCd);
+            }
+
+            if (result.isPresent()) {
+                var res  = result.get();
+                for (StateCountyCodeValue obj : res) {
+                    codeMap.put(obj.getCode() + " COUNTY", obj.getAssigningAuthorityDescTxt());
+                }
+            }
+            return codeMap;
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage());
+        }
+
+    }
+
 
 
 

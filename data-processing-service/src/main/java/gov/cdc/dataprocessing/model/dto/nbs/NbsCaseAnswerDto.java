@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.model.dto.nbs;
 
-import gov.cdc.dataprocessing.model.dto.nbs.NbsAnswerDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsCaseAnswer;
 import lombok.Getter;
 import lombok.Setter;

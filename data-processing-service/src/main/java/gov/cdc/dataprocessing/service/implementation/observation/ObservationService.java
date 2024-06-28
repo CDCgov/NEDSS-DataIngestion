@@ -1,40 +1,42 @@
 package gov.cdc.dataprocessing.service.implementation.observation;
 
-import gov.cdc.dataprocessing.constant.elr.*;
+import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
+import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.constant.elr.ProgramAreaJurisdiction;
 import gov.cdc.dataprocessing.constant.enums.DataProcessingMapKey;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
-import gov.cdc.dataprocessing.model.dto.log.NNDActivityLogDto;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.edx.EDXDocumentDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
+import gov.cdc.dataprocessing.model.dto.log.NNDActivityLogDto;
 import gov.cdc.dataprocessing.model.dto.material.MaterialDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.*;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.ObservationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
-import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationService;
 import gov.cdc.dataprocessing.service.interfaces.act.IActRelationshipService;
 import gov.cdc.dataprocessing.service.interfaces.answer.IAnswerService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
-import gov.cdc.dataprocessing.service.interfaces.observation.IEdxDocumentService;
 import gov.cdc.dataprocessing.service.interfaces.log.IMessageLogService;
 import gov.cdc.dataprocessing.service.interfaces.log.INNDActivityLogService;
 import gov.cdc.dataprocessing.service.interfaces.material.IMaterialService;
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
-import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
+import gov.cdc.dataprocessing.service.interfaces.observation.IEdxDocumentService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationCodeService;
+import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService;
 import gov.cdc.dataprocessing.service.interfaces.paticipation.IParticipationService;
+import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationService;
 import gov.cdc.dataprocessing.service.interfaces.role.IRoleService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
+import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.observation.ObservationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.observation.ObservationUtil;
-import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PersonUtil;
@@ -336,13 +338,13 @@ public class ObservationService implements IObservationService {
 
                 //If hit, we will get list of person who is associated with the scoped id
                 if (typeCd != null && typeCd.equalsIgnoreCase(NEDSSConstant.PAR110_TYP_CD)) {
-                    if (vo.getTheRoleDtoCollection().size() > 0) {
+                    if (!vo.getTheRoleDtoCollection().isEmpty()) {
                         patientRollCollection.addAll(vo.getTheRoleDtoCollection());
                     }
                     Collection<PersonContainer> scopedPersons = retrieveScopedPersons(vo.getThePersonDto().getPersonUid());
                     if (scopedPersons != null && scopedPersons.size() > 0) {
                         for (var person : scopedPersons) {
-                            if (person.getTheRoleDtoCollection() != null && person.getTheRoleDtoCollection().size() > 0) {
+                            if (person.getTheRoleDtoCollection() != null && !person.getTheRoleDtoCollection().isEmpty()) {
                                 patientRollCollection.addAll(person.getTheRoleDtoCollection());
                             }
                             thePersonVOCollection.add(person);
@@ -439,7 +441,7 @@ public class ObservationService implements IObservationService {
                 if (typeCd != null && typeCd.equalsIgnoreCase("APND")) {
                     ObservationContainer ordTestCommentVO = (ObservationContainer) getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, observationUid);
                     theObservationContainerCollection.add(ordTestCommentVO);
-                    Collection<ActRelationshipDto> arColl = ordTestCommentVO.getTheActRelationshipDtoCollection();
+                    Collection<ActRelationshipDto> arColl = ordTestCommentVO.getTheActRelationshipDtoCollection(); //NOSONAR
                     if (arColl != null) {
                         for (ActRelationshipDto ordTestDT : arColl) {
                             if (ordTestDT.getTypeCd().equals("COMP")) {
@@ -447,7 +449,7 @@ public class ObservationService implements IObservationService {
                                 ObservationContainer resTestVO = (ObservationContainer) getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, ordTestDT.getSourceActUid());
 
                                 //BB - civil0012298 - Retrieve User Name to be displayed instead of ID
-                                resTestVO.getTheObservationDto().setAddUserName(AuthUtil.authUser.getUserId());
+                                resTestVO.getTheObservationDto().setAddUserName(AuthUtil.authUser.getUserId()); //NOSONAR
                                 theObservationContainerCollection.add(resTestVO);
 
                             }
@@ -657,7 +659,7 @@ public class ObservationService implements IObservationService {
 
         // LOADING EXISTING Observation
         ObservationContainer orderedTest = (ObservationContainer) getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, observationId);
-        Collection<ParticipationDto>  partColl = orderedTest.getTheParticipationDtoCollection();
+        Collection<ParticipationDto>  partColl = orderedTest.getTheParticipationDtoCollection(); //NOSONAR
 
         if (partColl != null && !partColl.isEmpty())
         {
@@ -783,7 +785,7 @@ public class ObservationService implements IObservationService {
             nndActivityLogDto.setErrorMessageTxt(e.toString());
             Collection<ObservationContainer> observationCollection  = labResultProxyVO.getTheObservationContainerCollection();
             ObservationContainer obsVO = findObservationByCode(observationCollection, NEDSSConstant.LAB_REPORT);
-            String localId = obsVO.getTheObservationDto().getLocalId();
+            String localId = obsVO.getTheObservationDto().getLocalId(); //NOSONAR
             if (localId!=null)
             {
                 nndActivityLogDto.setLocalId(localId);

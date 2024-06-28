@@ -5,10 +5,10 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
+import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
+import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
-import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
-import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.stored_proc.ObservationMatchStoredProcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.ObservationRepository;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationMatchingService;
@@ -56,7 +56,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
             String msgStatus = observationContainer.getTheObservationDto().getStatusCd();
             String odsStatus = obsDT.getStatusCd();
             odsStatus = "N";
-            if (msgStatus == null || odsStatus == null)
+            if (msgStatus == null || odsStatus == null) //NOSONAR
             {
                 edxLabInformationDto.setObservationMatch(false);
                 logger.error("Error!! null status cd: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);

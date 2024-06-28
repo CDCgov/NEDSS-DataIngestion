@@ -6,18 +6,18 @@ import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
-import gov.cdc.dataprocessing.model.dto.edx.EdxLabIdentiferDto;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
-import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
+import gov.cdc.dataprocessing.model.dto.edx.EdxLabIdentiferDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
+import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
+import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueCodedDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationReasonDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
-import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.CommonLabUtil;
@@ -26,7 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Component
 public class ObservationRequestHandler {

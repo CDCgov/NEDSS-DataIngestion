@@ -115,17 +115,16 @@ public class UidSummaryContainer extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setStatusCd(String aStatusCd) {
-
     }
 
     @Override
     public Timestamp getStatusTime() {
-        return null;
+        return statusTime;
     }
 
     @Override
     public void setStatusTime(Timestamp aStatusTime) {
-
+        statusTime = aStatusTime;
     }
 
     @Override
@@ -135,17 +134,17 @@ public class UidSummaryContainer extends BaseContainer implements RootDtoInterfa
 
     @Override
     public Long getUid() {
-        return null;
+        return uid;
     }
 
     @Override
     public void setAddTime(Timestamp aAddTime) {
-
+        this.addTime = aAddTime;
     }
 
     @Override
     public Timestamp getAddTime() {
-        return null;
+        return addTime;
     }
 
     @Override

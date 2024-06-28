@@ -10,27 +10,27 @@ import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
-import gov.cdc.dataprocessing.model.container.model.*;
+import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.PageActProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.PamProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
+import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
-import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.NbsInterfaceRepository;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
-import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.interfaces.action.ILabReportProcessing;
+import gov.cdc.dataprocessing.service.interfaces.data_extraction.IDataExtractionService;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
+import gov.cdc.dataprocessing.service.interfaces.manager.IManagerCacheService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
-import gov.cdc.dataprocessing.service.interfaces.data_extraction.IDataExtractionService;
 import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPageService;
 import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPamService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IDecisionSupportService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationNotificationService;
-import gov.cdc.dataprocessing.service.interfaces.action.ILabReportProcessing;
 import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
 import gov.cdc.dataprocessing.service.model.wds.WdsTrackerView;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -40,14 +40,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
 import static gov.cdc.dataprocessing.constant.ManagerEvent.EVENT_ELR;
@@ -66,10 +63,6 @@ public class ManagerService implements IManagerService {
 
     private final NbsInterfaceRepository nbsInterfaceRepository;
 
-    private final ICatchingValueService cachingValueService;
-
-    private final CacheManager cacheManager;
-
     private final IDecisionSupportService decisionSupportService;
 
     private final ManagerUtil managerUtil;
@@ -82,13 +75,13 @@ public class ManagerService implements IManagerService {
     private final IPamService pamService;
     private final IInvestigationNotificationService investigationNotificationService;
 
+    private final IManagerCacheService managerCacheService;
+
     @Autowired
     public ManagerService(IObservationService observationService,
                           IEdxLogService edxLogService,
                           IDataExtractionService dataExtractionService,
                           NbsInterfaceRepository nbsInterfaceRepository,
-                          CachingValueService cachingValueService,
-                          CacheManager cacheManager,
                           IDecisionSupportService decisionSupportService,
                           ManagerUtil managerUtil,
                           KafkaManagerProducer kafkaManagerProducer,
@@ -96,13 +89,12 @@ public class ManagerService implements IManagerService {
                           ILabReportProcessing labReportProcessing,
                           IPageService pageService,
                           IPamService pamService,
-                          IInvestigationNotificationService investigationNotificationService) {
+                          IInvestigationNotificationService investigationNotificationService,
+                          IManagerCacheService managerCacheService) {
         this.observationService = observationService;
         this.edxLogService = edxLogService;
         this.dataExtractionService = dataExtractionService;
         this.nbsInterfaceRepository = nbsInterfaceRepository;
-        this.cachingValueService = cachingValueService;
-        this.cacheManager = cacheManager;
         this.decisionSupportService = decisionSupportService;
         this.managerUtil = managerUtil;
         this.kafkaManagerProducer = kafkaManagerProducer;
@@ -111,6 +103,7 @@ public class ManagerService implements IManagerService {
         this.pageService = pageService;
         this.pamService = pamService;
         this.investigationNotificationService = investigationNotificationService;
+        this.managerCacheService = managerCacheService;
     }
 
     @Transactional
@@ -129,15 +122,13 @@ public class ManagerService implements IManagerService {
 
     }
 
-    @SuppressWarnings("java:S6541")
+    @SuppressWarnings({"java:S6541", "java:S3776"})
     @Transactional
-    public void initiatingInvestigationAndPublicHealthCase(String data) {
+    public void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = null;
         String detailedMsg = "";
         try {
-            Gson gson = new Gson();
-            PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(data, PublicHealthCaseFlowContainer.class);
             edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
             LabResultProxyContainer labResultProxyContainer = publicHealthCaseFlowContainer.getLabResultProxyContainer();
@@ -156,80 +147,71 @@ public class ManagerService implements IManagerService {
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_22);
             }
 
-            if (edxLabInformationDto.isLabIsCreate()) {
-                if (observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null) {
+            if (edxLabInformationDto.isLabIsCreate() && observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null)
+            {
+                // This logic here determine whether logic is mark as review or not
+                decisionSupportService.validateProxyContainer(labResultProxyContainer, edxLabInformationDto);
 
-                    // This logic here determine whether logic is mark as review or not
-                    decisionSupportService.validateProxyContainer(labResultProxyContainer, edxLabInformationDto);
+                WdsTrackerView trackerView = new WdsTrackerView();
+                trackerView.setWdsReport(edxLabInformationDto.getWdsReports());
 
-                    WdsTrackerView trackerView = new WdsTrackerView();
-                    trackerView.setWdsReport(edxLabInformationDto.getWdsReports());
-
-                    Long patUid = -1L;
-                    Long patParentUid = -1L;
-                    String patFirstName = null;
-                    String patLastName = null;
-                    for(var item : publicHealthCaseFlowContainer.getLabResultProxyContainer().getThePersonContainerCollection()) {
-                        if (item.getThePersonDto().getCd().equals("PAT")) {
-                            patUid = item.getThePersonDto().getUid();
-                            patParentUid = item.getThePersonDto().getPersonParentUid();
-                            patFirstName = item.getThePersonDto().getFirstNm();
-                            patLastName = item.getThePersonDto().getLastNm();
-                            break;
-                        }
+                Long patUid = -1L;
+                Long patParentUid = -1L;
+                String patFirstName = null;
+                String patLastName = null;
+                for(var item : publicHealthCaseFlowContainer.getLabResultProxyContainer().getThePersonContainerCollection()) {
+                    if (item.getThePersonDto().getCd().equals("PAT")) {
+                        patUid = item.getThePersonDto().getUid();
+                        patParentUid = item.getThePersonDto().getPersonParentUid();
+                        patFirstName = item.getThePersonDto().getFirstNm();
+                        patLastName = item.getThePersonDto().getLastNm();
+                        break;
                     }
+                }
 
-                    trackerView.setPatientUid(patUid);
-                    trackerView.setPatientParentUid(patParentUid);
-                    trackerView.setPatientFirstName(patFirstName);
-                    trackerView.setPatientLastName(patLastName);
+                trackerView.setPatientUid(patUid);
+                trackerView.setPatientParentUid(patParentUid);
+                trackerView.setPatientFirstName(patFirstName);
+                trackerView.setPatientLastName(patLastName);
 
+                nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_2);
+                nbsInterfaceRepository.save(nbsInterfaceModel);
 
-                    nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_2);
-                    nbsInterfaceRepository.save(nbsInterfaceModel);
+                PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
+                phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
+                phcContainer.setLabResultProxyContainer(labResultProxyContainer);
+                phcContainer.setEdxLabInformationDto(edxLabInformationDto);
+                phcContainer.setObservationDto(observationDto);
+                phcContainer.setWdsTrackerView(trackerView);
 
-
-
-
-
-                    PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
-                    phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
-                    phcContainer.setLabResultProxyContainer(labResultProxyContainer);
-                    phcContainer.setEdxLabInformationDto(edxLabInformationDto);
-                    phcContainer.setObservationDto(observationDto);
-                    phcContainer.setWdsTrackerView(trackerView);
-
-                    if (edxLabInformationDto.getPageActContainer() != null
-                    || edxLabInformationDto.getPamContainer() != null) {
-                        if (edxLabInformationDto.getPageActContainer() != null) {
-                            var pageActProxyVO = (PageActProxyContainer) edxLabInformationDto.getPageActContainer();
-                            trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
-                        }
-                        else
-                        {
-                            var pamProxyVO = (PamProxyContainer)edxLabInformationDto.getPamContainer();
-                            trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
-                        }
+                if (edxLabInformationDto.getPageActContainer() != null
+                || edxLabInformationDto.getPamContainer() != null) {
+                    if (edxLabInformationDto.getPageActContainer() != null) {
+                        var pageActProxyVO = (PageActProxyContainer) edxLabInformationDto.getPageActContainer();
+                        trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
                     }
                     else
                     {
-                        if (edxLabInformationDto.getAction() != null) {
-                            //action 3 is REVIEW
-                            System.out.println("TEST");
-                        }
+                        var pamProxyVO = (PamProxyContainer)edxLabInformationDto.getPamContainer();
+                        trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
                     }
-
-
-                    gson = new Gson();
-                    String trackerString = gson.toJson(trackerView);
-                    kafkaManagerProducer.sendDataActionTracker(trackerString);
-
-                    gson = new Gson();
-                    String jsonString = gson.toJson(phcContainer);
-                    kafkaManagerProducer.sendDataLabHandling(jsonString);
-
-
                 }
+
+
+                Gson gson = new Gson();
+                String trackerString = gson.toJson(trackerView);
+                kafkaManagerProducer.sendDataActionTracker(trackerString);
+
+                gson = new Gson();
+                String jsonString = gson.toJson(phcContainer);
+                kafkaManagerProducer.sendDataLabHandling(jsonString);
+
+            }
+            else
+            {
+                // Concluded the flow if no WDS, set status to COMPLETED STEP 1
+                nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_COMPLETED_STEP_1);
+                nbsInterfaceRepository.save(nbsInterfaceModel);
             }
         } catch (Exception e) {
             detailedMsg = e.getMessage();
@@ -252,14 +234,12 @@ public class ManagerService implements IManagerService {
 
     }
 
-    @SuppressWarnings("java:S6541")
+    @SuppressWarnings({"java:S6541", "java:S3776"})
     @Transactional
-    public void initiatingLabProcessing(String data) {
+    public void initiatingLabProcessing(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto=null;
         try {
-            Gson gson = new Gson();
-            PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(data, PublicHealthCaseFlowContainer.class);
             edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
             var res = nbsInterfaceRepository.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
@@ -268,8 +248,6 @@ public class ManagerService implements IManagerService {
             } else {
                 throw new DataProcessingException("NBS Interface Data Not Exist");
             }
-
-
             PageActProxyContainer pageActProxyContainer = null;
             PamProxyContainer pamProxyVO = null;
             PublicHealthCaseContainer publicHealthCaseContainer;
@@ -277,9 +255,6 @@ public class ManagerService implements IManagerService {
 
 
             if (edxLabInformationDto.getAction() != null && edxLabInformationDto.getAction().equalsIgnoreCase(DecisionSupportConstants.MARK_AS_REVIEWED)) {
-                //Check for user security to mark as review lab
-                //checkSecurity(nbsSecurityObj, edxLabInformationDto, NBSBOLookup.OBSERVATIONLABREPORT, NBSOperationLookup.MARKREVIEWED, programAreaCd, jurisdictionCd);
-
                 labReportProcessing.markAsReviewedHandler(observationDto.getObservationUid(), edxLabInformationDto);
                 if (edxLabInformationDto.getAssociatedPublicHealthCaseUid() != null && edxLabInformationDto.getAssociatedPublicHealthCaseUid() > 0) {
                     edxLabInformationDto.setPublicHealthCaseUid(edxLabInformationDto.getAssociatedPublicHealthCaseUid());
@@ -294,10 +269,6 @@ public class ManagerService implements IManagerService {
             {
                 //Check for user security to create investigation
                 //checkSecurity(nbsSecurityObj, edxLabInformationDto, NBSBOLookup.INVESTIGATION, NBSOperationLookup.ADD, programAreaCd, jurisdictionCd);
-
-                /**
-                 * Incoming payload should reach PageActProxyContainer
-                 * */
                 if (edxLabInformationDto.getPageActContainer() != null) {
                     pageActProxyContainer =  edxLabInformationDto.getPageActContainer();
                     publicHealthCaseContainer = pageActProxyContainer.getPublicHealthCaseContainer();
@@ -316,7 +287,9 @@ public class ManagerService implements IManagerService {
 
 
                 if (pageActProxyContainer != null && observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null) {
-                    phcUid = pageService.setPageProxyWithAutoAssoc(NEDSSConstant.CASE, pageActProxyContainer, edxLabInformationDto.getRootObserbationUid(), NEDSSConstant.LABRESULT_CODE, null);
+                    phcUid = pageService.setPageProxyWithAutoAssoc(NEDSSConstant.CASE, pageActProxyContainer,
+                            edxLabInformationDto.getRootObserbationUid(),
+                            NEDSSConstant.LABRESULT_CODE, null);
 
                     pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setPublicHealthCaseUid(phcUid);
                     edxLabInformationDto.setInvestigationSuccessfullyCreated(true);
@@ -357,7 +330,6 @@ public class ManagerService implements IManagerService {
                         }
                         throw new DataProcessingException("MISSING NOTI REQUIRED: "+edxActivityDetailLogDT.getComment());
                     }else{
-                        //edxLabInformationDto.setNotificationSuccessfullyCreated(true);
                         edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_6);
                     }
 
@@ -415,7 +387,7 @@ public class ManagerService implements IManagerService {
 
             edxLabInformationDto.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
 
-            CompletableFuture<Void> cacheLoadingFuture = loadAndInitCachedValueAsync();
+            CompletableFuture<Void> cacheLoadingFuture = managerCacheService.loadAndInitCachedValueAsync();
             cacheLoadingFuture.join();
 
 
@@ -431,7 +403,7 @@ public class ManagerService implements IManagerService {
             ObservationDto observationDto;
 
             // Checking for matching observation
-            managerAggregationService.processingObservationMatching(edxLabInformationDto, labResultProxyContainer, aPersonUid);
+            edxLabInformationDto = managerAggregationService.processingObservationMatching(edxLabInformationDto, labResultProxyContainer, aPersonUid);
 
 
             // This process patient, provider, nok, and organization. Then it will update both parsedData and edxLabInformationDto accordingly
@@ -502,7 +474,9 @@ public class ManagerService implements IManagerService {
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
             }
 
-            if ((edxLabInformationDto.getPageActContainer() != null || edxLabInformationDto.getPamContainer() != null) && !edxLabInformationDto.isInvestigationSuccessfullyCreated()) {
+            if ((edxLabInformationDto.getPageActContainer() != null
+                    || edxLabInformationDto.getPamContainer() != null)
+                    && !edxLabInformationDto.isInvestigationSuccessfullyCreated()) {
                 if (edxLabInformationDto.isInvestigationMissingFields()) {
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_5);
                 } else {
@@ -589,7 +563,10 @@ public class ManagerService implements IManagerService {
                     edxLabInformationDto.setSystemException(false);
                 }
 
-                if(edxLabInformationDto.isReflexResultedTestCdMissing() || edxLabInformationDto.isResultedTestNameMissing() || edxLabInformationDto.isOrderTestNameMissing() || edxLabInformationDto.isReasonforStudyCdMissing()){
+                if(edxLabInformationDto.isReflexResultedTestCdMissing()
+                        || edxLabInformationDto.isResultedTestNameMissing()
+                        || edxLabInformationDto.isOrderTestNameMissing()
+                        || edxLabInformationDto.isReasonforStudyCdMissing()){
                     try{
                         String exceptionMsg = e.getMessage();
                         String textToLookFor = "XMLElementName: ";
@@ -613,236 +590,6 @@ public class ManagerService implements IManagerService {
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
         }
-    }
-
-    private CompletableFuture<Void> loadAndInitCachedValueAsync() {
-        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-            if (SrteCache.loincCodesMap.isEmpty()) {
-                try {
-                    cachingValueService.getAOELOINCCodes();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.raceCodesMap.isEmpty()) {
-                try {
-                    cachingValueService.getRaceCodes();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.programAreaCodesMap.isEmpty()) {
-                try {
-                    cachingValueService.getAllProgramAreaCodes();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.jurisdictionCodeMap.isEmpty()) {
-                try {
-                    cachingValueService.getAllJurisdictionCode();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.jurisdictionCodeMapWithNbsUid.isEmpty()) {
-                try {
-                    cachingValueService.getAllJurisdictionCodeWithNbsUid();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.programAreaCodesMapWithNbsUid.isEmpty()) {
-                try {
-                    cachingValueService.getAllProgramAreaCodesWithNbsUid();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.elrXrefsList.isEmpty()) {
-                try {
-                    cachingValueService.getAllElrXref();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.coInfectionConditionCode.isEmpty()) {
-                try {
-                    cachingValueService.getAllOnInfectionConditionCode();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.conditionCodes.isEmpty() || SrteCache.investigationFormConditionCode.isEmpty()) {
-                try {
-                    cachingValueService.getAllConditionCode();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.labResultByDescMap.isEmpty()) {
-                try {
-                    cachingValueService.getLabResultDesc();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.snomedCodeByDescMap.isEmpty()) {
-                try {
-                    cachingValueService.getAllSnomedCode();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.labResultWithOrganismNameIndMap.isEmpty()) {
-                try {
-                    cachingValueService.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            if (SrteCache.loinCodeWithComponentNameMap.isEmpty()) {
-                try {
-                    cachingValueService.getAllLoinCodeWithComponentName();
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).thenRun(() -> {
-            // Retrieve cached values using Cache.ValueWrapper
-            var cache = cacheManager.getCache("srte");
-            if (cache != null) {
-                Cache.ValueWrapper valueWrapper;
-                valueWrapper = cache.get("loincCodes");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof TreeMap) {
-                        SrteCache.loincCodesMap = (TreeMap<String, String>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("raceCodes");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof TreeMap) {
-                        SrteCache.raceCodesMap = (TreeMap<String, String>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("programAreaCodes");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof TreeMap) {
-                        SrteCache.programAreaCodesMap = (TreeMap<String, String>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("jurisdictionCode");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof TreeMap) {
-                        SrteCache.jurisdictionCodeMap = (TreeMap<String, String>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("programAreaCodesWithNbsUid");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof TreeMap) {
-                        SrteCache.programAreaCodesMapWithNbsUid = (TreeMap<String, Integer>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("jurisdictionCodeWithNbsUid");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof TreeMap) {
-                        SrteCache.jurisdictionCodeMapWithNbsUid = (TreeMap<String, Integer>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("elrXref");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof List) {
-                        SrteCache.elrXrefsList = (List<ElrXref>) cachedObject;
-                    }
-                }
-
-
-                valueWrapper = cache.get("coInfectionConditionCode");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof List) {
-                        SrteCache.coInfectionConditionCode = (TreeMap<String, String>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("conditionCode");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof List) {
-                        SrteCache.conditionCodes = (List<ConditionCode>) cachedObject;
-
-                        // Populate Code for Investigation Form
-                        for (ConditionCode obj : SrteCache.conditionCodes) {
-                            SrteCache.investigationFormConditionCode.put(obj.getConditionCd(), obj.getInvestigationFormCd());
-                        }
-
-                    }
-                }
-
-                valueWrapper = cache.get("labResulDesc");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof List) {
-                        SrteCache.labResultByDescMap = (TreeMap<String, String>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("snomedCodeByDesc");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof List) {
-                        SrteCache.snomedCodeByDescMap = (TreeMap<String, String>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("labResulDescWithOrgnismName");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof List) {
-                        SrteCache.labResultWithOrganismNameIndMap = (TreeMap<String, String>) cachedObject;
-                    }
-                }
-
-                valueWrapper = cache.get("loinCodeWithComponentName");
-                if (valueWrapper != null) {
-                    Object cachedObject = valueWrapper.get();
-                    if (cachedObject instanceof List) {
-                        SrteCache.loinCodeWithComponentNameMap = (TreeMap<String, String>) cachedObject;
-                    }
-                }
-
-
-
-
-            }
-        });
-
-        return future;
     }
 
     private void requiredFieldError(String errorTxt, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {

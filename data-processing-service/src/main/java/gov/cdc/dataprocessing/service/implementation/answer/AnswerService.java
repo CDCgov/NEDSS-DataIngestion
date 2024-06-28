@@ -3,10 +3,10 @@ package gov.cdc.dataprocessing.service.implementation.answer;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.PageContainer;
-import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsAnswerDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsActEntity;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsActEntityHist;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsAnswer;
@@ -161,30 +161,24 @@ public class AnswerService implements IAnswerService {
 
     @Transactional
     public void insertPageVO(PageContainer pageContainer, ObservationDto rootDTInterface) throws DataProcessingException{
-        try {
-
-            if(pageContainer !=null && pageContainer.getAnswerDTMap() !=null ) {
-                Collection<Object> answerDTColl = new ArrayList<>(pageContainer.getAnswerDTMap().values());
-                if(answerDTColl.size()>0) {
-                    storeAnswerDTCollection(answerDTColl, rootDTInterface);
-                }
-                if(pageContainer.getPageRepeatingAnswerDTMap() != null) {
-                    Collection<Object> interviewRepeatingAnswerDTColl = pageContainer.getPageRepeatingAnswerDTMap().values();
-                    if(interviewRepeatingAnswerDTColl.size()>0) {
-                        storeAnswerDTCollection(interviewRepeatingAnswerDTColl, rootDTInterface);
-                    }
+        if(pageContainer !=null && pageContainer.getAnswerDTMap() !=null ) {
+            Collection<Object> answerDTColl = new ArrayList<>(pageContainer.getAnswerDTMap().values());
+            if(answerDTColl.size()>0) {
+                storeAnswerDTCollection(answerDTColl, rootDTInterface);
+            }
+            if(pageContainer.getPageRepeatingAnswerDTMap() != null) {
+                Collection<Object> interviewRepeatingAnswerDTColl = pageContainer.getPageRepeatingAnswerDTMap().values();
+                if(interviewRepeatingAnswerDTColl.size()>0) {
+                    storeAnswerDTCollection(interviewRepeatingAnswerDTColl, rootDTInterface);
                 }
             }
-
-            if (pageContainer == null) {
-                pageContainer = new PageContainer();
-                pageContainer.setActEntityDTCollection(new ArrayList<>());
-            }
-            storeActEntityDTCollection(pageContainer.getActEntityDTCollection(), rootDTInterface);
-
-        } catch (Exception e) {
-            throw new DataProcessingException(e.toString());
         }
+
+        if (pageContainer == null) {
+            pageContainer = new PageContainer();
+            pageContainer.setActEntityDTCollection(new ArrayList<>());
+        }
+        storeActEntityDTCollection(pageContainer.getActEntityDTCollection(), rootDTInterface);
     }
 
 
@@ -233,25 +227,20 @@ public class AnswerService implements IAnswerService {
     }
 
 
-    private void storeActEntityDTCollection(Collection<NbsActEntityDto> pamDTCollection, ObservationDto rootDTInterface) throws  DataProcessingException{
-        try{
-            if(pamDTCollection.size()>0){
-                for (NbsActEntityDto pamCaseEntityDT : pamDTCollection) {
-                    if (pamCaseEntityDT.isItDelete()) {
-                        nbsActEntityRepository.deleteNbsEntityAct(pamCaseEntityDT.getNbsActEntityUid());
-                    } else if (pamCaseEntityDT.isItDirty() || pamCaseEntityDT.isItNew()) {
-                        var nbsActEntity = new NbsActEntity(pamCaseEntityDT);
-                        nbsActEntity.setActUid(rootDTInterface.getObservationUid());
-                        nbsActEntity.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
-                        nbsActEntity.setRecordStatusCd("OPEN");
-                        nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
-                        nbsActEntityRepository.save(new NbsActEntity(pamCaseEntityDT));
-                    }
+    private void storeActEntityDTCollection(Collection<NbsActEntityDto> pamDTCollection, ObservationDto rootDTInterface) {
+        if(pamDTCollection.size()>0){
+            for (NbsActEntityDto pamCaseEntityDT : pamDTCollection) {
+                if (pamCaseEntityDT.isItDelete()) {
+                    nbsActEntityRepository.deleteNbsEntityAct(pamCaseEntityDT.getNbsActEntityUid());
+                } else if (pamCaseEntityDT.isItDirty() || pamCaseEntityDT.isItNew()) {
+                    var nbsActEntity = new NbsActEntity(pamCaseEntityDT);
+                    nbsActEntity.setActUid(rootDTInterface.getObservationUid());
+                    nbsActEntity.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                    nbsActEntity.setRecordStatusCd("OPEN");
+                    nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
+                    nbsActEntityRepository.save(new NbsActEntity(pamCaseEntityDT));
                 }
             }
-        }
-        catch(Exception ex){
-            throw new DataProcessingException(ex.toString());
         }
     }
 

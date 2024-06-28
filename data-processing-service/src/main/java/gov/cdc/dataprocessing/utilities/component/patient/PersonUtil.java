@@ -2,9 +2,9 @@ package gov.cdc.dataprocessing.utilities.component.patient;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
-import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.service.implementation.person.PatientMatchingService;
 import gov.cdc.dataprocessing.service.implementation.person.ProviderMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;

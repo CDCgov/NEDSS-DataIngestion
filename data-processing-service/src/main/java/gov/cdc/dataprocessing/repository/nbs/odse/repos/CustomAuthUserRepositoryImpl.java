@@ -1,14 +1,15 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.repos;
 
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUserRealizedRole;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomAuthUserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Repository
 public class CustomAuthUserRepositoryImpl implements CustomAuthUserRepository {

@@ -1,12 +1,12 @@
 package gov.cdc.dataprocessing.model.container.model;
 
 import gov.cdc.dataprocessing.model.container.base.BaseContainer;
-import gov.cdc.dataprocessing.model.dto.material.ManufacturedMaterialDto;
-import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
-import gov.cdc.dataprocessing.model.dto.material.MaterialDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
+import gov.cdc.dataprocessing.model.dto.material.ManufacturedMaterialDto;
+import gov.cdc.dataprocessing.model.dto.material.MaterialDto;
+import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import lombok.Getter;
 import lombok.Setter;
 
