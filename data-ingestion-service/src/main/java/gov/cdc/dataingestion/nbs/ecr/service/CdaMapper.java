@@ -9,6 +9,7 @@ import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService;
 import gov.cdc.nedss.phdc.cda.*;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,9 @@ import javax.xml.namespace.QName;
 import java.math.BigInteger;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
 
@@ -49,115 +53,141 @@ public class CdaMapper implements ICdaMapper {
         this.interviewMappingHelper = new CdaInterviewMappingHelper(this.cdaMapHelper);
         this.treatmentMappingHelper = new CdaTreatmentMappingHelper(this.cdaMapHelper);
     }
+    public Map<Object, Object> retrieveXMLSchemaLocation(String xml) throws EcrCdaXmlException {
+        try {
+            XmlObject xobj = XmlObject.Factory.parse(xml);
+            XmlCursor cursor = xobj.newCursor();
+            String schemaLocation = "";
+            Map<Object, Object> returnMap = new HashMap<Object, Object>();
 
+            if (cursor.toFirstChild()) {
+                schemaLocation = cursor.getAttributeText(new QName(
+                        "http://www.w3.org/2001/XMLSchema-instance",
+                        "schemaLocation"));
+            }
+
+            cursor.dispose();
+
+            return returnMap;
+
+        } catch (Exception e) {
+
+            throw new EcrCdaXmlException(e.getMessage());
+        }
+    }
 
     public String tranformSelectedEcrToCDAXml(EcrSelectedRecord input) throws EcrCdaXmlException {
-        String inv168 = "";
+        try {
+            String inv168 = "";
 
-        //region DOCUMENT INITIATION
-        ClinicalDocumentDocument1 rootDocument = ClinicalDocumentDocument1.Factory.newInstance();
-        POCDMT000040ClinicalDocument1 clinicalDocument = POCDMT000040ClinicalDocument1.Factory.newInstance();
-        //endregion
+            //region DOCUMENT INITIATION
+            ClinicalDocumentDocument1 rootDocument = ClinicalDocumentDocument1.Factory.newInstance();
+            POCDMT000040ClinicalDocument1 clinicalDocument = POCDMT000040ClinicalDocument1.Factory.newInstance();
+            //endregion
 
-        var containerModel = mapParentContainer(clinicalDocument,
-                input, inv168);
-        clinicalDocument = containerModel.getClinicalDocument();
-        inv168 = containerModel.getInv168();
+            var containerModel = mapParentContainer(clinicalDocument,
+                    input, inv168);
+            clinicalDocument = containerModel.getClinicalDocument();
+            inv168 = containerModel.getInv168();
 
-        int componentCounter=-1;
-        int componentCaseCounter=-1;
-        int interviewCounter= 0;
-        int treatmentCounter=0;
-        int treatmentSectionCounter=0;
-        int patientComponentCounter=-1;
-        int performerComponentCounter=0;
-        int performerSectionCounter=0;
-        int clinicalCounter= 0;
+            int componentCounter=-1;
+            int componentCaseCounter=-1;
+            int interviewCounter= 0;
+            int treatmentCounter=0;
+            int treatmentSectionCounter=0;
+            int patientComponentCounter=-1;
+            int performerComponentCounter=0;
+            int performerSectionCounter=0;
+            int clinicalCounter= 0;
 
-        //region SUB COMPONENT CREATION
+            //region SUB COMPONENT CREATION
 
-        // Set RecordTarget && patient Role
-        clinicalDocument.addNewRecordTarget();
-        clinicalDocument.getRecordTargetArray(0).addNewPatientRole();
+            // Set RecordTarget && patient Role
+            clinicalDocument.addNewRecordTarget();
+            clinicalDocument.getRecordTargetArray(0).addNewPatientRole();
 
-        var pat =  this.patientMappingHelper.mapToPatient(input, clinicalDocument, patientComponentCounter, inv168);
-        clinicalDocument = pat.getClinicalDocument();
-        inv168 = pat.getInv168();
+            var pat =  this.patientMappingHelper.mapToPatient(input, clinicalDocument, patientComponentCounter, inv168);
+            clinicalDocument = pat.getClinicalDocument();
+            inv168 = pat.getInv168();
 
-        var ecrCase = caseMappingHelper.mapToCaseTop(input, clinicalDocument, componentCounter, clinicalCounter,
-        componentCaseCounter, inv168);
-        clinicalDocument = ecrCase.getClinicalDocument();
-        componentCounter = ecrCase.getComponentCounter();
-        inv168 = ecrCase.getInv168();
+            var ecrCase = caseMappingHelper.mapToCaseTop(input, clinicalDocument, componentCounter, clinicalCounter,
+                    componentCaseCounter, inv168);
+            clinicalDocument = ecrCase.getClinicalDocument();
+            componentCounter = ecrCase.getComponentCounter();
+            inv168 = ecrCase.getInv168();
 
-        var ecrXmlAnswer = xmlAnswerMappingHelper.mapToXmlAnswerTop(input,
-                clinicalDocument, componentCounter);
-        clinicalDocument = ecrXmlAnswer.getClinicalDocument();
-        componentCounter = ecrXmlAnswer.getComponentCounter();
+            var ecrXmlAnswer = xmlAnswerMappingHelper.mapToXmlAnswerTop(input,
+                    clinicalDocument, componentCounter);
+            clinicalDocument = ecrXmlAnswer.getClinicalDocument();
+            componentCounter = ecrXmlAnswer.getComponentCounter();
 
-        int c = 0;
-        if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
-            clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+            int c = 0;
+            if (clinicalDocument.getComponent().getStructuredBody().getComponentArray().length == 0) {
+                clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+            }
+            else {
+                c = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length;
+                clinicalDocument.getComponent().getStructuredBody().addNewComponent();
+            }
+
+            var comp = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c);
+            if (comp.getSection() == null) {
+                comp.addNewSection();
+            }
+
+            var ecrProvider = this.providerMappingHelper.mapToProviderTop(input, clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection(),
+                    inv168, performerComponentCounter, componentCounter,
+                    performerSectionCounter);
+
+            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).setSection(ecrProvider.getClinicalSection());
+            performerComponentCounter = ecrProvider.getPerformerComponentCounter();
+            componentCounter = ecrProvider.getComponentCounter();
+            performerSectionCounter = ecrProvider.getPerformerSectionCounter();
+
+            var ecrOrganization = this.orgMappingHelper.mapToOrganizationTop(input, clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection(),
+                    performerComponentCounter, componentCounter, performerSectionCounter);
+            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).setSection(ecrProvider.getClinicalSection());
+            performerComponentCounter = ecrOrganization.getPerformerComponentCounter();
+            componentCounter = ecrOrganization.getComponentCounter();
+            performerSectionCounter = ecrOrganization.getPerformerSectionCounter();
+
+            POCDMT000040Section interestedPartyComp = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection();
+            var ecrPlace = this.placeMappingHelper.mapToPlaceTop(input, performerComponentCounter,
+                    componentCounter, performerSectionCounter, interestedPartyComp);
+            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).setSection(ecrPlace.getSection());
+            componentCounter = ecrPlace.getComponentCounter();
+
+            var ecrInterview = this.interviewMappingHelper.mapToInterviewTop(input, clinicalDocument, interviewCounter, componentCounter);
+            clinicalDocument = ecrInterview.getClinicalDocument();
+            componentCounter = ecrInterview.getComponentCounter();
+
+            var ecrTreatment = this.treatmentMappingHelper.mapToTreatmentTop(input, clinicalDocument,
+                    treatmentCounter, componentCounter, treatmentSectionCounter);
+            clinicalDocument = ecrTreatment.getClinicalDocument();
+
+            mapCustodian(clinicalDocument);
+
+            mapAuthor(clinicalDocument);
+
+            //endregion
+
+            rootDocument.setClinicalDocument(clinicalDocument);
+
+            //region XML CLEANUP
+            XmlCursor cursor = rootDocument.newCursor();
+            cursor.toFirstChild();
+            cursor.setAttributeText(new QName("sdtcxmlnamespaceholder"), XML_NAME_SPACE_HOLDER);
+            cursor.setAttributeText(new QName("sdt"), "urn:hl7-org:sdtc");
+            cursor.setAttributeText(new QName("xsi"), NAME_SPACE_URL);
+            cursor.setAttributeText(new QName("schemaLocation"), XML_NAME_SPACE_HOLDER + " CDA_SDTC.xsd");
+            cursor.dispose();
+            //endregion
+
+            return convertXmlToString(rootDocument);
+        } catch (Exception e) {
+            throw new EcrCdaXmlException(e.getMessage());
         }
-        else {
-            c = clinicalDocument.getComponent().getStructuredBody().getComponentArray().length;
-            clinicalDocument.getComponent().getStructuredBody().addNewComponent();
-        }
 
-        var comp = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c);
-        if (comp.getSection() == null) {
-            comp.addNewSection();
-        }
-
-        var ecrProvider = this.providerMappingHelper.mapToProviderTop(input, clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection(),
-                inv168, performerComponentCounter, componentCounter,
-                 performerSectionCounter);
-
-        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).setSection(ecrProvider.getClinicalSection());
-        performerComponentCounter = ecrProvider.getPerformerComponentCounter();
-        componentCounter = ecrProvider.getComponentCounter();
-        performerSectionCounter = ecrProvider.getPerformerSectionCounter();
-
-        var ecrOrganization = this.orgMappingHelper.mapToOrganizationTop(input, clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection(),
-                performerComponentCounter, componentCounter, performerSectionCounter);
-        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).setSection(ecrProvider.getClinicalSection());
-        performerComponentCounter = ecrOrganization.getPerformerComponentCounter();
-        componentCounter = ecrOrganization.getComponentCounter();
-        performerSectionCounter = ecrOrganization.getPerformerSectionCounter();
-
-        POCDMT000040Section interestedPartyComp = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection();
-        var ecrPlace = this.placeMappingHelper.mapToPlaceTop(input, performerComponentCounter,
-                componentCounter, performerSectionCounter, interestedPartyComp);
-        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).setSection(ecrPlace.getSection());
-        componentCounter = ecrPlace.getComponentCounter();
-
-        var ecrInterview = this.interviewMappingHelper.mapToInterviewTop(input, clinicalDocument, interviewCounter, componentCounter);
-        clinicalDocument = ecrInterview.getClinicalDocument();
-        componentCounter = ecrInterview.getComponentCounter();
-
-        var ecrTreatment = this.treatmentMappingHelper.mapToTreatmentTop(input, clinicalDocument,
-                treatmentCounter, componentCounter, treatmentSectionCounter);
-        clinicalDocument = ecrTreatment.getClinicalDocument();
-
-        mapCustodian(clinicalDocument);
-
-        mapAuthor(clinicalDocument);
-
-        //endregion
-
-        rootDocument.setClinicalDocument(clinicalDocument);
-
-        //region XML CLEANUP
-        XmlCursor cursor = rootDocument.newCursor();
-        cursor.toFirstChild();
-        cursor.setAttributeText(new QName("sdtcxmlnamespaceholder"), XML_NAME_SPACE_HOLDER);
-        cursor.setAttributeText(new QName("sdt"), "urn:hl7-org:sdtc");
-        cursor.setAttributeText(new QName("xsi"), NAME_SPACE_URL);
-        cursor.setAttributeText(new QName("schemaLocation"), XML_NAME_SPACE_HOLDER + " CDA_SDTC.xsd");
-        cursor.dispose();
-        //endregion
-
-        return convertXmlToString(rootDocument);
 
     }
 
@@ -326,6 +356,11 @@ public class CdaMapper implements ICdaMapper {
             xmlOutput = xmlOutput.replaceAll("NOT_MAPPED","");// NOSONAR
 
             xmlOutput = "<?xml version=\"1.0\"?>\n" + xmlOutput;
+            xmlOutput = xmlOutput.replaceAll("xmlns:xmlns:xsi", "xmlns:xsi")
+                    .replaceAll("xmlns=\"\"", "").replaceAll("codeSystemName=\"\"", "")
+                    .replaceAll("displayName=\"\"", "")
+                    .replaceAll("codeSystem=\"NOT_FOUND\"", "")
+                    .replaceAll("displayName=\"NOT_FOUND\"", "");
             return xmlOutput;
     }
 

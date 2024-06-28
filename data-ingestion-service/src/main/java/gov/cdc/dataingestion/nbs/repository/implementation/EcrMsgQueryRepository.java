@@ -29,9 +29,10 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
 
 
 
-    public EcrMsgContainerDto fetchMsgContainerForApplicableEcr() throws EcrCdaXmlException {
+    public EcrMsgContainerDto fetchMsgContainerForApplicableEcr(Integer nbsUid) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_container.sql");
         Query query = entityManager.createNativeQuery(queryString);
+        query.setParameter("VALUE_DATA", nbsUid);
 
         EcrMsgContainerDto ecrMsgContainerDto = new EcrMsgContainerDto();
         List<Object[]> results = query.getResultList();

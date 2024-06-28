@@ -23,9 +23,9 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
         this.ecrMsgQueryRepository = ecrMsgQueryRepository;
     }
 
-    public EcrSelectedRecord getSelectedEcrRecord() throws EcrCdaXmlException {
+    public EcrSelectedRecord getSelectedEcrRecord(Integer nbsUid) throws EcrCdaXmlException {
         EcrSelectedRecord selectedRecord = null;
-        EcrMsgContainerDto msgContainer = this.ecrMsgQueryRepository.fetchMsgContainerForApplicableEcr();
+        EcrMsgContainerDto msgContainer = this.ecrMsgQueryRepository.fetchMsgContainerForApplicableEcr(nbsUid);
 
         if (msgContainer != null && msgContainer.getMsgContainerUid() != null) {
             selectedRecord = new EcrSelectedRecord();

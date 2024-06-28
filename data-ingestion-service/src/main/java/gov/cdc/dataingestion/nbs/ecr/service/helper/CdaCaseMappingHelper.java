@@ -181,7 +181,8 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         if (output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation() == null) {
             output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).addNewObservation();
         }
-        var element = output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation();
+        POCDMT000040Observation element = output.getComponentArray(componentCaseCounter).getSection().getEntryArray(c).getObservation();
+
 
         CdaCaseFieldSectionCommon model = new CdaCaseFieldSectionCommon();
         model.setOutput(output);
@@ -214,7 +215,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         var modelSection = mapCaseFieldSectionCommon( output,
                 componentCaseCounter);
         int c = modelSection.getC();
-        var element = modelSection.getElement();
+        POCDMT000040Observation element = modelSection.getElement();
         output = modelSection.getOutput();
 
         var obs = mapTripletToObservation(
@@ -335,6 +336,10 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
 
         String tripletCodedValue;
         PhdcQuestionLookUpDto questionLookUpDto = cdaMapHelper.mapToCodedQuestionType(questionId);
+        if (output.getCode() == null) {
+            CD cd = CD.Factory.newInstance();
+            output.setCode(cd);
+        }
         output.getCode().setCode(questionLookUpDto.getQuesCodeSystemCd());
         output.getCode().setCodeSystem(questionLookUpDto.getQuesCodeSystemDescTxt());
         output.getCode().setDisplayName(questionLookUpDto.getQuesDisplayName());

@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface IEcrMsgQueryRepository {
-     EcrMsgContainerDto fetchMsgContainerForApplicableEcr() throws EcrCdaXmlException;
+     EcrMsgContainerDto fetchMsgContainerForApplicableEcr(Integer nbsUid) throws EcrCdaXmlException;
      List<EcrMsgPatientDto> fetchMsgPatientForApplicableEcr(Integer containerId) throws EcrCdaXmlException;
      List<EcrMsgCaseDto> fetchMsgCaseForApplicableEcr(Integer containerId) throws EcrCdaXmlException;
      List<EcrMsgCaseParticipantDto> fetchMsgCaseParticipantForApplicableEcr(Integer containerId, String invLocalId) throws EcrCdaXmlException;
