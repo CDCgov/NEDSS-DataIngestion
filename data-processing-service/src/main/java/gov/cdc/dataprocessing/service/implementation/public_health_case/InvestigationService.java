@@ -439,16 +439,15 @@ public class InvestigationService implements IInvestigationService {
                         LabReportUidSummarVOs,isCDCFormPrintCase,
                         uidType);
 
-                if (labSumVOMap != null) {
-                    if (labSumVOMap.containsKey(LAB_EVENT_LIST)) {
-                        labReportSummaryVOCollection = (ArrayList<?>) labSumVOMap
-                                .get(LAB_EVENT_LIST);
-                        for (Object o : labReportSummaryVOCollection) {
-                            labReportSummaryVOs = (LabReportSummaryContainer) o;
-                            labSumVOCol.add(labReportSummaryVOs);
-                        }
+                if (labSumVOMap.containsKey(LAB_EVENT_LIST)) {
+                    labReportSummaryVOCollection = (ArrayList<?>) labSumVOMap
+                            .get(LAB_EVENT_LIST);
+                    for (Object o : labReportSummaryVOCollection) {
+                        labReportSummaryVOs = (LabReportSummaryContainer) o;
+                        labSumVOCol.add(labReportSummaryVOs);
                     }
                 }
+
             }
             Map<Long, LabReportSummaryContainer> labMapfromDOC =  new HashMap<>();
 
@@ -847,16 +846,13 @@ public class InvestigationService implements IInvestigationService {
                 if(LabReportUidSummarVOs != null && LabReportUidSummarVOs.size() > 0)
                 {
                     labSumVOMap = retrieveLabReportSummaryRevisited(LabReportUidSummarVOs,false, uidType);
-                    if(labSumVOMap !=null)
+                    if(labSumVOMap.containsKey(LAB_EVENT_LIST))
                     {
-                        if(labSumVOMap.containsKey(LAB_EVENT_LIST))
-                        {
-                            labReportSummaryVOCollection  = (ArrayList<?> )labSumVOMap.get(LAB_EVENT_LIST);
-                            for (Object o : labReportSummaryVOCollection) {
-                                labReportSummaryVOs = (LabReportSummaryContainer) o;
-                                labSumVOCol.add(labReportSummaryVOs);
+                        labReportSummaryVOCollection  = (ArrayList<?> )labSumVOMap.get(LAB_EVENT_LIST);
+                        for (Object o : labReportSummaryVOCollection) {
+                            labReportSummaryVOs = (LabReportSummaryContainer) o;
+                            labSumVOCol.add(labReportSummaryVOs);
 
-                            }
                         }
                     }
                     logger.debug("Size of labreport Collection<Object>  :" + labSumVOCol.size());

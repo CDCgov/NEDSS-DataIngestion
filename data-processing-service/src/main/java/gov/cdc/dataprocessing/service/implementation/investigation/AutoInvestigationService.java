@@ -24,6 +24,7 @@ import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCodeWithPA;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.ConditionCodeRepository;
+import gov.cdc.dataprocessing.service.implementation.manager.ManagerService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IAutoInvestigationService;
@@ -32,6 +33,8 @@ import gov.cdc.dataprocessing.utilities.RulesEngineUtil;
 import gov.cdc.dataprocessing.utilities.StringUtils;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.public_health_case.CdaPhcProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -40,7 +43,7 @@ import java.util.*;
 
 @Service
 public class AutoInvestigationService implements IAutoInvestigationService {
-
+    private static final Logger logger = LoggerFactory.getLogger(AutoInvestigationService.class);
     private final ConditionCodeRepository conditionCodeRepository;
     private final ICatchingValueService catchingValueService;
     private final ILookupService lookupService;
@@ -462,7 +465,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                                 Date date = formatter.parse(stringDate);
                                 value = sdf.format(date);
                             } catch (Exception ex) {
-                                ex.printStackTrace();
+                                logger.info(ex.getMessage());
                             }
                         }
                         else if (toPrePopMappingDT.getToAnswerCode() != null)

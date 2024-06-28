@@ -325,7 +325,7 @@ public class DecisionSupportService implements IDecisionSupportService {
         ) && applyAdvInvLogic;
     }
 
-    @SuppressWarnings({"java:S107", "java:S6541", "java:S6541"})
+    @SuppressWarnings({"java:S107", "java:S6541", "java:S6541", "java:S3776"})
     protected void updateObservationBasedOnAction(Algorithm algorithmDocument,
                                                 boolean criteriaMatch,
                                                 String conditionCode,

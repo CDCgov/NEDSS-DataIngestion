@@ -653,42 +653,42 @@ class OrganizationRepositoryUtilTest {
 
     private EntityLocatorParticipationDto getEntityLocatorParticipationDto_ph() {
         //PHYSICAL
-        EntityLocatorParticipationDto entityLocatorDT_ph = new EntityLocatorParticipationDto();
-        entityLocatorDT_ph.setClassCd(NEDSSConstant.PHYSICAL);
-        entityLocatorDT_ph.setAddUserId(12345L);
+        EntityLocatorParticipationDto entityLocatorDTPh = new EntityLocatorParticipationDto();
+        entityLocatorDTPh.setClassCd(NEDSSConstant.PHYSICAL);
+        entityLocatorDTPh.setAddUserId(12345L);
 
         PhysicalLocatorDto physicalLocatorDto = new PhysicalLocatorDto();
         physicalLocatorDto.setLocatorTxt("TEST_TXT");
         physicalLocatorDto.setAddReasonCd("TEST_REASON_CD");
         physicalLocatorDto.setAddUserId(12345L);
-        entityLocatorDT_ph.setThePhysicalLocatorDto(physicalLocatorDto);
-        return entityLocatorDT_ph;
+        entityLocatorDTPh.setThePhysicalLocatorDto(physicalLocatorDto);
+        return entityLocatorDTPh;
     }
 
     private EntityLocatorParticipationDto getEntityLocatorParticipationDto_po() {
         //POSTAL
-        EntityLocatorParticipationDto entityLocatorDT_po = new EntityLocatorParticipationDto();
-        entityLocatorDT_po.setClassCd(NEDSSConstant.POSTAL);
-        entityLocatorDT_po.setAddUserId(12345L);
+        EntityLocatorParticipationDto entityLocatorDTPo = new EntityLocatorParticipationDto();
+        entityLocatorDTPo.setClassCd(NEDSSConstant.POSTAL);
+        entityLocatorDTPo.setAddUserId(12345L);
 
         PostalLocatorDto thePostalLocatorDto = new PostalLocatorDto();
         thePostalLocatorDto.setAddReasonCd("TEST_REASON_CD");
         thePostalLocatorDto.setAddUserId(12345L);
-        entityLocatorDT_po.setThePostalLocatorDto(thePostalLocatorDto);
-        return entityLocatorDT_po;
+        entityLocatorDTPo.setThePostalLocatorDto(thePostalLocatorDto);
+        return entityLocatorDTPo;
     }
 
     private EntityLocatorParticipationDto getEntityLocatorParticipationDto_tel() {
         //TELE
-        EntityLocatorParticipationDto entityLocatorDT_tel = new EntityLocatorParticipationDto();
-        entityLocatorDT_tel.setClassCd(NEDSSConstant.TELE);
-        entityLocatorDT_tel.setAddUserId(12345L);
+        EntityLocatorParticipationDto entityLocatorDTTel = new EntityLocatorParticipationDto();
+        entityLocatorDTTel.setClassCd(NEDSSConstant.TELE);
+        entityLocatorDTTel.setAddUserId(12345L);
 
         TeleLocatorDto teleLocatorDto = new TeleLocatorDto();
         teleLocatorDto.setAddReasonCd("TEST_REASON_CD");
         teleLocatorDto.setAddUserId(12345L);
-        entityLocatorDT_tel.setTheTeleLocatorDto(teleLocatorDto);
-        return entityLocatorDT_tel;
+        entityLocatorDTTel.setTheTeleLocatorDto(teleLocatorDto);
+        return entityLocatorDTTel;
     }
 
     private LocalUidGenerator getLocalUidGenerator() {
