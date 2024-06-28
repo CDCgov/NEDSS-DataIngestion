@@ -122,6 +122,7 @@ class ManagerAggregationServiceTest {
                 personContainer, labResultProxyContainer, personDto);
     }
 
+    @SuppressWarnings("java:S1117")
     @Test
     void processingObservationMatching_Test_1() throws DataProcessingException {
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
@@ -142,6 +143,7 @@ class ManagerAggregationServiceTest {
         assertTrue(test.isLabIsUpdateDRRQ());
     }
 
+    @SuppressWarnings("java:S1117")
     @Test
     void processingObservationMatching_Test_2() throws DataProcessingException {
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
@@ -164,6 +166,7 @@ class ManagerAggregationServiceTest {
 
     }
 
+    @SuppressWarnings("java:S1117")
     @Test
     void processingObservationMatching_Test_3() throws DataProcessingException {
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
@@ -181,54 +184,6 @@ class ManagerAggregationServiceTest {
         assertFalse(test.isLabIsUpdateDRSA());
         assertTrue(test.isLabIsCreate());
     }
-
-//    @Test
-//    void serviceAggregationAsync_Test_1() throws DataProcessingException, DataProcessingConsumerException {
-//        LabResultProxyContainer labResult = new LabResultProxyContainer();
-//        var obsCol = new ArrayList<ObservationContainer>();
-//        var obsConn = new ObservationContainer();
-//        var obsDt = new ObservationDto();
-//        obsDt.setObservationUid(10L);
-//        var actIdCol = new ArrayList<ActIdDto>();
-//        var actId = new ActIdDto();
-//        actIdCol.add(actId);
-//        obsConn.setTheActIdDtoCollection(actIdCol);
-//        obsCol.add(obsConn);
-//
-//        var perCol = new ArrayList<PersonContainer>();
-//        var perConn  = new PersonContainer();
-//        perConn.setRole(EdxELRConstant.ELR_NEXT_OF_KIN);
-//        perCol.add(perConn);
-//
-//        perConn  = new PersonContainer();
-//        var perDt = new PersonDto();
-//        perDt.setCd(EdxELRConstant.ELR_PATIENT_CD);
-//        perConn.setThePersonDto(perDt);
-//        perCol.add(perConn);
-//
-//        perConn  = new PersonContainer();
-//        perDt = new PersonDto();
-//        perDt.setCd(EdxELRConstant.ELR_PROVIDER_CD);
-//        perConn.setThePersonDto(perDt);
-//        perCol.add(perConn);
-//
-//        labResult.setTheObservationContainerCollection(obsCol);
-//        labResult.setThePersonContainerCollection(perCol);
-//
-//
-//        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
-//        edxLabInformationDto.setRootObserbationUid(10L);
-//
-//
-//        when(patientService.processingNextOfKin(any(), any())).thenReturn(perCol.get(0));
-//        when(patientService.processingPatient(any(), any(), any())).thenReturn(perCol.get(1));
-//        when(patientService.processingProvider(any(), any(), any(), eq(false))).thenReturn(perCol.get(2));
-//
-//        when(organizationService.processingOrganization(any())).thenReturn(new OrganizationContainer());
-//
-//
-//        managerAggregationService.serviceAggregationAsync(labResult, edxLabInformationDto);
-//    }
 
     @Test
     void testServiceAggregationAsync_HappyPath() throws DataProcessingException, DataProcessingConsumerException {
@@ -254,6 +209,7 @@ class ManagerAggregationServiceTest {
         verify(spyService).roleAggregation(labResult);
     }
 
+    @SuppressWarnings("java:S1117")
     @Test
     void testProgAndJurisdictionAggregationAsync_HappyPath() throws DataProcessingException, ExecutionException, InterruptedException {
         // Prepare mock data
@@ -280,6 +236,7 @@ class ManagerAggregationServiceTest {
         verify(jurisdictionService).assignJurisdiction(any(), any(), any(), any());
     }
 
+    @SuppressWarnings("java:S1117")
     @Test
     void testProgAndJurisdictionAggregationAsync_Exception() throws DataProcessingException {
         Collection<ObservationContainer> observationContainerCollection = new ArrayList<>();
@@ -403,6 +360,7 @@ class ManagerAggregationServiceTest {
         assertEquals(0, labResult.getTheRoleDtoCollection().size());
     }
 
+    @SuppressWarnings("java:S1117")
     @Test
     void testObservationAggregation_HappyPath() {
         // Prepare mock data
@@ -425,6 +383,7 @@ class ManagerAggregationServiceTest {
         verify(actIdDto, times(1)).setActUid(123L);
     }
 
+    @SuppressWarnings("java:S1117")
     @Test
     void testObservationAggregation_NoMatchingObservationUid() {
         // Prepare mock data
@@ -441,6 +400,7 @@ class ManagerAggregationServiceTest {
         verify(uidService, never()).setFalseToNewForObservation(any(), anyLong(), anyLong());
     }
 
+    @SuppressWarnings("java:S1117")
     @Test
     void patientAggregation_Test() throws DataProcessingConsumerException, DataProcessingException {
         LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();

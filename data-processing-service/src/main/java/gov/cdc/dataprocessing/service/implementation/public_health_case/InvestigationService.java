@@ -70,6 +70,9 @@ public class InvestigationService implements IInvestigationService {
     private final CachingValueService cachingValueService;
     private final ILdfService ldfService;
     private final LabTestRepository labTestRepository;
+    private static final String AND_STRING = " AND ";
+    private static final String LAB_EVENT_LIST = "labEventList";
+
 
     public InvestigationService(PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil,
                                 OrganizationRepositoryUtil organizationRepositoryUtil,
@@ -397,7 +400,7 @@ public class InvestigationService implements IInvestigationService {
                 strTypeCd = actRelationshipDT.getTypeCd();
                 recordStatusCd = actRelationshipDT.getRecordStatusCd();
                 if (nSourceActID == null || strClassCd == null) {
-                    logger.debug("PageProxyEJB.getInvestigation: check for nulls: SourceActUID" + nSourceActID + " classCd: " + strClassCd);
+                    logger.debug("PageProxyEJB.getInvestigation: check for nulls: SourceActUID" + nSourceActID + " classCd: " + strClassCd); //NOSONAR
                     continue;
                 }
             }
@@ -409,7 +412,7 @@ public class InvestigationService implements IInvestigationService {
                     .getDataAccessWhereClause(
                             NBSBOLookup.OBSERVATIONLABREPORT,
                             "VIEW", "obs");
-            labReportViewClause = labReportViewClause != null ? " AND "
+            labReportViewClause = labReportViewClause != null ? AND_STRING
                     + labReportViewClause : "";
 
             Collection<UidSummaryContainer> LabReportUidSummarVOs =  observationSummaryService
@@ -437,9 +440,9 @@ public class InvestigationService implements IInvestigationService {
                         uidType);
 
                 if (labSumVOMap != null) {
-                    if (labSumVOMap.containsKey("labEventList")) {
+                    if (labSumVOMap.containsKey(LAB_EVENT_LIST)) {
                         labReportSummaryVOCollection = (ArrayList<?>) labSumVOMap
-                                .get("labEventList");
+                                .get(LAB_EVENT_LIST);
                         for (Object o : labReportSummaryVOCollection) {
                             labReportSummaryVOs = (LabReportSummaryContainer) o;
                             labSumVOCol.add(labReportSummaryVOs);
@@ -546,11 +549,10 @@ public class InvestigationService implements IInvestigationService {
 
 
     }
-
+    @SuppressWarnings("java:S1172")
     private  void updateNotification(boolean isSummaryCase, Long notificationUid, String phcCd,
                                    String phcClassCd, String progAreaCd, String jurisdictionCd,
                                    String sharedInd, boolean caseStatusChange) throws DataProcessingException {
-        boolean checkNotificationPermission = true;//nbsSecurityObj.getPermission(NBSBOLookup.NOTIFICATION, NBSOperationLookup.CREATE,progAreaCd,jurisdictionCd,sharedInd);
         boolean checkNotificationPermission1 = true;//nbsSecurityObj.getPermission(NBSBOLookup.NOTIFICATION, NBSOperationLookup.CREATENEEDSAPPROVAL,progAreaCd,jurisdictionCd,sharedInd);
         String businessTriggerCd;
         businessTriggerCd = NEDSSConstant.NOT_CR_APR;
@@ -823,7 +825,7 @@ public class InvestigationService implements IInvestigationService {
                 }
             }
             catch (Exception e) {
-                logger.error("Exception occured while retrieving LDFCollection<Object>  = " + e.getMessage());
+                logger.error("Exception occured while retrieving LDFCollection<Object>  = " + e.getMessage()); //NOSONAR
             }
 
             if (theStateDefinedFieldDTCollection  != null) {
@@ -835,7 +837,7 @@ public class InvestigationService implements IInvestigationService {
             if (!lite)
             {
                 String labReportViewClause = queryHelper.getDataAccessWhereClause(NBSBOLookup.OBSERVATIONLABREPORT, "VIEW", "obs");
-                labReportViewClause = labReportViewClause != null? " AND " + labReportViewClause:"";
+                labReportViewClause = labReportViewClause != null? AND_STRING + labReportViewClause:"";
 
                 Collection<UidSummaryContainer>  LabReportUidSummarVOs = observationSummaryService.findAllActiveLabReportUidListForManage(publicHealthCaseUID,labReportViewClause);
                 String uidType = "LABORATORY_UID";
@@ -847,9 +849,9 @@ public class InvestigationService implements IInvestigationService {
                     labSumVOMap = retrieveLabReportSummaryRevisited(LabReportUidSummarVOs,false, uidType);
                     if(labSumVOMap !=null)
                     {
-                        if(labSumVOMap.containsKey("labEventList"))
+                        if(labSumVOMap.containsKey(LAB_EVENT_LIST))
                         {
-                            labReportSummaryVOCollection  = (ArrayList<?> )labSumVOMap.get("labEventList");
+                            labReportSummaryVOCollection  = (ArrayList<?> )labSumVOMap.get(LAB_EVENT_LIST);
                             for (Object o : labReportSummaryVOCollection) {
                                 labReportSummaryVOs = (LabReportSummaryContainer) o;
                                 labSumVOCol.add(labReportSummaryVOs);
@@ -955,7 +957,7 @@ public class InvestigationService implements IInvestigationService {
                 dataAccessWhereClause = "";
             }
             else {
-                dataAccessWhereClause = " AND " + dataAccessWhereClause;
+                dataAccessWhereClause = AND_STRING + dataAccessWhereClause;
             }
 
             LabReportSummaryContainer labVO = new LabReportSummaryContainer();
@@ -1115,7 +1117,7 @@ public class InvestigationService implements IInvestigationService {
         this.populateDescTxtFromCachedValues(labEventList);
         HashMap<Object, Object> returnMap = new HashMap<>();
         returnMap.put("labSummList", labSummList);
-        returnMap.put("labEventList", labEventList);
+        returnMap.put(LAB_EVENT_LIST, labEventList);
         return returnMap;
     } //end of getObservationSummaryVOCollectionForWorkup()
 

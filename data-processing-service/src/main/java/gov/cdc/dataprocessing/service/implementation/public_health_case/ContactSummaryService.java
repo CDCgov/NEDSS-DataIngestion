@@ -44,7 +44,7 @@ public class ContactSummaryService implements IContactSummaryService {
         return coll;
     }
 
-    private Collection<Object> getPHCContactNamedByPatientSummDTColl(Long publicHealthCaseUID) throws DataProcessingException {
+    private Collection<Object> getPHCContactNamedByPatientSummDTColl(Long publicHealthCaseUID) {
         String dataAccessWhereClause = queryHelper.getDataAccessWhereClause(NBSBOLookup.CT_CONTACT,"VIEW", "");
 
         if (dataAccessWhereClause == null) {
@@ -127,7 +127,7 @@ public class ContactSummaryService implements IContactSummaryService {
         return PHCcTContactNameByPatientSummDTColl;
     }
 
-
+    @SuppressWarnings("java:S3776")
     private  Collection<Object> getContactNamedByPatientDTColl(String sql) {
         CTContactSummaryDto cTContactSummaryDto = new CTContactSummaryDto();
         ArrayList<CTContactSummaryDto>  cTContactNameByPatientSummDTColl ;

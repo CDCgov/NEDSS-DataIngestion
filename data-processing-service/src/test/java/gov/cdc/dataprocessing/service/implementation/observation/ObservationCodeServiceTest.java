@@ -62,10 +62,6 @@ class ObservationCodeServiceTest {
         Mockito.reset(srteCodeObsService, organizationRepositoryUtil, observationUtil, authUtil);
     }
 
-    @Test
-    void deriveTheConditionCodeList_Success() {
-
-    }
 
     @Test
     void getReportingLabCLIA_Success() throws DataProcessingException {
@@ -267,7 +263,7 @@ class ObservationCodeServiceTest {
         mapSnomed.put("COUNT", 1);
         mapSnomed.put("LOINC", "LOINC");
         when(srteCodeObsService.getSnomed(eq("CODE_2"), any(), any())).thenReturn(mapSnomed);
-        when(srteCodeObsService.getConditionForSnomedCode(eq("LOINC"))).thenReturn("LOINC");
+        when(srteCodeObsService.getConditionForSnomedCode("LOINC")).thenReturn("LOINC");
 
 
         obsConn.setTheObsValueCodedDtoCollection(codedCol);
@@ -326,7 +322,7 @@ class ObservationCodeServiceTest {
         mapSnomed.put("COUNT", 1);
         mapSnomed.put("LOINC", "LOINC");
         when(srteCodeObsService.getSnomed(eq("CODE"), any(), any())).thenReturn(mapSnomed);
-        when(srteCodeObsService.getConditionForLoincCode(eq("LOINC"))).thenReturn("LOINC");
+        when(srteCodeObsService.getConditionForLoincCode("LOINC")).thenReturn("LOINC");
 
 
         var codedCol = new ArrayList<ObsValueCodedDto>();
@@ -384,13 +380,6 @@ class ObservationCodeServiceTest {
         obsDt.setObsDomainCdSt1(NEDSSConstant.RESULTED_TEST_OBS_DOMAIN_CD);
         obsDt.setCd("CODE");
         obsConn.setTheObservationDto(obsDt);
-
-//        var mapSnomed = new HashMap<String, Object>();
-//        mapSnomed.put("COUNT", 1);
-//        mapSnomed.put("LOINC", "LOINC");
-//        when(srteCodeObsService.getSnomed(eq("CODE"), any(), any())).thenReturn(mapSnomed);
-//        when(srteCodeObsService.getConditionForLoincCode(eq("LOINC"))).thenReturn("LOINC");
-
 
         var codedCol = new ArrayList<ObsValueCodedDto>();
         var codedObs = new ObsValueCodedDto();
@@ -452,12 +441,6 @@ class ObservationCodeServiceTest {
         obsDt.setCdSystemCd("CODE");
         obsConn.setTheObservationDto(obsDt);
 
-//        var mapSnomed = new HashMap<String, Object>();
-//        mapSnomed.put("COUNT", 1);
-//        mapSnomed.put("LOINC", "LOINC");
-//        when(srteCodeObsService.getSnomed(eq("CODE"), any(), any())).thenReturn(mapSnomed);
-//        when(srteCodeObsService.getConditionForLoincCode(eq("LOINC"))).thenReturn("LOINC");
-
         when(srteCodeObsService.getDefaultConditionForLocalResultCode(eq("CODE"), any())).thenReturn("BLAH");
 
 
@@ -518,13 +501,6 @@ class ObservationCodeServiceTest {
         obsDt.setCd("CODE");
         obsConn.setTheObservationDto(obsDt);
 
-//        var mapSnomed = new HashMap<String, Object>();
-//        mapSnomed.put("COUNT", 1);
-//        mapSnomed.put("LOINC", "LOINC");
-//        when(srteCodeObsService.getSnomed(eq("CODE"), any(), any())).thenReturn(mapSnomed);
-//        when(srteCodeObsService.getConditionForLoincCode(eq("LOINC"))).thenReturn("LOINC");
-
-
         when(srteCodeObsService.getDefaultConditionForLabTest(eq("CODE"),any())).thenReturn("BLAH");
 
         var codedCol = new ArrayList<ObsValueCodedDto>();
@@ -583,14 +559,6 @@ class ObservationCodeServiceTest {
         obsDt.setObsDomainCdSt1(NEDSSConstant.RESULTED_TEST_OBS_DOMAIN_CD);
         obsDt.setCd("CODE");
         obsConn.setTheObservationDto(obsDt);
-
-//        var mapSnomed = new HashMap<String, Object>();
-//        mapSnomed.put("COUNT", 1);
-//        mapSnomed.put("LOINC", "LOINC");
-//        when(srteCodeObsService.getSnomed(eq("CODE"), any(), any())).thenReturn(mapSnomed);
-//        when(srteCodeObsService.getConditionForLoincCode(eq("LOINC"))).thenReturn("LOINC");
-
-
 
         var codedCol = new ArrayList<ObsValueCodedDto>();
         var codedObs = new ObsValueCodedDto();

@@ -218,7 +218,7 @@ class InvestigationNotificationServiceTests {
 
         var personRaceCol = new ArrayList<PersonRaceDto>();
         var personRace = new PersonRaceDto();
-        personRaceCol.add(personRace);;
+        personRaceCol.add(personRace);
         personConn.setThePersonRaceDtoCollection(personRaceCol);
 
         personCol.add(personConn);
@@ -251,6 +251,8 @@ class InvestigationNotificationServiceTests {
 
         var test = investigationNotificationService.validatePAMNotficationRequiredFieldsGivenPageProxy(pageObj,
                 publicHealthCaseUid, reqFields, formCd);
+
+        assertNull(test);
     }
 
 }

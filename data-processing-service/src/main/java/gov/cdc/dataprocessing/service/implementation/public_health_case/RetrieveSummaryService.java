@@ -52,7 +52,6 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
 
             if(publicHealthCaseDto.isStdHivProgramAreaCode()){
                 //TODO: LOGGING PIPELINE
-                // createAndStoreMessageLogDTCollection( reportSumVOCollection, publicHealthCaseDto);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -188,7 +187,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                     }
 
                 }
-                else if (object instanceof PamProxyContainer)
+                else if (object instanceof PamProxyContainer) // NOSONAR
                 {
                     PamProxyContainer pamProxy = (PamProxyContainer) object;
                     if (notificationSummaryVO.isCaseReport()) {
@@ -206,7 +205,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                         }
                     }
                 }
-                else if (object instanceof PageActProxyContainer)
+                else if (object instanceof PageActProxyContainer) // NOSONAR
                 {
                     PageActProxyContainer pageProxy = (PageActProxyContainer) object;
                     if (notificationSummaryVO.isCaseReport()) {

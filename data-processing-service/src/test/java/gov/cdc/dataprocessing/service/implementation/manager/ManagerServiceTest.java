@@ -737,7 +737,6 @@ class ManagerServiceTest {
         String data = gson.toJson(labData);
 
 
-        //   managerService.processDistribution(eventType, data);
         CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
         when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
         when(mockedFuture.join()).thenReturn(null); // You can adjust this to simulate different behaviors
@@ -768,7 +767,7 @@ class ManagerServiceTest {
         observationDto.setJurisdictionCd("A");
         SrteCache.jurisdictionCodeMap.put("A", "A");
 
-        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException("Invalid XML"));;
+        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException("Invalid XML"));
 
 
         managerService.processDistribution(eventType, data);
@@ -786,7 +785,6 @@ class ManagerServiceTest {
         String data = gson.toJson(labData);
 
 
-        //   managerService.processDistribution(eventType, data);
         CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
         when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
         when(mockedFuture.join()).thenReturn(null); // You can adjust this to simulate different behaviors
@@ -817,7 +815,7 @@ class ManagerServiceTest {
         observationDto.setJurisdictionCd("A");
         SrteCache.jurisdictionCodeMap.put("A", "A");
 
-        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));;
+        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
 
 
         managerService.processDistribution(eventType, data);
@@ -835,7 +833,6 @@ class ManagerServiceTest {
         String data = gson.toJson(labData);
 
 
-        //   managerService.processDistribution(eventType, data);
         CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
         when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
         when(mockedFuture.join()).thenReturn(null); // You can adjust this to simulate different behaviors
@@ -867,7 +864,7 @@ class ManagerServiceTest {
         observationDto.setJurisdictionCd("A");
         SrteCache.jurisdictionCodeMap.put("A", "A");
 
-        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));;
+        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
 
 
         managerService.processDistribution(eventType, data);
@@ -885,7 +882,6 @@ class ManagerServiceTest {
         String data = gson.toJson(labData);
 
 
-        //   managerService.processDistribution(eventType, data);
         CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
         when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
         when(mockedFuture.join()).thenReturn(null); // You can adjust this to simulate different behaviors
@@ -918,7 +914,7 @@ class ManagerServiceTest {
         observationDto.setJurisdictionCd("A");
         SrteCache.jurisdictionCodeMap.put("A", "A");
 
-        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));;
+        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
 
 
         managerService.processDistribution(eventType, data);
@@ -936,7 +932,6 @@ class ManagerServiceTest {
         String data = gson.toJson(labData);
 
 
-        //   managerService.processDistribution(eventType, data);
         CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
         when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
         when(mockedFuture.join()).thenReturn(null); // You can adjust this to simulate different behaviors
@@ -951,7 +946,6 @@ class ManagerServiceTest {
         edxLabInformationDto.setProgramAreaName(null);
         var edxAcLog = new EDXActivityLogDto();
         edxLabInformationDto.setEdxActivityLogDto(edxAcLog);
-        var conn = new PageActProxyContainer();
         edxLabInformationDto.setPageActContainer(null);
         edxLabInformationDto.setInvestigationMissingFields(false);
         edxLabInformationDto.setReflexResultedTestCdMissing(true);
@@ -970,7 +964,7 @@ class ManagerServiceTest {
         observationDto.setJurisdictionCd("A");
         SrteCache.jurisdictionCodeMap.put("A", "A");
 
-        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));;
+        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
 
 
         managerService.processDistribution(eventType, data);
@@ -988,7 +982,6 @@ class ManagerServiceTest {
         String data = gson.toJson(labData);
 
 
-        //   managerService.processDistribution(eventType, data);
         CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
         when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
         when(mockedFuture.join()).thenReturn(null); // You can adjust this to simulate different behaviors
@@ -1003,7 +996,6 @@ class ManagerServiceTest {
         edxLabInformationDto.setProgramAreaName(null);
         var edxAcLog = new EDXActivityLogDto();
         edxLabInformationDto.setEdxActivityLogDto(edxAcLog);
-        var conn = new PageActProxyContainer();
         edxLabInformationDto.setPageActContainer(null);
         edxLabInformationDto.setInvestigationMissingFields(false);
         edxLabInformationDto.setReflexResultedTestCdMissing(true);
@@ -1022,7 +1014,7 @@ class ManagerServiceTest {
         observationDto.setJurisdictionCd("A");
         SrteCache.jurisdictionCodeMap.put("A", "A");
 
-        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.DATE_VALIDATION));;
+        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.DATE_VALIDATION));
 
 
         managerService.processDistribution(eventType, data);
@@ -1040,7 +1032,6 @@ class ManagerServiceTest {
         String data = gson.toJson(labData);
 
 
-        //   managerService.processDistribution(eventType, data);
         CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
         when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
         when(mockedFuture.join()).thenReturn(null); // You can adjust this to simulate different behaviors
@@ -1055,7 +1046,6 @@ class ManagerServiceTest {
         edxLabInformationDto.setProgramAreaName(null);
         var edxAcLog = new EDXActivityLogDto();
         edxLabInformationDto.setEdxActivityLogDto(edxAcLog);
-        var conn = new PageActProxyContainer();
         edxLabInformationDto.setPageActContainer(null);
         edxLabInformationDto.setInvestigationMissingFields(false);
         edxLabInformationDto.setReflexResultedTestCdMissing(true);
@@ -1074,7 +1064,7 @@ class ManagerServiceTest {
         observationDto.setJurisdictionCd("A");
         SrteCache.jurisdictionCodeMap.put("A", "A");
 
-        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException("BLAH"));;
+        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException("BLAH"));
 
 
         managerService.processDistribution(eventType, data);

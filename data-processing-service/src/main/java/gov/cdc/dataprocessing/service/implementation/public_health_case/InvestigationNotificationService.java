@@ -214,7 +214,6 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             answerMap = pamVO.getPamAnswerDTMap();
             if(pageObj == null || pageObj instanceof PublicHealthCaseContainer)
             {
-                // participationDTCollection  = proxyVO.getPublicHealthCaseContainer().getTheParticipationDTCollection();
                 participationDTCollection = new ArrayList<>();
             }
             else

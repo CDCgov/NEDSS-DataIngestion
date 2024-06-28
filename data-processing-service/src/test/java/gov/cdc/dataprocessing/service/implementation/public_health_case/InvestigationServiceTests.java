@@ -271,8 +271,8 @@ class InvestigationServiceTests {
                 null,
                 true);
 
-        verify(publicHealthCaseRepositoryUtil, times(1)).findPublicHealthCase(eq(investigationUid));
-        verify(observationRepositoryUtil, times(1)).loadObject(eq(10006210L));
+        verify(publicHealthCaseRepositoryUtil, times(1)).findPublicHealthCase(investigationUid);
+        verify(observationRepositoryUtil, times(1)).loadObject(10006210L);
         verify(retrieveSummaryService, times(1)).checkBeforeCreateAndStoreMessageLogDTCollection(any(), any());
 
     }
@@ -313,8 +313,8 @@ class InvestigationServiceTests {
 
         investigationService.setObservationAssociationsImpl(investigationUid, reportSumVOCollection, true);
 
-        verify(publicHealthCaseRepositoryUtil, times(1)).findPublicHealthCase(eq(investigationUid));
-        verify(observationRepositoryUtil, times(1)).loadObject(eq(10006210L));
+        verify(publicHealthCaseRepositoryUtil, times(1)).findPublicHealthCase(investigationUid);
+        verify(observationRepositoryUtil, times(1)).loadObject(10006210L);
     }
 
     @Test
@@ -346,8 +346,8 @@ class InvestigationServiceTests {
 
         investigationService.setObservationAssociationsImpl(investigationUid, reportSumVOCollection, true);
 
-        verify(publicHealthCaseRepositoryUtil, times(1)).findPublicHealthCase(eq(investigationUid));
-        verify(observationRepositoryUtil, times(0)).loadObject(eq(10006210L));
+        verify(publicHealthCaseRepositoryUtil, times(1)).findPublicHealthCase(investigationUid);
+        verify(observationRepositoryUtil, times(0)).loadObject(10006210L);
     }
 
 
@@ -468,9 +468,9 @@ class InvestigationServiceTests {
 
 
         assertNotNull(result);
-        verify(observationSummaryService, times(1)).getActIdDetails(eq(18L));
-        verify(organizationRepositoryUtil, times(1)).loadObject(eq(20L), eq(null));
-        verify(observationSummaryService, times(1)).getLabParticipations(eq(18L));
+        verify(observationSummaryService, times(1)).getActIdDetails(18L);
+        verify(organizationRepositoryUtil, times(1)).loadObject(20L, null);
+        verify(observationSummaryService, times(1)).getLabParticipations(18L);
 
 
     }

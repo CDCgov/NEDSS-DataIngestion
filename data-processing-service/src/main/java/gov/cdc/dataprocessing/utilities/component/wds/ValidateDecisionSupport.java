@@ -344,7 +344,7 @@ public class ValidateDecisionSupport {
         if (behavior.equalsIgnoreCase("1")) {
             isOverwrite = true;
         } else if (behavior.equalsIgnoreCase("2")) {
-            isOverwrite = false;
+            isOverwrite = false; // NOSONAR
         }
         String time = edxRuleManageDT.getDefaultStringValue();
 
