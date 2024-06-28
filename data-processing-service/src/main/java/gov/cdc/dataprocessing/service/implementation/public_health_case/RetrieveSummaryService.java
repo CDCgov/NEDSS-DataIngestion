@@ -166,7 +166,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                                                                                Object object) {
         if (theNotificationSummaryVOCollection  != null) {
             for (Object o : theNotificationSummaryVOCollection) {
-                notificationSummaryVO = (NotificationSummaryContainer) o;
+                notificationSummaryVO = (NotificationSummaryContainer) o; //NOSONAR
                 if (object instanceof InvestigationContainer) {
                     InvestigationContainer investigationProxyVO = (InvestigationContainer) object;
                     if (notificationSummaryVO.isCaseReport()) {

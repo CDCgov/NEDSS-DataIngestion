@@ -553,16 +553,7 @@ public class InvestigationService implements IInvestigationService {
         boolean checkNotificationPermission = true;//nbsSecurityObj.getPermission(NBSBOLookup.NOTIFICATION, NBSOperationLookup.CREATE,progAreaCd,jurisdictionCd,sharedInd);
         boolean checkNotificationPermission1 = true;//nbsSecurityObj.getPermission(NBSBOLookup.NOTIFICATION, NBSOperationLookup.CREATENEEDSAPPROVAL,progAreaCd,jurisdictionCd,sharedInd);
         String businessTriggerCd;
-        if(isSummaryCase){
-            businessTriggerCd = NEDSSConstant.NOT_CR_APR;
-        }
-        else
-        {
-            // In auto resend scenario, the change to investigation or
-            // any associated object puts the notification in APPROVED queue
-
-            businessTriggerCd = NEDSSConstant.NOT_CR_APR;
-        }
+        businessTriggerCd = NEDSSConstant.NOT_CR_APR;
 
         Collection<Object>  notificationVOCollection  = null;
 
