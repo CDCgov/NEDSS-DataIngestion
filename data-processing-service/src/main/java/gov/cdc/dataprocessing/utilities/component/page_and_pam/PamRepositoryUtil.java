@@ -2,11 +2,11 @@ package gov.cdc.dataprocessing.utilities.component.page_and_pam;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
-import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsCaseAnswerRepository;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsCaseAnswerRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

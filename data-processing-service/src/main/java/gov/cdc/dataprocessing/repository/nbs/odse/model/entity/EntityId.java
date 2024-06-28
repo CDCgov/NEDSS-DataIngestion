@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.entity;
 
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ActIdId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.EntityIdId;
 import jakarta.persistence.*;
 import lombok.Data;

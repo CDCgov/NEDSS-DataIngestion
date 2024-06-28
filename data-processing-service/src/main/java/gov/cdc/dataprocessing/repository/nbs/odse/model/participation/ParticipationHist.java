@@ -1,10 +1,8 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.participation;
 
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ActIdId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ParticipationHistId;
 import jakarta.persistence.*;
-import jakarta.persistence.Id;
 import lombok.Data;
 
 import java.io.Serializable;

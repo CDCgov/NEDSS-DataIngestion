@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.repos;
 
 import gov.cdc.dataprocessing.repository.nbs.odse.model.custom_model.QuestionRequiredNnd;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomNbsQuestionRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;

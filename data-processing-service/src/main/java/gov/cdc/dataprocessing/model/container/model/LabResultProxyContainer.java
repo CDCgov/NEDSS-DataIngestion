@@ -1,8 +1,8 @@
 package gov.cdc.dataprocessing.model.container.model;
 
 import gov.cdc.dataprocessing.model.dto.edx.EDXDocumentDto;
-import gov.cdc.dataprocessing.model.dto.log.MessageLogDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
+import gov.cdc.dataprocessing.model.dto.log.MessageLogDto;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.test_data;
 
-import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.MaterialContainer;
 import gov.cdc.dataprocessing.model.container.model.ObservationContainer;

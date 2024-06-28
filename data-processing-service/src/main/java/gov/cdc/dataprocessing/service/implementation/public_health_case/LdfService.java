@@ -6,7 +6,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.ILdfService;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static gov.cdc.dataprocessing.constant.ComplexQueries.SELECT_LDF;

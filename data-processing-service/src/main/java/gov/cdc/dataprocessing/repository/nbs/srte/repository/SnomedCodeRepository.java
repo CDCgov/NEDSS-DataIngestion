@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.repository.nbs.srte.repository;
 
-import gov.cdc.dataprocessing.repository.nbs.srte.model.LabResult;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.SnomedCode;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

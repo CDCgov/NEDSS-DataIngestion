@@ -6,32 +6,34 @@ import gov.cdc.dataprocessing.constant.RenderConstant;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
-import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
-import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
-import gov.cdc.dataprocessing.model.dto.edx.EdxRuleManageDto;
-import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
-import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
+import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
+import gov.cdc.dataprocessing.model.dto.edx.EdxRuleManageDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.lookup.PrePopMappingDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueCodedDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueDateDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueNumericDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueTxtDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCodeWithPA;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.ConditionCodeRepository;
-import gov.cdc.dataprocessing.service.interfaces.public_health_case.IAutoInvestigationService;
-import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
+import gov.cdc.dataprocessing.service.interfaces.public_health_case.IAutoInvestigationService;
 import gov.cdc.dataprocessing.utilities.DynamicBeanBinding;
 import gov.cdc.dataprocessing.utilities.RulesEngineUtil;
 import gov.cdc.dataprocessing.utilities.StringUtils;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.public_health_case.CdaPhcProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -40,7 +42,7 @@ import java.util.*;
 
 @Service
 public class AutoInvestigationService implements IAutoInvestigationService {
-
+    private static final Logger logger = LoggerFactory.getLogger(AutoInvestigationService.class);
     private final ConditionCodeRepository conditionCodeRepository;
     private final ICatchingValueService catchingValueService;
     private final ILookupService lookupService;
@@ -306,11 +308,14 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         return phcVO;
     }
 
-    private void populateProxyFromPrePopMapping(PageActProxyContainer pageActProxyContainer, EdxLabInformationDto edxLabInformationDT)
+    @SuppressWarnings("java:S3776")
+    protected void populateProxyFromPrePopMapping(PageActProxyContainer pageActProxyContainer,
+                                                  EdxLabInformationDto edxLabInformationDT)
             throws DataProcessingException {
         try {
             lookupService.fillPrePopMap();
-            TreeMap<Object, Object> fromPrePopMap = (TreeMap<Object, Object>) OdseCache.fromPrePopFormMapping.get(NEDSSConstant.LAB_FORM_CD);
+            TreeMap<Object, Object> fromPrePopMap =
+                    (TreeMap<Object, Object>) OdseCache.fromPrePopFormMapping.get(NEDSSConstant.LAB_FORM_CD);
             if (fromPrePopMap == null) {
                 fromPrePopMap = new TreeMap<>();
             }
@@ -446,7 +451,9 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                         NbsQuestionMetadata quesMetadata = (NbsQuestionMetadata) questionMap
                                 .get(toPrePopMappingDT.getToQuestionIdentifier());
                         if (quesMetadata != null)
+                        {
                             dataLocation = quesMetadata.getDataLocation();
+                        }
                         if (toPrePopMappingDT.getToDataType() != null
                                 && toPrePopMappingDT.getToDataType().equals(NEDSSConstant.DATE_DATATYPE)) {
                             try {
@@ -458,12 +465,17 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                                 Date date = formatter.parse(stringDate);
                                 value = sdf.format(date);
                             } catch (Exception ex) {
-//                                    logger.error("Could not convert to date from value :" + prePopMap.get(mappingKey));
+                                logger.info(ex.getMessage());
                             }
-                        } else if (toPrePopMappingDT.getToAnswerCode() != null)
+                        }
+                        else if (toPrePopMappingDT.getToAnswerCode() != null)
+                        {
                             value = toPrePopMappingDT.getToAnswerCode();
+                        }
                         else
+                        {
                             value = (String) prePopMap.get(mappingKey);
+                        }
 
                         if (value != null && dataLocation != null
                                 && dataLocation.startsWith(RenderConstant.PUBLIC_HEALTH_CASE)) {
@@ -482,10 +494,6 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                     }
                 }
                 pageActProxyContainer.getPageVO().setPamAnswerDTMap(answerMap);
-            }
-            else
-            {
-//                logger.debug("No pre-pop mapping for Code: "+investigationFormCd);
             }
         } catch (Exception e) {
             throw new Exception(e.getMessage(), e);

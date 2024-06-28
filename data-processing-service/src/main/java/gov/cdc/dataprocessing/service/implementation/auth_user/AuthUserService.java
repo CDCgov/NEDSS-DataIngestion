@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.service.implementation.auth_user;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomAuthUserRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.auth.AuthUserRepository;
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
@@ -35,18 +34,4 @@ public class AuthUserService implements IAuthUserService {
         return authUserData;
     }
 
-
-    //DUMMY
-    public AuthUser getSessionProfile(String userName) {
-        var profile = this.authUserRepository.findAuthUserByUserId(userName);
-        if (profile.isPresent()) {
-            return profile.get();
-        } else {
-            // this is for debug and development only
-            AuthUser authUser = new AuthUser();
-            authUser.setAuthUserUid(123L);
-            authUser.setUserId("data-processing");
-            return authUser;
-        }
-    }
 }

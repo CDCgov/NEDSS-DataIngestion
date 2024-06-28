@@ -2,8 +2,8 @@ package gov.cdc.dataprocessing.utilities.component.public_health_case;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 
 public class CdaPhcProcessor {
     public static void setStandardNBSCaseAnswerVals(PublicHealthCaseDto phcDT,

@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class ActRelationshipServiceTest {
+class ActRelationshipServiceTest {
     @Mock
     private ActRelationshipRepository actRelationshipRepository;
     @InjectMocks

@@ -1,8 +1,8 @@
 package gov.cdc.dataprocessing.model.dto.act;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
-import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.container.base.BaseContainer;
+import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
 import lombok.Getter;
 import lombok.Setter;

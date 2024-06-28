@@ -1,13 +1,11 @@
 package gov.cdc.dataprocessing.repository.nbs.srte.model;
 
-import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ActIdId;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.id_class.JurisdictionParticipationId;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 @Data
 @Entity

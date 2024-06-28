@@ -3,8 +3,8 @@ package gov.cdc.dataprocessing.repository.nbs.odse.repos;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessDto;
-import gov.cdc.dataprocessing.model.dto.phc.CTContactSummaryDto;
 import gov.cdc.dataprocessing.model.dto.generic_helper.StateDefinedFieldDataDto;
+import gov.cdc.dataprocessing.model.dto.phc.CTContactSummaryDto;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;

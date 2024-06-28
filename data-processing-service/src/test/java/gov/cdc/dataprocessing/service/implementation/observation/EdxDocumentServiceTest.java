@@ -5,11 +5,8 @@ import gov.cdc.dataprocessing.model.dto.edx.EDXDocumentDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.edx.EdxDocument;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.edx.EdxDocumentRepository;
-import gov.cdc.dataprocessing.service.interfaces.lookup_data.ISrteCodeObsService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
-import gov.cdc.dataprocessing.utilities.component.observation.ObservationUtil;
-import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,11 +20,10 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 
-public class EdxDocumentServiceTest {
+class EdxDocumentServiceTest {
     @Mock
     private EdxDocumentRepository edxDocumentRepository;
     @InjectMocks

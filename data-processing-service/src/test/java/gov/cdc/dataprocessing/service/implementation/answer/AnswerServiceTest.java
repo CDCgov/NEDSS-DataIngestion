@@ -14,8 +14,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityHistRepo
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsAnswerHistRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsAnswerRepository;
-import gov.cdc.dataprocessing.service.implementation.action.LabReportProcessing;
-import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
@@ -27,15 +25,16 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.sql.Time;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-public class AnswerServiceTest {
+class AnswerServiceTest {
     @Mock
     private NbsAnswerRepository nbsAnswerRepository;
     @Mock
@@ -396,5 +395,45 @@ public class AnswerServiceTest {
         verify(nbsActEntityRepository, times(1)).deleteNbsEntityAct(any());
     }
 
+    @Test
+    void getNbsAnswerAndAssociation_Exception()  {
+
+        when(nbsActEntityRepository.getNbsActEntitiesByActUid(any())).thenThrow(new RuntimeException("TEST"));
+
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            answerService.getNbsAnswerAndAssociation(null);
+        });
+
+        assertEquals("InterviewAnswerRootDAOImpl:answerCollection- could not be returned",thrown.getMessage());
+
+    }
+
+    @Test
+    void getPageAnswerDTMaps_Test() throws DataProcessingException {
+        Long uid = 10L;
+
+        var ansCol = new ArrayList<NbsAnswer>();
+        var ans = new NbsAnswer();
+        ans.setSeqNbr(1);
+        ans.setNbsQuestionUid(0L);
+        ansCol.add(ans);
+        ans = new NbsAnswer();
+        ans.setSeqNbr(1);
+        ans.setNbsQuestionUid(10L);
+        ansCol.add(ans);
+        when(nbsAnswerRepository.getPageAnswerByActUid(any())).thenReturn(Optional.of(ansCol));
+
+        answerService.getPageAnswerDTMaps(uid);
+
+        verify(nbsAnswerRepository, times(1)).getPageAnswerByActUid(any());
+    }
+
+    @Test
+    @SuppressWarnings("java:S2699")
+    void insertPageVO_Test() throws DataProcessingException {
+        PageContainer pageContainer = null;
+        ObservationDto rootDTInterface = new ObservationDto();
+        answerService.insertPageVO(pageContainer, rootDTInterface);
+    }
 
 }

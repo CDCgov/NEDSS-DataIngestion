@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 
 @Component
 public class QueryHelper {

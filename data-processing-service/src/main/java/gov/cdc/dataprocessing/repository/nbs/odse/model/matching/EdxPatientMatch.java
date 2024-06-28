@@ -2,7 +2,6 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.matching;
 
 import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
 import jakarta.persistence.*;
-import jakarta.persistence.Entity;
 import lombok.Data;
 
 @Entity

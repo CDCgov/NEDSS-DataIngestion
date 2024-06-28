@@ -10,13 +10,13 @@ import gov.cdc.dataprocessing.model.dto.nbs.NBSDocumentDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsDocument;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsDocumentHist;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsDocumentHistRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsDocumentRepository;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.participation.ParticipationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import org.springframework.stereotype.Component;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
 @Component
 public class NbsDocumentRepositoryUtil {
     private final CustomRepository customRepository;

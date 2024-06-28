@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.repos.lookup;
 
-import gov.cdc.dataprocessing.repository.nbs.odse.model.lookup.LookupQuestionExtended;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.lookup.LookupQuestion;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.lookup.LookupQuestionExtended;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

@@ -5,22 +5,22 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
-import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.log.NNDActivityLogDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.service.implementation.person.base.PatientMatchingBaseService;
-import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationService;
-import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPamService;
-import gov.cdc.dataprocessing.service.interfaces.public_health_case.IRetrieveSummaryService;
 import gov.cdc.dataprocessing.service.interfaces.answer.IAnswerService;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
+import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPamService;
+import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IPublicHealthCaseService;
+import gov.cdc.dataprocessing.service.interfaces.public_health_case.IRetrieveSummaryService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.nbs.NbsNoteRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.participation.ParticipationRepositoryUtil;
-import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,57 +73,39 @@ public class PamService implements IPamService {
     }
 
     public Long setPamProxyWithAutoAssoc(PamProxyContainer pamProxyVO, Long observationUid, String observationTypeCd) throws DataProcessingException {
-        try {
-            Long investigationUID = setPamProxy(pamProxyVO);
+        Long investigationUID = setPamProxy(pamProxyVO);
 
-            Collection<LabReportSummaryContainer> observationColl = new ArrayList<>();
-            if (observationTypeCd.equalsIgnoreCase(NEDSSConstant.LAB_DISPALY_FORM)) {
-                LabReportSummaryContainer labSumVO = new LabReportSummaryContainer();
-                labSumVO.setItTouched(true);
-                labSumVO.setItAssociated(true);
-                labSumVO.setObservationUid(observationUid);
-                observationColl.add(labSumVO);
-
-            }
-            else
-            {
-//                MorbReportSummaryVO morbSumVO = new MorbReportSummaryVO();
-//                morbSumVO.setItTouched(true);
-//                morbSumVO.setItAssociated(true);
-//                morbSumVO.setObservationUid(observationUid);
-//                observationColl.add(morbSumVO);
-
-            }
-            investigationService.setObservationAssociationsImpl(investigationUID, observationColl, true);
-            return investigationUID;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+        Collection<LabReportSummaryContainer> observationColl = new ArrayList<>();
+        if (observationTypeCd.equalsIgnoreCase(NEDSSConstant.LAB_DISPALY_FORM)) {
+            LabReportSummaryContainer labSumVO = new LabReportSummaryContainer();
+            labSumVO.setItTouched(true);
+            labSumVO.setItAssociated(true);
+            labSumVO.setObservationUid(observationUid);
+            observationColl.add(labSumVO);
         }
+        investigationService.setObservationAssociationsImpl(investigationUID, observationColl, true);
+        return investigationUID;
     }
 
     public void insertPamVO(BasePamContainer pamVO, PublicHealthCaseContainer publichHealthCaseVO)
             throws DataProcessingException{
-        try {
-            Collection<Object>  pamDTCollection  =new ArrayList<> ();
-            Collection<Object>  repeatingAnswerDTCollection  =new ArrayList<> ();
-            if(pamVO.getPamAnswerDTMap()!=null){
-                pamDTCollection= pamVO.getPamAnswerDTMap().values();
-            }
-
-            //NOTE: PAM IS EMPTY IN RELEVANT FLOW
-            //storePamAnswerDTCollection(pamDTCollection, publichHealthCaseVO);
-            if(pamVO.getPageRepeatingAnswerDTMap()!=null){
-                repeatingAnswerDTCollection= pamVO.getPageRepeatingAnswerDTMap().values();
-            }
-            //NOTE: PAM IS EMPTY IN RELEVANT FLOW
-           // storePamAnswerDTCollection(repeatingAnswerDTCollection, publichHealthCaseVO);
-            answerService.storeActEntityDTCollectionWithPublicHealthCase(pamVO.getActEntityDTCollection(),  publichHealthCaseVO.getThePublicHealthCaseDto());
-        } catch (Exception e) {
-            throw new DataProcessingException(e.toString());
+        Collection<Object>  pamDTCollection  =new ArrayList<> ();
+        Collection<Object>  repeatingAnswerDTCollection  =new ArrayList<> ();
+        if(pamVO.getPamAnswerDTMap()!=null){
+            pamDTCollection= pamVO.getPamAnswerDTMap().values();
         }
+
+        //NOTE: PAM IS EMPTY IN RELEVANT FLOW
+        //storePamAnswerDTCollection(pamDTCollection, publichHealthCaseVO);
+        if(pamVO.getPageRepeatingAnswerDTMap()!=null){
+            repeatingAnswerDTCollection= pamVO.getPageRepeatingAnswerDTMap().values();
+        }
+        //NOTE: PAM IS EMPTY IN RELEVANT FLOW
+        answerService.storeActEntityDTCollectionWithPublicHealthCase(pamVO.getActEntityDTCollection(),  publichHealthCaseVO.getThePublicHealthCaseDto());
     }
 
 
+    @SuppressWarnings("java:S1135")
     private Long setPamProxy(PamProxyContainer pamProxyVO) throws DataProcessingException {
 
         PublicHealthCaseDto phcDT = pamProxyVO.getPublicHealthCaseContainer()
@@ -136,21 +118,9 @@ public class PamService implements IPamService {
                     + pamProxyVO.isItDirty() + " for setPamProxy");
         }
         if (pamProxyVO.isItNew()) {
-            
-//            boolean checkInvestigationAutoCreatePermission = nbsSecurityObj.getPermission(NBSBOLookup.INVESTIGATION,
-//                    NBSOperationLookup.AUTOCREATE, phcDT.getProgAreaCd(),	ProgramAreaJurisdictionUtil.ANY_JURISDICTION, phcDT.getSharedInd());
-//
-//            if (!nbsSecurityObj.getPermission(NBSBOLookup.INVESTIGATION,	NBSOperationLookup.ADD, phcDT.getProgAreaCd(), ProgramAreaJurisdictionUtil.ANY_JURISDICTION, phcDT	.getSharedInd())
-//                    && !(checkInvestigationAutoCreatePermission)) {
-//                logger.info("no add permissions for setPamProxy");
-//                throw new NEDSSSystemException("NO ADD PERMISSIONS for setPamProxy");
-//            }
-//            logger.info("user has add permissions for setPamProxy");
+            // TODO: Not relevant for ELR
         } else if (pamProxyVO.isItDirty()) {
-//            if (!nbsSecurityObj.getPermission(NBSBOLookup.INVESTIGATION, NBSOperationLookup.EDIT, phcDT.getProgAreaCd(), phcDT.getJurisdictionCd(), phcDT.getSharedInd())) {
-//                logger.info("no edit permissions for setPamProxy");
-//                throw new NEDSSSystemException("NO EDIT PERMISSIONS for setPamProxy");
-//            }
+            // TODO: Not relevant for ELR
         }
 
 
@@ -231,43 +201,20 @@ public class PamService implements IPamService {
             if (pamProxyVO.getThePersonVOCollection() != null) {
                 for (anIteratorPerson = pamProxyVO.getThePersonVOCollection()
                         .iterator(); anIteratorPerson.hasNext();) {
-
                     personVO =  anIteratorPerson.next();
-                    logger.debug("The Base personDT is :"
-                            + personVO.getThePersonDto());
-                    logger.debug("The personUID is :"
-                            + personVO.getThePersonDto().getPersonUid());
-
-                    if (personVO.isItNew()) {
+                    if (personVO.isItNew())
+                    {
                         if (personVO.getThePersonDto().getCd().equals(
                                 NEDSSConstant.PAT)) { // Patient
                             String businessTriggerCd = NEDSSConstant.PAT_CR;
-                            try {
-//                                realUid = entityController.setPatientRevision(
-//                                        personVO, businessTriggerCd,
-//                                        nbsSecurityObj);
-
-
-//                                var data = patientRepositoryUtil.createPerson(personVO);
-//                                realUid = data.getPersonParentUid();
-
-                                realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
-                            }  catch (Exception ex) {
-                                throw new DataProcessingException(ex.getMessage(),ex);
-                            }
-                        } else if (personVO.getThePersonDto().getCd().equals(
-                                NEDSSConstant.PRV)) { // Provider
+                            realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
+                        }
+                        else if (personVO.getThePersonDto().getCd().equals(
+                                NEDSSConstant.PRV))
+                        { // Provider
                             String businessTriggerCd = NEDSSConstant.PRV_CR;
-                            try {
-//                                realUid = entityController.setProvider(
-//                                        personVO, businessTriggerCd,
-//                                        nbsSecurityObj);
-                                    var data = patientRepositoryUtil.createPerson(personVO);
-                                    realUid = data.getPersonParentUid();
-                            } catch (Exception ex) {
-                                throw new DataProcessingException(ex.getMessage(),ex);
-                            }
-
+                            var data = patientRepositoryUtil.createPerson(personVO);
+                            realUid = data.getPersonParentUid();
                         } // end of else if
 
                         falseUid = personVO.getThePersonDto().getPersonUid();
@@ -275,36 +222,22 @@ public class PamService implements IPamService {
                         if (falseUid.intValue() < 0) {
                            uidService.setFalseToNewForPam(pamProxyVO, falseUid, realUid);
                         }
-                    } else if (personVO.isItDirty()) {
+                    }
+                    else if (personVO.isItDirty())
+                    {
                         if (personVO.getThePersonDto().getCd().equals(
-                                NEDSSConstant.PAT)) {
+                                NEDSSConstant.PAT))
+                        {
                             String businessTriggerCd = NEDSSConstant.PAT_EDIT;
-                            try {
-//                                var data = patientRepositoryUtil.createPerson(personVO);
-//                                realUid = data.getPersonParentUid();
-
-                                realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
-
-                            }  catch (Exception ex) {
-                                throw new DataProcessingException(ex.getMessage(),ex);
-                            }
-                        } else if (personVO.getThePersonDto().getCd().equals(
-                                NEDSSConstant.PRV)) { // Provider
+                            realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
+                        }
+                        else if (personVO.getThePersonDto().getCd().equals(
+                                NEDSSConstant.PRV))
+                        { // Provider
                             String businessTriggerCd = NEDSSConstant.PRV_EDIT;
-                            try {
-//                                realUid = entityController.setProvider(
-//                                        personVO, businessTriggerCd,
-//                                        nbsSecurityObj);
-                                var data = patientRepositoryUtil.createPerson(personVO);
-                                realUid = data.getPersonParentUid();
-                            } catch (Exception ex) {
-                                throw new DataProcessingException(ex.getMessage(),ex);
-                            }
-
+                            var data = patientRepositoryUtil.createPerson(personVO);
+                            realUid = data.getPersonParentUid();
                         } // end of else
-                        logger.debug("The realUid for the Patient/Provider is: "
-                                + realUid);
-
                     }
                 } // end of for
             } // end of if(pamProxyVO.getThePersonVOCollection() != null)
@@ -398,16 +331,14 @@ public class PamService implements IPamService {
                     ActRelationshipDto actRelationshipDT = anIteratorAct
                             .next();
                     if(actRelationshipDT.getTypeCd() != null && actRelationshipDT.getTypeCd().equals(NEDSSConstant.DocToPHC))
+                    {
                         docUid  = actRelationshipDT.getSourceActUid();
-                    try {
-                        if (actRelationshipDT.isItDelete()) {
-                            actRelationshipRepositoryUtil.insertActRelationshipHist(actRelationshipDT);
-
-                        }
-                        actRelationshipRepositoryUtil.storeActRelationship(actRelationshipDT);
-                    } catch (Exception e) {
-                        throw new DataProcessingException(e.getMessage(),e);
                     }
+                    if (actRelationshipDT.isItDelete()) {
+                        actRelationshipRepositoryUtil.insertActRelationshipHist(actRelationshipDT);
+
+                    }
+                    actRelationshipRepositoryUtil.storeActRelationship(actRelationshipDT);
                 }
             }
             /*
@@ -417,13 +348,7 @@ public class PamService implements IPamService {
             if(docUid != null){
                 try{
 
-                    //TODO: NBS DOCUMENT
-//                    NbsDocumentContainer nbsDocVO = nbsDocument.getNBSDocumentWithoutActRelationship(docUid);
-//                    if(nbsDocVO.getNbsDocumentDT().getJurisdictionCd()==null || (nbsDocVO.getNbsDocumentDT().getJurisdictionCd()!=null && nbsDocVO.getNbsDocumentDT().getJurisdictionCd().equals("")))
-//                    {
-//                        nbsDocVO.getNbsDocumentDT().setJurisdictionCd(pamProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getJurisdictionCd());
-//                    }
-//                    Long nbsDocumentUid = nbsDocument.updateDocumentWithOutthePatient(nbsDocVO);
+                    //TODO: NBS DOCUMENT, not relevant for ELR
                 }catch(Exception e){
                     throw new DataProcessingException(e.getMessage(),e);
                 }
@@ -435,16 +360,11 @@ public class PamService implements IPamService {
                         .hasNext();) {
                     ParticipationDto participationDT = anIteratorPat
                             .next();
-                    try {
-                        if (participationDT.isItDelete()) {
-                            participationRepositoryUtil.insertParticipationHist(participationDT);
+                    if (participationDT.isItDelete()) {
+                        participationRepositoryUtil.insertParticipationHist(participationDT);
 
-                        }
-                        participationRepositoryUtil.storeParticipation(participationDT);
-
-                    } catch (Exception e) {
-                        throw new DataProcessingException(e.getMessage(),e);
                     }
+                    participationRepositoryUtil.storeParticipation(participationDT);
                 }
             }
             //TODO: NBS PAM

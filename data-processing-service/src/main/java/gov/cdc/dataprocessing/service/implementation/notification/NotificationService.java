@@ -15,12 +15,13 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.notification.Notificatio
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PropertyUtil;
 import gov.cdc.dataprocessing.utilities.component.notification.NotificationRepositoryUtil;
-import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Service
 public class NotificationService implements INotificationService {

@@ -1,15 +1,15 @@
 package gov.cdc.dataprocessing.service.implementation.uid_generator;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.NotificationProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.PageActProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.PamProxyContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
+import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
-import gov.cdc.dataprocessing.model.container.base.BaseContainer;
-import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,16 +49,6 @@ public class UidService implements IUidService {
             actRelationShipColl = ((LabResultProxyContainer) proxyVO).getTheActRelationshipDtoCollection();
             roleColl = ((LabResultProxyContainer) proxyVO).getTheRoleDtoCollection();
         }
-
-//            if (proxyVO instanceof MorbidityProxyVO)
-//            {
-//                participationColl = (ArrayList<Object> ) ( (MorbidityProxyVO) proxyVO).
-//                        getTheParticipationDtoCollection();
-//                actRelationShipColl = (ArrayList<Object> ) ( (MorbidityProxyVO) proxyVO).
-//                        getTheActRelationshipDtoCollection();
-//                roleColl = (ArrayList<Object> ) ( (MorbidityProxyVO) proxyVO).
-//                        getTheRoleDTCollection();
-//            }
 
         if (participationColl != null)
         {
@@ -186,119 +176,108 @@ public class UidService implements IUidService {
      * Converts negative UIDs to positive UIDs
      */
     public void setFalseToNewForPageAct(PageActProxyContainer pageProxyVO, Long falseUid, Long actualUid) throws DataProcessingException {
-        try {
-            Iterator<Object> anIterator = null;
+        Iterator<Object> anIterator = null;
 
-            ParticipationDto participationDT;
-            ActRelationshipDto actRelationshipDT;
-            NbsActEntityDto pamCaseEntityDT;
-            Collection<ParticipationDto> participationColl = pageProxyVO.getTheParticipationDtoCollection();
-            Collection<ActRelationshipDto> actRelationShipColl = pageProxyVO.getPublicHealthCaseContainer().getTheActRelationshipDTCollection();
-            Collection<NbsActEntityDto> pamCaseEntityColl = pageProxyVO.getPageVO().getActEntityDTCollection();
-            Long eventUid = null;
+        ParticipationDto participationDT;
+        ActRelationshipDto actRelationshipDT;
+        NbsActEntityDto pamCaseEntityDT;
+        Collection<ParticipationDto> participationColl = pageProxyVO.getTheParticipationDtoCollection();
+        Collection<ActRelationshipDto> actRelationShipColl = pageProxyVO.getPublicHealthCaseContainer().getTheActRelationshipDTCollection();
+        Collection<NbsActEntityDto> pamCaseEntityColl = pageProxyVO.getPageVO().getActEntityDTCollection();
+        Long eventUid = null;
 
 
-            Iterator<ParticipationDto> anIteratorPat;
-            if (participationColl != null) {
-                for (anIteratorPat = participationColl.iterator(); anIteratorPat
-                        .hasNext();) {
-                    participationDT = anIteratorPat.next();
-                    if (participationDT.getActUid().compareTo(falseUid) == 0) {
-                        participationDT.setActUid(actualUid);
-                    }
-                    if (participationDT.getSubjectEntityUid().compareTo(falseUid) == 0) {
-                        participationDT.setSubjectEntityUid(actualUid);
+        Iterator<ParticipationDto> anIteratorPat;
+        if (participationColl != null) {
+            for (anIteratorPat = participationColl.iterator(); anIteratorPat
+                    .hasNext();) {
+                participationDT = anIteratorPat.next();
+                if (participationDT.getActUid().compareTo(falseUid) == 0) {
+                    participationDT.setActUid(actualUid);
+                }
+                if (participationDT.getSubjectEntityUid().compareTo(falseUid) == 0) {
+                    participationDT.setSubjectEntityUid(actualUid);
 
-                    }
                 }
             }
-
-            Iterator<ActRelationshipDto> anIteratorActRe;
-            if (actRelationShipColl != null) {
-                for (anIteratorActRe = actRelationShipColl.iterator(); anIteratorActRe
-                        .hasNext();) {
-                    actRelationshipDT =  anIteratorActRe.next();
-
-                    if (actRelationshipDT.getTargetActUid().compareTo(falseUid) == 0) {
-                        actRelationshipDT.setTargetActUid(actualUid);
-                        eventUid=actRelationshipDT.getTargetActUid();
-                    }
-                    if (actRelationshipDT.getSourceActUid().compareTo(falseUid) == 0) {
-                        actRelationshipDT.setSourceActUid(actualUid);
-                    }
-                    logger.debug("ActRelationShipDT: falseUid "
-                            + falseUid+ " actualUid: " + actualUid);
-                }
-            }
-
-            Iterator<NbsActEntityDto> anIteratorNbsActEntity;
-            if (pamCaseEntityColl != null) {
-                for (anIteratorNbsActEntity = pamCaseEntityColl.iterator(); anIteratorNbsActEntity
-                        .hasNext();) {
-                    pamCaseEntityDT =  anIteratorNbsActEntity.next();
-                    if (pamCaseEntityDT.getEntityUid().compareTo(falseUid) == 0) {
-                        pamCaseEntityDT.setEntityUid(actualUid);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
         }
 
+        Iterator<ActRelationshipDto> anIteratorActRe;
+        if (actRelationShipColl != null) {
+            for (anIteratorActRe = actRelationShipColl.iterator(); anIteratorActRe
+                    .hasNext();) {
+                actRelationshipDT =  anIteratorActRe.next();
 
+                if (actRelationshipDT.getTargetActUid().compareTo(falseUid) == 0) {
+                    actRelationshipDT.setTargetActUid(actualUid);
+                    eventUid=actRelationshipDT.getTargetActUid();
+                }
+                if (actRelationshipDT.getSourceActUid().compareTo(falseUid) == 0) {
+                    actRelationshipDT.setSourceActUid(actualUid);
+                }
+                logger.debug("ActRelationShipDT: falseUid "
+                        + falseUid+ " actualUid: " + actualUid);
+            }
+        }
+
+        Iterator<NbsActEntityDto> anIteratorNbsActEntity;
+        if (pamCaseEntityColl != null) {
+            for (anIteratorNbsActEntity = pamCaseEntityColl.iterator(); anIteratorNbsActEntity
+                    .hasNext();) {
+                pamCaseEntityDT =  anIteratorNbsActEntity.next();
+                if (pamCaseEntityDT.getEntityUid().compareTo(falseUid) == 0) {
+                    pamCaseEntityDT.setEntityUid(actualUid);
+                }
+            }
+        }
     }
 
     public void setFalseToNewForPam(PamProxyContainer pamProxyVO, Long falseUid, Long actualUid) throws DataProcessingException {
-        try {
-            ParticipationDto participationDT;
-            ActRelationshipDto actRelationshipDT;
-            NbsActEntityDto pamCaseEntityDT;
-            Collection<ParticipationDto>  participationColl = pamProxyVO.getTheParticipationDTCollection();
-            Collection<ActRelationshipDto>  actRelationShipColl = pamProxyVO
-                    .getPublicHealthCaseContainer().getTheActRelationshipDTCollection();
-            Collection<NbsActEntityDto>  pamCaseEntityColl = pamProxyVO.getPamVO().getActEntityDTCollection();
+        ParticipationDto participationDT;
+        ActRelationshipDto actRelationshipDT;
+        NbsActEntityDto pamCaseEntityDT;
+        Collection<ParticipationDto>  participationColl = pamProxyVO.getTheParticipationDTCollection();
+        Collection<ActRelationshipDto>  actRelationShipColl = pamProxyVO
+                .getPublicHealthCaseContainer().getTheActRelationshipDTCollection();
+        Collection<NbsActEntityDto>  pamCaseEntityColl = pamProxyVO.getPamVO().getActEntityDTCollection();
 
-            Iterator<ParticipationDto>  anIteratorPat;
-            if (participationColl != null) {
-                for (anIteratorPat = participationColl.iterator(); anIteratorPat.hasNext();) {
-                    participationDT =  anIteratorPat.next();
-                    if (participationDT.getActUid().compareTo(falseUid) == 0) {
-                        participationDT.setActUid(actualUid);
-                    }
-                    if (participationDT.getSubjectEntityUid().compareTo(falseUid) == 0) {
-                        participationDT.setSubjectEntityUid(actualUid);
-                    }
+        Iterator<ParticipationDto>  anIteratorPat;
+        if (participationColl != null) {
+            for (anIteratorPat = participationColl.iterator(); anIteratorPat.hasNext();) {
+                participationDT =  anIteratorPat.next();
+                if (participationDT.getActUid().compareTo(falseUid) == 0) {
+                    participationDT.setActUid(actualUid);
+                }
+                if (participationDT.getSubjectEntityUid().compareTo(falseUid) == 0) {
+                    participationDT.setSubjectEntityUid(actualUid);
                 }
             }
+        }
 
-            Iterator<ActRelationshipDto>  anIteratorAct;
+        Iterator<ActRelationshipDto>  anIteratorAct;
 
-            if (actRelationShipColl != null) {
-                for (anIteratorAct = actRelationShipColl.iterator(); anIteratorAct.hasNext();) {
-                    actRelationshipDT = anIteratorAct.next();
+        if (actRelationShipColl != null) {
+            for (anIteratorAct = actRelationShipColl.iterator(); anIteratorAct.hasNext();) {
+                actRelationshipDT = anIteratorAct.next();
 
-                    if (actRelationshipDT.getTargetActUid().compareTo(falseUid) == 0) {
-                        actRelationshipDT.setTargetActUid(actualUid);
-                    }
-                    if (actRelationshipDT.getSourceActUid().compareTo(falseUid) == 0) {
-                        actRelationshipDT.setSourceActUid(actualUid);
-                    }
+                if (actRelationshipDT.getTargetActUid().compareTo(falseUid) == 0) {
+                    actRelationshipDT.setTargetActUid(actualUid);
+                }
+                if (actRelationshipDT.getSourceActUid().compareTo(falseUid) == 0) {
+                    actRelationshipDT.setSourceActUid(actualUid);
                 }
             }
+        }
 
-            Iterator<NbsActEntityDto>  anIteratorActEntity;
+        Iterator<NbsActEntityDto>  anIteratorActEntity;
 
-            if (pamCaseEntityColl != null) {
-                for (anIteratorActEntity = pamCaseEntityColl.iterator(); anIteratorActEntity.hasNext();) {
-                    pamCaseEntityDT =  anIteratorActEntity.next();
-                    if (pamCaseEntityDT.getEntityUid().compareTo(falseUid) == 0) {
-                        pamCaseEntityDT.setEntityUid(actualUid);
-                    }
+        if (pamCaseEntityColl != null) {
+            for (anIteratorActEntity = pamCaseEntityColl.iterator(); anIteratorActEntity.hasNext();) {
+                pamCaseEntityDT =  anIteratorActEntity.next();
+                if (pamCaseEntityDT.getEntityUid().compareTo(falseUid) == 0) {
+                    pamCaseEntityDT.setEntityUid(actualUid);
                 }
-
             }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
 
         }
     }
@@ -307,22 +286,18 @@ public class UidService implements IUidService {
 
         Iterator<Object> anIterator;
         ActRelationshipDto actRelationshipDT = null;
-        try{
-            Collection<Object> actRelationShipColl = notificationProxyVO.getTheActRelationshipDTCollection();
-            Collection<Object> act2 = new ArrayList<>();
+        Collection<Object> actRelationShipColl = notificationProxyVO.getTheActRelationshipDTCollection();
+        Collection<Object> act2 = new ArrayList<>();
 
-            if (actRelationShipColl != null)
+        if (actRelationShipColl != null)
+        {
+
+            for (anIterator = actRelationShipColl.iterator(); anIterator.hasNext();)
             {
-
-                for (anIterator = actRelationShipColl.iterator(); anIterator.hasNext();)
-                {
-                    actRelationshipDT = (ActRelationshipDto) anIterator.next();
-                    actRelationshipDT.setSourceActUid(actualUid);
-                    act2.add(actRelationshipDT);
-                }
+                actRelationshipDT = (ActRelationshipDto) anIterator.next();
+                actRelationshipDT.setSourceActUid(actualUid);
+                act2.add(actRelationshipDT);
             }
-        }catch(Exception ex){
-            throw new DataProcessingException(ex.toString());
         }
         return actRelationshipDT;
     }

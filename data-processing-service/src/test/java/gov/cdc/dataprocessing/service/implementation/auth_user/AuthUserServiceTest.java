@@ -5,12 +5,7 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUserRealizedRole;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomAuthUserRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityHistRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.auth.AuthUserRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsAnswerHistRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsAnswerRepository;
-import gov.cdc.dataprocessing.service.implementation.answer.AnswerService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -27,7 +22,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-public class AuthUserServiceTest {
+class AuthUserServiceTest {
     @Mock
     private AuthUserRepository authUserRepository;
     @Mock
