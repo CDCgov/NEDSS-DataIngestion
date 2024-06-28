@@ -161,30 +161,24 @@ public class AnswerService implements IAnswerService {
 
     @Transactional
     public void insertPageVO(PageContainer pageContainer, ObservationDto rootDTInterface) throws DataProcessingException{
-        try {
-
-            if(pageContainer !=null && pageContainer.getAnswerDTMap() !=null ) {
-                Collection<Object> answerDTColl = new ArrayList<>(pageContainer.getAnswerDTMap().values());
-                if(answerDTColl.size()>0) {
-                    storeAnswerDTCollection(answerDTColl, rootDTInterface);
-                }
-                if(pageContainer.getPageRepeatingAnswerDTMap() != null) {
-                    Collection<Object> interviewRepeatingAnswerDTColl = pageContainer.getPageRepeatingAnswerDTMap().values();
-                    if(interviewRepeatingAnswerDTColl.size()>0) {
-                        storeAnswerDTCollection(interviewRepeatingAnswerDTColl, rootDTInterface);
-                    }
+        if(pageContainer !=null && pageContainer.getAnswerDTMap() !=null ) {
+            Collection<Object> answerDTColl = new ArrayList<>(pageContainer.getAnswerDTMap().values());
+            if(answerDTColl.size()>0) {
+                storeAnswerDTCollection(answerDTColl, rootDTInterface);
+            }
+            if(pageContainer.getPageRepeatingAnswerDTMap() != null) {
+                Collection<Object> interviewRepeatingAnswerDTColl = pageContainer.getPageRepeatingAnswerDTMap().values();
+                if(interviewRepeatingAnswerDTColl.size()>0) {
+                    storeAnswerDTCollection(interviewRepeatingAnswerDTColl, rootDTInterface);
                 }
             }
-
-            if (pageContainer == null) {
-                pageContainer = new PageContainer();
-                pageContainer.setActEntityDTCollection(new ArrayList<>());
-            }
-            storeActEntityDTCollection(pageContainer.getActEntityDTCollection(), rootDTInterface);
-
-        } catch (Exception e) {
-            throw new DataProcessingException(e.toString());
         }
+
+        if (pageContainer == null) {
+            pageContainer = new PageContainer();
+            pageContainer.setActEntityDTCollection(new ArrayList<>());
+        }
+        storeActEntityDTCollection(pageContainer.getActEntityDTCollection(), rootDTInterface);
     }
 
 
@@ -234,24 +228,19 @@ public class AnswerService implements IAnswerService {
 
 
     private void storeActEntityDTCollection(Collection<NbsActEntityDto> pamDTCollection, ObservationDto rootDTInterface) throws  DataProcessingException{
-        try{
-            if(pamDTCollection.size()>0){
-                for (NbsActEntityDto pamCaseEntityDT : pamDTCollection) {
-                    if (pamCaseEntityDT.isItDelete()) {
-                        nbsActEntityRepository.deleteNbsEntityAct(pamCaseEntityDT.getNbsActEntityUid());
-                    } else if (pamCaseEntityDT.isItDirty() || pamCaseEntityDT.isItNew()) {
-                        var nbsActEntity = new NbsActEntity(pamCaseEntityDT);
-                        nbsActEntity.setActUid(rootDTInterface.getObservationUid());
-                        nbsActEntity.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
-                        nbsActEntity.setRecordStatusCd("OPEN");
-                        nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
-                        nbsActEntityRepository.save(new NbsActEntity(pamCaseEntityDT));
-                    }
+        if(pamDTCollection.size()>0){
+            for (NbsActEntityDto pamCaseEntityDT : pamDTCollection) {
+                if (pamCaseEntityDT.isItDelete()) {
+                    nbsActEntityRepository.deleteNbsEntityAct(pamCaseEntityDT.getNbsActEntityUid());
+                } else if (pamCaseEntityDT.isItDirty() || pamCaseEntityDT.isItNew()) {
+                    var nbsActEntity = new NbsActEntity(pamCaseEntityDT);
+                    nbsActEntity.setActUid(rootDTInterface.getObservationUid());
+                    nbsActEntity.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                    nbsActEntity.setRecordStatusCd("OPEN");
+                    nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
+                    nbsActEntityRepository.save(new NbsActEntity(pamCaseEntityDT));
                 }
             }
-        }
-        catch(Exception ex){
-            throw new DataProcessingException(ex.toString());
         }
     }
 
