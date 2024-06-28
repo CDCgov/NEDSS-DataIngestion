@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class EdxDocumentServiceTest {
+class EdxDocumentServiceTest {
     @Mock
     private EdxDocumentRepository edxDocumentRepository;
     @InjectMocks

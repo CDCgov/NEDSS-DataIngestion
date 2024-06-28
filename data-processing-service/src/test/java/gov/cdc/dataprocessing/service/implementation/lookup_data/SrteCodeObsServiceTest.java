@@ -30,7 +30,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-public class SrteCodeObsServiceTest {
+class SrteCodeObsServiceTest {
     @Mock
     private ProgAreaSnomeCodeStoredProcRepository progAreaSnomeCodeStoredProcRepository;
     @Mock

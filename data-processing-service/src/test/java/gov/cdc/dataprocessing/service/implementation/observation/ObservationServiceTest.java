@@ -51,7 +51,7 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class ObservationServiceTest {
+class ObservationServiceTest {
     @Mock
     private INNDActivityLogService nndActivityLogService;
     @Mock

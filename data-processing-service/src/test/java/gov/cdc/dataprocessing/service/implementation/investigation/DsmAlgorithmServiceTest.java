@@ -20,7 +20,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
-public class DsmAlgorithmServiceTest {
+class DsmAlgorithmServiceTest {
     @Mock
     private DsmAlgorithmRepository dsmAlgorithmRepository;
     @InjectMocks

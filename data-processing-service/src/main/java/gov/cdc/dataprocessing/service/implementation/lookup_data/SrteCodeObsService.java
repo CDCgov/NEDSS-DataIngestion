@@ -15,7 +15,7 @@ import java.util.*;
 
 @Service
 public class SrteCodeObsService implements ISrteCodeObsService {
-    private boolean programAreaDerivationExcludeFlag = false;
+    private boolean programAreaDerivationExcludeFlag = false; //NOSONAR
     private final ProgAreaSnomeCodeStoredProcRepository progAreaSnomeCodeStoredProcRepository;
     private final SnomedConditionRepository snomedConditionRepository;
     private final LOINCCodeRepository loincCodeRepository;
@@ -163,6 +163,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     }
 
 
+    @SuppressWarnings("java:S3776")
     public HashMap<Object, Object> getProgramArea(String reportingLabCLIA,
                                                   Collection<ObservationContainer> observationContainerCollection,
                                                   String electronicInd) throws DataProcessingException {
@@ -184,7 +185,6 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
             String obsDomainCdSt1 = obsDt.getObsDomainCdSt1();
             String obsDTCode = obsDt.getCd();
-            boolean found = false;
 
             //Set exclude flag to false - if any of the components - Lab Result (SNOMED or Local) or Lab Test (LOINC or
             //Local) is excluded, this flag will be set so as not to fail the derivation for this resulted test.
@@ -213,7 +213,6 @@ public class SrteCodeObsService implements ISrteCodeObsService {
                 // If PA returned, check to see if it is the same one as before.
                 if (progAreaCd != null)
                 {
-                    found = true;
                     paHTBL.put(progAreaCd.trim(), progAreaCd.trim());
                     if (paHTBL.size() != 1)
                     {
@@ -350,6 +349,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
      *
      */
     // AK 7/25/04
+    @SuppressWarnings("java:S1149")
     protected String getProgAreaCd(Vector<Object> codeVector, String reportingLabCLIA, String nextLookUp, String type) {
         if (codeVector == null || codeVector.size() == 0)
         {
@@ -654,6 +654,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         return lastPACode;
     } //end of getProgAreaCdLocalDefault(...)
 
+    @SuppressWarnings({"java:S1149", "java:S1172"})
     protected String findLocalResultDefaultConditionProgramAreaCdFromLabTestWithoutJoin(
             Vector<Object> codeVector, String reportingLabCLIA, String nextLookup) {
         Vector<Object> toReturn = new Vector<>();

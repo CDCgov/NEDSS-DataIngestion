@@ -159,7 +159,7 @@ public class DecisionSupportService implements IDecisionSupportService {
         }
     }
 
-
+    @SuppressWarnings("java:S3776")
     protected boolean checkActiveWdsAlgorithm(EdxLabInformationDto edxLabInformationDT,
                                                              List<DsmLabMatchHelper> activeElrAlgorithmList ) throws DataProcessingException {
         boolean elrAlgorithmsPresent;
@@ -324,6 +324,8 @@ public class DecisionSupportService implements IDecisionSupportService {
                 checkActionNotMarkedAsReviewed(algorithmDocument)
         ) && applyAdvInvLogic;
     }
+
+    @SuppressWarnings({"java:S107", "java:S6541"})
     protected void updateObservationBasedOnAction(Algorithm algorithmDocument,
                                                 boolean criteriaMatch,
                                                 String conditionCode,
@@ -569,7 +571,7 @@ public class DecisionSupportService implements IDecisionSupportService {
     /**
      * Execute when action in available
      * */
-    @SuppressWarnings("java:S6541")
+    @SuppressWarnings({"java:S6541", "java:S3776"})
     protected boolean specimenCollectionDateCriteria(EventDateLogicType eventDateLogicType,
                                                      EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
         boolean isdateLogicValidForNewInv;
@@ -686,7 +688,7 @@ public class DecisionSupportService implements IDecisionSupportService {
     /**
      * Execute when action is review
      * */
-    @SuppressWarnings("java:S6541")
+    @SuppressWarnings({"java:S6541", "java:S3776"})
     protected boolean checkAdvancedInvCriteria(Algorithm algorithmDocument,
                                              EdxLabInformationDto edxLabInformationDT,
                                              Map<Object, Object> questionIdentifierMap) throws DataProcessingException {
@@ -842,6 +844,7 @@ public class DecisionSupportService implements IDecisionSupportService {
     }
 
 
+    @SuppressWarnings("java:S3776")
     protected boolean checkAdvancedInvCriteriaForCreateInvNoti(
             Algorithm algorithmDocument,
             EdxLabInformationDto edxLabInformationDT,

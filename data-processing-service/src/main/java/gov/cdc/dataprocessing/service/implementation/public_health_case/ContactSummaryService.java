@@ -128,7 +128,7 @@ public class ContactSummaryService implements IContactSummaryService {
     }
 
 
-    private  Collection<Object> getContactNamedByPatientDTColl(String sql) throws DataProcessingException {
+    private  Collection<Object> getContactNamedByPatientDTColl(String sql) {
         CTContactSummaryDto cTContactSummaryDto = new CTContactSummaryDto();
         ArrayList<CTContactSummaryDto>  cTContactNameByPatientSummDTColl ;
         ArrayList<Object>  returnCTContactNameByPatientSummDTColl  = new ArrayList<> ();

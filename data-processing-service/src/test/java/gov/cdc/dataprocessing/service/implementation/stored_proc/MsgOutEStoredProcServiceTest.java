@@ -19,7 +19,7 @@ import org.mockito.MockitoAnnotations;
 
 import static org.mockito.Mockito.*;
 
-public class MsgOutEStoredProcServiceTest {
+class MsgOutEStoredProcServiceTest {
     @Mock
     private StoredProcRepository storedProcRepository;
     @InjectMocks

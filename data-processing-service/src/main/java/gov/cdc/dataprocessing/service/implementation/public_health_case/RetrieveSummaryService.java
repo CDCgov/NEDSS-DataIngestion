@@ -65,6 +65,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
      * @param publicHealthUID -- UID  for investigation to Access Treatment related to it
      * @return HashMap<Object,Object> -- HashMap<Object,Object> of TreatmentSummaryVO for the passed investigationUID
      */
+    @SuppressWarnings("java:S1135")
     public Map<Object,Object> retrieveTreatmentSummaryVOForInv(Long publicHealthUID) {
         String aQuery = null;
 
@@ -161,6 +162,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
         return theNotificationSummaryVOCollection;
     } //end of observationAssociates()
 
+    @SuppressWarnings("java:S3776")
     protected Collection<Object> notificationSummaryOnInvestigationProcessingNotificationCol(Collection<Object> theNotificationSummaryVOCollection,
                                                                                NotificationSummaryContainer notificationSummaryVO,
                                                                                Object object) {
@@ -234,6 +236,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
      * investigationUID to papulate the Notification summary on investigation page
      * @return Collection<Object>  -- Collection<Object>  of NotificationSummaryVO for the passed publicHealthCaseDT
      */
+    @SuppressWarnings("java:S3776")
     protected Collection<Object>  retrieveNotificationSummaryListForInvestigation(Long publicHealthUID) throws DataProcessingException {
         ArrayList<Object> theNotificationSummaryVOCollection  = new ArrayList<> ();
         if (publicHealthUID != null) {
@@ -285,7 +288,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
         }
         return theNotificationSummaryVOCollection;
     }
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked","java:S3776"})
     protected Collection<Object>  retrieveNotificationSummaryListForInvestigation1(Long publicHealthUID) throws DataProcessingException {
         ArrayList<Object> theNotificationSummaryVOCollection  = new ArrayList<> ();
         if (publicHealthUID != null) {

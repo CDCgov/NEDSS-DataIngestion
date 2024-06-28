@@ -21,7 +21,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 
-public class UidServiceTest {
+class UidServiceTest {
     @InjectMocks
     private UidService uidService;
     @Mock

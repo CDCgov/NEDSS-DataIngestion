@@ -236,6 +236,7 @@ public class LookupService implements ILookupService {
 
     }
 
+    @SuppressWarnings("java:S3776")
     private static void createPrePopToMap(Collection<LookupMappingDto> coll) throws DataProcessingException {
         int count = 0;
         int loopcount = 0;

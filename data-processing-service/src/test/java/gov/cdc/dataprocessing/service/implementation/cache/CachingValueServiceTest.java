@@ -29,7 +29,7 @@ import java.util.TreeMap;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-public class CachingValueServiceTest {
+class CachingValueServiceTest {
     @Mock
     private JurisdictionCodeRepository jurisdictionCodeRepository;
     @Mock

@@ -105,6 +105,7 @@ public class PamService implements IPamService {
     }
 
 
+    @SuppressWarnings("java:S1135")
     private Long setPamProxy(PamProxyContainer pamProxyVO) throws DataProcessingException {
 
         PublicHealthCaseDto phcDT = pamProxyVO.getPublicHealthCaseContainer()

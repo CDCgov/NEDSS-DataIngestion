@@ -51,7 +51,7 @@ import static gov.cdc.dataprocessing.constant.ManagerEvent.EVENT_ELR;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class ManagerServiceTest {
+class ManagerServiceTest {
     @Mock
     private  IObservationService observationService;
     @Mock

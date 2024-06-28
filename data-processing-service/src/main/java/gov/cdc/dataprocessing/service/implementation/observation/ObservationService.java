@@ -338,13 +338,13 @@ public class ObservationService implements IObservationService {
 
                 //If hit, we will get list of person who is associated with the scoped id
                 if (typeCd != null && typeCd.equalsIgnoreCase(NEDSSConstant.PAR110_TYP_CD)) {
-                    if (vo.getTheRoleDtoCollection().size() > 0) {
+                    if (!vo.getTheRoleDtoCollection().isEmpty()) {
                         patientRollCollection.addAll(vo.getTheRoleDtoCollection());
                     }
                     Collection<PersonContainer> scopedPersons = retrieveScopedPersons(vo.getThePersonDto().getPersonUid());
                     if (scopedPersons != null && scopedPersons.size() > 0) {
                         for (var person : scopedPersons) {
-                            if (person.getTheRoleDtoCollection() != null && person.getTheRoleDtoCollection().size() > 0) {
+                            if (person.getTheRoleDtoCollection() != null && !person.getTheRoleDtoCollection().isEmpty()) {
                                 patientRollCollection.addAll(person.getTheRoleDtoCollection());
                             }
                             thePersonVOCollection.add(person);
@@ -441,7 +441,7 @@ public class ObservationService implements IObservationService {
                 if (typeCd != null && typeCd.equalsIgnoreCase("APND")) {
                     ObservationContainer ordTestCommentVO = (ObservationContainer) getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, observationUid);
                     theObservationContainerCollection.add(ordTestCommentVO);
-                    Collection<ActRelationshipDto> arColl = ordTestCommentVO.getTheActRelationshipDtoCollection();
+                    Collection<ActRelationshipDto> arColl = ordTestCommentVO.getTheActRelationshipDtoCollection(); //NOSONAR
                     if (arColl != null) {
                         for (ActRelationshipDto ordTestDT : arColl) {
                             if (ordTestDT.getTypeCd().equals("COMP")) {
@@ -449,7 +449,7 @@ public class ObservationService implements IObservationService {
                                 ObservationContainer resTestVO = (ObservationContainer) getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, ordTestDT.getSourceActUid());
 
                                 //BB - civil0012298 - Retrieve User Name to be displayed instead of ID
-                                resTestVO.getTheObservationDto().setAddUserName(AuthUtil.authUser.getUserId());
+                                resTestVO.getTheObservationDto().setAddUserName(AuthUtil.authUser.getUserId()); //NOSONAR
                                 theObservationContainerCollection.add(resTestVO);
 
                             }
@@ -659,7 +659,7 @@ public class ObservationService implements IObservationService {
 
         // LOADING EXISTING Observation
         ObservationContainer orderedTest = (ObservationContainer) getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, observationId);
-        Collection<ParticipationDto>  partColl = orderedTest.getTheParticipationDtoCollection();
+        Collection<ParticipationDto>  partColl = orderedTest.getTheParticipationDtoCollection(); //NOSONAR
 
         if (partColl != null && !partColl.isEmpty())
         {
@@ -785,7 +785,7 @@ public class ObservationService implements IObservationService {
             nndActivityLogDto.setErrorMessageTxt(e.toString());
             Collection<ObservationContainer> observationCollection  = labResultProxyVO.getTheObservationContainerCollection();
             ObservationContainer obsVO = findObservationByCode(observationCollection, NEDSSConstant.LAB_REPORT);
-            String localId = obsVO.getTheObservationDto().getLocalId();
+            String localId = obsVO.getTheObservationDto().getLocalId(); //NOSONAR
             if (localId!=null)
             {
                 nndActivityLogDto.setLocalId(localId);

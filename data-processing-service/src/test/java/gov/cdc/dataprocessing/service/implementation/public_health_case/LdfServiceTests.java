@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-public class LdfServiceTests {
+class LdfServiceTests {
     @Mock
     private CustomRepository customRepository;
     @InjectMocks

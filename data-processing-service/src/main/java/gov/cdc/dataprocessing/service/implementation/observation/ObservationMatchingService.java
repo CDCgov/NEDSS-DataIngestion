@@ -56,7 +56,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
             String msgStatus = observationContainer.getTheObservationDto().getStatusCd();
             String odsStatus = obsDT.getStatusCd();
             odsStatus = "N";
-            if (msgStatus == null || odsStatus == null)
+            if (msgStatus == null || odsStatus == null) //NOSONAR
             {
                 edxLabInformationDto.setObservationMatch(false);
                 logger.error("Error!! null status cd: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);

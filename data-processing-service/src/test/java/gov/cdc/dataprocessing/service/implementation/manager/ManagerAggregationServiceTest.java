@@ -44,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class ManagerAggregationServiceTest {
+class ManagerAggregationServiceTest {
     @Mock
     private IOrganizationService organizationService;
     @Mock

@@ -26,6 +26,7 @@ public class ManagerCacheService implements IManagerCacheService {
         this.cacheManager = cacheManager;
     }
 
+    @SuppressWarnings({"java:S3776","java:S1488", "java:S112", "java:S2696"})
     public CompletableFuture<Void> loadAndInitCachedValueAsync() {
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
             if (SrteCache.loincCodesMap.isEmpty()) {

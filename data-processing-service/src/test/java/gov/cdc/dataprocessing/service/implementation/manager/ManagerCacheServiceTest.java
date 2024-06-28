@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutionException;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ManagerCacheServiceTest {
+class ManagerCacheServiceTest {
 
     @Mock
     private ICatchingValueService catchingValueService;

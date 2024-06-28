@@ -29,7 +29,7 @@ public class AdvancedCriteria {
                             .getInvQuestionLogic();
 
                     if (criteriaType.getInvStringValue() == null
-                            && criteriaType.getInvCodedValue().size() > 0) {
+                            && !criteriaType.getInvCodedValue().isEmpty()) {
                         String value;
                         String[] array = new String[criteriaType
                                 .getInvCodedValue().size()];

@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class AnswerServiceTest {
+class AnswerServiceTest {
     @Mock
     private NbsAnswerRepository nbsAnswerRepository;
     @Mock
@@ -429,6 +429,7 @@ public class AnswerServiceTest {
     }
 
     @Test
+    @SuppressWarnings("java:S2699")
     void insertPageVO_Test() throws DataProcessingException {
         PageContainer pageContainer = null;
         ObservationDto rootDTInterface = new ObservationDto();

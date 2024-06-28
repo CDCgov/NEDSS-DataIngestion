@@ -151,7 +151,7 @@ public class InvestigationService implements IInvestigationService {
      * @param investigationUID -- The UID for the investigation to which observation is to be associated or disassociates
      * @param invFromEvent - flag to indicates if lab or morb report is the reactor for investigation.
      */
-
+    @SuppressWarnings("java:S3776")
     public void setObservationAssociationsImpl(Long investigationUID, Collection<LabReportSummaryContainer>  reportSumVOCollection, boolean invFromEvent) throws DataProcessingException
     {
         PublicHealthCaseDto phcDT =  publicHealthCaseRepositoryUtil.findPublicHealthCase(investigationUID);
@@ -419,11 +419,11 @@ public class InvestigationService implements IInvestigationService {
             String uidType = "LABORATORY_UID";
             Collection<?> labReportSummaryVOCollection;
             LabReportSummaryContainer labReportSummaryVOs;
-            if (LabReportUidSummarVOs != null && LabReportUidSummarVOs.size() > 0) {
+            if (LabReportUidSummarVOs != null && !LabReportUidSummarVOs.isEmpty()) {
                 boolean isCDCFormPrintCase;
                 if(typeCd.equalsIgnoreCase(NEDSSConstant.PRINT_CDC_CASE)){
                     isCDCFormPrintCase = true;
-                    if(LabReportUidSummarVOs!=null && LabReportUidSummarVOs.size()>0){
+                    if(LabReportUidSummarVOs!=null && !LabReportUidSummarVOs.isEmpty()){
                         for (UidSummaryContainer uidSummaryVO : LabReportUidSummarVOs) {
                             uidSummaryVO.setStatusTime(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getAddTime());
                         }
@@ -484,6 +484,7 @@ public class InvestigationService implements IInvestigationService {
     /**
      * Nothing in here for LabResult Proxy Yet
      * */
+    @SuppressWarnings("java:S3776")
     protected void updateAutoResendNotifications(BaseContainer vo)
     {
         try {

@@ -145,6 +145,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     }
 
 
+    @SuppressWarnings("java:S3776")
     protected CompletableFuture<Void> progAndJurisdictionAggregationAsync(LabResultProxyContainer labResult,
                                                                         EdxLabInformationDto edxLabInformationDto,
                                                                         PersonAggContainer personAggContainer,
@@ -186,7 +187,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
         });
     }
 
-
+    @SuppressWarnings("java:S3776")
     protected void roleAggregation(LabResultProxyContainer labResult) {
         /**
          *Roles must be checked for NEW, UPDATED, MARK FOR DELETE buckets.
@@ -306,7 +307,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
     }
 
-
+    @SuppressWarnings("java:S3776")
     protected void observationAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto, Collection<ObservationContainer> observationContainerCollection) {
         if (observationContainerCollection != null && !observationContainerCollection.isEmpty()) {
             for (ObservationContainer obsVO : observationContainerCollection) {

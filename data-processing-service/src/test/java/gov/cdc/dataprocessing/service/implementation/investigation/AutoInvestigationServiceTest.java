@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class AutoInvestigationServiceTest {
+class AutoInvestigationServiceTest {
     @Mock
     private ConditionCodeRepository conditionCodeRepository;
     @Mock
@@ -490,13 +490,13 @@ public class AutoInvestigationServiceTest {
 
         pageActProxyContainer.setPageVO(new BasePamContainer());
 
-        when(lookupService.getToPrePopFormMapping(eq("INVES")))
+        when(lookupService.getToPrePopFormMapping("INVES"))
                 .thenReturn(prePop);
 
 
         autoInvestigationService.populateProxyFromPrePopMapping(pageActProxyContainer, edxLabInformationDT);
 
-        verify(lookupService, times(1)).getToPrePopFormMapping(eq("INVES"));
+        verify(lookupService, times(1)).getToPrePopFormMapping("INVES");
     }
 
 }
