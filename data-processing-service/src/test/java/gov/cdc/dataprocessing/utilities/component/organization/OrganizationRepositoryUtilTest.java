@@ -169,20 +169,20 @@ class OrganizationRepositoryUtilTest {
         when(entityIdRepository.save(entityId)).thenReturn(entityId);
 
         //Entity Locator Participation
-        EntityLocatorParticipationDto entityLocatorParticipationDto_ph = getEntityLocatorParticipationDto_ph();
-        EntityLocatorParticipationDto entityLocatorParticipationDto_po = getEntityLocatorParticipationDto_po();
-        EntityLocatorParticipationDto entityLocatorParticipationDto_tel = getEntityLocatorParticipationDto_tel();
+        EntityLocatorParticipationDto entityLocatorParticipationDtoPh = getEntityLocatorParticipationDto_ph();
+        EntityLocatorParticipationDto entityLocatorParticipationDtoPo = getEntityLocatorParticipationDto_po();
+        EntityLocatorParticipationDto entityLocatorParticipationDtoTel = getEntityLocatorParticipationDto_tel();
 
-        organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entityLocatorParticipationDto_ph);
-        organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entityLocatorParticipationDto_po);
-        organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entityLocatorParticipationDto_tel);
+        organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entityLocatorParticipationDtoPh);
+        organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entityLocatorParticipationDtoPo);
+        organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entityLocatorParticipationDtoTel);
 
         LocalUidGenerator localUidGenerator = getLocalUidGenerator();
         when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION)).thenReturn(localUidGenerator);
 
-        when(physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDto_ph.getThePhysicalLocatorDto()))).thenReturn((new PhysicalLocator(entityLocatorParticipationDto_ph.getThePhysicalLocatorDto())));
-        when(postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto_po.getThePostalLocatorDto()))).thenReturn((new PostalLocator(entityLocatorParticipationDto_po.getThePostalLocatorDto())));
-        when(teleLocatorRepository.save(new TeleLocator(entityLocatorParticipationDto_tel.getTheTeleLocatorDto()))).thenReturn((new TeleLocator(entityLocatorParticipationDto_tel.getTheTeleLocatorDto())));
+        when(physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDtoPh.getThePhysicalLocatorDto()))).thenReturn((new PhysicalLocator(entityLocatorParticipationDtoPh.getThePhysicalLocatorDto())));
+        when(postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDtoPo.getThePostalLocatorDto()))).thenReturn((new PostalLocator(entityLocatorParticipationDtoPo.getThePostalLocatorDto())));
+        when(teleLocatorRepository.save(new TeleLocator(entityLocatorParticipationDtoTel.getTheTeleLocatorDto()))).thenReturn((new TeleLocator(entityLocatorParticipationDtoTel.getTheTeleLocatorDto())));
 
         //Role
         RoleDto roleDto = getRoleDto();
@@ -271,20 +271,20 @@ class OrganizationRepositoryUtilTest {
         when(entityIdRepository.save(entityId)).thenReturn(entityId);
 
         //Entity Locator Participation
-        EntityLocatorParticipationDto entityLocatorParticipationDto_ph = getEntityLocatorParticipationDto_ph();
-        EntityLocatorParticipationDto entityLocatorParticipationDto_po = getEntityLocatorParticipationDto_po();
-        EntityLocatorParticipationDto entityLocatorParticipationDto_tel = getEntityLocatorParticipationDto_tel();
+        EntityLocatorParticipationDto entityLocatorParticipationDtoPh = getEntityLocatorParticipationDto_ph();
+        EntityLocatorParticipationDto entityLocatorParticipationDtoPo = getEntityLocatorParticipationDto_po();
+        EntityLocatorParticipationDto entityLocatorParticipationDtoTel = getEntityLocatorParticipationDto_tel();
 
-        organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entityLocatorParticipationDto_ph);
-        organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entityLocatorParticipationDto_po);
-        organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entityLocatorParticipationDto_tel);
+        organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entityLocatorParticipationDtoPh);
+        organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entityLocatorParticipationDtoPo);
+        organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entityLocatorParticipationDtoTel);
 
         LocalUidGenerator localUidGenerator = getLocalUidGenerator();
         when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION)).thenReturn(localUidGenerator);
 
-        when(physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDto_ph.getThePhysicalLocatorDto()))).thenReturn((new PhysicalLocator(entityLocatorParticipationDto_ph.getThePhysicalLocatorDto())));
-        when(postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto_po.getThePostalLocatorDto()))).thenReturn((new PostalLocator(entityLocatorParticipationDto_po.getThePostalLocatorDto())));
-        when(teleLocatorRepository.save(new TeleLocator(entityLocatorParticipationDto_tel.getTheTeleLocatorDto()))).thenReturn((new TeleLocator(entityLocatorParticipationDto_tel.getTheTeleLocatorDto())));
+        when(physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDtoPh.getThePhysicalLocatorDto()))).thenReturn((new PhysicalLocator(entityLocatorParticipationDtoPh.getThePhysicalLocatorDto())));
+        when(postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDtoPo.getThePostalLocatorDto()))).thenReturn((new PostalLocator(entityLocatorParticipationDtoPo.getThePostalLocatorDto())));
+        when(teleLocatorRepository.save(new TeleLocator(entityLocatorParticipationDtoTel.getTheTeleLocatorDto()))).thenReturn((new TeleLocator(entityLocatorParticipationDtoTel.getTheTeleLocatorDto())));
 
         //Role
         RoleDto roleDto = getRoleDto();
@@ -380,13 +380,13 @@ class OrganizationRepositoryUtilTest {
         when(entityIdRepository.findByEntityUid(123L)).thenReturn(Optional.of(entityIdList));
         //select EntityLocatorParticipations
         List<EntityLocatorParticipation> entityLocatorParticipations = new ArrayList<>();
-        EntityLocatorParticipationDto entityLocatorParticipationDto_ph = getEntityLocatorParticipationDto_ph();
-        EntityLocatorParticipationDto entityLocatorParticipationDto_po = getEntityLocatorParticipationDto_po();
-        EntityLocatorParticipationDto entityLocatorParticipationDto_tel = getEntityLocatorParticipationDto_tel();
+        EntityLocatorParticipationDto entityLocatorParticipationDtoPh = getEntityLocatorParticipationDto_ph();
+        EntityLocatorParticipationDto entityLocatorParticipationDtoPo = getEntityLocatorParticipationDto_po();
+        EntityLocatorParticipationDto entityLocatorParticipationDtoTel = getEntityLocatorParticipationDto_tel();
 
-        EntityLocatorParticipation entityLocatorParticipation_ph = new EntityLocatorParticipation(entityLocatorParticipationDto_ph);
-        EntityLocatorParticipation entityLocatorParticipation_po = new EntityLocatorParticipation(entityLocatorParticipationDto_po);
-        EntityLocatorParticipation entityLocatorParticipation_tel = new EntityLocatorParticipation(entityLocatorParticipationDto_tel);
+        EntityLocatorParticipation entityLocatorParticipation_ph = new EntityLocatorParticipation(entityLocatorParticipationDtoPh);
+        EntityLocatorParticipation entityLocatorParticipation_po = new EntityLocatorParticipation(entityLocatorParticipationDtoPo);
+        EntityLocatorParticipation entityLocatorParticipation_tel = new EntityLocatorParticipation(entityLocatorParticipationDtoTel);
         entityLocatorParticipations.add(entityLocatorParticipation_ph);
         entityLocatorParticipations.add(entityLocatorParticipation_po);
         entityLocatorParticipations.add(entityLocatorParticipation_tel);
@@ -489,13 +489,13 @@ class OrganizationRepositoryUtilTest {
         when(entityIdRepository.findByEntityUid(123L)).thenReturn(Optional.of(entityIdList));
         //select EntityLocatorParticipations
         List<EntityLocatorParticipation> entityLocatorParticipations = new ArrayList<>();
-        EntityLocatorParticipationDto entityLocatorParticipationDto_ph = getEntityLocatorParticipationDto_ph();
-        EntityLocatorParticipationDto entityLocatorParticipationDto_po = getEntityLocatorParticipationDto_po();
-        EntityLocatorParticipationDto entityLocatorParticipationDto_tel = getEntityLocatorParticipationDto_tel();
+        EntityLocatorParticipationDto entityLocatorParticipationDtoPh = getEntityLocatorParticipationDto_ph();
+        EntityLocatorParticipationDto entityLocatorParticipationDtoPo = getEntityLocatorParticipationDto_po();
+        EntityLocatorParticipationDto entityLocatorParticipationDtoTel = getEntityLocatorParticipationDto_tel();
 
-        EntityLocatorParticipation entityLocatorParticipation_ph = new EntityLocatorParticipation(entityLocatorParticipationDto_ph);
-        EntityLocatorParticipation entityLocatorParticipation_po = new EntityLocatorParticipation(entityLocatorParticipationDto_po);
-        EntityLocatorParticipation entityLocatorParticipation_tel = new EntityLocatorParticipation(entityLocatorParticipationDto_tel);
+        EntityLocatorParticipation entityLocatorParticipation_ph = new EntityLocatorParticipation(entityLocatorParticipationDtoPh);
+        EntityLocatorParticipation entityLocatorParticipation_po = new EntityLocatorParticipation(entityLocatorParticipationDtoPo);
+        EntityLocatorParticipation entityLocatorParticipation_tel = new EntityLocatorParticipation(entityLocatorParticipationDtoTel);
         entityLocatorParticipations.add(entityLocatorParticipation_ph);
         entityLocatorParticipations.add(entityLocatorParticipation_po);
         entityLocatorParticipations.add(entityLocatorParticipation_tel);
@@ -555,20 +555,20 @@ class OrganizationRepositoryUtilTest {
         when(entityIdRepository.findByEntityUid(123L)).thenReturn(Optional.of(entityIdList));
         //select EntityLocatorParticipations
         List<EntityLocatorParticipation> entityLocatorParticipations = new ArrayList<>();
-        EntityLocatorParticipationDto entityLocatorParticipationDto_ph = getEntityLocatorParticipationDto_ph();
-        EntityLocatorParticipationDto entityLocatorParticipationDto_po = getEntityLocatorParticipationDto_po();
-        EntityLocatorParticipationDto entityLocatorParticipationDto_tel = getEntityLocatorParticipationDto_tel();
+        EntityLocatorParticipationDto entityLocatorParticipationDtoPh = getEntityLocatorParticipationDto_ph();
+        EntityLocatorParticipationDto entityLocatorParticipationDtoPo = getEntityLocatorParticipationDto_po();
+        EntityLocatorParticipationDto entityLocatorParticipationDtoTel = getEntityLocatorParticipationDto_tel();
 
-        EntityLocatorParticipation entityLocatorParticipation_ph = new EntityLocatorParticipation(entityLocatorParticipationDto_ph);
-        EntityLocatorParticipation entityLocatorParticipation_po = new EntityLocatorParticipation(entityLocatorParticipationDto_po);
-        EntityLocatorParticipation entityLocatorParticipation_tel = new EntityLocatorParticipation(entityLocatorParticipationDto_tel);
+        EntityLocatorParticipation entityLocatorParticipation_ph = new EntityLocatorParticipation(entityLocatorParticipationDtoPh);
+        EntityLocatorParticipation entityLocatorParticipation_po = new EntityLocatorParticipation(entityLocatorParticipationDtoPo);
+        EntityLocatorParticipation entityLocatorParticipation_tel = new EntityLocatorParticipation(entityLocatorParticipationDtoTel);
         entityLocatorParticipations.add(entityLocatorParticipation_ph);
         entityLocatorParticipations.add(entityLocatorParticipation_po);
         entityLocatorParticipations.add(entityLocatorParticipation_tel);
 
-        PhysicalLocator physicalLocator = new PhysicalLocator(entityLocatorParticipationDto_ph.getThePhysicalLocatorDto());
-        PostalLocator postalLocator = new PostalLocator(entityLocatorParticipationDto_po.getThePostalLocatorDto());
-        TeleLocator teleLocator = new TeleLocator(entityLocatorParticipationDto_tel.getTheTeleLocatorDto());
+        PhysicalLocator physicalLocator = new PhysicalLocator(entityLocatorParticipationDtoPh.getThePhysicalLocatorDto());
+        PostalLocator postalLocator = new PostalLocator(entityLocatorParticipationDtoPo.getThePostalLocatorDto());
+        TeleLocator teleLocator = new TeleLocator(entityLocatorParticipationDtoTel.getTheTeleLocatorDto());
 
         List<PhysicalLocator> physicalLocatorList = new ArrayList<>();
         physicalLocatorList.add(physicalLocator);

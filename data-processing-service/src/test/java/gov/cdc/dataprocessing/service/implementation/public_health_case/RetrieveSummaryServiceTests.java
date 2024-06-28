@@ -75,11 +75,11 @@ class RetrieveSummaryServiceTests {
         var col = new ArrayList<LabReportSummaryContainer>();
         var phc = new PublicHealthCaseDto();
         phc.setStdHivProgramAreaCode(true);
-        when(publicHealthCaseRepositoryUtil.findPublicHealthCase(eq(10L))).thenReturn(
+        when(publicHealthCaseRepositoryUtil.findPublicHealthCase(10L)).thenReturn(
                 phc
         );
         retrieveSummaryService.checkBeforeCreateAndStoreMessageLogDTCollection(uid, col);
-        verify(publicHealthCaseRepositoryUtil, times(1)).findPublicHealthCase(eq(10L));
+        verify(publicHealthCaseRepositoryUtil, times(1)).findPublicHealthCase(10L);
     }
 
     @Test
@@ -88,17 +88,17 @@ class RetrieveSummaryServiceTests {
         var col = new ArrayList<LabReportSummaryContainer>();
         var phc = new PublicHealthCaseDto();
         phc.setStdHivProgramAreaCode(true);
-        when(publicHealthCaseRepositoryUtil.findPublicHealthCase(eq(10L))).thenThrow(
+        when(publicHealthCaseRepositoryUtil.findPublicHealthCase(10L)).thenThrow(
                 new RuntimeException("TEST")
         );
 
         retrieveSummaryService.checkBeforeCreateAndStoreMessageLogDTCollection(uid, col);
-        verify(publicHealthCaseRepositoryUtil, times(1)).findPublicHealthCase(eq(10L));
+        verify(publicHealthCaseRepositoryUtil, times(1)).findPublicHealthCase(10L);
     }
 
 
     @Test
-    void retrieveTreatmentSummaryVOForInv_Success() throws DataProcessingException {
+    void retrieveTreatmentSummaryVOForInv_Success() {
         long uid = 10L;
         when(queryHelper.getDataAccessWhereClause(NBSBOLookup.TREATMENT, "VIEW", "Treatment")).thenReturn(
                 "BLAH"
@@ -111,7 +111,7 @@ class RetrieveSummaryServiceTests {
     }
 
     @Test
-    void retrieveTreatmentSummaryVOForInv_Success_2() throws DataProcessingException {
+    void retrieveTreatmentSummaryVOForInv_Success_2() {
         long uid = 10L;
         when(queryHelper.getDataAccessWhereClause(NBSBOLookup.TREATMENT, "VIEW", "Treatment")).thenReturn(
                 null
@@ -137,7 +137,7 @@ class RetrieveSummaryServiceTests {
     }
 
     @Test
-    void retrieveDocumentSummaryVOForInv_Exception() throws DataProcessingException {
+    void retrieveDocumentSummaryVOForInv_Exception() {
         long uid = 10L;
         when(customRepository.retrieveDocumentSummaryVOForInv(10L)).thenThrow(
               new RuntimeException("TEST")
@@ -247,7 +247,7 @@ class RetrieveSummaryServiceTests {
     }
 
     @Test
-    void getAssociatedDocumentList_Exception() throws DataProcessingException {
+    void getAssociatedDocumentList_Exception() {
         long uid = 10L;
         String targetClassCd= "CODE";
         String sourceClassCd = "CODE";

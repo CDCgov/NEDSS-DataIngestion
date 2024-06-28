@@ -44,6 +44,7 @@ class UidServiceTest {
         Mockito.reset(authUtil);
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
     void setFalseToNewForObservation_Test() {
         var proxyVO = new LabResultProxyContainer();
@@ -75,6 +76,7 @@ class UidServiceTest {
         uidService.setFalseToNewForObservation(proxyVO, falseUid, actualUid);
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
     void setFalseToNewPersonAndOrganization_Test() {
         var proxyVO = new LabResultProxyContainer();
@@ -106,6 +108,7 @@ class UidServiceTest {
         uidService.setFalseToNewPersonAndOrganization(proxyVO, falseUid, actualUid);
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
     void setFalseToNewForPageAct_Test() throws DataProcessingException {
         var proxyVO = new PageActProxyContainer();
@@ -141,6 +144,7 @@ class UidServiceTest {
         uidService.setFalseToNewForPageAct(proxyVO, falseUid, actualUid);
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
     void setFalseToNewForPam_Test() throws DataProcessingException {
         var proxyVO = new PamProxyContainer();
@@ -177,6 +181,7 @@ class UidServiceTest {
     }
 
 
+    @SuppressWarnings("java:S2699")
     @Test
     void setFalseToNewForNotification_Test() {
         var proxyVO = new NotificationProxyContainer();
