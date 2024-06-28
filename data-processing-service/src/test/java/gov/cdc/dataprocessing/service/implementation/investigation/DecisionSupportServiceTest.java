@@ -493,7 +493,7 @@ public class DecisionSupportServiceTest {
 
         var withinTime = new IntegerNumericType();
         codeType = new CodedType();
-        codeType.setCode(NEDSSConstant.EQUAL_LOGIC);
+        codeType.setCode(NEDSSConstant.TELE);
         withinTime.setComparatorCode(codeType);
         withinTime.setUnit(codeType);
         withinTime.setValue1(BigInteger.ONE);

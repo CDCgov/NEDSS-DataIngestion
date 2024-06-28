@@ -306,11 +306,13 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         return phcVO;
     }
 
-    private void populateProxyFromPrePopMapping(PageActProxyContainer pageActProxyContainer, EdxLabInformationDto edxLabInformationDT)
+    protected void populateProxyFromPrePopMapping(PageActProxyContainer pageActProxyContainer,
+                                                  EdxLabInformationDto edxLabInformationDT)
             throws DataProcessingException {
         try {
             lookupService.fillPrePopMap();
-            TreeMap<Object, Object> fromPrePopMap = (TreeMap<Object, Object>) OdseCache.fromPrePopFormMapping.get(NEDSSConstant.LAB_FORM_CD);
+            TreeMap<Object, Object> fromPrePopMap =
+                    (TreeMap<Object, Object>) OdseCache.fromPrePopFormMapping.get(NEDSSConstant.LAB_FORM_CD);
             if (fromPrePopMap == null) {
                 fromPrePopMap = new TreeMap<>();
             }
@@ -446,7 +448,9 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                         NbsQuestionMetadata quesMetadata = (NbsQuestionMetadata) questionMap
                                 .get(toPrePopMappingDT.getToQuestionIdentifier());
                         if (quesMetadata != null)
+                        {
                             dataLocation = quesMetadata.getDataLocation();
+                        }
                         if (toPrePopMappingDT.getToDataType() != null
                                 && toPrePopMappingDT.getToDataType().equals(NEDSSConstant.DATE_DATATYPE)) {
                             try {
@@ -458,12 +462,17 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                                 Date date = formatter.parse(stringDate);
                                 value = sdf.format(date);
                             } catch (Exception ex) {
-//                                    logger.error("Could not convert to date from value :" + prePopMap.get(mappingKey));
+                                ex.printStackTrace();
                             }
-                        } else if (toPrePopMappingDT.getToAnswerCode() != null)
+                        }
+                        else if (toPrePopMappingDT.getToAnswerCode() != null)
+                        {
                             value = toPrePopMappingDT.getToAnswerCode();
+                        }
                         else
+                        {
                             value = (String) prePopMap.get(mappingKey);
+                        }
 
                         if (value != null && dataLocation != null
                                 && dataLocation.startsWith(RenderConstant.PUBLIC_HEALTH_CASE)) {
@@ -482,10 +491,6 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                     }
                 }
                 pageActProxyContainer.getPageVO().setPamAnswerDTMap(answerMap);
-            }
-            else
-            {
-//                logger.debug("No pre-pop mapping for Code: "+investigationFormCd);
             }
         } catch (Exception e) {
             throw new Exception(e.getMessage(), e);
