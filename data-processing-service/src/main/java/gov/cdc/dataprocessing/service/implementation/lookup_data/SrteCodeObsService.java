@@ -654,7 +654,8 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         return lastPACode;
     } //end of getProgAreaCdLocalDefault(...)
 
-    private String findLocalResultDefaultConditionProgramAreaCdFromLabTestWithoutJoin(Vector<Object> codeVector, String reportingLabCLIA, String nextLookup) {
+    protected String findLocalResultDefaultConditionProgramAreaCdFromLabTestWithoutJoin(
+            Vector<Object> codeVector, String reportingLabCLIA, String nextLookup) {
         Vector<Object> toReturn = new Vector<>();
         String lastPACode = null;
         try {

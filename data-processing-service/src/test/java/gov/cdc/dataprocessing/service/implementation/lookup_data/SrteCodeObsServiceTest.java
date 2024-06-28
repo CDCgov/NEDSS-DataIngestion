@@ -786,6 +786,20 @@ public class SrteCodeObsServiceTest {
 
 
 
+    @Test
+    void findLocalResultDefaultConditionProgramAreaCdFromLabTestWithoutJoin_Null() {
+        Vector<Object> codeVector = new Vector<>();
+        String reportingLabCLIA = "CLIA";
+        String nextLookup = "";
+
+        when(labTestRepository.findLocalTestDefaultProgramAreaCd(any(), any()))
+                .thenThrow(new RuntimeException("TEST"));
+
+        var res = srteCodeObsService.findLocalResultDefaultConditionProgramAreaCdFromLabTestWithoutJoin(codeVector, reportingLabCLIA, nextLookup);
+
+        assertNull(res);
+    }
+
 
 
 

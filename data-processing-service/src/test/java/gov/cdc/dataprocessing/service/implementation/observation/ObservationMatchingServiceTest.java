@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 public class ObservationMatchingServiceTest {
@@ -235,4 +236,55 @@ public class ObservationMatchingServiceTest {
         assertEquals(1, labResultProxyVO.getTheParticipationDtoCollection().size());
 
     }
+
+    @Test
+    void checkingMatchingObservation_Test_Null() throws DataProcessingException {
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+
+        var res = observationMatchingService.checkingMatchingObservation(edxLabInformationDto);
+
+        assertNull(res);
+    }
+
+
+    @Test
+    void checkingMatchingObservation_Test_Null_1() throws DataProcessingException {
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        edxLabInformationDto.setRootObservationContainer(new ObservationContainer());
+        var res = observationMatchingService.checkingMatchingObservation(edxLabInformationDto);
+
+        assertNull(res);
+    }
+
+    @Test
+    void checkingMatchingObservation_Test_Null_2() throws DataProcessingException {
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        edxLabInformationDto.setRootObservationContainer(new ObservationContainer());
+
+        when(observationMatchStoredProcRepository.getMatchedObservation(any()))
+                .thenReturn(10L);
+
+        when(observationRepository.findById(10L)).thenReturn(Optional.empty());
+
+        var res = observationMatchingService.checkingMatchingObservation(edxLabInformationDto);
+
+        assertNull(res);
+    }
+
+    @Test
+    void checkingMatchingObservation_Test_Null_3() throws DataProcessingException {
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        edxLabInformationDto.setRootObservationContainer(new ObservationContainer());
+
+        when(observationMatchStoredProcRepository.getMatchedObservation(any()))
+                .thenReturn(10L);
+
+        var obsDt = new Observation();
+        when(observationRepository.findById(10L)).thenReturn(Optional.of(obsDt));
+
+        var res = observationMatchingService.checkingMatchingObservation(edxLabInformationDto);
+
+        assertNull(res);
+    }
+
 }

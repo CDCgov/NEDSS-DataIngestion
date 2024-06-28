@@ -100,11 +100,8 @@ public class ObservationCodeService implements IObservationCodeService {
      *    when associating an STD lab to a closed investigation.
      *    Condition list determines the Processing Decision to show.
      */
-    public ArrayList<String> deriveTheConditionCodeList(LabResultProxyContainer labResultProxyVO, ObservationContainer orderTest) throws DataProcessingException {
-
-        Gson gson = new Gson();
-        var strLab = gson.toJson(labResultProxyVO);
-        var strOrder = gson.toJson(orderTest);
+    public ArrayList<String> deriveTheConditionCodeList(LabResultProxyContainer labResultProxyVO,
+                                                        ObservationContainer orderTest) throws DataProcessingException {
 
         ArrayList<String> derivedConditionList = new ArrayList<>();
 
@@ -265,10 +262,6 @@ public class ObservationCodeService implements IObservationCodeService {
 
             if (entityIdColl != null && entityIdColl.size() > 0) {
                 for (EntityIdDto idDT : entityIdColl) {
-                    if (idDT == null) {
-                        continue;
-                    }
-
                     String authoCd = idDT.getAssigningAuthorityCd();
                     String idTypeCd = idDT.getTypeCd();
                     if (authoCd == null || idTypeCd == null) {
