@@ -1,7 +1,5 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.id_class;
 
-import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

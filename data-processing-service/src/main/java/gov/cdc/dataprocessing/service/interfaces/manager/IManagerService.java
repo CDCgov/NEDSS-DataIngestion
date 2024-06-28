@@ -2,7 +2,6 @@ package gov.cdc.dataprocessing.service.interfaces.manager;
 
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.exception.EdxLogException;
 import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
 
 public interface IManagerService {

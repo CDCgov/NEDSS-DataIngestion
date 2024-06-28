@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.model.container.model;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -8,10 +8,8 @@ import gov.cdc.dataprocessing.model.container.model.ProviderDataForPrintContaine
 import gov.cdc.dataprocessing.model.container.model.ResultedTestSummaryContainer;
 import gov.cdc.dataprocessing.model.container.model.UidSummaryContainer;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.edx.EdxDocument;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.Observation_Summary;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.edx.EdxDocumentRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.Observation_SummaryRepository;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -27,7 +25,6 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;

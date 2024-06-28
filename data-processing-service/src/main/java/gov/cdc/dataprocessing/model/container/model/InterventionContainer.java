@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.model.container.model;
 
-import gov.cdc.dataprocessing.model.dto.phc.InterventionDto;
 import gov.cdc.dataprocessing.model.container.base.BaseContainer;
+import gov.cdc.dataprocessing.model.dto.phc.InterventionDto;
 import lombok.Getter;
 import lombok.Setter;
 

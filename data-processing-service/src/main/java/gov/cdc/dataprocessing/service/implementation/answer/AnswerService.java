@@ -3,10 +3,10 @@ package gov.cdc.dataprocessing.service.implementation.answer;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.PageContainer;
-import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsAnswerDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsActEntity;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsActEntityHist;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsAnswer;
@@ -227,7 +227,7 @@ public class AnswerService implements IAnswerService {
     }
 
 
-    private void storeActEntityDTCollection(Collection<NbsActEntityDto> pamDTCollection, ObservationDto rootDTInterface) throws  DataProcessingException{
+    private void storeActEntityDTCollection(Collection<NbsActEntityDto> pamDTCollection, ObservationDto rootDTInterface) {
         if(pamDTCollection.size()>0){
             for (NbsActEntityDto pamCaseEntityDT : pamDTCollection) {
                 if (pamCaseEntityDT.isItDelete()) {

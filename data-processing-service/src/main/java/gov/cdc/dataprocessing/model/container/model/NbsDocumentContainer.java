@@ -2,10 +2,10 @@ package gov.cdc.dataprocessing.model.container.model;
 
 import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.container.interfaces.ReportSummaryInterface;
-import gov.cdc.dataprocessing.model.dto.dsm.DSMUpdateAlgorithmDto;
-import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessDto;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
+import gov.cdc.dataprocessing.model.dto.dsm.DSMUpdateAlgorithmDto;
 import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessCaseSummaryDto;
+import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessDto;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityLogDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NBSDocumentDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;

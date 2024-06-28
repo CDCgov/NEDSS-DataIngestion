@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.service.implementation.auth_user;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomAuthUserRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.auth.AuthUserRepository;
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;

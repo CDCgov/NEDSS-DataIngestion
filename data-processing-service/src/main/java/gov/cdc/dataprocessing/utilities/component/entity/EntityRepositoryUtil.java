@@ -2,8 +2,8 @@ package gov.cdc.dataprocessing.utilities.component.entity;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityODSE;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityRepository;
 import org.springframework.stereotype.Component;
 
 @Component

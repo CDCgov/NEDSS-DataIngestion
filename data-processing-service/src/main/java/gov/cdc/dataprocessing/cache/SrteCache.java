@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.cache;
 
-import gov.cdc.dataprocessing.repository.nbs.srte.model.BaseConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 

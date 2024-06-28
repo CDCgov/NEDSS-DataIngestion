@@ -12,7 +12,10 @@ import gov.cdc.dataprocessing.service.interfaces.observation.IObservationSummary
 import gov.cdc.dataprocessing.utilities.component.sql.QueryHelper;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 
 import static gov.cdc.dataprocessing.constant.ComplexQueries.ASSOCIATED_INV_QUERY;
 

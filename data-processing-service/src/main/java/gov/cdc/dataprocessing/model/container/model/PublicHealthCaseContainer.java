@@ -1,17 +1,17 @@
 package gov.cdc.dataprocessing.model.container.model;
 
-import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
-import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.model.container.base.BaseContainer;
-import gov.cdc.dataprocessing.model.dto.phc.ConfirmationMethodDto;
-import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
-import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessDto;
+import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
+import gov.cdc.dataprocessing.model.dto.phc.ConfirmationMethodDto;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import lombok.Getter;
 import lombok.Setter;
 

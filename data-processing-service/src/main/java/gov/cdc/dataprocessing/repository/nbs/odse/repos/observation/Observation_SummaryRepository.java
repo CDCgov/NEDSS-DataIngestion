@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.repos.observation;
 
-import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.*;
-import org.springframework.data.repository.Repository;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.Observation_Lab_Summary_ForWorkUp_New;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.Observation_Summary;
 
 import java.util.Collection;
 import java.util.Optional;

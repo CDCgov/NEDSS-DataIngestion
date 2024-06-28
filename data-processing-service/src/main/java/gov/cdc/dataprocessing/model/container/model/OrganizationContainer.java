@@ -1,11 +1,11 @@
 package gov.cdc.dataprocessing.model.container.model;
 
-import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
-import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
-import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
+import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
+import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
+import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -4,8 +4,8 @@ import gov.cdc.dataprocessing.constant.CTConstants;
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.dto.phc.CTContactSummaryDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
+import gov.cdc.dataprocessing.model.dto.phc.CTContactSummaryDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonName;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonNameRepository;
@@ -14,7 +14,8 @@ import gov.cdc.dataprocessing.service.interfaces.public_health_case.IRetrieveSum
 import gov.cdc.dataprocessing.utilities.component.sql.QueryHelper;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import static gov.cdc.dataprocessing.constant.ComplexQueries.*;
 
