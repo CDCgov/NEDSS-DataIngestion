@@ -6,5 +6,5 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface IEcrMsgQueryService {
-    EcrSelectedRecord getSelectedEcrRecord() throws EcrCdaXmlException;
+    EcrSelectedRecord getSelectedEcrRecord(Integer nbsUid) throws EcrCdaXmlException;
 }

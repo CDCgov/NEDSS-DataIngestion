@@ -9,6 +9,8 @@ import gov.cdc.nedss.phdc.cda.ANY;
 import gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1;
 import gov.cdc.nedss.phdc.cda.POCDMT000040Component3;
 
+import java.io.Console;
+
 public class CdaXmlAnswerMappingHelper implements ICdaXmlAnswerMappingHelper {
     public CdaXmlAnswerMapper mapToXmlAnswerTop(EcrSelectedRecord input,
                                                 POCDMT000040ClinicalDocument1 clinicalDocument,
@@ -41,6 +43,10 @@ public class CdaXmlAnswerMappingHelper implements ICdaXmlAnswerMappingHelper {
     private POCDMT000040Component3 mapToExtendedData(EcrMsgXmlAnswerDto in, POCDMT000040Component3 out) throws EcrCdaXmlException {
         try {
             if (!in.getAnswerXmlTxt().isEmpty()) {
+                if (in.getAnswerXmlTxt().contains("sdt:valueSet")) {
+                    var data = in.getAnswerXmlTxt().replace("sdt:valueSet", "valueSet");
+                    in.setAnswerXmlTxt(data);
+                }
                 ANY any = ANY.Factory.parse(in.getAnswerXmlTxt());
                 out.set(any);
             }

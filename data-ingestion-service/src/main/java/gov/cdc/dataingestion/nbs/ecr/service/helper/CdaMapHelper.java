@@ -24,6 +24,7 @@ import java.util.*;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
 import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.getStringsBeforePipe;
+import static gov.cdc.dataingestion.nbs.ecr.service.util.StringHelper.convertToSnakeCase;
 
 public class CdaMapHelper implements ICdaMapHelper {
 
@@ -193,13 +194,17 @@ public class CdaMapHelper implements ICdaMapHelper {
             }
             else if (checkerCodeDash) {
                 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-                SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd HH:mm:ss.S");
+                //SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd HH:mm:ss.S");
+                SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd");
+
                 Date date = inputFormat.parse(data);
                 result = outputFormat.format(date);
             }
             else {
                 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.S");
-                SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd HH:mm:ss.S");
+                //SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd HH:mm:ss.S");
+                SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd");
+
                 Date date = inputFormat.parse(data);
                 result = outputFormat.format(date);
             }
@@ -215,7 +220,9 @@ public class CdaMapHelper implements ICdaMapHelper {
     public String mapToQuestionId(String data) throws EcrCdaXmlException {
         String output = "";
         QuestionIdentifierMapDao model = new QuestionIdentifierMapDao();
-        var qIdentifier = ecrLookUpService.fetchQuestionIdentifierMapByCriteriaByCriteria("COLUMN_NM", data);
+
+        var col = convertToSnakeCase(data);
+        var qIdentifier = ecrLookUpService.fetchQuestionIdentifierMapByCriteriaByCriteria("COLUMN_NM", col);
         if(qIdentifier != null) {
             if (qIdentifier.getDynamicQuestionIdentifier().equalsIgnoreCase("STANDARD")) {
                 model.setQuestionIdentifier(qIdentifier.getQuestionIdentifier());
@@ -339,7 +346,7 @@ public class CdaMapHelper implements ICdaMapHelper {
 
     public String getCurrentUtcDateTimeInCdaFormat() {
         ZonedDateTime utcNow = ZonedDateTime.now(ZoneId.of("UTC"));
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssX");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         return utcNow.format(formatter);
     }
 
@@ -522,7 +529,8 @@ public class CdaMapHelper implements ICdaMapHelper {
         dto.setQuesCodeSystemDescTxt(NOT_FOUND_VALUE);
         dto.setQuesDisplayName(NOT_FOUND_VALUE);
         if (!questionIdentifier.isEmpty()) {
-            var result = ecrLookUpService.fetchPhdcQuestionByCriteriaWithColumn("QUESTION_IDENTIFIER", questionIdentifier);
+            var data = convertToSnakeCase(questionIdentifier);
+            var result = ecrLookUpService.fetchPhdcQuestionByCriteriaWithColumn("QUESTION_IDENTIFIER", data );
             if (result != null) {
                 if (result.getQuesCodeSystemCd() != null && !result.getQuesCodeSystemCd().isEmpty()) {
                     dto.setQuesCodeSystemCd(result.getQuesCodeSystemCd());
