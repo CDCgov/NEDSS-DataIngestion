@@ -218,11 +218,15 @@ class EntityLocatorParticipationServiceTest {
         locatorCollection.add(locator);
         locator = new EntityLocatorParticipationDto();
         locator.setClassCd(NEDSSConstant.POSTAL);
+        var postTal = new PostalLocatorDto();
+        locator.setThePostalLocatorDto(postTal);
         var postalDto = new PostalLocatorDto();
+        postalDto.setStreetAddr1("Blah");
         locator.setThePostalLocatorDto(postalDto);
         locatorCollection.add(locator);
         locator = new EntityLocatorParticipationDto();
         var teleDto = new TeleLocatorDto();
+        teleDto.setPhoneNbrTxt("Blah");
         locator.setClassCd(NEDSSConstant.TELE);
         locator.setTheTeleLocatorDto(teleDto);
         locatorCollection.add(locator);
