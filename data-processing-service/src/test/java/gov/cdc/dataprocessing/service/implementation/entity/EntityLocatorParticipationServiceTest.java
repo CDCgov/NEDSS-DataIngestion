@@ -244,6 +244,75 @@ class EntityLocatorParticipationServiceTest {
         verify(teleLocatorRepository, times(1)).save(any());
     }
 
+
+    @Test
+    void createEntityLocatorParticipation_Success_2() throws DataProcessingException {
+        Long uid = 10L;
+        Collection<EntityLocatorParticipationDto> locatorCollection = new ArrayList<>();
+        EntityLocatorParticipationDto locator = new EntityLocatorParticipationDto();
+        locator.setClassCd(NEDSSConstant.PHYSICAL);
+        var physicalDto = new PhysicalLocatorDto();
+        locator.setThePhysicalLocatorDto(physicalDto);
+        locatorCollection.add(locator);
+        locator = new EntityLocatorParticipationDto();
+        locator.setClassCd(NEDSSConstant.POSTAL);
+        var postTal = new PostalLocatorDto();
+        locator.setThePostalLocatorDto(postTal);
+        var postalDto = new PostalLocatorDto();
+        locator.setThePostalLocatorDto(postalDto);
+        locatorCollection.add(locator);
+        locator = new EntityLocatorParticipationDto();
+        var teleDto = new TeleLocatorDto();
+        locator.setClassCd(NEDSSConstant.TELE);
+        locator.setTheTeleLocatorDto(teleDto);
+        locatorCollection.add(locator);
+
+        LocalUidGenerator localUid = new LocalUidGenerator();
+        localUid.setSeedValueNbr(1L);
+        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.PERSON)).thenReturn(localUid);
+
+
+        entityLocatorParticipationService.createEntityLocatorParticipation(locatorCollection, uid);
+
+
+        verify(physicalLocatorRepository, times(1)).save(any());
+        verify(postalLocatorRepository, times(0)).save(any());
+        verify(teleLocatorRepository, times(0)).save(any());
+    }
+
+
+    @Test
+    void createEntityLocatorParticipation_Success_3() throws DataProcessingException {
+        Long uid = 10L;
+        Collection<EntityLocatorParticipationDto> locatorCollection = new ArrayList<>();
+        EntityLocatorParticipationDto locator = new EntityLocatorParticipationDto();
+        locator.setClassCd(NEDSSConstant.PHYSICAL);
+        var physicalDto = new PhysicalLocatorDto();
+        locator.setThePhysicalLocatorDto(physicalDto);
+        locatorCollection.add(locator);
+        locator = new EntityLocatorParticipationDto();
+        locator.setClassCd(NEDSSConstant.POSTAL);
+        locator.setThePostalLocatorDto(null);
+        locatorCollection.add(locator);
+        locator = new EntityLocatorParticipationDto();
+        locator.setClassCd(NEDSSConstant.TELE);
+        locator.setTheTeleLocatorDto(null);
+        locatorCollection.add(locator);
+
+        LocalUidGenerator localUid = new LocalUidGenerator();
+        localUid.setSeedValueNbr(1L);
+        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.PERSON)).thenReturn(localUid);
+
+
+        entityLocatorParticipationService.createEntityLocatorParticipation(locatorCollection, uid);
+
+
+        verify(physicalLocatorRepository, times(1)).save(any());
+        verify(postalLocatorRepository, times(0)).save(any());
+        verify(teleLocatorRepository, times(0)).save(any());
+    }
+
+
     @Test
     void findEntityLocatorById_Success() {
         long uid = 10L;
