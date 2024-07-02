@@ -172,10 +172,36 @@ public class NBSObjectConverter {
         return entityIdDto;
     }
 
+    public EntityLocatorParticipationDto personAddressType(HL7XADType hl7XADType, String role, PersonContainer personContainer) {
+        EntityLocatorParticipationDto elp = addressType(hl7XADType, role);
+        elp.setEntityUid(personContainer.getThePersonDto().getPersonUid());
+        elp.setAddUserId(personContainer.getThePersonDto().getAddUserId());
+        elp.setAsOfDate(personContainer.getThePersonDto().getLastChgTime());
+        if (elp.getThePostalLocatorDto() == null) {
+            elp.setThePostalLocatorDto(new PostalLocatorDto());
+        }
+        elp.getThePostalLocatorDto().setAddUserId(personContainer.getThePersonDto().getAddUserId());
+        personContainer.getTheEntityLocatorParticipationDtoCollection().add(elp);
+        return elp;
+    }
+
+    public EntityLocatorParticipationDto organizationAddressType(HL7XADType hl7XADType, String role, OrganizationContainer organizationContainer) {
+        EntityLocatorParticipationDto elp = addressType(hl7XADType, role);
+        elp.setEntityUid(organizationContainer.getTheOrganizationDto().getOrganizationUid());
+        elp.setAddUserId(organizationContainer.getTheOrganizationDto().getAddUserId());
+        elp.setAsOfDate(organizationContainer.getTheOrganizationDto().getLastChgTime());
+        if (elp.getThePostalLocatorDto() == null) {
+            elp.setThePostalLocatorDto(new PostalLocatorDto());
+        }
+        elp.getThePostalLocatorDto().setAddUserId(organizationContainer.getTheOrganizationDto().getAddUserId());
+        organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(elp);
+        return elp;
+    }
+
     /**
      * Parsing Entity Address into Object
      * */
-    public EntityLocatorParticipationDto addressType(HL7XADType hl7XADType, String role)   {
+    private EntityLocatorParticipationDto addressType(HL7XADType hl7XADType, String role)   {
 
         EntityLocatorParticipationDto elp = new EntityLocatorParticipationDto();
         try {
@@ -329,31 +355,7 @@ public class NBSObjectConverter {
         return zip;
     }
 
-    public EntityLocatorParticipationDto personAddressType(HL7XADType hl7XADType, String role, PersonContainer personContainer) {
-        EntityLocatorParticipationDto elp = addressType(hl7XADType, role);
-        elp.setEntityUid(personContainer.getThePersonDto().getPersonUid());
-        elp.setAddUserId(personContainer.getThePersonDto().getAddUserId());
-        elp.setAsOfDate(personContainer.getThePersonDto().getLastChgTime());
-        if (elp.getThePostalLocatorDto() == null) {
-            elp.setThePostalLocatorDto(new PostalLocatorDto());
-        }
-        elp.getThePostalLocatorDto().setAddUserId(personContainer.getThePersonDto().getAddUserId());
-        personContainer.getTheEntityLocatorParticipationDtoCollection().add(elp);
-        return elp;
-    }
 
-    public EntityLocatorParticipationDto organizationAddressType(HL7XADType hl7XADType, String role, OrganizationContainer organizationContainer) {
-        EntityLocatorParticipationDto elp = addressType(hl7XADType, role);
-        elp.setEntityUid(organizationContainer.getTheOrganizationDto().getOrganizationUid());
-        elp.setAddUserId(organizationContainer.getTheOrganizationDto().getAddUserId());
-        elp.setAsOfDate(organizationContainer.getTheOrganizationDto().getLastChgTime());
-        if (elp.getThePostalLocatorDto() == null) {
-            elp.setThePostalLocatorDto(new PostalLocatorDto());
-        }
-        elp.getThePostalLocatorDto().setAddUserId(organizationContainer.getTheOrganizationDto().getAddUserId());
-        organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(elp);
-        return elp;
-    }
 
     public EntityIdDto validateSSN(EntityIdDto entityIdDto) {
         String ssn = entityIdDto.getRootExtensionTxt();

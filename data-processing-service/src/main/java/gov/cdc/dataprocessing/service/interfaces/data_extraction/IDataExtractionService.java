@@ -9,5 +9,4 @@ import jakarta.xml.bind.JAXBException;
 
 public interface IDataExtractionService {
     LabResultProxyContainer parsingDataToObject(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto) throws DataProcessingConsumerException, JAXBException, DataProcessingException;
-//    Container parsingElrXmlPayload(String xmlPayload) throws JAXBException;
 }
