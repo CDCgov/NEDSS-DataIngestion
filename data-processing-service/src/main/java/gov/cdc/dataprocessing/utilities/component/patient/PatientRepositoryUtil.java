@@ -240,7 +240,7 @@ public class PatientRepositoryUtil {
         //NOTE: Upsert EntityID
         if  (personContainer.getTheEntityIdDtoCollection() != null && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
             try {
-                createEntityId(personContainer);
+                updateEntityId(personContainer);
             } catch (Exception e) {
                 throw new DataProcessingException(e.getMessage(), e);
             }
@@ -440,6 +440,45 @@ public class PatientRepositoryUtil {
         }
     }
 
+    private void updateEntityId(PersonContainer personContainer) throws DataProcessingException {
+        ArrayList<EntityIdDto>  personList = (ArrayList<EntityIdDto> ) personContainer.getTheEntityIdDtoCollection();
+        try {
+            for (EntityIdDto entityIdDto : personList) {
+
+                if (entityIdDto.isItDelete()) {
+                    entityIdRepository.deleteEntityIdAndSeq(entityIdDto.getEntityUid(), entityIdDto.getEntityIdSeq());
+                    if (personContainer.getThePersonDto().getPersonParentUid() != null) {
+                        entityIdRepository.deleteEntityIdAndSeq(personContainer.getThePersonDto().getPersonParentUid(), entityIdDto.getEntityIdSeq());
+                    }
+                }
+                else {
+                    if (entityIdDto.getAddUserId() == null) {
+                        entityIdDto.setAddUserId(AuthUtil.authUser.getAuthUserUid());
+                    }
+                    if (entityIdDto.getLastChgUserId() == null) {
+                        entityIdDto.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                    }
+
+                    var mprRecord =  SerializationUtils.clone(entityIdDto);
+                    mprRecord.setEntityUid(personContainer.getThePersonDto().getPersonParentUid());
+                    mprRecord.setAddReasonCd("Add");
+                    entityIdRepository.save(new EntityId(mprRecord));
+
+
+                    var pUid = personContainer.getThePersonDto().getPersonUid();
+                    entityIdDto.setEntityUid(pUid);
+                    entityIdDto.setAddReasonCd("Add");
+                    entityIdRepository.save(new EntityId(entityIdDto));
+                }
+
+
+            }
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+
     private void updatePersonRace(PersonContainer personContainer) throws DataProcessingException {
         ArrayList<PersonRaceDto>  personList = (ArrayList<PersonRaceDto> ) personContainer.getThePersonRaceDtoCollection();
         try {
@@ -512,6 +551,7 @@ public class PatientRepositoryUtil {
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
+
 
 
     private void createRole(PersonContainer personContainer) throws DataProcessingException {
