@@ -13,7 +13,6 @@ import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.PersonRaceId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonEthnicGroup;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonName;

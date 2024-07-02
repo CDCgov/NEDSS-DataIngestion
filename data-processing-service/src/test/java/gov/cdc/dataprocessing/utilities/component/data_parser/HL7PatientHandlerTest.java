@@ -12,10 +12,7 @@ import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomAuthUserRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.auth.AuthUserRepository;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
-import gov.cdc.dataprocessing.service.implementation.auth_user.AuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.test_data.TestDataReader;
@@ -31,7 +28,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.TreeMap;
 
@@ -189,7 +185,6 @@ class HL7PatientHandlerTest {
         SrteCache.raceCodesMap.put("TO_CODE", "TO_CODE");
 
         // NOK
-        // hl7PatientResult.getPATIENT().getNextofKinAssociatedParties();
         when(checkingValueService.getCodeDescTxtForCd(any(),eq( EdxELRConstant.ELR_NEXT_OF_KIN_RL_CLASS))).thenReturn("NOK");
 
 

@@ -7,7 +7,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonRace;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.*;
 import java.sql.Timestamp;
 
 @Getter

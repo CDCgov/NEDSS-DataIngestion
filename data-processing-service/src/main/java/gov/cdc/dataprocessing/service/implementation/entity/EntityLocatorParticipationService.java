@@ -40,6 +40,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
         this.odseIdGeneratorService = odseIdGeneratorService;
     }
 
+    @SuppressWarnings("java:S6541")
     @Transactional
     public void updateEntityLocatorParticipation(Collection<EntityLocatorParticipationDto> locatorCollection, Long uid) throws DataProcessingException {
         ArrayList<EntityLocatorParticipationDto> personList = (ArrayList<EntityLocatorParticipationDto> ) locatorCollection;

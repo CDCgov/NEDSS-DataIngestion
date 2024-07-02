@@ -13,10 +13,7 @@ import gov.cdc.dataprocessing.model.phdc.HL7HDType;
 import gov.cdc.dataprocessing.model.phdc.HL7TSType;
 import gov.cdc.dataprocessing.model.phdc.HL7XADType;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomAuthUserRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.auth.AuthUserRepository;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
-import gov.cdc.dataprocessing.service.implementation.auth_user.AuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.test_data.TestDataReader;
@@ -304,6 +301,8 @@ class NBSObjectConverterTest {
     }
 
 
+
+    @SuppressWarnings("java:S5976")
     @Test
     void validateSSN_Test() {
         var enti = new EntityIdDto();
@@ -314,7 +313,7 @@ class NBSObjectConverterTest {
 
     }
 
-
+    @SuppressWarnings("java:S5976")
     @Test
     void validateSSN_Test_2() {
         var enti = new EntityIdDto();
@@ -325,6 +324,7 @@ class NBSObjectConverterTest {
 
     }
 
+    @SuppressWarnings("java:S5976")
     @Test
     void validateSSN_Test_3() {
         var enti = new EntityIdDto();
@@ -350,7 +350,7 @@ class NBSObjectConverterTest {
     }
 
     @Test
-    void setPersonBirthType_Test() throws DataProcessingException {
+    void setPersonBirthType_Test() {
         String country = "";
         PersonContainer personContainer = new PersonContainer();
         var perDt = new PersonDto();

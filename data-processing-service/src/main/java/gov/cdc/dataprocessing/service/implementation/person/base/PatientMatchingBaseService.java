@@ -111,7 +111,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         return personUid;
     }
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S6541"})
     private Long setPersonInternal(PersonContainer personVO, String businessObjLookupName, String businessTriggerCd,
                                    String personType) throws DataProcessingException {
         Long personUID = -1L;
@@ -513,6 +513,8 @@ public class PatientMatchingBaseService extends MatchingBaseService{
 
     }
 
+
+    @SuppressWarnings("java:S1144")
     private PersonId getPersonInternalV2(Long personUID) throws DataProcessingException {
         PersonId personId;
         try {
