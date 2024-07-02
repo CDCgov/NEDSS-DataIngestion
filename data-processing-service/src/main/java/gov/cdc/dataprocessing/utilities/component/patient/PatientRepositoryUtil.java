@@ -111,78 +111,37 @@ public class PatientRepositoryUtil {
         arrayList.add(personUid);
         arrayList.add(NEDSSConstant.PERSON);
 
-//        prepareAssocModelHelper.prepareVO(
-//                personContainer.getThePersonDto(),
-//                NEDSSConstant.PATIENT,
-//                NEDSSConstant.PER_CR,
-//                "Person",
-//                NEDSSConstant.BASE);
+        entityRepositoryUtil.preparingEntityReposCallForPerson(personContainer.getThePersonDto(), personUid, NEDSSConstant.PERSON, NEDSSConstant.UPDATE);
 
-        //NOTE: Create Entitty
-        try {
-            //NOTE: OK
-            entityRepositoryUtil.preparingEntityReposCallForPerson(personContainer.getThePersonDto(), personUid, NEDSSConstant.PERSON, NEDSSConstant.UPDATE);
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
 
         //NOTE: Create Person
         Person person = new Person(personContainer.getThePersonDto());
-        try {
-            personRepository.save(person);
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
+        personRepository.save(person);
+
         //NOTE: Create Person Name
         if  (personContainer.getThePersonNameDtoCollection() != null && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
-            try {
-                createPersonName(personContainer);
-            } catch (Exception e) {
-                throw new DataProcessingException(e.getMessage(), e);
-            }
+            createPersonName(personContainer);
         }
         //NOTE: Create Person Race
         if  (personContainer.getThePersonRaceDtoCollection() != null && !personContainer.getThePersonRaceDtoCollection().isEmpty()) {
-            try {
-                createPersonRace(personContainer);
-            } catch (Exception e) {
-                throw new DataProcessingException(e.getMessage(), e);
-            }
+            createPersonRace(personContainer);
         }
         //NOTE: Create Person Ethnic
         if  (personContainer.getThePersonEthnicGroupDtoCollection() != null && !personContainer.getThePersonEthnicGroupDtoCollection().isEmpty()) {
-            try {
-                createPersonEthnic(personContainer);
-            } catch (Exception e) {
-                throw new DataProcessingException(e.getMessage(), e);
-            }
+            createPersonEthnic(personContainer);
         }
         //NOTE: Create EntityID
         if  (personContainer.getTheEntityIdDtoCollection() != null && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
-            try {
-                createEntityId(personContainer);
-            } catch (Exception e) {
-                throw new DataProcessingException(e.getMessage(), e);
-            }
+            createEntityId(personContainer);
         }
         //NOTE: Create Entity Locator Participation
         if  (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
-            try {
-                entityLocatorParticipationService.createEntityLocatorParticipation(personContainer.getTheEntityLocatorParticipationDtoCollection(), personContainer.getThePersonDto().getPersonUid());
-            } catch (Exception e) {
-                throw new DataProcessingException(e.getMessage(), e);
-            }
+            entityLocatorParticipationService.createEntityLocatorParticipation(personContainer.getTheEntityLocatorParticipationDtoCollection(), personContainer.getThePersonDto().getPersonUid());
         }
         //NOTE: Create Role
         if  (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
-            try {
-                createRole(personContainer);
-            } catch (Exception e) {
-                throw new DataProcessingException(e.getMessage(), e);
-            }
+            createRole(personContainer);
         }
-        logger.debug("Person Uid\t" + person.getPersonUid());
-        logger.debug("Person Parent Uid\t" + person.getPersonParentUid());
 
         return person;
     }
@@ -193,74 +152,41 @@ public class PatientRepositoryUtil {
 
         arrayList.add(NEDSSConstant.PERSON);
 
-//        prepareAssocModelHelper.prepareVO(
-//                personContainer.getThePersonDto(),
-//                NEDSSConstant.PATIENT,
-//                NEDSSConstant.PER_CR,
-//                "Person",
-//                NEDSSConstant.BASE);
-
         //NOTE: Update Person
         Person person = new Person(personContainer.getThePersonDto());
         var ver = person.getVersionCtrlNbr();
         person.setVersionCtrlNbr(++ver);
-        try {
-            personRepository.save(person);
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
+        personRepository.save(person);
+
 
         //NOTE: Create Person Name
         if  (personContainer.getThePersonNameDtoCollection() != null && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
-            try {
-                updatePersonName(personContainer);
-            } catch (Exception e) {
-                throw new DataProcessingException(e.getMessage(), e);
-            }
+            updatePersonName(personContainer);
         }
         //NOTE: Create Person Race
         if  (personContainer.getThePersonRaceDtoCollection() != null && !personContainer.getThePersonRaceDtoCollection().isEmpty()) {
-            try {
-                updatePersonRace(personContainer);
-            } catch (Exception e) {
-                throw new DataProcessingException(e.getMessage(), e);
-            }
+            updatePersonRace(personContainer);
         }
         //NOTE: Create Person Ethnic
         if  (personContainer.getThePersonEthnicGroupDtoCollection() != null && !personContainer.getThePersonEthnicGroupDtoCollection().isEmpty()) {
-            try {
-                createPersonEthnic(personContainer);
-            } catch (Exception e) {
-                throw new DataProcessingException(e.getMessage(), e);
-            }
+            createPersonEthnic(personContainer);
         }
 
 
         //NOTE: Upsert EntityID
         if  (personContainer.getTheEntityIdDtoCollection() != null && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
-            try {
-                updateEntityId(personContainer);
-            } catch (Exception e) {
-                throw new DataProcessingException(e.getMessage(), e);
-            }
+            updateEntityId(personContainer);
+
         }
 
 
         //NOTE: Create Entity Locator Participation
         if  (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
-            try {
-                entityLocatorParticipationService.updateEntityLocatorParticipation(personContainer.getTheEntityLocatorParticipationDtoCollection(), personContainer.getThePersonDto().getPersonUid());
-            } catch (Exception e) {
-                throw new DataProcessingException(e.getMessage(), e);
-            }
+            entityLocatorParticipationService.updateEntityLocatorParticipation(personContainer.getTheEntityLocatorParticipationDtoCollection(), personContainer.getThePersonDto().getPersonUid());
         }
         //NOTE: Upsert Role
         if  (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
-            try {
-                createRole(personContainer);
-            } catch (Exception e) {
-                throw new DataProcessingException(e.getMessage(), e);
-            }
+            createRole(personContainer);
         }
 
     }
@@ -485,7 +411,6 @@ public class PatientRepositoryUtil {
                 var pUid = personContainer.getThePersonDto().getPersonUid();
                 if (personRaceDto.isItDelete()) {
                     personRaceRepository.deletePersonRaceByUidAndCode(personRaceDto.getPersonUid(), personRaceDto.getRaceCd());
-
                 }
                 else {
                     var mprRecord = SerializationUtils.clone(personRaceDto);

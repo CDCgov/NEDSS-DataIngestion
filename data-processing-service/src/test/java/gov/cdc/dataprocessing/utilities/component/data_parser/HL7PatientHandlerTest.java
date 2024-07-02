@@ -72,7 +72,6 @@ class HL7PatientHandlerTest {
 
     @Test
     void getPatientAndNextOfKin_Test() throws DataProcessingException, JAXBException {
-        HL7PATIENTRESULTType hl7PatientResult = new HL7PATIENTRESULTType();
         LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
 
@@ -80,7 +79,7 @@ class HL7PatientHandlerTest {
         var xmlData = test.readDataFromXmlPath("/xml_payload/payload_1.xml");
         var xmlConn = test.convertXmlStrToContainer(xmlData);
 
-        hl7PatientResult = xmlConn.getHL7LabReport().getHL7PATIENTRESULT().get(0);
+        var hl7PatientResult = xmlConn.getHL7LabReport().getHL7PATIENTRESULT().get(0);
 
         var enId = new EntityIdDto();
         enId.setTypeCd(EdxELRConstant.ELR_SS_TYPE);
