@@ -176,6 +176,9 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test:6.2.0'
     runtimeOnly 'org.springframework.boot:spring-boot-devtools:3.2.0'
 
+    implementation 'org.apache.commons:commons-lang3:3.14.0'
+
+
 }
 
 test {

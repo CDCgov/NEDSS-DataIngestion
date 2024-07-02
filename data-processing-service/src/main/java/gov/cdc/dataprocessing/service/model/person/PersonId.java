@@ -9,4 +9,8 @@ public class PersonId {
     public Long personId;
     public Long personParentId;
     public String localId;
+
+    public Long revisionId;
+    public Long revisionParentId;
+    public String revisionLocalId;
 }

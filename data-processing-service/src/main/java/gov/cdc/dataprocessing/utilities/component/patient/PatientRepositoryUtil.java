@@ -13,6 +13,7 @@ import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.PersonRaceId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonEthnicGroup;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonName;
@@ -28,6 +29,7 @@ import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorS
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
 import jakarta.transaction.Transactional;
+import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -220,7 +222,7 @@ public class PatientRepositoryUtil {
         //NOTE: Create Person Race
         if  (personContainer.getThePersonRaceDtoCollection() != null && !personContainer.getThePersonRaceDtoCollection().isEmpty()) {
             try {
-                createPersonRace(personContainer);
+                updatePersonRace(personContainer);
             } catch (Exception e) {
                 throw new DataProcessingException(e.getMessage(), e);
             }
@@ -438,6 +440,32 @@ public class PatientRepositoryUtil {
         }
     }
 
+    private void updatePersonRace(PersonContainer personContainer) throws DataProcessingException {
+        ArrayList<PersonRaceDto>  personList = (ArrayList<PersonRaceDto> ) personContainer.getThePersonRaceDtoCollection();
+        try {
+            for (PersonRaceDto personRaceDto : personList) {
+                var pUid = personContainer.getThePersonDto().getPersonUid();
+                if (personRaceDto.isItDelete()) {
+                    personRaceRepository.deletePersonRaceByUidAndCode(personRaceDto.getPersonUid(), personRaceDto.getRaceCd());
+
+                }
+                else {
+                    var mprRecord = SerializationUtils.clone(personRaceDto);
+                    mprRecord.setPersonUid(personContainer.getThePersonDto().getPersonParentUid());
+                    mprRecord.setAddReasonCd("Add");
+                    personRaceRepository.save(new PersonRace(mprRecord));
+
+                    personRaceDto.setPersonUid(pUid);
+                    personRaceDto.setAddReasonCd("Add");
+                    personRaceRepository.save(new PersonRace(personRaceDto));
+                }
+            }
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+
     private void createPersonRace(PersonContainer personContainer) throws DataProcessingException {
         ArrayList<PersonRaceDto>  personList = (ArrayList<PersonRaceDto> ) personContainer.getThePersonRaceDtoCollection();
         try {
@@ -497,6 +525,10 @@ public class PatientRepositoryUtil {
         }
     }
 
+    public List<Person> findPersonByParentUid(Long parentUid) {
+        var res = personRepository.findByParentUid(parentUid);
+        return res.orElseGet(ArrayList::new);
+    }
 
 
     @Transactional
