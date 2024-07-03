@@ -409,7 +409,7 @@ public class PrepareAssocModelHelper {
      * This method prepares the Act value object if it is New(Create)
      * and check null for record Status State and set the System attributes in the rootDTInterface
      */
-    private RootDtoInterface prepareNewActVO(RootDtoInterface theRootDTInterface, String businessObjLookupName, String businessTriggerCd, String tableName, String moduleCd)
+    protected RootDtoInterface prepareNewActVO(RootDtoInterface theRootDTInterface, String businessObjLookupName, String businessTriggerCd, String tableName, String moduleCd)
             throws DataProcessingException
     {
         try
@@ -466,7 +466,7 @@ public class PrepareAssocModelHelper {
     /**
      * This method prepares the Entity value object if it is New(Create)
      */
-    private RootDtoInterface prepareNewEntityVO(RootDtoInterface theRootDTInterface, String businessObjLookupName,
+    protected RootDtoInterface prepareNewEntityVO(RootDtoInterface theRootDTInterface, String businessObjLookupName,
                                                 String businessTriggerCd, String tableName, String moduleCd)
             throws DataProcessingException
     {
@@ -535,7 +535,7 @@ public class PrepareAssocModelHelper {
      * This method prepares the Act value object if it is Dirty(Edit,update or Delete)
      * and check null for record Status State and set the System attribures in the rootDTInterface
      */
-    private RootDtoInterface prepareDirtyActVO(RootDtoInterface theRootDTInterface,
+    protected RootDtoInterface prepareDirtyActVO(RootDtoInterface theRootDTInterface,
                                               String businessObjLookupName, String businessTriggerCd, String tableName,
                                               String moduleCd)
             throws DataProcessingException
@@ -596,7 +596,7 @@ public class PrepareAssocModelHelper {
      * This method prepares the Entity value object if it is Dirty(Edit,update or Delete)
      * and check null for record Status State and set the System attribures in the rootDTInterface
      */
-    private RootDtoInterface prepareDirtyEntityVO(RootDtoInterface theRootDTInterface,
+    protected RootDtoInterface prepareDirtyEntityVO(RootDtoInterface theRootDTInterface,
                                                  String businessObjLookupName, String businessTriggerCd,
                                                  String tableName, String moduleCd)
             throws DataProcessingException

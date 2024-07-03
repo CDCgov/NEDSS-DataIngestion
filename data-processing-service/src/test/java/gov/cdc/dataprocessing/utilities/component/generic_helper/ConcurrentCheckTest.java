@@ -1,0 +1,111 @@
+package gov.cdc.dataprocessing.utilities.component.generic_helper;
+import gov.cdc.dataprocessing.constant.elr.DataTables;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
+import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
+import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
+import gov.cdc.dataprocessing.model.dto.person.PersonDto;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+
+import java.util.ArrayList;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class ConcurrentCheckTest {
+    @InjectMocks
+    private ConcurrentCheck concurrentCheck;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    public void testDataConcurrenceCheckPersonWithMatchingVersion() throws DataProcessingException {
+        PersonDto personDto = mock(PersonDto.class);
+        when(personDto.getVersionCtrlNbr()).thenReturn(1);
+
+        boolean result = concurrentCheck.dataConcurrenceCheck(personDto, "Person", 1);
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void testDataConcurrenceCheckPersonWithNonMatchingVersion() throws DataProcessingException {
+        PersonDto personDto = mock(PersonDto.class);
+        when(personDto.getVersionCtrlNbr()).thenReturn(2);
+
+        boolean result = concurrentCheck.dataConcurrenceCheck(personDto, "Person", 1);
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void testDataConcurrenceCheckPersonWithNullVersion() throws DataProcessingException {
+        PersonDto personDto = mock(PersonDto.class);
+        when(personDto.getVersionCtrlNbr()).thenReturn(null);
+
+        boolean result = concurrentCheck.dataConcurrenceCheck(personDto, "Person", null);
+
+        assertTrue(result);
+        verify(personDto).setVersionCtrlNbr(1);
+    }
+
+    @Test
+    public void testDataConcurrenceCheckOrganizationWithMatchingVersion() throws DataProcessingException {
+        OrganizationDto organizationDto = mock(OrganizationDto.class);
+        when(organizationDto.getVersionCtrlNbr()).thenReturn(1);
+
+        boolean result = concurrentCheck.dataConcurrenceCheck(organizationDto, DataTables.ORGANIZATION_TABLE, 1);
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void testDataConcurrenceCheckOrganizationWithNonMatchingVersion() throws DataProcessingException {
+        OrganizationDto organizationDto = mock(OrganizationDto.class);
+        when(organizationDto.getVersionCtrlNbr()).thenReturn(2);
+
+        boolean result = concurrentCheck.dataConcurrenceCheck(organizationDto, DataTables.ORGANIZATION_TABLE, 1);
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void testDataConcurrenceCheckObservationWithMatchingVersion() throws DataProcessingException {
+        ObservationDto observationDto = mock(ObservationDto.class);
+        when(observationDto.getVersionCtrlNbr()).thenReturn(1);
+
+        boolean result = concurrentCheck.dataConcurrenceCheck(observationDto, "Observation", 1);
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void testDataConcurrenceCheckObservationWithNonMatchingVersion() throws DataProcessingException {
+        ObservationDto observationDto = mock(ObservationDto.class);
+        when(observationDto.getVersionCtrlNbr()).thenReturn(2);
+
+        boolean result = concurrentCheck.dataConcurrenceCheck(observationDto, "Observation", 1);
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void testDataConcurrenceCheckWithException() {
+        RootDtoInterface rootDto = mock(RootDtoInterface.class);
+        doThrow(new RuntimeException("Test Exception")).when(rootDto).getVersionCtrlNbr();
+
+        assertThrows(DataProcessingException.class, () -> {
+            concurrentCheck.dataConcurrenceCheck(rootDto, "Person", 1);
+        });
+    }
+}
