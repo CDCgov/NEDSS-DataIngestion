@@ -29,8 +29,6 @@ import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
 import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.SerializationUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -39,7 +37,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class PatientRepositoryUtil {
-    private static final Logger logger = LoggerFactory.getLogger(PatientRepositoryUtil.class);
     private final PersonRepository personRepository;
     private final EntityRepositoryUtil entityRepositoryUtil;
     private final PersonNameRepository personNameRepository;

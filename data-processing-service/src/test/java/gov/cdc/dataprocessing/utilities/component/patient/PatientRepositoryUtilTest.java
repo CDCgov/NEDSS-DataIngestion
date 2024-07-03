@@ -14,15 +14,12 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonName;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomAuthUserRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.auth.AuthUserRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityIdRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonEthnicRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonNameRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
-import gov.cdc.dataprocessing.service.implementation.auth_user.AuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
@@ -37,14 +34,14 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class PatientRepositoryUtilTest {
+class PatientRepositoryUtilTest {
     @Mock
     private PersonRepository personRepository;
     @Mock
@@ -242,5 +239,19 @@ public class PatientRepositoryUtilTest {
 
     }
 
+
+    @Test
+    void findPersonByParentUid_Test() {
+        Long parentUid = 10L;
+        var perCol = new ArrayList<Person>();
+        var per = new Person();
+        perCol.add(per);
+        when(personRepository.findByParentUid(parentUid)).thenReturn(Optional.of(perCol));
+
+        var res = patientRepositoryUtil.findPersonByParentUid(parentUid);
+
+        assertNotNull(res);
+
+    }
 
 }

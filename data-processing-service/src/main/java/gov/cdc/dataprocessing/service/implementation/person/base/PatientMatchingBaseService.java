@@ -57,24 +57,10 @@ public class PatientMatchingBaseService extends MatchingBaseService{
             // NOTE: SHOULD NOT HIT THIS ONE
             if (personDT.getPersonParentUid() == null) {
                 mprPersonVO = this.cloneVO(personVO);
-                // as per shannon comments should not reflect on mpr
                 mprPersonVO.getThePersonDto().setDescription(null);
                 mprPersonVO.getThePersonDto().setAsOfDateAdmin(null);
                 mprPersonVO.getThePersonDto().setAgeReported(null);
                 mprPersonVO.getThePersonDto().setAgeReportedUnitCd(null);
-//                if (mprPersonVO.getThePersonDto().getCurrSexCd() == null || mprPersonVO.getThePersonDto().getCurrSexCd().trim().length() == 0)
-//                {
-//                    mprPersonVO.getThePersonDto().setAsOfDateSex(null);
-//                }
-//
-//
-//                mprPersonUid = this.setPersonInternal(mprPersonVO,
-//                        NBSBOLookup.PATIENT, "PAT_CR");
-//
-//                mprPersonVO = this.getPersonInternal(mprPersonUid);
-//                personVO.getThePersonDto().setPersonParentUid(mprPersonUid);
-//                personVO.getThePersonDto().setLocalId(
-//                        mprPersonVO.getThePersonDto().getLocalId());
             }
             else {
                 if (businessTriggerCd != null
