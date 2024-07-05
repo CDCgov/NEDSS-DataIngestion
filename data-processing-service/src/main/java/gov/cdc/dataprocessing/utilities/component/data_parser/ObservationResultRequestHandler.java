@@ -420,7 +420,7 @@ public class ObservationResultRequestHandler {
         return organizationContainer;
     }
 
-
+    @SuppressWarnings({"java:S3776", "java:S6541", "java:S125"})
     protected void formatValue(String text, HL7OBXType hl7OBXType, ObservationContainer observationContainer, EdxLabInformationDto edxLabInformationDto, String elementName) throws DataProcessingException{
         String type = "";
         try {
@@ -597,7 +597,7 @@ public class ObservationResultRequestHandler {
 
     }
 
-
+    @SuppressWarnings("java:S3776")
     protected ObservationContainer getObsReqNotes(List<HL7NTEType> noteArray, ObservationContainer observationContainer) throws DataProcessingException {
         try {
             for (HL7NTEType notes : noteArray) {
@@ -668,7 +668,7 @@ public class ObservationResultRequestHandler {
 
     protected ObservationContainer processingAbnormalFlag(List<HL7CWEType> abnormalFlag, ObservationDto observationDto,
                                           ObservationContainer observationContainer) throws DataProcessingException {
-        if(abnormalFlag !=null && abnormalFlag.size()>0)
+        if(abnormalFlag !=null && !abnormalFlag.isEmpty())
         {
             ObservationInterpDto observationIntrepDT = new ObservationInterpDto();
             observationIntrepDT.setObservationUid(observationDto.getObservationUid());
@@ -687,7 +687,7 @@ public class ObservationResultRequestHandler {
         }
         return observationContainer;
     }
-
+    @SuppressWarnings("java:S3776")
     protected ObservationContainer processingReferringRange(HL7OBXType hl7OBXType, ObservationContainer observationContainer) {
         if(hl7OBXType.getReferencesRange()!=null){
             String range =hl7OBXType.getReferencesRange();
@@ -733,7 +733,7 @@ public class ObservationResultRequestHandler {
         }
         return observationContainer;
     }
-
+    @SuppressWarnings("java:S3776")
     protected ObservationContainer processingObservationMethod(List<HL7CEType> methodArray , EdxLabInformationDto edxLabInformationDto, ObservationContainer observationContainer) throws DataProcessingException {
         StringBuilder methodCd = null;
         StringBuilder methodDescTxt = null;

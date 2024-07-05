@@ -5,11 +5,9 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
-import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
-import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
@@ -17,7 +15,6 @@ import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.test_data.TestDataReader;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.CommonLabUtil;
-import gov.cdc.dataprocessing.utilities.component.data_parser.util.EntityIdUtil;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import jakarta.xml.bind.JAXBException;
 import org.junit.jupiter.api.AfterEach;
@@ -50,7 +47,7 @@ class ObservationResultRequestHandlerTest {
     private ObservationResultRequestHandler observationResultRequestHandler;
 
     private List<HL7OBSERVATIONType> result;
-    private EdxLabInformationDto edxLabInformationDto;
+    private EdxLabInformationDto edxLabInformationDt;
     @Mock
     AuthUtil authUtil;
 
@@ -70,22 +67,21 @@ class ObservationResultRequestHandlerTest {
         var xmlConn = test.convertXmlStrToContainer(xmlData);
         result = xmlConn.getHL7LabReport().getHL7PATIENTRESULT().get(0).getORDEROBSERVATION().get(0).getPatientResultOrderObservation().getOBSERVATION();
 
-        edxLabInformationDto = new EdxLabInformationDto();
-        edxLabInformationDto.setNextUid(10);
-        edxLabInformationDto.setParentObsInd(true);
+        edxLabInformationDt = new EdxLabInformationDto();
+        edxLabInformationDt.setNextUid(10);
+        edxLabInformationDt.setParentObsInd(true);
         var susMap = new HashMap<>();
-        edxLabInformationDto.setEdxSusLabDTMap(susMap);
-//        edxLabInformationDto.setEdxLabIdentiferDTColl(new ArrayList<>());
-        edxLabInformationDto.setMessageControlID("TEST");
-        edxLabInformationDto.setSendingFacilityClia("TEST");
-        edxLabInformationDto.setSendingFacilityName("TEST");
-        edxLabInformationDto.setFillerNumber("TEST");
-        edxLabInformationDto.setAddTime(TimeStampUtil.getCurrentTimeStamp());
-        edxLabInformationDto.setParentObservationUid(10L);
-        edxLabInformationDto.setRootObserbationUid(10L);
-        edxLabInformationDto.setLastChgTime(TimeStampUtil.getCurrentTimeStamp());
-        edxLabInformationDto.setUserId(10L);
-        edxLabInformationDto.setPatientUid(10L);
+        edxLabInformationDt.setEdxSusLabDTMap(susMap);
+        edxLabInformationDt.setMessageControlID("TEST");
+        edxLabInformationDt.setSendingFacilityClia("TEST");
+        edxLabInformationDt.setSendingFacilityName("TEST");
+        edxLabInformationDt.setFillerNumber("TEST");
+        edxLabInformationDt.setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        edxLabInformationDt.setParentObservationUid(10L);
+        edxLabInformationDt.setRootObserbationUid(10L);
+        edxLabInformationDt.setLastChgTime(TimeStampUtil.getCurrentTimeStamp());
+        edxLabInformationDt.setUserId(10L);
+        edxLabInformationDt.setPatientUid(10L);
     }
 
     @AfterEach
@@ -100,7 +96,7 @@ class ObservationResultRequestHandlerTest {
         LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
 
         observation.get(0).getObservationResult().setReferencesRange("1^2^3");
-        var res = observationResultRequestHandler.getObservationResultRequest(observation, labResultProxyContainer, edxLabInformationDto);
+        var res = observationResultRequestHandler.getObservationResultRequest(observation, labResultProxyContainer, edxLabInformationDt);
 
         assertNotNull(res);
         assertEquals(1, res.getTheObservationContainerCollection().size());
@@ -218,7 +214,7 @@ class ObservationResultRequestHandlerTest {
         assertEquals("TEST**TEST_1", res.getTheObservationDto().getMethodCd());
     }
 
-
+    @SuppressWarnings("java:S2699")
     @Test
     void formatValue_Test() throws DataProcessingException {
         String text = "TEST^TEST^TEST";
@@ -234,6 +230,7 @@ class ObservationResultRequestHandlerTest {
         observationResultRequestHandler.formatValue(text, hl7OBXType, observationContainer, edxLabInformationDto, elementName);
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
     void formatValue_Test_len_2() throws DataProcessingException {
         String text = "TE^TE";
@@ -249,6 +246,7 @@ class ObservationResultRequestHandlerTest {
         observationResultRequestHandler.formatValue(text, hl7OBXType, observationContainer, edxLabInformationDto, elementName);
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
     void formatValue_Test_len_6() throws DataProcessingException {
         String text = "TE^TE^TE^TE^TE^TE^TE^TE";
@@ -284,6 +282,7 @@ class ObservationResultRequestHandlerTest {
         assertNotNull(thrown);
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
     void formValue_Numeric_Test_1() throws DataProcessingException {
         String text = "100";
@@ -301,7 +300,7 @@ class ObservationResultRequestHandlerTest {
         observationResultRequestHandler.formatValue(text, hl7OBXType, observationContainer, edxLabInformationDto, elementName);
 
     }
-
+    @SuppressWarnings("java:S2699")
     @Test
     void formValue_Txt_Test_1() throws DataProcessingException {
         String text = "adwada^adwadd";
@@ -350,11 +349,11 @@ class ObservationResultRequestHandlerTest {
 
         observation.get(0).getObservationResult().setReferencesRange("1^2^3");
 
-        edxLabInformationDto.setParentObsInd(false);
+        edxLabInformationDt.setParentObsInd(false);
         observation.get(0).getObservationResult().setObservationIdentifier(null);
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-            observationResultRequestHandler.getObservationResultRequest(observation, labResultProxyContainer, edxLabInformationDto);
+            observationResultRequestHandler.getObservationResultRequest(observation, labResultProxyContainer, edxLabInformationDt);
         });
 
         assertNotNull(thrown);

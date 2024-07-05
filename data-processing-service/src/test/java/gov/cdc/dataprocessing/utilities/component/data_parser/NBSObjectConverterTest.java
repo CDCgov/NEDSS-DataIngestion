@@ -3,7 +3,6 @@ package gov.cdc.dataprocessing.utilities.component.data_parser;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
@@ -33,7 +32,6 @@ import org.mockito.MockitoAnnotations;
 import java.math.BigInteger;
 import java.util.ArrayList;
 
-import static gov.cdc.dataprocessing.test_data.TestData.edxLabInformationDto;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -47,7 +45,7 @@ class NBSObjectConverterTest {
     @InjectMocks
     private NBSObjectConverter nbsObjectConverter;
 
-    private PersonContainer personContainer;
+    private PersonContainer perContainer;
     @Mock
     AuthUtil authUtil;
 
@@ -63,8 +61,8 @@ class NBSObjectConverterTest {
         authUtil.setGlobalAuthUser(userInfo);
 
         var perDt = new PersonDto();
-        personContainer = new PersonContainer();
-        personContainer.setThePersonDto(perDt);
+        perContainer = new PersonContainer();
+        perContainer.setThePersonDto(perDt);
     }
 
     @AfterEach
@@ -406,12 +404,12 @@ class NBSObjectConverterTest {
     @Test
     void ethnicGroupType_Test() {
         HL7CWEType hl7CWEType = new HL7CWEType();
-        personContainer.getThePersonDto().setPersonUid(10L);
+        perContainer.getThePersonDto().setPersonUid(10L);
 
         hl7CWEType.setHL7Identifier("TEST");
         hl7CWEType.setHL7Text("TEST");
 
-        var res = nbsObjectConverter.ethnicGroupType(hl7CWEType, personContainer);
+        var res = nbsObjectConverter.ethnicGroupType(hl7CWEType, perContainer);
 
         assertNotNull(res);
 
@@ -520,13 +518,13 @@ class NBSObjectConverterTest {
 
     @Test
     void raceType_Test() {
-        personContainer.getThePersonDto().setAddUserId(12L);
-        personContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        perContainer.getThePersonDto().setAddUserId(12L);
+        perContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp());
 
         HL7CWEType hl7CWEType = Mockito.mock(HL7CWEType.class);
         when(hl7CWEType.getHL7Identifier()).thenReturn("TEST");
         when(hl7CWEType.getHL7Text()).thenReturn("TEST");
-        var result = nbsObjectConverter.raceType(hl7CWEType, personContainer);
+        var result = nbsObjectConverter.raceType(hl7CWEType, perContainer);
         assertNotNull(result);
 
 
@@ -534,14 +532,14 @@ class NBSObjectConverterTest {
 
     @Test
     void raceType_Test_2() {
-        personContainer.getThePersonDto().setAddUserId(12L);
-        personContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        perContainer.getThePersonDto().setAddUserId(12L);
+        perContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp());
 
         HL7CWEType hl7CWEType = Mockito.mock(HL7CWEType.class);
         when(hl7CWEType.getHL7Identifier()).thenReturn(null);
         when(hl7CWEType.getHL7AlternateIdentifier()).thenReturn("TEST");
         when(hl7CWEType.getHL7AlternateText()).thenReturn("TEST");
-        var result = nbsObjectConverter.raceType(hl7CWEType, personContainer);
+        var result = nbsObjectConverter.raceType(hl7CWEType, perContainer);
         assertNotNull(result);
 
 
@@ -621,9 +619,9 @@ class NBSObjectConverterTest {
         var perNamCol = new ArrayList<PersonNameDto>();
         var perNam = new PersonNameDto();
         perNamCol.add(perNam);
-        personContainer.setThePersonNameDtoCollection(perNamCol);
+        perContainer.setThePersonNameDtoCollection(perNamCol);
 
-        var result = nbsObjectConverter.processCNNPersonName(hl7CNNType, personContainer);
+        var result = nbsObjectConverter.processCNNPersonName(hl7CNNType, perContainer);
         assertNotNull(result);
     }
 

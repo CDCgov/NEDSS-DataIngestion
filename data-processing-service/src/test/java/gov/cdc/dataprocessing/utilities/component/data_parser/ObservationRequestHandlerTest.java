@@ -4,20 +4,17 @@ import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
-import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.edx.EdxLabIdentiferDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
-import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.CommonLabUtil;
-import gov.cdc.dataprocessing.utilities.component.data_parser.util.EntityIdUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.HL7SpecimenUtil;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -116,7 +113,6 @@ class ObservationRequestHandlerTest {
         HL7EIType ei = new HL7EIType();
         ei.setHL7EntityIdentifier("TEST");
         when(hl7OBRType.getFillerOrderNumber()).thenReturn(ei); //CASE
-        HL7EIPType eip = new HL7EIPType();
         when(hl7OBRType.getParent()).thenReturn(null); //CASE
         when(hl7OBRType.getUniversalServiceIdentifier()).thenReturn(cwe); //CASE
         when(hl7OBRType.getResultsRptStatusChngDateTime()).thenReturn(new HL7TSType());
@@ -255,7 +251,7 @@ class ObservationRequestHandlerTest {
 
 
     }
-
+    @SuppressWarnings("java:S5976")
     @Test
     void getObservationRequest_Test_exp_1() throws DataProcessingException {
         HL7OBRType hl7OBRType =   Mockito.mock(HL7OBRType.class);
@@ -316,7 +312,7 @@ class ObservationRequestHandlerTest {
         assertNotNull(thrown);
 
     }
-
+    @SuppressWarnings("java:S5976")
     @Test
     void getObservationRequest_Test_exp_2() throws DataProcessingException {
         HL7OBRType hl7OBRType =   Mockito.mock(HL7OBRType.class);
@@ -377,7 +373,7 @@ class ObservationRequestHandlerTest {
         assertNotNull(thrown);
 
     }
-
+    @SuppressWarnings("java:S5976")
     @Test
     void getObservationRequest_Test_exp_3() throws DataProcessingException {
         HL7OBRType hl7OBRType =   Mockito.mock(HL7OBRType.class);
@@ -456,10 +452,7 @@ class ObservationRequestHandlerTest {
         cwe.setHL7AlternateIdentifier("TEST");
         cwe.setHL7AlternateText("TEST");
         when(hl7OBRType.getDangerCode()).thenReturn(cwe);
-        HL7EIType ei = new HL7EIType();
-        ei.setHL7EntityIdentifier("TEST");
         when(hl7OBRType.getFillerOrderNumber()).thenReturn(null); //CASE
-        HL7EIPType eip = new HL7EIPType();
         when(hl7OBRType.getParent()).thenReturn(null); //CASE
         when(hl7OBRType.getUniversalServiceIdentifier()).thenReturn(cwe); //CASE
         when(hl7OBRType.getResultsRptStatusChngDateTime()).thenReturn(new HL7TSType());
@@ -522,7 +515,6 @@ class ObservationRequestHandlerTest {
         HL7EIType ei = new HL7EIType();
         ei.setHL7EntityIdentifier("TEST");
         when(hl7OBRType.getFillerOrderNumber()).thenReturn(ei); //CASE
-        HL7EIPType eip = new HL7EIPType();
         when(hl7OBRType.getParent()).thenReturn(null); //CASE
         when(hl7OBRType.getUniversalServiceIdentifier()).thenReturn(null); //CASE
         when(hl7OBRType.getResultsRptStatusChngDateTime()).thenReturn(new HL7TSType());
@@ -586,7 +578,6 @@ class ObservationRequestHandlerTest {
         HL7EIType ei = new HL7EIType();
         ei.setHL7EntityIdentifier("TEST");
         when(hl7OBRType.getFillerOrderNumber()).thenReturn(ei); //CASE
-        HL7EIPType eip = new HL7EIPType();
         when(hl7OBRType.getParent()).thenReturn(null); //CASE
         when(hl7OBRType.getUniversalServiceIdentifier()).thenReturn(cwe); //CASE
         when(hl7OBRType.getResultsRptStatusChngDateTime()).thenReturn(new HL7TSType());
@@ -647,7 +638,6 @@ class ObservationRequestHandlerTest {
         HL7EIType ei = new HL7EIType();
         ei.setHL7EntityIdentifier("TEST");
         when(hl7OBRType.getFillerOrderNumber()).thenReturn(ei); //CASE
-        HL7EIPType eip = new HL7EIPType();
         when(hl7OBRType.getParent()).thenReturn(null); //CASE
         when(hl7OBRType.getUniversalServiceIdentifier()).thenReturn(cwe); //CASE
         when(hl7OBRType.getResultsRptStatusChngDateTime()).thenReturn(new HL7TSType());

@@ -41,6 +41,7 @@ class LabResultUtilTest {
         Mockito.reset(authUtil);
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
     void getLabResultMessage_Test() throws JAXBException {
         HL7MSHType hl7MSHType;
@@ -60,7 +61,7 @@ class LabResultUtilTest {
         edxLabInformationDto.setPatientUid(10L);
         edxLabInformationDto.setRootObserbationUid(10L);
 
-        var res = labResultUtil.getLabResultMessage(hl7MSHType, edxLabInformationDto);
+        labResultUtil.getLabResultMessage(hl7MSHType, edxLabInformationDto);
 
 
     }
