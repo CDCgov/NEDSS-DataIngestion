@@ -214,7 +214,7 @@ class ObservationResultRequestHandlerTest {
         assertEquals("TEST**TEST_1", res.getTheObservationDto().getMethodCd());
     }
 
-    @SuppressWarnings("java:S2699")
+    @SuppressWarnings({"java:S2699", "java:S5976"})
     @Test
     void formatValue_Test() throws DataProcessingException {
         String text = "TEST^TEST^TEST";
@@ -230,7 +230,7 @@ class ObservationResultRequestHandlerTest {
         observationResultRequestHandler.formatValue(text, hl7OBXType, observationContainer, edxLabInformationDto, elementName);
     }
 
-    @SuppressWarnings("java:S2699")
+    @SuppressWarnings({"java:S2699", "java:S5976"})
     @Test
     void formatValue_Test_len_2() throws DataProcessingException {
         String text = "TE^TE";
@@ -246,7 +246,7 @@ class ObservationResultRequestHandlerTest {
         observationResultRequestHandler.formatValue(text, hl7OBXType, observationContainer, edxLabInformationDto, elementName);
     }
 
-    @SuppressWarnings("java:S2699")
+    @SuppressWarnings({"java:S2699", "java:S5976"})
     @Test
     void formatValue_Test_len_6() throws DataProcessingException {
         String text = "TE^TE^TE^TE^TE^TE^TE^TE";
