@@ -88,7 +88,7 @@ public class ObservationRequestHandler {
                     && hl7OBRType.getSetIDOBR().getHL7SequenceID().equalsIgnoreCase("1")) {
                 observationDto.setObservationUid(edxLabInformationDto.getRootObserbationUid());
             }
-            else if(!hl7OBRType.getSetIDOBR().getHL7SequenceID().equalsIgnoreCase("1")){
+            else if(hl7OBRType.getSetIDOBR()!=null && !hl7OBRType.getSetIDOBR().getHL7SequenceID().equalsIgnoreCase("1")){
                 observationDto.setObservationUid((long)(edxLabInformationDto.getNextUid()));
             }else{
                 observationDto.setObservationUid(edxLabInformationDto.getRootObserbationUid());

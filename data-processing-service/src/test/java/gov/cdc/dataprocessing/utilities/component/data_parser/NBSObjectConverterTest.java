@@ -3,15 +3,16 @@ package gov.cdc.dataprocessing.utilities.component.data_parser;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
+import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
+import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
-import gov.cdc.dataprocessing.model.phdc.HL7CXType;
-import gov.cdc.dataprocessing.model.phdc.HL7HDType;
-import gov.cdc.dataprocessing.model.phdc.HL7TSType;
-import gov.cdc.dataprocessing.model.phdc.HL7XADType;
+import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
+import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
@@ -30,8 +31,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static gov.cdc.dataprocessing.test_data.TestData.edxLabInformationDto;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -43,6 +46,8 @@ class NBSObjectConverterTest {
     private EntityIdUtil entityIdUtil;
     @InjectMocks
     private NBSObjectConverter nbsObjectConverter;
+
+    private PersonContainer personContainer;
     @Mock
     AuthUtil authUtil;
 
@@ -56,6 +61,10 @@ class NBSObjectConverterTest {
         userInfo.setAuthUser(user);
 
         authUtil.setGlobalAuthUser(userInfo);
+
+        var perDt = new PersonDto();
+        personContainer = new PersonContainer();
+        personContainer.setThePersonDto(perDt);
     }
 
     @AfterEach
@@ -350,6 +359,40 @@ class NBSObjectConverterTest {
     }
 
     @Test
+    void processHL7TSTypeForDOBWithoutTime_Test_Exp()  {
+        HL7TSType time = new HL7TSType();
+        time.setYear(BigInteger.valueOf(2000));
+        time.setMonth(BigInteger.valueOf(12));
+        time.setDay(BigInteger.valueOf(10));
+
+        when(entityIdUtil.stringToStrutsTimestamp(any())).thenThrow(new RuntimeException("TEST"));
+
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            nbsObjectConverter.processHL7TSTypeForDOBWithoutTime(time);
+        });
+
+        assertNotNull(thrown);
+    }
+
+    @Test
+    void processHL7TSTypeForDOBWithoutTime_Exp_2() {
+        HL7TSType time = new HL7TSType();
+        time.setYear(BigInteger.valueOf(2000));
+        time.setMonth(BigInteger.valueOf(12));
+        time.setDay(BigInteger.valueOf(10));
+
+        when(entityIdUtil.stringToStrutsTimestamp(any())).thenReturn(TimeStampUtil.getCurrentTimeStamp());
+        when(entityIdUtil.isDateNotOkForDatabase(any())).thenReturn(true);
+
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            nbsObjectConverter.processHL7TSTypeForDOBWithoutTime(time);
+        });
+        assertNotNull(thrown);
+    }
+
+
+
+    @Test
     void setPersonBirthType_Test() {
         String country = "";
         PersonContainer personContainer = new PersonContainer();
@@ -358,5 +401,295 @@ class NBSObjectConverterTest {
         var res = nbsObjectConverter.setPersonBirthType(country, personContainer);
 
         assertNotNull(res);
+    }
+
+    @Test
+    void ethnicGroupType_Test() {
+        HL7CWEType hl7CWEType = new HL7CWEType();
+        personContainer.getThePersonDto().setPersonUid(10L);
+
+        hl7CWEType.setHL7Identifier("TEST");
+        hl7CWEType.setHL7Text("TEST");
+
+        var res = nbsObjectConverter.ethnicGroupType(hl7CWEType, personContainer);
+
+        assertNotNull(res);
+
+
+    }
+
+
+    @Test
+    void processHL7TSType_Test() throws DataProcessingException {
+        HL7TSType time = new HL7TSType();
+        String itemDescription = "TEST";
+
+        time.setYear(BigInteger.valueOf(2022));
+        time.setMonth(BigInteger.valueOf(12));
+        time.setHours(BigInteger.valueOf(10));
+        time.setDay(BigInteger.valueOf(10));
+        time.setMinutes(BigInteger.valueOf(10));
+        time.setSeconds(BigInteger.valueOf(10));
+
+        var res = nbsObjectConverter.processHL7TSType(time, itemDescription);
+        assertNotNull(res);
+
+    }
+
+    @Test
+    void processHL7TSType_Test_Exp_1()  {
+        HL7TSType time = new HL7TSType();
+        String itemDescription = "TEST";
+
+        time.setYear(BigInteger.valueOf(2022));
+        time.setMonth(BigInteger.valueOf(12));
+        time.setHours(BigInteger.valueOf(10));
+        time.setDay(BigInteger.valueOf(10));
+        time.setMinutes(BigInteger.valueOf(10));
+        time.setSeconds(BigInteger.valueOf(10));
+
+        when(entityIdUtil.isDateNotOkForDatabase(any())).thenThrow(new RuntimeException("TEST"));
+
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            nbsObjectConverter.processHL7TSType(time, itemDescription);
+        });
+        assertNotNull(thrown);
+
+    }
+
+
+    @Test
+    void processHL7TSType_Test_Exp_2()  {
+        HL7TSType time = new HL7TSType();
+        String itemDescription = "TEST";
+
+        time.setYear(BigInteger.valueOf(2022));
+        time.setMonth(BigInteger.valueOf(12));
+        time.setHours(BigInteger.valueOf(10));
+        time.setDay(BigInteger.valueOf(10));
+        time.setMinutes(BigInteger.valueOf(10));
+        time.setSeconds(BigInteger.valueOf(10));
+
+        when(entityIdUtil.isDateNotOkForDatabase(any())).thenReturn(true);
+
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            nbsObjectConverter.processHL7TSType(time, itemDescription);
+        });
+        assertNotNull(thrown);
+
+    }
+
+
+    @Test
+    void personTelePhoneType_Test() {
+        // Mocking dependencies
+        HL7XTNType hl7XTNType = Mockito.mock(HL7XTNType.class);
+        PersonContainer personContainer = Mockito.mock(PersonContainer.class);
+        PersonDto personDTO = Mockito.mock(PersonDto.class);
+
+        // Setting up test data
+        String role = "someRole";
+        Long addUserId = 123L;
+        Long personUid = 456L;
+
+        // Setting up personContainer mock
+        when(personContainer.getThePersonDto()).thenReturn(personDTO);
+        when(personDTO.getAddUserId()).thenReturn(addUserId);
+        when(personDTO.getPersonUid()).thenReturn(personUid);
+        when(personDTO.getLastChgTime()).thenReturn(TimeStampUtil.getCurrentTimeStamp());
+        when(personContainer.getTheEntityLocatorParticipationDtoCollection()).thenReturn(new ArrayList<>());
+
+        when(hl7XTNType.getHL7EmailAddress()).thenReturn("test@mail.com");
+
+        var cityCode = new HL7NMType();
+        cityCode.setHL7Numeric(BigInteger.valueOf(1000));
+        when(hl7XTNType.getHL7AreaCityCode()).thenReturn(cityCode);
+        when(hl7XTNType.getHL7LocalNumber()).thenReturn(cityCode);
+        when(hl7XTNType.getHL7Extension()).thenReturn(cityCode);
+        when(hl7XTNType.getHL7AnyText()).thenReturn("TEST");
+
+
+        // Invoking the method to be tested
+        var result = nbsObjectConverter.personTelePhoneType(hl7XTNType, role, personContainer);
+
+        // Asserting the results
+        assertNotNull(result);
+        assertEquals(addUserId, result.getAddUserId());
+        assertEquals(personUid, result.getEntityUid());
+    }
+
+    @Test
+    void raceType_Test() {
+        personContainer.getThePersonDto().setAddUserId(12L);
+        personContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp());
+
+        HL7CWEType hl7CWEType = Mockito.mock(HL7CWEType.class);
+        when(hl7CWEType.getHL7Identifier()).thenReturn("TEST");
+        when(hl7CWEType.getHL7Text()).thenReturn("TEST");
+        var result = nbsObjectConverter.raceType(hl7CWEType, personContainer);
+        assertNotNull(result);
+
+
+    }
+
+    @Test
+    void raceType_Test_2() {
+        personContainer.getThePersonDto().setAddUserId(12L);
+        personContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp());
+
+        HL7CWEType hl7CWEType = Mockito.mock(HL7CWEType.class);
+        when(hl7CWEType.getHL7Identifier()).thenReturn(null);
+        when(hl7CWEType.getHL7AlternateIdentifier()).thenReturn("TEST");
+        when(hl7CWEType.getHL7AlternateText()).thenReturn("TEST");
+        var result = nbsObjectConverter.raceType(hl7CWEType, personContainer);
+        assertNotNull(result);
+
+
+    }
+
+    @Test
+    void checkIfNumberMoreThan10Digits_Test() {
+        var areaAndNumber = new ArrayList<String>();
+        HL7NMType hl7NMType = Mockito.mock(HL7NMType.class);
+        when(hl7NMType.getHL7Numeric()).thenReturn(BigInteger.valueOf(100000000000L));
+        var result = nbsObjectConverter.checkIfNumberMoreThan10Digits(areaAndNumber, hl7NMType);
+        assertTrue(result);
+
+    }
+
+    @Test
+    void formatPhoneNbr_Test() {
+        String phoneNbrTxt = "123456789";
+        var result = nbsObjectConverter.formatPhoneNbr(phoneNbrTxt);
+        assertNotNull(result);
+
+
+    }
+
+    @Test
+    void formatPhoneNbr_Test_LenLessThanSeven() {
+        String phoneNbrTxt = "123456";
+        var result = nbsObjectConverter.formatPhoneNbr(phoneNbrTxt);
+        assertNotNull(result);
+
+
+    }
+
+    @Test
+    void defaultParticipationDT_Test() {
+        var part = new ParticipationDto();
+        var edx = new EdxLabInformationDto();
+        edx.setAddTime(TimeStampUtil.getCurrentTimeStamp());
+
+        var result = nbsObjectConverter.defaultParticipationDT(part, edx);
+        assertNotNull(result);
+
+    }
+
+    @Test
+    void orgTelePhoneType_Test() {
+        HL7XTNType hl7XTNType = Mockito.mock(HL7XTNType.class);
+        when(hl7XTNType.getHL7EmailAddress()).thenReturn("test@mail.com");
+        var cityCode = new HL7NMType();
+        cityCode.setHL7Numeric(BigInteger.valueOf(1000));
+        when(hl7XTNType.getHL7AreaCityCode()).thenReturn(cityCode);
+        when(hl7XTNType.getHL7LocalNumber()).thenReturn(cityCode);
+        when(hl7XTNType.getHL7Extension()).thenReturn(cityCode);
+        when(hl7XTNType.getHL7AnyText()).thenReturn("TEST");
+
+        String role = "TEST";
+        OrganizationContainer organizationContainer = new OrganizationContainer();
+        organizationContainer.setTheOrganizationDto(new OrganizationDto());
+
+
+        var result = nbsObjectConverter.orgTelePhoneType(hl7XTNType, role, organizationContainer);
+        assertNotNull(result);
+
+    }
+
+    @Test
+    void processCNNPersonName_Test() {
+        HL7CNNType hl7CNNType =  Mockito.mock(HL7CNNType.class);
+        when(hl7CNNType.getHL7FamilyName()).thenReturn("TEST");
+        when(hl7CNNType.getHL7GivenName()).thenReturn("TEST");
+        when(hl7CNNType.getHL7SecondAndFurtherGivenNamesOrInitialsThereof()).thenReturn("TEST");
+        when(hl7CNNType.getHL7Suffix()).thenReturn("TEST");
+        when(hl7CNNType.getHL7Prefix()).thenReturn("TEST");
+        when(hl7CNNType.getHL7Degree()).thenReturn("TEST");
+
+
+        var perNamCol = new ArrayList<PersonNameDto>();
+        var perNam = new PersonNameDto();
+        perNamCol.add(perNam);
+        personContainer.setThePersonNameDtoCollection(perNamCol);
+
+        var result = nbsObjectConverter.processCNNPersonName(hl7CNNType, personContainer);
+        assertNotNull(result);
+    }
+
+    @Test
+    void processHL7TSTypeWithMillis_Test() throws DataProcessingException {
+        HL7TSType time = new HL7TSType();
+        String itemDescription = "TEST";
+
+        time.setYear(BigInteger.valueOf(2022));
+        time.setMonth(BigInteger.valueOf(12));
+        time.setHours(BigInteger.valueOf(10));
+        time.setDay(BigInteger.valueOf(10));
+        time.setMinutes(BigInteger.valueOf(10));
+        time.setSeconds(BigInteger.valueOf(10));
+        time.setMillis(BigInteger.valueOf(10));
+
+
+        var res = nbsObjectConverter.processHL7TSTypeWithMillis(time, itemDescription);
+        assertNotNull(res);
+
+    }
+
+    @Test
+    void processHL7TSTypeWithMillis_Exp_1() {
+        HL7TSType time = new HL7TSType();
+        String itemDescription = "TEST";
+
+        time.setYear(BigInteger.valueOf(2022));
+        time.setMonth(BigInteger.valueOf(12));
+        time.setHours(BigInteger.valueOf(10));
+        time.setDay(BigInteger.valueOf(10));
+        time.setMinutes(BigInteger.valueOf(10));
+        time.setSeconds(BigInteger.valueOf(10));
+        time.setMillis(BigInteger.valueOf(10));
+
+        when(entityIdUtil.isDateNotOkForDatabase(any())).thenReturn(true);
+
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            nbsObjectConverter.processHL7TSTypeWithMillis(time, itemDescription);
+        });
+
+        assertNotNull(thrown);
+
+    }
+
+
+    @Test
+    void processHL7TSTypeWithMillis_Exp_2() {
+        HL7TSType time = new HL7TSType();
+        String itemDescription = "TEST";
+
+        time.setYear(BigInteger.valueOf(2022));
+        time.setMonth(BigInteger.valueOf(12));
+        time.setHours(BigInteger.valueOf(10));
+        time.setDay(BigInteger.valueOf(10));
+        time.setMinutes(BigInteger.valueOf(10));
+        time.setSeconds(BigInteger.valueOf(10));
+        time.setMillis(BigInteger.valueOf(10));
+
+        when(entityIdUtil.isDateNotOkForDatabase(any())).thenThrow(new RuntimeException("TEST"));
+
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            nbsObjectConverter.processHL7TSTypeWithMillis(time, itemDescription);
+        });
+
+        assertNotNull(thrown);
+
     }
 }
