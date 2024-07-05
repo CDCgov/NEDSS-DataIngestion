@@ -60,5 +60,4 @@ class PropertyUtilTest {
         assertTrue(PropertyUtilCache.cachedHivList.contains("PA3"));
     }
 
-
 }
