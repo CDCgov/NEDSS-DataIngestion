@@ -310,7 +310,7 @@ public class MaterialService implements IMaterialService {
         }
 
         if (material.getAddUserId() == null) {
-            material.setAddUserId(AuthUtil.authUser.getAuthUserUid());
+            material.setAddUserId(AuthUtil.authUser.getNedssEntryId());
         }
 
 
@@ -319,7 +319,7 @@ public class MaterialService implements IMaterialService {
         }
 
         if (material.getLastChgUserId() == null) {
-            material.setLastChgUserId(AuthUtil.authUser.getLastChgUserId());
+            material.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
         }
 
         if (material.getRecordStatusTime() == null) {

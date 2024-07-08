@@ -255,7 +255,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         //phcVO.getThePublicHealthCaseDto().setCaseClassCd(EdxELRConstant.ELR_CONFIRMED_CD);
 
         phcVO.getThePublicHealthCaseDto().setAddTime(new Timestamp(new Date().getTime()));
-        phcVO.getThePublicHealthCaseDto().setAddUserId(AuthUtil.authUser.getAuthUserUid());
+        phcVO.getThePublicHealthCaseDto().setAddUserId(AuthUtil.authUser.getNedssEntryId());
         phcVO.getThePublicHealthCaseDto().setCaseTypeCd(EdxELRConstant.ELR_INDIVIDUAL);
 
         var res = conditionCodeRepository.findProgramAreaConditionCodeByConditionCode(edxLabInformationDT.getConditionCode());

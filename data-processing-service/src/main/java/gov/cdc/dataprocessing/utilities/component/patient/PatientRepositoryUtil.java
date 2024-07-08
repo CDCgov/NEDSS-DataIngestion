@@ -375,10 +375,10 @@ public class PatientRepositoryUtil {
                 }
                 else {
                     if (entityIdDto.getAddUserId() == null) {
-                        entityIdDto.setAddUserId(AuthUtil.authUser.getAuthUserUid());
+                        entityIdDto.setAddUserId(AuthUtil.authUser.getNedssEntryId());
                     }
                     if (entityIdDto.getLastChgUserId() == null) {
-                        entityIdDto.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                        entityIdDto.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                     }
 
                     var mprRecord =  SerializationUtils.clone(entityIdDto);
@@ -461,10 +461,10 @@ public class PatientRepositoryUtil {
                 entityIdDto.setEntityUid(pUid);
                 entityIdDto.setAddReasonCd("Add");
                 if (entityIdDto.getAddUserId() == null) {
-                    entityIdDto.setAddUserId(AuthUtil.authUser.getAuthUserUid());
+                    entityIdDto.setAddUserId(AuthUtil.authUser.getNedssEntryId());
                 }
                 if (entityIdDto.getLastChgUserId() == null) {
-                    entityIdDto.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                    entityIdDto.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                 }
                 entityIdRepository.save(new EntityId(entityIdDto));
             }

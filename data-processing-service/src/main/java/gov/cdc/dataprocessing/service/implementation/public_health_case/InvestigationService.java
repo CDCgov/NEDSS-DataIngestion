@@ -178,7 +178,7 @@ public class InvestigationService implements IInvestigationService {
                     actRelationshipDT.setTargetActUid(investigationUID);
                     actRelationshipDT.setSourceActUid(reportSumVO.getObservationUid());
                     actRelationshipDT.setFromTime(reportSumVO.getActivityFromTime());
-                    actRelationshipDT.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                    actRelationshipDT.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                     //Set from time same as investigation create time if act relationship is created while creating investigation from lab or morbidity report
                     if (invFromEvent) {
                         actRelationshipDT.setFromTime(phcDT.getAddTime());
@@ -590,7 +590,7 @@ public class InvestigationService implements IInvestigationService {
             UpdatedNotificationDto updatedNotification = new UpdatedNotificationDto();
 
             updatedNotification.setAddTime(new Timestamp(System.currentTimeMillis()));
-            updatedNotification.setAddUserId(AuthUtil.authUser.getAuthUserUid());
+            updatedNotification.setAddUserId(AuthUtil.authUser.getNedssEntryId());
             updatedNotification.setCaseStatusChg(caseStatusChange);
             updatedNotification.setItNew(true);
             updatedNotification.setNotificationUid(notificationDT.getNotificationUid());

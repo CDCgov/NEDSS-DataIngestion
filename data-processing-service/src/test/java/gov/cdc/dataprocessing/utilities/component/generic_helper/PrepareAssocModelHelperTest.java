@@ -159,8 +159,8 @@ class PrepareAssocModelHelperTest {
 
         verify(rootDto).setLocalId(null);
         verify(rootDto).setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
-        verify(rootDto).setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
-        verify(rootDto).setAddUserId(AuthUtil.authUser.getAuthUserUid());
+        verify(rootDto).setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
+        verify(rootDto).setAddUserId(AuthUtil.authUser.getNedssEntryId());
         assertEquals(result, rootDto);
     }
 
@@ -181,8 +181,8 @@ class PrepareAssocModelHelperTest {
         verify(rootDto).setLocalId("localId");
         verify(rootDto).setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
         verify(rootDto).setStatusCd("A");
-        verify(rootDto).setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
-        verify(rootDto).setAddUserId(AuthUtil.authUser.getAuthUserUid());
+        verify(rootDto).setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
+        verify(rootDto).setAddUserId(AuthUtil.authUser.getNedssEntryId());
         assertEquals(result, rootDto);
     }
 
@@ -203,7 +203,7 @@ class PrepareAssocModelHelperTest {
         RootDtoInterface result = prepareAssocModelHelper.prepareVO(rootDto, "businessObjLookupName", "businessTriggerCd", "tableName", "moduleCd", 1);
 
         verify(rootDto).setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
-        verify(rootDto).setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+        verify(rootDto).setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
         assertEquals(result, rootDto);
     }
 
@@ -225,7 +225,7 @@ class PrepareAssocModelHelperTest {
 
         verify(rootDto).setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
         verify(rootDto).setStatusCd("A");
-        verify(rootDto).setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+        verify(rootDto).setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
         assertEquals(result, rootDto);
     }
 
@@ -244,8 +244,8 @@ class PrepareAssocModelHelperTest {
 
         verify(rootDto).setLocalId(null);
         verify(rootDto).setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
-        verify(rootDto).setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
-        verify(rootDto).setAddUserId(AuthUtil.authUser.getAuthUserUid());
+        verify(rootDto).setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
+        verify(rootDto).setAddUserId(AuthUtil.authUser.getNedssEntryId());
         assertEquals(result, rootDto);
     }
 
@@ -267,8 +267,8 @@ class PrepareAssocModelHelperTest {
 
         verify(rootDto).setLocalId("localId");
         verify(rootDto).setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
-        verify(rootDto).setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
-        verify(rootDto).setAddUserId(AuthUtil.authUser.getAuthUserUid());
+        verify(rootDto).setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
+        verify(rootDto).setAddUserId(AuthUtil.authUser.getNedssEntryId());
         assertEquals(result, rootDto);
     }
 
@@ -289,7 +289,7 @@ class PrepareAssocModelHelperTest {
         RootDtoInterface result = prepareAssocModelHelper.prepareDirtyActVO(rootDto, "businessObjLookupName", "businessTriggerCd", "tableName", "moduleCd");
 
         verify(rootDto).setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
-        verify(rootDto).setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+        verify(rootDto).setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
         assertEquals(result, rootDto);
     }
 
@@ -310,7 +310,7 @@ class PrepareAssocModelHelperTest {
         RootDtoInterface result = prepareAssocModelHelper.prepareDirtyEntityVO(rootDto, "businessObjLookupName", "businessTriggerCd", "tableName", "moduleCd");
 
         verify(rootDto).setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
-        verify(rootDto).setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+        verify(rootDto).setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
         assertEquals(result, rootDto);
     }
 

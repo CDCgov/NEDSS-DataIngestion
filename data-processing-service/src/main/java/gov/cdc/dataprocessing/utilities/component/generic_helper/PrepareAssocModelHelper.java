@@ -150,7 +150,7 @@ public class PrepareAssocModelHelper {
                     e.printStackTrace();
                 }
 
-                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
 
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;
@@ -259,7 +259,7 @@ public class PrepareAssocModelHelper {
                 {
                     e.printStackTrace();
                 }
-                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;
             }
@@ -303,7 +303,7 @@ public class PrepareAssocModelHelper {
                 assocDTInterface.setRecordStatusTime(systemTime);
                 assocDTInterface.setStatusTime(systemTime);
                 assocDTInterface.setLastChgTime(systemTime);
-                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;
             }
@@ -342,7 +342,7 @@ public class PrepareAssocModelHelper {
                 assocDTInterface.setRecordStatusTime(systemTime);
                 assocDTInterface.setStatusTime(systemTime);
                 assocDTInterface.setLastChgTime(systemTime);
-                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;
             }
@@ -449,8 +449,8 @@ public class PrepareAssocModelHelper {
             theRootDTInterface.setRecordStatusTime(systemTime);
             theRootDTInterface.setLastChgTime(systemTime);
             theRootDTInterface.setAddTime(systemTime);
-            theRootDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
-            theRootDTInterface.setAddUserId(AuthUtil.authUser.getAuthUserUid());
+            theRootDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
+            theRootDTInterface.setAddUserId(AuthUtil.authUser.getNedssEntryId());
             theRootDTInterface.setLastChgReasonCd(null);
 
             return theRootDTInterface;
@@ -493,14 +493,14 @@ public class PrepareAssocModelHelper {
             java.util.Date dateTime = new java.util.Date();
             Timestamp systemTime = new Timestamp(dateTime.getTime());
             theRootDTInterface.setLocalId(localId);
-            theRootDTInterface.setAddUserId(AuthUtil.authUser.getAuthUserUid());
+            theRootDTInterface.setAddUserId(AuthUtil.authUser.getNedssEntryId());
             theRootDTInterface.setAddTime(systemTime);
             theRootDTInterface.setRecordStatusCd(recordStatusState);
             theRootDTInterface.setStatusCd(objectStatusState);
             theRootDTInterface.setRecordStatusTime(systemTime);
             theRootDTInterface.setStatusTime(systemTime);
             theRootDTInterface.setLastChgTime(systemTime);
-            theRootDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+            theRootDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
             theRootDTInterface.setLastChgReasonCd(null);
 
             if(tableName.equals(NEDSSConstant.PATIENT) && (!businessTriggerCd.equals("PAT_NO_MERGE")))
@@ -580,7 +580,7 @@ public class PrepareAssocModelHelper {
             theRootDTInterface.setRecordStatusTime(systemTime);
 
             theRootDTInterface.setLastChgTime(systemTime);
-            theRootDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+            theRootDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
             theRootDTInterface.setLastChgReasonCd(null);
             return theRootDTInterface;
         }
@@ -627,7 +627,7 @@ public class PrepareAssocModelHelper {
             theRootDTInterface.setRecordStatusTime(systemTime);
             theRootDTInterface.setStatusTime(systemTime);
             theRootDTInterface.setLastChgTime(systemTime);
-            theRootDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+            theRootDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
             theRootDTInterface.setLastChgReasonCd(null);
 
             if(tableName.equals(NEDSSConstant.PATIENT) && (!businessTriggerCd.equals("PAT_NO_MERGE")))
@@ -695,7 +695,7 @@ public class PrepareAssocModelHelper {
                 {
                     e.printStackTrace();
                 }
-                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;
                 logger.debug("DT Prepared");

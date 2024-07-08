@@ -129,7 +129,7 @@ public class HL7PatientHandler {
             participationDto.setItDirty(false);
             participationDto.setCd(EdxELRConstant.ELR_PATIENT_CD);
             //participationDto.setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
-            participationDto.setAddUserId(AuthUtil.authUser.getAuthUserUid());
+            participationDto.setAddUserId(AuthUtil.authUser.getNedssEntryId());
             participationDto.setSubjectClassCd(EdxELRConstant.ELR_PERSON_CD);
             participationDto.setTypeCd(EdxELRConstant.ELR_PATIENT_SUBJECT_CD);
             participationDto.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
@@ -505,8 +505,7 @@ public class HL7PatientHandler {
                 addRole= true;
             }
 
-            //roleDto.setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
-            roleDto.setAddUserId(AuthUtil.authUser.getAuthUserUid());
+            roleDto.setAddUserId(AuthUtil.authUser.getNedssEntryId());
             roleDto.setAddReasonCd(EdxELRConstant.ELR_ADD_REASON_CD);
             roleDto.setRoleSeq(1L);
             roleDto.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
