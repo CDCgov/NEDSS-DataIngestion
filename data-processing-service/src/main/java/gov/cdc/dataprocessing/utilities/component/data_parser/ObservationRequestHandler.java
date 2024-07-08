@@ -56,6 +56,7 @@ public class ObservationRequestHandler {
      * Description: This method parsing OBR and SPM into Lab result Object.
      * OBR & SPM.
      * */
+    @SuppressWarnings("java:S6541")
     public LabResultProxyContainer getObservationRequest(HL7OBRType hl7OBRType, HL7PatientResultSPMType hl7PatientResultSPMType,
                                                          LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         try {
@@ -88,7 +89,7 @@ public class ObservationRequestHandler {
                     && hl7OBRType.getSetIDOBR().getHL7SequenceID().equalsIgnoreCase("1")) {
                 observationDto.setObservationUid(edxLabInformationDto.getRootObserbationUid());
             }
-            else if(!hl7OBRType.getSetIDOBR().getHL7SequenceID().equalsIgnoreCase("1")){
+            else if(hl7OBRType.getSetIDOBR()!=null && !hl7OBRType.getSetIDOBR().getHL7SequenceID().equalsIgnoreCase("1")){
                 observationDto.setObservationUid((long)(edxLabInformationDto.getNextUid()));
             }else{
                 observationDto.setObservationUid(edxLabInformationDto.getRootObserbationUid());
@@ -293,7 +294,7 @@ public class ObservationRequestHandler {
         return labResultProxyContainer;
 
     }
-
+    @SuppressWarnings("java:S6541")
     private void processSusOBR(HL7OBRType hl7OBRType, ObservationDto observationDto,
                                       LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         try {
@@ -415,6 +416,7 @@ public class ObservationRequestHandler {
      *  PROVIDER info
      *  other obs info
      * */
+    @SuppressWarnings("java:S6541")
     private void processRootOBR(HL7OBRType hl7OBRType, ObservationDto observationDto,
                                        LabResultProxyContainer labResultProxyContainer, HL7PatientResultSPMType hl7PatientResultSPMType,
                                        EdxLabInformationDto edxLabInformationDto) throws DataProcessingException{

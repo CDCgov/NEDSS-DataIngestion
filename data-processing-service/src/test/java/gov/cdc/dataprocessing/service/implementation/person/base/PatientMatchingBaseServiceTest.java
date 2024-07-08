@@ -20,7 +20,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -171,6 +173,120 @@ class PatientMatchingBaseServiceTest {
         personContainer.getThePersonNameDtoCollection().add(personNameDto3);
 
         patientMatchingBaseService.getLNmFnmDobCurSexStr(personContainer);
+    }
+
+    @Test
+    void updateExistingPerson_Test() throws DataProcessingException {
+        var perCon = new PersonContainer();
+        var businessTrigger = "PAT_CR";
+
+        var perDt = new PersonDto();
+        perDt.setPersonParentUid(10L);
+        perCon.setThePersonDto(perDt);
+
+        var perLst = new ArrayList<Person>();
+        var per = new Person();
+        per.setPersonParentUid(10L);
+        per.setPersonUid(20L);
+        per.setLocalId("TEST");
+        perLst.add(per);
+        per = new Person();
+        per.setPersonParentUid(10L);
+        per.setPersonUid(10L);
+        perLst.add(per);
+        per.setLocalId("TEST");
+
+        when(patientRepositoryUtil.findPersonByParentUid(any())).thenReturn(perLst);
+
+
+        var res = patientMatchingBaseService.updateExistingPerson(perCon, businessTrigger, 10L);
+
+        assertNotNull(res);
+        assertEquals(10, res.personId);
+
+    }
+
+    @Test
+    void updateExistingPerson_Test_1() {
+        var perCon = new PersonContainer();
+        var businessTrigger = "PAT_EDIT";
+
+        var perDt = new PersonDto();
+        perDt.setPersonParentUid(10L);
+        perCon.setThePersonDto(perDt);
+
+        var per = new Person();
+        per.setPersonParentUid(20L);
+        per.setPersonUid(20L);
+        per.setLocalId("TEST");
+        per.setLocalId("TEST");
+
+        when(patientRepositoryUtil.findPersonByParentUid(any())).thenReturn(new ArrayList<>());
+        when(patientRepositoryUtil.findExistingPersonByUid(any())).thenReturn(per);
+
+
+
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            patientMatchingBaseService.updateExistingPerson(perCon, businessTrigger, 10L);
+        });
+
+
+        assertNotNull(thrown);
+
+    }
+
+    @Test
+    void updateExistingPerson_Test_2() {
+        var perCon = new PersonContainer();
+        var businessTrigger = "PAT_EDIT";
+
+        var perDt = new PersonDto();
+        perDt.setPersonParentUid(10L);
+        perCon.setThePersonDto(perDt);
+
+        var per = new Person();
+        per.setPersonParentUid(20L);
+        per.setPersonUid(20L);
+        per.setLocalId("TEST");
+        per.setLocalId("TEST");
+
+        when(patientRepositoryUtil.findPersonByParentUid(any())).thenReturn(new ArrayList<>());
+        when(patientRepositoryUtil.findExistingPersonByUid(any())).thenThrow(new RuntimeException("TEST"));
+
+
+
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            patientMatchingBaseService.updateExistingPerson(perCon, businessTrigger, 10L);
+        });
+
+
+        assertNotNull(thrown);
+
+    }
+
+    @Test
+    void setPatientRevision_Test_Else() throws DataProcessingException {
+        var perCon = new PersonContainer();
+        var businessTrigger = "PAT_CR";
+        var personType = "TEST";
+
+        var perDt = new PersonDto();
+        perDt.setPersonParentUid(10L);
+        perDt.setPersonUid(10L);
+        perCon.setThePersonDto(perDt);
+        perCon.setExt(true);
+
+        var perNameCol = new ArrayList<PersonNameDto>();
+        var perName = new PersonNameDto();
+        perNameCol.add(perName);
+        perCon.setThePersonNameDtoCollection(perNameCol);
+        perCon.setMPRUpdateValid(true);
+        perCon.setItDelete(true);
+        when(patientRepositoryUtil.loadPerson(any())).thenReturn(perCon);
+
+
+        var res = patientMatchingBaseService.setPatientRevision(perCon, businessTrigger, personType);
+        assertNotNull(res);
     }
 
 }

@@ -224,6 +224,10 @@ public class PersonService implements IPersonService {
                             updatedPersonRaceCollection.add(personRaceDT);
                         }
                     }
+
+
+
+
                     if (personVO.getThePersonEthnicGroupDtoCollection() != null && personVO.getThePersonEthnicGroupDtoCollection().size() > 0) {
                         for (PersonEthnicGroupDto personEthnicGroupDT : personVO.getThePersonEthnicGroupDtoCollection()) {
                             personEthnicGroupDT.setItDelete(true);
@@ -363,6 +367,7 @@ public class PersonService implements IPersonService {
                                 }
                             }
                         }
+
                         if (personVO.getThePersonEthnicGroupDtoCollection() == null
                             || (personVO.getThePersonEthnicGroupDtoCollection() != null
                             && personVO.getThePersonEthnicGroupDtoCollection().size() == 0)
