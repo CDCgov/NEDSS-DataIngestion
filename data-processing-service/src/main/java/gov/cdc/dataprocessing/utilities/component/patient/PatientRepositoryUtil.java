@@ -3,6 +3,7 @@ package gov.cdc.dataprocessing.utilities.component.patient;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.kafka.consumer.KafkaPublicHealthCaseConsumer;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
@@ -29,6 +30,8 @@ import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
 import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.SerializationUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -37,6 +40,8 @@ import java.util.stream.Collectors;
 
 @Component
 public class PatientRepositoryUtil {
+    private static final Logger logger = LoggerFactory.getLogger(PatientRepositoryUtil.class);
+
     private final PersonRepository personRepository;
     private final EntityRepositoryUtil entityRepositoryUtil;
     private final PersonNameRepository personNameRepository;
@@ -48,6 +53,9 @@ public class PatientRepositoryUtil {
     private final IOdseIdGeneratorService odseIdGeneratorService;
 
     private final IEntityLocatorParticipationService entityLocatorParticipationService;
+
+    private static final String ERROR_DELETE_MSG = "Error Delete Patient Entity: ";
+    private static final String ERROR_UPDATE_MSG = "Error Updating Existing Patient Entity: ";
 
 
     public PatientRepositoryUtil(
@@ -288,7 +296,7 @@ public class PatientRepositoryUtil {
             var pUid = personContainer.getThePersonDto().getPersonUid();
             List<PersonName> persons = personNameRepository.findBySeqIdByParentUid(pUid);
 
-            Integer seqId = 0;
+            Integer seqId = 1;
 
             StringBuilder sbFromInput = new StringBuilder();
             sbFromInput.append(personContainer.getThePersonDto().getFirstNm());
@@ -319,19 +327,36 @@ public class PatientRepositoryUtil {
                     seqId = persons.get(0).getPersonNameSeq();
                 }
 
+                PersonNameDto personName = null;
                 for (PersonNameDto personNameDto : personList) {
-                    seqId++;
-                    personNameDto.setPersonUid(pUid);
-                    if (personNameDto.getStatusCd() == null) {
-                        personNameDto.setStatusCd("A");
+                    if (!personNameDto.isItDelete()) {
+                        personName = personNameDto;
+                    } else {
+                        try {
+                            // set existing record status to inactive
+                            personNameRepository.updatePersonNameStatus(personNameDto.getPersonUid(), seqId);
+
+                            seqId++;
+                            if (personName.getStatusCd() == null) {
+                                personName.setStatusCd("A");
+                            }
+                            if (personName.getStatusTime() == null) {
+                                personName.setStatusTime(new Timestamp(new Date().getTime()));
+                            }
+
+                            personName.setPersonNameSeq(seqId);
+                            personName.setRecordStatusCd("ACTIVE");
+                            personName.setAddReasonCd("Add");
+                            personNameRepository.save(new PersonName(personName));
+
+                            var mprRecord =  SerializationUtils.clone(personName);
+                            mprRecord.setPersonUid(personContainer.getThePersonDto().getPersonParentUid());
+                            personNameRepository.save(new PersonName(mprRecord));
+                        } catch (Exception e) {
+                            logger.error(ERROR_UPDATE_MSG + e.getMessage());
+                        }
                     }
-                    if (personNameDto.getStatusTime() == null) {
-                        personNameDto.setStatusTime(new Timestamp(new Date().getTime()));
-                    }
-                    personNameDto.setPersonNameSeq(seqId);
-                    personNameDto.setRecordStatusCd("ACTIVE");
-                    personNameDto.setAddReasonCd("Add");
-                    personNameRepository.save(new PersonName(personNameDto));
+
                 }
             }
 
@@ -368,9 +393,13 @@ public class PatientRepositoryUtil {
             for (EntityIdDto entityIdDto : personList) {
 
                 if (entityIdDto.isItDelete()) {
-                    entityIdRepository.deleteEntityIdAndSeq(entityIdDto.getEntityUid(), entityIdDto.getEntityIdSeq());
-                    if (personContainer.getThePersonDto().getPersonParentUid() != null) {
-                        entityIdRepository.deleteEntityIdAndSeq(personContainer.getThePersonDto().getPersonParentUid(), entityIdDto.getEntityIdSeq());
+                    try {
+                        entityIdRepository.deleteEntityIdAndSeq(entityIdDto.getEntityUid(), entityIdDto.getEntityIdSeq());
+                        if (personContainer.getThePersonDto().getPersonParentUid() != null) {
+                            entityIdRepository.deleteEntityIdAndSeq(personContainer.getThePersonDto().getPersonParentUid(), entityIdDto.getEntityIdSeq());
+                        }
+                    } catch (Exception e) {
+                        logger.error(ERROR_DELETE_MSG + e.getMessage());
                     }
                 }
                 else {
@@ -407,7 +436,11 @@ public class PatientRepositoryUtil {
             for (PersonRaceDto personRaceDto : personList) {
                 var pUid = personContainer.getThePersonDto().getPersonUid();
                 if (personRaceDto.isItDelete()) {
-                    personRaceRepository.deletePersonRaceByUidAndCode(personRaceDto.getPersonUid(), personRaceDto.getRaceCd());
+                    try {
+                        personRaceRepository.deletePersonRaceByUidAndCode(personRaceDto.getPersonUid(), personRaceDto.getRaceCd());
+                    } catch (Exception e) {
+                        logger.error(ERROR_DELETE_MSG + e.getMessage());
+                    }
                 }
                 else {
                     var mprRecord = SerializationUtils.clone(personRaceDto);
@@ -530,8 +563,6 @@ public class PatientRepositoryUtil {
 
         return personContainer;
     }
-
-
 
 
 }

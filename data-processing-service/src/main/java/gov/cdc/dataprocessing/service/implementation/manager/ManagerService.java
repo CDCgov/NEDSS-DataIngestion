@@ -146,9 +146,9 @@ public class ManagerService implements IManagerService {
                 edxLabInformationDto.setLabIsUpdateSuccess(true);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_22);
             }
-
-            if (edxLabInformationDto.isLabIsCreate() && observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null)
-            {
+//
+//            if (edxLabInformationDto.isLabIsCreate() && observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null)
+//            {
                 // This logic here determine whether logic is mark as review or not
                 decisionSupportService.validateProxyContainer(labResultProxyContainer, edxLabInformationDto);
 
@@ -206,13 +206,13 @@ public class ManagerService implements IManagerService {
                 String jsonString = gson.toJson(phcContainer);
                 kafkaManagerProducer.sendDataLabHandling(jsonString);
 
-            }
-            else
-            {
-                // Concluded the flow if no WDS, set status to COMPLETED STEP 1
-                nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_COMPLETED_STEP_1);
-                nbsInterfaceRepository.save(nbsInterfaceModel);
-            }
+//            }
+//            else
+//            {
+//                // Concluded the flow if no WDS, set status to COMPLETED STEP 1
+//                nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_COMPLETED_STEP_1);
+//                nbsInterfaceRepository.save(nbsInterfaceModel);
+//            }
         } catch (Exception e) {
             detailedMsg = e.getMessage();
             if (nbsInterfaceModel != null) {
