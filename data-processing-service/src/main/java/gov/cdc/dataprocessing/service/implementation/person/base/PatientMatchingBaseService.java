@@ -31,10 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class PatientMatchingBaseService extends MatchingBaseService{
@@ -60,24 +57,10 @@ public class PatientMatchingBaseService extends MatchingBaseService{
             // NOTE: SHOULD NOT HIT THIS ONE
             if (personDT.getPersonParentUid() == null) {
                 mprPersonVO = this.cloneVO(personVO);
-                // as per shannon comments should not reflect on mpr
                 mprPersonVO.getThePersonDto().setDescription(null);
                 mprPersonVO.getThePersonDto().setAsOfDateAdmin(null);
                 mprPersonVO.getThePersonDto().setAgeReported(null);
                 mprPersonVO.getThePersonDto().setAgeReportedUnitCd(null);
-//                if (mprPersonVO.getThePersonDto().getCurrSexCd() == null || mprPersonVO.getThePersonDto().getCurrSexCd().trim().length() == 0)
-//                {
-//                    mprPersonVO.getThePersonDto().setAsOfDateSex(null);
-//                }
-//
-//
-//                mprPersonUid = this.setPersonInternal(mprPersonVO,
-//                        NBSBOLookup.PATIENT, "PAT_CR");
-//
-//                mprPersonVO = this.getPersonInternal(mprPersonUid);
-//                personVO.getThePersonDto().setPersonParentUid(mprPersonUid);
-//                personVO.getThePersonDto().setLocalId(
-//                        mprPersonVO.getThePersonDto().getLocalId());
             }
             else {
                 if (businessTriggerCd != null
@@ -114,7 +97,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         return personUid;
     }
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S6541"})
     private Long setPersonInternal(PersonContainer personVO, String businessObjLookupName, String businessTriggerCd,
                                    String personType) throws DataProcessingException {
         Long personUID = -1L;
@@ -370,11 +353,11 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         PersonId personId = new PersonId();
         PersonContainer personObj = personContainer.deepClone();
         if (businessTriggerCd != null && (businessTriggerCd.equals("PAT_CR") || businessTriggerCd.equals("PAT_EDIT"))) {
-            personId = getPersonInternalV2(personParentUid);
+            personId = getPersonInternalAddressingRevisionAndMpr(personParentUid);
 
             personObj.setMPRUpdateValid(true);
 
-            personObj.getThePersonDto().setPersonUid(personId.getPersonId());
+            personObj.getThePersonDto().setPersonUid(personId.getRevisionId());
             personObj.getThePersonDto().setPersonParentUid(personId.getPersonParentId());
             personObj.getThePersonDto().setLocalId(personId.getLocalId());
 
@@ -516,6 +499,8 @@ public class PatientMatchingBaseService extends MatchingBaseService{
 
     }
 
+
+    @SuppressWarnings("java:S1144")
     private PersonId getPersonInternalV2(Long personUID) throws DataProcessingException {
         PersonId personId;
         try {
@@ -539,7 +524,57 @@ public class PatientMatchingBaseService extends MatchingBaseService{
             throw new DataProcessingException(e.getMessage(), e);
         }
         return personId;
+    }
 
+    private PersonId getPersonInternalAddressingRevisionAndMpr(Long personUID) throws DataProcessingException {
+        PersonId personId;
+        try {
+            List<Person> personList = new ArrayList<>();
+            if (personUID != null)
+            {
+                personList = getPatientRepositoryUtil().findPersonByParentUid(personUID);
+                personList.sort((p1, p2) -> Long.compare(p2.getPersonUid(), p1.getPersonUid()));
+            }
+            if (personList.isEmpty()) {
+                personList.add(getPatientRepositoryUtil().findExistingPersonByUid(personUID));
+
+            }
+
+            Person mpr = null;
+            Person revision = null;
+            for(var item : personList) {
+                if (Objects.equals(item.getPersonUid(), personUID)) {
+                    mpr = item;
+                    personList.remove(item);
+                    break;
+                }
+            }
+
+            if (!personList.isEmpty()) {
+                revision = personList.get(0);
+            }
+
+            if (mpr != null)
+            {
+                personId = new PersonId();
+                personId.setPersonParentId(mpr.getPersonParentUid());
+                personId.setPersonId(mpr.getPersonUid());
+                personId.setLocalId(mpr.getLocalId());
+            }
+            else {
+                throw new DataProcessingException("Existing Patient Not Found");
+            }
+
+            if (revision != null) {
+                personId.setRevisionId(revision.getPersonUid());
+                personId.setRevisionParentId(revision.getPersonParentUid());
+                personId.setRevisionLocalId(revision.getLocalId());
+            }
+
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+        return personId;
     }
     private void prepUpdatingExistingPerson(PersonContainer personContainer) throws DataProcessingException {
         PersonDto personDto = personContainer.getThePersonDto();

@@ -57,7 +57,6 @@ public class ObservationResultRequestHandler {
                 try {
                     ObservationContainer observationContainer = getObservationResult(hl7OBSERVATIONType.getObservationResult(), labResultProxyContainer, edxLabInformationDto);
                     getObsReqNotes(hl7OBSERVATIONType.getNotesAndComments(), observationContainer);
-                    //edxLabInformationDT.setParentObservationUid(observationContainer.getTheObservationDto().getObservationUid());
                     labResultProxyContainer.getTheObservationContainerCollection().add(observationContainer);
                 } catch (Exception e) {
                     logger.error("ObservationResultRequest.getObservationResultRequest Exception thrown while processing observationRequestArray. Please check!!!" + e.getMessage(), e);
@@ -148,20 +147,8 @@ public class ObservationResultRequestHandler {
              * ND-18349 HHS ELR Updates for COVID: Updates Required to Process OBX 18
              */
             List<HL7EIType> equipmentIdType = hl7OBXType.getEquipmentInstanceIdentifier();
-            int seq = 3;
-            for (HL7EIType equipmentId : equipmentIdType) {
-                ActIdDto act3IdDT = new ActIdDto();
-                act3IdDT.setActUid(observationDto.getObservationUid());
-                act3IdDT.setActIdSeq(seq);
-                act3IdDT.setRootExtensionTxt(equipmentId.getHL7EntityIdentifier());
-                act3IdDT.setAssigningAuthorityCd(equipmentId.getHL7UniversalID());
-                act3IdDT.setAssigningAuthorityDescTxt(equipmentId.getHL7UniversalIDType());
-                act3IdDT.setTypeCd(EdxELRConstant.ELR_EQUIPMENT_INSTANCE_CD);
-                act3IdDT.setTypeDescTxt(EdxELRConstant.ELR_EQUIPMENT_INSTANCE_DESC);
-                act3IdDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
-                actIdDtoColl.add(act3IdDT);
-                seq = seq + 1;
-            }
+            actIdDtoColl =  setEquipments(equipmentIdType, observationDto, actIdDtoColl);
+
 
             observationContainer.setTheActIdDtoCollection(actIdDtoColl);
 
@@ -241,7 +228,6 @@ public class ObservationResultRequestHandler {
                     if (aOELOINCs != null && aOELOINCs.containsKey(observationDto.getCd())) {
                         observationDto.setMethodCd(NEDSSConstant.AOE_OBS);
                     }
-
                 }else if(observationDto.getCdSystemCd()!=null && observationDto.getCdSystemCd().equals(EdxELRConstant.ELR_SNOMED_CD)){
                     observationDto.setCdSystemCd(EdxELRConstant.ELR_SNOMED_CD);
                     observationDto.setCdSystemDescTxt(EdxELRConstant.ELR_SNOMED_DESC);
@@ -284,65 +270,12 @@ public class ObservationResultRequestHandler {
                 }
             }
 
-            if(hl7OBXType.getReferencesRange()!=null){
-                String range =hl7OBXType.getReferencesRange();
-                ObsValueNumericDto obsValueNumericDto;
-                if(observationContainer.getTheObsValueNumericDtoCollection()!=null)
-                {
-                    var arrlist = new ArrayList<>(observationContainer.getTheObsValueNumericDtoCollection());
-                    obsValueNumericDto = arrlist.get(0);
-                }
-                else
-                {
-                    obsValueNumericDto = new ObsValueNumericDto();
-                    obsValueNumericDto.setItNew(true);
-                    obsValueNumericDto.setItDirty(false);
-                    obsValueNumericDto.setObsValueNumericSeq(1);
-                    obsValueNumericDto.setObservationUid(observationContainer.getTheObservationDto().getObservationUid());
-                }
-                if(range.contains("^"))
-                {
-                    int i=0;
-                    if(range.indexOf("^")==0){
-                        i=1;
-                    }
-                    StringTokenizer st = new StringTokenizer(range, "^");
-                    while (st.hasMoreTokens()) {
-                        i++;
-                        String token = st.nextToken();
-                        if(i==1)
-                            obsValueNumericDto.setLowRange(token);
-                        else if(i==2)
-                            obsValueNumericDto.setHighRange(token);
-                    }
-                }
-                else
-                {
-                    obsValueNumericDto.setLowRange(range);
-                    if(observationContainer.getTheObsValueNumericDtoCollection()==null){
-                        observationContainer.setTheObsValueNumericDtoCollection(new ArrayList<>());
-                        observationContainer.getTheObsValueNumericDtoCollection().add(obsValueNumericDto);
-                    }
-                }
-            }
-            if(hl7OBXType.getAbnormalFlags()!=null && hl7OBXType.getAbnormalFlags().size()>0)
-            {
-                ObservationInterpDto observationIntrepDT = new ObservationInterpDto();
-                observationIntrepDT.setObservationUid(observationDto.getObservationUid());
-                observationIntrepDT.setInterpretationCd(hl7OBXType.getAbnormalFlags().get(0).getHL7Identifier());
+            observationContainer = processingReferringRange(hl7OBXType, observationContainer);
 
-                String str= checkingValueService.getCodeDescTxtForCd("OBS_INTRP",observationIntrepDT.getInterpretationCd());
-                if(str==null || str.trim().length()==0) {
-                    observationIntrepDT.setInterpretationDescTxt(hl7OBXType.getAbnormalFlags().get(0).getHL7Text());
-                }
-                else {
-                    observationIntrepDT.setInterpretationDescTxt(str);
-                }
-                observationIntrepDT.setObservationUid(observationContainer.getTheObservationDto().getObservationUid());
-                observationContainer.setTheObservationInterpDtoCollection(new ArrayList<>());
-                observationContainer.getTheObservationInterpDtoCollection().add(observationIntrepDT);
+            var abnormalFlag = hl7OBXType.getAbnormalFlags();
+            observationContainer = processingAbnormalFlag(abnormalFlag, observationDto, observationContainer);
 
-            }
+
             if(hl7OBXType.getObservationResultStatus()!=null)
             {
                 String toCode = checkingValueService.findToCode("ELR_LCA_STATUS", hl7OBXType.getObservationResultStatus(), "ACT_OBJ_ST");
@@ -366,50 +299,8 @@ public class ObservationResultRequestHandler {
                 labResultProxyContainer.getTheOrganizationContainerCollection().add(producerOrg);
             }
             List<HL7CEType> methodArray = hl7OBXType.getObservationMethod();
-            StringBuilder methodCd = null;
-            StringBuilder methodDescTxt = null;
-            final String delimiter = "**";
-            for (HL7CEType method : methodArray) {
-                if (method.getHL7Identifier() != null) {
-                    if (methodCd == null)
-                    {
-                        methodCd = new StringBuilder(method.getHL7Identifier() + delimiter);
-                    }
-                    else
-                    {
-                        methodCd.append(method.getHL7Identifier()).append(delimiter);
-                    }
+            observationContainer = processingObservationMethod(methodArray, edxLabInformationDto, observationContainer);
 
-                    String str = checkingValueService.getCodeDescTxtForCd("OBS_METH", method.getHL7Identifier());
-                    if (str == null || str.trim().equals("")) {
-
-                        logger.warn(
-                                "ObservationResultRequest.getObservationResult warning: Method code could not be teranslated. Please check!!!");
-                        edxLabInformationDto.setObsMethodTranslated(false);
-                    }
-                    if (method.getHL7Text() != null) {
-                        if (methodDescTxt == null)
-                        {
-                            methodDescTxt = new StringBuilder(method.getHL7Text() + delimiter);
-                        }
-                        else
-                        {
-                            methodDescTxt.append(method.getHL7Text()).append(delimiter);
-                        }
-                    }
-                }
-            }
-
-            if (methodCd != null && methodCd.lastIndexOf(delimiter) > 0)
-            {
-                methodCd = new StringBuilder(methodCd.substring(0, methodCd.lastIndexOf(delimiter)));
-            }
-            if (methodDescTxt != null && methodDescTxt.lastIndexOf(delimiter) > 0)
-            {
-                methodDescTxt = new StringBuilder(methodDescTxt.substring(0, methodDescTxt.lastIndexOf(delimiter)));
-            }
-            observationContainer.getTheObservationDto().setMethodCd(methodCd != null ? methodCd.toString() : "");
-            observationContainer.getTheObservationDto().setMethodDescTxt(methodDescTxt != null ? methodDescTxt.toString() : "");
         } catch (Exception e) {
             logger.error("ObservationResultRequest.getObservationResult Exception thrown while parsing XML document. Please check!!!"+e.getMessage(), e);
             throw new DataProcessingException("Exception thrown at ObservationResultRequest.getObservationResult:"+ e.getMessage());
@@ -529,8 +420,8 @@ public class ObservationResultRequestHandler {
         return organizationContainer;
     }
 
-
-    private void formatValue(String text, HL7OBXType hl7OBXType, ObservationContainer observationContainer, EdxLabInformationDto edxLabInformationDto, String elementName) throws DataProcessingException{
+    @SuppressWarnings({"java:S3776", "java:S6541", "java:S125"})
+    protected void formatValue(String text, HL7OBXType hl7OBXType, ObservationContainer observationContainer, EdxLabInformationDto edxLabInformationDto, String elementName) throws DataProcessingException{
         String type = "";
         try {
             type = hl7OBXType.getValueType();
@@ -544,22 +435,25 @@ public class ObservationResultRequestHandler {
                         obsvalueDT.setItDirty(false);
                         String[] textValue = text.split("\\^");
 
-                        if (textValue != null && textValue.length>0) {
+                        if (!text.isEmpty() && textValue.length>0) {
                             obsvalueDT.setCode(textValue[0]);
                             obsvalueDT.setDisplayName(textValue[1]);
                             if(textValue.length==2){
                                 obsvalueDT.setCodeSystemCd(EdxELRConstant.ELR_SNOMED_CD);
-                            }else if(textValue.length==3 || textValue.length>3){
+                            }else if(textValue.length==3){
                                 obsvalueDT.setCodeSystemCd(textValue[2]);
                             }
-                            if (textValue.length == 6) {
+
+                            if (textValue.length >= 6) {
                                 obsvalueDT.setAltCd(textValue[3]);
                                 obsvalueDT.setAltCdDescTxt(textValue[4]);
+                                /*
                                 if(textValue.length==4){
                                     obsvalueDT.setAltCdSystemCd(EdxELRConstant.ELR_LOCAL_CD);
                                 }else if(textValue.length==5 || textValue.length>5){
                                     obsvalueDT.setAltCdSystemCd(textValue[5]);
                                 }
+                                */
                             }
                         }
                         if((obsvalueDT.getCode()==null || obsvalueDT.getCode().trim().equals(""))
@@ -703,8 +597,8 @@ public class ObservationResultRequestHandler {
 
     }
 
-
-    private ObservationContainer getObsReqNotes(List<HL7NTEType> noteArray, ObservationContainer observationContainer) throws DataProcessingException {
+    @SuppressWarnings("java:S3776")
+    protected ObservationContainer getObsReqNotes(List<HL7NTEType> noteArray, ObservationContainer observationContainer) throws DataProcessingException {
         try {
             for (HL7NTEType notes : noteArray) {
                 if (notes.getHL7Comment() != null && notes.getHL7Comment().size() > 0) {
@@ -752,6 +646,141 @@ public class ObservationResultRequestHandler {
 
     }
 
+    protected Collection<ActIdDto> setEquipments(List<HL7EIType> equipmentIdType, ObservationDto observationDto, Collection<ActIdDto> actIdDtoColl) {
+        int seq = 3;
+        for (HL7EIType equipmentId : equipmentIdType) {
+            ActIdDto act3IdDT = new ActIdDto();
+            act3IdDT.setActUid(observationDto.getObservationUid());
+            act3IdDT.setActIdSeq(seq);
+            act3IdDT.setRootExtensionTxt(equipmentId.getHL7EntityIdentifier());
+            act3IdDT.setAssigningAuthorityCd(equipmentId.getHL7UniversalID());
+            act3IdDT.setAssigningAuthorityDescTxt(equipmentId.getHL7UniversalIDType());
+            act3IdDT.setTypeCd(EdxELRConstant.ELR_EQUIPMENT_INSTANCE_CD);
+            act3IdDT.setTypeDescTxt(EdxELRConstant.ELR_EQUIPMENT_INSTANCE_DESC);
+            act3IdDT.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
+            actIdDtoColl.add(act3IdDT);
+            seq = seq + 1;
+        }
 
+        return actIdDtoColl;
+
+    }
+
+    protected ObservationContainer processingAbnormalFlag(List<HL7CWEType> abnormalFlag, ObservationDto observationDto,
+                                          ObservationContainer observationContainer) throws DataProcessingException {
+        if(abnormalFlag !=null && !abnormalFlag.isEmpty())
+        {
+            ObservationInterpDto observationIntrepDT = new ObservationInterpDto();
+            observationIntrepDT.setObservationUid(observationDto.getObservationUid());
+            observationIntrepDT.setInterpretationCd(abnormalFlag.get(0).getHL7Identifier());
+
+            String str= checkingValueService.getCodeDescTxtForCd("OBS_INTRP",observationIntrepDT.getInterpretationCd());
+            if(str==null || str.trim().length()==0) {
+                observationIntrepDT.setInterpretationDescTxt(abnormalFlag.get(0).getHL7Text());
+            }
+            else {
+                observationIntrepDT.setInterpretationDescTxt(str);
+            }
+            observationIntrepDT.setObservationUid(observationContainer.getTheObservationDto().getObservationUid());
+            observationContainer.setTheObservationInterpDtoCollection(new ArrayList<>());
+            observationContainer.getTheObservationInterpDtoCollection().add(observationIntrepDT);
+        }
+        return observationContainer;
+    }
+    @SuppressWarnings("java:S3776")
+    protected ObservationContainer processingReferringRange(HL7OBXType hl7OBXType, ObservationContainer observationContainer) {
+        if(hl7OBXType.getReferencesRange()!=null){
+            String range =hl7OBXType.getReferencesRange();
+            ObsValueNumericDto obsValueNumericDto;
+            if(observationContainer.getTheObsValueNumericDtoCollection()!=null)
+            {
+                var arrlist = new ArrayList<>(observationContainer.getTheObsValueNumericDtoCollection());
+                obsValueNumericDto = arrlist.get(0);
+            }
+            else
+            {
+                obsValueNumericDto = new ObsValueNumericDto();
+                obsValueNumericDto.setItNew(true);
+                obsValueNumericDto.setItDirty(false);
+                obsValueNumericDto.setObsValueNumericSeq(1);
+                obsValueNumericDto.setObservationUid(observationContainer.getTheObservationDto().getObservationUid());
+            }
+
+            if(range.contains("^"))
+            {
+                int i=0;
+                if(range.indexOf("^")==0){
+                    i=1;
+                }
+                StringTokenizer st = new StringTokenizer(range, "^");
+                while (st.hasMoreTokens()) {
+                    i++;
+                    String token = st.nextToken();
+                    if(i==1)
+                        obsValueNumericDto.setLowRange(token);
+                    else if(i==2)
+                        obsValueNumericDto.setHighRange(token);
+                }
+            }
+            else
+            {
+                obsValueNumericDto.setLowRange(range);
+                if(observationContainer.getTheObsValueNumericDtoCollection()==null){
+                    observationContainer.setTheObsValueNumericDtoCollection(new ArrayList<>());
+                    observationContainer.getTheObsValueNumericDtoCollection().add(obsValueNumericDto);
+                }
+            }
+        }
+        return observationContainer;
+    }
+    @SuppressWarnings("java:S3776")
+    protected ObservationContainer processingObservationMethod(List<HL7CEType> methodArray , EdxLabInformationDto edxLabInformationDto, ObservationContainer observationContainer) throws DataProcessingException {
+        StringBuilder methodCd = null;
+        StringBuilder methodDescTxt = null;
+        final String delimiter = "**";
+        for (HL7CEType method : methodArray) {
+            if (method.getHL7Identifier() != null) {
+                if (methodCd == null)
+                {
+                    methodCd = new StringBuilder(method.getHL7Identifier() + delimiter);
+                }
+                else
+                {
+                    methodCd.append(method.getHL7Identifier()).append(delimiter);
+                }
+
+                String str = checkingValueService.getCodeDescTxtForCd("OBS_METH", method.getHL7Identifier());
+                if (str == null || str.trim().equals("")) {
+
+                    logger.warn(
+                            "ObservationResultRequest.getObservationResult warning: Method code could not be teranslated. Please check!!!");
+                    edxLabInformationDto.setObsMethodTranslated(false);
+                }
+                if (method.getHL7Text() != null) {
+                    if (methodDescTxt == null)
+                    {
+                        methodDescTxt = new StringBuilder(method.getHL7Text() + delimiter);
+                    }
+                    else
+                    {
+                        methodDescTxt.append(method.getHL7Text()).append(delimiter);
+                    }
+                }
+            }
+        }
+
+        if (methodCd != null && methodCd.lastIndexOf(delimiter) > 0)
+        {
+            methodCd = new StringBuilder(methodCd.substring(0, methodCd.lastIndexOf(delimiter)));
+        }
+        if (methodDescTxt != null && methodDescTxt.lastIndexOf(delimiter) > 0)
+        {
+            methodDescTxt = new StringBuilder(methodDescTxt.substring(0, methodDescTxt.lastIndexOf(delimiter)));
+        }
+        observationContainer.getTheObservationDto().setMethodCd(methodCd != null ? methodCd.toString() : "");
+        observationContainer.getTheObservationDto().setMethodDescTxt(methodDescTxt != null ? methodDescTxt.toString() : "");
+
+        return observationContainer;
+    }
 
 }

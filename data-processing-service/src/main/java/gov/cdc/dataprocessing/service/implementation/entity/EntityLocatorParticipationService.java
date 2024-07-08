@@ -40,6 +40,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
         this.odseIdGeneratorService = odseIdGeneratorService;
     }
 
+    @SuppressWarnings("java:S6541")
     @Transactional
     public void updateEntityLocatorParticipation(Collection<EntityLocatorParticipationDto> locatorCollection, Long uid) throws DataProcessingException {
         ArrayList<EntityLocatorParticipationDto> personList = (ArrayList<EntityLocatorParticipationDto> ) locatorCollection;
@@ -231,11 +232,15 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                     entityLocatorParticipationDto.getThePhysicalLocatorDto().setPhysicalLocatorUid(localUid.getSeedValueNbr());
                     physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDto.getThePhysicalLocatorDto()));
                     inserted = true;
-                } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.POSTAL) && entityLocatorParticipationDto.getThePostalLocatorDto() != null) {
+                } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.POSTAL)
+                        && entityLocatorParticipationDto.getThePostalLocatorDto() != null
+                        && entityLocatorParticipationDto.getThePostalLocatorDto().getStreetAddr1() != null) {
                     entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getSeedValueNbr());
                     postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
                     inserted = true;
-                } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.TELE) && entityLocatorParticipationDto.getTheTeleLocatorDto() != null) {
+                } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.TELE)
+                        && entityLocatorParticipationDto.getTheTeleLocatorDto() != null
+                && entityLocatorParticipationDto.getTheTeleLocatorDto().getPhoneNbrTxt() != null) {
                     entityLocatorParticipationDto.getTheTeleLocatorDto().setTeleLocatorUid(localUid.getSeedValueNbr());
                     teleLocatorRepository.save(new TeleLocator(entityLocatorParticipationDto.getTheTeleLocatorDto()));
                     inserted = true;
