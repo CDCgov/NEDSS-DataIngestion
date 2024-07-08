@@ -15,6 +15,7 @@ public class EntityRepositoryUtil {
         this.entityRepository = entityRepository;
     }
 
+    @SuppressWarnings("java:S3923")
     public EntityODSE preparingEntityReposCallForPerson(PersonDto personDto, Long entityId, Object entityValue, String event) {
         EntityODSE entityODSE = null;
         if (entityValue.getClass().toString().equals("class java.lang.String")) {

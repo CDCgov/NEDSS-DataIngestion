@@ -605,38 +605,37 @@ public class ValidateDecisionSupport {
                                 advanceCriteria = 0L;
                         }
 
-
-                        if (logic.equalsIgnoreCase("!=")) {
-                            if (sourceValue != advanceCriteria) {
-                                return true;
-                            }
-                        } else if (logic.equalsIgnoreCase(">")) {
-                            if (sourceValue > advanceCriteria) {
-                                return true;
-                            }
-                        } else if (logic.equalsIgnoreCase(">=")) {
-                            if ((sourceValue == advanceCriteria) || (sourceValue > advanceCriteria)) {
-                                return true;
-                            }
-                        } else if (logic.equalsIgnoreCase("<")) {
-                            if (sourceValue < advanceCriteria) {
-                                return true;
-                            }
-                        } else if (logic.equalsIgnoreCase("<=")) {
-                            if ((sourceValue == advanceCriteria) || (sourceValue < advanceCriteria)) {
-                                return true;
-                            }
-                        } else if (logic.equalsIgnoreCase("=")) {
-                            if (sourceValue == advanceCriteria) {
-                                return true;
+                        if (advanceCriteria != null) {
+                            if (logic.equalsIgnoreCase("!=")) {
+                                if (sourceValue != advanceCriteria) {
+                                    return true;
+                                }
+                            } else if (logic.equalsIgnoreCase(">")) {
+                                if (sourceValue > advanceCriteria) {
+                                    return true;
+                                }
+                            } else if (logic.equalsIgnoreCase(">=")) {
+                                if ((sourceValue == advanceCriteria) || (sourceValue > advanceCriteria)) {
+                                    return true;
+                                }
+                            } else if (logic.equalsIgnoreCase("<")) {
+                                if (sourceValue < advanceCriteria) {
+                                    return true;
+                                }
+                            } else if (logic.equalsIgnoreCase("<=")) {
+                                if ((sourceValue == advanceCriteria) || (sourceValue < advanceCriteria)) {
+                                    return true;
+                                }
+                            } else if (logic.equalsIgnoreCase("=")) {
+                                if (sourceValue == advanceCriteria) {
+                                    return true;
+                                }
                             }
                         }
 
                     } else
                         return false;
 
-                } else {
-                    // return false;
                 }
             }
         } catch (Exception e) {

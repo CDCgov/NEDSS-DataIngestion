@@ -304,12 +304,11 @@ public class CustomRepositoryImpl implements CustomRepository {
                 +" select locator_uid from Entity_locator_participation with (nolock) where entity_uid= "+ organizationUid + " and cd='O' and class_cd='TELE')  ";
 
         Query query = entityManager.createNativeQuery(theSelect);
-        List<Object[]> results = query.getResultList();
+        List<Object[]> results = query.setMaxResults(1).getResultList();
         if (results != null && !results.isEmpty()) {
             for(var item : results) {
                 providerDataForPrintVO.setProviderPhone(item[0].toString());
                 providerDataForPrintVO.setProviderPhoneExtension(item[1].toString());
-                break;
             }
         }
         return providerDataForPrintVO;
@@ -320,14 +319,13 @@ public class CustomRepositoryImpl implements CustomRepository {
                 + "select locator_uid from Entity_locator_participation with (nolock) where entity_uid in ("+organizationUid+")and cd='O' and class_cd='PST')";
 
         Query query = entityManager.createNativeQuery(theSelect);
-        List<Object[]> results = query.getResultList();
+        List<Object[]> results = query.setMaxResults(1).getResultList();
         if (results != null && !results.isEmpty()) {
             for(var item : results) {
                 providerDataForPrintVO.setProviderStreetAddress1(item[0].toString());
                 providerDataForPrintVO.setProviderCity(item[1].toString());
                 providerDataForPrintVO.setProviderState(item[2].toString());
                 providerDataForPrintVO.setProviderZip(item[3].toString());
-                break;
             }
         }
         return providerDataForPrintVO;
@@ -338,12 +336,11 @@ public class CustomRepositoryImpl implements CustomRepository {
                 +" select locator_uid from Entity_locator_participation with (nolock) where entity_uid= "+ organizationUid +"  and cd='PH' and class_cd='TELE')  ";
 
         Query query = entityManager.createNativeQuery(theSelect);
-        List<Object[]> results = query.getResultList();
+        List<Object[]> results = query.setMaxResults(1).getResultList();
         if (results != null && !results.isEmpty()) {
             for(var item : results) {
                 providerDataForPrintVO.setFacilityPhone(item[0].toString());
                 providerDataForPrintVO.setFacilityPhoneExtension(item[1].toString());
-                break;
             }
         }
         return providerDataForPrintVO;
@@ -356,7 +353,7 @@ public class CustomRepositoryImpl implements CustomRepository {
                 + "select locator_uid from Entity_locator_participation with (nolock) where entity_uid in ("+ organizationUid+ ")"
                 +  "and cd='O' and class_cd='PST')";
         Query query = entityManager.createNativeQuery(theSelect);
-        List<Object[]> results = query.getResultList();
+        List<Object[]> results = query.setMaxResults(1).getResultList();
         if (results != null && !results.isEmpty()) {
             for(var item : results) {
                 providerDataForPrintVO.setFacilityAddress1(item[0].toString());
@@ -364,7 +361,6 @@ public class CustomRepositoryImpl implements CustomRepository {
                 providerDataForPrintVO.setFacilityCity(item[2].toString());
                 providerDataForPrintVO.setFacilityState(item[3].toString());
                 providerDataForPrintVO.setFacilityZip(item[4].toString());
-                break;
             }
         }
         return providerDataForPrintVO;

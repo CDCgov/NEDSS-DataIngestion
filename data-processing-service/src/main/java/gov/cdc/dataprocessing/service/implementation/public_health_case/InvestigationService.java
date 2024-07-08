@@ -1059,11 +1059,7 @@ public class InvestigationService implements IInvestigationService {
                                     var org = organizationRepositoryUtil.loadObject(orderingFacilityUid, null);
                                     if (org != null && !org.getTheOrganizationNameDtoCollection().isEmpty()) {
                                         OrganizationNameDto dt = null;
-                                        for (var item : org.getTheOrganizationNameDtoCollection()) {
-                                            dt = item;
-                                            break;
-                                        }
-
+                                        dt = org.getTheOrganizationNameDtoCollection().stream().findFirst().get();
                                         providerDataForPrintVO.setFacilityName(dt.getNmTxt());
                                     }
                                     observationSummaryService.getOrderingFacilityAddress(providerDataForPrintVO, orderingFacilityUid);

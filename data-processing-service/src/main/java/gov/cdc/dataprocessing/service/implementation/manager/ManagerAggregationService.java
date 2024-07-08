@@ -120,17 +120,31 @@ public class ManagerAggregationService implements IManagerAggregationService {
         // Wait for all tasks to complete
         CompletableFuture<Void> allFutures = CompletableFuture.allOf(observationFuture, patientFuture, organizationFuture);
 
-        try {
+        try
+        {
             allFutures.get(); // Wait for all tasks to complete
-        } catch (InterruptedException | ExecutionException e) {
+        }
+        catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+            throw new DataProcessingException("Thread was interrupted", e);
+        }
+        catch (ExecutionException e)
+        {
             throw new DataProcessingException("Failed to execute tasks", e);
         }
-
         // Get the results from CompletableFuture
         try {
             personAggContainer = patientFuture.get();
             organizationContainer = organizationFuture.get();
-        } catch (InterruptedException | ExecutionException e) {
+        }
+        catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+            throw new DataProcessingException("Thread was interrupted", e);
+        }
+        catch (ExecutionException e)
+        {
             throw new DataProcessingException("Failed to get results", e);
         }
 
@@ -139,7 +153,14 @@ public class ManagerAggregationService implements IManagerAggregationService {
         CompletableFuture<Void> progAndJurisdictionFuture = progAndJurisdictionAggregationAsync(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
         try {
             progAndJurisdictionFuture.get();
-        } catch (InterruptedException | ExecutionException e) {
+        }
+        catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+            throw new DataProcessingException("Thread was interrupted", e);
+        }
+        catch (ExecutionException e)
+        {
             throw new DataProcessingException("Failed to execute progAndJurisdictionAggregationAsync", e);
         }
     }
