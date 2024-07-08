@@ -2,9 +2,11 @@ package gov.cdc.dataprocessing.repository.nbs.odse.repos.entity;
 
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,4 +20,10 @@ public interface EntityIdRepository extends JpaRepository<EntityId, Long> {
     Optional<Integer> findMaxEntityId(@Param("parentUid") Long parentUid);
     @Query("SELECT eid FROM EntityId eid WHERE eid.entityUid = :entityUid AND eid.recordStatusCode ='ACTIVE'")
     Optional<List<EntityId>> findByEntityUid(@Param("entityUid") Long entityUid);
+
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM EntityId pn WHERE pn.entityUid = :entityUid AND pn.entityIdSeq = :entityIdSeq")
+    void deleteEntityIdAndSeq (@Param("entityUid") Long entityUid, @Param("entityIdSeq") Integer entityIdSeq);
 }
