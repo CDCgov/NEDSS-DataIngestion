@@ -31,7 +31,7 @@ public class MessageLogServiceTest {
     }
 
     @Test
-    public void testSaveMessageLogSuccess() throws DataProcessingException {
+    void testSaveMessageLogSuccess() throws DataProcessingException {
         Collection<MessageLogDto> messageLogDtoCollection = new ArrayList<>();
         MessageLogDto messageLogDto = new MessageLogDto();
         messageLogDtoCollection.add(messageLogDto);
@@ -42,14 +42,14 @@ public class MessageLogServiceTest {
     }
 
     @Test
-    public void testSaveMessageLogNullCollection() throws DataProcessingException {
+    void testSaveMessageLogNullCollection() throws DataProcessingException {
         messageLogService.saveMessageLog(null);
 
         verify(messageLogRepository, times(0)).save(any(MessageLog.class));
     }
 
     @Test
-    public void testSaveMessageLogException() {
+    void testSaveMessageLogException() {
         Collection<MessageLogDto> messageLogDtoCollection = new ArrayList<>();
         MessageLogDto messageLogDto = new MessageLogDto();
         messageLogDtoCollection.add(messageLogDto);
@@ -62,7 +62,7 @@ public class MessageLogServiceTest {
     }
 
     @Test
-    public void testSaveMessageLogEmptyCollection() throws DataProcessingException {
+    void testSaveMessageLogEmptyCollection() throws DataProcessingException {
         Collection<MessageLogDto> messageLogDtoCollection = new ArrayList<>();
 
         messageLogService.saveMessageLog(messageLogDtoCollection);

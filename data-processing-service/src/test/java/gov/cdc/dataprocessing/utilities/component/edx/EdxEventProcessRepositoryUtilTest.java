@@ -37,7 +37,7 @@ public class EdxEventProcessRepositoryUtilTest {
     }
 
     @Test
-    public void testInsertEventProcess() throws DataProcessingException {
+    void testInsertEventProcess() throws DataProcessingException {
         EDXEventProcessDto edxEventProcessDto = new EDXEventProcessDto();
         edxEventProcessDto.setDocEventTypeCd("DOC_TYPE");
         var uidObj = new LocalUidGenerator();
@@ -50,7 +50,7 @@ public class EdxEventProcessRepositoryUtilTest {
     }
 
     @Test
-    public void testInsertEventProcessThrowsException() throws DataProcessingException {
+    void testInsertEventProcessThrowsException() throws DataProcessingException {
         EDXEventProcessDto edxEventProcessDto = new EDXEventProcessDto();
         when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.NBS_DOCUMENT)).thenThrow(new RuntimeException("Test Exception"));
 

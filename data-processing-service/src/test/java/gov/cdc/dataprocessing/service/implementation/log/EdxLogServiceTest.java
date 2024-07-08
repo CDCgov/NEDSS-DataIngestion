@@ -1,10 +1,8 @@
 package gov.cdc.dataprocessing.service.implementation.log;
 
-import ca.uhn.hl7v2.model.v231.datatype.ED;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
@@ -15,11 +13,8 @@ import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.log.EdxActivityDetailLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.log.EdxActivityLog;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomAuthUserRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.auth.AuthUserRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.EdxActivityDetailLogRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.EdxActivityLogRepository;
-import gov.cdc.dataprocessing.service.implementation.auth_user.AuthUserService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.service.model.wds.WdsReport;
 import gov.cdc.dataprocessing.service.model.wds.WdsValueCodedReport;
@@ -37,10 +32,9 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyCollection;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class EdxLogServiceTest {
@@ -49,7 +43,7 @@ public class EdxLogServiceTest {
     @Mock
     private EdxActivityDetailLogRepository edxActivityDetailLogRepository;
     @Mock
-    private EDXActivityLogDto edxActivityLogDto;
+    private EDXActivityLogDto edxActivityLogDto1;
     @Mock
     private EdxLabInformationDto edxLabInformationDto;
     @InjectMocks
@@ -73,7 +67,7 @@ public class EdxLogServiceTest {
     void tearDown() {
         Mockito.reset(edxActivityLogRepository,
                 edxActivityDetailLogRepository, authUtil,
-                edxActivityLogDto, edxLabInformationDto);
+                edxActivityLogDto1, edxLabInformationDto);
     }
 
     @Test
@@ -126,6 +120,7 @@ public class EdxLogServiceTest {
 
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
     void updateActivityLogDT_Test() {
         NbsInterfaceModel nbsInterfaceModel = new NbsInterfaceModel();
@@ -149,6 +144,7 @@ public class EdxLogServiceTest {
         edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
     void updateActivityLogDT_Test_2() {
         NbsInterfaceModel nbsInterfaceModel = new NbsInterfaceModel();
@@ -174,9 +170,9 @@ public class EdxLogServiceTest {
 
 
     @Test
+    @SuppressWarnings("java:S2699")
     void addActivityDetailLogs_Test() {
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
-        String detailedMsg = "STR";
 
         var edxAc = new EDXActivityLogDto();
         var edxAcDeCol = new ArrayList<EDXActivityDetailLogDto>();
@@ -188,145 +184,145 @@ public class EdxLogServiceTest {
     }
 
     @Test
-    public void testInvalidXML() {
+    void testInvalidXML() {
         when(edxLabInformationDto.isInvalidXML()).thenReturn(true);
-        when(edxLabInformationDto.getEdxActivityLogDto()).thenReturn(edxActivityLogDto);
-        when(edxActivityLogDto.getEDXActivityLogDTWithVocabDetails()).thenReturn(new ArrayList<>());
+        when(edxLabInformationDto.getEdxActivityLogDto()).thenReturn(edxActivityLogDto1);
+        when(edxActivityLogDto1.getEDXActivityLogDTWithVocabDetails()).thenReturn(new ArrayList<>());
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testMultipleOBR() {
+    void testMultipleOBR() {
         setCommonExpectations();
         when(edxLabInformationDto.isMultipleOBR()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testFillerNumberNotPresent() {
-        when(edxLabInformationDto.getEdxActivityLogDto()).thenReturn(edxActivityLogDto);
-        when(edxActivityLogDto.getEDXActivityLogDTWithVocabDetails()).thenReturn(new ArrayList<>());
+    void testFillerNumberNotPresent() {
+        when(edxLabInformationDto.getEdxActivityLogDto()).thenReturn(edxActivityLogDto1);
+        when(edxActivityLogDto1.getEDXActivityLogDTWithVocabDetails()).thenReturn(new ArrayList<>());
         when(edxLabInformationDto.isFillerNumberPresent()).thenReturn(false);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testOrderTestNameMissing() {
+    void testOrderTestNameMissing() {
         setCommonExpectations();
         when(edxLabInformationDto.isOrderTestNameMissing()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testReflexOrderedTestCdMissing() {
+    void testReflexOrderedTestCdMissing() {
         setCommonExpectations();
         when(edxLabInformationDto.isReflexOrderedTestCdMissing()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testReflexResultedTestCdMissing() {
+    void testReflexResultedTestCdMissing() {
         setCommonExpectations();
         when(edxLabInformationDto.isReflexResultedTestCdMissing()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testResultedTestNameMissing() {
+    void testResultedTestNameMissing() {
         setCommonExpectations();
         when(edxLabInformationDto.isResultedTestNameMissing()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testReasonforStudyCdMissing() {
+    void testReasonforStudyCdMissing() {
         setCommonExpectations();
         when(edxLabInformationDto.isReasonforStudyCdMissing()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testDrugNameMissing() {
+    void testDrugNameMissing() {
         setCommonExpectations();
         when(edxLabInformationDto.isDrugNameMissing()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testMultipleSubject() {
+    void testMultipleSubject() {
         setCommonExpectations();
         when(edxLabInformationDto.isMultipleSubject()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testNoSubject() {
+    void testNoSubject() {
         setCommonExpectations();
         when(edxLabInformationDto.isNoSubject()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testChildOBRWithoutParent() {
+    void testChildOBRWithoutParent() {
         setCommonExpectations();
         when(edxLabInformationDto.isChildOBRWithoutParent()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testOrderOBRWithParent() {
+    void testOrderOBRWithParent() {
         setCommonExpectations();
         when(edxLabInformationDto.isOrderOBRWithParent()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testObsStatusNotTranslated() {
+    void testObsStatusNotTranslated() {
         setCommonExpectations();
         when(edxLabInformationDto.isObsStatusTranslated()).thenReturn(false);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     private void setCommonExpectations2() {
@@ -347,194 +343,194 @@ public class EdxLogServiceTest {
 
 
     @Test
-    public void testUniversalServiceIdMissing() {
+    void testUniversalServiceIdMissing() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isUniversalServiceIdMissing()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testActivityToTimeMissing() {
+    void testActivityToTimeMissing() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isActivityToTimeMissing()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testActivityTimeOutOfSequence() {
+    void testActivityTimeOutOfSequence() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isActivityTimeOutOfSequence()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testFinalPostCorrected() {
+    void testFinalPostCorrected() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isFinalPostCorrected()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testPreliminaryPostFinal() {
+    void testPreliminaryPostFinal() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isPreliminaryPostFinal()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testPreliminaryPostCorrected() {
+    void testPreliminaryPostCorrected() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isPreliminaryPostCorrected()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testMissingOrderingProviderandFacility() {
+    void testMissingOrderingProviderandFacility() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isMissingOrderingProviderandFacility()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testUnexpectedResultType() {
+    void testUnexpectedResultType() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isUnexpectedResultType()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testChildSuscWithoutParentResult() {
+    void testChildSuscWithoutParentResult() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isChildSuscWithoutParentResult()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testNoCreateLabPermission() {
+    void testNoCreateLabPermission() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isCreateLabPermission()).thenReturn(false);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testNoUpdateLabPermission() {
+    void testNoUpdateLabPermission() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isUpdateLabPermission()).thenReturn(false);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testNoMarkAsReviewPermission() {
+    void testNoMarkAsReviewPermission() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isMarkAsReviewPermission()).thenReturn(false);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testNoCreateInvestigationPermission() {
+    void testNoCreateInvestigationPermission() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isCreateInvestigationPermission()).thenReturn(false);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testNoCreateNotificationPermission_Test() {
+    void testNoCreateNotificationPermission_Test() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isCreateNotificationPermission()).thenReturn(false);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testFieldTruncationError() {
+    void testFieldTruncationError() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isFieldTruncationError()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testInvalidDateError() {
+    void testInvalidDateError() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isInvalidDateError()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testSystemException() {
+    void testSystemException() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isSystemException()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testMultipleSubjectMatch() {
+    void testMultipleSubjectMatch() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isMultipleSubjectMatch()).thenReturn(true);
@@ -542,22 +538,22 @@ public class EdxLogServiceTest {
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testPatientMatch() {
+    void testPatientMatch() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isPatientMatch()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testNextOfKin() {
+    void testNextOfKin() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isNextOfKin()).thenReturn(true);
@@ -576,55 +572,55 @@ public class EdxLogServiceTest {
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testProvider() {
+    void testProvider() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isProvider()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testLabIsCreateSuccess() {
+    void testLabIsCreateSuccess() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isLabIsCreateSuccess()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testObservationMatch() {
+    void testObservationMatch() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isObservationMatch()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testLabIsUpdateSuccess() {
+    void testLabIsUpdateSuccess() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isLabIsUpdateSuccess()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testMissingOrderingProvider() {
+    void testMissingOrderingProvider() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isMissingOrderingProviderandFacility()).thenReturn(false);
@@ -632,11 +628,11 @@ public class EdxLogServiceTest {
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testMissingOrderingFacility() {
+    void testMissingOrderingFacility() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isMissingOrderingProviderandFacility()).thenReturn(false);
@@ -644,143 +640,143 @@ public class EdxLogServiceTest {
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testMultipleOrderingProvider() {
+    void testMultipleOrderingProvider() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isMultipleOrderingProvider()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testMultipleCollector() {
+    void testMultipleCollector() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isMultipleCollector()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testMultiplePrincipalInterpreter() {
+    void testMultiplePrincipalInterpreter() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isMultiplePrincipalInterpreter()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testMultipleOrderingFacility() {
+    void testMultipleOrderingFacility() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isMultipleOrderingFacility()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testMultipleReceivingFacility() {
+    void testMultipleReceivingFacility() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isMultipleReceivingFacility()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testMultipleSpecimen() {
+    void testMultipleSpecimen() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isMultipleSpecimen()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testEthnicityCodeNotTranslated() {
+    void testEthnicityCodeNotTranslated() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isEthnicityCodeTranslated()).thenReturn(false);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testObsMethodNotTranslated() {
+    void testObsMethodNotTranslated() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isObsMethodTranslated()).thenReturn(false);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testRaceNotTranslated() {
+    void testRaceNotTranslated() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isRaceTranslated()).thenReturn(false);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testSexNotTranslated() {
+    void testSexNotTranslated() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isSexTranslated()).thenReturn(false);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testSsnInvalid() {
+    void testSsnInvalid() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isSsnInvalid()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testNullClia() {
+    void testNullClia() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.isNullClia()).thenReturn(true);
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testWdsReportsNotEmpty() {
+    void testWdsReportsNotEmpty() {
         setCommonExpectations();
         setCommonExpectations2();
         when(edxLabInformationDto.getWdsReports()).thenReturn(new ArrayList<>() {
@@ -791,11 +787,11 @@ public class EdxLogServiceTest {
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testWdsReportsNotEmpty_Numeric() {
+    void testWdsReportsNotEmpty_Numeric() {
         setCommonExpectations();
         setCommonExpectations2();
         var wds = new WdsReport();
@@ -817,11 +813,11 @@ public class EdxLogServiceTest {
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testWdsReportsNotEmpty_Text() {
+    void testWdsReportsNotEmpty_Text() {
         setCommonExpectations();
         setCommonExpectations2();
         var wds = new WdsReport();
@@ -841,12 +837,12 @@ public class EdxLogServiceTest {
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
 
     @Test
-    public void testWdsReportsNotEmpty_Code() {
+    void testWdsReportsNotEmpty_Code() {
         setCommonExpectations();
         setCommonExpectations2();
         var wds = new WdsReport();
@@ -862,11 +858,12 @@ public class EdxLogServiceTest {
 
         edxLogService.addActivityDetailLogs(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
 
     @Test
+    @SuppressWarnings("java:S2699")
     public void testWdsReportsNotEmpty_Exp() {
         setCommonExpectations();
         setCommonExpectations2();
@@ -880,94 +877,94 @@ public class EdxLogServiceTest {
 
     private void setCommonExpectations() {
         when(edxLabInformationDto.isFillerNumberPresent()).thenReturn(true);
-        when(edxLabInformationDto.getEdxActivityLogDto()).thenReturn(edxActivityLogDto);
-        when(edxActivityLogDto.getEDXActivityLogDTWithVocabDetails()).thenReturn(new ArrayList<>());
+        when(edxLabInformationDto.getEdxActivityLogDto()).thenReturn(edxActivityLogDto1);
+        when(edxActivityLogDto1.getEDXActivityLogDTWithVocabDetails()).thenReturn(new ArrayList<>());
     }
 
     //
     private void setCommonExpectations1() {
-        when(edxLabInformationDto.getEdxActivityLogDto()).thenReturn(edxActivityLogDto);
+        when(edxLabInformationDto.getEdxActivityLogDto()).thenReturn(edxActivityLogDto1);
         when(edxLabInformationDto.isCreateNotificationPermission()).thenReturn(true);
 
-        when(edxActivityLogDto.getEDXActivityLogDTWithVocabDetails()).thenReturn(new ArrayList<>());
+        when(edxActivityLogDto1.getEDXActivityLogDTWithVocabDetails()).thenReturn(new ArrayList<>());
     }
 
     @Test
-    public void testNoCreateNotificationPermission() {
+    void testNoCreateNotificationPermission() {
         setCommonExpectations1();
         when(edxLabInformationDto.isCreateNotificationPermission()).thenReturn(false);
         when(edxLabInformationDto.getUserName()).thenReturn("TEST");
 
         edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testInvestigationSuccessfullyCreated() {
+    void testInvestigationSuccessfullyCreated() {
         setCommonExpectations1();
         when(edxLabInformationDto.isInvestigationSuccessfullyCreated()).thenReturn(true);
         when(edxLabInformationDto.getPublicHealthCaseUid()).thenReturn(123L);
 
         edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testLabAssociatedToInv() {
+    void testLabAssociatedToInv() {
         setCommonExpectations1();
         when(edxLabInformationDto.isLabAssociatedToInv()).thenReturn(true);
         when(edxLabInformationDto.getPublicHealthCaseUid()).thenReturn(123L);
 
         edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testNotificationSuccessfullyCreated() {
+    void testNotificationSuccessfullyCreated() {
         setCommonExpectations1();
         when(edxLabInformationDto.isNotificationSuccessfullyCreated()).thenReturn(true);
         when(edxLabInformationDto.getNotificationUid()).thenReturn(456L);
 
         edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testInvestigationMissingFields() {
+    void testInvestigationMissingFields() {
         setCommonExpectations1();
         when(edxLabInformationDto.isInvestigationMissingFields()).thenReturn(true);
 
         edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testNotificationMissingFields() {
+    void testNotificationMissingFields() {
         setCommonExpectations1();
         when(edxLabInformationDto.isNotificationMissingFields()).thenReturn(true);
 
         edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     @Test
-    public void testNoExceptionThrown() {
+    void testNoExceptionThrown() {
         setCommonExpectations1();
 
         edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "Detailed message");
 
-        verify(edxActivityLogDto, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
+        verify(edxActivityLogDto1, times(1)).setEDXActivityLogDTWithVocabDetails(anyList());
     }
 
     // Test for exception handling
     @Test
-    public void testExceptionHandling() {
+    void testExceptionHandling() {
         when(edxLabInformationDto.getEdxActivityLogDto()).thenThrow(new RuntimeException("Test Exception"));
 
         assertDoesNotThrow(() -> edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "Detailed message"));

@@ -28,7 +28,7 @@ class EntityRepositoryUtilTest {
     }
 
     @Test
-    public void testPreparingEntityReposCallForPersonWithString() {
+    void testPreparingEntityReposCallForPersonWithString() {
         PersonDto personDto = new PersonDto();
         Long entityId = 1L;
         String entityValue = "classCode";
@@ -43,7 +43,7 @@ class EntityRepositoryUtilTest {
     }
 
     @Test
-    public void testPreparingEntityReposCallForPersonWithTimestamp() {
+    void testPreparingEntityReposCallForPersonWithTimestamp() {
         PersonDto personDto = new PersonDto();
         Long entityId = 1L;
         java.sql.Timestamp entityValue = new java.sql.Timestamp(System.currentTimeMillis());
@@ -56,7 +56,7 @@ class EntityRepositoryUtilTest {
     }
 
     @Test
-    public void testPreparingEntityReposCallForPersonWithSelectEvent() {
+    void testPreparingEntityReposCallForPersonWithSelectEvent() {
         PersonDto personDto = new PersonDto();
         Long entityId = 1L;
         String entityValue = "classCode";
@@ -71,7 +71,7 @@ class EntityRepositoryUtilTest {
     }
 
     @Test
-    public void testPreparingEntityReposCallForPersonWithSelectCountEvent() {
+    void testPreparingEntityReposCallForPersonWithSelectCountEvent() {
         PersonDto personDto = new PersonDto();
         Long entityId = 1L;
         String entityValue = "classCode";

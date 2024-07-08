@@ -14,10 +14,8 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 public class EdxPhcrDocumentUtilTest {
     @InjectMocks
@@ -36,7 +34,7 @@ public class EdxPhcrDocumentUtilTest {
 
 
     @Test
-    public void testRequiredFieldCheck() {
+    void testRequiredFieldCheck() {
         Map<Object, Object> requiredQuestionIdentifierMap = new HashMap<>();
         NbsQuestionMetadata metadata = new NbsQuestionMetadata();
         metadata.setQuestionLabel("QuestionLabel");
@@ -51,7 +49,7 @@ public class EdxPhcrDocumentUtilTest {
     }
 
     @Test
-    public void testRequiredFieldCheckWithAllAnswersPresent() {
+    void testRequiredFieldCheckWithAllAnswersPresent() {
         Map<Object, Object> requiredQuestionIdentifierMap = new HashMap<>();
         NbsQuestionMetadata metadata = new NbsQuestionMetadata();
         metadata.setQuestionLabel("QuestionLabel");
@@ -66,7 +64,7 @@ public class EdxPhcrDocumentUtilTest {
     }
 
     @Test
-    public void testSetStandardNBSCaseAnswerVals() {
+    void testSetStandardNBSCaseAnswerVals() {
         PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
         publicHealthCaseContainer.getThePublicHealthCaseDto().setPublicHealthCaseUid(1L);
         publicHealthCaseContainer.getThePublicHealthCaseDto().setAddTime(TimeStampUtil.getCurrentTimeStamp());

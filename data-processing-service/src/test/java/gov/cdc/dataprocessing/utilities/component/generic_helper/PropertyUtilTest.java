@@ -1,19 +1,13 @@
 package gov.cdc.dataprocessing.utilities.component.generic_helper;
+
 import gov.cdc.dataprocessing.cache.PropertyUtilCache;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.mockito.InjectMocks;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.StringTokenizer;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 class PropertyUtilTest {
     @InjectMocks
     private PropertyUtil propertyUtil;
@@ -26,33 +20,33 @@ class PropertyUtilTest {
     }
 
     @Test
-    public void testIsHIVProgramArea_ValidProgramArea() {
+    void testIsHIVProgramArea_ValidProgramArea() {
         assertTrue(propertyUtil.isHIVProgramArea("PA1"));
     }
 
     @Test
-    public void testIsHIVProgramArea_InvalidProgramArea() {
+    void testIsHIVProgramArea_InvalidProgramArea() {
         assertFalse(propertyUtil.isHIVProgramArea("INVALID"));
     }
 
     @Test
-    public void testIsHIVProgramArea_NullProgramArea() {
+    void testIsHIVProgramArea_NullProgramArea() {
         assertFalse(propertyUtil.isHIVProgramArea(null));
     }
 
     @Test
-    public void testIsHIVProgramArea_EmptyProgramArea() {
+    void testIsHIVProgramArea_EmptyProgramArea() {
         assertFalse(propertyUtil.isHIVProgramArea(""));
     }
 
     @Test
-    public void testIsHIVProgramArea_EmptyHivProgArea() {
+    void testIsHIVProgramArea_EmptyHivProgArea() {
         ReflectionTestUtils.setField(propertyUtil, "hivProgArea", "");
         assertFalse(propertyUtil.isHIVProgramArea("PA1"));
     }
 
     @Test
-    public void testCachedHivProgramArea_Success() {
+    void testCachedHivProgramArea_Success() {
         propertyUtil.isHIVProgramArea("PA1"); // This will trigger the caching
 
         assertTrue(PropertyUtilCache.cachedHivList.contains("PA1"));

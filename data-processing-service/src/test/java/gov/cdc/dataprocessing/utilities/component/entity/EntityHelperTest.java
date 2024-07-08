@@ -33,7 +33,7 @@ class EntityHelperTest {
     }
 
     @Test
-    public void testIterateELPDTForEntityLocatorParticipation() throws DataProcessingException {
+    void testIterateELPDTForEntityLocatorParticipation() throws DataProcessingException {
         Collection<EntityLocatorParticipationDto> dtCol = new ArrayList<>();
         EntityLocatorParticipationDto elpDto = new EntityLocatorParticipationDto();
         dtCol.add(elpDto);
@@ -48,7 +48,7 @@ class EntityHelperTest {
     }
 
     @Test
-    public void testIterateRDT() throws DataProcessingException {
+    void testIterateRDT() throws DataProcessingException {
         Collection<RoleDto> dtCol = new ArrayList<>();
         RoleDto roleDto = new RoleDto();
         roleDto.setItNew(true);
@@ -63,7 +63,7 @@ class EntityHelperTest {
     }
 
     @Test
-    public void testIteratePDTForParticipation() throws DataProcessingException {
+    void testIteratePDTForParticipation() throws DataProcessingException {
         Collection<ParticipationDto> dtCol = new ArrayList<>();
         ParticipationDto participationDto = new ParticipationDto();
         participationDto.setItNew(true);
@@ -78,7 +78,7 @@ class EntityHelperTest {
     }
 
     @Test
-    public void testIterateActivityParticipation() throws DataProcessingException {
+    void testIterateActivityParticipation() throws DataProcessingException {
         Collection<ActivityLocatorParticipationDto> dtCol = new ArrayList<>();
         ActivityLocatorParticipationDto alpDto = new ActivityLocatorParticipationDto();
         dtCol.add(alpDto);
@@ -92,7 +92,7 @@ class EntityHelperTest {
     }
 
     @Test
-    public void testIterateActRelationship() throws DataProcessingException {
+    void testIterateActRelationship() throws DataProcessingException {
         Collection<ActRelationshipDto> dtCol = new ArrayList<>();
         ActRelationshipDto actRelationshipDto = new ActRelationshipDto();
         actRelationshipDto.setItNew(true);
@@ -107,7 +107,7 @@ class EntityHelperTest {
     }
 
     @Test
-    public void testIterateALPDTActivityLocatorParticipation() throws DataProcessingException {
+    void testIterateALPDTActivityLocatorParticipation() throws DataProcessingException {
         Collection<ActivityLocatorParticipationDto> dtCol = new ArrayList<>();
         ActivityLocatorParticipationDto alpDto = new ActivityLocatorParticipationDto();
         dtCol.add(alpDto);
@@ -121,7 +121,7 @@ class EntityHelperTest {
     }
 
     @Test
-    public void testIterateARDTActRelationship() throws DataProcessingException {
+    void testIterateARDTActRelationship() throws DataProcessingException {
         Collection<ActRelationshipDto> dtCol = new ArrayList<>();
         ActRelationshipDto actRelationshipDto = new ActRelationshipDto();
         actRelationshipDto.setItNew(true);

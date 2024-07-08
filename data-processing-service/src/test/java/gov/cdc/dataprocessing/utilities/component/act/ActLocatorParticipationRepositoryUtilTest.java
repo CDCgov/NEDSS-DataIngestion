@@ -29,7 +29,7 @@ class ActLocatorParticipationRepositoryUtilTest {
     }
 
     @Test
-    public void testGetActLocatorParticipationCollection() {
+    void testGetActLocatorParticipationCollection() {
         Long actUid = 1L;
         List<ActLocatorParticipation> actLocatorParticipations = new ArrayList<>();
         ActLocatorParticipation actLocatorParticipation = new ActLocatorParticipation();
@@ -47,7 +47,7 @@ class ActLocatorParticipationRepositoryUtilTest {
     }
 
     @Test
-    public void testGetActLocatorParticipationCollectionEmpty() {
+    void testGetActLocatorParticipationCollectionEmpty() {
         Long actUid = 1L;
         when(actLocatorParticipationRepository.findRecordsById(actUid)).thenReturn(new ArrayList<>());
 
@@ -58,7 +58,7 @@ class ActLocatorParticipationRepositoryUtilTest {
     }
 
     @Test
-    public void testInsertActLocatorParticipationCollection() {
+    void testInsertActLocatorParticipationCollection() {
         Long uid = 1L;
         Collection<ActivityLocatorParticipationDto> activityLocatorParticipationDtoCollection = new ArrayList<>();
         ActivityLocatorParticipationDto activityLocatorParticipationDto = new ActivityLocatorParticipationDto();
@@ -75,7 +75,7 @@ class ActLocatorParticipationRepositoryUtilTest {
     }
 
     @Test
-    public void testInsertActLocatorParticipationCollectionEmpty() {
+    void testInsertActLocatorParticipationCollectionEmpty() {
         Long uid = 1L;
         Collection<ActivityLocatorParticipationDto> activityLocatorParticipationDtoCollection = new ArrayList<>();
 

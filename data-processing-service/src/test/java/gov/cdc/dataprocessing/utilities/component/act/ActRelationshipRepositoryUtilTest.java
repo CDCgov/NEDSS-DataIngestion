@@ -8,7 +8,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipHistoryRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipRepository;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
-import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -39,7 +38,7 @@ class ActRelationshipRepositoryUtilTest {
     }
 
     @Test
-    public void testGetActRelationshipCollectionFromSourceId() {
+    void testGetActRelationshipCollectionFromSourceId() {
         Long actUid = 1L;
         List<ActRelationship> actRelationships = new ArrayList<>();
         ActRelationship actRelationship = new ActRelationship();
@@ -57,7 +56,7 @@ class ActRelationshipRepositoryUtilTest {
     }
 
     @Test
-    public void testGetActRelationshipCollectionFromSourceIdEmpty() {
+    void testGetActRelationshipCollectionFromSourceIdEmpty() {
         Long actUid = 1L;
         when(actRelationshipRepository.findRecordsBySourceId(actUid)).thenReturn(Optional.empty());
 
@@ -68,7 +67,7 @@ class ActRelationshipRepositoryUtilTest {
     }
 
     @Test
-    public void testSelectActRelationshipDTCollectionFromActUid() throws DataProcessingException {
+    void testSelectActRelationshipDTCollectionFromActUid() throws DataProcessingException {
         long actUid = 1L;
         List<ActRelationship> actRelationships = new ArrayList<>();
         ActRelationship actRelationship = new ActRelationship();
@@ -86,7 +85,7 @@ class ActRelationshipRepositoryUtilTest {
     }
 
     @Test
-    public void testSelectActRelationshipDTCollectionFromActUidEmpty() throws DataProcessingException {
+    void testSelectActRelationshipDTCollectionFromActUidEmpty() throws DataProcessingException {
         long actUid = 1L;
         when(actRelationshipRepository.findRecordsByActUid(actUid)).thenReturn(Optional.empty());
 
@@ -97,7 +96,7 @@ class ActRelationshipRepositoryUtilTest {
     }
 
     @Test
-    public void testSelectActRelationshipDTCollectionFromActUidException() {
+    void testSelectActRelationshipDTCollectionFromActUidException() {
         long actUid = 1L;
         when(actRelationshipRepository.findRecordsByActUid(actUid)).thenThrow(new RuntimeException("Test Exception"));
 
@@ -107,7 +106,7 @@ class ActRelationshipRepositoryUtilTest {
     }
 
     @Test
-    public void testInsertActRelationshipHist() {
+    void testInsertActRelationshipHist() {
         ActRelationshipDto actRelationshipDto = new ActRelationshipDto();
 
         actRelationshipRepositoryUtil.insertActRelationshipHist(actRelationshipDto);
@@ -116,7 +115,7 @@ class ActRelationshipRepositoryUtilTest {
     }
 
     @Test
-    public void testStoreActRelationshipNew() throws DataProcessingException {
+    void testStoreActRelationshipNew() throws DataProcessingException {
         ActRelationshipDto actRelationshipDto = new ActRelationshipDto();
         actRelationshipDto.setItNew(true);
         AuthUtil.authUser = new AuthUser();
@@ -128,7 +127,7 @@ class ActRelationshipRepositoryUtilTest {
     }
 
     @Test
-    public void testStoreActRelationshipDelete() throws DataProcessingException {
+    void testStoreActRelationshipDelete() throws DataProcessingException {
         ActRelationshipDto actRelationshipDto = new ActRelationshipDto();
         actRelationshipDto.setItDelete(true);
 
@@ -138,7 +137,7 @@ class ActRelationshipRepositoryUtilTest {
     }
 
     @Test
-    public void testStoreActRelationshipDirty() throws DataProcessingException {
+    void testStoreActRelationshipDirty() throws DataProcessingException {
         ActRelationshipDto actRelationshipDto = new ActRelationshipDto();
         actRelationshipDto.setItDirty(true);
         actRelationshipDto.setTargetActUid(1L);
@@ -151,14 +150,14 @@ class ActRelationshipRepositoryUtilTest {
     }
 
     @Test
-    public void testStoreActRelationshipNullDto() {
+    void testStoreActRelationshipNullDto() {
         assertThrows(DataProcessingException.class, () -> {
             actRelationshipRepositoryUtil.storeActRelationship(null);
         });
     }
 
     @Test
-    public void testStoreActRelationshipDirtyIncomplete() throws DataProcessingException {
+    void testStoreActRelationshipDirtyIncomplete() throws DataProcessingException {
         ActRelationshipDto actRelationshipDto = new ActRelationshipDto();
         actRelationshipDto.setItDirty(true);
 

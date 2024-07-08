@@ -1,4 +1,5 @@
 package gov.cdc.dataprocessing.utilities.component.generic_helper;
+
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
@@ -9,18 +10,14 @@ import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.service.interfaces.person.IPersonService;
 import gov.cdc.dataprocessing.service.model.person.PersonAggContainer;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -37,7 +34,7 @@ class ManagerUtilTest {
     }
 
     @Test
-    public void testSetPersonUIDOnUpdate() {
+    void testSetPersonUIDOnUpdate() {
         Long personUid = 1L;
         LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
         PersonContainer personContainer = new PersonContainer();
@@ -54,7 +51,7 @@ class ManagerUtilTest {
     }
 
     @Test
-    public void testGetObservationWithOrderDomainCode() {
+    void testGetObservationWithOrderDomainCode() {
         LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
         ObservationContainer observationContainer = new ObservationContainer();
         observationContainer.getTheObservationDto().setObsDomainCdSt1(EdxELRConstant.ELR_ORDER_CD);
@@ -68,7 +65,7 @@ class ManagerUtilTest {
     }
 
     @Test
-    public void testPatientAggregation() throws DataProcessingConsumerException, DataProcessingException {
+    void testPatientAggregation() throws DataProcessingConsumerException, DataProcessingException {
         LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         PersonContainer personContainer = new PersonContainer();
@@ -86,7 +83,7 @@ class ManagerUtilTest {
     }
 
     @Test
-    public void testPersonAggregationAsync() throws DataProcessingException {
+    void testPersonAggregationAsync() throws DataProcessingException {
         LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         PersonContainer personContainer = new PersonContainer();

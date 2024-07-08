@@ -29,7 +29,7 @@ class ActIdRepositoryUtilTest {
     }
 
     @Test
-    public void testGetActIdCollection() {
+    void testGetActIdCollection() {
         Long actUid = 1L;
         Collection<ActId> actIds = new ArrayList<>();
         ActId actId = new ActId();
@@ -47,7 +47,7 @@ class ActIdRepositoryUtilTest {
     }
 
     @Test
-    public void testGetActIdCollectionEmpty() {
+    void testGetActIdCollectionEmpty() {
         Long actUid = 1L;
         when(actIdRepository.findRecordsById(actUid)).thenReturn(Optional.empty());
 
@@ -58,7 +58,7 @@ class ActIdRepositoryUtilTest {
     }
 
     @Test
-    public void testInsertActIdCollection() {
+    void testInsertActIdCollection() {
         Long uid = 1L;
         Collection<ActIdDto> actIdDtoCollection = new ArrayList<>();
         ActIdDto actIdDto = new ActIdDto();
@@ -75,7 +75,7 @@ class ActIdRepositoryUtilTest {
     }
 
     @Test
-    public void testInsertActIdCollectionEmpty() {
+    void testInsertActIdCollectionEmpty() {
         Long uid = 1L;
         Collection<ActIdDto> actIdDtoCollection = new ArrayList<>();
 

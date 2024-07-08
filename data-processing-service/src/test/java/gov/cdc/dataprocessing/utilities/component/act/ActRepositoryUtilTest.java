@@ -24,7 +24,7 @@ class ActRepositoryUtilTest {
     }
 
     @Test
-    public void testInsertActivityId() {
+    void testInsertActivityId() {
         Long uid = 1L;
         String classCode = "classCode";
         String moodCode = "moodCode";
@@ -35,7 +35,7 @@ class ActRepositoryUtilTest {
     }
 
     @Test
-    public void testInsertActivityIdWithNullValues() {
+    void testInsertActivityIdWithNullValues() {
         Long uid = null;
         String classCode = null;
         String moodCode = null;
@@ -46,7 +46,7 @@ class ActRepositoryUtilTest {
     }
 
     @Test
-    public void testInsertActivityIdWithEmptyValues() {
+    void testInsertActivityIdWithEmptyValues() {
         Long uid = 1L;
         String classCode = "";
         String moodCode = "";

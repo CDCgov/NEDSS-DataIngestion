@@ -1,4 +1,5 @@
 package gov.cdc.dataprocessing.utilities.component.generic_helper;
+
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
@@ -13,19 +14,16 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PrepareEntit
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.jurisdiction.ProgAreaJurisdictionUtil;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 public class PrepareAssocModelHelperTest {
     @InjectMocks
@@ -56,7 +54,7 @@ public class PrepareAssocModelHelperTest {
     }
 
     @Test
-    public void testPrepareAssocDTForEntityLocatorParticipation() throws DataProcessingException {
+    void testPrepareAssocDTForEntityLocatorParticipation() throws DataProcessingException {
         EntityLocatorParticipationDto dto = mock(EntityLocatorParticipationDto.class);
         when(dto.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
         when(dto.getStatusCd()).thenReturn("A");
@@ -71,7 +69,7 @@ public class PrepareAssocModelHelperTest {
     }
 
     @Test
-    public void testPrepareAssocDTForActRelationship() throws DataProcessingException {
+    void testPrepareAssocDTForActRelationship() throws DataProcessingException {
         ActRelationshipDto dto = mock(ActRelationshipDto.class);
         when(dto.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
         when(dto.getStatusCd()).thenReturn("A");
@@ -86,7 +84,7 @@ public class PrepareAssocModelHelperTest {
     }
 
     @Test
-    public void testPrepareAssocDTForRole() throws DataProcessingException {
+    void testPrepareAssocDTForRole() throws DataProcessingException {
         RoleDto dto = mock(RoleDto.class);
         when(dto.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
         when(dto.getStatusCd()).thenReturn("A");
@@ -101,7 +99,7 @@ public class PrepareAssocModelHelperTest {
     }
 
     @Test
-    public void testPrepareAssocDTForParticipation() throws DataProcessingException {
+    void testPrepareAssocDTForParticipation() throws DataProcessingException {
         ParticipationDto dto = mock(ParticipationDto.class);
         when(dto.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
         when(dto.getStatusCd()).thenReturn("A");
@@ -116,7 +114,7 @@ public class PrepareAssocModelHelperTest {
     }
 
     @Test
-    public void testPrepareActivityLocatorParticipationDT() throws DataProcessingException {
+    void testPrepareActivityLocatorParticipationDT() throws DataProcessingException {
         ActivityLocatorParticipationDto dto = mock(ActivityLocatorParticipationDto.class);
         when(dto.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
         when(dto.getStatusCd()).thenReturn("A");
@@ -131,7 +129,7 @@ public class PrepareAssocModelHelperTest {
     }
 
     @Test
-    public void testPrepareActRelationshipDT() throws DataProcessingException {
+    void testPrepareActRelationshipDT() throws DataProcessingException {
         ActRelationshipDto dto = mock(ActRelationshipDto.class);
         when(dto.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
         when(dto.getStatusCd()).thenReturn("A");
@@ -146,7 +144,7 @@ public class PrepareAssocModelHelperTest {
     }
 
     @Test
-    public void testPrepareVO_NewAct() throws DataProcessingException {
+    void testPrepareVO_NewAct() throws DataProcessingException {
         RootDtoInterface rootDto = mock(RootDtoInterface.class);
         when(rootDto.isItNew()).thenReturn(true);
         when(rootDto.getSuperclass()).thenReturn(NEDSSConstant.CLASSTYPE_ACT);
@@ -167,7 +165,7 @@ public class PrepareAssocModelHelperTest {
     }
 
     @Test
-    public void testPrepareVO_NewEntity() throws DataProcessingException {
+    void testPrepareVO_NewEntity() throws DataProcessingException {
         RootDtoInterface rootDto = mock(RootDtoInterface.class);
         when(rootDto.isItNew()).thenReturn(true);
         when(rootDto.getSuperclass()).thenReturn(NEDSSConstant.CLASSTYPE_ENTITY);
@@ -189,7 +187,7 @@ public class PrepareAssocModelHelperTest {
     }
 
     @Test
-    public void testPrepareVO_DirtyAct() throws DataProcessingException {
+    void testPrepareVO_DirtyAct() throws DataProcessingException {
         RootDtoInterface rootDto = mock(RootDtoInterface.class);
         when(rootDto.isItDirty()).thenReturn(true);
         when(rootDto.getSuperclass()).thenReturn(NEDSSConstant.CLASSTYPE_ACT);
@@ -210,7 +208,7 @@ public class PrepareAssocModelHelperTest {
     }
 
     @Test
-    public void testPrepareVO_DirtyEntity() throws DataProcessingException {
+    void testPrepareVO_DirtyEntity() throws DataProcessingException {
         RootDtoInterface rootDto = mock(RootDtoInterface.class);
         when(rootDto.isItDirty()).thenReturn(true);
         when(rootDto.getSuperclass()).thenReturn(NEDSSConstant.CLASSTYPE_ENTITY);
@@ -232,7 +230,7 @@ public class PrepareAssocModelHelperTest {
     }
 
     @Test
-    public void testPrepareNewActVO() throws DataProcessingException {
+    void testPrepareNewActVO() throws DataProcessingException {
         RootDtoInterface rootDto = mock(RootDtoInterface.class);
         when(rootDto.isItNew()).thenReturn(true);
         when(rootDto.getSuperclass()).thenReturn(NEDSSConstant.CLASSTYPE_ACT);
@@ -252,7 +250,7 @@ public class PrepareAssocModelHelperTest {
     }
 
     @Test
-    public void testPrepareNewEntityVO() throws DataProcessingException {
+    void testPrepareNewEntityVO() throws DataProcessingException {
         RootDtoInterface rootDto = mock(RootDtoInterface.class);
         when(rootDto.isItNew()).thenReturn(true);
         when(rootDto.getSuperclass()).thenReturn(NEDSSConstant.CLASSTYPE_ENTITY);
@@ -275,7 +273,7 @@ public class PrepareAssocModelHelperTest {
     }
 
     @Test
-    public void testPrepareDirtyActVO() throws DataProcessingException {
+    void testPrepareDirtyActVO() throws DataProcessingException {
         RootDtoInterface rootDto = mock(RootDtoInterface.class);
         when(rootDto.isItDirty()).thenReturn(true);
         when(rootDto.getSuperclass()).thenReturn(NEDSSConstant.CLASSTYPE_ACT);
@@ -296,7 +294,7 @@ public class PrepareAssocModelHelperTest {
     }
 
     @Test
-    public void testPrepareDirtyEntityVO() throws DataProcessingException {
+    void testPrepareDirtyEntityVO() throws DataProcessingException {
         RootDtoInterface rootDto = mock(RootDtoInterface.class);
         when(rootDto.isItDirty()).thenReturn(true);
         when(rootDto.getSuperclass()).thenReturn(NEDSSConstant.CLASSTYPE_ENTITY);

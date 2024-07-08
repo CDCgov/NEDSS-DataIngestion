@@ -6,7 +6,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidG
 import gov.cdc.dataprocessing.repository.nbs.odse.model.log.NNDActivityLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.NNDActivityLogRepository;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
-import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -35,7 +34,7 @@ class NNDActivityLogServiceTest {
     }
 
     @Test
-    public void testSaveNddActivityLogWithNewUid() throws DataProcessingException {
+    void testSaveNddActivityLogWithNewUid() throws DataProcessingException {
         NNDActivityLogDto nndActivityLogDto = new NNDActivityLogDto();
         var id = new LocalUidGenerator();
         id.setClassNameCd("CLASS");
@@ -54,7 +53,7 @@ class NNDActivityLogServiceTest {
     }
 
     @Test
-    public void testSaveNddActivityLogWithExistingUid() throws DataProcessingException {
+    void testSaveNddActivityLogWithExistingUid() throws DataProcessingException {
         NNDActivityLogDto nndActivityLogDto = new NNDActivityLogDto();
         nndActivityLogDto.setNndActivityLogUid(2L);
 
@@ -67,7 +66,7 @@ class NNDActivityLogServiceTest {
     }
 
     @Test
-    public void testSaveNddActivityLogException() throws DataProcessingException {
+    void testSaveNddActivityLogException() throws DataProcessingException {
         NNDActivityLogDto nndActivityLogDto = new NNDActivityLogDto();
         when(odseIdGeneratorService.getLocalIdAndUpdateSeed(NND_METADATA)).thenThrow(new RuntimeException("Test Exception"));
 
