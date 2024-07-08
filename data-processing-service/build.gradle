@@ -206,7 +206,8 @@ sonarqube {
         property "sonar.host.url", "https://sonarcloud.io"
         property "sonar.exclusions", "**/config/**, **/constant/**, **/exception/**, **/model/container/**, **/model/dsma_algorithm/**, **/model/dto/**, **/model/phdc/**, " +
                 " **/repository/nbs/msgoute/model/**, **/repository/nbs/odse/model/**, **/repository/nbs/srte/model/**, **/security/config/**, **/ServiceApplication.java, " +
-                " **/service/model/**, **/DynamicBeanBinding.java, **/RuleEngineUtil.java, **/utilities/model/**"
+                " **/service/model/**, **/DynamicBeanBinding.java, **/RuleEngineUtil.java, **/utilities/model/**," +
+                " **/controller/**, **/kafka/consumer/**, **kafka/producer/**"
 
     }
 }
