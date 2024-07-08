@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class EdxLogServiceTest {
+class EdxLogServiceTest {
     @Mock
     private EdxActivityLogRepository edxActivityLogRepository;
     @Mock
@@ -124,63 +124,63 @@ public class EdxLogServiceTest {
     @Test
     void updateActivityLogDT_Test() {
         NbsInterfaceModel nbsInterfaceModel = new NbsInterfaceModel();
-        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        EdxLabInformationDto edxLabInformationDto1 = new EdxLabInformationDto();
 
         nbsInterfaceModel.setNbsInterfaceUid(10);
 
         var edxAct = new EDXActivityLogDto();
-        edxLabInformationDto.setEdxActivityLogDto(edxAct);
-        edxLabInformationDto.setRootObserbationUid(11L);
-        edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_1);
-        edxLabInformationDto.setStatus(NbsInterfaceStatus.Failure);
-        edxLabInformationDto.setFillerNumber("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore");
-        edxLabInformationDto.setMessageControlID("CONTROL");
-        edxLabInformationDto.setEntityName("ENTITY");
-        edxLabInformationDto.setSendingFacilityName("SEND");
-        edxLabInformationDto.setLocalId("LOCAL");
-        edxLabInformationDto.setDsmAlgorithmName("DSM");
-        edxLabInformationDto.setAction("REVIEW");
+        edxLabInformationDto1.setEdxActivityLogDto(edxAct);
+        edxLabInformationDto1.setRootObserbationUid(11L);
+        edxLabInformationDto1.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_1);
+        edxLabInformationDto1.setStatus(NbsInterfaceStatus.Failure);
+        edxLabInformationDto1.setFillerNumber("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore");
+        edxLabInformationDto1.setMessageControlID("CONTROL");
+        edxLabInformationDto1.setEntityName("ENTITY");
+        edxLabInformationDto1.setSendingFacilityName("SEND");
+        edxLabInformationDto1.setLocalId("LOCAL");
+        edxLabInformationDto1.setDsmAlgorithmName("DSM");
+        edxLabInformationDto1.setAction("REVIEW");
 
-        edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
+        edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto1);
     }
 
     @SuppressWarnings("java:S2699")
     @Test
     void updateActivityLogDT_Test_2() {
         NbsInterfaceModel nbsInterfaceModel = new NbsInterfaceModel();
-        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        EdxLabInformationDto edxLabInformationDto1 = new EdxLabInformationDto();
 
         nbsInterfaceModel.setNbsInterfaceUid(10);
 
         var edxAct = new EDXActivityLogDto();
-        edxLabInformationDto.setEdxActivityLogDto(edxAct);
-        edxLabInformationDto.setRootObserbationUid(11L);
-        edxLabInformationDto.setErrorText(null);
-        edxLabInformationDto.setStatus(NbsInterfaceStatus.Failure);
-        edxLabInformationDto.setFillerNumber(null);
-        edxLabInformationDto.setMessageControlID("CONTROL");
-        edxLabInformationDto.setEntityName("ENTITY");
-        edxLabInformationDto.setSendingFacilityName("SEND");
-        edxLabInformationDto.setLocalId("LOCAL");
-        edxLabInformationDto.setDsmAlgorithmName("DSM");
-        edxLabInformationDto.setAction("REVIEW");
+        edxLabInformationDto1.setEdxActivityLogDto(edxAct);
+        edxLabInformationDto1.setRootObserbationUid(11L);
+        edxLabInformationDto1.setErrorText(null);
+        edxLabInformationDto1.setStatus(NbsInterfaceStatus.Failure);
+        edxLabInformationDto1.setFillerNumber(null);
+        edxLabInformationDto1.setMessageControlID("CONTROL");
+        edxLabInformationDto1.setEntityName("ENTITY");
+        edxLabInformationDto1.setSendingFacilityName("SEND");
+        edxLabInformationDto1.setLocalId("LOCAL");
+        edxLabInformationDto1.setDsmAlgorithmName("DSM");
+        edxLabInformationDto1.setAction("REVIEW");
 
-        edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
+        edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto1);
     }
 
 
     @Test
     @SuppressWarnings("java:S2699")
     void addActivityDetailLogs_Test() {
-        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        EdxLabInformationDto edxLabInformationDto1 = new EdxLabInformationDto();
 
         var edxAc = new EDXActivityLogDto();
         var edxAcDeCol = new ArrayList<EDXActivityDetailLogDto>();
         var edxAcDe = new EDXActivityDetailLogDto();
         edxAcDeCol.add(edxAcDe);
         edxAc.setEDXActivityLogDTWithVocabDetails(edxAcDeCol);
-        edxLabInformationDto.setEdxActivityLogDto(edxAc);
-        edxLabInformationDto.setLocalId("LOCAL");
+        edxLabInformationDto1.setEdxActivityLogDto(edxAc);
+        edxLabInformationDto1.setLocalId("LOCAL");
     }
 
     @Test
@@ -864,7 +864,7 @@ public class EdxLogServiceTest {
 
     @Test
     @SuppressWarnings("java:S2699")
-    public void testWdsReportsNotEmpty_Exp() {
+    void testWdsReportsNotEmpty_Exp() {
         setCommonExpectations();
         setCommonExpectations2();
 

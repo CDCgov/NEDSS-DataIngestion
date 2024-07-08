@@ -17,7 +17,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class EdxPhcrDocumentUtilTest {
+class EdxPhcrDocumentUtilTest {
     @InjectMocks
     private EdxPhcrDocumentUtil edxPhcrDocumentUtil;
 

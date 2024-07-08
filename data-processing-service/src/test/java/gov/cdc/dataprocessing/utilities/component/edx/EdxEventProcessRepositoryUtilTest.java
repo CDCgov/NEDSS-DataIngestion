@@ -18,7 +18,7 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-public class EdxEventProcessRepositoryUtilTest {
+class EdxEventProcessRepositoryUtilTest {
     @InjectMocks
     private EdxEventProcessRepositoryUtil edxEventProcessRepositoryUtil;
 
