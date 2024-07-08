@@ -23,7 +23,7 @@ import static gov.cdc.dataprocessing.constant.ComplexQueries.*;
 @Repository
 public class CustomRepositoryImpl implements CustomRepository {
     @PersistenceContext(unitName = "odse")
-    private EntityManager entityManager;
+    protected EntityManager entityManager;
     private final PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository;
 
     public CustomRepositoryImpl(PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository) {
@@ -116,7 +116,6 @@ public class CustomRepositoryImpl implements CustomRepository {
             for(var item : results) {
                 DocumentSummaryContainer container = new DocumentSummaryContainer();
                 int i = 0;
-                Long phcUid =  Long.valueOf(item[i].toString());
                 Long getNbsDocumentUid = Long.valueOf(item[++i].toString());
                 container.setNbsDocumentUid(dataNotNull(item[i]) ? Long.valueOf(item[i].toString()): null);
 

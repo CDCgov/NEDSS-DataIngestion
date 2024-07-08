@@ -37,6 +37,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     private final IProgramAreaService programAreaService;
     private final IJurisdictionService jurisdictionService;
     private final IRoleService roleService;
+    private static final String THREAD_EXCEPTION_MSG = "Thread was interrupted";
 
     public ManagerAggregationService(IOrganizationService organizationService,
                                      IPersonService patientService,
@@ -127,7 +128,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
         catch (InterruptedException e)
         {
             Thread.currentThread().interrupt();
-            throw new DataProcessingException("Thread was interrupted", e);
+            throw new DataProcessingException(THREAD_EXCEPTION_MSG, e);
         }
         catch (ExecutionException e)
         {
@@ -141,7 +142,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
         catch (InterruptedException e)
         {
             Thread.currentThread().interrupt();
-            throw new DataProcessingException("Thread was interrupted", e);
+            throw new DataProcessingException(THREAD_EXCEPTION_MSG, e);
         }
         catch (ExecutionException e)
         {
@@ -157,7 +158,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
         catch (InterruptedException e)
         {
             Thread.currentThread().interrupt();
-            throw new DataProcessingException("Thread was interrupted", e);
+            throw new DataProcessingException(THREAD_EXCEPTION_MSG, e);
         }
         catch (ExecutionException e)
         {
