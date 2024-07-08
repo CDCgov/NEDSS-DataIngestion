@@ -29,7 +29,7 @@ class ValidateDecisionSupportTest {
     }
 
     @Test
-    void processNBSObjectDT_shouldSetValue_whenDataTypeIsTextAndOverwriteIsTrue() throws Exception {
+    void processNBSObjectDT_shouldSetValue_whenDataTypeIsTextAndOverwriteIsTrue() {
         // Arrange
         EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
         edxRuleManageDT.setBehavior("1"); // Overwrite
@@ -69,7 +69,7 @@ class ValidateDecisionSupportTest {
     }
 
     @Test
-    void processNBSObjectDT_shouldNotSetValue_whenDataTypeIsTextAndOverwriteIsFalseAndValueIsNotNull() throws Exception {
+    void processNBSObjectDT_shouldNotSetValue_whenDataTypeIsTextAndOverwriteIsFalseAndValueIsNotNull() {
         // Arrange
         EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
         edxRuleManageDT.setBehavior("2"); // Do not overwrite
@@ -116,7 +116,7 @@ class ValidateDecisionSupportTest {
         }
     }
 
-    @SuppressWarnings("java:S2699")
+    @SuppressWarnings({"java:S2699", "java:S5976"})
     @Test
     void processNBSObjectDT_shouldSetValue_whenDataTypeIsNumericAndInteger() {
         // Arrange
@@ -136,7 +136,7 @@ class ValidateDecisionSupportTest {
 
     }
 
-    @SuppressWarnings("java:S2699")
+    @SuppressWarnings({"java:S2699", "java:S5976"})
     @Test
     void processNBSObjectDT_shouldSetValue_whenDataTypeIsNumericAndLong() {
         // Arrange
@@ -156,7 +156,7 @@ class ValidateDecisionSupportTest {
 
     }
 
-    @SuppressWarnings("java:S2699")
+    @SuppressWarnings({"java:S2699", "java:S5976"})
     @Test
     void processNBSObjectDT_shouldSetValue_whenDataTypeIsNumericAndBigDecimal() {
         // Arrange
@@ -175,7 +175,7 @@ class ValidateDecisionSupportTest {
         validateDecisionSupport.processNBSObjectDT(edxRuleManageDT, publicHealthCaseContainer, object, metaData);
 
     }
-    @SuppressWarnings("java:S2699")
+    @SuppressWarnings({"java:S2699", "java:S5976"})
     @Test
     void processNBSObjectDT_shouldSetValue_whenDataTypeIsNumericAndString()  {
         // Arrange
