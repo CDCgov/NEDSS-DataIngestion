@@ -1,4 +1,5 @@
 package gov.cdc.dataprocessing.utilities.component.wds;
+
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleManageDto;
@@ -10,7 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
@@ -41,7 +41,6 @@ class ValidateDecisionSupportTest {
         metaData.setDataLocation("testField");
         metaData.setDataType(NEDSSConstant.NBS_QUESTION_DATATYPE_TEXT);
 
-        Method setMethod = TestObject.class.getMethod("setTestField", String.class);
 
         // Act
         validateDecisionSupport.processNBSObjectDT(edxRuleManageDT, publicHealthCaseContainer, object, metaData);
@@ -50,8 +49,9 @@ class ValidateDecisionSupportTest {
         assertEquals("Test Value", object.getTestField());
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
-    void processNBSObjectDT_shouldSetValue_whenDataTypeIsDateAndOverwriteIsTrue() throws Exception {
+    void processNBSObjectDT_shouldSetValue_whenDataTypeIsDateAndOverwriteIsTrue() {
         // Arrange
         EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
         edxRuleManageDT.setBehavior("1"); // Overwrite
@@ -82,7 +82,6 @@ class ValidateDecisionSupportTest {
         metaData.setDataLocation("testField");
         metaData.setDataType(NEDSSConstant.NBS_QUESTION_DATATYPE_TEXT);
 
-        Method setMethod = TestObject.class.getMethod("setTestField", String.class);
 
         // Act
         validateDecisionSupport.processNBSObjectDT(edxRuleManageDT, publicHealthCaseContainer, object, metaData);
@@ -117,9 +116,9 @@ class ValidateDecisionSupportTest {
         }
     }
 
-
+    @SuppressWarnings("java:S2699")
     @Test
-    void processNBSObjectDT_shouldSetValue_whenDataTypeIsNumericAndInteger() throws Exception {
+    void processNBSObjectDT_shouldSetValue_whenDataTypeIsNumericAndInteger() {
         // Arrange
         EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
         edxRuleManageDT.setBehavior("1"); // Overwrite
@@ -131,15 +130,15 @@ class ValidateDecisionSupportTest {
         metaData.setDataLocation("testIntegerField");
         metaData.setDataType(NEDSSConstant.NBS_QUESTION_DATATYPE_NUMERIC);
 
-        Method setMethod = TestObjectNumeric.class.getMethod("setTestIntegerField", Integer.class);
 
         // Act
         validateDecisionSupport.processNBSObjectDT(edxRuleManageDT, publicHealthCaseContainer, object, metaData);
 
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
-    void processNBSObjectDT_shouldSetValue_whenDataTypeIsNumericAndLong() throws Exception {
+    void processNBSObjectDT_shouldSetValue_whenDataTypeIsNumericAndLong() {
         // Arrange
         EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
         edxRuleManageDT.setBehavior("1"); // Overwrite
@@ -151,15 +150,15 @@ class ValidateDecisionSupportTest {
         metaData.setDataLocation("testLongField");
         metaData.setDataType(NEDSSConstant.NBS_QUESTION_DATATYPE_NUMERIC);
 
-        Method setMethod = TestObjectNumeric.class.getMethod("setTestLongField", Long.class);
 
         // Act
         validateDecisionSupport.processNBSObjectDT(edxRuleManageDT, publicHealthCaseContainer, object, metaData);
 
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
-    void processNBSObjectDT_shouldSetValue_whenDataTypeIsNumericAndBigDecimal() throws Exception {
+    void processNBSObjectDT_shouldSetValue_whenDataTypeIsNumericAndBigDecimal() {
         // Arrange
         EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
         edxRuleManageDT.setBehavior("1"); // Overwrite
@@ -171,15 +170,14 @@ class ValidateDecisionSupportTest {
         metaData.setDataLocation("testBigDecimalField");
         metaData.setDataType(NEDSSConstant.NBS_QUESTION_DATATYPE_NUMERIC);
 
-        Method setMethod = TestObjectNumeric.class.getMethod("setTestBigDecimalField", BigDecimal.class);
 
         // Act
         validateDecisionSupport.processNBSObjectDT(edxRuleManageDT, publicHealthCaseContainer, object, metaData);
 
     }
-
+    @SuppressWarnings("java:S2699")
     @Test
-    void processNBSObjectDT_shouldSetValue_whenDataTypeIsNumericAndString() throws Exception {
+    void processNBSObjectDT_shouldSetValue_whenDataTypeIsNumericAndString()  {
         // Arrange
         EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
         edxRuleManageDT.setBehavior("1"); // Overwrite
@@ -191,7 +189,6 @@ class ValidateDecisionSupportTest {
         metaData.setDataLocation("testStringField");
         metaData.setDataType(NEDSSConstant.NBS_QUESTION_DATATYPE_NUMERIC);
 
-        Method setMethod = TestObjectNumeric.class.getMethod("setTestStringField", String.class);
 
         // Act
         validateDecisionSupport.processNBSObjectDT(edxRuleManageDT, publicHealthCaseContainer, object, metaData);

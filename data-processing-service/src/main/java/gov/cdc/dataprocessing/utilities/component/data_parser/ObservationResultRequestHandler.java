@@ -70,6 +70,7 @@ public class ObservationResultRequestHandler {
         return labResultProxyContainer;
     }
 
+    @SuppressWarnings("java:S6541")
     private ObservationContainer getObservationResult(HL7OBXType hl7OBXType,
                                                       LabResultProxyContainer labResultProxyContainer,
                                                       EdxLabInformationDto edxLabInformationDto)

@@ -146,73 +146,62 @@ public class ManagerService implements IManagerService {
                 edxLabInformationDto.setLabIsUpdateSuccess(true);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_22);
             }
-//
-//            if (edxLabInformationDto.isLabIsCreate() && observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null)
-//            {
-                // This logic here determine whether logic is mark as review or not
-                decisionSupportService.validateProxyContainer(labResultProxyContainer, edxLabInformationDto);
+            decisionSupportService.validateProxyContainer(labResultProxyContainer, edxLabInformationDto);
 
-                WdsTrackerView trackerView = new WdsTrackerView();
-                trackerView.setWdsReport(edxLabInformationDto.getWdsReports());
+            WdsTrackerView trackerView = new WdsTrackerView();
+            trackerView.setWdsReport(edxLabInformationDto.getWdsReports());
 
-                Long patUid = -1L;
-                Long patParentUid = -1L;
-                String patFirstName = null;
-                String patLastName = null;
-                for(var item : publicHealthCaseFlowContainer.getLabResultProxyContainer().getThePersonContainerCollection()) {
-                    if (item.getThePersonDto().getCd().equals("PAT")) {
-                        patUid = item.getThePersonDto().getUid();
-                        patParentUid = item.getThePersonDto().getPersonParentUid();
-                        patFirstName = item.getThePersonDto().getFirstNm();
-                        patLastName = item.getThePersonDto().getLastNm();
-                        break;
-                    }
+            Long patUid = -1L;
+            Long patParentUid = -1L;
+            String patFirstName = null;
+            String patLastName = null;
+            for(var item : publicHealthCaseFlowContainer.getLabResultProxyContainer().getThePersonContainerCollection()) {
+                if (item.getThePersonDto().getCd().equals("PAT")) {
+                    patUid = item.getThePersonDto().getUid();
+                    patParentUid = item.getThePersonDto().getPersonParentUid();
+                    patFirstName = item.getThePersonDto().getFirstNm();
+                    patLastName = item.getThePersonDto().getLastNm();
+                    break;
                 }
+            }
 
-                trackerView.setPatientUid(patUid);
-                trackerView.setPatientParentUid(patParentUid);
-                trackerView.setPatientFirstName(patFirstName);
-                trackerView.setPatientLastName(patLastName);
+            trackerView.setPatientUid(patUid);
+            trackerView.setPatientParentUid(patParentUid);
+            trackerView.setPatientFirstName(patFirstName);
+            trackerView.setPatientLastName(patLastName);
 
-                nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_2);
-                nbsInterfaceRepository.save(nbsInterfaceModel);
+            nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_2);
+            nbsInterfaceRepository.save(nbsInterfaceModel);
 
-                PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
-                phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
-                phcContainer.setLabResultProxyContainer(labResultProxyContainer);
-                phcContainer.setEdxLabInformationDto(edxLabInformationDto);
-                phcContainer.setObservationDto(observationDto);
-                phcContainer.setWdsTrackerView(trackerView);
+            PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
+            phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
+            phcContainer.setLabResultProxyContainer(labResultProxyContainer);
+            phcContainer.setEdxLabInformationDto(edxLabInformationDto);
+            phcContainer.setObservationDto(observationDto);
+            phcContainer.setWdsTrackerView(trackerView);
 
-                if (edxLabInformationDto.getPageActContainer() != null
-                || edxLabInformationDto.getPamContainer() != null) {
-                    if (edxLabInformationDto.getPageActContainer() != null) {
-                        var pageActProxyVO = (PageActProxyContainer) edxLabInformationDto.getPageActContainer();
-                        trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
-                    }
-                    else
-                    {
-                        var pamProxyVO = (PamProxyContainer)edxLabInformationDto.getPamContainer();
-                        trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
-                    }
+            if (edxLabInformationDto.getPageActContainer() != null
+            || edxLabInformationDto.getPamContainer() != null) {
+                if (edxLabInformationDto.getPageActContainer() != null) {
+                    var pageActProxyVO = (PageActProxyContainer) edxLabInformationDto.getPageActContainer();
+                    trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
                 }
+                else
+                {
+                    var pamProxyVO = (PamProxyContainer)edxLabInformationDto.getPamContainer();
+                    trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
+                }
+            }
 
 
-                Gson gson = new Gson();
-                String trackerString = gson.toJson(trackerView);
-                kafkaManagerProducer.sendDataActionTracker(trackerString);
+            Gson gson = new Gson();
+            String trackerString = gson.toJson(trackerView);
+            kafkaManagerProducer.sendDataActionTracker(trackerString);
 
-                gson = new Gson();
-                String jsonString = gson.toJson(phcContainer);
-                kafkaManagerProducer.sendDataLabHandling(jsonString);
+            gson = new Gson();
+            String jsonString = gson.toJson(phcContainer);
+            kafkaManagerProducer.sendDataLabHandling(jsonString);
 
-//            }
-//            else
-//            {
-//                // Concluded the flow if no WDS, set status to COMPLETED STEP 1
-//                nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_COMPLETED_STEP_1);
-//                nbsInterfaceRepository.save(nbsInterfaceModel);
-//            }
         } catch (Exception e) {
             detailedMsg = e.getMessage();
             if (nbsInterfaceModel != null) {

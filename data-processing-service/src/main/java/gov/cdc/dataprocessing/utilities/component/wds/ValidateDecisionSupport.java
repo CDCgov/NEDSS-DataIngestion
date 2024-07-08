@@ -510,6 +510,7 @@ public class ValidateDecisionSupport {
     }
 
 
+    @SuppressWarnings("java:S6541")
     public boolean checkNbsObject(EdxRuleManageDto edxRuleManageDT, Object object, NbsQuestionMetadata metaData) {
         String dataLocation = metaData.getDataLocation();
         String setMethodName = dataLocation.replaceAll("_", "");
