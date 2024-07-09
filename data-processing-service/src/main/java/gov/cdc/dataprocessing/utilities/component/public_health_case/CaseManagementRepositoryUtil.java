@@ -23,9 +23,9 @@ public class CaseManagementRepositoryUtil {
         if (res.isEmpty()) {
             return null;
         } else {
-            for(var item : res.get()) {
-                //NOTE: THIS SHOULD ONLY RETURN A SINGLE DATA NOT A COLLECTION
-                return new CaseManagementDto(item);
+            var item = res.get().stream().findFirst();
+            if (item.isPresent()) {
+                return new CaseManagementDto(item.get());
             }
         }
 

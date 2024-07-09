@@ -1,6 +1,8 @@
 package gov.cdc.dataprocessing.kafka.consumer;
 
+import com.google.gson.Gson;
 import gov.cdc.dataprocessing.exception.EdxLogException;
+import gov.cdc.dataprocessing.model.dto.log.EDXActivityLogDto;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,8 @@ public class KafkaEdxLogConsumer {
     )
     public void handleMessage(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EdxLogException {
-        edxLogService.saveEdxActivityLogs(message);
+        Gson gson = new Gson();
+        EDXActivityLogDto edxActivityLogDto = gson.fromJson(message, EDXActivityLogDto.class);
+        edxLogService.saveEdxActivityLogs(edxActivityLogDto);
     }
 }

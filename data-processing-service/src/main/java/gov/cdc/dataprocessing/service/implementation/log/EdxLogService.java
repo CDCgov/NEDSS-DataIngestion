@@ -1,10 +1,7 @@
 package gov.cdc.dataprocessing.service.implementation.log;
 
-import com.google.gson.Gson;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
-import gov.cdc.dataprocessing.exception.EdxLogException;
-import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
@@ -30,23 +27,11 @@ import java.util.Optional;
 public class EdxLogService implements IEdxLogService {
     private final EdxActivityLogRepository edxActivityLogRepository;
     private final EdxActivityDetailLogRepository edxActivityDetailLogRepository;
-    private final KafkaManagerProducer kafkaManagerProducer;
-
 
     public EdxLogService(EdxActivityLogRepository edxActivityLogRepository,
-                         EdxActivityDetailLogRepository edxActivityDetailLogRepository,
-                         KafkaManagerProducer kafkaManagerProducer) {
+                         EdxActivityDetailLogRepository edxActivityDetailLogRepository) {
         this.edxActivityLogRepository = edxActivityLogRepository;
         this.edxActivityDetailLogRepository = edxActivityDetailLogRepository;
-        this.kafkaManagerProducer = kafkaManagerProducer;
-    }
-
-    public Object processingLog() throws EdxLogException {
-        try {
-            return "processing log";
-        } catch (Exception e) {
-            throw new EdxLogException("ERROR", "Data");
-        }
     }
 
     @Transactional
@@ -57,9 +42,7 @@ public class EdxLogService implements IEdxLogService {
         return edxActivityDetailLogResult;
     }
     @Transactional
-    public void saveEdxActivityLogs(String logMessageJson) {
-        Gson gson = new Gson();
-        EDXActivityLogDto edxActivityLogDto = gson.fromJson(logMessageJson, EDXActivityLogDto.class);
+    public void saveEdxActivityLogs(EDXActivityLogDto edxActivityLogDto) {
         EdxActivityLog edxActivityLog = new EdxActivityLog(edxActivityLogDto);
         //Check if the activity log has already been created for the source.
         Long activityLogId = 0L;
@@ -122,15 +105,6 @@ public class EdxLogService implements IEdxLogService {
 
     }
 
-    private void setActivityDetailLog(ArrayList<EDXActivityDetailLogDto> detailLogs, String id, EdxRuleAlgorothmManagerDto.STATUS_VAL status, String comment) {
-        EDXActivityDetailLogDto edxActivityDetailLogDto = new EDXActivityDetailLogDto();
-        edxActivityDetailLogDto.setRecordId(id);
-        edxActivityDetailLogDto.setRecordType(EdxELRConstant.ELR_RECORD_TP);
-        edxActivityDetailLogDto.setRecordName(EdxELRConstant.ELR_RECORD_NM);
-        edxActivityDetailLogDto.setLogType(status.name());
-        edxActivityDetailLogDto.setComment(comment);
-        detailLogs.add(edxActivityDetailLogDto);
-    }
     private void setActivityLogExceptionTxt(EDXActivityLogDto edxActivityLogDto, String errorText) {
         switch (errorText) {
             case EdxELRConstant.ELR_MASTER_LOG_ID_1:
@@ -539,6 +513,16 @@ public class EdxLogService implements IEdxLogService {
             }
         }
     }
+
+    private void setActivityDetailLog(ArrayList<EDXActivityDetailLogDto> detailLogs, String id, EdxRuleAlgorothmManagerDto.STATUS_VAL status, String comment) {
+        EDXActivityDetailLogDto edxActivityDetailLogDto = new EDXActivityDetailLogDto();
+        edxActivityDetailLogDto.setRecordId(id);
+        edxActivityDetailLogDto.setRecordType(EdxELRConstant.ELR_RECORD_TP);
+        edxActivityDetailLogDto.setRecordName(EdxELRConstant.ELR_RECORD_NM);
+        edxActivityDetailLogDto.setLogType(status.name());
+        edxActivityDetailLogDto.setComment(comment);
+        detailLogs.add(edxActivityDetailLogDto);
+    }
     public void addActivityDetailLogsForWDS(EdxLabInformationDto edxLabInformationDto, String detailedMsg) {
         try{
             ArrayList<EDXActivityDetailLogDto> detailList =
@@ -581,4 +565,5 @@ public class EdxLogService implements IEdxLogService {
             log.error("Error while adding activity detail log.", e);
         }
     }
+
 }

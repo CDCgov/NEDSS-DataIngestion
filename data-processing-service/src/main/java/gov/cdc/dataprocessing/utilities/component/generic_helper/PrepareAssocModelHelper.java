@@ -150,7 +150,7 @@ public class PrepareAssocModelHelper {
                     e.printStackTrace();
                 }
 
-                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
 
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;
@@ -259,7 +259,7 @@ public class PrepareAssocModelHelper {
                 {
                     e.printStackTrace();
                 }
-                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;
             }
@@ -303,7 +303,7 @@ public class PrepareAssocModelHelper {
                 assocDTInterface.setRecordStatusTime(systemTime);
                 assocDTInterface.setStatusTime(systemTime);
                 assocDTInterface.setLastChgTime(systemTime);
-                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;
             }
@@ -342,7 +342,7 @@ public class PrepareAssocModelHelper {
                 assocDTInterface.setRecordStatusTime(systemTime);
                 assocDTInterface.setStatusTime(systemTime);
                 assocDTInterface.setLastChgTime(systemTime);
-                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;
             }
@@ -409,7 +409,7 @@ public class PrepareAssocModelHelper {
      * This method prepares the Act value object if it is New(Create)
      * and check null for record Status State and set the System attributes in the rootDTInterface
      */
-    private RootDtoInterface prepareNewActVO(RootDtoInterface theRootDTInterface, String businessObjLookupName, String businessTriggerCd, String tableName, String moduleCd)
+    protected RootDtoInterface prepareNewActVO(RootDtoInterface theRootDTInterface, String businessObjLookupName, String businessTriggerCd, String tableName, String moduleCd)
             throws DataProcessingException
     {
         try
@@ -449,8 +449,8 @@ public class PrepareAssocModelHelper {
             theRootDTInterface.setRecordStatusTime(systemTime);
             theRootDTInterface.setLastChgTime(systemTime);
             theRootDTInterface.setAddTime(systemTime);
-            theRootDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
-            theRootDTInterface.setAddUserId(AuthUtil.authUser.getAuthUserUid());
+            theRootDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
+            theRootDTInterface.setAddUserId(AuthUtil.authUser.getNedssEntryId());
             theRootDTInterface.setLastChgReasonCd(null);
 
             return theRootDTInterface;
@@ -466,7 +466,7 @@ public class PrepareAssocModelHelper {
     /**
      * This method prepares the Entity value object if it is New(Create)
      */
-    private RootDtoInterface prepareNewEntityVO(RootDtoInterface theRootDTInterface, String businessObjLookupName,
+    protected RootDtoInterface prepareNewEntityVO(RootDtoInterface theRootDTInterface, String businessObjLookupName,
                                                 String businessTriggerCd, String tableName, String moduleCd)
             throws DataProcessingException
     {
@@ -493,14 +493,14 @@ public class PrepareAssocModelHelper {
             java.util.Date dateTime = new java.util.Date();
             Timestamp systemTime = new Timestamp(dateTime.getTime());
             theRootDTInterface.setLocalId(localId);
-            theRootDTInterface.setAddUserId(AuthUtil.authUser.getAuthUserUid());
+            theRootDTInterface.setAddUserId(AuthUtil.authUser.getNedssEntryId());
             theRootDTInterface.setAddTime(systemTime);
             theRootDTInterface.setRecordStatusCd(recordStatusState);
             theRootDTInterface.setStatusCd(objectStatusState);
             theRootDTInterface.setRecordStatusTime(systemTime);
             theRootDTInterface.setStatusTime(systemTime);
             theRootDTInterface.setLastChgTime(systemTime);
-            theRootDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+            theRootDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
             theRootDTInterface.setLastChgReasonCd(null);
 
             if(tableName.equals(NEDSSConstant.PATIENT) && (!businessTriggerCd.equals("PAT_NO_MERGE")))
@@ -535,7 +535,7 @@ public class PrepareAssocModelHelper {
      * This method prepares the Act value object if it is Dirty(Edit,update or Delete)
      * and check null for record Status State and set the System attribures in the rootDTInterface
      */
-    private RootDtoInterface prepareDirtyActVO(RootDtoInterface theRootDTInterface,
+    protected RootDtoInterface prepareDirtyActVO(RootDtoInterface theRootDTInterface,
                                               String businessObjLookupName, String businessTriggerCd, String tableName,
                                               String moduleCd)
             throws DataProcessingException
@@ -580,7 +580,7 @@ public class PrepareAssocModelHelper {
             theRootDTInterface.setRecordStatusTime(systemTime);
 
             theRootDTInterface.setLastChgTime(systemTime);
-            theRootDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+            theRootDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
             theRootDTInterface.setLastChgReasonCd(null);
             return theRootDTInterface;
         }
@@ -596,7 +596,7 @@ public class PrepareAssocModelHelper {
      * This method prepares the Entity value object if it is Dirty(Edit,update or Delete)
      * and check null for record Status State and set the System attribures in the rootDTInterface
      */
-    private RootDtoInterface prepareDirtyEntityVO(RootDtoInterface theRootDTInterface,
+    protected RootDtoInterface prepareDirtyEntityVO(RootDtoInterface theRootDTInterface,
                                                  String businessObjLookupName, String businessTriggerCd,
                                                  String tableName, String moduleCd)
             throws DataProcessingException
@@ -627,7 +627,7 @@ public class PrepareAssocModelHelper {
             theRootDTInterface.setRecordStatusTime(systemTime);
             theRootDTInterface.setStatusTime(systemTime);
             theRootDTInterface.setLastChgTime(systemTime);
-            theRootDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+            theRootDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
             theRootDTInterface.setLastChgReasonCd(null);
 
             if(tableName.equals(NEDSSConstant.PATIENT) && (!businessTriggerCd.equals("PAT_NO_MERGE")))
@@ -695,7 +695,7 @@ public class PrepareAssocModelHelper {
                 {
                     e.printStackTrace();
                 }
-                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                assocDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;
                 logger.debug("DT Prepared");

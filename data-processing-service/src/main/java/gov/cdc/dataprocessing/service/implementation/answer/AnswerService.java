@@ -213,7 +213,7 @@ public class AnswerService implements IAnswerService {
                     } else if (pamCaseEntityDT.isItDirty() || pamCaseEntityDT.isItNew()) {
                         var nbsActEntity = new NbsActEntity(pamCaseEntityDT);
                         nbsActEntity.setActUid(rootDTInterface.getPublicHealthCaseUid());
-                        nbsActEntity.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                        nbsActEntity.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                         nbsActEntity.setRecordStatusCd("OPEN");
                         nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
                         nbsActEntityRepository.save(nbsActEntity);
@@ -235,7 +235,7 @@ public class AnswerService implements IAnswerService {
                 } else if (pamCaseEntityDT.isItDirty() || pamCaseEntityDT.isItNew()) {
                     var nbsActEntity = new NbsActEntity(pamCaseEntityDT);
                     nbsActEntity.setActUid(rootDTInterface.getObservationUid());
-                    nbsActEntity.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+                    nbsActEntity.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                     nbsActEntity.setRecordStatusCd("OPEN");
                     nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
                     nbsActEntityRepository.save(new NbsActEntity(pamCaseEntityDT));

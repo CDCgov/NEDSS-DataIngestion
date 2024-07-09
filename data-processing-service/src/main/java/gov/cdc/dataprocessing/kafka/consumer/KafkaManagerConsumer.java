@@ -55,7 +55,7 @@ public class KafkaManagerConsumer {
             AuthUtil.setGlobalAuthUser(profile);
             managerService.processDistribution(dataType,message);
         } catch (DataProcessingConsumerException e) {
-            e.printStackTrace();
+            logger.error("ERROR PROCESSING STEP 1: " + e.getMessage());
         }
     }
 }

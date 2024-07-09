@@ -74,7 +74,7 @@ public class ActRelationshipRepositoryUtil {
         ActRelationship data = new ActRelationship(dt);
         if (dt.isItNew())
         {
-            data.setLastChgUserId(AuthUtil.authUser.getAuthUserUid());
+            data.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
             data.setLastChgTime(TimeStampUtil.getCurrentTimeStamp());
             actRelationshipRepository.save(data);
         }

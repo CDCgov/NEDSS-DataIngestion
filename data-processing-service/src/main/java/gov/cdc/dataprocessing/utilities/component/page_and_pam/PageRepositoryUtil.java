@@ -388,7 +388,7 @@ public class PageRepositoryUtil {
             publicHealthCaseUid=coninfectionSummaryVO.getPublicHealthCaseUid();
             java.util.Date dateTime = new java.util.Date();
             Timestamp lastChgTime = new Timestamp(dateTime.getTime());
-            Long lastChgUserId= Long.valueOf(AuthUtil.authUser.getUserId());
+            Long lastChgUserId= AuthUtil.authUser.getNedssEntryId();
             PageActProxyContainer proxyVO =  investigationService.getPageProxyVO(NEDSSConstant.CASE, publicHealthCaseUid);
             if (!proxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getInvestigationStatusCd().equalsIgnoreCase(NEDSSConstant.STATUS_OPEN)){
             }

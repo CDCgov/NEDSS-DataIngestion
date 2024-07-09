@@ -37,6 +37,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     private final IProgramAreaService programAreaService;
     private final IJurisdictionService jurisdictionService;
     private final IRoleService roleService;
+    private static final String THREAD_EXCEPTION_MSG = "Thread was interrupted";
 
     public ManagerAggregationService(IOrganizationService organizationService,
                                      IPersonService patientService,
@@ -120,17 +121,31 @@ public class ManagerAggregationService implements IManagerAggregationService {
         // Wait for all tasks to complete
         CompletableFuture<Void> allFutures = CompletableFuture.allOf(observationFuture, patientFuture, organizationFuture);
 
-        try {
+        try
+        {
             allFutures.get(); // Wait for all tasks to complete
-        } catch (InterruptedException | ExecutionException e) {
+        }
+        catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+            throw new DataProcessingException(THREAD_EXCEPTION_MSG, e);
+        }
+        catch (ExecutionException e)
+        {
             throw new DataProcessingException("Failed to execute tasks", e);
         }
-
         // Get the results from CompletableFuture
         try {
             personAggContainer = patientFuture.get();
             organizationContainer = organizationFuture.get();
-        } catch (InterruptedException | ExecutionException e) {
+        }
+        catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+            throw new DataProcessingException(THREAD_EXCEPTION_MSG, e);
+        }
+        catch (ExecutionException e)
+        {
             throw new DataProcessingException("Failed to get results", e);
         }
 
@@ -139,7 +154,14 @@ public class ManagerAggregationService implements IManagerAggregationService {
         CompletableFuture<Void> progAndJurisdictionFuture = progAndJurisdictionAggregationAsync(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
         try {
             progAndJurisdictionFuture.get();
-        } catch (InterruptedException | ExecutionException e) {
+        }
+        catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+            throw new DataProcessingException(THREAD_EXCEPTION_MSG, e);
+        }
+        catch (ExecutionException e)
+        {
             throw new DataProcessingException("Failed to execute progAndJurisdictionAggregationAsync", e);
         }
     }
