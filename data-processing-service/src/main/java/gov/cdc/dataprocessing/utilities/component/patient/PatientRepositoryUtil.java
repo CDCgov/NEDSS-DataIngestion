@@ -162,6 +162,7 @@ public class PatientRepositoryUtil {
         personRepository.save(person);
 
 
+
         //NOTE: Create Person Name
         if  (personContainer.getThePersonNameDtoCollection() != null && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
             updatePersonName(personContainer);
@@ -190,6 +191,19 @@ public class PatientRepositoryUtil {
         //NOTE: Upsert Role
         if  (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
             createRole(personContainer);
+        }
+
+
+        // Updating MPR
+        if (!Objects.equals(person.getPersonUid(), person.getPersonParentUid())) {
+            var mprRes = personRepository.findById(person.getPersonParentUid());
+            if (mprRes.isPresent()) {
+                var version = person.getVersionCtrlNbr();
+                mprRes.get().setVersionCtrlNbr(++version);
+                mprRes.get().setEthnicGroupInd(person.getEthnicGroupInd());
+                personRepository.save(mprRes.get());
+            }
+
         }
 
     }
