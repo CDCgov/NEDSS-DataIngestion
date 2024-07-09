@@ -70,6 +70,7 @@ public class ObservationResultRequestHandler {
         return labResultProxyContainer;
     }
 
+    @SuppressWarnings("java:S6541")
     private ObservationContainer getObservationResult(HL7OBXType hl7OBXType,
                                                       LabResultProxyContainer labResultProxyContainer,
                                                       EdxLabInformationDto edxLabInformationDto)
@@ -358,8 +359,7 @@ public class ObservationResultRequestHandler {
             participationDto.setActClassCd(EdxELRConstant.ELR_OBS);
             participationDto.setCd(EdxELRConstant.ELR_REPORTING_ENTITY_CD);
             participationDto.setTypeCd(EdxELRConstant.ELR_LAB_PERFORMER_CD);
-            //participationDto.setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
-            participationDto.setAddUserId(AuthUtil.authUser.getAuthUserUid());
+            participationDto.setAddUserId(AuthUtil.authUser.getNedssEntryId());
 
             participationDto.setItNew(true);
             participationDto.setItDirty(false);

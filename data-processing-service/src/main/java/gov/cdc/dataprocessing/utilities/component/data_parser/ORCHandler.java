@@ -66,8 +66,7 @@ public class ORCHandler {
                 edxLabInformationDto.setRole(EdxELRConstant.ELR_OP_CD);
                 edxLabInformationDto.setOrderingProvider(true);
                 PersonContainer personContainer = new PersonContainer();
-                //personContainer.getThePersonDto().setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
-                personContainer.getThePersonDto().setAddUserId(AuthUtil.authUser.getAuthUserUid());
+                personContainer.getThePersonDto().setAddUserId(AuthUtil.authUser.getNedssEntryId());
                 //Only need first index
                 address = addressArray.get(0);
                 if (address != null) {
@@ -115,8 +114,7 @@ public class ORCHandler {
                 ParticipationDto participationDto = new ParticipationDto();
                 participationDto.setActClassCd(EdxELRConstant.ELR_OBS);
                 participationDto.setCd(EdxELRConstant.ELR_OP_CD);
-                //participationDto.setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
-                participationDto.setAddUserId(AuthUtil.authUser.getAuthUserUid());
+                participationDto.setAddUserId(AuthUtil.authUser.getNedssEntryId());
                 participationDto.setActUid(edxLabInformationDto.getRootObserbationUid());
                 participationDto.setTypeCd(EdxELRConstant.ELR_ORDERER_CD);
                 nbsObjectConverter.defaultParticipationDT(participationDto, edxLabInformationDto);

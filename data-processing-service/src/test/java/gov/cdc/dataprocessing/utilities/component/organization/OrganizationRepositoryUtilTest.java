@@ -98,6 +98,7 @@ class OrganizationRepositoryUtilTest {
         AuthUserProfileInfo authUserProfileInfo=new AuthUserProfileInfo();
         AuthUser user = new AuthUser();
         user.setAuthUserUid(1L);
+        user.setNedssEntryId(1L);
         authUserProfileInfo.setAuthUser(user);
         authUtil.setGlobalAuthUser(authUserProfileInfo);
     }

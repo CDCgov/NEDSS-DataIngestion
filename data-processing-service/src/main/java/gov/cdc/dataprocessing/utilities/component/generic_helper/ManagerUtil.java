@@ -186,8 +186,6 @@ public class ManagerUtil {
             }
         }
 
-        System.out.println("Patient Id: " + container.getPersonContainer().getThePersonDto().getPersonUid());
-        System.out.println("Provider Id: " + container.getPersonContainer().getThePersonDto().getPersonUid());
 
         return container;
     }

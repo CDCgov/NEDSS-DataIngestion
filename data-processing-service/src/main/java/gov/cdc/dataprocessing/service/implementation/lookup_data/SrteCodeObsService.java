@@ -316,7 +316,9 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         var result = snomedCodeRepository.findSnomedProgramAreaExclusion(snomedCd);
         if (result.isPresent()) {
             for(var item: result.get()) {
-                return item.getPaDerivationExcludeCd() != null && item.getPaDerivationExcludeCd().equals(NEDSSConstant.YES);
+                if (item.getPaDerivationExcludeCd() != null && item.getPaDerivationExcludeCd().equals(NEDSSConstant.YES)) {
+                    return true;
+                }
             }
         }
         return false;
@@ -332,7 +334,9 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         var result = labResultRepository.findLabResultProgramAreaExclusion(labResultCd, reportingLabCLIA);
         if (result.isPresent()) {
             for(var item : result.get()) {
-                return item.getPaDerivationExcludeCd() != null && item.getPaDerivationExcludeCd().equals(NEDSSConstant.YES);
+                if (item.getPaDerivationExcludeCd() != null && item.getPaDerivationExcludeCd().equals(NEDSSConstant.YES)) {
+                    return true;
+                }
             }
         }
         return false;
@@ -449,7 +453,9 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         var result =  labTestRepository.findLabTestForExclusion(labTestCd, reportingLabCLIA);
         if(result.isPresent()) {
             for(var item : result.get()) {
-                return item.getPaDerivationExcludeCd() != null && item.getPaDerivationExcludeCd().equals(NEDSSConstant.YES);
+                if (item.getPaDerivationExcludeCd() != null && item.getPaDerivationExcludeCd().equals(NEDSSConstant.YES)) {
+                    return true;
+                }
             }
         }
         return false;
@@ -459,7 +465,9 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         var result =  loincCodeRepository.findLoinCCodeExclusion(loincCd);
         if(result.isPresent()) {
             for(var item : result.get()) {
-                return item.getPaDerivationExcludeCode() != null && item.getPaDerivationExcludeCode().equals(NEDSSConstant.YES);
+                if (item.getPaDerivationExcludeCode() != null && item.getPaDerivationExcludeCode().equals(NEDSSConstant.YES)) {
+                    return true;
+                }
             }
         }
         return false;

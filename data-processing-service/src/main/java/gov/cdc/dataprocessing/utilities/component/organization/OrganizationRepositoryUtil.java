@@ -755,7 +755,7 @@ public class OrganizationRepositoryUtil {
             logger.debug("(Boolean.FALSE).equals(new Boolean(theRootDTInterface.tableName)?:" + tableName + ":theRootDTInterface.moduleCd:" + moduleCd + ":businessTriggerCd:" + businessTriggerCd);
 
             if (organizationDto.isItNew() || organizationDto.isItDirty()) {
-                long userId = AuthUtil.authUser.getAuthUserUid();
+                long userId = AuthUtil.authUser.getNedssEntryId();
                 Timestamp time = new Timestamp(new Date().getTime());
                 logger.debug("new entity");
                 PrepareEntity prepareEntity = this.getPrepareEntityForOrganization(businessTriggerCd, moduleCd, organizationDto.getOrganizationUid(), tableName);
