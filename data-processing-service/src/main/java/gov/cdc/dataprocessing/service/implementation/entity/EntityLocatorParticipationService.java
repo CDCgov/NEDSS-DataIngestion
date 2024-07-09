@@ -42,8 +42,9 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
 
     @SuppressWarnings("java:S6541")
     @Transactional
-    public void updateEntityLocatorParticipation(Collection<EntityLocatorParticipationDto> locatorCollection, Long uid) throws DataProcessingException {
+    public void updateEntityLocatorParticipation(Collection<EntityLocatorParticipationDto> locatorCollection, Long patientUid) throws DataProcessingException {
         ArrayList<EntityLocatorParticipationDto> personList = (ArrayList<EntityLocatorParticipationDto> ) locatorCollection;
+        var uid = patientUid;
         var locatorData = entityLocatorParticipationRepository.findByParentUid(uid);
         List<EntityLocatorParticipation> entityLocatorParticipations = new ArrayList<>();
         if (locatorData.isPresent()) {
@@ -75,7 +76,8 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
 
                 LocalUidGenerator localUid = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.PERSON);
                 boolean newLocator = true;
-                if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.PHYSICAL) && entityLocatorParticipationDto.getThePhysicalLocatorDto() != null) {
+                if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.PHYSICAL) && entityLocatorParticipationDto.getThePhysicalLocatorDto() != null)
+                {
                     if (!physicalLocators.isEmpty()) {
                         var existingLocator = physicalLocatorRepository.findByPhysicalLocatorUids(
                                 physicalLocators.stream()
@@ -92,32 +94,46 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                             }
 
 
-                            if (!compareStringList.contains(Arrays.toString(entityLocatorParticipationDto.getThePhysicalLocatorDto().getImageTxt()).toUpperCase())) {
+                            if (!compareStringList.contains(Arrays.toString(entityLocatorParticipationDto.getThePhysicalLocatorDto().getImageTxt()).toUpperCase()))
+                            {
+                                uid = entityLocatorParticipationDto.getEntityUid();
                                 entityLocatorParticipationDto.getThePhysicalLocatorDto().setPhysicalLocatorUid(localUid.getSeedValueNbr());
                                 physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDto.getThePhysicalLocatorDto()));
-                            } else {
+                            }
+                            else
+                            {
                                 newLocator = false;
                             }
-                        } else {
+                        }
+                        else
+                        {
+                            uid = entityLocatorParticipationDto.getEntityUid();
                             entityLocatorParticipationDto.getThePhysicalLocatorDto().setPhysicalLocatorUid(localUid.getSeedValueNbr());
                             physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDto.getThePhysicalLocatorDto()));
                         }
 
                         comparingString.setLength(0);
-                    } else {
+                    }
+                    else
+                    {
+                        uid = entityLocatorParticipationDto.getEntityUid();
                         entityLocatorParticipationDto.getThePhysicalLocatorDto().setPhysicalLocatorUid(localUid.getSeedValueNbr());
                         physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDto.getThePhysicalLocatorDto()));
                     }
-                } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.POSTAL) && entityLocatorParticipationDto.getThePostalLocatorDto() != null
-                && entityLocatorParticipationDto.getThePostalLocatorDto().getStreetAddr1() != null) {
-                    if (!postalLocators.isEmpty()) {
+                }
+                else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.POSTAL) && entityLocatorParticipationDto.getThePostalLocatorDto() != null
+                && entityLocatorParticipationDto.getThePostalLocatorDto().getStreetAddr1() != null)
+                {
+                    if (!postalLocators.isEmpty())
+                    {
                         var existingLocator = postalLocatorRepository.findByPostalLocatorUids(
                                 postalLocators.stream()
                                         .map(EntityLocatorParticipation::getLocatorUid)
                                         .collect(Collectors.toList()));
 
                         List<String> compareStringList = new ArrayList<>();
-                        if (existingLocator.isPresent()) {
+                        if (existingLocator.isPresent())
+                        {
                             for (int j = 0; j < existingLocator.get().size(); j++) {
                                 comparingString.setLength(0);
                                 comparingString.append(existingLocator.get().get(j).getCityCd());
@@ -149,29 +165,42 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
 
 
                             if (!compareStringList.contains(existComparingLocator.toString().toUpperCase())) {
+                                uid = entityLocatorParticipationDto.getEntityUid();
                                 entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getSeedValueNbr());
                                 postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
-                            } else {
+                            }
+                            else
+                            {
                                 newLocator = false;
                             }
-                        } else {
+                        }
+                        else
+                        {
+                            uid = entityLocatorParticipationDto.getEntityUid();
                             entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getSeedValueNbr());
                             postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
                         }
                         comparingString.setLength(0);
-                    } else {
+                    }
+                    else
+                    {
+                        uid = entityLocatorParticipationDto.getEntityUid();
                         entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getSeedValueNbr());
                         postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
                     }
-                } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.TELE) && entityLocatorParticipationDto.getTheTeleLocatorDto() != null) {
-                    if (!teleLocators.isEmpty()) {
+                }
+                else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.TELE) && entityLocatorParticipationDto.getTheTeleLocatorDto() != null)
+                {
+                    if (!teleLocators.isEmpty())
+                    {
                         var existingLocator = teleLocatorRepository.findByTeleLocatorUids(
                                 teleLocators.stream()
                                         .map(EntityLocatorParticipation::getLocatorUid)
                                         .collect(Collectors.toList()));
                         List<String> compareStringList = new ArrayList<>();
 
-                        if (existingLocator.isPresent()) {
+                        if (existingLocator.isPresent())
+                        {
                             for (int j = 0; j < existingLocator.get().size(); j++) {
                                 comparingString.setLength(0);
                                 comparingString.append(existingLocator.get().get(j).getCntryCd());
@@ -189,23 +218,35 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                             existComparingLocator.append(entityLocatorParticipationDto.getTheTeleLocatorDto().getPhoneNbrTxt());
                             existComparingLocator.append(entityLocatorParticipationDto.getTheTeleLocatorDto().getUrlAddress());
 
-                            if (!compareStringList.contains(existComparingLocator.toString().toUpperCase())) {
+                            if (!compareStringList.contains(existComparingLocator.toString().toUpperCase()))
+                            {
+                                uid = entityLocatorParticipationDto.getEntityUid();
                                 entityLocatorParticipationDto.getTheTeleLocatorDto().setTeleLocatorUid(localUid.getSeedValueNbr());
                                 teleLocatorRepository.save(new TeleLocator(entityLocatorParticipationDto.getTheTeleLocatorDto()));
-                            } else {
+                            }
+                            else
+                            {
                                 newLocator = false;
                             }
-                        } else {
+                        }
+                        else
+                        {
+                            uid = entityLocatorParticipationDto.getEntityUid();
                             entityLocatorParticipationDto.getTheTeleLocatorDto().setTeleLocatorUid(localUid.getSeedValueNbr());
                             teleLocatorRepository.save(new TeleLocator(entityLocatorParticipationDto.getTheTeleLocatorDto()));
                         }
 
                         comparingString.setLength(0);
-                    } else {
+                    }
+                    else
+                    {
+                        uid = entityLocatorParticipationDto.getEntityUid();
                         entityLocatorParticipationDto.getTheTeleLocatorDto().setTeleLocatorUid(localUid.getSeedValueNbr());
                         teleLocatorRepository.save(new TeleLocator(entityLocatorParticipationDto.getTheTeleLocatorDto()));
                     }
-                } else {
+                }
+                else
+                {
                     newLocator = false;
                 }
 
