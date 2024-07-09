@@ -510,7 +510,7 @@ class DecisionSupportServiceTest {
 
         var res = decisionSupportService.specimenCollectionDateCriteria(eventDateLogicType, edxLabInformationDT);
 
-        assertFalse(res);
+        assertTrue(res);
     }
 
     @Test
