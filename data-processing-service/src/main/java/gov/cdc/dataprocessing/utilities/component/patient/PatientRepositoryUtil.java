@@ -435,7 +435,10 @@ public class PatientRepositoryUtil {
     @SuppressWarnings("java:S1141")
     private void updatePersonRace(PersonContainer personContainer) throws DataProcessingException {
         ArrayList<PersonRaceDto>  personList = (ArrayList<PersonRaceDto> ) personContainer.getThePersonRaceDtoCollection();
+        var parentUid = personContainer.getThePersonDto().getPersonParentUid();
+        Long patientUid = -1L;
         try {
+            List<String> retainingRaceCodeList = new ArrayList<>();
             for (PersonRaceDto personRaceDto : personList) {
                 var pUid = personContainer.getThePersonDto().getPersonUid();
                 if (personRaceDto.isItDelete()) {
@@ -446,6 +449,11 @@ public class PatientRepositoryUtil {
                     }
                 }
                 else {
+                    // Edge case, happen when there are race exist, and we try to remove the second race from the list
+                    if (personRaceDto.isItDirty() && !Objects.equals(personRaceDto.getPersonUid(), parentUid)) {
+                        retainingRaceCodeList.add(personRaceDto.getRaceCd());
+                        patientUid = personRaceDto.getPersonUid();
+                    }
                     var mprRecord = SerializationUtils.clone(personRaceDto);
                     mprRecord.setPersonUid(personContainer.getThePersonDto().getPersonParentUid());
                     mprRecord.setAddReasonCd("Add");
@@ -454,6 +462,17 @@ public class PatientRepositoryUtil {
                     personRaceDto.setPersonUid(pUid);
                     personRaceDto.setAddReasonCd("Add");
                     personRaceRepository.save(new PersonRace(personRaceDto));
+
+
+                }
+            }
+
+            // This executes after the update process, whatever race not it the retain list and not direct assoc with parent uid will be deleted
+            if (!retainingRaceCodeList.isEmpty() && patientUid > 0) {
+                try {
+                    personRaceRepository.deletePersonRaceByUid(patientUid,retainingRaceCodeList);
+                } catch (Exception e) {
+                    logger.error(ERROR_DELETE_MSG + e.getMessage()); //NOSONAR
                 }
             }
         } catch (Exception e) {
