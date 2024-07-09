@@ -108,7 +108,8 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                         entityLocatorParticipationDto.getThePhysicalLocatorDto().setPhysicalLocatorUid(localUid.getSeedValueNbr());
                         physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDto.getThePhysicalLocatorDto()));
                     }
-                } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.POSTAL) && entityLocatorParticipationDto.getThePostalLocatorDto() != null) {
+                } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.POSTAL) && entityLocatorParticipationDto.getThePostalLocatorDto() != null
+                && entityLocatorParticipationDto.getThePostalLocatorDto().getStreetAddr1() != null) {
                     if (!postalLocators.isEmpty()) {
                         var existingLocator = postalLocatorRepository.findByPostalLocatorUids(
                                 postalLocators.stream()
@@ -204,6 +205,8 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                         entityLocatorParticipationDto.getTheTeleLocatorDto().setTeleLocatorUid(localUid.getSeedValueNbr());
                         teleLocatorRepository.save(new TeleLocator(entityLocatorParticipationDto.getTheTeleLocatorDto()));
                     }
+                } else {
+                    newLocator = false;
                 }
 
                 // ONLY persist new participation locator if new locator actually exist
