@@ -81,6 +81,7 @@ class EntityLocatorParticipationServiceTest {
         locator = new EntityLocatorParticipationDto();
         locator.setClassCd(NEDSSConstant.POSTAL);
         var postalDto = new PostalLocatorDto();
+        postalDto.setStreetAddr1("TEST");
         locator.setThePostalLocatorDto(postalDto);
         locatorCollection.add(locator);
         locator = new EntityLocatorParticipationDto();
@@ -132,6 +133,7 @@ class EntityLocatorParticipationServiceTest {
         locator = new EntityLocatorParticipationDto();
         locator.setClassCd(NEDSSConstant.POSTAL);
         var postalDto = new PostalLocatorDto();
+        postalDto.setStreetAddr1("TEST");
         locator.setThePostalLocatorDto(postalDto);
         locatorCollection.add(locator);
         locator = new EntityLocatorParticipationDto();
