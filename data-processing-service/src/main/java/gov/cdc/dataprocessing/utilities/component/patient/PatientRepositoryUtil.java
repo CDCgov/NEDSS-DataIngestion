@@ -93,7 +93,6 @@ public class PatientRepositoryUtil {
     public Person createPerson(PersonContainer personContainer) throws DataProcessingException {
         Long personUid;
         String localUid;
-        //var localIdModel = localUidGeneratorRepository.findById(PERSON);
         var localIdModel = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.PERSON);
         personUid = localIdModel.getSeedValueNbr();
         localUid = localIdModel.getUidPrefixCd() + personUid + localIdModel.getUidSuffixCd();
@@ -173,7 +172,7 @@ public class PatientRepositoryUtil {
         }
         //NOTE: Create Person Ethnic
         if  (personContainer.getThePersonEthnicGroupDtoCollection() != null && !personContainer.getThePersonEthnicGroupDtoCollection().isEmpty()) {
-            createPersonEthnic(personContainer);
+            updatePersonEthnic(personContainer);
         }
 
 
@@ -502,6 +501,26 @@ public class PatientRepositoryUtil {
                 var pUid = personContainer.getThePersonDto().getPersonUid();
                 personEthnicGroupDto.setPersonUid(pUid);
                 personEthnicRepository.save(new PersonEthnicGroup(personEthnicGroupDto));
+            }
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+    private void updatePersonEthnic(PersonContainer personContainer) throws DataProcessingException {
+        try {
+            var parentUid = personContainer.getThePersonDto().getPersonParentUid();
+            for (PersonEthnicGroupDto personEthnicGroupDto : personContainer.getThePersonEthnicGroupDtoCollection()) {
+
+                var mprRecord =  SerializationUtils.clone(personEthnicGroupDto);
+                mprRecord.setPersonUid(parentUid);
+                personEthnicRepository.save(new PersonEthnicGroup(mprRecord));
+
+                var pUid = personContainer.getThePersonDto().getPersonUid();
+                personEthnicGroupDto.setPersonUid(pUid);
+                personEthnicRepository.save(new PersonEthnicGroup(personEthnicGroupDto));
+
+
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
