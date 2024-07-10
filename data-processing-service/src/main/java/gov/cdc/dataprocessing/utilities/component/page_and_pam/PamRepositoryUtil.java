@@ -23,15 +23,11 @@ public class PamRepositoryUtil {
         this.nbsCaseAnswerRepository = nbsCaseAnswerRepository;
     }
     public PublicHealthCaseContainer getPamHistory(PublicHealthCaseContainer publicHealthCaseContainer) throws DataProcessingException {
-        try{
             Collection<NbsActEntityDto> pamEntityColl = getPamCaseEntityDTCollection(publicHealthCaseContainer.getThePublicHealthCaseDto());
             publicHealthCaseContainer.setNbsCaseEntityCollection(pamEntityColl);
             Collection<NbsCaseAnswerDto>  pamAnswerColl = getPamAnswerDTCollection(publicHealthCaseContainer.getThePublicHealthCaseDto());
             publicHealthCaseContainer.setNbsAnswerCollection(pamAnswerColl);
             return publicHealthCaseContainer;
-        }catch(Exception ex){
-            throw new DataProcessingException(ex.toString());
-        }
     }
 
     private Collection<NbsActEntityDto>  getPamCaseEntityDTCollection(RootDtoInterface rootDTInterface) throws DataProcessingException {
