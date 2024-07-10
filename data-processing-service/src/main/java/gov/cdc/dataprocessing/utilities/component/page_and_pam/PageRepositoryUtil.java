@@ -104,40 +104,6 @@ public class PageRepositoryUtil {
             }
 
 
-            /**
-             * Permission checking -- most this crap is not implemented yet
-             * */
-            if (pageActProxyContainer.isItNew()) {
-
-//                boolean checkInvestigationAutoCreatePermission = nbsSecurityObj
-//                        .getPermission(NBSBOLookup.INVESTIGATION,
-//                                NBSOperationLookup.AUTOCREATE, phcDT
-//                                        .getProgAreaCd(),
-//                                ProgramAreaJurisdictionUtil.ANY_JURISDICTION, phcDT
-//                                        .getSharedInd());
-//
-//                if (!nbsSecurityObj.getPermission(NBSBOLookup.INVESTIGATION,
-//                        NBSOperationLookup.ADD, phcDT.getProgAreaCd(),
-//                        ProgramAreaJurisdictionUtil.ANY_JURISDICTION, phcDT
-//                                .getSharedInd())
-//                        && !(checkInvestigationAutoCreatePermission)) {
-//                    logger.info("no add permissions for setPageProxy");
-//                    throw new NEDSSSystemException(
-//                            "NO ADD PERMISSIONS for setPageProxy");
-//                }
-//                logger.info("user has add permissions for setPageProxy");
-            }
-            else if (pageActProxyContainer.isItDirty()) {
-//                if (!nbsSecurityObj.getPermission(NBSBOLookup.INVESTIGATION,
-//                        NBSOperationLookup.EDIT, phcDT.getProgAreaCd(), phcDT
-//                                .getJurisdictionCd(), phcDT.getSharedInd())) {
-//                    logger.info("no edit permissions for setPageProxy");
-//                    throw new NEDSSSystemException(
-//                            "NO EDIT PERMISSIONS for setPageProxy");
-//                }
-            }
-
-
             if (pageActProxyContainer.isItDirty() && !pageActProxyContainer.isConversionHasModified())
             {
                 try {

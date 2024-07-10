@@ -125,7 +125,8 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                         entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.POSTAL)
                         && entityLocatorParticipationDto.getThePostalLocatorDto() != null
                         && (
-                            entityLocatorParticipationDto.getCd().equals(NEDSSConstant.HOME)
+                            entityLocatorParticipationDto.getCd().equals(NEDSSConstant.HOME) ||
+                            entityLocatorParticipationDto.getCd().isEmpty()
                         )
                 )
                 {
