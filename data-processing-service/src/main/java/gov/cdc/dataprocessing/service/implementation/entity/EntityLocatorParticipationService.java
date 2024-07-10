@@ -121,8 +121,13 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                         physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDto.getThePhysicalLocatorDto()));
                     }
                 }
-                else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.POSTAL) && entityLocatorParticipationDto.getThePostalLocatorDto() != null
-                && entityLocatorParticipationDto.getThePostalLocatorDto().getStreetAddr1() != null)
+                else if (
+                        entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.POSTAL)
+                        && entityLocatorParticipationDto.getThePostalLocatorDto() != null
+                        && (
+                            entityLocatorParticipationDto.getCd().equals(NEDSSConstant.HOME)
+                        )
+                )
                 {
                     if (!postalLocators.isEmpty())
                     {
