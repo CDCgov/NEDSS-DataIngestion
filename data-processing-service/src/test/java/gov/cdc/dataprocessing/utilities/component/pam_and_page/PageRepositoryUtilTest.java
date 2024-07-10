@@ -1,17 +1,21 @@
 package gov.cdc.dataprocessing.utilities.component.pam_and_page;
 
+import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.MessageConstants;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.model.NotificationSummaryContainer;
-import gov.cdc.dataprocessing.model.container.model.PageActProxyContainer;
-import gov.cdc.dataprocessing.model.container.model.PersonContainer;
-import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
+import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
+import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessDto;
 import gov.cdc.dataprocessing.model.dto.log.MessageLogDto;
+import gov.cdc.dataprocessing.model.dto.nbs.NBSDocumentDto;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsNoteDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
+import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
@@ -46,14 +50,15 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class PageRepositoryUtilTest {
     @Mock
@@ -101,6 +106,7 @@ class PageRepositoryUtilTest {
         AuthUserProfileInfo userInfo = new AuthUserProfileInfo();
         AuthUser user = new AuthUser();
         user.setAuthUserUid(1L);
+        user.setNedssEntryId(1L);
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
@@ -114,6 +120,7 @@ class PageRepositoryUtilTest {
                 nbsDocumentRepositoryUtil, participationRepositoryUtil, nbsNoteRepositoryUtil,
                 customRepository, pamService, patientMatchingBaseService, authUtil,
                 pageActProxyContainerMock);
+        SrteCache.investigationFormConditionCode.clear();
     }
 
     @Test
@@ -160,10 +167,10 @@ class PageRepositoryUtilTest {
         personDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_LOGICAL_DELETE);
         when(patientRepositoryUtil.loadPerson(10L)).thenReturn(personContainer);
 
-
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             pageRepositoryUtil.setPageActProxyVO(pageActProxyContainerMock);
         });
+
 
         assertNotNull(thrown);
 
@@ -172,7 +179,7 @@ class PageRepositoryUtilTest {
 
     // DIRTY PHC CON
     @Test
-    void setPageActProxyVO_Test_1() throws DataProcessingException {
+    void setPageActProxyVO_Test_1() throws DataProcessingException, IOException, ClassNotFoundException, CloneNotSupportedException {
 
         var phc = new PublicHealthCaseContainer();
         var phcDt = new PublicHealthCaseDto();
@@ -183,9 +190,14 @@ class PageRepositoryUtilTest {
         phcDt.setProgAreaCd("PROG");
         phcDt.setJurisdictionCd("JUS");
         phcDt.setSharedInd("Y");
+        phcDt.setCoinfectionId("1");
+        phcDt.setInvestigationStatusCd("A");
         phc.setThePublicHealthCaseDto(phcDt);
         phc.setCoinfectionCondition(true);
         phc.setNbsAnswerCollection(new ArrayList<>());
+
+        var caseMgDt=  new CaseManagementDto();
+        phc.setTheCaseManagementDto(caseMgDt);
         var actCol = new ArrayList<ActRelationshipDto>();
         var act = new ActRelationshipDto();
         act.setTypeCd(NEDSSConstant.DocToPHC);
@@ -298,10 +310,157 @@ class PageRepositoryUtilTest {
 
         // processingPhcActRelationshipForPageAct
         // processingEventProcessForPageAct
+        // processingNbsDocumentForPageAct
+        NbsDocumentContainer docConn = new NbsDocumentContainer();
+        NBSDocumentDto docDt = new NBSDocumentDto();
+        docDt.setJurisdictionCd("");
+        docConn.setNbsDocumentDT(docDt);
+        when(nbsDocumentRepositoryUtil.getNBSDocumentWithoutActRelationship(1L)).thenReturn(docConn);
 
-        pageRepositoryUtil.setPageActProxyVO(pageActProxyContainerMock);
+        when(pageActProxyContainerMock.isUnsavedNote()).thenReturn(true);
+        var noteCol = new ArrayList<NbsNoteDto>();
+        var note = new NbsNoteDto();
+        noteCol.add(note);
+        when(pageActProxyContainerMock.getNbsNoteDTColl()).thenReturn(noteCol);
+
+        var page = new BasePamContainer();
+        when(pageActProxyContainerMock.getPageVO()).thenReturn(page);
+
+        when(pageActProxyContainerMock.isRenterant()).thenReturn(false);
+        when(pageActProxyContainerMock.isMergeCase()).thenReturn(false);
+
+        var coInfecList = new ArrayList<>();
+        CoinfectionSummaryContainer coIn = new CoinfectionSummaryContainer();
+        coIn.setPublicHealthCaseUid(1L);
+        coInfecList.add(coIn);
+        coIn = new CoinfectionSummaryContainer();
+        coIn.setPublicHealthCaseUid(2L);
+        coInfecList.add(coIn);
+        when(customRepository.getInvListForCoInfectionId(eq(11L), eq("1"))).thenReturn(coInfecList);
+
+        PageActProxyContainer pageActProxyContainer = new PageActProxyContainer();
+        Map<Object, Object>pamAsn = new HashMap<>();
+        page.setPamAnswerDTMap(pamAsn);
+        page.setPageRepeatingAnswerDTMap(pamAsn);
+        pageActProxyContainer.setPageVO(page);
+        pageActProxyContainer.setPublicHealthCaseContainer(phc);
+        when(pageActProxyContainerMock.deepCopy()).thenReturn(pageActProxyContainer);
+
+        SrteCache.investigationFormConditionCode.put("CODE", "CODE");
+
+        var res = pageRepositoryUtil.setPageActProxyVO(pageActProxyContainerMock);
+
+        verify(pageActProxyContainerMock, times(1)).deepCopy();
+        verify(customRepository, times(1)).getInvListForCoInfectionId(any(), any());
+        assertEquals(1, res);
 
 
+    }
+
+    @Test
+    void updateForConInfectionId_Test_1() throws DataProcessingException {
+        PageActProxyContainer pageActProxyContainer = new PageActProxyContainer();
+        PageActProxyContainer supersededProxyVO = new PageActProxyContainer();
+        Long mprUid = 1L;
+        Map<Object, Object> coInSupersededEpliLinkIdMap = new HashMap<>();
+        Long currentPhclUid = 1L;
+        ArrayList<Object> coinfectionSummaryVOCollection = new ArrayList<>();
+        String coinfectionIdToUpdate = "TEST";
+
+        var phc = new PublicHealthCaseContainer();
+        var phcDt = new PublicHealthCaseDto();
+        phcDt.setPublicHealthCaseUid(1L);
+        phcDt.setVersionCtrlNbr(1);
+        phcDt.setCd("CODE");
+        phcDt.setCaseClassCd("CASE");
+        phcDt.setProgAreaCd("PROG");
+        phcDt.setJurisdictionCd("JUS");
+        phcDt.setSharedInd("Y");
+        phcDt.setCoinfectionId("1");
+        phcDt.setInvestigationStatusCd("A");
+        phc.setThePublicHealthCaseDto(phcDt);
+        phc.setCoinfectionCondition(true);
+        phc.setNbsAnswerCollection(new ArrayList<>());
+
+        var caseMgDt=  new CaseManagementDto();
+        caseMgDt.setEpiLinkId("EPI");
+        phc.setTheCaseManagementDto(caseMgDt);
+        var actCol = new ArrayList<ActRelationshipDto>();
+        var act = new ActRelationshipDto();
+        act.setTypeCd(NEDSSConstant.DocToPHC);
+        act.setSourceActUid(1L);
+        act.setTargetActUid(1L);
+        act.setStatusTime(TimeStampUtil.getCurrentTimeStamp());
+        act.setStatusCd("CODE");
+        act.setItDelete(true);
+        actCol.add(act);
+        phc.setTheActRelationshipDTCollection(actCol);
+        var edxEventCol = new ArrayList<EDXEventProcessDto>();
+        var edxEvent = new EDXEventProcessDto();
+        edxEvent.setDocEventTypeCd(NEDSSConstant.CASE);
+        edxEventCol.add(edxEvent);
+        phc.setEdxEventProcessDtoCollection(edxEventCol);
+        pageActProxyContainer.setPublicHealthCaseContainer(phc);
+        supersededProxyVO.setPublicHealthCaseContainer(phc);
+
+        Map<Object, Object>pamAsn = new HashMap<>();
+        var nbsAns = new NbsCaseAnswerDto();
+        nbsAns.setItDirty(false);
+        nbsAns.setItDelete(false);
+        nbsAns.setItNew(false);
+        pamAsn.put("TEST",nbsAns );
+        var arr = new ArrayList<>();
+        arr.add(nbsAns);
+        pamAsn.put("TEST-2", arr);
+        BasePamContainer page = new BasePamContainer();
+        page.setPamAnswerDTMap(pamAsn);
+        page.setPageRepeatingAnswerDTMap(pamAsn);
+        var actNbsCol = new ArrayList<NbsActEntityDto>();
+        var actNbs = new NbsActEntityDto();
+        actNbsCol.add(actNbs);
+        page.setActEntityDTCollection(actNbsCol);
+        pageActProxyContainer.setPageVO(page);
+
+        SrteCache.investigationFormConditionCode.put("CODE", "CODE");
+        SrteCache.investigationFormConditionCode.put("COND", "COND");
+
+
+        CoinfectionSummaryContainer coInfect = new CoinfectionSummaryContainer();
+        coInfect.setPublicHealthCaseUid(2L);
+        coInfect.setConditionCd("COND");
+        coinfectionSummaryVOCollection.add(coInfect);
+
+        var perConCol = new ArrayList<PersonContainer>();
+        var perCon = new PersonContainer();
+        var perDt = new PersonDto();
+        perDt.setCd(NEDSSConstant.PAT);
+        perCon.setThePersonDto(perDt);
+        perConCol.add(perCon);
+        pageActProxyContainer.setThePersonContainerCollection(perConCol);
+        pageActProxyContainer.setItDirty(false);
+
+        PageActProxyContainer pageActProxyContainer1 = SerializationUtils.clone(pageActProxyContainer);
+        pageActProxyContainer1.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setInvestigationStatusCd(NEDSSConstant.STATUS_OPEN);
+        when(investigationService.getPageProxyVO(eq("CASE"), eq(2L))).thenReturn(pageActProxyContainer1);
+
+        when(prepareAssocModelHelper.prepareVO(any(),eq("INVESTIGATION"), eq("INV_EDIT"), eq("PUBLIC_HEALTH_CASE"), eq("BASE"),
+                eq(1))).thenReturn(phcDt);
+
+
+        NbsDocumentContainer docConn = new NbsDocumentContainer();
+        NBSDocumentDto docDt = new NBSDocumentDto();
+        docDt.setJurisdictionCd("");
+        docConn.setNbsDocumentDT(docDt);
+        when(nbsDocumentRepositoryUtil.getNBSDocumentWithoutActRelationship(any())).thenReturn(docConn);
+
+
+        pageRepositoryUtil.updateForConInfectionId(pageActProxyContainer, supersededProxyVO, mprUid,
+                coInSupersededEpliLinkIdMap, currentPhclUid,
+                coinfectionSummaryVOCollection, coinfectionIdToUpdate);
+
+        verify(investigationService, times(1)).getPageProxyVO(eq("CASE"), eq(2L));
+        verify(prepareAssocModelHelper, times(1)).prepareVO(any(),eq("INVESTIGATION"), eq("INV_EDIT"), eq("PUBLIC_HEALTH_CASE"), eq("BASE"),
+                eq(1));
     }
 
 }

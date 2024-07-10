@@ -202,6 +202,7 @@ public class PageRepositoryUtil {
 
                 processingParticipationForPageAct(pageActProxyContainer);
 
+
                 if( pageActProxyContainer.isUnsavedNote() && pageActProxyContainer.getNbsNoteDTColl()!=null && pageActProxyContainer.getNbsNoteDTColl().size()>0){
                     nbsNoteRepositoryUtil.storeNotes(actualUid, pageActProxyContainer.getNbsNoteDTColl());
                 }
@@ -210,13 +211,12 @@ public class PageRepositoryUtil {
                     pamService.insertPamVO(pageActProxyContainer.getPageVO(), pageActProxyContainer.getPublicHealthCaseContainer());
 
                 } else if (pageActProxyContainer.getPageVO() != null && pageActProxyContainer.isItDirty()) {
-//                    pamRootDAO.editPamVO(pageActProxyContainer.getPageVO(), pageActProxyContainer.getPublicHealthCaseContainer());
+                    //pamRootDAO.editPamVO(pageActProxyContainer.getPageVO(), pageActProxyContainer.getPublicHealthCaseContainer()); //NOSONAR
                     logger.info("test");
                 } else
                 {
                     logger.error("There is error in setPageActProxyVO as pageProxyVO.getPageVO() is null");
                 }
-
 
             }
             catch (Exception e)
@@ -260,50 +260,50 @@ public class PageRepositoryUtil {
 
 
             PageActProxyContainer pageActProxyCopyVO = (PageActProxyContainer) pageActProxyContainer.deepCopy();
-            Map<Object, Object> answermapMap =pageActProxyCopyVO.getPageVO().getPamAnswerDTMap();
+            Map<Object, Object> answermapMap =pageActProxyCopyVO.getPageVO().getPamAnswerDTMap(); //NOSONAR
 
-            Map<Object, Object> repeatingAnswermapMap =pageActProxyCopyVO.getPageVO().getPageRepeatingAnswerDTMap();
+            Map<Object, Object> repeatingAnswermapMap =pageActProxyCopyVO.getPageVO().getPageRepeatingAnswerDTMap(); //NOSONAR
 
             String investigationFormCd = SrteCache.investigationFormConditionCode.get(pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getCd());
             Map<Object, Object> mapFromQuestions = new HashMap<>();
-//            Collection<Object> nbsQuestionUidCollection = getCoinfectionQuestionListForFormCd(investigationFormCd);
+            //Collection<Object> nbsQuestionUidCollection = getCoinfectionQuestionListForFormCd(investigationFormCd); //NOSONAR
             Collection<Object> nbsQuestionUidCollection = new ArrayList<>();
             Map<Object,Object> updatedValuesMap = new HashMap<>();
 
             Map<Object,Object> updateValueInOtherTablesMap = new HashMap<>(); // Map is to update values in other table then NBS_CASE_Answer
 
             if(nbsQuestionUidCollection!=null) {
-                for (Object o : nbsQuestionUidCollection) {
-                    DropDownCodeDto dropDownCodeDT = (DropDownCodeDto) o;
-                    mapFromQuestions.put(dropDownCodeDT.getKey(), dropDownCodeDT);
-
-                    if (dropDownCodeDT.getAltValue() != null && (dropDownCodeDT.getAltValue().contains("CASE_MANAGEMENT.")
-                            || dropDownCodeDT.getAltValue().contains("PERSON.")
-                            || dropDownCodeDT.getAltValue().contains("PUBLIC_HEALTH_CASE."))) {
-                        updateValueInOtherTablesMap.put(dropDownCodeDT.getKey(), dropDownCodeDT.getAltValue());
-                    } else {
-                        if (answermapMap.get(dropDownCodeDT.getKey()) != null) {
-                            updatedValuesMap.put(dropDownCodeDT.getKey(), answermapMap.get(dropDownCodeDT.getKey()));
-                        } else if (answermapMap.get(dropDownCodeDT.getLongKey()) != null) {
-                            updatedValuesMap.put(dropDownCodeDT.getKey(), answermapMap.get(dropDownCodeDT.getLongKey()));
-                        } else if ((repeatingAnswermapMap.get(String.valueOf(dropDownCodeDT.getLongKey())) != null || repeatingAnswermapMap.get(dropDownCodeDT.getLongKey()) != null)
-                                && updatedValuesMap.get(dropDownCodeDT.getLongKey()) == null) {
-                            ArrayList list = (ArrayList) repeatingAnswermapMap.get(dropDownCodeDT.getLongKey().toString());
-                            if (list == null)
-                                list = (ArrayList) repeatingAnswermapMap.get(dropDownCodeDT.getLongKey());
-
-                            if (list != null && list.size() > 0)
-                                updatedValuesMap.put(dropDownCodeDT.getKey(), list);
-                        } else {
-                            //if(dropDownCodeDT.getIntValue()==null) {
-                            dropDownCodeDT.setValue(NEDSSConstant.NO_BATCH_ENTRY);
-                            updatedValuesMap.put(dropDownCodeDT.getKey(), dropDownCodeDT);
-                            //	}else {
-                            //		updatedValuesMap.put(dropDownCodeDT.getKey(), dropDownCodeDT.getIntValue());
-                            //	}
-                        }
-                    }
-                }
+//                for (Object o : nbsQuestionUidCollection) {
+//                    DropDownCodeDto dropDownCodeDT = (DropDownCodeDto) o;
+//                    mapFromQuestions.put(dropDownCodeDT.getKey(), dropDownCodeDT);
+//
+//                    if (dropDownCodeDT.getAltValue() != null && (dropDownCodeDT.getAltValue().contains("CASE_MANAGEMENT.")
+//                            || dropDownCodeDT.getAltValue().contains("PERSON.")
+//                            || dropDownCodeDT.getAltValue().contains("PUBLIC_HEALTH_CASE."))) {
+//                        updateValueInOtherTablesMap.put(dropDownCodeDT.getKey(), dropDownCodeDT.getAltValue());
+//                    } else {
+//                        if (answermapMap.get(dropDownCodeDT.getKey()) != null) {
+//                            updatedValuesMap.put(dropDownCodeDT.getKey(), answermapMap.get(dropDownCodeDT.getKey()));
+//                        } else if (answermapMap.get(dropDownCodeDT.getLongKey()) != null) {
+//                            updatedValuesMap.put(dropDownCodeDT.getKey(), answermapMap.get(dropDownCodeDT.getLongKey()));
+//                        } else if ((repeatingAnswermapMap.get(String.valueOf(dropDownCodeDT.getLongKey())) != null || repeatingAnswermapMap.get(dropDownCodeDT.getLongKey()) != null)
+//                                && updatedValuesMap.get(dropDownCodeDT.getLongKey()) == null) {
+//                            ArrayList list = (ArrayList) repeatingAnswermapMap.get(dropDownCodeDT.getLongKey().toString());
+//                            if (list == null)
+//                                list = (ArrayList) repeatingAnswermapMap.get(dropDownCodeDT.getLongKey());
+//
+//                            if (list != null && list.size() > 0)
+//                                updatedValuesMap.put(dropDownCodeDT.getKey(), list);
+//                        } else {
+//                            //if(dropDownCodeDT.getIntValue()==null) {
+//                            dropDownCodeDT.setValue(NEDSSConstant.NO_BATCH_ENTRY);
+//                            updatedValuesMap.put(dropDownCodeDT.getKey(), dropDownCodeDT);
+//                            //	}else {
+//                            //		updatedValuesMap.put(dropDownCodeDT.getKey(), dropDownCodeDT.getIntValue());
+//                            //	}
+//                        }
+//                    }
+//                }
 
             }
             if(coinfectionSummaryVOCollection!=null && coinfectionSummaryVOCollection.size()>0) {
@@ -348,8 +348,7 @@ public class PageRepositoryUtil {
         Long publicHealthCaseUid;
         try {
             String investigationFormCd = SrteCache.investigationFormConditionCode.get(coninfectionSummaryVO.getConditionCd());
-//            Collection<Object> toNbsQuestionUidCollection = getCoinfectionQuestionListForFormCd(investigationFormCd);
-
+            //Collection<Object> toNbsQuestionUidCollection = getCoinfectionQuestionListForFormCd(investigationFormCd); //NOSONAR
             Collection<Object> toNbsQuestionUidCollection = new ArrayList<>();
             publicHealthCaseUid=coninfectionSummaryVO.getPublicHealthCaseUid();
             java.util.Date dateTime = new java.util.Date();
@@ -359,12 +358,14 @@ public class PageRepositoryUtil {
             if (!proxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getInvestigationStatusCd().equalsIgnoreCase(NEDSSConstant.STATUS_OPEN)){
             }
             else{
+                /*
                 BasePamContainer pageVO = proxyVO.getPageVO();
                 if(pageVO.getPamAnswerDTMap()!=null && toNbsQuestionUidCollection!=null) {
                     Iterator<Object> nbsQuestionIterator = toNbsQuestionUidCollection.iterator();
                     String currentToQuestionKey = "";
                     while(nbsQuestionIterator.hasNext( )) {
-                        try {
+                        try
+                        {
                             DropDownCodeDto toDropDownCodeDT= (DropDownCodeDto)nbsQuestionIterator.next();
                             currentToQuestionKey = toDropDownCodeDT.getKey();
                             if(fromMapQuestions.get(toDropDownCodeDT.getKey())==null){
@@ -375,12 +376,6 @@ public class PageRepositoryUtil {
                                 continue;
                             }else {
                                 DropDownCodeDto fromDropDownCodeDT = (DropDownCodeDto)fromMapQuestions.get(toDropDownCodeDT.getKey());
-                                /*if(fromDropDownCodeDT.getIntValue()!=null && toDropDownCodeDT.getIntValue()==null){
-									logger.warn("TO Metadata question details: question_identifier:-"+ toDropDownCodeDT.getKey()+ "\nwith question_group_seq_nbr:-"+toDropDownCodeDT.getIntValue()+ "\nwith nbs_question_uid:-"+toDropDownCodeDT.getLongKey());
-									logger.warn("AssociatedInvestigationUpdateUtil.updateCoInfectionInvest:coinfection investigation form code for the coinfection case is :"+investigationFormCd);
-									logger.warn("AssociatedInvestigationUpdateUtil.updateCoInfectionInvest:The mapped question is a batch question in the current investigation, however the question is not a batch question in the coinfection investigation. Hence ignored" );
-									continue;
-								}else*/
                                 if(fromDropDownCodeDT.getIntValue()!=null && fromDropDownCodeDT.getValue().equals(NEDSSConstant.NO_BATCH_ENTRY)  && toDropDownCodeDT.getIntValue()!=null){
                                     logger.warn("TO Metadata question details: question_identifier:-"+ toDropDownCodeDT.getKey()+ "\nwith question_group_seq_nbr:-"+toDropDownCodeDT.getIntValue()+ "\nwith nbs_question_uid:-"+toDropDownCodeDT.getLongKey());
                                     logger.warn("From Metadata question details: question_identifier:-"+ fromDropDownCodeDT.getKey()+ "\nwith question_group_seq_nbr:-"+fromDropDownCodeDT.getIntValue()+ "\nwith nbs_question_uid:-"+fromDropDownCodeDT.getLongKey());
@@ -394,11 +389,9 @@ public class PageRepositoryUtil {
                                     logger.debug("AssociatedInvestigationUpdateUtil.updateCoInfectionInvest:coinfection investigation form code for the coinfection case is :"+investigationFormCd);
                                     logger.debug("AssociatedInvestigationUpdateUtil.updateCoInfectionInvest:The mapped question is being updated" );
                                     if(mappedCoInfectionQuestions.get(toDropDownCodeDT.getKey())!=null && toDropDownCodeDT.getLongKey()!=null) {
-                                        //	 if(pageVO.getPamAnswerDTMap().get(toDropDownCodeDT.getLongKey()) instanceof NbsCaseAnswerDT) {
                                         if(toDropDownCodeDT.getIntValue()==null) {
                                             Object object = mappedCoInfectionQuestions.get(toDropDownCodeDT.getKey());
                                             if(object !=null && object instanceof DropDownCodeDto && (((DropDownCodeDto)object).getValue().equalsIgnoreCase(NEDSSConstant.NO_BATCH_ENTRY))){
-                                                //&& object.toString().equalsIgnoreCase(NEDSSConstant.DEL)) {
                                                 Object thisObj = pageVO.getPamAnswerDTMap().get(toDropDownCodeDT.getLongKey()) ;
                                                 if(thisObj!=null && thisObj instanceof NbsCaseAnswerDto) {
                                                     NbsCaseAnswerDto nbsCaseAnswerDT=(NbsCaseAnswerDto)pageVO.getPamAnswerDTMap().get(toDropDownCodeDT.getLongKey()) ;
@@ -424,7 +417,6 @@ public class PageRepositoryUtil {
                                                 Object thisObj = mappedCoInfectionQuestions.get(toDropDownCodeDT.getKey());
                                                 if (thisObj !=null && thisObj instanceof NbsCaseAnswerDto) {
                                                     NbsCaseAnswerDto fromNbsCaseAnswerDT=(NbsCaseAnswerDto)mappedCoInfectionQuestions.get(toDropDownCodeDT.getKey());
-                                                    //NbsCaseAnswerDT nbsCaseAnswerDT=(NbsCaseAnswerDT)pageVO.getPamAnswerDTMap().get(toDropDownCodeDT.getLongKey()) ;
                                                     fromNbsCaseAnswerDT.setAnswerTxt(fromNbsCaseAnswerDT.getAnswerTxt());
                                                     fromNbsCaseAnswerDT.setActUid(publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid());
                                                     fromNbsCaseAnswerDT.setItDelete(false);
@@ -437,7 +429,6 @@ public class PageRepositoryUtil {
                                                     {
                                                         if (ansDT instanceof NbsCaseAnswerDto) {
                                                             NbsCaseAnswerDto fromNbsCaseAnswerDT=(NbsCaseAnswerDto)ansDT;
-                                                            //fromNbsCaseAnswerDT.setAnswerTxt(fromNbsCaseAnswerDT.getAnswerTxt());
                                                             fromNbsCaseAnswerDT.setActUid(publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid());
                                                             fromNbsCaseAnswerDT.setItDelete(false);
                                                             fromNbsCaseAnswerDT.setItNew(true);
@@ -509,11 +500,7 @@ public class PageRepositoryUtil {
                                             Object objectRef = mappedCoInfectionQuestions.get(toDropDownCodeDT.getKey());
                                             if(objectRef !=null && objectRef instanceof DropDownCodeDto && ((DropDownCodeDto)objectRef).getValue().equalsIgnoreCase(NEDSSConstant.NO_BATCH_ENTRY)){
                                                 ArrayList<NbsCaseAnswerDto> list=(ArrayList<NbsCaseAnswerDto>)pageVO.getPageRepeatingAnswerDTMap().get(toDropDownCodeDT.getLongKey()) ;
-                                                //pageVO.getPageRepeatingAnswerDTMap().remove(toDropDownCodeDT.getLongKey());
-                                                //pageVO.getPageRepeatingAnswerDTMap().put(toDropDownCodeDT.getLongKey().toString(), null);
 
-
-                                                //ArrayList<?> list=(ArrayList<?>)mappedCoInfectionQuestions.get(toDropDownCodeDT.getKey());
                                                 list=changeStatus(list, proxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getPublicHealthCaseUid(),false, false,true,lastChgUserId,lastChgTime);
                                                 pageVO.getPageRepeatingAnswerDTMap().put(toDropDownCodeDT.getLongKey(), list);
 
@@ -541,13 +528,6 @@ public class PageRepositoryUtil {
                                             logger.error("PLEASE check!!!From Metadata question details: question_identifier:-"+ fromDropDownCodeDT.getKey()+ "\nwith question_group_seq_nbr:-"+fromDropDownCodeDT.getIntValue()+ "\nwith nbs_question_uid:-"+fromDropDownCodeDT.getLongKey());
                                             logger.error("PLEASE check!!!AssociatedInvestigationUpdateUtil.updateCoInfectionInvest:coinfection investigation form code for the coinfection case is :"+investigationFormCd);
                                             logger.error("PLEASE check!!!AssociatedInvestigationUpdateUtil.updateCoInfectionInvest:The mapped question is being updated" );
-
-                                        /*NbsCaseAnswerDT currentNbsCaseAnswerDT=(NbsCaseAnswerDT)mappedCoInfectionQuestions.get(toDropDownCodeDT.getKey());
-										currentNbsCaseAnswerDT.setAddTime(lastChgTime);
-										currentNbsCaseAnswerDT.setAddUserId(lastChgUserId);
-										currentNbsCaseAnswerDT.setItNew(true);
-										currentNbsCaseAnswerDT.setActUid(publicHealthCaseUid);
-										pageVO.getPamAnswerDTMap().put(toDropDownCodeDT.getKey(), currentNbsCaseAnswerDT);*/
                                         }
 
                                     }else if(mappedCoInfectionQuestions.get(toDropDownCodeDT.getKey())==null && toDropDownCodeDT.getLongKey()!=null) {
@@ -569,14 +549,17 @@ public class PageRepositoryUtil {
                                 }
 
                             }
-                        }catch (Exception e) {
-                            String errorMessage ="Error processing co-infection question " +currentToQuestionKey + " " + e.getCause()+ e.getMessage();
-
                         }
+                        catch (Exception e)
+                        {
+                            String errorMessage ="Error processing co-infection question " +currentToQuestionKey + " " + e.getCause()+ e.getMessage();
+                        }
+
 
                     }
 
                 }
+                */
             }
             /**
              * Merge Investigation case issue where the superseded investigation should not allowed to update!!!
@@ -1076,9 +1059,9 @@ public class PageRepositoryUtil {
 
                 // get the
                 NbsDocumentContainer nbsDocVO = nbsDocumentRepositoryUtil.getNBSDocumentWithoutActRelationship(docUid);
-                if (nbsDocVO.getNbsDocumentDT().getJurisdictionCd() == null
-                        || (nbsDocVO.getNbsDocumentDT().getJurisdictionCd() != null
-                        && nbsDocVO.getNbsDocumentDT().getJurisdictionCd().equals(""))
+                if (nbsDocVO.getNbsDocumentDT()!= null
+                        && (nbsDocVO.getNbsDocumentDT().getJurisdictionCd() == null
+                        || nbsDocVO.getNbsDocumentDT().getJurisdictionCd().equals(""))
                 )
                 {
                     nbsDocVO.getNbsDocumentDT().setJurisdictionCd(pageActProxyContainer.getPublicHealthCaseContainer()
