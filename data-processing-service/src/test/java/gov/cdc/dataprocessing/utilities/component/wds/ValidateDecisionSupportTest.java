@@ -1,20 +1,38 @@
 package gov.cdc.dataprocessing.utilities.component.wds;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
+import gov.cdc.dataprocessing.model.container.model.PageActProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
+import gov.cdc.dataprocessing.model.dsma_algorithm.*;
+import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleManageDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
+import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
+import gov.cdc.dataprocessing.model.dto.phc.ConfirmationMethodDto;
+import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 class ValidateDecisionSupportTest {
     @Mock
@@ -22,10 +40,16 @@ class ValidateDecisionSupportTest {
 
     @InjectMocks
     private ValidateDecisionSupport validateDecisionSupport;
+    @Mock
+    private InvestigationDefaultValuesType investigationDefaultValuesType;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+    }
+    @AfterEach
+    void tearDown() {
+        Mockito.reset(investigationDefaultValuesType);
     }
 
     @Test
@@ -232,5 +256,470 @@ class ValidateDecisionSupportTest {
         public void setTestStringField(String testStringField) {
             this.testStringField = testStringField;
         }
+    }
+
+
+
+    @Test
+    void processNBSCaseAnswerDT_Test() {
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        BasePamContainer pamVO = new BasePamContainer();
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+
+        edxRuleManageDT.setBehavior("1");
+        edxRuleManageDT.setDefaultStringValue(NEDSSConstant.USE_CURRENT_DATE);
+        var codedCol = new ArrayList<>();
+        codedCol.add("TEST");
+        edxRuleManageDT.setDefaultCodedValueColl(codedCol);
+
+        Map<Object, Object> pamAnswerDTMap = new HashMap<>();
+        pamVO.setPamAnswerDTMap(pamAnswerDTMap);
+
+        metaData.setNbsUiComponentUid(1013L);
+
+        validateDecisionSupport.processNBSCaseAnswerDT(edxRuleManageDT, publicHealthCaseContainer, pamVO, metaData);
+
+        verify(edxPhcrDocumentUtil, times(1)).setStandardNBSCaseAnswerVals(any(), any());
+
+    }
+
+    @Test
+    void processNBSCaseAnswerDT_Test_2() {
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        BasePamContainer pamVO = new BasePamContainer();
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+
+        edxRuleManageDT.setBehavior("1");
+        edxRuleManageDT.setDefaultStringValue(NEDSSConstant.USE_CURRENT_DATE);
+        var codedCol = new ArrayList<>();
+        codedCol.add("TEST");
+        edxRuleManageDT.setDefaultCodedValueColl(codedCol);
+        edxRuleManageDT.setDefaultNumericValue("TEST");
+        edxRuleManageDT.setDefaultStringValue("TEST");
+
+        Map<Object, Object> pamAnswerDTMap = new HashMap<>();
+        pamVO.setPamAnswerDTMap(pamAnswerDTMap);
+
+        metaData.setNbsUiComponentUid(1L);
+
+        validateDecisionSupport.processNBSCaseAnswerDT(edxRuleManageDT, publicHealthCaseContainer, pamVO, metaData);
+
+        verify(edxPhcrDocumentUtil, times(1)).setStandardNBSCaseAnswerVals(any(), any());
+
+    }
+
+    @Test
+    void processNBSCaseAnswerDT_Test_3() {
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        BasePamContainer pamVO = new BasePamContainer();
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+
+        edxRuleManageDT.setBehavior("2");
+        edxRuleManageDT.setDefaultStringValue(NEDSSConstant.USE_CURRENT_DATE);
+        var codedCol = new ArrayList<>();
+        codedCol.add("TEST");
+        edxRuleManageDT.setDefaultCodedValueColl(codedCol);
+
+        Map<Object, Object> pamAnswerDTMap = new HashMap<>();
+        pamVO.setPamAnswerDTMap(pamAnswerDTMap);
+
+        metaData.setNbsUiComponentUid(1013L);
+
+        validateDecisionSupport.processNBSCaseAnswerDT(edxRuleManageDT, publicHealthCaseContainer, pamVO, metaData);
+
+        verify(edxPhcrDocumentUtil, times(1)).setStandardNBSCaseAnswerVals(any(), any());
+    }
+
+    @Test
+    void processNBSCaseAnswerDT_Test_4() {
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        BasePamContainer pamVO = new BasePamContainer();
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+
+        edxRuleManageDT.setBehavior("2");
+        edxRuleManageDT.setDefaultStringValue(NEDSSConstant.USE_CURRENT_DATE);
+        var codedCol = new ArrayList<>();
+        codedCol.add("TEST");
+        edxRuleManageDT.setDefaultCodedValueColl(codedCol);
+        edxRuleManageDT.setDefaultNumericValue("TEST");
+        edxRuleManageDT.setDefaultStringValue("TEST");
+
+        Map<Object, Object> pamAnswerDTMap = new HashMap<>();
+        pamVO.setPamAnswerDTMap(pamAnswerDTMap);
+
+        metaData.setNbsUiComponentUid(1L);
+
+        validateDecisionSupport.processNBSCaseAnswerDT(edxRuleManageDT, publicHealthCaseContainer, pamVO, metaData);
+
+        verify(edxPhcrDocumentUtil, times(1)).setStandardNBSCaseAnswerVals(any(), any());
+
+    }
+    @SuppressWarnings("java:S2699")
+    @Test
+    void processConfirmationMethodCodeDT_Test_1() {
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+
+        metaData.setNbsUiComponentUid(1013L);
+
+        edxRuleManageDT.setBehavior("1");
+        var codedArr = new ArrayList<>();
+        codedArr.add("TEST");
+        edxRuleManageDT.setDefaultCodedValueColl(codedArr);
+
+        var phcDt = new PublicHealthCaseDto();
+        phcDt.setPublicHealthCaseUid(1L);
+        publicHealthCaseContainer.setThePublicHealthCaseDto(phcDt);
+        var confirmCol = new ArrayList<ConfirmationMethodDto>();
+        var confirm = new ConfirmationMethodDto();
+        confirm.setConfirmationMethodTime(TimeStampUtil.getCurrentTimeStamp());
+        confirmCol.add(confirm);
+        publicHealthCaseContainer.setTheConfirmationMethodDTCollection(confirmCol);
+
+        validateDecisionSupport.processConfirmationMethodCodeDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
+    }
+    @SuppressWarnings("java:S2699")
+    @Test
+    void processConfirmationMethodCodeDT_Test_2() {
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+
+        metaData.setNbsUiComponentUid(1013L);
+
+        edxRuleManageDT.setBehavior("2");
+        var codedArr = new ArrayList<>();
+        codedArr.add("TEST");
+        edxRuleManageDT.setDefaultCodedValueColl(codedArr);
+
+        var phcDt = new PublicHealthCaseDto();
+        phcDt.setPublicHealthCaseUid(1L);
+        publicHealthCaseContainer.setThePublicHealthCaseDto(phcDt);
+        publicHealthCaseContainer.setTheConfirmationMethodDTCollection(null);
+
+        validateDecisionSupport.processConfirmationMethodCodeDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
+    }
+    @SuppressWarnings("java:S2699")
+    @Test
+    void processConfirmationMethodCodeDT_Test_3() {
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+
+        metaData.setNbsUiComponentUid(1013L);
+
+        edxRuleManageDT.setBehavior("2");
+        var codedArr = new ArrayList<>();
+        codedArr.add("TEST");
+        edxRuleManageDT.setDefaultCodedValueColl(codedArr);
+
+        var phcDt = new PublicHealthCaseDto();
+        phcDt.setPublicHealthCaseUid(1L);
+        publicHealthCaseContainer.setThePublicHealthCaseDto(phcDt);
+        var confirmCol = new ArrayList<ConfirmationMethodDto>();
+        var confirm = new ConfirmationMethodDto();
+        confirm.setConfirmationMethodTime(TimeStampUtil.getCurrentTimeStamp());
+        confirm.setConfirmationMethodCd("TEST");
+        confirmCol.add(confirm);
+        confirm = new ConfirmationMethodDto();
+        confirm.setConfirmationMethodTime(null);
+        confirmCol.add(confirm);
+        publicHealthCaseContainer.setTheConfirmationMethodDTCollection(confirmCol);
+
+        validateDecisionSupport.processConfirmationMethodCodeDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
+    }
+    @SuppressWarnings("java:S2699")
+    @Test
+    void processConfirmationMethodTimeDT_Test_1() throws DataProcessingException {
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+
+        edxRuleManageDT.setBehavior("1");
+        edxRuleManageDT.setDefaultStringValue(NEDSSConstant.USE_CURRENT_DATE);
+
+        var confirmCol = new ArrayList<ConfirmationMethodDto>();
+        var confirm = new ConfirmationMethodDto();
+        confirm.setConfirmationMethodTime(TimeStampUtil.getCurrentTimeStamp());
+        confirm.setConfirmationMethodCd("TEST");
+        confirmCol.add(confirm);
+        publicHealthCaseContainer.setTheConfirmationMethodDTCollection(confirmCol);
+
+        validateDecisionSupport.processConfirmationMethodTimeDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
+
+
+    }
+
+    @SuppressWarnings("java:S2699")
+    @Test
+    void processConfirmationMethodTimeDT_Test_2() throws DataProcessingException {
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+
+        edxRuleManageDT.setBehavior("1");
+        edxRuleManageDT.setDefaultStringValue(TimeStampUtil.convertTimestampToString());
+
+        publicHealthCaseContainer.setTheConfirmationMethodDTCollection(null);
+
+        validateDecisionSupport.processConfirmationMethodTimeDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
+    }
+
+    @SuppressWarnings("java:S2699")
+    @Test
+    void processConfirmationMethodTimeDT_Test_3() throws DataProcessingException {
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+
+        edxRuleManageDT.setBehavior("1");
+        edxRuleManageDT.setDefaultStringValue(null);
+
+        var confirmCol = new ArrayList<ConfirmationMethodDto>();
+        var confirm = new ConfirmationMethodDto();
+        confirm.setConfirmationMethodTime(TimeStampUtil.getCurrentTimeStamp());
+        confirm.setConfirmationMethodCd("TEST");
+        confirmCol.add(confirm);
+        publicHealthCaseContainer.setTheConfirmationMethodDTCollection(confirmCol);
+
+        validateDecisionSupport.processConfirmationMethodTimeDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
+    }
+    @SuppressWarnings("java:S2699")
+    @Test
+    void processConfirmationMethodTimeDT_Test_4() throws DataProcessingException {
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+
+        edxRuleManageDT.setBehavior("2");
+        edxRuleManageDT.setDefaultStringValue(NEDSSConstant.USE_CURRENT_DATE);
+
+        publicHealthCaseContainer.setTheConfirmationMethodDTCollection(null);
+
+        metaData.setNbsUiComponentUid(1013L);
+
+        validateDecisionSupport.processConfirmationMethodTimeDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
+
+
+    }
+    @SuppressWarnings("java:S2699")
+    @Test
+    void processConfirmationMethodTimeDT_Test_5() throws DataProcessingException {
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+
+        edxRuleManageDT.setBehavior("2");
+        edxRuleManageDT.setDefaultStringValue(NEDSSConstant.USE_CURRENT_DATE);
+
+        publicHealthCaseContainer.setTheConfirmationMethodDTCollection(null);
+
+        metaData.setNbsUiComponentUid(1014L);
+
+        validateDecisionSupport.processConfirmationMethodTimeDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
+
+
+    }
+
+    @Test
+    void processNBSCaseManagementDT_Test() {
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+
+        publicHealthCaseContainer.setTheCaseManagementDto(new CaseManagementDto());
+
+        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
+            validateDecisionSupport.processNBSCaseManagementDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
+        });
+
+        assertNotNull(thrown);
+
+    }
+    @SuppressWarnings("java:S2699")
+    @Test
+    void processConfirmationMethodCodeDTRequired_Test() {
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        var confirmCol = new ArrayList<ConfirmationMethodDto>();
+        var confirm = new ConfirmationMethodDto();
+        confirm.setConfirmationMethodTime(TimeStampUtil.getCurrentTimeStamp());
+        confirm.setConfirmationMethodCd(null);
+        confirmCol.add(confirm);
+        publicHealthCaseContainer.setTheConfirmationMethodDTCollection(confirmCol);
+
+        validateDecisionSupport.processConfirmationMethodCodeDTRequired(publicHealthCaseContainer);
+
+    }
+
+
+
+    @Test
+    void parseInvestigationDefaultValuesType_Test() {
+        Map<Object, Object> map = new HashMap<>();
+
+        var defaultLst = new ArrayList<DefaultValueType>();
+        var def = new DefaultValueType();
+        var codeType = new CodedType();
+        codeType.setCode("TEST");
+        def.setDefaultQuestion(codeType);
+
+        def.setDefaultStringValue("TEST");
+        defaultLst.add(def);
+        when(investigationDefaultValuesType.getDefaultValue()).thenReturn(defaultLst);
+
+        validateDecisionSupport.parseInvestigationDefaultValuesType(map, investigationDefaultValuesType);
+
+        verify(investigationDefaultValuesType, times(1)).getDefaultValue();
+
+    }
+
+    @Test
+    void parseInvestigationDefaultValuesType_Test_2() {
+        Map<Object, Object> map = new HashMap<>();
+
+        var defaultLst = new ArrayList<DefaultValueType>();
+        var def = new DefaultValueType();
+        var codeType = new CodedType();
+        codeType.setCode("TEST");
+        def.setDefaultQuestion(codeType);
+
+        def.setDefaultCommentValue("TEST");
+        defaultLst.add(def);
+        when(investigationDefaultValuesType.getDefaultValue()).thenReturn(defaultLst);
+
+        validateDecisionSupport.parseInvestigationDefaultValuesType(map, investigationDefaultValuesType);
+
+        verify(investigationDefaultValuesType, times(1)).getDefaultValue();
+
+    }
+
+    @Test
+    void parseInvestigationDefaultValuesType_Test_3() {
+        Map<Object, Object> map = new HashMap<>();
+
+        var defaultLst = new ArrayList<DefaultValueType>();
+        var def = new DefaultValueType();
+        var codeType = new CodedType();
+        codeType.setCode("TEST");
+        def.setDefaultQuestion(codeType);
+
+        var num = new NumericType();
+        num.setValue1(1L);
+        def.setDefaultNumericValue(num);
+        defaultLst.add(def);
+        when(investigationDefaultValuesType.getDefaultValue()).thenReturn(defaultLst);
+
+        validateDecisionSupport.parseInvestigationDefaultValuesType(map, investigationDefaultValuesType);
+
+        verify(investigationDefaultValuesType, times(1)).getDefaultValue();
+
+    }
+
+    @Test
+    void parseInvestigationDefaultValuesType_Test_4() {
+        Map<Object, Object> map = new HashMap<>();
+
+        var defaultLst = new ArrayList<DefaultValueType>();
+        var def = new DefaultValueType();
+        var codeType = new CodedType();
+        codeType.setCode("TEST");
+        def.setDefaultQuestion(codeType);
+
+        var num = new DefaultParticipationType();
+        var code = new CodedType();
+        num.setParticipationType(code);
+        def.setDefaultParticipation(num);
+        defaultLst.add(def);
+        when(investigationDefaultValuesType.getDefaultValue()).thenReturn(defaultLst);
+
+        validateDecisionSupport.parseInvestigationDefaultValuesType(map, investigationDefaultValuesType);
+
+        verify(investigationDefaultValuesType, times(1)).getDefaultValue();
+
+    }
+
+    @SuppressWarnings("java:S2699")
+    @Test
+    void processActIds_Test() {
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+
+        edxRuleManageDT.setBehavior("1");
+
+        var actCol = new ArrayList<ActIdDto>();
+        var act = new ActIdDto();
+        act.setTypeCd(NEDSSConstant.ACT_ID_STATE_TYPE_CD);
+        actCol.add(act);
+        publicHealthCaseContainer.setTheActIdDTCollection(actCol);
+
+        metaData.setDataCd( NEDSSConstant.ACT_ID_STATE_TYPE_CD);
+
+        validateDecisionSupport.processActIds(edxRuleManageDT, publicHealthCaseContainer, metaData);
+    }
+
+    @SuppressWarnings("java:S2699")
+    @Test
+    void processActIds_Test_2() {
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+
+        edxRuleManageDT.setBehavior("2");
+
+        var actCol = new ArrayList<ActIdDto>();
+        var act = new ActIdDto();
+        act.setTypeCd(NEDSSConstant.ACT_ID_STATE_TYPE_CD);
+        actCol.add(act);
+        publicHealthCaseContainer.setTheActIdDTCollection(actCol);
+
+        metaData.setDataCd( NEDSSConstant.ACT_ID_STATE_TYPE_CD);
+
+        validateDecisionSupport.processActIds(edxRuleManageDT, publicHealthCaseContainer, metaData);
+    }
+
+    @SuppressWarnings("java:S2699")
+    @Test
+    void processActIds_Test_3() {
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+
+        edxRuleManageDT.setBehavior("2");
+
+        var actCol = new ArrayList<ActIdDto>();
+        var act = new ActIdDto();
+        act.setTypeCd("CITY");
+        actCol.add(act);
+        publicHealthCaseContainer.setTheActIdDTCollection(actCol);
+
+        metaData.setDataCd("CITY");
+
+        validateDecisionSupport.processActIds(edxRuleManageDT, publicHealthCaseContainer, metaData);
+    }
+
+    @SuppressWarnings("java:S2699")
+    @Test
+    void processActIds_Test_4() {
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+
+        edxRuleManageDT.setBehavior("1");
+
+        var actCol = new ArrayList<ActIdDto>();
+        var act = new ActIdDto();
+        act.setTypeCd("CITY");
+        actCol.add(act);
+        publicHealthCaseContainer.setTheActIdDTCollection(actCol);
+
+        metaData.setDataCd( "CITY");
+
+        validateDecisionSupport.processActIds(edxRuleManageDT, publicHealthCaseContainer, metaData);
     }
 }
