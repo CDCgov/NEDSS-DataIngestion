@@ -104,7 +104,7 @@ class PamRepositoryUtilTest {
     }
 
     @Test
-    void getPamHistory_Test_Exp_2() throws DataProcessingException {
+    void getPamHistory_Test_Exp_2() {
         PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
         PublicHealthCaseDto publicHealthCaseDto = new PublicHealthCaseDto();
         publicHealthCaseDto.setPublicHealthCaseUid(1L);
