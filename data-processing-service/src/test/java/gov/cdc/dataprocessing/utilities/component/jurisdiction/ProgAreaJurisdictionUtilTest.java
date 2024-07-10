@@ -1,54 +1,54 @@
 package gov.cdc.dataprocessing.utilities.component.jurisdiction;
-import java.util.*;
 
 import gov.cdc.dataprocessing.cache.SrteCache;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mockStatic;
+import java.util.Collection;
+import java.util.TreeMap;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ProgAreaJurisdictionUtilTest {
     private final ProgAreaJurisdictionUtil util = new ProgAreaJurisdictionUtil();
 
+    @SuppressWarnings("java:S2699")
     @Test
-    public void testGetPAJHash_ValidInputs() {
+    void testGetPAJHash_ValidInputs() {
         SrteCache.programAreaCodesMapWithNbsUid = new TreeMap<>();
         SrteCache.jurisdictionCodeMapWithNbsUid = new TreeMap<>();
         SrteCache.programAreaCodesMapWithNbsUid.put("PA1", 123);
         SrteCache.jurisdictionCodeMapWithNbsUid.put("J1", 456);
 
-        long hash = util.getPAJHash("PA1", "J1");
+        util.getPAJHash("PA1", "J1");
 
     }
 
     @Test
-    public void testGetPAJHash_NullProgramAreaCode() {
+    void testGetPAJHash_NullProgramAreaCode() {
         long hash = util.getPAJHash(null, "J1");
         assertEquals(0, hash);
     }
 
     @Test
-    public void testGetPAJHash_EmptyProgramAreaCode() {
+    void testGetPAJHash_EmptyProgramAreaCode() {
         long hash = util.getPAJHash("", "J1");
         assertEquals(0, hash);
     }
 
     @Test
-    public void testGetPAJHash_NullJurisdictionCode() {
+    void testGetPAJHash_NullJurisdictionCode() {
         long hash = util.getPAJHash("PA1", null);
         assertEquals(0, hash);
     }
 
     @Test
-    public void testGetPAJHash_EmptyJurisdictionCode() {
+    void testGetPAJHash_EmptyJurisdictionCode() {
         long hash = util.getPAJHash("PA1", "");
         assertEquals(0, hash);
     }
 
     @Test
-    public void testGetPAJHash_ExceptionHandling() {
+    void testGetPAJHash_ExceptionHandling() {
         SrteCache.programAreaCodesMapWithNbsUid = new TreeMap<>();
         SrteCache.jurisdictionCodeMapWithNbsUid = new TreeMap<>();
         SrteCache.programAreaCodesMapWithNbsUid.put("PA1", null);
@@ -59,7 +59,7 @@ class ProgAreaJurisdictionUtilTest {
     }
 
     @Test
-    public void testGetPAJHashList_SingleJurisdiction() {
+    void testGetPAJHashList_SingleJurisdiction() {
         SrteCache.programAreaCodesMapWithNbsUid = new TreeMap<>();
         SrteCache.jurisdictionCodeMapWithNbsUid = new TreeMap<>();
         SrteCache.programAreaCodesMapWithNbsUid.put("PA1", 123);
@@ -71,7 +71,7 @@ class ProgAreaJurisdictionUtilTest {
     }
 
     @Test
-    public void testGetPAJHashList_AllJurisdictions() {
+    void testGetPAJHashList_AllJurisdictions() {
         SrteCache.programAreaCodesMapWithNbsUid = new TreeMap<>();
         SrteCache.jurisdictionCodeMapWithNbsUid = new TreeMap<>();
         SrteCache.programAreaCodesMapWithNbsUid.put("PA1", 123);

@@ -445,7 +445,7 @@ public class PatientRepositoryUtil {
         }
     }
 
-    @SuppressWarnings("java:S1141")
+    @SuppressWarnings({"java:S1141","java:S3776"})
     private void updatePersonRace(PersonContainer personContainer) throws DataProcessingException {
         ArrayList<PersonRaceDto>  personList = (ArrayList<PersonRaceDto> ) personContainer.getThePersonRaceDtoCollection();
         var parentUid = personContainer.getThePersonDto().getPersonParentUid();

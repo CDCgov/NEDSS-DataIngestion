@@ -5,13 +5,11 @@ import gov.cdc.dataprocessing.constant.MessageConstants;
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessDto;
 import gov.cdc.dataprocessing.model.dto.log.MessageLogDto;
-import gov.cdc.dataprocessing.model.dto.lookup.DropDownCodeDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsAnswerDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
@@ -249,6 +247,7 @@ public class PageRepositoryUtil {
      * @param coinfectionSummaryVOCollection - Used for Merge Investigation
      * @param coinfectionIdToUpdate - coinfectionId Used for Merge Investigation
      */
+    @SuppressWarnings("java:S125")
     public void updateForConInfectionId(PageActProxyContainer pageActProxyContainer, PageActProxyContainer supersededProxyVO, Long mprUid,
                                         Map<Object, Object> coInSupersededEpliLinkIdMap, Long currentPhclUid,
                                         Collection<Object> coinfectionSummaryVOCollection, String coinfectionIdToUpdate)
@@ -272,7 +271,7 @@ public class PageRepositoryUtil {
 
             Map<Object,Object> updateValueInOtherTablesMap = new HashMap<>(); // Map is to update values in other table then NBS_CASE_Answer
 
-            if(nbsQuestionUidCollection!=null) {
+// if(nbsQuestionUidCollection!=null) {
 //                for (Object o : nbsQuestionUidCollection) {
 //                    DropDownCodeDto dropDownCodeDT = (DropDownCodeDto) o;
 //                    mapFromQuestions.put(dropDownCodeDT.getKey(), dropDownCodeDT);
@@ -304,8 +303,7 @@ public class PageRepositoryUtil {
 //                        }
 //                    }
 //                }
-
-            }
+//}
             if(coinfectionSummaryVOCollection!=null && coinfectionSummaryVOCollection.size()>0) {
                 /**Update for closed/open cases that are part of any co-infection groups */
                 for (Object o : coinfectionSummaryVOCollection) {
@@ -336,7 +334,7 @@ public class PageRepositoryUtil {
         return coinfectionInvList;
     }
 
-
+    @SuppressWarnings({"java:S1172","java:S1854", "java:S1481", "java:S125"})
     private  void updateCoInfectionInvest(Map<Object, Object> mappedCoInfectionQuestions, Map<Object, Object>  fromMapQuestions,
                                           PageActProxyContainer pageActProxyContainer, PublicHealthCaseContainer publicHealthCaseContainer,
                                           PublicHealthCaseContainer supersededPublicHealthCaseContainer,
@@ -355,9 +353,9 @@ public class PageRepositoryUtil {
             Timestamp lastChgTime = new Timestamp(dateTime.getTime());
             Long lastChgUserId= AuthUtil.authUser.getNedssEntryId();
             PageActProxyContainer proxyVO =  investigationService.getPageProxyVO(NEDSSConstant.CASE, publicHealthCaseUid);
-            if (!proxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getInvestigationStatusCd().equalsIgnoreCase(NEDSSConstant.STATUS_OPEN)){
-            }
-            else{
+            //if (!proxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getInvestigationStatusCd().equalsIgnoreCase(NEDSSConstant.STATUS_OPEN)){
+            //}
+            //else{
                 /*
                 BasePamContainer pageVO = proxyVO.getPageVO();
                 if(pageVO.getPamAnswerDTMap()!=null && toNbsQuestionUidCollection!=null) {
@@ -560,7 +558,7 @@ public class PageRepositoryUtil {
 
                 }
                 */
-            }
+            //}
             /**
              * Merge Investigation case issue where the superseded investigation should not allowed to update!!!
              * 1. Only cases that are not Merge Investigation are allowed to proceed
@@ -585,7 +583,7 @@ public class PageRepositoryUtil {
             updateCoInfectionInvestForOtherTables(proxyVO, updateValueInOtherTablesMap, pageActProxyContainer, publicHealthCaseContainer);
 
             if(coinfectionIdToUpdate==null
-                    || (supersededPublicHealthCaseContainer != null
+                    || (supersededPublicHealthCaseContainer != null // NOSONAR
                     && publicHealthCaseUid.compareTo(supersededPublicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid())!=0))
             {
                 updatePageProxyVOInterface(proxyVO,lastChgTime,lastChgUserId);
@@ -598,22 +596,6 @@ public class PageRepositoryUtil {
             throw new DataProcessingException(e.toString() ,e);
         }
     }
-
-    private ArrayList<NbsCaseAnswerDto> changeStatus(ArrayList<NbsCaseAnswerDto> list,Long publicHealthCaseUid,
-                                                     boolean itNew, boolean itDirty, boolean itDelete,Long lastChgUserId, Timestamp lastChgTime){
-        if(list!=null) {
-            for (NbsCaseAnswerDto caseAnswerDT : list) {
-                caseAnswerDT.setLastChgUserId(lastChgUserId);
-                caseAnswerDT.setLastChgTime(lastChgTime);
-                caseAnswerDT.setActUid(publicHealthCaseUid);
-                caseAnswerDT.setItNew(itNew);
-                caseAnswerDT.setItDirty(itDirty);
-                caseAnswerDT.setItDelete(itDelete);
-            }
-        }
-        return list;
-    }
-
 
     private void updatePageProxyVOInterface(PageActProxyContainer proxyActVO, Timestamp lastChgTime, Long lastChgUserId) throws DataProcessingException {
         try {

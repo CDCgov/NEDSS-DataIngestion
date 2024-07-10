@@ -19,10 +19,7 @@ import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomAuthUserRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.auth.AuthUserRepository;
-import gov.cdc.dataprocessing.service.implementation.auth_user.AuthUserService;
 import gov.cdc.dataprocessing.service.implementation.person.base.PatientMatchingBaseService;
 import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPamService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationService;
@@ -52,12 +49,12 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class PageRepositoryUtilTest {
@@ -336,7 +333,7 @@ class PageRepositoryUtilTest {
         coIn = new CoinfectionSummaryContainer();
         coIn.setPublicHealthCaseUid(2L);
         coInfecList.add(coIn);
-        when(customRepository.getInvListForCoInfectionId(eq(11L), eq("1"))).thenReturn(coInfecList);
+        when(customRepository.getInvListForCoInfectionId(11L, "1")).thenReturn(coInfecList);
 
         PageActProxyContainer pageActProxyContainer = new PageActProxyContainer();
         Map<Object, Object>pamAsn = new HashMap<>();
@@ -441,7 +438,7 @@ class PageRepositoryUtilTest {
 
         PageActProxyContainer pageActProxyContainer1 = SerializationUtils.clone(pageActProxyContainer);
         pageActProxyContainer1.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setInvestigationStatusCd(NEDSSConstant.STATUS_OPEN);
-        when(investigationService.getPageProxyVO(eq("CASE"), eq(2L))).thenReturn(pageActProxyContainer1);
+        when(investigationService.getPageProxyVO("CASE", 2L)).thenReturn(pageActProxyContainer1);
 
         when(prepareAssocModelHelper.prepareVO(any(),eq("INVESTIGATION"), eq("INV_EDIT"), eq("PUBLIC_HEALTH_CASE"), eq("BASE"),
                 eq(1))).thenReturn(phcDt);
@@ -458,7 +455,7 @@ class PageRepositoryUtilTest {
                 coInSupersededEpliLinkIdMap, currentPhclUid,
                 coinfectionSummaryVOCollection, coinfectionIdToUpdate);
 
-        verify(investigationService, times(1)).getPageProxyVO(eq("CASE"), eq(2L));
+        verify(investigationService, times(1)).getPageProxyVO("CASE", 2L);
         verify(prepareAssocModelHelper, times(1)).prepareVO(any(),eq("INVESTIGATION"), eq("INV_EDIT"), eq("PUBLIC_HEALTH_CASE"), eq("BASE"),
                 eq(1));
     }

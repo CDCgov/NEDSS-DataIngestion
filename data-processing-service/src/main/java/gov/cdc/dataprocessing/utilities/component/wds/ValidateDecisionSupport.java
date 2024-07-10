@@ -123,7 +123,8 @@ public class ValidateDecisionSupport {
         Map<Object,Object> answerMap = pamVO.getPamAnswerDTMap();
         if (isOverwrite) {
             Collection<Object> list = new ArrayList<>();
-            if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) {
+            if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) // NOSONAR
+            {
                 Collection<Object> toValueColl = edxRuleManageDT.getDefaultCodedValueColl();
                 if (toValueColl != null) {
                     Iterator<?> iterator = toValueColl.iterator();
@@ -164,7 +165,8 @@ public class ValidateDecisionSupport {
         {
             if (pamVO.getPamAnswerDTMap().get(metaData.getQuestionIdentifier()) == null) {
                 Collection<Object> list = new ArrayList<>();
-                if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) {
+                if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) //NOSONAR
+                {
                     Collection<Object> toValueColl = edxRuleManageDT.getDefaultCodedValueColl();
                     if (toValueColl != null) {
                         Iterator<?> iterator = toValueColl.iterator();
@@ -218,7 +220,8 @@ public class ValidateDecisionSupport {
         }
         if (isOverwrite) {
             Collection<ConfirmationMethodDto> list = new ArrayList<>();
-            if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) {
+            if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) // NOSONAR
+            {
                 Collection<Object> toValueColl = edxRuleManageDT.getDefaultCodedValueColl();
                 if (toValueColl != null) {
                     for (Object o : toValueColl) {
@@ -254,7 +257,8 @@ public class ValidateDecisionSupport {
         } else {
             if (publicHealthCaseContainer.getTheConfirmationMethodDTCollection() == null) {
                 Collection<ConfirmationMethodDto> list = new ArrayList<>();
-                if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) {
+                if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) // NOSONAR
+                {
                     Collection<Object> toValueColl = edxRuleManageDT.getDefaultCodedValueColl();
                     if (toValueColl != null) {
                         for (Object o : toValueColl) {
@@ -341,7 +345,7 @@ public class ValidateDecisionSupport {
             e.printStackTrace();
         }
     }
-
+    @SuppressWarnings("java:S3776")
     public PublicHealthCaseContainer processConfirmationMethodTimeDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) throws DataProcessingException {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
@@ -396,10 +400,10 @@ public class ValidateDecisionSupport {
             }
 
         } else {
-            boolean loopbreak = false;
             if (publicHealthCaseContainer.getTheConfirmationMethodDTCollection() == null) {
                 Collection<ConfirmationMethodDto> list = new ArrayList<>();
-                if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) {
+                if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0)  // NOSONAR
+                {
                     ConfirmationMethodDto confirmDT = new ConfirmationMethodDto();
                     if (time != null) {
                         confirmDT.setConfirmationMethodTime(TimeStampUtil.convertStringToTimestamp(time));
