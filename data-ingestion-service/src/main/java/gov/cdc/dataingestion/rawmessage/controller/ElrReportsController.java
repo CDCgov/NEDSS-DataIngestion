@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.rawmessage.controller;
 
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
+import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
@@ -31,8 +32,7 @@ public class ElrReportsController {
     private final RawELRService rawELRService;
 
     private IEcrMsgQueryService ecrMsgQueryService;
-    private ICdaMapper mapper;
-
+    private final ICdaMapper cdaMapper;
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
     private final CustomMetricsBuilder customMetricsBuilder;
 
@@ -40,13 +40,12 @@ public class ElrReportsController {
 
     @Autowired
     public ElrReportsController(IEcrMsgQueryService ecrMsgQueryService,
-                                ICdaMapper mapper,
                                 RawELRService rawELRService,
-                                NbsRepositoryServiceProvider nbsRepositoryServiceProvider,
+                                ICdaMapper cdaMapper, NbsRepositoryServiceProvider nbsRepositoryServiceProvider,
                                 CustomMetricsBuilder customMetricsBuilder,
                                 IHL7Service hl7Service) {
         this.ecrMsgQueryService = ecrMsgQueryService;
-        this.mapper = mapper;
+        this.cdaMapper = cdaMapper;
         this.rawELRService = rawELRService;
         this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
         this.customMetricsBuilder = customMetricsBuilder;
@@ -107,5 +106,30 @@ public class ElrReportsController {
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/api/elrs/validate")
     public ResponseEntity<String> hl7Validator(@RequestBody final String payload) throws DiHL7Exception {
         return ResponseEntity.ok(hl7Service.hl7Validator(payload));
+    }
+
+    @Operation(
+            summary = "Test ECR",
+            parameters = {
+                    @Parameter(in = ParameterIn.HEADER,
+                            name = "clientid",
+                            description = "The Client Id",
+                            required = true,
+                            schema = @Schema(type = "string")),
+                    @Parameter(in = ParameterIn.HEADER,
+                            name = "clientsecret",
+                            description = "The Client Secret",
+                            required = true,
+                            schema = @Schema(type = "string"))}
+    )
+    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/api/ecr")
+    public ResponseEntity<String> ecrTest(@RequestBody final String payload) throws DiHL7Exception, EcrCdaXmlException {
+        var result = ecrMsgQueryService.getSelectedEcrRecord(Integer.parseInt(payload));
+        var xmlResult = this.cdaMapper.tranformSelectedEcrToCDAXml(result);
+
+        cdaMapper.retrieveXMLSchemaLocation(xmlResult);
+        nbsRepositoryServiceProvider.saveEcrCdaXmlMessage(result.getMsgContainer().getNbsInterfaceUid().toString()
+                , result.getMsgContainer().getDataMigrationStatus(), xmlResult);
+        return ResponseEntity.ok(xmlResult);
     }
 }

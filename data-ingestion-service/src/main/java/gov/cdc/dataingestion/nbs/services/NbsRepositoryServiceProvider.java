@@ -43,6 +43,7 @@ public class NbsRepositoryServiceProvider {
 			model = response.get();
 			model.setRecordStatusTime(time);
 			model.setPayload(xmlMsg);
+			model.setRecordStatusCd("QUEUED");
 			nbsInterfaceRepo.save(model);
 		} else {
 			if (dataMigrationStatus == -1) {

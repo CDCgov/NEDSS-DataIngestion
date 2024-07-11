@@ -314,7 +314,7 @@ public class KafkaConsumerService {
     public void handleMessageForPhdcEcrTransformToCda(String message,
                                        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EcrCdaXmlException {
         log.debug(topicDebugLog, message, topic);
-        var result = ecrMsgQueryService.getSelectedEcrRecord();
+        var result = ecrMsgQueryService.getSelectedEcrRecord(-1);
         var xmlResult = this.cdaMapper.tranformSelectedEcrToCDAXml(result);
         nbsRepositoryServiceProvider.saveEcrCdaXmlMessage(result.getMsgContainer().getNbsInterfaceUid().toString()
                 , result.getMsgContainer().getDataMigrationStatus(), xmlResult);
