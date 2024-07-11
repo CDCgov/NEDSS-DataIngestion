@@ -200,7 +200,9 @@ public class PatientRepositoryUtil {
             if (mprRes.isPresent()) {
                 var version = person.getVersionCtrlNbr();
                 mprRes.get().setVersionCtrlNbr(++version);
-                mprRes.get().setEthnicGroupInd(person.getEthnicGroupInd());
+                if (person.getEthnicGroupInd() != null) {
+                    mprRes.get().setEthnicGroupInd(person.getEthnicGroupInd());
+                }
                 personRepository.save(mprRes.get());
             }
 
