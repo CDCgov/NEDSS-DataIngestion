@@ -34,15 +34,16 @@ public class QueryHelper {
 //        boolean jSecured = NBSBOLookup.isSecuredByJurisdiction(
 //                businessObjLookupName);
 
-        boolean paSecured = true;
-        boolean jSecured = true;
+//        boolean paSecured = true;
+//        boolean jSecured = true;
 
-        if (paSecured && jSecured) {
+//        if (paSecured && jSecured)
+//        {
             columnName = "program_jurisdiction_oid";
             ownerList = getHashedPAJList(businessObjLookupName, operation, false);
             guestList = getHashedPAJList(businessObjLookupName, operation, true);
             whereClause = buildWhereClause(ownerList, guestList, columnName, alias,true, businessObjLookupName);
-        }
+//          }
 //        else if (paSecured || jSecured) {
 //            //If the record is secured by program area only, do the following
 //            if (paSecured) {
@@ -65,9 +66,9 @@ public class QueryHelper {
 //        }
 
         //If the record is not secured by program area or jurisdiction, do this
-        else if (!paSecured && !jSecured) {
-            whereClause = null;
-        }
+//        else if (!paSecured && !jSecured) {
+//            whereClause = null;
+//        }
 
         return whereClause;
     }

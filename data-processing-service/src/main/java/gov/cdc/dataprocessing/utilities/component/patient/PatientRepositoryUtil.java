@@ -595,23 +595,30 @@ public class PatientRepositoryUtil {
                     PersonNameDto thePersonNameDto =  namesIter.next();
                     if (thePersonNameDto.getNmUseCd() != null
                             && !thePersonNameDto.getNmUseCd().trim().equals("L"))
+                    {
                         continue;
+                    }
                     if (thePersonNameDto.getAsOfDate() != null) {
                         if (selectedNameDT == null)
+                        {
                             selectedNameDT = thePersonNameDto;
-                        else if (selectedNameDT.getAsOfDate()!=null && thePersonNameDto.getAsOfDate()!=null  && thePersonNameDto.getAsOfDate().after(
-                                selectedNameDT.getAsOfDate())) {
+                        }
+                        else if (selectedNameDT.getAsOfDate()!=null
+                                && thePersonNameDto.getAsOfDate()!=null
+                                && thePersonNameDto.getAsOfDate().after(selectedNameDT.getAsOfDate()))
+                        {
                             selectedNameDT = thePersonNameDto;
                         }
                     } else {
                         if (selectedNameDT == null)
+                        {
                             selectedNameDT = thePersonNameDto;
+                        }
                     }
                 }
                 if (selectedNameDT != null) {
                     personContainer.getThePersonDto().setLastNm(selectedNameDT.getLastNm());
-                    personContainer.getThePersonDto().setFirstNm(
-                            selectedNameDT.getFirstNm());
+                    personContainer.getThePersonDto().setFirstNm(selectedNameDT.getFirstNm());
                 }
             }
         } catch (Exception e) {
