@@ -13,6 +13,7 @@ import gov.cdc.dataprocessing.model.dto.phc.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.Act;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActLocatorParticipation;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsCaseAnswer;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.phc.CaseManagement;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.phc.ConfirmationMethod;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.phc.PublicHealthCase;
@@ -230,9 +231,6 @@ public class PublicHealthCaseRepositoryUtil {
 
         try
         {
-            /**
-             * Inserts activity ids
-             */
             anIterator = activityList.iterator();
 
             while(anIterator.hasNext())
@@ -250,9 +248,6 @@ public class PublicHealthCaseRepositoryUtil {
                     activityID.setItDelete(false);
                     activityID.setActUid(phcUid);
                 }
-                //else
-                //throw new NEDSSObservationDAOAppException("Empty person name collection");
-
             }
         }
         catch(Exception ex)
@@ -270,7 +265,7 @@ public class PublicHealthCaseRepositoryUtil {
 
     }
 
-    private void updateCaseManagementWithEPIIDandFRNum(CaseManagementDto caseManagementDto) throws DataProcessingException {
+    protected void updateCaseManagementWithEPIIDandFRNum(CaseManagementDto caseManagementDto) throws DataProcessingException {
         // generate EPI Link Id (Lot Nbr) and field record number if not present
 
         try {
@@ -567,7 +562,7 @@ public class PublicHealthCaseRepositoryUtil {
             Collection<Object> coll = new ArrayList<>();
             while (it.hasNext())
             {
-                NbsCaseAnswerDto pamAnsDT = (NbsCaseAnswerDto) it.next();
+                NbsCaseAnswerDto pamAnsDT = new NbsCaseAnswerDto ((NbsCaseAnswer) it.next());
 
                 if (pamAnsDT.getNbsQuestionUid() != null
                         && nbsQuestionUid != 0
@@ -592,8 +587,13 @@ public class PublicHealthCaseRepositoryUtil {
                         nbsRepeatingAnswerMap.put(pamAnsDT.getNbsQuestionUid(), collection);
                     }
                 }
-                else if ((pamAnsDT.getNbsQuestionUid() != null && pamAnsDT.getNbsQuestionUid().compareTo(nbsQuestionUid) == 0) && pamAnsDT.getSeqNbr() != null
-                        && pamAnsDT.getSeqNbr() > 0)
+                else if (
+                        (pamAnsDT.getNbsQuestionUid() != null
+                                && pamAnsDT.getNbsQuestionUid().compareTo(nbsQuestionUid) == 0
+                        )
+                        && pamAnsDT.getSeqNbr() != null
+                        && pamAnsDT.getSeqNbr() > 0
+                )
                 {
                     coll.add(pamAnsDT);
                 }
