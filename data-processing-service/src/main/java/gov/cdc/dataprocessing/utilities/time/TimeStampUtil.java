@@ -21,6 +21,12 @@ public class TimeStampUtil {
         return Timestamp.from(plusOneHour);
     }
 
+    public static Timestamp getCurrentTimeStampPlusOneDay() {
+        Instant now = Instant.now();
+        Instant plusOneHour = now.plus(1, ChronoUnit.DAYS);
+        return Timestamp.from(plusOneHour);
+    }
+
     public static String convertTimestampToString() {
         var timestamp = getCurrentTimeStamp();
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");

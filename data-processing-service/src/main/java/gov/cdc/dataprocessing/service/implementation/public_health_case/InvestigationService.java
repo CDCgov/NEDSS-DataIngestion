@@ -1113,7 +1113,7 @@ public class InvestigationService implements IInvestigationService {
         return returnMap;
     } //end of getObservationSummaryVOCollectionForWorkup()
 
-    private void populateDescTxtFromCachedValues(Collection<Object>
+    protected void populateDescTxtFromCachedValues(Collection<Object>
                                                          reportSummaryVOCollection) throws DataProcessingException {
         ReportSummaryInterface sumVO ;
         LabReportSummaryContainer labVO;

@@ -1,8 +1,15 @@
 package gov.cdc.dataprocessing.service.implementation.person.base;
 
+import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.container.model.MPRUpdateContainer;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
+import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
+import gov.cdc.dataprocessing.model.dto.locator.PhysicalLocatorDto;
+import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
+import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
+import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
@@ -14,18 +21,18 @@ import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class PatientMatchingBaseServiceTest {
 
@@ -41,7 +48,9 @@ class PatientMatchingBaseServiceTest {
     private PrepareAssocModelHelper prepareAssocModelHelper;
 
     @InjectMocks
+    @Spy
     private PatientMatchingBaseService patientMatchingBaseService;
+
 
     @BeforeEach
     void setUp() {
@@ -288,5 +297,115 @@ class PatientMatchingBaseServiceTest {
         var res = patientMatchingBaseService.setPatientRevision(perCon, businessTrigger, personType);
         assertNotNull(res);
     }
+
+
+    @Test
+    void testProcess_Success() {
+        // Mock the MPRUpdateContainer and PersonContainer
+        MPRUpdateContainer mprUpdateVO = mock(MPRUpdateContainer.class);
+        PersonContainer personContainer = mock(PersonContainer.class);
+        PersonDto personDto = mock(PersonDto.class);
+        EntityLocatorParticipationDto entityLocatorParticipationDto1 = mock(EntityLocatorParticipationDto.class);
+        EntityLocatorParticipationDto entityLocatorParticipationDto2 = mock(EntityLocatorParticipationDto.class);
+        PhysicalLocatorDto physicalLocatorDto = mock(PhysicalLocatorDto.class);
+        TeleLocatorDto teleLocatorDto = mock(TeleLocatorDto.class);
+        PostalLocatorDto postalLocatorDto = mock(PostalLocatorDto.class);
+
+        Collection<EntityLocatorParticipationDto> entityLocatorParticipationDtoCollection = new ArrayList<>();
+        entityLocatorParticipationDtoCollection.add(entityLocatorParticipationDto1);
+        entityLocatorParticipationDtoCollection.add(entityLocatorParticipationDto2);
+
+        when(mprUpdateVO.getMpr()).thenReturn(personContainer);
+        when(personContainer.getTheEntityLocatorParticipationDtoCollection()).thenReturn(entityLocatorParticipationDtoCollection);
+        when(entityLocatorParticipationDto1.getThePhysicalLocatorDto()).thenReturn(physicalLocatorDto);
+        when(entityLocatorParticipationDto1.getTheTeleLocatorDto()).thenReturn(teleLocatorDto);
+        when(entityLocatorParticipationDto1.getThePostalLocatorDto()).thenReturn(postalLocatorDto);
+        when(entityLocatorParticipationDto2.getThePhysicalLocatorDto()).thenReturn(null);
+        when(entityLocatorParticipationDto2.getTheTeleLocatorDto()).thenReturn(null);
+        when(entityLocatorParticipationDto2.getThePostalLocatorDto()).thenReturn(null);
+        when(physicalLocatorDto.isItDirty()).thenReturn(true);
+        when(teleLocatorDto.isItDirty()).thenReturn(false);
+        when(postalLocatorDto.isItDirty()).thenReturn(false);
+        when(personContainer.getThePersonDto()).thenReturn(personDto);
+
+        // Call the method under test
+        boolean result = patientMatchingBaseService.process(mprUpdateVO);
+
+        // Verify interactions and results
+        assertTrue(result);
+        verify(entityLocatorParticipationDto1).setItDirty(true);
+        verify(entityLocatorParticipationDto2, never()).setItDirty(anyBoolean());
+        verify(personContainer).setItDelete(false);
+        verify(personContainer).setItNew(false);
+        verify(personContainer).setItDirty(true);
+        verify(personDto).setItDirty(true);
+    }
+
+
+    @Test
+    void testGetLNmFnmDobCurSexStr_NmUseCdIsNull() {
+        // Mock the PersonContainer and PersonDto
+        PersonContainer personContainer = mock(PersonContainer.class);
+        PersonDto personDto = mock(PersonDto.class);
+        PersonNameDto personNameDto = mock(PersonNameDto.class);
+
+        Collection<PersonNameDto> personNameDtoCollection = new ArrayList<>();
+        personNameDtoCollection.add(personNameDto);
+
+        when(personContainer.getThePersonDto()).thenReturn(personDto);
+        when(personDto.getCd()).thenReturn(NEDSSConstant.PAT);
+        when(personContainer.getThePersonNameDtoCollection()).thenReturn(personNameDtoCollection);
+        when(personNameDto.getNmUseCd()).thenReturn(null);
+
+        // Call the method under test
+        String result = patientMatchingBaseService.getLNmFnmDobCurSexStr(personContainer);
+
+        // Verify the result
+        assertNull(result);
+    }
+
+    @Test
+    void testGetLNmFnmDobCurSexStr_AsofDateBefore() {
+        // Mock the PersonContainer and PersonDto
+        PersonContainer personContainer = mock(PersonContainer.class);
+        PersonDto personDto = mock(PersonDto.class);
+        PersonNameDto personNameDto1 = mock(PersonNameDto.class);
+        PersonNameDto personNameDto2 = mock(PersonNameDto.class);
+
+        Collection<PersonNameDto> personNameDtoCollection = new ArrayList<>();
+        personNameDtoCollection.add(personNameDto1);
+        personNameDtoCollection.add(personNameDto2);
+
+        Timestamp birthTime = new Timestamp(System.currentTimeMillis());
+        Timestamp asOfDate1 = new Timestamp(System.currentTimeMillis() - 10000);
+        Timestamp asOfDate2 = new Timestamp(System.currentTimeMillis());
+
+        when(personContainer.getThePersonDto()).thenReturn(personDto);
+        when(personDto.getCd()).thenReturn(NEDSSConstant.PAT);
+        when(personDto.getBirthTime()).thenReturn(birthTime);
+        when(personDto.getCurrSexCd()).thenReturn("M");
+        when(personContainer.getThePersonNameDtoCollection()).thenReturn(personNameDtoCollection);
+
+        when(personNameDto1.getNmUseCd()).thenReturn("L");
+        when(personNameDto1.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        when(personNameDto1.getLastNm()).thenReturn("Doe");
+        when(personNameDto1.getFirstNm()).thenReturn("John");
+        when(personNameDto1.getAsOfDate()).thenReturn(asOfDate1);
+
+        when(personNameDto2.getNmUseCd()).thenReturn("L");
+        when(personNameDto2.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        when(personNameDto2.getLastNm()).thenReturn("Smith");
+        when(personNameDto2.getFirstNm()).thenReturn("Jane");
+        when(personNameDto2.getAsOfDate()).thenReturn(asOfDate2);
+
+        // Call the method under test
+        String result = patientMatchingBaseService.getLNmFnmDobCurSexStr(personContainer);
+
+        // Verify the result
+        String expected = "Smith^Jane^" + birthTime + "^M";
+        assertEquals(expected, result);
+    }
+
+
 
 }

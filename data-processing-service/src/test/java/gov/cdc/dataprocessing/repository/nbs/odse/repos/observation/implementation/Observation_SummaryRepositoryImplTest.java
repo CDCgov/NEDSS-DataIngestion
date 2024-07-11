@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -73,6 +74,30 @@ class Observation_SummaryRepositoryImplTest {
         assertTrue(result.isPresent());
         assertEquals(1, result.get().size());
         assertEquals(labSummary, result.get().iterator().next());
+    }
+
+
+    @Test
+    void testFindAllActiveLabReportUidListForManage() {
+        Long investigationUid = 10L;
+        String whereClause = "AND some_condition = 'value'";
+        String expectedSql = repository.findAllActiveLabReportUidListForManage_SQL + whereClause;
+
+        when(entityManager.createNativeQuery(expectedSql)).thenReturn(nativeQuery);
+        when(nativeQuery.setParameter("targetActUid", investigationUid)).thenReturn(nativeQuery);
+
+        List<Object[]> mockResultList = new ArrayList<>();
+        mockResultList.add(new Object[]{1L, new Timestamp(System.currentTimeMillis()), "addReasonCd1"});
+        mockResultList.add(new Object[]{2L, new Timestamp(System.currentTimeMillis()), "addReasonCd2"});
+
+        when(nativeQuery.getResultList()).thenReturn(mockResultList);
+
+        repository.findAllActiveLabReportUidListForManage(investigationUid, whereClause);
+
+
+        verify(entityManager).createNativeQuery(expectedSql);
+        verify(nativeQuery).setParameter("targetActUid", investigationUid);
+        verify(nativeQuery).getResultList();
     }
 
 }
