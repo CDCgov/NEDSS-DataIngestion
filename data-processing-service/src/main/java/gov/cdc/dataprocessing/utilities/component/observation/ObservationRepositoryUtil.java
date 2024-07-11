@@ -316,14 +316,6 @@ public class ObservationRepositoryUtil {
             {
                 actRelationshipRepository.save(actRelationship);
             }
-            else
-            {
-//                logger.error(
-//                        "None of the primary key values can be null, TargetUID: " +
-//                                dt.getTargetActUid() + " TypeCd : " +
-//                                dt.getTypeCd() + " SourceUid :" +
-//                                dt.getSourceActUid() + " please check!");
-            }
         }
 
 
@@ -366,23 +358,18 @@ public class ObservationRepositoryUtil {
             ArrayList<ObsValueTxtDto> obsValueTxts = null;
             for (Observation_Question observation_question : observationQuestion.get()) {
 
-                // //##!! System.out.println("previousTargetActUid = " +  previousTargetActUid);
-                //   //##!! System.out.println("crrent TargetActUid = " +  obsQA.getTargetActUid());
                 if (previousTargetActUid == null ||
-                        !previousTargetActUid.equals(observation_question.getTargetActUid())) {
+                        !previousTargetActUid.equals(observation_question.getTargetActUid()))
+                {
                     if (previousObservationUid == null ||
                             !previousObservationUid.equals(observation_question.getObservationUid())) {
                         obsVO = new ObservationContainer();
                         theObservationQuestionColl.add(obsVO);
-                        //Initialize the Collections for this new Observation
                         obsCodes = null;
                         obsDates = null;
                         obsNumerics = null;
                         obsValueTxts = null;
-                        logger.debug("Mark - CREATED NEW OBSERVATION Uid=" +
-                                observation_question.getObservationUid());
                         previousObservationUid = observation_question.getObservationUid();
-                        // put ObeservatioDT
                         obsVO.getTheObservationDto().setObservationUid(observation_question.getObservationUid());
                         obsVO.getTheObservationDto().setVersionCtrlNbr(observation_question.getVersionCtrlNbr());
                         obsVO.getTheObservationDto().setSharedInd(observation_question.getSharedInd());
@@ -395,7 +382,6 @@ public class ObservationRepositoryUtil {
                         obsVO.getTheObservationDto().setCdVersion(observation_question.getCdVersion());
                         obsVO.getTheObservationDto().setItNew(false);
                         obsVO.getTheObservationDto().setItDirty(false);
-                        // ObsValueCode
                     }
                     if (observation_question.getObsCodeUid() != null) {
                         if (obsCodes == null) {
@@ -410,15 +396,12 @@ public class ObservationRepositoryUtil {
                         obsCode.setItNew(false);
                         obsCode.setItDirty(false);
                         obsCodes.add(obsCode);
-                        //obsVO.setTheObsValueCodedDTCollection(obsCodes);
                     }
-                    // ObsvalueDate
                     if (observation_question.getObsDateUid() != null) {
                         if (obsDates == null) {
                             obsDates = new ArrayList<>();
                             obsVO.setTheObsValueDateDtoCollection(obsDates);
                         }
-                        //ArrayList<Object> obsDates = new ArrayList<Object> ();
                         ObsValueDateDto obsDate = new ObsValueDateDto();
                         obsDate.setObservationUid(observation_question.getObsDateUid());
                         obsDate.setFromTime(observation_question.getFromTime());
@@ -429,16 +412,12 @@ public class ObservationRepositoryUtil {
                         obsDate.setItNew(false);
                         obsDate.setItDirty(false);
                         obsDates.add(obsDate);
-
-                        //obsVO.setTheObsValueDateDTCollection(obsDates);
                     }
-                    // ObsvalueNumeric
                     if (observation_question.getObsNumericUid() != null) {
                         if (obsNumerics == null) {
                             obsNumerics = new ArrayList<>();
                             obsVO.setTheObsValueNumericDtoCollection(obsNumerics);
                         }
-                        //ArrayList<Object> obsNumerics = new ArrayList<Object> ();
                         ObsValueNumericDto obsNumeric = new ObsValueNumericDto();
                         obsNumeric.setObservationUid(observation_question.getObsNumericUid());
                         obsNumeric.setNumericScale1(observation_question.getNumericScale1());
@@ -450,15 +429,12 @@ public class ObservationRepositoryUtil {
                         obsNumeric.setItNew(false);
                         obsNumeric.setItDirty(false);
                         obsNumerics.add(obsNumeric);
-                        // obsVO.setTheObsValueNumericDTCollection(obsNumerics);
                     }
-                    // ObsvalueTxt
                     if (observation_question.getObsTxtUid() != null) {
                         if (obsValueTxts == null) {
                             obsValueTxts = new ArrayList<>();
                             obsVO.setTheObsValueTxtDtoCollection(obsValueTxts);
                         }
-                        //ArrayList<Object> obsValueTxts = new ArrayList<Object> ();
                         ObsValueTxtDto obsValueTxt = new ObsValueTxtDto();
                         obsValueTxt.setObservationUid(observation_question.getObsTxtUid());
                         obsValueTxt.setValueTxt(observation_question.getValueTxt());
@@ -466,13 +442,11 @@ public class ObservationRepositoryUtil {
                         obsValueTxt.setItNew(false);
                         obsValueTxt.setItDirty(false);
                         obsValueTxts.add(obsValueTxt);
-                        //  obsVO.setTheObsValueTxtDTCollection(obsValueTxts);
                     }
 
                     previousTargetActUid = observation_question.getTargetActUid();
                     if (previousTargetActUid != null &&
                             previousTargetActUid.equals(observation_question.getObservationUid())) {
-                        //       //##!! System.out.println("First time both are equal");
                         Collection<ActRelationshipDto> actColl = new ArrayList<>();
                         ActRelationshipDto ar = new ActRelationshipDto();
                         ar.setSourceActUid(observation_question.getSourceActUid());
@@ -482,7 +456,9 @@ public class ObservationRepositoryUtil {
                         actColl.add(ar);
                         obsVO.setTheActRelationshipDtoCollection(actColl);
                     }
-                } else {
+                }
+                else
+                {
                     ObservationContainer innerObs =  theObservationQuestionColl.
                             get(theObservationQuestionColl.size() - 1);
                     Collection<ActRelationshipDto> actColl;
@@ -502,9 +478,6 @@ public class ObservationRepositoryUtil {
                 }
 
             }
-            logger.debug("RetrieveSummaryVO");
-//            VOTester.createReport(theObservationQuestionColl,
-//                    "RetrievSummaryVO-obsColl");
         }
 
         return theObservationQuestionColl;
@@ -1029,7 +1002,7 @@ public class ObservationRepositoryUtil {
 
     }
 
-    private void addActivityLocatorParticipations(Long obsUid, Collection<ActivityLocatorParticipationDto> activityLocatorParticipationDtoCollection) throws DataProcessingException {
+    protected void addActivityLocatorParticipations(Long obsUid, Collection<ActivityLocatorParticipationDto> activityLocatorParticipationDtoCollection) throws DataProcessingException {
         try {
             if (activityLocatorParticipationDtoCollection != null) {
                 ArrayList<ActivityLocatorParticipationDto> arr = new ArrayList<>(activityLocatorParticipationDtoCollection);
