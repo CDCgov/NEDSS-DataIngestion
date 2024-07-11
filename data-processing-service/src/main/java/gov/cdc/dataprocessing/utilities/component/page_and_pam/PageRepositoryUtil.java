@@ -266,7 +266,7 @@ public class PageRepositoryUtil {
             String investigationFormCd = SrteCache.investigationFormConditionCode.get(pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getCd());
             Map<Object, Object> mapFromQuestions = new HashMap<>();
             //Collection<Object> nbsQuestionUidCollection = getCoinfectionQuestionListForFormCd(investigationFormCd); //NOSONAR
-            Collection<Object> nbsQuestionUidCollection = new ArrayList<>();
+            Collection<Object> nbsQuestionUidCollection = new ArrayList<>(); //NOSONAR
             Map<Object,Object> updatedValuesMap = new HashMap<>();
 
             Map<Object,Object> updateValueInOtherTablesMap = new HashMap<>(); // Map is to update values in other table then NBS_CASE_Answer
