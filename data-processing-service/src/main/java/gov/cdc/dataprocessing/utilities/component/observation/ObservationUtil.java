@@ -95,17 +95,13 @@ public class ObservationUtil {
      *  Original Name: getRootDT
      **/
     public ObservationDto getRootObservationDto(BaseContainer proxyVO) throws DataProcessingException {
-        try {
-            ObservationContainer rootVO = getRootObservationContainer(proxyVO);
-            if (rootVO != null)
-            {
-                return rootVO.getTheObservationDto();
-            }
-            return null;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-
+        ObservationContainer rootVO = getRootObservationContainer(proxyVO);
+        if (rootVO != null)
+        {
+            return rootVO.getTheObservationDto();
         }
+        return null;
+
     }
 
     /**
@@ -126,10 +122,6 @@ public class ObservationUtil {
             obsColl = ( (LabResultProxyContainer) proxy).getTheObservationContainerCollection();
             isLabReport = true;
         }
-//            if (proxy instanceof MorbidityProxyVO)
-//            {
-//                obsColl = ( (MorbidityProxyVO) proxy).getTheObservationContainerCollection();
-//            }
 
         ObservationContainer rootVO = getRootObservationContainerFromObsCollection(obsColl, isLabReport);
 

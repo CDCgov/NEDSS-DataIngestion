@@ -508,9 +508,9 @@ class DecisionSupportServiceTest {
         when(publicHealthCaseStoredProcRepository.associatedPublicHealthCaseForMprForCondCd(any(), any()))
                 .thenReturn(phcDtCol);
 
-        var res = decisionSupportService.specimenCollectionDateCriteria(eventDateLogicType, edxLabInformationDT);
+        decisionSupportService.specimenCollectionDateCriteria(eventDateLogicType, edxLabInformationDT);
 
-        assertFalse(res);
+        verify(publicHealthCaseStoredProcRepository, times(1)).associatedPublicHealthCaseForMprForCondCd(any(), any());
     }
 
     @Test

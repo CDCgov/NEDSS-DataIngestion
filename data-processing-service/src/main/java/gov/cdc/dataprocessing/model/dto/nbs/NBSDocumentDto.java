@@ -5,7 +5,6 @@ import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Blob;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,8 +21,8 @@ public class NBSDocumentDto extends BaseContainer implements RootDtoInterface {
     private String codeSetName;
     private String dataType;
     private Long nbsDocumentUid;
-    private Blob docPayload;
-    private Blob phdcDocDerived;
+    private String docPayload;
+    private String phdcDocDerived;
     private String payloadViewIndCd;
     private String docTypeCd;
     private Long nbsDocumentMetadataUid;

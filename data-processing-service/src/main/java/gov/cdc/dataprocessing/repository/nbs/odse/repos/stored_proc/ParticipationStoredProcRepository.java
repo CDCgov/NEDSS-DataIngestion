@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc;
 
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
@@ -15,7 +14,7 @@ public class ParticipationStoredProcRepository {
     @PersistenceContext(unitName = "odseEntityManagerFactory") // Specify the persistence unit name
     private EntityManager entityManager;
 
-    public void insertParticipation(ParticipationDto participationDto) throws DataProcessingException {
+    public void insertParticipation(ParticipationDto participationDto) {
         try {
 
             StoredProcedureQuery storedProcedure = entityManager.createStoredProcedureQuery("addParticipation_sp");

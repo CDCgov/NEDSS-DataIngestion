@@ -20,6 +20,7 @@ import gov.cdc.dataprocessing.service.interfaces.person.IProviderMatchingService
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -390,6 +391,7 @@ public class PersonService implements IPersonService {
                         personVO.getTheEntityIdDtoCollection().addAll(updatedtheEntityIdDTCollection);
 
 
+                        var cloneEntityLocatorForParentUid = new ArrayList<EntityLocatorParticipationDto>();
                         if (personVO.getTheEntityLocatorParticipationDtoCollection() != null
                             && personVO.getTheEntityLocatorParticipationDtoCollection().size() > 0
                         ) {
@@ -415,12 +417,23 @@ public class PersonService implements IPersonService {
                                     entityLocPartDT.getThePhysicalLocatorDto().setItDelete(false);
                                 }
 
+                                if (!Objects.equals(matchedPersonParentUid, matchedPersonUid)) {
+                                    var mprRecord =  SerializationUtils.clone(entityLocPartDT);
+                                    mprRecord.setEntityUid(matchedPersonParentUid);
+                                    cloneEntityLocatorForParentUid.add(mprRecord);
+                                }
+
                             }
                         }
                         if (personVO.getTheEntityLocatorParticipationDtoCollection() == null) {
                             personVO.setTheEntityLocatorParticipationDtoCollection(new ArrayList<>());
                         }
                         personVO.getTheEntityLocatorParticipationDtoCollection().addAll(updatedtheEntityLocatorParticipationDTCollection);
+
+                        if (!cloneEntityLocatorForParentUid.isEmpty()) {
+                            personVO.getTheEntityLocatorParticipationDtoCollection().addAll(cloneEntityLocatorForParentUid);
+                        }
+
                     }
                     personVO.setRole(null);
                 }

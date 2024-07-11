@@ -976,7 +976,6 @@ public class ObservationService implements IObservationService {
                                     dt.getSubjectEntityUid());
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
                         throw new DataProcessingException(e.getMessage());
                     }
                 }

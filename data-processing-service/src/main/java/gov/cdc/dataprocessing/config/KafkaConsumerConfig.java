@@ -37,6 +37,8 @@ public class KafkaConsumerConfig {
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, maxPollInterval);
+        config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");  //TRANSACTION SUPPORT
+
         return new DefaultKafkaConsumerFactory<>(config);
     }
 

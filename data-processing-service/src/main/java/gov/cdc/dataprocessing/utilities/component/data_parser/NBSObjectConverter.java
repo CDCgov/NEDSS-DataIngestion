@@ -449,6 +449,8 @@ public class NBSObjectConverter {
         pl.setAddUserId(personContainer.getThePersonDto().getAddUserId());
         elp.setThePostalLocatorDto(pl);
         personContainer.getTheEntityLocatorParticipationDtoCollection().add(elp);
+
+        personContainer.getThePersonDto().setBirthCntryCd(countryOfBirth);
         return elp;
     }
 

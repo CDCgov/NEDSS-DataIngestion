@@ -57,6 +57,10 @@ public class HL7Helper {
         return parser.hl7ORUValidation(message);
     }
 
+    public String hl7ProcessingFhs(String message) {
+        return parser.processFhsMessage(message);
+    }
+
     public String processFhsMessage(String message)  {
         return parser.processFhsMessage(message);
     }

@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.utilities.component.wds;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.dsma_algorithm.CodedType;
@@ -15,6 +16,7 @@ import gov.cdc.dataprocessing.model.dto.phc.ConfirmationMethodDto;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.utilities.StringUtils;
 import gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
@@ -114,12 +116,15 @@ public class ValidateDecisionSupport {
         }
         String value = edxRuleManageDT.getDefaultStringValue();
         if(value!=null && value.equalsIgnoreCase(NEDSSConstant.USE_CURRENT_DATE))
+        {
             value=new SimpleDateFormat("MM/dd/yyyy").format(Calendar.getInstance().getTime());
+        }
         edxRuleManageDT.setDefaultStringValue(value);
         Map<Object,Object> answerMap = pamVO.getPamAnswerDTMap();
         if (isOverwrite) {
             Collection<Object> list = new ArrayList<>();
-            if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) {
+            if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) // NOSONAR
+            {
                 Collection<Object> toValueColl = edxRuleManageDT.getDefaultCodedValueColl();
                 if (toValueColl != null) {
                     Iterator<?> iterator = toValueColl.iterator();
@@ -155,10 +160,13 @@ public class ValidateDecisionSupport {
                 edxPHCRDocumentUtil.setStandardNBSCaseAnswerVals(publicHealthCaseContainer, nbsAnswerDT);
                 answerMap.put(metaData.getQuestionIdentifier(), nbsAnswerDT);
             }
-        } else {
+        }
+        else
+        {
             if (pamVO.getPamAnswerDTMap().get(metaData.getQuestionIdentifier()) == null) {
                 Collection<Object> list = new ArrayList<>();
-                if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) {
+                if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) //NOSONAR
+                {
                     Collection<Object> toValueColl = edxRuleManageDT.getDefaultCodedValueColl();
                     if (toValueColl != null) {
                         Iterator<?> iterator = toValueColl.iterator();
@@ -212,7 +220,8 @@ public class ValidateDecisionSupport {
         }
         if (isOverwrite) {
             Collection<ConfirmationMethodDto> list = new ArrayList<>();
-            if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) {
+            if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) // NOSONAR
+            {
                 Collection<Object> toValueColl = edxRuleManageDT.getDefaultCodedValueColl();
                 if (toValueColl != null) {
                     for (Object o : toValueColl) {
@@ -248,7 +257,8 @@ public class ValidateDecisionSupport {
         } else {
             if (publicHealthCaseContainer.getTheConfirmationMethodDTCollection() == null) {
                 Collection<ConfirmationMethodDto> list = new ArrayList<>();
-                if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) {
+                if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) // NOSONAR
+                {
                     Collection<Object> toValueColl = edxRuleManageDT.getDefaultCodedValueColl();
                     if (toValueColl != null) {
                         for (Object o : toValueColl) {
@@ -261,8 +271,6 @@ public class ValidateDecisionSupport {
                         }
                     }
                     publicHealthCaseContainer.setTheConfirmationMethodDTCollection(list);
-                } else {
-//                    logger.error("This should not happen! There is some critical error in the metadata! Please check." + metaData.toString());
                 }
             } else {
                 Collection<ConfirmationMethodDto> list = new ArrayList<>();
@@ -337,8 +345,8 @@ public class ValidateDecisionSupport {
             e.printStackTrace();
         }
     }
-
-    public PublicHealthCaseContainer processConfirmationMethodTimeDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) {
+    @SuppressWarnings("java:S3776")
+    public PublicHealthCaseContainer processConfirmationMethodTimeDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) throws DataProcessingException {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
         if (behavior.equalsIgnoreCase("1")) {
@@ -347,23 +355,24 @@ public class ValidateDecisionSupport {
             isOverwrite = false; // NOSONAR
         }
         String time = edxRuleManageDT.getDefaultStringValue();
-
         //If the date selected is current date, the date is translated to MM/dd/yyyy
         if(time!=null && time.equalsIgnoreCase(NEDSSConstant.USE_CURRENT_DATE))
-            time=new SimpleDateFormat("MM/dd/yyyy").format(Calendar.getInstance().getTime());
+        {
+            time= TimeStampUtil.convertTimestampToString();
+        }
 
         if (isOverwrite) {
             Collection<ConfirmationMethodDto> list = new ArrayList<>();
             if (time != null && publicHealthCaseContainer.getTheConfirmationMethodDTCollection() != null) {
                 for (ConfirmationMethodDto confirmDT : publicHealthCaseContainer.getTheConfirmationMethodDTCollection()) {
-                    confirmDT.setConfirmationMethodTime(Timestamp.valueOf(time));
+                    confirmDT.setConfirmationMethodTime(TimeStampUtil.convertStringToTimestamp(time));
                     list.add(confirmDT);
                 }
                 publicHealthCaseContainer.setTheConfirmationMethodDTCollection(list);
             } else {
                 ConfirmationMethodDto confirmDT = new ConfirmationMethodDto();
                 if (time != null) {
-                    confirmDT.setConfirmationMethodTime(Timestamp.valueOf(time));
+                    confirmDT.setConfirmationMethodTime(TimeStampUtil.convertStringToTimestamp(time));
                 }
                 confirmDT.setPublicHealthCaseUid(publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid());
                 confirmDT.setItNew(true);
@@ -391,51 +400,29 @@ public class ValidateDecisionSupport {
             }
 
         } else {
-            boolean loopbreak = false;
             if (publicHealthCaseContainer.getTheConfirmationMethodDTCollection() == null) {
                 Collection<ConfirmationMethodDto> list = new ArrayList<>();
-                if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) {
+                if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0)  // NOSONAR
+                {
                     ConfirmationMethodDto confirmDT = new ConfirmationMethodDto();
                     if (time != null) {
-                        confirmDT.setConfirmationMethodTime(Timestamp.valueOf(time));
+                        confirmDT.setConfirmationMethodTime(TimeStampUtil.convertStringToTimestamp(time));
                     }
                     confirmDT.setPublicHealthCaseUid(publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid());
                     confirmDT.setItNew(true);
                     list.add(confirmDT);
                     publicHealthCaseContainer.setTheConfirmationMethodDTCollection(list);
                 } else {
-
-                    if(publicHealthCaseContainer.getTheConfirmationMethodDTCollection()!=null){
-                        for (ConfirmationMethodDto confirmDT : publicHealthCaseContainer.getTheConfirmationMethodDTCollection()) {
-                            if (confirmDT.getConfirmationMethodTime() != null) {
-                                loopbreak = true;
-                                break;
-                            }
-                            if (time != null) {
-                                confirmDT.setConfirmationMethodTime(Timestamp.valueOf(time));
-                            }
-                            list.add(confirmDT);
-                        }
-                        if (!loopbreak)
-                            publicHealthCaseContainer.setTheConfirmationMethodDTCollection(list);
-
+                    ConfirmationMethodDto confirmDT = new ConfirmationMethodDto();
+                    if (time != null) {
+                        confirmDT.setConfirmationMethodTime(TimeStampUtil.convertStringToTimestamp(time));
                     }
-                    else{//if the getTheConfirmationMethodDtoCollection == null, overwrite
+                    confirmDT.setPublicHealthCaseUid(publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid());
+                    confirmDT.setItNew(true);
 
-                        ConfirmationMethodDto confirmDT = new ConfirmationMethodDto();
-                        if (time != null) {
-                            confirmDT.setConfirmationMethodTime(Timestamp.valueOf(time));
-                        }
-                        confirmDT.setPublicHealthCaseUid(publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid());
-                        confirmDT.setItNew(true);
-
-                        list.add(confirmDT);
-                        publicHealthCaseContainer.setTheConfirmationMethodDTCollection(list);
-                    }
+                    list.add(confirmDT);
+                    publicHealthCaseContainer.setTheConfirmationMethodDTCollection(list);
                 }
-            } else {
-//                logger.debug("publicHealthCaseContainer().getTheConfirmationMethodDtoCollection()!=null for  metaData.getQuestionIdentifier():-" + metaData.getQuestionIdentifier());
-//                logger.error(edxRuleManageDT.toString());
             }
         }
         return publicHealthCaseContainer;
@@ -446,8 +433,6 @@ public class ValidateDecisionSupport {
             CaseManagementDto caseManagementDto = publicHealthCaseContainer.getTheCaseManagementDto();
             caseManagementDto.setCaseManagementDTPopulated(true);
             processNBSObjectDT( edxRuleManageDT, publicHealthCaseContainer, caseManagementDto, metaData);
-        } else{
-//            logger.error("********Decision Support Setting Case Management value for non-STD/HIV Case?? Check STD_PROGRAM_AREAS setting in Property file*********");
         }
     }
 
