@@ -5,7 +5,6 @@ import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Blob;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
