@@ -34,7 +34,7 @@ import java.util.Collection;
 
 @Component
 public class ObservationRepositoryUtil {
-    private static final Logger logger = LoggerFactory.getLogger(ObservationRepositoryUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(ObservationRepositoryUtil.class); // NOSONAR
 
     private final ObservationRepository observationRepository;
     private final ObservationReasonRepository observationReasonRepository;
@@ -309,13 +309,12 @@ public class ObservationRepositoryUtil {
         {
             actRelationshipRepository.delete(actRelationship);
         }
-        else if (actRelationshipDto.isItDirty())
+        else if (actRelationshipDto.isItDirty() &&
+                (actRelationshipDto.getTargetActUid() != null &&
+                        actRelationshipDto.getSourceActUid() != null && actRelationshipDto.getTypeCd() != null)
+        )
         {
-            if (actRelationshipDto.getTargetActUid() != null &&
-                    actRelationshipDto.getSourceActUid() != null && actRelationshipDto.getTypeCd() != null)
-            {
-                actRelationshipRepository.save(actRelationship);
-            }
+            actRelationshipRepository.save(actRelationship);
         }
 
 

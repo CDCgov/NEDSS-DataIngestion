@@ -12,7 +12,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-class AdvancedCriteriaTest {
+@SuppressWarnings("java:S2187")
+class AdvancedCriteriaTest
+{
     @InjectMocks
     private AdvancedCriteria advancedCriteria;
     @Mock

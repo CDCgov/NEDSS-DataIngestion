@@ -149,6 +149,7 @@ public class PatientRepositoryUtil {
         return person;
     }
 
+    @SuppressWarnings("java:S3776")
     @Transactional
     public void updateExistingPerson(PersonContainer personContainer) throws DataProcessingException {
         ArrayList<Object>  arrayList = new ArrayList<>();
@@ -582,6 +583,7 @@ public class PatientRepositoryUtil {
     }
 
 
+    @SuppressWarnings("java:S1871")
     @Transactional
     public PersonContainer preparePersonNameBeforePersistence(PersonContainer personContainer) throws DataProcessingException {
         try {

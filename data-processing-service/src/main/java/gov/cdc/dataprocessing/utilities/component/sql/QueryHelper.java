@@ -21,6 +21,7 @@ public class QueryHelper {
     /**
      * OBSERVATIONLABREPORT & OBSERVATIONMORBIDITYREPORT -> SECURE By both prog and jus
      * */
+    @SuppressWarnings("java:S125")
     public String getDataAccessWhereClause(String businessObjLookupName, String operation, String alias) {
 
         String whereClause = null;

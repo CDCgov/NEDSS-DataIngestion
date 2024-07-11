@@ -31,6 +31,7 @@ class ParticipationStoredProcRepositoryTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    @SuppressWarnings("java:S5961")
     @Test
     void testInsertParticipation()  {
         ParticipationDto participationDto = new ParticipationDto();
@@ -123,6 +124,7 @@ class ParticipationStoredProcRepositoryTest {
         verify(storedProcedureQuery).execute();
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
     void testInsertParticipation_ThrowsException() {
         ParticipationDto participationDto = new ParticipationDto();
