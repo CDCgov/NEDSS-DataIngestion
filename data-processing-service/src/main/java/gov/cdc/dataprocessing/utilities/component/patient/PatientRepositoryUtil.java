@@ -93,7 +93,6 @@ public class PatientRepositoryUtil {
     public Person createPerson(PersonContainer personContainer) throws DataProcessingException {
         Long personUid;
         String localUid;
-        //var localIdModel = localUidGeneratorRepository.findById(PERSON);
         var localIdModel = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.PERSON);
         personUid = localIdModel.getSeedValueNbr();
         localUid = localIdModel.getUidPrefixCd() + personUid + localIdModel.getUidSuffixCd();
@@ -150,6 +149,7 @@ public class PatientRepositoryUtil {
         return person;
     }
 
+    @SuppressWarnings("java:S3776")
     @Transactional
     public void updateExistingPerson(PersonContainer personContainer) throws DataProcessingException {
         ArrayList<Object>  arrayList = new ArrayList<>();
@@ -163,6 +163,7 @@ public class PatientRepositoryUtil {
         personRepository.save(person);
 
 
+
         //NOTE: Create Person Name
         if  (personContainer.getThePersonNameDtoCollection() != null && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
             updatePersonName(personContainer);
@@ -173,7 +174,7 @@ public class PatientRepositoryUtil {
         }
         //NOTE: Create Person Ethnic
         if  (personContainer.getThePersonEthnicGroupDtoCollection() != null && !personContainer.getThePersonEthnicGroupDtoCollection().isEmpty()) {
-            createPersonEthnic(personContainer);
+            updatePersonEthnic(personContainer);
         }
 
 
@@ -191,6 +192,21 @@ public class PatientRepositoryUtil {
         //NOTE: Upsert Role
         if  (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
             createRole(personContainer);
+        }
+
+
+        // Updating MPR
+        if (!Objects.equals(person.getPersonUid(), person.getPersonParentUid())) {
+            var mprRes = personRepository.findById(person.getPersonParentUid());
+            if (mprRes.isPresent()) {
+                var version = person.getVersionCtrlNbr();
+                mprRes.get().setVersionCtrlNbr(++version);
+                if (person.getEthnicGroupInd() != null) {
+                    mprRes.get().setEthnicGroupInd(person.getEthnicGroupInd());
+                }
+                personRepository.save(mprRes.get());
+            }
+
         }
 
     }
@@ -432,10 +448,13 @@ public class PatientRepositoryUtil {
         }
     }
 
-    @SuppressWarnings("java:S1141")
+    @SuppressWarnings({"java:S1141","java:S3776"})
     private void updatePersonRace(PersonContainer personContainer) throws DataProcessingException {
         ArrayList<PersonRaceDto>  personList = (ArrayList<PersonRaceDto> ) personContainer.getThePersonRaceDtoCollection();
+        var parentUid = personContainer.getThePersonDto().getPersonParentUid();
+        Long patientUid = -1L;
         try {
+            List<String> retainingRaceCodeList = new ArrayList<>();
             for (PersonRaceDto personRaceDto : personList) {
                 var pUid = personContainer.getThePersonDto().getPersonUid();
                 if (personRaceDto.isItDelete()) {
@@ -446,6 +465,11 @@ public class PatientRepositoryUtil {
                     }
                 }
                 else {
+                    // Edge case, happen when there are race exist, and we try to remove the second race from the list
+                    if (personRaceDto.isItDirty() && !Objects.equals(personRaceDto.getPersonUid(), parentUid)) {
+                        retainingRaceCodeList.add(personRaceDto.getRaceCd());
+                        patientUid = personRaceDto.getPersonUid();
+                    }
                     var mprRecord = SerializationUtils.clone(personRaceDto);
                     mprRecord.setPersonUid(personContainer.getThePersonDto().getPersonParentUid());
                     mprRecord.setAddReasonCd("Add");
@@ -454,6 +478,17 @@ public class PatientRepositoryUtil {
                     personRaceDto.setPersonUid(pUid);
                     personRaceDto.setAddReasonCd("Add");
                     personRaceRepository.save(new PersonRace(personRaceDto));
+
+
+                }
+            }
+
+            // This executes after the update process, whatever race not it the retain list and not direct assoc with parent uid will be deleted
+            if (!retainingRaceCodeList.isEmpty() && patientUid > 0) {
+                try {
+                    personRaceRepository.deletePersonRaceByUid(patientUid,retainingRaceCodeList);
+                } catch (Exception e) {
+                    logger.error(ERROR_DELETE_MSG + e.getMessage()); //NOSONAR
                 }
             }
         } catch (Exception e) {
@@ -483,6 +518,26 @@ public class PatientRepositoryUtil {
                 var pUid = personContainer.getThePersonDto().getPersonUid();
                 personEthnicGroupDto.setPersonUid(pUid);
                 personEthnicRepository.save(new PersonEthnicGroup(personEthnicGroupDto));
+            }
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+    private void updatePersonEthnic(PersonContainer personContainer) throws DataProcessingException {
+        try {
+            var parentUid = personContainer.getThePersonDto().getPersonParentUid();
+            for (PersonEthnicGroupDto personEthnicGroupDto : personContainer.getThePersonEthnicGroupDtoCollection()) {
+
+                var mprRecord =  SerializationUtils.clone(personEthnicGroupDto);
+                mprRecord.setPersonUid(parentUid);
+                personEthnicRepository.save(new PersonEthnicGroup(mprRecord));
+
+                var pUid = personContainer.getThePersonDto().getPersonUid();
+                personEthnicGroupDto.setPersonUid(pUid);
+                personEthnicRepository.save(new PersonEthnicGroup(personEthnicGroupDto));
+
+
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
@@ -528,6 +583,7 @@ public class PatientRepositoryUtil {
     }
 
 
+    @SuppressWarnings("java:S1871")
     @Transactional
     public PersonContainer preparePersonNameBeforePersistence(PersonContainer personContainer) throws DataProcessingException {
         try {
@@ -541,23 +597,30 @@ public class PatientRepositoryUtil {
                     PersonNameDto thePersonNameDto =  namesIter.next();
                     if (thePersonNameDto.getNmUseCd() != null
                             && !thePersonNameDto.getNmUseCd().trim().equals("L"))
+                    {
                         continue;
+                    }
                     if (thePersonNameDto.getAsOfDate() != null) {
                         if (selectedNameDT == null)
+                        {
                             selectedNameDT = thePersonNameDto;
-                        else if (selectedNameDT.getAsOfDate()!=null && thePersonNameDto.getAsOfDate()!=null  && thePersonNameDto.getAsOfDate().after(
-                                selectedNameDT.getAsOfDate())) {
+                        }
+                        else if (selectedNameDT.getAsOfDate()!=null
+                                && thePersonNameDto.getAsOfDate()!=null
+                                && thePersonNameDto.getAsOfDate().after(selectedNameDT.getAsOfDate()))
+                        {
                             selectedNameDT = thePersonNameDto;
                         }
                     } else {
                         if (selectedNameDT == null)
+                        {
                             selectedNameDT = thePersonNameDto;
+                        }
                     }
                 }
                 if (selectedNameDT != null) {
                     personContainer.getThePersonDto().setLastNm(selectedNameDT.getLastNm());
-                    personContainer.getThePersonDto().setFirstNm(
-                            selectedNameDT.getFirstNm());
+                    personContainer.getThePersonDto().setFirstNm(selectedNameDT.getFirstNm());
                 }
             }
         } catch (Exception e) {

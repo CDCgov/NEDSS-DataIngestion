@@ -156,10 +156,6 @@ public class NotificationRepositoryUtil {
 
         notificationContainer.getTheNotificationDT().setNotificationUid(uid);
 
-      //  actIdRepositoryUtil.insertActIdCollection(uid, notificationContainer.getTheActIdDTCollection());
-
-      //  actLocatorParticipationRepositoryUtil.insertActLocatorParticipationCollection(uid, notificationContainer.getTheActivityLocatorParticipationDTCollection());
-
         notificationContainer.setItNew(true);
         notificationContainer.setItDirty(false);
 
@@ -167,7 +163,7 @@ public class NotificationRepositoryUtil {
     }
 
     private Long updateNotification(NotificationContainer notificationContainer) {
-        var uid = notificationContainer.getTheUpdatedNotificationDto().getNotificationUid();
+        var uid = notificationContainer.getTheNotificationDT().getNotificationUid();
         var localId = notificationContainer.getTheNotificationDT().getLocalId();
 
         actRepositoryUtil.insertActivityId(uid,NEDSSConstant.NOTIFICATION_CLASS_CODE, NEDSSConstant.EVENT_MOOD_CODE);

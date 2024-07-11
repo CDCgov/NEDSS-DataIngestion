@@ -11,9 +11,14 @@ import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonEthnicGroup;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonName;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonRace;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityIdRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonEthnicRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonNameRepository;
@@ -25,6 +30,7 @@ import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorS
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -164,16 +170,38 @@ class PatientRepositoryUtilTest {
         perDt.setVersionCtrlNbr(1);
         perDt.setPersonUid(10L);
         perDt.setLocalId("TEST");
-        perDt.setFirstNm("TEST");
-        perDt.setLastNm("TEST");
-        perDt.setMiddleNm("TEST");
-        perDt.setNmPrefix("TEST");
-        perDt.setNmSuffix("TEST");
+        perDt.setFirstNm("TEST-1");
+        perDt.setLastNm("TEST-1");
+        perDt.setMiddleNm("TEST-1");
+        perDt.setNmPrefix("TEST-1");
+        perDt.setNmSuffix("TEST-1");
         perCon.setThePersonDto(perDt);
 
 
         var patNameCol = new ArrayList<PersonNameDto>();
         var patName = new PersonNameDto();
+        patName.setFirstNm("TEST-1");
+        patName.setLastNm("TEST-1");
+        patName.setMiddleNm("TEST-1");
+        patName.setNmPrefix("TEST-1");
+        patName.setNmSuffix("TEST-1");
+        patName.setItDelete(false);
+        patNameCol.add(patName);
+        patName = new PersonNameDto();
+        patName.setFirstNm("TEST-1");
+        patName.setLastNm("TEST-1");
+        patName.setMiddleNm("TEST-1");
+        patName.setNmPrefix("TEST-1");
+        patName.setNmSuffix("TEST-1");
+        patName.setItDelete(true);
+        patNameCol.add(patName);
+        patName = new PersonNameDto();
+        patName.setFirstNm("TEST-1");
+        patName.setLastNm("TEST-1");
+        patName.setMiddleNm("TEST-1");
+        patName.setNmPrefix("TEST-1");
+        patName.setNmSuffix("TEST-1");
+        patName.setItDelete(true);
         patNameCol.add(patName);
         perCon.setThePersonNameDtoCollection(patNameCol);
 
@@ -184,6 +212,7 @@ class PatientRepositoryUtilTest {
         name.setMiddleNm("TEST");
         name.setNmPrefix("TEST");
         name.setNmSuffix("TEST");
+        name.setPersonNameSeq(1);
         nameCol.add(name);
         when(personNameRepository.findBySeqIdByParentUid(10L)).thenReturn(nameCol);
 
@@ -254,4 +283,98 @@ class PatientRepositoryUtilTest {
 
     }
 
+
+    @Test
+    void loadPerson_Test() {
+        Long uid = 10L;
+        var person = new Person();
+        when(personRepository.findById(uid)).thenReturn(Optional.of(person));
+
+        var perNameCol = new ArrayList<PersonName>();
+        var perName = new PersonName();
+        perNameCol.add(perName);
+        when(personNameRepository.findByParentUid(uid)).thenReturn(Optional.of(perNameCol));
+
+        var perRaceCol = new ArrayList<PersonRace>();
+        var perRace = new PersonRace();
+        perRaceCol.add(perRace);
+        when(personRaceRepository.findByParentUid(uid)).thenReturn(Optional.of(perRaceCol));
+
+        var perEthCol = new ArrayList<PersonEthnicGroup>();
+        var perEth = new PersonEthnicGroup();
+        perEthCol.add(perEth);
+        when(personEthnicRepository.findByParentUid(uid)).thenReturn(Optional.of(perEthCol));
+
+        var entiCol =new ArrayList<EntityId>();
+        var enti = new EntityId();
+        entiCol.add(enti);
+        when(entityIdRepository.findByParentUid(uid)).thenReturn(Optional.of(entiCol));
+
+        var loCol = new ArrayList<EntityLocatorParticipation>();
+        var lo = new EntityLocatorParticipation();
+        loCol.add(lo);
+        when(entityLocatorParticipationService.findEntityLocatorById(uid)).thenReturn(loCol);
+
+        var rolCol = new ArrayList<Role>();
+        var role =new Role();
+        rolCol.add(role);
+        when(roleRepository.findByParentUid(uid)).thenReturn(Optional.of(rolCol));
+
+        var res = patientRepositoryUtil.loadPerson(uid);
+
+        assertNotNull(res);
+
+
+
+    }
+
+
+    @Test
+    void findPatientParentUidByUid_Test() {
+        var uid = 10L;
+        var ids = new ArrayList<Long>();
+        ids.add(10L);
+        when(personRepository.findPatientParentUidByUid(uid)).thenReturn(Optional.of(ids));
+
+        var res = patientRepositoryUtil.findPatientParentUidByUid(uid);
+
+        assertNotNull(res);
+
+    }
+
+    @Test
+    void findPatientParentUidByUid_Test_2() {
+        var uid = 10L;
+        when(personRepository.findPatientParentUidByUid(uid)).thenReturn(Optional.empty());
+
+        var res = patientRepositoryUtil.findPatientParentUidByUid(uid);
+
+        assertNull(res);
+
+    }
+
+    @Test
+    void preparePersonNameBeforePersistence_Test() throws DataProcessingException {
+        PersonContainer personContainer = new PersonContainer();
+        var perNameCol = new ArrayList<PersonNameDto>();
+        var perName = new PersonNameDto();
+        perName.setNmUseCd("TEST");
+        perNameCol.add(perName);
+        perName = new PersonNameDto();
+        perName.setNmUseCd("L");
+        perName.setAsOfDate(TimeStampUtil.getCurrentTimeStamp());
+        perNameCol.add(perName);
+        perName = new PersonNameDto();
+        perName.setNmUseCd("L");
+        perName.setAsOfDate(TimeStampUtil.getCurrentTimeStamp());
+        perNameCol.add(perName);
+        perName = new PersonNameDto();
+        perName.setNmUseCd("L");
+        perNameCol.add(perName);
+        personContainer.setThePersonNameDtoCollection(perNameCol);
+
+        var res = patientRepositoryUtil.preparePersonNameBeforePersistence(personContainer);
+
+        assertNotNull(res);
+    }
 }

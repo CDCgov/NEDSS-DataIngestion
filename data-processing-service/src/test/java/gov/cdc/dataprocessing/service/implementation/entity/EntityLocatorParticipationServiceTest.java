@@ -80,7 +80,9 @@ class EntityLocatorParticipationServiceTest {
         locatorCollection.add(locator);
         locator = new EntityLocatorParticipationDto();
         locator.setClassCd(NEDSSConstant.POSTAL);
+        locator.setCd(NEDSSConstant.HOME);
         var postalDto = new PostalLocatorDto();
+        postalDto.setStreetAddr1("TEST");
         locator.setThePostalLocatorDto(postalDto);
         locatorCollection.add(locator);
         locator = new EntityLocatorParticipationDto();
@@ -98,6 +100,7 @@ class EntityLocatorParticipationServiceTest {
         entityPatCol.add(entityPat);
         entityPat = new EntityLocatorParticipation();
         entityPat.setClassCd(NEDSSConstant.POSTAL);
+        entityPat.setCd(NEDSSConstant.HOME);
         entityPat.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
         entityPat.setLocatorUid(12L);
         entityPatCol.add(entityPat);
@@ -131,7 +134,9 @@ class EntityLocatorParticipationServiceTest {
         locatorCollection.add(locator);
         locator = new EntityLocatorParticipationDto();
         locator.setClassCd(NEDSSConstant.POSTAL);
+        locator.setCd(NEDSSConstant.HOME);
         var postalDto = new PostalLocatorDto();
+        postalDto.setStreetAddr1("TEST");
         locator.setThePostalLocatorDto(postalDto);
         locatorCollection.add(locator);
         locator = new EntityLocatorParticipationDto();
@@ -151,6 +156,7 @@ class EntityLocatorParticipationServiceTest {
         entityPat.setClassCd(NEDSSConstant.POSTAL);
         entityPat.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
         entityPat.setLocatorUid(12L);
+        entityPat.setCd(NEDSSConstant.HOME);
         entityPatCol.add(entityPat);
         entityPat = new EntityLocatorParticipation();
         entityPat.setClassCd(NEDSSConstant.TELE);

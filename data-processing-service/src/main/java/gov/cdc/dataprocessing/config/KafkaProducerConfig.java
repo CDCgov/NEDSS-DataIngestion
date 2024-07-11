@@ -23,6 +23,7 @@ public class KafkaProducerConfig {
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true"); //TRANSACTION SUPPORT
         return new DefaultKafkaProducerFactory<>(config);
     }
 

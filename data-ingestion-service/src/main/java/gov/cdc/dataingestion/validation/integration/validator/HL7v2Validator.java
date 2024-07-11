@@ -28,8 +28,9 @@ public class HL7v2Validator implements IHL7v2Validator {
     public ValidatedELRModel messageValidation(String id, RawERLModel rawERLModel, String topicName, boolean validationActive) throws DiHL7Exception {
         String replaceSpecialCharacters = messageStringValidation(rawERLModel.getPayload());
 
+        // validationActive check is obsoleted
         if (validationActive) {
-            replaceSpecialCharacters = this.hl7Helper.hl7Validation(replaceSpecialCharacters);
+            replaceSpecialCharacters = this.hl7Helper.processFhsMessage(replaceSpecialCharacters);
         }
 
         ValidatedELRModel model = new ValidatedELRModel();
