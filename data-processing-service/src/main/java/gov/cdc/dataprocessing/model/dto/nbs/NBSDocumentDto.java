@@ -22,8 +22,8 @@ public class NBSDocumentDto extends BaseContainer implements RootDtoInterface {
     private String codeSetName;
     private String dataType;
     private Long nbsDocumentUid;
-    private Blob docPayload;
-    private Blob phdcDocDerived;
+    private String docPayload;
+    private String phdcDocDerived;
     private String payloadViewIndCd;
     private String docTypeCd;
     private Long nbsDocumentMetadataUid;
