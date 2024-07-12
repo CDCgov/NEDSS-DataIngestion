@@ -50,7 +50,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -534,6 +534,90 @@ class InvestigationServiceTests {
         investigationService.updateAutoResendNotifications(pageProx);
 
         verify(notificationService, times(1)).saveNotification(any());
+
+    }
+
+
+    @Mock
+    InvestigationContainer invesCon;
+    @Test
+    void testSetAssociations_ExceptionCase() {
+        Long investigationUID = 1L;
+        Collection<LabReportSummaryContainer> reportSumVOCollection = new ArrayList<>();
+        Collection<Object> vaccinationSummaryVOCollection = new ArrayList<>();
+        Collection<Object> summaryDTColl = new ArrayList<>();
+        Collection<Object> treatmentSumColl = new ArrayList<>();
+        Boolean isNNDResendCheckRequired = true;
+
+        var phcCon = new PublicHealthCaseContainer();
+        when(invesCon.getThePublicHealthCaseContainer()).thenReturn(phcCon);
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            investigationService.setAssociations(investigationUID, reportSumVOCollection, vaccinationSummaryVOCollection, summaryDTColl, treatmentSumColl, isNNDResendCheckRequired);
+        });
+
+        assertNotNull(exception);
+
+    }
+
+
+    @Test
+    void testProcessingInvestigationSummary_LiteCase() throws DataProcessingException {
+        InvestigationContainer investigationProxyVO = new InvestigationContainer();
+        PublicHealthCaseContainer thePublicHealthCaseContainer = new PublicHealthCaseContainer();
+        boolean lite = true;
+
+        assertDoesNotThrow(() -> {
+            investigationService.processingInvestigationSummary(investigationProxyVO, thePublicHealthCaseContainer, lite);
+        });
+
+        verify(retrieveSummaryService, never()).notificationSummaryOnInvestigation(any(), any());
+    }
+
+    @Test
+    void testProcessingInvestigationSummary_NonLiteCase() throws DataProcessingException {
+        InvestigationContainer investigationProxyVO = new InvestigationContainer();
+        investigationProxyVO.setThePublicHealthCaseContainer(new PublicHealthCaseContainer());
+        PublicHealthCaseContainer thePublicHealthCaseContainer = new PublicHealthCaseContainer();
+        boolean lite = false;
+
+        NotificationSummaryContainer notifVO1 = new NotificationSummaryContainer();
+        notifVO1.setCdNotif(NEDSSConstant.CLASS_CD_SHARE_NOTF);
+        notifVO1.setNotificationUid(1L);
+
+        NotificationSummaryContainer notifVO2 = new NotificationSummaryContainer();
+        notifVO2.setCdNotif(NEDSSConstant.CLASS_CD_EXP_NOTF);
+        notifVO2.setNotificationUid(2L);
+
+        NotificationSummaryContainer notifVO3 = new NotificationSummaryContainer();
+        notifVO3.setCdNotif(NEDSSConstant.CLASS_CD_NOTF);
+        notifVO3.setNotificationUid(3L);
+
+        Collection<Object> notificationSummaryVOCollection = new ArrayList<>();
+        notificationSummaryVOCollection.add(notifVO1);
+        notificationSummaryVOCollection.add(notifVO2);
+        notificationSummaryVOCollection.add(notifVO3);
+
+        ActRelationshipDto actRelationDT1 = new ActRelationshipDto();
+        actRelationDT1.setSourceActUid(1L);
+
+        ActRelationshipDto actRelationDT2 = new ActRelationshipDto();
+        actRelationDT2.setSourceActUid(2L);
+
+        ActRelationshipDto actRelationDT3 = new ActRelationshipDto();
+        actRelationDT3.setSourceActUid(3L);
+
+        Collection<ActRelationshipDto> actRelationshipDTCollection = new ArrayList<>();
+        actRelationshipDTCollection.add(actRelationDT1);
+        actRelationshipDTCollection.add(actRelationDT2);
+        actRelationshipDTCollection.add(actRelationDT3);
+
+        investigationProxyVO.setTheNotificationSummaryVOCollection(notificationSummaryVOCollection);
+        investigationProxyVO.getThePublicHealthCaseContainer().setTheActRelationshipDTCollection(actRelationshipDTCollection);
+
+        when(retrieveSummaryService.notificationSummaryOnInvestigation(any(), any())).thenReturn(notificationSummaryVOCollection);
+
+        investigationService.processingInvestigationSummary(investigationProxyVO, thePublicHealthCaseContainer, lite);
+
 
     }
 

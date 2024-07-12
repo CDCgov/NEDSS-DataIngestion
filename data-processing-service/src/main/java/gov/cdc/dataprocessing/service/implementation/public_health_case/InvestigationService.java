@@ -130,21 +130,18 @@ public class InvestigationService implements IInvestigationService {
             }
         }
         catch (Exception e) {
-            NNDActivityLogDto nndActivityLogDT = new  NNDActivityLogDto();
-            String phcLocalId = invVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getLocalId();
-            nndActivityLogDT.setErrorMessageTxt(e.toString());
-            if (phcLocalId!=null)
-            {
-                nndActivityLogDT.setLocalId(phcLocalId);
-            }
-            else
-            {
-                nndActivityLogDT.setLocalId("N/A");
-            }
-            //catch & store auto resend notifications exceptions in NNDActivityLog table
-
-            //TODO: LOGGING PIPELINE
-            //n1.persistNNDActivityLog(nndActivityLogDT);
+//            NNDActivityLogDto nndActivityLogDT = new  NNDActivityLogDto();
+//            String phcLocalId = invVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getLocalId();
+//            nndActivityLogDT.setErrorMessageTxt(e.toString());
+//            if (phcLocalId!=null)
+//            {
+//                nndActivityLogDT.setLocalId(phcLocalId);
+//            }
+//            else
+//            {
+//                nndActivityLogDT.setLocalId("N/A");
+//            }
+//            n1.persistNNDActivityLog(nndActivityLogDT);
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
@@ -351,12 +348,6 @@ public class InvestigationService implements IInvestigationService {
                     && recordStatusCd
                     .equals(NEDSSConstant.RECORD_STATUS_ACTIVE)) {
                 theMaterialVOCollection.add(materialService.loadMaterialObject(nEntityID));
-
-                continue;
-            }
-            if (nEntityID == null || strClassCd == null
-                    || strClassCd.length() == 0) {
-                continue;
             }
         }
 
@@ -400,10 +391,6 @@ public class InvestigationService implements IInvestigationService {
                 strClassCd = actRelationshipDT.getSourceClassCd();
                 strTypeCd = actRelationshipDT.getTypeCd();
                 recordStatusCd = actRelationshipDT.getRecordStatusCd();
-                if (nSourceActID == null || strClassCd == null) {
-                    logger.debug("PageProxyEJB.getInvestigation: check for nulls: SourceActUID" + nSourceActID + " classCd: " + strClassCd); //NOSONAR
-                    continue;
-                }
             }
 
             Collection<Object> labSumVOCol = new ArrayList<>();
@@ -721,12 +708,6 @@ public class InvestigationService implements IInvestigationService {
                         entityGroupContainer.setTheEntityGroupDT(entityGrp);
                         theEntityGroupVOCollection.add(entityGroupContainer);
                     }
-
-
-                    continue;
-                }
-                if (nEntityID == null || strClassCd == null || strClassCd.length() == 0) {
-                    continue;
                 }
             }
 
@@ -789,13 +770,6 @@ public class InvestigationService implements IInvestigationService {
                     ObservationContainer parentObservationVO = observationRepositoryUtil.loadObject(nSourceActID);
                     theObservationVOCollection = (ArrayList<ObservationContainer>) observationRepositoryUtil.retrieveObservationQuestion(nSourceActID);
                     theObservationVOCollection.add(parentObservationVO);
-                    continue;
-                }
-                if (nSourceActID == null || strClassCd == null) {
-                    logger.debug(
-                            "InvestigationProxyEJB.getInvestigation: check for nulls: SourceActUID" +
-                                    nSourceActID + " classCd: " + strClassCd);
-                    continue;
                 }
             }
 
@@ -868,30 +842,8 @@ public class InvestigationService implements IInvestigationService {
 
             }
 
-            if(!lite) {
-                investigationProxyVO.setTheNotificationSummaryVOCollection(retrieveSummaryService.notificationSummaryOnInvestigation(thePublicHealthCaseContainer, investigationProxyVO));
-
-                if(investigationProxyVO.getTheNotificationSummaryVOCollection()!=null){
-                    for (Object o : investigationProxyVO.getTheNotificationSummaryVOCollection()) {
-                        NotificationSummaryContainer notifVO = (NotificationSummaryContainer) o;
-                        for (ActRelationshipDto actRelationDT : investigationProxyVO.getThePublicHealthCaseContainer().getTheActRelationshipDTCollection()) {
-                            if ((notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_SHARE_NOTF) ||
-                                    notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_SHARE_NOTF_PHDC))
-                                    && notifVO.getNotificationUid().compareTo(actRelationDT.getSourceActUid()) == 0) {
-                                actRelationDT.setShareInd(true);
-                            }
-                            if ((notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_EXP_NOTF) ||
-                                    notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_EXP_NOTF_PHDC)) &&
-                                    notifVO.getNotificationUid().compareTo(actRelationDT.getSourceActUid()) == 0) {
-                                actRelationDT.setExportInd(true);
-                            }
-                            if (notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_NOTF) && notifVO.getNotificationUid().compareTo(actRelationDT.getSourceActUid()) == 0) {
-                                actRelationDT.setNNDInd(true);
-                            }
-                        }
-                    }
-                }
-            }
+            processingInvestigationSummary( investigationProxyVO,
+                     thePublicHealthCaseContainer, lite);
 
             if (!lite)
             {
@@ -902,30 +854,19 @@ public class InvestigationService implements IInvestigationService {
                 investigationProxyVO.setTheTreatmentSummaryVOCollection(
                         theTreatmentSummaryVOCollection);
             }
-            else {
-                logger.debug(
-                        "user has no permission to view TreatmentSummaryVO collection");
-            }
 
             if (!lite)
             {
                 theDocumentSummaryVOCollection  = new ArrayList<> (retrieveSummaryService.retrieveDocumentSummaryVOForInv(publicHealthCaseUID).values());
                 investigationProxyVO.setTheDocumentSummaryVOCollection(theDocumentSummaryVOCollection);
             }
-            else {
-                logger.debug(
-                        "user has no permission to view DocumentSummaryVO collection");
-            }
+
             if (!lite)
             {
                 Collection<Object> contactCollection= contactSummaryService.getContactListForInvestigation(publicHealthCaseUID);
 
                 investigationProxyVO.setTheCTContactSummaryDTCollection(contactCollection);
             }
-            else {
-                logger.debug("user has no permission to view Contact Summary collection");
-            }
-
 
         }
         catch (Exception e) {
@@ -1113,6 +1054,35 @@ public class InvestigationService implements IInvestigationService {
         returnMap.put(LAB_EVENT_LIST, labEventList);
         return returnMap;
     } //end of getObservationSummaryVOCollectionForWorkup()
+
+    protected void processingInvestigationSummary(InvestigationContainer investigationProxyVO,
+                                                     PublicHealthCaseContainer thePublicHealthCaseContainer,
+                                                     boolean lite) throws DataProcessingException {
+        if(!lite) {
+            investigationProxyVO.setTheNotificationSummaryVOCollection(retrieveSummaryService.notificationSummaryOnInvestigation(thePublicHealthCaseContainer, investigationProxyVO));
+
+            if(investigationProxyVO.getTheNotificationSummaryVOCollection()!=null){
+                for (Object o : investigationProxyVO.getTheNotificationSummaryVOCollection()) {
+                    NotificationSummaryContainer notifVO = (NotificationSummaryContainer) o;
+                    for (ActRelationshipDto actRelationDT : investigationProxyVO.getThePublicHealthCaseContainer().getTheActRelationshipDTCollection()) {
+                        if ((notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_SHARE_NOTF) ||
+                                notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_SHARE_NOTF_PHDC))
+                                && notifVO.getNotificationUid().compareTo(actRelationDT.getSourceActUid()) == 0) {
+                            actRelationDT.setShareInd(true);
+                        }
+                        if ((notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_EXP_NOTF) ||
+                                notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_EXP_NOTF_PHDC)) &&
+                                notifVO.getNotificationUid().compareTo(actRelationDT.getSourceActUid()) == 0) {
+                            actRelationDT.setExportInd(true);
+                        }
+                        if (notifVO.getCdNotif().equalsIgnoreCase(NEDSSConstant.CLASS_CD_NOTF) && notifVO.getNotificationUid().compareTo(actRelationDT.getSourceActUid()) == 0) {
+                            actRelationDT.setNNDInd(true);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     @SuppressWarnings({"java:S3776","java:S6541"})
     protected void populateDescTxtFromCachedValues(Collection<Object>
