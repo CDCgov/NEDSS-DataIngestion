@@ -22,12 +22,10 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class CachingValueServiceTest {
     @Mock
@@ -725,5 +723,92 @@ class CachingValueServiceTest {
             cachingValueService.getCountyCdByDescCallRepos(stateCd);
         });
         assertEquals("TEST", thrown.getMessage());
+    }
+
+
+    @Test
+    void testGetAllLabResultJoinWithLabCodingSystemWithOrganismNameInd_EmptyResult() throws DataProcessingException {
+        // Mock the repository to return an empty list
+        when(srteCustomRepository.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd()).thenReturn(Collections.emptyList());
+
+        // Call the method
+        TreeMap<String, String> result = cachingValueService.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
+
+        // Verify that the result is an empty TreeMap
+        assertTrue(result.isEmpty());
+
+        // Verify that the repository method was called
+        verify(srteCustomRepository, times(1)).getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
+    }
+
+
+    @Test
+    void testGetAllSnomedCode_EmptyResult() throws DataProcessingException {
+        when(snomedCodeRepository.findAll()).thenReturn(Collections.emptyList());
+
+        TreeMap<String, String> result = cachingValueService.getAllSnomedCode();
+
+        assertTrue(result.isEmpty());
+        verify(snomedCodeRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetLabResultDesc_EmptyResult() throws DataProcessingException {
+        when(labResultRepository.findLabResultByDefaultLabAndOrgNameN()).thenReturn(Optional.empty());
+
+        TreeMap<String, String> result = cachingValueService.getLabResultDesc();
+
+        assertTrue(result.isEmpty());
+        verify(labResultRepository, times(1)).findLabResultByDefaultLabAndOrgNameN();
+    }
+
+    @Test
+    void testGetAOELOINCCodes_EmptyResult() throws DataProcessingException {
+        when(loincCodeRepository.findLoincCodes()).thenReturn(Optional.empty());
+
+        TreeMap<String, String> result = cachingValueService.getAOELOINCCodes();
+
+        assertTrue(result.isEmpty());
+        verify(loincCodeRepository, times(1)).findLoincCodes();
+    }
+
+    @Test
+    void testGetRaceCodes_EmptyResult() throws DataProcessingException {
+        when(raceCodeRepository.findAllActiveRaceCodes()).thenReturn(Optional.empty());
+
+        TreeMap<String, String> result = cachingValueService.getRaceCodes();
+
+        assertTrue(result.isEmpty());
+        verify(raceCodeRepository, times(1)).findAllActiveRaceCodes();
+    }
+
+    @Test
+    void testGetAllLoinCodeWithComponentName_EmptyResult() throws DataProcessingException {
+        when(loincCodeRepository.findAll()).thenReturn(Collections.emptyList());
+
+        TreeMap<String, String> result = cachingValueService.getAllLoinCodeWithComponentName();
+
+        assertTrue(result.isEmpty());
+        verify(loincCodeRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetAllOnInfectionConditionCode_EmptyResult() throws DataProcessingException {
+        when(conditionCodeRepository.findCoInfectionConditionCode()).thenReturn(Optional.of(Collections.emptyList()));
+
+        TreeMap<String, String> result = cachingValueService.getAllOnInfectionConditionCode();
+
+        assertTrue(result.isEmpty());
+        verify(conditionCodeRepository, times(1)).findCoInfectionConditionCode();
+    }
+
+    @Test
+    void testGetAllConditionCode_EmptyResult() throws DataProcessingException {
+        when(conditionCodeRepository.findAllConditionCode()).thenReturn(Optional.of(Collections.emptyList()));
+
+        List<ConditionCode> result = cachingValueService.getAllConditionCode();
+
+        assertTrue(result.isEmpty());
+        verify(conditionCodeRepository, times(1)).findAllConditionCode();
     }
 }
