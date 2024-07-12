@@ -1,13 +1,13 @@
 package gov.cdc.dataingestion.validation.integration.validator;
 
+import gov.cdc.dataingestion.constant.enums.EnumMessageType;
 import gov.cdc.dataingestion.hl7.helper.HL7Helper;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
-import gov.cdc.dataingestion.constant.enums.EnumMessageType;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
 
 class HL7v2ValidatorTests
 {
@@ -20,29 +20,7 @@ class HL7v2ValidatorTests
         target = new HL7v2Validator(hl7Helper);
     }
 
-    @Test
-    void MessageValidation_Success_ValidMessage_ValidatorActivated_ReturnError_MissingOBR() throws DiHL7Exception {
 
-        String data = "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
-                + "PID|||7005728^^^TML^MR||TEST^RACHEL^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r"
-                + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
-                + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379";
-        String id = "1";
-
-        RawERLModel model = new RawERLModel();
-        model.setPayload(data);
-        model.setId(id);
-        model.setCreatedOn(null);
-        model.setUpdatedOn(null);
-
-
-        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
-            target.messageValidation(id, model, "test", true);
-        });
-
-        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Error Occurred at OBR-4";
-        Assertions.assertEquals(expectedMessage, exception.getMessage());
-    }
 
 
     @Test

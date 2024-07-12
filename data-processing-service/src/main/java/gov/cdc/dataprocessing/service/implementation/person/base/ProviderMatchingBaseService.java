@@ -122,7 +122,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             throw new DataProcessingException(e.getMessage());
         }
     }
-    private Long persistingProvider(PersonContainer personContainer, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException  {
+    protected Long persistingProvider(PersonContainer personContainer, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException  {
         Long personUID ;
         String localId ;
         boolean isELRCase = false;
@@ -174,7 +174,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         return personUID;
 
     }
-    private void setProvidertoEntityMatch(PersonContainer personContainer) throws Exception {
+    protected void setProvidertoEntityMatch(PersonContainer personContainer) throws Exception {
 
         Long entityUid = personContainer.getThePersonDto().getPersonUid();
         String identifier ;
@@ -258,14 +258,15 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         }
 
     }
-    private List<String> getIdentifierForProvider(PersonContainer personContainer) throws DataProcessingException {
+    @SuppressWarnings("java:S3776")
+    protected List<String> getIdentifierForProvider(PersonContainer personContainer) throws DataProcessingException {
         String carrot = "^";
         List<String> identifierList = new ArrayList<>();
         String identifier = null;
         Collection<EntityIdDto> newEntityIdDtoColl = new ArrayList<>();
         try{
             if (personContainer.getTheEntityIdDtoCollection() != null
-                    && personContainer.getTheEntityIdDtoCollection().size() > 0) {
+                    && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
                 Collection<EntityIdDto> entityIdDtoColl = personContainer.getTheEntityIdDtoCollection();
                 for (EntityIdDto entityIdDto : entityIdDtoColl) {
                     if ((entityIdDto.getStatusCd().equalsIgnoreCase(NEDSSConstant.STATUS_ACTIVE))) {
@@ -344,8 +345,8 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         return identifierList;
 
     }
-    // getting Last name,First name for the providers
-    private String getNameStringForProvider(PersonContainer personContainer) {
+    @SuppressWarnings("java:S3776")
+    protected String getNameStringForProvider(PersonContainer personContainer) {
         String nameStr = null;
         if (personContainer.getThePersonNameDtoCollection() != null && personContainer.getThePersonNameDtoCollection().size() > 0) {
             Collection<PersonNameDto> personNameDtoColl = personContainer.getThePersonNameDtoCollection();

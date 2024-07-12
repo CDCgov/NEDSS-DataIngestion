@@ -1,13 +1,15 @@
 package gov.cdc.dataingestion.validation.integration.validator;
+
 import com.google.gson.Gson;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
+import gov.cdc.dataingestion.constant.enums.EnumMessageType;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.ICsvValidator;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
-import gov.cdc.dataingestion.constant.enums.EnumMessageType;
 
-import java.io.*;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 public class CsvValidator implements ICsvValidator {
     String schemaPath = "./csv-schema/Patients.csv";

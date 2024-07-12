@@ -1,7 +1,8 @@
 package gov.cdc.dataingestion.hl7.helper.integration;
 
-import ca.uhn.hl7v2.*;
-import ca.uhn.hl7v2.model.*;
+import ca.uhn.hl7v2.HL7Exception;
+import ca.uhn.hl7v2.HapiContext;
+import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.model.v251.message.ORU_R01;
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory;
 import ca.uhn.hl7v2.parser.DefaultModelClassFactory;
@@ -15,7 +16,7 @@ import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.*;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Ts;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 
 import static gov.cdc.dataingestion.hl7.helper.constant.hl7.EventTrigger.ORU_01;

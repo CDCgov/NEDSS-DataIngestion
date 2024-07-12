@@ -74,4 +74,28 @@ class ElrDeadLetterControllerTest {
 
         verify(elrDeadLetterService).updateAndReprocessingMessage("1", "HL7 message");
     }
+
+    @Test
+    void testGetErrorMessageByIdSuccess() throws Exception {
+        ElrDeadLetterDto dto = new ElrDeadLetterDto(
+                "1", "topic-a", "error stack trace", 1, "ERROR", "system", "system"
+        );
+
+        when(elrDeadLetterService.getDltRecordById("1")).thenReturn(dto);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/elrs/error-messages/1")
+                        .with(SecurityMockMvcRequestPostProcessors.jwt())
+                        .header("clientid", "test-client-id")
+                        .header("clientsecret", "test-client-secret"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errorMessageId").value("1"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errorMessageSource").value("topic-a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errorStackTrace").value("error stack trace"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.dltOccurrence").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.dltStatus").value("ERROR"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.createdBy").value("system"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.updatedBy").value("system"));
+
+        verify(elrDeadLetterService).getDltRecordById("1");
+    }
 }

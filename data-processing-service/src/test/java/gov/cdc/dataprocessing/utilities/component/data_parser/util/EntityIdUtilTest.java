@@ -21,10 +21,14 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class EntityIdUtilTest {
     @Mock
@@ -270,5 +274,58 @@ class EntityIdUtilTest {
         });
         assertNotNull(thrown);
 
+    }
+
+    @Test
+    void stringToStrutsTimestamp_Test_1() {
+        String time = null;
+
+        var res = entityIdUtil.stringToStrutsTimestamp(time);
+        assertNull(res);
+    }
+
+    @Test
+    void stringToStrutsTimestamp_Test_2() {
+        String time = "NULL";
+
+        var res = entityIdUtil.stringToStrutsTimestamp(time);
+        assertNull(res);
+    }
+
+    @Test
+    void isDateNotOkForDatabase_Test_1(){
+        Timestamp timestamp = null;
+        var res = entityIdUtil.isDateNotOkForDatabase(timestamp);
+
+        assertFalse(res);
+    }
+
+    @Test
+    void isDateNotOkForDatabase_Test_2() throws ParseException {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = dateFormat.parse("1700-01-01");
+        Timestamp timestamp = new Timestamp(date.getTime());
+
+        // Act
+        boolean result = entityIdUtil.isDateNotOkForDatabase(timestamp);
+
+        // Assert
+        assertTrue(result);
+    }
+
+    @Test
+    void testIsDateNotOkForDatabase_ExceptionHandling() throws Exception {
+        // Arrange
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        SimpleDateFormat mockDateFormat = spy(new SimpleDateFormat("yyyy-MM-dd"));
+        doThrow(new RuntimeException("Test Exception")).when(mockDateFormat).parse(anyString());
+
+
+
+        // Act
+        boolean result = entityIdUtil.isDateNotOkForDatabase(timestamp);
+
+        // Assert
+        assertFalse(result);
     }
 }

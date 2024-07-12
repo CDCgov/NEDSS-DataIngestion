@@ -1,12 +1,11 @@
 package gov.cdc.dataingestion.config;
+
 import gov.cdc.dataingestion.conversion.integration.HL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
-import gov.cdc.dataingestion.hl7.helper.HL7Helper;
 import gov.cdc.dataingestion.validation.integration.validator.CsvValidator;
 import gov.cdc.dataingestion.validation.integration.validator.HL7v2Validator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.ICsvValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
-import io.github.linuxforhealth.hl7.HL7ToFHIRConverter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

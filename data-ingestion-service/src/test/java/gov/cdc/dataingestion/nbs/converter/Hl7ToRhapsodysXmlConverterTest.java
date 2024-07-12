@@ -1,6 +1,5 @@
 package gov.cdc.dataingestion.nbs.converter;
 
-import gov.cdc.dataingestion.exception.DeadLetterTopicException;
 import gov.cdc.dataingestion.exception.XmlConversionException;
 import gov.cdc.dataingestion.hl7.helper.HL7Helper;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;

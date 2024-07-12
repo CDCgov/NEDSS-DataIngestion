@@ -32,7 +32,7 @@ public class ConcurrentCheck {
                 }else{
                     PersonDto newPersonDT= (PersonDto)theRootDTInterface;
 
-                    if(existingVersion == null || (existingVersion.equals(theRootDTInterface.getVersionCtrlNbr()-1) && newPersonDT.isReentrant())) {
+                    if(existingVersion.equals(theRootDTInterface.getVersionCtrlNbr() - 1) && newPersonDT.isReentrant()) {
                         return true;
                     }
 

@@ -24,6 +24,7 @@ import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil;
 import gov.cdc.dataprocessing.utilities.component.public_health_case.AdvancedCriteria;
 import gov.cdc.dataprocessing.utilities.component.wds.ValidateDecisionSupport;
+import gov.cdc.dataprocessing.utilities.component.wds.WdsObjectChecker;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,6 +55,8 @@ class DecisionSupportServiceTest {
     private DsmAlgorithmService dsmAlgorithmService;
     @Mock
     private AdvancedCriteria advancedCriteria;
+    @Mock
+    private WdsObjectChecker wdsObjectChecker;
     @InjectMocks
     private DecisionSupportService decisionSupportService;
     @Mock
@@ -74,7 +77,7 @@ class DecisionSupportServiceTest {
     @AfterEach
     void tearDown() {
         Mockito.reset(edxPhcrDocumentUtil, autoInvestigationService, validateDecisionSupport, publicHealthCaseStoredProcRepository,
-                dsmAlgorithmService , authUtil, advancedCriteria);
+                dsmAlgorithmService , authUtil, advancedCriteria, wdsObjectChecker);
     }
 
 
@@ -592,12 +595,12 @@ class DecisionSupportServiceTest {
         advanceInvCriteriaMap.put("2",lst);
 
         when(advancedCriteria.getAdvancedInvCriteriaMap(any())).thenReturn(advanceInvCriteriaMap);
-        when(validateDecisionSupport.checkNbsObject(any(), any(), any())).thenReturn(true);
+        when(wdsObjectChecker.checkNbsObject(any(), any(), any())).thenReturn(true);
 
 
         decisionSupportService.checkAdvancedInvCriteria(algorithmDocument, edxLabInformationDT, questionIdentifierMap);
 
-        verify(validateDecisionSupport, times(2)).checkNbsObject(any(), any(), any());
+        verify(wdsObjectChecker, times(2)).checkNbsObject(any(), any(), any());
     }
 
     @Test
@@ -630,12 +633,12 @@ class DecisionSupportServiceTest {
         advanceInvCriteriaMap.put("2",lst);
 
         when(advancedCriteria.getAdvancedInvCriteriaMap(any())).thenReturn(advanceInvCriteriaMap);
-        when(validateDecisionSupport.checkNbsObject(any(), any(), any())).thenReturn(false);
+        when(wdsObjectChecker.checkNbsObject(any(), any(), any())).thenReturn(false);
 
 
         decisionSupportService.checkAdvancedInvCriteria(algorithmDocument, edxLabInformationDT, questionIdentifierMap);
 
-        verify(validateDecisionSupport, times(1)).checkNbsObject(any(), any(), any());
+        verify(wdsObjectChecker, times(1)).checkNbsObject(any(), any(), any());
     }
 
 
@@ -662,7 +665,7 @@ class DecisionSupportServiceTest {
 
         when(advancedCriteria.getAdvancedInvCriteriaMap(any())).thenReturn(advanceInvCriteriaMap);
 
-        when(validateDecisionSupport.checkNbsObject(any(), any(), any())).thenReturn(true);
+        when(wdsObjectChecker.checkNbsObject(any(), any(), any())).thenReturn(true);
 
 
         decisionSupportService.checkAdvancedInvCriteriaForCreateInvNoti(algorithmDocument, edxLabInformationDT, questionIdentifierMap);

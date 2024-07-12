@@ -19,9 +19,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.*;
 
 class NbsRepositoryServiceProviderTest {
     @Mock
@@ -482,4 +484,61 @@ class NbsRepositoryServiceProviderTest {
         );
     }
 
+    @Test
+    void testSaveEcrCdaXmlMessage_UpdateExistingRecord() {
+        // Arrange
+        String nbsInterfaceUid = "1";
+        Integer dataMigrationStatus = 0;
+        String xmlMsg = "<xml>message</xml>";
+        NbsInterfaceModel existingModel = new NbsInterfaceModel();
+        existingModel.setPayload("old payload");
+
+        when(nbsInterfaceRepo.getNbsInterfaceByIdAndDocType(anyInt(), any()))
+                .thenReturn(Optional.of(existingModel));
+
+        // Act
+        target.saveEcrCdaXmlMessage(nbsInterfaceUid, dataMigrationStatus, xmlMsg);
+
+        // Assert
+        verify(nbsInterfaceRepo, times(1)).save(existingModel);
+    }
+
+    @Test
+    void testSaveEcrCdaXmlMessage_2() {
+        // Arrange
+        String nbsInterfaceUid = "1";
+        Integer dataMigrationStatus = -1;
+        String xmlMsg = "<xml>message</xml>";
+        NbsInterfaceModel existingModel = new NbsInterfaceModel();
+        existingModel.setPayload("old payload");
+
+        when(nbsInterfaceRepo.getNbsInterfaceByIdAndDocType(anyInt(), any()))
+                .thenReturn(Optional.empty());
+
+        // Act
+        target.saveEcrCdaXmlMessage(nbsInterfaceUid, dataMigrationStatus, xmlMsg);
+
+        // Assert
+        verify(nbsInterfaceRepo, times(1)).save(any());
+    }
+
+    @SuppressWarnings("java:S4144")
+    @Test
+    void testSaveEcrCdaXmlMessage_3() {
+        // Arrange
+        String nbsInterfaceUid = "1";
+        Integer dataMigrationStatus = -1;
+        String xmlMsg = "<xml>message</xml>";
+        NbsInterfaceModel existingModel = new NbsInterfaceModel();
+        existingModel.setPayload("old payload");
+
+        when(nbsInterfaceRepo.getNbsInterfaceByIdAndDocType(anyInt(), any()))
+                .thenReturn(Optional.empty());
+
+        // Act
+        target.saveEcrCdaXmlMessage(nbsInterfaceUid, dataMigrationStatus, xmlMsg);
+
+        // Assert
+        verify(nbsInterfaceRepo, times(1)).save(any());
+    }
 }

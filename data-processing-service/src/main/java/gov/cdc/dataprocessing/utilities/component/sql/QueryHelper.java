@@ -117,48 +117,31 @@ public class QueryHelper {
         }
     }
 
-    private String buildWhereClause(String ownerList, String guestList,
-                                    String columnName, String alias, boolean OIDFlag, String businessObjLookupName) {
+    public String buildWhereClause(String ownerList, String guestList,
+                                   String columnName, String alias, boolean OIDFlag, String businessObjLookupName) {
 
-        String finalWhereClause = "";
-        String whereClauseOwner = buildOwnerWhereClause(ownerList, columnName,
-                alias, OIDFlag, businessObjLookupName);
-        String whereClauseGuest = buildGuestWhereClause(guestList, columnName,
-                alias, OIDFlag, businessObjLookupName);
-        //logger.debug("whereClauseOwner: " + whereClauseOwner);
-        //logger.debug("whereClauseGuest: " + whereClauseGuest);
+        String whereClauseOwner = buildOwnerWhereClause(ownerList, columnName, alias, OIDFlag, businessObjLookupName);
+        String whereClauseGuest = buildGuestWhereClause(guestList, columnName, alias, OIDFlag, businessObjLookupName);
 
-        if ( (whereClauseOwner != null &&
-                whereClauseOwner.trim().length() != 0) &&
-                (whereClauseGuest != null &&
-                        whereClauseGuest.trim().length() != 0)) {
-            finalWhereClause = "(" + whereClauseOwner + " or " +
-                    whereClauseGuest + ")";
-        }
-        else if ( (whereClauseOwner != null &&
-                whereClauseOwner.trim().length() != 0) &&
-                (whereClauseGuest == null ||
-                        whereClauseGuest.trim().length() == 0)) {
-            finalWhereClause = "(" + whereClauseOwner + ")";
-        }
-        else if ( (whereClauseOwner == null ||
-                whereClauseOwner.trim().length() == 0) &&
-                (whereClauseGuest != null &&
-                        whereClauseGuest.trim().length() != 0)) {
-            finalWhereClause = "(" + whereClauseGuest + ")";
-        }
-        else if ( (whereClauseOwner == null ||
-                whereClauseOwner.trim().length() == 0) &&
-                (whereClauseGuest == null ||
-                        whereClauseGuest.trim().length() == 0)) {
-            finalWhereClause = "(0=1)";
-        }
+        boolean isOwnerClauseValid = whereClauseOwner != null && !whereClauseOwner.trim().isEmpty();
+        boolean isGuestClauseValid = whereClauseGuest != null && !whereClauseGuest.trim().isEmpty();
 
-        return finalWhereClause;
+        if (isOwnerClauseValid && isGuestClauseValid) {
+            return "(" + whereClauseOwner + " or " + whereClauseGuest + ")";
+        }
+        else if (isOwnerClauseValid) {
+            return "(" + whereClauseOwner + ")";
+        }
+        else if (isGuestClauseValid) {
+            return "(" + whereClauseGuest + ")";
+        }
+        else {
+            return "(0=1)";
+        }
     }
 
-    private String buildOwnerWhereClause(String ownerList, String columnName,
-                                         String alias, boolean OIDFlag, String businessObjLookupName) {
+   protected String buildOwnerWhereClause(String ownerList, String columnName,
+                                 String alias, boolean OIDFlag, String businessObjLookupName) {
         String whereClauseOwner = "";
 
 
@@ -181,7 +164,7 @@ public class QueryHelper {
     }
 
 
-    private String buildGuestWhereClause(String guestList, String columnName,
+    protected String buildGuestWhereClause(String guestList, String columnName,
                                          String alias, boolean OIDFlag, String businessObjLookupName) {
 
         //logger.debug("alias = " + alias);

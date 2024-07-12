@@ -2,9 +2,9 @@ package gov.cdc.dataingestion.hl7.helper.model.hl7.message_group;
 
 import ca.uhn.hl7v2.HL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.NextOfKin;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.group.shared.NoteAndComment;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.PatientAdditionalDemographic;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.patient.PatientIdentification;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.group.shared.NoteAndComment;
 import lombok.Getter;
 import lombok.Setter;
 

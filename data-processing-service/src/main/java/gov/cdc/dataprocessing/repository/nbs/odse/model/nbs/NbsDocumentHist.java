@@ -114,7 +114,7 @@ public class NbsDocumentHist {
     }
 
     public NbsDocumentHist(NBSDocumentDto documentDto) {
-        this.docPayload = documentDto.getDocPayload().toString();
+        this.docPayload = documentDto.getDocPayload();
         this.docTypeCd = documentDto.getDocTypeCd();
         this.localId = documentDto.getLocalId();
         this.recordStatusCd = documentDto.getRecordStatusCd();
@@ -138,7 +138,7 @@ public class NbsDocumentHist {
         this.sendingAppEventId = documentDto.getSendingAppEventId();
         this.sendingAppPatientId = documentDto.getSendingAppPatientId();
         this.nbsDocumentUid = documentDto.getNbsDocumentUid();
-        this.phdcDocDerived = documentDto.getPhdcDocDerived().toString();
+        this.phdcDocDerived = documentDto.getPhdcDocDerived();
         this.payloadViewIndCd = documentDto.getPayloadViewIndCd();
         this.nbsDocumentMetadataUid = documentDto.getNbsDocumentMetadataUid();
         this.externalVersionCtrlNbr = documentDto.getExternalVersionCtrlNbr();

@@ -17,6 +17,8 @@ import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.utilities.StringUtils;
 import gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
@@ -27,6 +29,8 @@ import java.util.*;
 
 @Component
 public class ValidateDecisionSupport {
+    private static final Logger logger = LoggerFactory.getLogger(ValidateDecisionSupport.class);
+
     private final EdxPhcrDocumentUtil edxPHCRDocumentUtil;
 
     public ValidateDecisionSupport(EdxPhcrDocumentUtil edxPHCRDocumentUtil) {
@@ -45,7 +49,7 @@ public class ValidateDecisionSupport {
         if (behavior.equalsIgnoreCase("1")) {
             isOverwrite = true;
         } else if (behavior.equalsIgnoreCase("2")) {
-            isOverwrite = false;
+            isOverwrite = false; // NOSONAR
         }
         String dataLocation = metaData.getDataLocation();
         /*
@@ -81,31 +85,23 @@ public class ValidateDecisionSupport {
                             setMethod = phcClass.getMethod(setMethodName, BigDecimal.valueOf(0).getClass());
                         else if (value.getReturnType().equals(String.class)) // Added because question INV139's datatype is NUMERIC in nbs_ui_metadata table but the datatype is varchar in Public_Health_Case table.
                             setMethod = phcClass.getMethod(setMethodName, String.class);
-                    } else {
-//                        logger.error("ValidateDecisionSupport.processNbsObject: There is an error, there seems to be metaData.getDataType() that is dufferent from the expected value" + metaData.toString());
                     }
                     Object ob = value.invoke(object, (Object[]) null);
                     if (isOverwrite) {
                         setMethod(object, setMethod, edxRuleManageDT);
-                    } else if (!isOverwrite && ob == null) {
-                        setMethod(object, setMethod, edxRuleManageDT);
-                    } else {
-                        // do nothing
-                    }
-                } else {
-                    // do nothing
+                    } else if (!isOverwrite && ob == null) { // NOSONAR
+                        setMethod(object, setMethod, edxRuleManageDT);// NOSONAR
+                    } // NOSONAR
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         } 
-        // System.out.println("solution is :"+publicHealthCaseDT.toString());
-
 
 
     }
 
-
+    @SuppressWarnings("java:S6541")
     public void processNBSCaseAnswerDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, BasePamContainer pamVO, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
@@ -202,14 +198,11 @@ public class ValidateDecisionSupport {
                     edxPHCRDocumentUtil.setStandardNBSCaseAnswerVals(publicHealthCaseContainer, nbsAnswerDT);
                     answerMap.put(metaData.getQuestionIdentifier(), nbsAnswerDT);
                 }
-            } else {
-//                logger.debug("pageActProxyVO.getPageVO().getPamAnswerDTMap().get(metaData.getQuestionIdentifier())!=null for  metaData.getQuestionIdentifier():-" + metaData.getQuestionIdentifier());
-//                logger.error(edxRuleManageDT.toString());
             }
         }
         pamVO.setPamAnswerDTMap(answerMap);
     }
-
+    @SuppressWarnings("java:S6541")
     public  void processConfirmationMethodCodeDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
@@ -345,7 +338,7 @@ public class ValidateDecisionSupport {
             e.printStackTrace();
         }
     }
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S6541"})
     public PublicHealthCaseContainer processConfirmationMethodTimeDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) throws DataProcessingException {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
@@ -474,7 +467,7 @@ public class ValidateDecisionSupport {
                     edxRuleManageDT.setParticipationUid(Long.valueOf(defaultValueType.getDefaultParticipation().getEntityUid()));
                     edxRuleManageDT.setParticipationClassCode(defaultValueType.getDefaultParticipation().getEntityClass());
                 } catch (Exception e) {
-//                    logger.error("The defaultValueType exception is not valid for code and/or uid and/or classCode. Please check: ", defaultValueType);
+                    logger.error("The defaultValueType exception is not valid for code and/or uid and/or classCode. Please check: " + defaultValueType); //NOSONAR
                 }
             } else if (defaultValueType.getDefaultStringValue() != null) {
                 edxRuleManageDT.setDefaultStringValue(defaultValueType.getDefaultStringValue());
@@ -494,141 +487,6 @@ public class ValidateDecisionSupport {
         }
     }
 
-
-    @SuppressWarnings("java:S6541")
-    public boolean checkNbsObject(EdxRuleManageDto edxRuleManageDT, Object object, NbsQuestionMetadata metaData) {
-        String dataLocation = metaData.getDataLocation();
-        String setMethodName = dataLocation.replaceAll("_", "");
-        setMethodName = "SET" + setMethodName.substring(setMethodName.indexOf(".") + 1, setMethodName.length());
-
-        String getMethodName = dataLocation.replaceAll("_", "");
-        getMethodName = "GET" + getMethodName.substring(getMethodName.indexOf(".") + 1, getMethodName.length());
-
-        Class<?> phcClass = object.getClass();
-        try {
-            Method[] methodList = phcClass.getDeclaredMethods();
-            for (Method item : methodList) {
-                Method method = item;
-                if (method.getName().equalsIgnoreCase(getMethodName)) {
-                    //System.out.println(method.getName());
-                    Object ob = method.invoke(object, (Object[]) null);
-
-                    String logic = edxRuleManageDT.getLogic();
-
-                    if (ob == null && logic.equalsIgnoreCase("!="))
-                        return true;
-                    else if (ob == null)
-                        return false;
-
-                    if (metaData.getDataType().equalsIgnoreCase(
-                            NEDSSConstant.NBS_QUESTION_DATATYPE_TEXT)
-                            && (metaData.getMask() == null || (!metaData
-                            .getMask().equals(
-                                    NEDSSConstant.NUMERIC_CODE) && !metaData
-                            .getMask()
-                            .equals(NEDSSConstant.NBS_QUESTION_DATATYPE_MASK_NUM_YYYY)))
-                            || metaData
-                            .getDataType()
-                            .equalsIgnoreCase(
-                                    NEDSSConstant.NBS_QUESTION_DATATYPE_CODED_VALUE)) {
-                        if (logic.equalsIgnoreCase("CT") && edxRuleManageDT.getValue() != null) {
-                            // for multi-selects separated by commas
-                            String[] values = edxRuleManageDT.getValue().split(
-                                    ",");
-                            for (String value : values) {
-                                if (!(ob.toString().contains(value))) {
-                                    return false;
-                                }
-                            }
-                            return true;
-                        } else if (logic.equalsIgnoreCase("=")) {
-                            if (ob.toString().trim().equals(edxRuleManageDT.getValue())) {
-                                return true;
-                            }
-                        } else if (logic.equalsIgnoreCase("!=")) {
-                            if (!ob.toString().equals(edxRuleManageDT.getValue())) {
-                                return true;
-                            }
-
-                        }
-
-                    } else if (metaData.getDataType().equalsIgnoreCase(
-                            NEDSSConstant.NBS_QUESTION_DATATYPE_DATETIME)
-                            || metaData.getDataType().equalsIgnoreCase(
-                            NEDSSConstant.DATETIME_DATATYPE)
-                            || metaData.getDataType().equalsIgnoreCase(
-                            NEDSSConstant.NBS_QUESTION_DATATYPE_DATE)
-                            || metaData
-                            .getDataType()
-                            .equalsIgnoreCase(
-                                    NEDSSConstant.NBS_QUESTION_DATATYPE_NUMERIC)
-                            || (metaData.getMask() != null && (metaData
-                            .getMask().equals(
-                                    NEDSSConstant.NUMERIC_CODE) || metaData
-                            .getMask()
-                            .equals(NEDSSConstant.NBS_QUESTION_DATATYPE_MASK_NUM_YYYY)))) {
-                        long sourceValue;
-                        Long advanceCriteria = null;
-                        if (metaData.getDataType().toUpperCase().contains(NEDSSConstant.DATE_DATATYPE)) {
-                            Timestamp time = (Timestamp) (ob);
-                            sourceValue = time.getTime();
-                            Timestamp adCrtTime = StringUtils.stringToStrutsTimestamp(edxRuleManageDT.getValue());
-                            if (adCrtTime != null) {
-                                advanceCriteria = adCrtTime.getTime();
-                            }
-
-                        } else {
-                            if (ob != null) {
-                                sourceValue = Long.parseLong(ob.toString());
-                            }
-                            else
-                            {
-                                sourceValue = 0L;
-                            }
-                            if (edxRuleManageDT.getValue() != null)
-                                advanceCriteria = Long.parseLong(edxRuleManageDT.getValue());
-                            else
-                                advanceCriteria = 0L;
-                        }
-
-                        if (advanceCriteria != null) {
-                            if (logic.equalsIgnoreCase("!=")) {
-                                if (sourceValue != advanceCriteria) {
-                                    return true;
-                                }
-                            } else if (logic.equalsIgnoreCase(">")) {
-                                if (sourceValue > advanceCriteria) {
-                                    return true;
-                                }
-                            } else if (logic.equalsIgnoreCase(">=")) {
-                                if ((sourceValue == advanceCriteria) || (sourceValue > advanceCriteria)) {
-                                    return true;
-                                }
-                            } else if (logic.equalsIgnoreCase("<")) {
-                                if (sourceValue < advanceCriteria) {
-                                    return true;
-                                }
-                            } else if (logic.equalsIgnoreCase("<=")) {
-                                if ((sourceValue == advanceCriteria) || (sourceValue < advanceCriteria)) {
-                                    return true;
-                                }
-                            } else if (logic.equalsIgnoreCase("=")) {
-                                if (sourceValue == advanceCriteria) {
-                                    return true;
-                                }
-                            }
-                        }
-
-                    } else
-                        return false;
-
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } 
-        return false;
-    }
 
 
     public void processActIds(EdxRuleManageDto edxRuleManageDT,
@@ -673,11 +531,13 @@ public class ValidateDecisionSupport {
     }
 
 
-    private void getCurrentDateValue(EdxRuleManageDto edxRuleManageDT) {
+    protected void getCurrentDateValue(EdxRuleManageDto edxRuleManageDT) {
         if (edxRuleManageDT.getDefaultStringValue() != null
                 && edxRuleManageDT.getDefaultStringValue().equals(
                 NEDSSConstant.USE_CURRENT_DATE))
+        {
             edxRuleManageDT.setDefaultStringValue(StringUtils
                     .formatDate(new Timestamp((new Date()).getTime())));
+        }
     }
 }

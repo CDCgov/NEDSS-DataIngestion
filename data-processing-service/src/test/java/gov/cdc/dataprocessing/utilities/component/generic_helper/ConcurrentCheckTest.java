@@ -103,4 +103,36 @@ class ConcurrentCheckTest {
             concurrentCheck.dataConcurrenceCheck(rootDto, "Person", 1);
         });
     }
+
+    @Test
+    void testDataConcurrenceCheck_1() throws DataProcessingException {
+        PersonDto personDto = mock(PersonDto.class);
+        when(personDto.getVersionCtrlNbr()).thenReturn(2);
+
+        when(personDto.isReentrant()).thenReturn(true);
+
+        boolean result = concurrentCheck.dataConcurrenceCheck(personDto, "Person", 1);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void testDataConcurrenceCheckOrganization_1() throws DataProcessingException {
+        OrganizationDto organizationDto = mock(OrganizationDto.class);
+        when(organizationDto.getVersionCtrlNbr()).thenReturn(null);
+
+        boolean result = concurrentCheck.dataConcurrenceCheck(organizationDto, DataTables.ORGANIZATION_TABLE, 1);
+
+        assertFalse(result);
+    }
+
+    @Test
+    void testDataConcurrenceCheckObs_1() throws DataProcessingException {
+        ObservationDto organizationDto = mock(ObservationDto.class);
+        when(organizationDto.getVersionCtrlNbr()).thenReturn(null);
+
+        boolean result = concurrentCheck.dataConcurrenceCheck(organizationDto, "Observation", 1);
+
+        assertFalse(result);
+    }
 }

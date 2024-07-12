@@ -284,6 +284,7 @@ public class InvestigationService implements IInvestigationService {
         updateAutoResendNotifications(v);
     }
 
+    @SuppressWarnings("java:S6541")
     public PageActProxyContainer getPageProxyVO(String typeCd, Long publicHealthCaseUID) throws DataProcessingException {
         PageActProxyContainer pageProxyVO = new PageActProxyContainer();
 
@@ -1113,7 +1114,8 @@ public class InvestigationService implements IInvestigationService {
         return returnMap;
     } //end of getObservationSummaryVOCollectionForWorkup()
 
-    private void populateDescTxtFromCachedValues(Collection<Object>
+    @SuppressWarnings({"java:S3776","java:S6541"})
+    protected void populateDescTxtFromCachedValues(Collection<Object>
                                                          reportSummaryVOCollection) throws DataProcessingException {
         ReportSummaryInterface sumVO ;
         LabReportSummaryContainer labVO;

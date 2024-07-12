@@ -62,9 +62,6 @@ public class PrepareAssocModelHelper {
             }
             else
             {
-                try
-                {
-
                     logger.debug("RecordStatusCd or statusCode is not null");
                     assocDTInterface.setAddUserId(null);
                     assocDTInterface.setAddTime(null);
@@ -73,27 +70,13 @@ public class PrepareAssocModelHelper {
                     assocDTInterface.setRecordStatusTime(systemTime);
                     assocDTInterface.setStatusTime(systemTime);
                     assocDTInterface.setLastChgTime(systemTime);
-                }
-                catch(Exception e)
-                {
-                    e.printStackTrace();
-                }
-//                if(!nbsSecurityObj.getEntryID().equals(""))
-//                {
-//                    logger.debug("nbsSecurityObj.getEntryID() = " + nbsSecurityObj.getEntryID());
-//                    assocDTInterface.setLastChgUserId(new Long(nbsSecurityObj.getEntryID()));
-//                }
-//                else
-//                {
-//                    logger.debug("nbsSecurityObj.getEntryID() is NULL ");
-//                    throw new NEDSSSystemException("nbsSecurityObj.getEntryID() is NULL ");
-//                }
+
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;
                 logger.debug("DT Prepared");
             }
             if(!isRealDirty) {
-                aDTInterface.setItDirty(false);//Re-set the flag to original value if necessary
+                aDTInterface.setItDirty(false);
             }
             return aDTInterface;
         } catch (Exception e) {
@@ -108,13 +91,6 @@ public class PrepareAssocModelHelper {
             String recStatusCd = assocDTInterface.getRecordStatusCd();
             String statusCd = assocDTInterface.getStatusCd();
             boolean isRealDirty = assocDTInterface.isItDirty();
-		   /*
-		   if(recStatusCd == null || statusCd == null)
-		   {
-		  logger.debug("RecordStatusCd or statusCode is null");
-		  throw new NEDSSSystemException("RecordStatusCd -----2----"+recStatusCd+"   statusCode--------"+statusCd);
-		   }
-		   */
             if(recStatusCd == null)
             {
                 logger.debug("RecordStatusCd is null");
@@ -126,11 +102,6 @@ public class PrepareAssocModelHelper {
                 logger.debug("RecordStatusCd is not active or inactive");
                 throw new DataProcessingException("RecordStatusCd is not active or inactive");
             }
-		   /*else if(!(statusCd.equals(NEDSSConstants.STATUS_ACTIVE) || statusCd.equals(NEDSSConstants.STATUS_INACTIVE)))
-		   {
-		   logger.debug("StatusCd is not A or I");
-		   //throw new NEDSSSystemException("StatusCd is not A or I");
-		   }*/
             else
             {
                 try

@@ -2,9 +2,9 @@ package gov.cdc.dataingestion.nbs.ecr.service.helper;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.model.CdaPatientMapper;
+import gov.cdc.dataingestion.nbs.ecr.model.ValueMapper;
 import gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientField;
 import gov.cdc.dataingestion.nbs.ecr.model.patient.CdaPatientTelecom;
-import gov.cdc.dataingestion.nbs.ecr.model.ValueMapper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaPatientMappingHelper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;

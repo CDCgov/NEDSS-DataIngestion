@@ -63,25 +63,13 @@ public class EdxPhcrDocumentUtil {
                         tempMap.putAll(questions);
                     }
                 }
-                else
-                {
-                    tempMap = new HashMap<>();
-                }
             }
 
             if(tempMap != null){
                 for (Object o : tempMap.keySet()) {
                     String key = (String) o;
                     NbsQuestionMetadata metaData = (NbsQuestionMetadata) tempMap.get(key);
-                    if (generalMap.containsKey(key))
-                    { //overwrite it
-                        generalMap.remove(key);
-                        generalMap.put(key, metaData);
-                    }
-                    else
-                    {
-                        generalMap.put(key, metaData);
-                    }
+                    generalMap.put(key, metaData);
                 }
             }
         }

@@ -53,6 +53,7 @@ public class MatchingBaseService  {
         return localId;
     }
 
+    @SuppressWarnings("java:S6541")
     protected List<String> getIdentifier(PersonContainer personContainer) throws DataProcessingException {
         String carrot = "^";
         List<String> returnList;
@@ -60,7 +61,8 @@ public class MatchingBaseService  {
         String identifier ;
         try{
             if (personContainer.getTheEntityIdDtoCollection() != null
-                    && personContainer.getTheEntityIdDtoCollection().size() > 0) {
+                    && !personContainer.getTheEntityIdDtoCollection().isEmpty())
+            {
                 Collection<EntityIdDto> entityIdDtoColl = personContainer.getTheEntityIdDtoCollection();
                 for (EntityIdDto idDto : entityIdDtoColl) {
                     identifier = null;
@@ -89,31 +91,26 @@ public class MatchingBaseService  {
                         }
                         // NOTE: Person matching doesn't seem to hit this
                         else {
-                            try {
-                                Coded coded = new Coded();
-                                coded.setCode(idDto.getAssigningAuthorityCd());
-                                coded.setCodesetName(NEDSSConstant.EI_AUTH);
-                                //TODO: This call out to code value general Repos and Caching the recrod
-                                //var codedValueGenralList = getCachingValueService().findCodeValuesByCodeSetNmAndCode(coded.getCodesetName(), coded.getCode());
+                            Coded coded = new Coded();
+                            coded.setCode(idDto.getAssigningAuthorityCd());
+                            coded.setCodesetName(NEDSSConstant.EI_AUTH);
+                            //TODO: This call out to code value general Repos and Caching the recrod
+                            //var codedValueGenralList = getCachingValueService().findCodeValuesByCodeSetNmAndCode(coded.getCodesetName(), coded.getCode());
 
-                                /*
-                                NotificationSRTCodeLookupTranslationDAOImpl lookupDAO = new NotificationSRTCodeLookupTranslationDAOImpl();
-								lookupDAO.retrieveSRTCodeInfo(coded);
-                                * */
-                                if (idDto.getRootExtensionTxt() != null
-                                        && idDto.getTypeCd() != null
-                                        && coded.getCode() != null
-                                        && coded.getCodeDescription() != null
-                                        && coded.getCodeSystemCd() != null) {
-                                    identifier = idDto.getRootExtensionTxt()
-                                            + carrot + idDto.getTypeCd() + carrot
-                                            + coded.getCode() + carrot
-                                            + coded.getCodeDescription() + carrot
-                                            + coded.getCodeSystemCd();
-                                }
-                            } catch (Exception ex) {
-                                String errorMessage = "The assigning authority " + idDto.getAssigningAuthorityCd() + " does not exists in the system. ";
-                                logger.debug(ex.getMessage() + errorMessage);
+                            /*
+                            NotificationSRTCodeLookupTranslationDAOImpl lookupDAO = new NotificationSRTCodeLookupTranslationDAOImpl();
+                            lookupDAO.retrieveSRTCodeInfo(coded);
+                            * */
+                            if (idDto.getRootExtensionTxt() != null
+                                    && idDto.getTypeCd() != null
+                                    && coded.getCode() != null
+                                    && coded.getCodeDescription() != null
+                                    && coded.getCodeSystemCd() != null) {
+                                identifier = idDto.getRootExtensionTxt()
+                                        + carrot + idDto.getTypeCd() + carrot
+                                        + coded.getCode() + carrot
+                                        + coded.getCodeDescription() + carrot
+                                        + coded.getCodeSystemCd();
                             }
                         }
 
@@ -140,60 +137,57 @@ public class MatchingBaseService  {
 
     protected String getNamesStr(PersonContainer personContainer) {
         String namesStr = null;
-        String carrot = "^";
-        if (personContainer.getThePersonDto() != null) {
+        if (personContainer.getThePersonDto() != null)
+        {
             PersonDto personDto = personContainer.getThePersonDto();
             if (personDto.getCd() != null
-                    && personDto.getCd().equals(NEDSSConstant.PAT)) {
+                    && personDto.getCd().equals(NEDSSConstant.PAT))
+            {
                 if (personContainer.getThePersonNameDtoCollection() != null
-                        && personContainer.getThePersonNameDtoCollection().size() > 0) {
+                        && !personContainer.getThePersonNameDtoCollection().isEmpty())
+                {
                     Collection<PersonNameDto> personNameDtoColl = personContainer.getThePersonNameDtoCollection();
                     Iterator<PersonNameDto> personNameIterator = personNameDtoColl.iterator();
                     Timestamp asofDate = null;
-                    while (personNameIterator.hasNext()) {
-                        PersonNameDto personNameDto = personNameIterator
-                                .next();
+                    while (personNameIterator.hasNext())
+                    {
+                        PersonNameDto personNameDto = personNameIterator.next();
                         if (personNameDto.getNmUseCd() != null
-                                && personNameDto.getNmUseCd().equalsIgnoreCase(
-                                "L")
+                                && personNameDto.getNmUseCd().equalsIgnoreCase("L")
                                 && personNameDto.getRecordStatusCd() != null
-                                && personNameDto.getRecordStatusCd().equals(
-                                NEDSSConstant.RECORD_STATUS_ACTIVE)) {
-                            if (asofDate == null
-                                    || (asofDate.getTime() < personNameDto
-                                    .getAsOfDate().getTime())) {
-                                if ((personNameDto.getLastNm() != null)
-                                        && (!personNameDto.getLastNm().trim()
-                                        .equals(""))
-                                        && (personNameDto.getFirstNm() != null)
-                                        && (!personNameDto.getFirstNm().trim()
-                                        .equals(""))) {
-                                    namesStr = personNameDto.getLastNm()
-                                            + carrot
-                                            + personNameDto.getFirstNm();
-                                    asofDate = personNameDto.getAsOfDate();
-
-                                }
-                            } else if (asofDate.before(personNameDto
-                                    .getAsOfDate())) {
-                                if ((personNameDto.getLastNm() != null)
-                                        && (!personNameDto.getLastNm().trim()
-                                        .equals(""))
-                                        && (personNameDto.getFirstNm() != null)
-                                        && (!personNameDto.getFirstNm().trim()
-                                        .equals(""))) {
-                                    namesStr = personNameDto.getLastNm()
-                                            + carrot
-                                            + personNameDto.getFirstNm();
-                                    asofDate = personNameDto.getAsOfDate();
-                                }
+                                && personNameDto.getRecordStatusCd().equals(NEDSSConstant.RECORD_STATUS_ACTIVE))
+                        {
+                            // These condition check was how it originally designed in legacy
+                            // The way I see it is the second conditional check would never be reached
+                            if (asofDate == null || (asofDate.getTime() < personNameDto.getAsOfDate().getTime())) // NOSONAR
+                            {
+                                namesStr = processingPersonNameBasedOnAsOfDate(personNameDto, namesStr, asofDate); // NOSONAR
+                            }
+                            else if (asofDate.before(personNameDto.getAsOfDate()))
+                            {
+                                namesStr = processingPersonNameBasedOnAsOfDate(personNameDto, namesStr, asofDate); // NOSONAR
                             }
                         }
                     }
+
+
                 }
             }
         }
 
+        return namesStr;
+    }
+
+    protected String processingPersonNameBasedOnAsOfDate(PersonNameDto personNameDto, String namesStr, Timestamp asofDate) {
+        String caret = "^";
+        if ((personNameDto.getLastNm() != null)
+                && (!personNameDto.getLastNm().trim().equals(""))
+                && (personNameDto.getFirstNm() != null)
+                && (!personNameDto.getFirstNm().trim().equals("")))
+        {
+            namesStr = personNameDto.getLastNm() + caret + personNameDto.getFirstNm();
+            asofDate = personNameDto.getAsOfDate(); // NOSONAR
+        }
         return namesStr;
     }
 

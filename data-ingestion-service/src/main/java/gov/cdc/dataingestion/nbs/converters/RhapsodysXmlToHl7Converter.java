@@ -1,20 +1,16 @@
 package gov.cdc.dataingestion.nbs.converters;
 
 import gov.cdc.dataingestion.exception.XmlConversionException;
-import  gov.cdc.dataingestion.hl7.helper.model.hl7.message_segment.MessageHeader;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_segment.MessageHeader;
+import gov.cdc.dataingestion.nbs.jaxb.*;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Unmarshaller;
+import org.springframework.stereotype.Component;
 
-import  gov.cdc.dataingestion.nbs.jaxb.*;
-
-import  jakarta.xml.bind.JAXBContext;
-import  jakarta.xml.bind.Unmarshaller;
-
-import  java.io.InputStream;
-import  java.io.ByteArrayInputStream;
-import  java.nio.charset.StandardCharsets;
-
-import  java.util.List;
-
-import  org.springframework.stereotype.Component;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Component
 public class RhapsodysXmlToHl7Converter {
