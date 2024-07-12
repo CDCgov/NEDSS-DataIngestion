@@ -40,10 +40,22 @@ class PrepareAssocModelHelperTest {
 
     @Mock
     private ConcurrentCheck concurrentCheck;
+    @Mock
+    private ActivityLocatorParticipationDto activityLocatorParticipationInterface;
+
 
     @Mock
     private AuthUtil authUtil;
 
+    @Mock
+    private ActRelationshipDto assocDTInterface;
+    @Mock
+    private ParticipationDto participationInterface;
+
+    @Mock
+    private ActRelationshipDto actInterface;
+    @Mock
+    private RoleDto roleInterface;
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -905,4 +917,420 @@ class PrepareAssocModelHelperTest {
         assertNull(((PersonDto) result).getGroupTime());
         verify(prepareEntityStoredProcRepository, times(1)).getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName);
     }
+
+
+    @Test
+    void testPrepareAssocDTForEntityLocatorParticipation_RecordStatusCdNull() {
+        // Arrange
+        EntityLocatorParticipationDto assocDTInterface = mock(EntityLocatorParticipationDto.class);
+        when(assocDTInterface.getRecordStatusCd()).thenReturn(null);
+        when(assocDTInterface.getStatusCd()).thenReturn("ACTIVE");
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareAssocDTForEntityLocatorParticipation(assocDTInterface);
+        });
+
+        assertTrue(exception.getMessage().contains("RecordStatusCd -----2----null   statusCode--------ACTIVE"));
+    }
+
+    @Test
+    void testPrepareAssocDTForEntityLocatorParticipation_RecordStatusCdNotActiveOrInactive() {
+        // Arrange
+        EntityLocatorParticipationDto assocDTInterface = mock(EntityLocatorParticipationDto.class);
+        when(assocDTInterface.getRecordStatusCd()).thenReturn("INVALID_STATUS");
+        when(assocDTInterface.getStatusCd()).thenReturn("ACTIVE");
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareAssocDTForEntityLocatorParticipation(assocDTInterface);
+        });
+
+        assertTrue(exception.getMessage().contains("RecordStatusCd is not active or inactive"));
+    }
+
+    @Test
+    void testPrepareAssocDTForEntityLocatorParticipation_UnhandledException() {
+        // Arrange
+        EntityLocatorParticipationDto assocDTInterface = mock(EntityLocatorParticipationDto.class);
+        when(assocDTInterface.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        when(assocDTInterface.getStatusCd()).thenReturn("ACTIVE");
+        doThrow(new RuntimeException("Test Exception")).when(assocDTInterface).setAddUserId(null);
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareAssocDTForEntityLocatorParticipation(assocDTInterface);
+        });
+
+        assertTrue(exception.getMessage().contains("Test Exception"));
+    }
+
+    @Test
+    void testPrepareAssocDTForActRelationship_RecordStatusCdNull() {
+        // Arrange
+        when(assocDTInterface.getRecordStatusCd()).thenReturn(null);
+        when(assocDTInterface.getStatusCd()).thenReturn("ACTIVE");
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareAssocDTForActRelationship(assocDTInterface);
+        });
+
+        assertTrue(exception.getMessage().contains("RecordStatusCd -----2----null   statusCode--------ACTIVE"));
+    }
+
+    @Test
+    void testPrepareAssocDTForActRelationship_RecordStatusCdNotActiveOrInactive() {
+        // Arrange
+        when(assocDTInterface.getRecordStatusCd()).thenReturn("INVALID_STATUS");
+        when(assocDTInterface.getStatusCd()).thenReturn("ACTIVE");
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareAssocDTForActRelationship(assocDTInterface);
+        });
+
+        assertTrue(exception.getMessage().contains("RecordStatusCd is not active or inactive"));
+    }
+
+
+
+    @Test
+    void testPrepareAssocDTForActRelationship_InnerTryBlock() throws DataProcessingException {
+        // Arrange
+        when(assocDTInterface.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        when(assocDTInterface.getStatusCd()).thenReturn("ACTIVE");
+        when(assocDTInterface.isItDirty()).thenReturn(true);
+
+        // Act
+        ActRelationshipDto result = prepareAssocModelHelper.prepareAssocDTForActRelationship(assocDTInterface);
+
+        // Assert
+        assertNotNull(result);
+        verify(assocDTInterface).setAddUserId(null);
+        verify(assocDTInterface).setAddTime(null);
+        verify(assocDTInterface).setRecordStatusTime(any(Timestamp.class));
+        verify(assocDTInterface).setStatusTime(any(Timestamp.class));
+        verify(assocDTInterface).setLastChgTime(any(Timestamp.class));
+        verify(assocDTInterface).setLastChgUserId(anyLong());
+        verify(assocDTInterface).setLastChgReasonCd(null);
+        verify(assocDTInterface, never()).setItDirty(false); // Since isRealDirty is true
+    }
+
+
+    @Test
+    void testPrepareAssocDTForRole_RecordStatusCdNull() {
+        // Arrange
+        when(roleInterface.getRecordStatusCd()).thenReturn(null);
+        when(roleInterface.getStatusCd()).thenReturn("ACTIVE");
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareAssocDTForRole(roleInterface);
+        });
+
+        assertTrue(exception.getMessage().contains("RecordStatusCd -----2----null   statusCode--------ACTIVE"));
+    }
+
+    @Test
+    void testPrepareAssocDTForRole_RecordStatusCdNotActiveOrInactive() {
+        // Arrange
+        when(roleInterface.getRecordStatusCd()).thenReturn("INVALID_STATUS");
+        when(roleInterface.getStatusCd()).thenReturn("ACTIVE");
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareAssocDTForRole(roleInterface);
+        });
+
+        assertTrue(exception.getMessage().contains("RecordStatusCd is not active or inactive"));
+    }
+    
+
+    @Test
+    void testPrepareAssocDTForRole_InnerTryBlock() throws DataProcessingException {
+        // Arrange
+        when(roleInterface.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        when(roleInterface.getStatusCd()).thenReturn("ACTIVE");
+        when(roleInterface.isItDirty()).thenReturn(true);
+
+        // Act
+        RoleDto result = prepareAssocModelHelper.prepareAssocDTForRole(roleInterface);
+
+        // Assert
+        assertNotNull(result);
+        verify(roleInterface).setAddUserId(null);
+        verify(roleInterface).setAddTime(null);
+        verify(roleInterface).setRecordStatusTime(any(Timestamp.class));
+        verify(roleInterface).setStatusTime(any(Timestamp.class));
+        verify(roleInterface).setLastChgTime(any(Timestamp.class));
+        verify(roleInterface).setLastChgReasonCd(null);
+        verify(roleInterface, never()).setItDirty(false); // Since isRealDirty is true
+    }
+
+    @Test
+    void testPrepareAssocDTForRole_NotDirty() throws DataProcessingException {
+        // Arrange
+        when(roleInterface.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        when(roleInterface.getStatusCd()).thenReturn("ACTIVE");
+        when(roleInterface.isItDirty()).thenReturn(false);
+
+        // Act
+        RoleDto result = prepareAssocModelHelper.prepareAssocDTForRole(roleInterface);
+
+        // Assert
+        assertNotNull(result);
+        verify(roleInterface).setAddUserId(null);
+        verify(roleInterface).setAddTime(null);
+        verify(roleInterface).setRecordStatusTime(any(Timestamp.class));
+        verify(roleInterface).setStatusTime(any(Timestamp.class));
+        verify(roleInterface).setLastChgTime(any(Timestamp.class));
+        verify(roleInterface).setLastChgReasonCd(null);
+        verify(roleInterface).setItDirty(false); // Since isRealDirty is false
+    }
+
+    @Test
+    void testPrepareAssocDTForParticipation_RecordStatusCdNull() {
+        // Arrange
+        when(participationInterface.getRecordStatusCd()).thenReturn(null);
+        when(participationInterface.getStatusCd()).thenReturn("ACTIVE");
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareAssocDTForParticipation(participationInterface);
+        });
+
+        assertTrue(exception.getMessage().contains("RecordStatusCd -----2----null   statusCode--------ACTIVE"));
+    }
+
+    @Test
+    void testPrepareAssocDTForParticipation_RecordStatusCdNotActiveOrInactive() {
+        // Arrange
+        when(participationInterface.getRecordStatusCd()).thenReturn("INVALID_STATUS");
+        when(participationInterface.getStatusCd()).thenReturn("ACTIVE");
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareAssocDTForParticipation(participationInterface);
+        });
+
+        assertTrue(exception.getMessage().contains("RecordStatusCd is not active or inactive"));
+    }
+
+    @Test
+    void testPrepareAssocDTForParticipation_InnerTryBlock() throws DataProcessingException {
+        // Arrange
+        when(participationInterface.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        when(participationInterface.getStatusCd()).thenReturn("ACTIVE");
+        when(participationInterface.isItDirty()).thenReturn(true);
+
+        // Act
+        ParticipationDto result = prepareAssocModelHelper.prepareAssocDTForParticipation(participationInterface);
+
+        // Assert
+        assertNotNull(result);
+        verify(participationInterface).setAddUserId(null);
+        verify(participationInterface).setAddTime(null);
+        verify(participationInterface).setRecordStatusTime(any(Timestamp.class));
+        verify(participationInterface).setStatusTime(any(Timestamp.class));
+        verify(participationInterface).setLastChgTime(any(Timestamp.class));
+        verify(participationInterface).setLastChgReasonCd(null);
+        verify(participationInterface, never()).setItDirty(false); // Since isRealDirty is true
+    }
+
+    @Test
+    void testPrepareAssocDTForParticipation_NotDirty() throws DataProcessingException {
+        // Arrange
+        when(participationInterface.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        when(participationInterface.getStatusCd()).thenReturn("ACTIVE");
+        when(participationInterface.isItDirty()).thenReturn(false);
+
+        // Act
+        ParticipationDto result = prepareAssocModelHelper.prepareAssocDTForParticipation(participationInterface);
+
+        // Assert
+        assertNotNull(result);
+        verify(participationInterface).setAddUserId(null);
+        verify(participationInterface).setAddTime(null);
+        verify(participationInterface).setRecordStatusTime(any(Timestamp.class));
+        verify(participationInterface).setStatusTime(any(Timestamp.class));
+        verify(participationInterface).setLastChgTime(any(Timestamp.class));
+        verify(participationInterface).setLastChgReasonCd(null);
+        verify(participationInterface).setItDirty(false); // Since isRealDirty is false
+    }
+
+    @Test
+    void testPrepareActRelationshipDT_RecordStatusCdNull() {
+        // Arrange
+        when(actInterface.getRecordStatusCd()).thenReturn(null);
+        when(actInterface.getStatusCd()).thenReturn("ACTIVE");
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareActRelationshipDT(actInterface);
+        });
+
+        assertTrue(exception.getMessage().contains("RecordStatusCd -----2----null   statusCode--------ACTIVE"));
+    }
+
+    @Test
+    void testPrepareActRelationshipDT_RecordStatusCdNotActiveOrInactive() {
+        // Arrange
+        when(actInterface.getRecordStatusCd()).thenReturn("INVALID_STATUS");
+        when(actInterface.getStatusCd()).thenReturn("ACTIVE");
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareActRelationshipDT(actInterface);
+        });
+
+        assertTrue(exception.getMessage().contains("RecordStatusCd is not active or inactive"));
+    }
+
+    @Test
+    void testPrepareActRelationshipDT_UnhandledException() {
+        // Arrange
+        when(actInterface.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        when(actInterface.getStatusCd()).thenReturn("ACTIVE");
+        doThrow(new RuntimeException("Test Exception")).when(actInterface).setAddUserId(null);
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareActRelationshipDT(actInterface);
+        });
+
+        assertTrue(exception.getMessage().contains("Test Exception"));
+    }
+
+    @Test
+    void testPrepareActRelationshipDT_InnerTryBlock() throws DataProcessingException {
+        // Arrange
+        when(actInterface.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        when(actInterface.getStatusCd()).thenReturn("ACTIVE");
+        when(actInterface.isItDirty()).thenReturn(true);
+
+        // Act
+        ActRelationshipDto result = prepareAssocModelHelper.prepareActRelationshipDT(actInterface);
+
+        // Assert
+        assertNotNull(result);
+        verify(actInterface).setAddUserId(null);
+        verify(actInterface).setAddTime(null);
+        verify(actInterface).setRecordStatusTime(any(Timestamp.class));
+        verify(actInterface).setStatusTime(any(Timestamp.class));
+        verify(actInterface).setLastChgTime(any(Timestamp.class));
+        verify(actInterface).setLastChgUserId(anyLong());
+        verify(actInterface).setLastChgReasonCd(null);
+        verify(actInterface, never()).setItDirty(false); // Since isRealDirty is true
+    }
+
+    @Test
+    void testPrepareActRelationshipDT_NotDirty() throws DataProcessingException {
+        // Arrange
+        when(actInterface.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        when(actInterface.getStatusCd()).thenReturn("ACTIVE");
+        when(actInterface.isItDirty()).thenReturn(false);
+
+        // Act
+        ActRelationshipDto result = prepareAssocModelHelper.prepareActRelationshipDT(actInterface);
+
+        // Assert
+        assertNotNull(result);
+        verify(actInterface).setAddUserId(null);
+        verify(actInterface).setAddTime(null);
+        verify(actInterface).setRecordStatusTime(any(Timestamp.class));
+        verify(actInterface).setStatusTime(any(Timestamp.class));
+        verify(actInterface).setLastChgTime(any(Timestamp.class));
+        verify(actInterface).setLastChgUserId(anyLong());
+        verify(actInterface).setLastChgReasonCd(null);
+        verify(actInterface).setItDirty(false); // Since isRealDirty is false
+    }
+
+    @Test
+    void testPrepareActivityLocatorParticipationDT_RecordStatusCdNull() {
+        // Arrange
+        when(activityLocatorParticipationInterface.getRecordStatusCd()).thenReturn(null);
+        when(activityLocatorParticipationInterface.getStatusCd()).thenReturn("ACTIVE");
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareActivityLocatorParticipationDT(activityLocatorParticipationInterface);
+        });
+
+        assertTrue(exception.getMessage().contains("RecordStatusCd -----2----null   statusCode--------ACTIVE"));
+    }
+
+    @Test
+    void testPrepareActivityLocatorParticipationDT_RecordStatusCdNotActiveOrInactive() {
+        // Arrange
+        when(activityLocatorParticipationInterface.getRecordStatusCd()).thenReturn("INVALID_STATUS");
+        when(activityLocatorParticipationInterface.getStatusCd()).thenReturn("ACTIVE");
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareActivityLocatorParticipationDT(activityLocatorParticipationInterface);
+        });
+
+        assertTrue(exception.getMessage().contains("RecordStatusCd is not active or inactive"));
+    }
+
+    @Test
+    void testPrepareActivityLocatorParticipationDT_UnhandledException() {
+        // Arrange
+        when(activityLocatorParticipationInterface.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        when(activityLocatorParticipationInterface.getStatusCd()).thenReturn("ACTIVE");
+        doThrow(new RuntimeException("Test Exception")).when(activityLocatorParticipationInterface).setAddUserId(null);
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareActivityLocatorParticipationDT(activityLocatorParticipationInterface);
+        });
+
+        assertTrue(exception.getMessage().contains("Test Exception"));
+    }
+
+    @Test
+    void testPrepareActivityLocatorParticipationDT_InnerTryBlock() throws DataProcessingException {
+        // Arrange
+        when(activityLocatorParticipationInterface.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        when(activityLocatorParticipationInterface.getStatusCd()).thenReturn("ACTIVE");
+        when(activityLocatorParticipationInterface.isItDirty()).thenReturn(true);
+
+        // Act
+        ActivityLocatorParticipationDto result = prepareAssocModelHelper.prepareActivityLocatorParticipationDT(activityLocatorParticipationInterface);
+
+        // Assert
+        assertNotNull(result);
+        verify(activityLocatorParticipationInterface).setAddUserId(null);
+        verify(activityLocatorParticipationInterface).setAddTime(null);
+        verify(activityLocatorParticipationInterface).setRecordStatusTime(any(Timestamp.class));
+        verify(activityLocatorParticipationInterface).setStatusTime(any(Timestamp.class));
+        verify(activityLocatorParticipationInterface).setLastChgTime(any(Timestamp.class));
+        verify(activityLocatorParticipationInterface).setLastChgUserId(anyLong());
+        verify(activityLocatorParticipationInterface).setLastChgReasonCd(null);
+        verify(activityLocatorParticipationInterface, never()).setItDirty(false); // Since isRealDirty is true
+    }
+
+    @Test
+    void testPrepareActivityLocatorParticipationDT_NotDirty() throws DataProcessingException {
+        // Arrange
+        when(activityLocatorParticipationInterface.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        when(activityLocatorParticipationInterface.getStatusCd()).thenReturn("ACTIVE");
+        when(activityLocatorParticipationInterface.isItDirty()).thenReturn(false);
+
+        // Act
+        ActivityLocatorParticipationDto result = prepareAssocModelHelper.prepareActivityLocatorParticipationDT(activityLocatorParticipationInterface);
+
+        // Assert
+        assertNotNull(result);
+        verify(activityLocatorParticipationInterface).setAddUserId(null);
+        verify(activityLocatorParticipationInterface).setAddTime(null);
+        verify(activityLocatorParticipationInterface).setRecordStatusTime(any(Timestamp.class));
+        verify(activityLocatorParticipationInterface).setStatusTime(any(Timestamp.class));
+        verify(activityLocatorParticipationInterface).setLastChgTime(any(Timestamp.class));
+        verify(activityLocatorParticipationInterface).setLastChgUserId(anyLong());
+        verify(activityLocatorParticipationInterface).setLastChgReasonCd(null);
+        verify(activityLocatorParticipationInterface).setItDirty(false); // Since isRealDirty is false
+    }
+
 }
