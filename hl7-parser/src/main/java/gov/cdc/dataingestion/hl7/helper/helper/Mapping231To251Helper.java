@@ -678,24 +678,22 @@ public class Mapping231To251Helper {
     //DI's native
     public static Hd mapAssignedFacility(Hd out, Hd inAssignAuthority) {
         if (out.getUniversalId() == null
-                || (out.getUniversalId() != null)
-                || (out.getUniversalId() != null &&
-                out.getUniversalId().isEmpty())) {
+                || out.getUniversalId().isEmpty()
+        ) {
             out.setUniversalId(inAssignAuthority.getUniversalId());
         }
 
         // DI native
         if (out.getUniversalIdType() == null
-                || (out.getUniversalIdType() != null)
-                || (out.getUniversalIdType() != null &&
-                out.getUniversalIdType().isEmpty())) {
+                || out.getUniversalIdType().isEmpty())
+        {
             out.setUniversalIdType(inAssignAuthority.getUniversalIdType());
         }
 
         if (out.getNameSpaceId() == null
-                || (out.getNameSpaceId() != null)
-                || (out.getNameSpaceId() != null &&
-                out.getNameSpaceId().isEmpty())) {
+                || out.getNameSpaceId().isEmpty()
+        )
+        {
             out.setNameSpaceId(inAssignAuthority.getNameSpaceId());
         }
 
@@ -738,45 +736,25 @@ public class Mapping231To251Helper {
         return cx;
     }
 
-    private static boolean mapObservationResultAddressInfoCheck(ObservationResult obxIn) {
-        return obxIn.getPerformingOrganizationAddress().getStreetAddress() != null  && (
-                obxIn.getPerformingOrganizationAddress().getStreetAddress().getStreetName() == null ||
-                        obxIn.getPerformingOrganizationAddress().getStreetAddress().getStreetMailingAddress() == null ||
-                        (obxIn.getPerformingOrganizationAddress().getStreetAddress().getStreetName() != null &&
-                                obxIn.getPerformingOrganizationAddress().getStreetAddress().getStreetName().isEmpty())
-                        || (obxIn.getPerformingOrganizationAddress().getStreetAddress().getStreetMailingAddress() != null &&
-                        obxIn.getPerformingOrganizationAddress().getStreetAddress().getStreetMailingAddress().isEmpty()));
+    public static boolean mapObservationResultAddressInfoCheck(ObservationResult obxIn) {
+        return obxIn.getPerformingOrganizationAddress().getStreetAddress() != null && (
+                obxIn.getPerformingOrganizationAddress().getStreetAddress().getStreetName() == null || obxIn.getPerformingOrganizationAddress().getStreetAddress().getStreetMailingAddress() == null || obxIn.getPerformingOrganizationAddress().getStreetAddress().getStreetName().isEmpty() || obxIn.getPerformingOrganizationAddress().getStreetAddress().getStreetMailingAddress().isEmpty());
     }
 
-    private static boolean mapObservationResultCityInfoCheck(ObservationResult obxIn) {
-        return obxIn.getPerformingOrganizationAddress() != null && obxIn.getPerformingOrganizationAddress().getCity() == null ||
-                obxIn.getPerformingOrganizationAddress() != null &&
-                        obxIn.getPerformingOrganizationAddress().getCity() != null &&
-                        obxIn.getPerformingOrganizationAddress().getCity().isEmpty();
+    public static boolean mapObservationResultCityInfoCheck(ObservationResult obxIn) {
+        return obxIn.getPerformingOrganizationAddress() != null && obxIn.getPerformingOrganizationAddress().getCity() == null || obxIn.getPerformingOrganizationAddress() != null && obxIn.getPerformingOrganizationAddress().getCity().isEmpty();
     }
 
-    private static boolean mapObservationResultStateInfoCheck(ObservationResult obxIn) {
-        return obxIn.getPerformingOrganizationAddress() != null &&
-                obxIn.getPerformingOrganizationAddress().getState() == null ||
-                obxIn.getPerformingOrganizationAddress() != null &&
-                        obxIn.getPerformingOrganizationAddress().getState() != null &&
-                        obxIn.getPerformingOrganizationAddress().getState().isEmpty();
+    public static boolean mapObservationResultStateInfoCheck(ObservationResult obxIn) {
+        return obxIn.getPerformingOrganizationAddress() != null && obxIn.getPerformingOrganizationAddress().getState() == null || obxIn.getPerformingOrganizationAddress() != null && obxIn.getPerformingOrganizationAddress().getState().isEmpty();
     }
 
-    private static boolean mapObservationResultCountryInfoCheck(ObservationResult obxIn) {
-        return obxIn.getPerformingOrganizationAddress() != null &&
-                obxIn.getPerformingOrganizationAddress().getCountry()==null ||
-                obxIn.getPerformingOrganizationAddress() != null &&
-                        obxIn.getPerformingOrganizationAddress().getCountry()!=null &&
-                        obxIn.getPerformingOrganizationAddress().getCountry().isEmpty();
+    public static boolean mapObservationResultCountryInfoCheck(ObservationResult obxIn) {
+        return obxIn.getPerformingOrganizationAddress() != null && obxIn.getPerformingOrganizationAddress().getCountry() == null || obxIn.getPerformingOrganizationAddress() != null && obxIn.getPerformingOrganizationAddress().getCountry().isEmpty();
     }
 
-    private static boolean mapObservationResultZipInfoCheck(ObservationResult obxIn) {
-        return obxIn.getPerformingOrganizationAddress() != null &&
-                obxIn.getPerformingOrganizationAddress().getZip() == null ||
-                obxIn.getPerformingOrganizationAddress() != null &&
-                        obxIn.getPerformingOrganizationAddress().getZip()!= null &&
-                        obxIn.getPerformingOrganizationAddress().getZip().isEmpty();
+    public static boolean mapObservationResultZipInfoCheck(ObservationResult obxIn) {
+        return obxIn.getPerformingOrganizationAddress() != null && obxIn.getPerformingOrganizationAddress().getZip() == null || obxIn.getPerformingOrganizationAddress() != null && obxIn.getPerformingOrganizationAddress().getZip().isEmpty();
     }
 
     public static ObservationResult mapObservationResultToObservationResult(ObservationResult obxIn, ObservationResult obxOut) {
@@ -819,11 +797,13 @@ public class Mapping231To251Helper {
         return obxOut;
     }
 
-    public static ObservationRequest observationRequestToObservationRequest(OBR in231, ObservationRequest in, ObservationRequest out, Ts timestamp) throws DiHL7Exception {if(in.getResultRptStatusChngDateTime() == null ||
-            (in.getResultRptStatusChngDateTime() != null &&  in.getResultRptStatusChngDateTime().getTime() != null && in.getResultRptStatusChngDateTime().getTime().isEmpty())
-    ) {
-        out.setResultRptStatusChngDateTime(timestamp);
-    }
+    public static ObservationRequest observationRequestToObservationRequest(OBR in231, ObservationRequest in, ObservationRequest out, Ts timestamp) throws DiHL7Exception
+    {
+        if(in.getResultRptStatusChngDateTime() == null ||
+            (in.getResultRptStatusChngDateTime().getTime() != null && in.getResultRptStatusChngDateTime().getTime().isEmpty())
+        ) {
+            out.setResultRptStatusChngDateTime(timestamp);
+        }
 
         if(in.getParentResult() != null) {
             out.setParentResult(mapPrl231(in231.getParentResult(), new Prl()));
