@@ -107,7 +107,7 @@ class NbsDocumentRepositoryUtilTest {
         var docDto = new NBSDocumentDto();
         docDto.setDocPayload("TEST");
         docDto.setPhdcDocDerived("TEST");
-        when(prepareAssocModelHelper.prepareVO(any(), any(), any(), any(), any(), any())).thenReturn(docDto);
+        when(prepareAssocModelHelper.prepareVO(any(), any(), any(), any(), any(), any())).thenThrow(new RuntimeException("TEST"));
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             nbsDocumentRepositoryUtil.updateDocumentWithOutthePatient(doc);

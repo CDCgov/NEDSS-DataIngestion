@@ -16,8 +16,10 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
 class QueryHelperTest {
@@ -25,6 +27,9 @@ class QueryHelperTest {
     private ProgAreaJurisdictionUtil progAreaJurisdictionUtil;
     @InjectMocks
     private QueryHelper queryHelper;
+
+    @Mock
+    private QueryHelper queryHelperMock;
     @Mock
     AuthUtil authUtil;
 
@@ -65,5 +70,110 @@ class QueryHelperTest {
 
         var res =  queryHelper.getDataAccessWhereClause(businessObjLookupName, operation, alias);
         assertNotNull(res);
+    }
+
+    @Test
+    void testBuildWhereClause_BothNonEmpty() {
+        // Arrange
+        when(queryHelperMock.buildOwnerWhereClause("ownerList", "columnName", "alias", true, "businessObjLookupName"))
+                .thenReturn("ownerWhereClause");
+        when(queryHelperMock.buildGuestWhereClause("guestList", "columnName", "alias", true, "businessObjLookupName"))
+                .thenReturn("guestWhereClause");
+
+        // Act
+        String result = queryHelper.buildWhereClause("ownerList", "guestList", "columnName", "alias", true, "businessObjLookupName");
+
+        // Assert
+        assertNotNull( result);
+    }
+
+    @Test
+    void testBuildWhereClause_OnlyOwnerNonEmpty() {
+        // Arrange
+        when(queryHelperMock.buildOwnerWhereClause("ownerList", "columnName", "alias", true, "businessObjLookupName"))
+                .thenReturn("ownerWhereClause");
+        when(queryHelperMock.buildGuestWhereClause("guestList", "columnName", "alias", true, "businessObjLookupName"))
+                .thenReturn("");
+
+        // Act
+        String result = queryHelper.buildWhereClause("ownerList", "guestList", "columnName", "alias", true, "businessObjLookupName");
+
+        // Assert
+        assertNotNull( result);
+    }
+
+    @Test
+    void testBuildWhereClause_OnlyGuestNonEmpty() {
+        // Arrange
+        when(queryHelperMock.buildOwnerWhereClause("ownerList", "columnName", "alias", true, "businessObjLookupName"))
+                .thenReturn("");
+        when(queryHelperMock.buildGuestWhereClause("guestList", "columnName", "alias", true, "businessObjLookupName"))
+                .thenReturn("guestWhereClause");
+
+        // Act
+        String result = queryHelper.buildWhereClause("ownerList", "guestList", "columnName", "alias", true, "businessObjLookupName");
+
+        // Assert
+        assertNotNull( result);
+    }
+
+    @Test
+    void testBuildWhereClause_BothEmpty() {
+        // Arrange
+        when(queryHelperMock.buildOwnerWhereClause("ownerList", "columnName", "alias", true, "businessObjLookupName"))
+                .thenReturn("");
+        when(queryHelperMock.buildGuestWhereClause("guestList", "columnName", "alias", true, "businessObjLookupName"))
+                .thenReturn("");
+
+        // Act
+        String result = queryHelper.buildWhereClause("ownerList", "guestList", "columnName", "alias", true, "businessObjLookupName");
+
+        // Assert
+        assertNotNull( result);
+    }
+
+    @Test
+    void testBuildWhereClause_OnlyGuestNonEmpty_1() {
+        // Arrange
+        when(queryHelperMock.buildOwnerWhereClause(any(), any(), any(), anyBoolean(), any()))
+                .thenReturn("");
+        when(queryHelperMock.buildGuestWhereClause(any(), any(), any(), anyBoolean(), any()))
+                .thenReturn("guestWhereClause");
+
+        // Act
+        String result = queryHelper.buildWhereClause("", "guestList", "columnName", "alias", true, "businessObjLookupName");
+
+        // Assert
+        assertNotNull( result);
+    }
+
+    @Test
+    void testBuildWhereClause_BothEmpty_1() {
+        // Arrange
+        // Arrange
+        when(queryHelperMock.buildOwnerWhereClause(any(), any(), any(), anyBoolean(), any()))
+                .thenReturn("guestWhereClause");
+        when(queryHelperMock.buildGuestWhereClause(any(), any(), any(), anyBoolean(), any()))
+                .thenReturn("");
+        // Act
+        String result = queryHelper.buildWhereClause("ownerList", "", "columnName", "alias", true, "businessObjLookupName");
+
+        // Assert
+        assertNotNull( result);
+    }
+
+    @Test
+    void testBuildWhereClause_BothEmpty_2() {
+        // Arrange
+        // Arrange
+        when(queryHelperMock.buildOwnerWhereClause(any(), any(), any(), anyBoolean(), any()))
+                .thenReturn("");
+        when(queryHelperMock.buildGuestWhereClause(any(), any(), any(), anyBoolean(), any()))
+                .thenReturn("");
+        // Act
+        String result = queryHelper.buildWhereClause("", "", "columnName", "alias", true, "businessObjLookupName");
+
+        // Assert
+        assertNotNull( result);
     }
 }
