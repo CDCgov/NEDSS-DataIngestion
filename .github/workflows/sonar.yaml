@@ -11,10 +11,18 @@ on:
       SONAR_TOKEN:
         description: "Secret named SONAR_TOKEN that references the sonar token secret corresponding to the project in sonarcloud."
         required: true
-
+  push:
+    branches:
+      - DEV-DN-TEST-2  # Specify your branch here
+    paths:
+      - "data-ingestion-service/**"
+      - "data-processing-service/**"
+      - "hl7-parser/**"
+      - "cdaschema/**"
+      - ".github/workflows/sonar.yaml"
   pull_request:
     branches:
-      - DEV-DN-TEST-2
+      - main
     paths:
       - "data-ingestion-service/**"
       - "data-processing-service/**"
