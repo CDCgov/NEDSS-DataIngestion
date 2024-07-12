@@ -25,10 +25,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -637,6 +634,237 @@ class AnswerServiceTest {
         });
 
         assertNotNull(thrown);
+    }
+
+    @Test
+    void testProcessingPageAnswerMapSeqNbrGreaterThanZeroCollSizeGreaterThanZero() {
+        Map<Object, Object> nbsRepeatingAnswerMap = new HashMap<>();
+        Map<Object, Object> nbsAnswerMap = new HashMap<>();
+        Collection<NbsAnswerDto> coll = new ArrayList<>();
+        coll.add(new NbsAnswerDto()); // Adding an element to coll to make its size > 0
+        Long nbsQuestionUid = 1L;
+        NbsAnswerDto pageAnsDT = new NbsAnswerDto();
+        pageAnsDT.setNbsQuestionUid(2L);
+        pageAnsDT.setSeqNbr(1);
+
+        Long result = answerService.processingPageAnswerMap(pageAnsDT, nbsRepeatingAnswerMap, nbsQuestionUid, coll, nbsAnswerMap);
+
+        assertEquals(2L, result);
+    }
+
+    @Test
+    void testProcessingPageAnswerMapCollSizeGreaterThanZeroFinalElse() {
+        Map<Object, Object> nbsRepeatingAnswerMap = new HashMap<>();
+        Map<Object, Object> nbsAnswerMap = new HashMap<>();
+        Collection<NbsAnswerDto> coll = new ArrayList<>();
+        coll.add(new NbsAnswerDto()); // Adding an element to coll to make its size > 0
+        Long nbsQuestionUid = 1L;
+        NbsAnswerDto pageAnsDT = new NbsAnswerDto();
+        pageAnsDT.setNbsQuestionUid(2L);
+
+        Long result = answerService.processingPageAnswerMap(pageAnsDT, nbsRepeatingAnswerMap, nbsQuestionUid, coll, nbsAnswerMap);
+
+        assertEquals(2L, result);
+    }
+
+
+    @Test
+    void testInsertPageVOAnswerDTMapSizeZero() throws DataProcessingException {
+        PageContainer pageContainer = new PageContainer();
+        Map<Object, NbsAnswerDto> answerDTMap = new HashMap<>();
+        pageContainer.setAnswerDTMap(answerDTMap);
+
+        ObservationDto rootDTInterface = new ObservationDto();
+
+        pageContainer.setActEntityDTCollection(new ArrayList<>());
+        answerService.insertPageVO(pageContainer, rootDTInterface);
+
+        verify(nbsActEntityRepository, never()).deleteNbsEntityAct(any());
+    }
+
+    @Test
+    void testInsertPageVORepeatingAnswerDTMapSizeZero() throws DataProcessingException {
+        PageContainer pageContainer = new PageContainer();
+        Map<Object, NbsAnswerDto> answerDTMap = new HashMap<>();
+        answerDTMap.put("key", new NbsAnswerDto());
+        pageContainer.setAnswerDTMap(answerDTMap);
+
+        Map<Object, Object> repeatingAnswerDTMap = new HashMap<>();
+        pageContainer.setPageRepeatingAnswerDTMap(repeatingAnswerDTMap);
+
+        ObservationDto rootDTInterface = new ObservationDto();
+        pageContainer.setActEntityDTCollection(new ArrayList<>());
+
+        answerService.insertPageVO(pageContainer, rootDTInterface);
+
+        verify(nbsActEntityRepository, never()).deleteNbsEntityAct(any());
+    }
+
+    @Test
+    void testStorePageAnswerElseCase() throws DataProcessingException {
+        ObservationDto observationDto = new ObservationDto();
+
+        // Call the method with pageContainer set to null
+        answerService.storePageAnswer(null, observationDto);
+
+        verify(nbsActEntityRepository, never()).deleteNbsEntityAct(any());
+
+    }
+
+    @Test
+    void testStoreActEntityDTCollectionWithPublicHealthCase_EmptyCollection() {
+        Collection<NbsActEntityDto> pamDTCollection = new ArrayList<>();
+        PublicHealthCaseDto rootDTInterface = new PublicHealthCaseDto();
+
+        answerService.storeActEntityDTCollectionWithPublicHealthCase(pamDTCollection, rootDTInterface);
+
+        verify(nbsActEntityRepository, never()).deleteNbsEntityAct(anyLong());
+        verify(nbsActEntityRepository, never()).save(any(NbsActEntity.class));
+    }
+
+    @Test
+    void testStoreActEntityDTCollection_EmptyCollection() {
+        Collection<NbsActEntityDto> pamDTCollection = new ArrayList<>();
+        ObservationDto rootDTInterface = new ObservationDto();
+
+        answerService.storeActEntityDTCollection(pamDTCollection, rootDTInterface);
+
+        verify(nbsActEntityRepository, never()).deleteNbsEntityAct(anyLong());
+        verify(nbsActEntityRepository, never()).save(any(NbsActEntity.class));
+    }
+
+    @Test
+    void testInsertActEntityDTCollection_EmptyCollection() {
+        Collection<NbsActEntityDto> actEntityDTCollection = new ArrayList<>();
+        ObservationDto observationDto = new ObservationDto();
+
+        answerService.insertActEntityDTCollection(actEntityDTCollection, observationDto);
+
+        verify(nbsActEntityRepository, never()).save(any(NbsActEntity.class));
+    }
+
+
+    @Test
+    void testStoreAnswerDTCollection_NullCollection() throws DataProcessingException {
+        ObservationDto interfaceDT = new ObservationDto();
+
+        answerService.storeAnswerDTCollection(null, interfaceDT);
+
+        verify(nbsAnswerRepository, never()).save(any(NbsAnswer.class));
+    }
+
+    @Test
+    void testStoreAnswerDTCollection_DeleteCase() throws DataProcessingException {
+        Collection<Object> answerDTColl = new ArrayList<>();
+        NbsAnswerDto answerDT = mock(NbsAnswerDto.class);
+        when(answerDT.isItDelete()).thenReturn(true);
+        when(answerDT.getNbsAnswerUid()).thenReturn(1L);
+        answerDTColl.add(answerDT);
+
+        ObservationDto interfaceDT = new ObservationDto();
+
+        answerService.storeAnswerDTCollection(answerDTColl, interfaceDT);
+
+        verify(nbsAnswerRepository, never()).save(any(NbsAnswer.class));
+    }
+
+    @Test
+    void testDelete_AnswerCollectionNull() throws DataProcessingException {
+        ObservationDto rootDTInterface = new ObservationDto();
+        rootDTInterface.setObservationUid(1L);
+
+        when(nbsAnswerRepository.getPageAnswerByActUid(1L)).thenReturn(Optional.empty());
+
+        answerService.delete(rootDTInterface);
+
+        verify(nbsAnswerRepository, times(1)).getPageAnswerByActUid(any());
+    }
+
+    @Test
+    void testDelete_AnswerCollectionEmpty() throws DataProcessingException {
+        ObservationDto rootDTInterface = new ObservationDto();
+        rootDTInterface.setObservationUid(1L);
+
+        when(nbsAnswerRepository.getPageAnswerByActUid(1L)).thenReturn(Optional.of(new ArrayList<>()));
+
+        answerService.delete(rootDTInterface);
+
+        verify(nbsAnswerRepository, times(1)).getPageAnswerByActUid(any());
+
+    }
+
+    @Test
+    void testDelete_ActEntityCollectionNull() throws DataProcessingException {
+        ObservationDto rootDTInterface = new ObservationDto();
+        rootDTInterface.setObservationUid(1L);
+
+        when(nbsAnswerRepository.getPageAnswerByActUid(1L)).thenReturn(Optional.of(new ArrayList<>()));
+        when(nbsActEntityRepository.getNbsActEntitiesByActUid(1L)).thenReturn(Optional.empty());
+
+        answerService.delete(rootDTInterface);
+
+        verify(nbsAnswerRepository, times(1)).getPageAnswerByActUid(any());
+
+    }
+
+    @Test
+    void testDelete_ActEntityCollectionEmpty() throws DataProcessingException {
+        ObservationDto rootDTInterface = new ObservationDto();
+        rootDTInterface.setObservationUid(1L);
+
+        when(nbsAnswerRepository.getPageAnswerByActUid(1L)).thenReturn(Optional.of(new ArrayList<>()));
+        when(nbsActEntityRepository.getNbsActEntitiesByActUid(1L)).thenReturn(Optional.of(new ArrayList<>()));
+
+        answerService.delete(rootDTInterface);
+
+        verify(nbsAnswerRepository, times(1)).getPageAnswerByActUid(any());
+
+    }
+
+    @Test
+    void testInsertAnswerHistoryDTCollection_NullCollection() throws DataProcessingException {
+        answerService.insertAnswerHistoryDTCollection(null);
+
+        verify(nbsAnswerRepository, never()).deleteNbsAnswer(any());
+        verify(nbsAnswerHistRepository, never()).save(any());
+    }
+
+    @Test
+    void testInsertAnswerHistoryDTCollection_EmptyCollection() throws DataProcessingException {
+        answerService.insertAnswerHistoryDTCollection(Collections.emptyList());
+
+        verify(nbsAnswerRepository, never()).deleteNbsAnswer(any());
+        verify(nbsAnswerHistRepository, never()).save(any());
+    }
+
+    @Test
+    void testInsertAnswerHistoryDTCollection_InvalidObject() throws DataProcessingException {
+        Collection<Object> invalidCollection = new ArrayList<>();
+        invalidCollection.add("InvalidObject");
+
+        answerService.insertAnswerHistoryDTCollection(invalidCollection);
+
+        verify(nbsAnswerRepository, never()).deleteNbsAnswer(any());
+        verify(nbsAnswerHistRepository, never()).save(any());
+    }
+
+
+    @Test
+    void testInsertPageEntityHistoryDTCollection_NullCollection() throws DataProcessingException {
+        ObservationDto oldRootDTInterface = mock(ObservationDto.class);
+        answerService.insertPageEntityHistoryDTCollection(null, oldRootDTInterface);
+
+        verify(nbsActEntityRepository, never()).deleteNbsEntityAct(any());
+        verify(nbsActEntityHistRepository, never()).save(any());
+    }
+
+    @Test
+    void testInsertPageEntityHistoryDTCollection_EmptyCollection() throws DataProcessingException {
+        ObservationDto oldRootDTInterface = mock(ObservationDto.class);
+        answerService.insertPageEntityHistoryDTCollection(Collections.emptyList(), oldRootDTInterface);
+
+        verify(nbsActEntityRepository, never()).deleteNbsEntityAct(any());
+        verify(nbsActEntityHistRepository, never()).save(any());
     }
 
 }
