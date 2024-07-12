@@ -5,10 +5,10 @@ import gov.cdc.dataingestion.nbs.ecr.model.CdaOrganizationMapper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaMapHelper;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.interfaces.ICdaOrgMappingHelper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
-import gov.cdc.nedss.phdc.cda.*;
+import gov.cdc.nedss.phdc.cda.POCDMT000040Participant2;
+import gov.cdc.nedss.phdc.cda.POCDMT000040Section;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
-import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.ACT_CODE_DISPLAY_NAME;
 
 public class CdaOrgMappingHelper implements ICdaOrgMappingHelper {
     ICdaMapHelper cdaMapHelper;

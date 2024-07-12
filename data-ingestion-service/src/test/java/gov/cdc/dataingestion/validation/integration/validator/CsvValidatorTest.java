@@ -1,9 +1,7 @@
 package gov.cdc.dataingestion.validation.integration.validator;
 
-import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.ICsvValidator;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

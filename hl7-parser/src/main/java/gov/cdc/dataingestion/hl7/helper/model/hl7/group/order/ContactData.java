@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import static gov.cdc.dataingestion.hl7.helper.helper.ModelListHelper.*;
 
 @Getter

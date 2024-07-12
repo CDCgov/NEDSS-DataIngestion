@@ -7,6 +7,7 @@ import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.nbs.NBSDocumentDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsDocumentHist;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsDocumentHistRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsDocumentRepository;
@@ -26,6 +27,7 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class NbsDocumentRepositoryUtilTest {
@@ -46,6 +48,10 @@ class NbsDocumentRepositoryUtilTest {
     private NbsDocumentRepositoryUtil nbsDocumentRepositoryUtil;
     @Mock
     AuthUtil authUtil;
+
+    @Mock
+    private NBSDocumentDto nbsDocumentDto;
+
 
     @BeforeEach
     void setUp() {
@@ -101,7 +107,7 @@ class NbsDocumentRepositoryUtilTest {
         var docDto = new NBSDocumentDto();
         docDto.setDocPayload("TEST");
         docDto.setPhdcDocDerived("TEST");
-        when(prepareAssocModelHelper.prepareVO(any(), any(), any(), any(), any(), any())).thenReturn(docDto);
+        when(prepareAssocModelHelper.prepareVO(any(), any(), any(), any(), any(), any())).thenThrow(new RuntimeException("TEST"));
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             nbsDocumentRepositoryUtil.updateDocumentWithOutthePatient(doc);
@@ -111,4 +117,12 @@ class NbsDocumentRepositoryUtilTest {
     }
 
 
+    @Test
+    void testInsertNBSDocumentHist() {
+        // Act
+        nbsDocumentRepositoryUtil.insertNBSDocumentHist(nbsDocumentDto);
+
+        // Assert
+        verify(nbsDocumentHistRepository).save(any(NbsDocumentHist.class));
+    }
 }

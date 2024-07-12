@@ -1,13 +1,12 @@
 package gov.cdc.dataingestion.kafka.service;
 
+import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
-import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,18 +14,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 @Testcontainers
 class KafkaProducerServiceTest {

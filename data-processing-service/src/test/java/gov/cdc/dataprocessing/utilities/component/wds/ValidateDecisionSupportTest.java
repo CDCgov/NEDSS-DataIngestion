@@ -11,6 +11,7 @@ import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
 import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
 import gov.cdc.dataprocessing.model.dto.phc.ConfirmationMethodDto;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
+import gov.cdc.dataprocessing.utilities.StringUtils;
 import gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -24,6 +25,7 @@ import org.mockito.MockitoAnnotations;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,6 +41,13 @@ class ValidateDecisionSupportTest {
     private ValidateDecisionSupport validateDecisionSupport;
     @Mock
     private InvestigationDefaultValuesType investigationDefaultValuesType;
+    @Mock
+    private EdxRuleManageDto edxRuleManageDTMock;
+    @Mock
+    private NbsQuestionMetadata metaDataMock;
+
+    @Mock
+    private Object objectMock;
 
     @BeforeEach
     void setUp() {
@@ -719,4 +728,54 @@ class ValidateDecisionSupportTest {
 
         validateDecisionSupport.processActIds(edxRuleManageDT, publicHealthCaseContainer, metaData);
     }
+
+
+    @Test
+    void testGetCurrentDateValue_UseCurrentDate() {
+        // Arrange
+        when(edxRuleManageDTMock.getDefaultStringValue()).thenReturn(NEDSSConstant.USE_CURRENT_DATE);
+
+        // Act
+        validateDecisionSupport.getCurrentDateValue(edxRuleManageDTMock);
+
+        // Assert
+        verify(edxRuleManageDTMock).setDefaultStringValue(anyString());
+        Timestamp now = new Timestamp((new Date()).getTime());
+        String expectedDate = StringUtils.formatDate(now);
+        verify(edxRuleManageDTMock).setDefaultStringValue(expectedDate);
+    }
+
+    @Test
+    void testGetCurrentDateValue_NotUseCurrentDate() {
+        // Arrange
+        when(edxRuleManageDTMock.getDefaultStringValue()).thenReturn("someOtherValue");
+
+        // v
+        validateDecisionSupport.getCurrentDateValue(edxRuleManageDTMock);
+
+        // Assert
+        verify(edxRuleManageDTMock, never()).setDefaultStringValue(anyString());
+    }
+
+    @Test
+    void processNbsObject_Test() {
+        // Arrange
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setBehavior("1"); // Overwrite
+        edxRuleManageDT.setDefaultStringValue("Test Value");
+
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        TestObject object = new TestObject();
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+        metaData.setDataLocation("testField");
+        metaData.setDataType(NEDSSConstant.NBS_QUESTION_DATATYPE_TEXT);
+
+
+        // Act
+        validateDecisionSupport.processNbsObject(edxRuleManageDT, publicHealthCaseContainer, metaData);
+
+        // Assert
+        assertNull( object.getTestField());
+    }
+
 }

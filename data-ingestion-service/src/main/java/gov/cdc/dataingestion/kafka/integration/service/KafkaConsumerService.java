@@ -3,35 +3,33 @@ package gov.cdc.dataingestion.kafka.integration.service;
 
 import ca.uhn.hl7v2.HL7Exception;
 import com.google.gson.Gson;
+import gov.cdc.dataingestion.constant.KafkaHeaderValue;
+import gov.cdc.dataingestion.constant.TopicPreparationType;
+import gov.cdc.dataingestion.constant.enums.EnumElrDltStatus;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
-import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
-import gov.cdc.dataingestion.constant.enums.EnumElrDltStatus;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.exception.*;
-import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
+import gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
-import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
+import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
+import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
-import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
-import gov.cdc.dataingestion.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
-import gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter;
-import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
-
+import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import jakarta.xml.bind.JAXBException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.SerializationException;
@@ -92,7 +90,7 @@ public class KafkaConsumerService {
     private final IHL7v2Validator iHl7v2Validator;
     private final IRawELRRepository iRawELRRepository;
     private final IValidatedELRRepository iValidatedELRRepository;
-    private final IHL7ToFHIRConversion iHl7ToFHIRConversion;
+    private final IHL7ToFHIRConversion iHl7ToFHIRConversion; //NOSONAR
     private final IHL7ToFHIRRepository iHL7ToFHIRRepository;
     private final IHL7DuplicateValidator iHL7DuplicateValidator;
     private final NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
@@ -283,9 +281,7 @@ public class KafkaConsumerService {
     }
     //endregion
 
-    /**
-     * Raw Data Validation Process
-     * */
+
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
             autoCreateTopics = "false",
@@ -571,48 +567,7 @@ public class KafkaConsumerService {
                 break;
         }
     }
-    /**
-     * FHIR Conversion
-     * @deprecated This method is no longer needed as FHIR format is not being used.
-     * Also, FhirConverter caused the out of memory problem.
-     * Deprecated code should eventually be removed.
-     * */
-    @Deprecated(since = "7.3",forRemoval = true)
-    @SuppressWarnings("java:S1133")
-    private void conversionHandlerForFhir(String message, String operation) throws FhirConversionException, DiHL7Exception {
-        String payloadMessage ="";
-        ValidatedELRModel model = new ValidatedELRModel();
-        if(operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
-            Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
-            if (validatedElrResponse.isPresent()) {
-                payloadMessage = validatedElrResponse.get().getRawMessage();
-                model.setRawId(validatedElrResponse.get().getRawId());
-                model.setRawMessage(payloadMessage);
-            } else {
-                throw new FhirConversionException(errorDltMessage);
-            }
 
-        }
-        else {
-            Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(message);
-            if (response.isPresent()) {
-                payloadMessage =  response.get().getMessage();
-                var validMessage = iHl7v2Validator.messageStringValidation(payloadMessage);
-                model.setRawId(message);
-                model.setRawMessage(validMessage);
-            } else {
-                throw new FhirConversionException(errorDltMessage);
-            }
-        }
-
-        try {
-            HL7ToFHIRModel convertedModel = iHl7ToFHIRConversion.convertHL7v2ToFhir(model, convertedToFhirTopic);
-            iHL7ToFHIRRepository.save(convertedModel);
-            kafkaProducerService.sendMessageAfterConvertedToFhirMessage(convertedModel, convertedToFhirTopic, 0);
-        } catch (Exception e) {
-            throw new FhirConversionException(e.getMessage());
-        }
-    }
     private void saveValidatedELRMessage(ValidatedELRModel model) {
         model.setCreatedOn(getCurrentTimeStamp());
         model.setUpdatedOn(getCurrentTimeStamp());

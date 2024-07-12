@@ -83,7 +83,7 @@ class AnswerServiceTest {
 
 
     @Test
-    void getPageAnswerDTMaps_Success() throws DataProcessingException {
+    void getPageAnswerDTMaps_Success() {
         long uid = 10L;
 
         // Set up mock answers
@@ -339,8 +339,112 @@ class AnswerServiceTest {
 
     }
 
+
     @Test
-    void storeActEntityDTCollectionWithPublicHealthCase_Success() throws DataProcessingException {
+    void storePageAnswer_Exception()  {
+        PageContainer pageContainer = new PageContainer();
+        var answerMap = new HashMap<Object, NbsAnswerDto>();
+        var ansDto = new NbsAnswerDto(buildNbsAnswer(11L, 11L, 1, 1));
+        ansDto.setItNew(true);
+        answerMap.put("1", ansDto);
+        ansDto = new NbsAnswerDto(buildNbsAnswer(12L, 12L, 2, 2));
+        ansDto.setItNew(false);
+        ansDto.setItDirty(true);
+        answerMap.put("2", ansDto);
+        ansDto = new NbsAnswerDto(buildNbsAnswer(13L, 13L, 3, 3));
+        ansDto.setItNew(false);
+        ansDto.setItDirty(false);
+        ansDto.setItDelete(true);
+        answerMap.put("3", ansDto);
+        pageContainer.setAnswerDTMap(answerMap);
+
+        var pageRepeatMap = new HashMap<>();
+        ansDto = new NbsAnswerDto(buildNbsAnswer(11L, 11L, 1, 1));
+        ansDto.setItNew(true);
+        pageRepeatMap.put("1", ansDto);
+        ansDto = new NbsAnswerDto(buildNbsAnswer(12L, 12L, 2, 2));
+        ansDto.setItNew(false);
+        ansDto.setItDirty(true);
+        pageRepeatMap.put("2", ansDto);
+        ansDto = new NbsAnswerDto(buildNbsAnswer(13L, 13L, 3, 3));
+        ansDto.setItNew(false);
+        ansDto.setItDirty(false);
+        ansDto.setItDelete(true);
+        pageRepeatMap.put("3", ansDto);
+        pageContainer.setPageRepeatingAnswerDTMap(pageRepeatMap);
+
+        var nbsActEntityCol = new ArrayList<NbsActEntityDto>();
+        var nbsActEntity = new NbsActEntityDto();
+        nbsActEntity.setItNew(true);
+        nbsActEntity.setNbsActEntityUid(16L);
+        nbsActEntity.setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        nbsActEntity.setAddUserId(16L);
+        nbsActEntity.setEntityUid(16L);
+        nbsActEntity.setEntityVersionCtrlNbr(1);
+        nbsActEntity.setLastChgTime(TimeStampUtil.getCurrentTimeStamp());
+        nbsActEntity.setLastChgUserId(16L);
+        nbsActEntity.setRecordStatusCd("TEST");
+        nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
+        nbsActEntity.setTypeCd("TEST");
+        nbsActEntity.setActUid(16L);
+        nbsActEntityCol.add(nbsActEntity);
+
+        nbsActEntity = new NbsActEntityDto();
+        nbsActEntity.setItDirty(true);
+        nbsActEntity.setNbsActEntityUid(17L);
+        nbsActEntity.setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        nbsActEntity.setAddUserId(17L);
+        nbsActEntity.setEntityUid(17L);
+        nbsActEntity.setEntityVersionCtrlNbr(1);
+        nbsActEntity.setLastChgTime(TimeStampUtil.getCurrentTimeStamp());
+        nbsActEntity.setLastChgUserId(17L);
+        nbsActEntity.setRecordStatusCd("TEST");
+        nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
+        nbsActEntity.setTypeCd("TEST");
+        nbsActEntity.setActUid(17L);
+        nbsActEntityCol.add(nbsActEntity);
+
+        nbsActEntity = new NbsActEntityDto();
+        nbsActEntity.setItDelete(true);
+        nbsActEntity.setNbsActEntityUid(18L);
+        nbsActEntity.setNbsActEntityUid(18L);
+        nbsActEntity.setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        nbsActEntity.setAddUserId(18L);
+        nbsActEntity.setEntityUid(18L);
+        nbsActEntity.setEntityVersionCtrlNbr(1);
+        nbsActEntity.setLastChgTime(TimeStampUtil.getCurrentTimeStamp());
+        nbsActEntity.setLastChgUserId(18L);
+        nbsActEntity.setRecordStatusCd("TEST");
+        nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
+        nbsActEntity.setTypeCd("TEST");
+        nbsActEntity.setActUid(18L);
+        nbsActEntityCol.add(nbsActEntity);
+
+        pageContainer.setActEntityDTCollection(nbsActEntityCol);
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setObservationUid(15L);
+
+        var nbsAnswerForDeleteCol = new ArrayList<NbsAnswer>();
+        var nbsAnswerForDelete = buildNbsAnswer(19L, 19L, 1, 1);
+        nbsAnswerForDeleteCol.add(nbsAnswerForDelete);
+        when(nbsAnswerRepository.getPageAnswerByActUid(15L))
+                .thenReturn(Optional.of(nbsAnswerForDeleteCol));
+
+
+        when(nbsActEntityRepository.getNbsActEntitiesByActUid(15L))
+                .thenThrow(new RuntimeException("TEST"));
+
+
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            answerService.storePageAnswer(pageContainer, observationDto);
+        });
+
+        assertNotNull(thrown);
+    }
+
+
+    @Test
+    void storeActEntityDTCollectionWithPublicHealthCase_Success()  {
         Collection<NbsActEntityDto> pamDTCollection = new ArrayList<>();
         var nbsActEntity = new NbsActEntityDto();
         nbsActEntity.setItNew(true);
@@ -409,7 +513,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void getPageAnswerDTMaps_Test() throws DataProcessingException {
+    void getPageAnswerDTMaps_Test()  {
         Long uid = 10L;
 
         var ansCol = new ArrayList<NbsAnswer>();
@@ -434,6 +538,88 @@ class AnswerServiceTest {
         PageContainer pageContainer = null;
         ObservationDto rootDTInterface = new ObservationDto();
         answerService.insertPageVO(pageContainer, rootDTInterface);
+    }
+
+    @Test
+    void storeAnswerDTCollection_Test_Exp() {
+        ArrayList<Object> answerDTColl = new ArrayList<>();
+        ObservationDto interfaceDt = new ObservationDto();
+
+        NbsAnswerDto an = new NbsAnswerDto();
+        an.setItDirty(true);
+        answerDTColl.add(an);
+
+        when(nbsAnswerRepository.save(any())).thenThrow(new RuntimeException());
+
+
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            answerService.storeAnswerDTCollection(answerDTColl, interfaceDt);
+        });
+
+        assertNotNull(thrown);
+    }
+
+    @Test
+    void delete_Exp() {
+        ObservationDto observationDto = new ObservationDto();
+        when(nbsAnswerRepository.getPageAnswerByActUid(any())).thenThrow(new RuntimeException());
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            answerService.delete(observationDto);
+        });
+
+        assertNotNull(thrown);
+    }
+
+    @Test
+    void insertAnswerHistoryDTCollection_Test_1()  {
+        var anCol1 = new ArrayList<>();
+        var an1 = new NbsAnswerDto();
+        anCol1.add(an1);
+
+        var anCol = new ArrayList<>();
+        anCol.add(anCol1);
+        when(nbsAnswerHistRepository.save(any())).thenThrow(new RuntimeException());
+
+
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            answerService.insertAnswerHistoryDTCollection(anCol);
+        });
+
+        assertNotNull(thrown);
+    }
+
+
+    @Test
+    void insertAnswerHistoryDTCollection_Test_2() throws DataProcessingException {
+        var anCol1 = new ArrayList<>();
+        var an1 = new NbsAnswerDto();
+        anCol1.add(an1);
+
+        var anCol = new ArrayList<>();
+        anCol.add(anCol1);
+
+
+        answerService.insertAnswerHistoryDTCollection(anCol);
+
+        verify(nbsAnswerHistRepository, times(1)).save(any());
+
+    }
+
+    @Test
+    void insertPageEntityHistoryDTCollection_Exp() {
+        ArrayList<NbsActEntityDto> nbsCaseEntityDTColl = new ArrayList<>();
+        ObservationDto oldrootDTInterface = new ObservationDto();
+
+        NbsActEntityDto entityDto = new NbsActEntityDto();
+        nbsCaseEntityDTColl.add(entityDto);
+
+        when(nbsActEntityHistRepository.save(any())).thenThrow(new RuntimeException());
+
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            answerService.insertPageEntityHistoryDTCollection(nbsCaseEntityDTColl, oldrootDTInterface);
+        });
+
+        assertNotNull(thrown);
     }
 
 }

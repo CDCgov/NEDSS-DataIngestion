@@ -14,10 +14,10 @@ import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedTreatment;
 import gov.cdc.nedss.phdc.cda.*;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+
 import java.util.Map;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
-import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.VALUE_NAME;
 
 public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
     ICdaMapHelper cdaMapHelper;

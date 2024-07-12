@@ -5,10 +5,11 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import static gov.cdc.dataingestion.hl7.helper.helper.ModelListHelper.*;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import static gov.cdc.dataingestion.hl7.helper.helper.ModelListHelper.getEiList;
+import static gov.cdc.dataingestion.hl7.helper.helper.ModelListHelper.getIdStringList;
 
 @Getter
 @Setter

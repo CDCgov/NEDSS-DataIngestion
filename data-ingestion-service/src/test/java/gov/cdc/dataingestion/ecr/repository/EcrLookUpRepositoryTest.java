@@ -2,7 +2,6 @@ package gov.cdc.dataingestion.ecr.repository;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.repository.implementation.EcrLookUpRepository;
-import gov.cdc.dataingestion.nbs.repository.implementation.EcrMsgQueryRepository;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.ConstantLookUpDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcAnswerLookUpDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcQuestionLookUpDto;

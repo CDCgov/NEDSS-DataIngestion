@@ -8,9 +8,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.sql.Timestamp;
-import java.time.Instant;
-
 class HL7ToFHIRConversionTest {
     private IHL7ToFHIRConversion target;
 

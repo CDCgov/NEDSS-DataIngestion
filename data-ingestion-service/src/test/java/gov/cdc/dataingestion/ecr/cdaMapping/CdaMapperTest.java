@@ -1,13 +1,11 @@
 package gov.cdc.dataingestion.ecr.cdaMapping;
 
-import gov.cdc.dataingestion.exception.DeadLetterTopicException;
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.service.CdaMapper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.ConstantLookUpDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcQuestionLookUpDto;
 import gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService;
-import org.apache.xmlbeans.XmlObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,8 +14,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static gov.cdc.dataingestion.ecr.cdaMapping.helper.TestDataInitiation.getTestData;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class CdaMapperTest {
     @Mock

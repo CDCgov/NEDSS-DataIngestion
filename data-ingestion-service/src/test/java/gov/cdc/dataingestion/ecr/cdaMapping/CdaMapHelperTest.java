@@ -3,7 +3,6 @@ package gov.cdc.dataingestion.ecr.cdaMapping;
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapHelper;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcAnswerLookUpDto;
-import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.QuestionIdentifierMapDto;
 import gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
