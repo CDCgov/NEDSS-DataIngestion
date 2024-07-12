@@ -47,10 +47,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -798,4 +795,161 @@ class ObservationServiceTest {
         verify(patientRepositoryUtil, times(1)).loadPerson(2L);
     }
 
+    @Test
+    void testProcessingNotELRLab_isELRTrue() throws DataProcessingException {
+        boolean isELR = true;
+        LabResultProxyContainer lrProxyVO = new LabResultProxyContainer();
+        ObservationContainer orderedTest = new ObservationContainer();
+        long observationId = 1L;
+
+        // When isELR is true, no further processing should happen
+        observationService.processingNotELRLab(isELR, lrProxyVO, orderedTest, observationId);
+
+        assertFalse(lrProxyVO.isAssociatedNotificationInd());
+        assertFalse(lrProxyVO.isAssociatedInvInd());
+        assertNull(lrProxyVO.getEDXDocumentCollection());
+        assertNull(lrProxyVO.getTheConditionsList());
+
+        verifyNoInteractions(notificationService, actRelationshipService, edxDocumentService, observationCodeService);
+    }
+
+    @Test
+    void testProcessingNotELRLab_isELRFalse_NoExistingNotification() throws DataProcessingException {
+        boolean isELR = false;
+        LabResultProxyContainer lrProxyVO = new LabResultProxyContainer();
+        ObservationContainer orderedTest = new ObservationContainer();
+        long observationId = 1L;
+
+        when(notificationService.checkForExistingNotification(lrProxyVO)).thenReturn(false);
+
+        Collection<ActRelationshipDto> actRelationshipDtos = new ArrayList<>();
+        when(actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(observationId, NEDSSConstant.LAB_REPORT)).thenReturn(actRelationshipDtos);
+
+        Collection<EDXDocumentDto> edxDocumentDtos = new ArrayList<>();
+        when(edxDocumentService.selectEdxDocumentCollectionByActUid(observationId)).thenReturn(edxDocumentDtos);
+
+        ArrayList<String> conditionList = new ArrayList<>();
+        when(observationCodeService.deriveTheConditionCodeList(lrProxyVO, orderedTest)).thenReturn(conditionList);
+
+        observationService.processingNotELRLab(isELR, lrProxyVO, orderedTest, observationId);
+
+        verify(notificationService).checkForExistingNotification(lrProxyVO);
+        verify(actRelationshipService).loadActRelationshipBySrcIdAndTypeCode(observationId, NEDSSConstant.LAB_REPORT);
+        verify(edxDocumentService).selectEdxDocumentCollectionByActUid(observationId);
+        verify(observationCodeService).deriveTheConditionCodeList(lrProxyVO, orderedTest);
+    }
+
+    @Test
+    void testProcessingNotELRLab_isELRFalse_ExistingNotification() throws DataProcessingException {
+        boolean isELR = false;
+        LabResultProxyContainer lrProxyVO = new LabResultProxyContainer();
+        ObservationContainer orderedTest = new ObservationContainer();
+        long observationId = 1L;
+
+        when(notificationService.checkForExistingNotification(lrProxyVO)).thenReturn(true);
+
+        Collection<ActRelationshipDto> actRelationshipDtos = new ArrayList<>();
+        actRelationshipDtos.add(new ActRelationshipDto());
+        when(actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(observationId, NEDSSConstant.LAB_REPORT)).thenReturn(actRelationshipDtos);
+
+        Collection<EDXDocumentDto> edxDocumentDtos = new ArrayList<>();
+        edxDocumentDtos.add(new EDXDocumentDto());
+        when(edxDocumentService.selectEdxDocumentCollectionByActUid(observationId)).thenReturn(edxDocumentDtos);
+
+        ArrayList<String> conditionList = new ArrayList<>();
+        conditionList.add("condition");
+        when(observationCodeService.deriveTheConditionCodeList(lrProxyVO, orderedTest)).thenReturn(conditionList);
+
+        observationService.processingNotELRLab(isELR, lrProxyVO, orderedTest, observationId);
+
+        assertTrue(lrProxyVO.isAssociatedNotificationInd());
+        assertTrue(lrProxyVO.isAssociatedInvInd());
+        assertEquals(edxDocumentDtos, lrProxyVO.getEDXDocumentCollection());
+        assertEquals(conditionList, lrProxyVO.getTheConditionsList());
+
+        verify(notificationService).checkForExistingNotification(lrProxyVO);
+        verify(actRelationshipService).loadActRelationshipBySrcIdAndTypeCode(observationId, NEDSSConstant.LAB_REPORT);
+        verify(edxDocumentService).selectEdxDocumentCollectionByActUid(observationId);
+        verify(observationCodeService).deriveTheConditionCodeList(lrProxyVO, orderedTest);
+    }
+
+
+    @Test
+    void testLoadingObservationToLabResultContainerActHelper_AllCases() {
+        LabResultProxyContainer lrProxyVO = new LabResultProxyContainer();
+        boolean isELR = false;
+        ObservationContainer orderedTest = new ObservationContainer();
+        ObservationDto observationDto = new ObservationDto();
+        orderedTest.setTheObservationDto(observationDto);
+
+        Map<DataProcessingMapKey, Object> allAct = new HashMap<>();
+        allAct.put(DataProcessingMapKey.INTERVENTION, new ArrayList<>());
+        allAct.put(DataProcessingMapKey.OBSERVATION, new ArrayList<ObservationContainer>());
+        allAct.put(DataProcessingMapKey.ORGANIZATION, new ArrayList<OrganizationContainer>());
+
+
+        observationService.loadingObservationToLabResultContainerActHelper(lrProxyVO, isELR, allAct, orderedTest);
+
+        assertEquals(1, ((Collection<ObservationContainer>) allAct.get(DataProcessingMapKey.OBSERVATION)).size());
+        assertEquals(((Collection<ObservationContainer>) allAct.get(DataProcessingMapKey.OBSERVATION)).size(), lrProxyVO.getTheObservationContainerCollection().size());
+    }
+
+    @Test
+    void testLoadingObservationToLabResultContainerActHelper_ELRTrue() {
+        LabResultProxyContainer lrProxyVO = new LabResultProxyContainer();
+        boolean isELR = true;
+        ObservationContainer orderedTest = new ObservationContainer();
+        ObservationDto observationDto = new ObservationDto();
+        orderedTest.setTheObservationDto(observationDto);
+
+        Map<DataProcessingMapKey, Object> allAct = new HashMap<>();
+        allAct.put(DataProcessingMapKey.INTERVENTION, new ArrayList<>());
+        allAct.put(DataProcessingMapKey.OBSERVATION, new ArrayList<ObservationContainer>());
+        allAct.put(DataProcessingMapKey.ORGANIZATION, new ArrayList<OrganizationContainer>());
+
+        observationService.loadingObservationToLabResultContainerActHelper(lrProxyVO, isELR, allAct, orderedTest);
+
+        assertNull(orderedTest.getTheObservationDto().getAddUserName());
+        assertNull(orderedTest.getTheObservationDto().getLastChgUserName());
+        assertEquals(1, ((Collection<ObservationContainer>) allAct.get(DataProcessingMapKey.OBSERVATION)).size());
+        assertEquals(((Collection<ObservationContainer>) allAct.get(DataProcessingMapKey.OBSERVATION)).size(), lrProxyVO.getTheObservationContainerCollection().size());
+    }
+
+    @Test
+    void testLoadingObservationToLabResultContainerActHelper_LabCollectionNotEmpty() {
+        LabResultProxyContainer lrProxyVO = new LabResultProxyContainer();
+        boolean isELR = false;
+        ObservationContainer orderedTest = new ObservationContainer();
+        ObservationDto observationDto = new ObservationDto();
+        orderedTest.setTheObservationDto(observationDto);
+
+        Map<DataProcessingMapKey, Object> allAct = new HashMap<>();
+        allAct.put(DataProcessingMapKey.INTERVENTION, new ArrayList<>());
+        allAct.put(DataProcessingMapKey.OBSERVATION, new ArrayList<ObservationContainer>());
+        allAct.put(DataProcessingMapKey.ORGANIZATION, new ArrayList<OrganizationContainer>());
+
+        Collection<OrganizationContainer> labColl = new ArrayList<>();
+        labColl.add(new OrganizationContainer());
+        allAct.put(DataProcessingMapKey.ORGANIZATION, labColl);
+
+
+        observationService.loadingObservationToLabResultContainerActHelper(lrProxyVO, isELR, allAct, orderedTest);
+
+        assertEquals(1, ((Collection<ObservationContainer>) allAct.get(DataProcessingMapKey.OBSERVATION)).size());
+        assertEquals(((Collection<ObservationContainer>) allAct.get(DataProcessingMapKey.OBSERVATION)).size(), lrProxyVO.getTheObservationContainerCollection().size());
+        assertEquals(1, lrProxyVO.getTheOrganizationContainerCollection().size());
+    }
+
+    @Test
+    void testLoadingObservationToLabResultContainerActHelper_AllActEmpty() {
+        LabResultProxyContainer lrProxyVO = new LabResultProxyContainer();
+        boolean isELR = false;
+        ObservationContainer orderedTest = new ObservationContainer();
+
+        Map<DataProcessingMapKey, Object> allAct = new HashMap<>();
+
+        observationService.loadingObservationToLabResultContainerActHelper(lrProxyVO, isELR, allAct, orderedTest);
+
+        assertNull(lrProxyVO.getTheInterventionVOCollection());
+    }
 }

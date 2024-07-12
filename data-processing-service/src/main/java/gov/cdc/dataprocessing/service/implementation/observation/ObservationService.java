@@ -387,7 +387,7 @@ public class ObservationService implements IObservationService {
     /**
      * was: retrieveActForProxyVO
      * */
-    private Map<DataProcessingMapKey, Object> retrieveActForLabResultContainer(Collection<ActRelationshipDto> actRelColl) throws DataProcessingException {
+    Map<DataProcessingMapKey, Object> retrieveActForLabResultContainer(Collection<ActRelationshipDto> actRelColl) throws DataProcessingException {
         Map<DataProcessingMapKey, Object> mapper = new HashMap<>();
 
         //Retrieve associated interventions
@@ -651,6 +651,68 @@ public class ObservationService implements IObservationService {
         return theInterventionVOCollection;
     }
 
+    protected void processingNotELRLab(boolean isELR, LabResultProxyContainer lrProxyVO,
+                                       ObservationContainer orderedTest, long observationId) throws DataProcessingException {
+        //TODO: Not sure what would hit this case
+        if (!isELR) {
+            boolean exists = notificationService.checkForExistingNotification(lrProxyVO);
+            lrProxyVO.setAssociatedNotificationInd(exists);
+
+
+            Collection<ActRelationshipDto> col = actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(observationId, NEDSSConstant.LAB_REPORT);
+            if (col != null && col.size() > 0)
+            {
+                lrProxyVO.setAssociatedInvInd(true);
+            }
+
+
+            // get EDX Document data
+            Collection<EDXDocumentDto> documentList = edxDocumentService.selectEdxDocumentCollectionByActUid(observationId);
+            if (documentList != null) {
+                lrProxyVO.setEDXDocumentCollection(documentList);
+            }
+
+            // get the list of conditions associated with this Lab
+            ArrayList<String> conditionList = observationCodeService.deriveTheConditionCodeList(lrProxyVO, orderedTest);
+            if (conditionList != null && !conditionList.isEmpty()) {
+                lrProxyVO.setTheConditionsList(conditionList);
+            }
+        }
+    }
+
+    protected  void loadingObservationToLabResultContainerActHelper(LabResultProxyContainer lrProxyVO,
+                                                                    boolean isELR,
+                                                                    Map<DataProcessingMapKey, Object> allAct,
+                                                                    ObservationContainer orderedTest)  {
+        if (!allAct.isEmpty())
+        {
+            //Set intervention collection
+            lrProxyVO.setTheInterventionVOCollection( (Collection<Object>) allAct.get(DataProcessingMapKey.INTERVENTION));
+
+            //Set observation collection
+            Collection<ObservationContainer> obsColl = (Collection<ObservationContainer>) allAct.get(DataProcessingMapKey.OBSERVATION);
+            if (obsColl == null) // NOSONAR
+            { // NOSONAR
+                obsColl = new ArrayList<>(); // NOSONAR
+            } // NOSONAR
+
+            //BB - civil0012298 - Retrieve User Name to b displayed instead of ID!
+            if(!isELR) { // NOSONAR
+                orderedTest.getTheObservationDto().setAddUserName(AuthUtil.authUser.getUserId()); // NOSONAR
+                orderedTest.getTheObservationDto().setLastChgUserName(AuthUtil.authUser.getUserId()); // NOSONAR
+            } // NOSONAR
+
+            obsColl.add(orderedTest);
+            lrProxyVO.setTheObservationContainerCollection(obsColl);
+
+            //Adds the performing lab(if any) to the organization cellection
+            Collection<OrganizationContainer>  labColl = (Collection<OrganizationContainer>) allAct.get(DataProcessingMapKey.ORGANIZATION);
+            if (labColl != null && labColl.size() > 0)
+            {
+                lrProxyVO.getTheOrganizationContainerCollection().addAll(labColl);
+            }
+        }
+    }
     /**
      *  LabResultProxyVO getLabResultProxyVO(Long observationId,  boolean isELR, NBSSecurityObj nbsSecurityObj)
      * */
@@ -681,62 +743,12 @@ public class ObservationService implements IObservationService {
         if (actRelColl != null && !actRelColl.isEmpty())
         {
             Map<DataProcessingMapKey, Object> allAct = retrieveActForLabResultContainer(actRelColl);
-            if (!allAct.isEmpty())
-            {
-                //Set intervention collection
-                lrProxyVO.setTheInterventionVOCollection( (Collection<Object>) allAct.get(DataProcessingMapKey.INTERVENTION));
-
-                //Set observation collection
-                Collection<ObservationContainer> obsColl = (Collection<ObservationContainer>) allAct.get(DataProcessingMapKey.OBSERVATION);
-                if (obsColl == null) // NOSONAR
-                { // NOSONAR
-                    obsColl = new ArrayList<>(); // NOSONAR
-                } // NOSONAR
-
-                //BB - civil0012298 - Retrieve User Name to b displayed instead of ID!
-                if(!isELR) { // NOSONAR
-                    orderedTest.getTheObservationDto().setAddUserName(AuthUtil.authUser.getUserId()); // NOSONAR
-                    orderedTest.getTheObservationDto().setLastChgUserName(AuthUtil.authUser.getUserId()); // NOSONAR
-                } // NOSONAR
-
-                obsColl.add(orderedTest);
-                lrProxyVO.setTheObservationContainerCollection(obsColl);
-
-                //Adds the performing lab(if any) to the organization cellection
-                Collection<OrganizationContainer>  labColl = (Collection<OrganizationContainer>) allAct.get(DataProcessingMapKey.ORGANIZATION);
-                if (labColl != null && labColl.size() > 0)
-                {
-                    lrProxyVO.getTheOrganizationContainerCollection().addAll(labColl);
-                }
-            }
+            loadingObservationToLabResultContainerActHelper( lrProxyVO, isELR, allAct, orderedTest);
         }
 
         //TODO: Not sure what would hit this case
-        if (!isELR) {
-            boolean exists = notificationService.checkForExistingNotification(lrProxyVO);
-            lrProxyVO.setAssociatedNotificationInd(exists);
-
-
-            Collection<ActRelationshipDto> col = actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(observationId, NEDSSConstant.LAB_REPORT);
-            if (col != null && col.size() > 0)
-            {
-                lrProxyVO.setAssociatedInvInd(true);
-            }
-
-
-            // get EDX Document data
-            Collection<EDXDocumentDto> documentList = edxDocumentService.selectEdxDocumentCollectionByActUid(observationId);
-            if (documentList != null) {
-                lrProxyVO.setEDXDocumentCollection(documentList);
-            }
-
-            // get the list of conditions associated with this Lab
-            ArrayList<String> conditionList = observationCodeService.deriveTheConditionCodeList(lrProxyVO, orderedTest);
-            if (conditionList != null && !conditionList.isEmpty()) {
-                lrProxyVO.setTheConditionsList(conditionList);
-            }
-        }
-
+        processingNotELRLab( isELR,  lrProxyVO,
+                 orderedTest,  observationId);
         try {
             PageContainer pageContainer = answerService.getNbsAnswerAndAssociation(observationId);
             lrProxyVO.setPageVO(pageContainer);
