@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
-import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.ACT_CODE_DISPLAY_NAME;
 
 public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
     ICdaMapHelper cdaMapHelper;

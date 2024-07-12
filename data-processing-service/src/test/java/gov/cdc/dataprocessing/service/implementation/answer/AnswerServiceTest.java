@@ -83,7 +83,7 @@ class AnswerServiceTest {
 
 
     @Test
-    void getPageAnswerDTMaps_Success() throws DataProcessingException {
+    void getPageAnswerDTMaps_Success() {
         long uid = 10L;
 
         // Set up mock answers
@@ -444,7 +444,7 @@ class AnswerServiceTest {
 
 
     @Test
-    void storeActEntityDTCollectionWithPublicHealthCase_Success() throws DataProcessingException {
+    void storeActEntityDTCollectionWithPublicHealthCase_Success()  {
         Collection<NbsActEntityDto> pamDTCollection = new ArrayList<>();
         var nbsActEntity = new NbsActEntityDto();
         nbsActEntity.setItNew(true);
@@ -513,7 +513,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void getPageAnswerDTMaps_Test() throws DataProcessingException {
+    void getPageAnswerDTMaps_Test()  {
         Long uid = 10L;
 
         var ansCol = new ArrayList<NbsAnswer>();

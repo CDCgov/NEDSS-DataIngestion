@@ -334,12 +334,12 @@ class PrepareAssocModelHelperTest {
     @Test
     void testPrepareAssocDTForActivityLocatorParticipation_RecordStatusCdNull() {
         // Arrange
-        ActivityLocatorParticipationDto assocDTInterface = new ActivityLocatorParticipationDto();
-        assocDTInterface.setRecordStatusCd(null);
+        ActivityLocatorParticipationDto assocDTInterface1 = new ActivityLocatorParticipationDto();
+        assocDTInterface1.setRecordStatusCd(null);
 
         // Act & Assert
         DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
-            prepareAssocModelHelper.prepareAssocDTForActivityLocatorParticipation(assocDTInterface);
+            prepareAssocModelHelper.prepareAssocDTForActivityLocatorParticipation(assocDTInterface1);
         });
 
         assertTrue(exception.getMessage().contains("RecordStatusCd -----2----null   statusCode--------null"));
@@ -349,12 +349,12 @@ class PrepareAssocModelHelperTest {
     @Test
     void testPrepareAssocDTForActivityLocatorParticipation_RecordStatusCdNotActiveOrInactive() {
         // Arrange
-        ActivityLocatorParticipationDto assocDTInterface = new ActivityLocatorParticipationDto();
-        assocDTInterface.setRecordStatusCd("UNKNOWN_STATUS");
+        ActivityLocatorParticipationDto assocDTInterface1 = new ActivityLocatorParticipationDto();
+        assocDTInterface1.setRecordStatusCd("UNKNOWN_STATUS");
 
         // Act & Assert
         DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
-            prepareAssocModelHelper.prepareAssocDTForActivityLocatorParticipation(assocDTInterface);
+            prepareAssocModelHelper.prepareAssocDTForActivityLocatorParticipation(assocDTInterface1);
         });
 
         assertTrue(exception.getMessage().contains("RecordStatusCd is not active or inactive"));
@@ -364,13 +364,13 @@ class PrepareAssocModelHelperTest {
     @Test
     void testPrepareAssocDTForActivityLocatorParticipation_ValidRecordStatusCd() throws DataProcessingException {
         // Arrange
-        ActivityLocatorParticipationDto assocDTInterface = new ActivityLocatorParticipationDto();
-        assocDTInterface.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
-        assocDTInterface.setStatusCd("STATUS");
-        assocDTInterface.setItDirty(true);
+        ActivityLocatorParticipationDto assocDTInterface1 = new ActivityLocatorParticipationDto();
+        assocDTInterface1.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        assocDTInterface1.setStatusCd("STATUS");
+        assocDTInterface1.setItDirty(true);
 
         // Act
-        ActivityLocatorParticipationDto result = prepareAssocModelHelper.prepareAssocDTForActivityLocatorParticipation(assocDTInterface);
+        ActivityLocatorParticipationDto result = prepareAssocModelHelper.prepareAssocDTForActivityLocatorParticipation(assocDTInterface1);
 
         // Assert
         assertNotNull(result);
@@ -387,13 +387,13 @@ class PrepareAssocModelHelperTest {
     @Test
     void testPrepareAssocDTForActivityLocatorParticipation_NotDirty() throws DataProcessingException {
         // Arrange
-        ActivityLocatorParticipationDto assocDTInterface = new ActivityLocatorParticipationDto();
-        assocDTInterface.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
-        assocDTInterface.setStatusCd("STATUS");
-        assocDTInterface.setItDirty(false);
+        ActivityLocatorParticipationDto assocDTInterface1 = new ActivityLocatorParticipationDto();
+        assocDTInterface1.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        assocDTInterface1.setStatusCd("STATUS");
+        assocDTInterface1.setItDirty(false);
 
         // Act
-        ActivityLocatorParticipationDto result = prepareAssocModelHelper.prepareAssocDTForActivityLocatorParticipation(assocDTInterface);
+        ActivityLocatorParticipationDto result = prepareAssocModelHelper.prepareAssocDTForActivityLocatorParticipation(assocDTInterface1);
 
         // Assert
         assertNotNull(result);
@@ -818,6 +818,7 @@ class PrepareAssocModelHelperTest {
     }
 
     @Test
+    @SuppressWarnings("java:S4144")
     void testPrepareNewEntityVO_ExceptionHandling() {
         // Arrange
         RootDtoInterface theRootDTInterface = mock(RootDtoInterface.class);
@@ -859,6 +860,7 @@ class PrepareAssocModelHelperTest {
         assertTrue(exception.getMessage().contains("NEDSSConcurrentDataException: The data has been modified by other user, please verify!"));
     }
 
+    @SuppressWarnings("java:S4144")
     @Test
     void testPrepareNewEntityVO_PatientNoMerge() throws DataProcessingException {
         // Arrange
@@ -888,6 +890,7 @@ class PrepareAssocModelHelperTest {
         verify(prepareEntityStoredProcRepository, times(1)).getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName);
     }
 
+    @SuppressWarnings("java:S4144")
     @Test
     void testPrepareNewEntityVO_PatientNotNoMerge_1() throws DataProcessingException {
         // Arrange
@@ -922,13 +925,13 @@ class PrepareAssocModelHelperTest {
     @Test
     void testPrepareAssocDTForEntityLocatorParticipation_RecordStatusCdNull() {
         // Arrange
-        EntityLocatorParticipationDto assocDTInterface = mock(EntityLocatorParticipationDto.class);
-        when(assocDTInterface.getRecordStatusCd()).thenReturn(null);
-        when(assocDTInterface.getStatusCd()).thenReturn("ACTIVE");
+        EntityLocatorParticipationDto assocDTInterface1 = mock(EntityLocatorParticipationDto.class);
+        when(assocDTInterface1.getRecordStatusCd()).thenReturn(null);
+        when(assocDTInterface1.getStatusCd()).thenReturn("ACTIVE");
 
         // Act & Assert
         DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
-            prepareAssocModelHelper.prepareAssocDTForEntityLocatorParticipation(assocDTInterface);
+            prepareAssocModelHelper.prepareAssocDTForEntityLocatorParticipation(assocDTInterface1);
         });
 
         assertTrue(exception.getMessage().contains("RecordStatusCd -----2----null   statusCode--------ACTIVE"));
@@ -937,13 +940,13 @@ class PrepareAssocModelHelperTest {
     @Test
     void testPrepareAssocDTForEntityLocatorParticipation_RecordStatusCdNotActiveOrInactive() {
         // Arrange
-        EntityLocatorParticipationDto assocDTInterface = mock(EntityLocatorParticipationDto.class);
-        when(assocDTInterface.getRecordStatusCd()).thenReturn("INVALID_STATUS");
-        when(assocDTInterface.getStatusCd()).thenReturn("ACTIVE");
+        EntityLocatorParticipationDto assocDTInterface1 = mock(EntityLocatorParticipationDto.class);
+        when(assocDTInterface1.getRecordStatusCd()).thenReturn("INVALID_STATUS");
+        when(assocDTInterface1.getStatusCd()).thenReturn("ACTIVE");
 
         // Act & Assert
         DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
-            prepareAssocModelHelper.prepareAssocDTForEntityLocatorParticipation(assocDTInterface);
+            prepareAssocModelHelper.prepareAssocDTForEntityLocatorParticipation(assocDTInterface1);
         });
 
         assertTrue(exception.getMessage().contains("RecordStatusCd is not active or inactive"));
@@ -952,14 +955,14 @@ class PrepareAssocModelHelperTest {
     @Test
     void testPrepareAssocDTForEntityLocatorParticipation_UnhandledException() {
         // Arrange
-        EntityLocatorParticipationDto assocDTInterface = mock(EntityLocatorParticipationDto.class);
-        when(assocDTInterface.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
-        when(assocDTInterface.getStatusCd()).thenReturn("ACTIVE");
-        doThrow(new RuntimeException("Test Exception")).when(assocDTInterface).setAddUserId(null);
+        EntityLocatorParticipationDto assocDTInterface1 = mock(EntityLocatorParticipationDto.class);
+        when(assocDTInterface1.getRecordStatusCd()).thenReturn(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        when(assocDTInterface1.getStatusCd()).thenReturn("ACTIVE");
+        doThrow(new RuntimeException("Test Exception")).when(assocDTInterface1).setAddUserId(null);
 
         // Act & Assert
         DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
-            prepareAssocModelHelper.prepareAssocDTForEntityLocatorParticipation(assocDTInterface);
+            prepareAssocModelHelper.prepareAssocDTForEntityLocatorParticipation(assocDTInterface1);
         });
 
         assertTrue(exception.getMessage().contains("Test Exception"));

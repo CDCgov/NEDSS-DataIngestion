@@ -9,12 +9,10 @@ import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.locator.PhysicalLocatorDto;
 import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
 import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
-import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
-import gov.cdc.dataprocessing.service.implementation.manager.ManagerAggregationService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
@@ -428,7 +426,7 @@ class PatientMatchingBaseServiceTest {
         assertEquals(Timestamp.valueOf("2023-01-01 00:00:00"), personNameDto.getAsOfDate());
     }
 
-
+    @SuppressWarnings("java:S5976")
     @Test
     void testProcessingPersonName_MissingLastName() {
         // Arrange

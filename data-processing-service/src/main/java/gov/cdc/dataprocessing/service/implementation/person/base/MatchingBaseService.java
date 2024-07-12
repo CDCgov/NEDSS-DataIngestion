@@ -53,6 +53,7 @@ public class MatchingBaseService  {
         return localId;
     }
 
+    @SuppressWarnings("java:S6541")
     protected List<String> getIdentifier(PersonContainer personContainer) throws DataProcessingException {
         String carrot = "^";
         List<String> returnList;
@@ -144,7 +145,7 @@ public class MatchingBaseService  {
                     && personDto.getCd().equals(NEDSSConstant.PAT))
             {
                 if (personContainer.getThePersonNameDtoCollection() != null
-                        && personContainer.getThePersonNameDtoCollection().size() > 0)
+                        && !personContainer.getThePersonNameDtoCollection().isEmpty())
                 {
                     Collection<PersonNameDto> personNameDtoColl = personContainer.getThePersonNameDtoCollection();
                     Iterator<PersonNameDto> personNameIterator = personNameDtoColl.iterator();
@@ -157,36 +158,37 @@ public class MatchingBaseService  {
                                 && personNameDto.getRecordStatusCd() != null
                                 && personNameDto.getRecordStatusCd().equals(NEDSSConstant.RECORD_STATUS_ACTIVE))
                         {
-                            if (asofDate == null
-                                    || (asofDate.getTime() < personNameDto.getAsOfDate().getTime()))
+                            // These condition check was how it originally designed in legacy
+                            // The way I see it is the second conditional check would never be reached
+                            if (asofDate == null || (asofDate.getTime() < personNameDto.getAsOfDate().getTime())) // NOSONAR
                             {
-                                if ((personNameDto.getLastNm() != null)
-                                        && (!personNameDto.getLastNm().trim().equals(""))
-                                        && (personNameDto.getFirstNm() != null)
-                                        && (!personNameDto.getFirstNm().trim().equals("")))
-                                {
-                                    namesStr = personNameDto.getLastNm() + carrot + personNameDto.getFirstNm();
-                                    asofDate = personNameDto.getAsOfDate();
-
-                                }
+                                namesStr = processingPersonNameBasedOnAsOfDate(personNameDto, namesStr, asofDate);
                             }
                             else if (asofDate.before(personNameDto.getAsOfDate()))
                             {
-                                if ((personNameDto.getLastNm() != null)
-                                        && (!personNameDto.getLastNm().trim().equals(""))
-                                        && (personNameDto.getFirstNm() != null)
-                                        && (!personNameDto.getFirstNm().trim().equals("")))
-                                {
-                                    namesStr = personNameDto.getLastNm() + carrot + personNameDto.getFirstNm();
-                                    asofDate = personNameDto.getAsOfDate();
-                                }
+                                namesStr = processingPersonNameBasedOnAsOfDate(personNameDto, namesStr, asofDate);
                             }
                         }
                     }
+
+
                 }
             }
         }
 
+        return namesStr;
+    }
+
+    protected String processingPersonNameBasedOnAsOfDate(PersonNameDto personNameDto, String namesStr, Timestamp asofDate) {
+        String caret = "^";
+        if ((personNameDto.getLastNm() != null)
+                && (!personNameDto.getLastNm().trim().equals(""))
+                && (personNameDto.getFirstNm() != null)
+                && (!personNameDto.getFirstNm().trim().equals("")))
+        {
+            namesStr = personNameDto.getLastNm() + caret + personNameDto.getFirstNm();
+            asofDate = personNameDto.getAsOfDate(); // NOSONAR
+        }
         return namesStr;
     }
 

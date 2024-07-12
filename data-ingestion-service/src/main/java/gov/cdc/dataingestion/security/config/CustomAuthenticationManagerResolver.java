@@ -10,8 +10,6 @@ import org.springframework.security.oauth2.server.resource.introspection.NimbusO
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.stereotype.Component;
 
-import java.util.Enumeration;
-
 @Component
 public class CustomAuthenticationManagerResolver implements AuthenticationManagerResolver<HttpServletRequest> {
     @Value("${auth.introspect-uri}")

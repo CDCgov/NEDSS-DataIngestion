@@ -2,7 +2,6 @@ package gov.cdc.dataprocessing.utilities.component.wds;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.kafka.consumer.KafkaPublicHealthCaseConsumer;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.dsma_algorithm.CodedType;
@@ -50,7 +49,7 @@ public class ValidateDecisionSupport {
         if (behavior.equalsIgnoreCase("1")) {
             isOverwrite = true;
         } else if (behavior.equalsIgnoreCase("2")) {
-            isOverwrite = false;
+            isOverwrite = false; // NOSONAR
         }
         String dataLocation = metaData.getDataLocation();
         /*
@@ -90,9 +89,9 @@ public class ValidateDecisionSupport {
                     Object ob = value.invoke(object, (Object[]) null);
                     if (isOverwrite) {
                         setMethod(object, setMethod, edxRuleManageDT);
-                    } else if (!isOverwrite && ob == null) {
-                        setMethod(object, setMethod, edxRuleManageDT);
-                    }
+                    } else if (!isOverwrite && ob == null) { // NOSONAR
+                        setMethod(object, setMethod, edxRuleManageDT);// NOSONAR
+                    } // NOSONAR
                 }
             }
         } catch (Exception e) {
@@ -102,7 +101,7 @@ public class ValidateDecisionSupport {
 
     }
 
-
+    @SuppressWarnings("java:S6541")
     public void processNBSCaseAnswerDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, BasePamContainer pamVO, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
@@ -203,7 +202,7 @@ public class ValidateDecisionSupport {
         }
         pamVO.setPamAnswerDTMap(answerMap);
     }
-
+    @SuppressWarnings("java:S6541")
     public  void processConfirmationMethodCodeDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
@@ -339,7 +338,7 @@ public class ValidateDecisionSupport {
             e.printStackTrace();
         }
     }
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S6541"})
     public PublicHealthCaseContainer processConfirmationMethodTimeDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) throws DataProcessingException {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;

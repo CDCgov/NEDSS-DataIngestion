@@ -21,7 +21,6 @@ import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -78,6 +77,7 @@ public class AnswerService implements IAnswerService {
 
     }
 
+    @SuppressWarnings("java:S3776")
     public Map<Object, Object> getPageAnswerDTMaps(Long actUid) {
         ArrayList<NbsAnswerDto> pageAnswerDTCollection = new ArrayList<>();
         Map<Object, Object> nbsReturnAnswerMap = new HashMap<>();
@@ -242,6 +242,7 @@ public class AnswerService implements IAnswerService {
         }
     }
 
+    @SuppressWarnings("java:S1172")
     protected void storeAnswerDTCollection(Collection<Object> answerDTColl, ObservationDto interfaceDT) throws DataProcessingException {
         try {
             if (answerDTColl != null){

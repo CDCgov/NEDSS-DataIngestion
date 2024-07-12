@@ -1,5 +1,7 @@
 package gov.cdc.dataingestion.config;
+
 import ch.qos.logback.core.FileAppender;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

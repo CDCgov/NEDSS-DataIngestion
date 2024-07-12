@@ -1,11 +1,10 @@
 package gov.cdc.dataingestion.nbs.repository;
 
-import  gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
-
+import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import	org.springframework.stereotype.Repository;
-import  org.springframework.data.jpa.repository.JpaRepository;
-import 	org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 

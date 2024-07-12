@@ -1,11 +1,13 @@
 package gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.timing_qty;
 
-import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.*;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Cq;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Ei;
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
-import static gov.cdc.dataingestion.hl7.helper.helper.ModelListHelper.*;
+
+import static gov.cdc.dataingestion.hl7.helper.helper.ModelListHelper.getEiList;
 
 @Getter
 public class TimingQuantityRelationship {

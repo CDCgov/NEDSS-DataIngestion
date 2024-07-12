@@ -4,9 +4,9 @@
 package gov.cdc.dataingestion.hl7.helper;
 
 import ca.uhn.hl7v2.DefaultHapiContext;
+import gov.cdc.dataingestion.hl7.helper.integration.HL7Parser;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiFhirException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
-import gov.cdc.dataingestion.hl7.helper.integration.HL7Parser;
 import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser;
 import gov.cdc.dataingestion.hl7.helper.model.FhirConvertedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;

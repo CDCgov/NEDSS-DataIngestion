@@ -55,8 +55,6 @@ class CommonLabUtilTest {
     @Test
     void getXMLElementNameForOBR_TEST()  {
 
-        HL7OBRType hl7OBRType = new HL7OBRType();
-
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             commonLabUtil.getXMLElementNameForOBR(null);
         });
@@ -67,8 +65,6 @@ class CommonLabUtilTest {
 
     @Test
     void getXMLElementNameForOBX_TEST()  {
-
-        HL7OBXType hl7OBRType = new HL7OBXType();
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             commonLabUtil.getXMLElementNameForOBX(null);

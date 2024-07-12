@@ -7,29 +7,19 @@ import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.matching.EdxEntityMatchDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomAuthUserRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.auth.AuthUserRepository;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
-import gov.cdc.dataprocessing.service.implementation.auth_user.AuthUserService;
 import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
-import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
-import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.model.Coded;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -331,7 +321,6 @@ class ProviderMatchingBaseServiceTest {
         when(coded.getCode()).thenReturn("auth1");
         when(coded.getCodeDescription()).thenReturn("desc1");
         when(coded.getCodeSystemCd()).thenReturn("sysCd1");
-     //    when(cachingValueService.findCodeValuesByCodeSetNmAndCode(anyString(), anyString())).thenReturn(List.of(coded));
 
         // Call the method under test
         List<String> result = providerMatchingBaseService.getIdentifierForProvider(personContainer);
@@ -373,7 +362,7 @@ class ProviderMatchingBaseServiceTest {
 
 
     @Test
-    void testGetIdentifierForProvider_ExceptionHandling_2() throws DataProcessingException {
+    void testGetIdentifierForProvider_ExceptionHandling_2()  {
         // Mock the PersonContainer and EntityIdDto
         PersonContainer personContainer = mock(PersonContainer.class);
         EntityIdDto entityIdDto1 = mock(EntityIdDto.class);

@@ -46,6 +46,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
     }
 
+    @SuppressWarnings("java:S125")
     public Long setPatientRevision(PersonContainer personVO, String businessTriggerCd, String personType) throws DataProcessingException {
         PersonContainer mprPersonVO;
         Long mprPersonUid;
@@ -358,7 +359,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
             if (personDto.getCd() != null && personDto.getCd().equals(NEDSSConstant.PAT))
             {
                 if (personContainer.getThePersonNameDtoCollection() != null
-                        && personContainer.getThePersonNameDtoCollection().size() > 0)
+                        && !personContainer.getThePersonNameDtoCollection().isEmpty())
                 {
                     Collection<PersonNameDto> personNameDtoColl = personContainer.getThePersonNameDtoCollection();
                     Iterator<PersonNameDto> personNameIterator = personNameDtoColl.iterator();
@@ -426,7 +427,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                     + personNameDto.getFirstNm()
                     + caret + personDto.getBirthTime()
                     + caret + personDto.getCurrSexCd();
-            asofDate = personNameDto.getAsOfDate();
+            asofDate = personNameDto.getAsOfDate(); //NOSONAR
 
         }
 
@@ -565,6 +566,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         getPatientRepositoryUtil().updateExistingPerson(personContainer);
 
     }
+    @SuppressWarnings("java:S3776")
    protected void setPersonToMatchEntityPatient(PersonContainer personContainer) throws DataProcessingException {
         Long patientUid = personContainer.getThePersonDto().getPersonUid();
         EdxPatientMatchDto edxPatientMatchDto;

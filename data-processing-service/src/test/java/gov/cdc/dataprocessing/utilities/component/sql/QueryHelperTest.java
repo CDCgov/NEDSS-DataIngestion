@@ -16,7 +16,6 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -72,6 +71,7 @@ class QueryHelperTest {
         assertNotNull(res);
     }
 
+    @SuppressWarnings("java:S5976")
     @Test
     void testBuildWhereClause_BothNonEmpty() {
         // Arrange
@@ -86,7 +86,7 @@ class QueryHelperTest {
         // Assert
         assertNotNull( result);
     }
-
+    @SuppressWarnings("java:S5976")
     @Test
     void testBuildWhereClause_OnlyOwnerNonEmpty() {
         // Arrange
@@ -101,7 +101,7 @@ class QueryHelperTest {
         // Assert
         assertNotNull( result);
     }
-
+    @SuppressWarnings("java:S5976")
     @Test
     void testBuildWhereClause_OnlyGuestNonEmpty() {
         // Arrange
@@ -116,7 +116,7 @@ class QueryHelperTest {
         // Assert
         assertNotNull( result);
     }
-
+    @SuppressWarnings("java:S5976")
     @Test
     void testBuildWhereClause_BothEmpty() {
         // Arrange

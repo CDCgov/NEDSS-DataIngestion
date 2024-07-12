@@ -17,7 +17,6 @@ import javax.xml.namespace.QName;
 import java.util.Map;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
-import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.CHANGE;
 
 public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
     ICdaMapHelper cdaMapHelper;

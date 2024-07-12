@@ -156,7 +156,7 @@ class ManagerUtilTest {
 
 
     @Test
-    void testPersonAggregationAsync_PatientProcessing() throws DataProcessingException, DataProcessingConsumerException, InterruptedException {
+    void testPersonAggregationAsync_PatientProcessing() throws DataProcessingException, DataProcessingConsumerException {
         // Arrange
         LabResultProxyContainer labResult = new LabResultProxyContainer();
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
@@ -187,7 +187,7 @@ class ManagerUtilTest {
 
 
     @Test
-    void testPersonAggregationAsync_MultipleNextOfKinAndPatientProcessing() throws DataProcessingException, DataProcessingConsumerException, InterruptedException {
+    void testPersonAggregationAsync_MultipleNextOfKinAndPatientProcessing() throws DataProcessingException, DataProcessingConsumerException {
         // Arrange
         LabResultProxyContainer labResult = new LabResultProxyContainer();
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();

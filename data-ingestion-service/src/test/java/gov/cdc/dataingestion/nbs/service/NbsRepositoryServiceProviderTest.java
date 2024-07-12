@@ -21,8 +21,8 @@ import org.mockito.MockitoAnnotations;
 import java.io.IOException;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 class NbsRepositoryServiceProviderTest {
@@ -522,6 +522,7 @@ class NbsRepositoryServiceProviderTest {
         verify(nbsInterfaceRepo, times(1)).save(any());
     }
 
+    @SuppressWarnings("java:S4144")
     @Test
     void testSaveEcrCdaXmlMessage_3() {
         // Arrange

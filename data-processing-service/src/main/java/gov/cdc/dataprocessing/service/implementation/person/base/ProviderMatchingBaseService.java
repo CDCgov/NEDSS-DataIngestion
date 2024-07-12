@@ -258,7 +258,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         }
 
     }
-
+    @SuppressWarnings("java:S3776")
     protected List<String> getIdentifierForProvider(PersonContainer personContainer) throws DataProcessingException {
         String carrot = "^";
         List<String> identifierList = new ArrayList<>();
@@ -345,7 +345,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         return identifierList;
 
     }
-
+    @SuppressWarnings("java:S3776")
     protected String getNameStringForProvider(PersonContainer personContainer) {
         String nameStr = null;
         if (personContainer.getThePersonNameDtoCollection() != null && personContainer.getThePersonNameDtoCollection().size() > 0) {

@@ -284,6 +284,7 @@ public class InvestigationService implements IInvestigationService {
         updateAutoResendNotifications(v);
     }
 
+    @SuppressWarnings("java:S6541")
     public PageActProxyContainer getPageProxyVO(String typeCd, Long publicHealthCaseUID) throws DataProcessingException {
         PageActProxyContainer pageProxyVO = new PageActProxyContainer();
 

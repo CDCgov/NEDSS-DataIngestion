@@ -1,5 +1,3 @@
-import org.springframework.boot.gradle.plugin.SpringBootPlugin
-
 buildscript {
 	repositories {
 		mavenCentral()

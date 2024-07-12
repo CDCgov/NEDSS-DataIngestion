@@ -184,7 +184,7 @@ class Mapping231To251HelperTest {
         assertEquals("nameSpaceId", result.getNameSpaceId());
     }
 
-
+    @SuppressWarnings("java:S5976")
     @Test
     void testMapObservationResultAddressInfoCheck_AllConditionsTrue() {
         // Arrange
@@ -205,7 +205,7 @@ class Mapping231To251HelperTest {
 
 
 
-
+    @SuppressWarnings("java:S5976")
     @Test
     void testMapObservationResultAddressInfoCheck_StreetNameEmpty() {
         // Arrange
@@ -224,6 +224,7 @@ class Mapping231To251HelperTest {
         assertTrue(result);
     }
 
+    @SuppressWarnings("java:S5976")
     @Test
     void testMapObservationResultAddressInfoCheck_StreetMailingAddressEmpty() {
         // Arrange
