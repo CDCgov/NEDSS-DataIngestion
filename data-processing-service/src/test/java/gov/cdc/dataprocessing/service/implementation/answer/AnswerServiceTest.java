@@ -107,6 +107,23 @@ class AnswerServiceTest {
 
 
     @Test
+    void testGetNbsAnswerAndAssociationResultNotPresent() throws DataProcessingException {
+        Long uid = 1L;
+
+        when(nbsActEntityRepository.getNbsActEntitiesByActUid(uid)).thenReturn(Optional.empty());
+
+        PageContainer result = answerService.getNbsAnswerAndAssociation(uid);
+
+        assertNotNull(result);
+        assertTrue(result.getAnswerDTMap().isEmpty());
+        assertTrue(result.getPageRepeatingAnswerDTMap().isEmpty());
+        assertTrue(result.getActEntityDTCollection().isEmpty());
+
+        verify(nbsActEntityRepository).getNbsActEntitiesByActUid(uid);
+    }
+
+
+    @Test
     void getNbsAnswerAndAssociation_Success() throws DataProcessingException {
         long uid = 10L;
 

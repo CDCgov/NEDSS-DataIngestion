@@ -49,14 +49,11 @@ public class AnswerService implements IAnswerService {
         try {
 
             Map<Object,Object> answerDTReturnMap = getPageAnswerDTMaps(uid);
-            Map<Object, NbsAnswerDto> nbsAnswerMap =new HashMap<>();
-            Map<Object, Object> nbsRepeatingAnswerMap =new HashMap<>();
-            if(answerDTReturnMap.get(NEDSSConstant.NON_REPEATING_QUESTION)!=null){
-                nbsAnswerMap=(HashMap<Object, NbsAnswerDto>)answerDTReturnMap.get(NEDSSConstant.NON_REPEATING_QUESTION);
-            }
-            if(answerDTReturnMap.get(NEDSSConstant.REPEATING_QUESTION)!=null){
-                nbsRepeatingAnswerMap=(HashMap<Object, Object>)answerDTReturnMap.get(NEDSSConstant.REPEATING_QUESTION);
-            }
+            Map<Object, NbsAnswerDto> nbsAnswerMap;
+            Map<Object, Object> nbsRepeatingAnswerMap;
+            nbsAnswerMap=(HashMap<Object, NbsAnswerDto>)answerDTReturnMap.get(NEDSSConstant.NON_REPEATING_QUESTION);
+            nbsRepeatingAnswerMap=(HashMap<Object, Object>)answerDTReturnMap.get(NEDSSConstant.REPEATING_QUESTION);
+
             pageContainer.setAnswerDTMap(nbsAnswerMap);
             pageContainer.setPageRepeatingAnswerDTMap(nbsRepeatingAnswerMap);
 

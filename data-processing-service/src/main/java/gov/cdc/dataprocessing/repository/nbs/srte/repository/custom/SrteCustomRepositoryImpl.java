@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 
+import static gov.cdc.dataprocessing.utilities.DataParserForSql.parseValue;
+
 @Repository
 public class SrteCustomRepositoryImpl implements SrteCustomRepository{
     @PersistenceContext(unitName = "srte")
@@ -32,19 +34,13 @@ public class SrteCustomRepositoryImpl implements SrteCustomRepository{
             for(var item : results) {
                 int i = 0;
                 LabResult labResult = new LabResult();
-                labResult.setLabResultCd(dataNotNull(item[i]) ? String.valueOf(item[i].toString()): null);
-                labResult.setLabResultDescTxt(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+                labResult.setLabResultCd(parseValue(item[i], String.class));
+                labResult.setLabResultDescTxt(parseValue(item[++i], String.class));
                 lst.add(labResult);
             }
 
         }
         return lst;
     }
-
-
-    private boolean dataNotNull(Object string) {
-        return string != null;
-    }
-
 
 }

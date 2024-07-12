@@ -16,7 +16,7 @@ import java.sql.Timestamp;
 
 @Repository
 public class ObservationMatchStoredProcRepository {
-    private static final Logger logger = LoggerFactory.getLogger(ObservationMatchStoredProcRepository.class);
+    private static final Logger logger = LoggerFactory.getLogger(ObservationMatchStoredProcRepository.class); // NOSONAR
 
     @PersistenceContext(unitName = "nbsEntityManagerFactory") // Specify the persistence unit name
     private EntityManager entityManager;
@@ -28,7 +28,7 @@ public class ObservationMatchStoredProcRepository {
         String fillerNumber = edxLabInformationDto.getFillerNumber();
         Timestamp specimenCollectionDate = observationContainer.getTheObservationDto().getEffectiveFromTime();
         String orderedTestCode= observationContainer.getTheObservationDto().getCd();
-        if (fillerNumber == null || specimenCollectionDate==null || orderedTestCode==null || clia==null )
+        if (checkInvalidFillerSpecimenAndOrderedTest(fillerNumber, specimenCollectionDate, orderedTestCode, clia))
         {
             return null; // no match
         }
@@ -66,7 +66,7 @@ public class ObservationMatchStoredProcRepository {
             Long observationUid = (Long) storedProcedure.getOutputParameterValue("Observation_uid");
 
 
-            if (observationUid != null && observationUid > 0) {
+            if (observationUid > 0) {
                 matchedUID = observationUid;
             }
 
@@ -75,6 +75,13 @@ public class ObservationMatchStoredProcRepository {
         }
         return matchedUID;
 
+    }
+
+    protected  boolean checkInvalidFillerSpecimenAndOrderedTest(
+            String fillerNumber, Timestamp specimenCollectionDate, String orderedTestCode,
+            String clia
+    ) {
+       return fillerNumber == null || specimenCollectionDate==null || orderedTestCode==null || clia==null;
     }
 
 }

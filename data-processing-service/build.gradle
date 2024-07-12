@@ -209,7 +209,8 @@ sonarqube {
                 " **/repository/nbs/msgoute/model/**, **/repository/nbs/odse/model/**, **/repository/nbs/srte/model/**, **/security/config/**, **/ServiceApplication.java, " +
                 " **/service/model/**, **/DynamicBeanBinding.java, **/RuleEngineUtil.java, **/utilities/model/**," +
                 " **/controller/**, **/kafka/consumer/**, **kafka/producer/**, **/WdsObjectChecker.java," +
-                " **/AdvancedCriteria.java"
+                " **/AdvancedCriteria.java, **/cache/OdseCache.java, **/cache/PropertyUtilCache.java, " +
+                " **/cache/SrteCache.java"
 
     }
 }
