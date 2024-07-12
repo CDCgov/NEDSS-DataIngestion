@@ -1,25 +1,30 @@
 package gov.cdc.dataprocessing.utilities.component.edx;
 
+import gov.cdc.dataprocessing.cache.OdseCache;
 import gov.cdc.dataprocessing.cache.SrteCache;
+import gov.cdc.dataprocessing.model.container.model.LabReportSummaryContainer;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
+import gov.cdc.dataprocessing.model.container.model.ResultedTestSummaryContainer;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
+import gov.cdc.dataprocessing.service.implementation.investigation.LookupService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 class EdxPhcrDocumentUtilTest {
     @InjectMocks
     private EdxPhcrDocumentUtil edxPhcrDocumentUtil;
+
+
 
     @Mock
     private ILookupService lookupService;
@@ -29,8 +34,6 @@ class EdxPhcrDocumentUtilTest {
         MockitoAnnotations.openMocks(this);
         SrteCache.investigationFormConditionCode.clear();
     }
-
-
 
 
     @Test
