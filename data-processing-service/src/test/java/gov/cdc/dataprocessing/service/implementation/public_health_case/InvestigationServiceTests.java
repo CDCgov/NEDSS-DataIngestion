@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.service.implementation.public_health_case;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
@@ -18,6 +19,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.Observation;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.edx.EdxDocumentRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.ObservationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.Observation_SummaryRepository;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.LabTest;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.LabTestRepository;
 import gov.cdc.dataprocessing.service.implementation.act.ActRelationshipService;
 import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
@@ -621,4 +623,162 @@ class InvestigationServiceTests {
 
     }
 
+
+    @Test
+    void populateDescTxtFromCachedValues_Test() throws DataProcessingException {
+        var reportCol = new ArrayList<Object>();
+        var report = new LabReportSummaryContainer();
+        report.setProgramArea("TEST");
+        report.setJurisdiction("TEST");
+        report.setStatus("TEST");
+
+        var labCol = new ArrayList<ResultedTestSummaryContainer>();
+        var lab = new ResultedTestSummaryContainer();
+        lab.setCtrlCdUserDefined1("N");
+        lab.setCodedResultValue("TEST");
+        lab.setCdSystemCd("LN");
+        lab.setResultedTestCd("TEST");
+        lab.setResultedTestStatus("TEST");
+        labCol.add(lab);
+
+        lab = new ResultedTestSummaryContainer();
+        lab.setCtrlCdUserDefined1("Y");
+        lab.setOrganismName("TEST");
+        lab.setOrganismCodeSystemCd("SNM");
+        lab.setCodedResultValue("TEST");
+        lab.setCdSystemCd("LNA");
+        lab.setResultedTestCd("TEST");
+        labCol.add(lab);
+
+        lab = new ResultedTestSummaryContainer();
+        lab.setCtrlCdUserDefined1("Y");
+        lab.setOrganismName("TEST");
+        lab.setOrganismCodeSystemCd("BLAH");
+        lab.setCodedResultValue("TEST");
+        lab.setCdSystemCd("LNA");
+        lab.setResultedTestCd("TEST-2");
+        labCol.add(lab);
+
+        lab = new ResultedTestSummaryContainer();
+        lab.setCtrlCdUserDefined1(null);
+        lab.setOrganismName("TEST");
+        lab.setOrganismCodeSystemCd("SNM");
+        lab.setCodedResultValue("TEST");
+        labCol.add(lab);
+
+        lab = new ResultedTestSummaryContainer();
+        lab.setCtrlCdUserDefined1(null);
+        lab.setOrganismName("TEST");
+        lab.setOrganismCodeSystemCd("SNM");
+        lab.setCodedResultValue("TEST-A");
+        labCol.add(lab);
+
+        //
+        lab = new ResultedTestSummaryContainer();
+        lab.setCtrlCdUserDefined1(null);
+        lab.setOrganismName("TEST");
+        lab.setOrganismCodeSystemCd("BLAH");
+        lab.setCodedResultValue("TEST");
+        labCol.add(lab);
+
+        lab = new ResultedTestSummaryContainer();
+        lab.setCtrlCdUserDefined1(null);
+        lab.setOrganismName("TEST");
+        lab.setOrganismCodeSystemCd("BLAH");
+        lab.setCodedResultValue("TEST-A");
+        labCol.add(lab);
+
+
+        lab = new ResultedTestSummaryContainer();
+        lab.setCtrlCdUserDefined1(null);
+        lab.setOrganismName("TEST");
+        lab.setOrganismCodeSystemCd(null);
+        lab.setCodedResultValue("TEST-A");
+        labCol.add(lab);
+
+        lab = new ResultedTestSummaryContainer();
+        lab.setCtrlCdUserDefined1(null);
+        lab.setOrganismName(null);
+        lab.setOrganismCodeSystemCd(null);
+        lab.setCodedResultValue("TEST-A");
+        labCol.add(lab);
+
+        lab = new ResultedTestSummaryContainer();
+        lab.setCtrlCdUserDefined1(null);
+        lab.setOrganismName(null);
+        lab.setOrganismCodeSystemCd(null);
+        lab.setCodedResultValue("TEST");
+        lab.setResultedTestStatusCd("TEST");
+        lab.setResultedTestCd("TEST");
+
+        var susCol = new ArrayList<>();
+        var sus = new ResultedTestSummaryContainer();
+        sus.setCodedResultValue("TEST");
+        sus.setCdSystemCd("LN");
+        sus.setResultedTestCd("TEST");
+        susCol.add(sus);
+
+        sus = new ResultedTestSummaryContainer();
+        sus.setCodedResultValue("TEST-A");
+        sus.setCdSystemCd(null);
+        susCol.add(sus);
+
+        sus = new ResultedTestSummaryContainer();
+        sus.setCodedResultValue("TEST");
+        sus.setCdSystemCd("LN");
+        sus.setResultedTestCd("TEST-A");
+        susCol.add(sus);
+
+
+        sus = new ResultedTestSummaryContainer();
+        sus.setCodedResultValue("TEST");
+        sus.setCdSystemCd("LNA");
+        sus.setResultedTestCd("TEST-A");
+        susCol.add(sus);
+
+
+        sus = new ResultedTestSummaryContainer();
+        sus.setCodedResultValue("TEST");
+        sus.setCdSystemCd("LNA");
+        sus.setResultedTestCd("TEST");
+        susCol.add(sus);
+
+        lab.setTheSusTestSummaryVOColl(susCol);
+        labCol.add(lab);
+
+
+
+
+        report.setTheResultedTestSummaryVOCollection(labCol);
+        reportCol.add(report);
+
+        SrteCache.programAreaCodesMap.put("TEST", "TEST");
+        SrteCache.jurisdictionCodeMap.put("TEST", "TEST");
+        SrteCache.labResultByDescMap.put("TEST", "TEST");
+        SrteCache.snomedCodeByDescMap.put("TEST", "TEST");
+        SrteCache.labResultWithOrganismNameIndMap.put("TEST", "TEST");
+        SrteCache.loinCodeWithComponentNameMap.put("TEST", "TEST");
+
+
+        when(cachingValueService.getCodeDescTxtForCd(any(), any())).thenReturn("TEST");
+        var labLst = new ArrayList<LabTest>();
+        var labTs = new LabTest();
+        labLst.add(labTs);
+        when(labTestRepository.findLabTestByLabIdAndLabTestCode(any(), eq("TEST"))).thenReturn(Optional.of(labLst));
+        when(cachingValueService.getCodeDescTxtForCd(any(), eq("TEST"))).thenReturn("TEST");
+
+
+
+        investigationService.populateDescTxtFromCachedValues(reportCol);
+
+        SrteCache.programAreaCodesMap.clear();
+        SrteCache.jurisdictionCodeMap.clear();
+        SrteCache.labResultByDescMap.clear();
+        SrteCache.snomedCodeByDescMap.clear();
+        SrteCache.labResultWithOrganismNameIndMap.clear();
+        SrteCache.loinCodeWithComponentNameMap.clear();
+
+
+        verify(cachingValueService, times(2)).getCodeDescTxtForCd(any(), any());
+    }
 }

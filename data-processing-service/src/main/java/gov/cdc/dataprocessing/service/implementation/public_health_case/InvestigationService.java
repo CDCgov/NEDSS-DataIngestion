@@ -1182,7 +1182,6 @@ public class InvestigationService implements IInvestigationService {
                                         !resVO.getResultedTestCd().equals("")) {
 
                                     tempStr = SrteCache.loinCodeWithComponentNameMap.get(resVO.getResultedTestCd());
-                                    // System.out.println("\n The temStr for resVO" + tempStr);
                                     if (tempStr != null && !tempStr.equals(""))
                                         resVO.setResultedTest(tempStr);
                                 }
