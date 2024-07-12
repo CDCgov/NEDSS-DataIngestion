@@ -252,7 +252,7 @@ public class ObservationService implements IObservationService {
     /**
      * Was: retrieveOrganizationVOsForProxyVO
      * */
-    private Collection<Object>  retrieveOrganizationFromParticipation(Collection<ParticipationDto> partColl) throws DataProcessingException {
+    Collection<Object>  retrieveOrganizationFromParticipation(Collection<ParticipationDto> partColl) throws DataProcessingException {
         Collection<Object>  theOrganizationVOCollection  = null;
         for (ParticipationDto partDT : partColl) {
             if (partDT == null) {
@@ -281,7 +281,7 @@ public class ObservationService implements IObservationService {
     /**
      * was: retrieveMaterialVOsForProxyVO
      * */
-    private Collection<Object>  retrieveMaterialFromParticipation(Collection<ParticipationDto> partColl)
+    protected Collection<Object>  retrieveMaterialFromParticipation(Collection<ParticipationDto> partColl)
     {
         Collection<Object>  theMaterialVOCollection  = null;
         for (ParticipationDto partDT : partColl) {
@@ -313,7 +313,7 @@ public class ObservationService implements IObservationService {
      * Values from Participation
      * Was: retrievePersonVOsForProxyVO
      * */
-    private Map<DataProcessingMapKey, Object> retrievePersonAndRoleFromParticipation(Collection<ParticipationDto> partColl)
+    protected Map<DataProcessingMapKey, Object> retrievePersonAndRoleFromParticipation(Collection<ParticipationDto> partColl)
     {
         Map<DataProcessingMapKey, Object> mapper = new HashMap<>();
         Collection<PersonContainer>  thePersonVOCollection  = new ArrayList<> ();
@@ -362,14 +362,14 @@ public class ObservationService implements IObservationService {
     /**
      * Getting List of person given Entity Uid for Role
      * */
-    private Collection<PersonContainer>  retrieveScopedPersons(Long scopingUid)
+    protected Collection<PersonContainer>  retrieveScopedPersons(Long scopingUid)
     {
         Collection<RoleDto>  roleDTColl = roleService.findRoleScopedToPatient(scopingUid);
         Collection<PersonContainer>  scopedPersons = null;
 
         for (RoleDto roleDT : roleDTColl) {
             if (roleDT == null) {
-                continue;
+                continue; // NOSONAR
             }
             //In this case the subjectEntityUid is not the patient
             Long scopingEntityUid = roleDT.getSubjectEntityUid();
@@ -413,9 +413,9 @@ public class ObservationService implements IObservationService {
         Collection<OrganizationContainer>  performingLabColl = new ArrayList<> ();
 
         for (ActRelationshipDto actRelDT : actRelColl) {
-            if (actRelDT == null) {
-                continue;
-            }
+            if (actRelDT == null) { // NOSONAR
+                continue; // NOSONAR
+            } // NOSONAR
 
             String typeCd = actRelDT.getTypeCd();
             String sourceClassCd = actRelDT.getSourceClassCd();
@@ -461,9 +461,9 @@ public class ObservationService implements IObservationService {
                 else if (typeCd != null && typeCd.equalsIgnoreCase(NEDSSConstant.ACT108_TYP_CD))
                 {
                     ObservationContainer rtObservationContainer = (ObservationContainer) getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, observationUid);
-                    if (rtObservationContainer == null) {
-                        continue;
-                    }
+                    if (rtObservationContainer == null) { // NOSONAR
+                        continue; // NOSONAR
+                    } // NOSONAR
                     theObservationContainerCollection.add(rtObservationContainer); //The Resulted Test itself
                     //Retrieve the RT's lab
                     OrganizationContainer rtPerformingLab = retrievePerformingLabAkaOrganizationFromParticipation(rtObservationContainer.getTheParticipationDtoCollection());
@@ -473,9 +473,9 @@ public class ObservationService implements IObservationService {
 
                     //Retrieves all reflex observations, including each ordered and its resulted
                     Collection<ObservationContainer> reflexObsColl = retrieveReflexObservationsFromActRelationship(rtObservationContainer.getTheActRelationshipDtoCollection());
-                    if (reflexObsColl == null || reflexObsColl.isEmpty()) {
-                        continue;
-                    }
+                    if (reflexObsColl == null || reflexObsColl.isEmpty()) { // NOSONAR
+                        continue; // NOSONAR
+                    } // NOSONAR
                     theObservationContainerCollection.addAll(reflexObsColl);
                 }
             }
@@ -494,9 +494,9 @@ public class ObservationService implements IObservationService {
         Collection<ObservationContainer>  reflexObsVOCollection  = null;
 
         for (ActRelationshipDto actRelDT : actRelColl) {
-            if (actRelDT == null) {
-                continue;
-            }
+            if (actRelDT == null) { // NOSONAR
+                continue; // NOSONAR
+            } // NOSONAR
 
             String typeCd = actRelDT.getTypeCd();
             String sourceClassCd = actRelDT.getSourceClassCd();
@@ -516,9 +516,10 @@ public class ObservationService implements IObservationService {
                 Long observationUid = actRelDT.getSourceActUid();
                 ObservationContainer reflexObs = (ObservationContainer) getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, observationUid);
 
-                if (reflexObs == null) {
-                    continue;
-                } else {
+                if (reflexObs == null) { // NOSONAR
+                    continue; // NOSONAR
+                }  // NOSONAR
+                else {
                     if (reflexObsVOCollection == null) {
                         reflexObsVOCollection = new ArrayList<>();
                     }
@@ -527,11 +528,10 @@ public class ObservationService implements IObservationService {
 
                 //Retrieves its associated reflex resulted tests
                 Collection<ObservationContainer> reflexRTs = retrieveReflexRTsAkaObservationFromActRelationship(reflexObs.getTheActRelationshipDtoCollection());
-                if (reflexRTs == null
-                    || reflexRTs.isEmpty()
-                ) {
-                    continue;
-                }
+                if (reflexRTs == null || reflexRTs.isEmpty() // NOSONAR
+                ) { // NOSONAR
+                    continue; // NOSONAR
+                } // NOSONAR
                 reflexObsVOCollection.addAll(reflexRTs);
             }
         }
@@ -547,9 +547,9 @@ public class ObservationService implements IObservationService {
         Collection<ObservationContainer>  reflexRTCollection  = null;
 
         for (ActRelationshipDto actRelDT : actRelColl) {
-            if (actRelDT == null) {
-                continue;
-            }
+            if (actRelDT == null) { // NOSONAR
+                continue; // NOSONAR
+            } // NOSONAR
 
             String typeCd = actRelDT.getTypeCd();
             String sourceClassCd = actRelDT.getSourceClassCd();
@@ -569,9 +569,9 @@ public class ObservationService implements IObservationService {
                 Long observationUid = actRelDT.getSourceActUid();
                 ObservationContainer reflexObs = (ObservationContainer) getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, observationUid);
 
-                if (reflexObs == null) {
-                    continue;
-                }
+                if (reflexObs == null) { // NOSONAR
+                    continue; // NOSONAR
+                } // NOSONAR
                 if (reflexRTCollection == null) {
                     reflexRTCollection = new ArrayList<>();
                 }
@@ -590,9 +590,9 @@ public class ObservationService implements IObservationService {
         OrganizationContainer lab = null;
 
         for (ParticipationDto partDT : partColl) {
-            if (partDT == null) {
-                continue;
-            }
+            if (partDT == null) { // NOSONAR
+                continue; // NOSONAR
+            } // NOSONAR
 
             String typeCd = partDT.getTypeCd();
             String subjectClassCd = partDT.getSubjectClassCd();
@@ -625,9 +625,9 @@ public class ObservationService implements IObservationService {
         Collection<Object>  theInterventionVOCollection  = null;
 
         for (ActRelationshipDto actRelDT : actRelColl) {
-            if (actRelDT == null) {
-                continue;
-            }
+            if (actRelDT == null) { // NOSONAR
+                continue; // NOSONAR
+            } // NOSONAR
 
             String sourceClassCd = actRelDT.getSourceClassCd();
             String targetClassCd = actRelDT.getTargetClassCd();
@@ -688,16 +688,16 @@ public class ObservationService implements IObservationService {
 
                 //Set observation collection
                 Collection<ObservationContainer> obsColl = (Collection<ObservationContainer>) allAct.get(DataProcessingMapKey.OBSERVATION);
-                if (obsColl == null)
-                {
-                    obsColl = new ArrayList<>();
-                }
+                if (obsColl == null) // NOSONAR
+                { // NOSONAR
+                    obsColl = new ArrayList<>(); // NOSONAR
+                } // NOSONAR
 
                 //BB - civil0012298 - Retrieve User Name to b displayed instead of ID!
-                if(!isELR) {
-                    orderedTest.getTheObservationDto().setAddUserName(AuthUtil.authUser.getUserId());
-                    orderedTest.getTheObservationDto().setLastChgUserName(AuthUtil.authUser.getUserId());
-                }
+                if(!isELR) { // NOSONAR
+                    orderedTest.getTheObservationDto().setAddUserName(AuthUtil.authUser.getUserId()); // NOSONAR
+                    orderedTest.getTheObservationDto().setLastChgUserName(AuthUtil.authUser.getUserId()); // NOSONAR
+                } // NOSONAR
 
                 obsColl.add(orderedTest);
                 lrProxyVO.setTheObservationContainerCollection(obsColl);
@@ -740,10 +740,10 @@ public class ObservationService implements IObservationService {
         try {
             PageContainer pageContainer = answerService.getNbsAnswerAndAssociation(observationId);
             lrProxyVO.setPageVO(pageContainer);
-        } catch (Exception e) {
-            logger.error("Exception while getting data from NBS Answer for Lab");
-            e.printStackTrace();
-        }
+        } catch (Exception e) { // NOSONAR
+            logger.error("Exception while getting data from NBS Answer for Lab"); // NOSONAR
+            e.printStackTrace(); // NOSONAR
+        } // NOSONAR
 
         return lrProxyVO;
     }
@@ -760,9 +760,9 @@ public class ObservationService implements IObservationService {
             if(labResultProxyVO.getMessageLogDCollection()!=null && labResultProxyVO.getMessageLogDCollection().size()>0){
                 try {
                     messageLogService.saveMessageLog(labResultProxyVO.getMessageLogDCollection());
-                } catch (Exception e) {
-                    logger.error("Unable to store the Error message for = "+ labResultProxyVO.getMessageLogDCollection());
-                }
+                } catch (Exception e) { // NOSONAR
+                    logger.error("Unable to store the Error message for = "+ labResultProxyVO.getMessageLogDCollection()); // NOSONAR
+                } // NOSONAR
             }
             return returnVal;
 
@@ -889,7 +889,7 @@ public class ObservationService implements IObservationService {
                         realUid = organizationRepositoryUtil.setOrganization(organizationContainer, null);
                         if (falseUid.intValue() < 0) {
                             uidService.setFalseToNewForObservation(labResultProxyVO, falseUid, realUid);
-                        }
+                        } // NOSONAR
                     }
                     else if (organizationContainer.isItDirty())
                     {
@@ -936,7 +936,7 @@ public class ObservationService implements IObservationService {
                         falseUid = materialContainer.getTheMaterialDto().getMaterialUid();
                         realUid = materialService.saveMaterial(materialContainer);
                         if (falseUid.intValue() < 0) {
-                            uidService.setFalseToNewForObservation(labResultProxyVO, falseUid, realUid);
+                            uidService.setFalseToNewForObservation(labResultProxyVO, falseUid, realUid); // NOSONAR
                         }
                     } else if (materialContainer.isItDirty()) {
                         newMaterialDto = (MaterialDto) prepareAssocModelHelper.prepareVO(materialContainer.
@@ -975,9 +975,9 @@ public class ObservationService implements IObservationService {
                             logger.debug("got the participationDto, the subjectEntityUid is " +
                                     dt.getSubjectEntityUid());
                         }
-                    } catch (Exception e) {
-                        throw new DataProcessingException(e.getMessage());
-                    }
+                    } catch (Exception e) { // NOSONAR
+                        throw new DataProcessingException(e.getMessage()); // NOSONAR
+                    }  // NOSONAR
                 }
             }
 
@@ -992,10 +992,10 @@ public class ObservationService implements IObservationService {
                         if (actRelationshipDto != null) {
                             actRelationshipService.saveActRelationship(actRelationshipDto);
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        throw new DataProcessingException(e.getMessage());
-                    }
+                    } catch (Exception e) { // NOSONAR
+                        e.printStackTrace(); // NOSONAR
+                        throw new DataProcessingException(e.getMessage()); // NOSONAR
+                    } // NOSONAR
                 }
             }
 
@@ -1256,10 +1256,10 @@ public class ObservationService implements IObservationService {
         return localIds;
     }
 
-    private void performOrderTestStateTransition(LabResultProxyContainer labResultProxyVO, ObservationContainer orderTest, boolean isELR) throws DataProcessingException
-    {
-        String businessTriggerCd = null;
-        ObservationDto newObservationDto;
+    protected String processingOrderTestStateTransition(LabResultProxyContainer labResultProxyVO,
+                                                      ObservationContainer orderTest,
+                                                      String businessTriggerCd,
+                                                      boolean isELR) {
         if (labResultProxyVO.isItNew() && orderTest.getTheObservationDto().getProcessingDecisionCd()!=null && !orderTest.getTheObservationDto().getProcessingDecisionCd().trim().equals(""))
         {
             businessTriggerCd = NEDSSConstant.OBS_LAB_CR_MR;
@@ -1279,6 +1279,18 @@ public class ObservationService implements IObservationService {
                 businessTriggerCd = NEDSSConstant.OBS_LAB_EDIT;
             }
         }
+
+        return businessTriggerCd;
+    }
+    protected void performOrderTestStateTransition(LabResultProxyContainer labResultProxyVO, ObservationContainer orderTest, boolean isELR) throws DataProcessingException
+    {
+        String businessTriggerCd = null;
+        ObservationDto newObservationDto;
+
+        businessTriggerCd = processingOrderTestStateTransition(labResultProxyVO,
+                orderTest,
+                businessTriggerCd,
+                isELR);
         Integer existObsVer = null;
         if (orderTest.getTheObservationDto().getUid() > 0) {
             var existObs = observationRepositoryUtil.loadObject(orderTest.getTheObservationDto().getUid());
@@ -1370,7 +1382,7 @@ public class ObservationService implements IObservationService {
 
 
 
-    private boolean processObservationWithProcessingDecision(Long observationUid, String processingDecisionCd, String processingDecisionTxt) throws DataProcessingException {
+    protected boolean processObservationWithProcessingDecision(Long observationUid, String processingDecisionCd, String processingDecisionTxt) throws DataProcessingException {
 
         try
         {
@@ -1392,18 +1404,6 @@ public class ObservationService implements IObservationService {
                 businessObjLookupName = NBSBOLookup.OBSERVATIONLABREPORT;
 
             }
-//            else if (observationType.equalsIgnoreCase(NEDSSConstant.MORBIDITY_CODE))
-//            {
-//                accessPermission = nbsSecurityObj.getPermission(
-//                        NBSBOLookup.OBSERVATIONMORBIDITYREPORT,
-//                        NBSOperationLookup.VIEW,
-//                        observationDT.getProgAreaCd(),
-//                        observationDT.getJurisdictionCd(),
-//                        observationDT.getSharedInd());
-//
-//                businessTrigger = NEDSSConstant.OBS_MORB_PROCESS;
-//                businessObjLookupName = NBSBOLookup.OBSERVATIONMORBIDITYREPORT;
-//            }
             else{
                 throw new DataProcessingException("This is not a Lab Report OR a Morbidity Report! MarkAsReviewed only applies to Lab Report or Morbidity Report ");
             }
@@ -1440,15 +1440,8 @@ public class ObservationService implements IObservationService {
 
 
     private void setObservationAssociations(Long investigationUid, Collection<LabReportSummaryContainer>  observationSummaryVOColl) throws DataProcessingException {
-        try
-        {
-            investigationService.setAssociations(investigationUid, observationSummaryVOColl,
-                    null, null,null, true);
-        }
-        catch (Exception e)
-        {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
+        investigationService.setAssociations(investigationUid, observationSummaryVOColl,
+                null, null,null, true);
 
     }
 

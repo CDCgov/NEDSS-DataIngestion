@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.service.implementation.observation;
 
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.constant.enums.DataProcessingMapKey;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
@@ -47,6 +48,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -536,6 +540,262 @@ class ObservationServiceTest {
         var test = observationService.processObservation(1L);
 
         assertTrue(test);
+    }
+
+    @Test
+    void testProcessObservationWithProcessingDecision_NotLabResultCode() throws DataProcessingException {
+        Long observationUid = 1L;
+        String processingDecisionCd = "DECISION_CD";
+        String processingDecisionTxt = "DECISION_TXT";
+
+        ObservationContainer observationVO = mock(ObservationContainer.class);
+        ObservationDto observationDT = new ObservationDto();
+        observationDT.setCtrlCdDisplayForm("NOT_LABRESULT_CODE");
+
+        when(observationRepositoryUtil.loadObject(observationUid)).thenReturn(observationVO);
+        when(observationVO.getTheObservationDto()).thenReturn(observationDT);
+
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () ->
+                observationService.processObservationWithProcessingDecision(observationUid, processingDecisionCd, processingDecisionTxt)
+        );
+
+        assertEquals("This is not a Lab Report OR a Morbidity Report! MarkAsReviewed only applies to Lab Report or Morbidity Report ", exception.getMessage());
+    }
+
+
+    @Test
+    void testProcessObservationWithProcessingDecision_NotUnprocessed() throws DataProcessingException {
+        Long observationUid = 1L;
+        String processingDecisionCd = "DECISION_CD";
+        String processingDecisionTxt = "DECISION_TXT";
+
+        ObservationContainer observationVO = mock(ObservationContainer.class);
+        ObservationDto observationDT = new ObservationDto();
+        observationDT.setCtrlCdDisplayForm(NEDSSConstant.LABRESULT_CODE);
+        observationDT.setRecordStatusCd("PROCESSED");
+
+        when(observationRepositoryUtil.loadObject(observationUid)).thenReturn(observationVO);
+        when(observationVO.getTheObservationDto()).thenReturn(observationDT);
+
+        boolean result = observationService.processObservationWithProcessingDecision(observationUid, processingDecisionCd, processingDecisionTxt);
+
+        assertFalse(result);
+        verify(observationRepositoryUtil).loadObject(observationUid);
+        verify(observationVO).getTheObservationDto();
+    }
+
+    @Test
+    void testProcessObservationWithProcessingDecision_Valid() throws DataProcessingException {
+        Long observationUid = 1L;
+        String processingDecisionCd = "DECISION_CD";
+        String processingDecisionTxt = "DECISION_TXT";
+
+        ObservationContainer observationVO = mock(ObservationContainer.class);
+        ObservationDto observationDT = new ObservationDto();
+        observationDT.setCtrlCdDisplayForm(NEDSSConstant.LABRESULT_CODE);
+        observationDT.setRecordStatusCd(NEDSSConstant.OBS_UNPROCESSED);
+        observationDT.setVersionCtrlNbr(1);
+
+        when(observationRepositoryUtil.loadObject(observationUid)).thenReturn(observationVO);
+        when(observationVO.getTheObservationDto()).thenReturn(observationDT);
+        when(prepareAssocModelHelper.prepareVO(any(), anyString(), anyString(), anyString(), anyString(), anyInt())).thenReturn(observationDT);
+
+        boolean result = observationService.processObservationWithProcessingDecision(observationUid, processingDecisionCd, processingDecisionTxt);
+
+        assertTrue(result);
+        assertEquals(processingDecisionCd, observationDT.getProcessingDecisionCd());
+        assertEquals(processingDecisionTxt, observationDT.getProcessingDecisionTxt());
+        verify(observationRepositoryUtil).saveObservation(observationVO);
+    }
+
+
+    @Test
+    void testProcessObservationWithProcessingDecision_Exception() throws DataProcessingException {
+        Long observationUid = 1L;
+        String processingDecisionCd = "DECISION_CD";
+        String processingDecisionTxt = "DECISION_TXT";
+
+        when(observationRepositoryUtil.loadObject(observationUid)).thenThrow(new RuntimeException("Test Exception"));
+
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () ->
+                observationService.processObservationWithProcessingDecision(observationUid, processingDecisionCd, processingDecisionTxt)
+        );
+
+        assertEquals("Test Exception", exception.getMessage());
+    }
+    @Test
+    void testPerformOrderTestStateTransition_NewWithProcessingDecision() throws DataProcessingException {
+        LabResultProxyContainer labResultProxyVO = mock(LabResultProxyContainer.class);
+        ObservationContainer orderTest = mock(ObservationContainer.class);
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setProcessingDecisionCd("DECISION");
+        observationDto.setObservationUid(-1L);
+        when(labResultProxyVO.isItNew()).thenReturn(true);
+        when(orderTest.getTheObservationDto()).thenReturn(observationDto);
+
+
+        observationService.performOrderTestStateTransition(labResultProxyVO, orderTest, false);
+
+        verify(prepareAssocModelHelper).prepareVO(any(),any(),
+                any(), any(), any(), any());
+    }
+
+
+    @Test
+    void testProcessingOrderTestStateTransition_NewWithProcessingDecision() {
+        LabResultProxyContainer labResultProxyVO = mock(LabResultProxyContainer.class);
+        ObservationContainer orderTest = mock(ObservationContainer.class);
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setProcessingDecisionCd("DECISION");
+        when(labResultProxyVO.isItNew()).thenReturn(true);
+        when(orderTest.getTheObservationDto()).thenReturn(observationDto);
+
+        String result = observationService.processingOrderTestStateTransition(labResultProxyVO, orderTest, null, false);
+
+        assertEquals(NEDSSConstant.OBS_LAB_CR_MR, result);
+    }
+
+    @Test
+    void testProcessingOrderTestStateTransition_NewWithoutProcessingDecision() {
+        LabResultProxyContainer labResultProxyVO = mock(LabResultProxyContainer.class);
+        ObservationContainer orderTest = mock(ObservationContainer.class);
+        ObservationDto observationDto = new ObservationDto();
+        when(labResultProxyVO.isItNew()).thenReturn(true);
+        when(orderTest.getTheObservationDto()).thenReturn(observationDto);
+
+        String result = observationService.processingOrderTestStateTransition(labResultProxyVO, orderTest, null, false);
+
+        assertEquals(NEDSSConstant.OBS_LAB_CR, result);
+    }
+
+    @Test
+    void testProcessingOrderTestStateTransition_DirtyAndIsELR() {
+        LabResultProxyContainer labResultProxyVO = mock(LabResultProxyContainer.class);
+        ObservationContainer orderTest = mock(ObservationContainer.class);
+        when(labResultProxyVO.isItDirty()).thenReturn(true);
+
+        String result = observationService.processingOrderTestStateTransition(labResultProxyVO, orderTest, null, true);
+
+        assertEquals(NEDSSConstant.OBS_LAB_CORRECT, result);
+    }
+
+    @Test
+    void testProcessingOrderTestStateTransition_DirtyAndNotIsELR() {
+        LabResultProxyContainer labResultProxyVO = mock(LabResultProxyContainer.class);
+        ObservationContainer orderTest = mock(ObservationContainer.class);
+        when(labResultProxyVO.isItDirty()).thenReturn(true);
+
+        String result = observationService.processingOrderTestStateTransition(labResultProxyVO, orderTest, null, false);
+
+        assertEquals(NEDSSConstant.OBS_LAB_EDIT, result);
+    }
+
+    @Test
+    void testProcessingOrderTestStateTransition_NoConditionsMet() {
+        LabResultProxyContainer labResultProxyVO = mock(LabResultProxyContainer.class);
+        ObservationContainer orderTest = mock(ObservationContainer.class);
+        ObservationDto observationDto = new ObservationDto();
+        when(labResultProxyVO.isItNew()).thenReturn(false);
+        when(labResultProxyVO.isItDirty()).thenReturn(false);
+        when(orderTest.getTheObservationDto()).thenReturn(observationDto);
+
+        String businessTriggerCd = "INITIAL_TRIGGER";
+        String result = observationService.processingOrderTestStateTransition(labResultProxyVO, orderTest, businessTriggerCd, false);
+
+        assertEquals("INITIAL_TRIGGER", result);
+    }
+
+
+    @Test
+    void testRetrieveOrganizationFromParticipation_Continue() throws DataProcessingException {
+        Collection<ParticipationDto> partColl = new ArrayList<>();
+        partColl.add(null);  // This should trigger the continue statement
+
+        ParticipationDto validParticipationDto = new ParticipationDto();
+        validParticipationDto.setSubjectClassCd(NEDSSConstant.PAR102_SUB_CD);
+        validParticipationDto.setRecordStatusCd(NEDSSConstant.ACTIVE);
+        validParticipationDto.setSubjectEntityUid(1L);
+        validParticipationDto.setActUid(2L);
+        partColl.add(validParticipationDto);
+
+        when(organizationRepositoryUtil.loadObject(1L, 2L)).thenReturn(new OrganizationContainer());
+
+        Collection<Object> result = observationService.retrieveOrganizationFromParticipation(partColl);
+
+        // Check that the continue statement worked and the valid ParticipationDto was processed
+        assertEquals(1, result.size());
+        verify(organizationRepositoryUtil, times(1)).loadObject(1L, 2L);
+    }
+
+    @Test
+    void testRetrieveMaterialFromParticipation_Continue() {
+        Collection<ParticipationDto> partColl = new ArrayList<>();
+        partColl.add(null);  // This should trigger the continue statement
+
+        ParticipationDto validParticipationDto = new ParticipationDto();
+        validParticipationDto.setSubjectClassCd(NEDSSConstant.PAR104_SUB_CD);
+        validParticipationDto.setRecordStatusCd(NEDSSConstant.ACTIVE);
+        validParticipationDto.setSubjectEntityUid(1L);
+        partColl.add(validParticipationDto);
+
+        MaterialContainer mockMaterialContainer = new MaterialContainer();
+        when(materialService.loadMaterialObject(1L)).thenReturn(mockMaterialContainer);
+
+        Collection<Object> result = observationService.retrieveMaterialFromParticipation(partColl);
+
+        // Check that the continue statement worked and the valid ParticipationDto was processed
+        assertEquals(1, result.size());
+        verify(materialService, times(1)).loadMaterialObject(1L);
+    }
+
+
+    @Test
+    void testRetrievePersonAndRoleFromParticipation_Continue() {
+        Collection<ParticipationDto> partColl = new ArrayList<>();
+        partColl.add(null);  // This should trigger the continue statement
+
+        ParticipationDto validParticipationDto = new ParticipationDto();
+        validParticipationDto.setSubjectClassCd(NEDSSConstant.PAR110_SUB_CD);
+        validParticipationDto.setRecordStatusCd(NEDSSConstant.ACTIVE);
+        validParticipationDto.setTypeCd(NEDSSConstant.PAR110_TYP_CD);
+        validParticipationDto.setSubjectEntityUid(1L);
+        partColl.add(validParticipationDto);
+
+        PersonContainer mockPersonContainer = new PersonContainer();
+        mockPersonContainer.setTheRoleDtoCollection(Collections.emptyList());
+        when(patientRepositoryUtil.loadPerson(1L)).thenReturn(mockPersonContainer);
+
+        Map<DataProcessingMapKey, Object> result = observationService.retrievePersonAndRoleFromParticipation(partColl);
+
+        // Check that the continue statement worked and the valid ParticipationDto was processed
+        assertEquals(1, ((Collection<?>) result.get(DataProcessingMapKey.PERSON)).size());
+        verify(patientRepositoryUtil, times(1)).loadPerson(1L);
+    }
+
+
+    @Test
+    void testRetrieveScopedPersons_Continue() {
+        Long scopingUid = 1L;
+
+        // Mock RoleService to return a collection with a null element and a valid element
+        RoleDto nullRoleDto = null;
+        RoleDto validRoleDto = new RoleDto();
+        validRoleDto.setSubjectEntityUid(2L);
+
+        Collection<RoleDto> roleDTColl = new ArrayList<>();
+        roleDTColl.add(nullRoleDto);  // This should trigger the continue statement
+        roleDTColl.add(validRoleDto);
+
+        when(roleService.findRoleScopedToPatient(scopingUid)).thenReturn(roleDTColl);
+
+        PersonContainer mockPersonContainer = new PersonContainer();
+        when(patientRepositoryUtil.loadPerson(2L)).thenReturn(mockPersonContainer);
+
+        Collection<PersonContainer> result = observationService.retrieveScopedPersons(scopingUid);
+
+        // Check that the continue statement worked and the valid RoleDto was processed
+        assertEquals(1, result.size());
+        verify(patientRepositoryUtil, times(1)).loadPerson(2L);
     }
 
 }
