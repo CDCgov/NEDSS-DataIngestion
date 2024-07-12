@@ -22,10 +22,7 @@ import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +43,7 @@ class MatchingBaseServiceTest {
     @Mock
     private PrepareAssocModelHelper prepareAssocModelHelper;
     @InjectMocks
+    @Spy
     private MatchingBaseService matchingBaseService;
     @Mock
     AuthUtil authUtil;
@@ -149,8 +147,6 @@ class MatchingBaseServiceTest {
 
         personContainer1.setThePersonNameDtoCollection(nameCol);
     }
-
-
 
 
 }

@@ -14,6 +14,7 @@ import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.manager.ManagerAggregationService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
@@ -24,10 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -407,5 +405,424 @@ class PatientMatchingBaseServiceTest {
     }
 
 
+    @Test
+    void testProcessingPersonName_ValidInputs() {
+        // Arrange
+        PersonNameDto personNameDto = new PersonNameDto();
+        personNameDto.setLastNm("Doe");
+        personNameDto.setFirstNm("John");
+        personNameDto.setAsOfDate(Timestamp.valueOf("2023-01-01 00:00:00"));
 
+        PersonDto personDto = new PersonDto();
+        personDto.setBirthTime(Timestamp.valueOf("2000-01-01 00:00:00"));
+        personDto.setCurrSexCd("M");
+
+        Timestamp asofDate = null;
+        String namedobcursexStr = "";
+
+        // Act
+        String result = patientMatchingBaseService.processingPersonName(personNameDto, personDto, asofDate, namedobcursexStr);
+
+        // Assert
+        assertEquals("Doe^John^2000-01-01 00:00:00.0^M", result);
+        assertEquals(Timestamp.valueOf("2023-01-01 00:00:00"), personNameDto.getAsOfDate());
+    }
+
+
+    @Test
+    void testProcessingPersonName_MissingLastName() {
+        // Arrange
+        PersonNameDto personNameDto = new PersonNameDto();
+        personNameDto.setLastNm(null); // Missing last name
+        personNameDto.setFirstNm("John");
+        personNameDto.setAsOfDate(Timestamp.valueOf("2023-01-01 00:00:00"));
+
+        PersonDto personDto = new PersonDto();
+        personDto.setBirthTime(Timestamp.valueOf("2000-01-01 00:00:00"));
+        personDto.setCurrSexCd("M");
+
+        Timestamp asofDate = null;
+        String namedobcursexStr = "";
+
+        // Act
+        String result = patientMatchingBaseService.processingPersonName(personNameDto, personDto, asofDate, namedobcursexStr);
+
+        // Assert
+        assertEquals("", result);  // Should return the original string if last name is missing
+    }
+
+    @Test
+    void testProcessingPersonName_MissingFirstName() {
+        // Arrange
+        PersonNameDto personNameDto = new PersonNameDto();
+        personNameDto.setLastNm("Doe");
+        personNameDto.setFirstNm(null); // Missing first name
+        personNameDto.setAsOfDate(Timestamp.valueOf("2023-01-01 00:00:00"));
+
+        PersonDto personDto = new PersonDto();
+        personDto.setBirthTime(Timestamp.valueOf("2000-01-01 00:00:00"));
+        personDto.setCurrSexCd("M");
+
+        Timestamp asofDate = null;
+        String namedobcursexStr = "";
+
+        // Act
+        String result = patientMatchingBaseService.processingPersonName(personNameDto, personDto, asofDate, namedobcursexStr);
+
+        // Assert
+        assertEquals("", result);  // Should return the original string if first name is missing
+    }
+
+    @Test
+    void testProcessingPersonName_MissingBirthTime() {
+        // Arrange
+        PersonNameDto personNameDto = new PersonNameDto();
+        personNameDto.setLastNm("Doe");
+        personNameDto.setFirstNm("John");
+        personNameDto.setAsOfDate(Timestamp.valueOf("2023-01-01 00:00:00"));
+
+        PersonDto personDto = new PersonDto();
+        personDto.setBirthTime(null); // Missing birth time
+        personDto.setCurrSexCd("M");
+
+        Timestamp asofDate = null;
+        String namedobcursexStr = "";
+
+        // Act
+        String result = patientMatchingBaseService.processingPersonName(personNameDto, personDto, asofDate, namedobcursexStr);
+
+        // Assert
+        assertEquals("", result);  // Should return the original string if birth time is missing
+    }
+
+    @Test
+    void testProcessingPersonName_MissingCurrSexCd() {
+        // Arrange
+        PersonNameDto personNameDto = new PersonNameDto();
+        personNameDto.setLastNm("Doe");
+        personNameDto.setFirstNm("John");
+        personNameDto.setAsOfDate(Timestamp.valueOf("2023-01-01 00:00:00"));
+
+        PersonDto personDto = new PersonDto();
+        personDto.setBirthTime(Timestamp.valueOf("2000-01-01 00:00:00"));
+        personDto.setCurrSexCd(null); // Missing current sex code
+
+        Timestamp asofDate = null;
+        String namedobcursexStr = "";
+
+        // Act
+        String result = patientMatchingBaseService.processingPersonName(personNameDto, personDto, asofDate, namedobcursexStr);
+
+        // Assert
+        assertEquals("", result);  // Should return the original string if current sex code is missing
+    }
+
+    @Test
+    void testSetPersonHashCdPatient_RecordStatusActive() throws DataProcessingException {
+        // Arrange
+        PersonContainer personContainer = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonParentUid(12345L);
+        personDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        personContainer.setThePersonDto(personDto);
+        PatientMatchingBaseService spyService = spy(patientMatchingBaseService);
+        doNothing().when(edxPatientMatchRepositoryUtil).deleteEdxPatientMatchDTColl(personDto.getPersonParentUid());
+        doNothing().when(spyService).setPersonToMatchEntityPatient(personContainer);
+
+        // Act
+        patientMatchingBaseService.setPersonHashCdPatient(personContainer);
+
+        // Assert
+        verify(edxPatientMatchRepositoryUtil, times(1)).deleteEdxPatientMatchDTColl(personDto.getPersonParentUid());
+    }
+
+
+    @Test
+    void testSetPersonHashCdPatient_OuterExceptionHandling() {
+        // Arrange
+        PersonContainer personContainer = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonParentUid(12345L);
+        personContainer.setThePersonDto(personDto);
+
+        doThrow(new RuntimeException("Outer exception")).when(edxPatientMatchRepositoryUtil).deleteEdxPatientMatchDTColl(personDto.getPersonParentUid());
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            patientMatchingBaseService.setPersonHashCdPatient(personContainer);
+        });
+
+        assertEquals("Outer exception", exception.getMessage());
+    }
+
+    @Test
+    void testSetPersonToMatchEntityPatient_ValidInputs() throws DataProcessingException {
+        // Arrange
+        PersonContainer personContainer = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(12345L);
+        personDto.setCdDescTxt("NOT_NOK");
+        personContainer.setThePersonDto(personDto);
+
+        List<String> identifierStrList = Arrays.asList("identifier1", "identifier2");
+
+        doReturn(identifierStrList).when(patientMatchingBaseService).getIdentifier(personContainer);
+        doReturn("lastname^firstname^dob^sex").when(patientMatchingBaseService).getLNmFnmDobCurSexStr(personContainer);
+
+        // Act
+        patientMatchingBaseService.setPersonToMatchEntityPatient(personContainer);
+
+        // Assert
+        verify(edxPatientMatchRepositoryUtil, times(1)).setEdxPatientMatchDT(argThat(dto ->
+                dto.getPatientUid().equals(12345L) && dto.getMatchString().equals("IDENTIFIER1") && dto.getMatchStringHashCode() == "IDENTIFIER1".hashCode()
+        ));
+        verify(edxPatientMatchRepositoryUtil, times(1)).setEdxPatientMatchDT(argThat(dto ->
+                dto.getPatientUid().equals(12345L) && dto.getMatchString().equals("IDENTIFIER2") && dto.getMatchStringHashCode() == "IDENTIFIER2".hashCode()
+        ));
+        verify(edxPatientMatchRepositoryUtil, times(1)).setEdxPatientMatchDT(argThat(dto ->
+                dto.getPatientUid().equals(12345L) && dto.getMatchString().equals("LASTNAME^FIRSTNAME^DOB^SEX") && dto.getMatchStringHashCode() == "LASTNAME^FIRSTNAME^DOB^SEX".hashCode()
+        ));
+    }
+
+
+    @Test
+    void testSetPersonToMatchEntityPatient_EmptyCdDescTxt() throws DataProcessingException {
+        // Arrange
+        PersonContainer personContainer = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(12345L);
+        personDto.setCdDescTxt("");
+        personContainer.setThePersonDto(personDto);
+
+        List<String> identifierStrList = Arrays.asList("identifier1", "identifier2");
+
+        doReturn(identifierStrList).when(patientMatchingBaseService).getIdentifier(personContainer);
+        doReturn("lastname^firstname^dob^sex").when(patientMatchingBaseService).getLNmFnmDobCurSexStr(personContainer);
+
+        // Act
+        patientMatchingBaseService.setPersonToMatchEntityPatient(personContainer);
+
+        // Assert
+        verify(edxPatientMatchRepositoryUtil, times(1)).setEdxPatientMatchDT(argThat(dto ->
+                dto.getPatientUid().equals(12345L) && dto.getMatchString().equals("IDENTIFIER1") && dto.getMatchStringHashCode() == "IDENTIFIER1".hashCode()
+        ));
+        verify(edxPatientMatchRepositoryUtil, times(1)).setEdxPatientMatchDT(argThat(dto ->
+                dto.getPatientUid().equals(12345L) && dto.getMatchString().equals("IDENTIFIER2") && dto.getMatchStringHashCode() == "IDENTIFIER2".hashCode()
+        ));
+        verify(edxPatientMatchRepositoryUtil, times(1)).setEdxPatientMatchDT(argThat(dto ->
+                dto.getPatientUid().equals(12345L) && dto.getMatchString().equals("LASTNAME^FIRSTNAME^DOB^SEX") && dto.getMatchStringHashCode() == "LASTNAME^FIRSTNAME^DOB^SEX".hashCode()
+        ));
+    }
+
+    @Test
+    void testSetPersonToMatchEntityPatient_NullIdentifierStr() throws DataProcessingException {
+        // Arrange
+        PersonContainer personContainer = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(12345L);
+        personDto.setCdDescTxt("NOT_NOK");
+        personContainer.setThePersonDto(personDto);
+
+        List<String> identifierStrList = Arrays.asList(null, "identifier2");
+
+        doReturn(identifierStrList).when(patientMatchingBaseService).getIdentifier(personContainer);
+        doReturn("lastname^firstname^dob^sex").when(patientMatchingBaseService).getLNmFnmDobCurSexStr(personContainer);
+
+        // Act
+        patientMatchingBaseService.setPersonToMatchEntityPatient(personContainer);
+
+        // Assert
+        verify(edxPatientMatchRepositoryUtil, times(0)).setEdxPatientMatchDT(argThat(dto ->
+                dto.getMatchString() == null
+        ));
+        verify(edxPatientMatchRepositoryUtil, times(1)).setEdxPatientMatchDT(argThat(dto ->
+                dto.getPatientUid().equals(12345L) && dto.getMatchString().equals("IDENTIFIER2") && dto.getMatchStringHashCode() == "IDENTIFIER2".hashCode()
+        ));
+        verify(edxPatientMatchRepositoryUtil, times(1)).setEdxPatientMatchDT(argThat(dto ->
+                dto.getPatientUid().equals(12345L) && dto.getMatchString().equals("LASTNAME^FIRSTNAME^DOB^SEX") && dto.getMatchStringHashCode() == "LASTNAME^FIRSTNAME^DOB^SEX".hashCode()
+        ));
+    }
+
+    @Test
+    void testSetPersonToMatchEntityPatient_ExceptionHandling() throws DataProcessingException {
+        // Arrange
+        PersonContainer personContainer = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(12345L);
+        personDto.setCdDescTxt("NOT_NOK");
+        personContainer.setThePersonDto(personDto);
+
+        List<String> identifierStrList = Arrays.asList("identifier1");
+
+        doReturn(identifierStrList).when(patientMatchingBaseService).getIdentifier(personContainer);
+        doReturn("lastname^firstname^dob^sex").when(patientMatchingBaseService).getLNmFnmDobCurSexStr(personContainer);
+
+        doThrow(new RuntimeException("Database error")).when(edxPatientMatchRepositoryUtil).setEdxPatientMatchDT(any());
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            patientMatchingBaseService.setPersonToMatchEntityPatient(personContainer);
+        });
+
+        assertEquals("Database error", exception.getMessage());
+    }
+
+
+    @Test
+    void testSetPersonHashCdNok_RecordStatusActive() throws DataProcessingException {
+        // Arrange
+        PersonContainer personContainer = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonParentUid(12345L);
+        personDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        personContainer.setThePersonDto(personDto);
+
+        doNothing().when(edxPatientMatchRepositoryUtil).deleteEdxPatientMatchDTColl(personDto.getPersonParentUid());
+        doNothing().when(patientMatchingBaseService).setPersonToMatchEntityNok(personContainer);
+
+        // Act
+        patientMatchingBaseService.setPersonHashCdNok(personContainer);
+
+        // Assert
+        assertEquals(personDto.getPersonParentUid(), personDto.getPersonUid());
+    }
+
+    @Test
+    void testSetPersonHashCdNok_InnerExceptionHandling() throws DataProcessingException {
+        // Arrange
+        PersonContainer personContainer = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonParentUid(12345L);
+        personDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        personContainer.setThePersonDto(personDto);
+
+        doNothing().when(edxPatientMatchRepositoryUtil).deleteEdxPatientMatchDTColl(personDto.getPersonParentUid());
+        doThrow(new RuntimeException("Inner exception")).when(patientMatchingBaseService).setPersonToMatchEntityNok(personContainer);
+
+        // Act
+        patientMatchingBaseService.setPersonHashCdNok(personContainer);
+
+        // Assert
+        verify(edxPatientMatchRepositoryUtil, times(1)).deleteEdxPatientMatchDTColl(personDto.getPersonParentUid());
+        assertEquals(personDto.getPersonParentUid(), personDto.getPersonUid());
+    }
+
+    @Test
+    void testSetPersonHashCdNok_OuterExceptionHandling() {
+        // Arrange
+        PersonContainer personContainer = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonParentUid(12345L);
+        personContainer.setThePersonDto(personDto);
+
+        doThrow(new RuntimeException("Outer exception")).when(edxPatientMatchRepositoryUtil).deleteEdxPatientMatchDTColl(personDto.getPersonParentUid());
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            patientMatchingBaseService.setPersonHashCdNok(personContainer);
+        });
+
+        assertEquals("Outer exception", exception.getMessage());
+    }
+
+    @Test
+    void testSetPersonToMatchEntityNok_ValidInputs() throws DataProcessingException {
+        // Arrange
+        PersonContainer personContainer = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(12345L);
+        personDto.setCdDescTxt(EdxELRConstant.ELR_NOK_DESC);
+        personContainer.setThePersonDto(personDto);
+
+        List<String> nameAddressStreetOneStrList = Arrays.asList("address1", "address2");
+        List<String> nameTelePhoneStrList = Arrays.asList("1234567890", "0987654321");
+
+        doReturn(nameAddressStreetOneStrList).when(patientMatchingBaseService).nameAddressStreetOneNOK(personContainer);
+        doReturn(nameTelePhoneStrList).when(patientMatchingBaseService).telePhoneTxtNOK(personContainer);
+
+        // Act
+        patientMatchingBaseService.setPersonToMatchEntityNok(personContainer);
+
+        // Assert
+        verify(edxPatientMatchRepositoryUtil, times(1)).setEdxPatientMatchDT(argThat(dto ->
+                dto.getPatientUid().equals(12345L) && dto.getMatchString().equals("ADDRESS1") && dto.getMatchStringHashCode() == "ADDRESS1".hashCode()
+        ));
+        verify(edxPatientMatchRepositoryUtil, times(1)).setEdxPatientMatchDT(argThat(dto ->
+                dto.getPatientUid().equals(12345L) && dto.getMatchString().equals("ADDRESS2") && dto.getMatchStringHashCode() == "ADDRESS2".hashCode()
+        ));
+        verify(edxPatientMatchRepositoryUtil, times(1)).setEdxPatientMatchDT(argThat(dto ->
+                dto.getPatientUid().equals(12345L) && dto.getMatchString().equals("1234567890") && dto.getMatchStringHashCode() == "1234567890".hashCode()
+        ));
+        verify(edxPatientMatchRepositoryUtil, times(1)).setEdxPatientMatchDT(argThat(dto ->
+                dto.getPatientUid().equals(12345L) && dto.getMatchString().equals("0987654321") && dto.getMatchStringHashCode() == "0987654321".hashCode()
+        ));
+    }
+
+    @Test
+    void testSetPersonToMatchEntityNok_EmptyCdDescTxt() throws DataProcessingException {
+        // Arrange
+        PersonContainer personContainer = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(12345L);
+        personDto.setCdDescTxt(null);  // Empty cdDescTxt
+        personContainer.setThePersonDto(personDto);
+
+        // Act
+        patientMatchingBaseService.setPersonToMatchEntityNok(personContainer);
+
+        // Assert
+        verifyNoInteractions(edxPatientMatchRepositoryUtil);
+    }
+
+    @Test
+    void testSetPersonToMatchEntityNok_EmptyNameAddressStreetOneStrList() throws DataProcessingException {
+        // Arrange
+        PersonContainer personContainer = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(12345L);
+        personDto.setCdDescTxt(EdxELRConstant.ELR_NOK_DESC);
+        personContainer.setThePersonDto(personDto);
+
+        List<String> nameAddressStreetOneStrList = Collections.emptyList();
+        List<String> nameTelePhoneStrList = Arrays.asList("1234567890", "0987654321");
+
+        doReturn(nameAddressStreetOneStrList).when(patientMatchingBaseService).nameAddressStreetOneNOK(personContainer);
+        doReturn(nameTelePhoneStrList).when(patientMatchingBaseService).telePhoneTxtNOK(personContainer);
+
+        // Act
+        patientMatchingBaseService.setPersonToMatchEntityNok(personContainer);
+
+        // Assert
+        verify(edxPatientMatchRepositoryUtil, times(1)).setEdxPatientMatchDT(argThat(dto ->
+                dto.getPatientUid().equals(12345L) && dto.getMatchString().equals("1234567890") && dto.getMatchStringHashCode() == "1234567890".hashCode()
+        ));
+        verify(edxPatientMatchRepositoryUtil, times(1)).setEdxPatientMatchDT(argThat(dto ->
+                dto.getPatientUid().equals(12345L) && dto.getMatchString().equals("0987654321") && dto.getMatchStringHashCode() == "0987654321".hashCode()
+        ));
+        verify(edxPatientMatchRepositoryUtil, times(0)).setEdxPatientMatchDT(argThat(dto ->
+                dto.getMatchString().equals("ADDRESS1") || dto.getMatchString().equals("ADDRESS2")
+        ));
+    }
+
+    @Test
+    void testSetPersonToMatchEntityNok_ExceptionHandling() throws DataProcessingException {
+        // Arrange
+        PersonContainer personContainer = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(12345L);
+        personDto.setCdDescTxt(EdxELRConstant.ELR_NOK_DESC);
+        personContainer.setThePersonDto(personDto);
+
+        List<String> nameAddressStreetOneStrList = Arrays.asList("address1");
+
+        doReturn(nameAddressStreetOneStrList).when(patientMatchingBaseService).nameAddressStreetOneNOK(personContainer);
+        doThrow(new RuntimeException("Database error")).when(edxPatientMatchRepositoryUtil).setEdxPatientMatchDT(any());
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            patientMatchingBaseService.setPersonToMatchEntityNok(personContainer);
+        });
+
+        assertEquals("Database error", exception.getMessage());
+    }
 }

@@ -397,24 +397,8 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                             }
                             else if (asofDate.before(personNameDto.getAsOfDate()))
                             {
-                                if (personNameDto.getLastNm() != null
-                                        && !personNameDto.getLastNm().trim().equals("")
-                                        && personNameDto.getFirstNm() != null
-                                        && !personNameDto.getFirstNm().trim().equals("")
-                                        && personDto.getBirthTime() != null
-                                        && personDto.getCurrSexCd() != null
-                                        && !personDto.getCurrSexCd().trim().equals("")
-                                )
-                                {
-                                    namedobcursexStr = personNameDto.getLastNm()
-                                            + carrot
-                                            + personNameDto.getFirstNm()
-                                            + carrot + personDto.getBirthTime()
-                                            + carrot + personDto.getCurrSexCd();
-                                    asofDate = personNameDto.getAsOfDate();
-
-                                }
-
+                                namedobcursexStr = processingPersonName(personNameDto, personDto,
+                                         asofDate,  namedobcursexStr);
                             }
 
                         }
@@ -424,6 +408,31 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         }
         return namedobcursexStr;
     }
+
+    protected String processingPersonName(PersonNameDto personNameDto, PersonDto personDto,
+                                        Timestamp asofDate, String namedobcursexStr) {
+        String caret = "^";
+        if (personNameDto.getLastNm() != null
+                && !personNameDto.getLastNm().trim().equals("")
+                && personNameDto.getFirstNm() != null
+                && !personNameDto.getFirstNm().trim().equals("")
+                && personDto.getBirthTime() != null
+                && personDto.getCurrSexCd() != null
+                && !personDto.getCurrSexCd().trim().equals("")
+        )
+        {
+            namedobcursexStr = personNameDto.getLastNm()
+                    + caret
+                    + personNameDto.getFirstNm()
+                    + caret + personDto.getBirthTime()
+                    + caret + personDto.getCurrSexCd();
+            asofDate = personNameDto.getAsOfDate();
+
+        }
+
+        return namedobcursexStr;
+    }
+
     protected void setPersonHashCdPatient(PersonContainer personContainer) throws DataProcessingException {
         try {
             long personUid = personContainer.getThePersonDto().getPersonParentUid();

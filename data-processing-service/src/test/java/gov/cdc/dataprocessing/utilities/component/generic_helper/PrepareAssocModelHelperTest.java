@@ -8,6 +8,7 @@ import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.PrepareEntity;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PrepareEntityStoredProcRepository;
@@ -19,14 +20,16 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 class PrepareAssocModelHelperTest {
     @InjectMocks
+    @Spy
     private PrepareAssocModelHelper prepareAssocModelHelper;
 
     @Mock
@@ -48,6 +51,7 @@ class PrepareAssocModelHelperTest {
         AuthUser user = new AuthUser();
         user.setAuthUserUid(1L);
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
+        user.setNedssEntryId(1L);
         userInfo.setAuthUser(user);
 
         authUtil.setGlobalAuthUser(userInfo);
@@ -315,4 +319,590 @@ class PrepareAssocModelHelperTest {
     }
 
 
+    @Test
+    void testPrepareAssocDTForActivityLocatorParticipation_RecordStatusCdNull() {
+        // Arrange
+        ActivityLocatorParticipationDto assocDTInterface = new ActivityLocatorParticipationDto();
+        assocDTInterface.setRecordStatusCd(null);
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareAssocDTForActivityLocatorParticipation(assocDTInterface);
+        });
+
+        assertTrue(exception.getMessage().contains("RecordStatusCd -----2----null   statusCode--------null"));
+    }
+
+
+    @Test
+    void testPrepareAssocDTForActivityLocatorParticipation_RecordStatusCdNotActiveOrInactive() {
+        // Arrange
+        ActivityLocatorParticipationDto assocDTInterface = new ActivityLocatorParticipationDto();
+        assocDTInterface.setRecordStatusCd("UNKNOWN_STATUS");
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareAssocDTForActivityLocatorParticipation(assocDTInterface);
+        });
+
+        assertTrue(exception.getMessage().contains("RecordStatusCd is not active or inactive"));
+    }
+
+
+    @Test
+    void testPrepareAssocDTForActivityLocatorParticipation_ValidRecordStatusCd() throws DataProcessingException {
+        // Arrange
+        ActivityLocatorParticipationDto assocDTInterface = new ActivityLocatorParticipationDto();
+        assocDTInterface.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        assocDTInterface.setStatusCd("STATUS");
+        assocDTInterface.setItDirty(true);
+
+        // Act
+        ActivityLocatorParticipationDto result = prepareAssocModelHelper.prepareAssocDTForActivityLocatorParticipation(assocDTInterface);
+
+        // Assert
+        assertNotNull(result);
+        assertNull(result.getAddUserId());
+        assertNull(result.getAddTime());
+        assertNotNull(result.getRecordStatusTime());
+        assertNotNull(result.getStatusTime());
+        assertNotNull(result.getLastChgTime());
+        assertEquals(AuthUtil.authUser.getNedssEntryId(), result.getLastChgUserId());
+        assertNull(result.getLastChgReasonCd());
+    }
+
+
+    @Test
+    void testPrepareAssocDTForActivityLocatorParticipation_NotDirty() throws DataProcessingException {
+        // Arrange
+        ActivityLocatorParticipationDto assocDTInterface = new ActivityLocatorParticipationDto();
+        assocDTInterface.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        assocDTInterface.setStatusCd("STATUS");
+        assocDTInterface.setItDirty(false);
+
+        // Act
+        ActivityLocatorParticipationDto result = prepareAssocModelHelper.prepareAssocDTForActivityLocatorParticipation(assocDTInterface);
+
+        // Assert
+        assertNotNull(result);
+        assertFalse(result.isItDirty());
+        assertEquals(AuthUtil.authUser.getNedssEntryId(), result.getLastChgUserId());
+    }
+
+
+    @Test
+    void testPrepareDirtyEntityVO_ExceptionHandling() {
+        // Arrange
+        RootDtoInterface theRootDTInterface = mock(RootDtoInterface.class);
+        String businessObjLookupName = "businessObjLookupName";
+        String businessTriggerCd = "businessTriggerCd";
+        String tableName = "tableName";
+        String moduleCd = "moduleCd";
+
+        when(theRootDTInterface.getUid()).thenThrow(new RuntimeException("Test Exception"));
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareDirtyEntityVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+        });
+
+        assertTrue(exception.getMessage().contains("Test Exception"));
+    }
+
+    @Test
+    void testPrepareDirtyEntityVO_PatientNoMerge() throws DataProcessingException {
+        // Arrange
+        PersonDto theRootDTInterface = new PersonDto();
+        String businessObjLookupName = "businessObjLookupName";
+        String businessTriggerCd = "PAT_NO_MERGE";
+        String tableName = NEDSSConstant.PATIENT;
+        String moduleCd = "moduleCd";
+
+        PrepareEntity prepareVOUtilsHelper = mock(PrepareEntity.class);
+        when(prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName))
+                .thenReturn(prepareVOUtilsHelper);
+        when(prepareVOUtilsHelper.getLocalId()).thenReturn("localId");
+        when(prepareVOUtilsHelper.getAddUserId()).thenReturn(1L);
+        when(prepareVOUtilsHelper.getAddUserTime()).thenReturn(new Timestamp(new Date().getTime()));
+        when(prepareVOUtilsHelper.getRecordStatusState()).thenReturn("recordStatusState");
+        when(prepareVOUtilsHelper.getObjectStatusState()).thenReturn("objectStatusState");
+
+        // Act
+        RootDtoInterface result = prepareAssocModelHelper.prepareDirtyEntityVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result instanceof PersonDto);
+        assertNull(((PersonDto) result).getGroupNbr());
+        assertNull(((PersonDto) result).getGroupTime());
+        verify(prepareEntityStoredProcRepository, times(1)).getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName);
+    }
+
+    @Test
+    void testPrepareDirtyEntityVO_PatientNotNoMerge() throws DataProcessingException {
+        // Arrange
+        PersonDto theRootDTInterface = new PersonDto();
+        String businessObjLookupName = "businessObjLookupName";
+        String businessTriggerCd = "NOT_PAT_NO_MERGE";
+        String tableName = NEDSSConstant.PATIENT;
+        String moduleCd = "moduleCd";
+
+        PrepareEntity prepareVOUtilsHelper = mock(PrepareEntity.class);
+        when(prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName))
+                .thenReturn(prepareVOUtilsHelper);
+        when(prepareVOUtilsHelper.getLocalId()).thenReturn("localId");
+        when(prepareVOUtilsHelper.getAddUserId()).thenReturn(1L);
+        when(prepareVOUtilsHelper.getAddUserTime()).thenReturn(new Timestamp(new Date().getTime()));
+        when(prepareVOUtilsHelper.getRecordStatusState()).thenReturn("recordStatusState");
+        when(prepareVOUtilsHelper.getObjectStatusState()).thenReturn("objectStatusState");
+
+        // Act
+        RootDtoInterface result = prepareAssocModelHelper.prepareDirtyEntityVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result instanceof PersonDto);
+        assertNull(((PersonDto) result).getDedupMatchInd());
+        assertNull(((PersonDto) result).getGroupNbr());
+        assertNull(((PersonDto) result).getGroupTime());
+        verify(prepareEntityStoredProcRepository, times(1)).getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName);
+    }
+
+
+    @Test
+    void testPrepareDirtyActVO_ExceptionHandling() {
+        // Arrange
+        RootDtoInterface theRootDTInterface = mock(RootDtoInterface.class);
+        String businessObjLookupName = "businessObjLookupName";
+        String businessTriggerCd = "businessTriggerCd";
+        String tableName = "tableName";
+        String moduleCd = "moduleCd";
+
+        when(theRootDTInterface.getUid()).thenThrow(new RuntimeException("Test Exception"));
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareDirtyActVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+        });
+
+        assertTrue(exception.getMessage().contains("Test Exception"));
+    }
+
+    @Test
+    void testPrepareDirtyActVO_RecordStatusStateNull() throws DataProcessingException {
+        // Arrange
+        RootDtoInterface theRootDTInterface = mock(RootDtoInterface.class);
+        String businessObjLookupName = "businessObjLookupName";
+        String businessTriggerCd = "businessTriggerCd";
+        String tableName = "tableName";
+        String moduleCd = "moduleCd";
+
+        PrepareEntity prepareVOUtilsHelper = mock(PrepareEntity.class);
+        when(prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName))
+                .thenReturn(prepareVOUtilsHelper);
+        when(prepareVOUtilsHelper.getRecordStatusState()).thenReturn(null);
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareDirtyActVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+        });
+
+        assertTrue(exception.getMessage().contains("NEDSSConcurrentDataException"));
+    }
+
+    @Test
+    void testPrepareDirtyActVO_ValidProgAreaAndJurisdiction() throws DataProcessingException {
+        // Arrange
+        RootDtoInterface theRootDTInterface = mock(RootDtoInterface.class);
+        String businessObjLookupName = "businessObjLookupName";
+        String businessTriggerCd = "businessTriggerCd";
+        String tableName = "tableName";
+        String moduleCd = "moduleCd";
+
+        PrepareEntity prepareVOUtilsHelper = mock(PrepareEntity.class);
+        when(prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName))
+                .thenReturn(prepareVOUtilsHelper);
+        when(prepareVOUtilsHelper.getLocalId()).thenReturn("localId");
+        when(prepareVOUtilsHelper.getAddUserId()).thenReturn(1L);
+        when(prepareVOUtilsHelper.getAddUserTime()).thenReturn(new Timestamp(new Date().getTime()));
+        when(prepareVOUtilsHelper.getRecordStatusState()).thenReturn("recordStatusState");
+        when(prepareVOUtilsHelper.getObjectStatusState()).thenReturn("objectStatusState");
+
+        when(theRootDTInterface.getProgAreaCd()).thenReturn("progAreaCd");
+        when(theRootDTInterface.getJurisdictionCd()).thenReturn("jurisdictionCd");
+
+        long pajHash = 123456L;
+        when(progAreaJurisdictionUtil.getPAJHash("progAreaCd", "jurisdictionCd")).thenReturn(pajHash);
+
+        // Act
+        RootDtoInterface result = prepareAssocModelHelper.prepareDirtyActVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+
+        // Assert
+        assertNotNull(result);
+        verify(theRootDTInterface, times(1)).setProgramJurisdictionOid(pajHash);
+        verify(theRootDTInterface, times(1)).setAddUserId(1L);
+        verify(theRootDTInterface, times(1)).setAddTime(any(Timestamp.class));
+        verify(theRootDTInterface, times(1)).setRecordStatusCd("recordStatusState");
+        verify(theRootDTInterface, times(1)).setRecordStatusTime(any(Timestamp.class));
+        verify(theRootDTInterface, times(1)).setLastChgTime(any(Timestamp.class));
+        verify(theRootDTInterface, times(1)).setLastChgUserId(1L);
+        verify(theRootDTInterface, times(1)).setLastChgReasonCd(null);
+    }
+
+    @Test
+    void testPrepareDirtyActVO_ValidWithoutProgAreaAndJurisdiction() throws DataProcessingException {
+        // Arrange
+        RootDtoInterface theRootDTInterface = mock(RootDtoInterface.class);
+        String businessObjLookupName = "businessObjLookupName";
+        String businessTriggerCd = "businessTriggerCd";
+        String tableName = "tableName";
+        String moduleCd = "moduleCd";
+
+        PrepareEntity prepareVOUtilsHelper = mock(PrepareEntity.class);
+        when(prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName))
+                .thenReturn(prepareVOUtilsHelper);
+        when(prepareVOUtilsHelper.getLocalId()).thenReturn("localId");
+        when(prepareVOUtilsHelper.getAddUserId()).thenReturn(1L);
+        when(prepareVOUtilsHelper.getAddUserTime()).thenReturn(new Timestamp(new Date().getTime()));
+        when(prepareVOUtilsHelper.getRecordStatusState()).thenReturn("recordStatusState");
+        when(prepareVOUtilsHelper.getObjectStatusState()).thenReturn("objectStatusState");
+
+        when(theRootDTInterface.getProgAreaCd()).thenReturn(null);
+        when(theRootDTInterface.getJurisdictionCd()).thenReturn(null);
+
+        // Act
+        RootDtoInterface result = prepareAssocModelHelper.prepareDirtyActVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+
+        // Assert
+        assertNotNull(result);
+        verify(theRootDTInterface, times(0)).setProgramJurisdictionOid(anyLong());
+        verify(theRootDTInterface, times(1)).setAddUserId(1L);
+        verify(theRootDTInterface, times(1)).setAddTime(any(Timestamp.class));
+        verify(theRootDTInterface, times(1)).setRecordStatusCd("recordStatusState");
+        verify(theRootDTInterface, times(1)).setRecordStatusTime(any(Timestamp.class));
+        verify(theRootDTInterface, times(1)).setLastChgTime(any(Timestamp.class));
+        verify(theRootDTInterface, times(1)).setLastChgUserId(1L);
+        verify(theRootDTInterface, times(1)).setLastChgReasonCd(null);
+    }
+
+    @Test
+    void testPrepareNewEntityVO_ExceptionHandling_1() {
+        // Arrange
+        RootDtoInterface theRootDTInterface = mock(RootDtoInterface.class);
+        String businessObjLookupName = "businessObjLookupName";
+        String businessTriggerCd = "businessTriggerCd";
+        String tableName = "tableName";
+        String moduleCd = "moduleCd";
+
+        when(theRootDTInterface.getUid()).thenThrow(new RuntimeException("Test Exception"));
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareNewEntityVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+        });
+
+        assertTrue(exception.getMessage().contains("Test Exception"));
+    }
+
+    @Test
+    void testPrepareNewEntityVO_RecordStatusStateNull_1() throws DataProcessingException {
+        // Arrange
+        RootDtoInterface theRootDTInterface = mock(RootDtoInterface.class);
+        String businessObjLookupName = "businessObjLookupName";
+        String businessTriggerCd = "businessTriggerCd";
+        String tableName = "tableName";
+        String moduleCd = "moduleCd";
+
+        PrepareEntity prepareVOUtilsHelper = mock(PrepareEntity.class);
+        when(prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName))
+                .thenReturn(prepareVOUtilsHelper);
+        when(prepareVOUtilsHelper.getRecordStatusState()).thenReturn(null);
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareNewEntityVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+        });
+
+        assertTrue(exception.getMessage().contains("NEDSSConcurrentDataException"));
+    }
+
+    @Test
+    void testPrepareNewEntityVO_PatientNoMerge_1() throws DataProcessingException {
+        // Arrange
+        PersonDto theRootDTInterface = new PersonDto();
+        String businessObjLookupName = "businessObjLookupName";
+        String businessTriggerCd = "PAT_NO_MERGE";
+        String tableName = NEDSSConstant.PATIENT;
+        String moduleCd = "moduleCd";
+
+        PrepareEntity prepareVOUtilsHelper = mock(PrepareEntity.class);
+        when(prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName))
+                .thenReturn(prepareVOUtilsHelper);
+        when(prepareVOUtilsHelper.getLocalId()).thenReturn("localId");
+        when(prepareVOUtilsHelper.getAddUserId()).thenReturn(1L);
+        when(prepareVOUtilsHelper.getAddUserTime()).thenReturn(new Timestamp(new Date().getTime()));
+        when(prepareVOUtilsHelper.getRecordStatusState()).thenReturn("recordStatusState");
+        when(prepareVOUtilsHelper.getObjectStatusState()).thenReturn("objectStatusState");
+
+        // Act
+        RootDtoInterface result = prepareAssocModelHelper.prepareNewEntityVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result instanceof PersonDto);
+        assertNull(((PersonDto) result).getGroupNbr());
+        assertNull(((PersonDto) result).getGroupTime());
+        verify(prepareEntityStoredProcRepository, times(1)).getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName);
+    }
+
+    @Test
+    void testPrepareNewEntityVO_PatientNotNoMerge() throws DataProcessingException {
+        // Arrange
+        PersonDto theRootDTInterface = new PersonDto();
+        String businessObjLookupName = "businessObjLookupName";
+        String businessTriggerCd = "NOT_PAT_NO_MERGE";
+        String tableName = NEDSSConstant.PATIENT;
+        String moduleCd = "moduleCd";
+
+        PrepareEntity prepareVOUtilsHelper = mock(PrepareEntity.class);
+        when(prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName))
+                .thenReturn(prepareVOUtilsHelper);
+        when(prepareVOUtilsHelper.getLocalId()).thenReturn("localId");
+        when(prepareVOUtilsHelper.getAddUserId()).thenReturn(1L);
+        when(prepareVOUtilsHelper.getAddUserTime()).thenReturn(new Timestamp(new Date().getTime()));
+        when(prepareVOUtilsHelper.getRecordStatusState()).thenReturn("recordStatusState");
+        when(prepareVOUtilsHelper.getObjectStatusState()).thenReturn("objectStatusState");
+
+        // Act
+        RootDtoInterface result = prepareAssocModelHelper.prepareNewEntityVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result instanceof PersonDto);
+        assertNull(((PersonDto) result).getDedupMatchInd());
+        assertNull(((PersonDto) result).getGroupNbr());
+        assertNull(((PersonDto) result).getGroupTime());
+        verify(prepareEntityStoredProcRepository, times(1)).getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName);
+    }
+
+    @Test
+    void testPrepareNewActVO_ExceptionHandling() {
+        // Arrange
+        RootDtoInterface theRootDTInterface = mock(RootDtoInterface.class);
+        String businessObjLookupName = "businessObjLookupName";
+        String businessTriggerCd = "businessTriggerCd";
+        String tableName = "tableName";
+        String moduleCd = "moduleCd";
+
+        when(theRootDTInterface.getUid()).thenThrow(new RuntimeException("Test Exception"));
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareNewActVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+        });
+
+        assertTrue(exception.getMessage().contains("Test Exception"));
+    }
+
+    @Test
+    void testPrepareNewActVO_RecordStatusStateNull() throws DataProcessingException {
+        // Arrange
+        RootDtoInterface theRootDTInterface = mock(RootDtoInterface.class);
+        String businessObjLookupName = "businessObjLookupName";
+        String businessTriggerCd = "businessTriggerCd";
+        String tableName = "tableName";
+        String moduleCd = "moduleCd";
+
+        PrepareEntity prepareVOUtilsHelper = mock(PrepareEntity.class);
+        when(prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName))
+                .thenReturn(prepareVOUtilsHelper);
+        when(prepareVOUtilsHelper.getRecordStatusState()).thenReturn(null);
+        when(prepareVOUtilsHelper.getObjectStatusState()).thenReturn("objectStatusState");
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareNewActVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+        });
+
+        assertNotNull(exception);
+
+    }
+
+    @Test
+    void testPrepareNewActVO_ValidProgAreaAndJurisdiction() throws DataProcessingException {
+        // Arrange
+        RootDtoInterface theRootDTInterface = mock(RootDtoInterface.class);
+        String businessObjLookupName = "businessObjLookupName";
+        String businessTriggerCd = "businessTriggerCd";
+        String tableName = "tableName";
+        String moduleCd = "moduleCd";
+
+        PrepareEntity prepareVOUtilsHelper = mock(PrepareEntity.class);
+        when(prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName))
+                .thenReturn(prepareVOUtilsHelper);
+        when(prepareVOUtilsHelper.getLocalId()).thenReturn("localId");
+        when(prepareVOUtilsHelper.getAddUserId()).thenReturn(1L);
+        when(prepareVOUtilsHelper.getAddUserTime()).thenReturn(new Timestamp(new Date().getTime()));
+        when(prepareVOUtilsHelper.getRecordStatusState()).thenReturn("recordStatusState");
+        when(prepareVOUtilsHelper.getObjectStatusState()).thenReturn("objectStatusState");
+
+        when(theRootDTInterface.getProgAreaCd()).thenReturn("progAreaCd");
+        when(theRootDTInterface.getJurisdictionCd()).thenReturn("jurisdictionCd");
+
+        long pajHash = 123456L;
+        when(progAreaJurisdictionUtil.getPAJHash("progAreaCd", "jurisdictionCd")).thenReturn(pajHash);
+
+        // Act
+        RootDtoInterface result = prepareAssocModelHelper.prepareNewActVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+
+        // Assert
+        assertNotNull(result);
+        verify(theRootDTInterface, times(1)).setProgramJurisdictionOid(pajHash);
+        verify(theRootDTInterface, times(1)).setLocalId(null);
+        verify(theRootDTInterface, times(1)).setRecordStatusCd("recordStatusState");
+        verify(theRootDTInterface, times(1)).setRecordStatusTime(any(Timestamp.class));
+        verify(theRootDTInterface, times(1)).setLastChgTime(any(Timestamp.class));
+        verify(theRootDTInterface, times(1)).setAddTime(any(Timestamp.class));
+        verify(theRootDTInterface, times(1)).setLastChgUserId(1L);
+        verify(theRootDTInterface, times(1)).setAddUserId(1L);
+        verify(theRootDTInterface, times(1)).setLastChgReasonCd(null);
+    }
+
+    @Test
+    void testPrepareNewActVO_ValidWithoutProgAreaAndJurisdiction() throws DataProcessingException {
+        // Arrange
+        RootDtoInterface theRootDTInterface = mock(RootDtoInterface.class);
+        String businessObjLookupName = "businessObjLookupName";
+        String businessTriggerCd = "businessTriggerCd";
+        String tableName = "tableName";
+        String moduleCd = "moduleCd";
+
+        PrepareEntity prepareVOUtilsHelper = mock(PrepareEntity.class);
+        when(prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName))
+                .thenReturn(prepareVOUtilsHelper);
+        when(prepareVOUtilsHelper.getLocalId()).thenReturn("localId");
+        when(prepareVOUtilsHelper.getAddUserId()).thenReturn(1L);
+        when(prepareVOUtilsHelper.getAddUserTime()).thenReturn(new Timestamp(new Date().getTime()));
+        when(prepareVOUtilsHelper.getRecordStatusState()).thenReturn("recordStatusState");
+        when(prepareVOUtilsHelper.getObjectStatusState()).thenReturn("objectStatusState");
+
+        when(theRootDTInterface.getProgAreaCd()).thenReturn(null);
+        when(theRootDTInterface.getJurisdictionCd()).thenReturn(null);
+
+        // Act
+        RootDtoInterface result = prepareAssocModelHelper.prepareNewActVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+
+        // Assert
+        assertNotNull(result);
+        verify(theRootDTInterface, times(0)).setProgramJurisdictionOid(anyLong());
+        verify(theRootDTInterface, times(1)).setLocalId(null);
+        verify(theRootDTInterface, times(1)).setRecordStatusCd("recordStatusState");
+        verify(theRootDTInterface, times(1)).setRecordStatusTime(any(Timestamp.class));
+        verify(theRootDTInterface, times(1)).setLastChgTime(any(Timestamp.class));
+        verify(theRootDTInterface, times(1)).setAddTime(any(Timestamp.class));
+        verify(theRootDTInterface, times(1)).setLastChgUserId(1L);
+        verify(theRootDTInterface, times(1)).setAddUserId(1L);
+        verify(theRootDTInterface, times(1)).setLastChgReasonCd(null);
+    }
+
+    @Test
+    void testPrepareNewEntityVO_ExceptionHandling() {
+        // Arrange
+        RootDtoInterface theRootDTInterface = mock(RootDtoInterface.class);
+        String businessObjLookupName = "businessObjLookupName";
+        String businessTriggerCd = "businessTriggerCd";
+        String tableName = "tableName";
+        String moduleCd = "moduleCd";
+
+        when(theRootDTInterface.getUid()).thenThrow(new RuntimeException("Test Exception"));
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareNewEntityVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+        });
+
+        assertTrue(exception.getMessage().contains("Test Exception"));
+    }
+
+    @Test
+    void testPrepareNewEntityVO_RecordStatusStateNull() throws DataProcessingException {
+        // Arrange
+        RootDtoInterface theRootDTInterface = mock(RootDtoInterface.class);
+        String businessObjLookupName = "businessObjLookupName";
+        String businessTriggerCd = "businessTriggerCd";
+        String tableName = "tableName";
+        String moduleCd = "moduleCd";
+
+        PrepareEntity prepareVOUtilsHelper = mock(PrepareEntity.class);
+        when(prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName))
+                .thenReturn(prepareVOUtilsHelper);
+        when(prepareVOUtilsHelper.getRecordStatusState()).thenReturn(null);
+        when(prepareVOUtilsHelper.getObjectStatusState()).thenReturn("objectStatusState");
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            prepareAssocModelHelper.prepareNewEntityVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+        });
+
+        assertTrue(exception.getMessage().contains("NEDSSConcurrentDataException: The data has been modified by other user, please verify!"));
+    }
+
+    @Test
+    void testPrepareNewEntityVO_PatientNoMerge() throws DataProcessingException {
+        // Arrange
+        PersonDto theRootDTInterface = new PersonDto();
+        String businessObjLookupName = "businessObjLookupName";
+        String businessTriggerCd = "PAT_NO_MERGE";
+        String tableName = NEDSSConstant.PATIENT;
+        String moduleCd = "moduleCd";
+
+        PrepareEntity prepareVOUtilsHelper = mock(PrepareEntity.class);
+        when(prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName))
+                .thenReturn(prepareVOUtilsHelper);
+        when(prepareVOUtilsHelper.getLocalId()).thenReturn("localId");
+        when(prepareVOUtilsHelper.getAddUserId()).thenReturn(1L);
+        when(prepareVOUtilsHelper.getAddUserTime()).thenReturn(new Timestamp(new Date().getTime()));
+        when(prepareVOUtilsHelper.getRecordStatusState()).thenReturn("recordStatusState");
+        when(prepareVOUtilsHelper.getObjectStatusState()).thenReturn("objectStatusState");
+
+        // Act
+        RootDtoInterface result = prepareAssocModelHelper.prepareNewEntityVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result instanceof PersonDto);
+        assertNull(((PersonDto) result).getGroupNbr());
+        assertNull(((PersonDto) result).getGroupTime());
+        verify(prepareEntityStoredProcRepository, times(1)).getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName);
+    }
+
+    @Test
+    void testPrepareNewEntityVO_PatientNotNoMerge_1() throws DataProcessingException {
+        // Arrange
+        PersonDto theRootDTInterface = new PersonDto();
+        String businessObjLookupName = "businessObjLookupName";
+        String businessTriggerCd = "NOT_PAT_NO_MERGE";
+        String tableName = NEDSSConstant.PATIENT;
+        String moduleCd = "moduleCd";
+
+        PrepareEntity prepareVOUtilsHelper = mock(PrepareEntity.class);
+        when(prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName))
+                .thenReturn(prepareVOUtilsHelper);
+        when(prepareVOUtilsHelper.getLocalId()).thenReturn("localId");
+        when(prepareVOUtilsHelper.getAddUserId()).thenReturn(1L);
+        when(prepareVOUtilsHelper.getAddUserTime()).thenReturn(new Timestamp(new Date().getTime()));
+        when(prepareVOUtilsHelper.getRecordStatusState()).thenReturn("recordStatusState");
+        when(prepareVOUtilsHelper.getObjectStatusState()).thenReturn("objectStatusState");
+
+        // Act
+        RootDtoInterface result = prepareAssocModelHelper.prepareNewEntityVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result instanceof PersonDto);
+        assertNull(((PersonDto) result).getDedupMatchInd());
+        assertNull(((PersonDto) result).getGroupNbr());
+        assertNull(((PersonDto) result).getGroupTime());
+        verify(prepareEntityStoredProcRepository, times(1)).getPrepareEntity(businessTriggerCd, moduleCd, theRootDTInterface.getUid(), tableName);
+    }
 }

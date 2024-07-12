@@ -99,4 +99,127 @@ class ManagerUtilTest {
         assertNull(result.getPersonContainer());
         verify(personService, times(1)).processingNextOfKin(labResultProxyContainer, personContainer);
     }
+
+
+    @Test
+    void testGetObservationWithOrderDomainCode_NullScenario() {
+        // Arrange
+        LabResultProxyContainer labResultProxyVO = new LabResultProxyContainer();
+        labResultProxyVO.setTheObservationContainerCollection(new ArrayList<>());
+
+        // Act
+        ObservationContainer result = managerUtil.getObservationWithOrderDomainCode(labResultProxyVO);
+
+        // Assert
+        assertNull(result, "The result should be null when theObservationContainerCollection is null");
+    }
+
+    @Test
+    void testPatientAggregation_ElseFlow() throws DataProcessingConsumerException, DataProcessingException {
+        // Arrange
+        LabResultProxyContainer labResult = new LabResultProxyContainer();
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        Collection<PersonContainer> personContainerCollection = new ArrayList<>();
+
+        PersonContainer patientPersonContainer = new PersonContainer();
+        PersonDto patientPersonDto = new PersonDto();
+        patientPersonDto.setCd(EdxELRConstant.ELR_PATIENT_CD);
+        patientPersonContainer.setThePersonDto(patientPersonDto);
+
+        PersonContainer providerPersonContainer = new PersonContainer();
+        PersonDto providerPersonDto = new PersonDto();
+        providerPersonDto.setCd(EdxELRConstant.ELR_PROVIDER_CD);
+        providerPersonContainer.setThePersonDto(providerPersonDto);
+
+        personContainerCollection.add(patientPersonContainer);
+        personContainerCollection.add(providerPersonContainer);
+        labResult.setThePersonContainerCollection(personContainerCollection);
+
+        PersonContainer processedPatient = new PersonContainer();
+        PersonContainer processedProvider = new PersonContainer();
+
+        when(personService.processingPatient(any(), any(), eq(patientPersonContainer))).thenReturn(processedPatient);
+        when(personService.processingProvider(any(), any(), eq(providerPersonContainer), anyBoolean())).thenReturn(processedProvider);
+
+        // Act
+        PersonAggContainer result = managerUtil.patientAggregation(labResult, edxLabInformationDto);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(processedPatient, result.getPersonContainer());
+        assertEquals(processedProvider, result.getProviderContainer());
+
+        verify(personService, times(1)).processingPatient(any(), any(), eq(patientPersonContainer));
+        verify(personService, times(1)).processingProvider(any(), any(), eq(providerPersonContainer), anyBoolean());
+    }
+
+
+    @Test
+    void testPersonAggregationAsync_PatientProcessing() throws DataProcessingException, DataProcessingConsumerException, InterruptedException {
+        // Arrange
+        LabResultProxyContainer labResult = new LabResultProxyContainer();
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        Collection<PersonContainer> personContainerCollection = new ArrayList<>();
+
+        PersonContainer patientPersonContainer = new PersonContainer();
+        PersonDto patientPersonDto = new PersonDto();
+        patientPersonDto.setCd(EdxELRConstant.ELR_PATIENT_CD);
+        patientPersonContainer.setThePersonDto(patientPersonDto);
+
+        personContainerCollection.add(patientPersonContainer);
+        labResult.setThePersonContainerCollection(personContainerCollection);
+
+        PersonContainer processedPatient = new PersonContainer();
+
+        when(personService.processingPatient(any(), any(), eq(patientPersonContainer))).thenReturn(processedPatient);
+
+        // Act
+        PersonAggContainer result = managerUtil.personAggregationAsync(labResult, edxLabInformationDto);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(processedPatient, result.getPersonContainer());
+        assertNull(result.getProviderContainer());
+
+        verify(personService, times(1)).processingPatient(any(), any(), eq(patientPersonContainer));
+    }
+
+
+    @Test
+    void testPersonAggregationAsync_MultipleNextOfKinAndPatientProcessing() throws DataProcessingException, DataProcessingConsumerException, InterruptedException {
+        // Arrange
+        LabResultProxyContainer labResult = new LabResultProxyContainer();
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        Collection<PersonContainer> personContainerCollection = new ArrayList<>();
+
+        PersonContainer nextOfKin1 = new PersonContainer();
+        nextOfKin1.setRole(EdxELRConstant.ELR_NEXT_OF_KIN);
+        PersonContainer nextOfKin2 = new PersonContainer();
+        nextOfKin2.setRole(EdxELRConstant.ELR_NEXT_OF_KIN);
+
+        PersonContainer patientPersonContainer = new PersonContainer();
+        PersonDto patientPersonDto = new PersonDto();
+        patientPersonDto.setCd(EdxELRConstant.ELR_PATIENT_CD);
+        patientPersonContainer.setThePersonDto(patientPersonDto);
+
+        personContainerCollection.add(nextOfKin1);
+        personContainerCollection.add(nextOfKin2);
+        personContainerCollection.add(patientPersonContainer);
+        labResult.setThePersonContainerCollection(personContainerCollection);
+
+        PersonContainer processedPatient = new PersonContainer();
+        when(personService.processingPatient(any(), any(), eq(patientPersonContainer))).thenReturn(processedPatient);
+
+        // Act
+        PersonAggContainer result = managerUtil.personAggregationAsync(labResult, edxLabInformationDto);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(processedPatient, result.getPersonContainer());
+        assertNull(result.getProviderContainer());
+
+        verify(personService, times(1)).processingNextOfKin(any(), eq(nextOfKin1));
+        verify(personService, times(1)).processingNextOfKin(any(), eq(nextOfKin2));
+        verify(personService, times(1)).processingPatient(any(), any(), eq(patientPersonContainer));
+    }
 }
