@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.repository.nbs.srte.repository.custom;
 
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.LabResult;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -11,7 +10,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

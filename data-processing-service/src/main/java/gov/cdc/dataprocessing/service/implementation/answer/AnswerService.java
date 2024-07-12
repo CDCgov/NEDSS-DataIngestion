@@ -27,7 +27,7 @@ import java.util.*;
 
 @Service
 public class AnswerService implements IAnswerService {
-    private static final Logger logger = LoggerFactory.getLogger(AnswerService.class);
+    private static final Logger logger = LoggerFactory.getLogger(AnswerService.class); //NOSONAR
 
     private final NbsAnswerRepository nbsAnswerRepository;
     private final NbsActEntityRepository nbsActEntityRepository;
@@ -155,7 +155,7 @@ public class AnswerService implements IAnswerService {
                 nbsAnswerMap.put(nbsQuestionUid, coll);
             }
             nbsAnswerMap.put(pageAnsDT.getNbsQuestionUid(), pageAnsDT);
-            coll = new ArrayList<>();
+            coll = new ArrayList<>(); //NOSONAR
         }
         nbsQuestionUid = pageAnsDT.getNbsQuestionUid();
         return nbsQuestionUid;
@@ -240,7 +240,8 @@ public class AnswerService implements IAnswerService {
         }
     }
 
-    void insertActEntityDTCollection(Collection<NbsActEntityDto> actEntityDTCollection, ObservationDto observationDto) {
+    void insertActEntityDTCollection(Collection<NbsActEntityDto> actEntityDTCollection, ObservationDto observationDto) // NOSONAR
+    {
         if(!actEntityDTCollection.isEmpty()){
             for (NbsActEntityDto pamCaseEntityDT : actEntityDTCollection) {
                 nbsActEntityRepository.save(new NbsActEntity(pamCaseEntityDT));

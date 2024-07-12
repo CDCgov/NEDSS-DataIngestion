@@ -951,7 +951,7 @@ class CustomRepositoryImplTest {
     }
 
     @Test
-    void getInvListForCoInfectionId_shouldReturnListOfCoinfectionSummaryContainer_whenResultsAreNotEmpty() throws DataProcessingException {
+    void getInvListForCoInfectionId_shouldReturnListOfCoinfectionSummaryContainer_whenResultsAreNotEmpty()  {
         // Arrange
         Long mprUid = 1L;
         String coInfectionId = "CoInfectionIdExample";

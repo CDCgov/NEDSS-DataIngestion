@@ -58,10 +58,10 @@ class CachingValueServiceTest {
     private SrteCustomRepository srteCustomRepository;
 
     @Mock
-    private Cache cache;
+    private Cache cacheMock;
 
     @Mock
-    private Cache.ValueWrapper valueWrapper;
+    private Cache.ValueWrapper valueWrapperMock;
 
     @InjectMocks
     private CachingValueService cachingValueService;
@@ -85,7 +85,7 @@ class CachingValueServiceTest {
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(cache, valueWrapper,
+        Mockito.reset(cacheMock, valueWrapperMock,
                 jurisdictionCodeRepository, codeValueGeneralRepository,elrXrefRepository, raceCodeRepository,
                 stateCountyCodeValueRepository, stateCodeRepository, loincCodeRepository,cacheManager,
                 programAreaService, jurisdictionService, conditionCodeRepository, labResultRepository,
@@ -377,9 +377,9 @@ class CachingValueServiceTest {
         codeMap.put("key", "value1");
         SrteCache.codedValuesMap.put("key", "value");
 
-        when(cacheManager.getCache("srte")).thenReturn(cache);
-        when(cache.get("codedValues")).thenReturn(valueWrapper);
-        when(valueWrapper.get()).thenReturn(codeMap);
+        when(cacheManager.getCache("srte")).thenReturn(cacheMock);
+        when(cacheMock.get("codedValues")).thenReturn(valueWrapperMock);
+        when(valueWrapperMock.get()).thenReturn(codeMap);
 
         var res = cachingValueService.getCodedValues(pType, key);
 
@@ -395,9 +395,9 @@ class CachingValueServiceTest {
         codeMap.put("DUMP", "value1");
         SrteCache.codedValuesMap.put("key-2", "value");
 
-        when(cacheManager.getCache("srte")).thenReturn(cache);
-        when(cache.get("codedValues")).thenReturn(valueWrapper);
-        when(valueWrapper.get()).thenReturn(codeMap);
+        when(cacheManager.getCache("srte")).thenReturn(cacheMock);
+        when(cacheMock.get("codedValues")).thenReturn(valueWrapperMock);
+        when(valueWrapperMock.get()).thenReturn(codeMap);
 
         var res = cachingValueService.getCodedValues(pType, key);
 
@@ -413,9 +413,9 @@ class CachingValueServiceTest {
         codeMap.put("key", "value1");
         SrteCache.codeDescTxtMap.put("key", "value");
 
-        when(cacheManager.getCache("srte")).thenReturn(cache);
-        when(cache.get("codeDescTxt")).thenReturn(valueWrapper);
-        when(valueWrapper.get()).thenReturn(codeMap);
+        when(cacheManager.getCache("srte")).thenReturn(cacheMock);
+        when(cacheMock.get("codeDescTxt")).thenReturn(valueWrapperMock);
+        when(valueWrapperMock.get()).thenReturn(codeMap);
 
         var res = cachingValueService.getCodeDescTxtForCd(code, codeSetNm);
 
@@ -431,9 +431,9 @@ class CachingValueServiceTest {
         codeMap.put("DUMP", "value1");
         SrteCache.codeDescTxtMap.put("key-2", "value");
 
-        when(cacheManager.getCache("srte")).thenReturn(cache);
-        when(cache.get("codeDescTxt")).thenReturn(valueWrapper);
-        when(valueWrapper.get()).thenReturn(codeMap);
+        when(cacheManager.getCache("srte")).thenReturn(cacheMock);
+        when(cacheMock.get("codeDescTxt")).thenReturn(valueWrapperMock);
+        when(valueWrapperMock.get()).thenReturn(codeMap);
 
         var res = cachingValueService.getCodeDescTxtForCd(code, codeSetNm);
 
@@ -508,9 +508,9 @@ class CachingValueServiceTest {
         codeMap.put("MARICOPA COUNTY", "");
         SrteCache.countyCodeByDescMap.put("key-2", "value");
 
-        when(cacheManager.getCache("srte")).thenReturn(cache);
-        when(cache.get("countyCodeByDesc")).thenReturn(valueWrapper);
-        when(valueWrapper.get()).thenReturn(codeMap);
+        when(cacheManager.getCache("srte")).thenReturn(cacheMock);
+        when(cacheMock.get("countyCodeByDesc")).thenReturn(valueWrapperMock);
+        when(valueWrapperMock.get()).thenReturn(codeMap);
 
 
         var res = cachingValueService.getCountyCdByDesc(county, stateCd);
@@ -527,9 +527,9 @@ class CachingValueServiceTest {
         codeMap.put("MARICOPA COUNTY", "ARIZONA");
         SrteCache.countyCodeByDescMap.put("key-2", "value");
 
-        when(cacheManager.getCache("srte")).thenReturn(cache);
-        when(cache.get("countyCodeByDesc")).thenReturn(valueWrapper);
-        when(valueWrapper.get()).thenReturn(codeMap);
+        when(cacheManager.getCache("srte")).thenReturn(cacheMock);
+        when(cacheMock.get("countyCodeByDesc")).thenReturn(valueWrapperMock);
+        when(valueWrapperMock.get()).thenReturn(codeMap);
 
 
         var res = cachingValueService.getCountyCdByDesc(county, stateCd);

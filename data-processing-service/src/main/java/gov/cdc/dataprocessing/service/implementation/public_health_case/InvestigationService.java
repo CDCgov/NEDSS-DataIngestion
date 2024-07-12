@@ -11,7 +11,6 @@ import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.generic_helper.StateDefinedFieldDataDto;
-import gov.cdc.dataprocessing.model.dto.log.NNDActivityLogDto;
 import gov.cdc.dataprocessing.model.dto.notification.NotificationDto;
 import gov.cdc.dataprocessing.model.dto.notification.UpdatedNotificationDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
@@ -109,6 +108,7 @@ public class InvestigationService implements IInvestigationService {
         this.labTestRepository = labTestRepository;
     }
 
+    @SuppressWarnings("java:S125")
     @Transactional
     public void setAssociations(Long investigationUID,
                                 Collection<LabReportSummaryContainer>  reportSumVOCollection,
@@ -387,10 +387,10 @@ public class InvestigationService implements IInvestigationService {
             ActRelationshipDto actRelationshipDT = null;
             for (ActRelationshipDto actRelationshipDto : thePublicHealthCaseContainer.getTheActRelationshipDTCollection()) {
                 actRelationshipDT = actRelationshipDto;
-                Long nSourceActID = actRelationshipDT.getSourceActUid();
-                strClassCd = actRelationshipDT.getSourceClassCd();
-                strTypeCd = actRelationshipDT.getTypeCd();
-                recordStatusCd = actRelationshipDT.getRecordStatusCd();
+                Long nSourceActID = actRelationshipDT.getSourceActUid(); // NOSONAR
+                strClassCd = actRelationshipDT.getSourceClassCd(); // NOSONAR
+                strTypeCd = actRelationshipDT.getTypeCd(); // NOSONAR
+                recordStatusCd = actRelationshipDT.getRecordStatusCd(); // NOSONAR
             }
 
             Collection<Object> labSumVOCol = new ArrayList<>();
@@ -1055,6 +1055,7 @@ public class InvestigationService implements IInvestigationService {
         return returnMap;
     } //end of getObservationSummaryVOCollectionForWorkup()
 
+    @SuppressWarnings("java:S3776")
     protected void processingInvestigationSummary(InvestigationContainer investigationProxyVO,
                                                      PublicHealthCaseContainer thePublicHealthCaseContainer,
                                                      boolean lite) throws DataProcessingException {

@@ -621,6 +621,7 @@ class InvestigationServiceTests {
         investigationService.processingInvestigationSummary(investigationProxyVO, thePublicHealthCaseContainer, lite);
 
 
+        verify(retrieveSummaryService, times(1)).notificationSummaryOnInvestigation(any(), any());
     }
 
 
