@@ -61,7 +61,7 @@ public class MatchingBaseService  {
         String identifier ;
         try{
             if (personContainer.getTheEntityIdDtoCollection() != null
-                    && personContainer.getTheEntityIdDtoCollection().size() > 0)
+                    && !personContainer.getTheEntityIdDtoCollection().isEmpty())
             {
                 Collection<EntityIdDto> entityIdDtoColl = personContainer.getTheEntityIdDtoCollection();
                 for (EntityIdDto idDto : entityIdDtoColl) {
@@ -137,7 +137,6 @@ public class MatchingBaseService  {
 
     protected String getNamesStr(PersonContainer personContainer) {
         String namesStr = null;
-        String carrot = "^";
         if (personContainer.getThePersonDto() != null)
         {
             PersonDto personDto = personContainer.getThePersonDto();
@@ -162,11 +161,11 @@ public class MatchingBaseService  {
                             // The way I see it is the second conditional check would never be reached
                             if (asofDate == null || (asofDate.getTime() < personNameDto.getAsOfDate().getTime())) // NOSONAR
                             {
-                                namesStr = processingPersonNameBasedOnAsOfDate(personNameDto, namesStr, asofDate);
+                                namesStr = processingPersonNameBasedOnAsOfDate(personNameDto, namesStr, asofDate); // NOSONAR
                             }
                             else if (asofDate.before(personNameDto.getAsOfDate()))
                             {
-                                namesStr = processingPersonNameBasedOnAsOfDate(personNameDto, namesStr, asofDate);
+                                namesStr = processingPersonNameBasedOnAsOfDate(personNameDto, namesStr, asofDate); // NOSONAR
                             }
                         }
                     }

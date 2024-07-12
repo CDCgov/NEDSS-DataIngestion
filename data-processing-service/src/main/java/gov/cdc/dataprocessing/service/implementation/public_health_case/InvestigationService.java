@@ -1114,6 +1114,7 @@ public class InvestigationService implements IInvestigationService {
         return returnMap;
     } //end of getObservationSummaryVOCollectionForWorkup()
 
+    @SuppressWarnings({"java:S3776","java:S6541"})
     protected void populateDescTxtFromCachedValues(Collection<Object>
                                                          reportSummaryVOCollection) throws DataProcessingException {
         ReportSummaryInterface sumVO ;

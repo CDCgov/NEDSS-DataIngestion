@@ -803,7 +803,7 @@ class PatientMatchingBaseServiceTest {
     }
 
     @Test
-    void testSetPersonToMatchEntityNok_ExceptionHandling() throws DataProcessingException {
+    void testSetPersonToMatchEntityNok_ExceptionHandling() {
         // Arrange
         PersonContainer personContainer = new PersonContainer();
         PersonDto personDto = new PersonDto();

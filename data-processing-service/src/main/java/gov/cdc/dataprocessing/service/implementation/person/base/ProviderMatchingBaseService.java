@@ -266,7 +266,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         Collection<EntityIdDto> newEntityIdDtoColl = new ArrayList<>();
         try{
             if (personContainer.getTheEntityIdDtoCollection() != null
-                    && personContainer.getTheEntityIdDtoCollection().size() > 0) {
+                    && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
                 Collection<EntityIdDto> entityIdDtoColl = personContainer.getTheEntityIdDtoCollection();
                 for (EntityIdDto entityIdDto : entityIdDtoColl) {
                     if ((entityIdDto.getStatusCd().equalsIgnoreCase(NEDSSConstant.STATUS_ACTIVE))) {
