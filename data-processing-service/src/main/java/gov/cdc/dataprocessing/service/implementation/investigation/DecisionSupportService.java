@@ -22,6 +22,7 @@ import gov.cdc.dataprocessing.service.model.wds.WdsReport;
 import gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil;
 import gov.cdc.dataprocessing.utilities.component.public_health_case.AdvancedCriteria;
 import gov.cdc.dataprocessing.utilities.component.wds.ValidateDecisionSupport;
+import gov.cdc.dataprocessing.utilities.component.wds.WdsObjectChecker;
 import jakarta.transaction.Transactional;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Unmarshaller;
@@ -41,18 +42,21 @@ public class DecisionSupportService implements IDecisionSupportService {
     private final PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository;
     private final DsmAlgorithmService dsmAlgorithmService;
     private final AdvancedCriteria advancedCriteria;
+    private final WdsObjectChecker wdsObjectChecker;
 
     public DecisionSupportService(EdxPhcrDocumentUtil edxPhcrDocumentUtil,
                                   IAutoInvestigationService autoInvestigationService,
                                   ValidateDecisionSupport validateDecisionSupport,
                                   PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository,
-                                  DsmAlgorithmService dsmAlgorithmService, AdvancedCriteria advancedCriteria) {
+                                  DsmAlgorithmService dsmAlgorithmService, AdvancedCriteria advancedCriteria,
+                                  WdsObjectChecker wdsObjectChecker) {
         this.edxPhcrDocumentUtil = edxPhcrDocumentUtil;
         this.autoInvestigationService = autoInvestigationService;
         this.validateDecisionSupport = validateDecisionSupport;
         this.publicHealthCaseStoredProcRepository = publicHealthCaseStoredProcRepository;
         this.dsmAlgorithmService = dsmAlgorithmService;
         this.advancedCriteria = advancedCriteria;
+        this.wdsObjectChecker = wdsObjectChecker;
     }
     /*sort PublicHealthCaseDTs by add_time descending*/
     final Comparator<PublicHealthCaseDto> ADDTIME_ORDER = (e1, e2) -> e2.getAddTime().compareTo(e1.getAddTime());
@@ -734,7 +738,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                                 NbsQuestionMetadata criteriaMetaData = (NbsQuestionMetadata) questionIdentifierMap.get(questionId);
                                 if (criteriaMetaData != null)
                                 {
-                                    isAdvancedInvCriteriaMet = validateDecisionSupport.checkNbsObject(edxRuleManageDT, phcDT, criteriaMetaData);
+                                    isAdvancedInvCriteriaMet = wdsObjectChecker.checkNbsObject(edxRuleManageDT, phcDT, criteriaMetaData);
                                 }
                                 if (!isAdvancedInvCriteriaMet)
                                 {
@@ -749,7 +753,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                                     NbsQuestionMetadata criteriaMetaData = (NbsQuestionMetadata) questionIdentifierMap.get(questionId);
                                     if (criteriaMetaData != null)
                                     {
-                                        isAdvancedInvCriteriaMet = validateDecisionSupport.checkNbsObject(edxRuleManageDT, phcDT, criteriaMetaData);
+                                        isAdvancedInvCriteriaMet = wdsObjectChecker.checkNbsObject(edxRuleManageDT, phcDT, criteriaMetaData);
                                     }
                                     if (!isAdvancedInvCriteriaMet)
                                     {
@@ -908,7 +912,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                             NbsQuestionMetadata criteriaMetaData = (NbsQuestionMetadata) questionIdentifierMap.get(questionId);
                             if (criteriaMetaData != null)
                             {
-                                isAdvancedInvCriteriaMet = validateDecisionSupport.checkNbsObject(edxRuleManageDT, phcDT, criteriaMetaData);
+                                isAdvancedInvCriteriaMet = wdsObjectChecker.checkNbsObject(edxRuleManageDT, phcDT, criteriaMetaData);
                             }
 
                             if (!isAdvancedInvCriteriaMet)

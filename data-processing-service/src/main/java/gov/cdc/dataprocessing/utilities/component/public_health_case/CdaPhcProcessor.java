@@ -14,11 +14,11 @@ public class CdaPhcProcessor {
             nbsCaseAnswerDT.setLastChgTime(phcDT.getLastChgTime());
             nbsCaseAnswerDT.setAddUserId(phcDT.getAddUserId());
             nbsCaseAnswerDT.setLastChgUserId(phcDT.getLastChgUserId());
-            nbsCaseAnswerDT
-                    .setRecordStatusCd(NEDSSConstant.OPEN_INVESTIGATION);
-            if (nbsCaseAnswerDT.getSeqNbr() != null
-                    && nbsCaseAnswerDT.getSeqNbr() < 0)
+            nbsCaseAnswerDT.setRecordStatusCd(NEDSSConstant.OPEN_INVESTIGATION);
+            if (nbsCaseAnswerDT.getSeqNbr() != null && nbsCaseAnswerDT.getSeqNbr() < 0)
+            {
                 nbsCaseAnswerDT.setSeqNbr(0);
+            }
             nbsCaseAnswerDT.setRecordStatusTime(phcDT.getRecordStatusTime());
             nbsCaseAnswerDT.setItNew(true);
         } catch (Exception ex) {
