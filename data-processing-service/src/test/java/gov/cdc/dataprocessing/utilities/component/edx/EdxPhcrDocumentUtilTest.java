@@ -2,6 +2,8 @@ package gov.cdc.dataprocessing.utilities.component.edx;
 
 import gov.cdc.dataprocessing.cache.OdseCache;
 import gov.cdc.dataprocessing.cache.SrteCache;
+import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
+import gov.cdc.dataprocessing.constant.NBSConstantUtil;
 import gov.cdc.dataprocessing.model.container.model.LabReportSummaryContainer;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.container.model.ResultedTestSummaryContainer;
@@ -90,5 +92,52 @@ class EdxPhcrDocumentUtilTest {
         assertEquals(publicHealthCaseContainer.getThePublicHealthCaseDto().getRecordStatusTime(), result.getRecordStatusTime());
         assertEquals(0, result.getSeqNbr());
         assertTrue(result.isItNew());
+    }
+
+
+    @Test
+    void loadQuestion_Test() {
+        NbsQuestionMetadata ques = new NbsQuestionMetadata();
+
+        var condCode = NBSConstantUtil.INV_FORM_RVCT;
+        SrteCache.investigationFormConditionCode.put(condCode, condCode);
+
+        var tree = new TreeMap<>();
+        tree.put(DecisionSupportConstants.CORE_INV_FORM, ques);
+        tree.put("TA", ques);
+
+        OdseCache.dmbMap.put(DecisionSupportConstants.CORE_INV_FORM, tree);
+
+
+
+        var res = edxPhcrDocumentUtil.loadQuestions(condCode);
+        assertNotNull(res);
+
+
+    }
+
+    @Test
+    void loadQuestion_Test_2() {
+        NbsQuestionMetadata ques = new NbsQuestionMetadata();
+
+        var condCode = NBSConstantUtil.INV_FORM_RVCT;
+        SrteCache.investigationFormConditionCode.put(condCode, condCode);
+
+        var tree = new TreeMap<>();
+        tree.put(DecisionSupportConstants.CORE_INV_FORM, ques);
+        tree.put("TA", ques);
+
+        OdseCache.dmbMap.put("BLAH", tree);
+
+
+        var map = new TreeMap<>();
+        map.put(DecisionSupportConstants.CORE_INV_FORM, tree);
+        when(lookupService.getDMBQuestionMapAfterPublish()).thenReturn(map);
+
+
+        var res = edxPhcrDocumentUtil.loadQuestions(condCode);
+        assertNotNull(res);
+
+
     }
 }

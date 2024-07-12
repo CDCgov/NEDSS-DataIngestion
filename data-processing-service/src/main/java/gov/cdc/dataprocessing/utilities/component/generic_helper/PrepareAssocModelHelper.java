@@ -62,9 +62,6 @@ public class PrepareAssocModelHelper {
             }
             else
             {
-                try
-                {
-
                     logger.debug("RecordStatusCd or statusCode is not null");
                     assocDTInterface.setAddUserId(null);
                     assocDTInterface.setAddTime(null);
@@ -73,11 +70,7 @@ public class PrepareAssocModelHelper {
                     assocDTInterface.setRecordStatusTime(systemTime);
                     assocDTInterface.setStatusTime(systemTime);
                     assocDTInterface.setLastChgTime(systemTime);
-                }
-                catch(Exception e)
-                {
-                    e.printStackTrace();
-                }
+
 //                if(!nbsSecurityObj.getEntryID().equals(""))
 //                {
 //                    logger.debug("nbsSecurityObj.getEntryID() = " + nbsSecurityObj.getEntryID());

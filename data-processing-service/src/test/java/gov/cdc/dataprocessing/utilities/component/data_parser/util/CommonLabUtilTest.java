@@ -58,7 +58,7 @@ class CommonLabUtilTest {
         HL7OBRType hl7OBRType = new HL7OBRType();
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-            commonLabUtil.getXMLElementNameForOBR(hl7OBRType);
+            commonLabUtil.getXMLElementNameForOBR(null);
         });
 
         assertNotNull(thrown);
@@ -71,10 +71,33 @@ class CommonLabUtilTest {
         HL7OBXType hl7OBRType = new HL7OBXType();
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-            commonLabUtil.getXMLElementNameForOBX(hl7OBRType);
+            commonLabUtil.getXMLElementNameForOBX(null);
         });
 
         assertNotNull(thrown);
 
     }
+
+    @Test
+    void getXMLElementNameForOBR_TEST_1() throws DataProcessingException {
+
+        HL7OBRType hl7OBRType = new HL7OBRType();
+
+        var res =  commonLabUtil.getXMLElementNameForOBR(hl7OBRType);
+
+        assertNotNull(res);
+    }
+
+    @Test
+    void getXMLElementNameForOBX_TEST_2() throws DataProcessingException {
+
+        HL7OBXType hl7OBRType = new HL7OBXType();
+
+        var res = commonLabUtil.getXMLElementNameForOBX(hl7OBRType);
+
+
+        assertNotNull(res);
+
+    }
+
 }

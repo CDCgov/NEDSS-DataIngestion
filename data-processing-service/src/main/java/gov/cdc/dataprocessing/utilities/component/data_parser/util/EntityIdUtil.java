@@ -95,27 +95,21 @@ public class EntityIdUtil {
         int date = -1;
         String toTime = "";
         if (time != null) {
-            try {
-                if (time.getYear() != null)
-                    year = time.getYear().intValue();
-                if (time.getMonth() != null)
-                    month = time.getMonth().intValue();
-                if (time.getDay() != null)
-                    date = time.getDay().intValue();
+            if (time.getYear() != null)
+                year = time.getYear().intValue();
+            if (time.getMonth() != null)
+                month = time.getMonth().intValue();
+            if (time.getDay() != null)
+                date = time.getDay().intValue();
 
-                if (year >= 0 && month >= 0 && date >= 0) {
-                    toTime = month + "/" + date + "/" + year;
-                    logger.debug("  in processHL7DTType: Date string is: " +toTime);
-                    toTimestamp = stringToStrutsTimestamp(toTime);
-                }
-            } catch (Exception e) {
-                logger.error("Hl7ToNBSObjectConverter.processHL7DTType failed as the date format is not right. Please check.!"+toTime);
-                throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7DTType failed as the date format is not right." +itemDescription +toTime);
+            if (year >= 0 && month >= 0 && date >= 0) {
+                toTime = month + "/" + date + "/" + year;
+                logger.debug("  in processHL7DTType: Date string is: " +toTime);
+                toTimestamp = stringToStrutsTimestamp(toTime);
             }
             if (isDateNotOkForDatabase(toTimestamp)) {
                 throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7DTType " +itemDescription +toTime + EdxELRConstant.DATE_INVALID_FOR_DATABASE);
             }
-
         }
 
         return toTimestamp;
@@ -153,10 +147,14 @@ public class EntityIdUtil {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date earliestDateAcceptable = dateFormat.parse(earliestDate);
             if (dateVal.before(earliestDateAcceptable))
+            {
                 return true;
+            }
             Date lastAcceptableDate = dateFormat.parse(latestDate);
             if (dateVal.after(lastAcceptableDate))
+            {
                 return true;
+            }
         }catch(Exception ex){//this generic but you can control another types of exception
             logger.error("Unexpected exception in checkDateForDatabase() " + ex.getMessage());
         }

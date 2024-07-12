@@ -18,6 +18,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -221,5 +222,118 @@ class ManagerUtilTest {
         verify(personService, times(1)).processingNextOfKin(any(), eq(nextOfKin1));
         verify(personService, times(1)).processingNextOfKin(any(), eq(nextOfKin2));
         verify(personService, times(1)).processingPatient(any(), any(), eq(patientPersonContainer));
+    }
+
+    @Test
+    void testPersonAggregationAsync_NextOfKinException() throws DataProcessingException {
+        // Arrange
+        LabResultProxyContainer labResult = new LabResultProxyContainer();
+        PersonContainer personContainer = new PersonContainer();
+        personContainer.setRole(EdxELRConstant.ELR_NEXT_OF_KIN);
+        personContainer.setThePersonDto(new PersonDto());
+        labResult.setThePersonContainerCollection(Collections.singletonList(personContainer));
+        doThrow(new RuntimeException("Test Exception")).when(personService).processingNextOfKin(any(), any());
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            managerUtil.personAggregationAsync(labResult, new EdxLabInformationDto());
+        });
+
+        assertTrue(exception.getMessage().contains("Error processing lab results"));
+    }
+
+    @Test
+    void testPersonAggregationAsync_NextOfKinDataProcessingException() throws DataProcessingException {
+        // Arrange
+        LabResultProxyContainer labResult = new LabResultProxyContainer();
+        PersonContainer personContainer = new PersonContainer();
+        personContainer.setRole(EdxELRConstant.ELR_NEXT_OF_KIN);
+        personContainer.setThePersonDto(new PersonDto());
+        labResult.setThePersonContainerCollection(Collections.singletonList(personContainer));
+        doThrow(new DataProcessingException("Test Data Processing Exception")).when(personService).processingNextOfKin(any(), any());
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            managerUtil.personAggregationAsync(labResult, new EdxLabInformationDto());
+        });
+
+        assertTrue(exception.getMessage().contains("Test Data Processing Exception"));
+    }
+
+    @Test
+    void testPersonAggregationAsync_PatientDataProcessingConsumerException() throws DataProcessingException, DataProcessingConsumerException {
+        // Arrange
+        LabResultProxyContainer labResult = new LabResultProxyContainer();
+        PersonContainer personContainer = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setCd(EdxELRConstant.ELR_PATIENT_CD);
+        personContainer.setThePersonDto(personDto);
+        labResult.setThePersonContainerCollection(Collections.singletonList(personContainer));
+        when(personService.processingPatient(any(), any(), any())).thenThrow(new DataProcessingConsumerException("Test Data Processing Consumer Exception"));
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            managerUtil.personAggregationAsync(labResult, new EdxLabInformationDto());
+        });
+
+        assertTrue(exception.getMessage().contains("Error processing lab results"));
+    }
+
+
+    @Test
+    void testPersonAggregationAsync_ProviderDataProcessingConsumerException() throws DataProcessingException, DataProcessingConsumerException {
+        // Arrange
+        LabResultProxyContainer labResult = new LabResultProxyContainer();
+        PersonContainer personContainer = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setCd(EdxELRConstant.ELR_PROVIDER_CD);
+        personContainer.setThePersonDto(personDto);
+        labResult.setThePersonContainerCollection(Collections.singletonList(personContainer));
+        when(personService.processingProvider(any(), any(), any(), anyBoolean())).thenThrow(new DataProcessingConsumerException("Test Data Processing Consumer Exception"));
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            managerUtil.personAggregationAsync(labResult, new EdxLabInformationDto());
+        });
+
+        assertTrue(exception.getMessage().contains("Error processing lab results"));
+    }
+
+    @Test
+    void testPersonAggregationAsync_ProviderDataProcessingException() throws DataProcessingException, DataProcessingConsumerException {
+        // Arrange
+        LabResultProxyContainer labResult = new LabResultProxyContainer();
+        PersonContainer personContainer = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setCd(EdxELRConstant.ELR_PROVIDER_CD);
+        personContainer.setThePersonDto(personDto);
+        labResult.setThePersonContainerCollection(Collections.singletonList(personContainer));
+        when(personService.processingProvider(any(), any(), any(), anyBoolean())).thenThrow(new DataProcessingException("Test Data Processing Exception"));
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            managerUtil.personAggregationAsync(labResult, new EdxLabInformationDto());
+        });
+
+        assertTrue(exception.getMessage().contains("Test Data Processing Exception"));
+    }
+
+    @Test
+    void testPersonAggregationAsync_ProviderProcessing() throws DataProcessingException, DataProcessingConsumerException {
+        // Arrange
+        LabResultProxyContainer labResult = new LabResultProxyContainer();
+        PersonContainer personContainer = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setCd(EdxELRConstant.ELR_PROVIDER_CD);
+        personContainer.setThePersonDto(personDto);
+        labResult.setThePersonContainerCollection(Collections.singletonList(personContainer));
+        PersonContainer expectedProviderContainer = new PersonContainer();
+        when(personService.processingProvider(any(), any(), any(), anyBoolean())).thenReturn(expectedProviderContainer);
+
+        // Act
+        PersonAggContainer result = managerUtil.personAggregationAsync(labResult, new EdxLabInformationDto());
+
+        // Assert
+        assertNotNull(result);
     }
 }

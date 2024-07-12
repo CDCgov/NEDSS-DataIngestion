@@ -16,7 +16,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -48,6 +48,21 @@ class EntityHelperTest {
     }
 
     @Test
+    void testIterateELPDTForEntityLocatorParticipation_Exp() throws DataProcessingException {
+        Collection<EntityLocatorParticipationDto> dtCol = new ArrayList<>();
+        EntityLocatorParticipationDto elpDto = new EntityLocatorParticipationDto();
+        dtCol.add(elpDto);
+
+        when(prepareAssocModel.prepareAssocDTForEntityLocatorParticipation(any(EntityLocatorParticipationDto.class)))
+                .thenThrow(new RuntimeException("TEST"));
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            entityHelper.iterateELPDTForEntityLocatorParticipation(dtCol);
+        });
+
+        assertNotNull(thrown);
+    }
+
+    @Test
     void testIterateRDT() throws DataProcessingException {
         Collection<RoleDto> dtCol = new ArrayList<>();
         RoleDto roleDto = new RoleDto();
@@ -60,6 +75,22 @@ class EntityHelperTest {
 
         assertEquals(1, result.size());
         verify(prepareAssocModel, times(1)).prepareAssocDTForRole(any(RoleDto.class));
+    }
+
+    @Test
+    void testIterateRDT_Exp() throws DataProcessingException {
+        Collection<RoleDto> dtCol = new ArrayList<>();
+        RoleDto roleDto = new RoleDto();
+        roleDto.setItNew(true);
+        dtCol.add(roleDto);
+
+        when(prepareAssocModel.prepareAssocDTForRole(any(RoleDto.class))).thenThrow(new RuntimeException("TEST"));
+
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            entityHelper.iterateRDT(dtCol);
+        });
+
+        assertNotNull(thrown);
     }
 
     @Test
@@ -121,6 +152,23 @@ class EntityHelperTest {
     }
 
     @Test
+    void testIterateALPDTActivityLocatorParticipation_Exp() throws DataProcessingException {
+        Collection<ActivityLocatorParticipationDto> dtCol = new ArrayList<>();
+        ActivityLocatorParticipationDto alpDto = new ActivityLocatorParticipationDto();
+        dtCol.add(alpDto);
+
+        when(prepareAssocModel.prepareAssocDTForActivityLocatorParticipation(any(ActivityLocatorParticipationDto.class))).thenThrow(
+                new RuntimeException("TEST")
+        );
+
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            entityHelper.iterateALPDTActivityLocatorParticipation(dtCol);
+        });
+
+        assertNotNull(thrown);
+    }
+
+    @Test
     void testIterateARDTActRelationship() throws DataProcessingException {
         Collection<ActRelationshipDto> dtCol = new ArrayList<>();
         ActRelationshipDto actRelationshipDto = new ActRelationshipDto();
@@ -133,5 +181,21 @@ class EntityHelperTest {
 
         assertEquals(1, result.size());
         verify(prepareAssocModel, times(1)).prepareAssocDTForActRelationship(any(ActRelationshipDto.class));
+    }
+
+    @Test
+    void testIterateARDTActRelationship_Exp() throws DataProcessingException {
+        Collection<ActRelationshipDto> dtCol = new ArrayList<>();
+        ActRelationshipDto actRelationshipDto = new ActRelationshipDto();
+        actRelationshipDto.setItNew(true);
+        dtCol.add(actRelationshipDto);
+
+        when(prepareAssocModel.prepareAssocDTForActRelationship(any(ActRelationshipDto.class))).thenThrow(new RuntimeException("TEST"));
+
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            entityHelper.iterateARDTActRelationship(dtCol);
+        });
+
+        assertNotNull(thrown);
     }
 }
