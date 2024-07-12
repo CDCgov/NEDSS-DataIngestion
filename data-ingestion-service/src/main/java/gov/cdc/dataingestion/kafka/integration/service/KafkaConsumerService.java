@@ -283,9 +283,7 @@ public class KafkaConsumerService {
     }
     //endregion
 
-    /**
-     * Raw Data Validation Process
-     * */
+
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
             autoCreateTopics = "false",
@@ -571,48 +569,7 @@ public class KafkaConsumerService {
                 break;
         }
     }
-    /**
-     * FHIR Conversion
-     * @deprecated This method is no longer needed as FHIR format is not being used.
-     * Also, FhirConverter caused the out of memory problem.
-     * Deprecated code should eventually be removed.
-     * */
-    @Deprecated(since = "7.3",forRemoval = true)
-    @SuppressWarnings("java:S1133")
-    private void conversionHandlerForFhir(String message, String operation) throws FhirConversionException, DiHL7Exception {
-        String payloadMessage ="";
-        ValidatedELRModel model = new ValidatedELRModel();
-        if(operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
-            Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
-            if (validatedElrResponse.isPresent()) {
-                payloadMessage = validatedElrResponse.get().getRawMessage();
-                model.setRawId(validatedElrResponse.get().getRawId());
-                model.setRawMessage(payloadMessage);
-            } else {
-                throw new FhirConversionException(errorDltMessage);
-            }
 
-        }
-        else {
-            Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(message);
-            if (response.isPresent()) {
-                payloadMessage =  response.get().getMessage();
-                var validMessage = iHl7v2Validator.messageStringValidation(payloadMessage);
-                model.setRawId(message);
-                model.setRawMessage(validMessage);
-            } else {
-                throw new FhirConversionException(errorDltMessage);
-            }
-        }
-
-        try {
-            HL7ToFHIRModel convertedModel = iHl7ToFHIRConversion.convertHL7v2ToFhir(model, convertedToFhirTopic);
-            iHL7ToFHIRRepository.save(convertedModel);
-            kafkaProducerService.sendMessageAfterConvertedToFhirMessage(convertedModel, convertedToFhirTopic, 0);
-        } catch (Exception e) {
-            throw new FhirConversionException(e.getMessage());
-        }
-    }
     private void saveValidatedELRMessage(ValidatedELRModel model) {
         model.setCreatedOn(getCurrentTimeStamp());
         model.setUpdatedOn(getCurrentTimeStamp());

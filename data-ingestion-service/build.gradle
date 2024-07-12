@@ -309,7 +309,7 @@ sonarqube {
 				" **/config/LogDynamicFileAppenderConfig.config, **/exception/**, ServiceApplication.java," +
 				" **rawmessage/dto/**, **/deadletter/model/**, " +
 				" **/nbs/ecr/**, "  + // <-- Remove this once ECR is completed
-				" **/report/repository/model/**, **/config/**, **/model/**"
+				" **/report/repository/model/**, **/config/**, **/model/**, **/jaxb/**"
 	}
 }
 
