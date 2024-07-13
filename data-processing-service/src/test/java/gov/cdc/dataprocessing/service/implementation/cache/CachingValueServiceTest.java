@@ -22,12 +22,10 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class CachingValueServiceTest {
     @Mock
@@ -60,10 +58,10 @@ class CachingValueServiceTest {
     private SrteCustomRepository srteCustomRepository;
 
     @Mock
-    private Cache cache;
+    private Cache cacheMock;
 
     @Mock
-    private Cache.ValueWrapper valueWrapper;
+    private Cache.ValueWrapper valueWrapperMock;
 
     @InjectMocks
     private CachingValueService cachingValueService;
@@ -87,7 +85,7 @@ class CachingValueServiceTest {
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(cache, valueWrapper,
+        Mockito.reset(cacheMock, valueWrapperMock,
                 jurisdictionCodeRepository, codeValueGeneralRepository,elrXrefRepository, raceCodeRepository,
                 stateCountyCodeValueRepository, stateCodeRepository, loincCodeRepository,cacheManager,
                 programAreaService, jurisdictionService, conditionCodeRepository, labResultRepository,
@@ -379,9 +377,9 @@ class CachingValueServiceTest {
         codeMap.put("key", "value1");
         SrteCache.codedValuesMap.put("key", "value");
 
-        when(cacheManager.getCache("srte")).thenReturn(cache);
-        when(cache.get("codedValues")).thenReturn(valueWrapper);
-        when(valueWrapper.get()).thenReturn(codeMap);
+        when(cacheManager.getCache("srte")).thenReturn(cacheMock);
+        when(cacheMock.get("codedValues")).thenReturn(valueWrapperMock);
+        when(valueWrapperMock.get()).thenReturn(codeMap);
 
         var res = cachingValueService.getCodedValues(pType, key);
 
@@ -397,9 +395,9 @@ class CachingValueServiceTest {
         codeMap.put("DUMP", "value1");
         SrteCache.codedValuesMap.put("key-2", "value");
 
-        when(cacheManager.getCache("srte")).thenReturn(cache);
-        when(cache.get("codedValues")).thenReturn(valueWrapper);
-        when(valueWrapper.get()).thenReturn(codeMap);
+        when(cacheManager.getCache("srte")).thenReturn(cacheMock);
+        when(cacheMock.get("codedValues")).thenReturn(valueWrapperMock);
+        when(valueWrapperMock.get()).thenReturn(codeMap);
 
         var res = cachingValueService.getCodedValues(pType, key);
 
@@ -415,9 +413,9 @@ class CachingValueServiceTest {
         codeMap.put("key", "value1");
         SrteCache.codeDescTxtMap.put("key", "value");
 
-        when(cacheManager.getCache("srte")).thenReturn(cache);
-        when(cache.get("codeDescTxt")).thenReturn(valueWrapper);
-        when(valueWrapper.get()).thenReturn(codeMap);
+        when(cacheManager.getCache("srte")).thenReturn(cacheMock);
+        when(cacheMock.get("codeDescTxt")).thenReturn(valueWrapperMock);
+        when(valueWrapperMock.get()).thenReturn(codeMap);
 
         var res = cachingValueService.getCodeDescTxtForCd(code, codeSetNm);
 
@@ -433,9 +431,9 @@ class CachingValueServiceTest {
         codeMap.put("DUMP", "value1");
         SrteCache.codeDescTxtMap.put("key-2", "value");
 
-        when(cacheManager.getCache("srte")).thenReturn(cache);
-        when(cache.get("codeDescTxt")).thenReturn(valueWrapper);
-        when(valueWrapper.get()).thenReturn(codeMap);
+        when(cacheManager.getCache("srte")).thenReturn(cacheMock);
+        when(cacheMock.get("codeDescTxt")).thenReturn(valueWrapperMock);
+        when(valueWrapperMock.get()).thenReturn(codeMap);
 
         var res = cachingValueService.getCodeDescTxtForCd(code, codeSetNm);
 
@@ -510,9 +508,9 @@ class CachingValueServiceTest {
         codeMap.put("MARICOPA COUNTY", "");
         SrteCache.countyCodeByDescMap.put("key-2", "value");
 
-        when(cacheManager.getCache("srte")).thenReturn(cache);
-        when(cache.get("countyCodeByDesc")).thenReturn(valueWrapper);
-        when(valueWrapper.get()).thenReturn(codeMap);
+        when(cacheManager.getCache("srte")).thenReturn(cacheMock);
+        when(cacheMock.get("countyCodeByDesc")).thenReturn(valueWrapperMock);
+        when(valueWrapperMock.get()).thenReturn(codeMap);
 
 
         var res = cachingValueService.getCountyCdByDesc(county, stateCd);
@@ -529,9 +527,9 @@ class CachingValueServiceTest {
         codeMap.put("MARICOPA COUNTY", "ARIZONA");
         SrteCache.countyCodeByDescMap.put("key-2", "value");
 
-        when(cacheManager.getCache("srte")).thenReturn(cache);
-        when(cache.get("countyCodeByDesc")).thenReturn(valueWrapper);
-        when(valueWrapper.get()).thenReturn(codeMap);
+        when(cacheManager.getCache("srte")).thenReturn(cacheMock);
+        when(cacheMock.get("countyCodeByDesc")).thenReturn(valueWrapperMock);
+        when(valueWrapperMock.get()).thenReturn(codeMap);
 
 
         var res = cachingValueService.getCountyCdByDesc(county, stateCd);
@@ -725,5 +723,249 @@ class CachingValueServiceTest {
             cachingValueService.getCountyCdByDescCallRepos(stateCd);
         });
         assertEquals("TEST", thrown.getMessage());
+    }
+
+
+    @Test
+    void testGetAllLabResultJoinWithLabCodingSystemWithOrganismNameInd_EmptyResult() throws DataProcessingException {
+        // Mock the repository to return an empty list
+        when(srteCustomRepository.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd()).thenReturn(Collections.emptyList());
+
+        // Call the method
+        TreeMap<String, String> result = cachingValueService.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
+
+        // Verify that the result is an empty TreeMap
+        assertTrue(result.isEmpty());
+
+        // Verify that the repository method was called
+        verify(srteCustomRepository, times(1)).getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
+    }
+
+
+    @Test
+    void testGetAllSnomedCode_EmptyResult() throws DataProcessingException {
+        when(snomedCodeRepository.findAll()).thenReturn(Collections.emptyList());
+
+        TreeMap<String, String> result = cachingValueService.getAllSnomedCode();
+
+        assertTrue(result.isEmpty());
+        verify(snomedCodeRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetLabResultDesc_EmptyResult() throws DataProcessingException {
+        when(labResultRepository.findLabResultByDefaultLabAndOrgNameN()).thenReturn(Optional.empty());
+
+        TreeMap<String, String> result = cachingValueService.getLabResultDesc();
+
+        assertTrue(result.isEmpty());
+        verify(labResultRepository, times(1)).findLabResultByDefaultLabAndOrgNameN();
+    }
+
+    @Test
+    void testGetAOELOINCCodes_EmptyResult() throws DataProcessingException {
+        when(loincCodeRepository.findLoincCodes()).thenReturn(Optional.empty());
+
+        TreeMap<String, String> result = cachingValueService.getAOELOINCCodes();
+
+        assertTrue(result.isEmpty());
+        verify(loincCodeRepository, times(1)).findLoincCodes();
+    }
+
+    @Test
+    void testGetRaceCodes_EmptyResult() throws DataProcessingException {
+        when(raceCodeRepository.findAllActiveRaceCodes()).thenReturn(Optional.empty());
+
+        TreeMap<String, String> result = cachingValueService.getRaceCodes();
+
+        assertTrue(result.isEmpty());
+        verify(raceCodeRepository, times(1)).findAllActiveRaceCodes();
+    }
+
+    @Test
+    void testGetAllLoinCodeWithComponentName_EmptyResult() throws DataProcessingException {
+        when(loincCodeRepository.findAll()).thenReturn(Collections.emptyList());
+
+        TreeMap<String, String> result = cachingValueService.getAllLoinCodeWithComponentName();
+
+        assertTrue(result.isEmpty());
+        verify(loincCodeRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetAllOnInfectionConditionCode_EmptyResult() throws DataProcessingException {
+        when(conditionCodeRepository.findCoInfectionConditionCode()).thenReturn(Optional.of(Collections.emptyList()));
+
+        TreeMap<String, String> result = cachingValueService.getAllOnInfectionConditionCode();
+
+        assertTrue(result.isEmpty());
+        verify(conditionCodeRepository, times(1)).findCoInfectionConditionCode();
+    }
+
+    @Test
+    void testGetAllConditionCode_EmptyResult() throws DataProcessingException {
+        when(conditionCodeRepository.findAllConditionCode()).thenReturn(Optional.of(Collections.emptyList()));
+
+        List<ConditionCode> result = cachingValueService.getAllConditionCode();
+
+        assertTrue(result.isEmpty());
+        verify(conditionCodeRepository, times(1)).findAllConditionCode();
+    }
+
+    @Test
+    void testGetCodedValues_CacheIsNull() throws DataProcessingException {
+        String pType = "testType";
+        String key = "testKey";
+        SrteCache.codedValuesMap = new TreeMap<>();
+
+        when(cacheManager.getCache("srte")).thenReturn(null);
+
+        TreeMap<String, String> result = cachingValueService.getCodedValues(pType, key);
+
+        assertEquals(SrteCache.codedValuesMap, result);
+    }
+
+    @Test
+    void testGetCodedValues_CacheValueWrapperIsNull() throws DataProcessingException {
+        String pType = "testType";
+        String key = "testKey";
+        SrteCache.codedValuesMap = new TreeMap<>();
+        Cache cache = mock(Cache.class);
+
+        when(cacheManager.getCache("srte")).thenReturn(cache);
+        when(cache.get("codedValues")).thenReturn(null);
+
+        TreeMap<String, String> result = cachingValueService.getCodedValues(pType, key);
+
+        assertEquals(SrteCache.codedValuesMap, result);
+    }
+
+    @Test
+    void testGetCodedValues_CacheValueIsEmptyOrNull() throws DataProcessingException {
+        String pType = "testType";
+        String key = "testKey";
+        SrteCache.codedValuesMap = new TreeMap<>();
+        Cache cache = mock(Cache.class);
+        Cache.ValueWrapper valueWrapper = mock(Cache.ValueWrapper.class);
+
+        when(cacheManager.getCache("srte")).thenReturn(cache);
+        when(cache.get("codedValues")).thenReturn(valueWrapper);
+        when(valueWrapper.get()).thenReturn(SrteCache.codedValuesMap);
+
+
+        SrteCache.codedValuesMap.put(key, "");
+        TreeMap<String, String> result = cachingValueService.getCodedValues(pType, key);
+
+        assertNotNull(result);
+    }
+
+
+    @Test
+    void testGetCodeDescTxtForCd_CacheIsNull() throws DataProcessingException {
+        String code = "testCode";
+        String codeSetNm = "testCodeSet";
+        SrteCache.codeDescTxtMap = new TreeMap<>();
+
+        when(cacheManager.getCache("srte")).thenReturn(null);
+
+        String result = cachingValueService.getCodeDescTxtForCd(code, codeSetNm);
+
+        assertEquals(SrteCache.codeDescTxtMap.get(code), result);
+    }
+
+    @Test
+    void testGetCodeDescTxtForCd_CacheValueWrapperIsNull() throws DataProcessingException {
+        String code = "testCode";
+        String codeSetNm = "testCodeSet";
+        SrteCache.codeDescTxtMap = new TreeMap<>();
+        Cache cache = mock(Cache.class);
+
+        when(cacheManager.getCache("srte")).thenReturn(cache);
+        when(cache.get("codeDescTxt")).thenReturn(null);
+
+        String result = cachingValueService.getCodeDescTxtForCd(code, codeSetNm);
+
+        assertEquals(SrteCache.codeDescTxtMap.get(code), result);
+    }
+
+    @Test
+    void testGetCodeDescTxtForCd_CacheValueIsEmptyOrNull() throws DataProcessingException {
+        String code = "testCode";
+        String codeSetNm = "testCodeSet";
+        SrteCache.codeDescTxtMap = new TreeMap<>();
+        Cache cache = mock(Cache.class);
+        Cache.ValueWrapper valueWrapper = mock(Cache.ValueWrapper.class);
+
+        when(cacheManager.getCache("srte")).thenReturn(cache);
+        when(cache.get("codeDescTxt")).thenReturn(valueWrapper);
+        when(valueWrapper.get()).thenReturn(SrteCache.codeDescTxtMap);
+
+        TreeMap<String, String> mockedRepoResponse = new TreeMap<>();
+        mockedRepoResponse.put("newCode", "newDesc");
+
+        SrteCache.codeDescTxtMap.put(code, "");
+        String result = cachingValueService.getCodeDescTxtForCd(code, codeSetNm);
+
+        assertNotNull(result);
+    }
+
+
+    @Test
+    void testGetCountyCdByDesc_CountyOrStateCdIsNull() throws DataProcessingException {
+        String result = cachingValueService.getCountyCdByDesc(null, "stateCd");
+        assertNull(result);
+
+        result = cachingValueService.getCountyCdByDesc("county", null);
+        assertNull(result);
+
+    }
+
+    @Test
+    void testGetCountyCdByDesc_CacheIsNull() throws DataProcessingException {
+        String county = "county";
+        String stateCd = "stateCd";
+        SrteCache.countyCodeByDescMap = new TreeMap<>();
+
+        when(cacheManager.getCache("srte")).thenReturn(null);
+
+        String result = cachingValueService.getCountyCdByDesc(county, stateCd);
+
+        assertEquals(SrteCache.countyCodeByDescMap.get(county.toUpperCase() + " COUNTY"), result);
+    }
+
+    @Test
+    void testGetCountyCdByDesc_CacheValueWrapperIsNull() throws DataProcessingException {
+        String county = "county";
+        String stateCd = "stateCd";
+        SrteCache.countyCodeByDescMap = new TreeMap<>();
+        Cache cache = mock(Cache.class);
+
+        when(cacheManager.getCache("srte")).thenReturn(cache);
+        when(cache.get("countyCodeByDesc")).thenReturn(null);
+
+        String result = cachingValueService.getCountyCdByDesc(county, stateCd);
+
+        assertEquals(SrteCache.countyCodeByDescMap.get(county.toUpperCase() + " COUNTY"), result);
+    }
+
+    @Test
+    void testGetCountyCdByDesc_CacheValueIsEmptyOrNull() throws DataProcessingException {
+        String county = "county";
+        String stateCd = "stateCd";
+        SrteCache.countyCodeByDescMap = new TreeMap<>();
+        Cache cache = mock(Cache.class);
+        Cache.ValueWrapper valueWrapper = mock(Cache.ValueWrapper.class);
+
+        when(cacheManager.getCache("srte")).thenReturn(cache);
+        when(cache.get("countyCodeByDesc")).thenReturn(valueWrapper);
+        when(valueWrapper.get()).thenReturn(SrteCache.countyCodeByDescMap);
+
+        TreeMap<String, String> mockedRepoResponse = new TreeMap<>();
+        mockedRepoResponse.put(county.toUpperCase() + " COUNTY", "mockedCode");
+
+        SrteCache.countyCodeByDescMap.put(county.toUpperCase() + " COUNTY", "");
+        String result = cachingValueService.getCountyCdByDesc(county, stateCd);
+
+        assertNull(result);
     }
 }

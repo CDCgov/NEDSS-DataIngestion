@@ -66,6 +66,39 @@ class ActRelationshipServiceTest {
         assertEquals(1, test.size());
     }
 
+    @Test
+    void loadActRelationshipBySrcIdAndTypeCode_Success_2() {
+        long uid = 10L;
+        String type = "type";
+
+
+        when(actRelationshipRepository.loadActRelationshipBySrcIdAndTypeCode(10L, type))
+                .thenReturn(Optional.empty());
+
+        var test = actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(uid, type);
+
+        assertNotNull(test);
+    }
+
+    @Test
+    void saveActRelationship_Test_1() throws DataProcessingException {
+        ActRelationshipDto actRelationshipDto = new ActRelationshipDto();
+        actRelationshipDto.setItDirty(true);
+
+        actRelationshipService.saveActRelationship(actRelationshipDto);
+
+        verify(actRelationshipRepository, times(0)).save(any());
+    }
+
+    @Test
+    void saveActRelationship_Test_2() throws DataProcessingException {
+        ActRelationshipDto actRelationshipDto = new ActRelationshipDto();
+
+        actRelationshipService.saveActRelationship(actRelationshipDto);
+
+        verify(actRelationshipRepository, times(0)).save(any());
+    }
+
 
 
     @Test
