@@ -1072,4 +1072,6 @@ class ManagerServiceTest {
         verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
 
+
+
 }

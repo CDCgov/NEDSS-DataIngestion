@@ -1,14 +1,17 @@
 package gov.cdc.dataprocessing.service.implementation.other;
 
 import com.google.gson.Gson;
+import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
+import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
@@ -32,9 +35,9 @@ import org.junit.jupiter.api.Test;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class DataExtractionServiceTest {
@@ -70,7 +73,7 @@ class DataExtractionServiceTest {
     }
 
     @Test
-    void testParsingDataToObjectSuccess() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+    void testParsingDataToObjectSuccess() throws JAXBException, DataProcessingException {
         Gson gson = new Gson();
         NbsInterfaceModel nbsInterfaceModel = null;
         nbsInterfaceModel = gson.fromJson(getData(), NbsInterfaceModel.class);
@@ -530,5 +533,286 @@ class DataExtractionServiceTest {
         labResultProxyContainer.setTheOrganizationContainerCollection(organizationContainers);
 
         return labResultProxyContainer;
+    }
+
+    @Test
+    void testSpecimenProcessing_AllConditionsMet() throws DataProcessingException {
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        ObservationDto observationDto = new ObservationDto();
+        Timestamp effectiveFromTime = new Timestamp(System.currentTimeMillis());
+        observationDto.setEffectiveFromTime(effectiveFromTime);
+        ObservationContainer observationContainer = new ObservationContainer();
+        observationContainer.setTheObservationDto(observationDto);
+        edxLabInformationDto.setRootObservationContainer(observationContainer);
+        edxLabInformationDto.setNbsInterfaceUid(123L);
+
+        dataExtractionService.specimenProcessing(edxLabInformationDto);
+
+        verify(nbsInterfaceStoredProcRepository, times(1)).updateSpecimenCollDateSP(123L, effectiveFromTime);
+    }
+
+    @Test
+    void testSpecimenProcessing_RootObservationContainerNull() throws DataProcessingException {
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+
+        dataExtractionService.specimenProcessing(edxLabInformationDto);
+
+        verify(nbsInterfaceStoredProcRepository, never()).updateSpecimenCollDateSP(anyLong(), any());
+    }
+
+    @Test
+    void testSpecimenProcessing_ObservationDtoNull() throws DataProcessingException {
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        ObservationContainer observationContainer = new ObservationContainer();
+        edxLabInformationDto.setRootObservationContainer(observationContainer);
+
+        dataExtractionService.specimenProcessing(edxLabInformationDto);
+
+        verify(nbsInterfaceStoredProcRepository, never()).updateSpecimenCollDateSP(anyLong(), any());
+    }
+
+    @Test
+    void testSpecimenProcessing_EffectiveFromTimeNull() throws DataProcessingException {
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        ObservationDto observationDto = new ObservationDto();
+        ObservationContainer observationContainer = new ObservationContainer();
+        observationContainer.setTheObservationDto(observationDto);
+        edxLabInformationDto.setRootObservationContainer(observationContainer);
+
+        dataExtractionService.specimenProcessing(edxLabInformationDto);
+
+        verify(nbsInterfaceStoredProcRepository, never()).updateSpecimenCollDateSP(anyLong(), any());
+    }
+
+    @Test
+    void testOrderObservationNullCheck_Hl7OrderObservationArrayIsNull() {
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        NbsInterfaceModel nbsInterfaceModel = new NbsInterfaceModel();
+        nbsInterfaceModel.setNbsInterfaceUid(123);
+
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            dataExtractionService.orderObservationNullCheck(null, edxLabInformationDto, nbsInterfaceModel);
+        });
+
+        assertTrue(edxLabInformationDto.isOrderTestNameMissing());
+        assertEquals(EdxELRConstant.NO_ORDTEST_NAME, exception.getMessage());
+        // Here you might want to verify the logging, but verifying logs is not straightforward in unit tests.
+    }
+
+    @Test
+    void testOrderObservationNullCheck_Hl7OrderObservationArrayIsEmpty() {
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        NbsInterfaceModel nbsInterfaceModel = new NbsInterfaceModel();
+        nbsInterfaceModel.setNbsInterfaceUid(123);
+        List<HL7OrderObservationType> hl7OrderObservationArray = new ArrayList<>();
+
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            dataExtractionService.orderObservationNullCheck(hl7OrderObservationArray, edxLabInformationDto, nbsInterfaceModel);
+        });
+
+        assertTrue(edxLabInformationDto.isOrderTestNameMissing());
+        assertEquals(EdxELRConstant.NO_ORDTEST_NAME, exception.getMessage());
+        // Here you might want to verify the logging, but verifying logs is not straightforward in unit tests.
+    }
+
+    @Test
+    void testOrderObservationNullCheck_Hl7OrderObservationArrayIsNotEmpty() {
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        NbsInterfaceModel nbsInterfaceModel = new NbsInterfaceModel();
+        nbsInterfaceModel.setNbsInterfaceUid(123);
+        List<HL7OrderObservationType> hl7OrderObservationArray = new ArrayList<>();
+        hl7OrderObservationArray.add(new HL7OrderObservationType());
+
+        assertDoesNotThrow(() -> {
+            dataExtractionService.orderObservationNullCheck(hl7OrderObservationArray, edxLabInformationDto, nbsInterfaceModel);
+        });
+
+        assertFalse(edxLabInformationDto.isOrderTestNameMissing());
+    }
+
+
+    @Test
+    void testMultipleObrCheck_Valid() {
+        int j = 1;
+        HL7OrderObservationType hl7OrderObservationType = new HL7OrderObservationType();
+        HL7OBRType observationRequest = new HL7OBRType();
+        HL7EIPType parent = new HL7EIPType();
+        HL7PRLType parentResult = new HL7PRLType();
+        HL7TXType parentObservationValueDescriptor = new HL7TXType();
+        HL7EIType fillerAssignedIdentifier = new HL7EIType();
+        HL7CEType parentObservationIdentifier = new HL7CEType();
+
+        // Setting all required fields for a valid check
+        parentObservationValueDescriptor.setHL7String("descriptor");
+        parentResult.setParentObservationValueDescriptor(parentObservationValueDescriptor);
+        parentObservationIdentifier.setHL7Identifier("identifier");
+        parentObservationIdentifier.setHL7AlternateIdentifier("alternateIdentifier");
+        parentObservationIdentifier.setHL7Text("text");
+        parentObservationIdentifier.setHL7AlternateText("alternateText");
+        parentResult.setParentObservationIdentifier(parentObservationIdentifier);
+        fillerAssignedIdentifier.setHL7EntityIdentifier("entityIdentifier");
+        parent.setHL7FillerAssignedIdentifier(fillerAssignedIdentifier);
+        observationRequest.setParent(parent);
+        observationRequest.setParentResult(parentResult);
+        hl7OrderObservationType.setObservationRequest(observationRequest);
+
+        boolean result = dataExtractionService.multipleObrCheck(j, hl7OrderObservationType);
+        assertFalse(result);
+    }
+
+    @Test
+    void testMultipleObrCheck_Invalid_J() {
+        int j = 0;
+        HL7OrderObservationType hl7OrderObservationType = new HL7OrderObservationType();
+        boolean result = dataExtractionService.multipleObrCheck(j, hl7OrderObservationType);
+        assertFalse(result);
+    }
+
+    @Test
+    void testMultipleObrCheck_NullParent() {
+        int j = 1;
+        HL7OrderObservationType hl7OrderObservationType = new HL7OrderObservationType();
+        HL7OBRType observationRequest = new HL7OBRType();
+        observationRequest.setParent(null);
+        hl7OrderObservationType.setObservationRequest(observationRequest);
+
+        boolean result = dataExtractionService.multipleObrCheck(j, hl7OrderObservationType);
+        assertTrue(result);
+    }
+
+    @Test
+    void testMultipleObrCheck_NullParentResult() {
+        int j = 1;
+        HL7OrderObservationType hl7OrderObservationType = new HL7OrderObservationType();
+        HL7OBRType observationRequest = new HL7OBRType();
+        observationRequest.setParentResult(null);
+        hl7OrderObservationType.setObservationRequest(observationRequest);
+
+        boolean result = dataExtractionService.multipleObrCheck(j, hl7OrderObservationType);
+        assertTrue(result);
+    }
+
+    @Test
+    void testMultipleObrCheck_NullParentObservationValueDescriptor() {
+        int j = 1;
+        HL7OrderObservationType hl7OrderObservationType = new HL7OrderObservationType();
+        HL7OBRType observationRequest = new HL7OBRType();
+        HL7PRLType parentResult = new HL7PRLType();
+        parentResult.setParentObservationValueDescriptor(null);
+        observationRequest.setParentResult(parentResult);
+        hl7OrderObservationType.setObservationRequest(observationRequest);
+
+        boolean result = dataExtractionService.multipleObrCheck(j, hl7OrderObservationType);
+        assertTrue(result);
+    }
+
+    @Test
+    void testMultipleObrCheck_EmptyHL7String() {
+        int j = 1;
+        HL7OrderObservationType hl7OrderObservationType = new HL7OrderObservationType();
+        HL7OBRType observationRequest = new HL7OBRType();
+        HL7PRLType parentResult = new HL7PRLType();
+        HL7TXType parentObservationValueDescriptor = new HL7TXType();
+        parentObservationValueDescriptor.setHL7String("");
+        parentResult.setParentObservationValueDescriptor(parentObservationValueDescriptor);
+        observationRequest.setParentResult(parentResult);
+        hl7OrderObservationType.setObservationRequest(observationRequest);
+
+        boolean result = dataExtractionService.multipleObrCheck(j, hl7OrderObservationType);
+        assertTrue(result);
+    }
+
+    @Test
+    void testMultipleObrCheck_NullHL7FillerAssignedIdentifier() {
+        int j = 1;
+        HL7OrderObservationType hl7OrderObservationType = new HL7OrderObservationType();
+        HL7OBRType observationRequest = new HL7OBRType();
+        HL7EIPType parent = new HL7EIPType();
+        parent.setHL7FillerAssignedIdentifier(null);
+        observationRequest.setParent(parent);
+        hl7OrderObservationType.setObservationRequest(observationRequest);
+
+        boolean result = dataExtractionService.multipleObrCheck(j, hl7OrderObservationType);
+        assertTrue(result);
+    }
+
+    @Test
+    void testMultipleObrCheck_NullHL7EntityIdentifier() {
+        int j = 1;
+        HL7OrderObservationType hl7OrderObservationType = new HL7OrderObservationType();
+        HL7OBRType observationRequest = new HL7OBRType();
+        HL7EIPType parent = new HL7EIPType();
+        HL7EIType fillerAssignedIdentifier = new HL7EIType();
+        fillerAssignedIdentifier.setHL7EntityIdentifier(null);
+        parent.setHL7FillerAssignedIdentifier(fillerAssignedIdentifier);
+        observationRequest.setParent(parent);
+        hl7OrderObservationType.setObservationRequest(observationRequest);
+
+        boolean result = dataExtractionService.multipleObrCheck(j, hl7OrderObservationType);
+        assertTrue(result);
+    }
+
+    @Test
+    void testMultipleObrCheck_EmptyHL7EntityIdentifier() {
+        int j = 1;
+        HL7OrderObservationType hl7OrderObservationType = new HL7OrderObservationType();
+        HL7OBRType observationRequest = new HL7OBRType();
+        HL7EIPType parent = new HL7EIPType();
+        HL7EIType fillerAssignedIdentifier = new HL7EIType();
+        fillerAssignedIdentifier.setHL7EntityIdentifier("");
+        parent.setHL7FillerAssignedIdentifier(fillerAssignedIdentifier);
+        observationRequest.setParent(parent);
+        hl7OrderObservationType.setObservationRequest(observationRequest);
+
+        boolean result = dataExtractionService.multipleObrCheck(j, hl7OrderObservationType);
+        assertTrue(result);
+    }
+
+    @Test
+    void testMultipleObrCheck_NullParentObservationIdentifier() {
+        int j = 1;
+        HL7OrderObservationType hl7OrderObservationType = new HL7OrderObservationType();
+        HL7OBRType observationRequest = new HL7OBRType();
+        HL7PRLType parentResult = new HL7PRLType();
+        parentResult.setParentObservationIdentifier(null);
+        observationRequest.setParentResult(parentResult);
+        hl7OrderObservationType.setObservationRequest(observationRequest);
+
+        boolean result = dataExtractionService.multipleObrCheck(j, hl7OrderObservationType);
+        assertTrue(result);
+    }
+
+    @Test
+    void testMultipleObrCheck_NullHL7IdentifierAndAlternateIdentifier() {
+        int j = 1;
+        HL7OrderObservationType hl7OrderObservationType = new HL7OrderObservationType();
+        HL7OBRType observationRequest = new HL7OBRType();
+        HL7PRLType parentResult = new HL7PRLType();
+        HL7CEType parentObservationIdentifier = new HL7CEType();
+        parentObservationIdentifier.setHL7Identifier(null);
+        parentObservationIdentifier.setHL7AlternateIdentifier(null);
+        parentResult.setParentObservationIdentifier(parentObservationIdentifier);
+        observationRequest.setParentResult(parentResult);
+        hl7OrderObservationType.setObservationRequest(observationRequest);
+
+        boolean result = dataExtractionService.multipleObrCheck(j, hl7OrderObservationType);
+        assertTrue(result);
+    }
+
+    @Test
+    void testMultipleObrCheck_NullHL7TextAndAlternateText() {
+        int j = 1;
+        HL7OrderObservationType hl7OrderObservationType = new HL7OrderObservationType();
+        HL7OBRType observationRequest = new HL7OBRType();
+        HL7PRLType parentResult = new HL7PRLType();
+        HL7CEType parentObservationIdentifier = new HL7CEType();
+        parentObservationIdentifier.setHL7Text(null);
+        parentObservationIdentifier.setHL7AlternateText(null);
+        parentResult.setParentObservationIdentifier(parentObservationIdentifier);
+        observationRequest.setParentResult(parentResult);
+        hl7OrderObservationType.setObservationRequest(observationRequest);
+
+        boolean result = dataExtractionService.multipleObrCheck(j, hl7OrderObservationType);
+        assertTrue(result);
     }
 }

@@ -57,6 +57,41 @@ public class DataExtractionService implements IDataExtractionService {
         this.nbsInterfaceStoredProcRepository = nbsInterfaceStoredProcRepository;
     }
 
+    public void specimenProcessing(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
+        if(
+                edxLabInformationDto.getRootObservationContainer()!=null
+                        && edxLabInformationDto.getRootObservationContainer().getTheObservationDto()!=null
+                        && edxLabInformationDto.getRootObservationContainer().getTheObservationDto().getEffectiveFromTime()!=null
+        )
+        {
+            nbsInterfaceStoredProcRepository.updateSpecimenCollDateSP(edxLabInformationDto.getNbsInterfaceUid(), edxLabInformationDto.getRootObservationContainer().getTheObservationDto().getEffectiveFromTime());
+        }
+    }
+
+    public void orderObservationNullCheck(List<HL7OrderObservationType> hl7OrderObservationArray,
+                                          EdxLabInformationDto edxLabInformationDto, NbsInterfaceModel nbsInterfaceModel) throws DataProcessingException {
+        if(hl7OrderObservationArray==null || hl7OrderObservationArray.size() == 0){
+            edxLabInformationDto.setOrderTestNameMissing(true);
+            logger.error("HL7CommonLabUtil.processELR error thrown as NO OBR segment is found.Please check message with NBS_INTERFACE_UID:-"+ nbsInterfaceModel.getNbsInterfaceUid());
+            throw new DataProcessingException(EdxELRConstant.NO_ORDTEST_NAME);
+        }
+    }
+
+    public boolean multipleObrCheck(int j, HL7OrderObservationType hl7OrderObservationType) {
+        return j>0 && (hl7OrderObservationType.getObservationRequest().getParent()==null
+                || hl7OrderObservationType.getObservationRequest().getParentResult()==null
+                || hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationValueDescriptor()== null
+                || hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationValueDescriptor().getHL7String() == null
+                || hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationValueDescriptor().getHL7String().trim().equals("")
+                || hl7OrderObservationType.getObservationRequest().getParent().getHL7FillerAssignedIdentifier()==null
+                || hl7OrderObservationType.getObservationRequest().getParent().getHL7FillerAssignedIdentifier().getHL7EntityIdentifier()==null
+                || hl7OrderObservationType.getObservationRequest().getParent().getHL7FillerAssignedIdentifier().getHL7EntityIdentifier().trim().equals("")
+                || hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier()==null
+                || (hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier().getHL7Identifier()==null
+                && hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier().getHL7AlternateIdentifier()==null)
+                || (hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier().getHL7Text()==null
+                && hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier().getHL7AlternateText()==null));
+    }
     @Transactional
     public LabResultProxyContainer parsingDataToObject(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto) throws JAXBException, DataProcessingException {
 
@@ -115,11 +150,7 @@ public class DataExtractionService implements IDataExtractionService {
 
             List<HL7OrderObservationType> hl7OrderObservationArray = hl7PATIENTRESULTType.getORDEROBSERVATION();
 
-            if(hl7OrderObservationArray==null || hl7OrderObservationArray.size() == 0){
-                edxLabInformationDto.setOrderTestNameMissing(true);
-                logger.error("HL7CommonLabUtil.processELR error thrown as NO OBR segment is found.Please check message with NBS_INTERFACE_UID:-"+ nbsInterfaceModel.getNbsInterfaceUid());
-                throw new DataProcessingException(EdxELRConstant.NO_ORDTEST_NAME);
-            }
+            orderObservationNullCheck(hl7OrderObservationArray, edxLabInformationDto,  nbsInterfaceModel);
 
             for (int j = 0; j < hl7OrderObservationArray.size(); j++) {
                 HL7OrderObservationType hl7OrderObservationType = hl7OrderObservationArray.get(j);
@@ -143,21 +174,7 @@ public class DataExtractionService implements IDataExtractionService {
                     throw new DataProcessingException(EdxELRConstant.ORDER_OBR_WITH_PARENT);
 
                 }
-                else if(
-                        j>0 && (hl7OrderObservationType.getObservationRequest().getParent()==null
-                        || hl7OrderObservationType.getObservationRequest().getParentResult()==null
-                        || hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationValueDescriptor()== null
-                        || hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationValueDescriptor().getHL7String() == null
-                        || hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationValueDescriptor().getHL7String().trim().equals("")
-                        || hl7OrderObservationType.getObservationRequest().getParent().getHL7FillerAssignedIdentifier()==null
-                        || hl7OrderObservationType.getObservationRequest().getParent().getHL7FillerAssignedIdentifier().getHL7EntityIdentifier()==null
-                        || hl7OrderObservationType.getObservationRequest().getParent().getHL7FillerAssignedIdentifier().getHL7EntityIdentifier().trim().equals("")
-                        || hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier()==null
-                        || (hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier().getHL7Identifier()==null
-                        && hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier().getHL7AlternateIdentifier()==null)
-                        || (hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier().getHL7Text()==null
-                        && hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier().getHL7AlternateText()==null))
-                )
+                else if(multipleObrCheck(j,  hl7OrderObservationType))
                 {
 
                     edxLabInformationDto.setMultipleOBR(true);
@@ -168,14 +185,7 @@ public class DataExtractionService implements IDataExtractionService {
 
                 observationRequestHandler.getObservationRequest(hl7OrderObservationType.getObservationRequest(), hl7PatientResultSPMType, labResultProxyContainer, edxLabInformationDto);
 
-                if(
-                    edxLabInformationDto.getRootObservationContainer()!=null
-                    && edxLabInformationDto.getRootObservationContainer().getTheObservationDto()!=null
-                    && edxLabInformationDto.getRootObservationContainer().getTheObservationDto().getEffectiveFromTime()!=null
-                )
-                {
-                    nbsInterfaceStoredProcRepository.updateSpecimenCollDateSP(edxLabInformationDto.getNbsInterfaceUid(), edxLabInformationDto.getRootObservationContainer().getTheObservationDto().getEffectiveFromTime());
-                }
+                specimenProcessing(edxLabInformationDto);
 
                 observationResultRequestHandler.getObservationResultRequest(hl7OrderObservationType.getPatientResultOrderObservation().getOBSERVATION(), labResultProxyContainer, edxLabInformationDto);
 
