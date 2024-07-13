@@ -81,7 +81,7 @@ jacocoTestReport {
                             '**/model/phdc/**',
                             '**/repository/nbs/msgoute/model/**',
                             '**/repository/nbs/odse/model/**',
-//                            '**/repository/nbs/srte/model/**',
+                            '**/repository/nbs/srte/model/**',
                             '**/security/config/**',
                             '**/ServiceApplication.java',
                             '**/service/model/**',
@@ -249,7 +249,7 @@ sonarqube {
                 "**/model/phdc/**",
                 "**/repository/nbs/msgoute/model/**",
                 "**/repository/nbs/odse/model/**",
-//                "**/repository/nbs/srte/model/**",
+                "**/repository/nbs/srte/model/**",
                 "**/security/config/**",
                 "**/ServiceApplication.java",
                 "**/service/model/**",
@@ -265,12 +265,12 @@ sonarqube {
                 "**/TimeStampUtil.java",
                 "**/AuthUtil.java",
                 "**/ObsReqNoteHelper.java",
-                "**/InvestigationService.java",
-                "**/ObservationRequestHandler.java",
-                "**/InvestigationNotificationService.java",
-                "**/ContactSummaryService.java",
-                "**/RetrieveSummaryService.java",
-                "**/ManagerCacheService.java"
+//                "**/InvestigationService.java",
+//                "**/ObservationRequestHandler.java",
+//                "**/InvestigationNotificationService.java",
+//                "**/ContactSummaryService.java",
+//                "**/RetrieveSummaryService.java",
+//                "**/ManagerCacheService.java"
         ].join(",")
     }
 }
