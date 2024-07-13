@@ -61,30 +61,27 @@ jacoco {
 test {
     finalizedBy jacocoTestReport // report is always generated after tests run
 }
+
 jacocoTestReport {
     reports {
         xml.required = true
         csv.required = false
         html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
     }
-    getExecutionData().setFrom(fileTree(buildDir).include("/jacoco/*.exec"))
 
-    // Configuring the class exclusions
+    getExecutionData().setFrom(fileTree(buildDir).include("**/jacoco/*.exec"))
+
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it,
                     excludes: [
-                            // Add patterns to exclude here
                             '**/config/**',
                             '**/constant/**',
-                        //    '**/exception/**',
-                      //      '**/model/container/**',
                             '**/model/dsma_algorithm/**',
-                            //'**/model/dto/**',
                             '**/model/phdc/**',
                             '**/repository/nbs/msgoute/model/**',
                             '**/repository/nbs/odse/model/**',
-                            '**/repository/nbs/srte/model/**',
+//                            '**/repository/nbs/srte/model/**',
                             '**/security/config/**',
                             '**/ServiceApplication.java',
                             '**/service/model/**',
@@ -92,8 +89,6 @@ jacocoTestReport {
                             '**/RulesEngineUtil.java',
                             '**/utilities/model/**',
                             '**/controller/**',
-                        //    '**/kafka/consumer/**',
-                          //  '**/kafka/producer/**',
                             '**/WdsObjectChecker.java',
                             '**/AdvancedCriteria.java',
                             '**/cache/OdseCache.java',
@@ -102,12 +97,14 @@ jacocoTestReport {
                             '**/StringUtils.java',
                             '**/TimeStampUtil.java',
                             '**/AuthUtil.java',
-                            '**/ObsReqNoteHelper.java', '**/WdsObjectChecker.java'
+                            '**/ObsReqNoteHelper.java',
+                            '**/WdsObjectChecker.java'
                     ]
             )
         }))
     }
 }
+
 
 task integration(type: Test) {
     useJUnitPlatform()
@@ -244,22 +241,36 @@ sonarqube {
         property "sonar.projectKey", "CDCgov_NEDSS-DataIngestion"
         property "sonar.organization", "cdcgov"
         property "sonar.host.url", "https://sonarcloud.io"
-        property "sonar.exclusions", "**/config/**, **/controller/**, **/constant/**, " +
-                "**/model/dsma_algorithm/**," +
-                " **/model/phdc/**, " +
-                " **/repository/nbs/msgoute/model/**, " +
-                "**/repository/nbs/odse/model/**, " +
-                "**/repository/nbs/srte/model/**," +
-                " **/security/config/**," +
-                " **/ServiceApplication.java, " +
-                " **/service/model/**, **/DynamicBeanBinding.java, **/RulesEngineUtil.java, **/utilities/model/**," +
-                " **/WdsObjectChecker.java," +
-                " **/AdvancedCriteria.java, **/cache/OdseCache.java, **/cache/PropertyUtilCache.java, " +
-                " **/cache/SrteCache.java, **/StringUtils.java, **/TimeStampUtil.java, **/AuthUtil.java, " +
-                " **/ObsReqNoteHelper.java, **/WdsObjectChecker.java"
-                " **/InvestigationService.java, **/ObservationRequestHandler.java, **/InvestigationNotificationService.java, **/ContactSummaryService.java," +
-                " **/RetrieveSummaryService.java, **/ManagerCacheService.java"
-
-
+        property "sonar.exclusions", [
+                "**/config/**",
+                "**/controller/**",
+                "**/constant/**",
+                "**/model/dsma_algorithm/**",
+                "**/model/phdc/**",
+                "**/repository/nbs/msgoute/model/**",
+                "**/repository/nbs/odse/model/**",
+//                "**/repository/nbs/srte/model/**",
+                "**/security/config/**",
+                "**/ServiceApplication.java",
+                "**/service/model/**",
+                "**/DynamicBeanBinding.java",
+                "**/RulesEngineUtil.java",
+                "**/utilities/model/**",
+                "**/WdsObjectChecker.java",
+                "**/AdvancedCriteria.java",
+                "**/cache/OdseCache.java",
+                "**/cache/PropertyUtilCache.java",
+                "**/cache/SrteCache.java",
+                "**/StringUtils.java",
+                "**/TimeStampUtil.java",
+                "**/AuthUtil.java",
+                "**/ObsReqNoteHelper.java",
+                "**/InvestigationService.java",
+                "**/ObservationRequestHandler.java",
+                "**/InvestigationNotificationService.java",
+                "**/ContactSummaryService.java",
+                "**/RetrieveSummaryService.java",
+                "**/ManagerCacheService.java"
+        ].join(",")
     }
 }
