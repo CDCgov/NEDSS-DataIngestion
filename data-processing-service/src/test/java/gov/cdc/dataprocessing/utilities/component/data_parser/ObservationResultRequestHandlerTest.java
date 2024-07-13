@@ -6,6 +6,8 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
+import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
+import gov.cdc.dataprocessing.model.dto.edx.EdxLabIdentiferDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.phdc.*;
@@ -20,10 +22,7 @@ import jakarta.xml.bind.JAXBException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +32,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class ObservationResultRequestHandlerTest {
     @Mock
@@ -44,12 +43,21 @@ class ObservationResultRequestHandlerTest {
     private CommonLabUtil commonLabUtil;
 
     @InjectMocks
+    @Spy
     private ObservationResultRequestHandler observationResultRequestHandler;
 
     private List<HL7OBSERVATIONType> result;
     private EdxLabInformationDto edxLabInformationDt;
     @Mock
     AuthUtil authUtil;
+    @Mock
+    private HL7CWEType obsIdentifierMock;
+    @Mock
+    private ObservationDto observationDtoMock;
+    @Mock
+    private EdxLabInformationDto edxLabInformationDtoMock;
+    @Mock
+    private ObservationContainer observationContainerMock;
 
     @BeforeEach
     void setUp() throws JAXBException {
@@ -358,4 +366,262 @@ class ObservationResultRequestHandlerTest {
 
         assertNotNull(thrown);
     }
+
+    @Test
+    void testObsResultCheckParentObs_ParentObsIndFalse_ObservationIdentifierNull() {
+        // Arrange
+        EdxLabInformationDto edxLabInformationDtoMock = mock(EdxLabInformationDto.class);
+        HL7OBXType hl7OBXTypeMock = mock(HL7OBXType.class);
+
+        when(edxLabInformationDtoMock.isParentObsInd()).thenReturn(false);
+        when(hl7OBXTypeMock.getObservationIdentifier()).thenReturn(null);
+
+
+        // Act
+        boolean result = observationResultRequestHandler.obsResultCheckParentObs(edxLabInformationDtoMock, hl7OBXTypeMock);
+
+        // Assert
+        assertTrue(result);
+    }
+
+    @Test
+    void testObsResultCheckParentObs_ParentObsIndTrue() {
+        // Arrange
+        EdxLabInformationDto edxLabInformationDtoMock = mock(EdxLabInformationDto.class);
+        HL7OBXType hl7OBXTypeMock = mock(HL7OBXType.class);
+
+        when(edxLabInformationDtoMock.isParentObsInd()).thenReturn(true);
+
+
+        // Act
+        boolean result = observationResultRequestHandler.obsResultCheckParentObs(edxLabInformationDtoMock, hl7OBXTypeMock);
+
+        // Assert
+        assertFalse(result);
+    }
+
+    @Test
+    void testObsResultCheckParentObs_ObservationIdentifierNotNull_HL7IdentifierNull_HL7AlternateIdentifierNull() {
+        // Arrange
+        EdxLabInformationDto edxLabInformationDtoMock = mock(EdxLabInformationDto.class);
+        HL7OBXType hl7OBXTypeMock = mock(HL7OBXType.class);
+        HL7CWEType hl7CETypeMock = mock(HL7CWEType.class);
+
+        when(edxLabInformationDtoMock.isParentObsInd()).thenReturn(false);
+        when(hl7OBXTypeMock.getObservationIdentifier()).thenReturn(hl7CETypeMock);
+        when(hl7CETypeMock.getHL7Identifier()).thenReturn(null);
+        when(hl7CETypeMock.getHL7AlternateIdentifier()).thenReturn(null);
+
+
+        // Act
+        boolean result = observationResultRequestHandler.obsResultCheckParentObs(edxLabInformationDtoMock, hl7OBXTypeMock);
+
+        // Assert
+        assertTrue(result);
+    }
+
+    @Test
+    void testObsResultCheckParentObs_ObservationIdentifierNotNull_HL7IdentifierNotNull() {
+        // Arrange
+        EdxLabInformationDto edxLabInformationDtoMock = mock(EdxLabInformationDto.class);
+        HL7OBXType hl7OBXTypeMock = mock(HL7OBXType.class);
+        HL7CWEType hl7CETypeMock = mock(HL7CWEType.class);
+
+        when(edxLabInformationDtoMock.isParentObsInd()).thenReturn(false);
+        when(hl7OBXTypeMock.getObservationIdentifier()).thenReturn(hl7CETypeMock);
+        when(hl7CETypeMock.getHL7Identifier()).thenReturn("identifier");
+
+
+        // Act
+        boolean result = observationResultRequestHandler.obsResultCheckParentObs(edxLabInformationDtoMock, hl7OBXTypeMock);
+
+        // Assert
+        assertFalse(result);
+    }
+
+    @Test
+    void testObsResultCheckParentObs_ObservationIdentifierNotNull_HL7AlternateIdentifierNotNull() {
+        // Arrange
+        EdxLabInformationDto edxLabInformationDtoMock = mock(EdxLabInformationDto.class);
+        HL7OBXType hl7OBXTypeMock = mock(HL7OBXType.class);
+        HL7CWEType hl7CETypeMock = mock(HL7CWEType.class);
+
+        when(edxLabInformationDtoMock.isParentObsInd()).thenReturn(false);
+        when(hl7OBXTypeMock.getObservationIdentifier()).thenReturn(hl7CETypeMock);
+        when(hl7CETypeMock.getHL7Identifier()).thenReturn(null);
+        when(hl7CETypeMock.getHL7AlternateIdentifier()).thenReturn("alternateIdentifier");
+
+
+        // Act
+        boolean result = observationResultRequestHandler.obsResultCheckParentObs(edxLabInformationDtoMock, hl7OBXTypeMock);
+
+        // Assert
+        assertFalse(result);
+    }
+
+    @Test
+    void testProcessingObsIdentifier_HL7IdentifierNotNull() {
+        // Arrange
+        HL7OBXType hl7OBXTypeMock = mock(HL7OBXType.class);
+        HL7CWEType observationIdentifierMock = mock(HL7CWEType.class);
+        EdxLabIdentiferDto edxLabIdentiferDT = new EdxLabIdentiferDto();
+
+        when(hl7OBXTypeMock.getObservationIdentifier()).thenReturn(observationIdentifierMock);
+        when(observationIdentifierMock.getHL7Identifier()).thenReturn("identifier");
+
+
+        // Act
+        EdxLabIdentiferDto result = observationResultRequestHandler.processingObsIdentifier(hl7OBXTypeMock, edxLabIdentiferDT);
+
+        // Assert
+        assertEquals("identifier", result.getIdentifer());
+    }
+
+    @Test
+    void testProcessingObsIdentifier_HL7IdentifierNull_HL7AlternateIdentifierNotNull() {
+        // Arrange
+        HL7OBXType hl7OBXTypeMock = mock(HL7OBXType.class);
+        HL7CWEType observationIdentifierMock = mock(HL7CWEType.class);
+        EdxLabIdentiferDto edxLabIdentiferDT = new EdxLabIdentiferDto();
+
+        when(hl7OBXTypeMock.getObservationIdentifier()).thenReturn(observationIdentifierMock);
+        when(observationIdentifierMock.getHL7Identifier()).thenReturn(null);
+        when(observationIdentifierMock.getHL7AlternateIdentifier()).thenReturn("alternateIdentifier");
+
+
+        // Act
+        EdxLabIdentiferDto result = observationResultRequestHandler.processingObsIdentifier(hl7OBXTypeMock, edxLabIdentiferDT);
+
+        // Assert
+        assertEquals("alternateIdentifier", result.getIdentifer());
+    }
+
+    @Test
+    void testProcessingObsIdentifier_BothIdentifiersNull() {
+        // Arrange
+        HL7OBXType hl7OBXTypeMock = mock(HL7OBXType.class);
+        HL7CWEType observationIdentifierMock = mock(HL7CWEType.class);
+        EdxLabIdentiferDto edxLabIdentiferDT = new EdxLabIdentiferDto();
+
+        when(hl7OBXTypeMock.getObservationIdentifier()).thenReturn(observationIdentifierMock);
+        when(observationIdentifierMock.getHL7Identifier()).thenReturn(null);
+        when(observationIdentifierMock.getHL7AlternateIdentifier()).thenReturn(null);
+
+
+        // Act
+        EdxLabIdentiferDto result = observationResultRequestHandler.processingObsIdentifier(hl7OBXTypeMock, edxLabIdentiferDT);
+
+        // Assert
+        assertNull(result.getIdentifer());
+    }
+
+    @Test
+    void testProcessingObsTargetUid_ParentObsIndTrue() {
+        // Arrange
+        EdxLabInformationDto edxLabInformationDtoMock = mock(EdxLabInformationDto.class);
+        ActRelationshipDto actRelationshipDto = new ActRelationshipDto();
+
+        when(edxLabInformationDtoMock.isParentObsInd()).thenReturn(true);
+        when(edxLabInformationDtoMock.getParentObservationUid()).thenReturn(123L);
+
+
+        // Act
+        ActRelationshipDto result = observationResultRequestHandler.processingObsTargetUid(edxLabInformationDtoMock, actRelationshipDto);
+
+        // Assert
+        assertEquals(123L, result.getTargetActUid());
+    }
+
+    @Test
+    void testProcessingObsTargetUid_ParentObsIndFalse() {
+        // Arrange
+        EdxLabInformationDto edxLabInformationDtoMock = mock(EdxLabInformationDto.class);
+        ActRelationshipDto actRelationshipDto = new ActRelationshipDto();
+
+        when(edxLabInformationDtoMock.isParentObsInd()).thenReturn(false);
+        when(edxLabInformationDtoMock.getRootObserbationUid()).thenReturn(456L);
+
+
+        // Act
+        ActRelationshipDto result = observationResultRequestHandler.processingObsTargetUid(edxLabInformationDtoMock, actRelationshipDto);
+
+        // Assert
+        assertEquals(456L, result.getTargetActUid());
+    }
+
+
+
+    @Test
+    void testProcessingObsResult1_AllValuesSet() throws DataProcessingException {
+        // Arrange
+        when(obsIdentifierMock.getHL7Identifier()).thenReturn("HL7Identifier");
+        when(obsIdentifierMock.getHL7Text()).thenReturn("HL7Text");
+        when(obsIdentifierMock.getHL7AlternateIdentifier()).thenReturn("HL7AlternateIdentifier");
+        when(obsIdentifierMock.getHL7AlternateText()).thenReturn("HL7AlternateText");
+        when(obsIdentifierMock.getHL7NameofCodingSystem()).thenReturn("HL7NameofCodingSystem");
+        when(obsIdentifierMock.getHL7NameofAlternateCodingSystem()).thenReturn("HL7NameofAlternateCodingSystem");
+
+        // Act
+        observationResultRequestHandler.processingObsResult1(obsIdentifierMock, observationDtoMock, edxLabInformationDtoMock, observationContainerMock);
+
+        // Assert
+        verify(observationDtoMock).setCd("HL7Identifier");
+        verify(observationDtoMock).setCdDescTxt("HL7Text");
+
+    }
+
+    @Test
+    void testProcessingObsResult1_ParentObsIndTrue_NoCd() throws DataProcessingException {
+        // Arrange
+        when(obsIdentifierMock.getHL7Identifier()).thenReturn(null);
+        when(obsIdentifierMock.getHL7Text()).thenReturn(null);
+        when(obsIdentifierMock.getHL7AlternateIdentifier()).thenReturn(null);
+        when(obsIdentifierMock.getHL7AlternateText()).thenReturn(null);
+        when(edxLabInformationDtoMock.isParentObsInd()).thenReturn(true);
+        when(observationContainerMock.getTheObservationDto()).thenReturn(observationDtoMock);
+        when(observationDtoMock.getCd()).thenReturn(null);
+
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            observationResultRequestHandler.processingObsResult1(obsIdentifierMock, observationDtoMock, edxLabInformationDtoMock, observationContainerMock);
+        });
+        assertEquals(EdxELRConstant.NO_DRUG_NAME, exception.getMessage());
+        verify(edxLabInformationDtoMock).setDrugNameMissing(true);
+        verify(edxLabInformationDtoMock).setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
+    }
+
+    @Test
+    void testProcessingObsResult1_ParentObsIndFalse_ValidObsIdentifier() throws DataProcessingException {
+        // Arrange
+        when(obsIdentifierMock.getHL7Identifier()).thenReturn("HL7Identifier");
+        when(obsIdentifierMock.getHL7Text()).thenReturn("HL7Text");
+        when(obsIdentifierMock.getHL7AlternateIdentifier()).thenReturn("HL7AlternateIdentifier");
+        when(obsIdentifierMock.getHL7AlternateText()).thenReturn("HL7AlternateText");
+        when(obsIdentifierMock.getHL7NameofCodingSystem()).thenReturn("HL7NameofCodingSystem");
+        when(obsIdentifierMock.getHL7NameofAlternateCodingSystem()).thenReturn("HL7NameofAlternateCodingSystem");
+        when(edxLabInformationDtoMock.isParentObsInd()).thenReturn(false);
+
+        // Act
+        observationResultRequestHandler.processingObsResult1(obsIdentifierMock, observationDtoMock, edxLabInformationDtoMock, observationContainerMock);
+
+        // Assert
+        verify(observationDtoMock).setCd("HL7Identifier");
+        verify(observationDtoMock).setCdDescTxt("HL7Text");
+
+    }
+
+    @Test
+    void testProcessingObsResult1_ObsIdentifierNull() {
+        // Act & Assert
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            observationResultRequestHandler.processingObsResult1(null, observationDtoMock, edxLabInformationDtoMock, observationContainerMock);
+        });
+        assertEquals("ObservationResultRequest.getObservationResult The Resulted Test ObservationCd  can't be set to null. Please check." + observationDtoMock.getCd(), exception.getMessage());
+    }
+
+
+
+
+
+
 }

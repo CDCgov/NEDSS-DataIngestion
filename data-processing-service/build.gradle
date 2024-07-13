@@ -68,6 +68,45 @@ jacocoTestReport {
         html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
     }
     getExecutionData().setFrom(fileTree(buildDir).include("/jacoco/*.exec"))
+
+    // Configuring the class exclusions
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    excludes: [
+                            // Add patterns to exclude here
+                            '**/config/**',
+                            '**/constant/**',
+                            '**/exception/**',
+                            '**/model/container/**',
+                            '**/model/dsma_algorithm/**',
+                            '**/model/dto/**',
+                            '**/model/phdc/**',
+                            '**/repository/nbs/msgoute/model/**',
+                            '**/repository/nbs/odse/model/**',
+                            '**/repository/nbs/srte/model/**',
+                            '**/security/config/**',
+                            '**/ServiceApplication.java',
+                            '**/service/model/**',
+                            '**/DynamicBeanBinding.java',
+                            '**/RulesEngineUtil.java',
+                            '**/utilities/model/**',
+                            '**/controller/**',
+                            '**/kafka/consumer/**',
+                            '**/kafka/producer/**',
+                            '**/WdsObjectChecker.java',
+                            '**/AdvancedCriteria.java',
+                            '**/cache/OdseCache.java',
+                            '**/cache/PropertyUtilCache.java',
+                            '**/cache/SrteCache.java',
+                            '**/StringUtils.java',
+                            '**/TimeStampUtil.java',
+                            '**/AuthUtil.java',
+                            '**/ObsReqNoteHelper.java'
+                    ]
+            )
+        }))
+    }
 }
 
 task integration(type: Test) {
@@ -210,9 +249,7 @@ sonarqube {
                 " **/service/model/**, **/DynamicBeanBinding.java, **/RulesEngineUtil.java, **/utilities/model/**," +
                 " **/controller/**, **/kafka/consumer/**, **kafka/producer/**, **/WdsObjectChecker.java," +
                 " **/AdvancedCriteria.java, **/cache/OdseCache.java, **/cache/PropertyUtilCache.java, " +
-                " **/cache/SrteCache.java, **/StringUtils.java, **/TimeStampUtil.java, **/AuthUtil.java"
-//        property "sonar.issue.ignore.multicriteria", "e1"
-//        property "sonar.issue.ignore.multicriteria.e1.ruleKey", "squid:S1066"
-//        property "sonar.issue.ignore.multicriteria.e1.resourceKey", "**/*.java"
+                " **/cache/SrteCache.java, **/StringUtils.java, **/TimeStampUtil.java, **/AuthUtil.java, " +
+                " **/ObsReqNoteHelper.java"
     }
 }
