@@ -301,32 +301,26 @@ public class InvestigationService implements IInvestigationService {
             nEntityID = participationDT.getSubjectEntityUid();
             strClassCd = participationDT.getSubjectClassCd();
             recordStatusCd = participationDT.getRecordStatusCd();
-            if (strClassCd != null
-                    && strClassCd.compareToIgnoreCase(NEDSSConstant.ORGANIZATION) == 0
-                    && recordStatusCd != null
-                    && recordStatusCd.equals(NEDSSConstant.RECORD_STATUS_ACTIVE))
-            {
-                theOrganizationVOCollection.add(organizationRepositoryUtil.loadObject(nEntityID, null));
 
-                continue;
+            if (strClassCd != null && recordStatusCd != null) {
+                if (strClassCd.compareToIgnoreCase(NEDSSConstant.ORGANIZATION) == 0
+                        && recordStatusCd.equals(NEDSSConstant.RECORD_STATUS_ACTIVE))
+                {
+                    theOrganizationVOCollection.add(organizationRepositoryUtil.loadObject(nEntityID, null));
+
+                    continue;
+                }
+                if (strClassCd.compareToIgnoreCase(NEDSSConstant.PERSON) == 0
+                        && recordStatusCd.equals(NEDSSConstant.RECORD_STATUS_ACTIVE)) {
+                    thePersonVOCollection.add(patientRepositoryUtil.loadPerson(nEntityID));
+                    continue;
+                }
+                if (strClassCd.compareToIgnoreCase(NEDSSConstant.MATERIAL) == 0
+                        && recordStatusCd.equals(NEDSSConstant.RECORD_STATUS_ACTIVE)) {
+                    theMaterialVOCollection.add(materialService.loadMaterialObject(nEntityID));
+                }
             }
-            if (strClassCd != null
-                    && strClassCd
-                    .compareToIgnoreCase(NEDSSConstant.PERSON) == 0
-                    && recordStatusCd != null
-                    && recordStatusCd
-                    .equals(NEDSSConstant.RECORD_STATUS_ACTIVE)) {
-                thePersonVOCollection.add(patientRepositoryUtil.loadPerson(nEntityID));
-                continue;
-            }
-            if (strClassCd != null
-                    && strClassCd
-                    .compareToIgnoreCase(NEDSSConstant.MATERIAL) == 0
-                    && recordStatusCd != null
-                    && recordStatusCd
-                    .equals(NEDSSConstant.RECORD_STATUS_ACTIVE)) {
-                theMaterialVOCollection.add(materialService.loadMaterialObject(nEntityID));
-            }
+
         }
     }
 
@@ -420,12 +414,9 @@ public class InvestigationService implements IInvestigationService {
                 boolean isCDCFormPrintCase;
                 if(typeCd.equalsIgnoreCase(NEDSSConstant.PRINT_CDC_CASE)){
                     isCDCFormPrintCase = true;
-                    if(LabReportUidSummarVOs!=null && !LabReportUidSummarVOs.isEmpty()){
-                        for (UidSummaryContainer uidSummaryVO : LabReportUidSummarVOs) {
-                            uidSummaryVO.setStatusTime(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getAddTime());
-                        }
+                    for (UidSummaryContainer uidSummaryVO : LabReportUidSummarVOs) {
+                        uidSummaryVO.setStatusTime(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getAddTime());
                     }
-
                 }else{
                     isCDCFormPrintCase= false;
                 }
@@ -443,16 +434,8 @@ public class InvestigationService implements IInvestigationService {
                 }
 
             }
-            Map<Long, LabReportSummaryContainer> labMapfromDOC =  new HashMap<>();
+            pageProxyVO.setTheLabReportSummaryVOCollection(labSumVOCol);
 
-            if(labMapfromDOC!=null && labMapfromDOC.size()>0)
-            {
-                labSumVOCol.addAll(labMapfromDOC.values());
-            }
-            if (labSumVOCol != null) {
-                pageProxyVO.setTheLabReportSummaryVOCollection(labSumVOCol);
-
-            }
             theInvestigationAuditLogSummaryVOCollection = new ArrayList<>();
             pageProxyVO.setTheInvestigationAuditLogSummaryVOCollection(theInvestigationAuditLogSummaryVOCollection);
             theDocumentSummaryVOCollection = new ArrayList<>(retrieveSummaryService.retrieveDocumentSummaryVOForInv(publicHealthCaseUID).values());
@@ -808,9 +791,8 @@ public class InvestigationService implements IInvestigationService {
                 logger.error("Exception occured while retrieving LDFCollection<Object>  = " + e.getMessage()); //NOSONAR
             }
 
-            if (theStateDefinedFieldDTCollection  != null) {
-                investigationProxyVO.setTheStateDefinedFieldDataDTCollection(theStateDefinedFieldDTCollection);
-            }
+            investigationProxyVO.setTheStateDefinedFieldDataDTCollection(theStateDefinedFieldDTCollection);
+
 
             Collection<Object>  labSumVOCol = new ArrayList<> ();
             HashMap<Object,Object> labSumVOMap;
@@ -843,10 +825,8 @@ public class InvestigationService implements IInvestigationService {
                 logger.debug("user has no permission to view ObservationSummaryVO collection");
             }
 
-            if (labSumVOCol != null) {
-                investigationProxyVO.setTheLabReportSummaryVOCollection(labSumVOCol);
+            investigationProxyVO.setTheLabReportSummaryVOCollection(labSumVOCol);
 
-            }
 
             processingInvestigationSummary( investigationProxyVO,
                      thePublicHealthCaseContainer, lite);
@@ -883,8 +863,7 @@ public class InvestigationService implements IInvestigationService {
     }
 
     private HashMap<Object, Object> retrieveLabReportSummaryRevisited(Collection<UidSummaryContainer> labReportUids, boolean isCDCFormPrintCase, String uidType) throws DataProcessingException {
-        HashMap<Object, Object> labReportSummarMap = getObservationSummaryListForWorkupRevisited(labReportUids, isCDCFormPrintCase, uidType);
-        return labReportSummarMap;
+        return getObservationSummaryListForWorkupRevisited(labReportUids, isCDCFormPrintCase, uidType);
     }
 
     private HashMap<Object, Object> getObservationSummaryListForWorkupRevisited(Collection<UidSummaryContainer> uidList,boolean isCDCFormPrintCase, String uidType) throws DataProcessingException {
@@ -966,30 +945,34 @@ public class InvestigationService implements IInvestigationService {
                             if (labRepSumm != null) {
                                 labRepSumm.setAssociationsMap(associationsMap);
                             }
-                            if (uidMap != null && uidMap.containsKey(NEDSSConstant.PAR111_TYP_CD) && labRepEvent != null) {
-                                labRepEvent.setReportingFacility(observationSummaryService.getReportingFacilityName((Long) uidMap.get(NEDSSConstant.PAR111_TYP_CD)));
-                            }
-                            if (uidMap != null && uidMap.containsKey(NEDSSConstant.PAR111_TYP_CD) && labRepSumm != null) {
-                                labRepSumm.setReportingFacility(observationSummaryService.getReportingFacilityName((Long) uidMap.get(NEDSSConstant.PAR111_TYP_CD)));
+
+                            if (uidMap != null) {
+                                if (uidMap.containsKey(NEDSSConstant.PAR111_TYP_CD) && labRepEvent != null) {
+                                    labRepEvent.setReportingFacility(observationSummaryService.getReportingFacilityName((Long) uidMap.get(NEDSSConstant.PAR111_TYP_CD)));
+                                }
+                                if (uidMap.containsKey(NEDSSConstant.PAR111_TYP_CD) && labRepSumm != null) {
+                                    labRepSumm.setReportingFacility(observationSummaryService.getReportingFacilityName((Long) uidMap.get(NEDSSConstant.PAR111_TYP_CD)));
+                                }
+
+                                if (uidMap.containsKey(NEDSSConstant.PAR101_TYP_CD) && labRepEvent != null) {
+                                    labRepEvent.setOrderingFacility(observationSummaryService.getReportingFacilityName((Long) uidMap.get(NEDSSConstant.PAR101_TYP_CD)));
+                                }
+                                if (uidMap.containsKey(NEDSSConstant.PAR101_TYP_CD) && labRepSumm != null) {
+                                    labRepSumm.setOrderingFacility(observationSummaryService.getReportingFacilityName((Long) uidMap.get(NEDSSConstant.PAR101_TYP_CD)));
+                                }
+
+                                if (uidMap.containsKey(NEDSSConstant.PAR104_TYP_CD) && labRepEvent != null) {
+                                    var code = observationSummaryService.getSpecimanSource((Long) uidMap.get(NEDSSConstant.PAR104_TYP_CD));
+                                    var tree = cachingValueService.getCodedValues("SPECMN_SRC", code);
+                                    labRepEvent.setSpecimenSource(tree.get(code));
+                                }
+                                if (uidMap.containsKey(NEDSSConstant.PAR104_TYP_CD) && labRepSumm != null) {
+                                    var code = observationSummaryService.getSpecimanSource((Long) uidMap.get(NEDSSConstant.PAR104_TYP_CD));
+                                    var tree = cachingValueService.getCodedValues("SPECMN_SRC", code);
+                                    labRepSumm.setSpecimenSource(tree.get(code));
+                                }
                             }
 
-                            if (uidMap != null && uidMap.containsKey(NEDSSConstant.PAR101_TYP_CD) && labRepEvent != null) {
-                                labRepEvent.setOrderingFacility(observationSummaryService.getReportingFacilityName((Long) uidMap.get(NEDSSConstant.PAR101_TYP_CD)));
-                            }
-                            if (uidMap != null && uidMap.containsKey(NEDSSConstant.PAR101_TYP_CD) && labRepSumm != null) {
-                                labRepSumm.setOrderingFacility(observationSummaryService.getReportingFacilityName((Long) uidMap.get(NEDSSConstant.PAR101_TYP_CD)));
-                            }
-
-                            if (uidMap != null && uidMap.containsKey(NEDSSConstant.PAR104_TYP_CD) && labRepEvent != null) {
-                                var code = observationSummaryService.getSpecimanSource((Long) uidMap.get(NEDSSConstant.PAR104_TYP_CD));
-                                var tree = cachingValueService.getCodedValues("SPECMN_SRC", code);
-                                labRepEvent.setSpecimenSource(tree.get(code));
-                            }
-                            if (uidMap != null && uidMap.containsKey(NEDSSConstant.PAR104_TYP_CD) && labRepSumm != null) {
-                                var code = observationSummaryService.getSpecimanSource((Long) uidMap.get(NEDSSConstant.PAR104_TYP_CD));
-                                var tree = cachingValueService.getCodedValues("SPECMN_SRC", code);
-                                labRepSumm.setSpecimenSource(tree.get(code));
-                            }
 
                             providerUid = observationSummaryService.getProviderInformation(providerDetails, labRepEvent);
 
@@ -1005,18 +988,16 @@ public class InvestigationService implements IInvestigationService {
                                 }
                                 if (orderingFacilityUid != null) {
                                     var org = organizationRepositoryUtil.loadObject(orderingFacilityUid, null);
-                                    if (org != null && !org.getTheOrganizationNameDtoCollection().isEmpty()) {
-                                        OrganizationNameDto dt = null;
+                                    if (org != null && !org.getTheOrganizationNameDtoCollection().isEmpty() && providerDataForPrintVO != null) {
+                                        OrganizationNameDto dt;
                                         dt = org.getTheOrganizationNameDtoCollection().stream().findFirst().get();
                                         providerDataForPrintVO.setFacilityName(dt.getNmTxt());
                                     }
                                     observationSummaryService.getOrderingFacilityAddress(providerDataForPrintVO, orderingFacilityUid);
                                     observationSummaryService.getOrderingFacilityPhone(providerDataForPrintVO, orderingFacilityUid);
                                 }
-                                if (providerUid != null) {
-                                    observationSummaryService.getOrderingPersonAddress(providerDataForPrintVO, providerUid);
-                                    observationSummaryService.getOrderingPersonPhone(providerDataForPrintVO, providerUid);
-                                }
+                                observationSummaryService.getOrderingPersonAddress(providerDataForPrintVO, providerUid);
+                                observationSummaryService.getOrderingPersonPhone(providerDataForPrintVO, providerUid);
                             }
 
                             observationSummaryService.getProviderInformation(providerDetails, labRepSumm);
@@ -1094,7 +1075,7 @@ public class InvestigationService implements IInvestigationService {
     @SuppressWarnings({"java:S3776","java:S6541"})
     protected void populateDescTxtFromCachedValues(Collection<Object>
                                                          reportSummaryVOCollection) throws DataProcessingException {
-        ReportSummaryInterface sumVO ;
+        LabReportSummaryContainer sumVO ;
         LabReportSummaryContainer labVO;
         LabReportSummaryContainer labMorbVO = null;
         ResultedTestSummaryContainer resVO;
@@ -1108,8 +1089,8 @@ public class InvestigationService implements IInvestigationService {
 
         for (Object o : reportSummaryVOCollection) {
             sumVO = (LabReportSummaryContainer) o;
-            if (sumVO instanceof LabReportSummaryContainer) {
-                labVO = (LabReportSummaryContainer) sumVO;
+            if (sumVO != null) {
+                labVO = sumVO;
                 labVO.setType(NEDSSConstant.LAB_REPORT_DESC);
                 if (labVO.getProgramArea() != null) {
                     tempStr = SrteCache.programAreaCodesMap.get(labVO.getProgramArea());
@@ -1225,19 +1206,17 @@ public class InvestigationService implements IInvestigationService {
                                         susVO.setCodedResultValue(tempStr);
                                 }
                                 if (susVO.getCdSystemCd() != null &&
-                                        !susVO.getCdSystemCd().equals("")) {
+                                        !susVO.getCdSystemCd().equals("") &&
+                                        susVO.getResultedTestCd() != null) {
                                     if (susVO.getCdSystemCd().equals("LN")) {
-                                        if (susVO.getResultedTestCd() != null &&
-                                                !susVO.getResultedTestCd().equals("")) {
+                                        if (!susVO.getResultedTestCd().equals("")) {
                                             tempStr = SrteCache.loinCodeWithComponentNameMap.get(susVO.getResultedTestCd());
-
                                             if (tempStr != null && !tempStr.equals("")) {
                                                 susVO.setResultedTest(tempStr);
                                             }
                                         }
-                                    } else if (!susVO.getCdSystemCd().equals("LN")) {
-                                        if (susVO.getResultedTestCd() != null &&
-                                                !susVO.getResultedTestCd().equals("")) {
+                                    } else {
+                                        if (!susVO.getResultedTestCd().equals("")) {
                                             var res = labTestRepository.findLabTestByLabIdAndLabTestCode(resVO.getCdSystemCd(), resVO.getResultedTestCd());
                                             if (res.isPresent()) {
                                                 tempStr = res.get().get(0).getLabResultDescTxt();
