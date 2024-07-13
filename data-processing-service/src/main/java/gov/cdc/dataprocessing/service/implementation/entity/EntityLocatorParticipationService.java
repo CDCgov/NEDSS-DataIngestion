@@ -40,11 +40,12 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
         this.odseIdGeneratorService = odseIdGeneratorService;
     }
 
+
     @SuppressWarnings({"java:S6541", "java:S3776"})
     @Transactional
     public void updateEntityLocatorParticipation(Collection<EntityLocatorParticipationDto> locatorCollection, Long patientUid) throws DataProcessingException {
         ArrayList<EntityLocatorParticipationDto> personList = (ArrayList<EntityLocatorParticipationDto> ) locatorCollection;
-        var uid = patientUid;
+        Long uid = patientUid;
         var locatorData = entityLocatorParticipationRepository.findByParentUid(uid);
         List<EntityLocatorParticipation> entityLocatorParticipations = new ArrayList<>();
         if (locatorData.isPresent()) {
@@ -305,7 +306,6 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                     }
                     entityLocatorParticipationRepository.save(new EntityLocatorParticipation(entityLocatorParticipationDto));
                 }
-
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);

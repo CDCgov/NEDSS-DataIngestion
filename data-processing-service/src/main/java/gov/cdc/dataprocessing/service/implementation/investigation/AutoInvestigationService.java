@@ -54,6 +54,15 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         this.lookupService = lookupService;
     }
 
+    protected boolean autoCreateInvestigationTypeFormRvctCheck(EdxLabInformationDto edxLabInformationDT) {
+        return edxLabInformationDT.getInvestigationType()!=null && edxLabInformationDT.getInvestigationType().equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT);
+    }
+
+    protected boolean autoCreateInvestigationRvctAndFormVarCheck(EdxLabInformationDto edxLabInformationDT) {
+        return edxLabInformationDT.getInvestigationType()!=null
+                && (edxLabInformationDT.getInvestigationType().equalsIgnoreCase(NEDSSConstant.INV_FORM_VAR)
+                || edxLabInformationDT.getInvestigationType().equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT));
+    }
     public Object autoCreateInvestigation(ObservationContainer observationVO,
                                           EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
         PageActProxyContainer pageActProxyContainer = null;
@@ -67,7 +76,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         actIDDT.setTypeCd(NEDSSConstant.ACT_ID_STATE_TYPE_CD);
         theActIdDTCollection.add(actIDDT);
         phcVO.setTheActIdDTCollection(theActIdDTCollection);
-        if(edxLabInformationDT.getInvestigationType()!=null && edxLabInformationDT.getInvestigationType().equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)){
+        if(autoCreateInvestigationTypeFormRvctCheck(edxLabInformationDT)){
             ActIdDto actID1DT = new ActIdDto();
             actID1DT.setItNew(true);
             actID1DT.setActIdSeq(2);
@@ -75,9 +84,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
             theActIdDTCollection.add(actID1DT);
             phcVO.setTheActIdDTCollection(theActIdDTCollection);
         }
-        if (edxLabInformationDT.getInvestigationType()!=null
-                && (edxLabInformationDT.getInvestigationType().equalsIgnoreCase(NEDSSConstant.INV_FORM_VAR)
-                || edxLabInformationDT.getInvestigationType().equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)))
+        if (autoCreateInvestigationRvctAndFormVarCheck(edxLabInformationDT))
         {
             pamProxyVO = new PamProxyContainer();
             pamProxyVO.setItNew(true);
@@ -243,7 +250,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         }
     }
 
-    private PublicHealthCaseContainer createPublicHealthCaseVO(ObservationContainer observationVO, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
+    protected PublicHealthCaseContainer createPublicHealthCaseVO(ObservationContainer observationVO, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
         PublicHealthCaseContainer phcVO = new PublicHealthCaseContainer();
 
         phcVO.getThePublicHealthCaseDto().setLastChgTime(new java.sql.Timestamp(new Date().getTime()));
@@ -500,7 +507,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         }
     }
 
-    private void createActEntityObject(ParticipationDto partDT, PageActProxyContainer pageActProxyContainer,
+    protected void createActEntityObject(ParticipationDto partDT, PageActProxyContainer pageActProxyContainer,
                                        PamProxyContainer pamActProxyVO, Collection<NbsActEntityDto> nbsActEntityDTColl, Collection<ParticipationDto> partColl ) throws DataProcessingException {
 
         partDT.setActClassCd(NEDSSConstant.CLASS_CD_CASE);

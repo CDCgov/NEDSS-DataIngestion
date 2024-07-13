@@ -10,6 +10,7 @@ import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleManageDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.lookup.PrePopMappingDto;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
 import gov.cdc.dataprocessing.model.dto.observation.*;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
@@ -27,17 +28,14 @@ import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.*;
 
 import static gov.cdc.dataprocessing.cache.SrteCache.jurisdictionCodeMapWithNbsUid;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -50,9 +48,31 @@ class AutoInvestigationServiceTest {
     private ILookupService lookupService;
 
     @InjectMocks
+    @Spy
     private AutoInvestigationService autoInvestigationService;
     @Mock
     AuthUtil authUtil;
+
+    @Mock
+    private PageActProxyContainer pageActProxyContainerMock;
+
+    @Mock
+    private PamProxyContainer pamActProxyVOMock;
+
+    @Mock
+    private PersonContainer personVOMock;
+
+    @Mock
+    private ObservationContainer rootObservationVOMock;
+
+    @Mock
+    private NbsActEntityDto nbsActEntityDTOMock;
+
+    @Mock
+    private ParticipationDto participationDTOMock;
+
+    @Mock
+    private EdxRuleManageDto edxRuleManageDTOMock;
 
     @BeforeEach
     void setUp() {
@@ -498,5 +518,180 @@ class AutoInvestigationServiceTest {
 
         verify(lookupService, times(1)).getToPrePopFormMapping("INVES");
     }
+    @Test
+    void testAutoCreateInvestigationTypeFormRvctCheck_Valid() {
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        edxLabInformationDto.setInvestigationType(NEDSSConstant.INV_FORM_RVCT);
+
+        boolean result = autoInvestigationService.autoCreateInvestigationTypeFormRvctCheck(edxLabInformationDto);
+        assertTrue(result);
+    }
+
+    @Test
+    void testAutoCreateInvestigationTypeFormRvctCheck_NullInvestigationType() {
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        edxLabInformationDto.setInvestigationType(null);
+
+        boolean result = autoInvestigationService.autoCreateInvestigationTypeFormRvctCheck(edxLabInformationDto);
+        assertFalse(result);
+    }
+
+    @Test
+    void testAutoCreateInvestigationTypeFormRvctCheck_InvalidInvestigationType() {
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        edxLabInformationDto.setInvestigationType("INVALID_TYPE");
+
+        boolean result = autoInvestigationService.autoCreateInvestigationTypeFormRvctCheck(edxLabInformationDto);
+        assertFalse(result);
+    }
+
+    @Test
+    void testAutoCreateInvestigationRvctAndFormVarCheck_ValidRVCT() {
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        edxLabInformationDto.setInvestigationType(NEDSSConstant.INV_FORM_RVCT);
+
+        boolean result = autoInvestigationService.autoCreateInvestigationRvctAndFormVarCheck(edxLabInformationDto);
+        assertTrue(result);
+    }
+
+    @Test
+    void testAutoCreateInvestigationRvctAndFormVarCheck_ValidVAR() {
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        edxLabInformationDto.setInvestigationType(NEDSSConstant.INV_FORM_VAR);
+
+        boolean result = autoInvestigationService.autoCreateInvestigationRvctAndFormVarCheck(edxLabInformationDto);
+        assertTrue(result);
+    }
+
+    @Test
+    void testAutoCreateInvestigationRvctAndFormVarCheck_NullInvestigationType() {
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        edxLabInformationDto.setInvestigationType(null);
+
+        boolean result = autoInvestigationService.autoCreateInvestigationRvctAndFormVarCheck(edxLabInformationDto);
+        assertFalse(result);
+    }
+
+    @Test
+    void testAutoCreateInvestigationRvctAndFormVarCheck_InvalidInvestigationType() {
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        edxLabInformationDto.setInvestigationType("INVALID_TYPE");
+
+        boolean result = autoInvestigationService.autoCreateInvestigationRvctAndFormVarCheck(edxLabInformationDto);
+        assertFalse(result);
+    }
+
+    @Test
+    void testAutoCreateInvestigation_Exception() throws DataProcessingException {
+        ObservationContainer observationVO = mock(ObservationContainer.class);
+        EdxLabInformationDto edxLabInformationDT = mock(EdxLabInformationDto.class);
+
+        // Simulate a condition that throws an exception
+        doThrow(new RuntimeException("Simulated exception")).when(autoInvestigationService).populateProxyFromPrePopMapping(any(), any());
+
+        assertThrows(NullPointerException.class, () -> {
+            autoInvestigationService.autoCreateInvestigation(observationVO, edxLabInformationDT);
+        });
+    }
+
+    @Test
+    void testTransferValuesTOActProxyVO_Exception() throws DataProcessingException {
+        PageActProxyContainer pageActProxyContainer = mock(PageActProxyContainer.class);
+        PamProxyContainer pamActProxyVO = mock(PamProxyContainer.class);
+        Collection<PersonContainer> personVOCollection = mock(Collection.class);
+        ObservationContainer rootObservationVO = mock(ObservationContainer.class);
+        Collection<Object> entities = mock(Collection.class);
+        Map<Object, Object> questionIdentifierMap = mock(Map.class);
+
+        // Simulate a condition that throws an exception
+        doThrow(new RuntimeException("Simulated exception")).when(autoInvestigationService).createActEntityObject(any(), any(), any(), any(), any());
+
+        assertThrows(DataProcessingException.class, () -> {
+            autoInvestigationService.transferValuesTOActProxyVO(pageActProxyContainer, pamActProxyVO, personVOCollection, rootObservationVO, entities, questionIdentifierMap);
+        });
+    }
+
+    @Test
+    public void testPageActProxyContainerNotNull() throws DataProcessingException {
+        // Mocked values and objects
+        PublicHealthCaseContainer publicHealthCaseContainerMock = mock(PublicHealthCaseContainer.class);
+        PublicHealthCaseDto publicHealthCaseDtoMock = mock(PublicHealthCaseDto.class);
+        when(publicHealthCaseDtoMock.getPublicHealthCaseUid()).thenReturn(1L);
+        when(publicHealthCaseContainerMock.getThePublicHealthCaseDto()).thenReturn(publicHealthCaseDtoMock);
+        when(pageActProxyContainerMock.getPublicHealthCaseContainer()).thenReturn(publicHealthCaseContainerMock);
+        when(personVOMock.getThePersonDto()).thenReturn(mock(PersonDto.class));
+        when(personVOMock.getThePersonDto().getCd()).thenReturn("PAT");
+
+        Collection<PersonContainer> personVOCollectionMock = new ArrayList<>();
+        personVOCollectionMock.add(personVOMock);
+
+        // Call the method
+        autoInvestigationService.transferValuesTOActProxyVO(pageActProxyContainerMock, null, personVOCollectionMock, rootObservationVOMock, null, null);
+
+        // Assertions
+        verify(pageActProxyContainerMock).setThePersonContainerCollection(anyCollection());
+    }
+
+
+    @Test
+    public void testEntitiesNotNullElseCases() throws DataProcessingException {
+        // Mocked values and objects
+        when(edxRuleManageDTOMock.getParticipationTypeCode()).thenReturn("typeCode");
+        when(edxRuleManageDTOMock.getParticipationUid()).thenReturn(1L);
+        when(edxRuleManageDTOMock.getParticipationClassCode()).thenReturn("classCode");
+
+        var phc = new PublicHealthCaseContainer();
+        phc.getThePublicHealthCaseDto().setPublicHealthCaseUid(0L);
+        when(pamActProxyVOMock.getPublicHealthCaseContainer()).thenReturn(phc);
+
+        Collection<Object> entitiesMock = new ArrayList<>();
+        entitiesMock.add(edxRuleManageDTOMock);
+
+        // Call the method
+        autoInvestigationService.transferValuesTOActProxyVO(null, pamActProxyVOMock, null, rootObservationVOMock, entitiesMock, null);
+
+        // Assertions
+        verify(pamActProxyVOMock).setTheParticipationDTCollection(anyCollection());
+    }
+
+    @Test
+    public void testInnerIfConditions() throws DataProcessingException {
+        // Mocked values and objects
+        Collection<ParticipationDto> collMock = new ArrayList<>();
+        when(rootObservationVOMock.getTheParticipationDtoCollection()).thenReturn(collMock);
+        ParticipationDto partDTMock = mock(ParticipationDto.class);
+        when(partDTMock.getTypeCd()).thenReturn(EdxELRConstant.ELR_ORDER_CD);
+        when(partDTMock.getSubjectClassCd()).thenReturn(EdxELRConstant.ELR_PERSON_CD);
+        collMock.add(partDTMock);
+        var phc = new PublicHealthCaseContainer();
+        phc.getThePublicHealthCaseDto().setPublicHealthCaseUid(0L);
+        when(pamActProxyVOMock.getPublicHealthCaseContainer()).thenReturn(phc);
+        // Call the method
+        autoInvestigationService.transferValuesTOActProxyVO(null, pamActProxyVOMock, null, rootObservationVOMock, null, null);
+
+        // Assertions
+        verify(pamActProxyVOMock).setTheParticipationDTCollection(anyCollection());
+    }
+
+    @Test
+    public void testPageActProxyContainerWithInnerIf() throws DataProcessingException {
+        // Mocked values and objects
+        PublicHealthCaseContainer publicHealthCaseContainerMock = mock(PublicHealthCaseContainer.class);
+        PublicHealthCaseDto publicHealthCaseDtoMock = mock(PublicHealthCaseDto.class);
+        when(publicHealthCaseDtoMock.getPublicHealthCaseUid()).thenReturn(1L);
+        when(publicHealthCaseContainerMock.getThePublicHealthCaseDto()).thenReturn(publicHealthCaseDtoMock);
+        when(pageActProxyContainerMock.getPublicHealthCaseContainer()).thenReturn(publicHealthCaseContainerMock);
+        when(pageActProxyContainerMock.getPageVO()).thenReturn(mock(BasePamContainer.class));
+        Collection<ParticipationDto> collMock = new ArrayList<>();
+        when(rootObservationVOMock.getTheParticipationDtoCollection()).thenReturn(collMock);
+
+        // Call the method
+        autoInvestigationService.transferValuesTOActProxyVO(pageActProxyContainerMock, null, null, rootObservationVOMock, null, null);
+
+        // Assertions
+        verify(pageActProxyContainerMock).setTheParticipationDtoCollection(anyCollection());
+        verify(pageActProxyContainerMock).setPageVO(any(BasePamContainer.class));
+    }
+
 
 }
