@@ -250,8 +250,8 @@ sonarqube {
                 " **/WdsObjectChecker.java," +
                 " **/AdvancedCriteria.java, **/cache/OdseCache.java, **/cache/PropertyUtilCache.java, " +
                 " **/cache/SrteCache.java, **/StringUtils.java, **/TimeStampUtil.java, **/AuthUtil.java, " +
-                " **/ObsReqNoteHelper.java, **/WdsObjectChecker.java," +
-                " **/InvestigationService.java, **/ObservationRequestHandler.java, **/InvestigationNotificationService.java, **/ContactSummaryService.java," +
-                " **/RetrieveSummaryService.java, **/ManagerCacheService.java"
+                " **/ObsReqNoteHelper.java, **/WdsObjectChecker.java" +
+//                " **/InvestigationService.java, **/ObservationRequestHandler.java, **/InvestigationNotificationService.java, **/ContactSummaryService.java," +
+//                " **/RetrieveSummaryService.java, **/ManagerCacheService.java"
     }
 }
