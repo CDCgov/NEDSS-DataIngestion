@@ -66,7 +66,7 @@ public class ObservationMatchStoredProcRepository {
             Long observationUid = (Long) storedProcedure.getOutputParameterValue("Observation_uid");
 
 
-            if (observationUid > 0) {
+            if (observationUid!= null && observationUid > 0) {
                 matchedUID = observationUid;
             }
 
