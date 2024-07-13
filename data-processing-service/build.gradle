@@ -99,9 +99,13 @@ jacocoTestReport {
                             '**/AuthUtil.java',
                             '**/ObsReqNoteHelper.java',
                             '**/WdsObjectChecker.java',
-                            '**/InvestigationNotificationService.java',
+                            '**/InvestigationService.java',
                             '**/ObservationRequestHandler.java',
-                            '**/ObservationMatchingService.java'
+                            '**/InvestigationNotificationService.java',
+                            '**/ObservationMatchingService.java',
+                            '**/ContactSummaryService.java',
+                            '**/RetrieveSummaryService.java',
+                            '**/ManagerCacheService.java'
                     ]
             )
         }))
@@ -268,13 +272,13 @@ sonarqube {
                 "**/TimeStampUtil.java",
                 "**/AuthUtil.java",
                 "**/ObsReqNoteHelper.java",
-//                "**/InvestigationService.java",
+                "**/InvestigationService.java",
                 "**/ObservationRequestHandler.java",
                 "**/InvestigationNotificationService.java",
-                "**/ObservationMatchingService.java"
-//                "**/ContactSummaryService.java",
-//                "**/RetrieveSummaryService.java",
-//                "**/ManagerCacheService.java"
+                "**/ObservationMatchingService.java",
+                "**/ContactSummaryService.java",
+                "**/RetrieveSummaryService.java",
+                "**/ManagerCacheService.java"
         ].join(",")
     }
 }
