@@ -21,12 +21,5 @@ public class BaseContainer implements Serializable, Cloneable
     protected boolean itDelete;
     protected String superClassType;
     protected Collection<Object> ldfs;
-    /**
-     @param objectname1
-     @param objectname2
-     @param voClass
-     @return boolean
-     @roseuid 3BB8B67D021A
-     */
-//    public abstract boolean isEqual(java.lang.Object objectname1, java.lang.Object objectname2, java.lang.Class<?> voClass);
+
 }

@@ -244,7 +244,7 @@ sonarqube {
         property "sonar.projectKey", "CDCgov_NEDSS-DataIngestion"
         property "sonar.organization", "cdcgov"
         property "sonar.host.url", "https://sonarcloud.io"
-        property "sonar.exclusions", "**/config/**, **/constant/**, **/model/container/**, **/model/dsma_algorithm/**, **/model/dto/**, **/model/phdc/**, " +
+        property "sonar.exclusions", "**/config/**, **/controller/**, **/constant/**, **/model/dsma_algorithm/**, **/model/dto/**, **/model/phdc/**, " +
                 " **/repository/nbs/msgoute/model/**, **/repository/nbs/odse/model/**, **/repository/nbs/srte/model/**, **/security/config/**, **/ServiceApplication.java, " +
                 " **/service/model/**, **/DynamicBeanBinding.java, **/RulesEngineUtil.java, **/utilities/model/**," +
                 " **/WdsObjectChecker.java," +
@@ -253,5 +253,6 @@ sonarqube {
                 " **/ObsReqNoteHelper.java, **/WdsObjectChecker.java"
 //                " **/InvestigationService.java, **/ObservationRequestHandler.java, **/InvestigationNotificationService.java, **/ContactSummaryService.java," +
 //                " **/RetrieveSummaryService.java, **/ManagerCacheService.java"
+
     }
 }
