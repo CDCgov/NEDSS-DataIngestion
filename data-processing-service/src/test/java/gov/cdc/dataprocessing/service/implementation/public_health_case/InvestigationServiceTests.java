@@ -1009,4 +1009,96 @@ class InvestigationServiceTests {
         verify(patientRepositoryUtil, never()).loadPerson(anyLong());
         verify(materialService, never()).loadMaterialObject(anyLong());
     }
+
+    @Test
+    void testProcessingPageProxyParticipation_OtherClassCd() throws DataProcessingException {
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        ParticipationDto participationDT = new ParticipationDto();
+        participationDT.setSubjectEntityUid(1L);
+        participationDT.setSubjectClassCd("OTHER");
+        participationDT.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        publicHealthCaseContainer.setTheParticipationDTCollection(Collections.singletonList(participationDT));
+
+        ArrayList<PersonContainer> personVOCollection = new ArrayList<>();
+        ArrayList<OrganizationContainer> organizationVOCollection = new ArrayList<>();
+        ArrayList<MaterialContainer> materialVOCollection = new ArrayList<>();
+
+        investigationService.processingPageProxyParticipation(publicHealthCaseContainer, personVOCollection, organizationVOCollection, materialVOCollection);
+
+        assertEquals(0, personVOCollection.size());
+        assertEquals(0, organizationVOCollection.size());
+        assertEquals(0, materialVOCollection.size());
+        verify(organizationRepositoryUtil, never()).loadObject(anyLong(), any());
+        verify(patientRepositoryUtil, never()).loadPerson(anyLong());
+        verify(materialService, never()).loadMaterialObject(anyLong());
+    }
+
+    @Test
+    void testProcessingPageProxyParticipation_InactiveRecordStatus() throws DataProcessingException {
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        ParticipationDto participationDT = new ParticipationDto();
+        participationDT.setSubjectEntityUid(1L);
+        participationDT.setSubjectClassCd(NEDSSConstant.PERSON);
+        participationDT.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_INACTIVE);
+        publicHealthCaseContainer.setTheParticipationDTCollection(Collections.singletonList(participationDT));
+
+        ArrayList<PersonContainer> personVOCollection = new ArrayList<>();
+        ArrayList<OrganizationContainer> organizationVOCollection = new ArrayList<>();
+        ArrayList<MaterialContainer> materialVOCollection = new ArrayList<>();
+
+        investigationService.processingPageProxyParticipation(publicHealthCaseContainer, personVOCollection, organizationVOCollection, materialVOCollection);
+
+        assertEquals(0, personVOCollection.size());
+        assertEquals(0, organizationVOCollection.size());
+        assertEquals(0, materialVOCollection.size());
+        verify(organizationRepositoryUtil, never()).loadObject(anyLong(), any());
+        verify(patientRepositoryUtil, never()).loadPerson(anyLong());
+        verify(materialService, never()).loadMaterialObject(anyLong());
+    }
+
+    @Test
+    void testProcessingPageProxyParticipation_NullClassCd() throws DataProcessingException {
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        ParticipationDto participationDT = new ParticipationDto();
+        participationDT.setSubjectEntityUid(1L);
+        participationDT.setSubjectClassCd(null);
+        participationDT.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        publicHealthCaseContainer.setTheParticipationDTCollection(Collections.singletonList(participationDT));
+
+        ArrayList<PersonContainer> personVOCollection = new ArrayList<>();
+        ArrayList<OrganizationContainer> organizationVOCollection = new ArrayList<>();
+        ArrayList<MaterialContainer> materialVOCollection = new ArrayList<>();
+
+        investigationService.processingPageProxyParticipation(publicHealthCaseContainer, personVOCollection, organizationVOCollection, materialVOCollection);
+
+        assertEquals(0, personVOCollection.size());
+        assertEquals(0, organizationVOCollection.size());
+        assertEquals(0, materialVOCollection.size());
+        verify(organizationRepositoryUtil, never()).loadObject(anyLong(), any());
+        verify(patientRepositoryUtil, never()).loadPerson(anyLong());
+        verify(materialService, never()).loadMaterialObject(anyLong());
+    }
+
+    @Test
+    void testProcessingPageProxyParticipation_NullRecordStatusCd() throws DataProcessingException {
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        ParticipationDto participationDT = new ParticipationDto();
+        participationDT.setSubjectEntityUid(1L);
+        participationDT.setSubjectClassCd(NEDSSConstant.PERSON);
+        participationDT.setRecordStatusCd(null);
+        publicHealthCaseContainer.setTheParticipationDTCollection(Collections.singletonList(participationDT));
+
+        ArrayList<PersonContainer> personVOCollection = new ArrayList<>();
+        ArrayList<OrganizationContainer> organizationVOCollection = new ArrayList<>();
+        ArrayList<MaterialContainer> materialVOCollection = new ArrayList<>();
+
+        investigationService.processingPageProxyParticipation(publicHealthCaseContainer, personVOCollection, organizationVOCollection, materialVOCollection);
+
+        assertEquals(0, personVOCollection.size());
+        assertEquals(0, organizationVOCollection.size());
+        assertEquals(0, materialVOCollection.size());
+        verify(organizationRepositoryUtil, never()).loadObject(anyLong(), any());
+        verify(patientRepositoryUtil, never()).loadPerson(anyLong());
+        verify(materialService, never()).loadMaterialObject(anyLong());
+    }
 }
