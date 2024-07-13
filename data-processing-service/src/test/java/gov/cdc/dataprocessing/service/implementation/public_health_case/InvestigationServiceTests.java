@@ -8,6 +8,7 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
+import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.notification.NotificationDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
@@ -781,5 +782,132 @@ class InvestigationServiceTests {
 
 
         verify(cachingValueService, times(2)).getCodeDescTxtForCd(any(), any());
+    }
+
+    @Test
+    void testSetAssociations_ElseCase() throws DataProcessingException {
+        Long investigationUID = 123L;
+        Collection<Object> emptyCollection = null;
+        Boolean isNNDResendCheckRequired = false;
+
+        // Mocking to ensure the else case
+        doNothing().when(retrieveSummaryService).checkBeforeCreateAndStoreMessageLogDTCollection(anyLong(), anyCollection());
+
+        // Test the else case by invoking the method with null and false parameters
+        investigationService.setAssociations(investigationUID, null, emptyCollection, emptyCollection, emptyCollection, isNNDResendCheckRequired);
+
+        // Verifying that the method checkBeforeCreateAndStoreMessageLogDTCollection is never called
+        verify(retrieveSummaryService, never()).checkBeforeCreateAndStoreMessageLogDTCollection(anyLong(), anyCollection());
+    }
+
+    @Test
+    void testSetAssociations_ElseCase_EmptyCollection() throws DataProcessingException {
+        Long investigationUID = 123L;
+        Collection<Object> emptyCollection = mock(Collection.class);
+        Boolean isNNDResendCheckRequired = false;
+
+        when(emptyCollection.isEmpty()).thenReturn(true);
+
+        // Mocking to ensure the else case
+        doNothing().when(retrieveSummaryService).checkBeforeCreateAndStoreMessageLogDTCollection(anyLong(), anyCollection());
+
+        // Test the else case by invoking the method with an empty collection and false parameters
+        investigationService.setAssociations(investigationUID, null, emptyCollection, emptyCollection, emptyCollection, isNNDResendCheckRequired);
+
+        // Verifying that the method checkBeforeCreateAndStoreMessageLogDTCollection is never called
+        verify(retrieveSummaryService, never()).checkBeforeCreateAndStoreMessageLogDTCollection(anyLong(), anyCollection());
+
+    }
+
+
+    @Test
+    void testSetAssociations_ElseCase_EmptyCollection_2() throws DataProcessingException {
+        Long investigationUID = 123L;
+        Collection<Object> emptyCollection = mock(Collection.class);
+        Boolean isNNDResendCheckRequired = false;
+
+        when(emptyCollection.isEmpty()).thenReturn(true);
+
+        // Mocking to ensure the else case
+        doNothing().when(retrieveSummaryService).checkBeforeCreateAndStoreMessageLogDTCollection(anyLong(), anyCollection());
+
+        var col = new ArrayList<LabReportSummaryContainer>();
+        var lab = new LabReportSummaryContainer();
+        col.add(lab);
+        // Test the else case by invoking the method with an empty collection and false parameters
+        investigationService.setAssociations(investigationUID, null, emptyCollection, emptyCollection, emptyCollection, isNNDResendCheckRequired);
+
+
+    }
+
+
+    @Test
+    void testSetObservationAssociationsImpl_ContinueCase() throws DataProcessingException {
+        Long investigationUID = 123L;
+        Collection<LabReportSummaryContainer> reportSumVOCollection = new ArrayList<>();
+        LabReportSummaryContainer reportSumVO = new LabReportSummaryContainer();
+        reportSumVO.setTouched(false); // To trigger the continue case
+        reportSumVOCollection.add(reportSumVO);
+        boolean invFromEvent = false;
+
+        when(publicHealthCaseRepositoryUtil.findPublicHealthCase(investigationUID)).thenReturn(new PublicHealthCaseDto());
+
+        investigationService.setObservationAssociationsImpl(investigationUID, reportSumVOCollection, invFromEvent);
+
+        // Verify that the code after continue is never called
+        verify(observationRepositoryUtil, never()).saveActRelationship(any(ActRelationshipDto.class));
+    }
+
+    @Test
+    void testSetObservationAssociationsImpl_EmptyCollection() throws DataProcessingException {
+        Long investigationUID = 123L;
+        Collection<LabReportSummaryContainer> reportSumVOCollection = new ArrayList<>(); // Empty collection
+        boolean invFromEvent = false;
+
+        when(publicHealthCaseRepositoryUtil.findPublicHealthCase(investigationUID)).thenReturn(new PublicHealthCaseDto());
+
+        investigationService.setObservationAssociationsImpl(investigationUID, reportSumVOCollection, invFromEvent);
+
+        // Verify that the method does nothing and exits early
+        verify(observationRepositoryUtil, never()).saveActRelationship(any(ActRelationshipDto.class));
+    }
+
+    @Test
+    void testSetObservationAssociationsImpl_ExceptionCase() throws DataProcessingException {
+        Long investigationUID = 123L;
+        Collection<LabReportSummaryContainer> reportSumVOCollection = new ArrayList<>();
+        LabReportSummaryContainer reportSumVO = new LabReportSummaryContainer();
+        reportSumVO.setTouched(true); // To avoid the continue case
+        reportSumVOCollection.add(reportSumVO);
+        boolean invFromEvent = false;
+
+        when(publicHealthCaseRepositoryUtil.findPublicHealthCase(investigationUID)).thenThrow(new RuntimeException("Test Exception"));
+
+        assertThrows(RuntimeException.class, () -> investigationService.setObservationAssociationsImpl(investigationUID, reportSumVOCollection, invFromEvent));
+
+        // Verify that the exception is thrown and caught properly
+        verify(publicHealthCaseRepositoryUtil).findPublicHealthCase(investigationUID);
+    }
+
+    @Test
+    void testProcessingNonAssociatedReportSummaryContainer_ActRelCollNotEmpty() throws DataProcessingException {
+        LabReportSummaryContainer reportSumVO = new LabReportSummaryContainer();
+        reportSumVO.setAssociated(false);
+        reportSumVO.setObservationUid(123L);
+
+        ObservationDto obsDT = new ObservationDto();
+        RootDtoInterface rootDT = new ObservationDto();
+
+        Collection<ActRelationshipDto> actRelColl = new ArrayList<>();
+        actRelColl.add(new ActRelationshipDto());
+
+        when(actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(reportSumVO.getObservationUid(), "LabReport"))
+                .thenReturn(actRelColl);
+        when(prepareAssocModelHelper.prepareVO(any(ObservationDto.class), anyString(), anyString(), anyString(), anyString(), anyInt()))
+                .thenReturn(rootDT);
+
+        RootDtoInterface result = investigationService.processingNonAssociatedReportSummaryContainer(reportSumVO, obsDT, rootDT);
+
+        assertNull(result);
     }
 }
