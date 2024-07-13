@@ -84,7 +84,7 @@ jacocoTestReport {
                             '**/model/phdc/**',
                             '**/repository/nbs/msgoute/model/**',
                             '**/repository/nbs/odse/model/**',
-                        //    '**/repository/nbs/srte/model/**',
+                            '**/repository/nbs/srte/model/**',
                             '**/security/config/**',
                             '**/ServiceApplication.java',
                             '**/service/model/**',
@@ -244,17 +244,22 @@ sonarqube {
         property "sonar.projectKey", "CDCgov_NEDSS-DataIngestion"
         property "sonar.organization", "cdcgov"
         property "sonar.host.url", "https://sonarcloud.io"
-        property "sonar.exclusions", "**/config/**, **/controller/**, **/constant/**, **/model/dsma_algorithm/**, **/model/phdc/**, " +
-                " **/repository/nbs/msgoute/model/**, **/repository/nbs/odse/model/**, **/security/config/**, **/ServiceApplication.java, " +
+        property "sonar.exclusions", "**/config/**, **/controller/**, **/constant/**, " +
+                "**/model/dsma_algorithm/**," +
+                " **/model/phdc/**, " +
+                " **/repository/nbs/msgoute/model/**, " +
+                "**/repository/nbs/odse/model/**, " +
+                "**/repository/nbs/srte/model/**," +
+                " **/security/config/**," +
+                " **/ServiceApplication.java, " +
                 " **/service/model/**, **/DynamicBeanBinding.java, **/RulesEngineUtil.java, **/utilities/model/**," +
                 " **/WdsObjectChecker.java," +
                 " **/AdvancedCriteria.java, **/cache/OdseCache.java, **/cache/PropertyUtilCache.java, " +
                 " **/cache/SrteCache.java, **/StringUtils.java, **/TimeStampUtil.java, **/AuthUtil.java, " +
                 " **/ObsReqNoteHelper.java, **/WdsObjectChecker.java"
-//                " **/InvestigationService.java, **/ObservationRequestHandler.java, **/InvestigationNotificationService.java, **/ContactSummaryService.java," +
-//                " **/RetrieveSummaryService.java, **/ManagerCacheService.java"
-//        property "sonar.inclusions", " **/BaseContainer.java, **/BasePamContainer.java, **/InterviewContainer.java, **/User.java," +
-//                " **/UserProfile.java"
+                " **/InvestigationService.java, **/ObservationRequestHandler.java, **/InvestigationNotificationService.java, **/ContactSummaryService.java," +
+                " **/RetrieveSummaryService.java, **/ManagerCacheService.java"
+
 
     }
 }
