@@ -5,10 +5,12 @@ import gov.cdc.dataprocessing.model.container.model.ResultedTestSummaryContainer
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class ResultedTestSummaryContainerTest {
 
@@ -105,5 +107,257 @@ class ResultedTestSummaryContainerTest {
         assertEquals(lowRange, container.getLowRange());
         assertEquals(uniqueMapKey, container.getUniqueMapKey());
         assertEquals(numericScale2, container.getNumericScale2());
+    }
+
+    @Test
+    void testGetLastChgUserId() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        Long lastChgUserId = 123L;
+        container.setLastChgUserId(lastChgUserId);
+        assertEquals(lastChgUserId, container.getLastChgUserId());
+    }
+
+    @Test
+    void testSetLastChgUserId() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        Long lastChgUserId = 123L;
+        container.setLastChgUserId(lastChgUserId);
+        assertEquals(lastChgUserId, container.getLastChgUserId());
+    }
+
+    @Test
+    void testGetJurisdictionCd() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        String jurisdictionCd = "jurisdictionCd";
+        container.setJurisdictionCd(jurisdictionCd);
+        assertEquals(jurisdictionCd, container.getJurisdictionCd());
+    }
+
+    @Test
+    void testSetJurisdictionCd() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        String jurisdictionCd = "jurisdictionCd";
+        container.setJurisdictionCd(jurisdictionCd);
+        assertEquals(jurisdictionCd, container.getJurisdictionCd());
+    }
+
+    @Test
+    void testGetProgAreaCd() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        String progAreaCd = "progAreaCd";
+        container.setProgAreaCd(progAreaCd);
+        assertEquals(progAreaCd, container.getProgAreaCd());
+    }
+
+    @Test
+    void testSetProgAreaCd() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        String progAreaCd = "progAreaCd";
+        container.setProgAreaCd(progAreaCd);
+        assertEquals(progAreaCd, container.getProgAreaCd());
+    }
+
+    @Test
+    void testGetLastChgTime() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        Timestamp lastChgTime = new Timestamp(System.currentTimeMillis());
+        container.setLastChgTime(lastChgTime);
+        assertEquals(lastChgTime, container.getLastChgTime());
+    }
+
+    @Test
+    void testSetLastChgTime() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        Timestamp lastChgTime = new Timestamp(System.currentTimeMillis());
+        container.setLastChgTime(lastChgTime);
+        assertEquals(lastChgTime, container.getLastChgTime());
+    }
+
+    @Test
+    void testGetLocalId() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        String localId = "localId";
+        container.setLocalId(localId);
+        assertEquals(localId, container.getLocalId());
+    }
+
+    @Test
+    void testSetLocalId() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        String localId = "localId";
+        container.setLocalId(localId);
+        assertEquals(localId, container.getLocalId());
+    }
+
+    @Test
+    void testGetAddUserId() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        Long addUserId = 123L;
+        container.setAddUserId(addUserId);
+        assertEquals(addUserId, container.getAddUserId());
+    }
+
+    @Test
+    void testSetAddUserId() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        Long addUserId = 123L;
+        container.setAddUserId(addUserId);
+        assertEquals(addUserId, container.getAddUserId());
+    }
+
+    @Test
+    void testGetLastChgReasonCd() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        String lastChgReasonCd = "lastChgReasonCd";
+        container.setLastChgReasonCd(lastChgReasonCd);
+        assertEquals(lastChgReasonCd, container.getLastChgReasonCd());
+    }
+
+    @Test
+    void testSetLastChgReasonCd() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        String lastChgReasonCd = "lastChgReasonCd";
+        container.setLastChgReasonCd(lastChgReasonCd);
+        assertEquals(lastChgReasonCd, container.getLastChgReasonCd());
+    }
+
+    @Test
+    void testGetRecordStatusCd() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        String recordStatusCd = "recordStatusCd";
+        container.setRecordStatusCd(recordStatusCd);
+        assertEquals(recordStatusCd, container.getRecordStatusCd());
+    }
+
+    @Test
+    void testSetRecordStatusCd() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        String recordStatusCd = "recordStatusCd";
+        container.setRecordStatusCd(recordStatusCd);
+        assertEquals(recordStatusCd, container.getRecordStatusCd());
+    }
+
+    @Test
+    void testGetRecordStatusTime() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        Timestamp recordStatusTime = new Timestamp(System.currentTimeMillis());
+        container.setRecordStatusTime(recordStatusTime);
+        assertEquals(recordStatusTime, container.getRecordStatusTime());
+    }
+
+    @Test
+    void testSetRecordStatusTime() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        Timestamp recordStatusTime = new Timestamp(System.currentTimeMillis());
+        container.setRecordStatusTime(recordStatusTime);
+        assertEquals(recordStatusTime, container.getRecordStatusTime());
+    }
+
+    @Test
+    void testGetStatusCd() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        String statusCd = "statusCd";
+        container.setStatusCd(statusCd);
+        assertEquals(statusCd, container.getStatusCd());
+    }
+
+    @Test
+    void testSetStatusCd() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        String statusCd = "statusCd";
+        container.setStatusCd(statusCd);
+        assertEquals(statusCd, container.getStatusCd());
+    }
+
+    @Test
+    void testGetStatusTime() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        Timestamp statusTime = new Timestamp(System.currentTimeMillis());
+        container.setStatusTime(statusTime);
+        assertEquals(statusTime, container.getStatusTime());
+    }
+
+    @Test
+    void testSetStatusTime() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        Timestamp statusTime = new Timestamp(System.currentTimeMillis());
+        container.setStatusTime(statusTime);
+        assertEquals(statusTime, container.getStatusTime());
+    }
+
+    @Test
+    void testGetSuperclass() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        assertEquals("gov.cdc.dataprocessing.model.container.base.BaseContainer", container.getSuperclass());
+    }
+
+    @Test
+    void testGetUid() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        Long uid = 123L;
+        container.setObservationUid(uid);
+        assertEquals(uid, container.getUid());
+    }
+
+    @Test
+    void testSetAddTime() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        Timestamp addTime = new Timestamp(System.currentTimeMillis());
+        container.setAddTime(addTime);
+        assertNull(container.getAddTime());
+    }
+
+    @Test
+    void testGetAddTime() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        assertNull(container.getAddTime());
+    }
+
+    @Test
+    void testGetProgramJurisdictionOid() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        Long programJurisdictionOid = 123L;
+        container.setProgramJurisdictionOid(programJurisdictionOid);
+        assertEquals(programJurisdictionOid, container.getProgramJurisdictionOid());
+    }
+
+    @Test
+    void testSetProgramJurisdictionOid() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        Long programJurisdictionOid = 123L;
+        container.setProgramJurisdictionOid(programJurisdictionOid);
+        assertEquals(programJurisdictionOid, container.getProgramJurisdictionOid());
+    }
+
+    @Test
+    void testGetSharedInd() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        String sharedInd = "sharedInd";
+        container.setSharedInd(sharedInd);
+        assertEquals(sharedInd, container.getSharedInd());
+    }
+
+    @Test
+    void testSetSharedInd() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        String sharedInd = "sharedInd";
+        container.setSharedInd(sharedInd);
+        assertEquals(sharedInd, container.getSharedInd());
+    }
+
+    @Test
+    void testGetVersionCtrlNbr() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        Integer versionCtrlNbr = 1;
+        container.setVersionCtrlNbr(versionCtrlNbr);
+        assertEquals(versionCtrlNbr, container.getVersionCtrlNbr());
+    }
+
+    @Test
+    void testSetVersionCtrlNbr() {
+        ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
+        Integer versionCtrlNbr = 1;
+        container.setVersionCtrlNbr(versionCtrlNbr);
+        assertEquals(versionCtrlNbr, container.getVersionCtrlNbr());
     }
 }

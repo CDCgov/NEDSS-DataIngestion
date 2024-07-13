@@ -373,4 +373,166 @@ class LabReportSummaryContainerTest {
         container.setOrderingFacility(orderingFacility);
         assertEquals(orderingFacility, container.getOrderingFacility());
     }
+
+    @Test
+    void testGetLastChgUserId() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+        Long personUid = 123L;
+        container.setPersonUid(personUid);
+        assertEquals(personUid, container.getLastChgUserId());
+    }
+
+    @Test
+    void testSetLastChgUserId() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+        Long personUid = 123L;
+        container.setLastChgUserId(personUid);
+        assertEquals(personUid, container.getPersonUid());
+    }
+
+    @Test
+    void testGetLastChgTime() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+        Timestamp dateReceived = new Timestamp(System.currentTimeMillis());
+        container.setDateReceived(dateReceived);
+        assertEquals(dateReceived, container.getLastChgTime());
+    }
+
+    @Test
+    void testSetLastChgTime() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+        Timestamp dateReceived = new Timestamp(System.currentTimeMillis());
+        container.setLastChgTime(dateReceived);
+        assertEquals(dateReceived, container.getDateReceived());
+    }
+
+    @Test
+    void testGetAddUserId() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+        Long personUid = 123L;
+        container.setPersonUid(personUid);
+        assertEquals(personUid, container.getAddUserId());
+    }
+
+    @Test
+    void testSetAddUserId() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+        Long personUid = 123L;
+        container.setAddUserId(personUid);
+        assertEquals(personUid, container.getPersonUid());
+    }
+
+    @Test
+    void testGetRecordStatusTime() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+        Timestamp dateReceived = new Timestamp(System.currentTimeMillis());
+        container.setDateReceived(dateReceived);
+        assertEquals(dateReceived, container.getRecordStatusTime());
+    }
+
+    @Test
+    void testSetRecordStatusTime() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+        Timestamp dateReceived = new Timestamp(System.currentTimeMillis());
+        container.setRecordStatusTime(dateReceived);
+        assertEquals(dateReceived, container.getDateReceived());
+    }
+
+    @Test
+    void testGetStatusCd() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+        String status = "status";
+        container.setStatus(status);
+        assertEquals(status, container.getStatusCd());
+    }
+
+    @Test
+    void testSetStatusCd() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+        String status = "status";
+        container.setStatusCd(status);
+        assertEquals(status, container.getStatus());
+    }
+
+    @Test
+    void testGetStatusTime() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+        Timestamp dateReceived = new Timestamp(System.currentTimeMillis());
+        container.setDateReceived(dateReceived);
+        assertEquals(dateReceived, container.getStatusTime());
+    }
+
+    @Test
+    void testSetStatusTime() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+        Timestamp dateReceived = new Timestamp(System.currentTimeMillis());
+        container.setStatusTime(dateReceived);
+        assertEquals(dateReceived, container.getDateReceived());
+    }
+
+    @Test
+    void testGetSuperclass() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+        assertEquals("gov.cdc.dataprocessing.model.container.base.BaseContainer", container.getSuperclass());
+    }
+
+    @Test
+    void testSetAddTime() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+        Timestamp dateReceived = new Timestamp(System.currentTimeMillis());
+        container.setAddTime(dateReceived);
+        assertEquals(dateReceived, container.getDateReceived());
+    }
+
+    @Test
+    void testGetAddTime() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+        Timestamp dateReceived = new Timestamp(System.currentTimeMillis());
+        container.setDateReceived(dateReceived);
+        assertEquals(dateReceived, container.getAddTime());
+    }
+
+    @Test
+    void testGetProgramJurisdictionOid() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+        Long MPRUid = 123L;
+        container.setMPRUid(MPRUid);
+        assertEquals(MPRUid, container.getProgramJurisdictionOid());
+    }
+
+    @Test
+    void testSetProgramJurisdictionOid() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+        Long MPRUid = 123L;
+        container.setProgramJurisdictionOid(MPRUid);
+        assertEquals(MPRUid, container.getMPRUid());
+    }
+
+    @Test
+    void testCompareTo() {
+        LabReportSummaryContainer container1 = new LabReportSummaryContainer();
+        LabReportSummaryContainer container2 = new LabReportSummaryContainer();
+        container1.setUid(1L);
+        container2.setUid(2L);
+        assertTrue(container1.compareTo(container2) < 0);
+        assertTrue(container2.compareTo(container1) > 0);
+    }
+
+    @Test
+    void testGetIsTouched() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+        container.setItTouched(true);
+        assertTrue(container.getIsTouched());
+    }
+
+
+
+    @Test
+    void testGetIsAssociated() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+        container.setItAssociated(true);
+        assertTrue(container.getIsAssociated());
+    }
+
+
 }

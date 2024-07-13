@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class LabReportSummaryContainer extends BaseContainer implements RootDtoInterface,Comparable, ReportSummaryInterface {
+public class LabReportSummaryContainer extends BaseContainer implements RootDtoInterface, Comparable<LabReportSummaryContainer>, ReportSummaryInterface {
     private static final long serialVersionUID = 1L;
     private boolean isTouched;
     private boolean isAssociated;
@@ -43,19 +43,18 @@ public class LabReportSummaryContainer extends BaseContainer implements RootDtoI
     private String specimenSource;
     private String[] selectedcheckboxIds;
     private String checkBoxId;
-    // Added these fields for ER 16368 - Start
     private String providerFirstName = "";
     private String providerLastName = "";
     private String providerSuffix = "";
     private String providerPrefix = "";
     private String providerDegree = "";
     private String providerUid = "";
-    private String degree ;
-    private String accessionNumber ;
+    private String degree;
+    private String accessionNumber;
     private boolean isLabFromMorb = false;
     private boolean isReactor = false;
     private String electronicInd;
-    private Map<Object,Object> associationsMap;
+    private Map<Object, Object> associationsMap;
     private String processingDecisionCd;
     private String disabled = "";
     private ProviderDataForPrintContainer providerDataForPrintVO;
@@ -71,9 +70,7 @@ public class LabReportSummaryContainer extends BaseContainer implements RootDtoI
     private String currSexCd;
     private String orderingFacility;
 
-    public LabReportSummaryContainer() {
-
-    }
+    public LabReportSummaryContainer() {}
 
     public LabReportSummaryContainer(Observation_Lab_Summary_ForWorkUp_New observationLabSummaryForWorkUpNew) {
         uid = observationLabSummaryForWorkUpNew.getUid();
@@ -95,102 +92,102 @@ public class LabReportSummaryContainer extends BaseContainer implements RootDtoI
 
     @Override
     public Long getLastChgUserId() {
-        return null;
+        return personUid; // Assuming personUid is the last changed user ID
     }
 
     @Override
     public void setLastChgUserId(Long aLastChgUserId) {
-
+        this.personUid = aLastChgUserId;
     }
 
     @Override
     public Timestamp getLastChgTime() {
-        return null;
+        return dateReceived; // Assuming dateReceived is the last changed time
     }
 
     @Override
     public void setLastChgTime(Timestamp aLastChgTime) {
-
+        this.dateReceived = aLastChgTime;
     }
 
     @Override
     public Long getAddUserId() {
-        return null;
+        return personUid; // Assuming personUid is the add user ID
     }
 
     @Override
     public void setAddUserId(Long aAddUserId) {
-
+        this.personUid = aAddUserId;
     }
 
     @Override
     public String getLastChgReasonCd() {
-        return null;
+        return null; // No corresponding field found
     }
 
     @Override
     public void setLastChgReasonCd(String aLastChgReasonCd) {
-
+        // No corresponding field found
     }
 
     @Override
     public Timestamp getRecordStatusTime() {
-        return null;
+        return dateReceived; // Assuming dateReceived is the record status time
     }
 
     @Override
     public void setRecordStatusTime(Timestamp aRecordStatusTime) {
-
+        this.dateReceived = aRecordStatusTime;
     }
 
     @Override
     public String getStatusCd() {
-        return null;
+        return status; // Assuming status is the status code
     }
 
     @Override
     public void setStatusCd(String aStatusCd) {
-
+        this.status = aStatusCd;
     }
 
     @Override
     public Timestamp getStatusTime() {
-        return null;
+        return dateReceived; // Assuming dateReceived is the status time
     }
 
     @Override
     public void setStatusTime(Timestamp aStatusTime) {
-
+        this.dateReceived = aStatusTime;
     }
 
     @Override
     public String getSuperclass() {
-        return null;
+        return this.getClass().getSuperclass().getName();
     }
 
     @Override
     public void setAddTime(Timestamp aAddTime) {
-
+        this.dateReceived = aAddTime;
     }
 
     @Override
     public Timestamp getAddTime() {
-        return null;
+        return dateReceived;
     }
 
     @Override
     public Long getProgramJurisdictionOid() {
-        return null;
+        return MPRUid; // Assuming MPRUid is the program jurisdiction OID
     }
 
     @Override
     public void setProgramJurisdictionOid(Long aProgramJurisdictionOid) {
-
+        this.MPRUid = aProgramJurisdictionOid;
     }
 
     @Override
-    public int compareTo(Object o) {
-        return 0;
+    public int compareTo(LabReportSummaryContainer o) {
+        return this.uid.compareTo(o.getUid());
     }
 
     @Override
@@ -210,6 +207,6 @@ public class LabReportSummaryContainer extends BaseContainer implements RootDtoI
 
     @Override
     public void setItAssociated(boolean associated) {
-        isAssociated  = associated;
+        isAssociated = associated;
     }
 }

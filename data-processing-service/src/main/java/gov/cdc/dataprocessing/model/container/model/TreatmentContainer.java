@@ -11,278 +11,208 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class TreatmentContainer extends BaseContainer implements RootDtoInterface
-{
-    public String arTypeCd;
+public class TreatmentContainer extends BaseContainer implements RootDtoInterface {
 
-    /**
-     * index
-     * (Not for display purposes)
-     */
+    private String arTypeCd;
     private String index;
-
-    /**
-     * from per.person_uid
-     * (Not for display purposes)
-     */
     private Long personUid;
-
-    /**
-     * from set in InvestigationProxyEJB with the isAssociated field
-     */
     private String yesNoFlag;
-
-
-    /**
-     * from treatment_administered
-     */
     private String treatmentNameCode;
-
-    /**
-     * from treatment_administered
-     */
     private String customTreatmentNameCode;
-
-
-    /**
-     * from SRT Code Set, based on material.nm
-     */
     private String treatmentAdministered;
-
-    /**
-     * from Treatment.treatmentUid
-     * (Not for display purposes)
-     */
     private Long treatmentUid;
     private Long uid;
-
-
-    /**
-     * from Treatment.localId
-     */
     private String localId;
-
-    /**
-     * from Treatment.activityFromTime
-     */
     private Timestamp activityFromTime;
-
-    /**
-     * from Treatment.activityToTime
-     */
     private Timestamp activityToTime;
-
-    /**
-     * from par.record_status_cd,
-     */
     private String recordStatusCd;
-
-
-    /**
-     * from ar.target_act_uid PHC_uid
-     * (Not for display purposes)
-     */
     private Long phcUid;
-
-    /**
-     * from ar.target_act_uid parentUid
-     * (Not for display purposes)
-     */
     private Long parentUid;
-
-
-
-    /**
-     * MorbReportSummaryVO
-     */
     private Collection<Object> morbReportSummaryVOColl;
-
-    /**
-     * Populated by front-end to indicate if the isAssociated attribute may have been
-     * changed by the user.
-     * (not for display purposes)
-     */
     private boolean isTouched;
-
-    /**
-     * Set by back-end and front-end to indicate if an ActRelationship entry exists or
-     * should be created to support associating the Vaccination with the Investigation.
-     * (not for display purposes)
-     */
     private boolean isAssociated;
-
-    private Character isRadioBtnAssociated;   // same as isAssociated but we need Character to be able to sort.
-
+    private Character isRadioBtnAssociated;
     private String actionLink;
-
     private String checkBoxId;
-
     private Timestamp createDate;
-
-    private Map<Object,Object> associationMap;
-
+    private Map<Object, Object> associationMap;
     private String providerFirstName = "";
-
     private Long nbsDocumentUid;
-
-
     private String providerLastName = "";
     private String providerSuffix = "";
     private String providerPrefix = "";
-    private String degree="" ;
+    private String degree = "";
+
+    private Long lastChgUserId;
+    private String jurisdictionCd;
+    private String progAreaCd;
+    private Timestamp lastChgTime;
+    private Long addUserId;
+    private String lastChgReasonCd;
+    private Timestamp recordStatusTime;
+    private String statusCd;
+    private Timestamp statusTime;
+    private Long programJurisdictionOid;
+    private String sharedInd;
+    private Integer versionCtrlNbr;
+    private Timestamp addTime;
 
     @Override
     public Long getLastChgUserId() {
-        return null;
+        return lastChgUserId;
     }
 
     @Override
     public void setLastChgUserId(Long aLastChgUserId) {
-
+        this.lastChgUserId = aLastChgUserId;
     }
 
     @Override
     public String getJurisdictionCd() {
-        return null;
+        return jurisdictionCd;
     }
 
     @Override
     public void setJurisdictionCd(String aJurisdictionCd) {
-
+        this.jurisdictionCd = aJurisdictionCd;
     }
 
     @Override
     public String getProgAreaCd() {
-        return null;
+        return progAreaCd;
     }
 
     @Override
     public void setProgAreaCd(String aProgAreaCd) {
-
+        this.progAreaCd = aProgAreaCd;
     }
 
     @Override
     public Timestamp getLastChgTime() {
-        return null;
+        return lastChgTime;
     }
 
     @Override
     public void setLastChgTime(Timestamp aLastChgTime) {
-
+        this.lastChgTime = aLastChgTime;
     }
 
     @Override
     public String getLocalId() {
-        return null;
+        return localId;
     }
 
     @Override
     public void setLocalId(String aLocalId) {
-
+        this.localId = aLocalId;
     }
 
     @Override
     public Long getAddUserId() {
-        return null;
+        return addUserId;
     }
 
     @Override
     public void setAddUserId(Long aAddUserId) {
-
+        this.addUserId = aAddUserId;
     }
 
     @Override
     public String getLastChgReasonCd() {
-        return null;
+        return lastChgReasonCd;
     }
 
     @Override
     public void setLastChgReasonCd(String aLastChgReasonCd) {
-
+        this.lastChgReasonCd = aLastChgReasonCd;
     }
 
     @Override
     public String getRecordStatusCd() {
-        return null;
+        return recordStatusCd;
     }
 
     @Override
     public void setRecordStatusCd(String aRecordStatusCd) {
-
+        this.recordStatusCd = aRecordStatusCd;
     }
 
     @Override
     public Timestamp getRecordStatusTime() {
-        return null;
+        return recordStatusTime;
     }
 
     @Override
     public void setRecordStatusTime(Timestamp aRecordStatusTime) {
-
+        this.recordStatusTime = aRecordStatusTime;
     }
 
     @Override
     public String getStatusCd() {
-        return null;
+        return statusCd;
     }
 
     @Override
     public void setStatusCd(String aStatusCd) {
-
+        this.statusCd = aStatusCd;
     }
 
     @Override
     public Timestamp getStatusTime() {
-        return null;
+        return statusTime;
     }
 
     @Override
     public void setStatusTime(Timestamp aStatusTime) {
-
+        this.statusTime = aStatusTime;
     }
 
     @Override
     public String getSuperclass() {
-        return null;
+        return this.getClass().getSuperclass().getName();
     }
 
     @Override
     public Long getUid() {
-        return null;
+        return treatmentUid;
     }
 
     @Override
     public void setAddTime(Timestamp aAddTime) {
-
+        this.addTime = aAddTime;
     }
 
     @Override
     public Timestamp getAddTime() {
-        return null;
+        return addTime;
     }
 
     @Override
     public Long getProgramJurisdictionOid() {
-        return null;
+        return programJurisdictionOid;
     }
 
     @Override
     public void setProgramJurisdictionOid(Long aProgramJurisdictionOid) {
-
+        this.programJurisdictionOid = aProgramJurisdictionOid;
     }
 
     @Override
     public String getSharedInd() {
-        return null;
+        return sharedInd;
     }
 
     @Override
     public void setSharedInd(String aSharedInd) {
-
+        this.sharedInd = aSharedInd;
     }
 
     @Override
     public Integer getVersionCtrlNbr() {
-        return null;
+        return versionCtrlNbr;
+    }
+
+    public void setVersionCtrlNbr(Integer versionCtrlNbr) {
+        this.versionCtrlNbr = versionCtrlNbr;
     }
 }
