@@ -1,0 +1,158 @@
+package gov.cdc.dataprocessing.model.container;
+
+
+import gov.cdc.dataprocessing.model.container.model.NotificationSummaryContainer;
+import org.junit.jupiter.api.Test;
+
+import java.sql.Timestamp;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class NotificationSummaryContainerTest {
+
+    @Test
+    void testGettersAndSetters() {
+        NotificationSummaryContainer container = new NotificationSummaryContainer();
+
+        Long notificationUid = 12345L;
+        Timestamp addTime = new Timestamp(System.currentTimeMillis());
+        Timestamp rptSentTime = new Timestamp(System.currentTimeMillis() + 10000);
+        Timestamp recordStatusTime = new Timestamp(System.currentTimeMillis() + 20000);
+        String cd = "CD123";
+        String caseClassCd = "CLASS123";
+        String localId = "LOCAL123";
+        String txt = "Some text";
+        Timestamp lastChgTime = new Timestamp(System.currentTimeMillis() + 30000);
+        String addUserName = "User123";
+        Long addUserId = 67890L;
+        String jurisdictionCd = "JUR123";
+        Long publicHealthCaseUid = 54321L;
+        String cdTxt = "CD Text";
+        String jurisdictionCdTxt = "Jurisdiction Text";
+        String publicHealthCaseLocalId = "PHC123";
+        String caseClassCdTxt = "Class Text";
+        String recordStatusCd = "RECORD123";
+        String lastNm = "Last Name";
+        String firstNm = "First Name";
+        String currSexCd = "M";
+        Timestamp birthTimeCalc = new Timestamp(System.currentTimeMillis() - 100000);
+        String autoResendInd = "Y";
+        String isHistory = "N";
+        String progAreaCd = "Prog123";
+        String sharedInd = "Y";
+        String currSexCdDesc = "Male";
+        Long MPRUid = 98765L;
+        String cdNotif = "CD Notif";
+        boolean nndAssociated = true;
+        boolean isCaseReport = false;
+        Long programJurisdictionOid = 11111L;
+        boolean shareAssocaited = true;
+        String patientFullName = "John Doe";
+        String patientFullNameLnk = "John Doe Link";
+        String conditionCodeTextLnk = "Condition Link";
+        String approveLink = "Approve Link";
+        String rejectLink = "Reject Link";
+        String notificationCd = "Notif123";
+        String notificationSrtDescCd = "Notif Desc";
+        String recipient = "Recipient";
+        String exportRecFacilityUid = "Facility UID";
+        String codeConverterTemp = "Converter Temp";
+        String codeConverterCommentTemp = "Converter Comment Temp";
+        boolean isPendingNotification = false;
+        String nndInd = "NND123";
+
+        container.setNotificationUid(notificationUid);
+        container.setAddTime(addTime);
+        container.setRptSentTime(rptSentTime);
+        container.setRecordStatusTime(recordStatusTime);
+        container.setCd(cd);
+        container.setCaseClassCd(caseClassCd);
+        container.setLocalId(localId);
+        container.setTxt(txt);
+        container.setLastChgTime(lastChgTime);
+        container.setAddUserName(addUserName);
+        container.setAddUserId(addUserId);
+        container.setJurisdictionCd(jurisdictionCd);
+        container.setPublicHealthCaseUid(publicHealthCaseUid);
+        container.setCdTxt(cdTxt);
+        container.setJurisdictionCdTxt(jurisdictionCdTxt);
+        container.setPublicHealthCaseLocalId(publicHealthCaseLocalId);
+        container.setCaseClassCdTxt(caseClassCdTxt);
+        container.setRecordStatusCd(recordStatusCd);
+        container.setLastNm(lastNm);
+        container.setFirstNm(firstNm);
+        container.setCurrSexCd(currSexCd);
+        container.setBirthTimeCalc(birthTimeCalc);
+        container.setAutoResendInd(autoResendInd);
+        container.setIsHistory(isHistory);
+        container.setProgAreaCd(progAreaCd);
+        container.setSharedInd(sharedInd);
+        container.setCurrSexCdDesc(currSexCdDesc);
+        container.setMPRUid(MPRUid);
+        container.setCdNotif(cdNotif);
+        container.setNndAssociated(nndAssociated);
+        container.setCaseReport(isCaseReport);
+        container.setProgramJurisdictionOid(programJurisdictionOid);
+        container.setShareAssocaited(shareAssocaited);
+        container.setPatientFullName(patientFullName);
+        container.setPatientFullNameLnk(patientFullNameLnk);
+        container.setConditionCodeTextLnk(conditionCodeTextLnk);
+        container.setApproveLink(approveLink);
+        container.setRejectLink(rejectLink);
+        container.setNotificationCd(notificationCd);
+        container.setNotificationSrtDescCd(notificationSrtDescCd);
+        container.setRecipient(recipient);
+        container.setExportRecFacilityUid(exportRecFacilityUid);
+        container.setCodeConverterTemp(codeConverterTemp);
+        container.setCodeConverterCommentTemp(codeConverterCommentTemp);
+        container.setPendingNotification(isPendingNotification);
+        container.setNndInd(nndInd);
+
+        assertEquals(notificationUid, container.getNotificationUid());
+        assertEquals(addTime, container.getAddTime());
+        assertEquals(rptSentTime, container.getRptSentTime());
+        assertEquals(recordStatusTime, container.getRecordStatusTime());
+        assertEquals(cd, container.getCd());
+        assertEquals(caseClassCd, container.getCaseClassCd());
+        assertEquals(localId, container.getLocalId());
+        assertEquals(txt, container.getTxt());
+        assertEquals(lastChgTime, container.getLastChgTime());
+        assertEquals(addUserName, container.getAddUserName());
+        assertEquals(addUserId, container.getAddUserId());
+        assertEquals(jurisdictionCd, container.getJurisdictionCd());
+        assertEquals(publicHealthCaseUid, container.getPublicHealthCaseUid());
+        assertEquals(cdTxt, container.getCdTxt());
+        assertEquals(jurisdictionCdTxt, container.getJurisdictionCdTxt());
+        assertEquals(publicHealthCaseLocalId, container.getPublicHealthCaseLocalId());
+        assertEquals(caseClassCdTxt, container.getCaseClassCdTxt());
+        assertEquals(recordStatusCd, container.getRecordStatusCd());
+        assertEquals(lastNm, container.getLastNm());
+        assertEquals(firstNm, container.getFirstNm());
+        assertEquals(currSexCd, container.getCurrSexCd());
+        assertEquals(birthTimeCalc, container.getBirthTimeCalc());
+        assertEquals(autoResendInd, container.getAutoResendInd());
+        assertEquals(isHistory, container.getIsHistory());
+        assertEquals(progAreaCd, container.getProgAreaCd());
+        assertEquals(sharedInd, container.getSharedInd());
+        assertEquals(currSexCdDesc, container.getCurrSexCdDesc());
+        assertEquals(MPRUid, container.getMPRUid());
+        assertEquals(cdNotif, container.getCdNotif());
+        assertEquals(nndAssociated, container.isNndAssociated());
+        assertEquals(isCaseReport, container.isCaseReport());
+        assertEquals(programJurisdictionOid, container.getProgramJurisdictionOid());
+        assertEquals(shareAssocaited, container.isShareAssocaited());
+        assertEquals(patientFullName, container.getPatientFullName());
+        assertEquals(patientFullNameLnk, container.getPatientFullNameLnk());
+        assertEquals(conditionCodeTextLnk, container.getConditionCodeTextLnk());
+        assertEquals(approveLink, container.getApproveLink());
+        assertEquals(rejectLink, container.getRejectLink());
+        assertEquals(notificationCd, container.getNotificationCd());
+        assertEquals(notificationSrtDescCd, container.getNotificationSrtDescCd());
+        assertEquals(recipient, container.getRecipient());
+        assertEquals(exportRecFacilityUid, container.getExportRecFacilityUid());
+        assertEquals(codeConverterTemp, container.getCodeConverterTemp());
+        assertEquals(codeConverterCommentTemp, container.getCodeConverterCommentTemp());
+        assertEquals(isPendingNotification, container.isPendingNotification());
+        assertEquals(nndInd, container.getNndInd());
+    }
+}

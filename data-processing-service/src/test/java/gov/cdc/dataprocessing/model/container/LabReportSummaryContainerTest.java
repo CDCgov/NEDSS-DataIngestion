@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.container;
 
 import gov.cdc.dataprocessing.model.container.model.LabReportSummaryContainer;
+import gov.cdc.dataprocessing.model.container.model.ProviderDataForPrintContainer;
 import gov.cdc.dataprocessing.model.container.model.ResultedTestSummaryContainer;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.Observation_Lab_Summary_ForWorkUp_New;
 import org.junit.jupiter.api.Test;
@@ -155,5 +156,221 @@ class LabReportSummaryContainerTest {
         assertEquals(654321L, container.getPersonParentUid());
         assertEquals("F", container.getCurrSexCd());
         assertEquals("Facility", container.getOrderingFacility());
+    }
+
+    @Test
+    void testGettersAndSetters() {
+        LabReportSummaryContainer container = new LabReportSummaryContainer();
+
+        container.setTouched(true);
+        assertTrue(container.getIsTouched());
+
+        container.setAssociated(true);
+        assertTrue(container.getIsAssociated());
+
+        Timestamp dateReceived = new Timestamp(System.currentTimeMillis());
+        container.setDateReceived(dateReceived);
+        assertEquals(dateReceived, container.getDateReceived());
+
+        String dateReceivedS = "2024-07-13";
+        container.setDateReceivedS(dateReceivedS);
+        assertEquals(dateReceivedS, container.getDateReceivedS());
+
+        int versionCtrlNbr = 1;
+        container.setVersionCtrlNbr(versionCtrlNbr);
+        assertEquals(versionCtrlNbr, container.getVersionCtrlNbr());
+
+        Timestamp dateCollected = new Timestamp(System.currentTimeMillis());
+        container.setDateCollected(dateCollected);
+        assertEquals(dateCollected, container.getDateCollected());
+
+        Timestamp activityFromTime = new Timestamp(System.currentTimeMillis());
+        container.setActivityFromTime(activityFromTime);
+        assertEquals(activityFromTime, container.getActivityFromTime());
+
+        String type = "TestType";
+        container.setType(type);
+        assertEquals(type, container.getType());
+
+        String programArea = "TestProgramArea";
+        container.setProgramArea(programArea);
+        assertEquals(programArea, container.getProgramArea());
+
+        String jurisdiction = "TestJurisdiction";
+        container.setJurisdiction(jurisdiction);
+        assertEquals(jurisdiction, container.getJurisdiction());
+
+        String jurisdictionCd = "TestJurisdictionCd";
+        container.setJurisdictionCd(jurisdictionCd);
+        assertEquals(jurisdictionCd, container.getJurisdictionCd());
+
+        String status = "TestStatus";
+        container.setStatus(status);
+        assertEquals(status, container.getStatus());
+
+        String recordStatusCd = "TestRecordStatusCd";
+        container.setRecordStatusCd(recordStatusCd);
+        assertEquals(recordStatusCd, container.getRecordStatusCd());
+
+        long observationUid = 1L;
+        container.setObservationUid(observationUid);
+        assertEquals(observationUid, container.getObservationUid());
+
+        String patientFirstName = "John";
+        container.setPatientFirstName(patientFirstName);
+        assertEquals(patientFirstName, container.getPatientFirstName());
+
+        String patientLastName = "Doe";
+        container.setPatientLastName(patientLastName);
+        assertEquals(patientLastName, container.getPatientLastName());
+
+        String personLocalId = "TestPersonLocalId";
+        container.setPersonLocalId(personLocalId);
+        assertEquals(personLocalId, container.getPersonLocalId());
+
+        Collection<ResultedTestSummaryContainer> theResultedTestSummaryVOCollection = new ArrayList<>();
+        container.setTheResultedTestSummaryVOCollection(theResultedTestSummaryVOCollection);
+        assertEquals(theResultedTestSummaryVOCollection, container.getTheResultedTestSummaryVOCollection());
+
+        Collection<Object> invSummaryVOs = new ArrayList<>();
+        container.setInvSummaryVOs(invSummaryVOs);
+        assertEquals(invSummaryVOs, container.getInvSummaryVOs());
+
+        String orderedTest = "TestOrdered";
+        container.setOrderedTest(orderedTest);
+        assertEquals(orderedTest, container.getOrderedTest());
+
+        long mprUid = 2L;
+        container.setMPRUid(mprUid);
+        assertEquals(mprUid, container.getMPRUid());
+
+        String cdSystemCd = "TestCdSystemCd";
+        container.setCdSystemCd(cdSystemCd);
+        assertEquals(cdSystemCd, container.getCdSystemCd());
+
+        String actionLink = "TestActionLink";
+        container.setActionLink(actionLink);
+        assertEquals(actionLink, container.getActionLink());
+
+        String resultedTestString = "TestResulted";
+        container.setResultedTestString(resultedTestString);
+        assertEquals(resultedTestString, container.getResultedTestString());
+
+        String reportingFacility = "TestFacility";
+        container.setReportingFacility(reportingFacility);
+        assertEquals(reportingFacility, container.getReportingFacility());
+
+        String specimenSource = "TestSpecimenSource";
+        container.setSpecimenSource(specimenSource);
+        assertEquals(specimenSource, container.getSpecimenSource());
+
+        String[] selectedcheckboxIds = new String[]{"Test1", "Test2"};
+        container.setSelectedcheckboxIds(selectedcheckboxIds);
+        assertArrayEquals(selectedcheckboxIds, container.getSelectedcheckboxIds());
+
+        String checkBoxId = "TestCheckBoxId";
+        container.setCheckBoxId(checkBoxId);
+        assertEquals(checkBoxId, container.getCheckBoxId());
+
+        String providerFirstName = "Jane";
+        container.setProviderFirstName(providerFirstName);
+        assertEquals(providerFirstName, container.getProviderFirstName());
+
+        String providerLastName = "Smith";
+        container.setProviderLastName(providerLastName);
+        assertEquals(providerLastName, container.getProviderLastName());
+
+        String providerSuffix = "Jr.";
+        container.setProviderSuffix(providerSuffix);
+        assertEquals(providerSuffix, container.getProviderSuffix());
+
+        String providerPrefix = "Dr.";
+        container.setProviderPrefix(providerPrefix);
+        assertEquals(providerPrefix, container.getProviderPrefix());
+
+        String providerDegree = "MD";
+        container.setProviderDegree(providerDegree);
+        assertEquals(providerDegree, container.getProviderDegree());
+
+        String providerUid = "ProviderUid123";
+        container.setProviderUid(providerUid);
+        assertEquals(providerUid, container.getProviderUid());
+
+        String degree = "PhD";
+        container.setDegree(degree);
+        assertEquals(degree, container.getDegree());
+
+        String accessionNumber = "AccessionNumber123";
+        container.setAccessionNumber(accessionNumber);
+        assertEquals(accessionNumber, container.getAccessionNumber());
+
+        container.setLabFromMorb(true);
+        assertTrue(container.isLabFromMorb());
+
+        container.setReactor(true);
+        assertTrue(container.isReactor());
+
+        String electronicInd = "TestElectronicInd";
+        container.setElectronicInd(electronicInd);
+        assertEquals(electronicInd, container.getElectronicInd());
+
+        Map<Object, Object> associationsMap = Map.of("Key", "Value");
+        container.setAssociationsMap(associationsMap);
+        assertEquals(associationsMap, container.getAssociationsMap());
+
+        String processingDecisionCd = "TestProcessingDecisionCd";
+        container.setProcessingDecisionCd(processingDecisionCd);
+        assertEquals(processingDecisionCd, container.getProcessingDecisionCd());
+
+        String disabled = "true";
+        container.setDisabled(disabled);
+        assertEquals(disabled, container.getDisabled());
+
+        ProviderDataForPrintContainer providerDataForPrintVO = new ProviderDataForPrintContainer();
+        container.setProviderDataForPrintVO(providerDataForPrintVO);
+        assertEquals(providerDataForPrintVO, container.getProviderDataForPrintVO());
+
+        container.setLabFromDoc(true);
+        assertTrue(container.isLabFromDoc());
+
+        Long uid = 3L;
+        container.setUid(uid);
+        assertEquals(uid, container.getUid());
+
+        String sharedInd = "TestSharedInd";
+        container.setSharedInd(sharedInd);
+        assertEquals(sharedInd, container.getSharedInd());
+
+        String progAreaCd = "TestProgAreaCd";
+        container.setProgAreaCd(progAreaCd);
+        assertEquals(progAreaCd, container.getProgAreaCd());
+
+        String localId = "TestLocalId";
+        container.setLocalId(localId);
+        assertEquals(localId, container.getLocalId());
+
+        Long personUid = 4L;
+        container.setPersonUid(personUid);
+        assertEquals(personUid, container.getPersonUid());
+
+        String lastNm = "LastName";
+        container.setLastNm(lastNm);
+        assertEquals(lastNm, container.getLastNm());
+
+        String firstNm = "FirstName";
+        container.setFirstNm(firstNm);
+        assertEquals(firstNm, container.getFirstNm());
+
+        Long personParentUid = 5L;
+        container.setPersonParentUid(personParentUid);
+        assertEquals(personParentUid, container.getPersonParentUid());
+
+        String currSexCd = "Male";
+        container.setCurrSexCd(currSexCd);
+        assertEquals(currSexCd, container.getCurrSexCd());
+
+        String orderingFacility = "TestOrderingFacility";
+        container.setOrderingFacility(orderingFacility);
+        assertEquals(orderingFacility, container.getOrderingFacility());
     }
 }

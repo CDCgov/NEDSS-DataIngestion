@@ -9,94 +9,25 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class NotificationSummaryContainer extends BaseContainer implements RootDtoInterface
-{
+public class NotificationSummaryContainer extends BaseContainer implements RootDtoInterface {
 
-    /**
-     * from NotificationDT.notificationtionUid
-     * (Not for display purposes)
-     */
     private Long notificationUid;
-
-    /**
-     * from NotificationDT.addTime
-     */
     private Timestamp addTime;
-
-    /**
-     * from NotificationDT.rptSentTime
-     */
     private Timestamp rptSentTime;
-
-
     private Timestamp recordStatusTime;
-
-
-    /**
-     * from PublicHealthCaseDto.cd
-     */
     private String cd;
-
-    /**
-     * from PublicHealthCase.caseClassCd
-     */
     private String caseClassCd;
-
-    /**
-     * from NotificationDT.localId
-     */
     private String localId;
-
-    /**
-     * from Notification.txt
-     */
     private String txt;
-
-    /**
-     * from NotificationDT.lastChgTime
-     */
     private Timestamp lastChgTime;
-
     private String addUserName;
-    /**
-     * from NotificationDT.addUserId
-     */
     private Long addUserId;
-
-    /**
-     * from PublicHealthCase.jurisdictionCd
-     */
     private String jurisdictionCd;
-
-    /**
-     * from publicHealthCaseDT.publicHealthCaseUid
-     */
     private Long publicHealthCaseUid;
-
-    /**
-     * from Code_Value_General.code where Code_Value_General.code_set_nm = 'PHC_TYPE'
-     */
     private String cdTxt;
-
-    /**
-     * from Code_Value_General.code_desc_txt where Code_Value_General.code_set_nm =
-     * 'S_JURDIC_C'
-     */
     private String jurisdictionCdTxt;
-
-    /**
-     * from publicHealthCaseDT.localId
-     */
     private String publicHealthCaseLocalId;
-
-    /**
-     * from Code_Value_General.code where Code_Value_General.code_set_nm = 'PHC_CLASS'
-     */
     private String caseClassCdTxt;
-
-    /**
-     * from Notification.record_status_cd
-     */
     private String recordStatusCd;
     private String lastNm;
     private String firstNm;
@@ -104,29 +35,15 @@ public class NotificationSummaryContainer extends BaseContainer implements RootD
     private Timestamp birthTimeCalc;
     private String autoResendInd;
     public String isHistory;
-    //Needed for Auto Resend
     private String progAreaCd;
     private String sharedInd;
     private String currSexCdDesc;
-
     private Long MPRUid;
-
-    //This is for cd in the Notification table
     private String cdNotif;
-    // This is for approve notification checking variable for popup
     private boolean nndAssociated;
     private boolean isCaseReport;
     private Long programJurisdictionOid;
     private boolean shareAssocaited;
-
-
-    /**
-     * Notification.cd
-     */
-
-
-
-    //Need for the new Notification Queue to add links for patient and condition
     private String patientFullName;
     private String patientFullNameLnk;
     private String conditionCodeTextLnk;
@@ -136,7 +53,6 @@ public class NotificationSummaryContainer extends BaseContainer implements RootD
     private String notificationSrtDescCd;
     private String recipient;
     private String exportRecFacilityUid;
-    //The following variable is required to control the Special Character's of Recipient which is coming from the manageSystems
     private String codeConverterTemp;
     private String codeConverterCommentTemp;
     private boolean isPendingNotification;
@@ -144,82 +60,72 @@ public class NotificationSummaryContainer extends BaseContainer implements RootD
 
     @Override
     public Long getLastChgUserId() {
-        return null;
+        return addUserId;
     }
 
     @Override
     public void setLastChgUserId(Long aLastChgUserId) {
-
+        this.addUserId = aLastChgUserId;
     }
 
     @Override
     public String getJurisdictionCd() {
-        return null;
+        return jurisdictionCd;
     }
 
     @Override
     public void setJurisdictionCd(String aJurisdictionCd) {
-
+        this.jurisdictionCd = aJurisdictionCd;
     }
 
     @Override
     public String getProgAreaCd() {
-        return null;
+        return progAreaCd;
     }
 
     @Override
     public void setProgAreaCd(String aProgAreaCd) {
-
+        this.progAreaCd = aProgAreaCd;
     }
 
     @Override
     public Timestamp getLastChgTime() {
-        return null;
+        return lastChgTime;
     }
 
     @Override
     public void setLastChgTime(Timestamp aLastChgTime) {
-
+        this.lastChgTime = aLastChgTime;
     }
 
     @Override
     public String getLocalId() {
-        return null;
+        return localId;
     }
 
     @Override
     public void setLocalId(String aLocalId) {
-
+        this.localId = aLocalId;
     }
 
     @Override
     public Long getAddUserId() {
-        return null;
+        return addUserId;
     }
 
     @Override
     public void setAddUserId(Long aAddUserId) {
-
+        this.addUserId = aAddUserId;
     }
 
     @Override
     public String getLastChgReasonCd() {
-        return null;
+        return null; // No corresponding field
     }
 
     @Override
     public void setLastChgReasonCd(String aLastChgReasonCd) {
-
-    }
-
-    @Override
-    public String getRecordStatusCd() {
-        return recordStatusCd;
-    }
-
-    @Override
-    public void setRecordStatusCd(String aRecordStatusCd) {
-        this.recordStatusCd = aRecordStatusCd;
+        // No corresponding field
     }
 
     @Override
@@ -234,66 +140,68 @@ public class NotificationSummaryContainer extends BaseContainer implements RootD
 
     @Override
     public String getStatusCd() {
-        return null;
+        return null; // No corresponding field
     }
 
     @Override
     public void setStatusCd(String aStatusCd) {
-
+        // No corresponding field
     }
 
     @Override
     public Timestamp getStatusTime() {
-        return null;
+        return null; // No corresponding field
     }
 
     @Override
     public void setStatusTime(Timestamp aStatusTime) {
-
+        // No corresponding field
     }
 
     @Override
     public String getSuperclass() {
-        return null;
+        return this.getClass().getSuperclass().getName();
     }
 
     @Override
     public Long getUid() {
-        return null;
+        return notificationUid;
     }
 
     @Override
     public void setAddTime(Timestamp aAddTime) {
-
+        this.addTime = aAddTime;
     }
 
     @Override
     public Timestamp getAddTime() {
-        return null;
+        return addTime;
     }
 
     @Override
     public Long getProgramJurisdictionOid() {
-        return null;
+        return programJurisdictionOid;
     }
 
     @Override
     public void setProgramJurisdictionOid(Long aProgramJurisdictionOid) {
-
+        this.programJurisdictionOid = aProgramJurisdictionOid;
     }
 
     @Override
     public String getSharedInd() {
-        return null;
+        return sharedInd;
     }
 
     @Override
     public void setSharedInd(String aSharedInd) {
-
+        this.sharedInd = aSharedInd;
     }
 
     @Override
     public Integer getVersionCtrlNbr() {
         return null;
     }
+
+
 }
