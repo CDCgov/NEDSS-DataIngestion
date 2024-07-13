@@ -1,14 +1,19 @@
 package gov.cdc.dataprocessing.utilities.component.data_parser;
 
+import ca.uhn.hl7v2.model.v231.datatype.ED;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.edx.EdxLabIdentiferDto;
+import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
+import gov.cdc.dataprocessing.model.dto.observation.ObsValueCodedDto;
+import gov.cdc.dataprocessing.model.dto.observation.ObsValueNumericDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
@@ -24,10 +29,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -619,9 +622,451 @@ class ObservationResultRequestHandlerTest {
         assertEquals("ObservationResultRequest.getObservationResult The Resulted Test ObservationCd  can't be set to null. Please check." + observationDtoMock.getCd(), exception.getMessage());
     }
 
+    @Mock
+    private HL7OBXType hl7OBXTypeMock;
+
+    @Test
+    void processingObsResultObsValueArray_Test_1() throws DataProcessingException {
+        List<String>  obsValueArray = new ArrayList<>();
+        when(hl7OBXTypeMock.getValueType()).thenReturn(EdxELRConstant.ELR_STRING_CD);
+        ObservationContainer observationContainer = new ObservationContainer();
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        String elementName = "";
+
+        obsValueArray.add("TEST");
+
+        doNothing().when(observationResultRequestHandler).formatValue(any(), any(), any(),
+                any(), anyString());
+
+        observationResultRequestHandler.processingObsResultObsValueArray(obsValueArray, hl7OBXTypeMock,
+                observationContainer, edxLabInformationDto, elementName);
+
+        verify(observationResultRequestHandler).formatValue(
+                any(), any(), any(),
+                any(), anyString());
+
+    }
+
+    @Test
+    void processingObsResultObsValueArray_Test_2() throws DataProcessingException {
+        List<String>  obsValueArray = new ArrayList<>();
+        when(hl7OBXTypeMock.getValueType()).thenReturn(EdxELRConstant.ELR_TEXT_CD);
+        ObservationContainer observationContainer = new ObservationContainer();
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        String elementName = "";
+
+        obsValueArray.add("TEST");
+
+        doNothing().when(observationResultRequestHandler).formatValue(any(), any(), any(),
+                any(), anyString());
+
+        observationResultRequestHandler.processingObsResultObsValueArray(obsValueArray, hl7OBXTypeMock,
+                observationContainer, edxLabInformationDto, elementName);
+
+        verify(observationResultRequestHandler).formatValue(
+                any(), any(), any(),
+                any(), anyString());
+
+    }
+
+    @Test
+    void processingObsResultObsValueArray_Test_3() throws DataProcessingException {
+        List<String>  obsValueArray = new ArrayList<>();
+        when(hl7OBXTypeMock.getValueType()).thenReturn(EdxELRConstant.ELR_TEXT_DT);
+        ObservationContainer observationContainer = new ObservationContainer();
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        String elementName = "";
+
+        obsValueArray.add("TEST");
+
+        doNothing().when(observationResultRequestHandler).formatValue(any(), any(), any(),
+                any(), anyString());
+
+        observationResultRequestHandler.processingObsResultObsValueArray(obsValueArray, hl7OBXTypeMock,
+                observationContainer, edxLabInformationDto, elementName);
+
+        verify(observationResultRequestHandler).formatValue(
+                any(), any(), any(),
+                any(), anyString());
+
+    }
+
+    @Test
+    void processingObsResultObsValueArray_Test_4() throws DataProcessingException {
+        List<String>  obsValueArray = new ArrayList<>();
+        when(hl7OBXTypeMock.getValueType()).thenReturn(EdxELRConstant.ELR_TEXT_TS);
+        ObservationContainer observationContainer = new ObservationContainer();
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        String elementName = "";
+
+        obsValueArray.add("TEST");
+
+        doNothing().when(observationResultRequestHandler).formatValue(any(), any(), any(),
+                any(), anyString());
+
+        observationResultRequestHandler.processingObsResultObsValueArray(obsValueArray, hl7OBXTypeMock,
+                observationContainer, edxLabInformationDto, elementName);
+
+        verify(observationResultRequestHandler).formatValue(
+                any(), any(), any(),
+                any(), anyString());
+
+    }
+    @Test
+    void processingObsResultObsValueArray_Test_5() throws DataProcessingException {
+        List<String>  obsValueArray = new ArrayList<>();
+        when(hl7OBXTypeMock.getValueType()).thenReturn("BLAH");
+        ObservationContainer observationContainer = new ObservationContainer();
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        String elementName = "";
+
+        obsValueArray.add("TEST");
+
+        doNothing().when(observationResultRequestHandler).formatValue(any(), any(), any(),
+                any(), anyString());
+
+        observationResultRequestHandler.processingObsResultObsValueArray(obsValueArray, hl7OBXTypeMock,
+                observationContainer, edxLabInformationDto, elementName);
+
+        verify(observationResultRequestHandler).formatValue(
+                any(), any(), any(),
+                any(), anyString());
+
+    }
+    @Mock
+    private LabResultProxyContainer labResultProxyContainerMock;
+
+    @Test
+    void testProcessingObsResult2_WithStatusCd_FromCode() throws DataProcessingException {
+        when(hl7OBXTypeMock.getObservationResultStatus()).thenReturn("status");
+        when(checkingValueService.findToCode(anyString(), anyString(), anyString())).thenReturn("ACT_CD");
+
+        observationResultRequestHandler.processingObsResult2(hl7OBXTypeMock, observationDtoMock, edxLabInformationDtoMock, observationContainerMock, labResultProxyContainerMock);
+
+        verify(observationDtoMock).setStatusCd("ACT_CD");
+    }
 
 
 
+    @Test
+    void testProcessingObsResult2_WithStatusCd_OriginalStatus() throws DataProcessingException {
+        when(hl7OBXTypeMock.getObservationResultStatus()).thenReturn("status");
+        when(checkingValueService.findToCode(anyString(), anyString(), anyString())).thenReturn(null);
+
+        observationResultRequestHandler.processingObsResult2(hl7OBXTypeMock, observationDtoMock, edxLabInformationDtoMock, observationContainerMock, labResultProxyContainerMock);
+
+        verify(observationDtoMock).setStatusCd("status");
+    }
+
+    @Test
+    void testProcessingObsResult2_WithDateTimeOftheAnalysis() throws DataProcessingException {
+        when(hl7OBXTypeMock.getDateTimeOftheAnalysis()).thenReturn(mock(HL7TSType.class));
+        when(nbsObjectConverter.processHL7TSType(any(), anyString())).thenReturn(mock(java.sql.Timestamp.class));
+
+        observationResultRequestHandler.processingObsResult2(hl7OBXTypeMock, observationDtoMock, edxLabInformationDtoMock, observationContainerMock, labResultProxyContainerMock);
+
+        verify(observationDtoMock).setActivityToTime(any());
+    }
+
+    @Test
+    void testProcessingObsResult2_WithPerformingOrganizationName() throws DataProcessingException {
+        HL7XONType hl7XONTypeMock = mock(HL7XONType.class);
+        when(hl7OBXTypeMock.getPerformingOrganizationName()).thenReturn(hl7XONTypeMock);
+        when(observationContainerMock.getTheObservationDto()).thenReturn(observationDtoMock);
+        when(observationDtoMock.getObservationUid()).thenReturn(1L);
+        OrganizationContainer orgContainerMock = mock(OrganizationContainer.class);
+        doReturn(orgContainerMock).when(observationResultRequestHandler).getPerformingFacility(any(), anyLong(), any(), any());
+
+        observationResultRequestHandler.processingObsResult2(hl7OBXTypeMock, observationDtoMock, edxLabInformationDtoMock, observationContainerMock, labResultProxyContainerMock);
+        verify(observationContainerMock, times(1)).getTheObservationDto();
+
+    }
+
+    @Test
+    void testProcessingObsResult2_FullFlow() throws DataProcessingException {
+        // Setup mock returns and interactions
+        when(hl7OBXTypeMock.getObservationResultStatus()).thenReturn("status");
+        when(checkingValueService.findToCode(anyString(), anyString(), anyString())).thenReturn("ACT_CD");
+        when(hl7OBXTypeMock.getDateTimeOftheAnalysis()).thenReturn(mock(HL7TSType.class));
+        when(nbsObjectConverter.processHL7TSType(any(), anyString())).thenReturn(mock(java.sql.Timestamp.class));
+        HL7XONType hl7XONTypeMock = mock(HL7XONType.class);
+        when(hl7OBXTypeMock.getPerformingOrganizationName()).thenReturn(hl7XONTypeMock);
+        when(observationContainerMock.getTheObservationDto()).thenReturn(observationDtoMock);
+        when(observationDtoMock.getObservationUid()).thenReturn(1L);
+        OrganizationContainer orgContainerMock = mock(OrganizationContainer.class);
+        doReturn(orgContainerMock).when(observationResultRequestHandler).getPerformingFacility(any(), anyLong(), any(), any());
+
+        // Execute method
+        observationResultRequestHandler.processingObsResult2(hl7OBXTypeMock, observationDtoMock, edxLabInformationDtoMock, observationContainerMock, labResultProxyContainerMock);
+
+        // Verify all interactions
+        verify(observationDtoMock).setStatusCd("ACT_CD");
+    }
+
+    @Mock
+    private HL7XONType hl7XONTypeNameMock;
+    @Mock
+    private HL7HDType hl7AssigningAuthorityMock;
+    @Mock
+    private EntityIdDto entityIdDtoMock;
 
 
+    @Test
+    void testProcessingPeromAuthAssignAuth_WithAssigningAuthority() {
+        when(hl7XONTypeNameMock.getHL7AssigningAuthority()).thenReturn(hl7AssigningAuthorityMock);
+        when(hl7AssigningAuthorityMock.getHL7UniversalID()).thenReturn("UniversalID");
+        when(hl7AssigningAuthorityMock.getHL7UniversalIDType()).thenReturn("UniversalIDType");
+
+        observationResultRequestHandler.processingPeromAuthAssignAuth(hl7XONTypeNameMock, entityIdDtoMock);
+
+        verify(entityIdDtoMock).setAssigningAuthorityCd("UniversalID");
+        verify(entityIdDtoMock).setAssigningAuthorityIdType("UniversalIDType");
+    }
+
+    @Test
+    void testProcessingPeromAuthAssignAuth_WithCLIA() {
+        when(hl7XONTypeNameMock.getHL7AssigningAuthority()).thenReturn(hl7AssigningAuthorityMock);
+        when(hl7AssigningAuthorityMock.getHL7NamespaceID()).thenReturn(EdxELRConstant.ELR_CLIA_CD);
+
+        observationResultRequestHandler.processingPeromAuthAssignAuth(hl7XONTypeNameMock, entityIdDtoMock);
+
+        verify(entityIdDtoMock).setAssigningAuthorityDescTxt(EdxELRConstant.ELR_CLIA_DESC);
+    }
+
+    @Test
+    void testProcessingPeromAuthAssignAuth_NoAssigningAuthority() {
+        when(hl7XONTypeNameMock.getHL7AssigningAuthority()).thenReturn(null);
+
+        observationResultRequestHandler.processingPeromAuthAssignAuth(hl7XONTypeNameMock, entityIdDtoMock);
+
+        verify(entityIdDtoMock, never()).setAssigningAuthorityCd(anyString());
+        verify(entityIdDtoMock, never()).setAssigningAuthorityIdType(anyString());
+        verify(entityIdDtoMock, never()).setAssigningAuthorityDescTxt(anyString());
+    }
+
+    @Test
+    void testProcessingPeromAuthAssignAuth_WithAssigningAuthority_NoNamespaceID() {
+        when(hl7XONTypeNameMock.getHL7AssigningAuthority()).thenReturn(hl7AssigningAuthorityMock);
+        when(hl7AssigningAuthorityMock.getHL7NamespaceID()).thenReturn("NotCLIA");
+
+        observationResultRequestHandler.processingPeromAuthAssignAuth(hl7XONTypeNameMock, entityIdDtoMock);
+
+        verify(entityIdDtoMock, never()).setAssigningAuthorityDescTxt(EdxELRConstant.ELR_CLIA_DESC);
+    }
+
+    @Test
+    void testProcessingPeromAuthAssignAuth_FullFlow() {
+        when(hl7XONTypeNameMock.getHL7AssigningAuthority()).thenReturn(hl7AssigningAuthorityMock);
+        when(hl7AssigningAuthorityMock.getHL7UniversalID()).thenReturn("UniversalID");
+        when(hl7AssigningAuthorityMock.getHL7UniversalIDType()).thenReturn("UniversalIDType");
+        when(hl7AssigningAuthorityMock.getHL7NamespaceID()).thenReturn(EdxELRConstant.ELR_CLIA_CD);
+
+        observationResultRequestHandler.processingPeromAuthAssignAuth(hl7XONTypeNameMock, entityIdDtoMock);
+
+        verify(entityIdDtoMock).setAssigningAuthorityCd("UniversalID");
+        verify(entityIdDtoMock).setAssigningAuthorityIdType("UniversalIDType");
+        verify(entityIdDtoMock).setAssigningAuthorityDescTxt(EdxELRConstant.ELR_CLIA_DESC);
+    }
+
+    @Test
+    void testFormatValueTextValue() {
+
+        // Case 1: text is empty
+        ObsValueCodedDto obsValueDT = new ObsValueCodedDto();
+        observationResultRequestHandler.formatValueTextValue(new String[]{"code1", "displayName1"}, "", obsValueDT);
+        assertNull(obsValueDT.getCode());
+        assertNull(obsValueDT.getDisplayName());
+
+        // Case 2: textValue has length 2
+        obsValueDT = new ObsValueCodedDto();
+        observationResultRequestHandler.formatValueTextValue(new String[]{"code1", "displayName1"}, "someText", obsValueDT);
+        assertEquals("code1", obsValueDT.getCode());
+        assertEquals("displayName1", obsValueDT.getDisplayName());
+        assertEquals(EdxELRConstant.ELR_SNOMED_CD, obsValueDT.getCodeSystemCd());
+
+        // Case 3: textValue has length 3
+        obsValueDT = new ObsValueCodedDto();
+        observationResultRequestHandler.formatValueTextValue(new String[]{"code1", "displayName1", "codeSystemCd1"}, "someText", obsValueDT);
+        assertEquals("code1", obsValueDT.getCode());
+        assertEquals("displayName1", obsValueDT.getDisplayName());
+        assertEquals("codeSystemCd1", obsValueDT.getCodeSystemCd());
+
+        // Case 4: textValue has length 6
+        obsValueDT = new ObsValueCodedDto();
+        observationResultRequestHandler.formatValueTextValue(new String[]{"code1", "displayName1", "codeSystemCd1", "altCd1", "altCdDescTxt1"}, "someText", obsValueDT);
+        assertEquals("code1", obsValueDT.getCode());
+        assertEquals("displayName1", obsValueDT.getDisplayName());
+
+        // Case 5: textValue has length more than 6
+        obsValueDT = new ObsValueCodedDto();
+        observationResultRequestHandler.formatValueTextValue(new String[]{"code1", "displayName1", "codeSystemCd1", "altCd1", "altCdDescTxt1", "altCdSystemCd1"}, "someText", obsValueDT);
+        assertEquals("code1", obsValueDT.getCode());
+        assertEquals("displayName1", obsValueDT.getDisplayName());
+
+    }
+
+    @Test
+    void testFormatValueObsValueDt_CodeAndAltCdMissing() {
+        ObsValueCodedDto obsValueDT = new ObsValueCodedDto();
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        HL7OBXType hl7OBXType = mock(HL7OBXType.class);
+        String elementName = "testElement";
+
+
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+            observationResultRequestHandler.formatValueObsValueDt(obsValueDT, edxLabInformationDto, hl7OBXType, elementName);
+        });
+
+        assertNotNull(exception);
+    }
+
+    @Test
+    void testFormatValueObsValueDt_OnlyCodeMissing() throws DataProcessingException {
+        ObsValueCodedDto obsValueDT = new ObsValueCodedDto();
+        obsValueDT.setAltCd("altCode");
+        obsValueDT.setAltCdDescTxt("altDesc");
+        obsValueDT.setAltCdSystemCd("altSystemCd");
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        HL7OBXType hl7OBXType = new HL7OBXType();
+        String elementName = "testElement";
+
+        observationResultRequestHandler.formatValueObsValueDt(obsValueDT, edxLabInformationDto, hl7OBXType, elementName);
+
+        assertEquals("altCode", obsValueDT.getCode());
+        assertEquals("altDesc", obsValueDT.getDisplayName());
+        assertEquals("altSystemCd", obsValueDT.getCodeSystemCd());
+        assertNull(obsValueDT.getAltCd());
+        assertNull(obsValueDT.getAltCdDescTxt());
+        assertNull(obsValueDT.getAltCdSystemCd());
+    }
+
+    @Test
+    void testFormatValueObsValueDt_CodePresent() throws DataProcessingException {
+        ObsValueCodedDto obsValueDT = new ObsValueCodedDto();
+        obsValueDT.setCode("code");
+        obsValueDT.setAltCd("altCode");
+        obsValueDT.setAltCdDescTxt("altDesc");
+        obsValueDT.setAltCdSystemCd("altSystemCd");
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        HL7OBXType hl7OBXType = new HL7OBXType();
+        String elementName = "testElement";
+
+        observationResultRequestHandler.formatValueObsValueDt(obsValueDT, edxLabInformationDto, hl7OBXType, elementName);
+
+        assertEquals("code", obsValueDT.getCode());
+        assertEquals("altCode", obsValueDT.getAltCd());
+        assertEquals("altDesc", obsValueDT.getAltCdDescTxt());
+        assertEquals("altSystemCd", obsValueDT.getAltCdSystemCd());
+    }
+
+    @Test
+    void testFormatValueTextValue2_SnomedCode() {
+        ObsValueCodedDto obsvalueDT = new ObsValueCodedDto();
+        obsvalueDT.setCodeSystemCd(EdxELRConstant.ELR_SNOMED_CD);
+        obsvalueDT.setAltCdSystemCd(EdxELRConstant.ELR_SNOMED_CD);
+        ObservationContainer observationContainer = new ObservationContainer();
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setObservationUid(123L);
+        observationContainer.setTheObservationDto(observationDto);
+
+        observationResultRequestHandler.formatValueTextValue2(obsvalueDT, observationContainer);
+
+        assertEquals(EdxELRConstant.ELR_SNOMED_DESC, obsvalueDT.getCodeSystemDescTxt());
+        assertEquals(EdxELRConstant.ELR_SNOMED_DESC, obsvalueDT.getAltCdSystemDescTxt());
+
+    }
+
+    @Test
+    void testFormatValueTextValue2_LocalCode() {
+        ObsValueCodedDto obsvalueDT = new ObsValueCodedDto();
+        obsvalueDT.setCodeSystemCd(EdxELRConstant.ELR_LOCAL_CD);
+        obsvalueDT.setAltCdSystemCd(EdxELRConstant.ELR_LOCAL_CD);
+        ObservationContainer observationContainer = new ObservationContainer();
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setObservationUid(456L);
+        observationContainer.setTheObservationDto(observationDto);
+
+        observationResultRequestHandler.formatValueTextValue2(obsvalueDT, observationContainer);
+
+        assertEquals(EdxELRConstant.ELR_LOCAL_DESC, obsvalueDT.getCodeSystemDescTxt());
+        assertEquals(EdxELRConstant.ELR_LOCAL_DESC, obsvalueDT.getAltCdSystemDescTxt());
+
+    }
+
+    @Test
+    void testFormatValueTextValue2_NoCodeSystem() {
+        ObsValueCodedDto obsvalueDT = new ObsValueCodedDto();
+        ObservationContainer observationContainer = new ObservationContainer();
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setObservationUid(789L);
+        observationContainer.setTheObservationDto(observationDto);
+
+        observationResultRequestHandler.formatValueTextValue2(obsvalueDT, observationContainer);
+
+        assertNull(obsvalueDT.getCodeSystemDescTxt());
+    }
+
+    @Test
+    void testFormatValueNumeric_GreaterThan() {
+        ObsValueNumericDto obsValueNumericDto = new ObsValueNumericDto();
+        ObservationContainer observationContainer = new ObservationContainer();
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setObservationUid(456L);
+        observationContainer.setTheObservationDto(observationDto);
+        HL7CEType cEUnit = new HL7CEType();
+        cEUnit.setHL7Identifier("unit");
+
+        String text = "";
+        StringTokenizer st = new StringTokenizer("> 15", " ");
+
+        observationResultRequestHandler.formatValueNumeric(text, 0, obsValueNumericDto, observationContainer, cEUnit, st);
+
+        assertEquals(">", obsValueNumericDto.getComparatorCd1());
+        assertEquals(new BigDecimal("15"), obsValueNumericDto.getNumericValue1());
+        assertNull(obsValueNumericDto.getSeparatorCd());
+        assertNull(obsValueNumericDto.getNumericValue2());
+    }
+
+    @Test
+    void testFormatValueNumeric_Equal() {
+        ObsValueNumericDto obsValueNumericDto = new ObsValueNumericDto();
+        ObservationContainer observationContainer = new ObservationContainer();
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setObservationUid(789L);
+        observationContainer.setTheObservationDto(observationDto);
+        HL7CEType cEUnit = new HL7CEType();
+        cEUnit.setHL7Identifier("unit");
+
+        String text = "";
+        StringTokenizer st = new StringTokenizer("= 20", " ");
+
+        observationResultRequestHandler.formatValueNumeric(text, 0, obsValueNumericDto, observationContainer, cEUnit, st);
+
+        assertEquals("=", obsValueNumericDto.getComparatorCd1());
+        assertEquals(new BigDecimal("20"), obsValueNumericDto.getNumericValue1());
+        assertNull(obsValueNumericDto.getSeparatorCd());
+        assertNull(obsValueNumericDto.getNumericValue2());
+    }
+
+    @Test
+    void testFormatValueNumeric_NoComparator() {
+        ObsValueNumericDto obsValueNumericDto = new ObsValueNumericDto();
+        ObservationContainer observationContainer = new ObservationContainer();
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setObservationUid(101L);
+        observationContainer.setTheObservationDto(observationDto);
+        HL7CEType cEUnit = new HL7CEType();
+        cEUnit.setHL7Identifier("unit");
+
+        String text = "";
+        StringTokenizer st = new StringTokenizer("25", " ");
+
+        observationResultRequestHandler.formatValueNumeric(text, 0, obsValueNumericDto, observationContainer, cEUnit, st);
+
+        assertEquals("25", obsValueNumericDto.getComparatorCd1());
+        assertNull(obsValueNumericDto.getNumericValue1());
+        assertNull(obsValueNumericDto.getSeparatorCd());
+        assertNull(obsValueNumericDto.getNumericValue2());
+
+    }
 }
