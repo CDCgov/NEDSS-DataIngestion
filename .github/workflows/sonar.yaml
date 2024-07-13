@@ -1,18 +1,5 @@
 name: SonarCloud
-
 on:
-  push:
-    branches:
-      - DEV-DN-3  # Add this to trigger on push to TEST branch
-  pull_request:
-    branches:
-      - main  # Keep the existing behavior for PRs to main
-    paths:
-      - "data-ingestion-service/**"
-      - "data-processing-service/**"
-      - "hl7-parser/**"
-      - "cdaschema/**"
-      - ".github/workflows/sonar.yaml"
   workflow_call:
     secrets:
       CDC_NBS_SANDBOX_SHARED_SERVICES_ACCOUNTID:
@@ -24,7 +11,13 @@ on:
       SONAR_TOKEN:
         description: "Secret named SONAR_TOKEN that references the sonar token secret corresponding to the project in sonarcloud."
         required: true
-
+  pull_request:
+    paths:
+      - "data-ingestion-service/**"
+      - "data-processing-service/**"
+      - "hl7-parser/**"
+      - "cdaschema/**"
+      - ".github/workflows/sonar.yaml"
 env:
   deployment_env: dev
   accountid: ${{secrets.cdc_nbs_sandbox_shared_services_accountid}}
@@ -37,7 +30,6 @@ jobs:
     permissions:
       id-token: write
       contents: read
-
     steps:
       - uses: actions/checkout@v4
         with:
