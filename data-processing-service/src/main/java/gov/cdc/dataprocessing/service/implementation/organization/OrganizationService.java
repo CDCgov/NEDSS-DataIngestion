@@ -62,7 +62,7 @@ public class OrganizationService implements IOrganizationService {
             }
             return orderingFacilityVO;
         } catch (Exception e) {
-            throw new DataProcessingConsumerException(e.getMessage(), e);
+            throw new DataProcessingConsumerException(e.getMessage());
         }
     }
 

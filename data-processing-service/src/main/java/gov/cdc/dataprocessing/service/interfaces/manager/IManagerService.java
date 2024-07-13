@@ -3,7 +3,9 @@ package gov.cdc.dataprocessing.service.interfaces.manager;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
+import org.springframework.stereotype.Service;
 
+@Service
 public interface IManagerService {
     void processDistribution(String eventType, String data) throws DataProcessingConsumerException;
     void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer data) throws DataProcessingException;

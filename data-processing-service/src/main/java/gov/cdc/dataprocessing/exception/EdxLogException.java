@@ -6,4 +6,6 @@ public class EdxLogException extends Exception{
         super(message);
         this.result = result;
     }
+
+
 }

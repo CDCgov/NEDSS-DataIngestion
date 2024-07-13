@@ -24,16 +24,6 @@ public class Controller {
         this.managerService = managerService;
     }
 
-    @GetMapping(path = "/{id}")
-    public ResponseEntity<String> test(@PathVariable String id) throws Exception {
-        try {
-            managerService.processDistribution("ELR",id);
-
-        } catch (Exception e) {
-            throw  new DataProcessingException(e.getMessage());
-        }
-        return ResponseEntity.ok("OK");
-    }
     @GetMapping("/status")
     public ResponseEntity<String> getDataPipelineStatusHealth() {
         log.info("Data Processing Service Status OK");

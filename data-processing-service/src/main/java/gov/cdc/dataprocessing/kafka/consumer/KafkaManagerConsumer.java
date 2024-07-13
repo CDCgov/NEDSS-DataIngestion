@@ -4,7 +4,6 @@ import gov.cdc.dataprocessing.constant.KafkaCustomHeader;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
-import gov.cdc.dataprocessing.service.implementation.manager.ManagerService;
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -35,8 +34,7 @@ public class KafkaManagerConsumer {
 
     public KafkaManagerConsumer(
             KafkaManagerProducer kafkaManagerProducer,
-            ManagerService managerService,
-            IAuthUserService authUserService) {
+            IManagerService managerService, IAuthUserService authUserService) {
         this.kafkaManagerProducer = kafkaManagerProducer;
         this.managerService = managerService;
         this.authUserService = authUserService;
@@ -54,7 +52,7 @@ public class KafkaManagerConsumer {
             var profile = this.authUserService.getAuthUserInfo("superuser");
             AuthUtil.setGlobalAuthUser(profile);
             managerService.processDistribution(dataType,message);
-        } catch (DataProcessingConsumerException e) {
+        } catch (Exception e) {
             logger.error("ERROR PROCESSING STEP 1: " + e.getMessage());
         }
     }
