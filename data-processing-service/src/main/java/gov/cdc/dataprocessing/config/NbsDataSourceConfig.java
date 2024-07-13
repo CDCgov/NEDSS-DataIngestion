@@ -28,16 +28,16 @@ import java.util.HashMap;
 )
 public class NbsDataSourceConfig {
     @Value("${spring.datasource.driverClassName}")
-    private String driverClassName;
+    protected String driverClassName;
 
     @Value("${spring.datasource.nbs.url}")
-    private String dbUrl;
+    protected String dbUrl;
 
     @Value("${spring.datasource.username}")
-    private String dbUserName;
+    protected String dbUserName;
 
     @Value("${spring.datasource.password}")
-    private String dbUserPassword;
+    protected String dbUserPassword;
 
     @Bean(name = "nbsDataSource")
     public DataSource nbsDataSource() {

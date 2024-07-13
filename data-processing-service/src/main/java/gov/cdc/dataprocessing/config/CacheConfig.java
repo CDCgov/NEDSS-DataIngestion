@@ -22,7 +22,7 @@ public class CacheConfig {
         return cacheManager;
     }
 
-    private Caffeine caffeineConfig() {
+    protected Caffeine caffeineConfig() {
         return Caffeine.newBuilder()
 //                .maximumSize(500)
                 .expireAfterAccess(60, TimeUnit.MINUTES); // Adjust expiration settings as needed

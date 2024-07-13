@@ -31,7 +31,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.util.*;
 
 import static gov.cdc.dataprocessing.cache.SrteCache.jurisdictionCodeMapWithNbsUid;

@@ -19,15 +19,15 @@ import java.util.Map;
 @Configuration
 public class KafkaConsumerConfig {
     @Value("${spring.kafka.group-id}")
-    private String groupId = "";
+    protected String groupId = "";
 
     @Value("${spring.kafka.bootstrap-servers}")
-    private String bootstrapServers = "";
+    protected String bootstrapServers = "";
 
     // Higher value for more intensive operation, also increase latency
     // default is 30000, equivalent to 5 min
     @Value("${spring.kafka.consumer.maxPollIntervalMs}")
-    private String maxPollInterval = "";
+    protected String maxPollInterval = "";
 
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {

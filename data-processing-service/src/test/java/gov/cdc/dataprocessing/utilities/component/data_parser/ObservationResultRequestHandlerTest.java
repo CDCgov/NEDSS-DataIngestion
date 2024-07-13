@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.utilities.component.data_parser;
 
-import ca.uhn.hl7v2.model.v231.datatype.ED;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
