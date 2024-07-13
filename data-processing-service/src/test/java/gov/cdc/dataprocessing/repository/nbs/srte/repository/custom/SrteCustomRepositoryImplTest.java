@@ -60,6 +60,8 @@ class SrteCustomRepositoryImplTest {
         verify(query).getResultList();
     }
 
+
+
     @Test
     void testGetAllLabResultJoinWithLabCodingSystemWithOrganismNameInd_NoResults() {
         String codeSql =

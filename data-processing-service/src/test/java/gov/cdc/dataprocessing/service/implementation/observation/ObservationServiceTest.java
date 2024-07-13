@@ -2,12 +2,14 @@ package gov.cdc.dataprocessing.service.implementation.observation;
 
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.constant.enums.DataProcessingMapKey;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.edx.EDXDocumentDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.log.MessageLogDto;
+import gov.cdc.dataprocessing.model.dto.log.NNDActivityLogDto;
 import gov.cdc.dataprocessing.model.dto.material.MaterialDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
@@ -46,7 +48,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -538,4 +540,555 @@ class ObservationServiceTest {
         assertTrue(test);
     }
 
+    @Test
+    void testProcessObservationWithProcessingDecision_NotLabResultCode() throws DataProcessingException {
+        Long observationUid = 1L;
+        String processingDecisionCd = "DECISION_CD";
+        String processingDecisionTxt = "DECISION_TXT";
+
+        ObservationContainer observationVO = mock(ObservationContainer.class);
+        ObservationDto observationDT = new ObservationDto();
+        observationDT.setCtrlCdDisplayForm("NOT_LABRESULT_CODE");
+
+        when(observationRepositoryUtil.loadObject(observationUid)).thenReturn(observationVO);
+        when(observationVO.getTheObservationDto()).thenReturn(observationDT);
+
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () ->
+                observationService.processObservationWithProcessingDecision(observationUid, processingDecisionCd, processingDecisionTxt)
+        );
+
+        assertEquals("This is not a Lab Report OR a Morbidity Report! MarkAsReviewed only applies to Lab Report or Morbidity Report ", exception.getMessage());
+    }
+
+
+    @Test
+    void testProcessObservationWithProcessingDecision_NotUnprocessed() throws DataProcessingException {
+        Long observationUid = 1L;
+        String processingDecisionCd = "DECISION_CD";
+        String processingDecisionTxt = "DECISION_TXT";
+
+        ObservationContainer observationVO = mock(ObservationContainer.class);
+        ObservationDto observationDT = new ObservationDto();
+        observationDT.setCtrlCdDisplayForm(NEDSSConstant.LABRESULT_CODE);
+        observationDT.setRecordStatusCd("PROCESSED");
+
+        when(observationRepositoryUtil.loadObject(observationUid)).thenReturn(observationVO);
+        when(observationVO.getTheObservationDto()).thenReturn(observationDT);
+
+        boolean result = observationService.processObservationWithProcessingDecision(observationUid, processingDecisionCd, processingDecisionTxt);
+
+        assertFalse(result);
+        verify(observationRepositoryUtil).loadObject(observationUid);
+        verify(observationVO).getTheObservationDto();
+    }
+
+    @Test
+    void testProcessObservationWithProcessingDecision_Valid() throws DataProcessingException {
+        Long observationUid = 1L;
+        String processingDecisionCd = "DECISION_CD";
+        String processingDecisionTxt = "DECISION_TXT";
+
+        ObservationContainer observationVO = mock(ObservationContainer.class);
+        ObservationDto observationDT = new ObservationDto();
+        observationDT.setCtrlCdDisplayForm(NEDSSConstant.LABRESULT_CODE);
+        observationDT.setRecordStatusCd(NEDSSConstant.OBS_UNPROCESSED);
+        observationDT.setVersionCtrlNbr(1);
+
+        when(observationRepositoryUtil.loadObject(observationUid)).thenReturn(observationVO);
+        when(observationVO.getTheObservationDto()).thenReturn(observationDT);
+        when(prepareAssocModelHelper.prepareVO(any(), anyString(), anyString(), anyString(), anyString(), anyInt())).thenReturn(observationDT);
+
+        boolean result = observationService.processObservationWithProcessingDecision(observationUid, processingDecisionCd, processingDecisionTxt);
+
+        assertTrue(result);
+        assertEquals(processingDecisionCd, observationDT.getProcessingDecisionCd());
+        assertEquals(processingDecisionTxt, observationDT.getProcessingDecisionTxt());
+        verify(observationRepositoryUtil).saveObservation(observationVO);
+    }
+
+
+    @Test
+    void testProcessObservationWithProcessingDecision_Exception() throws DataProcessingException {
+        Long observationUid = 1L;
+        String processingDecisionCd = "DECISION_CD";
+        String processingDecisionTxt = "DECISION_TXT";
+
+        when(observationRepositoryUtil.loadObject(observationUid)).thenThrow(new RuntimeException("Test Exception"));
+
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () ->
+                observationService.processObservationWithProcessingDecision(observationUid, processingDecisionCd, processingDecisionTxt)
+        );
+
+        assertEquals("Test Exception", exception.getMessage());
+    }
+    @Test
+    void testPerformOrderTestStateTransition_NewWithProcessingDecision() throws DataProcessingException {
+        LabResultProxyContainer labResultProxyVO = mock(LabResultProxyContainer.class);
+        ObservationContainer orderTest = mock(ObservationContainer.class);
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setProcessingDecisionCd("DECISION");
+        observationDto.setObservationUid(-1L);
+        when(labResultProxyVO.isItNew()).thenReturn(true);
+        when(orderTest.getTheObservationDto()).thenReturn(observationDto);
+
+
+        observationService.performOrderTestStateTransition(labResultProxyVO, orderTest, false);
+
+        verify(prepareAssocModelHelper).prepareVO(any(),any(),
+                any(), any(), any(), any());
+    }
+
+
+    @Test
+    void testProcessingOrderTestStateTransition_NewWithProcessingDecision() {
+        LabResultProxyContainer labResultProxyVO = mock(LabResultProxyContainer.class);
+        ObservationContainer orderTest = mock(ObservationContainer.class);
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setProcessingDecisionCd("DECISION");
+        when(labResultProxyVO.isItNew()).thenReturn(true);
+        when(orderTest.getTheObservationDto()).thenReturn(observationDto);
+
+        String result = observationService.processingOrderTestStateTransition(labResultProxyVO, orderTest, null, false);
+
+        assertEquals(NEDSSConstant.OBS_LAB_CR_MR, result);
+    }
+
+    @Test
+    void testProcessingOrderTestStateTransition_NewWithoutProcessingDecision() {
+        LabResultProxyContainer labResultProxyVO = mock(LabResultProxyContainer.class);
+        ObservationContainer orderTest = mock(ObservationContainer.class);
+        ObservationDto observationDto = new ObservationDto();
+        when(labResultProxyVO.isItNew()).thenReturn(true);
+        when(orderTest.getTheObservationDto()).thenReturn(observationDto);
+
+        String result = observationService.processingOrderTestStateTransition(labResultProxyVO, orderTest, null, false);
+
+        assertEquals(NEDSSConstant.OBS_LAB_CR, result);
+    }
+
+    @Test
+    void testProcessingOrderTestStateTransition_DirtyAndIsELR() {
+        LabResultProxyContainer labResultProxyVO = mock(LabResultProxyContainer.class);
+        ObservationContainer orderTest = mock(ObservationContainer.class);
+        when(labResultProxyVO.isItDirty()).thenReturn(true);
+
+        String result = observationService.processingOrderTestStateTransition(labResultProxyVO, orderTest, null, true);
+
+        assertEquals(NEDSSConstant.OBS_LAB_CORRECT, result);
+    }
+
+    @Test
+    void testProcessingOrderTestStateTransition_DirtyAndNotIsELR() {
+        LabResultProxyContainer labResultProxyVO = mock(LabResultProxyContainer.class);
+        ObservationContainer orderTest = mock(ObservationContainer.class);
+        when(labResultProxyVO.isItDirty()).thenReturn(true);
+
+        String result = observationService.processingOrderTestStateTransition(labResultProxyVO, orderTest, null, false);
+
+        assertEquals(NEDSSConstant.OBS_LAB_EDIT, result);
+    }
+
+    @Test
+    void testProcessingOrderTestStateTransition_NoConditionsMet() {
+        LabResultProxyContainer labResultProxyVO = mock(LabResultProxyContainer.class);
+        ObservationContainer orderTest = mock(ObservationContainer.class);
+        ObservationDto observationDto = new ObservationDto();
+        when(labResultProxyVO.isItNew()).thenReturn(false);
+        when(labResultProxyVO.isItDirty()).thenReturn(false);
+        when(orderTest.getTheObservationDto()).thenReturn(observationDto);
+
+        String businessTriggerCd = "INITIAL_TRIGGER";
+        String result = observationService.processingOrderTestStateTransition(labResultProxyVO, orderTest, businessTriggerCd, false);
+
+        assertEquals("INITIAL_TRIGGER", result);
+    }
+
+
+    @Test
+    void testRetrieveOrganizationFromParticipation_Continue() throws DataProcessingException {
+        Collection<ParticipationDto> partColl = new ArrayList<>();
+        partColl.add(null);  // This should trigger the continue statement
+
+        ParticipationDto validParticipationDto = new ParticipationDto();
+        validParticipationDto.setSubjectClassCd(NEDSSConstant.PAR102_SUB_CD);
+        validParticipationDto.setRecordStatusCd(NEDSSConstant.ACTIVE);
+        validParticipationDto.setSubjectEntityUid(1L);
+        validParticipationDto.setActUid(2L);
+        partColl.add(validParticipationDto);
+
+        when(organizationRepositoryUtil.loadObject(1L, 2L)).thenReturn(new OrganizationContainer());
+
+        Collection<Object> result = observationService.retrieveOrganizationFromParticipation(partColl);
+
+        // Check that the continue statement worked and the valid ParticipationDto was processed
+        assertEquals(1, result.size());
+        verify(organizationRepositoryUtil, times(1)).loadObject(1L, 2L);
+    }
+
+    @Test
+    void testRetrieveMaterialFromParticipation_Continue() {
+        Collection<ParticipationDto> partColl = new ArrayList<>();
+        partColl.add(null);  // This should trigger the continue statement
+
+        ParticipationDto validParticipationDto = new ParticipationDto();
+        validParticipationDto.setSubjectClassCd(NEDSSConstant.PAR104_SUB_CD);
+        validParticipationDto.setRecordStatusCd(NEDSSConstant.ACTIVE);
+        validParticipationDto.setSubjectEntityUid(1L);
+        partColl.add(validParticipationDto);
+
+        MaterialContainer mockMaterialContainer = new MaterialContainer();
+        when(materialService.loadMaterialObject(1L)).thenReturn(mockMaterialContainer);
+
+        Collection<Object> result = observationService.retrieveMaterialFromParticipation(partColl);
+
+        // Check that the continue statement worked and the valid ParticipationDto was processed
+        assertEquals(1, result.size());
+        verify(materialService, times(1)).loadMaterialObject(1L);
+    }
+
+
+    @Test
+    void testRetrievePersonAndRoleFromParticipation_Continue() {
+        Collection<ParticipationDto> partColl = new ArrayList<>();
+        partColl.add(null);  // This should trigger the continue statement
+
+        ParticipationDto validParticipationDto = new ParticipationDto();
+        validParticipationDto.setSubjectClassCd(NEDSSConstant.PAR110_SUB_CD);
+        validParticipationDto.setRecordStatusCd(NEDSSConstant.ACTIVE);
+        validParticipationDto.setTypeCd(NEDSSConstant.PAR110_TYP_CD);
+        validParticipationDto.setSubjectEntityUid(1L);
+        partColl.add(validParticipationDto);
+
+        PersonContainer mockPersonContainer = new PersonContainer();
+        mockPersonContainer.setTheRoleDtoCollection(Collections.emptyList());
+        when(patientRepositoryUtil.loadPerson(1L)).thenReturn(mockPersonContainer);
+
+        Map<DataProcessingMapKey, Object> result = observationService.retrievePersonAndRoleFromParticipation(partColl);
+
+        // Check that the continue statement worked and the valid ParticipationDto was processed
+        assertEquals(1, ((Collection<?>) result.get(DataProcessingMapKey.PERSON)).size());
+        verify(patientRepositoryUtil, times(1)).loadPerson(1L);
+    }
+
+
+    @Test
+    void testRetrieveScopedPersons_Continue() {
+        Long scopingUid = 1L;
+
+        // Mock RoleService to return a collection with a null element and a valid element
+        RoleDto nullRoleDto = null;
+        RoleDto validRoleDto = new RoleDto();
+        validRoleDto.setSubjectEntityUid(2L);
+
+        Collection<RoleDto> roleDTColl = new ArrayList<>();
+        roleDTColl.add(nullRoleDto);  // This should trigger the continue statement
+        roleDTColl.add(validRoleDto);
+
+        when(roleService.findRoleScopedToPatient(scopingUid)).thenReturn(roleDTColl);
+
+        PersonContainer mockPersonContainer = new PersonContainer();
+        when(patientRepositoryUtil.loadPerson(2L)).thenReturn(mockPersonContainer);
+
+        Collection<PersonContainer> result = observationService.retrieveScopedPersons(scopingUid);
+
+        // Check that the continue statement worked and the valid RoleDto was processed
+        assertEquals(1, result.size());
+        verify(patientRepositoryUtil, times(1)).loadPerson(2L);
+    }
+
+    @Test
+    void testProcessingNotELRLab_isELRTrue() throws DataProcessingException {
+        boolean isELR = true;
+        LabResultProxyContainer lrProxyVO = new LabResultProxyContainer();
+        ObservationContainer orderedTest = new ObservationContainer();
+        long observationId = 1L;
+
+        // When isELR is true, no further processing should happen
+        observationService.processingNotELRLab(isELR, lrProxyVO, orderedTest, observationId);
+
+        assertFalse(lrProxyVO.isAssociatedNotificationInd());
+        assertFalse(lrProxyVO.isAssociatedInvInd());
+        assertNull(lrProxyVO.getEDXDocumentCollection());
+        assertNull(lrProxyVO.getTheConditionsList());
+
+        verifyNoInteractions(notificationService, actRelationshipService, edxDocumentService, observationCodeService);
+    }
+
+    @Test
+    void testProcessingNotELRLab_isELRFalse_NoExistingNotification() throws DataProcessingException {
+        boolean isELR = false;
+        LabResultProxyContainer lrProxyVO = new LabResultProxyContainer();
+        ObservationContainer orderedTest = new ObservationContainer();
+        long observationId = 1L;
+
+        when(notificationService.checkForExistingNotification(lrProxyVO)).thenReturn(false);
+
+        Collection<ActRelationshipDto> actRelationshipDtos = new ArrayList<>();
+        when(actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(observationId, NEDSSConstant.LAB_REPORT)).thenReturn(actRelationshipDtos);
+
+        Collection<EDXDocumentDto> edxDocumentDtos = new ArrayList<>();
+        when(edxDocumentService.selectEdxDocumentCollectionByActUid(observationId)).thenReturn(edxDocumentDtos);
+
+        ArrayList<String> conditionList = new ArrayList<>();
+        when(observationCodeService.deriveTheConditionCodeList(lrProxyVO, orderedTest)).thenReturn(conditionList);
+
+        observationService.processingNotELRLab(isELR, lrProxyVO, orderedTest, observationId);
+
+        verify(notificationService).checkForExistingNotification(lrProxyVO);
+        verify(actRelationshipService).loadActRelationshipBySrcIdAndTypeCode(observationId, NEDSSConstant.LAB_REPORT);
+        verify(edxDocumentService).selectEdxDocumentCollectionByActUid(observationId);
+        verify(observationCodeService).deriveTheConditionCodeList(lrProxyVO, orderedTest);
+    }
+
+    @Test
+    void testProcessingNotELRLab_isELRFalse_ExistingNotification() throws DataProcessingException {
+        boolean isELR = false;
+        LabResultProxyContainer lrProxyVO = new LabResultProxyContainer();
+        ObservationContainer orderedTest = new ObservationContainer();
+        long observationId = 1L;
+
+        when(notificationService.checkForExistingNotification(lrProxyVO)).thenReturn(true);
+
+        Collection<ActRelationshipDto> actRelationshipDtos = new ArrayList<>();
+        actRelationshipDtos.add(new ActRelationshipDto());
+        when(actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(observationId, NEDSSConstant.LAB_REPORT)).thenReturn(actRelationshipDtos);
+
+        Collection<EDXDocumentDto> edxDocumentDtos = new ArrayList<>();
+        edxDocumentDtos.add(new EDXDocumentDto());
+        when(edxDocumentService.selectEdxDocumentCollectionByActUid(observationId)).thenReturn(edxDocumentDtos);
+
+        ArrayList<String> conditionList = new ArrayList<>();
+        conditionList.add("condition");
+        when(observationCodeService.deriveTheConditionCodeList(lrProxyVO, orderedTest)).thenReturn(conditionList);
+
+        observationService.processingNotELRLab(isELR, lrProxyVO, orderedTest, observationId);
+
+        assertTrue(lrProxyVO.isAssociatedNotificationInd());
+        assertTrue(lrProxyVO.isAssociatedInvInd());
+        assertEquals(edxDocumentDtos, lrProxyVO.getEDXDocumentCollection());
+        assertEquals(conditionList, lrProxyVO.getTheConditionsList());
+
+        verify(notificationService).checkForExistingNotification(lrProxyVO);
+        verify(actRelationshipService).loadActRelationshipBySrcIdAndTypeCode(observationId, NEDSSConstant.LAB_REPORT);
+        verify(edxDocumentService).selectEdxDocumentCollectionByActUid(observationId);
+        verify(observationCodeService).deriveTheConditionCodeList(lrProxyVO, orderedTest);
+    }
+
+
+    @Test
+    void testLoadingObservationToLabResultContainerActHelper_AllCases() {
+        LabResultProxyContainer lrProxyVO = new LabResultProxyContainer();
+        boolean isELR = false;
+        ObservationContainer orderedTest = new ObservationContainer();
+        ObservationDto observationDto = new ObservationDto();
+        orderedTest.setTheObservationDto(observationDto);
+
+        Map<DataProcessingMapKey, Object> allAct = new HashMap<>();
+        allAct.put(DataProcessingMapKey.INTERVENTION, new ArrayList<>());
+        allAct.put(DataProcessingMapKey.OBSERVATION, new ArrayList<ObservationContainer>());
+        allAct.put(DataProcessingMapKey.ORGANIZATION, new ArrayList<OrganizationContainer>());
+
+
+        observationService.loadingObservationToLabResultContainerActHelper(lrProxyVO, isELR, allAct, orderedTest);
+
+        assertEquals(1, ((Collection<ObservationContainer>) allAct.get(DataProcessingMapKey.OBSERVATION)).size());
+        assertEquals(((Collection<ObservationContainer>) allAct.get(DataProcessingMapKey.OBSERVATION)).size(), lrProxyVO.getTheObservationContainerCollection().size());
+    }
+
+    @Test
+    void testLoadingObservationToLabResultContainerActHelper_ELRTrue() {
+        LabResultProxyContainer lrProxyVO = new LabResultProxyContainer();
+        boolean isELR = true;
+        ObservationContainer orderedTest = new ObservationContainer();
+        ObservationDto observationDto = new ObservationDto();
+        orderedTest.setTheObservationDto(observationDto);
+
+        Map<DataProcessingMapKey, Object> allAct = new HashMap<>();
+        allAct.put(DataProcessingMapKey.INTERVENTION, new ArrayList<>());
+        allAct.put(DataProcessingMapKey.OBSERVATION, new ArrayList<ObservationContainer>());
+        allAct.put(DataProcessingMapKey.ORGANIZATION, new ArrayList<OrganizationContainer>());
+
+        observationService.loadingObservationToLabResultContainerActHelper(lrProxyVO, isELR, allAct, orderedTest);
+
+        assertNull(orderedTest.getTheObservationDto().getAddUserName());
+        assertNull(orderedTest.getTheObservationDto().getLastChgUserName());
+        assertEquals(1, ((Collection<ObservationContainer>) allAct.get(DataProcessingMapKey.OBSERVATION)).size());
+        assertEquals(((Collection<ObservationContainer>) allAct.get(DataProcessingMapKey.OBSERVATION)).size(), lrProxyVO.getTheObservationContainerCollection().size());
+    }
+
+    @Test
+    void testLoadingObservationToLabResultContainerActHelper_LabCollectionNotEmpty() {
+        LabResultProxyContainer lrProxyVO = new LabResultProxyContainer();
+        boolean isELR = false;
+        ObservationContainer orderedTest = new ObservationContainer();
+        ObservationDto observationDto = new ObservationDto();
+        orderedTest.setTheObservationDto(observationDto);
+
+        Map<DataProcessingMapKey, Object> allAct = new HashMap<>();
+        allAct.put(DataProcessingMapKey.INTERVENTION, new ArrayList<>());
+        allAct.put(DataProcessingMapKey.OBSERVATION, new ArrayList<ObservationContainer>());
+        allAct.put(DataProcessingMapKey.ORGANIZATION, new ArrayList<OrganizationContainer>());
+
+        Collection<OrganizationContainer> labColl = new ArrayList<>();
+        labColl.add(new OrganizationContainer());
+        allAct.put(DataProcessingMapKey.ORGANIZATION, labColl);
+
+
+        observationService.loadingObservationToLabResultContainerActHelper(lrProxyVO, isELR, allAct, orderedTest);
+
+        assertEquals(1, ((Collection<ObservationContainer>) allAct.get(DataProcessingMapKey.OBSERVATION)).size());
+        assertEquals(((Collection<ObservationContainer>) allAct.get(DataProcessingMapKey.OBSERVATION)).size(), lrProxyVO.getTheObservationContainerCollection().size());
+        assertEquals(1, lrProxyVO.getTheOrganizationContainerCollection().size());
+    }
+
+    @Test
+    void testLoadingObservationToLabResultContainerActHelper_AllActEmpty() {
+        LabResultProxyContainer lrProxyVO = new LabResultProxyContainer();
+        boolean isELR = false;
+        ObservationContainer orderedTest = new ObservationContainer();
+
+        Map<DataProcessingMapKey, Object> allAct = new HashMap<>();
+
+        observationService.loadingObservationToLabResultContainerActHelper(lrProxyVO, isELR, allAct, orderedTest);
+
+        assertNull(lrProxyVO.getTheInterventionVOCollection());
+    }
+
+
+    @Test
+    void testUpdateLabResultWithAutoResendNotification_Success() throws DataProcessingException {
+        LabResultProxyContainer labResultProxyVO = new LabResultProxyContainer();
+        labResultProxyVO.associatedNotificationInd = true;
+
+        observationService.updateLabResultWithAutoResendNotification(labResultProxyVO);
+
+        verify(investigationService, times(1)).updateAutoResendNotificationsAsync(labResultProxyVO);
+        verifyNoInteractions(nndActivityLogService);
+    }
+
+    @Test
+    void testUpdateLabResultWithAutoResendNotification_Exception() throws DataProcessingException {
+        LabResultProxyContainer labResultProxyVO = new LabResultProxyContainer();
+        labResultProxyVO.associatedNotificationInd = true;
+
+        doThrow(new RuntimeException("Test Exception")).when(investigationService).updateAutoResendNotificationsAsync(labResultProxyVO);
+
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setLocalId("testLocalId");
+        observationDto.setCd("LabReport");
+        ObservationContainer observationContainer = new ObservationContainer();
+        observationContainer.setTheObservationDto(observationDto);
+        Collection<ObservationContainer> observationCollection = new ArrayList<>();
+        observationCollection.add(observationContainer);
+        labResultProxyVO.setTheObservationContainerCollection(observationCollection);
+
+        NNDActivityLogDto nndActivityLogDto = observationService.updateLabResultWithAutoResendNotification(labResultProxyVO);
+
+        verify(investigationService, times(1)).updateAutoResendNotificationsAsync(labResultProxyVO);
+        verify(nndActivityLogService, times(1)).saveNddActivityLog(any(NNDActivityLogDto.class));
+        assertEquals("testLocalId", nndActivityLogDto.getLocalId());
+        assertEquals("java.lang.RuntimeException: Test Exception", nndActivityLogDto.getErrorMessageTxt());
+    }
+
+    @Test
+    void testUpdateLabResultWithAutoResendNotification_NoNotification() throws DataProcessingException {
+        LabResultProxyContainer labResultProxyVO = new LabResultProxyContainer();
+        labResultProxyVO.associatedNotificationInd = false;
+
+        NNDActivityLogDto result = observationService.updateLabResultWithAutoResendNotification(labResultProxyVO);
+
+        verifyNoInteractions(investigationService);
+        verifyNoInteractions(nndActivityLogService);
+        assertNull(result);
+    }
+
+    @Test
+    void testUpdateLabResultWithAutoResendNotification_ExceptionWithNullLocalId() throws DataProcessingException {
+        LabResultProxyContainer labResultProxyVO = new LabResultProxyContainer();
+        labResultProxyVO.associatedNotificationInd = true;
+
+        doThrow(new RuntimeException("Test Exception")).when(investigationService).updateAutoResendNotificationsAsync(labResultProxyVO);
+
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setCd("LabReport");
+
+        ObservationContainer observationContainer = new ObservationContainer();
+        observationContainer.setTheObservationDto(observationDto);
+        Collection<ObservationContainer> observationCollection = new ArrayList<>();
+        observationCollection.add(observationContainer);
+        labResultProxyVO.setTheObservationContainerCollection(observationCollection);
+
+        NNDActivityLogDto nndActivityLogDto = observationService.updateLabResultWithAutoResendNotification(labResultProxyVO);
+
+        verify(investigationService, times(1)).updateAutoResendNotificationsAsync(labResultProxyVO);
+        verify(nndActivityLogService, times(1)).saveNddActivityLog(any(NNDActivityLogDto.class));
+        assertEquals("N/A", nndActivityLogDto.getLocalId());
+        assertEquals("java.lang.RuntimeException: Test Exception", nndActivityLogDto.getErrorMessageTxt());
+    }
+
+
+    @Test
+    void testFindObservationByCode_CollectionIsNull() {
+        ObservationContainer result = observationService.findObservationByCode(null, "someCode");
+        assertNull(result);
+    }
+
+    @Test
+    void testFindObservationByCode_NoMatchingCode() {
+        Collection<ObservationContainer> coll = new ArrayList<>();
+        coll.add(createObservationContainer("code1"));
+        coll.add(createObservationContainer("code2"));
+
+        ObservationContainer result = observationService.findObservationByCode(coll, "someCode");
+        assertNull(result);
+    }
+
+    @Test
+    void testFindObservationByCode_MatchingCode() {
+        Collection<ObservationContainer> coll = new ArrayList<>();
+        coll.add(createObservationContainer("code1"));
+        coll.add(createObservationContainer("someCode"));
+
+        ObservationContainer result = observationService.findObservationByCode(coll, "someCode");
+        assertEquals("someCode", result.getTheObservationDto().getCd());
+    }
+
+    @Test
+    void testFindObservationByCode_ObservationDtoIsNull() {
+        Collection<ObservationContainer> coll = new ArrayList<>();
+        coll.add(new ObservationContainer());
+        coll.add(createObservationContainer("someCode"));
+
+        ObservationContainer result = observationService.findObservationByCode(coll, "someCode");
+        assertEquals("someCode", result.getTheObservationDto().getCd());
+    }
+
+    @Test
+    void testFindObservationByCode_CodeIsNull() {
+        Collection<ObservationContainer> coll = new ArrayList<>();
+        coll.add(createObservationContainer(null));
+        coll.add(createObservationContainer("someCode"));
+
+        ObservationContainer result = observationService.findObservationByCode(coll, "someCode");
+        assertEquals("someCode", result.getTheObservationDto().getCd());
+    }
+
+    @Test
+    void testFindObservationByCode_TrimmedCodeMatching() {
+        Collection<ObservationContainer> coll = new ArrayList<>();
+        coll.add(createObservationContainer("  someCode  "));
+
+        ObservationContainer result = observationService.findObservationByCode(coll, "someCode");
+        assertEquals("  someCode  ", result.getTheObservationDto().getCd());
+    }
+
+    private ObservationContainer createObservationContainer(String code) {
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setCd(code);
+
+        ObservationContainer observationContainer = new ObservationContainer();
+        observationContainer.setTheObservationDto(observationDto);
+
+        return observationContainer;
+    }
 }

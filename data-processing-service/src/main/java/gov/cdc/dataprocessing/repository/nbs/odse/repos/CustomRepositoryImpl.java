@@ -19,6 +19,7 @@ import java.sql.Timestamp;
 import java.util.*;
 
 import static gov.cdc.dataprocessing.constant.ComplexQueries.*;
+import static gov.cdc.dataprocessing.utilities.DataParserForSql.*;
 
 @Repository
 public class CustomRepositoryImpl implements CustomRepository {
@@ -36,22 +37,23 @@ public class CustomRepositoryImpl implements CustomRepository {
         query.setParameter("conditionCd", conditionCode);
         List<StateDefinedFieldDataDto> lst = new ArrayList<>();
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 StateDefinedFieldDataDto container = new StateDefinedFieldDataDto();
                 int i = 0;
-                container.setLdfUid(dataNotNull(item[i]) ? Long.valueOf(item[i].toString()): null);
-                container.setBusinessObjNm(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setAddTime(dataNotNull(item[++i]) ? Timestamp.valueOf(item[i].toString()): null);
-                container.setBusinessObjUid(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
-                container.setLastChgTime(dataNotNull(item[++i]) ? Timestamp.valueOf(item[i].toString()): null);
-                container.setLdfValue(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setVersionCtrlNbr(dataNotNull(item[++i]) ? Integer.valueOf(item[i].toString()): null);
+                container.setLdfUid(parseValue(item[i], Long.class));
+                container.setBusinessObjNm(parseValue(item[++i], String.class));
+                container.setAddTime(parseValue(item[++i], Timestamp.class));
+                container.setBusinessObjUid(parseValue(item[++i], Long.class));
+                container.setLastChgTime(parseValue(item[++i], Timestamp.class));
+                container.setLdfValue(parseValue(item[++i], String.class));
+                container.setVersionCtrlNbr(parseValue(item[++i], Integer.class));
                 lst.add(container);
             }
         }
         return lst;
     }
+
 
     public Map<Object, Object> getAssociatedDocumentList(Long uid, String targetClassCd, String sourceClassCd, String theQuery) {
         Map<Object, Object> map= new HashMap<> ();
@@ -60,7 +62,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         query.setParameter("SourceClassCd", sourceClassCd);
         query.setParameter("TargetClassCd", targetClassCd);
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 map.put(item[0].toString(), Long.valueOf(item[1].toString()));
             }
@@ -84,24 +86,23 @@ public class CustomRepositoryImpl implements CustomRepository {
         Query query = entityManager.createNativeQuery(docQuery);
         query.setParameter("TargetActUid", publicHealthCaseUid);
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 EDXEventProcessDto container = new EDXEventProcessDto();
                 int i = 0;
-                container.setEDXEventProcessUid(dataNotNull(item[i]) ? Long.valueOf(item[i].toString()): null);
-                container.setNbsDocumentUid(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
-                container.setNbsEventUid(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
+                container.setEDXEventProcessUid(parseValue(item[i], Long.class));
+                container.setNbsDocumentUid(parseValue(item[++i], Long.class));
+                container.setNbsEventUid(parseValue(item[++i], Long.class));
 
-                Long sourceEventId = Long.valueOf(item[++i].toString());
-                container.setSourceEventId(dataNotNull(item[i]) ? String.valueOf(item[i].toString()): null);
+                long sourceEventId = Long.parseLong(item[++i].toString());
+                container.setSourceEventId(parseValue(item[i], String.class));
 
-                container.setDocEventTypeCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setAddUserId(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
-                container.setAddTime(dataNotNull(item[++i]) ? Timestamp.valueOf(item[i].toString()): null);
-                container.setParsedInd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+                container.setDocEventTypeCd(parseValue(item[++i], String.class));
+                container.setAddUserId(parseValue(item[++i], Long.class));
+                container.setAddTime(parseValue(item[++i], Timestamp.class));
+                container.setParsedInd(parseValue(item[++i], String.class));
 
-
-                map.put(sourceEventId.toString(), container);
+                map.put(Long.toString(sourceEventId), container);
             }
         }
         return map;
@@ -112,19 +113,18 @@ public class CustomRepositoryImpl implements CustomRepository {
         Query query = entityManager.createNativeQuery(DOCUMENT_FOR_A_PHC);
         query.setParameter("PhcUid", publicHealthUID);
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 DocumentSummaryContainer container = new DocumentSummaryContainer();
                 int i = 0;
-                Long getNbsDocumentUid = Long.valueOf(item[++i].toString());
-                container.setNbsDocumentUid(dataNotNull(item[i]) ? Long.valueOf(item[i].toString()): null);
+                Long getNbsDocumentUid = parseValue(item[++i], Long.class);
+                container.setNbsDocumentUid(getNbsDocumentUid);
 
-                container.setDocType(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setCdDescTxt(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setAddTime(dataNotNull(item[++i]) ? Timestamp.valueOf(item[i].toString()): null);
-                container.setLocalId(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setCdDescTxt(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-
+                container.setDocType(parseValue(item[++i], String.class));
+                container.setCdDescTxt(parseValue(item[++i], String.class));
+                container.setAddTime(parseValue(item[++i], Timestamp.class));
+                container.setLocalId(parseValue(item[++i], String.class));
+                container.setCdDescTxt(parseValue(item[++i], String.class));
 
                 map.put(getNbsDocumentUid, container);
             }
@@ -137,27 +137,27 @@ public class CustomRepositoryImpl implements CustomRepository {
         Query query = entityManager.createNativeQuery(theQuery);
         query.setParameter("PhcUid", publicHealthUID);
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 NotificationSummaryContainer container = new NotificationSummaryContainer();
                 int i = 0;
-                container.setNotificationUid(dataNotNull(item[i]) ? Long.valueOf(item[i].toString()): null);
-                container.setCdNotif(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setAddTime(dataNotNull(item[++i]) ? Timestamp.valueOf(item[i].toString()): null);
-                container.setRptSentTime(dataNotNull(item[++i]) ? Timestamp.valueOf(item[i].toString()): null);
-                container.setRecordStatusTime(dataNotNull(item[++i]) ? Timestamp.valueOf(item[i].toString()): null);
-                container.setCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setJurisdictionCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setProgramJurisdictionOid(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
-                container.setCaseClassCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setAutoResendInd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setCaseClassCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setLocalId(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setTxt(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setRecordStatusCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setIsHistory(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setNndInd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setRecipient(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+                container.setNotificationUid(parseValue(item[i], Long.class));
+                container.setCdNotif(parseValue(item[++i], String.class));
+                container.setAddTime(parseValue(item[++i], Timestamp.class));
+                container.setRptSentTime(parseValue(item[++i], Timestamp.class));
+                container.setRecordStatusTime(parseValue(item[++i], Timestamp.class));
+                container.setCd(parseValue(item[++i], String.class));
+                container.setJurisdictionCd(parseValue(item[++i], String.class));
+                container.setProgramJurisdictionOid(parseValue(item[++i], Long.class));
+                container.setCaseClassCd(parseValue(item[++i], String.class));
+                container.setAutoResendInd(parseValue(item[++i], String.class));
+                container.setCaseClassCd(parseValue(item[++i], String.class));
+                container.setLocalId(parseValue(item[++i], String.class));
+                container.setTxt(parseValue(item[++i], String.class));
+                container.setRecordStatusCd(parseValue(item[++i], String.class));
+                container.setIsHistory(parseValue(item[++i], String.class));
+                container.setNndInd(parseValue(item[++i], String.class));
+                container.setRecipient(parseValue(item[++i], String.class));
                 map.add(container);
             }
         }
@@ -169,17 +169,17 @@ public class CustomRepositoryImpl implements CustomRepository {
         Query query = entityManager.createNativeQuery(theQuery);
         query.setParameter("PhcUid", publicHealthUID);
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 TreatmentContainer container = new TreatmentContainer();
                 int i = 0;
-                container.setPhcUid(dataNotNull(item[i]) ? Long.valueOf(item[i].toString()): null);
-                Long treatmentId = Long.valueOf(item[++i].toString());
-                container.setTreatmentUid(dataNotNull(item[i]) ? Long.valueOf(item[i].toString()): null);
-                container.setTreatmentNameCode(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setCustomTreatmentNameCode(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setActivityFromTime(dataNotNull(item[++i]) ? Timestamp.valueOf(item[i].toString()): null);
-                container.setLocalId(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+                container.setPhcUid(parseValue(item[i], Long.class));
+                Long treatmentId = parseValue(item[++i], Long.class);
+                container.setTreatmentUid(treatmentId);
+                container.setTreatmentNameCode(parseValue(item[++i], String.class));
+                container.setCustomTreatmentNameCode(parseValue(item[++i], String.class));
+                container.setActivityFromTime(parseValue(item[++i], Timestamp.class));
+                container.setLocalId(parseValue(item[++i], String.class));
                 map.put(treatmentId, container);
             }
         }
@@ -192,7 +192,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         query.setParameter("ClassCd", sourceClassCd);
         query.setParameter("ActUid",uid);
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 assocoiatedInvMap.put(item[0].toString(), item[1].toString());
                 if (sourceClassCd.equalsIgnoreCase(NEDSSConstant.CLASS_CD_OBS)) {
@@ -214,29 +214,28 @@ public class CustomRepositoryImpl implements CustomRepository {
 
         ArrayList<ResultedTestSummaryContainer> lst = new ArrayList<>();
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
                 int i = 0;
-                container.setObservationUid(dataNotNull(item[i]) ? Long.valueOf(item[i].toString()): null);
-                container.setCtrlCdUserDefined1(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setSourceActUid(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
-                container.setLocalId(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setResultedTest(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setResultedTestCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setCdSystemCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setCodedResultValue(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setOrganismName(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setNumericResultCompare(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setHighRange(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setLowRange(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setNumericResultSeperator(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setNumericResultValue1(dataNotNull(item[++i]) ? BigDecimal.valueOf(Long.parseLong(item[i].toString())): null);
-                container.setNumericResultValue2(dataNotNull(item[++i]) ? BigDecimal.valueOf(Long.parseLong(item[i].toString())): null);
-                container.setNumericScale1(dataNotNull(item[++i]) ? Integer.valueOf(item[i].toString()): null);
-                container.setNumericScale2(dataNotNull(item[++i]) ? Integer.valueOf(item[i].toString()): null);
-                container.setNumericResultUnits(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-
+                container.setObservationUid(parseValue(item[i], Long.class));
+                container.setCtrlCdUserDefined1(parseValue(item[++i], String.class));
+                container.setSourceActUid(parseValue(item[++i], Long.class));
+                container.setLocalId(parseValue(item[++i], String.class));
+                container.setResultedTest(parseValue(item[++i], String.class));
+                container.setResultedTestCd(parseValue(item[++i], String.class));
+                container.setCdSystemCd(parseValue(item[++i], String.class));
+                container.setCodedResultValue(parseValue(item[++i], String.class));
+                container.setOrganismName(parseValue(item[++i], String.class));
+                container.setNumericResultCompare(parseValue(item[++i], String.class));
+                container.setHighRange(parseValue(item[++i], String.class));
+                container.setLowRange(parseValue(item[++i], String.class));
+                container.setNumericResultSeperator(parseValue(item[++i], String.class));
+                container.setNumericResultValue1(parseValue(item[++i], BigDecimal.class));
+                container.setNumericResultValue2(parseValue(item[++i], BigDecimal.class));
+                container.setNumericScale1(parseValue(item[++i], Integer.class));
+                container.setNumericScale2(parseValue(item[++i], Integer.class));
+                container.setNumericResultUnits(parseValue(item[++i], String.class));
                 lst.add(container);
             }
         }
@@ -251,10 +250,10 @@ public class CustomRepositoryImpl implements CustomRepository {
         query.setParameter("TargetActUid",observationUid);
         ArrayList<UidSummaryContainer> lst = new ArrayList<>();
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 UidSummaryContainer uid = new UidSummaryContainer();
-                uid.setUid(dataNotNull(item[0]) ? Long.valueOf(item[0].toString()): null);
+                uid.setUid(parseValue(item[0], Long.class));
                 lst.add(uid);
             }
         }
@@ -268,30 +267,30 @@ public class CustomRepositoryImpl implements CustomRepository {
         query.setParameter("TargetActUid",observationUid);
         ArrayList<ResultedTestSummaryContainer> lst = new ArrayList<>();
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
                 int i = 0;
-                container.setObservationUid(dataNotNull(item[i]) ? Long.valueOf(item[i].toString()): null);
-                container.setCtrlCdUserDefined1(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setSourceActUid(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
-                container.setLocalId(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setResultedTest(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setCdSystemCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setResultedTestStatusCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setCodedResultValue(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setOrganismName(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setOrganismCodeSystemCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setHighRange(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setLowRange(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setNumericResultCompare(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setNumericResultSeperator(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setNumericResultValue1(dataNotNull(item[++i]) ? BigDecimal.valueOf(Long.parseLong(item[i].toString())): null);
-                container.setNumericResultValue2(dataNotNull(item[++i]) ? BigDecimal.valueOf(Long.parseLong(item[i].toString())): null);
-                container.setNumericScale1(dataNotNull(item[++i]) ? Integer.valueOf(item[i].toString()): null);
-                container.setNumericScale2(dataNotNull(item[++i]) ? Integer.valueOf(item[i].toString()): null);
-                container.setNumericResultUnits(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setTextResultValue(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+                container.setObservationUid(parseValue(item[i], Long.class));
+                container.setCtrlCdUserDefined1(parseValue(item[++i], String.class));
+                container.setSourceActUid(parseValue(item[++i], Long.class));
+                container.setLocalId(parseValue(item[++i], String.class));
+                container.setResultedTest(parseValue(item[++i], String.class));
+                container.setCdSystemCd(parseValue(item[++i], String.class));
+                container.setResultedTestStatusCd(parseValue(item[++i], String.class));
+                container.setCodedResultValue(parseValue(item[++i], String.class));
+                container.setOrganismName(parseValue(item[++i], String.class));
+                container.setOrganismCodeSystemCd(parseValue(item[++i], String.class));
+                container.setHighRange(parseValue(item[++i], String.class));
+                container.setLowRange(parseValue(item[++i], String.class));
+                container.setNumericResultCompare(parseValue(item[++i], String.class));
+                container.setNumericResultSeperator(parseValue(item[++i], String.class));
+                container.setNumericResultValue1(parseValue(item[++i], BigDecimal.class));
+                container.setNumericResultValue2(parseValue(item[++i], BigDecimal.class));
+                container.setNumericScale1(parseValue(item[++i], Integer.class));
+                container.setNumericScale2(parseValue(item[++i], Integer.class));
+                container.setNumericResultUnits(parseValue(item[++i], String.class));
+                container.setTextResultValue(parseValue(item[++i], String.class));
                 lst.add(container);
             }
         }
@@ -304,7 +303,7 @@ public class CustomRepositoryImpl implements CustomRepository {
 
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.setMaxResults(1).getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 providerDataForPrintVO.setProviderPhone(item[0].toString());
                 providerDataForPrintVO.setProviderPhoneExtension(item[1].toString());
@@ -319,7 +318,7 @@ public class CustomRepositoryImpl implements CustomRepository {
 
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.setMaxResults(1).getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 providerDataForPrintVO.setProviderStreetAddress1(item[0].toString());
                 providerDataForPrintVO.setProviderCity(item[1].toString());
@@ -336,7 +335,7 @@ public class CustomRepositoryImpl implements CustomRepository {
 
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.setMaxResults(1).getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 providerDataForPrintVO.setFacilityPhone(item[0].toString());
                 providerDataForPrintVO.setFacilityPhoneExtension(item[1].toString());
@@ -353,7 +352,7 @@ public class CustomRepositoryImpl implements CustomRepository {
                 +  "and cd='O' and class_cd='PST')";
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.setMaxResults(1).getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 providerDataForPrintVO.setFacilityAddress1(item[0].toString());
                 providerDataForPrintVO.setFacilityAddress2(item[1].toString());
@@ -371,7 +370,7 @@ public class CustomRepositoryImpl implements CustomRepository {
                 + "FROM material with (nolock) " + " WHERE material_uid = " + materialUid;
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 vals = (item[0].toString());
             }
@@ -386,7 +385,7 @@ public class CustomRepositoryImpl implements CustomRepository {
                 + "FROM organization_name with (nolock) " + " WHERE organization_uid = " + organizationUid;
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 vals = (item[0].toString());
             }
@@ -402,7 +401,7 @@ public class CustomRepositoryImpl implements CustomRepository {
 
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 vals.add(item[0].toString());
             }
@@ -424,7 +423,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         var theSelect = ORD_PROVIDER_MSQL + ORD_PROVIDER;
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 vals.add(item[0].toString());
                 vals.add(item[1].toString());
@@ -452,7 +451,7 @@ public class CustomRepositoryImpl implements CustomRepository {
                 "AND observation.observation_uid = "  + observationUID;
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 vals.add(item[0].toString());
                 vals.add(item[1].toString());
@@ -481,7 +480,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         Map<Object,Object> vals = new HashMap<Object,Object>();
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 String classCd =  item[0].toString();
                 String typeCd = item[1].toString();
@@ -502,33 +501,34 @@ public class CustomRepositoryImpl implements CustomRepository {
 
         Collection<CTContactSummaryDto> ctContactSummaryDtoCollection = new ArrayList<>();
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 CTContactSummaryDto contact = new CTContactSummaryDto();
-                contact.setNamedOnDate(dataNotNull(item[0]) ? Timestamp.valueOf(item[0].toString()) : null );
-                contact.setCtContactUid(dataNotNull(item[1]) ? Long.valueOf(item[1].toString()) : null );
-                contact.setLocalId(dataNotNull(item[2]) ? String.valueOf(item[2].toString()) : null );
-                contact.setSubjectEntityUid(dataNotNull(item[3]) ? Long.valueOf(item[3].toString()) : null );
-                contact.setContactEntityUid(dataNotNull(item[4]) ? Long.valueOf(item[4].toString()) : null );
-                contact.setPriorityCd(dataNotNull(item[5]) ? String.valueOf(item[5].toString()) : null );
-                contact.setDispositionCd(dataNotNull(item[6]) ? String.valueOf(item[6].toString()) : null );
-                contact.setProgAreaCd(dataNotNull(item[7]) ? String.valueOf(item[7].toString()) : null );
-                contact.setNamedDuringInterviewUid(dataNotNull(item[8]) ? Long.valueOf(item[8].toString()) : null );
-                contact.setContactReferralBasisCd(dataNotNull(item[9]) ? String.valueOf(item[9].toString()) : null );
-                contact.setThirdPartyEntityUid(dataNotNull(item[10]) ? Long.valueOf(item[10].toString()) : null );
-                contact.setThirdPartyEntityPhcUid(dataNotNull(item[11]) ? Long.valueOf(item[11].toString()) : null );
-                contact.setContactProcessingDecision(dataNotNull(item[12]) ? String.valueOf(item[12].toString()) : null );
-                contact.setSourceDispositionCd(dataNotNull(item[13]) ? String.valueOf(item[13].toString()) : null );
-                contact.setSourceConditionCd(dataNotNull(item[14]) ? String.valueOf(item[14].toString()) : null );
-                contact.setSourceCurrentSexCd(dataNotNull(item[15]) ? String.valueOf(item[15].toString()) : null );
-                contact.setSourceInterviewStatusCd(dataNotNull(item[15]) ? String.valueOf(item[15].toString()) : null );
-                contact.setSubjectEntityPhcUid(dataNotNull(item[16]) ? Long.valueOf(item[16].toString()) : null );
-                contact.setInterviewDate(dataNotNull(item[17]) ? Timestamp.valueOf(item[17].toString()) : null );
-                contact.setCreateDate(dataNotNull(item[18]) ? Timestamp.valueOf(item[18].toString()) : null );
-                contact.setSubjectPhcLocalId(dataNotNull(item[19]) ? String.valueOf(item[19].toString()) : null );
-                contact.setContactMprUid(dataNotNull(item[20]) ? Long.valueOf(item[20].toString()) : null );
-                contact.setSubjectPhcCd(dataNotNull(item[21]) ? String.valueOf(item[21].toString()) : null );
-                contact.setSubjectMprUid(dataNotNull(item[22]) ? Long.valueOf(item[22].toString()) : null );
+                int i = 0;
+                contact.setNamedOnDate(parseValue(item[i], Timestamp.class));
+                contact.setCtContactUid(parseValue(item[++i], Long.class));
+                contact.setLocalId(parseValue(item[++i], String.class));
+                contact.setSubjectEntityUid(parseValue(item[++i], Long.class));
+                contact.setContactEntityUid(parseValue(item[++i], Long.class));
+                contact.setPriorityCd(parseValue(item[++i], String.class));
+                contact.setDispositionCd(parseValue(item[++i], String.class));
+                contact.setProgAreaCd(parseValue(item[++i], String.class));
+                contact.setNamedDuringInterviewUid(parseValue(item[++i], Long.class));
+                contact.setContactReferralBasisCd(parseValue(item[++i], String.class));
+                contact.setThirdPartyEntityUid(parseValue(item[++i], Long.class));
+                contact.setThirdPartyEntityPhcUid(parseValue(item[++i], Long.class));
+                contact.setContactProcessingDecision(parseValue(item[++i], String.class));
+                contact.setSourceDispositionCd(parseValue(item[++i], String.class));
+                contact.setSourceConditionCd(parseValue(item[++i], String.class));
+                contact.setSourceCurrentSexCd(parseValue(item[++i], String.class));
+                contact.setSourceInterviewStatusCd(parseValue(item[++i], String.class));
+                contact.setSubjectEntityPhcUid(parseValue(item[++i], Long.class));
+                contact.setInterviewDate(parseValue(item[++i], Timestamp.class));
+                contact.setCreateDate(parseValue(item[++i], Timestamp.class));
+                contact.setSubjectPhcLocalId(parseValue(item[++i], String.class));
+                contact.setContactMprUid(parseValue(item[++i], Long.class));
+                contact.setSubjectPhcCd(parseValue(item[++i], String.class));
+                contact.setSubjectMprUid(parseValue(item[++i], Long.class));
                 ctContactSummaryDtoCollection.add(contact);
             }
         }
@@ -543,47 +543,44 @@ public class CustomRepositoryImpl implements CustomRepository {
         query.setParameter("NbsUid", nbsUid);
 
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 int i = 0;
-                container.setNbsDocumentUid(dataNotNull(item[i]) ? Long.valueOf(item[i].toString()): null);
-                container.setLocalId(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setDocTypeCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setJurisdictionCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setProgAreaCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setDocStatusCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setAddTime(dataNotNull(item[++i]) ? Timestamp.valueOf(item[i].toString()): null);
-                container.setTxt(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setVersionCtrlNbr(dataNotNull(item[++i]) ? Integer.valueOf(item[i].toString()): null);
-                container.setDocPurposeCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setCdDescTxt(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setSendingFacilityNm(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setAddUserId(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
-                container.setRecordStatusCd(dataNotNull(item[++i]) ? String.valueOf(Long.parseLong(item[i].toString())): null);
-                container.setProcessingDecisionCd(dataNotNull(item[++i]) ? String.valueOf(Long.parseLong(item[i].toString())): null);
-                container.setProcessingDecisiontxt(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setExternalVersionCtrlNbr(dataNotNull(item[++i]) ? Integer.valueOf(item[i].toString()): null);
-                container.setCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
+                container.setNbsDocumentUid(parseValue(item[i], Long.class));
+                container.setLocalId(parseValue(item[++i], String.class));
+                container.setDocTypeCd(parseValue(item[++i], String.class));
+                container.setJurisdictionCd(parseValue(item[++i], String.class));
+                container.setProgAreaCd(parseValue(item[++i], String.class));
+                container.setDocStatusCd(parseValue(item[++i], String.class));
+                container.setAddTime(parseValue(item[++i], Timestamp.class));
+                container.setTxt(parseValue(item[++i], String.class));
+                container.setVersionCtrlNbr(parseValue(item[++i], Integer.class));
+                container.setDocPurposeCd(parseValue(item[++i], String.class));
+                container.setCdDescTxt(parseValue(item[++i], String.class));
+                container.setSendingFacilityNm(parseValue(item[++i], String.class));
+                container.setAddUserId(parseValue(item[++i], Long.class));
+                container.setRecordStatusCd(parseValue(item[++i], String.class));
+                container.setProcessingDecisionCd(parseValue(item[++i], String.class));
+                container.setProcessingDecisiontxt(parseValue(item[++i], String.class));
+                container.setExternalVersionCtrlNbr(parseValue(item[++i], Integer.class));
+                container.setCd(parseValue(item[++i], String.class));
 
-
-                container.setPayLoadTxt(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setPhdcDocDerivedTxt(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setPayloadViewIndCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-                container.setNbsDocumentMetadataUid(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
-                container.setRecordStatusTime(dataNotNull(item[++i]) ? Timestamp.valueOf(item[i].toString()): null);
-                container.setProgramJurisdictionOid(dataNotNull(item[++i]) ? Long.valueOf(Long.parseLong(item[i].toString())): null);
-                container.setSharedInd(dataNotNull(item[++i]) ? String.valueOf(Long.parseLong(item[i].toString())): null);
-                container.setLastChgUserId(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
-                container.setNbsInterfaceUid(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
-                container.setDocEventTypeCd(dataNotNull(item[++i]) ? String.valueOf(item[i].toString()): null);
-
-                container.setEffectiveTime(dataNotNull(item[++i]) ? Timestamp.valueOf(item[i].toString()): null);
-
+                container.setPayLoadTxt(parseValue(item[++i], String.class));
+                container.setPhdcDocDerivedTxt(parseValue(item[++i], String.class));
+                container.setPayloadViewIndCd(parseValue(item[++i], String.class));
+                container.setNbsDocumentMetadataUid(parseValue(item[++i], Long.class));
+                container.setRecordStatusTime(parseValue(item[++i], Timestamp.class));
+                container.setProgramJurisdictionOid(parseValue(item[++i], Long.class));
+                container.setSharedInd(parseValue(item[++i], String.class));
+                container.setLastChgUserId(parseValue(item[++i], Long.class));
+                container.setNbsInterfaceUid(parseValue(item[++i], Long.class));
+                container.setDocEventTypeCd(parseValue(item[++i], String.class));
+                container.setEffectiveTime(parseValue(item[++i], Timestamp.class));
 
                 PersonContainer personVO = new PersonContainer();
                 PersonDto personDT = new PersonDto();
-                personDT.setPersonUid(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
-                personDT.setPersonParentUid(dataNotNull(item[++i]) ? Long.valueOf(item[i].toString()): null);
+                personDT.setPersonUid(parseValue(item[++i], Long.class));
+                personDT.setPersonParentUid(parseValue(item[++i], Long.class));
                 personVO.setThePersonDto(personDT);
                 nbsDocumentVO.setPatientVO(personVO);
                 nbsDocumentVO.setNbsDocumentDT(container);
@@ -594,7 +591,7 @@ public class CustomRepositoryImpl implements CustomRepository {
     }
 
 
-    public ArrayList<Object> getInvListForCoInfectionId(Long mprUid,String coInfectionId) throws DataProcessingException {
+    public ArrayList<Object> getInvListForCoInfectionId(Long mprUid,String coInfectionId) {
         ArrayList<Object> coinfectionInvList = new ArrayList<>();
 
         Query query = entityManager.createNativeQuery(COINFECTION_INV_LIST_FOR_GIVEN_COINFECTION_ID_SQL);
@@ -604,12 +601,12 @@ public class CustomRepositoryImpl implements CustomRepository {
 
 
         List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
+        if (resultValidCheck(results)) {
             for(var item : results) {
                 int i = 0;
                 CoinfectionSummaryContainer container = new CoinfectionSummaryContainer();
-                container.setPublicHealthCaseUid(dataNotNull(item[i]) ? Long.valueOf(item[i].toString()): null);
-                container.setConditionCd(dataNotNull(item[i++]) ? String.valueOf(item[i].toString()): null);
+                container.setPublicHealthCaseUid(parseValue(item[i], Long.class));
+                container.setConditionCd(parseValue(item[++i], String.class));
                 coinfectionInvList.add(container);
             }
         }
@@ -618,8 +615,6 @@ public class CustomRepositoryImpl implements CustomRepository {
 
 
 
-    private boolean dataNotNull(Object string) {
-        return string != null;
-    }
+
 
 }
