@@ -114,7 +114,7 @@ class TreatmentContainerTest {
         assertEquals(customTreatmentNameCode, container.getCustomTreatmentNameCode());
         assertEquals(treatmentAdministered, container.getTreatmentAdministered());
         assertEquals(treatmentUid, container.getTreatmentUid());
-        assertEquals(2, container.getUid());
+        assertEquals(3, container.getUid());
         assertEquals(localId, container.getLocalId());
         assertEquals(activityFromTime, container.getActivityFromTime());
         assertEquals(activityToTime, container.getActivityToTime());

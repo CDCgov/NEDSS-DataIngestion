@@ -68,12 +68,12 @@ public class DocumentSummaryContainer extends BaseContainer implements RootDtoIn
 
     @Override
     public String getProgAreaCd() {
-        return progAreaCdOverride != null ? progAreaCdOverride : progAreaCd;
+        return progAreaCd;
     }
 
     @Override
     public void setProgAreaCd(String aProgAreaCd) {
-        this.progAreaCdOverride = aProgAreaCd;
+        this.progAreaCd = aProgAreaCd;
     }
 
     @Override

@@ -174,7 +174,7 @@ public class TreatmentContainer extends BaseContainer implements RootDtoInterfac
 
     @Override
     public Long getUid() {
-        return treatmentUid;
+        return uid;
     }
 
     @Override
