@@ -253,6 +253,8 @@ sonarqube {
                 " **/ObsReqNoteHelper.java, **/WdsObjectChecker.java"
 //                " **/InvestigationService.java, **/ObservationRequestHandler.java, **/InvestigationNotificationService.java, **/ContactSummaryService.java," +
 //                " **/RetrieveSummaryService.java, **/ManagerCacheService.java"
+//        property "sonar.inclusions", " **/BaseContainer.java, **/BasePamContainer.java, **/InterviewContainer.java, **/User.java," +
+//                " **/UserProfile.java"
 
     }
 }

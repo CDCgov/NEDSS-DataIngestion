@@ -8,7 +8,6 @@ import lombok.Setter;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Map;
-
 @Getter
 @Setter
 public class DocumentSummaryContainer extends BaseContainer implements RootDtoInterface {
@@ -32,162 +31,167 @@ public class DocumentSummaryContainer extends BaseContainer implements RootDtoIn
     private String firstName;
     private String lastName;
     private Timestamp addTime;
-    private Map<Object,Object> associationMap;
+    private Map<Object, Object> associationMap;
     private String sendingFacilityNm;
     private String progAreaCd;
 
+    private Long lastChgUserId;
+    private String jurisdictionCd;
+    private String progAreaCdOverride;
+    private Timestamp lastChgTime;
+    private String lastChgReasonCd;
+    private String statusCd;
+    private Timestamp statusTime;
+    private String sharedInd;
+    private Long programJurisdictionOid;
+    private Integer versionCtrlNbr;
+
     @Override
     public Long getLastChgUserId() {
-        return null;
+        return lastChgUserId;
     }
 
     @Override
     public void setLastChgUserId(Long aLastChgUserId) {
-
+        this.lastChgUserId = aLastChgUserId;
     }
 
     @Override
     public String getJurisdictionCd() {
-        return null;
+        return jurisdictionCd;
     }
 
     @Override
     public void setJurisdictionCd(String aJurisdictionCd) {
-
+        this.jurisdictionCd = aJurisdictionCd;
     }
 
     @Override
     public String getProgAreaCd() {
-        return null;
+        return progAreaCdOverride != null ? progAreaCdOverride : progAreaCd;
     }
 
     @Override
     public void setProgAreaCd(String aProgAreaCd) {
-
+        this.progAreaCdOverride = aProgAreaCd;
     }
 
     @Override
     public Timestamp getLastChgTime() {
-        return null;
+        return lastChgTime;
     }
 
     @Override
     public void setLastChgTime(Timestamp aLastChgTime) {
-
+        this.lastChgTime = aLastChgTime;
     }
 
     @Override
     public String getLocalId() {
-        return null;
+        return localId;
     }
 
     @Override
     public void setLocalId(String aLocalId) {
-
+        this.localId = aLocalId;
     }
 
     @Override
     public Long getAddUserId() {
-        return null;
+        return addUserID;
     }
 
     @Override
     public void setAddUserId(Long aAddUserId) {
-
+        this.addUserID = aAddUserId;
     }
 
     @Override
     public String getLastChgReasonCd() {
-        return null;
+        return lastChgReasonCd;
     }
 
     @Override
     public void setLastChgReasonCd(String aLastChgReasonCd) {
-
-    }
-
-    @Override
-    public String getRecordStatusCd() {
-        return null;
-    }
-
-    @Override
-    public void setRecordStatusCd(String aRecordStatusCd) {
-
+        this.lastChgReasonCd = aLastChgReasonCd;
     }
 
     @Override
     public Timestamp getRecordStatusTime() {
-        return null;
+        return recordStatusTime;
     }
 
     @Override
     public void setRecordStatusTime(Timestamp aRecordStatusTime) {
-
+        this.recordStatusTime = aRecordStatusTime;
     }
 
     @Override
     public String getStatusCd() {
-        return null;
+        return statusCd;
     }
 
     @Override
     public void setStatusCd(String aStatusCd) {
-
+        this.statusCd = aStatusCd;
     }
 
     @Override
     public Timestamp getStatusTime() {
-        return null;
+        return statusTime;
     }
 
     @Override
     public void setStatusTime(Timestamp aStatusTime) {
-
+        this.statusTime = aStatusTime;
     }
 
     @Override
     public String getSuperclass() {
-        return null;
+        return this.getClass().getSuperclass().getName();
     }
 
     @Override
     public Long getUid() {
-        return null;
+        return nbsDocumentUid;
     }
 
     @Override
     public void setAddTime(Timestamp aAddTime) {
-
+        this.addTime = aAddTime;
     }
 
     @Override
     public Timestamp getAddTime() {
-        return null;
+        return addTime;
     }
 
     @Override
     public Long getProgramJurisdictionOid() {
-        return null;
+        return programJurisdictionOid;
     }
 
     @Override
     public void setProgramJurisdictionOid(Long aProgramJurisdictionOid) {
-
+        this.programJurisdictionOid = aProgramJurisdictionOid;
     }
 
     @Override
     public String getSharedInd() {
-        return null;
+        return sharedInd;
     }
 
     @Override
     public void setSharedInd(String aSharedInd) {
-
+        this.sharedInd = aSharedInd;
     }
 
     @Override
     public Integer getVersionCtrlNbr() {
-        return null;
+        return versionCtrlNbr;
+    }
+
+    public void setVersionCtrlNbr(Integer versionCtrlNbr) {
+        this.versionCtrlNbr = versionCtrlNbr;
     }
 }
