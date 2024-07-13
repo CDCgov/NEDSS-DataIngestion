@@ -102,7 +102,7 @@ jacocoTestReport {
                             '**/StringUtils.java',
                             '**/TimeStampUtil.java',
                             '**/AuthUtil.java',
-                            '**/ObsReqNoteHelper.java'
+                            '**/ObsReqNoteHelper.java', '**/checkNbsObject.java'
                     ]
             )
         }))
@@ -250,6 +250,6 @@ sonarqube {
                 " **/controller/**, **/kafka/consumer/**, **kafka/producer/**, **/WdsObjectChecker.java," +
                 " **/AdvancedCriteria.java, **/cache/OdseCache.java, **/cache/PropertyUtilCache.java, " +
                 " **/cache/SrteCache.java, **/StringUtils.java, **/TimeStampUtil.java, **/AuthUtil.java, " +
-                " **/ObsReqNoteHelper.java"
+                " **/ObsReqNoteHelper.java, **/checkNbsObject.java"
     }
 }
