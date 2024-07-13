@@ -6,6 +6,7 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
+import gov.cdc.dataprocessing.model.container.interfaces.PageProxyContainer;
 import gov.cdc.dataprocessing.model.container.interfaces.ReportSummaryInterface;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
@@ -263,7 +264,7 @@ public class InvestigationService implements IInvestigationService {
             String moduleCd = NEDSSConstant.BASE;
             Collection<ActRelationshipDto> actRelColl = actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(reportSumVO.getObservationUid(), "LabReport");
             businessObjLookupName = NEDSSConstant.OBSERVATIONLABREPORT;
-            if (actRelColl != null && actRelColl.size() > 0)
+            if (actRelColl != null && !actRelColl.isEmpty())
             {
                 businessTriggerCd = NEDSSConstant.OBS_LAB_DIS_ASC;
             }
@@ -281,47 +282,24 @@ public class InvestigationService implements IInvestigationService {
         updateAutoResendNotifications(v);
     }
 
-    @SuppressWarnings("java:S6541")
-    public PageActProxyContainer getPageProxyVO(String typeCd, Long publicHealthCaseUID) throws DataProcessingException {
-        PageActProxyContainer pageProxyVO = new PageActProxyContainer();
-
-        PublicHealthCaseContainer thePublicHealthCaseContainer;
-
-        ArrayList<PersonContainer> thePersonVOCollection = new ArrayList<>();
-        ArrayList<OrganizationContainer> theOrganizationVOCollection = new ArrayList<>();
-        ArrayList<MaterialContainer> theMaterialVOCollection = new ArrayList<>();
-
-        // Summary Collections
-        ArrayList<Object> theInvestigationAuditLogSummaryVOCollection;
-        ArrayList<Object> theDocumentSummaryVOCollection;
-
-
-        thePublicHealthCaseContainer = publicHealthCaseRepositoryUtil.loadObject(publicHealthCaseUID);
-
-        thePublicHealthCaseContainer.getThePublicHealthCaseDto().setAddUserName(AuthUtil.authUser.getUserId());
-        thePublicHealthCaseContainer.getThePublicHealthCaseDto().setLastChgUserName(AuthUtil.authUser.getUserId());
-
-
-        BasePamContainer pageVO = publicHealthCaseRepositoryUtil.getPamVO(publicHealthCaseUID);
-        pageProxyVO.setPageVO(pageVO);
-        String strTypeCd;
-        String strClassCd;
-        String recordStatusCd;
-        Long nEntityID;
-        ParticipationDto participationDT;
-
+    protected void processingPageProxyParticipation(PublicHealthCaseContainer thePublicHealthCaseContainer,
+                                                    ArrayList<PersonContainer> thePersonVOCollection,
+                                                    ArrayList<OrganizationContainer> theOrganizationVOCollection,
+                                                    ArrayList<MaterialContainer> theMaterialVOCollection) throws DataProcessingException {
         Iterator<ParticipationDto> participationIterator = thePublicHealthCaseContainer
                 .getTheParticipationDTCollection().iterator();
         logger.debug("ParticipationDTCollection() = "
                 + thePublicHealthCaseContainer.getTheParticipationDTCollection());
-
+        Long nEntityID;
+        String strClassCd ;
+        String recordStatusCd;
+        ParticipationDto participationDT ;
         // Populate the Entity collections with the results
         while (participationIterator.hasNext()) {
             participationDT = participationIterator
                     .next();
             nEntityID = participationDT.getSubjectEntityUid();
             strClassCd = participationDT.getSubjectClassCd();
-            strTypeCd = participationDT.getTypeCd();
             recordStatusCd = participationDT.getRecordStatusCd();
             if (strClassCd != null
                     && strClassCd.compareToIgnoreCase(NEDSSConstant.ORGANIZATION) == 0
@@ -350,13 +328,9 @@ public class InvestigationService implements IInvestigationService {
                 theMaterialVOCollection.add(materialService.loadMaterialObject(nEntityID));
             }
         }
+    }
 
-        pageProxyVO.setTheOrganizationContainerCollection(theOrganizationVOCollection);
-        pageProxyVO.setPublicHealthCaseContainer(thePublicHealthCaseContainer);
-        pageProxyVO.setThePersonContainerCollection(thePersonVOCollection);
-
-        pageProxyVO.setTheNotificationSummaryVOCollection(retrieveSummaryService.notificationSummaryOnInvestigation(thePublicHealthCaseContainer, pageProxyVO));
-
+    protected void processingPageProxySummary(PageActProxyContainer pageProxyVO) {
         if (pageProxyVO.getTheNotificationSummaryVOCollection() != null) {
             for (Object o : pageProxyVO.getTheNotificationSummaryVOCollection())
             {
@@ -383,16 +357,48 @@ public class InvestigationService implements IInvestigationService {
             }
         }
 
-        if(typeCd!=null && !typeCd.equals(NEDSSConstant.CASE_LITE)) {
-            ActRelationshipDto actRelationshipDT = null;
-            for (ActRelationshipDto actRelationshipDto : thePublicHealthCaseContainer.getTheActRelationshipDTCollection()) {
-                actRelationshipDT = actRelationshipDto;
-                Long nSourceActID = actRelationshipDT.getSourceActUid(); // NOSONAR
-                strClassCd = actRelationshipDT.getSourceClassCd(); // NOSONAR
-                strTypeCd = actRelationshipDT.getTypeCd(); // NOSONAR
-                recordStatusCd = actRelationshipDT.getRecordStatusCd(); // NOSONAR
-            }
+    }
 
+
+    @SuppressWarnings("java:S6541")
+    public PageActProxyContainer getPageProxyVO(String typeCd, Long publicHealthCaseUID) throws DataProcessingException {
+        PageActProxyContainer pageProxyVO = new PageActProxyContainer();
+
+        PublicHealthCaseContainer thePublicHealthCaseContainer;
+
+        ArrayList<PersonContainer> thePersonVOCollection = new ArrayList<>();
+        ArrayList<OrganizationContainer> theOrganizationVOCollection = new ArrayList<>();
+        ArrayList<MaterialContainer> theMaterialVOCollection = new ArrayList<>();
+
+        // Summary Collections
+        ArrayList<Object> theInvestigationAuditLogSummaryVOCollection;
+        ArrayList<Object> theDocumentSummaryVOCollection;
+
+
+        thePublicHealthCaseContainer = publicHealthCaseRepositoryUtil.loadObject(publicHealthCaseUID);
+
+        thePublicHealthCaseContainer.getThePublicHealthCaseDto().setAddUserName(AuthUtil.authUser.getUserId());
+        thePublicHealthCaseContainer.getThePublicHealthCaseDto().setLastChgUserName(AuthUtil.authUser.getUserId());
+
+
+        BasePamContainer pageVO = publicHealthCaseRepositoryUtil.getPamVO(publicHealthCaseUID);
+        pageProxyVO.setPageVO(pageVO);
+
+
+        processingPageProxyParticipation( thePublicHealthCaseContainer,
+                 thePersonVOCollection,
+                 theOrganizationVOCollection,
+                theMaterialVOCollection);
+
+        pageProxyVO.setTheOrganizationContainerCollection(theOrganizationVOCollection);
+        pageProxyVO.setPublicHealthCaseContainer(thePublicHealthCaseContainer);
+        pageProxyVO.setThePersonContainerCollection(thePersonVOCollection);
+
+        pageProxyVO.setTheNotificationSummaryVOCollection(retrieveSummaryService.notificationSummaryOnInvestigation(thePublicHealthCaseContainer, pageProxyVO));
+
+        processingPageProxySummary(pageProxyVO);
+
+        if(typeCd!=null && !typeCd.equals(NEDSSConstant.CASE_LITE)) {
             Collection<Object> labSumVOCol = new ArrayList<>();
             HashMap<Object, Object> labSumVOMap;
 
