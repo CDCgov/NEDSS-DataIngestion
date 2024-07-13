@@ -28,6 +28,9 @@ public class DSMAlgorithmDto extends BaseContainer {
     private Long lastChgUserId;
     private Timestamp lastChgTime;
 
+    public DSMAlgorithmDto() {
+
+    }
     public DSMAlgorithmDto(DsmAlgorithm dsmAlgorithm) {
         this.dsmAlgorithmUid = dsmAlgorithm.getDsmAlgorithmUid();
         this.algorithmNm = dsmAlgorithm.getAlgorithmNm();

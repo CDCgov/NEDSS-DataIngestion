@@ -111,12 +111,12 @@ public class DropDownCodeDto  extends BaseContainer implements RootDtoInterface 
 
     @Override
     public String getStatusCd() {
-        return null;
+        return statusCd;
     }
 
     @Override
     public void setStatusCd(String aStatusCd) {
-
+        statusCd = aStatusCd;
     }
 
     @Override
