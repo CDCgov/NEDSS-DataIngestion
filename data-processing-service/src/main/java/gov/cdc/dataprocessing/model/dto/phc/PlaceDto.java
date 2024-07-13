@@ -10,41 +10,39 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class PlaceDto extends BaseContainer implements RootDtoInterface
-{
-    private static final long serialVersionUID       = 1L;
-    private Long              placeUid;
-    private String            addReasonCd;
-    private Timestamp         addTime;
-    private Long              addUserId;
-    private String            cd;
-    private String            cdDescTxt;
-    private String            description;
-    private String            placeContact;
-    private String            placeUrl;
-    private String            placeAppNm;
-    private String            durationAmt;
-    private String            durationUnitCd;
-    private Timestamp         fromTime;
-    private String            lastChgReasonCd;
+public class PlaceDto extends BaseContainer implements RootDtoInterface {
+    private static final long serialVersionUID = 1L;
+    private Long placeUid;
+    private String addReasonCd;
+    private Timestamp addTime;
+    private Long addUserId;
+    private String cd;
+    private String cdDescTxt;
+    private String description;
+    private String placeContact;
+    private String placeUrl;
+    private String placeAppNm;
+    private String durationAmt;
+    private String durationUnitCd;
+    private Timestamp fromTime;
+    private String lastChgReasonCd;
     private Timestamp lastChgTime;
-    private Long              lastChgUserId;
-    private String            localId;
-    private String            nm;
-    private String            recordStatusCd;
-    private Timestamp         recordStatusTime;
-    private String            statusCd;
-    private Timestamp         statusTime;
-    private Timestamp         toTime;
-    private String            userAffiliationTxt;
-    private Integer           versionCtrlNbr;
-    private String            progAreaCd             = null;
-    private String            jurisdictionCd         = null;
-    private Long              programJurisdictionOid = null;
-    private String            sharedInd              = null;
+    private Long lastChgUserId;
+    private String localId;
+    private String nm;
+    private String recordStatusCd;
+    private Timestamp recordStatusTime;
+    private String statusCd;
+    private Timestamp statusTime;
+    private Timestamp toTime;
+    private String userAffiliationTxt;
+    private Integer versionCtrlNbr;
+    private String progAreaCd = null;
+    private String jurisdictionCd = null;
+    private Long programJurisdictionOid = null;
+    private String sharedInd = null;
 
     public PlaceDto() {
-
     }
 
     public PlaceDto(Place place) {
@@ -60,7 +58,6 @@ public class PlaceDto extends BaseContainer implements RootDtoInterface
                 place.getCityCd() + ", " + place.getStateCd() + " " + place.getZipCd() + ", " +
                 place.getCntryCd();
         // Assuming the above logic is used to construct the place contact information
-
 
         this.durationAmt = place.getDurationAmt();
         this.durationUnitCd = place.getDurationUnitCd();
@@ -79,160 +76,158 @@ public class PlaceDto extends BaseContainer implements RootDtoInterface
         this.versionCtrlNbr = place.getVersionCtrlNbr();
     }
 
-
-
     @Override
     public Long getLastChgUserId() {
-        return null;
+        return lastChgUserId;
     }
 
     @Override
     public void setLastChgUserId(Long aLastChgUserId) {
-
+        this.lastChgUserId = aLastChgUserId;
     }
 
     @Override
     public String getJurisdictionCd() {
-        return null;
+        return jurisdictionCd;
     }
 
     @Override
     public void setJurisdictionCd(String aJurisdictionCd) {
-
+        this.jurisdictionCd = aJurisdictionCd;
     }
 
     @Override
     public String getProgAreaCd() {
-        return null;
+        return progAreaCd;
     }
 
     @Override
     public void setProgAreaCd(String aProgAreaCd) {
-
+        this.progAreaCd = aProgAreaCd;
     }
 
     @Override
     public Timestamp getLastChgTime() {
-        return null;
+        return lastChgTime;
     }
 
     @Override
     public void setLastChgTime(Timestamp aLastChgTime) {
-
+        this.lastChgTime = aLastChgTime;
     }
 
     @Override
     public String getLocalId() {
-        return null;
+        return localId;
     }
 
     @Override
     public void setLocalId(String aLocalId) {
-
+        this.localId = aLocalId;
     }
 
     @Override
     public Long getAddUserId() {
-        return null;
+        return addUserId;
     }
 
     @Override
     public void setAddUserId(Long aAddUserId) {
-
+        this.addUserId = aAddUserId;
     }
 
     @Override
     public String getLastChgReasonCd() {
-        return null;
+        return lastChgReasonCd;
     }
 
     @Override
     public void setLastChgReasonCd(String aLastChgReasonCd) {
-
+        this.lastChgReasonCd = aLastChgReasonCd;
     }
 
     @Override
     public String getRecordStatusCd() {
-        return null;
+        return recordStatusCd;
     }
 
     @Override
     public void setRecordStatusCd(String aRecordStatusCd) {
-
+        this.recordStatusCd = aRecordStatusCd;
     }
 
     @Override
     public Timestamp getRecordStatusTime() {
-        return null;
+        return recordStatusTime;
     }
 
     @Override
     public void setRecordStatusTime(Timestamp aRecordStatusTime) {
-
+        this.recordStatusTime = aRecordStatusTime;
     }
 
     @Override
     public String getStatusCd() {
-        return null;
+        return statusCd;
     }
 
     @Override
     public void setStatusCd(String aStatusCd) {
-
+        this.statusCd = aStatusCd;
     }
 
     @Override
     public Timestamp getStatusTime() {
-        return null;
+        return statusTime;
     }
 
     @Override
     public void setStatusTime(Timestamp aStatusTime) {
-
+        this.statusTime = aStatusTime;
     }
 
     @Override
     public String getSuperclass() {
-        return null;
+        return superClassType;
     }
 
     @Override
     public Long getUid() {
-        return null;
+        return placeUid;
     }
 
     @Override
     public void setAddTime(Timestamp aAddTime) {
-
+        this.addTime = aAddTime;
     }
 
     @Override
     public Timestamp getAddTime() {
-        return null;
+        return addTime;
     }
 
     @Override
     public Long getProgramJurisdictionOid() {
-        return null;
+        return programJurisdictionOid;
     }
 
     @Override
     public void setProgramJurisdictionOid(Long aProgramJurisdictionOid) {
-
+        this.programJurisdictionOid = aProgramJurisdictionOid;
     }
 
     @Override
     public String getSharedInd() {
-        return null;
+        return sharedInd;
     }
 
     @Override
     public void setSharedInd(String aSharedInd) {
-
+        this.sharedInd = aSharedInd;
     }
 
     @Override
     public Integer getVersionCtrlNbr() {
-        return null;
+        return versionCtrlNbr;
     }
 }

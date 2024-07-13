@@ -1,11 +1,9 @@
 package gov.cdc.dataprocessing.model.dto.dsm;
 
-
 import org.junit.jupiter.api.Test;
-
 import java.sql.Timestamp;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DSMUpdateAlgorithmDtoTest {
 
@@ -13,58 +11,77 @@ class DSMUpdateAlgorithmDtoTest {
     void testGettersAndSetters() {
         DSMUpdateAlgorithmDto dto = new DSMUpdateAlgorithmDto();
 
-        Long dsmUpdateAlgorithmUid = 1L;
-        String conditionCd = "Condition Cd";
-        String sendingSystemNm = "Sending System Nm";
-        String updateIndCd = "Update Ind Cd";
-        String updateClosedBehaviour = "Update Closed Behaviour";
-        String updateMultiClosedBehaviour = "Update Multi Closed Behaviour";
-        String updateMultiOpenBehaviour = "Update Multi Open Behaviour";
-        String updateIgnoreList = "Update Ignore List";
-        String updateTimeframe = "Update Timeframe";
-        String adminComment = "Admin Comment";
-        String statusCd = "Status Cd";
-        Timestamp statusTime = new Timestamp(System.currentTimeMillis());
-        Long addUserId = 2L;
-        Timestamp addTime = new Timestamp(System.currentTimeMillis());
-        Long lastChgUserId = 3L;
-        Timestamp lastChgTime = new Timestamp(System.currentTimeMillis());
-        String dsmUpdateAlgorithmMapKey = "DSM Update Algorithm Map Key";
+        // Set values
+        dto.setDsmUpdateAlgorithmUid(1L);
+        dto.setConditionCd("ConditionCd");
+        dto.setSendingSystemNm("SendingSystemNm");
+        dto.setUpdateIndCd("UpdateIndCd");
+        dto.setUpdateClosedBehaviour("UpdateClosedBehaviour");
+        dto.setUpdateMultiClosedBehaviour("UpdateMultiClosedBehaviour");
+        dto.setUpdateMultiOpenBehaviour("UpdateMultiOpenBehaviour");
+        dto.setUpdateIgnoreList("UpdateIgnoreList");
+        dto.setUpdateTimeframe("UpdateTimeframe");
+        dto.setAdminComment("AdminComment");
+        dto.setStatusCd("StatusCd");
+        dto.setStatusTime(new Timestamp(System.currentTimeMillis()));
+        dto.setAddUserId(2L);
+        dto.setAddTime(new Timestamp(System.currentTimeMillis()));
+        dto.setLastChgUserId(3L);
+        dto.setLastChgTime(new Timestamp(System.currentTimeMillis()));
+        dto.setDsmUpdateAlgorithmMapKey("DsmUpdateAlgorithmMapKey");
+        dto.setJurisdictionCd("JurisdictionCd");
+        dto.setProgAreaCd("ProgAreaCd");
+        dto.setLocalId("LocalId");
+        dto.setLastChgReasonCd("LastChgReasonCd");
+        dto.setRecordStatusCd("RecordStatusCd");
+        dto.setRecordStatusTime(new Timestamp(System.currentTimeMillis()));
+        dto.setProgramJurisdictionOid(4L);
+        dto.setSharedInd("SharedInd");
+        dto.setVersionCtrlNbr(1);
 
-        dto.setDsmUpdateAlgorithmUid(dsmUpdateAlgorithmUid);
-        dto.setConditionCd(conditionCd);
-        dto.setSendingSystemNm(sendingSystemNm);
-        dto.setUpdateIndCd(updateIndCd);
-        dto.setUpdateClosedBehaviour(updateClosedBehaviour);
-        dto.setUpdateMultiClosedBehaviour(updateMultiClosedBehaviour);
-        dto.setUpdateMultiOpenBehaviour(updateMultiOpenBehaviour);
-        dto.setUpdateIgnoreList(updateIgnoreList);
-        dto.setUpdateTimeframe(updateTimeframe);
-        dto.setAdminComment(adminComment);
-        dto.setStatusCd(statusCd);
-        dto.setStatusTime(statusTime);
-        dto.setAddUserId(addUserId);
-        dto.setAddTime(addTime);
-        dto.setLastChgUserId(lastChgUserId);
-        dto.setLastChgTime(lastChgTime);
-        dto.setDsmUpdateAlgorithmMapKey(dsmUpdateAlgorithmMapKey);
+        // Assert values
+        assertEquals(1L, dto.getDsmUpdateAlgorithmUid());
+        assertEquals("ConditionCd", dto.getConditionCd());
+        assertEquals("SendingSystemNm", dto.getSendingSystemNm());
+        assertEquals("UpdateIndCd", dto.getUpdateIndCd());
+        assertEquals("UpdateClosedBehaviour", dto.getUpdateClosedBehaviour());
+        assertEquals("UpdateMultiClosedBehaviour", dto.getUpdateMultiClosedBehaviour());
+        assertEquals("UpdateMultiOpenBehaviour", dto.getUpdateMultiOpenBehaviour());
+        assertEquals("UpdateIgnoreList", dto.getUpdateIgnoreList());
+        assertEquals("UpdateTimeframe", dto.getUpdateTimeframe());
+        assertEquals("AdminComment", dto.getAdminComment());
+        assertEquals("StatusCd", dto.getStatusCd());
+        assertNotNull(dto.getStatusTime());
+        assertEquals(2L, dto.getAddUserId());
+        assertNotNull(dto.getAddTime());
+        assertEquals(3L, dto.getLastChgUserId());
+        assertNotNull(dto.getLastChgTime());
+        assertEquals("DsmUpdateAlgorithmMapKey", dto.getDsmUpdateAlgorithmMapKey());
+        assertEquals("JurisdictionCd", dto.getJurisdictionCd());
+        assertEquals("ProgAreaCd", dto.getProgAreaCd());
+        assertEquals("LocalId", dto.getLocalId());
+        assertEquals("LastChgReasonCd", dto.getLastChgReasonCd());
+        assertEquals("RecordStatusCd", dto.getRecordStatusCd());
+        assertNotNull(dto.getRecordStatusTime());
+        assertEquals(4L, dto.getProgramJurisdictionOid());
+        assertEquals("SharedInd", dto.getSharedInd());
+        assertEquals(1, dto.getVersionCtrlNbr());
 
-        assertEquals(dsmUpdateAlgorithmUid, dto.getDsmUpdateAlgorithmUid());
-        assertEquals(conditionCd, dto.getConditionCd());
-        assertEquals(sendingSystemNm, dto.getSendingSystemNm());
-        assertEquals(updateIndCd, dto.getUpdateIndCd());
-        assertEquals(updateClosedBehaviour, dto.getUpdateClosedBehaviour());
-        assertEquals(updateMultiClosedBehaviour, dto.getUpdateMultiClosedBehaviour());
-        assertEquals(updateMultiOpenBehaviour, dto.getUpdateMultiOpenBehaviour());
-        assertEquals(updateIgnoreList, dto.getUpdateIgnoreList());
-        assertEquals(updateTimeframe, dto.getUpdateTimeframe());
-        assertEquals(adminComment, dto.getAdminComment());
-        assertEquals(statusCd, dto.getStatusCd());
-        assertEquals(statusTime, dto.getStatusTime());
-        assertEquals(addUserId, dto.getAddUserId());
-        assertEquals(addTime, dto.getAddTime());
-        assertEquals(lastChgUserId, dto.getLastChgUserId());
-        assertEquals(lastChgTime, dto.getLastChgTime());
-        assertEquals(dsmUpdateAlgorithmMapKey, dto.getDsmUpdateAlgorithmMapKey());
+        // Test overridden methods
+        assertEquals("JurisdictionCd", dto.getJurisdictionCd());
+        assertEquals("ProgAreaCd", dto.getProgAreaCd());
+        assertEquals("LocalId", dto.getLocalId());
+        assertEquals("LastChgReasonCd", dto.getLastChgReasonCd());
+        assertEquals("RecordStatusCd", dto.getRecordStatusCd());
+        assertEquals("StatusCd", dto.getStatusCd());
+        assertNotNull(dto.getStatusTime());
+        assertEquals("ConditionCd", dto.getConditionCd());
+        assertNotNull(dto.getAddTime());
+        assertEquals(4L, dto.getProgramJurisdictionOid());
+        assertEquals("SharedInd", dto.getSharedInd());
+        assertEquals(1, dto.getVersionCtrlNbr());
+        assertEquals(1L, dto.getDsmUpdateAlgorithmUid());
+        assertEquals(3L, dto.getLastChgUserId());
+        assertNotNull(dto.getLastChgTime());
     }
 }

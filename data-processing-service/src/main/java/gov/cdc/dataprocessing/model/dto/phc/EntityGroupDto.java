@@ -10,8 +10,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class EntityGroupDto extends BaseContainer implements RootDtoInterface
-{
+public class EntityGroupDto extends BaseContainer implements RootDtoInterface {
     private static final long serialVersionUID = 1L;
     private Long entityGroupUid;
 
@@ -103,8 +102,6 @@ public class EntityGroupDto extends BaseContainer implements RootDtoInterface
         this.versionCtrlNbr = entityGroup.getVersionCtrlNbr();
     }
 
-
-
     @Override
     public Long getLastChgUserId() {
         return null;
@@ -112,7 +109,7 @@ public class EntityGroupDto extends BaseContainer implements RootDtoInterface
 
     @Override
     public void setLastChgUserId(Long aLastChgUserId) {
-
+        // No operation needed for setLastChgUserId()
     }
 
     @Override
@@ -122,7 +119,7 @@ public class EntityGroupDto extends BaseContainer implements RootDtoInterface
 
     @Override
     public void setJurisdictionCd(String aJurisdictionCd) {
-
+        // No operation needed for setJurisdictionCd()
     }
 
     @Override
@@ -132,7 +129,7 @@ public class EntityGroupDto extends BaseContainer implements RootDtoInterface
 
     @Override
     public void setProgAreaCd(String aProgAreaCd) {
-
+        // No operation needed for setProgAreaCd()
     }
 
     @Override
@@ -142,7 +139,7 @@ public class EntityGroupDto extends BaseContainer implements RootDtoInterface
 
     @Override
     public void setLastChgTime(Timestamp aLastChgTime) {
-
+        // No operation needed for setLastChgTime()
     }
 
     @Override
@@ -152,7 +149,7 @@ public class EntityGroupDto extends BaseContainer implements RootDtoInterface
 
     @Override
     public void setLocalId(String aLocalId) {
-
+        // No operation needed for setLocalId()
     }
 
     @Override
@@ -162,7 +159,7 @@ public class EntityGroupDto extends BaseContainer implements RootDtoInterface
 
     @Override
     public void setAddUserId(Long aAddUserId) {
-
+        // No operation needed for setAddUserId()
     }
 
     @Override
@@ -172,7 +169,7 @@ public class EntityGroupDto extends BaseContainer implements RootDtoInterface
 
     @Override
     public void setLastChgReasonCd(String aLastChgReasonCd) {
-
+        // No operation needed for setLastChgReasonCd()
     }
 
     @Override
@@ -182,7 +179,7 @@ public class EntityGroupDto extends BaseContainer implements RootDtoInterface
 
     @Override
     public void setRecordStatusCd(String aRecordStatusCd) {
-
+        // No operation needed for setRecordStatusCd()
     }
 
     @Override
@@ -192,17 +189,17 @@ public class EntityGroupDto extends BaseContainer implements RootDtoInterface
 
     @Override
     public void setRecordStatusTime(Timestamp aRecordStatusTime) {
-
+        // No operation needed for setRecordStatusTime()
     }
 
     @Override
     public String getStatusCd() {
-        return null;
+        return statusCd;
     }
 
     @Override
     public void setStatusCd(String aStatusCd) {
-
+        // No operation needed for setStatusCd()
     }
 
     @Override
@@ -212,7 +209,7 @@ public class EntityGroupDto extends BaseContainer implements RootDtoInterface
 
     @Override
     public void setStatusTime(Timestamp aStatusTime) {
-
+        // No operation needed for setStatusTime()
     }
 
     @Override
@@ -227,7 +224,7 @@ public class EntityGroupDto extends BaseContainer implements RootDtoInterface
 
     @Override
     public void setAddTime(Timestamp aAddTime) {
-
+        // No operation needed for setAddTime()
     }
 
     @Override
@@ -242,7 +239,7 @@ public class EntityGroupDto extends BaseContainer implements RootDtoInterface
 
     @Override
     public void setProgramJurisdictionOid(Long aProgramJurisdictionOid) {
-
+        // No operation needed for setProgramJurisdictionOid()
     }
 
     @Override
@@ -252,7 +249,7 @@ public class EntityGroupDto extends BaseContainer implements RootDtoInterface
 
     @Override
     public void setSharedInd(String aSharedInd) {
-
+        // No operation needed for setSharedInd()
     }
 
     @Override

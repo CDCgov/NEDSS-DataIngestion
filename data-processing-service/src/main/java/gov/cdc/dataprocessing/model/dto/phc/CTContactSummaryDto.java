@@ -49,7 +49,6 @@ public class CTContactSummaryDto extends BaseContainer implements RootDtoInterfa
     private String associatedWith;
     private Timestamp createDate;
 
-
     private String contactReferralBasisCd;
     private Long namedDuringInterviewUid;
     private Long thirdPartyEntityPhcUid; //this is really Other Infected Investigation
@@ -75,7 +74,7 @@ public class CTContactSummaryDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setLastChgUserId(Long aLastChgUserId) {
-
+        // No operation needed for setLastChgUserId()
     }
 
     @Override
@@ -85,7 +84,7 @@ public class CTContactSummaryDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setJurisdictionCd(String aJurisdictionCd) {
-
+        // No operation needed for setJurisdictionCd()
     }
 
     @Override
@@ -95,7 +94,7 @@ public class CTContactSummaryDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setProgAreaCd(String aProgAreaCd) {
-
+        // No operation needed for setProgAreaCd()
     }
 
     @Override
@@ -105,7 +104,7 @@ public class CTContactSummaryDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setLastChgTime(Timestamp aLastChgTime) {
-
+        // No operation needed for setLastChgTime()
     }
 
     @Override
@@ -115,7 +114,7 @@ public class CTContactSummaryDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setLocalId(String aLocalId) {
-
+        // No operation needed for setLocalId()
     }
 
     @Override
@@ -125,7 +124,7 @@ public class CTContactSummaryDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setAddUserId(Long aAddUserId) {
-
+        // No operation needed for setAddUserId()
     }
 
     @Override
@@ -135,7 +134,7 @@ public class CTContactSummaryDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setLastChgReasonCd(String aLastChgReasonCd) {
-
+        // No operation needed for setLastChgReasonCd()
     }
 
     @Override
@@ -145,7 +144,7 @@ public class CTContactSummaryDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setRecordStatusCd(String aRecordStatusCd) {
-
+        // No operation needed for setRecordStatusCd()
     }
 
     @Override
@@ -155,7 +154,7 @@ public class CTContactSummaryDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setRecordStatusTime(Timestamp aRecordStatusTime) {
-
+        // No operation needed for setRecordStatusTime()
     }
 
     @Override
@@ -165,7 +164,7 @@ public class CTContactSummaryDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setStatusCd(String aStatusCd) {
-
+        // No operation needed for setStatusCd()
     }
 
     @Override
@@ -175,7 +174,7 @@ public class CTContactSummaryDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setStatusTime(Timestamp aStatusTime) {
-
+        // No operation needed for setStatusTime()
     }
 
     @Override
@@ -190,7 +189,7 @@ public class CTContactSummaryDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setAddTime(Timestamp aAddTime) {
-
+        // No operation needed for setAddTime()
     }
 
     @Override
@@ -205,7 +204,7 @@ public class CTContactSummaryDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setProgramJurisdictionOid(Long aProgramJurisdictionOid) {
-
+        // No operation needed for setProgramJurisdictionOid()
     }
 
     @Override
@@ -215,7 +214,7 @@ public class CTContactSummaryDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setSharedInd(String aSharedInd) {
-
+        // No operation needed for setSharedInd()
     }
 
     @Override

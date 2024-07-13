@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class PatientEncounterDto  extends BaseContainer implements RootDtoInterface {
+public class PatientEncounterDto extends BaseContainer implements RootDtoInterface {
     private static final long serialVersionUID = 1L;
     private Long patientEncounterUid;
     private String activityDurationAmt;
@@ -74,7 +74,7 @@ public class PatientEncounterDto  extends BaseContainer implements RootDtoInterf
         this.addUserId = entity.getAddUserId();
         this.admissionSourceCd = entity.getAdmissionSourceCd();
         this.admissionSourceDescTxt = entity.getAdmissionSourceDescTxt();
-        this.birthEncounterInd = entity.getBirthEncounterInd(); // Assuming birthEncounterInd is of type Character
+        this.birthEncounterInd = entity.getBirthEncounterInd();
         this.cd = entity.getCd();
         this.cdDescTxt = entity.getCdDescTxt();
         this.confidentialityCd = entity.getConfidentialityCd();
@@ -94,124 +94,123 @@ public class PatientEncounterDto  extends BaseContainer implements RootDtoInterf
         this.referralSourceCd = entity.getReferralSourceCd();
         this.referralSourceDescTxt = entity.getReferralSourceDescTxt();
         this.repeatNbr = entity.getRepeatNbr();
-        this.statusCd = entity.getStatusCd(); // Assuming statusCd is of type Character
+        this.statusCd = entity.getStatusCd();
         this.statusTime = entity.getStatusTime();
         this.txt = entity.getTxt();
         this.userAffiliationTxt = entity.getUserAffiliationTxt();
         this.programJurisdictionOid = entity.getProgramJurisdictionOid();
-        this.sharedInd = entity.getSharedInd(); // Assuming sharedInd is of type Character
+        this.sharedInd = entity.getSharedInd();
         this.versionCtrlNbr = entity.getVersionCtrlNbr();
     }
 
-
     @Override
     public Long getLastChgUserId() {
-        return null;
+        return lastChgUserId;
     }
 
     @Override
     public void setLastChgUserId(Long aLastChgUserId) {
-
+       this.lastChgUserId = aLastChgUserId;
     }
 
     @Override
     public String getJurisdictionCd() {
-        return null;
+        return jurisdictionCd;
     }
 
     @Override
     public void setJurisdictionCd(String aJurisdictionCd) {
-
+        jurisdictionCd = aJurisdictionCd;
     }
 
     @Override
     public String getProgAreaCd() {
-        return null;
+        return progAreaCd;
     }
 
     @Override
     public void setProgAreaCd(String aProgAreaCd) {
-
+        this.progAreaCd = aProgAreaCd;
     }
 
     @Override
     public Timestamp getLastChgTime() {
-        return null;
+        return lastChgTime;
     }
 
     @Override
     public void setLastChgTime(Timestamp aLastChgTime) {
-
+        lastChgTime = aLastChgTime;
     }
 
     @Override
     public String getLocalId() {
-        return null;
+        return localId;
     }
 
     @Override
     public void setLocalId(String aLocalId) {
-
+        this.localId =aLocalId;
     }
 
     @Override
     public Long getAddUserId() {
-        return null;
+        return addUserId;
     }
 
     @Override
     public void setAddUserId(Long aAddUserId) {
-
+        addUserId = aAddUserId;
     }
 
     @Override
     public String getLastChgReasonCd() {
-        return null;
+        return lastChgReasonCd;
     }
 
     @Override
     public void setLastChgReasonCd(String aLastChgReasonCd) {
-
+        this.lastChgReasonCd = aLastChgReasonCd;
     }
 
     @Override
     public String getRecordStatusCd() {
-        return null;
+        return recordStatusCd;
     }
 
     @Override
     public void setRecordStatusCd(String aRecordStatusCd) {
-
+        recordStatusCd = aRecordStatusCd;
     }
 
     @Override
     public Timestamp getRecordStatusTime() {
-        return null;
+        return recordStatusTime;
     }
 
     @Override
     public void setRecordStatusTime(Timestamp aRecordStatusTime) {
-
+        recordStatusTime = aRecordStatusTime;
     }
 
     @Override
     public String getStatusCd() {
-        return null;
+        return statusCd;
     }
 
     @Override
     public void setStatusCd(String aStatusCd) {
-
+        statusCd =aStatusCd;
     }
 
     @Override
     public Timestamp getStatusTime() {
-        return null;
+        return statusTime;
     }
 
     @Override
     public void setStatusTime(Timestamp aStatusTime) {
-
+        statusTime = aStatusTime;
     }
 
     @Override
@@ -221,41 +220,41 @@ public class PatientEncounterDto  extends BaseContainer implements RootDtoInterf
 
     @Override
     public Long getUid() {
-        return null;
+        return patientEncounterUid;
     }
 
     @Override
     public void setAddTime(Timestamp aAddTime) {
-
+        addTime = aAddTime;
     }
 
     @Override
     public Timestamp getAddTime() {
-        return null;
+        return addTime;
     }
 
     @Override
     public Long getProgramJurisdictionOid() {
-        return null;
+        return programJurisdictionOid;
     }
 
     @Override
     public void setProgramJurisdictionOid(Long aProgramJurisdictionOid) {
-
+        programJurisdictionOid = aProgramJurisdictionOid;
     }
 
     @Override
     public String getSharedInd() {
-        return null;
+        return sharedInd;
     }
 
     @Override
     public void setSharedInd(String aSharedInd) {
-
+        sharedInd = aSharedInd;
     }
 
     @Override
     public Integer getVersionCtrlNbr() {
-        return null;
+        return versionCtrlNbr;
     }
 }

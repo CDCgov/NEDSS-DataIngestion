@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.model.dto.log;
 
 
+import gov.cdc.dataprocessing.repository.nbs.odse.model.log.NNDActivityLog;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
@@ -45,5 +46,33 @@ class NNDActivityLogDtoTest {
         assertEquals(statusTime, dto.getStatusTime());
         assertEquals(subjectNm, dto.getSubjectNm());
         assertEquals(service, dto.getService());
+    }
+
+
+    @Test
+    void testSpecialConstructor() {
+        NNDActivityLog activityLog = new NNDActivityLog();
+        activityLog.setNndActivityLogUid(1L);
+        activityLog.setNndActivityLogSeq(1);
+        activityLog.setErrorMessageTxt("ErrorMessageTxt");
+        activityLog.setLocalId("LocalId");
+        activityLog.setRecordStatusCd("RecordStatusCd");
+        activityLog.setRecordStatusTime(new Timestamp(System.currentTimeMillis()));
+        activityLog.setStatusCd("StatusCd");
+        activityLog.setStatusTime(new Timestamp(System.currentTimeMillis()));
+        activityLog.setService("Service");
+
+        NNDActivityLogDto dto = new NNDActivityLogDto(activityLog);
+
+        // Assert values
+        assertEquals(activityLog.getNndActivityLogUid(), dto.getNndActivityLogUid());
+        assertEquals(activityLog.getNndActivityLogSeq(), dto.getNndActivityLogSeq());
+        assertEquals(activityLog.getErrorMessageTxt(), dto.getErrorMessageTxt());
+        assertEquals(activityLog.getLocalId(), dto.getLocalId());
+        assertEquals(activityLog.getRecordStatusCd(), dto.getRecordStatusCd());
+        assertEquals(activityLog.getRecordStatusTime(), dto.getRecordStatusTime());
+        assertEquals(activityLog.getStatusCd(), dto.getStatusCd());
+        assertEquals(activityLog.getStatusTime(), dto.getStatusTime());
+        assertEquals(activityLog.getService(), dto.getService());
     }
 }

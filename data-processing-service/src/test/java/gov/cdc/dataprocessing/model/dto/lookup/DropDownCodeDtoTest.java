@@ -1,48 +1,55 @@
 package gov.cdc.dataprocessing.model.dto.lookup;
 
-import gov.cdc.dataprocessing.model.dto.lookup.DropDownCodeDto;
 import org.junit.jupiter.api.Test;
-import java.sql.Timestamp;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class DropDownCodeDtoTest {
+import java.sql.Timestamp;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class DropDownCodeDtoTest {
 
     @Test
-    public void testGetterSetter() {
-        // Create an instance of DropDownCodeDto
+    void testGettersAndSetters() {
         DropDownCodeDto dto = new DropDownCodeDto();
 
-        // Test setting and getting values for key
-        dto.setKey("testKey");
-        assertEquals("testKey", dto.getKey());
+        // Set values
+        dto.setKey("Key");
+        dto.setValue("Value");
+        dto.setIntValue(1);
+        dto.setAltValue("AltValue");
+        dto.setLongKey(1L);
+        dto.setStatusCd("StatusCd");
+        dto.setEffectiveToTime(new Timestamp(System.currentTimeMillis()));
 
-        // Test setting and getting values for value
-        dto.setValue("testValue");
-        assertEquals("testValue", dto.getValue());
+        // Assert values
+        assertEquals("Key", dto.getKey());
+        assertEquals("Value", dto.getValue());
+        assertEquals(1, dto.getIntValue());
+        assertEquals("AltValue", dto.getAltValue());
+        assertEquals(1L, dto.getLongKey());
+        assertEquals("StatusCd", dto.getStatusCd());
+        assertNotNull(dto.getEffectiveToTime());
+    }
 
-        // Test setting and getting values for intValue
-        dto.setIntValue(123);
-        assertEquals(123, dto.getIntValue());
+    @Test
+    void testOverriddenMethods() {
+        DropDownCodeDto dto = new DropDownCodeDto();
 
-        // Test setting and getting values for altValue
-        dto.setAltValue("testAltValue");
-        assertEquals("testAltValue", dto.getAltValue());
+        dto.setSharedInd("TEST");
+        dto.setProgramJurisdictionOid(100L);
+        dto.setAddTime(null);
+        dto.setStatusTime(null);
+        dto.setRecordStatusTime(null);
+        dto .setRecordStatusCd(null);
+        dto.setLastChgReasonCd(null);
+        dto.setAddUserId(null);
+        dto.setLocalId(null);
+        dto.setLastChgTime(null);
+        dto.setProgAreaCd(null);
+        dto.setJurisdictionCd(null);
+        dto.setLastChgUserId(null);
 
-        // Test setting and getting values for longKey
-        dto.setLongKey(456L);
-        assertEquals(456L, dto.getLongKey());
-
-        // Test setting and getting values for statusCd
-        dto.setStatusCd("ACTIVE");
-        assertEquals("ACTIVE", dto.getStatusCd());
-
-        // Test setting and getting values for effectiveToTime
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        dto.setEffectiveToTime(timestamp);
-        assertEquals(timestamp, dto.getEffectiveToTime());
-
-        // Test default values
+        // Test overridden methods that return null
         assertNull(dto.getLastChgUserId());
         assertNull(dto.getJurisdictionCd());
         assertNull(dto.getProgAreaCd());
@@ -59,5 +66,11 @@ public class DropDownCodeDtoTest {
         assertNull(dto.getProgramJurisdictionOid());
         assertNull(dto.getSharedInd());
         assertNull(dto.getVersionCtrlNbr());
+
+        // Set and assert statusCd (special case)
+        dto.setStatusCd("StatusCd");
+        assertEquals("StatusCd", dto.getStatusCd());
     }
+
+
 }

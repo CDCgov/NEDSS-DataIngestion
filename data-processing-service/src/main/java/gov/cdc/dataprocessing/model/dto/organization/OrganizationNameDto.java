@@ -32,7 +32,7 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setLastChgUserId(Long aLastChgUserId) {
-
+        // No operation needed for setLastChgUserId()
     }
 
     @Override
@@ -42,7 +42,7 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setLastChgTime(Timestamp aLastChgTime) {
-
+        // No operation needed for setLastChgTime()
     }
 
     @Override
@@ -52,7 +52,7 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setLocalId(String aLocalId) {
-
+        // No operation needed for setLocalId()
     }
 
     @Override
@@ -72,7 +72,7 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setLastChgReasonCd(String aLastChgReasonCd) {
-
+        // No operation needed for setLastChgReasonCd()
     }
 
     @Override
@@ -82,7 +82,7 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setRecordStatusTime(Timestamp aRecordStatusTime) {
-
+        // No operation needed for setRecordStatusTime()
     }
 
     @Override
@@ -92,7 +92,7 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setStatusCd(String aStatusCd) {
-
+        // No operation needed for setStatusCd()
     }
 
     @Override
@@ -102,9 +102,10 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setStatusTime(Timestamp aStatusTime) {
-
+        // No operation needed for setStatusTime()
     }
 
+    @Override
     public String getSuperclass() {
         this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
         return superClassType;
@@ -117,7 +118,7 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setAddTime(Timestamp aAddTime) {
-
+        // No operation needed for setAddTime()
     }
 
     @Override
@@ -130,18 +131,18 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
         return null;
     }
 
-    public OrganizationNameDto(){
+    public OrganizationNameDto() {
         itDirty = false;
         itNew = true;
         itDelete = false;
-
     }
-    public OrganizationNameDto(OrganizationName organizationName){
-        this.organizationUid=organizationName.getOrganizationUid();
-        this.organizationNameSeq=organizationName.getOrganizationNameSeq();
-        this.nmTxt=organizationName.getNameText();
-        this.nmUseCd=organizationName.getNameUseCode();
-        this.recordStatusCd=organizationName.getRecordStatusCode();
-        this.defaultNmInd=organizationName.getDefaultNameIndicator();
+
+    public OrganizationNameDto(OrganizationName organizationName) {
+        this.organizationUid = organizationName.getOrganizationUid();
+        this.organizationNameSeq = organizationName.getOrganizationNameSeq();
+        this.nmTxt = organizationName.getNameText();
+        this.nmUseCd = organizationName.getNameUseCode();
+        this.recordStatusCd = organizationName.getRecordStatusCode();
+        this.defaultNmInd = organizationName.getDefaultNameIndicator();
     }
 }
