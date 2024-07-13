@@ -9,6 +9,7 @@ import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.edx.EDXDocumentDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.log.MessageLogDto;
+import gov.cdc.dataprocessing.model.dto.log.NNDActivityLogDto;
 import gov.cdc.dataprocessing.model.dto.material.MaterialDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
@@ -951,5 +952,143 @@ class ObservationServiceTest {
         observationService.loadingObservationToLabResultContainerActHelper(lrProxyVO, isELR, allAct, orderedTest);
 
         assertNull(lrProxyVO.getTheInterventionVOCollection());
+    }
+
+
+    @Test
+    void testUpdateLabResultWithAutoResendNotification_Success() throws DataProcessingException {
+        LabResultProxyContainer labResultProxyVO = new LabResultProxyContainer();
+        labResultProxyVO.associatedNotificationInd = true;
+
+        observationService.updateLabResultWithAutoResendNotification(labResultProxyVO);
+
+        verify(investigationService, times(1)).updateAutoResendNotificationsAsync(labResultProxyVO);
+        verifyNoInteractions(nndActivityLogService);
+    }
+
+    @Test
+    void testUpdateLabResultWithAutoResendNotification_Exception() throws DataProcessingException {
+        LabResultProxyContainer labResultProxyVO = new LabResultProxyContainer();
+        labResultProxyVO.associatedNotificationInd = true;
+
+        doThrow(new RuntimeException("Test Exception")).when(investigationService).updateAutoResendNotificationsAsync(labResultProxyVO);
+
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setLocalId("testLocalId");
+        observationDto.setCd("LabReport");
+        ObservationContainer observationContainer = new ObservationContainer();
+        observationContainer.setTheObservationDto(observationDto);
+        Collection<ObservationContainer> observationCollection = new ArrayList<>();
+        observationCollection.add(observationContainer);
+        labResultProxyVO.setTheObservationContainerCollection(observationCollection);
+
+        NNDActivityLogDto nndActivityLogDto = observationService.updateLabResultWithAutoResendNotification(labResultProxyVO);
+
+        verify(investigationService, times(1)).updateAutoResendNotificationsAsync(labResultProxyVO);
+        verify(nndActivityLogService, times(1)).saveNddActivityLog(any(NNDActivityLogDto.class));
+        assertEquals("testLocalId", nndActivityLogDto.getLocalId());
+        assertEquals("java.lang.RuntimeException: Test Exception", nndActivityLogDto.getErrorMessageTxt());
+    }
+
+    @Test
+    void testUpdateLabResultWithAutoResendNotification_NoNotification() throws DataProcessingException {
+        LabResultProxyContainer labResultProxyVO = new LabResultProxyContainer();
+        labResultProxyVO.associatedNotificationInd = false;
+
+        NNDActivityLogDto result = observationService.updateLabResultWithAutoResendNotification(labResultProxyVO);
+
+        verifyNoInteractions(investigationService);
+        verifyNoInteractions(nndActivityLogService);
+        assertNull(result);
+    }
+
+    @Test
+    void testUpdateLabResultWithAutoResendNotification_ExceptionWithNullLocalId() throws DataProcessingException {
+        LabResultProxyContainer labResultProxyVO = new LabResultProxyContainer();
+        labResultProxyVO.associatedNotificationInd = true;
+
+        doThrow(new RuntimeException("Test Exception")).when(investigationService).updateAutoResendNotificationsAsync(labResultProxyVO);
+
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setCd("LabReport");
+
+        ObservationContainer observationContainer = new ObservationContainer();
+        observationContainer.setTheObservationDto(observationDto);
+        Collection<ObservationContainer> observationCollection = new ArrayList<>();
+        observationCollection.add(observationContainer);
+        labResultProxyVO.setTheObservationContainerCollection(observationCollection);
+
+        NNDActivityLogDto nndActivityLogDto = observationService.updateLabResultWithAutoResendNotification(labResultProxyVO);
+
+        verify(investigationService, times(1)).updateAutoResendNotificationsAsync(labResultProxyVO);
+        verify(nndActivityLogService, times(1)).saveNddActivityLog(any(NNDActivityLogDto.class));
+        assertEquals("N/A", nndActivityLogDto.getLocalId());
+        assertEquals("java.lang.RuntimeException: Test Exception", nndActivityLogDto.getErrorMessageTxt());
+    }
+
+
+    @Test
+    void testFindObservationByCode_CollectionIsNull() {
+        ObservationContainer result = observationService.findObservationByCode(null, "someCode");
+        assertNull(result);
+    }
+
+    @Test
+    void testFindObservationByCode_NoMatchingCode() {
+        Collection<ObservationContainer> coll = new ArrayList<>();
+        coll.add(createObservationContainer("code1"));
+        coll.add(createObservationContainer("code2"));
+
+        ObservationContainer result = observationService.findObservationByCode(coll, "someCode");
+        assertNull(result);
+    }
+
+    @Test
+    void testFindObservationByCode_MatchingCode() {
+        Collection<ObservationContainer> coll = new ArrayList<>();
+        coll.add(createObservationContainer("code1"));
+        coll.add(createObservationContainer("someCode"));
+
+        ObservationContainer result = observationService.findObservationByCode(coll, "someCode");
+        assertEquals("someCode", result.getTheObservationDto().getCd());
+    }
+
+    @Test
+    void testFindObservationByCode_ObservationDtoIsNull() {
+        Collection<ObservationContainer> coll = new ArrayList<>();
+        coll.add(new ObservationContainer());
+        coll.add(createObservationContainer("someCode"));
+
+        ObservationContainer result = observationService.findObservationByCode(coll, "someCode");
+        assertEquals("someCode", result.getTheObservationDto().getCd());
+    }
+
+    @Test
+    void testFindObservationByCode_CodeIsNull() {
+        Collection<ObservationContainer> coll = new ArrayList<>();
+        coll.add(createObservationContainer(null));
+        coll.add(createObservationContainer("someCode"));
+
+        ObservationContainer result = observationService.findObservationByCode(coll, "someCode");
+        assertEquals("someCode", result.getTheObservationDto().getCd());
+    }
+
+    @Test
+    void testFindObservationByCode_TrimmedCodeMatching() {
+        Collection<ObservationContainer> coll = new ArrayList<>();
+        coll.add(createObservationContainer("  someCode  "));
+
+        ObservationContainer result = observationService.findObservationByCode(coll, "someCode");
+        assertEquals("  someCode  ", result.getTheObservationDto().getCd());
+    }
+
+    private ObservationContainer createObservationContainer(String code) {
+        ObservationDto observationDto = new ObservationDto();
+        observationDto.setCd(code);
+
+        ObservationContainer observationContainer = new ObservationContainer();
+        observationContainer.setTheObservationDto(observationDto);
+
+        return observationContainer;
     }
 }

@@ -781,7 +781,7 @@ public class ObservationService implements IObservationService {
 
     }
 
-    private NNDActivityLogDto updateLabResultWithAutoResendNotification(LabResultProxyContainer labResultProxyVO) throws DataProcessingException {
+    protected NNDActivityLogDto updateLabResultWithAutoResendNotification(LabResultProxyContainer labResultProxyVO) throws DataProcessingException {
         NNDActivityLogDto nndActivityLogDto = null;
         try
         {
@@ -1067,7 +1067,7 @@ public class ObservationService implements IObservationService {
         return returnVal;
     }
 
-    private ObservationContainer findObservationByCode(Collection<ObservationContainer> coll, String strCode)
+    protected ObservationContainer findObservationByCode(Collection<ObservationContainer> coll, String strCode)
     {
         if (coll == null)
         {
