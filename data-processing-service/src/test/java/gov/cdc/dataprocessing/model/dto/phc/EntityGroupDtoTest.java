@@ -48,7 +48,7 @@ class EntityGroupDtoTest {
         // Assert values
         assertEquals(1L, dto.getEntityGroupUid());
         assertEquals("AddReasonCd", dto.getAddReasonCd());
-        assertNull(dto.getAddTime());
+        assertNotNull(dto.getAddTime());
         assertNull(dto.getAddUserId());
         assertEquals("Cd", dto.getCd());
         assertEquals("CdDescTxt", dto.getCdDescTxt());
@@ -57,20 +57,20 @@ class EntityGroupDtoTest {
         assertEquals("DurationUnitCd", dto.getDurationUnitCd());
         assertNotNull(dto.getFromTime());
         assertEquals(3, dto.getGroupCnt());
-        assertNull(dto.getLastChgReasonCd());
-        assertNull(dto.getLastChgTime());
-        assertNull(dto.getLastChgUserId());
-        assertNull(dto.getLocalId());
+        assertNotNull(dto.getLastChgReasonCd());
+        assertNotNull(dto.getLastChgTime());
+        assertNotNull(dto.getLastChgUserId());
+        assertNotNull(dto.getLocalId());
         assertEquals("Nm", dto.getNm());
-        assertNull(dto.getRecordStatusCd());
-        assertNull(dto.getRecordStatusTime());
+        assertNotNull(dto.getRecordStatusCd());
+        assertNotNull(dto.getRecordStatusTime());
         assertNotNull(dto.getToTime());
         assertEquals("UserAffiliationTxt", dto.getUserAffiliationTxt());
-        assertNull(dto.getVersionCtrlNbr());
-        assertNull(dto.getProgAreaCd());
-        assertNull(dto.getJurisdictionCd());
-        assertNull(dto.getProgramJurisdictionOid());
-        assertNull(dto.getSharedInd());
+        assertNotNull(dto.getVersionCtrlNbr());
+        assertNotNull(dto.getProgAreaCd());
+        assertNotNull(dto.getJurisdictionCd());
+        assertNotNull(dto.getProgramJurisdictionOid());
+        assertNotNull(dto.getSharedInd());
         assertFalse(dto.isItDirty());
         assertTrue(dto.isItNew());
         assertFalse(dto.isItDelete());
@@ -108,8 +108,8 @@ class EntityGroupDtoTest {
         // Assert values
         assertEquals(1L, dto.getEntityGroupUid());
         assertEquals("AddReasonCd", dto.getAddReasonCd());
-        assertNull(dto.getAddTime());
-        assertNull(dto.getAddUserId());
+        assertNotNull(dto.getAddTime());
+        assertNotNull(dto.getAddUserId());
         assertEquals("Cd", dto.getCd());
         assertEquals("CdDescTxt", dto.getCdDescTxt());
         assertEquals("Description", dto.getDescription());
@@ -117,16 +117,16 @@ class EntityGroupDtoTest {
         assertEquals("DurationUnitCd", dto.getDurationUnitCd());
         assertNotNull(dto.getFromTime());
         assertEquals(3, dto.getGroupCnt());
-        assertNull(dto.getLastChgReasonCd());
-        assertNull(dto.getLastChgTime());
-        assertNull(dto.getLastChgUserId());
-        assertNull(dto.getLocalId());
+        assertNotNull(dto.getLastChgReasonCd());
+        assertNotNull(dto.getLastChgTime());
+        assertNotNull(dto.getLastChgUserId());
+        assertNotNull(dto.getLocalId());
         assertEquals("Nm", dto.getNm());
-        assertNull(dto.getRecordStatusCd());
-        assertNull(dto.getRecordStatusTime());
+        assertNotNull(dto.getRecordStatusCd());
+        assertNotNull(dto.getRecordStatusTime());
         assertNotNull(dto.getStatusCd());
         assertEquals("UserAffiliationTxt", dto.getUserAffiliationTxt());
-        assertNull(dto.getVersionCtrlNbr());
+        assertNotNull(dto.getVersionCtrlNbr());
     }
 
     @Test

@@ -86,156 +86,156 @@ public class NonPersonLivingSubjectDto extends BaseContainer implements RootDtoI
 
     @Override
     public Long getLastChgUserId() {
-        return null;
+        return lastChgUserId;
     }
 
     @Override
     public void setLastChgUserId(Long aLastChgUserId) {
-        // No operation needed for setLastChgUserId()
+        this.lastChgUserId = aLastChgUserId;
     }
 
     @Override
     public String getJurisdictionCd() {
-        return null;
+        return jurisdictionCd;
     }
 
     @Override
     public void setJurisdictionCd(String aJurisdictionCd) {
-        // No operation needed for setJurisdictionCd()
+        this.jurisdictionCd = aJurisdictionCd;
     }
 
     @Override
     public String getProgAreaCd() {
-        return null;
+        return progAreaCd;
     }
 
     @Override
     public void setProgAreaCd(String aProgAreaCd) {
-        // No operation needed for setProgAreaCd()
+        this.progAreaCd = aProgAreaCd;
     }
 
     @Override
     public Timestamp getLastChgTime() {
-        return null;
+        return lastChgTime;
     }
 
     @Override
     public void setLastChgTime(Timestamp aLastChgTime) {
-        // No operation needed for setLastChgTime()
+        this.lastChgTime = aLastChgTime;
     }
 
     @Override
     public String getLocalId() {
-        return null;
+        return localId;
     }
 
     @Override
     public void setLocalId(String aLocalId) {
-        // No operation needed for setLocalId()
+        this.localId = aLocalId;
     }
 
     @Override
     public Long getAddUserId() {
-        return null;
+        return addUserId;
     }
 
     @Override
     public void setAddUserId(Long aAddUserId) {
-        // No operation needed for setAddUserId()
+        this.addUserId = aAddUserId;
     }
 
     @Override
     public String getLastChgReasonCd() {
-        return null;
+        return lastChgReasonCd;
     }
 
     @Override
     public void setLastChgReasonCd(String aLastChgReasonCd) {
-        // No operation needed for setLastChgReasonCd()
+        this.lastChgReasonCd = aLastChgReasonCd;
     }
 
     @Override
     public String getRecordStatusCd() {
-        return null;
+        return recordStatusCd;
     }
 
     @Override
     public void setRecordStatusCd(String aRecordStatusCd) {
-        // No operation needed for setRecordStatusCd()
+        this.recordStatusCd = aRecordStatusCd;
     }
 
     @Override
     public Timestamp getRecordStatusTime() {
-        return null;
+        return recordStatusTime;
     }
 
     @Override
     public void setRecordStatusTime(Timestamp aRecordStatusTime) {
-        // No operation needed for setRecordStatusTime()
+        this.recordStatusTime = aRecordStatusTime;
     }
 
     @Override
     public String getStatusCd() {
-        return null;
+        return statusCd;
     }
 
     @Override
     public void setStatusCd(String aStatusCd) {
-        // No operation needed for setStatusCd()
+        this.statusCd = aStatusCd;
     }
 
     @Override
     public Timestamp getStatusTime() {
-        return null;
+        return statusTime;
     }
 
     @Override
     public void setStatusTime(Timestamp aStatusTime) {
-        // No operation needed for setStatusTime()
+        this.statusTime = aStatusTime;
     }
 
     @Override
     public String getSuperclass() {
-        return null;
+        return NonPersonLivingSubjectDto.class.getSuperclass().getSimpleName();
     }
 
     @Override
     public Long getUid() {
-        return null;
+        return nonPersonUid;
     }
 
     @Override
     public Timestamp getAddTime() {
-        return null;
+        return addTime;
     }
 
     @Override
     public void setAddTime(Timestamp aAddTime) {
-        // No operation needed for setAddTime()
+        this.addTime = aAddTime;
     }
 
     @Override
     public Long getProgramJurisdictionOid() {
-        return null;
+        return programJurisdictionOid;
     }
 
     @Override
     public void setProgramJurisdictionOid(Long aProgramJurisdictionOid) {
-        // No operation needed for setProgramJurisdictionOid()
+        this.programJurisdictionOid = aProgramJurisdictionOid;
     }
 
     @Override
     public String getSharedInd() {
-        return null;
+        return sharedInd;
     }
 
     @Override
     public void setSharedInd(String aSharedInd) {
-        // No operation needed for setSharedInd()
+        this.sharedInd = aSharedInd;
     }
 
     @Override
     public Integer getVersionCtrlNbr() {
-        return null;
+        return versionCtrlNbr;
     }
 }

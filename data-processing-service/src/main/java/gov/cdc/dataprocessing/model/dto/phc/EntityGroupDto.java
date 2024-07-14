@@ -105,92 +105,101 @@ public class EntityGroupDto extends BaseContainer implements RootDtoInterface {
 
     @Override
     public Long getLastChgUserId() {
-        return null;
+        return lastChgUserId;
     }
 
     @Override
     public void setLastChgUserId(Long aLastChgUserId) {
         // No operation needed for setLastChgUserId()
+        lastChgUserId = aLastChgUserId;
     }
 
     @Override
     public String getJurisdictionCd() {
-        return null;
+        return jurisdictionCd;
     }
 
     @Override
     public void setJurisdictionCd(String aJurisdictionCd) {
         // No operation needed for setJurisdictionCd()
+         jurisdictionCd = aJurisdictionCd;
     }
 
     @Override
     public String getProgAreaCd() {
-        return null;
+        return progAreaCd;
     }
 
     @Override
     public void setProgAreaCd(String aProgAreaCd) {
         // No operation needed for setProgAreaCd()
+        progAreaCd = aProgAreaCd;
     }
 
     @Override
     public Timestamp getLastChgTime() {
-        return null;
+        return lastChgTime;
     }
 
     @Override
     public void setLastChgTime(Timestamp aLastChgTime) {
         // No operation needed for setLastChgTime()
+        lastChgTime = aLastChgTime;
     }
 
     @Override
     public String getLocalId() {
-        return null;
+        return localId;
     }
 
     @Override
     public void setLocalId(String aLocalId) {
         // No operation needed for setLocalId()
+        localId = aLocalId;
     }
 
     @Override
     public Long getAddUserId() {
-        return null;
+        return addUserId;
     }
 
     @Override
     public void setAddUserId(Long aAddUserId) {
         // No operation needed for setAddUserId()
+        addUserId = addUserId;
     }
 
     @Override
     public String getLastChgReasonCd() {
-        return null;
+        return lastChgReasonCd;
     }
 
     @Override
     public void setLastChgReasonCd(String aLastChgReasonCd) {
         // No operation needed for setLastChgReasonCd()
+        lastChgReasonCd = aLastChgReasonCd;
     }
 
     @Override
     public String getRecordStatusCd() {
-        return null;
+        return recordStatusCd;
     }
 
     @Override
     public void setRecordStatusCd(String aRecordStatusCd) {
         // No operation needed for setRecordStatusCd()
+        recordStatusCd = aRecordStatusCd;
     }
 
     @Override
     public Timestamp getRecordStatusTime() {
-        return null;
+        return recordStatusTime;
     }
 
     @Override
     public void setRecordStatusTime(Timestamp aRecordStatusTime) {
         // No operation needed for setRecordStatusTime()
+        recordStatusTime = aRecordStatusTime;
     }
 
     @Override
@@ -201,16 +210,18 @@ public class EntityGroupDto extends BaseContainer implements RootDtoInterface {
     @Override
     public void setStatusCd(String aStatusCd) {
         // No operation needed for setStatusCd()
+        statusCd = aStatusCd;
     }
 
     @Override
     public Timestamp getStatusTime() {
-        return null;
+        return statusTime;
     }
 
     @Override
     public void setStatusTime(Timestamp aStatusTime) {
         // No operation needed for setStatusTime()
+        statusTime = aStatusTime;
     }
 
     @Override
@@ -225,36 +236,39 @@ public class EntityGroupDto extends BaseContainer implements RootDtoInterface {
 
     @Override
     public Timestamp getAddTime() {
-        return null;
+        return addTime;
     }
 
     @Override
     public void setAddTime(Timestamp aAddTime) {
         // No operation needed for setAddTime()
+        addTime = aAddTime;
     }
 
     @Override
     public Long getProgramJurisdictionOid() {
-        return null;
+        return programJurisdictionOid;
     }
 
     @Override
     public void setProgramJurisdictionOid(Long aProgramJurisdictionOid) {
         // No operation needed for setProgramJurisdictionOid()
+        programJurisdictionOid = aProgramJurisdictionOid;
     }
 
     @Override
     public String getSharedInd() {
-        return null;
+        return sharedInd;
     }
 
     @Override
     public void setSharedInd(String aSharedInd) {
         // No operation needed for setSharedInd()
+        sharedInd = aSharedInd;
     }
 
     @Override
     public Integer getVersionCtrlNbr() {
-        return null;
+        return versionCtrlNbr;
     }
 }

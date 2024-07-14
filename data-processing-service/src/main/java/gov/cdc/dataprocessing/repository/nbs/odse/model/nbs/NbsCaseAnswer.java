@@ -81,7 +81,6 @@ public class NbsCaseAnswer {
         this.recordStatusCd = nbsCaseAnswerDto.getRecordStatusCd();
         this.recordStatusTime = nbsCaseAnswerDto.getRecordStatusTime();
         this.seqNbr = nbsCaseAnswerDto.getSeqNbr();
-        this.answerLargeTxt = nbsCaseAnswerDto.getAnswerLargeTxt().toString();
         this.nbsTableMetadataUid = nbsCaseAnswerDto.getNbsTableMetadataUid();
         this.nbsUiMetadataVerCtrlNbr = nbsCaseAnswerDto.getNbsQuestionVersionCtrlNbr();
         this.answerGroupSeqNbr = nbsCaseAnswerDto.getAnswerGroupSeqNbr();
