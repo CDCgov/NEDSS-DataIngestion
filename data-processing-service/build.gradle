@@ -252,7 +252,7 @@ sonarqube {
 //                "**/DynamicBeanBinding.java",
 //                "**/WdsObjectChecker.java",
                 "**/AdvancedCriteria.java",
-//                "**/InvestigationService.java",
+                "**/InvestigationService.java",
 //                "**/ObservationRequestHandler.java",
 //                "**/InvestigationNotificationService.java",
 //                "**/ObservationMatchingService.java",
