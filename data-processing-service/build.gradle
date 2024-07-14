@@ -254,7 +254,7 @@ sonarqube {
 //                "**/AdvancedCriteria.java",
                 "**/InvestigationService.java",
                 "**/ObservationRequestHandler.java",
-//                "**/InvestigationNotificationService.java",
+                "**/InvestigationNotificationService.java",
 //                "**/ObservationMatchingService.java",
 //                "**/ContactSummaryService.java",
 //                "**/RetrieveSummaryService.java",
