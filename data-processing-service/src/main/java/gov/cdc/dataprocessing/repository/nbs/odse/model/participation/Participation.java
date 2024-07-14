@@ -3,11 +3,13 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.participation;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ParticipationId;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
-@Data
+@Getter
+@Setter
 @Entity
 @IdClass(ParticipationId.class)
 @Table(name = "Participation")

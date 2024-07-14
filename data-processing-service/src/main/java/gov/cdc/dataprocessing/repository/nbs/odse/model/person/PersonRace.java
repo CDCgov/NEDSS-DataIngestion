@@ -3,7 +3,8 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.person;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.PersonRaceId;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
@@ -12,7 +13,8 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
 @Entity
 @Table(name = "Person_race", schema = "dbo")
 @IdClass(PersonRaceId.class) // Specify the IdClass
-@Data
+@Getter
+@Setter
 public class PersonRace {
 
     @Id

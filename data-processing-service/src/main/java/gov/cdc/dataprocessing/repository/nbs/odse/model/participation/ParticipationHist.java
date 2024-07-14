@@ -3,14 +3,16 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.participation;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ParticipationHistId;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "Participation_hist")
-@Data
+@Getter
+@Setter
 @IdClass(ParticipationHistId.class)
 public class ParticipationHist implements Serializable {
     private static final long serialVersionUID = 1L;

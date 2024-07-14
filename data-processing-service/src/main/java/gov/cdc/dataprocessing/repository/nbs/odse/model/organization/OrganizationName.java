@@ -3,9 +3,11 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.organization;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.OrganizationNameId;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @Entity
 @IdClass(OrganizationNameId.class)
 @Table(name = "Organization_name")

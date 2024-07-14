@@ -3,14 +3,16 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.observation;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueDateDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ObsValueDateId;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "Obs_value_date")
-@Data
+@Getter
+@Setter
 @IdClass(ObsValueDateId.class)
 public class ObsValueDate implements Serializable {
     private static final long serialVersionUID = 1L;

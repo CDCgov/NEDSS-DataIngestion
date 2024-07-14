@@ -1,13 +1,15 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.lookup;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "LOOKUP_QUESTION")
 public class LookupQuestion implements Serializable {
 

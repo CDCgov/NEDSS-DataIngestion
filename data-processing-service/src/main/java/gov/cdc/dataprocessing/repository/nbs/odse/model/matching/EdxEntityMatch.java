@@ -3,11 +3,13 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.matching;
 
 import gov.cdc.dataprocessing.model.dto.matching.EdxEntityMatchDto;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "EDX_entity_match")
-@Data
+@Getter
+@Setter
 public class EdxEntityMatch {
 
     @Id

@@ -2,13 +2,15 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.observation;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "Observation")
-@Data
+@Getter
+@Setter
 public class Observation_Lab_Summary_ForWorkUp_New extends ObservationBase {
     private Long uid;
 

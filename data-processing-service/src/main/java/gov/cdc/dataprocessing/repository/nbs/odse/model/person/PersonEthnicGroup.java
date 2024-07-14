@@ -4,7 +4,8 @@ import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.PersonEthnicGroupId;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -12,7 +13,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "Person_ethnic_group", schema = "dbo")
 @IdClass(PersonEthnicGroupId.class) // Specify the IdClass
-@Data
+@Getter
+@Setter
 public class PersonEthnicGroup {
 
     @Column(name = "person_uid", nullable = false)

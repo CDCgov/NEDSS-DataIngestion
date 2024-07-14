@@ -2,12 +2,14 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.phc;
 
 import gov.cdc.dataprocessing.model.dto.phc.NonPersonLivingSubjectDto;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "Non_Person_living_subject")
 public class NonPersonLivingSubject {
     @Id

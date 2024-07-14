@@ -1,14 +1,16 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.nbs;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
 
 @Entity
 @Table(name = "NBS_ui_metadata")
-@Data
+@Getter
+@Setter
 public class NbsUiMetaData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

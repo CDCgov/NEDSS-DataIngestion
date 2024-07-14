@@ -3,12 +3,14 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.observation;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationInterpDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ObservationInterpId;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "Observation_interp")
 @IdClass(ObservationInterpId.class)

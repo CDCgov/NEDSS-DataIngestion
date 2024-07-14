@@ -1,8 +1,10 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.custom_model;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class QuestionRequiredNnd {
     private Long nbsQuestionUid;
     private String questionIdentifier;

@@ -2,13 +2,15 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.phc;
 
 import gov.cdc.dataprocessing.model.dto.phc.PlaceDto;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "Place")
 public class Place implements Serializable {
 

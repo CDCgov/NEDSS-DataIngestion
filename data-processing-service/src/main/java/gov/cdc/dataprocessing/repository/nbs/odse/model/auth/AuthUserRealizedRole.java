@@ -1,10 +1,12 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.auth;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
-@Data
+@Getter
+@Setter
 public class AuthUserRealizedRole {
     private String permSetNm;
     private Long authUserRoleUid;

@@ -3,14 +3,16 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.entity;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.EntityIdId;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
 import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
 
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "Entity_id")
 @IdClass(EntityIdId.class)

@@ -3,10 +3,12 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.observation;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationReasonDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ObservationReasonId;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "Observation_reason")
 @IdClass(ObservationReasonId.class)
