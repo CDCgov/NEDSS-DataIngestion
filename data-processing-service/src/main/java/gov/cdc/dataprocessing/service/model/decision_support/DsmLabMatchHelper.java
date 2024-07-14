@@ -52,12 +52,9 @@ public class DsmLabMatchHelper {
      * @param algorithmDocument
      */
     public DsmLabMatchHelper(Algorithm algorithmDocument) throws DataProcessingException {
-        try {
-            this.algorithm = algorithmDocument;
-            this.algorithmDocument = algorithmDocument;
-        } catch (Exception e) {
-            throw new DataProcessingException("ELR to Algorithm Matching Failed: DSMLabMatchHelper.Constructor Unable to process Container Document", e);
-        }
+        this.algorithm = algorithmDocument;
+        this.algorithmDocument = algorithmDocument;
+
         if (algorithm.getAlgorithmName() != null) {
             algorithmNm = algorithm.getAlgorithmName();
         }
