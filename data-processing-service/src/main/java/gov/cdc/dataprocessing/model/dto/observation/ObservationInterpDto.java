@@ -7,6 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class ObservationInterpDto extends BaseContainer {
 
     private Long observationUid;

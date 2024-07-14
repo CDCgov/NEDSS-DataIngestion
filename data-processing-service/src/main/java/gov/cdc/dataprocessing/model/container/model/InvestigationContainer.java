@@ -7,6 +7,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class InvestigationContainer extends LdfBaseContainer {
     private static final long serialVersionUID = 1L;
     public PublicHealthCaseContainer thePublicHealthCaseContainer;

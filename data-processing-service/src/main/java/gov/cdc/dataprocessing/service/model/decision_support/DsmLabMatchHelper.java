@@ -23,6 +23,7 @@ import java.util.*;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class DsmLabMatchHelper {
     static final String NULL_STRING = "null";
     //hold quick access values for this Workflow Decision Support algorithm

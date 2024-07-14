@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class EDXDocumentDto extends BaseContainer {
     private Long eDXDocumentUid;
     private Long actUid;

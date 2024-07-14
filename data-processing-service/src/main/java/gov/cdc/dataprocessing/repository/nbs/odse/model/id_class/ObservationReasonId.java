@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class ObservationReasonId implements Serializable {
     private Long observationUid;
     private String reasonCd;

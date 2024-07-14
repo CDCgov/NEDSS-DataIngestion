@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class JurisdictionParticipationId implements Serializable {
     private String jurisdictionCd;
     private String fipsCd;

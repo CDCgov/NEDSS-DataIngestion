@@ -8,6 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class WdsTrackerView {
     private List<WdsReport> wdsReport;
     PublicHealthCaseDto publicHealthCase;

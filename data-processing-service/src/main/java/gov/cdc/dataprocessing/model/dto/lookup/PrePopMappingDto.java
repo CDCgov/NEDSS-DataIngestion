@@ -8,6 +8,7 @@ import java.io.*;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class PrePopMappingDto extends BaseContainer {
 
     private static final long serialVersionUID = 1L;

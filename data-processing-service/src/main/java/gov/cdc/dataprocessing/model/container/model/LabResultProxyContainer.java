@@ -12,6 +12,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class LabResultProxyContainer extends PageActProxyContainer {
     @Serial
     private static final long serialVersionUID = 1L;

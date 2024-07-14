@@ -17,6 +17,7 @@ import java.util.Collection;
 
 @Setter
 @Getter
+@SuppressWarnings("all")
 public class PersonContainer extends LdfBaseContainer implements Serializable {
     public PersonDto thePersonDto = new PersonDto();
     public Collection<PersonNameDto> thePersonNameDtoCollection =new ArrayList<>();

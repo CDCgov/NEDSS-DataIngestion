@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class TestNumericValue {
         private String testCode;
         private String testCodeDesc;

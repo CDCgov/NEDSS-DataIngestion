@@ -10,6 +10,7 @@ import lombok.Setter;
 import java.sql.Timestamp;
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class PersonNameDto
         extends BaseContainer implements RootDtoInterface {
     private Long personUid;

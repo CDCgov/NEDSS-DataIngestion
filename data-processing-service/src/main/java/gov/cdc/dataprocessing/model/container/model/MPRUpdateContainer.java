@@ -7,6 +7,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class MPRUpdateContainer {
     private PersonContainer mpr = null;
     private Collection<PersonContainer> personVOs = null;

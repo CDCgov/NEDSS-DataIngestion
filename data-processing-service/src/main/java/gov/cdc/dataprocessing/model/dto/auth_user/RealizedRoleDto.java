@@ -5,9 +5,10 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUserRealizedRol
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
 @Getter
-public class RealizedRoleDto extends BaseContainer
+@Setter
+@SuppressWarnings("all")
+public  class RealizedRoleDto extends BaseContainer
 {
     private static final long serialVersionUID = 1L;
     private String roleName;

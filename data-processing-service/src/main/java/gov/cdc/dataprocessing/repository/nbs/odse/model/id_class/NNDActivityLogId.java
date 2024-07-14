@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class NNDActivityLogId implements Serializable {
     private Long nndActivityLogUid;
     private Integer nndActivityLogSeq;

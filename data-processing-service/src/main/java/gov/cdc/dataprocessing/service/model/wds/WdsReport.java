@@ -9,6 +9,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class WdsReport {
     private WdsValueCodedReport wdsValueCodedReport;
     private List<WdsValueTextReport> wdsValueTextReportList = new ArrayList<>();

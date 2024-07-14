@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Map;
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class DocumentSummaryContainer extends BaseContainer implements RootDtoInterface {
     private static final long serialVersionUID = 1L;
     private Long nbsDocumentUid;

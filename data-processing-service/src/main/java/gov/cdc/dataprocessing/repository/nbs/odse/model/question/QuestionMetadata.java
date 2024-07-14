@@ -7,6 +7,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class QuestionMetadata {
     private Long nbsQuestionUid;
     private Timestamp addTime;

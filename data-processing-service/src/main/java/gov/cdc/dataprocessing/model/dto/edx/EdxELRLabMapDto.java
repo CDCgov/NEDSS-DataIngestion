@@ -7,6 +7,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class EdxELRLabMapDto {
     private Long subjectEntityUid;
     private String roleCd;

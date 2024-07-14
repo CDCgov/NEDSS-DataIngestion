@@ -13,6 +13,7 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class OrganizationNameDto extends BaseContainer implements RootDtoInterface {
     private Long organizationUid;
     private Integer organizationNameSeq;

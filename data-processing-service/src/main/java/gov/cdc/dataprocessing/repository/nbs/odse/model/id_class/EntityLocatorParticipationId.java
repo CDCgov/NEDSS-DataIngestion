@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class EntityLocatorParticipationId implements Serializable {
     private Long entityUid;
     private Long locatorUid;

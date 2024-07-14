@@ -9,6 +9,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class ObsValueCodedDto extends BaseContainer
 {
 

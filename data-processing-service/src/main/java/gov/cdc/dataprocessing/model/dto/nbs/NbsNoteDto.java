@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class NbsNoteDto extends BaseContainer implements RootDtoInterface {
 
     private Long nbsNoteUid;

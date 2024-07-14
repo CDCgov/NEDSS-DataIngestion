@@ -13,6 +13,7 @@ import java.util.Map;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class EDXActivityLogDto extends BaseContainer implements Serializable {
 
     private static final long serialVersionUID = 1L;

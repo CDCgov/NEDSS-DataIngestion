@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class NotificationSummaryContainer extends BaseContainer implements RootDtoInterface {
 
     private Long notificationUid;

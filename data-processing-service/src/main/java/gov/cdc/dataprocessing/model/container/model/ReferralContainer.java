@@ -10,6 +10,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class ReferralContainer  extends BaseContainer implements Serializable
 {
     private static final long serialVersionUID = 1L;

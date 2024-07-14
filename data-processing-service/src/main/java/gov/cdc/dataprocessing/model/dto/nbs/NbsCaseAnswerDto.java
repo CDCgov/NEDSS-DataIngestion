@@ -6,6 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class NbsCaseAnswerDto extends NbsAnswerDto {
     private static final long serialVersionUID = 1L;
     private Long nbsCaseAnswerUid;

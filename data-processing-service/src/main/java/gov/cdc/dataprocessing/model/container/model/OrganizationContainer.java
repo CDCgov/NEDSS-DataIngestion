@@ -14,6 +14,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class OrganizationContainer extends LdfBaseContainer {
 //    public OrganizationDto theOrganizationDto = new OrganizationDto();
 //    public Collection<OrganizationNameDto> theOrganizationNameDtoCollection;

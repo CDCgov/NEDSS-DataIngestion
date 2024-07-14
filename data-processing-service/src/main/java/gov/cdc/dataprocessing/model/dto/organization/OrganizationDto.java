@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class OrganizationDto extends BaseContainer implements RootDtoInterface {
     private Long organizationUid;
     private String addReasonCd;

@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class MetaAndWaCommonAttribute {
     private Long id;
     private Long questionUid;

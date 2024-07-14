@@ -5,6 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class PersonId {
     public Long personId; //NOSONAR
     public Long personParentId; //NOSONAR

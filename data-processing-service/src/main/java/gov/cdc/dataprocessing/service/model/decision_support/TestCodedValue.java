@@ -5,6 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class TestCodedValue {
 
     private String testCode;

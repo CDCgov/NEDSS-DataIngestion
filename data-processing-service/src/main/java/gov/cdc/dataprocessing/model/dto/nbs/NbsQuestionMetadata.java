@@ -13,6 +13,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class NbsQuestionMetadata extends BaseContainer {
 
     private static final long serialVersionUID = 1L;

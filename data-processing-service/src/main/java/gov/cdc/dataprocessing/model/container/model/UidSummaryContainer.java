@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class UidSummaryContainer extends BaseContainer implements RootDtoInterface {
     private Long uid;
     private Timestamp addTime;

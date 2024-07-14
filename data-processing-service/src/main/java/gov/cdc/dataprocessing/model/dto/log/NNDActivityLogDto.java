@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class NNDActivityLogDto extends BaseContainer
 {
     private Long nndActivityLogUid;

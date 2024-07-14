@@ -15,6 +15,7 @@ import java.util.Map;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class EdxRuleAlgorothmManagerDto implements Serializable {
     private static final long serialVersionUID = 1L;
     private String updateAction;

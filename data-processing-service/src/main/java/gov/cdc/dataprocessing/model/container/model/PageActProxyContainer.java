@@ -18,6 +18,7 @@ import java.util.Map;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class PageActProxyContainer extends BaseContainer {
     private static final long         serialVersionUID = 1L;
 

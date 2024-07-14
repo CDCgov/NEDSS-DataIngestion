@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class StateDefinedFieldDataDto extends BaseContainer
 {
     private Long ldfUid;

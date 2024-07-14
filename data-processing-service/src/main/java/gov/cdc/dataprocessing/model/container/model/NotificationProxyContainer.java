@@ -8,6 +8,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class NotificationProxyContainer extends BaseContainer
 {
     private static final long serialVersionUID = 1L;

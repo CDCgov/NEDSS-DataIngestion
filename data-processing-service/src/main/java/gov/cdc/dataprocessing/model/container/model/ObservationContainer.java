@@ -14,6 +14,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class ObservationContainer extends BaseContainer {
     private static final long serialVersionUID = 1L;
     private ObservationDto theObservationDto = new ObservationDto();

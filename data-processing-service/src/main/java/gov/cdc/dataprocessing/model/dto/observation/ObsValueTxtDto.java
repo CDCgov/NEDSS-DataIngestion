@@ -7,6 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class ObsValueTxtDto extends BaseContainer
 {
 

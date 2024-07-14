@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class CaseManagementDto extends BaseContainer {
     private static final long serialVersionUID = -5127476121435352079L;
 

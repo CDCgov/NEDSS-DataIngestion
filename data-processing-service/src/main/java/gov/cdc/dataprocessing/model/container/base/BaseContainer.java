@@ -8,6 +8,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class BaseContainer implements Serializable, Cloneable
 {
     public BaseContainer()

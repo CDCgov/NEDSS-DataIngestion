@@ -8,6 +8,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class ObsValueTxtId implements Serializable {
     private Long observationUid;
     private Integer obsValueTxtSeq;

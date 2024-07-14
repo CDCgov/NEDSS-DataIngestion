@@ -9,6 +9,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class EntityGroupContainer extends BaseContainer {
     public Collection<Object> theEntityLocatorParticipationDTCollection;
     public Collection<Object> theEntityIdDTCollection;

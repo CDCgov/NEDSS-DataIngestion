@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class TeleLocatorDto extends BaseContainer {
     private Long teleLocatorUid;
     private String addReasonCd;

@@ -10,6 +10,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class ClinicalDocumentDto extends BaseContainer implements RootDtoInterface
 {
     private static final long serialVersionUID = 1L;

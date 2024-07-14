@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class ObsValueNumericDto extends BaseContainer
 {
     private String numericValue;

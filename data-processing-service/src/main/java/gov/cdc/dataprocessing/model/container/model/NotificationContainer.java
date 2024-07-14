@@ -14,6 +14,8 @@ import java.util.Collection;
 
 @Setter
 @Getter
+@SuppressWarnings("all")
+
 public class NotificationContainer extends BaseContainer {
     private static final long serialVersionUID = 1L;
     private NotificationDto theNotificationDT = new NotificationDto();

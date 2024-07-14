@@ -10,6 +10,7 @@ import java.util.Map;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class CTContactSummaryDto extends BaseContainer implements RootDtoInterface {
 
     private static final long serialVersionUID = 1L;

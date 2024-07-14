@@ -19,6 +19,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class PublicHealthCaseContainer extends BaseContainer {
     private static final long serialVersionUID = 1L;
     //  private boolean itNew = false;

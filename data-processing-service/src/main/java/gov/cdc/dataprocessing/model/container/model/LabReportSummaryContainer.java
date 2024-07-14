@@ -13,6 +13,7 @@ import java.util.Map;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class LabReportSummaryContainer extends BaseContainer implements RootDtoInterface, Comparable<LabReportSummaryContainer>, ReportSummaryInterface {
     private static final long serialVersionUID = 1L;
     private boolean isTouched;

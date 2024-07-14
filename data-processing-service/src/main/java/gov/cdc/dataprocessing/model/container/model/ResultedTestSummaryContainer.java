@@ -11,6 +11,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class ResultedTestSummaryContainer extends BaseContainer implements RootDtoInterface {
     private Long sourceActUid;
     private String localId;

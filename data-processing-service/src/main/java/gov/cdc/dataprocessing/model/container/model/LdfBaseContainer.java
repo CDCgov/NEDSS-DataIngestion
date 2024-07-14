@@ -12,6 +12,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class LdfBaseContainer extends BaseContainer {
     private static final long serialVersionUID = 1L;
     private Collection<Object> ldfUids;

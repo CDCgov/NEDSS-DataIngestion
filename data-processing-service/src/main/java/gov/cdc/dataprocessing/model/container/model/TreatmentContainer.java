@@ -11,6 +11,7 @@ import java.util.Map;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class TreatmentContainer extends BaseContainer implements RootDtoInterface {
 
     private String arTypeCd;

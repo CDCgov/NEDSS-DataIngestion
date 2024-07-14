@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class PersonRaceDto extends BaseContainer implements RootDtoInterface {
 
     private Long personUid;

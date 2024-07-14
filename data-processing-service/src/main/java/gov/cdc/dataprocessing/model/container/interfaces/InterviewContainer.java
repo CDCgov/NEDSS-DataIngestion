@@ -10,6 +10,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class InterviewContainer extends BaseContainer {
     private static final long serialVersionUID = 1L;
     private InterviewDto theInterviewDto = new InterviewDto();

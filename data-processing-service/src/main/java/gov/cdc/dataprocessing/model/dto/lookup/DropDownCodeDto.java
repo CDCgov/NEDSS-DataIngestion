@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class DropDownCodeDto  extends BaseContainer implements RootDtoInterface {
 
     private String key;

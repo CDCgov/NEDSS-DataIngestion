@@ -20,6 +20,7 @@ import java.util.*;
  */
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDto implements Serializable {
 
     private static final long serialVersionUID = 1L;

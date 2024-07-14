@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class DSMUpdateAlgorithmDto extends BaseContainer implements RootDtoInterface {
 
     private static final long serialVersionUID = 1L;

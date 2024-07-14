@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class NbsInterfaceModel {
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY )

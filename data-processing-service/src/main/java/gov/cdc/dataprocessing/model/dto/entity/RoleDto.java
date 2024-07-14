@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class RoleDto extends BaseContainer {
     private Long roleSeq;
     private String addReasonCd;
