@@ -3,148 +3,282 @@ package gov.cdc.dataprocessing.utilities.component.wds;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleManageDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
+import gov.cdc.dataprocessing.utilities.StringUtils;
+import gov.cdc.dataprocessing.utilities.TestBean;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.Timestamp;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
 
-class WdsObjectCheckerTest {
+public class WdsObjectCheckerTest {
 
-    @InjectMocks
     private WdsObjectChecker wdsObjectChecker;
 
-    private EdxRuleManageDto edxRuleManageDto;
-    private NbsQuestionMetadata metaData;
-    private TestObject testObject;
-
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        edxRuleManageDto = mock(EdxRuleManageDto.class);
-        metaData = mock(NbsQuestionMetadata.class);
-        testObject = new TestObject();
+    public void setUp() {
+        wdsObjectChecker = new WdsObjectChecker();
     }
 
     @Test
-    void testCheckNbsObject_TextEquals() {
-        testObject.setSampleText("testValue");
-        when(metaData.getDataLocation()).thenReturn("testObject.sampleText");
-        when(metaData.getDataType()).thenReturn(NEDSSConstant.NBS_QUESTION_DATATYPE_TEXT);
-        when(edxRuleManageDto.getLogic()).thenReturn("=");
-        when(edxRuleManageDto.getValue()).thenReturn("testValue");
+    public void testCheckNbsObjectTextEquals() throws Exception {
+        TestBean bean = new TestBean();
+        bean.setStringValue("test");
 
-        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDto, testObject, metaData);
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+        metaData.setDataType("TEXT");
+        metaData.setDataLocation("STRING_VALUE");
+
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setLogic("=");
+        edxRuleManageDT.setValue("test");
+
+        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDT, bean, metaData);
         assertTrue(result);
     }
 
     @Test
-    void testCheckNbsObject_TextNotEquals() {
-        testObject.setSampleText("testValue");
-        when(metaData.getDataLocation()).thenReturn("testObject.sampleText");
-        when(metaData.getDataType()).thenReturn(NEDSSConstant.NBS_QUESTION_DATATYPE_TEXT);
-        when(edxRuleManageDto.getLogic()).thenReturn("!=");
-        when(edxRuleManageDto.getValue()).thenReturn("differentValue");
+    public void testCheckNbsObjectTextNotEquals() throws Exception {
+        TestBean bean = new TestBean();
+        bean.setStringValue("test");
 
-        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDto, testObject, metaData);
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+        metaData.setDataType("TEXT");
+        metaData.setDataLocation("STRING_VALUE");
+
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setLogic("!=");
+        edxRuleManageDT.setValue("different");
+
+        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDT, bean, metaData);
         assertTrue(result);
     }
 
     @Test
-    void testCheckNbsObject_DateEquals() throws Exception {
-        Timestamp timestamp = Timestamp.valueOf("2022-12-31 00:00:00.0");
-        testObject.setSampleTimestamp(timestamp);
-        when(metaData.getDataLocation()).thenReturn("testObject.sampleTimestamp");
-        when(metaData.getDataType()).thenReturn(NEDSSConstant.NBS_QUESTION_DATATYPE_DATE);
-        when(edxRuleManageDto.getLogic()).thenReturn("=");
-        when(edxRuleManageDto.getValue()).thenReturn("12/31/2022 00:00:00");
+    public void testCheckNbsObjectTextContains() throws Exception {
+        TestBean bean = new TestBean();
+        bean.setStringValue("test,example");
 
-        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDto, testObject, metaData);
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+        metaData.setDataType("TEXT");
+        metaData.setDataLocation("STRING_VALUE");
+
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setLogic("CT");
+        edxRuleManageDT.setValue("example");
+
+        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDT, bean, metaData);
         assertTrue(result);
     }
 
     @Test
-    void testCheckNbsObject_DateNotEquals() throws Exception {
-        Timestamp timestamp = Timestamp.valueOf("2022-12-31 00:00:00.0");
-        testObject.setSampleTimestamp(timestamp);
-        when(metaData.getDataLocation()).thenReturn("testObject.sampleTimestamp");
-        when(metaData.getDataType()).thenReturn(NEDSSConstant.NBS_QUESTION_DATATYPE_DATE);
-        when(edxRuleManageDto.getLogic()).thenReturn("!=");
-        when(edxRuleManageDto.getValue()).thenReturn("01/01/2023 00:00:00");
+    public void testCheckNbsObjectNumericGreaterThan() throws Exception {
+        TestBean bean = new TestBean();
+        bean.setLongValue(20L);
 
-        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDto, testObject, metaData);
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+        metaData.setDataType("NUMERIC");
+        metaData.setDataLocation("LONG_VALUE");
+
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setLogic(">");
+        edxRuleManageDT.setValue("10");
+
+        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDT, bean, metaData);
         assertTrue(result);
     }
 
     @Test
-    void testCheckNbsObject_NumericGreaterThan() {
-        testObject.setSampleNumber(10L);
-        when(metaData.getDataLocation()).thenReturn("testObject.sampleNumber");
-        when(metaData.getDataType()).thenReturn(NEDSSConstant.NBS_QUESTION_DATATYPE_NUMERIC);
-        when(edxRuleManageDto.getLogic()).thenReturn(">");
-        when(edxRuleManageDto.getValue()).thenReturn("5");
+    public void testCheckNbsObjectNumericLessThan() throws Exception {
+        TestBean bean = new TestBean();
+        bean.setLongValue(5L);
 
-        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDto, testObject, metaData);
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+        metaData.setDataType("NUMERIC");
+        metaData.setDataLocation("LONG_VALUE");
+
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setLogic("<");
+        edxRuleManageDT.setValue("10");
+
+        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDT, bean, metaData);
         assertTrue(result);
     }
 
     @Test
-    void testCheckNbsObject_NumericLessThan() {
-        testObject.setSampleNumber(3L);
-        when(metaData.getDataLocation()).thenReturn("testObject.sampleNumber");
-        when(metaData.getDataType()).thenReturn(NEDSSConstant.NBS_QUESTION_DATATYPE_NUMERIC);
-        when(edxRuleManageDto.getLogic()).thenReturn("<");
-        when(edxRuleManageDto.getValue()).thenReturn("5");
+    public void testCheckNbsObjectDateEquals() throws Exception {
+        TestBean bean = new TestBean();
+        Timestamp timestamp = Timestamp.valueOf("2023-01-01 00:00:00");
+        bean.setTimestampValue(timestamp);
 
-        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDto, testObject, metaData);
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+        metaData.setDataType("DATETIME");
+        metaData.setDataLocation("TIMESTAMP_VALUE");
+
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setLogic("=");
+        edxRuleManageDT.setValue("01/01/2023");
+
+        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDT, bean, metaData);
         assertTrue(result);
     }
 
     @Test
-    void testCheckNbsObject_InvalidMethod() {
-        when(metaData.getDataLocation()).thenReturn("testObject.invalidField");
-        when(metaData.getDataType()).thenReturn(NEDSSConstant.NBS_QUESTION_DATATYPE_TEXT);
-        when(edxRuleManageDto.getLogic()).thenReturn("=");
-        when(edxRuleManageDto.getValue()).thenReturn("value");
+    public void testCheckNbsObjectNullValueNotEquals() throws Exception {
+        TestBean bean = new TestBean();
+        bean.setStringValue(null);
 
-        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDto, testObject, metaData);
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+        metaData.setDataType("TEXT");
+        metaData.setDataLocation("STRING_VALUE");
+
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setLogic("!=");
+
+        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDT, bean, metaData);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testCheckNbsObjectNullValueEquals() throws Exception {
+        TestBean bean = new TestBean();
+        bean.setStringValue(null);
+
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+        metaData.setDataType("TEXT");
+        metaData.setDataLocation("STRING_VALUE");
+
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setLogic("=");
+
+        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDT, bean, metaData);
         assertFalse(result);
     }
 
-    // Test object for method invocation
-    private static class TestObject {
-        private String sampleText;
-        private Timestamp sampleTimestamp;
-        private Long sampleNumber;
+    @Test
+    public void testCheckNbsObjectGreaterThanEquals() throws Exception {
+        TestBean bean = new TestBean();
+        bean.setLongValue(20L);
 
-        public String getSampleText() {
-            return sampleText;
-        }
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+        metaData.setDataType("NUMERIC");
+        metaData.setDataLocation("LONG_VALUE");
 
-        public void setSampleText(String sampleText) {
-            this.sampleText = sampleText;
-        }
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setLogic(">=");
+        edxRuleManageDT.setValue("20");
 
-        public Timestamp getSampleTimestamp() {
-            return sampleTimestamp;
-        }
-
-        public void setSampleTimestamp(Timestamp sampleTimestamp) {
-            this.sampleTimestamp = sampleTimestamp;
-        }
-
-        public Long getSampleNumber() {
-            return sampleNumber;
-        }
-
-        public void setSampleNumber(Long sampleNumber) {
-            this.sampleNumber = sampleNumber;
-        }
+        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDT, bean, metaData);
+        assertTrue(result);
     }
+
+    @Test
+    public void testCheckNbsObjectLessThanEquals() throws Exception {
+        TestBean bean = new TestBean();
+        bean.setLongValue(5L);
+
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+        metaData.setDataType("NUMERIC");
+        metaData.setDataLocation("LONG_VALUE");
+
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setLogic("<=");
+        edxRuleManageDT.setValue("5");
+
+        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDT, bean, metaData);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testCheckNbsObjectDateNotEquals() throws Exception {
+        TestBean bean = new TestBean();
+        Timestamp timestamp = Timestamp.valueOf("2023-01-01 00:00:00");
+        bean.setTimestampValue(timestamp);
+
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+        metaData.setDataType("DATETIME");
+        metaData.setDataLocation("TIMESTAMP_VALUE");
+
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setLogic("!=");
+        edxRuleManageDT.setValue("01/02/2023");
+
+        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDT, bean, metaData);
+        assertTrue(result);
+    }
+
+
+
+
+
+    @Test
+    public void testCheckNbsObjectNullMetaData() {
+        TestBean bean = new TestBean();
+        bean.setStringValue("test");
+
+        NbsQuestionMetadata metaData = null;
+
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setLogic("=");
+
+        Exception exception = assertThrows(NullPointerException.class, () -> {
+            wdsObjectChecker.checkNbsObject(edxRuleManageDT, bean, metaData);
+        });
+
+        assertNotNull(exception);
+    }
+
+
+    @Test
+    public void testCheckNbsObjectInvalidGetMethod() {
+        TestBean bean = new TestBean();
+        bean.setStringValue("test");
+
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+        metaData.setDataType("TEXT");
+        metaData.setDataLocation("INVALID_METHOD");
+
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setLogic("=");
+
+        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDT, bean, metaData);
+        assertFalse(result);
+    }
+
+    @Test
+    public void testCheckNbsObjectInvalidDataType() {
+        TestBean bean = new TestBean();
+        bean.setStringValue("test");
+
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+        metaData.setDataType("INVALID_TYPE");
+        metaData.setDataLocation("STRING_VALUE");
+
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setLogic("=");
+
+        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDT, bean, metaData);
+        assertFalse(result);
+    }
+
+    @Test
+    public void testCheckNbsObjectElseBlock() throws Exception {
+        TestBean bean = new TestBean();
+        bean.setStringValue("test");
+
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+        metaData.setDataType("NUMERIC");
+        metaData.setDataLocation("STRING_VALUE");
+
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setLogic("INVALID_LOGIC");
+
+        boolean result = wdsObjectChecker.checkNbsObject(edxRuleManageDT, bean, metaData);
+        assertFalse(result);
+    }
+
+    // Additional test cases for other scenarios...
 }

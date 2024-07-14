@@ -23,8 +23,7 @@ public class WdsObjectChecker {
         Class<?> phcClass = object.getClass();
         try {
             Method[] methodList = phcClass.getDeclaredMethods();
-            for (Method item : methodList) {
-                Method method = item;
+            for (Method method : methodList) {
                 if (method.getName().equalsIgnoreCase(getMethodName)) {
                     //System.out.println(method.getName());
                     Object ob = method.invoke(object, (Object[]) null);
@@ -143,6 +142,5 @@ public class WdsObjectChecker {
         }
         return false;
     }
-
 
 }

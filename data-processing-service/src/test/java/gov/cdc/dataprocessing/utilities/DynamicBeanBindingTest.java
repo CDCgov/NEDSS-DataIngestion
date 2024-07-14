@@ -113,41 +113,4 @@ public class DynamicBeanBindingTest {
         });
         assertTrue(exception.getCause() instanceof NumberFormatException);
     }
-
-//    @Test
-//    public void testPopulateBeanWithIllegalAccessException() {
-//        Exception exception = assertThrows(Exception.class, () -> {
-//            DynamicBeanBinding.populateBean(new PrivateBean(), "private_field", "test");
-//        });
-//        assertTrue(exception.getCause() instanceof IllegalAccessException);
-//    }
-//
-//    @Test
-//    public void testPopulateBeanWithIllegalArgumentException() {
-//        TestBean bean = new TestBean();
-//        Exception exception = assertThrows(Exception.class, () -> {
-//            DynamicBeanBinding.populateBean(bean, "boolean_value", "not_a_boolean");
-//        });
-//        assertTrue(exception.getCause() instanceof IllegalArgumentException);
-//    }
-//
-//    @Test
-//    public void testPopulateBeanWithSecurityException() {
-//        Exception exception = assertThrows(Exception.class, () -> {
-//            DynamicBeanBinding.getMethods(null);
-//        });
-//        assertTrue(exception.getCause() instanceof SecurityException);
-//    }
-
-    private static class PrivateBean {
-        private String privateField;
-
-        private String getPrivateField() {
-            return privateField;
-        }
-
-        private void setPrivateField(String privateField) {
-            this.privateField = privateField;
-        }
-    }
 }
