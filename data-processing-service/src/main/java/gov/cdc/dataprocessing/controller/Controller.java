@@ -13,19 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/data-processing-svc/rti")
-@RequiredArgsConstructor
 @Slf4j
 public class Controller {
-    private final IManagerService managerService;
 
     @Autowired
-    public Controller(ManagerService managerService) {
-        this.managerService = managerService;
+    public Controller() {
+
     }
 
     @GetMapping("/status")
     public ResponseEntity<String> getDataPipelineStatusHealth() {
-        log.info("Data Processing Service Status OK");
         return ResponseEntity.status(HttpStatus.OK).body("Data Processing Service Status OK");
     }
 }
