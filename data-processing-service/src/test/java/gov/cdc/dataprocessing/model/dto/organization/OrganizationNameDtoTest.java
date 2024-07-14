@@ -10,6 +10,15 @@ import static org.junit.jupiter.api.Assertions.*;
 class OrganizationNameDtoTest {
 
     @Test
+    void testGetAndSetOrg() {
+        OrganizationDto dto = new OrganizationDto();
+        dto.setOrganizationUid(1L);
+
+        assertNotNull(dto.getSuperclass());
+        assertNotNull(dto.getUid());
+    }
+
+    @Test
     void testGettersAndSetters() {
         OrganizationNameDto dto = new OrganizationNameDto();
 

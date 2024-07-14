@@ -25,6 +25,13 @@ class NbsNoteDtoTest {
         dto.setPrivateIndCd("PrivateIndCd");
         dto.setTypeCd("TypeCd");
         dto.setLastChgUserNm("LastChgUserNm");
+        dto.setJurisdictionCd("TEST");
+        dto.setProgAreaCd("TEST");
+        dto.setLocalId("TEST");
+        dto.setLastChgReasonCd("TEST");
+        dto.setStatusTime(null);
+        dto.setProgramJurisdictionOid(null);
+        dto.setSharedInd(null);
 
         // Assert values
         assertEquals(1L, dto.getNbsNoteUid());

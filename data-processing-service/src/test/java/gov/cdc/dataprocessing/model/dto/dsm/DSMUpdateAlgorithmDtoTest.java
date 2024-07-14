@@ -85,5 +85,7 @@ class DSMUpdateAlgorithmDtoTest {
         assertEquals(1L, dto.getDsmUpdateAlgorithmUid());
         assertEquals(3L, dto.getLastChgUserId());
         assertNotNull(dto.getLastChgTime());
+        assertNotNull(dto.getSuperclass());
+        assertNotNull(dto.getUid());
     }
 }

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.Timestamp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ActIdDtoTest {
 
@@ -100,6 +101,8 @@ class ActIdDtoTest {
         assertEquals(jurisdictionCd, dto.getJurisdictionCd());
         assertEquals(programJurisdictionOid, dto.getProgramJurisdictionOid());
         assertEquals(sharedInd, dto.getSharedInd());
+        assertNotNull(dto.getSuperclass());
+        assertNotNull(dto.getUid());
     }
 
     @Test
