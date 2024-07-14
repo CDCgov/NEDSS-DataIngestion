@@ -1,8 +1,11 @@
 package gov.cdc.dataingestion.rawmessage.dto;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class RawERLDto {
 
     private String id;
